@@ -1,0 +1,33 @@
+# Makefile for busybox
+#
+# Copyright (C) 1999-2005 by Erik Andersen <andersen@codepoet.org>
+#
+# Licensed under the GPL v2, see the file LICENSE in this tarball.
+
+lib-y:=
+lib-$(CONFIG_AK)	+= app/ak/ak.o
+lib-$(CONFIG_BCK)  	+= app/bck/bck.o
+lib-$(CONFIG_BENV)    	+= app/benv/benv.o
+lib-$(CONFIG_DOG)    	+= app/dog/dog.o
+lib-$(CONFIG_FCOOKIE)  	+= app/fcookie/fcookie.o
+lib-$(CONFIG_GUARD)    	+= app/guard/guard.o
+lib-$(CONFIG_JLOGGER)	+= app/jlogger/jlogger.o
+lib-$(CONFIG_JLOGD)    	+= app/jlogd/jlogd.o
+lib-$(CONFIG_OTP)    	+= app/otp/otp.o
+lib-$(CONFIG_PPP_DIAL)	+= app/3g/ppp_dial.o
+lib-$(CONFIG_RT)    	+= app/rt/rt.o
+lib-$(CONFIG_SMC)	+= app/smc/smc.o
+lib-$(CONFIG_SMD)	+= app/smd/smd.o
+lib-$(CONFIG_SYS)    	+= app/sys/sys.o
+lib-$(CONFIG_TMC)  	+= app/tmc/tmc.o
+lib-$(CONFIG_TMD)  	+= app/tmd/tmd.o
+lib-$(CONFIG_TTYUSB0)	+= app/3g/ttyUSB0.o
+lib-$(CONFIG_TTYUSB1)	+= app/3g/ttyUSB1.o
+lib-$(CONFIG_TTYUSB2)	+= app/3g/ttyUSB2.o
+lib-$(CONFIG_TTYUSB3)	+= app/3g/ttyUSB3.o
+lib-$(CONFIG_UMC)  	+= app/umc/umc.o
+lib-$(CONFIG_UMD)  	+= app/umd/umd.o
+lib-$(CONFIG_UMD)  	+= app/umd/cli.o
+lib-$(CONFIG_UMD)  	+= app/umd/flow.o
+lib-$(CONFIG_UMD)  	+= app/umd/timer.o
+lib-$(CONFIG_UMD)  	+= app/umd/user.o

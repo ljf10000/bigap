@@ -1,0 +1,176 @@
+#
+# For a description of the syntax of this configuration file,
+# see scripts/kbuild/config-language.txt.
+#
+
+menu "Bigap Utils"
+
+config AK
+	bool "ak"
+	default y
+	help
+	  ak
+
+config BCK
+	bool "bck"
+	default y
+	help
+	  bck
+
+config BENV
+	bool "benv"
+	default y
+	help
+	  benv
+
+config DOG
+	bool "dog"
+	default y
+	help
+	  dog
+
+config FCOOKIE
+	bool "fcookie"
+	default y
+	help
+	  fcookie
+
+config GUARD
+	bool "guard"
+	default y
+	help
+	  guard
+
+config JLOGGER
+	bool "jlogger"
+	default y
+	help
+	  jlogger
+
+config JLOGD
+	bool "jlogd"
+	default y
+	help
+	  jlogd
+
+config OTP
+	bool "otp"
+	default y
+	help
+	  otp
+
+config PPP_DIAL
+	bool "ppp_dial"
+	default y
+	help
+	  ppp_dial
+
+config RT
+	bool "rt"
+	default y
+	help
+	  rt
+
+config SMC
+	bool "smc"
+	default y
+	help
+	  smc
+
+config SMD
+	bool "smd"
+	default y
+	help
+	  smd
+
+config SYS
+	bool "sys"
+	default y
+	help
+	  sys
+
+config SYSMOUNT
+	bool "sysmount"
+	default y
+	help
+	  sysmount
+
+config SYSREPAIR
+	bool "sysrepair"
+	default y
+	help
+	  sysrepair
+
+config SYSSTARTUP
+	bool "sysstartup"
+	default y
+	help
+	  sysstartup
+
+config SYSUMOUNT
+	bool "sysumount"
+	default y
+	help
+	  sysumount
+
+config SYSUPGRADE
+	bool "sysupgrade"
+	default y
+	help
+	  sysupgrade
+
+config SYSUSBUPGRADE
+	bool "sysusbupgrade"
+	default y
+	help
+	  sysusbupgrade
+
+config TMC
+	bool "tmc"
+	default y
+	help
+	  tmc
+
+config TMD
+	bool "tmd"
+	default y
+	help
+	  tmd
+
+config TTYUSB0
+	bool "ttyUSB0"
+	default y
+	help
+	  ttyUSB0
+
+config TTYUSB1
+	bool "ttyUSB1"
+	default y
+	help
+	  ttyUSB1
+
+config TTYUSB2
+	bool "ttyUSB2"
+	default y
+	help
+	  ttyUSB2
+
+config TTYUSB3
+	bool "ttyUSB3"
+	default y
+	help
+	  at_ttyUSB3
+
+config UMC
+	bool "umc"
+	default y
+	help
+	  umc
+
+config UMD
+	bool "umd"
+	default y
+	help
+	  umd
+
+endmenu

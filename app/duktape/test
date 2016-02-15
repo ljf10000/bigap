@@ -1,0 +1,5 @@
+#!/bin/bash
+
+pushd module/test &> /dev/null
+./test "$@"
+popd &> /dev/null
