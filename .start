@@ -8,10 +8,10 @@ main() {
 	../jlogd/jlogd &
 	sleep 1
 
-	../xtimerd/xtimerd &
+	../tmd/tmd &
 	sleep 1
 
-	../xmonitord/xmonitord &
+	../smd/smd &
 	sleep 1
 
 #	../umd/umd
