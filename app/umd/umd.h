@@ -519,9 +519,6 @@ um_user_delbyip(uint32_t ip);
 extern int
 um_user_delby(struct um_user_filter *filter);
 
-extern int
-um_cfg_init(void);
-
 #define UM_TEST_JSON    0x01
 
 #ifndef UM_TEST

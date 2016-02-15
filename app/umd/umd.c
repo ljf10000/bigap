@@ -125,11 +125,6 @@ __init(void)
         return err;
     }
 
-    err = um_cfg_init();
-    if (err) {
-        return err;
-    }
-    
     err = um_intf_init();
     if (err) {
         return err;
