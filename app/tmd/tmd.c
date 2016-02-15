@@ -69,7 +69,7 @@ __get_entry_bytm(tm_node_t *timer)
 static inline struct xtimer *
 __get_entry_byhashnode(hash_node_t *node)
 {
-    return hx_entry(node, hx_entry, node, 0);
+    return hx_entry(node, struct xtimer, node, 0);
 }
 
 static inline struct xtimer *
