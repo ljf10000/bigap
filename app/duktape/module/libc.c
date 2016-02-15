@@ -82,7 +82,7 @@ static duk_ret_t
 duke_timerfd_gettime(duk_context *ctx)
 {
     struct itimerspec current;
-    int fd    = duk_require_int(ctx, 0);
+    int fd = duk_require_int(ctx, 0);
 
     int err = timerfd_gettime(fd, &current);
     if (err<0) {
