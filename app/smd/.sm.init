@@ -1,5 +1,5 @@
 #!/bin/bash
 
-smonitorc=../smonitorc/smonitorc
+smc=../smc/smc
 
 ${smonitorc} insert normal sb "echo sb"
