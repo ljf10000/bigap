@@ -1,7 +1,7 @@
 #!/bin/bash
 
 main() {
-	local list="jlogd xmonitord xtimerd" 
+	local list="jlogd smd tmd" 
 	local root_list="umd"
 
 	killall $list
