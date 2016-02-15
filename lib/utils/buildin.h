@@ -63,8 +63,8 @@
 #define os_do_nothing()     do{}while(0)
 #endif
 
-#ifndef os_use_fake_value
-#define os_use_fake_value   extern int __os_value_not_used_forever
+#ifndef os_fake_declare
+#define os_fake_declare     extern int __os_value_not_used_forever
 #endif
 
 #ifndef os_wait_forever

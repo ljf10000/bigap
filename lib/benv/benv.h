@@ -696,9 +696,9 @@ typedef struct {
 #   define BENV_INITER \
         static benv_env_t __benv; \
         benv_control_t benv_control = BENV_CONTROL_DEFT(&__benv, NULL, NULL); \
-        os_use_fake_value /* end */
+        os_fake_declare /* end */
 #else
-#   define BENV_INITER    os_use_fake_value
+#   define BENV_INITER    os_fake_declare
 #endif
 
 extern benv_control_t benv_control;

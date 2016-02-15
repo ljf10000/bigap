@@ -721,9 +721,9 @@ error:
     return err;
 }
 #else
-#define DECLARE_FAKE_AK     os_use_fake_value
-#define DECLARE_REAL_AK     os_use_fake_value
-#define DECLARE_AK          os_use_fake_value
+#define DECLARE_FAKE_AK     os_fake_declare
+#define DECLARE_REAL_AK     os_fake_declare
+#define DECLARE_AK          os_fake_declare
 DECLARE_FAKE_AK;
 
 /*

@@ -48,7 +48,7 @@
                                     \
         return os_getstringarrayidx(array, s, 0, _end); \
     }                               \
-    os_use_fake_value               \
+    os_fake_declare                 \
     /* end */
 /******************************************************************************/
 #endif /* __ENUM_H_1b2ec28c4a404b41b1508c4effa0487d__ */

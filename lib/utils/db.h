@@ -118,7 +118,7 @@ _name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach) \
     return 0;                           \
 }                                       \
                                         \
-os_use_fake_value                       \
+os_fake_declare                         \
 /* end */
 /******************************************************************************/
 /*

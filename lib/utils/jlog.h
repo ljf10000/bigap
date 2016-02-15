@@ -275,7 +275,7 @@ __jlogger(char *app, char *sub, const char *file, const char *func, int line, in
 static inline int
 __dlogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, const char *fmt, ...);
 #else
-#define DECLARE_JLOG     os_use_fake_value
+#define DECLARE_JLOG        os_fake_declare
 
 #define __jvlogger(_app, _sub, _file, _func, _line, _PRI, _fmt, _args) \
         __jlog_vprintf(_app, _sub, _file, _func, _line, _PRI, _fmt, _args)
