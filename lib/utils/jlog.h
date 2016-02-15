@@ -212,8 +212,8 @@ typedef struct {
     .fd     = INVALID_FD,       \
 }   /* end */
 
-#define DECLARE_REAL_JLOG   jlog_control_t __THIS_JLOG = JLOG_CONTROL_INITER
-#define DECLARE_FAKE_JLOG   extern jlog_control_t __THIS_JLOG
+#define DECLARE_REAL_JLOG   jlog_control_t __THIS_JLOGGER = JLOG_CONTROL_INITER
+#define DECLARE_FAKE_JLOG   extern jlog_control_t __THIS_JLOGGER
 
 #ifdef __BUSYBOX__
 #define DECLARE_JLOG        DECLARE_FAKE_JLOG
@@ -226,7 +226,7 @@ DECLARE_FAKE_JLOG;
 static inline jlog_control_t *
 __jlog_control(void)
 {
-    return &__THIS_JLOG;
+    return &__THIS_JLOGGER;
 }
 
 static inline int
@@ -630,7 +630,7 @@ __jlog_socket(char *app, char *sub, int family)
     }
 #endif
 
-    __THIS_JLOG.fd = fd;
+    __THIS_JLOGGER.fd = fd;
 
     return fd;
 error:
@@ -691,7 +691,7 @@ try_again:
         */
         try = true;
 
-        __THIS_JLOG.fd = INVALID_FD;
+        __THIS_JLOGGER.fd = INVALID_FD;
         
         goto try_again;
     }
@@ -821,7 +821,7 @@ __jlog_env_init(void)
     int family, err;
 
     family  = __jlog_server()->sa_family
-            = __THIS_JLOG.family
+            = __THIS_JLOGGER.family
             = env_geti(ENV_JLOG_FAMILY, AF_UNIX);
 
     switch(family) {
@@ -903,7 +903,7 @@ jlog_fini(void)
 {
 #ifdef __APP__
 #ifndef __JLOGD__
-    os_close(__THIS_JLOG.fd);
+    os_close(__THIS_JLOGGER.fd);
 #endif
 #endif
 

@@ -23,8 +23,8 @@
 #define __THIS_FILE             __THIS_NAME
 #endif
 
-#ifndef __THIS_JLOG
-#define __THIS_JLOG             __SYMBOL_TO_VAR(__THIS_APP, _jlog)
+#ifndef __THIS_JLOGGER
+#define __THIS_JLOGGER          __SYMBOL_TO_VAR(__THIS_APP, _jlogger)
 #endif
 
 #ifndef __THIS_TIMER
