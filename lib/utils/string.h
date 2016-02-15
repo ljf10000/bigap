@@ -699,7 +699,7 @@ is_good_string(string_t *s)
     }
 }
 
-static inline string_t *
+static inline char *
 string_string(string_t *s)
 {
     if (is_good_string(s)) {
