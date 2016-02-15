@@ -23,6 +23,10 @@
 #define __THIS_FILE             __THIS_NAME
 #endif
 
+#ifndef __THIS_JLOG
+#define __THIS_JLOG             __SYMBOL_TO_VAR(__THIS_APP, _jlog)
+#endif
+
 #ifndef __THIS_TIMER
 #define __THIS_TIMER            __SYMBOL_TO_VAR(__THIS_APP, _timer)
 #endif
