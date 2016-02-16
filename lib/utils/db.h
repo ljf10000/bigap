@@ -63,7 +63,7 @@ _name##_add(_name##_table_t *table, _name##_node_t *node, hash_node_calc_f *nhas
     int i, err, count = os_count_of(table->hash); \
                                         \
     for (i=0; i<count; i++) {           \
-        err = hash_add(&table->hash[i], &node->hash[i], nhash[i]); \
+        err = hash_add(&table->hash[i], &node->hash[i], nhash[i], true); \
         if (err<0) {                    \
             return err;                 \
         }                               \

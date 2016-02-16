@@ -115,10 +115,10 @@ __hash_del_init(hash_node_t *node)
 }
 
 static inline void
-__hash_addby(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool force)
+__hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool calc)
 {
     if (false==__in_hash(node)) {
-        if (force || INVALID_HASH_IDX==node->idx) {
+        if (calc || INVALID_HASH_IDX==node->idx) {
             node->idx = (*nhash)(node);
         }
         
@@ -129,23 +129,11 @@ __hash_addby(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool force)
 }
 
 static inline void
-__hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
-{
-    __hash_addby(h, node, nhash, false);
-}
-
-static inline void
-__hash_add_calc(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
-{
-    __hash_addby(h, node, nhash, true);
-}
-
-static inline void
 __hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *nhash)
 {
     __hash_del(node);
     (*change)(node);
-    __hash_add_calc(h, node, nhash);
+    __hash_add(h, node, nhash, true);
 }
 #endif
 /******************************************************************************/
@@ -219,26 +207,12 @@ hash_del_init(hash_t *h, hash_node_t *node)
 }
 
 static inline int
-hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
+hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool calc)
 {
     if (h && node && nhash) {
         __hash_del(node);
 
-        __hash_add(h, node, nhash);
-
-        return 0;
-    } else {
-        return -EKEYNULL;
-    }
-}
-
-static inline int
-hash_add_calc(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
-{
-    if (h && node && nhash) {
-        __hash_del(node);
-
-        __hash_add_calc(h, node, nhash);
+        __hash_add(h, node, nhash, calc);
 
         return 0;
     } else {
