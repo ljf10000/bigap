@@ -83,7 +83,7 @@ _name##_del(_name##_table_t *table, _name##_node_t *node) \
     int i, err, count = os_count_of(table->hash); \
                                         \
     for (i=0; i<count; i++) {           \
-        err = hash_del(&table->hash[i], &node->hash[i]); \
+        err = hash_del(&table->hash[i], &node->hash[i], true); \
         if (err<0) {                    \
             return err;                 \
         }                               \
