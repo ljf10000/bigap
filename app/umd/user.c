@@ -223,7 +223,7 @@ haship(uint32_t ip)
 static inline struct um_user *
 getuser_bynode(h2_node_t *node)
 {
-    return container_of(node, struct um_user, node);
+    return hash_entry(node, struct um_user, node);
 }
 
 static inline struct um_user *
@@ -247,8 +247,6 @@ nodehaship(hash_node_t *node)
 
     return haship(user->ip);
 }
-
-static hash_node_calc_f *calcs[] = {nodehashmac, nodehaship};
 
 static inline void
 __tag_free(struct um_tag *tag)
@@ -464,6 +462,11 @@ __user_remove(struct um_user *user)
 static struct um_user *
 __user_insert(struct um_user *user)
 {
+    static hash_node_calc_f *nhash[UM_USER_NIDX_END] = {
+        [UM_USER_NIDX_MAC]  = nodehashmac, 
+        [UM_USER_NIDX_IP]   = nodehaship
+    };
+    
     if (NULL==user) {
         debug_bug("user nil");
         
@@ -478,7 +481,7 @@ __user_insert(struct um_user *user)
         __user_remove(user);
     }
 
-    h2_add(&umd.table, &user->node, calcs);
+    h2_add(&umd.table, &user->node, nhash);
     
     return user;
 }
