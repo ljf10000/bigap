@@ -103,30 +103,10 @@ enum {
     __ak_debug_test     = (1<<____ak_debug_test),
 };
 
-#define __ak_debug_all  ( \
-    __ak_debug_ok       | \
-    __ak_debug_bug      | \
-    __ak_debug_error    | \
-    __ak_debug_trace    | \
-    __ak_debug_init     | \
-    __ak_debug_config   | \
-    __ak_debug_lib      | \
-    __ak_debug_io       | \
-    __ak_debug_timer    | \
-    __ak_debug_timeout  | \
-    __ak_debug_aging    | \
-    __ak_debug_event    | \
-    __ak_debug_entry    | \
-    __ak_debug_packet   | \
-    __ak_debug_flow     | \
-    __ak_debug_signal   | \
-    __ak_debug_shell    | \
-    __ak_debug_st       | \
-    __ak_debug_test     | \
-0)
+#define __ak_debug_all      os_mask(____ak_debug_end)
 
 #ifndef __ak_debug_default
-#define __ak_debug_default   (__ak_debug_error | __ak_debug_bug)
+#define __ak_debug_default  (__ak_debug_error | __ak_debug_bug)
 #endif
 
 static inline uint32_t
