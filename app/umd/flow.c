@@ -378,7 +378,7 @@ flow_check(simpile_server_t *server)
 
     if (have_bind(user)) {
         flow_update(user, flow.type, flow.dir);
-        um_user_debug(user, "user-flow-update", __is_ak_debug_flow);
+        um_user_debug("user-flow-update", user, __is_ak_debug_flow);
 
         flow_reauth(user, flow.type, flow.dir);
         overflow(user, flow.type, flow.dir);

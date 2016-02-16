@@ -547,9 +547,9 @@ __set_state(struct um_user *user, int state)
 }
 
 static void
-__user_debug(struct um_user *user, char *tag)
+__user_debug(char *tag, struct um_user *user)
 {
-    um_user_debug(user, tag, __is_ak_debug_entry && __is_ak_debug_event);
+    um_user_debug(tag, user, __is_ak_debug_entry && __is_ak_debug_event);
 }
 
 static int
@@ -559,7 +559,7 @@ __user_delete(struct um_user *user, event_cb_t *cb)
         return -ENOEXIST;
     }
 
-    __user_debug(user, "before-user-delete");
+    __user_debug("before-user-delete", user);
     
     if (cb) {
         (*cb)(user);
@@ -595,7 +595,7 @@ __user_create(byte mac[], event_cb_t *cb)
         (*cb)(user);
     }
 
-    __user_debug(user, "after-user-create");
+    __user_debug("after-user-create", user);
     
     return user;
 }
@@ -610,7 +610,7 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *cb)
         return 0;
     }
 
-    __user_debug(user, "before-user-deauth");
+    __user_debug("before-user-deauth", user);
     /*
     * 1. save reason
     * 2. callback
@@ -630,7 +630,7 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *cb)
     
     wan_offline(user);
 
-    __user_debug(user, "after-user-deauth");
+    __user_debug("after-user-deauth", user);
     
     return 0;
 }
@@ -649,7 +649,7 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *cb)
         return 0;
     }
 
-    __user_debug(user, "before-user-unbind");
+    __user_debug("before-user-unbind", user);
     
     /*
     * 1. save reason
@@ -670,7 +670,7 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *cb)
     
     lan_offline(user);
 
-    __user_debug(user, "after-user-unbind");
+    __user_debug("after-user-unbind", user);
     
     return 0;
 }
@@ -730,7 +730,7 @@ __user_bind(struct um_user *user, uint32_t ip, event_cb_t *cb)
         }
     }
 
-    __user_debug(user, "before-user-bind");
+    __user_debug("before-user-bind", user);
 
     /*
     * 1. unbind
@@ -745,7 +745,7 @@ __user_bind(struct um_user *user, uint32_t ip, event_cb_t *cb)
         (*cb)(user);
     }
 
-    __user_debug(user, "after-user-bind");
+    __user_debug("after-user-bind", user);
 
     return user;
 }
@@ -760,7 +760,7 @@ __user_reauth(struct um_user *user, event_cb_t *cb)
         return 0;
     }
 
-    __user_debug(user, "before-user-reauth");
+    __user_debug("before-user-reauth", user);
 
     /*
     * 1. callback
@@ -769,7 +769,7 @@ __user_reauth(struct um_user *user, event_cb_t *cb)
         (*cb)(user);
     }
 
-    __user_debug(user, "after-user-reauth");
+    __user_debug("after-user-reauth", user);
 
     return 0;
 }
@@ -818,7 +818,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *cb)
         }
     }
 
-    __user_debug(user, "before-user-auth");
+    __user_debug("before-user-auth", user);
 
     /*
     * 1. clone
@@ -853,7 +853,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *cb)
         }
     }
 
-    __user_debug(user, "after-user-auth");
+    __user_debug("after-user-auth", user);
 
     return user;
 }
@@ -870,7 +870,7 @@ __user_get(byte mac[])
     {
         struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_MAC);
 
-        um_user_dump(user, "get-eq");
+        um_user_dump("get-eq", user);
         
         return os_maceq(user->mac, mac);
     }

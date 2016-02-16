@@ -435,7 +435,7 @@ extern jobj_t
 um_juser(struct um_user *user);
 
 static inline void
-um_user_dump(struct um_user *user, char *tag)
+um_user_dump(char *tag, struct um_user *user)
 {
     jobj_t obj = um_juser(user);
 
@@ -445,7 +445,7 @@ um_user_dump(struct um_user *user, char *tag)
 }
 
 static inline void
-um_user_debug(struct um_user *user, char *tag, bool debug)
+um_user_debug(char *tag, struct um_user *user, bool debug)
 {
     if (debug) {
         jobj_t obj = um_juser(user);
