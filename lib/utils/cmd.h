@@ -487,7 +487,7 @@ __simpile_cmd_handle(int count, simpile_cmd_t cmd[], int argc, char *argv[], int
 
 #ifdef __APP__
 #ifndef SIMPILE_RESPONSE_SIZE
-#define SIMPILE_RESPONSE_SIZE       (1024*1024-1-sizeof(int)-3*sizeof(uint32_t))
+#define SIMPILE_RESPONSE_SIZE       (262142-1)
 #endif
 
 typedef struct {
@@ -747,7 +747,7 @@ simpile_u_server_init(simpile_server_t *server)
     os_println("set SO_SNDBUF = %d", size);
     
     size = 0;
-    int len = sizeof(size);
+    socklen_t len = sizeof(size);
     
     getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, &len);
     os_println("get SO_SNDBUF = %d", size);
