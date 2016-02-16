@@ -136,6 +136,7 @@ __dlist_add(dlist_t *list, dlist_node_t *node)
         list_add(&node->node, &list->head);
 
         list->count++;
+        node->list = list;
     }
 }
 
@@ -146,6 +147,7 @@ __dlist_add_tail(dlist_t *list, dlist_node_t *node)
         list_add_tail(&node->node, &list->head);
 
         list->count++;
+        node->list = list;
     }
 }
 
