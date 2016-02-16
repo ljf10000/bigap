@@ -738,7 +738,7 @@ simpile_u_server_init(simpile_server_t *server)
         return -errno;
     }
 
-    int size = simpile_res_size;
+    int size = SIMPILE_RESPONSE_SIZE;
     err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
     if (err<0) {
         debug_error("setsockopt error:%d", -errno);
