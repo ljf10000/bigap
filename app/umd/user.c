@@ -520,6 +520,8 @@ __set_ip(struct um_user *user, uint32_t ip)
     else if (ip==user->ip) {
         return;
     }
+
+    os_println("__set_ip ip=%s", os_ipstring(ip));
     
     __user_remove(user);
     user->ip = ip;
@@ -877,7 +879,10 @@ __user_get(byte mac[])
     
     h2_node_t *node = h2_find(&umd.table, UM_USER_NIDX_MAC, dhash, eq);
 
-    return node?getuser_bynode(node):NULL;
+    struct um_user *user = node?getuser_bynode(node):NULL;
+    os_println("__user_get mac %s %p", os_macstring(mac), user);
+    
+    return user;
 }
 
 static inline int
@@ -993,8 +998,6 @@ um_user_create(byte mac[])
 {
     struct um_user *user = __user_get(mac);
 
-    os_println("um_user_create mac %s %p", os_macstring(mac), user);
-    
     return user?user:user_create(mac);
 }
 

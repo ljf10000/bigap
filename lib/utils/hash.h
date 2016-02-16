@@ -229,10 +229,8 @@ hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
     if (h && dhash && eq) {
         hash_idx_t nidx = (*dhash)();
-        os_println("hash_find nidx=%d", nidx);
-        
         hash_bucket_t *bucket = hash_bucket(h, nidx);
-        os_println("hash_find bucket=%p", bucket);
+        os_println("hash_find hash idx=%d, bucket=%p", nidx, bucket);
         
         if (bucket) {
             hash_node_t *node;
