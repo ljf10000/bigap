@@ -135,8 +135,8 @@ __dlist_add(dlist_t *list, dlist_node_t *node)
     if (false==__in_dlist(node)) {
         list_add(&node->node, &list->head);
 
-        list->count++;
         node->list = list;
+        list->count++;
     }
 }
 
@@ -146,8 +146,8 @@ __dlist_add_tail(dlist_t *list, dlist_node_t *node)
     if (false==__in_dlist(node)) {
         list_add_tail(&node->node, &list->head);
 
-        list->count++;
         node->list = list;
+        list->count++;
     }
 }
 

@@ -442,8 +442,6 @@ __user_remove(struct um_user *user)
     }
 
     h2_del(&umd.table, &user->node);
-    
-    um_user_dump("remove", user);
 
     return user;
 }
@@ -471,8 +469,6 @@ __user_insert(struct um_user *user)
     }
 
     h2_add(&umd.table, &user->node, nhash);
-
-    um_user_dump("insert", user);
     
     return user;
 }
@@ -520,8 +516,6 @@ __set_ip(struct um_user *user, uint32_t ip)
     else if (ip==user->ip) {
         return;
     }
-
-    os_println("__set_ip ip=%s", os_ipstring(ip));
     
     __user_remove(user);
     user->ip = ip;
@@ -871,18 +865,13 @@ __user_get(byte mac[])
     bool eq(hash_node_t *node)
     {
         struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_MAC);
-
-        um_user_dump("get-eq", user);
         
         return os_maceq(user->mac, mac);
     }
     
     h2_node_t *node = h2_find(&umd.table, UM_USER_NIDX_MAC, dhash, eq);
 
-    struct um_user *user = node?getuser_bynode(node):NULL;
-    os_println("__user_get mac %s %p", os_macstring(mac), user);
-    
-    return user;
+    return node?getuser_bynode(node):NULL;
 }
 
 static inline int

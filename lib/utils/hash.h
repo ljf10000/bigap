@@ -90,8 +90,6 @@ static inline void
 __hash_del(hash_node_t *node, bool reset)
 {
     if (__in_hash(node) && false==__is_hash_empty(node->hash)) {
-        os_println("__hash_del hash idx=%d", node->idx);
-        
         list_del(&node->node);
         node->node.next = NULL;
         node->node.prev = NULL;
@@ -111,11 +109,8 @@ __hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool calc)
         if (calc || INVALID_HASH_IDX==node->idx) {
             node->idx = (*nhash)(node);
         }
-
-        hash_bucket_t *bucket = __hash_bucket(h, node->idx);
-        os_println("__hash_add hash idx=%d bucket=%p", node->idx, bucket);
         
-        list_add(&node->node, bucket);
+        list_add(&node->node, __hash_bucket(h, node->idx));
         node->hash = h;
         h->count++;
     }
@@ -228,17 +223,12 @@ static inline hash_node_t *
 hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
     if (h && dhash && eq) {
-        hash_idx_t nidx = (*dhash)();
-        hash_bucket_t *bucket = hash_bucket(h, nidx);
-        os_println("hash_find hash idx=%d, bucket=%p", nidx, bucket);
-        
+        hash_bucket_t *bucket = hash_bucket(h, (*dhash)());
         if (bucket) {
             hash_node_t *node;
             
             hash_foreach(bucket, node) {
                 if ((*eq)(node)) {
-                    os_println("hash_find node=%p", node);
-                    
                     return node;
                 }
             }
