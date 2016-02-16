@@ -487,7 +487,7 @@ __simpile_cmd_handle(int count, simpile_cmd_t cmd[], int argc, char *argv[], int
 
 #ifdef __APP__
 #ifndef SIMPILE_RESPONSE_SIZE
-#define SIMPILE_RESPONSE_SIZE       (262142-1)
+#define SIMPILE_RESPONSE_SIZE       (1024*1024-1-sizeof(int)-3*sizeof(uint32_t))
 #endif
 
 typedef struct {
@@ -738,7 +738,7 @@ simpile_u_server_init(simpile_server_t *server)
         return -errno;
     }
 
-    int size = SIMPILE_RESPONSE_SIZE;
+    int size = 1+SIMPILE_RESPONSE_SIZE;
     err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
     if (err<0) {
         debug_error("setsockopt error:%d", -errno);
