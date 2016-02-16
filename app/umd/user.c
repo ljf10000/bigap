@@ -442,6 +442,8 @@ __user_remove(struct um_user *user)
     }
 
     h2_del(&umd.table, &user->node);
+    
+    um_user_dump("remove", user);
 
     return user;
 }
@@ -469,6 +471,8 @@ __user_insert(struct um_user *user)
     }
 
     h2_add(&umd.table, &user->node, nhash);
+
+    um_user_dump("insert", user);
     
     return user;
 }

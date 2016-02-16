@@ -87,10 +87,10 @@ __hash_init(hash_t *h, hash_idx_t size)
 }
 
 static inline void
-__hash_delby(hash_node_t *node, bool reset)
+__hash_del(hash_node_t *node, bool reset)
 {
     if (__in_hash(node) && false==__is_hash_empty(node->hash)) {
-        os_println("__hash_delby nidx=%d", node->idx);
+        os_println("__hash_del hash idx=%d", node->idx);
         
         list_del(&node->node);
         node->node.next = NULL;
@@ -105,18 +105,6 @@ __hash_delby(hash_node_t *node, bool reset)
 }
 
 static inline void
-__hash_del(hash_node_t *node)
-{
-    __hash_delby(node, false);
-}
-
-static inline void
-__hash_del_init(hash_node_t *node)
-{
-    __hash_delby(node, true);
-}
-
-static inline void
 __hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool calc)
 {
     if (false==__in_hash(node)) {
@@ -125,7 +113,7 @@ __hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool calc)
         }
 
         hash_bucket_t *bucket = __hash_bucket(h, node->idx);
-        os_println("__hash_add nidx=%d bucket=%p", node->idx, bucket);
+        os_println("__hash_add hash idx=%d bucket=%p", node->idx, bucket);
         
         list_add(&node->node, bucket);
         node->hash = h;
@@ -136,7 +124,7 @@ __hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool calc)
 static inline void
 __hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *nhash)
 {
-    __hash_del(node);
+    __hash_del(node, false);
     (*change)(node);
     __hash_add(h, node, nhash, true);
 }
@@ -188,22 +176,10 @@ hash_bucket(hash_t *h, hash_idx_t idx)
 }
 
 static inline int
-hash_del(hash_t *h, hash_node_t *node)
+hash_del(hash_t *h, hash_node_t *node, bool init)
 {
     if (in_hash(h, node)) {
-        __hash_del(node);
-
-        return 0;
-    } else {
-        return -ENOINLIST;
-    }
-}
-
-static inline int
-hash_del_init(hash_t *h, hash_node_t *node)
-{
-    if (in_hash(h, node)) {
-        __hash_del_init(node);
+        __hash_del(node, init);
 
         return 0;
     } else {
@@ -215,8 +191,7 @@ static inline int
 hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool calc)
 {
     if (h && node && nhash) {
-        __hash_del(node);
-
+        __hash_del(node, false);
         __hash_add(h, node, nhash, calc);
 
         return 0;
