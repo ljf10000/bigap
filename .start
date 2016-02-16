@@ -2,7 +2,7 @@
 
 function subcall() {
 	local name="$1"
-	local prefix="$1"
+	local prefix="$2"
 
 	pushd app/${name} &> /dev/null
 	${prefix} ./${name} &
