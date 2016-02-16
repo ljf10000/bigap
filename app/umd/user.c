@@ -866,6 +866,8 @@ __user_get(byte mac[])
     {
         struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_MAC);
 
+        um_user_dump(user, "get-eq");
+        
         return os_maceq(user->mac, mac);
     }
     

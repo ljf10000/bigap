@@ -435,6 +435,16 @@ extern jobj_t
 um_juser(struct um_user *user);
 
 static inline void
+um_user_dump(struct um_user *user, char *tag)
+{
+    jobj_t obj = um_juser(user);
+
+    os_println("%s:%s", tag, jobj_string(obj));
+
+    jobj_put(obj);
+}
+
+static inline void
 um_user_debug(struct um_user *user, char *tag, bool debug)
 {
     if (debug) {
