@@ -208,29 +208,53 @@ __hashbuf(byte *buf, int len)
     return sum & UM_HASHMASK;
 }
 
-static inline int
+static inline hash_idx_t
 hashmac(byte mac[])
 {
     return __hashbuf(mac, OS_MACSIZE);
 }
 
-static inline int
+static inline hash_idx_t
 haship(uint32_t ip)
 {
     return __hashbuf((byte *)&ip, sizeof(ip));
 }
 
-static inline struct hlist_head *
-headmac(byte mac[])
+static inline struct um_user *
+getuser_bynode(h2_node_t *node)
 {
-    return &umd.head.mac[hashmac(mac)];
+    return container_of(node, struct um_user, node);
 }
 
-static inline struct hlist_head *
-headip(uint32_t ip)
+static inline struct um_user *
+getuser_bymacnode(hash_node_t *node)
 {
-    return &umd.head.ip[haship(ip)];
+    return hx_entry(node, struct um_user, node, 0);
 }
+
+static inline struct um_user *
+getuser_byipnode(hash_node_t *node)
+{
+    return hx_entry(node, struct um_user, node, 1);
+}
+
+static hash_idx_t
+nodehashmac(hash_node_t *node)
+{
+    struct um_user *user = getuser_bymacnode(node);
+
+    return hashmac(user->mac);
+}
+
+static hash_idx_t
+nodehaship(hash_node_t *node)
+{
+    struct um_user *user = getuser_byipnode(node);
+
+    return haship(user->ip);
+}
+
+static hash_node_calc_f calcs[] = {nodehashmac, nodehaship};
 
 static inline void
 __tag_free(struct um_tag *tag)
@@ -421,30 +445,6 @@ wan_offline(struct um_user *user)
     debug_event("user %s wan offline", os_macstring(user->mac));
 }
 
-static inline void
-add_iphash(struct um_user *user)
-{
-    hlist_add_head(&user->node.ip,  headip(user->ip));
-}
-
-static inline void
-del_iphash(struct um_user *user)
-{
-    hlist_del_init(&user->node.ip);
-}
-
-static inline void
-add_machash(struct um_user *user)
-{
-    hlist_add_head(&user->node.mac, headmac(user->mac));
-}
-
-static inline void
-del_machash(struct um_user *user)
-{
-    hlist_del_init(&user->node.mac);
-}
-
 static struct um_user *
 __user_remove(struct um_user *user)
 {
@@ -456,22 +456,14 @@ __user_remove(struct um_user *user)
     /*
     * not in list
     */
-    else if (false==is_in_list(&user->node.list)) {
+    else if (false==in_hx_table(&user->node)) {
         debug_bug("user not in list");
         
         return user;
     }
-    
-    list_del(&user->node.list);
-    if (is_good_mac(user->mac)) {
-        del_machash(user);
-        
-    }
-    if (user->ip) {
-        del_iphash(user);
-    }
-    umd.head.count--;
-    
+
+    h2_del(&umd.table, &user->node);
+
     return user;
 }
 
@@ -486,21 +478,14 @@ __user_insert(struct um_user *user)
     /*
     * have in list
     */
-    else if (is_in_list(&user->node.list)) {
+    else if (in_hx_table(&user->node)) {
         debug_bug("user have in list");
         
         __user_remove(user);
     }
+
+    h2_add(&umd.table, &user->node, calcs);
     
-    list_add(&user->node.list, &umd.head.list);
-    if (is_good_mac(user->mac)) {
-        add_machash(user);
-    }
-    if (user->ip) {
-        add_iphash(user);
-    }
-    umd.head.count++;
-        
     return user;
 }
 
@@ -548,13 +533,9 @@ __set_ip(struct um_user *user, uint32_t ip)
         return;
     }
     
-    if (user->ip) {
-        del_iphash(user);
-    }
+    __user_remove(user);
     user->ip = ip;
-    if (user->ip) {
-        add_iphash(user);
-    }
+    __user_insert(user);
 }
 
 static void
@@ -614,9 +595,6 @@ __user_create(byte mac[], event_cb_t *cb)
     }
     os_maccpy(user->mac, mac);
     
-    INIT_HLIST_NODE(&user->node.mac);
-    INIT_HLIST_NODE(&user->node.ip);
-    INIT_LIST_HEAD(&user->node.list);
     INIT_LIST_HEAD(&user->head.tag);
 
     __set_state(user, UM_STATE_NONE);
@@ -895,15 +873,39 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *cb)
 static struct um_user *
 __user_get(byte mac[])
 {
-    struct um_user *user;
+    hash_idx_t dhash(void)
+    {
+        return haship(mac);
+    }
     
-    hlist_for_each_entry(user, headmac(mac), node.mac) {
-        if (os_maceq(user->mac, mac)) {
-            return user;
-        }
+    bool eq(hash_node_t *node)
+    {
+        struct um_user *user = getuser_bymacnode(node);
+
+        return os_maceq(user->mac, mac);
+    }
+    
+    h2_node_t *node = h2_find(&umd.table, dhash, eq);
+    if (node) {
+        return getuser_bynode(node);
     }
 
     return NULL;
+}
+
+static inline int
+__user_foreach(um_foreach_f *foreach, bool safe)
+{
+    mv_t node_foreach(h2_node_t *node)
+    {
+        return (*foreach)(getuser_bynode(node));
+    }
+
+    if (safe) {
+        return h2_foreach_safe(&umd.table, node_foreach);
+    } else {
+        return h2_foreach(&umd.table, node_foreach);
+    }
 }
 
 static struct um_user *
@@ -1054,34 +1056,13 @@ um_user_deauth(byte mac[], int reason)
 int
 um_user_foreach(um_foreach_f *foreach)
 {
-    mv_u mv;
-    struct um_user *user;
-    
-    list_for_each_entry(user, &umd.head.list, node.list) {
-        mv.v = (*foreach)(user);
-        if (is_mv2_break(mv)) {
-            return mv2_error(mv);
-        }
-    }
-    
-    return 0;
+    return __user_foreach(foreach, false);
 }
 
 int
 um_user_foreach_safe(um_foreach_f *foreach)
 {
-    mv_u mv;
-    struct um_user *user, *n;
-    
-    list_for_each_entry_safe(user, n, &umd.head.list, node.list) {
-        mv.v = (*foreach)(user);
-        
-        if (is_mv2_break(mv)) {
-            return mv2_error(mv);
-        }
-    }
-    
-    return 0;
+    return __user_foreach(foreach, true);
 }
 
 struct um_user *
@@ -1093,12 +1074,21 @@ um_user_get(byte mac[])
 struct um_user *
 um_user_getbyip(uint32_t ip)
 {
-    struct um_user *user;
+    hash_idx_t dhash(void)
+    {
+        return haship(ip);
+    }
     
-    hlist_for_each_entry(user, headip(ip), node.ip) {
-        if (user->ip==ip) {
-            return user;
-        }
+    bool eq(hash_node_t *node)
+    {
+        struct um_user *user = getuser_byipnode(node);
+
+        return ip==user->ip;
+    }
+    
+    h2_node_t *node = h2_find(&umd.table, dhash, eq);
+    if (node) {
+        return getuser_bynode(node);
     }
 
     return NULL;

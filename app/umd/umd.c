@@ -119,12 +119,18 @@ static int
 __init(void)
 {
     int err;
-
+    int array[] = {UM_HASHSIZE, UM_HASHSIZE};
+    
     err = os_init();
     if (err) {
         return err;
     }
 
+    err = h2_init(&umd.table, array);
+    if (err) {
+        return err;
+    }
+    
     err = um_intf_init();
     if (err) {
         return err;

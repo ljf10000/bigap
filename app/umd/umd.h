@@ -243,12 +243,8 @@ struct um_user {
     struct um_monitor monitor;
 #endif
 
-    struct {
-        struct hlist_node mac; /* hash node in umd.hash */
-        struct hlist_node ip; /* hash node in umd.hash */
-        struct list_head  list; /* list node in umd.list */
-    } node;
-
+    h2_node_t node;
+    
     struct {
         struct list_head tag;
     } head;
@@ -370,12 +366,7 @@ struct um_control {
     struct um_intf intf[UM_INTF_END];
     uint32_t gc;
     
-    struct {
-        struct hlist_head mac[UM_HASHSIZE];
-        struct hlist_head ip[UM_HASHSIZE];
-        struct list_head list;
-        uint32_t count;
-    } head;
+    h2_table_t table;
 };
 
 extern struct um_control umd;
