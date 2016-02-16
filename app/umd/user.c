@@ -227,21 +227,15 @@ getuser_bynode(h2_node_t *node)
 }
 
 static inline struct um_user *
-getuser_bymacnode(hash_node_t *node)
+getuser_bynidx(hash_node_t *node, hash_idx_t nidx)
 {
-    return hx_entry(node, struct um_user, node, 0);
-}
-
-static inline struct um_user *
-getuser_byipnode(hash_node_t *node)
-{
-    return hx_entry(node, struct um_user, node, 1);
+    return hx_entry(node, struct um_user, node, nidx);
 }
 
 static hash_idx_t
 nodehashmac(hash_node_t *node)
 {
-    struct um_user *user = getuser_bymacnode(node);
+    struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_MAC);
 
     return hashmac(user->mac);
 }
@@ -249,12 +243,12 @@ nodehashmac(hash_node_t *node)
 static hash_idx_t
 nodehaship(hash_node_t *node)
 {
-    struct um_user *user = getuser_byipnode(node);
+    struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_IP);
 
     return haship(user->ip);
 }
 
-static hash_node_calc_f calcs[] = {nodehashmac, nodehaship};
+static hash_node_calc_f *calcs[] = {nodehashmac, nodehaship};
 
 static inline void
 __tag_free(struct um_tag *tag)
@@ -875,17 +869,17 @@ __user_get(byte mac[])
 {
     hash_idx_t dhash(void)
     {
-        return haship(mac);
+        return hashmac(mac);
     }
     
     bool eq(hash_node_t *node)
     {
-        struct um_user *user = getuser_bymacnode(node);
+        struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_MAC);
 
         return os_maceq(user->mac, mac);
     }
     
-    h2_node_t *node = h2_find(&umd.table, dhash, eq);
+    h2_node_t *node = h2_find(&umd.table, UM_USER_NIDX_MAC, dhash, eq);
     if (node) {
         return getuser_bynode(node);
     }
@@ -1081,12 +1075,12 @@ um_user_getbyip(uint32_t ip)
     
     bool eq(hash_node_t *node)
     {
-        struct um_user *user = getuser_byipnode(node);
+        struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_IP);
 
         return ip==user->ip;
     }
     
-    h2_node_t *node = h2_find(&umd.table, dhash, eq);
+    h2_node_t *node = h2_find(&umd.table, UM_USER_NIDX_IP, dhash, eq);
     if (node) {
         return getuser_bynode(node);
     }

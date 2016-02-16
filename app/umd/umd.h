@@ -224,6 +224,13 @@ struct um_monitor {
 
 #define UM_F_MONITOR    0x01
 
+enum {
+    UM_USER_NIDX_MAC,
+    UM_USER_NIDX_IP,
+
+    UM_USER_NIDX_END
+};
+
 struct um_user {
     byte mac[OS_MACSIZE];
     byte flags;
