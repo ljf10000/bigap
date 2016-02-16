@@ -523,6 +523,7 @@ __simpile_res(void)
 #define simpile_res_buf     __simpile_res()->buf
 #define simpile_res_len     __simpile_res()->len
 #define simpile_res_size    (simpile_res_hsize + simpile_res_len)
+#define simpile_res_left    (SIMPILE_RESPONSE_SIZE - simpile_res_size)
 
 #define simpile_res_zero()  os_objzero(__simpile_res())
 #define simpile_res_clear() do{ \
@@ -537,9 +538,13 @@ __simpile_res(void)
     if (simpile_res_len < SIMPILE_RESPONSE_SIZE) {  \
         __len = os_snprintf(                        \
             simpile_res_buf + simpile_res_len,      \
-            SIMPILE_RESPONSE_SIZE - simpile_res_len,\
+            simpile_res_left,                       \
             _fmt, ##_args);                         \
-        simpile_res_len += __len;                   \
+        if (__len <= simpile_res_left) {            \
+            simpile_res_len += __len;               \
+        } else {                                    \
+            __len = 0;                              \
+        }                                           \
     }                                               \
                                                     \
     __len;                                          \
