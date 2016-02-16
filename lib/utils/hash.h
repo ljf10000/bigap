@@ -288,6 +288,20 @@ hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
     
     return NULL;
 }
+
+static inline hash_idx_t
+hash_bybuf(byte *buf, int len, hash_idx_t mask)
+{
+    int i;
+    hash_idx_t sum = 0;
+    
+    for (i=0; i<len; i++) {
+        sum += (hash_idx_t)buf[i];
+    }
+    
+    return sum & mask;
+}
+
 #endif
 /******************************************************************************/
 #endif /* __HASH_H_699cf25513f14e17a40808355124348c__ */

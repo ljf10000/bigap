@@ -195,29 +195,16 @@ deauth_cb(struct um_user *user)
     return __cb(user, "deauth", NULL);
 }
 
-static int
-__hashbuf(byte *buf, int len)
-{
-    int i;
-    int sum = 0;
-    
-    for (i=0; i<len; i++) {
-        sum += (int)buf[i];
-    }
-
-    return sum & UM_HASHMASK;
-}
-
 static inline hash_idx_t
 hashmac(byte mac[])
 {
-    return __hashbuf(mac, OS_MACSIZE);
+    return hash_bybuf(mac, OS_MACSIZE, UM_HASHMASK);
 }
 
 static inline hash_idx_t
 haship(uint32_t ip)
 {
-    return __hashbuf((byte *)&ip, sizeof(ip));
+    return hash_bybuf((byte *)&ip, sizeof(ip), UM_HASHMASK);
 }
 
 static inline struct um_user *
@@ -1003,6 +990,8 @@ um_user_create(byte mac[])
 {
     struct um_user *user = __user_get(mac);
 
+    os_println("um_user_create mac %s %p", os_macstring(mac), user);
+    
     return user?user:user_create(mac);
 }
 
