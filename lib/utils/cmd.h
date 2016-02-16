@@ -386,7 +386,6 @@ cmd_line_handle(cmd_table_t map[], int count, char *tag, char *args, int (*after
             err = (*table->u.line_cb)(args);
             
             if (table->syn && after) {
-                os_println("cmd_line_handle after");
                 (*after)();
             }
 
@@ -617,7 +616,6 @@ __simpile_d_handle(int fd, cmd_table_t *table, int count)
     
     int after(void)
     {
-        os_println("__simpile_d_handle after");
         return simpile_res_sendto(fd, (sockaddr_t *)pclient, addrlen);
     }
     

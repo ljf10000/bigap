@@ -36,7 +36,7 @@
 #endif
 
 #ifndef UM_TIMEOUT
-#define UM_TIMEOUT              3000    /* ms */
+#define UM_TIMEOUT              10000    /* ms */
 #endif
 
 #ifndef UMD_GC

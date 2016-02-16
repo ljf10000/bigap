@@ -207,10 +207,8 @@ show_user(struct um_user *user)
     jobj_t obj = um_juser(user);
     
     if (obj) {
-        int len = simpile_res_sprintf(__tab "%s" __crlf, jobj_string(obj));
-        
-        os_println("show len=%d, res-len=%d", len, simpile_res_len);
-        
+        simpile_res_sprintf(__tab "%s" __crlf, jobj_string(obj));
+
         jobj_put(obj);
     }
     
