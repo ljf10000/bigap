@@ -90,6 +90,8 @@ static inline void
 __hash_delby(hash_node_t *node, bool reset)
 {
     if (__in_hash(node) && false==__is_hash_empty(node->hash)) {
+        os_println("__hash_delby nidx=%d", node->idx);
+        
         list_del(&node->node);
         node->node.next = NULL;
         node->node.prev = NULL;
@@ -121,8 +123,11 @@ __hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool calc)
         if (calc || INVALID_HASH_IDX==node->idx) {
             node->idx = (*nhash)(node);
         }
+
+        hash_bucket_t *bucket = __hash_bucket(h, node->idx);
+        os_println("__hash_add nidx=%d bucket=%p", node->idx, bucket);
         
-        list_add(&node->node, __hash_bucket(h, node->idx));
+        list_add(&node->node, bucket);
         node->hash = h;
         h->count++;
     }
