@@ -487,7 +487,7 @@ __simpile_cmd_handle(int count, simpile_cmd_t cmd[], int argc, char *argv[], int
 
 #ifdef __APP__
 #ifndef SIMPILE_RESPONSE_SIZE
-#define SIMPILE_RESPONSE_SIZE       (1024*1024-1-sizeof(int)-3*sizeof(uint32_t))
+#define SIMPILE_RESPONSE_SIZE       (262142-1) //(1024*1024-1-sizeof(int)-3*sizeof(uint32_t))
 #endif
 
 typedef struct {
@@ -502,9 +502,9 @@ typedef struct {
 #define DECLARE_REAL_SIMPILE_RES    simpile_response_t __THIS_IPCBUFFER
 
 #ifdef __BUSYBOX__
-#define DECLARE_SIMPILE_RES     DECLARE_FAKE_SIMPILE_RES
+#define DECLARE_SIMPILE_RES         DECLARE_FAKE_SIMPILE_RES
 #else
-#define DECLARE_SIMPILE_RES     DECLARE_REAL_SIMPILE_RES
+#define DECLARE_SIMPILE_RES         DECLARE_REAL_SIMPILE_RES
 #endif
 
 DECLARE_FAKE_SIMPILE_RES;
