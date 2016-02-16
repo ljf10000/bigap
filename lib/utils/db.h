@@ -186,13 +186,15 @@ h1_count(h1_table_t *table)
 static inline int
 h1_add(h1_table_t *table, h1_node_t *node, hash_node_calc_f *nhash)
 {
-    return __h1_add(table, node, 0, nhash);
+    hash_node_calc_f *hash[] = {nhash};
+    
+    return __h1_add(table, node, hash);
 }
 
 static inline int 
 h1_del(h1_table_t *table, h1_node_t *node)
 {
-    return __h1_del(table, node, 0);
+    return __h1_del(table, node);
 }
 
 static inline h1_node_t *
