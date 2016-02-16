@@ -56,8 +56,6 @@ string_t;
 #define sopt_clr    opt.o.clr
 #define sopt_ref    opt.o.ref
 
-#define STRING_ZERO {0}
-
 #define __STRING_S_INITER(_s, _begin, _len, _con, _dyn, _stk, _eoz, _clr) { \
     .opt = {                \
         .o = __STRING_OPT_INITER(_con, _dyn, _stk, _eoz, _clr), \
@@ -83,6 +81,8 @@ string_t;
 
 #define STRING_B_CONST_INITER(_b) \
     __STRING_B_CONST_INITER(_b, 0, sizeof(_s))
+
+#define STRING_ZERO __STRING_S_CONST_INITER(NULL, 0, 0)
 
 static inline string_t *
 __string_root(string_t *s)
