@@ -487,7 +487,7 @@ __simpile_cmd_handle(int count, simpile_cmd_t cmd[], int argc, char *argv[], int
 
 #ifdef __APP__
 #ifndef SIMPILE_RESPONSE_SIZE
-#define SIMPILE_RESPONSE_SIZE       (262142-1) //(1024*1024-1-sizeof(int)-3*sizeof(uint32_t))
+#define SIMPILE_RESPONSE_SIZE       (256*1024-1-sizeof(int)-3*sizeof(uint32_t))
 #endif
 
 typedef struct {
