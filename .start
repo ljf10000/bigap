@@ -14,8 +14,8 @@ main() {
 	../smd/smd &
 	sleep 1
 
-#	../umd/umd
-#	sleep 1
+	../umd/umd
+	sleep 1
 }
 
 main "$@"

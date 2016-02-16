@@ -5,19 +5,10 @@ main() {
 	local path="/tmp/$(whoami)/ak"
 #	local flag="*"
 
-#	echo "debug ${flag}" > ${path}/libappkey.key
-
-#	echo "debug ${flag}" > ${path}/jlogger.key
-#	echo "debug ${flag}" > ${path}/jlogd.key
-
-#	echo "debug ${flag}" > ${path}/xtimerc.key
-#	echo "debug ${flag}" > ${path}/xtimerd.key
-
-	echo "debug ${flag}" > ${path}/xmonitorc.key
-	echo "debug ${flag}" > ${path}/xmonitord.key
-
-#	echo "debug ${flag}" > ${path}/umc.key
-#	echo "debug ${flag}" > ${path}/umd.key
+	echo "debug ${flag}" > ${path}/jlogd.key
+	echo "debug ${flag}" > ${path}/tmd.key
+	echo "debug ${flag}" > ${path}/smd.key
+	echo "debug ${flag}" > ${path}/umd.key
 
 	../../app/ak/ak reload
 }
