@@ -386,7 +386,9 @@ cmd_line_handle(cmd_table_t map[], int count, char *tag, char *args, int (*after
             err = (*table->u.line_cb)(args);
             
             if (table->syn && after) {
-                (*after)();
+                int len = (*after)();
+
+                os_println("cmd_line_handle send %d", len);
             }
 
             return err;
