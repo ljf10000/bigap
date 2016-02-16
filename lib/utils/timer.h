@@ -87,7 +87,7 @@ typedef struct {
 
 DECLARE_FAKE_TIMER;
 
-static OS_INLINE tm_clock_t *
+static inline tm_clock_t *
 __tm_clock(void)
 {
 #ifdef __TIMER__
@@ -97,7 +97,7 @@ __tm_clock(void)
 #endif
 }
 
-static OS_INLINE tm_ring_t *
+static inline tm_ring_t *
 __tm_ring(int idx)
 {
     return &__tm_clock()->ring[idx];
@@ -109,26 +109,26 @@ __tm_ring(int idx)
 #define __tm_foreach_ring(_ring)    for((_ring)=__tm_ring0; (_ring)<=__tm_ringmax; (_ring)++)
 #define __tm_foreach_slot(_slot)    for((_slot)=0; (_slot)<TM_SLOT; (_slot)++)
 
-static OS_INLINE struct list_head *
+static inline struct list_head *
 __tm_slot(tm_ring_t *ring, int idx)
 {
     return &ring->slot[idx].list;
 }
 
-static OS_INLINE bool
+static inline bool
 __tm_is_once(tm_node_t *timer)
 {
     return os_hasflag(timer->flags, TM_ONCE);
 }
 #define __tm_is_cycle(_timer)   (false==__tm_is_once(_timer))
 
-static OS_INLINE bool
+static inline bool
 __tm_is_pending(tm_node_t *timer)
 {
     return os_hasflag(timer->flags, TM_PENDING);
 }
 
-static OS_INLINE uint32_t
+static inline uint32_t
 __tm_left(tm_node_t *timer)
 {
     uint64_t timeout = timer->create + (uint64_t)timer->expires;
@@ -140,7 +140,7 @@ __tm_left(tm_node_t *timer)
     }
 }
 
-static OS_INLINE tm_ring_t *
+static inline tm_ring_t *
 __tm_find_ring(tm_node_t *timer, int *slot)
 {
     int idx;
@@ -168,7 +168,7 @@ __tm_find_ring(tm_node_t *timer, int *slot)
     return ring;
 }
 
-static OS_INLINE void
+static inline void
 __tm_insert(tm_node_t *timer)
 {
     int slot = 0;
@@ -189,7 +189,7 @@ __tm_insert(tm_node_t *timer)
     }
 }
 
-static OS_INLINE void
+static inline void
 __tm_remove(tm_node_t *timer)
 {
     tm_ring_t *ring = __tm_ringx(timer->ring_idx);
@@ -206,7 +206,7 @@ __tm_remove(tm_node_t *timer)
     timer->flags &= ~TM_PENDING;
 }
 
-static OS_INLINE void
+static inline void
 __tm_slot_dump(tm_ring_t *ring, int slot)
 {
     struct list_head *head = __tm_slot(ring, slot);
@@ -216,7 +216,7 @@ __tm_slot_dump(tm_ring_t *ring, int slot)
     }
 }
 
-static OS_INLINE void
+static inline void
 __tm_ring_dump(tm_ring_t *ring)
 {
     int i;
@@ -230,7 +230,7 @@ __tm_ring_dump(tm_ring_t *ring)
     }
 }
 
-static OS_INLINE void
+static inline void
 __tm_dump(void)
 {
     if (__is_ak_debug(__ak_debug_timer|__ak_debug_trace|__ak_debug_test)) {
@@ -245,7 +245,7 @@ __tm_dump(void)
     }
 }
 
-static OS_INLINE int
+static inline int
 __tm_ring_trigger(tm_ring_t *ring)
 {
     struct list_head *head = __tm_slot(ring, ring->current);
@@ -306,7 +306,7 @@ __tm_ring_trigger(tm_ring_t *ring)
 * return
 *   success trigger nodes
 */
-static OS_INLINE int
+static inline int
 __tm_trigger(tm_ring_t *ring)
 {
     int count = 0;
@@ -329,7 +329,7 @@ __tm_trigger(tm_ring_t *ring)
 *   <0: error
 *  >=0: sucess tigger times
 */
-static OS_INLINE int
+static inline int
 tm_trigger(uint32_t times)
 {
     uint32_t i;
@@ -351,25 +351,25 @@ tm_trigger(uint32_t times)
     return ret?ret:count;
 }
 
-static OS_INLINE uint64_t
+static inline uint64_t
 tm_ticks(void)
 {
     return __tm_clock()->ticks;
 }
 
-static OS_INLINE void
+static inline void
 tm_unit_set(uint32_t ms) // how much ms per tick
 {
     __tm_clock()->unit = ms?ms:TM_MS;
 }
 
-static OS_INLINE uint32_t //ms, how much ms per tick
+static inline uint32_t //ms, how much ms per tick
 tm_unit(void)
 {
     return __tm_clock()->unit;
 }
 
-static OS_INLINE int
+static inline int
 tm_insert(
     tm_node_t *timer, // should embed in other struct
     int after, // ticks, after now
@@ -402,7 +402,7 @@ tm_insert(
     return 0;
 }
 
-static OS_INLINE int
+static inline int
 tm_remove(tm_node_t *timer)
 {
     if (NULL==timer) {
@@ -423,7 +423,7 @@ tm_remove(tm_node_t *timer)
 /*
 * call it in callback
 */
-static OS_INLINE int
+static inline int
 tm_once(tm_node_t *timer)
 {
     if (NULL==timer) {
@@ -436,7 +436,7 @@ tm_once(tm_node_t *timer)
     }
 }
 
-static OS_INLINE int
+static inline int
 tm_change(tm_node_t *timer, uint32_t after)
 {
     if (NULL==timer) {
@@ -465,7 +465,7 @@ tm_change(tm_node_t *timer, uint32_t after)
 /*
 * call it in callback
 */
-static OS_INLINE int
+static inline int
 tm_change_expires(tm_node_t *timer, uint32_t expires)
 {
     if (NULL==timer) {
@@ -487,7 +487,7 @@ tm_change_expires(tm_node_t *timer, uint32_t expires)
 *   =0: NOT pending
 *   <0: error
 */
-static OS_INLINE int //ticks
+static inline int //ticks
 tm_left(tm_node_t *timer)
 {
     if (NULL==timer) {
@@ -507,7 +507,7 @@ tm_left(tm_node_t *timer)
 *   =0: NOT pending
 *   <0: error
 */
-static OS_INLINE int //ticks
+static inline int //ticks
 tm_expires(tm_node_t *timer)
 {
     if (NULL==timer) {
@@ -521,7 +521,7 @@ tm_expires(tm_node_t *timer)
     }
 }
 
-static OS_INLINE bool
+static inline bool
 tm_is_pending(tm_node_t *timer)
 {
     if (NULL==timer) {
@@ -531,7 +531,7 @@ tm_is_pending(tm_node_t *timer)
     }
 }
 
-static OS_INLINE bool
+static inline bool
 tm_is_once(tm_node_t *timer)
 {
     if (NULL==timer) {
@@ -542,7 +542,7 @@ tm_is_once(tm_node_t *timer)
 }
 #define tm_is_cycle(_timer)     (false==tm_is_once(_timer))
 
-static OS_INLINE void
+static inline void
 tm_init(void)
 {
     tm_ring_t *ring;
@@ -559,7 +559,7 @@ tm_init(void)
     }
 }
 
-static OS_INLINE void
+static inline void
 tm_fini(void)
 {
     tm_node_t *timer, *n;
@@ -581,7 +581,7 @@ tm_fini(void)
     }
 }
 
-static OS_INLINE int
+static inline int
 tm_fd(uint32_t sec, uint32_t nsec)
 {
     struct itimerspec new = OS_ITIMESPEC_INITER(sec, nsec);
@@ -597,7 +597,7 @@ tm_fd(uint32_t sec, uint32_t nsec)
     return fd;
 }
 
-static OS_INLINE uint32_t
+static inline uint32_t
 tm_fd_read(int fd)
 {
     uint64_t timeout = 0;
@@ -609,7 +609,7 @@ tm_fd_read(int fd)
     return times;
 }
 
-static OS_INLINE int
+static inline int
 tm_fd_trigger(int fd)
 {    
     return tm_trigger(tm_fd_read(fd));
