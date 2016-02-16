@@ -870,11 +870,8 @@ __user_get(byte mac[])
     }
     
     h2_node_t *node = h2_find(&umd.table, UM_USER_NIDX_MAC, dhash, eq);
-    if (node) {
-        return getuser_bynode(node);
-    }
 
-    return NULL;
+    return node?getuser_bynode(node):NULL;
 }
 
 static inline int
