@@ -59,6 +59,10 @@
 #define __THIS_AK               __SYMBOL_TO_VAR(__THIS_APP, _ak)
 #endif
 
+#ifndef __THIS_IPCBUFFER
+#define __THIS_IPCBUFFER        __SYMBOL_TO_VAR(__THIS_APP, _ipc_buffer)
+#endif
+
 #ifndef __THIS_LOCKFILE
 #define __THIS_LOCKFILE         "/tmp/." __THIS_NAME ".lock"
 #endif

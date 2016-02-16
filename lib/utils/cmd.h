@@ -496,12 +496,8 @@ typedef struct {
 
 #define simpile_res_hsize           offsetof(simpile_response_t, buf)
 
-#ifndef INLINE_VAR_SIMPILE_RES
-#define INLINE_VAR_SIMPILE_RES      ____INLINE_VAR_SIMPILE_RES
-#endif
-
-#define DECLARE_FAKE_SIMPILE_RES    extern simpile_response_t INLINE_VAR_SIMPILE_RES
-#define DECLARE_REAL_SIMPILE_RES    simpile_response_t INLINE_VAR_SIMPILE_RES
+#define DECLARE_FAKE_SIMPILE_RES    extern simpile_response_t __THIS_IPCBUFFER
+#define DECLARE_REAL_SIMPILE_RES    simpile_response_t __THIS_IPCBUFFER
 
 #ifdef __BUSYBOX__
 #define DECLARE_SIMPILE_RES     DECLARE_FAKE_SIMPILE_RES
@@ -515,7 +511,7 @@ static inline simpile_response_t *
 __simpile_res(void)
 {
 #ifdef __SIMPILE_RES__
-    return &INLINE_VAR_SIMPILE_RES;
+    return &__THIS_IPCBUFFER;
 #else
     return NULL;
 #endif
