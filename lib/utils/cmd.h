@@ -744,6 +744,13 @@ simpile_u_server_init(simpile_server_t *server)
         debug_error("setsockopt error:%d", -errno);
         return -errno;
     }
+    os_println("set SO_SNDBUF = %d", size);
+    
+    size = 0;
+    int len = sizeof(size);
+    
+    getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, &len);
+    os_println("get SO_SNDBUF = %d", size);
     
     server->fd = fd;
     
