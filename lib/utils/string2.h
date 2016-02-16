@@ -96,7 +96,6 @@ string_root(string_t *s)
     return s?__string_root(s):NULL;
 }
 
-
 static inline bool
 is_good_string(string_t *s)
 {
@@ -112,7 +111,6 @@ is_good_string(string_t *s)
         return false;
     }
 }
-
 
 static inline char *
 string_string(string_t *s)
@@ -135,7 +133,6 @@ string_get(string_t *s)
     return s;
 }
 
-
 static inline void
 string_put(string_t *s)
 {
@@ -149,7 +146,6 @@ string_put(string_t *s)
         }
     }
 }
-
 
 /*
 * unsafe
@@ -179,7 +175,6 @@ string_restore(string_t *s)
     }
 }
 
-
 static inline bool
 string_can_slice(string_t *s, uint32_t begin, uint32_t len)
 {
@@ -187,7 +182,6 @@ string_can_slice(string_t *s, uint32_t begin, uint32_t len)
 
     return 0 <= begin && begin <= max && max <= s->len;
 }
-
 
 static inline string_t
 string_slice(string_t *s, uint32_t begin, uint32_t len)
@@ -206,8 +200,6 @@ string_slice(string_t *s, uint32_t begin, uint32_t len)
     
     return new;
 }
-
-#if 0
 
 static inline int
 string_cmp(string_t *a, string_t *b)
@@ -253,6 +245,5 @@ string_eq(string_t *a, string_t *b)
         }
     }
 }
-#endif
 /******************************************************************************/
 #endif /* __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__ */
