@@ -115,11 +115,11 @@ __hash_del_init(hash_node_t *node)
 }
 
 static inline void
-__hash_addby(hash_t *h, hash_node_t *node, hash_node_calc_f *node_calc, bool force)
+__hash_addby(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash, bool force)
 {
     if (false==__in_hash(node)) {
         if (force || INVALID_HASH_IDX==node->idx) {
-            node->idx = (*node_calc)(node);
+            node->idx = (*nhash)(node);
         }
         
         list_add(&node->node, __hash_bucket(h, node->idx));
@@ -129,23 +129,23 @@ __hash_addby(hash_t *h, hash_node_t *node, hash_node_calc_f *node_calc, bool for
 }
 
 static inline void
-__hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *node_calc)
+__hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
 {
-    __hash_addby(h, node, node_calc, false);
+    __hash_addby(h, node, nhash, false);
 }
 
 static inline void
-__hash_add_calc(hash_t *h, hash_node_t *node, hash_node_calc_f *node_calc)
+__hash_add_calc(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
 {
-    __hash_addby(h, node, node_calc, true);
+    __hash_addby(h, node, nhash, true);
 }
 
 static inline void
-__hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *node_calc)
+__hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *nhash)
 {
     __hash_del(node);
     (*change)(node);
-    __hash_add_calc(h, node, node_calc);
+    __hash_add_calc(h, node, nhash);
 }
 #endif
 /******************************************************************************/
@@ -219,12 +219,12 @@ hash_del_init(hash_t *h, hash_node_t *node)
 }
 
 static inline int
-hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *node_calc)
+hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
 {
-    if (h && node && node_calc) {
+    if (h && node && nhash) {
         __hash_del(node);
 
-        __hash_add(h, node, node_calc);
+        __hash_add(h, node, nhash);
 
         return 0;
     } else {
@@ -233,12 +233,12 @@ hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *node_calc)
 }
 
 static inline int
-hash_add_calc(hash_t *h, hash_node_t *node, hash_node_calc_f *node_calc)
+hash_add_calc(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
 {
-    if (h && node && node_calc) {
+    if (h && node && nhash) {
         __hash_del(node);
 
-        __hash_add_calc(h, node, node_calc);
+        __hash_add_calc(h, node, nhash);
 
         return 0;
     } else {
@@ -247,10 +247,10 @@ hash_add_calc(hash_t *h, hash_node_t *node, hash_node_calc_f *node_calc)
 }
 
 static inline int
-hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *node_calc)
+hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *nhash)
 {
-    if (h && node && change && node_calc) {
-        __hash_change(h, node, change, node_calc);
+    if (h && node && change && nhash) {
+        __hash_change(h, node, change, nhash);
 
         return 0;
     } else {
@@ -271,10 +271,10 @@ hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_
     list_for_each_entry_safe(_pos, _tmp, _bucket, _member.node)
 
 static inline hash_node_t *
-hash_find(hash_t *h, hash_data_calc_f *data_calc, hash_eq_f *eq)
+hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
-    if (h && data_calc && eq) {
-        hash_bucket_t *bucket = hash_bucket(h, (*data_calc)());
+    if (h && dhash && eq) {
+        hash_bucket_t *bucket = hash_bucket(h, (*dhash)());
         hash_node_t *node;
 
         if (bucket) {
