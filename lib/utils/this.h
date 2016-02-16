@@ -10,9 +10,9 @@
 
 #define __SYMBOL_TO_VAR2(_prefix, _name)        __this_##_prefix##_name
 #ifdef __BUSYBOX__
-#   define __SYMBOL_TO_VAR(_prefix, _name)      __SYMBOL_TO_VAR2(_, _name)
-#else
 #   define __SYMBOL_TO_VAR(_prefix, _name)      __SYMBOL_TO_VAR2(_prefix, _name)
+#else
+#   define __SYMBOL_TO_VAR(_prefix, _name)      __SYMBOL_TO_VAR2(_, _name)
 #endif
 
 #ifndef __THIS_NAME
