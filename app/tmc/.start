@@ -1,1 +1,5 @@
-../../.start
+#!/bin/bash
+
+pushd ../../ &> /dev/null
+./.start
+popd &> /dev/null

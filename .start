@@ -1,21 +1,24 @@
 #!/bin/bash
 
+function subcall() {
+	local name="$1"
+	local prefix="$1"
+
+	pushd app/${name} &> /dev/null
+	${prefix} ./${name} &
+	popd &> /dev/null
+
+	sleep 1
+}
+
 main() {
 	./.stop
-
 	./.reload
 
-	../jlogd/jlogd &
-	sleep 1
-
-	../tmd/tmd &
-	sleep 1
-
-	../smd/smd &
-	sleep 1
-
-	sudo ../umd/umd
-	sleep 1
+	subcall jlogd
+	subcall tmd
+	subcall smd
+	subcall umd sudo
 }
 
 main "$@"

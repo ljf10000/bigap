@@ -10,7 +10,10 @@ main() {
 	echo "debug ${flag}" > ${path}/smd.key
 	echo "debug ${flag}" > ${path}/umd.key
 
-	../../app/ak/ak reload
+	pushd app/ak &> /dev/null
+	./ak reload
+	popd &> /dev/null
 }
 
 main "$@"
+
