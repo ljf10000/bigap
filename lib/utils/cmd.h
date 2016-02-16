@@ -387,8 +387,8 @@ cmd_line_handle(cmd_table_t map[], int count, char *tag, char *args, int (*after
             
             if (table->syn && after) {
                 int len = (*after)();
-
-                os_println("cmd_line_handle send %d", len);
+                
+                debug_trace("send len:%d", len);
             }
 
             return err;
@@ -487,7 +487,7 @@ __simpile_cmd_handle(int count, simpile_cmd_t cmd[], int argc, char *argv[], int
 
 #ifdef __APP__
 #ifndef SIMPILE_RESPONSE_SIZE
-#define SIMPILE_RESPONSE_SIZE       (1024*1024-1)
+#define SIMPILE_RESPONSE_SIZE       (128*1024-1-sizeof(int)-3*sizeof(uint32_t))
 #endif
 
 typedef struct {
