@@ -385,7 +385,8 @@ cmd_line_handle(cmd_table_t map[], int count, char *tag, char *args, int (*after
         if (0==os_strcmp(table->tag, tag)) {
             err = (*table->u.line_cb)(args);
             
-            if (table->syn && after) { /**/
+            if (table->syn && after) {
+                os_println("cmd_line_handle after");
                 (*after)();
             }
 
@@ -530,14 +531,17 @@ __simpile_res(void)
 #define simpile_res_error(_err)     (simpile_res_err=(_err))
 #define simpile_res_ok              simpile_res_error(0)
 
-#define simpile_res_sprintf(_fmt, _args...) ({  \
-    int __len = os_snprintf(                    \
-            simpile_res_buf + simpile_res_len,  \
-            SIMPILE_RESPONSE_SIZE - simpile_res_len,  \
-            _fmt, ##_args);                     \
-    simpile_res_len += __len;                   \
-                                                \
-    __len;                                      \
+#define simpile_res_sprintf(_fmt, _args...)     ({  \
+    int __len = 0;                                  \
+    if (simpile_res_len < SIMPILE_RESPONSE_SIZE) {  \
+        __len = os_snprintf(                        \
+            simpile_res_buf + simpile_res_len,      \
+            SIMPILE_RESPONSE_SIZE - simpile_res_len,\
+            _fmt, ##_args);                         \
+        simpile_res_len += __len;                   \
+    }                                               \
+                                                    \
+    __len;                                          \
 })  /* end */
 
 #define simpile_res_recv(_fd, _timeout) \
@@ -613,6 +617,7 @@ __simpile_d_handle(int fd, cmd_table_t *table, int count)
     
     int after(void)
     {
+        os_println("__simpile_d_handle after");
         return simpile_res_sendto(fd, (sockaddr_t *)pclient, addrlen);
     }
     

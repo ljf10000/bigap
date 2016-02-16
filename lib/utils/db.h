@@ -116,7 +116,6 @@ _name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach) \
     os_println("dlistForeachEntry Begin"); \
                                         \
     dlistForeachEntry(&table->list, node, list) { \
-        os_println("dlistForeachEntry %p", node); \
         mv.v = (*foreach)(node);        \
         if (is_mv2_break(mv)) {         \
             return mv2_error(mv);       \
