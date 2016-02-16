@@ -11,13 +11,13 @@
 
 #define DECLARE_DB_TABLE(_name, _idx_count) \
 typedef struct {                        \
-    hash_t  hash[_idx_count];           \
     dlist_t list;                       \
+    hash_t  hash[_idx_count];           \
 } _name##_table_t;                      \
                                         \
 typedef struct {                        \
-    hash_node_t  hash[_idx_count];      \
     dlist_node_t list;                  \
+    hash_node_t  hash[_idx_count];      \
 } _name##_node_t;                       \
                                         \
 typedef mv_t _name##_foreach_f(_name##_node_t *node); \

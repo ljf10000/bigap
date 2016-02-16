@@ -437,8 +437,10 @@ flow_server_init(simpile_server_t *server)
         .sll_ifindex    = umd.intf[UM_INTF_TC].index,
     };
     err = bind(fd, (sockaddr_t *)&addr, sizeof(addr));
-    if (err) {
-        return err;
+    if (err<0) {
+        debug_error("bind error:%d", -errno);
+        
+        return -errno;
     }
 #endif
 
