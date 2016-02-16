@@ -84,13 +84,13 @@ string_t;
 #define STRING_B_CONST_INITER(_b) \
     __STRING_B_CONST_INITER(_b, 0, sizeof(_s))
 
-static inline string_t *
+static OS_INLINE string_t *
 __string_root(string_t *s)
 {
     return s->sopt_top?s:s->body.root;
 }
 
-static inline string_t *
+static OS_INLINE string_t *
 string_root(string_t *s)
 {
     return s?__string_root(s):NULL;

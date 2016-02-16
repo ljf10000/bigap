@@ -56,5 +56,7 @@
 #endif
 
 #define OS_AK_SHM_ID            (OS_SHM_ID + 1)
+
+#define OS_INLINE               __attribute__((always_inline))
 /******************************************************************************/
 #endif /* __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__ */
