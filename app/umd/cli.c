@@ -278,6 +278,9 @@ handle_show(char *args)
     char *json = args; /* json maybe include space, not shift */
 
     if (NULL==json) {
+        /*
+        * TODO: unix socket, 数据报方式, 无法传送大量数据，需要修改机制
+        */
         return um_user_foreach(show_user);
     }
     else if (is_good_json(json)) {

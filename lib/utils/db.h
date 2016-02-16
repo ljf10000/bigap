@@ -113,7 +113,6 @@ _name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach) \
 {                                       \
     _name##_node_t *node;               \
     mv_u mv;                            \
-    os_println("dlistForeachEntry Begin"); \
                                         \
     dlistForeachEntry(&table->list, node, list) { \
         mv.v = (*foreach)(node);        \
@@ -122,7 +121,6 @@ _name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach) \
         }                               \
     }                                   \
                                         \
-    os_println("dlistForeachEntry End"); \
     return 0;                           \
 }                                       \
                                         \

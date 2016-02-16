@@ -737,6 +737,13 @@ simpile_u_server_init(simpile_server_t *server)
         debug_error("bind error:%d", -errno);
         return -errno;
     }
+
+    int size = simpile_res_size;
+    err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
+    if (err<0) {
+        debug_error("setsockopt error:%d", -errno);
+        return -errno;
+    }
     
     server->fd = fd;
     
