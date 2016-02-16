@@ -85,7 +85,7 @@ os_vsnprintf(char *buf, int size, const char *fmt, va_list args)
     len = os_vsprintf(p, fmt, args);
 
     if (len <= bsize) {
-        os_strcpy(buf, p);
+        strcpy(buf, p);
     } else {
         len = bsize;
         os_memcpy(buf, p, len);
