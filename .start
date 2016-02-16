@@ -14,7 +14,7 @@ main() {
 	../smd/smd &
 	sleep 1
 
-	../umd/umd
+	sudo ../umd/umd
 	sleep 1
 }
 
