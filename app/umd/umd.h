@@ -358,7 +358,7 @@ enum {
 };
 
 struct um_control {
-    byte basemac[OS_MACSIZE]; /* local ap's base mac */
+    byte resv[2], basemac[OS_MACSIZE]; /* local ap's base mac */
     uint32_t ticks;
     bool deinit;
 

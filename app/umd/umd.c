@@ -17,12 +17,6 @@ extern simpile_server_t um_flow_server;
 extern simpile_server_t um_timer_server;
 
 struct um_control umd = {
-    .head   = {
-        .mac    = {HLIST_HEAD_INIT},
-        .ip     = {HLIST_HEAD_INIT},
-        .list   = LIST_HEAD_INIT(umd.head.list),
-    },
-
     .server = {
         [UM_SERVER_TIMER]   = &um_timer_server,
         [UM_SERVER_CLI]     = &um_cli_server,
