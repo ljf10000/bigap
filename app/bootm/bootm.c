@@ -45,9 +45,11 @@ env_rootfsxerr_check(char *value)
     return env_common_check(value, array, countof_array(array));
 }
 
-#define BOOT_VER_COUNT      2
-#define BOOT_VER_MIN        0
-#define BOOT_VER_MAX        9999
+enum {
+    BOOT_VER_COUNT  = 2,
+    BOOT_VER_MIN    = 0,
+    BOOT_VER_MAX    = 9999,
+};
 
 static int
 env_bootver_check(char *value)
@@ -70,9 +72,11 @@ env_bootver_check(char *value)
     return 0;
 }
 
-#define ENV_CHANGED             0x01
-#define ENV_HIDDEN              0x02
-#define ENV_READONLY            0x04
+enum {
+    ENV_CHANGED     = 0x01,
+    ENV_HIDDEN      = 0x02,
+    ENV_READONLY    = 0x04,
+};
 
 #define ENV_INITER(_name, _flag, _check) { \
     .name = _name,      \
@@ -210,8 +214,10 @@ env_check(int idx, char *value)
 
 static char bootenv[AT_ENV_COUNT][AT_ENV_LINE_SIZE];
 
-#define BLKSIZE     512
-#define MULTIPLE    (BLKSIZE/AT_ENV_LINE_SIZE)
+enum {
+    BLKSIZE     = 512,
+    MULTIPLE    = BLKSIZE/AT_ENV_LINE_SIZE,
+};
 
 static int
 env_write(FILE *f)

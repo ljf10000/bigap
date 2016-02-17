@@ -70,8 +70,10 @@ set_abstract_path(sockaddr_un_t *addr, const char *path)
     os_memcpy(get_abstract_path(addr), path, os_strlen(path));
 }
 
-#define unix_path_size      (sizeof(sockaddr_un_t) - offsetof(sockaddr_un_t, sun_path))
-#define abstract_path_size  (unix_path_size - 1)
+enum {
+    unix_path_size      = sizeof(sockaddr_un_t) - offsetof(sockaddr_un_t, sun_path),
+    abstract_path_size  = unix_path_size - 1,
+};
 
 static inline void
 set_abstract_sockaddr_len(sockaddr_un_t *addr, int addrlen)
@@ -487,9 +489,9 @@ os_macstring(byte mac[])
 #define ENV_BASEMAC         "__BASEMAC__"
 #endif
 /******************************************************************************/
-#ifndef OS_IPSTRINGLEN
-#define OS_IPSTRINGLEN              15 /* strlen("255.255.255.255") */
-#endif
+enum {
+    OS_IPSTRINGLEN = sizeof("255.255.255.255") - 1,
+};
 
 #ifdef __APP__
 

@@ -18,42 +18,44 @@
 /*
 * 只能新增表项，禁止修改已有表项的索引
 */
-#define AT_ENV_INIT             0
-#define AT_ENV_ROOTFS           1
-#define AT_ENV_ROOTFS1          2
-#define AT_ENV_ROOTFS1ERR       3
-#define AT_ENV_ROOTFS2          4
-#define AT_ENV_ROOTFS2ERR       5
-#define AT_ENV_PCBA_MAC         6
-#define AT_ENV_PCBA_SN          7
-#define AT_ENV_PCBA_MODEL       8
-#define AT_ENV_PCBA_VERSION     9
-#define AT_ENV_PSN              10
-#define AT_ENV_MID              11
-#define AT_ENV_RT               12  /* runtimes */
-#define AT_ENV_NA               13  /* no-auth */
-#define AT_ENV_UT               14  /* up-times */
-#define AT_ENV_BOOTVER          15
-#define AT_ENV_PCBA_VENDOR      16
-#define AT_ENV_PCBA_COMPANY     17
-#define AT_ENV_PRODUCT_MAC      18
-#define AT_ENV_PRODUCT_SN       19
-#define AT_ENV_PRODUCT_MODEL    20
-#define AT_ENV_PRODUCT_VERSION  21
-#define AT_ENV_PRODUCT_VENDOR   22
-#define AT_ENV_PRODUCT_COMPANY  23
-#define AT_ENV_PRODUCT_MANAGER  24
+enum {
+    AT_ENV_INIT             = 0,
+    AT_ENV_ROOTFS           = 1,
+    AT_ENV_ROOTFS1          = 2,
+    AT_ENV_ROOTFS1ERR       = 3,
+    AT_ENV_ROOTFS2          = 4,
+    AT_ENV_ROOTFS2ERR       = 5,
+    AT_ENV_PCBA_MAC         = 6,
+    AT_ENV_PCBA_SN          = 7,
+    AT_ENV_PCBA_MODEL       = 8,
+    AT_ENV_PCBA_VERSION     = 9,
+    AT_ENV_PSN              = 10,
+    AT_ENV_MID              = 11,
+    AT_ENV_RT               = 12,  /* runtimes */
+    AT_ENV_NA               = 13,  /* no-auth */
+    AT_ENV_UT               = 14,  /* up-times */
+    AT_ENV_BOOTVER          = 15,
+    AT_ENV_PCBA_VENDOR      = 16,
+    AT_ENV_PCBA_COMPANY     = 17,
+    AT_ENV_PRODUCT_MAC      = 18,
+    AT_ENV_PRODUCT_SN       = 19,
+    AT_ENV_PRODUCT_MODEL    = 20,
+    AT_ENV_PRODUCT_VERSION  = 21,
+    AT_ENV_PRODUCT_VENDOR   = 22,
+    AT_ENV_PRODUCT_COMPANY  = 23,
+    AT_ENV_PRODUCT_MANAGER  = 24,
 
-#define AT_ENV_OEM_MAC          33
-#define AT_ENV_OEM_SN           34
-#define AT_ENV_OEM_MODEL        35
-#define AT_ENV_OEM_VERSION      36
-#define AT_ENV_OEM_VENDOR       37
-#define AT_ENV_OEM_COMPANY      38
-#define AT_ENV_OEM_MANAGER      39
+    AT_ENV_OEM_MAC          = 33,
+    AT_ENV_OEM_SN           = 34,
+    AT_ENV_OEM_MODEL        = 35,
+    AT_ENV_OEM_VERSION      = 36,
+    AT_ENV_OEM_VENDOR       = 37,
+    AT_ENV_OEM_COMPANY      = 38,
+    AT_ENV_OEM_MANAGER      = 39,
 
-#define AT_ENV_PRIVATE          40
-#define AT_ENV_PTEST            (AT_ENV_COUNT-1)
+    AT_ENV_PRIVATE          = 40,
+    AT_ENV_PTEST            = (AT_ENV_COUNT-1),
+};
 
 #define AT_DEFT_INIT            "f00d1e"
 #define AT_DEFT_BOOTVER         "1.2"

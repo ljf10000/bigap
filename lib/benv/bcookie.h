@@ -3,11 +3,13 @@
 #include "benv/benv.h"
 /******************************************************************************/
 enum {
-    BCOOKIE_OTP = 538050839,
+    BCOOKIE_OTP     = 538050839,
     BCOOKIE_CID,
 };
 
-#define BCOOKIE_COUNT   7
+enum {
+    BCOOKIE_COUNT   = 7,
+};
 
 struct bcookie {
     uint32_t id[BCOOKIE_COUNT];
