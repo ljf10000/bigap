@@ -28,14 +28,16 @@ xxxxH : xxxxxxxx xxxxxxxx xxxxxx            ; ccccccccccc
 #define __DUMP_LINE_LIMIT           80
 #endif
 
-#define __DUMP_LINE_BYTES           (__DUMP_LINE_BLOCK_BYTES * __DUMP_LINE_BLOCK)
-#define __DUMP_LINE_MAX     (0  \
-        + 8 /* "xxxxH : " */    \
-        + (2 * __DUMP_LINE_BLOCK_BYTES + 1) * __DUMP_LINE_BLOCK \
-        + 2 /* "; " */          \
-        + __DUMP_LINE_BYTES     \
-        + 1 /* "\n" */          \
-)
+enum {
+    __DUMP_LINE_BYTES   = __DUMP_LINE_BLOCK_BYTES * __DUMP_LINE_BLOCK,
+    __DUMP_LINE_MAX     =  (0
+                            + 8 /* "xxxxH : " */
+                            + (2 * __DUMP_LINE_BLOCK_BYTES + 1) * __DUMP_LINE_BLOCK \
+                            + 2 /* "; " */
+                            + __DUMP_LINE_BYTES
+                            + 1 /* "\n" */
+                            ),
+};
 
 #if __DUMP_LINE_MAX > __DUMP_LINE_LIMIT
 #error "must __DUMP_LINE_MAX < __DUMP_LINE_LIMIT"
