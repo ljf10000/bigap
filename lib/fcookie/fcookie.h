@@ -75,7 +75,10 @@ typedef struct {
 }   /* end */
 
 #define FCOOKIE_FILE_PREFIX     "/tmp/.cookie"
-#define FCOOKIE_FILE_LEN        sizeof(FCOOKIE_FILE_PREFIX ".XXXXXXXXXXXXXXXX")
+
+enum {
+    FCOOKIE_FILE_LEN = sizeof(FCOOKIE_FILE_PREFIX ".XXXXXXXXXXXXXXXX"),
+};
 
 static inline bool
 __fcookie_file_exist(char *file)

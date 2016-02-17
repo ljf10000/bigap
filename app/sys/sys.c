@@ -210,8 +210,8 @@ static int
 __rsync(int idx, benv_version_t *version)
 {
     int err;
-    char new[BENV_VERSION_STRING_SIZE];
-    char old[BENV_VERSION_STRING_SIZE];
+    char new[1+BENV_VERSION_STRING_LEN];
+    char old[1+BENV_VERSION_STRING_LEN];
     char pwd[1+FCOOKIE_FILE_LEN] = {0};
     char *pwdfile = sys.env.pwdfile;
     
@@ -275,8 +275,8 @@ static int
 __rcopy(int idx, char *dir, benv_version_t *version)
 {
     int err;
-    char new[BENV_VERSION_STRING_SIZE];
-    char old[BENV_VERSION_STRING_SIZE];
+    char new[1+BENV_VERSION_STRING_LEN];
+    char old[1+BENV_VERSION_STRING_LEN];
     
     __benv_version_itoa(version, new);
     __benv_version_itoa(&sys.old_version, old);
@@ -791,8 +791,8 @@ static int
 __rdd(int dst, int src)
 {
     int err;
-    char new[BENV_VERSION_STRING_SIZE];
-    char old[BENV_VERSION_STRING_SIZE];
+    char new[1+BENV_VERSION_STRING_LEN];
+    char old[1+BENV_VERSION_STRING_LEN];
     
     __benv_version_itoa(benv_rootfs_version(src), new);
     __benv_version_itoa(&sys.old_version, old);
@@ -846,8 +846,8 @@ static int
 __kdd_bydev(int dst, int src)
 {
     int err;
-    char new[BENV_VERSION_STRING_SIZE];
-    char old[BENV_VERSION_STRING_SIZE];
+    char new[1+BENV_VERSION_STRING_LEN];
+    char old[1+BENV_VERSION_STRING_LEN];
     
     os_strcpy(new, benv_kernel_version_string(src));
     __benv_version_itoa(&sys.old_version, old);
@@ -902,8 +902,8 @@ static int
 __kdd_byfile(int idx, char *file, benv_version_t *version)
 {
     int err;
-    char new[BENV_VERSION_STRING_SIZE];
-    char old[BENV_VERSION_STRING_SIZE];
+    char new[1+BENV_VERSION_STRING_LEN];
+    char old[1+BENV_VERSION_STRING_LEN];
     
     __benv_version_itoa(version, new);
     __benv_version_itoa(&sys.old_version, old);

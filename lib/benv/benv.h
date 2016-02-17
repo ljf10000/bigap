@@ -360,7 +360,7 @@ enum {
 #define BENV_DEFT_VERSION       BENV_MIN_VERSION
 
 enum {
-    BENV_VERSION_STRING_SIZE    = sizeof(BENV_MAX_VERSION_STRING),  /* 16 */
+    BENV_VERSION_STRING_LEN = sizeof(BENV_MAX_VERSION_STRING) - 1,  /* 15 */
 };
 
 static inline char *
@@ -416,7 +416,7 @@ __benv_version_atoi(benv_version_t * version, char *string)
 static inline char *
 benv_version_itoa(benv_version_t * version)
 {
-    static char string[BENV_VERSION_STRING_SIZE];
+    static char string[1+BENV_VERSION_STRING_LEN];
 
     return __benv_version_itoa(version, string);
 }
