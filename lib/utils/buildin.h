@@ -77,21 +77,10 @@
     (_b) = __tmp;                   \
 }while(0)
 
-#ifndef INVALID_VALUE
 #define INVALID_VALUE       (-1)
-#endif
-
-#ifndef INVALID_COMMON_ID
 #define INVALID_COMMON_ID   INVALID_VALUE
-#endif
-
-#ifndef INVALID_SEM_ID
 #define INVALID_SEM_ID      INVALID_COMMON_ID
-#endif
-
-#ifndef INVALID_FD
 #define INVALID_FD          INVALID_COMMON_ID
-#endif
 
 static inline bool is_good_common_id(int id)
 {

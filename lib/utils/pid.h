@@ -6,9 +6,9 @@
 #define DECLARE_FAKE_DEAMON         extern bool __THIS_DEAMON
 
 #ifdef __BUSYBOX__
-#define DECLARE_DEAMON              DECLARE_FAKE_DEAMON
+#   define DECLARE_DEAMON           DECLARE_FAKE_DEAMON
 #else
-#define DECLARE_DEAMON              DECLARE_REAL_DEAMON
+#   define DECLARE_DEAMON           DECLARE_REAL_DEAMON
 #endif
 
 DECLARE_FAKE_DEAMON;

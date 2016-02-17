@@ -8,7 +8,7 @@
 #if ENV_PRINT
 #define env_println(_fmt, _args...)     os_println(_fmt, ##_args)
 #else
-#define env_println(_fmt, _args...)     do{}while(0)
+#define env_println(_fmt, _args...)     os_do_nothing()
 #endif
 
 #define is_good_env(_env)               is_good_str(_env)

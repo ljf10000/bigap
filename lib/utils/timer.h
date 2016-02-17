@@ -26,8 +26,10 @@ enum {
     TM_ONCE     = 0x02,
 };
 
-#define TM_SAFE     0
-#define TM_UNSAFE   1
+enum {
+    TM_SAFE     = 0,
+    TM_UNSAFE   = 1,
+};
 
 #define tm_SAFE(_result)        __mv2_return(TM_SAFE, _result)
 #define tm_UNSAFE(_result)      __mv2_return(TM_UNSAFE, _result)
@@ -80,9 +82,9 @@ typedef struct {
 #define DECLARE_FAKE_TIMER  extern tm_clock_t __THIS_TIMER
 
 #ifdef __BUSYBOX__
-#define DECLARE_TIMER       DECLARE_FAKE_TIMER
+#   define DECLARE_TIMER    DECLARE_FAKE_TIMER
 #else
-#define DECLARE_TIMER       DECLARE_REAL_TIMER
+#   define DECLARE_TIMER    DECLARE_REAL_TIMER
 #endif
 
 DECLARE_FAKE_TIMER;

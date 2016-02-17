@@ -173,9 +173,9 @@ is_good_oem_type(int type)
 }
 
 #ifdef __BUSYBOX__
-#define DECLARE_OEM     DECLARE_FAKE_OEM
+#   define DECLARE_OEM      DECLARE_FAKE_OEM
 #else
-#define DECLARE_OEM     DECLARE_REAL_OEM
+#   define DECLARE_OEM      DECLARE_REAL_OEM
 #endif
 
 DECLARE_FAKE_OEM;

@@ -84,9 +84,9 @@ typedef struct {
 #define DECLARE_FAKE_SDB    extern DECLARE_REAL_SDB
 
 #ifdef __BUSYBOX__
-#define DECLARE_SDB         DECLARE_FAKE_SDB
+#   define DECLARE_SDB      DECLARE_FAKE_SDB
 #else
-#define DECLARE_SDB         DECLARE_REAL_SDB
+#   define DECLARE_SDB      DECLARE_REAL_SDB
 #endif
 
 DECLARE_FAKE_SDB;

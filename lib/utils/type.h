@@ -24,17 +24,25 @@
 enum {
     OS_DISABLE          = 0,
     OS_ENABLE           = 1,
+};
 
+enum {
     OS_OFF              = 0,
     OS_ON               = 1,
+};
 
+enum {
     OS_OK               = 0,
     OS_FAIL             = 1,
-    
+};
+
+enum {
     __stdin             = 0,
     __stdout            = 1,
     __stderr            = 2,
-        
+};
+
+enum {
     __MV_GO             = 0,
     __MV_BREAK          = 1,
 };
@@ -85,7 +93,9 @@ __mv2_return(int control, int error)
 
 #define mv2_break(_result)      __mv2_return(__MV_BREAK, _result)
 #define mv2_go(_result)         __mv2_return(__MV_GO, _result)
-#define mv2_ok                  0 /* mv2_go(0) */
+enum {
+    mv2_ok = 0,
+};
 
 #define is_mv2_break(_mv)       (__MV_BREAK==mv2_control(_mv))
 #define is_mv2_go(_mv)          (__MV_GO==mv2_control(_mv))

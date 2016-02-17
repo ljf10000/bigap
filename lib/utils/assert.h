@@ -11,7 +11,7 @@
 *   os_assert(0);
 *       ==> (void)0;
 */
-#define os_assert(_x)           (void)0
+#define os_assert(_x)           ((void)0)
 #endif
 
 #define os_assertV(_x)          (os_assert(0), _x)

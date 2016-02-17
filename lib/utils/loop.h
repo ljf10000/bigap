@@ -1,48 +1,54 @@
 #ifndef __LOOP_H_71254387166c488dbb36aa9ed0f8b379__
 #define __LOOP_H_71254387166c488dbb36aa9ed0f8b379__
 /******************************************************************************/
-typedef struct {
+typedef struct loop_sig {
     int fd;
     int *number;
     int count;
 
+    int (*init)(struct loop_sig *loop);
     int (*cb)(struct signalfd_siginfo *siginfo);
 } loop_sig_t;
 
-#define LOOP_SIG_INITER(_sigs, _sigs_count, _cb) {   \
+#define LOOP_SIG_INITER(_sigs, _sigs_count, _init, _cb) {   \
     .fd     = INVALID_FD,   \
     .number = _sigs,        \
     .count  = _sigs_count,  \
+    .init   = _init,        \
     .cb     = _cb,          \
 }
 
-typedef struct {
+typedef struct loop_timer {
     int fd;
 
     struct itimerspec new;
-    
+
+    int (*init)(struct loop_timer *loop);
     int (*cb)(uint32_t times);
 } loop_timer_t;
 
-#define LOOP_TIMER_INITER(_sec, _nsec, _cb) {   \
+#define LOOP_TIMER_INITER(_sec, _nsec, _init, _cb) {   \
     .fd     = INVALID_FD,                       \
     .new    = OS_ITIMESPEC_INITER(_sec, _nsec), \
+    .init   = _init,                            \
     .cb     = _cb,                              \
 }
 
-typedef struct {
+typedef struct loop_epoll {
     int fd;
 
     int *fds;
     int count;
-    
+
+    int (*init)(struct loop_epoll *loop);
     int (*cb)(struct epoll_event *ev);
 } loop_epoll_t;
 
-#define LOOP_EPOLL_INITER(_fds, _fds_count, _cb)  {   \
+#define LOOP_EPOLL_INITER(_fds, _fds_count, _init, _cb)  {   \
     .fd     = INVALID_FD,   \
     .fds    = _fds,         \
     .count  = _fds_count,   \
+    .init   = _init,        \
     .cb     = _cb,          \
 }
 
@@ -52,13 +58,13 @@ typedef struct {
     loop_epoll_t epoll;
 } loop_t;
 
-#define LOOP_INITER(                                        \
-            _sigs, _sigs_count, _sigcb,                     \
-            _sec, _nsec, _timercb,                          \
-            _fds, _fds_count, _epollcb) {                   \
-    .sig    = LOOP_SIG_INITER(_sigs, _sigs_count, _sigcb),  \
-    .timer  = LOOP_TIMER_INITER(_sec, _nsec, _timercb),     \
-    .epoll  = LOOP_EPOLL_INITER(_fds, _fds_count, _epollcb),\
+#define LOOP_INITER(                                                    \
+            _sigs, _sigs_count, _siginit, _sigcb,                       \
+            _sec, _nsec, _timerinit, _timercb,                          \
+            _fds, _fds_count, _epollinit, _epollcb) {                   \
+    .sig    = LOOP_SIG_INITER(_sigs, _sigs_count, _siginit, _sigcb),    \
+    .timer  = LOOP_TIMER_INITER(_sec, _nsec, _timerinit, _timercb),     \
+    .epoll  = LOOP_EPOLL_INITER(_fds, _fds_count, _epollinit, _epollcb),\
 }
 
 static inline bool
@@ -99,9 +105,16 @@ os_loop_del(loop_t *loop, int fd)
 static int
 __loop_signal_init(loop_t *loop)
 {
-    int i;
+    int i, err;
     sigset_t set;
 
+    if (loop->sig.init) {
+        err = (*loop->sig.init)(&loop->sig);
+        if (err<0) {
+            return err;
+        }
+    }
+    
     sigemptyset(&set);
     for (i=0; i<loop->sig.count; i++) {
         sigaddset(&set, loop->sig.number[i]);
@@ -119,6 +132,15 @@ __loop_signal_init(loop_t *loop)
 static int
 __loop_timer_init(loop_t *loop)
 {
+    int err;
+    
+    if (loop->timer.init) {
+        err = (*loop->timer.init)(&loop->timer);
+        if (err<0) {
+            return err;
+        }
+    }
+    
     loop->timer.fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
     if (loop->timer.fd<0) {
         return -errno;
@@ -140,6 +162,13 @@ static int
 __loop_epoll_init(loop_t *loop)
 {
     int i, err;
+    
+    if (loop->epoll.init) {
+        err = (*loop->epoll.init)(&loop->epoll);
+        if (err<0) {
+            return err;
+        }
+    }
     
     if (loop->epoll.fds && loop->epoll.count) {
         for (i=0; i<loop->epoll.count; i++) {

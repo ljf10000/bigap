@@ -100,9 +100,9 @@ typedef struct {
 #define DECLARE_FAKE_FD     extern fd_control_t __THIS_FD
 
 #ifdef __BUSYBOX__
-#define DECLARE_FD          DECLARE_FAKE_FD
+#   define DECLARE_FD       DECLARE_FAKE_FD
 #else
-#define DECLARE_FD          DECLARE_REAL_FD
+#   define DECLARE_FD       DECLARE_REAL_FD
 #endif
 
 DECLARE_FAKE_FD;

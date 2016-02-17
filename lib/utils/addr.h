@@ -111,9 +111,11 @@ os_sockaddr_len(sockaddr_t *addr)
 }
 /******************************************************************************/
 enum {
-    OS_MACSIZE      = 6,
     OS_OUISIZE      = 3,
+    OS_MACSIZE      = 6,
+};
 
+enum {
     /*
     * short macstring is "XXXXXXXXXXXX"
     *

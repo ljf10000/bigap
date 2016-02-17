@@ -568,9 +568,9 @@ os_fsize(char *filename)
 #define DECLARE_REAL_FLOCK  int __THIS_LOCKFD = INVALID_FD
 
 #ifdef __BUSYBOX__
-#define DECLARE_FLOCK       DECLARE_FAKE_FLOCK
+#   define DECLARE_FLOCK    DECLARE_FAKE_FLOCK
 #else
-#define DECLARE_FLOCK       DECLARE_REAL_FLOCK
+#   define DECLARE_FLOCK    DECLARE_REAL_FLOCK
 #endif
 
 DECLARE_FAKE_FLOCK;

@@ -22,7 +22,9 @@
 #endif
 
 #define AK_DEBUG_NAME           "debug"
-#define INVALID_AKID            0
+enum {
+    INVALID_AKID    = 0,
+};
 
 #ifndef AK_DPRINT
 #define AK_DPRINT               0
@@ -239,10 +241,11 @@ typedef struct {
 }
 
 #ifdef __BUSYBOX__
-#define DECLARE_AK      DECLARE_FAKE_AK
+#   define DECLARE_AK   DECLARE_FAKE_AK
 #else
-#define DECLARE_AK      DECLARE_REAL_AK
+#   define DECLARE_AK   DECLARE_REAL_AK
 #endif
+
 DECLARE_FAKE_AK;
 
 static inline int 

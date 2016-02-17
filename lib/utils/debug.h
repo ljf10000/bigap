@@ -8,7 +8,7 @@
 #define BACKTRACE_by_libunwind          2
 
 #ifndef BACKTRACE_TYPE
-#   define BACKTRACE_TYPE      BACKTRACE_by_libc_backtrace
+#define BACKTRACE_TYPE      BACKTRACE_by_libc_backtrace
 #endif
 
 #define BACKTRACE_DESTROY_STACK_FOREVER(_up) do{   \
@@ -62,9 +62,9 @@
 
 #ifndef BACKTRACE_PATH
 #ifdef __PC__
-#define BACKTRACE_PATH          "."
+#   define BACKTRACE_PATH       "."
 #else
-#define BACKTRACE_PATH          "/tmp/.backtrace"
+#   define BACKTRACE_PATH       "/tmp/.backtrace"
 #endif
 #endif
 

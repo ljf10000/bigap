@@ -37,9 +37,9 @@ os_gmtime(time_t *c)
 }
 
 #if OS_USE_UTC_TIME
-#define os_gettm(_time) os_gmtime(_time)
+#   define os_gettm(_time)  os_gmtime(_time)
 #else
-#define os_gettm(_time) os_localtime(_time)
+#   define os_gettm(_time)  os_localtime(_time)
 #endif
 
 static inline char *
