@@ -10,7 +10,7 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 
 OS_INITER;
 
-enum { ATDOG_COUNT = 2 };
+enum { DOG_COUNT = 2 };
 
 #if 0
 HI_S32 HI_UNF_WDG_Init(HI_VOID);
@@ -71,7 +71,7 @@ set_timeout(int dog, int timeout)
 #define foreach(_method, _args...)   ({ \
     int __i, __err;                     \
                                         \
-    for (__i=0; __i<ATDOG_COUNT; __i++) { \
+    for (__i=0; __i<DOG_COUNT; __i++) { \
         __err = _method(__i, ##_args);  \
         if (__err) {                    \
             return __err;               \
@@ -110,16 +110,16 @@ cmd_reset(int argc, char *argv[])
 static int
 cmd_get_timeout(int argc, char *argv[])
 {
-    int i, err, timeout[ATDOG_COUNT];
+    int i, err, timeout[DOG_COUNT];
 
-    for (i=0; i<ATDOG_COUNT; i++) {
+    for (i=0; i<DOG_COUNT; i++) {
         err = get_timeout(i, &timeout[i]);
         if (err) {
             return err;
         }
     }
     
-    for (i=1; i<ATDOG_COUNT; i++) {
+    for (i=1; i<DOG_COUNT; i++) {
         if (timeout[i-1] != timeout[i]) {
             debug_error("dog%d's timeout(%d) != dog%d's timeout(%d)",
                 i-1,

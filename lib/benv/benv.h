@@ -362,10 +362,8 @@ enum {
     },                              \
 }   /* end */
 
-enum {
-    BENV_INVALID_VERSION        = BENV_MIN_VERSION,
-    BENV_DEFT_VERSION           = BENV_MIN_VERSION,
-};
+#define BENV_INVALID_VERSION    BENV_MIN_VERSION
+#define BENV_DEFT_VERSION       BENV_MIN_VERSION
 
 enum {
     BENV_VERSION_STRING_SIZE    = sizeof(BENV_MAX_VERSION_STRING),  /* 16 */
