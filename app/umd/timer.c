@@ -174,13 +174,13 @@ timer_handle(struct um_user *user, time_t now)
 }
 
 static void
-timer_env_init(simpile_server_t *server)
+timer_env_init(cli_server_t *server)
 {
     umd.gc = get_umd_gc_env();
 }
 
 static int
-timer_server_init(simpile_server_t *server)
+timer_server_init(cli_server_t *server)
 {
     timer_env_init(server);
     
@@ -196,7 +196,7 @@ timer_server_init(simpile_server_t *server)
 }
 
 static int
-timer_server_handle(simpile_server_t *server)
+timer_server_handle(cli_server_t *server)
 {
     uint32_t times = tm_fd_read(server->fd);
     time_t now = time(NULL);
@@ -216,7 +216,7 @@ timer_server_handle(simpile_server_t *server)
     return 0;
 }
 
-simpile_server_t um_timer_server = {
+cli_server_t um_timer_server = {
     .fd     = INVALID_FD,
 
     .init   = timer_server_init,

@@ -59,8 +59,8 @@
 #define __THIS_AK               __SYMBOL_TO_VAR(__THIS_APP, _ak)
 #endif
 
-#ifndef __THIS_IPCBUFFER
-#define __THIS_IPCBUFFER        __SYMBOL_TO_VAR(__THIS_APP, _ipc_buffer)
+#ifndef __THIS_CLI_BUFFER
+#define __THIS_CLI_BUFFER       __SYMBOL_TO_VAR(__THIS_APP, _cli_buffer)
 #endif
 
 #ifndef __THIS_LOCKFILE

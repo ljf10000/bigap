@@ -153,7 +153,7 @@ cmd_set_timeout(int argc, char *argv[])
     }
 }
 
-static simpile_cmd_t cmd[] = {
+static cmd_table_t cmd[] = {
     {
         .argc   = 1,
         .argv   = {"enable"},
@@ -244,7 +244,7 @@ __init(void)
 static int
 __main(int argc, char *argv[])
 {
-    return simpile_cmd_handle(cmd, argc, argv, usage);
+    return cmd_handle(cmd, argc, argv, usage);
 }
 
 /*

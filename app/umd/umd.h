@@ -369,7 +369,7 @@ struct um_control {
     uint32_t ticks;
     bool deinit;
 
-    simpile_server_t *server[UM_SERVER_END];
+    cli_server_t *server[UM_SERVER_END];
     struct um_intf intf[UM_INTF_END];
     uint32_t gc;
     

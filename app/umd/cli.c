@@ -7,11 +7,11 @@
 #endif
 
 #define __DEAMON__
-#define __SIMPILE_RES__
+#define __CLI__
 
 #include "umd.h"
 
-DECLARE_SIMPILE_RES;
+DECLARE_CLI_BUFFER;
 
 /*
 * online
@@ -38,8 +38,8 @@ handle_offline(char *args)
 static int
 handle_enter(char *args)
 {
-    char *mac   = args; os_cmd_shift(args);
-    char *json  = args; os_cmd_shift(args);
+    char *mac   = args; cli_shift(args);
+    char *json  = args; cli_shift(args);
     
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -70,7 +70,7 @@ handle_enter(char *args)
 static int
 handle_leave(char *args)
 {
-    char *mac = args; os_cmd_shift(args);
+    char *mac = args; cli_shift(args);
 
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -90,8 +90,8 @@ handle_leave(char *args)
 static int
 handle_bind(char *args)
 {
-    char *mac   = args; os_cmd_shift(args);
-    char *ip    = args; os_cmd_shift(args);
+    char *mac   = args; cli_shift(args);
+    char *ip    = args; cli_shift(args);
 
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -115,7 +115,7 @@ handle_bind(char *args)
 static int
 handle_unbind(char *args)
 {
-    char *mac = args; os_cmd_shift(args);
+    char *mac = args; cli_shift(args);
 
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -134,9 +134,9 @@ handle_unbind(char *args)
 static int
 handle_auth(char *args)
 {
-    char *mac   = args; os_cmd_shift(args);
-    char *group = args; os_cmd_shift(args);
-    char *json  = args; os_cmd_shift(args);
+    char *mac   = args; cli_shift(args);
+    char *group = args; cli_shift(args);
+    char *json  = args; cli_shift(args);
     
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -169,7 +169,7 @@ handle_auth(char *args)
 static int
 handle_reauth(char *args)
 {
-    char *mac = args; os_cmd_shift(args);
+    char *mac = args; cli_shift(args);
     
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -188,7 +188,7 @@ handle_reauth(char *args)
 static int
 handle_deauth(char *args)
 {
-    char *mac   = args; os_cmd_shift(args);
+    char *mac   = args; cli_shift(args);
     
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -207,7 +207,7 @@ show_user(struct um_user *user)
     jobj_t obj = um_juser(user);
     
     if (obj) {
-        simpile_res_sprintf(__tab "%s" __crlf, jobj_string(obj));
+        cli_sprintf(__tab "%s" __crlf, jobj_string(obj));
 
         jobj_put(obj);
     }
@@ -243,7 +243,7 @@ show_user_byjson(char *json)
         return -ENOEXIST;
     }
     
-    simpile_res_sprintf("%s", jobj_string(juser));
+    cli_sprintf("%s", jobj_string(juser));
     jobj_put(juser);
     jobj_put(obj);
     
@@ -262,7 +262,7 @@ show_stat(void)
     jobj_add_int(obj, "user", h2_count(&umd.table));
     jobj_add(obj, "flow", um_jflow());
 
-    simpile_res_sprintf("%s" __crlf, jobj_string(obj));
+    cli_sprintf("%s" __crlf, jobj_string(obj));
     
     jobj_put(obj);
     
@@ -300,9 +300,9 @@ handle_show(char *args)
 static int
 handle_tag(char *args)
 {
-    char *mac   = args; os_cmd_shift(args);
-    char *k     = args; os_cmd_shift(args);
-    char *v     = args; os_cmd_shift(args);
+    char *mac   = args; cli_shift(args);
+    char *k     = args; cli_shift(args);
+    char *v     = args; cli_shift(args);
 
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -314,7 +314,7 @@ handle_tag(char *args)
     if (NULL==v) {
         tag = um_tag_get(os_mac(mac), k);
         if (tag) {
-            simpile_res_sprintf("%s" __crlf, tag->v);
+            cli_sprintf("%s" __crlf, tag->v);
         }
     } else {
         tag = um_tag_set(os_mac(mac), k, v);
@@ -343,31 +343,31 @@ handle_gc(char *args)
 }
 #endif
 
-static cmd_table_t cli_table[] = {
+static cli_table_t cli_table[] = {
 #if UM_USE_MONITOR
-    CMD_ENTRY("enter",  handle_enter),
-    CMD_ENTRY("leave",  handle_leave),
+    CLI_ENTRY("enter",  handle_enter),
+    CLI_ENTRY("leave",  handle_leave),
 #endif
-    CMD_ENTRY("bind",   handle_bind),
-    CMD_ENTRY("unbind", handle_unbind),
-    CMD_ENTRY("auth",   handle_auth),
-    CMD_ENTRY("reauth", handle_reauth),
-    CMD_ENTRY("deauth", handle_deauth),
-    CMD_ENTRY("show",   handle_show),
-    CMD_ENTRY("tag",    handle_tag),
+    CLI_ENTRY("bind",   handle_bind),
+    CLI_ENTRY("unbind", handle_unbind),
+    CLI_ENTRY("auth",   handle_auth),
+    CLI_ENTRY("reauth", handle_reauth),
+    CLI_ENTRY("deauth", handle_deauth),
+    CLI_ENTRY("show",   handle_show),
+    CLI_ENTRY("tag",    handle_tag),
 #if UM_USE_GC
-    CMD_ENTRY("gc",     handle_gc),
+    CLI_ENTRY("gc",     handle_gc),
 #endif
 };
 
 static int
-cli_server_handle(simpile_server_t *server)
+cli_server_handle(cli_server_t *server)
 {
-    return simpile_d_handle(server->fd, cli_table);
+    return cli_d_handle(server->fd, cli_table);
 }
 
 static int
-cli_env_init(simpile_server_t *server)
+cli_env_init(cli_server_t *server)
 {
     int err;
     
@@ -380,7 +380,7 @@ cli_env_init(simpile_server_t *server)
 }
 
 static int
-cli_server_init(simpile_server_t *server)
+cli_server_init(cli_server_t *server)
 {
     int err;
     
@@ -389,7 +389,7 @@ cli_server_init(simpile_server_t *server)
         return err;
     }
 
-    err = simpile_u_server_init(server);
+    err = cli_u_server_init(server);
     if (err) {
         return err;
     }
@@ -399,7 +399,7 @@ cli_server_init(simpile_server_t *server)
     return 0;
 }
 
-simpile_server_t um_cli_server = {
+cli_server_t um_cli_server = {
     .fd     = INVALID_FD,
     .addr   = OS_SOCKADDR_INITER(AF_UNIX),
 

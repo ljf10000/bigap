@@ -7,18 +7,18 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 
 #define __DEAMON__
 #define __TIMER__
-#define __SIMPILE_RES__
+#define __CLI__
 
 #include "utils.h"
 #include "tm/tm.h"
 
 OS_INITER;
 DECLARE_TIMER;
-DECLARE_SIMPILE_RES;
+DECLARE_CLI_BUFFER;
 
 #ifdef __BUSYBOX__
 DECLARE_REAL_TIMER;
-DECLARE_REAL_SIMPILE_RES;
+DECLARE_REAL_CLI_BUFFER;
 #endif
 
 static struct {    
@@ -247,10 +247,10 @@ xtimer_cb(tm_node_t *timer)
 static int
 handle_insert(char *args)
 {
-    char *name      = args; os_cmd_shift(args);
-    char *delay     = args; os_cmd_shift(args);
-    char *interval  = args; os_cmd_shift(args);
-    char *limit     = args; os_cmd_shift(args);
+    char *name      = args; cli_shift(args);
+    char *delay     = args; cli_shift(args);
+    char *interval  = args; cli_shift(args);
+    char *limit     = args; cli_shift(args);
     char *command   = args;
     int err;
     
@@ -320,7 +320,7 @@ handle_insert(char *args)
 static int
 handle_remove(char *args)
 {
-    char *name = args; os_cmd_shift(args);
+    char *name = args; cli_shift(args);
     if (NULL==name) {
         debug_trace("remove timer without name");
         
@@ -344,7 +344,7 @@ handle_remove(char *args)
 static void
 show(struct xtimer *entry)
 {
-    simpile_res_sprintf("%s %d %d %d %d %d %s" __crlf,
+    cli_sprintf("%s %d %d %d %d %d %s" __crlf,
         entry->name,
         entry->delay,
         entry->interval,
@@ -357,10 +357,10 @@ show(struct xtimer *entry)
 static int
 handle_show(char *args)
 {
-    char *name = args; os_cmd_shift(args);
+    char *name = args; cli_shift(args);
     bool empty = true;
     
-    simpile_res_sprintf("#name delay interval limit triggers left command" __crlf);
+    cli_sprintf("#name delay interval limit triggers left command" __crlf);
     
     mv_t cb(struct xtimer *entry)
     {
@@ -379,7 +379,7 @@ handle_show(char *args)
         /*
         * drop head line
         */
-        simpile_res_clear();
+        cli_buffer_clear();
 
         debug_trace("show timer(%s) nofound", name);
     }
@@ -390,10 +390,10 @@ handle_show(char *args)
 static int
 __server_handle(fd_set *r)
 {
-    static cmd_table_t table[] = {
-        CMD_ENTRY("insert",  handle_insert),
-        CMD_ENTRY("remove",  handle_remove),
-        CMD_ENTRY("show",    handle_show),
+    static cli_table_t table[] = {
+        CLI_ENTRY("insert",  handle_insert),
+        CLI_ENTRY("remove",  handle_remove),
+        CLI_ENTRY("show",    handle_show),
     };
     int err = 0;
     
@@ -402,7 +402,7 @@ __server_handle(fd_set *r)
     }
 
     if (FD_ISSET(tmd.server.fd, r)) {
-        err = simpile_d_handle(tmd.server.fd, table);
+        err = cli_d_handle(tmd.server.fd, table);
     }
 
     return err;

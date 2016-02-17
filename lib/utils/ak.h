@@ -17,13 +17,11 @@
 #define AK_PATH_DEFT            "/etc/appkey"
 #endif
 
-
 #ifndef AK_LIMIT
 #define AK_LIMIT                1023
 #endif
 
 #define AK_DEBUG_NAME           "debug"
-
 #define INVALID_AKID            0
 
 #ifndef AK_DPRINT

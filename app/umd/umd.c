@@ -12,9 +12,9 @@
 
 OS_INITER;
 
-extern simpile_server_t um_cli_server;
-extern simpile_server_t um_flow_server;
-extern simpile_server_t um_timer_server;
+extern cli_server_t um_cli_server;
+extern cli_server_t um_flow_server;
+extern cli_server_t um_timer_server;
 
 struct um_control umd = {
     .server = {
@@ -130,7 +130,7 @@ __init(void)
         return err;
     }
 
-    err = simpile_server_init(umd.server);
+    err = cli_server_init(umd.server);
     if (err) {
         return err;
     }
@@ -148,7 +148,7 @@ __main(int argc, char **argv)
     update_limit_test();
 
     while(1) {
-        simpile_server_handle(umd.server);
+        cli_server_handle(umd.server);
     }
     
     return err;

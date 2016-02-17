@@ -5,15 +5,15 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #define __THIS_APP      tmc
 #endif
 
-#define __SIMPILE_RES__
+#define __CLI__
 
 #include "utils.h"
 #include "tm/tm.h"
 
 OS_INITER;
-DECLARE_SIMPILE_RES;
+DECLARE_CLI_BUFFER;
 
-static simpile_client_t tmc = SIMPILE_CLIENT_INITER(TM_TIMEOUT, TMD_UNIX);
+static cli_client_t tmc = CLI_CLIENT_INITER(TM_TIMEOUT, TMD_UNIX);
 
 static int
 usage(int error)
@@ -26,7 +26,7 @@ usage(int error)
 }
 
 #define stimerc_handle(_action, _argc, _argv) \
-    simpile_c_handle(_action, true, _argc, _argv, &tmc.server, &tmc.client, tmc.timeout)
+    cli_c_handle(_action, true, _argc, _argv, &tmc.server, &tmc.client, tmc.timeout)
 
 static int
 cmd_insert(int argc, char *argv[])
@@ -93,14 +93,14 @@ cmd_show(int argc, char *argv[])
 static int
 command(int argc, char *argv[])
 {
-    static cmd_table_t table[] = {
-        CMD_ENTRY("insert",  cmd_insert),
-        CMD_ENTRY("remove",  cmd_remove),
-        CMD_ENTRY("show",    cmd_show),
+    static cli_table_t table[] = {
+        CLI_ENTRY("insert",  cmd_insert),
+        CLI_ENTRY("remove",  cmd_remove),
+        CLI_ENTRY("show",    cmd_show),
     };
     int err;
 
-    err = cmd_argv_handle(table, os_count_of(table), argc, argv);
+    err = cli_argv_handle(table, os_count_of(table), argc, argv);
     if (err) {
         debug_error("%s error:%d", argv[0], err);
 

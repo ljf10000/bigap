@@ -6,15 +6,15 @@
 #define __THIS_FILE     "umc"
 #endif
 
-#define __SIMPILE_RES__
+#define __CLI__
 
 #include "utils.h"
 #include "um/um.h"
 
 OS_INITER;
-DECLARE_SIMPILE_RES;
+DECLARE_CLI_BUFFER;
 
-static simpile_client_t umc = SIMPILE_CLIENT_INITER(UM_TIMEOUT, UMD_UNIX);
+static cli_client_t umc = CLI_CLIENT_INITER(UM_TIMEOUT, UMD_UNIX);
 
 static int
 usage(int error)
@@ -38,7 +38,7 @@ usage(int error)
 }
 
 #define umc_handle(_action, _argc, _argv) \
-    simpile_c_handle(_action, true, _argc, _argv, &umc.server, &umc.client, umc.timeout)
+    cli_c_handle(_action, true, _argc, _argv, &umc.server, &umc.client, umc.timeout)
 
 /*
 * online
@@ -304,25 +304,25 @@ cmd_gc(int argc, char *argv[])
 static int
 command(int argc, char *argv[])
 {
-    static cmd_table_t table[] = {
+    static cli_table_t table[] = {
 #if UM_USE_MONITOR
-        CMD_ENTRY("enter",  cmd_enter),
-        CMD_ENTRY("leave",  cmd_leave),
+        CLI_ENTRY("enter",  cmd_enter),
+        CLI_ENTRY("leave",  cmd_leave),
 #endif
-        CMD_ENTRY("bind",   cmd_bind),
-        CMD_ENTRY("unbind", cmd_unbind),
-        CMD_ENTRY("auth",   cmd_auth),
-        CMD_ENTRY("reauth", cmd_reauth),
-        CMD_ENTRY("deauth", cmd_deauth),
-        CMD_ENTRY("show",   cmd_show),
-        CMD_ENTRY("tag",    cmd_tag),
+        CLI_ENTRY("bind",   cmd_bind),
+        CLI_ENTRY("unbind", cmd_unbind),
+        CLI_ENTRY("auth",   cmd_auth),
+        CLI_ENTRY("reauth", cmd_reauth),
+        CLI_ENTRY("deauth", cmd_deauth),
+        CLI_ENTRY("show",   cmd_show),
+        CLI_ENTRY("tag",    cmd_tag),
 #if UM_USE_GC
-        CMD_ENTRY("gc",     cmd_gc),
+        CLI_ENTRY("gc",     cmd_gc),
 #endif
     };
     int err;
 
-    err = cmd_argv_handle(table, os_count_of(table), argc, argv);
+    err = cli_argv_handle(table, os_count_of(table), argc, argv);
     if (err) {
         debug_error("%s error:%d", argv[0], err);
 

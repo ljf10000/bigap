@@ -6,13 +6,13 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #endif
 
 #define __DEAMON__
-#define __SIMPILE_RES__
+#define __CLI__
 
 #include "utils.h"
 #include "sm/sm.h"
 
 OS_INITER;
-DECLARE_SIMPILE_RES;
+DECLARE_CLI_BUFFER;
 
 #ifndef SM_NORMAL_SLEEP
 #define SM_NORMAL_SLEEP       500 /* ms */
@@ -277,7 +277,7 @@ __run(struct sm *entry, char *prefix)
         return 0;
     }
     else { // child
-        simpile_cmd_t *cmd = simpile_cmd_argv(entry->command);
+        cmd_table_t *cmd = cmd_argv(entry->command);
         
         err = execvp(cmd->argv[0], cmd->argv);
         
@@ -566,8 +566,8 @@ __create(char *name, char *command, char *pidfile)
 static int
 handle_insert(char *args)
 {
-    char *type      = args; os_cmd_shift(args);
-    char *name      = args; os_cmd_shift(args);
+    char *type      = args; cli_shift(args);
+    char *name      = args; cli_shift(args);
     char *pidfile   = NULL;
     char *command   = NULL;
     int err = 0;
@@ -593,7 +593,7 @@ handle_insert(char *args)
         /*
         * insert deamon name pidfile command
         */
-        pidfile = args; os_cmd_shift(args);
+        pidfile = args; cli_shift(args);
         command = args; /* NOT shift */
     }
     else {
@@ -634,7 +634,7 @@ handle_insert(char *args)
 static int
 handle_remove(char *args)
 {
-    char *name = args; os_cmd_shift(args);
+    char *name = args; cli_shift(args);
     if (NULL==name) {
         debug_trace("remove monitor without name");
         
@@ -652,7 +652,7 @@ handle_remove(char *args)
 static void
 show(struct sm *entry)
 {
-    simpile_res_sprintf("%s %c%d/%d %d %s '%s'" __crlf,
+    cli_sprintf("%s %c%d/%d %d %s '%s'" __crlf,
         entry->name,
         os_hasflag(entry->flags, SM_F_STATIC)?'*':' ',
         entry->normal,
@@ -665,11 +665,11 @@ show(struct sm *entry)
 static int
 handle_show(char *args)
 {
-    char *name = args; os_cmd_shift(args);
+    char *name = args; cli_shift(args);
     struct sm *entry;
     bool empty = true;
     
-    simpile_res_sprintf("#name pid/dpid forks state command" __crlf);
+    cli_sprintf("#name pid/dpid forks state command" __crlf);
 
     list_for_each_entry(entry, &smd.list, node) {
         show(entry);
@@ -681,7 +681,7 @@ handle_show(char *args)
         /*
         * drop head line
         */
-        simpile_res_clear();
+        cli_buffer_clear();
         
         debug_trace("show monitor(%s) nofound", name);
     }
@@ -692,15 +692,15 @@ handle_show(char *args)
 static int
 __server_handle(fd_set *r)
 {
-    static cmd_table_t table[] = {
-        CMD_ENTRY("insert",  handle_insert),
-        CMD_ENTRY("remove",  handle_remove),
-        CMD_ENTRY("show",    handle_show),
+    static cli_table_t table[] = {
+        CLI_ENTRY("insert",  handle_insert),
+        CLI_ENTRY("remove",  handle_remove),
+        CLI_ENTRY("show",    handle_show),
     };
     int err = 0;
 
     if (FD_ISSET(smd.server.fd, r)) {
-        err = simpile_d_handle(smd.server.fd, table);
+        err = cli_d_handle(smd.server.fd, table);
     }
     
     return err;

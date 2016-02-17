@@ -1,63 +1,157 @@
 #ifndef __CLI_H_277ca663cad74dd5ad59851d69c58e0c__
 #define __CLI_H_277ca663cad74dd5ad59851d69c58e0c__
 /******************************************************************************/
+#if defined(__APP__) || defined(__BOOT__)
+typedef struct {
+    char *tag;
+
+    bool syn; /* just for server, client not use it */
+    
+    union {
+        void *cb;
+        int (*line_cb)(char *args);
+        int (*argv_cb)(int argc, char *argv[]);
+    } u;
+} cli_table_t;
+
+#define __CLI_ENTRY(_tag, _syn, _cb)   { \
+    .tag    = _tag,         \
+    .syn    = _syn,         \
+    .u      = {             \
+        .cb = _cb,          \
+    },                      \
+}
+
+#define CLI_ENTRY(_tag, _cb)    __CLI_ENTRY(_tag, true, _cb)
+
+#define __cli_argv_dump(_dump, _argc, _argv) ({ \
+    int i;                                  \
+                                            \
+    for (i=0; i<_argc; i++) {               \
+        _dump("function:%s argv[%d]=%s",    \
+            __func__, i, _argv[i]);         \
+    }                                       \
+                                            \
+    _argv[0];                               \
+})
+
+#define cli_argv_dump(_argc, _argv)         __cli_argv_dump(debug_trace, _argc, _argv)
+
+#define __cli_line_next(_args)              os_str_next_byifs(_args, ' ')
+#define __cli_shift(_args, _count)      do{ \
+    int i, count = (_count);                \
+                                            \
+    for (i=0; i<count; i++) {               \
+        _args = __cli_line_next(_args);     \
+    }                                       \
+}while(0)
+
+#define cli_shift(_args)                do{ \
+    _args = __cli_line_next(_args);         \
+}while(0)
+
+static int
+cli_line_handle(cli_table_t tables[], int count, char *tag, char *args, int (*after)(void))
+{
+    int i, err;
+    
+    for (i=0; i<count; i++) {
+        cli_table_t *table = &tables[i];
+        
+        if (0==os_strcmp(table->tag, tag)) {
+            err = (*table->u.line_cb)(args);
+            
+            if (table->syn && after) {
+                int len = (*after)();
+                
+                debug_trace("send len:%d", len);
+            }
+
+            return err;
+        }
+    }
+    
+    return -ENOEXIST;
+}
+
+static int
+cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
+{
+    int i;
+
+    if (argc < 1) {
+        return -EINVAL0;
+    }
+    
+    for (i=0; i<count; i++) {
+        cli_table_t *table = &tables[i];
+        
+        if (0==os_strcmp(table->tag, argv[0])) {
+            return (table->u.argv_cb)(argc-1, argv+1);
+        }
+    }
+
+    return -ENOEXIST;
+}
+#endif /* defined(__APP__) || defined(__BOOT__) */
+/******************************************************************************/
 #ifdef __APP__
-#ifndef SIMPILE_RESPONSE_SIZE
-#define SIMPILE_RESPONSE_SIZE       (256*1024-1-sizeof(int)-3*sizeof(uint32_t))
+#ifndef CLI_BUFFER_SIZE
+#define CLI_BUFFER_SIZE             (256*1024-1-sizeof(int)-3*sizeof(uint32_t))
 #endif
 
 typedef struct {
     uint32_t len, r0, r1;
     int err;
-    char buf[1+SIMPILE_RESPONSE_SIZE];
-} simpile_response_t;
+    char buf[1+CLI_BUFFER_SIZE];
+} cli_buffer_t;
 
-#define simpile_res_hsize           offsetof(simpile_response_t, buf)
+#define cli_buffer_hsize            offsetof(cli_buffer_t, buf)
 
-#define DECLARE_FAKE_SIMPILE_RES    extern simpile_response_t __THIS_IPCBUFFER
-#define DECLARE_REAL_SIMPILE_RES    simpile_response_t __THIS_IPCBUFFER
+#define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t __THIS_CLI_BUFFER
+#define DECLARE_REAL_CLI_BUFFER     cli_buffer_t __THIS_CLI_BUFFER
 
 #ifdef __BUSYBOX__
-#define DECLARE_SIMPILE_RES         DECLARE_FAKE_SIMPILE_RES
+#define DECLARE_CLI_BUFFER          DECLARE_FAKE_CLI_BUFFER
 #else
-#define DECLARE_SIMPILE_RES         DECLARE_REAL_SIMPILE_RES
+#define DECLARE_CLI_BUFFER          DECLARE_REAL_CLI_BUFFER
 #endif
 
-DECLARE_FAKE_SIMPILE_RES;
+DECLARE_FAKE_CLI_BUFFER;
 
-static inline simpile_response_t *
-__simpile_res(void)
+static inline cli_buffer_t *
+__cli_buffer(void)
 {
-#ifdef __SIMPILE_RES__
-    return &__THIS_IPCBUFFER;
+#ifdef __CLI__
+    return &__THIS_CLI_BUFFER;
 #else
     return NULL;
 #endif
 }
 
-#define simpile_res_err     __simpile_res()->err
-#define simpile_res_buf     __simpile_res()->buf
-#define simpile_res_len     __simpile_res()->len
-#define simpile_res_size    (simpile_res_hsize + simpile_res_len)
-#define simpile_res_left    (SIMPILE_RESPONSE_SIZE - simpile_res_size)
+#define cli_buffer_err      __cli_buffer()->err
+#define cli_buffer_buf      __cli_buffer()->buf
+#define cli_buffer_len      __cli_buffer()->len
+#define cli_buffer_size     (cli_buffer_hsize + cli_buffer_len)
+#define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_size)
 
-#define simpile_res_zero()  os_objzero(__simpile_res())
-#define simpile_res_clear() do{ \
-    simpile_res_buf[0]  = 0;    \
-    simpile_res_len     = 0;    \
+#define cli_buffer_zero()   os_objzero(__cli_buffer())
+#define cli_buffer_clear()  do{ \
+    cli_buffer_buf[0]  = 0;     \
+    cli_buffer_len     = 0;     \
 }while(0)
-#define simpile_res_error(_err)     (simpile_res_err=(_err))
-#define simpile_res_ok              simpile_res_error(0)
+#define cli_buffer_error(_err)      (cli_buffer_err=(_err))
+#define cli_buffer_ok               cli_buffer_error(0)
 
-#define simpile_res_sprintf(_fmt, _args...)     ({  \
+#define cli_sprintf(_fmt, _args...)             ({  \
     int __len = 0;                                  \
-    if (simpile_res_len < SIMPILE_RESPONSE_SIZE) {  \
+    if (cli_buffer_len < CLI_BUFFER_SIZE) {         \
         __len = os_snprintf(                        \
-            simpile_res_buf + simpile_res_len,      \
-            simpile_res_left,                       \
+            cli_buffer_buf + cli_buffer_len,        \
+            cli_buffer_left,                        \
             _fmt, ##_args);                         \
-        if (__len <= simpile_res_left) {            \
-            simpile_res_len += __len;               \
+        if (__len <= cli_buffer_left) {             \
+            cli_buffer_len += __len;                \
         } else {                                    \
             __len = 0;                              \
         }                                           \
@@ -66,58 +160,58 @@ __simpile_res(void)
     __len;                                          \
 })  /* end */
 
-#define simpile_res_recv(_fd, _timeout) \
-    io_recv(_fd, (char *)__simpile_res(), sizeof(simpile_response_t), _timeout)
+#define cli_recv(_fd, _timeout) \
+    io_recv(_fd, (char *)__cli_buffer(), sizeof(cli_buffer_t), _timeout)
 
-#define simpile_res_send(_fd) \
-    io_send(_fd, (char *)__simpile_res(), simpile_res_size)
+#define cli_send(_fd) \
+    io_send(_fd, (char *)__cli_buffer(), cli_buffer_size)
 
-#define simpile_res_recvfrom(_fd, _timeout, _addr, _paddrlen) \
-    io_recvfrom(_fd, (char *)__simpile_res(), sizeof(simpile_response_t), _timeout, _addr, _paddrlen)
+#define cli_recvfrom(_fd, _timeout, _addr, _paddrlen) \
+    io_recvfrom(_fd, (char *)__cli_buffer(), sizeof(cli_buffer_t), _timeout, _addr, _paddrlen)
 
-#define simpile_res_sendto(_fd, _addr, _addrlen) \
-    io_sendto(_fd, (char *)__simpile_res(), simpile_res_size, _addr, _addrlen)
+#define cli_sendto(_fd, _addr, _addrlen) \
+    io_sendto(_fd, (char *)__cli_buffer(), cli_buffer_size, _addr, _addrlen)
 
 typedef struct {
     int timeout;
     
     sockaddr_un_t server, client;
-} simpile_client_t;
+} cli_client_t;
 
-#define SIMPILE_CLIENT_INITER(_timeout, _server_path) { \
+#define CLI_CLIENT_INITER(_timeout, _server_path) {     \
     .server     = OS_SOCKADDR_UNIX("\0" _server_path),  \
     .client     = OS_SOCKADDR_UNIX(__empty),            \
     .timeout    = _timeout,                             \
 }   /* end */
 
 static int
-____simpile_d_handle(char *line, cmd_table_t *table, int count, int (*after)(void))
+____cli_d_handle(char *line, cli_table_t *table, int count, int (*after)(void))
 {
     char *method = line;
     char *args   = line;
     int err;
     
-    simpile_res_zero();
+    cli_buffer_zero();
     
     os_str_strim_both(method, NULL);
     os_str_reduce(method, NULL);
     
-    os_cmd_shift(args);
+    cli_shift(args);
     
-    err = cmd_line_handle(table, count, method, args, after);
-    simpile_res_error(err);
+    err = cli_line_handle(table, count, method, args, after);
+    cli_buffer_error(err);
 
     debug_trace("action:%s %s, error:%d, len:%d, buf:%s", 
         method, args?args:__empty,
-        simpile_res_err,
-        simpile_res_len,
-        simpile_res_buf);
+        cli_buffer_err,
+        cli_buffer_len,
+        cli_buffer_buf);
 
     return err;
 }
 
 static inline int
-__simpile_d_handle(int fd, cmd_table_t *table, int count)
+__cli_d_handle(int fd, cli_table_t *table, int count)
 {
     char buf[1+OS_LINE_LEN] = {0};
     sockaddr_un_t client = OS_SOCKADDR_UNIX(__empty);
@@ -139,17 +233,17 @@ __simpile_d_handle(int fd, cmd_table_t *table, int count)
     
     int after(void)
     {
-        return simpile_res_sendto(fd, (sockaddr_t *)pclient, addrlen);
+        return cli_sendto(fd, (sockaddr_t *)pclient, addrlen);
     }
     
-    return ____simpile_d_handle(buf, table, count, after);
+    return ____cli_d_handle(buf, table, count, after);
 }
 
-#define simpile_d_handle(_fd, _table) \
-    __simpile_d_handle(_fd, _table, os_count_of(_table))
+#define cli_d_handle(_fd, _table) \
+    __cli_d_handle(_fd, _table, os_count_of(_table))
 
 static int
-__simpile_c_handle(
+__cli_c_handle(
     bool syn,
     char *buf, 
     sockaddr_un_t *server, 
@@ -186,21 +280,21 @@ __simpile_c_handle(
     }
 
     if (syn) {
-        err = simpile_res_recv(fd, timeout);
+        err = cli_recv(fd, timeout);
         if (err<0) { /* yes, <0 */
             goto error;
         }
 
-        if (0==simpile_res_err && simpile_res_len && is_good_str(simpile_res_buf)) {
-            os_println("%s", simpile_res_buf);
+        if (0==cli_buffer_err && cli_buffer_len && is_good_str(cli_buffer_buf)) {
+            os_println("%s", cli_buffer_buf);
         }
 
         debug_trace("action:%s, error:%d, len:%d, buf:%s", 
             buf,
-            simpile_res_err,
-            simpile_res_len,
-            simpile_res_buf);
-        err = shell_error(simpile_res_err);
+            cli_buffer_err,
+            cli_buffer_len,
+            cli_buffer_buf);
+        err = shell_error(cli_buffer_err);
     }
     
 error:
@@ -212,7 +306,7 @@ error:
 }
 
 static int
-simpile_c_handle(
+cli_c_handle(
     char *action,
     bool syn,
     int argc, 
@@ -230,19 +324,19 @@ simpile_c_handle(
         len += os_snprintf(buf + len, OS_LINE_LEN - len, " %s", argv[i]);
     }
 
-    return __simpile_c_handle(syn, buf, server, client, timeout);
+    return __cli_c_handle(syn, buf, server, client, timeout);
 }
 
-typedef struct simpile_server {
+typedef struct cli_server {
     int fd;
     os_sockaddr_t addr;
     
-    int (*init)(struct simpile_server *server);
-    int (*handle)(struct simpile_server *server);
-} simpile_server_t;
+    int (*init)(struct cli_server *server);
+    int (*handle)(struct cli_server *server);
+} cli_server_t;
 
 static inline int
-simpile_u_server_init(simpile_server_t *server)
+cli_u_server_init(cli_server_t *server)
 {
     int fd, err;
     
@@ -259,7 +353,7 @@ simpile_u_server_init(simpile_server_t *server)
         return -errno;
     }
 
-    int size = 1+SIMPILE_RESPONSE_SIZE;
+    int size = 1+CLI_BUFFER_SIZE;
     err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
     if (err<0) {
         debug_error("setsockopt error:%d", -errno);
@@ -272,7 +366,7 @@ simpile_u_server_init(simpile_server_t *server)
 }
 
 static inline int
-__simpile_server_init(simpile_server_t *server[], int count)
+__cli_server_init(cli_server_t *server[], int count)
 {
     int i, err;
 
@@ -285,10 +379,10 @@ __simpile_server_init(simpile_server_t *server[], int count)
     
     return 0;
 }
-#define simpile_server_init(_server)  __simpile_server_init(_server, os_count_of(_server))
+#define cli_server_init(_server)  __cli_server_init(_server, os_count_of(_server))
 
 static inline int
-__simpile_server_fdmax(simpile_server_t *server[], int count)
+__cli_server_fdmax(cli_server_t *server[], int count)
 {
     int i, fdmax = 0;
     
@@ -300,7 +394,7 @@ __simpile_server_fdmax(simpile_server_t *server[], int count)
 }
 
 static inline void
-__simpile_server_prepare(simpile_server_t *server[], int count, fd_set *set)
+__cli_server_prepare(cli_server_t *server[], int count, fd_set *set)
 {
     int i;
     
@@ -311,7 +405,7 @@ __simpile_server_prepare(simpile_server_t *server[], int count, fd_set *set)
 }
 
 static inline int
-____simpile_server_handle(simpile_server_t *server[], int count, fd_set *set)
+____cli_server_handle(cli_server_t *server[], int count, fd_set *set)
 {
     int i, err;
     
@@ -328,13 +422,13 @@ ____simpile_server_handle(simpile_server_t *server[], int count, fd_set *set)
 }
 
 static inline int
-__simpile_server_handle(simpile_server_t *server[], int count)
+__cli_server_handle(cli_server_t *server[], int count)
 {
     fd_set rset;
-    int i, err, fdmax = __simpile_server_fdmax(server, count);
+    int i, err, fdmax = __cli_server_fdmax(server, count);
 
     while(1) {
-        __simpile_server_prepare(server, count, &rset);
+        __cli_server_prepare(server, count, &rset);
         
         err = select(fdmax+1, &rset, NULL, NULL, NULL);
         switch(err) {
@@ -352,7 +446,7 @@ __simpile_server_handle(simpile_server_t *server[], int count)
                 
                 return os_assertV(-ETIMEOUT);
             default: /* to accept */
-                err = ____simpile_server_handle(server, count, &rset);
+                err = ____cli_server_handle(server, count, &rset);
                 if (err) {
                     return err;
                 }
@@ -364,7 +458,7 @@ __simpile_server_handle(simpile_server_t *server[], int count)
     return 0;
 }
 
-#define simpile_server_handle(_server)  __simpile_server_handle(_server, os_count_of(_server))
+#define cli_server_handle(_server)  __cli_server_handle(_server, os_count_of(_server))
 
 #endif /* __APP__ */
 /******************************************************************************/

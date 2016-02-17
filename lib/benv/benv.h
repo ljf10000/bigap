@@ -2533,7 +2533,7 @@ __benv_cmd(int argc, char *argv[])
 static inline int
 benv_cmd(int argc, char *argv[])
 {
-    __benv_self = os_cmd_trace_argv(argc, argv);
+    __benv_self = cli_argv_dump(argc, argv);
     
     if (true==__benv_cmd(argc, argv)) {
         return 0;

@@ -32,7 +32,7 @@ is_user_ip(uint32_t ip)
 }
 
 static int
-pkt_recv(simpile_server_t *server)
+pkt_recv(cli_server_t *server)
 {
     int err, len;
     socklen_t addrlen = sizeof(server->addr.ll);
@@ -52,7 +52,7 @@ pkt_recv(simpile_server_t *server)
 }
 
 static int
-intf_check(simpile_server_t *server)
+intf_check(cli_server_t *server)
 {
     if (server->addr.ll.sll_ifindex == umd.intf[UM_INTF_TC].index) {
         return 0;
@@ -62,7 +62,7 @@ intf_check(simpile_server_t *server)
 }
 
 static int
-eth_check(simpile_server_t *server)
+eth_check(cli_server_t *server)
 {
     struct ether_header *eth = flow.eth = (struct ether_header *)flow.packet;
     byte *smac = eth->ether_shost;
@@ -135,7 +135,7 @@ eth_check(simpile_server_t *server)
 }
 
 static int
-vlan_check(simpile_server_t *server)
+vlan_check(cli_server_t *server)
 {
     if (flow.eth->ether_type == flow.ether_type_vlan) {
         struct vlan_header *vlan = flow.vlan = (struct vlan_header *)(flow.eth+1);
@@ -156,7 +156,7 @@ vlan_check(simpile_server_t *server)
 }
 
 static int
-ip_check(simpile_server_t *server)
+ip_check(cli_server_t *server)
 {
     struct ip *iph;
 
@@ -363,7 +363,7 @@ flow_update(struct um_user *user, int type, int dir)
 }
 
 static int
-flow_check(simpile_server_t *server)
+flow_check(cli_server_t *server)
 {
     struct um_user *user;
 
@@ -413,7 +413,7 @@ um_jflow(void)
 }
 
 static int
-flow_server_init(simpile_server_t *server)
+flow_server_init(cli_server_t *server)
 {
     int fd, err;
 
@@ -452,9 +452,9 @@ flow_server_init(simpile_server_t *server)
 }
 
 static int
-__flow_server_handle(simpile_server_t *server)
+__flow_server_handle(cli_server_t *server)
 {
-    static int (*handle[])(simpile_server_t *) = {
+    static int (*handle[])(cli_server_t *) = {
         pkt_recv,
         intf_check,
         eth_check,
@@ -475,7 +475,7 @@ __flow_server_handle(simpile_server_t *server)
 }
 
 static int
-flow_server_handle(simpile_server_t *server)
+flow_server_handle(cli_server_t *server)
 {
     int i, err;
 
@@ -489,7 +489,7 @@ flow_server_handle(simpile_server_t *server)
     return 0;
 }
 
-simpile_server_t um_flow_server = {
+cli_server_t um_flow_server = {
     .fd     = INVALID_FD,
     .addr   = OS_SOCKADDR_INITER(AF_PACKET),
     

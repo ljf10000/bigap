@@ -28,7 +28,7 @@ usage(void)
     return -EFORMAT;
 }
 
-static simpile_cmd_t cmd[] = {
+static cmd_table_t cmd[] = {
     {
         .argc   = 1,
         .argv   = {"reload"},
@@ -39,7 +39,7 @@ static simpile_cmd_t cmd[] = {
 static int
 __main(int argc, char *argv[])
 {
-    return simpile_cmd_handle(cmd, argc, argv, usage);
+    return cmd_handle(cmd, argc, argv, usage);
 }
 
 #ifndef __BUSYBOX__
