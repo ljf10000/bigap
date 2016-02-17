@@ -23,16 +23,16 @@
 
 #ifndef UM_CONFIG_FILE
 #ifdef __PC__
-#define UM_CONFIG_FILE          "./umd.conf"
+#   define UM_CONFIG_FILE       "./umd.conf"
 #else
-#define UM_CONFIG_FILE          "/tmp/config/umd.conf"
+#   define UM_CONFIG_FILE       "/tmp/config/umd.conf"
 #endif
 #endif
 
 #ifdef __PC__
-#define UM_SCRIPT_PREFIX        "./"
+#   define UM_SCRIPT_PREFIX     "./"
 #else
-#define UM_SCRIPT_PREFIX        "/etc/um/"
+#   define UM_SCRIPT_PREFIX     "/etc/um/"
 #endif
 
 #ifndef UM_SCRIPT_EVENT
@@ -53,9 +53,9 @@
 
 #ifndef UM_IDLE
 #ifdef __PC__
-#define UM_IDLE                 60  /* second */
+#   define UM_IDLE              60  /* second */
 #else
-#define UM_IDLE                 300 /* second */
+#   define UM_IDLE              300 /* second */
 #endif
 #endif
 
@@ -531,9 +531,9 @@ um_user_delby(struct um_user_filter *filter);
 
 #ifndef UM_TEST
 #ifdef __PC__
-#define UM_TEST         UM_TEST_JSON
+#   define UM_TEST      UM_TEST_JSON
 #else
-#define UM_TEST         0
+#   define UM_TEST      0
 #endif
 #endif
 

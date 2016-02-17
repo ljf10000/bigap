@@ -41,9 +41,9 @@
 
 #ifndef UMD_GC
 #ifdef __PC__
-#define UMD_GC                  30  /* second */
+#   define UMD_GC               30  /* second */
 #else
-#define UMD_GC                  600 /* second */
+#   define UMD_GC               600 /* second */
 #endif
 #endif
 

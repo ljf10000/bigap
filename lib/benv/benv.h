@@ -25,12 +25,14 @@
 #define BENV_BOOT_SIZE              (512*1024)
 #endif
 
-#define BENV_START                  BENV_BOOT_SIZE
+enum {
+    BENV_START = BENV_BOOT_SIZE,
+};
 
 #ifdef __PC__
-#define OS_DIR_ROOT                 __empty
+#   define OS_DIR_ROOT              __empty
 #else
-#define OS_DIR_ROOT                 "/"
+#   define OS_DIR_ROOT              "/"
 #endif
 
 #define BENV_ROOTFS_MODE_TYPE_RW    1
@@ -51,24 +53,30 @@
 #endif
 
 #if IS_PRODUCT_LTEFI_MD1
-#   define OS_COUNT             3
-#   define OS_CURRENT           1
+enum {
+    OS_COUNT    = 3,
+    OS_CURRENT  = 1,
+};
 #   define OS_DEV_PREFIX        "p"
 #   define OS_DEV_FLASH_MASTER  "dev/mmcblk0"
 #   define OS_DEV_SD_MASTER     "dev/mmcblk1"
 #   define OS_DEV_HD_MASTER     "dev/udisk"
 #   define OS_DEV_USB_MASTER    "dev/udisk1110"
 #elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC
-#   define OS_COUNT             7
-#   define OS_CURRENT           1
+enum {
+    OS_COUNT    = 7,
+    OS_CURRENT  = 1,
+};
 #   define OS_DEV_PREFIX        "p"
 #   define OS_DEV_FLASH_MASTER  "dev/mmcblk0"
 #   define OS_DEV_SD_MASTER     "dev/mmcblk1"
 #   define OS_DEV_HD_MASTER     "dev/udisk"
 #   define OS_DEV_USB_MASTER    "dev/udisk1110"
 #elif IS_PRODUCT_LTEFI_AP
-#   define OS_COUNT             1
-#   define OS_CURRENT           0
+enum {
+    OS_COUNT    = 1,
+    OS_CURRENT  = 0,
+};
 #   define OS_DEV_PREFIX        __empty
 #   define OS_DEV_FLASH_MASTER  "tmp/mtdblock"
 #   define OS_DEV_SD_MASTER     __empty
@@ -213,8 +221,10 @@
     /* end */
 #endif
 
-#define BENV_BLOCK_SIZE             BENV_DEV_BLOCK_SIZE
-#define BENV_BLOCK_COUNT            (BENV_SIZE/BENV_BLOCK_SIZE)    /* 8 */
+enum {
+    BENV_BLOCK_SIZE     = BENV_DEV_BLOCK_SIZE,
+    BENV_BLOCK_COUNT    = (BENV_SIZE/BENV_BLOCK_SIZE), /* 8 */
+};
 
 #ifndef BENV_TRYS
 #define BENV_TRYS                   3
@@ -236,14 +246,9 @@
 #define BENV_PCBA_MODEL             "xxx"
 #endif
 
-#define BENV_MARK_COUNT             (BENV_BLOCK_SIZE/sizeof(uint32_t))    /* 128 */
-
 #ifndef BENV_INFO_SIZE
 #define BENV_INFO_SIZE              64
 #endif
-
-#define BENV_INFO_COUNT_PER_BLOCK   (BENV_BLOCK_SIZE/BENV_INFO_SIZE)    /* 512/64=8 */
-#define BENV_INFO_COUNT             ((BENV_BLOCK_COUNT-3)*BENV_INFO_COUNT_PER_BLOCK)    /* 5*8=40 */
 
 #ifndef benv_kernel_size
 #define benv_kernel_size            0x8000  /* block count */
@@ -301,16 +306,14 @@ typedef struct {
     struct {
         char vendor[sizeof(BENV_VENDOR)];
         char company[sizeof(BENV_COMPANY)];
-    }
-    product;
+    } product;
 
     struct {
         char model[sizeof(BENV_PCBA_MODEL)];
-    }
-    pcba;
+    } pcba;
 
     char pad[BENV_BLOCK_SIZE - BENV_COOKIE_SIZE];
-} benv_cookie_t;            /* 512 */
+} benv_cookie_t; /* 512 */
 
 static inline void
 __benv_cookie_show(benv_cookie_t *cookie)
@@ -334,8 +337,11 @@ typedef struct {
     byte number[4];
 } benv_version_t;
 
-#define BENV_MIN_VERSION_NUMBER   0
-#define BENV_MAX_VERSION_NUMBER   255
+enum {
+    BENV_MIN_VERSION_NUMBER = 0,
+    BENV_MAX_VERSION_NUMBER = 255,
+};
+
 #define BENV_MIN_VERSION_STRING   "0.0.0.0"
 #define BENV_MAX_VERSION_STRING   "255.255.255.255"
 #define BENV_MIN_VERSION          { \
@@ -356,10 +362,14 @@ typedef struct {
     },                              \
 }   /* end */
 
-#define BENV_INVALID_VERSION        BENV_MIN_VERSION
-#define BENV_DEFT_VERSION           BENV_MIN_VERSION
+enum {
+    BENV_INVALID_VERSION        = BENV_MIN_VERSION,
+    BENV_DEFT_VERSION           = BENV_MIN_VERSION,
+};
 
-#define BENV_VERSION_STRING_SIZE    sizeof(BENV_MAX_VERSION_STRING)    /* 16 */
+enum {
+    BENV_VERSION_STRING_SIZE    = sizeof(BENV_MAX_VERSION_STRING),  /* 16 */
+};
 
 static inline char *
 __benv_version_itoa(benv_version_t * version, char string[])
@@ -439,7 +449,9 @@ benv_version_cmp(benv_version_t * a, benv_version_t * b)
 }
 #define benv_version_eq(_a, _b)   (0==benv_version_cmp(_a, _b))
 
-#define BENV_VCS_COOKIE_SIZE  15
+enum {
+    BENV_VCS_COOKIE_SIZE = 15,
+};
 
 typedef struct {
     uint32_t self;
@@ -520,7 +532,9 @@ __benv_firmware_deft(benv_firmware_t *firmware)
     .rootfs = BENV_INVALID_VCS,   \
 }   /* end */
 
-#define BENV_OS_SIZE  (2*sizeof(uint32_t) + OS_COUNT*sizeof(benv_firmware_t))
+enum {
+    BENV_OS_SIZE = (2*sizeof(uint32_t) + OS_COUNT*sizeof(benv_firmware_t)),
+};
 
 typedef struct {
     uint32_t current;
@@ -529,7 +543,6 @@ typedef struct {
     benv_firmware_t firmware[OS_COUNT];
     char pad[BENV_BLOCK_SIZE - BENV_OS_SIZE];
 } benv_os_t; /* 512 */
-
 
 #define BENV_DEFT_OS  {   \
     .current    = OS_CURRENT, \
@@ -577,11 +590,20 @@ rootfs* 1       0       fail    unknow  unknow
 #undef benv_os_show_obj
 }
 
+enum {
+    BENV_MARK_COUNT = (BENV_BLOCK_SIZE/sizeof(uint32_t)),   /* 128 */
+};
+
 typedef struct {
     uint32_t key[BENV_MARK_COUNT];
-} benv_mark_t;            /* 512 */
+} benv_mark_t; /* 512 */
 
 #define BENV_DEFT_MARK { .key = {0} }
+
+enum {
+    BENV_INFO_COUNT_PER_BLOCK   = (BENV_BLOCK_SIZE/BENV_INFO_SIZE),                 /* 512/64=8 */
+    BENV_INFO_COUNT             = ((BENV_BLOCK_COUNT-3)*BENV_INFO_COUNT_PER_BLOCK), /* 5*8=40 */
+};
 
 typedef struct {
     char var[BENV_INFO_COUNT][BENV_INFO_SIZE];

@@ -45,17 +45,17 @@
 
 #ifndef SCRIPT_SM_GETPID
 #ifdef __PC__
-#define SCRIPT_SM_GETPID            "./.sm.getpid"
+#   define SCRIPT_SM_GETPID         "./.sm.getpid"
 #else
-#define SCRIPT_SM_GETPID            "/usr/sbin/.sm.getpid"
+#   define SCRIPT_SM_GETPID         "/usr/sbin/.sm.getpid"
 #endif
 #endif
 
 #ifndef SCRIPT_SM_INIT
 #ifdef __PC__
-#define SCRIPT_SM_INIT              "./.sm.init"
+#   define SCRIPT_SM_INIT           "./.sm.init"
 #else
-#define SCRIPT_SM_INIT              "/tmp/.sm.init"
+#   define SCRIPT_SM_INIT           "/tmp/.sm.init"
 #endif
 #endif
 
