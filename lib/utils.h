@@ -139,6 +139,7 @@
 #include "utils/io.h"
 #include "utils/kv.h"
 #include "utils/cmd.h"
+#include "utils/cli.h"
 #include "utils/slice.h"
 #include "utils/blob.h"
 #include "utils/timer.h"
