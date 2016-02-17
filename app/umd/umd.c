@@ -148,7 +148,7 @@ __main(int argc, char **argv)
     update_limit_test();
 
     while(1) {
-        cli_server_handle(umd.server);
+        cli_server_run(umd.server);
     }
     
     return err;

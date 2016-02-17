@@ -405,7 +405,7 @@ __cli_server_prepare(cli_server_t *server[], int count, fd_set *set)
 }
 
 static inline int
-____cli_server_handle(cli_server_t *server[], int count, fd_set *set)
+__cli_server_handle(cli_server_t *server[], int count, fd_set *set)
 {
     int i, err;
     
@@ -422,7 +422,7 @@ ____cli_server_handle(cli_server_t *server[], int count, fd_set *set)
 }
 
 static inline int
-__cli_server_handle(cli_server_t *server[], int count)
+__cli_server_run(cli_server_t *server[], int count)
 {
     fd_set rset;
     int i, err, fdmax = __cli_server_fdmax(server, count);
@@ -446,7 +446,7 @@ __cli_server_handle(cli_server_t *server[], int count)
                 
                 return os_assertV(-ETIMEOUT);
             default: /* to accept */
-                err = ____cli_server_handle(server, count, &rset);
+                err = __cli_server_handle(server, count, &rset);
                 if (err) {
                     return err;
                 }
@@ -458,7 +458,7 @@ __cli_server_handle(cli_server_t *server[], int count)
     return 0;
 }
 
-#define cli_server_handle(_server)  __cli_server_handle(_server, os_count_of(_server))
+#define cli_server_run(_server)  __cli_server_run(_server, os_count_of(_server))
 
 #endif /* __APP__ */
 /******************************************************************************/

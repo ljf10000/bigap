@@ -138,6 +138,7 @@
 #include "utils/if.h"
 #include "utils/io.h"
 #include "utils/kv.h"
+#include "utils/command.h"
 #include "utils/cmd.h"
 #include "utils/cli.h"
 #include "utils/slice.h"
