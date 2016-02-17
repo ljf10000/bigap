@@ -16,8 +16,10 @@ typedef struct {
     int timeout;    /* ms */
 } pipe_info_t;
 
-#define __pipe_father           0
-#define __pipe_son              1
+enum {
+    __pipe_father   = 0,
+    __pipe_son      = 1,
+};
 
 #ifndef PIPE_GROW_MIN
 #define PIPE_GROW_MIN           (1*1024)

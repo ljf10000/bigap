@@ -10,7 +10,9 @@
 #include "hi_unf_advca.h"
 #endif
 
-#define OTP_SIZE            16
+enum {
+    OTP_SIZE = 16,
+};
 
 #ifndef OTP_ZERO
 #define OTP_ZERO            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"

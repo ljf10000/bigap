@@ -18,7 +18,9 @@ OS_INITER;
 
 BENV_INITER;
 
-#define RT_SAVECYCLE    3141
+enum {
+    RT_SAVECYCLE = 3141,
+};
 
 static int runtime;
 

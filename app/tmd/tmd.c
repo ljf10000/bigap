@@ -497,8 +497,8 @@ init_server(void)
     return 0;
 }
 
-#ifndef XTIMERD_HASHSIZE
-#define XTIMERD_HASHSIZE    1024
+#ifndef TMD_HASHSIZE
+#define TMD_HASHSIZE    1024
 #endif
 
 static int
@@ -536,7 +536,7 @@ __init(void)
 
     tm_init();
     
-    err = h1_init(&tmd.table, XTIMERD_HASHSIZE);
+    err = h1_init(&tmd.table, TMD_HASHSIZE);
         debug_trace_error(err, "__init h1");
     if (err) {
         return err;

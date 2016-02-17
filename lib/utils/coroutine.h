@@ -203,7 +203,10 @@ __co_control_init(void)
     }
 }
 
+#ifndef CO_GROW
 #define CO_GROW             32
+#endif
+
 #define CO_ARRAY(_id)       __co()->array[_id]
 
 static inline coroutine_t *
