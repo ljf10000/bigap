@@ -2,9 +2,9 @@
 #define __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__
 /******************************************************************************/
 #if defined(LP64) || defined(ILP64) || defined(LLP64)
-#define OS64                    1
+#   define OS64                 1
 #else
-#define OS64                    0
+#   define OS64                 0
 #endif
 
 #ifndef OS_IFNAME_LEN

@@ -1,6 +1,6 @@
-#define CAPP 1
+#define BIGAP 1
 
-#if !CAPP
+#if !BIGAP
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -44,7 +44,7 @@ typedef struct ntlg_hash_entry{
 
 struct hlist_head ntlg_hash_head[NTLG_HASH_SIZE];
 
-#if !CAPP
+#if !BIGAP
 #ifndef OS_STRING_BKDR_NUMBER
 #define OS_STRING_BKDR_NUMBER   31
 #endif
@@ -52,7 +52,7 @@ struct hlist_head ntlg_hash_head[NTLG_HASH_SIZE];
 
 LIST_HEAD(ntlg_list);
 
-#if !CAPP
+#if !BIGAP
 	static inline uint32_t
 __bkdr_push(uint32_t a, uint32_t b)
 {
