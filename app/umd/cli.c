@@ -361,7 +361,7 @@ static cli_table_t cli_table[] = {
 };
 
 static int
-cli_server_handle(cli_server_t *server)
+cli_handle(cli_server_t *server)
 {
     return cli_d_handle(server->fd, cli_table);
 }
@@ -380,7 +380,7 @@ cli_env_init(cli_server_t *server)
 }
 
 static int
-cli_server_init(cli_server_t *server)
+cli_init(cli_server_t *server)
 {
     int err;
     
@@ -403,7 +403,7 @@ cli_server_t um_cli_server = {
     .fd     = INVALID_FD,
     .addr   = OS_SOCKADDR_INITER(AF_UNIX),
 
-    .init   = cli_server_init,
-    .handle = cli_server_handle,
+    .init   = cli_init,
+    .handle = cli_handle,
 };
 /******************************************************************************/
