@@ -325,5 +325,6 @@ show_help:
     
     return -EFORMAT;
 }
+#endif /* defined(__APP__) || defined(__BOOT__) */
 /******************************************************************************/
 #endif /* __COMMAND_H_905213b38f1f4e368ba43287fd5931af__ */
