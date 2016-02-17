@@ -53,30 +53,24 @@ enum {
 #endif
 
 #if IS_PRODUCT_LTEFI_MD1
-enum {
-    OS_COUNT    = 3,
-    OS_CURRENT  = 1,
-};
+#   define OS_COUNT             3
+#   define OS_CURRENT           1
 #   define OS_DEV_PREFIX        "p"
 #   define OS_DEV_FLASH_MASTER  "dev/mmcblk0"
 #   define OS_DEV_SD_MASTER     "dev/mmcblk1"
 #   define OS_DEV_HD_MASTER     "dev/udisk"
 #   define OS_DEV_USB_MASTER    "dev/udisk1110"
 #elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC
-enum {
-    OS_COUNT    = 7,
-    OS_CURRENT  = 1,
-};
+#   define OS_COUNT             7
+#   define OS_CURRENT           1
 #   define OS_DEV_PREFIX        "p"
 #   define OS_DEV_FLASH_MASTER  "dev/mmcblk0"
 #   define OS_DEV_SD_MASTER     "dev/mmcblk1"
 #   define OS_DEV_HD_MASTER     "dev/udisk"
 #   define OS_DEV_USB_MASTER    "dev/udisk1110"
 #elif IS_PRODUCT_LTEFI_AP
-enum {
-    OS_COUNT    = 1,
-    OS_CURRENT  = 0,
-};
+#   define OS_COUNT             1
+#   define OS_CURRENT           0
 #   define OS_DEV_PREFIX        __empty
 #   define OS_DEV_FLASH_MASTER  "tmp/mtdblock"
 #   define OS_DEV_SD_MASTER     __empty
