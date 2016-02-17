@@ -150,7 +150,7 @@ __loop_timer_init(loop_t *loop)
         loop->timer.new.it_value.tv_nsec = 1;
     }
     
-    int err = timerfd_settime(loop->timer.fd, 0, &loop->timer.new, NULL);
+    err = timerfd_settime(loop->timer.fd, 0, &loop->timer.new, NULL);
     if (err<0) {
         return -errno;
     }
