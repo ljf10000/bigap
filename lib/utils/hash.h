@@ -91,13 +91,16 @@ __hash_init(hash_t *h, hash_idx_t size)
     hash_idx_t i;
     
     h->size = size;
-    h->bucket = (hash_bucket_t *)os_zalloc(size * sizeof(hash_bucket_t));
+    h->bucket = (hash_bucket_t *)os_malloc(size * sizeof(hash_bucket_t));
     if (NULL==h->bucket) {
         return -ENOMEM;
     }
 
     for (i=0; i<size; i++) {
-        INIT_LIST_HEAD(&h->bucket[i].head);
+        hash_bucket_t *bucket = __hash_bucket(h, i);
+        
+        INIT_LIST_HEAD(&bucket->head);
+        bucket->hash = h;
     }
     
     return 0;
