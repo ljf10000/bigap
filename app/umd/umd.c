@@ -35,7 +35,7 @@ struct um_control umd = {
     .hash_size = {
         [UM_USER_NIDX_MAC]  = UMD_HASHSIZE,
         [UM_USER_NIDX_IP]   = UMD_HASHSIZE,
-    };
+    },
 };
 
 static int
