@@ -8,7 +8,7 @@
 #endif
 
 #ifndef UM_USE_GC
-#define UM_USE_GC               0
+#define UM_USE_GC               1
 #endif
 
 #ifndef ENV_UMD_UNIX
@@ -41,7 +41,7 @@
 
 #ifndef UMD_GC
 #ifdef __PC__
-#   define UMD_GC               30  /* second */
+#   define UMD_GC               60  /* second */
 #else
 #   define UMD_GC               600 /* second */
 #endif

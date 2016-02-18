@@ -540,9 +540,7 @@ um_user_delby(struct um_user_filter *filter);
 extern void
 update_limit_test(void);
 
-#if UM_USE_GC
 extern mv_t 
 umd_gc(struct um_user *user, time_t now);
-#endif
 /******************************************************************************/
 #endif /* __UM_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__ */

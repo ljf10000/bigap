@@ -40,7 +40,6 @@ online_aging(struct um_user *user, time_t now)
     return mv2_ok;
 }
 
-#if UM_USE_GC
 static inline bool
 __is_gc(struct um_user *user, time_t now)
 {
@@ -67,7 +66,6 @@ umd_gc(struct um_user *user, time_t now)
 
     return mv2_ok;
 }
-#endif
 
 static inline bool
 __is_online_timeout(struct um_user *user, time_t now, int type)
@@ -156,7 +154,7 @@ timer_handle(struct um_user *user, time_t now)
         online_reauth,
         online_timeout,
         online_aging,
-#if UM_USE_GC
+#if UM_USE_AUTOGC
         umd_gc, /* must last */
 #endif
     };

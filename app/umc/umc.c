@@ -29,9 +29,7 @@ usage(int error)
     os_eprintln(__THIS_NAME " enter  {mac} {json}");
     os_eprintln(__THIS_NAME " leave  {mac}");
 #endif
-#if UM_USE_GC
     os_eprintln(__THIS_NAME " gc");
-#endif
     os_eprintln(__THIS_NAME " show [stat | json]");
 
     return error;
@@ -316,9 +314,7 @@ command(int argc, char *argv[])
         CLI_ENTRY("deauth", cmd_deauth),
         CLI_ENTRY("show",   cmd_show),
         CLI_ENTRY("tag",    cmd_tag),
-#if UM_USE_GC
         CLI_ENTRY("gc",     cmd_gc),
-#endif
     };
     int err;
 

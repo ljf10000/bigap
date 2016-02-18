@@ -323,7 +323,6 @@ handle_tag(char *args)
     return tag?0:-ENOEXIST;
 }
 
-#if UM_USE_GC
 /*
 * gc
 */
@@ -341,7 +340,6 @@ handle_gc(char *args)
     
     return 0;
 }
-#endif
 
 static cli_table_t cli_table[] = {
 #if UM_USE_MONITOR
@@ -355,9 +353,7 @@ static cli_table_t cli_table[] = {
     CLI_ENTRY("deauth", handle_deauth),
     CLI_ENTRY("show",   handle_show),
     CLI_ENTRY("tag",    handle_tag),
-#if UM_USE_GC
     CLI_ENTRY("gc",     handle_gc),
-#endif
 };
 
 static int
