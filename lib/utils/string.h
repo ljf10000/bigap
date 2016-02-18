@@ -166,7 +166,7 @@ os_strcmp(const char *a, const char *b)
 {
     if (a) {
         if (b) {
-            return a==b || strcmp(a, b);
+            return (a==b)?0:strcmp(a, b);
         } else {
             return 1;
         }
@@ -184,7 +184,7 @@ os_strncmp(const char *a, const char *b, int len)
 {
     if (a) {
         if (b) {
-            return a==b || strncmp(a, b, len);
+            return (a==b)?0:strncmp(a, b, len);
         } else {
             return 1;
         }
@@ -287,7 +287,7 @@ os_strlast(char *s, int ch)
 }
 
 #define os_getstringarrayidx(_array, _string, _begin, _end) \
-        __os_getobjarrayidx(_array, _string, strcmp, _begin, _end)
+        __os_getobjarrayidx(_array, _string, os_strcmp, _begin, _end)
 
 typedef bool char_is_f(int ch);
 
