@@ -248,7 +248,7 @@ __ak_get_value(char *key, char *value)
     * not digit string, try sys
     */
     sys = __ak_sys_idx(key);
-    os_println("__ak_get_value key=%s", key);
+    os_println("__ak_get_value key=%s, sys=%d", key, sys);
     
     if (sys<0) {
         os_println("__ak_get_value default v=0x%x", __ak_debug_default);
