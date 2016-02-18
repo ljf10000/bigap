@@ -11,12 +11,12 @@
 #define ENV_UMD_UNIX            "__UMD_UNIX__"
 #endif
 
-#ifndef ENV_UMD_GC
-#define ENV_UMD_GC              "__UMD_GC__" /* ms */
-#endif
-
 #ifndef ENV_UMC_UNIX
 #define ENV_UMC_UNIX            "__UMC_UNIX__"
+#endif
+
+#ifndef ENV_UMD_GC
+#define ENV_UMD_GC              "__UMD_GC__"    /* second */
 #endif
 
 #ifndef ENV_UM_TIMEOUT

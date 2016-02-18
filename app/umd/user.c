@@ -113,7 +113,7 @@ __cb(struct um_user *user, char *action, int (*cb)(jobj_t obj))
 
     os_arrayzero(json);
     os_v_pgetb(json, OS_FILE_LEN, 
-        UM_SCRIPT_EVENT " %s '%s'",
+        UMD_SCRIPT_EVENT " %s '%s'",
         action,
         jobj_string(juser));
     jobj_put(juser);
@@ -198,13 +198,13 @@ deauth_cb(struct um_user *user)
 static inline hash_idx_t
 hashmac(byte mac[])
 {
-    return hash_bybuf(mac, OS_MACSIZE, UM_HASHMASK);
+    return hash_bybuf(mac, OS_MACSIZE, UMD_HASHMASK);
 }
 
 static inline hash_idx_t
 haship(uint32_t ip)
 {
-    return hash_bybuf((byte *)&ip, sizeof(ip), UM_HASHMASK);
+    return hash_bybuf((byte *)&ip, sizeof(ip), UMD_HASHMASK);
 }
 
 static inline struct um_user *
@@ -359,8 +359,8 @@ lan_online(struct um_user *user)
     __online_downtime(user, um_flow_type_lan)   = 0;
     __online_downtime(user, um_flow_type_wan)   = 0;
 
-    __online_idle(user, um_flow_type_lan) = UM_IDLE;
-    __online_idle(user, um_flow_type_wan) = UM_IDLE;
+    __online_idle(user, um_flow_type_lan) = UMD_IDLE;
+    __online_idle(user, um_flow_type_wan) = UMD_IDLE;
     
     flow_reset(user, um_flow_type_lan);
     flow_reset(user, um_flow_type_wan);
@@ -802,7 +802,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *cb)
     if (false==have_bind(user)) {
         char ipaddress[1+OS_LINE_LEN];
         
-        err = os_v_pgets(ipaddress, OS_LINE_LEN, UM_SCRIPT_IP " %s", os_macstring(user->mac));
+        err = os_v_pgets(ipaddress, OS_LINE_LEN, UMD_SCRIPT_IP " %s", os_macstring(user->mac));
         if (err) {
             return NULL;
         }

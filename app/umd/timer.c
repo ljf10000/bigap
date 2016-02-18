@@ -15,7 +15,7 @@ static inline void
 __try_aging(struct um_user *user, int type)
 {
     if (__online_idle(user, type)) {
-        __online_aging(user, type) -= UM_TICKS;
+        __online_aging(user, type) -= UMD_TICKS;
         
         if (__online_aging(user, type) <= 0) {
             debug_timeout("user(%s) type(%s) online aging",
@@ -182,18 +182,10 @@ timer_handle(struct um_user *user, time_t now)
     return mv2_ok;
 }
 
-static void
-timer_env_init(cli_server_t *server)
-{
-    umd.gc = get_umd_gc_env();
-}
-
 static int
 timer_server_init(cli_server_t *server)
-{
-    timer_env_init(server);
-    
-    int fd = tm_fd(os_second(1000*UM_TICKS), os_nsecond(1000*UM_TICKS));
+{    
+    int fd = tm_fd(os_second(1000*UMD_TICKS), os_nsecond(1000*UMD_TICKS));
     if (fd<0) {
         return fd;
     }

@@ -3,87 +3,87 @@
 /******************************************************************************/
 #include "um/um.h"
 
-#ifndef UM_USE_AUTO
-#define UM_USE_AUTO             1
+#ifndef UMD_USE_AUTOUSER
+#define UMD_USE_AUTOUSER        1
 #endif
 
-#ifndef UM_USE_PROMISC
-#define UM_USE_PROMISC          0
+#ifndef UMD_USE_PROMISC
+#define UMD_USE_PROMISC         0
 #endif
 
-#ifndef UM_USE_BINDIF
-#define UM_USE_BINDIF           1
+#ifndef UMD_USE_BINDIF
+#define UMD_USE_BINDIF          1
 #endif
 
-#ifndef UM_HASHSIZE
-#define UM_HASHSIZE             256
+#ifndef UMD_HASHSIZE
+#define UMD_HASHSIZE            256
 #endif
 
-#define UM_HASHMASK             (UM_HASHSIZE-1)
+#define UMD_HASHMASK            (UMD_HASHSIZE-1)
 
-#ifndef UM_CONFIG_FILE
+#ifndef UMD_CONFIG_FILE
 #ifdef __PC__
-#   define UM_CONFIG_FILE       "./umd.conf"
+#   define UMD_CONFIG_FILE      "./umd.conf"
 #else
-#   define UM_CONFIG_FILE       "/tmp/config/umd.conf"
+#   define UMD_CONFIG_FILE      "/tmp/config/umd.conf"
 #endif
 #endif
 
 #ifdef __PC__
-#   define UM_SCRIPT_PREFIX     "./"
+#   define UMD_SCRIPT_PREFIX    "./"
 #else
-#   define UM_SCRIPT_PREFIX     "/etc/um/"
+#   define UMD_SCRIPT_PREFIX    "/etc/um/"
 #endif
 
-#ifndef UM_SCRIPT_EVENT
-#define UM_SCRIPT_EVENT         UM_SCRIPT_PREFIX "umevent"
+#ifndef UMD_SCRIPT_EVENT
+#define UMD_SCRIPT_EVENT        UMD_SCRIPT_PREFIX "umevent"
 #endif
 
-#ifndef UM_SCRIPT_IP
-#define UM_SCRIPT_IP            UM_SCRIPT_PREFIX "umip"
+#ifndef UMD_SCRIPT_IP
+#define UMD_SCRIPT_IP           UMD_SCRIPT_PREFIX "umip"
 #endif
 
-#ifndef UM_SCRIPT_MAC
-#define UM_SCRIPT_MAC           UM_SCRIPT_PREFIX "ummac"
+#ifndef UMD_SCRIPT_MAC
+#define UMD_SCRIPT_MAC          UMD_SCRIPT_PREFIX "ummac"
 #endif
 
-#ifndef UM_TICKS
-#define UM_TICKS                10  /* second */
+#ifndef UMD_TICKS
+#define UMD_TICKS               10  /* second */
 #endif
 
-#ifndef UM_IDLE
+#ifndef UMD_IDLE
 #ifdef __PC__
-#   define UM_IDLE              60  /* second */
+#   define UMD_IDLE             60  /* second */
 #else
-#   define UM_IDLE              300 /* second */
+#   define UMD_IDLE             300 /* second */
 #endif
 #endif
 
-#ifndef UM_SNIFF_COUNT
-#define UM_SNIFF_COUNT          32
+#ifndef UMD_SNIFF_COUNT
+#define UMD_SNIFF_COUNT         32
 #endif
 
-#ifndef UM_INTF_FLOW_DEFT
-#define UM_INTF_FLOW_DEFT       "eth0"
+#ifndef UMD_INTF_FLOW_DEFT
+#define UMD_INTF_FLOW_DEFT      "eth0"
 #endif
 
-#ifndef UM_INTF_FLOW_ETHERTYPE
-#define UM_INTF_FLOW_ETHERTYPE  ETHERTYPE_IP
+#ifndef UMD_INTF_FLOW_ETHERTYPE
+#define UMD_INTF_FLOW_ETHERTYPE ETHERTYPE_IP
 #endif
 
 #ifdef __PC__
-#   ifndef UM_INTF_TC_DEFT
-#   define UM_INTF_TC_DEFT         UM_INTF_FLOW_DEFT
+#   ifndef UMD_INTF_TC_DEFT
+#       define UMD_INTF_TC_DEFT         UMD_INTF_FLOW_DEFT
 #   endif
-#   ifndef UM_INTF_TC_ETHERTYPE
-#   define UM_INTF_TC_ETHERTYPE    ETHERTYPE_IP
+#   ifndef UMD_INTF_TC_ETHERTYPE
+#       define UMD_INTF_TC_ETHERTYPE    ETHERTYPE_IP
 #   endif
 #else
-#   ifndef UM_INTF_TC_DEFT
-#   define UM_INTF_TC_DEFT         "eth0.1"
+#   ifndef UMD_INTF_TC_DEFT
+#       define UMD_INTF_TC_DEFT         "eth0.1"
 #   endif
-#   ifndef UM_INTF_TC_ETHERTYPE
-#   define UM_INTF_TC_ETHERTYPE    ETHERTYPE_VLAN
+#   ifndef UMD_INTF_TC_ETHERTYPE
+#       define UMD_INTF_TC_ETHERTYPE    ETHERTYPE_VLAN
 #   endif
 #endif
 
@@ -374,6 +374,7 @@ struct um_control {
     uint32_t gc;
     
     h2_table_t table;
+    int hash_size[UM_USER_NIDX_END];
 };
 
 extern struct um_control umd;

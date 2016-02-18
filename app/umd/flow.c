@@ -367,7 +367,7 @@ flow_check(cli_server_t *server)
 {
     struct um_user *user;
 
-#if UM_USE_AUTO
+#if UMD_USE_AUTOUSER
     user = um_user_bind(flow.usermac, flow.userip);
 #else
     user = um_user_get(flow.usermac);
@@ -430,7 +430,7 @@ flow_server_init(cli_server_t *server)
     
     fcntl(fd, F_SETFL, O_NONBLOCK);
     
-#if UM_USE_BINDIF
+#if UMD_USE_BINDIF
     sockaddr_ll_t addr = {
         .sll_family     = AF_PACKET,
         .sll_protocol   = flow.ether_type_all,
@@ -479,7 +479,7 @@ flow_server_handle(cli_server_t *server)
 {
     int i, err;
 
-    for (i=0; i<UM_SNIFF_COUNT; i++) {
+    for (i=0; i<UMD_SNIFF_COUNT; i++) {
         err = __flow_server_handle(server);
         if (err) {
             return err;

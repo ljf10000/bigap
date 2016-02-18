@@ -25,18 +25,31 @@ struct um_control umd = {
 
     .intf = {
         [UM_INTF_FLOW] = {
-            .name = UM_INTF_FLOW_DEFT,
+            .name = UMD_INTF_FLOW_DEFT,
         },
         [UM_INTF_TC] = {
-            .name = UM_INTF_TC_DEFT,
+            .name = UMD_INTF_TC_DEFT,
         },
     },
 
-    .gc = UMD_GC,
+    .hash_size = {
+        [UM_USER_NIDX_MAC]  = UMD_HASHSIZE,
+        [UM_USER_NIDX_IP]   = UMD_HASHSIZE,
+    };
 };
 
 static int
-um_intf_init(void)
+init_env(void)
+{
+    int err;
+
+    umd.gc = get_umd_gc_env();
+
+    return 0;
+}
+
+static int
+init_intf(void)
 {
     int err;
     struct um_intf *intf;
@@ -71,7 +84,7 @@ um_intf_init(void)
             return err;
         }
 
-#if UM_USE_PROMISC
+#if UMD_USE_PROMISC
         err = intf_set_promisc(intf->name);
         if (err) {
             return err;
@@ -88,7 +101,7 @@ __umevent_fini(void)
     if (false==umd.deinit) {
         umd.deinit = true;
         
-        os_system(UM_SCRIPT_EVENT " fini");
+        os_system(UMD_SCRIPT_EVENT " fini");
     }
 }
 
@@ -113,29 +126,33 @@ static int
 __init(void)
 {
     int err;
-    int array[] = {UM_HASHSIZE, UM_HASHSIZE};
     
     err = os_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
-    err = h2_init(&umd.table, array);
-    if (err) {
+    err = init_env();
+    if (err<0) {
         return err;
     }
     
-    err = um_intf_init();
-    if (err) {
+    err = h2_init(&umd.table, umd.hash_size);
+    if (err<0) {
+        return err;
+    }
+    
+    err = init_intf();
+    if (err<0) {
         return err;
     }
 
     err = cli_server_init(umd.server);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
-    os_system(UM_SCRIPT_EVENT " init");
+    os_system(UMD_SCRIPT_EVENT " init");
 
     return 0;
 }
