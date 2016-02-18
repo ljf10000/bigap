@@ -154,7 +154,7 @@ timer_handle(struct um_user *user, time_t now)
         online_reauth,
         online_timeout,
         online_aging,
-#if UM_USE_AUTOGC
+#if UM_USE_GC
         umd_gc, /* must last */
 #endif
     };
