@@ -183,13 +183,13 @@ __jlog_header(char *app, char *sub, const char *file, const char *func, int line
 
 #define __jlog_vprintf(_app, _sub, _file, _func, _line, _PRI, _fmt, _args) ({ \
     __jlog_header(_app, _sub, _file, _func, _line, _PRI); \
-    os_evprintln(_fmt, _args);  \
+    os_evprintln(__tab _fmt, _args);  \
     0;                          \
 })  /* end */
 
 #define __jlog_printf(_app, _sub, _file, _func, _line, _PRI, _fmt, _args...) ({ \
     __jlog_header(_app, _sub, _file, _func, _line, _PRI); \
-    os_eprintln(_fmt, ##_args); \
+    os_eprintln(__tab _fmt, ##_args); \
     0;                          \
 })  /* end */
 
@@ -664,7 +664,7 @@ __jlog(jobj_t obj, char *app, char *sub, int PRI)
     }
     
     if (LOG_DEBUG==LOG_PRI(PRI) && __is_ak_debug(LOG_LEVEL(PRI))) {
-        os_eprintln("\t%s", json);
+        os_eprintln(__tab "%s", json);
     }
     
     len = os_strlen(json);
