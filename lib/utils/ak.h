@@ -174,11 +174,12 @@ __ak_debug_getname(uint32_t level)
 #define __is_ak_debug_gc        __is_ak_debug(__ak_debug_gc)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
-enum {
-    __AK_SYS_DEBUG,
+#define AK_SYS_LIST(_) \
+    _(__AK_SYS_DEBUG, 0, AK_DEBUG_NAME), \
+    /* end */
 
-    __AK_SYS_END
-};
+static inline int __ak_sys_idx(char *name);
+DECLARE_ENUM(__ak_sys, AK_SYS_LIST, __AK_SYS_END);
 
 static inline uint32_t
 __ak_sys_debug(char *var)
@@ -240,7 +241,7 @@ __ak_get_value(char *key, char *value)
     /*
     * not digit string, try sys
     */
-    sys = __ak_sys(key);
+    sys = __ak_sys_idx(key);
     if (sys<0) {
         return __ak_debug_default;
     } else {
@@ -315,18 +316,8 @@ __ak_offset(akid_t akid)
     + sizeof(uint32_t)          \
 )   /* end */
 
-typedef struct {
-    os_shm_t shm;
-    char *sys[__AK_SYS_END];
-} ak_shm_t;
-
-#define DECLARE_FAKE_AK  extern ak_shm_t __THIS_AK
-#define DECLARE_REAL_AK  ak_shm_t __THIS_AK = { \
-    .shm = OS_SHM_INITER(OS_AK_SHM_ID),         \
-    .sys = {                                    \
-        [__AK_SYS_DEBUG]  = AK_DEBUG_NAME,      \
-    },                                          \
-}
+#define DECLARE_FAKE_AK  extern os_shm_t __THIS_AK
+#define DECLARE_REAL_AK  os_shm_t __THIS_AK = OS_SHM_INITER(OS_AK_SHM_ID)
 
 #ifdef __BUSYBOX__
 #   define DECLARE_AK   DECLARE_FAKE_AK
@@ -336,24 +327,10 @@ typedef struct {
 
 DECLARE_FAKE_AK;
 
-static inline int 
-__ak_sys(char *k)
-{
-    int i;
-
-    for (i=0; i<__AK_SYS_END; i++) {
-        if (0==os_strcmp(k, __THIS_AK.sys[i])) {
-            return i;
-        }
-    }
-
-    return -ENOEXIST;
-}
-
 static inline ak_hdr_t *
 __ak_hdr(void)
 {
-    return (ak_hdr_t *)(__THIS_AK.shm.address);
+    return (ak_hdr_t *)(__THIS_AK.address);
 }
 
 #define __ak_inited         __ak_hdr()->inited
@@ -519,36 +496,6 @@ __ak_load_line_kv(struct akinfo *info)
     }
 
     return 0;
-}
-
-static inline int
-__ak_load_line_value(struct akinfo *info)
-{
-    int sys = INVALID_VALUE;
-    char *end = NULL;
-    uint32_t v = 0;
-    
-    /*
-    * first, try var as digit string
-    */
-    v = strtoul(info->var, &end, 0);
-    if (NULL==end || 0==end[0]) {
-        info->v = v;
-        
-        return 0;
-    }
-    
-    /*
-    * not digit string, try sys
-    */
-    sys = __ak_sys(info->key);
-    if (sys<0) {
-        return -EFORMAT;
-    } else {
-        info->v = __ak_sys_value(sys, info->var);
-        
-        return 0;
-    }
 }
 
 static inline mv_t 
