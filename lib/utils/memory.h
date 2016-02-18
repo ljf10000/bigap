@@ -236,7 +236,7 @@ os_memmem(const void *mem, size_t mem_size,
     int __i, __idx = (_end);                \
                                             \
     for (__i=(_begin); __i<(_end); __i++) { \
-        printf("array[%d]=%s\n", __i, _array[__i]); \
+        printf("array[%d]=%s, obj=%s\n", __i, _array[__i], _obj); \
         if (0==_cmp((_array)[__i], _obj)) { \
             __idx = __i;                    \
             printf("array idx=%d\n", __idx); \
