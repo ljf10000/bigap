@@ -329,16 +329,7 @@ handle_tag(char *args)
 static int
 handle_gc(char *args)
 {
-    time_t now = time(NULL);
-    
-    mv_t cb(struct um_user *user)
-    {
-        return umd_gc(user, now);
-    }
-    
-    um_user_foreach_safe(cb);
-    
-    return 0;
+    return um_user_foreach_safe(umd_gc);
 }
 
 static cli_table_t cli_table[] = {
