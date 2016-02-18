@@ -44,23 +44,7 @@ typedef void hash_change_f(hash_node_t *node);
 static inline bool
 __in_hash(hash_node_t *node)
 {
-#if 0
-    return node->bucket && node->bucket->hash;
-#else
-    if (NULL==node->bucket) {
-        os_println("__in_hash NULL==node->bucket");
-        
-        return false;
-    }
-    else if (NULL==node->bucket->hash) {
-        os_println("__in_hash NULL==node->bucket->hash");
-        
-        return false;
-    }
-    else {
-        return true;
-    }
-#endif
+    return node->bucket;
 }
 
 static inline bool
@@ -148,33 +132,7 @@ hash_init(hash_t *h)
 static inline bool
 in_hash(hash_t *h, hash_node_t *node)
 {
-#if 0
     return h && node && __in_hash(node) && h==node->bucket->hash;
-#else
-    if (NULL==h) {
-        os_println("NULL==h");
-        
-        return false;
-    }
-    else if (NULL==node) {
-        os_println("in_hash NULL==node");
-        
-        return false;
-    }
-    else if (false==__in_hash(node)) {
-        os_println("in_hash false==__in_hash(node)");
-        
-        return false;
-    }
-    else if (h!=node->bucket->hash) {
-        os_println("in_hash h!=node->bucket->hash");
-        
-        return false;
-    }
-    else {
-        return true;
-    }
-#endif
 }
 
 static inline bool
@@ -186,10 +144,8 @@ is_hash_empty(hash_t *h)
 static inline int
 hash_del(hash_t *h, hash_node_t *node)
 {
-    os_println("hash_del Begin");
     if (in_hash(h, node)) {
         __hash_del(node);
-        os_println("hash_del End");
 
         return 0;
     } else {
