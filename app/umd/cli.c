@@ -281,7 +281,7 @@ handle_show(char *args)
         /*
         * TODO: unix socket, 数据报方式, 无法传送大量数据，需要修改机制
         */
-        return um_user_foreach(show_user);
+        return um_user_foreach(show_user, false);
     }
     else if (is_good_json(json)) {
         return show_user_byjson(json);
@@ -329,7 +329,7 @@ handle_tag(char *args)
 static int
 handle_gc(char *args)
 {
-    return um_user_foreach_safe(umd_gc);
+    return um_user_foreach(umd_gc, true);
 }
 
 static cli_table_t cli_table[] = {

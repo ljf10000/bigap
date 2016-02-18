@@ -222,7 +222,7 @@ timer_server_handle(cli_server_t *server)
     for (i=0; i<times; i++) {
         umd.ticks++;
         
-        um_user_foreach_safe(cb);
+        um_user_foreach(cb, true);
     }
 
     return 0;

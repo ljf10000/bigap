@@ -147,7 +147,7 @@ os_fake_declare                         \
 * __h1_table_t;
 * __h1_node_t;
 * __h1_foreach_f;
-*
+* 
 * void __h1_init(__h1_table_t *table, size_array);
 * int __h1_size(__h1_table_t *table, int nidx);
 * int __h1_count(__h1_table_t *table);

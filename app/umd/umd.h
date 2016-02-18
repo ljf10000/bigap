@@ -507,10 +507,7 @@ extern int
 um_user_deauth(byte mac[], int reason);
 
 extern int
-um_user_foreach(um_foreach_f *foreach);
-
-extern int
-um_user_foreach_safe(um_foreach_f *foreach);
+um_user_foreach(um_foreach_f *foreach, bool safe);
 
 extern struct um_user *
 um_user_get(byte mac[]);

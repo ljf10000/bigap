@@ -874,21 +874,6 @@ __user_get(byte mac[])
     return node?getuser_bynode(node):NULL;
 }
 
-static inline int
-__user_foreach(um_foreach_f *foreach, bool safe)
-{
-    mv_t node_foreach(h2_node_t *node)
-    {
-        return (*foreach)(getuser_bynode(node));
-    }
-
-    if (safe) {
-        return h2_foreach_safe(&umd.table, node_foreach);
-    } else {
-        return h2_foreach(&umd.table, node_foreach);
-    }
-}
-
 static struct um_user *
 user_get(byte mac[])
 {
@@ -964,6 +949,21 @@ user_deauth(struct um_user *user, int reason)
     }
 }
 
+static int
+user_foreach(um_foreach_f *foreach, bool safe)
+{
+    mv_t node_foreach(h2_node_t *node)
+    {
+        return (*foreach)(getuser_bynode(node));
+    }
+
+    if (safe) {
+        return h2_foreach_safe(&umd.table, node_foreach);
+    } else {
+        return h2_foreach(&umd.table, node_foreach);
+    }
+}
+
 struct um_tag *
 um_tag_get(byte mac[], char *k)
 {
@@ -1035,15 +1035,9 @@ um_user_deauth(byte mac[], int reason)
 }
 
 int
-um_user_foreach(um_foreach_f *foreach)
+um_user_foreach(um_foreach_f *foreach, bool safe)
 {
-    return __user_foreach(foreach, false);
-}
-
-int
-um_user_foreach_safe(um_foreach_f *foreach)
-{
-    return __user_foreach(foreach, true);
+    return user_foreach(foreach, safe);
 }
 
 struct um_user *
@@ -1305,7 +1299,7 @@ um_user_delby(struct um_user_filter *filter)
         return mv2_ok;
     }
     
-    return um_user_foreach_safe(cb);
+    return um_user_foreach(cb, true);
 }
 
 int
@@ -1320,7 +1314,7 @@ um_user_getby(struct um_user_filter *filter, um_get_f *get)
         }
     }
     
-    return um_user_foreach(cb);
+    return um_user_foreach(cb, false);
 }
 
 /******************************************************************************/

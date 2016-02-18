@@ -308,7 +308,7 @@ dlist_replace_init(dlist_node_t *old, dlist_node_t *new)
 #define dlistForeachSafe(_list, _node, _tmp) \
     for (_node=dlist_first(_list), _tmp=dlist_next(_list, _node); \
          _node; \
-         _node=_tmp, _tmp=dlist_next(_list, _node))
+         _node=_tmp, _tmp=dlist_next(_list, _tmp))
 
 #define dlistForeachEntry(_list, _pos, _member) \
     for (_pos=dlist_first_entry(_list, typeof(*(_pos)), _member); \
@@ -318,7 +318,7 @@ dlist_replace_init(dlist_node_t *old, dlist_node_t *new)
 #define dlistForeachEntrySafe(_list, _pos, _tmp, _member) \
     for (_pos=dlist_first_entry(_list, typeof(*(_pos)), _member), _tmp=dlist_next_entry(_list, _pos, _member); \
          _pos; \
-         _pos=_tmp, _tmp=dlist_next_entry(_list, _pos, _member))
+         _pos=_tmp, _tmp=dlist_next_entry(_list, _tmp, _member))
 
 static inline dlist_node_t *
 dlist_find(dlist_t *list, dlist_eq_f *eq)
