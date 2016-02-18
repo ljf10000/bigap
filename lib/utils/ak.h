@@ -735,6 +735,8 @@ static inline int
 ak_init(void)
 {
     __THIS_DEBUG = (uint32_t)env_geti(ENV_AK_DEBUG, __ak_debug_default);
+
+    return 0;
 }
 #else
 #define ak_init()                       0
