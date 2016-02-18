@@ -112,10 +112,14 @@ enum {
     __ak_debug_test     = os_bit(____ak_debug_test),
 };
 
-#define __ak_debug_all      os_mask(____ak_debug_end)
+#define __ak_debug_all              os_mask(____ak_debug_end)
 
 #ifndef __ak_debug_default
-#define __ak_debug_default  (__ak_debug_error | __ak_debug_bug)
+#define __ak_debug_default          (__ak_debug_error | __ak_debug_bug)
+#endif
+
+#ifndef __ak_debug_string_default
+#define __ak_debug_string_default   "error|bug"
 #endif
 
 static inline uint32_t
@@ -205,7 +209,7 @@ __ak_sys_value(int sys, char *line)
     /*
     * try "*"
     */
-    if ('*'==line[0] && line[1]) {
+    if ('*'==line[0] && 0==line[1]) {
         
         return __ak_debug_all;
     }
@@ -734,7 +738,9 @@ DECLARE_FAKE_AK;
 static inline int 
 ak_init(void)
 {
-    __THIS_DEBUG = (uint32_t)env_geti(ENV_AK_DEBUG, __ak_debug_default);
+    char *value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
+    
+    __THIS_DEBUG = __ak_sys_value(__AK_SYS_DEBUG, value);
 
     return 0;
 }
