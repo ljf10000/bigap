@@ -177,9 +177,10 @@ __ak_debug_getname(uint32_t level)
 #define __AK_SYS_LIST(_) \
     _(__AK_SYS_DEBUG, 0, AK_DEBUG_NAME), \
     /* end */
-
-static inline int __ak_sys_idx(char *name);
-DECLARE_ENUM(__ak_sys, __AK_SYS_LIST, __AK_SYS_END);
+    
+static inline bool is_good_ak_sys(int id);
+static inline int ak_sys_idx(char *name);
+DECLARE_ENUM(ak_sys, __AK_SYS_LIST, __AK_SYS_END);
 
 static inline uint32_t
 __ak_sys_debug(char *var)
@@ -247,15 +248,15 @@ __ak_get_value(char *key, char *value)
     /*
     * not digit string, try sys
     */
-    sys = __ak_sys_idx(key);
+    sys = ak_sys_idx(key);
     os_println("__ak_get_value key=%s, sys=%d", key, sys);
     
-    if (sys<0) {
+    if (is_good_ak_sys(sys)) {
+        return __ak_sys_value(sys, value);
+    } else {
         os_println("__ak_get_value default v=0x%x", __ak_debug_default);
         
         return __ak_debug_default;
-    } else {
-        return __ak_sys_value(sys, value);
     }
 }
 
