@@ -1087,9 +1087,9 @@ juser_online(struct um_user *user, int type)
     jobj_t obj = jobj_new_object();
     time_t time;
 
-    jobj_add_int(obj, "max",    __online_max(user, type));
-    jobj_add_int(obj, "idle",   __online_idle(user, type));
-    jobj_add_int(obj, "aging",  __online_aging(user, type));
+    jobj_add_int(obj, "max",            __online_max(user, type));
+    jobj_add_int(obj, "idle",           __online_idle(user, type));
+    jobj_add_int(obj, "aging",          __online_aging(user, type));
     jobj_add_int(obj, "numerator",      __online_numerator(user, type));
     jobj_add_int(obj, "denominator",    __online_denominator(user, type));
     
@@ -1111,8 +1111,8 @@ __juser_flow(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
-    jobj_add_int64(obj, "max", __flow_max(user, type, dir));
-    jobj_add_int64(obj, "now", __flow_now(user, type, dir));
+    jobj_add_int64(obj, "max",          __flow_max(user, type, dir));
+    jobj_add_int64(obj, "now",          __flow_now(user, type, dir));
     jobj_add_int64(obj, "numerator",    __flow_numerator(user, type, dir));
     jobj_add_int64(obj, "denominator",  __flow_denominator(user, type, dir));
 
