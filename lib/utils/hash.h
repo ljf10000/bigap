@@ -56,7 +56,11 @@ __is_good_hash_idx(hash_t *h, hash_idx_t idx)
 static inline hash_bucket_t *
 __hash_bucket(hash_t *h, hash_idx_t idx)
 {
-    return &h->bucket[idx];
+    if (__is_good_hash_idx(h, idx)) {
+        return &h->bucket[idx];
+    } else {
+        return NULL;
+    }
 }
 
 static inline bool
@@ -68,7 +72,7 @@ __is_hash_empty(hash_t *h)
 static inline int
 __hash_init(hash_t *h, hash_idx_t size)
 {
-    hash_idx_t nidx;
+    hash_idx_t i;
     
     h->size = size;
     h->bucket = (hash_bucket_t *)os_zalloc(size * sizeof(hash_bucket_t));
@@ -76,8 +80,8 @@ __hash_init(hash_t *h, hash_idx_t size)
         return -ENOMEM;
     }
 
-    for (nidx=0; nidx<size; nidx++) {
-        INIT_LIST_HEAD(&__hash_bucket(h, nidx)->head);
+    for (i=0; i<size; i++) {
+        INIT_LIST_HEAD(&h->bucket[i].head);
     }
     
     return 0;
@@ -97,10 +101,8 @@ static inline void
 __hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
 {
     if (false==__in_hash(node)) {
-        hash_idx_t nidx = (*nhash)(node);
-        if (__is_good_hash_idx(h, nidx)) {
-            hash_bucket_t *bucket = __hash_bucket(h, nidx);
-            
+        hash_bucket_t *bucket = __hash_bucket(h, (*nhash)(node));
+        if (bucket) {
             list_add(&node->node, &bucket->head);
             node->bucket = bucket;
             h->count++;
@@ -189,12 +191,10 @@ static inline hash_node_t *
 hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
     if (h && dhash && eq) {
-        hash_bucket_t *bucket;
+        hash_bucket_t *bucket = __hash_bucket(h, (*dhash)());
         hash_node_t *node;
-        hash_idx_t nidx = (*dhash)();
         
-        if (__is_good_hash_idx(h, nidx) && 
-            NULL!=(bucket = __hash_bucket(h, nidx))) {
+        if (bucket) {            
             hash_foreach(bucket, node) {
                 if ((*eq)(node)) {
                     return node;
