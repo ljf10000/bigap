@@ -287,7 +287,7 @@ os_strlast(char *s, int ch)
 }
 
 #define os_getstringarrayidx(_array, _string, _begin, _end) \
-        __os_getobjarrayidx(_array, _string, os_strcmp, _begin, _end)
+        __os_getobjarrayidx(_array, _string, strcmp, _begin, _end)
 
 typedef bool char_is_f(int ch);
 

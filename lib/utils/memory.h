@@ -240,12 +240,11 @@ os_memmem(const void *mem, size_t mem_size,
         if (0==_cmp((_array)[__i], _obj)) { \
             __idx = __i;                    \
             printf("array idx=%d\n", __idx); \
-            goto found;                     \
+            break;                          \
         }                                   \
     }                                       \
                                             \
     printf("array end idx=%d\n", __idx);    \
-found:                                      \
     __idx;                                  \
 })  /* end */
 #endif
