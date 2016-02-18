@@ -60,10 +60,8 @@ __is_gc(struct um_user *user, time_t now)
 mv_t 
 umd_gc(struct um_user *user)
 {
-    um_user_dump("try-gc", user);
-    
     if (is_noused(user)) {
-        um_user_dump("gc", user);
+        um_user_debug("gc", user, __is_ak_debug_gc);
         
         user_delete(user);
     }

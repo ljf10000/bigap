@@ -375,6 +375,7 @@ __dlogger(char *app, char *sub, const char *file, const char *func, int line, in
 #define __vdebug_signal(_fmt, _args)    __jvdlogger(jlog_vprintf, __ak_debug_signal, _fmt, _args)
 #define __vdebug_shell(_fmt, _args)     __jvdlogger(jlog_vprintf, __ak_debug_shell, _fmt, _args)
 #define __vdebug_st(_fmt, _args)        __jvdlogger(jlog_vprintf, __ak_debug_st, _fmt, _args)
+#define __vdebug_gc(_fmt, _args)        __jvdlogger(jlog_vprintf, __ak_debug_gc, _fmt, _args)
 #define __vdebug_test(_fmt, _args)      __jvdlogger(jlog_vprintf, __ak_debug_test, _fmt, _args)
 
 #define __debug_ok(_fmt, _args...)      __jdlogger(jlog_printf, __ak_debug_ok, _fmt, ##_args)
@@ -395,6 +396,7 @@ __dlogger(char *app, char *sub, const char *file, const char *func, int line, in
 #define __debug_signal(_fmt, _args...)  __jdlogger(jlog_printf, __ak_debug_signal, _fmt, ##_args)
 #define __debug_shell(_fmt, _args...)   __jdlogger(jlog_printf, __ak_debug_shell, _fmt, ##_args)
 #define __debug_st(_fmt, _args...)      __jdlogger(jlog_printf, __ak_debug_st, _fmt, ##_args)
+#define __debug_gc(_fmt, _args...)      __jdlogger(jlog_printf, __ak_debug_gc, _fmt, ##_args)
 #define __debug_test(_fmt, _args...)    __jdlogger(jlog_printf, __ak_debug_test, _fmt, ##_args)
 
 /*
@@ -418,6 +420,7 @@ __dlogger(char *app, char *sub, const char *file, const char *func, int line, in
 #define vdebug_signal(_fmt, _args)      jvdlogger(__ak_debug_signal, _fmt, _args)
 #define vdebug_shell(_fmt, _args)       jvdlogger(__ak_debug_shell, _fmt, _args)
 #define vdebug_st(_fmt, _args)          jvdlogger(__ak_debug_st, _fmt, _args)
+#define vdebug_gc(_fmt, _args)          jvdlogger(__ak_debug_gc, _fmt, _args)
 #define vdebug_test(_fmt, _args)        jvdlogger(__ak_debug_test, _fmt, _args)
 
 #define debug_ok(_fmt, _args...)        jdlogger(__ak_debug_ok, _fmt, ##_args)
@@ -438,6 +441,7 @@ __dlogger(char *app, char *sub, const char *file, const char *func, int line, in
 #define debug_signal(_fmt, _args...)    jdlogger(__ak_debug_signal, _fmt, ##_args)
 #define debug_shell(_fmt, _args...)     jdlogger(__ak_debug_shell, _fmt, ##_args)
 #define debug_st(_fmt, _args...)        jdlogger(__ak_debug_st, _fmt, ##_args)
+#define debug_gc(_fmt, _args...)        jdlogger(__ak_debug_gc, _fmt, ##_args)
 #define debug_test(_fmt, _args...)      jdlogger(__ak_debug_test, _fmt, ##_args)
 
 #define __trace_error(_err, _trace_ok, _trace_error, _fmt, _args...) do{    \
