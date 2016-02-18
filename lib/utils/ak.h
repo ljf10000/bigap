@@ -713,11 +713,9 @@ ak_init(void)
 {
     char *value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
 
-    os_println("__THIS_DEBUG=%s", value);
-    
     __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
 
-    os_println("__THIS_DEBUG=0x%x", __THIS_DEBUG);
+    ak_println("__THIS_DEBUG=%s==>0x%x", value, __THIS_DEBUG);
     
     return 0;
 }
