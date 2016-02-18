@@ -664,7 +664,7 @@ __jlog(jobj_t obj, char *app, char *sub, int PRI)
     }
     
     if (LOG_DEBUG==LOG_PRI(PRI) && __is_ak_debug(LOG_LEVEL(PRI))) {
-        os_eprintln("%s", json);
+        os_eprintln("\t%s", json);
     }
     
     len = os_strlen(json);
