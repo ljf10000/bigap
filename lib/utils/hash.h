@@ -77,7 +77,7 @@ __hash_init(hash_t *h, hash_idx_t size)
     }
 
     for (i=0; i<size; i++) {
-        INIT_LIST_HEAD(&h->bucket[i]);
+        INIT_LIST_HEAD(&h->bucket[i].head);
     }
     
     return 0;
@@ -103,7 +103,7 @@ __hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
         if (__is_good_hash_idx(h, nidx)) {
             hash_bucket_t *bucket = __hash_bucket(h, nidx);
             
-            list_add(&node->node, bucket);
+            list_add(&node->node, &bucket->head);
             node->bucket = bucket;
             h->count++;
         }
@@ -176,31 +176,30 @@ hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_
 }
 
 #define hash_foreach(_bucket, _node)             \
-    list_for_each_entry(_node, _bucket, node)
+    list_for_each_entry(_node, &(_bucket)->head, node)
 
 #define hash_foreach_safe(_bucket, _node, _tmp)   \
-    list_for_each_entry_safe(_node, _tmp, _bucket, node)
+    list_for_each_entry_safe(_node, _tmp, &(_bucket)->head, node)
 
 #define hash_foreach_entry(_bucket, _pos, _member) \
-    list_for_each_entry(_pos, _bucket, _member.node)
+    list_for_each_entry(_pos, &(_bucket)->head, _member.node)
 
 #define hash_foreach_entry_safe(_bucket, _pos, _tmp, _member) \
-    list_for_each_entry_safe(_pos, _tmp, _bucket, _member.node)
+    list_for_each_entry_safe(_pos, _tmp, &(_bucket)->head, _member.node)
 
 static inline hash_node_t *
 hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
     if (h && dhash && eq) {
+        hash_bucket_t *bucket;
+        hash_node_t *node;
         hash_idx_t nidx = (*dhash)();
-        if (__is_good_hash_idx(h, nidx)) {
-            hash_bucket_t *bucket = __hash_bucket(h, nidx);
-            if (bucket) {
-                hash_node_t *node;
-                
-                hash_foreach(bucket, node) {
-                    if ((*eq)(node)) {
-                        return node;
-                    }
+        
+        if (__is_good_hash_idx(h, nidx) && 
+            NULL!=(bucket = __hash_bucket(h, nidx))) {
+            hash_foreach(bucket, node) {
+                if ((*eq)(node)) {
+                    return node;
                 }
             }
         }
