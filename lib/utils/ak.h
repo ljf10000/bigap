@@ -221,6 +221,33 @@ __ak_sys_value(int sys, char *line)
             return __ak_debug_default;
     }
 }
+
+static inline int
+__ak_get_value(char *key, char *value)
+{
+    int sys = INVALID_VALUE;
+    char *end = NULL;
+    uint32_t v = 0;
+    
+    /*
+    * first, try value as digit string
+    */
+    v = strtoul(value, &end, 0);
+    if (NULL==end || 0==end[0]) {
+        return v;
+    }
+    
+    /*
+    * not digit string, try sys
+    */
+    sys = __ak_sys(key);
+    if (sys<0) {
+        return __ak_debug_default;
+    } else {
+        return __ak_sys_value(sys, value);
+    }
+}
+
 /******************************************************************************/
 #if defined(__APP__) && defined(__DEAMON__)
 /*
@@ -542,11 +569,7 @@ __ak_load_line(char *filename/* not include path */, char *line)
     if (err) {
         return mv2_go(err);
     }
-
-    err = __ak_load_line_value(&info);
-    if (err) {
-        return mv2_go(err);
-    }
+    info.v = __ak_get_value(info.key, info.var);
     
     ak = ____ak_getbyname(info.app, info.key);
     if (NULL==ak) {
@@ -740,7 +763,7 @@ ak_init(void)
 {
     char *value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
     
-    __THIS_DEBUG = __ak_sys_value(__AK_SYS_DEBUG, value);
+    __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
 
     return 0;
 }
