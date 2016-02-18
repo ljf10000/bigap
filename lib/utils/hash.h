@@ -44,7 +44,7 @@ typedef void hash_change_f(hash_node_t *node);
 static inline bool
 __in_hash(hash_node_t *node)
 {
-    return node->bucket;
+    return NULL!=node->bucket;
 }
 
 static inline bool
