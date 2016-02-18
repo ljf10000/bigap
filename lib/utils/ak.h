@@ -714,6 +714,8 @@ ak_init(void)
     
     __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
 
+    os_println("__THIS_DEBUG=0x%x", __THIS_DEBUG);
+    
     return 0;
 }
 #else
