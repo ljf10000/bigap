@@ -21,7 +21,14 @@
 #define AK_LIMIT                1023
 #endif
 
+#ifndef AK_DEBUG_NAME
 #define AK_DEBUG_NAME           "debug"
+#endif
+
+#ifndef ENV_AK_DEBUG
+#define ENV_AK_DEBUG            "__AK_DEBUG__"
+#endif
+
 enum {
     INVALID_AKID    = 0,
 };
@@ -128,11 +135,17 @@ __ak_debug_getname(uint32_t level)
 }
 
 #if defined(__BOOT__)
-#   define __ak_debug        (__THIS_DEBUG?(*__THIS_DEBUG):__ak_debug_default)
-#elif defined(__APP__) && defined(__DEAMON__)
-#   define __ak_debug        ak_get(__THIS_DEBUG, __ak_debug_default)
+#   define __ak_debug       (__THIS_DEBUG?(*__THIS_DEBUG):__ak_debug_default)
+#elif defined(__APP__)
+#   ifdef __DEAMON__
+#       define __ak_debug   ak_get(__THIS_DEBUG, __ak_debug_default)
+#   else
+#       define __ak_debug   __THIS_DEBUG
+#   endif
+#elif defined(__KERNEL__)
+#   define __ak_debug       __THIS_DEBUG
 #else
-#   define __ak_debug        __THIS_DEBUG
+#   error "invalid __THIS_DEBUG"
 #endif
 
 #define __is_ak_debug(_level)   (os_hasflag(__ak_debug, _level))
@@ -156,12 +169,59 @@ __ak_debug_getname(uint32_t level)
 #define __is_ak_debug_st        __is_ak_debug(__ak_debug_st)
 #define __is_ak_debug_gc        __is_ak_debug(__ak_debug_gc)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
-/******************************************************************************/
-/*
-* enable app debug(use share memory)
-*/
-#if defined(__APP__) && defined(__DEAMON__)
 
+enum {
+    __AK_SYS_DEBUG,
+
+    __AK_SYS_END
+};
+
+static inline uint32_t
+__ak_sys_debug(char *var)
+{
+    char line[1+OS_LINE_LEN] = {0};
+    char *name;
+    uint32_t v = 0;
+
+    os_strdcpy(line, var);
+    os_strtok_foreach(name, line, "|") {
+        if ('*'==name[0]) {
+            v = __ak_debug_all;
+        }
+        else if ('-'==name[0]) {
+            v &= ~ __ak_debug_getbyname(name+1);
+        }
+        else {
+            v |= __ak_debug_getbyname(name);
+        }
+    }
+    
+    return v;
+}
+
+static inline uint32_t
+__ak_sys_value(int sys, char *line)
+{
+    /*
+    * try "*"
+    */
+    if ('*'==line[0] && line[1]) {
+        
+        return __ak_debug_all;
+    }
+    
+    switch(sys) {
+        case __AK_SYS_DEBUG:
+            return __ak_sys_debug(line);
+        default:
+            return __ak_debug_default;
+    }
+}
+/******************************************************************************/
+#if defined(__APP__) && defined(__DEAMON__)
+/*
+* app deamon
+*/
 typedef struct {
     char app[1+OS_APPNAMELEN];
     char k[1+OS_AKNAME_LEN];
@@ -223,12 +283,6 @@ __ak_offset(akid_t akid)
     + sizeof(ak_t) * AK_LIMIT   \
     + sizeof(uint32_t)          \
 )   /* end */
-
-enum {
-    __AK_SYS_DEBUG,
-
-    __AK_SYS_END
-};
 
 typedef struct {
     os_shm_t shm;
@@ -389,51 +443,6 @@ struct akinfo {
 }
 
 static inline int
-__ak_sys_debug(struct akinfo *info)
-{
-    char var[1+OS_LINE_LEN] = {0};
-    char *name;
-    uint32_t v = 0;
-
-    os_strdcpy(var, info->var);
-    os_strtok_foreach(name, var, "|") {
-        if ('*'==name[0]) {
-            v = __ak_debug_all;
-        }
-        else if ('-'==name[0]) {
-            v &= ~ __ak_debug_getbyname(name+1);
-        }
-        else {
-            v |= __ak_debug_getbyname(name);
-        }
-    }
-
-    info->v = v;
-    
-    return 0;
-}
-
-static inline int
-__ak_sys_value(int sys, struct akinfo *info)
-{
-    /*
-    * try "*"
-    */
-    if ('*'==info->var[0] && 0==info->var[1]) {
-        info->v = 0xffffffff;
-        
-        return 0;
-    }
-    
-    switch(sys) {
-        case __AK_SYS_DEBUG:
-            return __ak_sys_debug(info);
-        default:
-            return -EKEYBAD;
-    }
-}
-
-static inline int
 __ak_load_line_app(struct akinfo *info)
 {
     int len;
@@ -505,7 +514,9 @@ __ak_load_line_value(struct akinfo *info)
     if (sys<0) {
         return -EFORMAT;
     } else {
-        return __ak_sys_value(sys, info);
+        info->v = __ak_sys_value(sys, info->var);
+        
+        return 0;
     }
 }
 
@@ -709,17 +720,25 @@ error:
 #define DECLARE_REAL_AK     os_fake_declare
 #define DECLARE_AK          os_fake_declare
 DECLARE_FAKE_AK;
-
 /*
-* kernel/boot
+* kernel/boot/(app cmd)
 */
 #define ak_getbyname(_key)              0
 #define ak_get(_akid, _deft)            (_deft)
 #define ak_set(_akid, _value)           0
 
 #define ak_reload()                     0
-#define ak_init()                       0
 #define ak_fini()                       0
+
+#if defined(__APP__) && !defined(__DEAMON__)
+static inline int 
+ak_init(void)
+{
+    __THIS_DEBUG = (uint32_t)env_geti(ENV_AK_DEBUG, __ak_debug_default);
+}
+#else
+#define ak_init()                       0
+#endif
 #endif /* defined(__APP__) && defined(__DEAMON__) */
 /******************************************************************************/
 typedef struct {

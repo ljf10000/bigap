@@ -11,9 +11,6 @@
 #   include <common.h>
 #   include <linux/ctype.h>
 #   include <linux/string.h>
-#   ifndef __THIS_DEBUG
-#       define __THIS_DEBUG    __boot_debuger
-#   endif
 #elif defined(__KERNEL__)
 #   include <linux/moduleparam.h>
 #   include <linux/module.h>
