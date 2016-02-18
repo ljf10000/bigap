@@ -45,7 +45,6 @@
     _mod##_idx(char *s)             \
     {                               \
         char **array = __##_mod##_strings(); \
-        int i; for (i=0; i<_end; i++) printf("array[%d]=%s\n", i, array[i]); \
                                     \
         return os_getstringarrayidx(array, s, 0, _end); \
     }                               \
