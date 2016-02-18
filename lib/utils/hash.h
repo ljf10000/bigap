@@ -141,8 +141,10 @@ is_hash_empty(hash_t *h)
 static inline int
 hash_del(hash_t *h, hash_node_t *node)
 {
+    os_println("hash_del Begin");
     if (in_hash(h, node)) {
         __hash_del(node);
+        os_println("hash_del End");
 
         return 0;
     } else {
