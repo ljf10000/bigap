@@ -129,7 +129,29 @@ hash_init(hash_t *h)
 static inline bool
 in_hash(hash_t *h, hash_node_t *node)
 {
-    return h && node && __in_hash(node) && h==node->bucket->hash;
+    if (NULL==h) {
+        os_println("NULL==h");
+        
+        return false;
+    }
+    else if (NULL==node) {
+        os_println("in_hash NULL==node");
+        
+        return false;
+    }
+    else if (false==__in_hash(node)) {
+        os_println("in_hash false==__in_hash(node)");
+        
+        return false;
+    }
+    else if (h!=node->bucket->hash) {
+        os_println("in_hash h!=node->bucket->hash");
+        
+        return false;
+    }
+    else {
+        return true;
+    }
 }
 
 static inline bool
