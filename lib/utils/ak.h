@@ -175,7 +175,7 @@ __ak_debug_getname(uint32_t level)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
 #define __AK_SYS_LIST(_) \
-    _(__AK_SYS_DEBUG, 0, "debug"), \
+    _(__AK_SYS_DEBUG, 0, AK_DEBUG_NAME), \
     /* end */
 
 static inline int __ak_sys_idx(char *name);
