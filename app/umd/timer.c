@@ -58,10 +58,20 @@ __is_gc(struct um_user *user, time_t now)
 }
 
 mv_t 
-umd_gc(struct um_user *user, time_t now)
+umd_gc(struct um_user *user)
 {
-    if (is_noused(user) && __is_gc(user, now)) {
+    if (is_noused(user)) {
         user_delete(user);
+    }
+
+    return mv2_ok;
+}
+
+mv_t 
+umd_gc_auto(struct um_user *user, time_t now)
+{
+    if (__is_gc(user, now)) {
+        umd_gc(user);
     }
 
     return mv2_ok;
@@ -155,7 +165,7 @@ timer_handle(struct um_user *user, time_t now)
         online_timeout,
         online_aging,
 #if UM_USE_GC
-        umd_gc, /* must last */
+        umd_gc_auto, /* must last */
 #endif
     };
     mv_u mv;

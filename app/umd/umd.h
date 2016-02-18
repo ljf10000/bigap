@@ -541,6 +541,9 @@ extern void
 update_limit_test(void);
 
 extern mv_t 
-umd_gc(struct um_user *user, time_t now);
+umd_gc(struct um_user *user);
+
+extern mv_t 
+umd_gc_auto(struct um_user *user, time_t now);
 /******************************************************************************/
 #endif /* __UM_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__ */
