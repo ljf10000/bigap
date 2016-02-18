@@ -68,16 +68,16 @@ __is_hash_empty(hash_t *h)
 static inline int
 __hash_init(hash_t *h, hash_idx_t size)
 {
-    int i;
+    hash_idx_t nidx;
     
     h->size = size;
-    h->bucket = (hash_bucket_t *)os_malloc(size * sizeof(hash_bucket_t));
+    h->bucket = (hash_bucket_t *)os_zalloc(size * sizeof(hash_bucket_t));
     if (NULL==h->bucket) {
         return -ENOMEM;
     }
 
-    for (i=0; i<size; i++) {
-        INIT_LIST_HEAD(&h->bucket[i].head);
+    for (nidx=0; nidx<size; nidx++) {
+        INIT_LIST_HEAD(&__hash_bucket(h, nidx)->head);
     }
     
     return 0;
@@ -88,8 +88,6 @@ __hash_del(hash_node_t *node)
 {
     if (__in_hash(node) && false==__is_hash_empty(node->bucket->hash)) {
         list_del(&node->node);
-        node->node.next = NULL;
-        node->node.prev = NULL;
         node->bucket->hash->count--;
         node->bucket = NULL;
     }

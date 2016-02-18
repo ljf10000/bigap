@@ -561,8 +561,8 @@ __user_delete(struct um_user *user, event_cb_t *cb)
         (*cb)(user);
     }
     
-    __user_remove(user);
     __user_tag_clear(user);
+    __user_remove(user);
     os_free(user);
     
     return 0;

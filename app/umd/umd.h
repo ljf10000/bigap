@@ -439,7 +439,7 @@ um_user_dump(char *tag, struct um_user *user)
 {
     jobj_t obj = um_juser(user);
 
-    os_println("%s:%s", tag, jobj_string(obj));
+    os_println("\t%s:%s", tag, jobj_string(obj));
 
     jobj_put(obj);
 }
