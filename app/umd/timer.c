@@ -45,7 +45,7 @@ __is_gc(struct um_user *user, time_t now)
 {
     time_t noused = user->noused;
 
-    bool is = (noused < now) && (now - noused > umd.gc);
+    bool is = umd.gc && (noused < now) && (now - noused > umd.gc);
     if (is) {
         debug_timeout("user(%s) gc(%u) noused(%u) now(%u) online gc",
             os_macstring(user->mac),
@@ -166,9 +166,8 @@ timer_handle(struct um_user *user, time_t now)
         online_reauth,
         online_timeout,
         online_aging,
-#if UM_USE_GC
+        
         umd_gc_auto, /* must last */
-#endif
     };
     mv_u mv;
     int i;

@@ -7,10 +7,6 @@
 #define UM_USE_MONITOR          0
 #endif
 
-#ifndef UM_USE_GC
-#define UM_USE_GC               1
-#endif
-
 #ifndef ENV_UMD_UNIX
 #define ENV_UMD_UNIX            "__UMD_UNIX__"
 #endif
@@ -76,7 +72,7 @@ get_um_timeout_env(void)
 static inline int
 get_umd_gc_env(void) 
 {
-    return env_geti(ENV_UMD_GC, UMD_GC);
+    return env_geti(ENV_UMD_GC, 0 /* UMD_GC */);
 }
 /******************************************************************************/
 #endif /* __UM_H_cdb651156406414c97daca3b0f7527a6__ */
