@@ -327,10 +327,12 @@ __ak_offset(akid_t akid)
 
 DECLARE_FAKE_AK;
 
+#define __ak_address    __THIS_AK.address
+
 static inline ak_hdr_t *
 __ak_hdr(void)
 {
-    return (ak_hdr_t *)(__THIS_AK.address);
+    return (ak_hdr_t *)__ak_address;
 }
 
 #define __ak_inited         __ak_hdr()->inited
@@ -655,11 +657,11 @@ ak_reload(void)
 static inline int 
 ak_fini(void) 
 {
-    if (INVALID_SHM_ADDR != __THIS_AK.shm.address) {
-        shmdt(__THIS_AK.shm.address);
-        __THIS_AK.shm.address = INVALID_SHM_ADDR;
+    if (INVALID_SHM_ADDR != __ak_address) {
+        shmdt(__ak_address);
+        __ak_address = INVALID_SHM_ADDR;
         
-        ak_println("shm fini shmdt(address:%p)", __THIS_AK.shm.address);
+        ak_println("shm fini shmdt(address:%p)", __ak_address);
     }
 
     return 0;
@@ -670,7 +672,7 @@ ak_init(void)
 {
     int err = 0;
 
-    err = os_shm_create(&__THIS_AK.shm, appkey_shm_size, false);
+    err = os_shm_create(&__THIS_AK, appkey_shm_size, false);
     if (err<0) { /* >=0 is valid shm id */
         goto error;
     }
