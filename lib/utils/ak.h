@@ -174,12 +174,12 @@ __ak_debug_getname(uint32_t level)
 #define __is_ak_debug_gc        __is_ak_debug(__ak_debug_gc)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
-#define AK_SYS_LIST(_) \
-    _(__AK_SYS_DEBUG, 0, AK_DEBUG_NAME), \
+#define __AK_SYS_LIST(_) \
+    _(__AK_SYS_DEBUG, 0, "debug"), \
     /* end */
 
 static inline int __ak_sys_idx(char *name);
-DECLARE_ENUM(__ak_sys, AK_SYS_LIST, __AK_SYS_END);
+DECLARE_ENUM(__ak_sys, __AK_SYS_LIST, __AK_SYS_END);
 
 static inline uint32_t
 __ak_sys_debug(char *var)
