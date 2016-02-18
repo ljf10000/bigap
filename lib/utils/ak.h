@@ -201,8 +201,6 @@ __ak_sys_debug(char *var)
             v |= __ak_debug_getbyname(name);
         }
     }
-
-    os_println("__ak_sys_debug v=0x%x", v);
     
     return v;
 }
@@ -214,8 +212,6 @@ __ak_sys_value(int sys, char *line)
     * try "*"
     */
     if ('*'==line[0] && 0==line[1]) {
-        os_println("__ak_sys_value try v=0x%x", __ak_debug_all);
-        
         return __ak_debug_all;
     }
     
@@ -223,7 +219,6 @@ __ak_sys_value(int sys, char *line)
         case __AK_SYS_DEBUG:
             return __ak_sys_debug(line);
         default:
-            os_println("__ak_sys_value deft v=0x%x", __ak_debug_default);
             return __ak_debug_default;
     }
 }
@@ -240,8 +235,6 @@ __ak_get_value(char *key, char *value)
     */
     v = strtoul(value, &end, 0);
     if (NULL==end || 0==end[0]) {
-        os_println("__ak_get_value digit v=0x%x", v);
-        
         return v;
     }
     
@@ -249,13 +242,10 @@ __ak_get_value(char *key, char *value)
     * not digit string, try sys
     */
     sys = ak_sys_idx(key);
-    os_println("__ak_get_value key=%s, sys=%d", key, sys);
-    
+
     if (is_good_ak_sys(sys)) {
         return __ak_sys_value(sys, value);
     } else {
-        os_println("__ak_get_value default v=0x%x", __ak_debug_default);
-        
         return __ak_debug_default;
     }
 }
