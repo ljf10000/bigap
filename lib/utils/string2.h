@@ -206,7 +206,7 @@ string_cmp(string_t *a, string_t *b)
 {
     if (a) {
         if (b) {
-            uint32_t min = (a->len==b->len)?a->len:os_min(a->len, b->len);
+            uint32_t min = (a->len==b->len)?a->len:OS_MIN(a->len, b->len);
 
             return memcmp(string_string(a), string_string(b), min);
         } else {

@@ -387,7 +387,7 @@ __cli_server_fdmax(cli_server_t *server[], int count)
     int i, fdmax = 0;
     
     for (i=0; i<count; i++) {
-        fdmax = os_max(fdmax, server[i]->fd);
+        fdmax = OS_MAX(fdmax, server[i]->fd);
     }
 
     return fdmax;

@@ -151,7 +151,7 @@ DECLARE_ENUM(deauth_reason, __UM_DEAUTH_LIST, UM_DEAUTH_END);
 static inline bool
 is_valid_deauth_reason(int reason)
 {
-    return is_good_value(reason, UM_DEAUTH_NONE+1, UM_DEAUTH_END);
+    return IS_GOOD_VALUE(reason, UM_DEAUTH_NONE+1, UM_DEAUTH_END);
 }
 
 #define __UM_FLOW_TYPE_LIST(_)      \

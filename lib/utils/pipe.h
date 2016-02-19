@@ -54,10 +54,10 @@ enum {
 #endif
 
 #define PIPE_TIMEOUT(_timeout)  \
-    (((_timeout)<PIPE_TIMEOUT_MIN || (_timeout)>PIPE_TIMEOUT_MAX)?PIPE_TIMEOUT_DEFT:(_timeout))
+    OS_SAFE_VALUE_DEFT(_timeout, PIPE_TIMEOUT_MIN, PIPE_TIMEOUT_MAX, PIPE_TIMEOUT_DEFT)
 
 #define PIPE_GROW(_grow)        \
-    (((_grow)<PIPE_GROW_MIN || (_grow)>PIPE_GROW_MAX)?PIPE_GROW_DEFT:(_grow))
+    OS_SAFE_VALUE_DEFT(_grow, PIPE_GROW_MIN, PIPE_GROW_MAX, PIPE_GROW_DEFT)
 
 #define PIPE_STD_INITER(_buf, _grow)    {   \
     .buf    = (_buf)?(_buf):(char *)os_zalloc(PIPE_GROW(_grow)), \
@@ -205,7 +205,7 @@ __pipe_father_handle(pipe_info_t *info, int son)
     };
     fd_set rset;
     int err = 0;
-    int max = os_max(info->std[__stdout].fd[__pipe_father], info->std[__stderr].fd[__pipe_father]);
+    int max = OS_MAX(info->std[__stdout].fd[__pipe_father], info->std[__stderr].fd[__pipe_father]);
 
     os_close(info->std[__stdout].fd[__pipe_son]);
     os_close(info->std[__stderr].fd[__pipe_son]);

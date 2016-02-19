@@ -416,7 +416,7 @@ server_handle(void)
         .tv_sec     = os_second(tmd.timer.timeout),
         .tv_usec    = os_usecond(tmd.timer.timeout),
     };
-    int maxfd = os_max(tmd.timer.fd, tmd.server.fd);
+    int maxfd = OS_MAX(tmd.timer.fd, tmd.server.fd);
     int err;
 
     while(1) {

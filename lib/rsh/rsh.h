@@ -56,7 +56,7 @@
 static inline bool
 is_good_rsh_local_slot(int slot)
 {
-    return is_good_value(slot, RSH_SLOT_LOCAL, RSH_SLOT_END);
+    return IS_GOOD_VALUE(slot, RSH_SLOT_LOCAL, RSH_SLOT_END);
 }
 
 static inline bool

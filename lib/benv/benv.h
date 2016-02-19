@@ -1127,7 +1127,7 @@ benv_obj_cmp_dump(char *obj, int a, int b, int ret)
 #if BENV_DEBUG & BENV_DEBUG_CMP
     os_println("%s%d %c %s%d", 
         obj, a, 
-        os_cmp_operator(ret), 
+        OS_CMP_OPERATOR(ret), 
         obj, b);
 #endif
 }

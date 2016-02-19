@@ -339,7 +339,7 @@ get_val(char *file, int max, int min, int deft)
     if (os_file_exist(file)) {
         os_pgeti(&val, file);
 
-        val = os_safe_value(val, min,  max);
+        val = OS_SAFE_VALUE_DEFT(val, min,  max, deft);
     }
 
     return val;

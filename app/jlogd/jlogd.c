@@ -320,7 +320,7 @@ server_handle(void)
     int err, fdmax = 0;
     
     foreach_server(server) {
-        fdmax = os_max(fdmax, server->fd);
+        fdmax = OS_MAX(fdmax, server->fd);
     }
 
     while(1) {

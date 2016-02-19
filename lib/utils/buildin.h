@@ -113,9 +113,11 @@ static inline bool is_good_common_id(int id)
 /*
 * check value with [begin, end)
 */
+#define IS_GOOD_VALUE(_value, _begin, _end)     \
+    (_value >= (_begin) && _value < (_end))
 #define is_good_value(_value, _begin, _end) ({  \
     typeof(_value) __v = (_value);              \
-    (__v >= (_begin) && __v < (_end));          \
+    IS_GOOD_VALUE(__v, _begin, _end);           \
 })  /* end */
 
 /*
@@ -123,42 +125,52 @@ static inline bool is_good_common_id(int id)
 */
 #define is_good_enum(_id, _end)     is_good_value(_id, 0, _end)
 
-#define os_safe_value(_value, _min, _max) ({ \
+#define OS_SAFE_VALUE_DEFT(_value, _min, _max, _deft)   \
+    (((_value)<(_min) || (_value)>(_max))?(_deft):(_value))
+
+#define os_safe_value_deft(_value, _min, _max, _deft) ({ \
     typeof(_value)  __value   = _value; \
-    typeof(_value)  __min     = _min;   \
-    typeof(_value)  __max     = _max;   \
-                                    \
-    if (__value < __min) {          \
-        __value = __min;            \
-    } else if (__value > __max) {   \
-        __value = __max;            \
-    }                               \
-                                    \
-    __value;                        \
+    typeof(_value)  __deft    = _deft;  \
+                                        \
+    OS_SAFE_VALUE_DEFT(__value, _min, _max, __deft); \
+})  /* end */
+
+#define OS_SAFE_VALUE(_value, _min, _max)   \
+    ((_value)<(_min)?(_min):((_value)>(_max)?(_max):(_value)))
+
+#define os_safe_value(_value, _min, _max) ({ \
+    typeof(_value)  __value   = _value;     \
+    typeof(_value)  __min     = _min;       \
+    typeof(_value)  __max     = _max;       \
+                                            \
+    OS_SAFE_VALUE(__value, __min, __max);   \
 })  /* end */
 
 /*
 * 忘了min/max在哪个头文件定义了，先放这里
 */
 #if 1
+#define OS_MIN(_x, _y)  ((_x)<(_y)?(_x):(_y))
 #define os_min(_x,_y)   ({  \
     typeof(_x) __x = (_x);  \
     typeof(_y) __y = (_y);  \
     (void) (&__x == &__y);  \
-    __x<__y?__x:__y;        \
+    OS_MIN(__x, __y);       \
 })  /* end */
 
+#define OS_MAX(_x, _y)  ((_x)>(_y)?(_x):(_y))
 #define os_max(_x,_y)   ({  \
     typeof(_x) __x = (_x);  \
     typeof(_y) __y = (_y);  \
     (void) (&__x == &__y);  \
-    __x>__y?__x:__y;        \
+    OS_MAX(__x, __y);       \
 })  /* end */
 #endif
 
-#define os_cmp_operator(_ret)       ({  \
-    int __ret = (int)(_ret);            \
-    (0==__ret)?'=':(__ret<0?'<':'>');   \
+#define OS_CMP_OPERATOR(_ret)   ((0==(_ret))?'=':((_ret)<0?'<':'>'))
+#define os_cmp_operator(_ret)   ({  \
+    int __ret = (int)(_ret);        \
+    OS_CMP_OPERATOR(__ret);         \
 })  /* end */
 
 #define OS_IOVEC_INITER(_base, _len) { \
