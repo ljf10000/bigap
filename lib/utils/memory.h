@@ -25,9 +25,11 @@ os_memset(void *s, int ch, size_t n)
     }
 }
 
-#ifndef os_memzero
-#define os_memzero(_ptr, _size)         os_memset(_ptr, 0, _size)
-#endif
+static inline void *
+os_memzero(void *s, size_t n)
+{
+    return os_memset(s, 0, n);
+}
 
 static inline int
 os_memcmp(const void *a, const void *b, size_t n)
@@ -47,15 +49,17 @@ os_memcmp(const void *a, const void *b, size_t n)
     }
 }
 
-#ifndef os_memeq
-#define os_memeq(_a, _b, _size)     (0==os_memcmp(_a, _b, _size))
-#endif
+static inline bool
+os_memeq(const void *a, const void *b, size_t n)
+{
+    return 0==os_memcmp(a, b, n);
+}
 
-#ifdef __BOOT__
 static inline void *
 os_memmem(const void *mem, size_t mem_size,
 		     const void *obj, size_t obj_size)
 {
+#ifdef __BOOT__
 	register const char *ph;
 	register const char *pn;
 	const char *plast;
@@ -81,10 +85,10 @@ os_memmem(const void *mem, size_t mem_size,
 	}
 
 	return NULL;
-}
 #else
-#define os_memmem(_mem, _mem_size, _obj, _obj_size)     memmem(_mem, _mem_size, _obj, _obj_size)
+    return memmem(mem, mem_size, obj, obj_size);
 #endif
+}
 
 /*
 * use _array's size
