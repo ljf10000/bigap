@@ -4,7 +4,10 @@
 /******************************************************************************/
 #define BENV_DEBUG_SORT             0x01
 #define BENV_DEBUG_CMP              0x02
+
+#ifndef BENV_DEBUG
 #define BENV_DEBUG                  0 //(BENV_DEBUG_SORT | BENV_DEBUG_CMP)
+#endif
 
 #define BENV_UPGRADE_ONE            1
 #define BENV_UPGRADE_TWO            2

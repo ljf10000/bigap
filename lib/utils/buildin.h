@@ -234,10 +234,10 @@ static inline bool os_seq_before(uint32_t seq1, uint32_t seq2)
 */
 #define os_seq_after(_seq1, _seq2)  os_seq_before(_seq2, _seq1)
 
+#define __ERRNO(_err)   ((_err)<0?-errno:(_err))
 #define __errno(_err)   ({  \
     int __err = (_err);     \
-                            \
-    __err<0?-errno:__err;   \
+    __ERRNO(__err);         \
 })
 
 #define __os_call(_new, _free, _call, _args...) ({ \
