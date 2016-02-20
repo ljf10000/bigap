@@ -448,7 +448,7 @@ curl -d '{"mac":"00:1f:64:01:01:01","mid":1,"psn":2,"error":1}' -k --cert ./clie
             cert, key,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
-    if (err) {
+    if (err<0) {
         debug_error("curl err(%d)", err);
         err = -ECURLFAIL; goto error;
     }
@@ -475,7 +475,7 @@ curl -d '{"mac":"00:1f:64:01:01:01","mid":1,"psn":2,"error":1}' -k --cert ./clie
 error:
     jobj_put(obj);
 
-    if (err) {
+    if (err<0) {
         failed("report");
     }
 
@@ -526,7 +526,7 @@ do_register(void)
             cert, key,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
-    if (err) {
+    if (err<0) {
         debug_error("curl err(%d)", err);
         err = -ECURLFAIL; goto error;
     }
@@ -559,7 +559,7 @@ do_register(void)
 error:
     jobj_put(obj);
 
-    if (err) {
+    if (err<0) {
         failed("register");
     }
 
@@ -613,7 +613,7 @@ do_auth(void)
             cert, key,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
-    if (err) {
+    if (err<0) {
         debug_error("curl err(%d)", err);
         err = -ECURLFAIL; goto error;
     }
@@ -649,7 +649,7 @@ do_auth(void)
 error:
     jobj_put(obj);
 
-    if (err) {
+    if (err<0) {
         failed("auth");
     }
 
@@ -664,12 +664,12 @@ do_check(void)
     int err = 0;
 
     err = __otp_call(__otp_custom_read, custom);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
     err = __otp_call(__otp_private_read, private);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -746,7 +746,7 @@ do_cmd(void)
             oem_lss_server, oem_lss_port);
     unlink(cert);
     unlink(key);
-    if (err) {
+    if (err<0) {
         debug_error("curl err(%d)", err);
         err = -ECURLFAIL; goto error;
     }
@@ -811,7 +811,7 @@ __init(void)
     int err;
     
     err = os_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
 

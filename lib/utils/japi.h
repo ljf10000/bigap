@@ -185,13 +185,13 @@ jobj_add_checking(jobj_t obj, char *key)
     int err = 0;                                \
                                                 \
     err = jobj_add_checking(_obj, (char *)_key);\
-    if (err) {                                  \
+    if (err<0) {                                \
         goto error;                             \
     }                                           \
                                                 \
     __new = _create(value);                     \
     if (NULL==__new) {                          \
-        japi_println(#_create "failed");       \
+        japi_println(#_create "failed");        \
         err = -ENOMEM; goto error;              \
     }                                           \
                                                 \
@@ -448,7 +448,7 @@ jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
                 return -EFORMAT;
         }
 
-        if (err) {
+        if (err<0) {
             return err;
         }
     }
@@ -478,7 +478,7 @@ jobj_voprintf(const char *fmt, va_list args)
     }
 
     int err = jobj_vprintf(obj, fmt, args);
-    if (err) {
+    if (err<0) {
         return obj;
     }
     

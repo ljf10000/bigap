@@ -687,7 +687,7 @@ part_low_read(struct part_block *block)
     int err = 0;
     
     err = (*block->read)(block, block->partition);
-    if (err) {
+    if (err<0) {
         debug_error("part low read error(%d)", err);
     } else {
         debug_trace("part low read OK.");
@@ -707,7 +707,7 @@ part_low_wirte(struct part_block *block)
     int err = 0;
 
     err = (*block->write)(block, block->partition);
-    if (err) {
+    if (err<0) {
         debug_error("part low write error(%d)", err);
     } else {
         debug_trace("part low write OK.");
@@ -763,7 +763,7 @@ part_line_read(struct part_block *block)
 
         debug_trace("insert k(%s)/v(%s)", line, value);
         err = part_item_insert(block, part_item_new(line, value));
-        if (err) {
+        if (err<0) {
             /* 
             * insert error
             *
@@ -830,7 +830,7 @@ part_high_read(struct part_block *block)
     }
     
     err = part_line_read(block);
-    if (err) {
+    if (err<0) {
         debug_error("part high read error(%d)", err);
     } else {
         debug_trace("part high read OK.");
@@ -854,7 +854,7 @@ part_high_wirte(struct part_block *block)
     *   when do empty, the block->count is 0
     */
     err = part_line_wirte(block);
-    if (err) {
+    if (err<0) {
         debug_error("part high write error(%d)", err);
     } else {
         debug_trace("part high write OK.");
@@ -871,12 +871,12 @@ part_block_init_bynormal(struct part_block *block)
     int err;
     
     err = part_low_read(block);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
     err = part_high_read(block);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -900,7 +900,7 @@ part_block_init_byload(struct part_block *block, char *human)
     int err;
     
     err = part_human_read(block, human);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -916,7 +916,7 @@ part_block_init_bycrc(struct part_block *block)
     int err;
     
     err = part_low_read(block);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -948,7 +948,7 @@ part_block_init(struct part_block *block, char *human)
             break;
     }
     
-    if (err) {
+    if (err<0) {
         debug_error("%s init failed(%d)", part_mode_string(block->mode), err);
     }
     
@@ -962,14 +962,14 @@ part_block_flush(struct part_block *block)
     
     if (is_dirty(block)) {
         err = part_high_wirte(block);
-        if (err) {
+        if (err<0) {
             return err;
         }
         
         part_xor(block);
         
         err = part_low_wirte(block);
-        if (err) {
+        if (err<0) {
             return err;
         }
     }
@@ -1044,7 +1044,7 @@ __part_block_new(
                 os_safe_string(partition));
 
     err = part_lock(block);
-    if (err) {
+    if (err<0) {
         goto error;
     }
     
@@ -1108,7 +1108,7 @@ part_block_create(
     }
 
     err = part_block_init(block, human);
-    if (err) {
+    if (err<0) {
         goto error;
     }
 
@@ -1151,7 +1151,7 @@ part_block_read(struct part_block *block, unsigned int offset, void *buf, unsign
     int err;
 
     err = part_var_rw_check(block, offset, buf, size);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -1169,7 +1169,7 @@ part_block_write(struct part_block *block, unsigned int offset, void *buf, unsig
     int err;
 
     err = part_var_rw_check(block, offset, buf, size);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -1529,14 +1529,14 @@ __partool_write(char *partition)
     }
     
     err = flash_sect_erase(begin, end);
-    if (err) {
+    if (err<0) {
         debug_error("flash erase(begin:0x%x end:0x%x size:0x%x) failed(%d)", 
             begin, end, partool_size, err);
         return err;
     }
 
     err = flash_write(part_tmp, begin, partool_size);
-    if (err) {
+    if (err<0) {
         debug_error("flash write(begin:0x%x end:0x%x size:0x%x) failed(%d)", 
             begin, end, partool_size, err);
         return err;
@@ -1729,12 +1729,12 @@ partool_read(struct part_block *block, char *partition)
     int err;
 
     err = __partool_read(partition);
-    if (err) {
+    if (err<0) {
         goto error;
     }
 
     err = part_block_write(block, 0, part_tmp, partool_size);
-    if (err) {
+    if (err<0) {
         goto error;
     }
 
@@ -1749,12 +1749,12 @@ partool_write(struct part_block *block, char *partition)
     int err;
     
     err = part_block_read(block, 0, part_tmp, partool_size);
-    if (err) {
+    if (err<0) {
         goto error;
     }
 
     err = __partool_write(partition);
-    if (err) {
+    if (err<0) {
         goto error;
     }
     
@@ -1771,7 +1771,7 @@ partool_init(int mode, int argc, char *argv[])
     int err;
     
     err = __partool_init(partition);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -1823,7 +1823,7 @@ cmd_crc(int argc, char *argv[])
     unsigned int crc_calc = 0;
     
     err = partool_init(PART_MODE_CRC, argc, argv);
-    if (err) {
+    if (err<0) {
         debug_error("partool init error(%d)", err);
         
         /* 
@@ -1835,7 +1835,7 @@ cmd_crc(int argc, char *argv[])
     }
 
     part_block_crc_get(blk, &crc_part, &crc_calc);
-    if (err) {
+    if (err<0) {
         return part_error(err, NULL);
     }
 
@@ -1851,7 +1851,7 @@ cmd_empty(int argc, char *argv[])
     int err = 0;
     
     err = partool_init(PART_MODE_EMPTY, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, NULL);
     }
     
@@ -1876,12 +1876,12 @@ cmd_show_all(int argc, char *argv[])
     int err;
     
     err = partool_init(PART_MODE_NORMAL, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, NULL);
     }
     
     err = part_var_foreach(blk, show_cb, NULL);
-    if (err) {
+    if (err<0) {
         return part_error(err, NULL);
     }
     
@@ -1897,12 +1897,12 @@ cmd_show_byname(int argc, char *argv[])
     int err = 0;
     
     err = partool_init(PART_MODE_NORMAL, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
     
     err = part_var_find(blk, name, &c);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
 
@@ -1920,12 +1920,12 @@ cmd_new(int argc, char *argv[])
     int err = 0;
     
     err = partool_init(PART_MODE_NORMAL, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
 
     err = part_var_new(blk, name, value);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
     
@@ -1940,12 +1940,12 @@ cmd_delete(int argc, char *argv[])
     int err;
     
     err = partool_init(PART_MODE_NORMAL, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
 
     err = part_var_delete(blk, name);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
     
@@ -1962,7 +1962,7 @@ cmd_load(int argc, char *argv[])
     partool_humfile = argv[4];
     
     err = partool_init(PART_MODE_LOAD, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, NULL);
     }
     
@@ -1977,12 +1977,12 @@ cmd_show_byprefix(int argc, char *argv[])
     int err;
     
     err = partool_init(PART_MODE_NORMAL, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
     
     err = part_var_foreach_byname_prefix(blk, name, show_cb, NULL);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
 
@@ -1997,12 +1997,12 @@ cmd_delete_byprefix(int argc, char *argv[])
     int err;
     
     err = partool_init(PART_MODE_NORMAL, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
 
     err = part_var_delete_byname_prefix(blk, name);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
     
@@ -2018,12 +2018,12 @@ cmd_create(int argc, char *argv[])
     int err = 0;
     
     err = partool_init(PART_MODE_NORMAL, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
 
     err = part_var_create(blk, name, value);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
     
@@ -2039,12 +2039,12 @@ cmd_update(int argc, char *argv[])
     int err;
     
     err = partool_init(PART_MODE_NORMAL, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
 
     err = part_var_update(blk, name, value);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
     
@@ -2174,12 +2174,12 @@ boot_partool_show_byname(int argc, char *argv[],void *buf)
     int len;
     
     err = partool_init(PART_MODE_NORMAL, argc, argv);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
     
     err = part_var_find(blk, name, &c);
-    if (err) {
+    if (err<0) {
         return part_error(err, name);
     }
 

@@ -473,7 +473,7 @@ mount_rootfs(void)
                     true,   /* check    */
                     readonly,
                     true);  /* repair   */
-            if (err) {
+            if (err<0) {
                 errs = err;
             }
         }
@@ -515,17 +515,17 @@ umount_double(char *dir_master, char *dir0, char *dir1)
     int err;
 
     err = do_umount(dir_master);
-    if (err) {
+    if (err<0) {
 
     }
 
     err = do_umount(dir0);
-    if (err) {
+    if (err<0) {
 
     }
 
     err = do_umount(dir1);
-    if (err) {
+    if (err<0) {
 
     }
 
@@ -558,7 +558,7 @@ umount_rootfs(void)
     for (i=0; i<OS_COUNT; i++) {
         if (i!=sys.current) {
             err = do_umount(dir_rootfs(i));
-            if (err) {
+            if (err<0) {
                 errs = err;
             }
         }
@@ -628,7 +628,7 @@ __get_version(int idx, char *file)
     int err;
     
     err = os_v_fgets(string, OS_LINE_LEN, "%s/%s", dir_rootfs(idx), file);
-    if (err) {
+    if (err<0) {
         debug_error("read version file %s/%s error:%d", dir_rootfs(idx), file, err);
         
         return NULL;
@@ -1180,7 +1180,7 @@ upgrade(int idx, int master)
     upgrade_init(idx, &sys.version);
 
     err = rsync(idx, &sys.version);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -1190,7 +1190,7 @@ upgrade(int idx, int master)
     * repair kernel
     */
     err = repair_kernel(idx);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -1240,21 +1240,21 @@ usbupgrade(void)
     }
     
     err = os_fgets(kernel_version, OS_LINE_LEN, USB_FILE_KERNEL_VERSION);
-    if (err) {
+    if (err<0) {
         debug_error("get %s error:%d", USB_FILE_KERNEL_VERSION, err);
         
         return err;
     }
     
     err = os_fgets(rootfs_version, OS_LINE_LEN, USB_FILE_ROOTFS_VERSION);
-    if (err) {
+    if (err<0) {
         debug_error("get %s error:%d", USB_FILE_ROOTFS_VERSION, err);
         
         return err;
     }
     
     err = __benv_version_atoi(&version, rootfs_version);
-    if (err) {
+    if (err<0) {
         debug_error("bad rootfs version:%s", rootfs_version);
         
         return err;
@@ -1291,14 +1291,14 @@ usbupgrade(void)
             if (kernel_exist) {
                 __benv_version_atoi(&version, kernel_version);
                 err = kdd_byfile(i, USB_FILE_KERNEL, &version);
-                if (err) {
+                if (err<0) {
                     return err;
                 }
             }
             
             __benv_version_atoi(&version, rootfs_version);
             err = rcopy(i, DIR_USB_ROOTFS, &version);
-            if (err) {
+            if (err<0) {
                 return err;
             }
         }
@@ -1510,7 +1510,7 @@ get_current(void)
     char *dev, *p;
     
     err = os_pgets(line, OS_LINE_LEN, "cat " OS_PROC_CMDLINE);
-    if (err) {
+    if (err<0) {
         debug_error("read " OS_PROC_CMDLINE " error:%d", err);
         
         goto error;
@@ -1552,7 +1552,7 @@ init_current(void)
 
     err = os_pgeti(&sys.current, SCRIPT_CURRENT);
         debug_trace_error(err, SCRIPT_CURRENT);
-    if (err) {
+    if (err<0) {
         sys.current = get_current();
     }
 
@@ -1580,27 +1580,27 @@ __init(void)
     setup_signal_callstack(NULL);
 
     err = os_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = init_current();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = init_env();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = os_file_lock(false);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = load();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -1672,7 +1672,7 @@ cmd_upgrade(int argc, char *argv[])
         for (i=1; i<OS_COUNT; i++) {
             if (i!=sys.current) {
                 err = upgrade(i, i);
-                if (err) {
+                if (err<0) {
                     return err;
                 }
             }
@@ -1713,7 +1713,7 @@ cmd_mount(int argc, char *argv[])
         
     for (i=0; i<os_count_of(mounts); i++) {
         err = (*mounts[i].mount)();
-        if (err) {
+        if (err<0) {
             errs = err;
         }
     }
@@ -1728,7 +1728,7 @@ cmd_umount(int argc, char *argv[])
     
     for (i=os_count_of(mounts) - 1; i>=0; i--) {
         err = (*mounts[i].umount)();
-        if (err) {
+        if (err<0) {
             errs = err;
         }
     }

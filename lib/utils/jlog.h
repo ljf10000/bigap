@@ -519,28 +519,28 @@ __jlog_obj_header(jobj_t obj, char *app, char *sub, const char *file, const char
     }
     
     err = jobj_add_string(obj, JLOG_KEY_APP, app);
-    if (err) {
+    if (err<0) {
         __debug_error("add app %s error", app);
         
         goto error;
     }
     
     err = jobj_add_string(obj, JLOG_KEY_SUB, sub);
-    if (err) {
+    if (err<0) {
         __debug_error("add sub %s error", sub);
         
         goto error;
     }
     
     err = jobj_add_string(obj, JLOG_KEY_FILE, file);
-    if (err) {
+    if (err<0) {
         __debug_error("add file %s error", file);
         
         goto error;
     }
     
     err = jobj_add_string(obj, JLOG_KEY_FUNC, func);
-    if (err) {
+    if (err<0) {
         __debug_error("add func %s error", func);
         
         goto error;
@@ -548,7 +548,7 @@ __jlog_obj_header(jobj_t obj, char *app, char *sub, const char *file, const char
     
     if (line) {
         err = jobj_add_int(obj, JLOG_KEY_LINE, line);
-        if (err) {
+        if (err<0) {
             __debug_error("add line %d error", line);
             
             goto error;
@@ -559,7 +559,7 @@ __jlog_obj_header(jobj_t obj, char *app, char *sub, const char *file, const char
         char *name = __ak_debug_getname(level);
         
         err = jobj_add_string(obj, JLOG_KEY_LEVEL, name);
-        if (err) {
+        if (err<0) {
             __debug_error("add level %s error", name);
             
             goto error;
@@ -567,7 +567,7 @@ __jlog_obj_header(jobj_t obj, char *app, char *sub, const char *file, const char
     }
     
     err = jobj_add_int(obj, JLOG_KEY_PRI, pri);
-    if (err) {
+    if (err<0) {
         __debug_error("add pri %d error", pri);
         
         goto error;
@@ -614,7 +614,7 @@ __jlog_socket(char *app, char *sub, int family)
     }
     
     err = bind(fd, &client.c, addrlen);
-    if (err) {
+    if (err<0) {
         __debug_trace("bind error:%d", -errno);
         err = -errno; goto error;
     }
@@ -628,7 +628,7 @@ __jlog_socket(char *app, char *sub, int family)
     }
     
     err = connect(fd, __jlog_server(), addrlen);
-    if (err) {
+    if (err<0) {
         __debug_trace("connect jlog error:%d", -errno);
         err = -errno; goto error;
     }
@@ -728,7 +728,7 @@ __jvlogger(char *app, char *sub, const char *file, const char *func, int line, i
     }
     
     err = jobj_vprintf(obj, fmt, args);
-    if (err) {
+    if (err<0) {
         goto error;
     }
     
@@ -755,7 +755,7 @@ __dvlogger(char *app, char *sub, const char *file, const char *func, int line, i
     }
 
     err = jobj_vsprintf(obj, (char *)JLOG_KEY_INFO, fmt, args);
-    if (err) {
+    if (err<0) {
         goto error;
     }
     
@@ -833,7 +833,7 @@ __jlog_env_init(void)
             err = __env_copy(ENV_JLOG_UNIX, JLOG_UNIX, 
                     get_abstract_path(__jlog_userver()),
                     abstract_path_size);
-            if (err) {
+            if (err<0) {
                 return err;
             }
             
@@ -847,7 +847,7 @@ __jlog_env_init(void)
             __debug_ok("get port:%d", iserver->sin_port);
             
             err = env_copy(ENV_JLOG_IP, JLOG_IP, ipaddress);
-            if (err) {
+            if (err<0) {
                 __debug_error("get jlog ip error:%d", -errno);
                 
                 return err;
@@ -894,7 +894,7 @@ jlog_init(void)
     int family;
     
     err = __jlog_env_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
 #endif /* __APP__ */

@@ -47,13 +47,13 @@ __init(void)
     int permit = S_IRUSR | S_IRGRP;
         
     err = os_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     do {
         fd = open(DEV_BOOT, O_RDONLY, permit);
-        if(false==is_good_fd(fd)) {
+        if (false==is_good_fd(fd)) {
             trace_error(-errno, "open " DEV_BOOT);
             
             sleep(1);
@@ -204,7 +204,7 @@ __main(int argc, char *argv[])
 
     for (i=0; i<os_count_of(check); i++) {
         err = (*check[i])();
-        if (err) {
+        if (err<0) {
             return err;
         }
     }

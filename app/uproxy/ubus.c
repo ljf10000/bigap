@@ -51,7 +51,7 @@ add_subscriber(struct ubus_subscriber *subscriber)
 	int err = 0;
 
 	err = ubus_register_subscriber(uproxy.ctx, subscriber);
-	if (err) {
+	if (err<0) {
 		debug_everror("Failed to register subscriber(%s)", ubus_strerror(err));
 	}
 
@@ -64,7 +64,7 @@ add_listener(struct ubus_event_handler *listener)
     int err;
 
     err = ubus_register_event_handler(uproxy.ctx, listener, "*");
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -102,7 +102,7 @@ uproxy_ubus_init(char *path)
 
     uloop_init();
 	err = uproxy_ubus_connect(path);
-    if (err) {
+    if (err<0) {
         return err;
     }
     

@@ -202,14 +202,14 @@ jadd(jlog_server_t *server)
     pri = LOG_PRI(jobj_get_int(opri));
     
     err = jobj_add_string(obj, JLOG_KEY_TIME, os_fulltime_string(NULL));
-    if (err) {
+    if (err<0) {
         __debug_error("add time error");
         
         len = err; goto error;
     }
     
     err = jobj_add_int(obj, JLOG_KEY_SEQ, ++jlogd.seq);
-    if (err) {
+    if (err<0) {
         __debug_error("add seq error");
         
         len = err; goto error;
@@ -217,7 +217,7 @@ jadd(jlog_server_t *server)
 
     if (0==jmac()) {
         err = jobj_add_string(obj, JLOG_KEY_MAC, jlogd.mac);
-        if (err) {
+        if (err<0) {
             __debug_error("add mac error");
             
             len = err; goto error;
@@ -364,12 +364,12 @@ init_env(void)
 
     foreach_server(server) {
         err = env_string_init(server->log.envar);
-        if (err) {
+        if (err<0) {
             return err;
         }
         
         err = env_string_init(server->cache.envar);
-        if (err) {
+        if (err<0) {
             return err;
         }
     }
@@ -377,7 +377,7 @@ init_env(void)
     err = __env_copy(ENV_JLOG_UNIX, JLOG_UNIX, 
             get_abstract_path(&jlogd.server[JLOG_USERVER].addr.un), 
             abstract_path_size);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -387,7 +387,7 @@ init_env(void)
         char ipaddress[32] = {0};
 
         err = env_copy(ENV_JLOG_IP, JLOG_IP, ipaddress);
-        if (err) {
+        if (err<0) {
             return err;
         }
         
@@ -408,7 +408,7 @@ init_server(jlog_server_t *server)
     int fd, err, protocol, addrlen;
 
     err = jcut(server, jlogd.cut);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -428,7 +428,7 @@ init_server(jlog_server_t *server)
     os_closexec(fd);
 
     err = bind(fd, &server->addr.c, addrlen);
-    if (err) {
+    if (err<0) {
         debug_error("bind error:%d", -errno);
         return -errno;
     }
@@ -486,12 +486,12 @@ __main(int argc, char *argv[])
     
     err = init_env();
         debug_trace_error(err, "init env");
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = init_all_server();
-    if (err) {
+    if (err<0) {
         return err;
     }
     

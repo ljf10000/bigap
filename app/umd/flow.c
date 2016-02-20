@@ -466,7 +466,7 @@ __flow_server_handle(cli_server_t *server)
 
     for (i=0; i<os_count_of(handle); i++) {
         err = (*handle[i])(server);
-        if (err) {
+        if (err<0) {
             return err;
         }
     }
@@ -481,7 +481,7 @@ flow_server_handle(cli_server_t *server)
 
     for (i=0; i<UMD_SNIFF_COUNT; i++) {
         err = __flow_server_handle(server);
-        if (err) {
+        if (err<0) {
             return err;
         }
     }

@@ -362,16 +362,14 @@ __ak_getoffset(ak_t *ak)
 static inline ak_t *
 __ak_getbyid(akid_t akid)
 {
-    char *address = (char *)__ak_hdr() + __ak_offset(akid);
-    ak_t *ak = NULL;
+    if (is_good_enum(__ak_idx(akid), __ak_count)) {
+        char *address = (char *)__ak_hdr() + __ak_offset(akid);
+        ak_t *ak = __ak_entry(__ak_idx(akid));
 
-    if (false==is_good_enum(__ak_idx(akid), __ak_count)) {
+        return (address==(char *)ak)?ak:NULL;
+    } else {
         return NULL;
     }
-    
-    ak = __ak_entry(__ak_idx(akid));
-
-    return (address==(char *)ak)?ak:NULL;
 }
 
 static inline ak_t *
@@ -409,16 +407,14 @@ ____ak_getbyname(char *app, char *k)
 static inline akid_t 
 __ak_getbyname(char *app, char *k)
 {
-    ak_t *ak;
-
     if (NULL==app) {
         return os_assertV(INVALID_AKID);
     }
     else if (NULL==k) {
         return os_assertV(INVALID_AKID);
     }
-
-    ak = ____ak_getbyname(app, k);
+    
+    ak_t *ak = ____ak_getbyname(app, k);
 
     return ak?__ak_make(__ak_getidx(ak), __ak_getoffset(ak)):INVALID_AKID;
 }
@@ -456,8 +452,6 @@ struct akinfo {
 static inline int
 __ak_load_line_app(struct akinfo *info)
 {
-    int len;
-
     /*
     * filename's format is "xxx.key"
     *   cannot use os_sscanf(filename, "%s.key", app)
@@ -468,7 +462,7 @@ __ak_load_line_app(struct akinfo *info)
         return -EFORMAT;
     }
     
-    len = os_strlen(info->app);
+    int len = os_strlen(info->app);
     if (len >= OS_APPNAMELEN) {
         ak_println("app(%s) length(%d) > %d", info->app, len, OS_APPNAMELEN);
         
@@ -481,8 +475,6 @@ __ak_load_line_app(struct akinfo *info)
 static inline int
 __ak_load_line_kv(struct akinfo *info)
 {
-    int len;
-    
     /* 
     * read key & var 
     */
@@ -491,7 +483,8 @@ __ak_load_line_kv(struct akinfo *info)
         
         return -EFORMAT;
     }
-    len = os_strlen(info->key);
+    
+    int len = os_strlen(info->key);
     if (len >= OS_AKNAME_LEN) {
         ak_println("key(%s) length(%d) > %d", info->key, len, OS_AKNAME_LEN);
         
@@ -505,23 +498,22 @@ static inline mv_t
 __ak_load_line(char *filename/* not include path */, char *line)
 {
     struct akinfo info = AKINFO_INITER(filename, line);
-    ak_t *ak;
     int err;
 
     ak_println("load file(%s) line(%s)", filename, line);
     
     err = __ak_load_line_app(&info);
-    if (err) {
+    if (err<0) {
         return mv2_go(err);
     }
 
     err = __ak_load_line_kv(&info);
-    if (err) {
+    if (err<0) {
         return mv2_go(err);
     }
     info.v = __ak_get_value(info.key, info.var);
     
-    ak = ____ak_getbyname(info.app, info.key);
+    ak_t *ak = ____ak_getbyname(info.app, info.key);
     if (NULL==ak) {
         ak = __ak_new(info.app, info.key);
         if (NULL==ak) {

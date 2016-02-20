@@ -457,7 +457,7 @@ __kvs_push(kvs_t *kvs, char *name, char *value)
 	}
 	
 	err = __kv_insert(kvs, kv);
-	if (err) {
+	if (err<0) {
         goto error;
 	}
 

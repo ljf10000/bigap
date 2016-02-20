@@ -319,7 +319,7 @@ command(int argc, char *argv[])
     int err;
 
     err = cli_argv_handle(table, os_count_of(table), argc, argv);
-    if (err) {
+    if (err<0) {
         debug_error("%s error:%d", argv[0], err);
 
         return err;
@@ -336,12 +336,12 @@ init_env(void)
     umc.timeout = get_um_timeout_env();
 
     err = get_umc_path_env(&umc.client);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
     err = get_umd_path_env(&umc.server);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -359,12 +359,12 @@ __main(int argc, char *argv[])
     
     err = init_env();
         debug_trace_error(err, "init env");
-    if (err) {
+    if (err<0) {
         return err;
     }
     
     err = command(argc-1, argv+1);
-    if (err) {
+    if (err<0) {
         /* just log, NOT return */
     }
 

@@ -297,7 +297,7 @@ __fd_loop_once(void)
         }
         
         err = node->cb(fd, events, node);
-        if (err) {
+        if (err<0) {
             // error, log it
             continue;
         }
@@ -705,7 +705,7 @@ fd_close(int fd)
     if (is_good_fd(fd)) {
         __fd_close(fd);
         err = os_close(fd);
-        if (err) {
+        if (err<0) {
             debug_error("fd close error(%d) errno(%d)", err, -errno);
         }
     }
@@ -767,7 +767,7 @@ fd_accept(int fd, sockaddr_t *addr, socklen_t *length)
     if (is_good_fd(err)) {
         err = __fd_create(err, FD_F_SOCK);
     }
-    if (err) {
+    if (err<0) {
         debug_error("fd accept error(%d) errno(%d)", err, -errno);
     }
     
@@ -780,11 +780,11 @@ fd_write(int fd, const void *buffer, size_t size)
     int err = 0;
 
     err = write(fd, buffer, size);
-    if (err) {
+    if (err<0) {
         debug_error("fd write error(%d) errno(%d)", err, -errno);
     }
     
-    if (-ENOBUFS==err && fd_is_sock(fd)) {
+    if (ENOBUFS==errno && fd_is_sock(fd)) {
         /* 
         * no sndbuf space
         *   need to epoll ???
@@ -805,7 +805,7 @@ fd_read(int fd, void *buffer, size_t size)
     }
     
     err = ____fd_read(fd);
-    if (err) {
+    if (err<0) {
         // retry ???
         return err;
     }
@@ -823,10 +823,10 @@ fd_send(int fd, const void *buffer, size_t size, int flags)
     int err = 0;
 
     err = send(fd, buffer, size, flags);
-    if (err) {
+    if (err<0) {
         debug_error("fd send error(%d) errno(%d)", err, -errno);
     }
-    if (-ENOBUFS==err) {
+    if (ENOBUFS==errno) {
         /* 
         * no sndbuf space
         *   need to epoll ???
@@ -835,7 +835,6 @@ fd_send(int fd, const void *buffer, size_t size, int flags)
 
     return err;
 }
-
 
 static inline ssize_t 
 fd_recv(int fd, void *buffer, size_t size, int flags)
@@ -847,7 +846,7 @@ fd_recv(int fd, void *buffer, size_t size, int flags)
     }
 
     err = ____fd_read(fd);
-    if (err) {
+    if (err<0) {
         // retry ???
         return err;
     }
@@ -865,10 +864,10 @@ fd_sendto(int fd, const void *buffer, size_t size, int flags, sockaddr_t *addr, 
     int err = 0;
 
     err = sendto(fd, buffer, size, flags, addr, length);
-    if (err) {
+    if (err<0) {
         debug_error("fd sendto error(%d) errno(%d)", err, -errno);
     }
-    if (-ENOBUFS==err) {
+    if (ENOBUFS==errno) {
         /* 
         * no sndbuf space
         *   need to epoll ???
@@ -888,7 +887,7 @@ fd_recvfrom(int fd, void *buffer, size_t size, int flags, sockaddr_t *addr, sock
     }
 
     err = ____fd_read(fd);
-    if (err) {
+    if (err<0) {
         // retry ???
         return err;
     }
@@ -906,10 +905,10 @@ fd_sendmsg(int fd, const struct msghdr *message, int flags)
     int err = 0;
 
     err = sendmsg(fd, message, flags);
-    if (err) {
+    if (err<0) {
         debug_error("fd sendmsg error(%d) errno(%d)", err, -errno);
     }
-    if (-ENOBUFS==err) {
+    if (ENOBUFS==errno) {
         /* 
         * no sndbuf space
         *   need to epoll ???
@@ -929,7 +928,7 @@ fd_recvmsg(int fd, struct msghdr *message, int flags)
     }
 
     err = ____fd_read(fd);
-    if (err) {
+    if (err<0) {
         // retry ???
         return err;
     }
@@ -973,7 +972,7 @@ fd_shutdown(int fd, int how)
     int err = 0;
     
     err = shutdown(fd, how);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -1011,12 +1010,12 @@ fd_init(void)
         
 #define FD_AA_ARGS  FD_INIT_COUNT, FD_LIMIT, FD_GROW_COUNT, NULL, NULL
         err = os_aa_init(____fd_map, sizeof(fd_map_t), FD_AA_ARGS);
-        if (err) {
+        if (err<0) {
             goto error;
         }
         
         err = os_aa_init(____fd_evs, sizeof(struct epoll_event), FD_AA_ARGS);
-        if (err) {
+        if (err<0) {
             goto error;
         }
         

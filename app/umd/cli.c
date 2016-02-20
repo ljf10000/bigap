@@ -359,7 +359,7 @@ cli_env_init(cli_server_t *server)
     int err;
     
     err = get_umd_path_env(&server->addr.un);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -372,12 +372,12 @@ cli_init(cli_server_t *server)
     int err;
     
     err = cli_env_init(server);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = cli_u_server_init(server);
-    if (err) {
+    if (err<0) {
         return err;
     }
     

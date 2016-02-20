@@ -9,12 +9,12 @@ int main(int argc, char **argv)
     int err = 0;
     	
 	err = um_cfg_load();
-    if (err) {
+    if (err<0) {
 		goto finish;
 	}
     
     err = um_ubus_init(path);
-    if (err) {
+    if (err<0) {
 		goto finish;
 	} 
     

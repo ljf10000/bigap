@@ -1291,7 +1291,7 @@ duke_chdir(duk_context *ctx)
     char *dirname = (char *)duk_require_string(ctx, 0);
 
     int err = chdir(dirname);
-    if (err) {
+    if (err<0) {
         seterrno(ctx);
     }
     
@@ -1305,7 +1305,7 @@ duke_fchdir(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = fchdir(fd);
-    if (err) {
+    if (err<0) {
         seterrno(ctx);
     }
     
@@ -6431,7 +6431,7 @@ duke_confstr(duk_context *ctx)
     char *buf = (char *)duk_resize_buffer(ctx, 1, 1+len);
 
     err = confstr(parameter, buf, len);
-    if (err) {
+    if (err<0) {
         seterrno(ctx);
     }
 

@@ -29,7 +29,7 @@ __at_version(int argc, char *argv[])
     benv_version_t version;
 
     err = __benv_version_atoi(&version, argv[1]);
-    if (err) {
+    if (err<0) {
         return err;
     }
     

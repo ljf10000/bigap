@@ -59,7 +59,7 @@ init_intf(void)
         intf->index = if_nametoindex(intf->name);
 
         err = intf_get_mac(intf->name, intf->mac);
-        if (err) {
+        if (err<0) {
             return err;
         }
         os_maccpy(umd.basemac, intf->mac);
@@ -70,23 +70,23 @@ init_intf(void)
         intf->index = if_nametoindex(intf->name);
         
         err = intf_get_mac(intf->name, intf->mac);
-        if (err) {
+        if (err<0) {
             return err;
         }
         
         err = intf_get_ip(intf->name, &intf->ip);
-        if (err) {
+        if (err<0) {
             return err;
         }
         
         err = intf_get_netmask(intf->name, &intf->mask);
-        if (err) {
+        if (err<0) {
             return err;
         }
 
 #if UMD_USE_PROMISC
         err = intf_set_promisc(intf->name);
-        if (err) {
+        if (err<0) {
             return err;
         }
 #endif

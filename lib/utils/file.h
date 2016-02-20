@@ -74,7 +74,7 @@ __os_fclose(FILE *stream)
 {
     int err = 0;
 
-    if(stream) {
+    if (stream) {
         err = fclose(stream);
     }
 
@@ -290,7 +290,7 @@ __os_fscan_dir
                 os_sprintf(line, "%s/%s", path, filename);
                 
                 err = __os_fscan_dir(line, recur, file_filter, file_handle, line_handle);
-                if (err) {
+                if (err<0) {
                     goto error;
                 }
             } else {
@@ -544,7 +544,7 @@ os_fsize(char *filename)
     int err;
     
     err = stat(filename, &st);
-    if (err) {
+    if (err<0) {
         return -errno;
     } else {
         return st.st_size;
@@ -590,7 +590,7 @@ __os_file_lock(char *file, int open_mode, int permit, bool block)
     
     err = flock(fd, LOCK_EX | (block?0:LOCK_NB));
     file_println("lock:%s error:%d", file, (err?-errno:0));
-    if (err) {
+    if (err<0) {
         return -errno;
     }
     

@@ -496,7 +496,7 @@ __insert(struct sm *entry)
         * no-found the app is run
         */
         err = __run(entry, "in insert(not exist)");
-        if (err) {
+        if (err<0) {
             return err;
         }
     } else {
@@ -622,7 +622,7 @@ handle_insert(char *args)
     }
 
     err = __insert(entry);
-    if (err) {
+    if (err<0) {
         __destroy(entry);
 
         return err;
@@ -751,7 +751,7 @@ init_env(void)
     smd.timeout = get_sm_timeout_env();
 
     err = get_smd_path_env(&smd.server.addr);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -772,7 +772,7 @@ init_server(void)
     os_closexec(fd);
     
     err = bind(fd, (sockaddr_t *)&smd.server.addr, get_abstract_sockaddr_len(&smd.server.addr));
-    if (err) {
+    if (err<0) {
         debug_error("bind error:%d", -errno);
         return -errno;
     }
@@ -790,7 +790,7 @@ init_timer(void)
     struct itimerval itimer = OS_ITIMEVAL_INITER(SM_TIMER, 0);
     
     int err = setitimer(ITIMER_REAL, &itimer, NULL);
-    if (err) {
+    if (err<0) {
         debug_error("init timer error:%d", -errno);
         
         return -errno;
@@ -836,22 +836,22 @@ __init(void)
     int err;
     
     err = os_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = init_env();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = init_timer();
-    if (err) {
+    if (err<0) {
         return err;
     }
     
     err = init_server();
-    if (err) {
+    if (err<0) {
         return err;
     }
 

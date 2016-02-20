@@ -295,7 +295,7 @@ service(void)
         bool new = 0;
 
         err = is_new(&new);
-        if (err) {
+        if (err<0) {
             usleep(MIN_DELAY);
         }
         else if (new) {
@@ -326,21 +326,21 @@ run(void)
     
     int opt = 1;
     err = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    if (err) {
+    if (err<0) {
         err = -errno; goto error;
     }
     
     sockaddr_in_t addr = OS_SOCKADDR_INET(C.ip, C.port);
     
     err = bind(fd, (sockaddr_t *)&addr, sizeof(addr));
-    if (err) {
+    if (err<0) {
         debug_error("bind error:%d", -errno);
         
         err = -errno; goto error;
     }
 
     err = listen(fd, MAX_CLIENTS);
-    if (err) {
+    if (err<0) {
         debug_error("listen error:%d", -errno);
         
         err = -errno; goto error;
@@ -384,7 +384,7 @@ __main(int argc, char *argv[])
     */
     struct stat st;
     err = stat(script, &st);
-    if (err) {
+    if (err<0) {
         os_println("bad script %s", script);
         
         return -EINVAL;
@@ -420,7 +420,7 @@ __main(int argc, char *argv[])
     C.port = htons(iport);
     
     err = run();
-    if (err) {
+    if (err<0) {
         return err;
     }
     

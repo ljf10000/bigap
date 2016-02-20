@@ -97,7 +97,7 @@ __fcookie_file_create(fcookie_file_t *cert, char *tmp_file)
     int len = 0;
 
     int err = Curl_base64_decode(cert->info, &decode, &len);
-    if (err) {
+    if (err<0) {
         return NULL;
     }
 

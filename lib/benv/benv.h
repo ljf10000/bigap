@@ -2135,7 +2135,7 @@ __benv_analysis_write(benv_ops_t * ops, char *args)
 
     if (benv_ops_match(ops, path, eq - path, false)) {
         err = benv_ops_check(ops, value);
-        if (err) {
+        if (err<0) {
             return err;
         }
 
@@ -2152,7 +2152,7 @@ benv_analysis_write(char *args)
 
     for (i = 0; i < __benv_ops_count; i++) {
         err = __benv_analysis_write(benv_ops(i), args);
-        if (err) {
+        if (err<0) {
             return err;
         }
     }
@@ -2191,7 +2191,7 @@ benv_analysis_show(char *args)
 
     for (i = 0; i < __benv_ops_count; i++) {
         err = __benv_analysis_show(benv_ops(i), args);
-        if (err) {
+        if (err<0) {
             return err;
         }
     }
@@ -2239,7 +2239,7 @@ benv_analysis(int argc, char *argv[])
 
     for (i = 0; i < argc; i++) {
         err = __benv_analysis(argv[i]);
-        if (err) {
+        if (err<0) {
             return err;
         }
     }
@@ -2269,7 +2269,7 @@ benv_command(int argc, char *argv[])
     }
 
     err = benv_analysis(argc, argv);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -2379,7 +2379,7 @@ __benv_load_by(int begin, int count)
 
     for (i = begin; i < count; i++) {
         err = __benv_load(i);
-        if (err) {
+        if (err<0) {
             /* todo: log */
         }
     }
@@ -2436,7 +2436,7 @@ benv_save(void)
         if (__benv_dirty[i]) {
             err = __benv_save(i);
                 debug_trace_error(err, "save benv block %d", i);
-            if (err) {
+            if (err<0) {
                 /* todo: log */
             }
 
@@ -2457,7 +2457,7 @@ __benv_init(void)
     BUILD_BUG_ON(__benv_info_idx_max  >= BENV_INFO_COUNT);
     
     err = os_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -2470,13 +2470,13 @@ __benv_init(void)
 
     err = benv_open();
         debug_trace_error(err, "open benv");
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = benv_load();
         debug_trace_error(err, "load benv");
-    if (err) {
+    if (err<0) {
         return err;
     }
 

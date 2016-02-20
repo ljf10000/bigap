@@ -114,7 +114,7 @@ cmd_get_timeout(int argc, char *argv[])
 
     for (i=0; i<DOG_COUNT; i++) {
         err = get_timeout(i, &timeout[i]);
-        if (err) {
+        if (err<0) {
             return err;
         }
     }
@@ -223,13 +223,13 @@ __init(void)
     int err;
     
     err = os_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
     
     do {
         err = __method(Init);
-        if (err) {
+        if (err<0) {
             sleep(1);
         }
     } while(err);

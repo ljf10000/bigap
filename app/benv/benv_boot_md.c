@@ -83,13 +83,13 @@ __read_emmc(uint32_t begin, void *buf, int count)
 
     if (!mmc) {
         debug_error("init mmc error");
-        return INVALID_VALUE;
+        return -EINVAL;
     }
 
     ret = mmc->block_dev.block_read(0, begin, count, buf);
     if (ret != count){
         debug_error("read emmc(block) error, begin:0x%x, count:0x%x", begin, count);
-        return INVALID_VALUE;
+        return -EIO;
     }
     
     return ret << 9;
@@ -103,13 +103,13 @@ __write_emmc(uint32_t begin, void *buf, int count)
 
     if (!mmc) {
         os_println("init mmc error");
-        return INVALID_VALUE;
+        return -EINVAL;
     }
 
     ret = mmc->block_dev.block_write(0, begin, count, buf);
     if (ret != count) {
         os_println("write emmc(block) error, begin:0x%x, count:0x%x", begin, count);
-        return INVALID_VALUE;
+        return -EIO;
     }
 
     debug_ok("write emmc(block) ok, begin:0x%x, count:0x%x", begin, count);
@@ -153,7 +153,7 @@ __benv_load(int idx /* benv's block */)
     if (BENV_BLOCK_SIZE==benv_emmc_read(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
         return 0;
     } else {
-        return INVALID_VALUE;
+        return -EIO;
     }
 }
 
@@ -166,7 +166,7 @@ __benv_save(int idx /* benv's block */)
     if (BENV_BLOCK_SIZE==benv_emmc_write(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
         return 0;
     } else {
-        return INVALID_VALUE;
+        return -EIO;
     }
 }
 
@@ -303,12 +303,12 @@ copy_emmc(
 
     for (i=0; i<count; i++) {
         err = __read_emmc(src + i, buf, 1);
-        if (err) {
+        if (err<0) {
             return err;
         }
 
         err = __write_emmc(dst + i, buf, 1);
-        if (err) {
+        if (err<0) {
             return err;
         }
 

@@ -35,7 +35,7 @@ __connect(void)
     os_noblock(fd);
     
     err = connect(fd, &rsh.server, sizeof(rsh.server));
-    if (err) {
+    if (err<0) {
         err = -errno; goto error;
     }
     

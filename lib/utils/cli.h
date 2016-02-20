@@ -372,7 +372,7 @@ __cli_server_init(cli_server_t *server[], int count)
 
     for (i=0; i<count; i++) {
         err = (*server[i]->init)(server[i]);
-        if (err) {
+        if (err<0) {
             return err;
         }
     }
@@ -412,7 +412,7 @@ __cli_server_handle(cli_server_t *server[], int count, fd_set *set)
     for (i=0; i<count; i++) {
         if (FD_ISSET(server[i]->fd, set)) {
             err = (*server[i]->handle)(server[i]);
-            if (err) {
+            if (err<0) {
                 /* log, but no return */
             }
         }
@@ -447,7 +447,7 @@ __cli_server_run(cli_server_t *server[], int count)
                 return os_assertV(-ETIMEOUT);
             default: /* to accept */
                 err = __cli_server_handle(server, count, &rset);
-                if (err) {
+                if (err<0) {
                     return err;
                 }
                 

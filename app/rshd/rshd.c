@@ -227,22 +227,22 @@ __main(int argc, char *argv[])
     int err = 0;
     
     err = rsh_load();
-    if (err) {
+    if (err<0) {
         return err;
     }
     
     err = rsh_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
     
     err = rsh_timer_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = os_loop_init(&rsh_loop);
-    if (err) {
+    if (err<0) {
         return err;
     }
     

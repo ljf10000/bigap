@@ -227,7 +227,7 @@ env_write(FILE *f)
     for (i=0; i<AT_ENV_COUNT; i++) {
         if (ENV_CHANGED & envctl[i].flag) {
             int err = fseek(f, AT_ENV_LINE_SIZE*i, SEEK_SET);
-            if (err) {
+            if (err<0) {
                 println("seek %s error(%d), skip it", envctl[i].name, -errno);
 
                 ret = -1; continue;

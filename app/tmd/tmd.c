@@ -310,7 +310,7 @@ handle_insert(char *args)
             os_ms2tick(1000*after, TM_TICKS),
             xtimer_cb, 
             true);
-    if (err) {
+    if (err<0) {
         return -EEXIST;
     }
 
@@ -453,7 +453,7 @@ init_env(void)
     tm_unit_set(TM_TICKS);
 
     err = get_tmd_path_env(&tmd.server.addr);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -487,7 +487,7 @@ init_server(void)
     os_closexec(fd);
     
     err = bind(fd, (sockaddr_t *)&tmd.server.addr, get_abstract_sockaddr_len(&tmd.server.addr));
-    if (err) {
+    if (err<0) {
         debug_error("bind error:%d", -errno);
         return -errno;
     }
@@ -530,7 +530,7 @@ __init(void)
     int err;
     
     err = os_init();
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -538,7 +538,7 @@ __init(void)
     
     err = h1_init(&tmd.table, TMD_HASHSIZE);
         debug_trace_error(err, "__init h1");
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -546,19 +546,19 @@ __init(void)
     
     err = init_env();
         debug_trace_error(err, "init env");
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = init_timerfd();
         debug_trace_error(err, "init timerfd");
-    if (err) {
+    if (err<0) {
         return err;
     }
     
     err = init_server();
         debug_trace_error(err, "init server");
-    if (err) {
+    if (err<0) {
         return err;
     }
     

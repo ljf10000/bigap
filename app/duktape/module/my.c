@@ -35,7 +35,7 @@ duke_pipe(duk_context * ctx)
     }
 
     err = os_pipe_system(cb, line);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -173,7 +173,7 @@ duke_readline(duk_context * ctx)
         if (DUK_EXEC_ERROR==exec) { // check callback exec
             err = -ESCRIPT; __seterrno(ctx, err); goto error;
         }
-        else if (err) {             // check callback result
+        else if (err<0) {             // check callback result
             goto error;
         }
     }

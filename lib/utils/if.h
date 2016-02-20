@@ -128,7 +128,7 @@ intf_get_promisc(char *ifname)
     int flag = 0, err;
 
     err = intf_get_flag(ifname, &flag);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -141,7 +141,7 @@ intf_set_promisc(char *ifname)
     int flag = 0, err;
 
     err = intf_get_flag(ifname, &flag);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -187,7 +187,7 @@ intf_get_mac(char *ifname, byte mac[])
     os_strcpy(ifr.ifr_name, ifname);
 
     err = __intf_ioctl(SIOCGIFHWADDR, "get-mac", &ifr);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -217,7 +217,7 @@ intf_get_ip(char *ifname, uint32_t *ip)
     os_strcpy(ifr.ifr_name, ifname);
 
     err = __intf_ioctl(SIOCGIFADDR, "get-ip", &ifr);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -235,7 +235,7 @@ intf_get_netmask(char *ifname, uint32_t *mask)
     os_strcpy(ifr.ifr_name, ifname);
 
     err = __intf_ioctl(SIOCGIFNETMASK, "get-netmask", &ifr);
-    if (err) {
+    if (err<0) {
         return err;
     }
 

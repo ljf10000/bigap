@@ -21,7 +21,7 @@ os_fdtransfer(char *path)
     }
 
     err = fd_bind(fd, (sockaddr_t*)&local, sizeof(local));
-    if (err) {
+    if (err<0) {
         os_close(fd);
 
         return -errno;

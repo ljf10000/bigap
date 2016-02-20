@@ -113,7 +113,7 @@ task_new(rsh_msg_t *msg, sockaddr_in_t *client)
     task->req.u.error = 0;
     
     err = pipe(task->fd);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -341,12 +341,12 @@ rsh_connecter(tm_node_t *timer)
     int err;
     
     err = __connect();
-    if (err) {
+    if (err<0) {
         return tm_SAFE(0);
     }
 
     err = __register();
-    if (err) {
+    if (err<0) {
         return tm_SAFE(0);
     }
     
@@ -370,12 +370,12 @@ rsh_timer_init(void)
     tm_init();
 
     err = add_timer(TIMER_LINK);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
     err = add_timer(TIMER_CONNECT);
-    if (err) {
+    if (err<0) {
         return err;
     }
 

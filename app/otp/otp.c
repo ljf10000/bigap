@@ -64,7 +64,7 @@ cmd_bcookie_show(int argc, char *argv[])
     struct bcookie_otp botp = BCOOKIE_OBJ(BCOOKIE_OTP);
     
     err = bcookie_load((struct bcookie *)&botp, sizeof(botp));
-    if (err) {
+    if (err<0) {
         return err;
     }
 

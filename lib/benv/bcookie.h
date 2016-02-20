@@ -107,7 +107,7 @@ __bcookie_load(int begin, int size, struct bcookie *obj, int osize)
     byte *mem = NULL;
 
     err = __bcookie_check(begin, size, obj, osize);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -145,7 +145,7 @@ __bcookie_save(int begin, int size, struct bcookie *obj, int osize)
     byte *mem = NULL;
     
     err = __bcookie_check(begin, size, obj, osize);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -226,7 +226,7 @@ __bcookie_load(char *file, int fsize, struct bcookie *obj, int osize)
     byte *mem = NULL;
 
     err = __bcookie_check(file, fsize, obj, osize);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -272,7 +272,7 @@ __bcookie_save(char *file, int fsize, struct bcookie *obj, int osize)
     byte *mem = NULL;
     
     err = __bcookie_check(file, fsize, obj, osize);
-    if (err) {
+    if (err<0) {
         return err;
     }
     

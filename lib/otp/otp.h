@@ -31,9 +31,9 @@ enum {
 #endif
 
 enum {
-    OTP_ERR_HACKED  = 1,
-    OTP_ERR_READ    = 2,
-    OTP_ERR_WRITE   = 3,
+    OTP_ERR_HACKED  = -1,
+    OTP_ERR_READ    = -2,
+    OTP_ERR_WRITE   = -3,
 };
 
 #define OTP_PRINT    0
@@ -249,7 +249,7 @@ __otp_init(void)
     do{
         err = HI_UNF_OTP_Init();
             debug_trace_error(err, "otp init");
-        if (err) {
+        if (err<0) {
             
             sleep(1);
         }
@@ -265,7 +265,7 @@ __otp_fini(void)
     
     err = HI_UNF_OTP_DeInit();
         debug_trace_error(err, "otp fini");
-    if (err) {
+    if (err<0) {
     }
 
     return err;
@@ -278,8 +278,7 @@ __otp_custom_read(byte otp[OTP_SIZE])
 
     err = HI_UNF_OTP_GetCustomerKey(otp, OTP_SIZE);
         debug_trace_error(err, "read custom");
-    if (err) {
-        
+    if (err<0) {
         err = OTP_ERR_READ;
     }
     
@@ -293,7 +292,7 @@ __otp_custom_write(byte otp[OTP_SIZE])
 
     err = HI_UNF_OTP_SetCustomerKey(otp, OTP_SIZE);
         debug_trace_error(err, "write custom");
-    if (err) {
+    if (err<0) {
         err = OTP_ERR_WRITE;
     } else {
         os_println("custom inited.");
@@ -309,7 +308,7 @@ __otp_private_read(byte otp[OTP_SIZE])
 
     for (i=0; i<OTP_SIZE; i++) {
         err = HI_UNF_OTP_GetStbPrivData(i, &otp[i]);
-        if (err) {
+        if (err<0) {
             errs = err;
         }
     }
@@ -330,7 +329,7 @@ __otp_private_write(byte otp[OTP_SIZE])
 
     for (i=0; i<OTP_SIZE; i++) {
         err = HI_UNF_OTP_SetStbPrivData(i, otp[i]);
-        if (err) {
+        if (err<0) {
             errs = err;
         }
     }
@@ -388,7 +387,7 @@ __otp_check(
     int err;
 
     err = (*read)(otp);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -402,7 +401,7 @@ __otp_check(
         }
 
         err = (*write)(val);
-        if (err) {
+        if (err<0) {
             return err;
         }
 

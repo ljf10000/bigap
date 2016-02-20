@@ -637,7 +637,7 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *cb)
     int err = 0;
 
     err = __user_deauth(user, reason, deauth_cb);
-    if (err) {
+    if (err<0) {
         return err;
     }
 
@@ -803,7 +803,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *cb)
         char ipaddress[1+OS_LINE_LEN];
         
         err = os_v_pgets(ipaddress, OS_LINE_LEN, UMD_SCRIPT_IP " %s", os_macstring(user->mac));
-        if (err) {
+        if (err<0) {
             return NULL;
         }
         else if (false==is_good_ipstring(ipaddress)) {
@@ -837,7 +837,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *cb)
     
     if (cb) {
         err = (*cb)(user);
-        if (err) {
+        if (err<0) {
             /*
             * rollback
             */

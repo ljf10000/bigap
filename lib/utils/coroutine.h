@@ -388,7 +388,7 @@ again:
     */
     if (false==is_good_id(found)) {
         err = __co_aa_grow();
-        if (err) {
+        if (err<0) {
             return err;
         }
 
@@ -541,7 +541,7 @@ __co_main(uint32_t L32, uint32_t H32)
 
     debug_trace("CO(%s) begin(%p)", co->name, co);
     err = (*co->main.func)(co->main.data);
-    if (err) {
+    if (err<0) {
         // log
     }
     debug_trace("CO(%s) end(%p)", co->name, co);
@@ -574,14 +574,14 @@ __co_init(coroutine_t *co)
     int err;
     
     err = __co_aa_bind(co);
-    if (err) {
+    if (err<0) {
         debug_error("co(%s) aotubind error(%d)", co->name, err);
         
         return err;
     }
 
     err = __co_ev_init(co);
-    if (err) {
+    if (err<0) {
         debug_error("co(%s) ev init error(%d)", co->name, err);
         
         return err;
@@ -589,7 +589,7 @@ __co_init(coroutine_t *co)
 
     if (__co()->idle) {
         err = getcontext(&co->ctx);
-        if (err) {
+        if (err<0) {
             debug_error("co(%s) get context error(%d)", co->name, err);
             
             return err;
@@ -656,7 +656,7 @@ __co_create(
     *co->protectedT= OS_PROTECTED;
     
     err = __co_init(co);
-    if (err) {
+    if (err<0) {
         ____co_destroy(co);
 
         return NULL;
@@ -771,7 +771,7 @@ __co_resume(coroutine_t *create, bool suspend_old)
     __is_good_co_running();
     err = swapcontext(&old->ctx, &create->ctx);
     __is_good_co_running();
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -812,7 +812,7 @@ __co_suspend(int timeout/* ms */, co_cred_t cred)
     co->suspend.cred = cred;
     if (after) {
         err = tm_insert(&co->suspend.timer, after, __co_suspend_timeout, true);
-        if (err) {
+        if (err<0) {
             //log
         }
     }
@@ -826,7 +826,7 @@ __co_suspend(int timeout/* ms */, co_cred_t cred)
     timeouted = __co_ev_read_and_zero(co, CO_EV_SUSPEND_TIMEOUT);
     if (after) {
         err = tm_remove(&co->suspend.timer);
-        if (err) {
+        if (err<0) {
             //log
         }
     }
@@ -964,7 +964,7 @@ co_resume(co_id_t id)
     }
     
     err = __co_resume(__co_getbyid(id), false);
-    if (err) {
+    if (err<0) {
         //log
     }
 }
@@ -976,7 +976,7 @@ static inline void
 co_yield(void)
 {
     int err = __co_yield();
-    if (err) {
+    if (err<0) {
         // log
     }
 }

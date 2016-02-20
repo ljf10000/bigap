@@ -239,7 +239,7 @@ __ch_read(channel_t *ch, void *obj)
     }
 
     err = __ch_get(ch, reader, obj);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -259,7 +259,7 @@ __ch_write(channel_t *ch, void *obj)
     }
 
     err = __ch_set(ch, writer, obj);
-    if (err) {
+    if (err<0) {
         return err;
     }
     
