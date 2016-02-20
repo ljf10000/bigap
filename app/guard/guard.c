@@ -376,6 +376,35 @@ ok(char *action)
 }
 
 static int
+get_cert(char cert[], char key[])
+{
+    if (NULL==__fcookie_file(FCOOKIE_LSS_CERT, cert)) {
+        debug_error("no cert %d", FCOOKIE_LSS_CERT);
+        
+        return -ENOEXIST;
+    }
+    else if (NULL==__fcookie_file(FCOOKIE_LSS_KEY, key)) {
+        debug_error("no cert %d",  FCOOKIE_LSS_KEY);
+        
+        return -ENOEXIST;
+    }
+
+    return 0;
+}
+
+static void
+put_cert(char cert[], char key[])
+{
+    if (key[0]) {
+        unlink(key);
+    }
+
+    if (cert[0]) {
+        unlink(cert);
+    }
+}
+
+static int
 do_report(int hack)
 {
     char line[1+OS_LINE_LEN] = {0};
@@ -384,14 +413,9 @@ do_report(int hack)
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
-    if (NULL==__fcookie_file(FCOOKIE_LSS_CERT, cert)) {
-        debug_error("no cert %d", FCOOKIE_LSS_CERT);
-        err = -ENOEXIST; goto error;
-    }
-
-    if (NULL==__fcookie_file(FCOOKIE_LSS_KEY, key)) {
-        debug_error("no cert %d",  FCOOKIE_LSS_KEY);
-        err = -ENOEXIST; goto error;
+    err = get_cert(cert, key);
+    if (err<0) {
+        goto error;
     }
 
 #if 0
@@ -455,13 +479,7 @@ error:
         failed("report");
     }
 
-    if (key[0]) {
-        unlink(key);
-    }
-
-    if (cert[0]) {
-        unlink(cert);
-    }
+    put_cert(cert, key);
     
     return err;
 }
@@ -474,15 +492,10 @@ do_register(void)
     char key[1+FCOOKIE_FILE_LEN] = {0};
     jobj_t obj = NULL;
     int err = 0, code = 0;
-
-    if (NULL==__fcookie_file(FCOOKIE_LSS_CERT, cert)) {
-        debug_error("no cert %d", FCOOKIE_LSS_CERT);
-        err = -ENOEXIST; goto error;
-    }
-
-    if (NULL==__fcookie_file(FCOOKIE_LSS_KEY, key)) {
-        debug_error("no cert %d", FCOOKIE_LSS_KEY);
-        err = -ENOEXIST; goto error;
+    
+    err = get_cert(cert, key);
+    if (err<0) {
+        goto error;
     }
     
 #if 0
@@ -550,13 +563,7 @@ error:
         failed("register");
     }
 
-    if (key[0]) {
-        unlink(key);
-    }
-
-    if (cert[0]) {
-        unlink(cert);
-    }
+    put_cert(cert, key);
     
     return err; 
 }
@@ -570,15 +577,10 @@ do_auth(void)
     byte guid[OTP_SIZE];
     jobj_t obj = NULL;
     int err = 0, code = 0;
-
-    if (NULL==__fcookie_file(FCOOKIE_LSS_CERT, cert)) {
-        debug_error("no cert %d", FCOOKIE_LSS_CERT);
-        err = -ENOEXIST; goto error;
-    }
-
-    if (NULL==__fcookie_file(FCOOKIE_LSS_KEY, key)) {
-        debug_error("no cert %d", FCOOKIE_LSS_KEY);
-        err = -ENOEXIST; goto error;
+    
+    err = get_cert(cert, key);
+    if (err<0) {
+        goto error;
     }
     
 #if 0
@@ -651,13 +653,7 @@ error:
         failed("auth");
     }
 
-    if (key[0]) {
-        unlink(key);
-    }
-
-    if (cert[0]) {
-        unlink(cert);
-    }
+    put_cert(cert, key);
     
     return err;
 }
@@ -732,15 +728,10 @@ do_cmd(void)
     char key[1+FCOOKIE_FILE_LEN] = {0};
     jobj_t obj = NULL;
     int err = 0, code = 0;
-
-    if (NULL==__fcookie_file(FCOOKIE_LSS_CERT, cert)) {
-        debug_error("no cert %d", FCOOKIE_LSS_CERT);
-        err = -ENOEXIST; goto error;
-    }
-
-    if (NULL==__fcookie_file(FCOOKIE_LSS_KEY, key)) {
-        debug_error("no cert %d", FCOOKIE_LSS_KEY);
-        err = -ENOEXIST; goto error;
+    
+    err = get_cert(cert, key);
+    if (err<0) {
+        goto error;
     }
     
     err = os_v_pgets(line, OS_LINE_LEN, 
@@ -792,6 +783,8 @@ do_cmd(void)
 
 error:
     jobj_put(obj);
+
+    put_cert(cert, key);
 
     return err;
 }
