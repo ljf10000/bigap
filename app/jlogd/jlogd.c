@@ -422,14 +422,14 @@ init_server(jlog_server_t *server)
     
     fd = socket(server->family, SOCK_DGRAM, protocol);
     if (false==is_good_fd(fd)) {
-    	debug_error("socket error:%d", -errno);
+    	debug_error("server %s create socket error:%d", server->name, -errno);
         return -errno;
     }
     os_closexec(fd);
 
     err = bind(fd, &server->addr.c, addrlen);
     if (err<0) {
-        debug_error("bind error:%d", -errno);
+        debug_error("server %s bind error:%d", server->name, -errno);
         return -errno;
     }
     
