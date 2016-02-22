@@ -22,7 +22,7 @@
 #define OS_SOCKADDR_NETLINK(_pid, _groups) { \
     .nl_family  = AF_NETLINK,       \
     .nl_pid     = _pid,             \
-    .nl_groups  = _groups           \                               \
+    .nl_groups  = _groups,          \                               \
 }   /* end */
 
 typedef struct sockaddr_un sockaddr_un_t;
