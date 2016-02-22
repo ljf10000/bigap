@@ -2,4 +2,4 @@
 
 smc=../smc/smc
 
-${smc} insert normal sb "echo sb"
+#${smc} insert normal sb "echo sb"
