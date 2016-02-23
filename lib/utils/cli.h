@@ -97,7 +97,11 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 /******************************************************************************/
 #ifdef __APP__
 #ifndef CLI_BUFFER_SIZE
-#define CLI_BUFFER_SIZE             (256*1024-1-sizeof(int)-3*sizeof(uint32_t))
+#   ifdef __CLI__
+#       define CLI_BUFFER_SIZE      (256*1024-1-sizeof(int)-3*sizeof(uint32_t))
+#   else
+#       define CLI_BUFFER_SIZE      3
+#   endif
 #endif
 
 typedef struct {
@@ -120,23 +124,19 @@ typedef struct {
 DECLARE_FAKE_CLI_BUFFER;
 
 static inline cli_buffer_t *
-__cli_buffer(void)
+__this_cli_buffer(void)
 {
-#ifdef __CLI__
     return &__THIS_CLI_BUFFER;
-#else
-    return NULL;
-#endif
 }
 
-#define cli_buffer_err      __cli_buffer()->err
-#define cli_buffer_len      __cli_buffer()->len
-#define cli_buffer_buf      __cli_buffer()->buf
+#define cli_buffer_err      __this_cli_buffer()->err
+#define cli_buffer_len      __this_cli_buffer()->len
+#define cli_buffer_buf      __this_cli_buffer()->buf
 #define cli_buffer_cursor   (cli_buffer_buf + cli_buffer_len)
 #define cli_buffer_size     (cli_buffer_hsize + cli_buffer_len)
 #define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_size)
 
-#define cli_buffer_zero()   os_objzero(__cli_buffer())
+#define cli_buffer_zero()   os_objzero(__this_cli_buffer())
 #define cli_buffer_clear()  do{ \
     cli_buffer_buf[0]  = 0;     \
     cli_buffer_len     = 0;     \
@@ -171,16 +171,16 @@ cli_sprintf(const char *fmt, ...)
 }
 
 #define cli_recv(_fd, _timeout) \
-    io_recv(_fd, (char *)__cli_buffer(), sizeof(cli_buffer_t), _timeout)
+    io_recv(_fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), _timeout)
 
 #define cli_send(_fd) \
-    io_send(_fd, (char *)__cli_buffer(), cli_buffer_size)
+    io_send(_fd, (char *)__this_cli_buffer(), cli_buffer_size)
 
 #define cli_recvfrom(_fd, _timeout, _addr, _paddrlen) \
-    io_recvfrom(_fd, (char *)__cli_buffer(), sizeof(cli_buffer_t), _timeout, _addr, _paddrlen)
+    io_recvfrom(_fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), _timeout, _addr, _paddrlen)
 
 #define cli_sendto(_fd, _addr, _addrlen) \
-    io_sendto(_fd, (char *)__cli_buffer(), cli_buffer_size, _addr, _addrlen)
+    io_sendto(_fd, (char *)__this_cli_buffer(), cli_buffer_size, _addr, _addrlen)
 
 typedef struct {
     int timeout;

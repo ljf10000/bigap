@@ -11,7 +11,6 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #include "sm/sm.h"
 
 OS_INITER;
-DECLARE_CLI_BUFFER;
 
 static cli_client_t smc = CLI_CLIENT_INITER(SM_TIMEOUT, SMD_UNIX);
 

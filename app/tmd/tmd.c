@@ -6,20 +6,12 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #endif
 
 #define __DEAMON__
-#define __TIMER__
 #define __CLI__
 
 #include "utils.h"
 #include "tm/tm.h"
 
 OS_INITER;
-DECLARE_TIMER;
-DECLARE_CLI_BUFFER;
-
-#ifdef __BUSYBOX__
-DECLARE_REAL_TIMER;
-DECLARE_REAL_CLI_BUFFER;
-#endif
 
 static struct {    
     struct {

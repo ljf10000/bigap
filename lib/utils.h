@@ -155,7 +155,20 @@
     DECLARE_JLOG;       \
     DECLARE_OEM;        \
     DECLARE_AK;         \
+    DECLARE_TIMER;      \
+    DECLARE_CLI_BUFFER; \
     DECLARE_DEBUGGER /* last */ \
+    /* end */
+
+#define OS_REAL_INITER       \
+    DECLARE_REAL_DEAMON;     \
+    DECLARE_REAL_FLOCK;      \
+    DECLARE_REAL_JLOG;       \
+    DECLARE_REAL_OEM;        \
+    DECLARE_REAL_AK;         \
+    DECLARE_REAL_TIMER;      \
+    DECLARE_REAL_CLI_BUFFER; \
+    DECLARE_REAL_DEBUGGER /* last */ \
     /* end */
 
 static inline int

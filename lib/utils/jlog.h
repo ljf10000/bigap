@@ -224,7 +224,7 @@ typedef struct {
 DECLARE_FAKE_JLOG;
 
 static inline jlog_control_t *
-__jlog_control(void)
+__this_jlogger(void)
 {
     return &__THIS_JLOGGER;
 }
@@ -232,31 +232,31 @@ __jlog_control(void)
 static inline int
 __jlog_fd(void)
 {
-    return __jlog_control()->fd;
+    return __this_jlogger()->fd;
 }
 
 static inline int
 __jlog_family(void)
 {
-    return __jlog_control()->family;
+    return __this_jlogger()->family;
 }
 
 static inline sockaddr_un_t *
 __jlog_userver(void)
 {
-    return &__jlog_control()->server.un;
+    return &__this_jlogger()->server.un;
 }
 
 static inline sockaddr_in_t *
 __jlog_iserver(void)
 {
-    return &__jlog_control()->server.in;
+    return &__this_jlogger()->server.in;
 }
 
 static inline sockaddr_t *
 __jlog_server(void)
 {
-    return &__jlog_control()->server.c;
+    return &__this_jlogger()->server.c;
 }
 
 static inline int
@@ -634,7 +634,7 @@ __jlog_socket(char *app, char *sub, int family)
     }
 #endif
 
-    __THIS_JLOGGER.fd = fd;
+    __this_jlogger()->fd = fd;
 
     return fd;
 error:
@@ -695,7 +695,7 @@ try_again:
         */
         try = true;
 
-        __THIS_JLOGGER.fd = INVALID_FD;
+        __this_jlogger()->fd = INVALID_FD;
         
         goto try_again;
     }
@@ -825,7 +825,7 @@ __jlog_env_init(void)
     int family, err;
 
     family  = __jlog_server()->sa_family
-            = __THIS_JLOGGER.family
+            = __this_jlogger()->family
             = env_geti(ENV_JLOG_FAMILY, AF_UNIX);
 
     switch(family) {
@@ -907,7 +907,7 @@ jlog_fini(void)
 {
 #ifdef __APP__
 #ifndef __JLOGD__
-    os_close(__THIS_JLOGGER.fd);
+    os_close(__this_jlogger()->fd);
 #endif
 #endif
 

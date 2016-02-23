@@ -140,8 +140,7 @@ typedef struct {
     oem_rsync_t rsync;
     oem_lss_t   lss;
     oem_cert_t  cert;
-}
-oem_t;
+} oem_t;
 
 #define __OEM_INITER(_base, _rsync, _lss, _cert) { \
     .base   = _base,    \
@@ -234,7 +233,7 @@ __oem_type(void)
 }
 
 static inline oem_t *
-__oem_get(void)
+__this_oem(void)
 {
     static int type = OEM_END;
 
@@ -245,34 +244,34 @@ __oem_get(void)
     return &__THIS_OEM[type];
 }
 
-#define oem_base_name       __oem_get()->base.name
-#define oem_base_mac        __oem_get()->base.mac
-#define oem_base_sn         __oem_get()->base.sn
-#define oem_base_type       __oem_get()->base.type
-#define oem_base_version    __oem_get()->base.version
+#define oem_base_name       __this_oem()->base.name
+#define oem_base_mac        __this_oem()->base.mac
+#define oem_base_sn         __this_oem()->base.sn
+#define oem_base_type       __this_oem()->base.type
+#define oem_base_version    __this_oem()->base.version
 
-#define oem_rsync_user      __oem_get()->rsync.user
-#define oem_rsync_pwdfile   __oem_get()->rsync.pwdfile
-#define oem_rsync_path      __oem_get()->rsync.path
-#define oem_rsync_server    __oem_get()->rsync.server
-#define oem_rsync_port      __oem_get()->rsync.port
-#define oem_rsync_timeout   __oem_get()->rsync.timeout
+#define oem_rsync_user      __this_oem()->rsync.user
+#define oem_rsync_pwdfile   __this_oem()->rsync.pwdfile
+#define oem_rsync_path      __this_oem()->rsync.path
+#define oem_rsync_server    __this_oem()->rsync.server
+#define oem_rsync_port      __this_oem()->rsync.port
+#define oem_rsync_timeout   __this_oem()->rsync.timeout
 
-#define oem_lss_user        __oem_get()->lss.user
-#define oem_lss_password    __oem_get()->lss.password
-#define oem_lss_server      __oem_get()->lss.server
-#define oem_lss_port        __oem_get()->lss.port
+#define oem_lss_user        __this_oem()->lss.user
+#define oem_lss_password    __this_oem()->lss.password
+#define oem_lss_server      __this_oem()->lss.server
+#define oem_lss_port        __this_oem()->lss.port
 
-#define oem_lss_ca          __oem_get()->cert.cert[OEM_APP_LSS][OEM_CERT_CA]
-#define oem_lss_key         __oem_get()->cert.cert[OEM_APP_LSS][OEM_CERT_KEY]
-#define oem_lss_cert        __oem_get()->cert.cert[OEM_APP_LSS][OEM_CERT_CERT]
+#define oem_lss_ca          __this_oem()->cert.cert[OEM_APP_LSS][OEM_CERT_CA]
+#define oem_lss_key         __this_oem()->cert.cert[OEM_APP_LSS][OEM_CERT_KEY]
+#define oem_lss_cert        __this_oem()->cert.cert[OEM_APP_LSS][OEM_CERT_CERT]
 
-#define oem_lms_ca          __oem_get()->cert.cert[OEM_APP_LMS][OEM_CERT_CA]
-#define oem_lms_key         __oem_get()->cert.cert[OEM_APP_LMS][OEM_CERT_KEY]
-#define oem_lms_cert        __oem_get()->cert.cert[OEM_APP_LMS][OEM_CERT_CERT]
+#define oem_lms_ca          __this_oem()->cert.cert[OEM_APP_LMS][OEM_CERT_CA]
+#define oem_lms_key         __this_oem()->cert.cert[OEM_APP_LMS][OEM_CERT_KEY]
+#define oem_lms_cert        __this_oem()->cert.cert[OEM_APP_LMS][OEM_CERT_CERT]
 
-#define oem_ums_ca          __oem_get()->cert.cert[OEM_APP_UMS][OEM_CERT_CA]
-#define oem_ums_key         __oem_get()->cert.cert[OEM_APP_UMS][OEM_CERT_KEY]
-#define oem_ums_cert        __oem_get()->cert.cert[OEM_APP_UMS][OEM_CERT_CERT]
+#define oem_ums_ca          __this_oem()->cert.cert[OEM_APP_UMS][OEM_CERT_CA]
+#define oem_ums_key         __this_oem()->cert.cert[OEM_APP_UMS][OEM_CERT_KEY]
+#define oem_ums_cert        __this_oem()->cert.cert[OEM_APP_UMS][OEM_CERT_CERT]
 /******************************************************************************/
 #endif /* __OEM_H_57688f1c133d4ebdae411669109ffdc9__ */

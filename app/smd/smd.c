@@ -12,7 +12,6 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #include "sm/sm.h"
 
 OS_INITER;
-DECLARE_CLI_BUFFER;
 
 #ifndef SM_NORMAL_SLEEP
 #define SM_NORMAL_SLEEP       500 /* ms */

@@ -4,15 +4,7 @@
 
 #include "utils.h"
 
-OS_INITER;
-
-#ifdef __BUSYBOX__
-DECLARE_REAL_DEBUGGER;
-DECLARE_REAL_AK;
-DECLARE_REAL_FLOCK;
-DECLARE_REAL_DEAMON;
-DECLARE_REAL_OEM;
-#endif
+OS_REAL_INITER;
 
 static int 
 cmd_reload(int argc, char *argv[])

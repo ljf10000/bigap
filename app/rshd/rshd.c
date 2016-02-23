@@ -9,13 +9,10 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #define __THIS_FILE     "rshd"
 #endif
 
-#define __TIMER__
-
 #include "utils.h"
 #include "rshd.h"
 
 OS_INITER;
-DECLARE_TIMER;
 *******************************************************************************/
 rsh_single_msg_t rsh_single;
 rsh_config_t rsh_cfg = RSH_CONFIG_INITER;

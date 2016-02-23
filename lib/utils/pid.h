@@ -1,9 +1,13 @@
 #ifndef __PID_H_53a6199d588c428b864c8a1bdca07622__
 #define __PID_H_53a6199d588c428b864c8a1bdca07622__
 /******************************************************************************/
+typedef struct {
+    bool running;
+} deamon_t;
+
 #ifdef __APP__
-#define DECLARE_REAL_DEAMON         bool __THIS_DEAMON
-#define DECLARE_FAKE_DEAMON         extern bool __THIS_DEAMON
+#define DECLARE_REAL_DEAMON         deamon_t __THIS_DEAMON
+#define DECLARE_FAKE_DEAMON         extern deamon_t __THIS_DEAMON
 
 #ifdef __BUSYBOX__
 #   define DECLARE_DEAMON           DECLARE_FAKE_DEAMON
@@ -12,6 +16,12 @@
 #endif
 
 DECLARE_FAKE_DEAMON;
+
+static inline deamon_t *
+__this_deamon(void)
+{
+    return &__THIS_DEAMON;
+}
 
 static inline int
 __os_get_pid(char *pidfile)
@@ -64,7 +74,7 @@ os_deamon_check(void)
     if (__os_deamon_exist()) {
         return -EDEAMON;
     } else {
-        __THIS_DEAMON = true;
+        __this_deamon()->running = true;
         
         os_set_pid();
         
@@ -75,7 +85,7 @@ os_deamon_check(void)
 static inline void
 os_deamon_exit(void)
 {
-    if (__THIS_DEAMON) {
+    if (__this_deamon()->running) {
         unlink(__THIS_PIDFILE);
     }
 }

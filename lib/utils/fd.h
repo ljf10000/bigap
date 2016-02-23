@@ -108,7 +108,7 @@ typedef struct {
 DECLARE_FAKE_FD;
 
 static inline fd_control_t *
-__fd(void)
+__this_fd(void)
 {
 #ifdef __FD__
     return &__THIS_FD;
@@ -120,14 +120,14 @@ __fd(void)
 static inline void
 __fd_control_init(void)
 {
-    __fd()->epfd = INVALID_FD;
+    __this_fd()->epfd = INVALID_FD;
 }
 
-#define ____fd_map          (&__fd()->map)
-#define ____fd_evs          (&__fd()->evs)
+#define ____fd_map          (&__this_fd()->map)
+#define ____fd_evs          (&__this_fd()->evs)
 #define ____fd_count        os_aa_count(____fd_map)
-#define ____fd_epfd         __fd()->epfd
-#define ____fd_looper       __fd()->looper
+#define ____fd_epfd         __this_fd()->epfd
+#define ____fd_looper       __this_fd()->looper
 
 /******************************************************************************/
 static inline struct epoll_event *
@@ -985,8 +985,8 @@ fd_shutdown(int fd, int how)
 static inline void
 fd_fini(void)
 {
-    if (__fd()->init) {
-        __fd()->init = false;
+    if (__this_fd()->init) {
+        __this_fd()->init = false;
         
         fd_close(____fd_epfd);
         os_aa_clean(____fd_map);
@@ -1001,8 +1001,8 @@ fd_init(void)
 {
     int err = 0;
 
-    if (false==__fd()->init) {
-        __fd()->init = true;
+    if (false==__this_fd()->init) {
+        __this_fd()->init = true;
         
         co_init();
 

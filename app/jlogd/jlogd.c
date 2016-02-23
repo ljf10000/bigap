@@ -12,10 +12,6 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 
 OS_INITER;
 
-#ifdef __BUSYBOX__
-DECLARE_REAL_JLOG;
-#endif
-
 #ifdef __PC__
 #   define SCRIPT_CUT       "./jlogcut"
 #   define SCRIPT_PUSH      "./jlogpush"

@@ -10,9 +10,6 @@
 #define __CLI__
 
 #include "umd.h"
-
-DECLARE_CLI_BUFFER;
-
 /*
 * online
 */

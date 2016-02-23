@@ -8,7 +8,7 @@
 #define __SYMBOL_TO_STRING2(x)  #x
 #define __SYMBOL_TO_STRING(x)   __SYMBOL_TO_STRING2(x)
 
-#define __SYMBOL_TO_VAR2(_prefix, _name)        __this_##_prefix##_name
+#define __SYMBOL_TO_VAR2(_prefix, _name)        __THIS_##_prefix##_name
 #ifdef __BUSYBOX__
 #   define __SYMBOL_TO_VAR(_prefix, _name)      __SYMBOL_TO_VAR2(_, _name)
 #else

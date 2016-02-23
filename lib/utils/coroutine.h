@@ -184,7 +184,7 @@ typedef struct {
 DECLARE_FAKE_COROUTINE;
 
 static inline co_control_t *
-__co(void)
+__this_coroutine(void)
 {
 #ifdef __COROUTINE__
     return &__THIS_COROUTINE;
@@ -199,7 +199,7 @@ __co_control_init(void)
     int i;
 
     for (i=0; i<CO_END; i++) {
-        INIT_LIST_HEAD(&__co()->fsm[i].list);
+        INIT_LIST_HEAD(&__this_coroutine()->fsm[i].list);
     }
 }
 
@@ -207,7 +207,7 @@ __co_control_init(void)
 #define CO_GROW             32
 #endif
 
-#define CO_ARRAY(_id)       __co()->array[_id]
+#define CO_ARRAY(_id)       __this_coroutine()->array[_id]
 
 static inline coroutine_t *
 __co_getbyid(co_id_t id)
@@ -224,7 +224,7 @@ __is_god_coev(int ev)
 static inline bool
 is_good_id(co_id_t id)
 {
-    return is_good_enum(id, __co()->size);
+    return is_good_enum(id, __this_coroutine()->size);
 }
 
 static inline void
@@ -245,15 +245,15 @@ __co_dump_all(void)
     coroutine_t *co;
 
     os_println("===========CO-RUNNING========");
-    __co_dump(__co()->running);
+    __co_dump(__this_coroutine()->running);
 
     os_println("===========CO-READY==========");
-    list_for_each_entry(co, &__co()->fsm[CO_READY].list, fsm.node) {
+    list_for_each_entry(co, &__this_coroutine()->fsm[CO_READY].list, fsm.node) {
         __co_dump(co);
     }
     
     os_println("===========CO-SUSPEND========");
-    list_for_each_entry(co, &__co()->fsm[CO_SUSPEND].list, fsm.node) {
+    list_for_each_entry(co, &__this_coroutine()->fsm[CO_SUSPEND].list, fsm.node) {
         __co_dump(co);
     }
 
@@ -288,7 +288,7 @@ __is_good_co(coroutine_t *co)
 static inline bool
 __is_good_co_running(void)
 {
-    return __is_good_co(__co()->running);
+    return __is_good_co(__this_coroutine()->running);
 }
 
 static inline bool
@@ -300,15 +300,15 @@ __is_good_coid(co_id_t id)
 static inline int // return 0 or error
 __co_a_grow(int grow)
 {
-    int size = __co()->size;
+    int size = __this_coroutine()->size;
     
-    __co()->array = (coroutine_t **)os_realloc(__co()->array, (size + grow)*sizeof(coroutine_t *));
-    if (NULL==__co()->array) {
+    __this_coroutine()->array = (coroutine_t **)os_realloc(__this_coroutine()->array, (size + grow)*sizeof(coroutine_t *));
+    if (NULL==__this_coroutine()->array) {
         return -ENOMEM;
     }
-    os_memzero(__co()->array+size, grow*sizeof(coroutine_t *));
+    os_memzero(__this_coroutine()->array+size, grow*sizeof(coroutine_t *));
 
-    __co()->size += grow;
+    __this_coroutine()->size += grow;
     
     return 0;
 }
@@ -352,7 +352,7 @@ __co_a_bind(coroutine_t *co, co_id_t id)
     /*
     * check co is binded ?
     */
-    for (i=0; i<__co()->size; i++) {
+    for (i=0; i<__this_coroutine()->size; i++) {
         if (__co_getbyid(i) && co==__co_getbyid(i)) {
             return -EEXIST;
         }
@@ -375,7 +375,7 @@ again:
     /*
     * id is invalid, find free-id
     */
-    for (i=0; i<__co()->size; i++) {
+    for (i=0; i<__this_coroutine()->size; i++) {
         if (NULL==__co_getbyid(i)) { // NOT exist
             found = i;
                         
@@ -418,7 +418,7 @@ __co_a_unbind(coroutine_t *co, co_id_t id)
             return;
         }
         
-        for (i=0; i<__co()->size; i++) {
+        for (i=0; i<__this_coroutine()->size; i++) {
             if (co==__co_getbyid(id)) {
                 ____co_a_unbind(co, id);
 
@@ -445,11 +445,11 @@ __co_fsm_insert(coroutine_t *co, bool first)
 {
     if (CO_READY==co->fsm.state || CO_SUSPEND==co->fsm.state) {
         if (first) {
-            list_add(&co->fsm.node, &__co()->fsm[co->fsm.state].list);
+            list_add(&co->fsm.node, &__this_coroutine()->fsm[co->fsm.state].list);
         } else {
-            list_add_tail(&co->fsm.node, &__co()->fsm[co->fsm.state].list);
+            list_add_tail(&co->fsm.node, &__this_coroutine()->fsm[co->fsm.state].list);
         }
-        __co()->fsm[co->fsm.state].count++;
+        __this_coroutine()->fsm[co->fsm.state].count++;
     }
 }
 
@@ -458,7 +458,7 @@ __co_fsm_remove(coroutine_t *co)
 {
     if (CO_READY==co->fsm.state || CO_SUSPEND==co->fsm.state) {
         list_del(&co->fsm.node);
-        __co()->fsm[co->fsm.state].count--;
+        __this_coroutine()->fsm[co->fsm.state].count--;
     }
 }
 
@@ -487,14 +487,14 @@ __co_schedule(void)
     struct list_head *head;
     coroutine_t *co;
     
-    head = &__co()->fsm[CO_READY].list;
+    head = &__this_coroutine()->fsm[CO_READY].list;
     if (false==list_empty(head)) {
         co = list_first_entry(head, coroutine_t, fsm.node);
     } else {
-        co = __co()->idle;
+        co = __this_coroutine()->idle;
     }
     
-    debug_trace("SCHEDULE %s==>%s", __co()->running->name, co->name);
+    debug_trace("SCHEDULE %s==>%s", __this_coroutine()->running->name, co->name);
     
     return co;
 }
@@ -519,7 +519,7 @@ ____co_destroy(coroutine_t *co)
     if (_co) {                  \
         __co_fsm_remove(_co);   \
         ____co_destroy(_co);    \
-        __co()->count--;        \
+        __this_coroutine()->count--;        \
         _co = NULL;             \
     }                           \
 }while(0)
@@ -548,13 +548,13 @@ __co_main(uint32_t L32, uint32_t H32)
     
     ____co_fsm_change(co, CO_DEAD, true);
     debug_trace("CO(%s) exit(pre CO.dead=(CO(%s):%p))", 
-        co->name, __co()->dead?__co()->dead->name:__unknow, 
-        __co()->dead);
-    if (__co()->dead) {
+        co->name, __this_coroutine()->dead?__this_coroutine()->dead->name:__unknow, 
+        __this_coroutine()->dead);
+    if (__this_coroutine()->dead) {
         trace_assert(0, "co is dead");
     }
-    __co()->dead = co;
-    debug_trace("CO(%s) exit(set CO.dead=(CO(%s):%p))", co->name, __co()->dead->name, __co()->dead);
+    __this_coroutine()->dead = co;
+    debug_trace("CO(%s) exit(set CO.dead=(CO(%s):%p))", co->name, __this_coroutine()->dead->name, __this_coroutine()->dead);
 }
 
 static int
@@ -587,7 +587,7 @@ __co_init(coroutine_t *co)
         return err;
     }
 
-    if (__co()->idle) {
+    if (__this_coroutine()->idle) {
         err = getcontext(&co->ctx);
         if (err<0) {
             debug_error("co(%s) get context error(%d)", co->name, err);
@@ -606,7 +606,7 @@ __co_init(coroutine_t *co)
     }
     
     __co_fsm_insert(co, false);
-    __co()->count++;
+    __this_coroutine()->count++;
 
     return 0;
 }
@@ -644,10 +644,10 @@ __co_create(
     co->id              = INVALID_COMMON_ID;
     co->ev.mail_limit   = (mail_limit<=0)?CO_MAIL_DEFAULT:mail_limit;
     
-    if (__co()->idle) {
+    if (__this_coroutine()->idle) {
         co->ctx.uc_stack.ss_sp   = co->stack.sp;
         co->ctx.uc_stack.ss_size = co->stack.size;
-        co->ctx.uc_link = &__co()->idle->ctx;
+        co->ctx.uc_link = &__this_coroutine()->idle->ctx;
     }
     
     co->protectedH = OS_PROTECTED;
@@ -745,7 +745,7 @@ static int
 __co_resume(coroutine_t *create, bool suspend_old)
 {
     int err;
-    coroutine_t *old = __co()->running;
+    coroutine_t *old = __this_coroutine()->running;
     
     if (CO_SUSPEND==create->fsm.state) {
         return os_assertV(-EKEYBAD);
@@ -753,7 +753,7 @@ __co_resume(coroutine_t *create, bool suspend_old)
     else if (NULL==old) {
         // old is main, do nothing
     }
-    else if (old==__co()->idle) {
+    else if (old==__this_coroutine()->idle) {
         // old is idle, do nothing
     }
     else if (old==create) {
@@ -762,10 +762,10 @@ __co_resume(coroutine_t *create, bool suspend_old)
 
     __co_fsm_change(old, suspend_old?CO_SUSPEND:CO_READY);
     __co_fsm_change(create, CO_RUNNING);
-    __co()->running = create;
+    __this_coroutine()->running = create;
 
     if (NULL==old) {
-        old = __co()->idle;
+        old = __this_coroutine()->idle;
     }
 
     __is_good_co_running();
@@ -794,7 +794,7 @@ static int
 __co_suspend(int timeout/* ms */, co_cred_t cred)
 {
     int err, after = 0;
-    coroutine_t *co = __co()->running;
+    coroutine_t *co = __this_coroutine()->running;
     bool timeouted = false;
 
     if (timeout<0) {
@@ -844,8 +844,8 @@ __co_yield(void)
 static inline void
 co_fini(void)
 {
-    if (__co()->init) {
-        __co()->init = false;
+    if (__this_coroutine()->init) {
+        __this_coroutine()->init = false;
         
         tm_fini();
     }
@@ -854,8 +854,8 @@ co_fini(void)
 static inline void
 co_init(void)
 {
-    if (false==__co()->init) {
-        __co()->init = true;
+    if (false==__this_coroutine()->init) {
+        __this_coroutine()->init = true;
         
         tm_init();
         
@@ -864,8 +864,8 @@ co_init(void)
         /*
         * idle is the first coroutine
         */
-        __co()->idle = __co_create(CO_IDLE_NAME, NULL, NULL, 0, 0, CO_PRI_LOWEST, CO_READY);
-        if (NULL==__co()->idle) {
+        __this_coroutine()->idle = __co_create(CO_IDLE_NAME, NULL, NULL, 0, 0, CO_PRI_LOWEST, CO_READY);
+        if (NULL==__this_coroutine()->idle) {
             // log
         }
     }
@@ -938,9 +938,9 @@ static inline co_id_t
 co_self(void)
 {
     if (__is_good_co_running()) {
-        return __co()->running->id;
+        return __this_coroutine()->running->id;
     } else {
-        return __co()->idle->id;
+        return __this_coroutine()->idle->id;
     }
 }
 
@@ -989,11 +989,11 @@ co_idle(void)
 {
     coroutine_t *create;
     
-    __co()->running = __co()->idle;
+    __this_coroutine()->running = __this_coroutine()->idle;
 
     while(1) {
         create = __co_schedule();
-        if (create==__co()->idle) {
+        if (create==__this_coroutine()->idle) {
             /*
             * maybe IDLE is the first READY,
             *   fsm_change remove IDLE to the last
@@ -1004,14 +1004,14 @@ co_idle(void)
             usleep(CO_IDLE_TIME);
         } else {
             __co_resume(create, false);
-            if (__co()->dead) {
+            if (__this_coroutine()->dead) {
                 /*
                 * someone exit and go here, need free it
                 */
-                __co()->running = __co()->idle;
+                __this_coroutine()->running = __this_coroutine()->idle;
                 
-                debug_trace("IDLE free dead(CO(%s):%p)", __co()->dead->name, __co()->dead);
-                __co_destory(__co()->dead);
+                debug_trace("IDLE free dead(CO(%s):%p)", __this_coroutine()->dead->name, __this_coroutine()->dead);
+                __co_destory(__this_coroutine()->dead);
             } else {
                 /*
                 * someone yeild and go here, do nothing
@@ -1029,7 +1029,7 @@ co_idle(void)
 static inline co_cred_t
 co_cred(void)
 {
-    return ++__co()->running->cred;
+    return ++__this_coroutine()->running->cred;
 }
 
 /*
@@ -1087,7 +1087,7 @@ co_ready(co_id_t id, co_cred_t cred, bool immediately)
 
         return __co_ready(co, cred, immediately);
     }
-    else if (CO_RUNNING==co->fsm.state || co==__co()->running) {
+    else if (CO_RUNNING==co->fsm.state || co==__this_coroutine()->running) {
         return os_assertV(-EINVAL4);
     }
     
@@ -1149,7 +1149,7 @@ co_evmask_read(void)
         return os_assertV(0);
     }
 
-    return __co_evmask_read(__co()->running);
+    return __co_evmask_read(__this_coroutine()->running);
 }
 
 
@@ -1160,7 +1160,7 @@ co_evmask_read_and_zero(void)
         return os_assertV(0);
     }
 
-    return __co_evmask_read_and_zero(__co()->running);
+    return __co_evmask_read_and_zero(__this_coroutine()->running);
 }
 
 
@@ -1174,7 +1174,7 @@ co_ev_read(enum co_event ev)
         return os_assertV(false);
     }
 
-    return __co_ev_read(__co()->running, ev);
+    return __co_ev_read(__this_coroutine()->running, ev);
 }
 
 
@@ -1188,7 +1188,7 @@ co_ev_read_and_zero(enum co_event ev)
         return os_assertV(false);
     }
 
-    return __co_ev_read_and_zero(__co()->running, ev);
+    return __co_ev_read_and_zero(__this_coroutine()->running, ev);
 }
 
 
@@ -1225,7 +1225,7 @@ co_mail_recv(union co_mail *mail)
         return os_assertV(-EKEYNULL);
     }
 
-    return __co_mail_recv(__co()->running, CO_EV_MAIL, mail);
+    return __co_mail_recv(__this_coroutine()->running, CO_EV_MAIL, mail);
 }
 /******************************************************************************/
 #endif

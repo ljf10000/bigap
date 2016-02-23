@@ -90,19 +90,15 @@ typedef struct {
 DECLARE_FAKE_TIMER;
 
 static inline tm_clock_t *
-__tm_clock(void)
+__this_timer(void)
 {
-#ifdef __TIMER__
     return &__THIS_TIMER;
-#else
-    return NULL;
-#endif
 }
 
 static inline tm_ring_t *
 __tm_ring(int idx)
 {
-    return &__tm_clock()->ring[idx];
+    return &__this_timer()->ring[idx];
 }
 
 #define __tm_ring0                  __tm_ring(0)
@@ -135,8 +131,8 @@ __tm_left(tm_node_t *timer)
 {
     uint64_t timeout = timer->create + (uint64_t)timer->expires;
     
-    if (timeout > __tm_clock()->ticks) {
-        return (uint32_t)(timeout - __tm_clock()->ticks);
+    if (timeout > __this_timer()->ticks) {
+        return (uint32_t)(timeout - __this_timer()->ticks);
     } else {
         return 0;
     }
@@ -183,10 +179,10 @@ __tm_insert(tm_node_t *timer)
 
     ring->slot[slot].count++;
     ring->count++;
-    __tm_clock()->count++;
-    __tm_clock()->inserted++;
+    __this_timer()->count++;
+    __this_timer()->inserted++;
     
-    if (__tm_clock()->ticks) {
+    if (__this_timer()->ticks) {
         //debug_test("timer(expires:%u) insert to ring(%d) slot(%d)", node->expires, node->ring_idx, node->ring_slot);
     }
 }
@@ -196,15 +192,15 @@ __tm_remove(tm_node_t *timer)
 {
     tm_ring_t *ring = __tm_ringx(timer->ring_idx);
 
-    if (__tm_clock()->ticks) {
+    if (__this_timer()->ticks) {
         //debug_test("timer(expires:%u) remove from ring(%d) slot(%d)", node->expires, node->ring_idx, node->ring_slot);
     }
     
     list_del(&timer->node);
     ring->slot[timer->ring_slot].count--;
     ring->count--;
-    __tm_clock()->count--;
-    __tm_clock()->removed++;
+    __this_timer()->count--;
+    __this_timer()->removed++;
     timer->flags &= ~TM_PENDING;
 }
 
@@ -239,7 +235,7 @@ __tm_dump(void)
         tm_ring_t *ring;
 
         os_println("======================");
-        os_println("CLOCK count(%u) ticks(%llu)", __tm_clock()->count, __tm_clock()->ticks);
+        os_println("CLOCK count(%u) ticks(%llu)", __this_timer()->count, __this_timer()->ticks);
         __tm_foreach_ring(ring) {
             __tm_ring_dump(ring);
         }
@@ -274,15 +270,15 @@ __tm_ring_trigger(tm_ring_t *ring)
         if (0==mv2_error(mv)) {
             count++;
             
-            __tm_clock()->triggered_ok++;
+            __this_timer()->triggered_ok++;
         } else {
-            __tm_clock()->triggered_error++;
+            __this_timer()->triggered_error++;
         }
 
         if (tm_is_safe(mv)) {
-            __tm_clock()->triggered_safe++;
+            __this_timer()->triggered_safe++;
         } else {
-            __tm_clock()->triggered_unsafe++;
+            __this_timer()->triggered_unsafe++;
             
             /*
             * after trigger, the timer is unsafe
@@ -295,7 +291,7 @@ __tm_ring_trigger(tm_ring_t *ring)
             /*
             * reset create ticks
             */
-            timer->create = __tm_clock()->ticks;
+            timer->create = __this_timer()->ticks;
 
             __tm_insert(timer);
         }
@@ -339,7 +335,7 @@ tm_trigger(uint32_t times)
     int count = 0;
     
     for (i=0; i<times; i++) {
-        __tm_clock()->ticks++;
+        __this_timer()->ticks++;
 
         __tm_dump();
         err = __tm_trigger(__tm_ring0);
@@ -356,19 +352,19 @@ tm_trigger(uint32_t times)
 static inline uint64_t
 tm_ticks(void)
 {
-    return __tm_clock()->ticks;
+    return __this_timer()->ticks;
 }
 
 static inline void
 tm_unit_set(uint32_t ms) // how much ms per tick
 {
-    __tm_clock()->unit = ms?ms:TM_MS;
+    __this_timer()->unit = ms?ms:TM_MS;
 }
 
 static inline uint32_t //ms, how much ms per tick
 tm_unit(void)
 {
-    return __tm_clock()->unit;
+    return __this_timer()->unit;
 }
 
 static inline int
@@ -394,7 +390,7 @@ tm_insert(
         return -EINLIST; /* NO assert */
     } 
     
-    timer->create   = __tm_clock()->ticks;
+    timer->create   = __this_timer()->ticks;
     timer->expires  = (uint32_t)after;
     timer->flags    = once?TM_ONCE:0;
     timer->cb       = cb;
@@ -550,8 +546,8 @@ tm_init(void)
     tm_ring_t *ring;
     int slot;
 
-    if (false==__tm_clock()->init) {
-        __tm_clock()->init = true;
+    if (false==__this_timer()->init) {
+        __this_timer()->init = true;
         
         __tm_foreach_ring(ring) {
             __tm_foreach_slot(slot) {
@@ -568,8 +564,8 @@ tm_fini(void)
     tm_ring_t *ring;
     int slot;
 
-    if (true==__tm_clock()->init) {
-        __tm_clock()->init = false;
+    if (true==__this_timer()->init) {
+        __this_timer()->init = false;
         
         __tm_foreach_ring(ring) {
             __tm_foreach_slot(slot) {

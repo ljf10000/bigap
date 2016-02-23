@@ -11,7 +11,6 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #include "tm/tm.h"
 
 OS_INITER;
-DECLARE_CLI_BUFFER;
 
 static cli_client_t tmc = CLI_CLIENT_INITER(TM_TIMEOUT, TMD_UNIX);
 

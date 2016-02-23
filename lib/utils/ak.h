@@ -328,7 +328,13 @@ __ak_offset(akid_t akid)
 
 DECLARE_FAKE_AK;
 
-#define __ak_address    __THIS_AK.address
+
+static inline os_shm_t *
+__this_ak(void)
+{
+    return &__THIS_AK;
+}
+#define __ak_address    __this_ak()->address
 
 static inline ak_hdr_t *
 __ak_hdr(void)
@@ -665,7 +671,7 @@ ak_init(void)
 {
     int err = 0;
 
-    err = os_shm_create(&__THIS_AK, appkey_shm_size, false);
+    err = os_shm_create(__this_ak(), appkey_shm_size, false);
     if (err<0) { /* >=0 is valid shm id */
         goto error;
     }

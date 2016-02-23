@@ -12,7 +12,6 @@
 #include "um/um.h"
 
 OS_INITER;
-DECLARE_CLI_BUFFER;
 
 static cli_client_t umc = CLI_CLIENT_INITER(UM_TIMEOUT, UMD_UNIX);
 
