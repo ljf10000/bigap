@@ -139,7 +139,7 @@
 #include "utils/cli.h"
 #include "utils/timer.h"
 
-#ifndef BIGAP_EXT
+#ifdef BIGAP_EXT
 #include "utils/slice.h"
 #include "utils/blob.h"
 #include "utils/autoarray.h"
