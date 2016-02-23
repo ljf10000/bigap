@@ -137,15 +137,18 @@
 #include "utils/command.h"
 #include "utils/cmd.h"
 #include "utils/cli.h"
+#include "utils/timer.h"
+
+#ifndef BIGAP_EXT
 #include "utils/slice.h"
 #include "utils/blob.h"
-#include "utils/timer.h"
 #include "utils/autoarray.h"
 #include "utils/channel.h"
 #include "utils/cqueue.h"
 #include "utils/coroutine.h"
 #include "utils/fd.h"
 #include "utils/loop.h"
+#endif /* BIGAP_EXT */
 
 #include "oem/oem.h"
 /******************************************************************************/
