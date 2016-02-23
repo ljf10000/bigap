@@ -205,7 +205,8 @@ ____cli_d_handle(char *line, cli_table_t *table, int count, int (*after)(void))
     os_str_reduce(method, NULL);
     
     cli_shift(args);
-    
+
+    cli_buffer_clear();
     err = cli_line_handle(table, count, method, args, after);
     cli_buffer_error(err);
 
