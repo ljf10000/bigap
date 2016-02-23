@@ -73,10 +73,6 @@ is_good_rsh_slot(int slot)
 #define RSH_RUNTIME             300 /* second */
 #endif
 
-#ifndef RSH_TICKS
-#define RSH_TICKS               1000 /* ms */
-#endif
-
 #ifndef RSH_DELAY_MIN
 #define RSH_DELAY_MIN           (500*1000)  /* us */
 #endif
