@@ -243,7 +243,7 @@ show_user_byjson(char *json)
         return -ENOEXIST;
     }
     
-    cli_sprintf("%s" __crlf, jobj_string(juser));
+    cli_sprintf(__tab "%s" __crlf, jobj_string(juser));
     jobj_put(juser);
     jobj_put(obj);
     
@@ -262,7 +262,7 @@ show_stat(void)
     jobj_add_int(obj, "user", h2_count(&umd.table));
     jobj_add(obj, "flow", um_jflow());
 
-    cli_sprintf("%s" __crlf, jobj_string(obj));
+    cli_sprintf(__tab "%s" __crlf, jobj_string(obj));
     
     jobj_put(obj);
     
