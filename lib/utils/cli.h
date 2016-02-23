@@ -163,7 +163,7 @@ cli_sprintf(const char *fmt, ...)
         return -ENOSPACE;
     }
 
-    cli_buffer_len = len;
+    cli_buffer_len += len;
     
     return len;
 }
