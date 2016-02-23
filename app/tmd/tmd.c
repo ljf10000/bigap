@@ -118,7 +118,7 @@ __get(char *name)
     {
         struct xtimer *entry = __get_entry_byhashnode(node);
         
-        return 0==os_stracmp(entry->name, name);
+        return os_straeq(entry->name, name);
     }
 
     h1_node_t *node = h1_find(&tmd.table, hash, eq);
@@ -355,7 +355,7 @@ handle_show(char *args)
     
     mv_t cb(struct xtimer *entry)
     {
-        if (NULL==name || 0==os_stracmp(entry->name, name)) {
+        if (NULL==name || os_straeq(entry->name, name)) {
             show(entry);
 
             empty = false;

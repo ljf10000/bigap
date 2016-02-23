@@ -217,6 +217,20 @@ os_strncmp(const char *a, const char *b, int len)
 #define os_strbcmp(_a, _b)          os_strncmp(_a, _b, sizeof(_b))
 #endif
 
+/*
+* use a's size
+*/
+#ifndef os_straeq
+#define os_straeq(_a, _b)           (0==os_stracmp(_a, _b))
+#endif
+
+/*
+* use b's size
+*/
+#ifndef os_strbeq
+#define os_strbeq(_a, _b)           (0==os_strbcmp(_a, _b))
+#endif
+
 #ifndef os_strtok
 #define os_strtok(_s, _delim)       strtok(_s, _delim)
 #endif

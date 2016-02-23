@@ -402,7 +402,7 @@ ____ak_getbyname(char *app, char *k)
     ak_t *ak = NULL;
     
     __ak_foreach(ak) {
-        if (0==os_stracmp(ak->app, app) && 0==os_stracmp(ak->k, k)) {
+        if (os_straeq(ak->app, app) && os_straeq(ak->k, k)) {
             return ak;
         }
     }
