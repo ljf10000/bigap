@@ -270,7 +270,7 @@ os_strncmp(const char *a, const char *b, int len)
 #ifndef os_strtoull
 #define os_strtoull(_nptr, _endptr, _base)  simple_strtoull(_nptr, _endptr, _base)
 #endif
-#else
+#else /* __BOOT__ */
 #ifndef os_strtol
 #define os_strtol(_nptr, _endptr, _base)    strtol(_nptr, _endptr, _base)
 #endif
