@@ -7,7 +7,6 @@
 #endif
 
 #define __DEAMON__
-#define __CLI__
 
 #include "umd.h"
 /*

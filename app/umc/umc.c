@@ -6,8 +6,6 @@
 #define __THIS_FILE     "umc"
 #endif
 
-#define __CLI__
-
 #include "utils.h"
 #include "um/um.h"
 

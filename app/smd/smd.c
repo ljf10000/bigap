@@ -6,7 +6,6 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #endif
 
 #define __DEAMON__
-#define __CLI__
 
 #include "utils.h"
 #include "sm/sm.h"

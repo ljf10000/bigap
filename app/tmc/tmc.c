@@ -5,8 +5,6 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #define __THIS_APP      tmc
 #endif
 
-#define __CLI__
-
 #include "utils.h"
 #include "tm/tm.h"
 

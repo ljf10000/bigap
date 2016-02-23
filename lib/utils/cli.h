@@ -97,11 +97,7 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 /******************************************************************************/
 #ifdef __APP__
 #ifndef CLI_BUFFER_SIZE
-#   ifdef __CLI__
-#       define CLI_BUFFER_SIZE      (256*1024-1-sizeof(int)-3*sizeof(uint32_t))
-#   else
-#       define CLI_BUFFER_SIZE      3
-#   endif
+#define CLI_BUFFER_SIZE      (256*1024-1-sizeof(int)-3*sizeof(uint32_t))
 #endif
 
 typedef struct {
