@@ -548,7 +548,7 @@ __ak_file_filter(char *path, char *filename)
 {
     char *p = os_strchr(filename, '.');
     
-    if (p && 0==os_strcmp(p, ".key")) {
+    if (p && os_streq(p, ".key")) {
         return false;
     } else {
         ak_println("ignore %s", filename);

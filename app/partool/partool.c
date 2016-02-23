@@ -1268,7 +1268,7 @@ __part_var_find(struct part_block *block, char *name)
     struct part_item *item;
 
     list_for_each_entry(item, &block->list, node) {
-        if (0==os_strcmp(name, item->c.k.var)) {
+        if (os_streq(name, item->c.k.var)) {
             return item;
         }
     }
@@ -1466,7 +1466,7 @@ part_begin(char *partition)
     int i;
 
     for (i=0; i<os_count_of(part_info); i++) {
-        if (0==os_strcmp(partition, part_info[i].partition)) {
+        if (os_streq(partition, part_info[i].partition)) {
             partool_size = part_info[i].size;
             
             return part_info[i].addr;

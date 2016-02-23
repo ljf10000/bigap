@@ -168,8 +168,8 @@ sys = {
 #define dir_config_master       dir_config(__cmaster)
 #define dir_data_master         dir_data(__dmaster)
 
-#define is_current_rootfs_dev(_dev) (0==os_strcmp(dev_rootfs_current, _dev))
-#define is_current_rootfs_dir(_dir) (0==os_strcmp(dir_rootfs_current, _dir))
+#define is_current_rootfs_dev(_dev) os_streq(dev_rootfs_current, _dev)
+#define is_current_rootfs_dir(_dir) os_streq(dir_rootfs_current, _dir)
 
 static char *
 rootfs_file(int idx, char *file)
@@ -463,7 +463,7 @@ mount_rootfs(void)
     int i, err, errs = 0;
     bool readonly = true;
 
-    if (0==os_strcmp("rw", BENV_ROOTFS_MODE)) {
+    if (os_streq("rw", BENV_ROOTFS_MODE)) {
         readonly = false;
     }
     
@@ -1530,7 +1530,7 @@ get_current(void)
     }
     
     __benv_foreach(i, 0) {
-        if (0==os_strcmp(dev, dev_rootfs(i))) {
+        if (os_streq(dev, dev_rootfs(i))) {
             return i;
         }
     }

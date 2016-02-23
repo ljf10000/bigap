@@ -276,7 +276,7 @@ __tag_get(struct um_user *user, char *k)
     }
     
     list_for_each_entry(tag, &user->head.tag, tag) {
-        if (0==os_strcmp(k, tag->k)) {
+        if (os_streq(k, tag->k)) {
             return tag;
         }
     }

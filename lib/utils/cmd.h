@@ -45,7 +45,7 @@ __cmd_match(cmd_table_t *cmd, int argc, char *argv[])
     }
 
     for (i=0; i<argc; i++) {
-        if (cmd->argv[i] && os_strcmp(argv[i], cmd->argv[i])) {
+        if (cmd->argv[i] && 0!=os_strcmp(argv[i], cmd->argv[i])) {
             return false;
         }
     }

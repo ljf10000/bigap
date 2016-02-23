@@ -191,10 +191,10 @@ __otp_file_op(int id, char *mode, byte otp[OTP_SIZE])
         goto error;
     }
 
-    if (0==os_strcmp(mode, "r")) {
+    if (os_streq(mode, "r")) {
         err = os_fread(f, otp, OTP_SIZE);
     }
-    else if (0==os_strcmp(mode, "r+")) {
+    else if (os_streq(mode, "r+")) {
         err = os_fwrite(f, otp, OTP_SIZE);
     }
     else {

@@ -227,7 +227,7 @@ __get_byname(char *name)
     }
 
     list_for_each_entry(entry, &smd.list, node) {
-        if (0==os_strcmp(name, entry->name)) {
+        if (os_streq(name, entry->name)) {
             return entry;
         }
     }
@@ -581,13 +581,13 @@ handle_insert(char *args)
         return -EINVAL2;
     }
 
-    if (0==os_strcmp(type, "normal")) {
+    if (os_streq(type, "normal")) {
         /*
         * insert normal name command
         */
         command = args; /* NOT shift */
     }
-    else if (0==os_strcmp(type, "deamon")) {
+    else if (os_streq(type, "deamon")) {
         /*
         * insert deamon name pidfile command
         */

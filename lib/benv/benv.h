@@ -2536,7 +2536,7 @@ __benv_cmd(int argc, char *argv[])
 
     if (3==argc) {
         for (i=0; i<os_count_of(cmd); i++) {
-            if (0==os_strcmp(action, cmd[i].action) && 0==os_strcmp(obj, cmd[i].obj)) {
+            if (os_streq(action, cmd[i].action) && os_streq(obj, cmd[i].obj)) {
                 (*cmd[i].handle)();
                 
                 return true;
@@ -2573,7 +2573,7 @@ benv_get(char *path)
     for (i = 0; i < __benv_ops_count; i++) {
         benv_ops_t *ops = benv_ops(i);
 
-        if (0==os_strcmp(path, ops->path)) {
+        if (os_streq(path, ops->path)) {
             return __benv_ops_obj(ops);
         }
     }

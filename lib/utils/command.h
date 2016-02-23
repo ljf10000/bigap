@@ -302,11 +302,11 @@ os_do_command(int argc, char *argv[], struct command_ctrl *ctrl)
         * "xxx -help"
         * "xxx --"
         */
-        if (0 == os_strcmp(help, __COMMAND_ARG_HELPS)   ||
-            0 == os_strcmp(help, __COMMAND_ARG_HELPL)) {
+        if (os_streq(help, __COMMAND_ARG_HELPS)   ||
+            os_streq(help, __COMMAND_ARG_HELPL)) {
             goto show_help;
         }
-        else if (0 == os_strcmp(help, __COMMAND_ARG_HIDE)) {
+        else if (os_streq(help, __COMMAND_ARG_HIDE)) {
             show_hide = true;
             goto show_help;
         }

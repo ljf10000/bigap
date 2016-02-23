@@ -179,6 +179,12 @@ os_strcmp(const char *a, const char *b)
     }
 }
 
+static inline bool
+os_streq(const char *a, const char *b)
+{
+    return 0==os_strcmp(a, b);
+}
+
 static inline int
 os_strncmp(const char *a, const char *b, int len)
 {

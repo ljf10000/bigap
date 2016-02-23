@@ -173,8 +173,36 @@ os_memmem(const void *mem, size_t mem_size,
 /*
 * use (*_a)'s size
 */
+#ifndef os_objacmp
+#define os_objacmp(_a, _b)          os_memcmp(_a, _b, sizeof(*(_a)))
+#endif
+
+/*
+* use (*_b)'s size
+*/
+#ifndef os_objbcmp
+#define os_objbcmp(_a, _b)          os_memcmp(_a, _b, sizeof(*(_b)))
+#endif
+
+/*
+* use (*_a)'s size
+*/
 #ifndef os_objcmp
-#define os_objcmp(_a, _b)           os_memcmp(_a, _b, sizeof(*(_a)))
+#define os_objcmp(_a, _b)           os_objacmp(_a, _b)
+#endif
+
+/*
+* use (*_a)'s size
+*/
+#ifndef os_objaeq
+#define os_objaeq(_a, _b)           (0==os_objacmp(_a, _b))
+#endif
+
+/*
+* use (*_b)'s size
+*/
+#ifndef os_objbeq
+#define os_objbeq(_a, _b)           (0==os_objbcmp(_a, _b))
 #endif
 
 /*

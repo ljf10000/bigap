@@ -58,7 +58,7 @@ cli_line_handle(cli_table_t tables[], int count, char *tag, char *args, int (*re
     for (i=0; i<count; i++) {
         cli_table_t *table = &tables[i];
         
-        if (0==os_strcmp(table->tag, tag)) {
+        if (os_streq(table->tag, tag)) {
             err = (*table->u.line_cb)(args);
             
             if (table->syn && reply) {
@@ -86,7 +86,7 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
     for (i=0; i<count; i++) {
         cli_table_t *table = &tables[i];
         
-        if (0==os_strcmp(table->tag, argv[0])) {
+        if (os_streq(table->tag, argv[0])) {
             return (table->u.argv_cb)(argc-1, argv+1);
         }
     }

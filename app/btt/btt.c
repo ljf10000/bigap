@@ -137,10 +137,10 @@ cmd_destroy_stack(int argc, char *argv[])
 {
     char *direction = argv[2];
 
-    if (0==os_strcmp(direction, "up")) {
+    if (os_streq(direction, "up")) {
         up = true;
     } 
-    else if (0==os_strcmp(direction, "down")) {
+    else if (os_streq(direction, "down")) {
         up = false;
     }
     else {

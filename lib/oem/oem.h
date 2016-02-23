@@ -197,7 +197,7 @@ __oem_type_get_by_vendor(char *vendor)
     int i;
 
     for (i=0; i<os_count_of(map); i++) {
-        if (0==os_strcmp(vendor, map[i].vendor)) {
+        if (os_streq(vendor, map[i].vendor)) {
             return map[i].type;
         }
     }

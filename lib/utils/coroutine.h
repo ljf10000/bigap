@@ -918,7 +918,7 @@ co_new(
     }
     
     for (i=0; i<os_count_of(reserved_name); i++) {
-        if (0==os_strcmp(name, reserved_name[i])) {
+        if (os_streq(name, reserved_name[i])) {
             return os_assertV(-EINVAL3);
         }
     }

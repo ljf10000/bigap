@@ -282,7 +282,7 @@ handle_show(char *args)
     else if (is_good_json(json)) {
         return show_user_byjson(json);
     }
-    else if (0==os_strcmp("stat", json)) {
+    else if (os_streq("stat", json)) {
         return show_stat();
     }
     else {

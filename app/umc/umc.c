@@ -227,7 +227,7 @@ show_by(int argc, char *argv[])
 {
     char *json = argv[0];
 
-    if (is_good_json(json) || 0==os_strcmp("stat", json)) {
+    if (is_good_json(json) || os_streq("stat", json)) {
         return umc_handle("show", argc, argv);
     }
     else {
@@ -249,7 +249,7 @@ cmd_show(int argc, char *argv[])
         case 1: {
             char *json = argv[0];
 
-            if (is_good_json(json) || 0==os_strcmp("stat", json)) {
+            if (is_good_json(json) || os_streq("stat", json)) {
                 return umc_handle("show", argc, argv);
             }
             else {

@@ -34,10 +34,10 @@ cmd_insert(int argc, char *argv[])
     char *pidfile = NULL;
     char *command = NULL;
 
-    if (3==argc && 0==os_strcmp(type, "normal")) {
+    if (3==argc && os_streq(type, "normal")) {
         command = argv[2];
     }
-    else if (4==argc && 0==os_strcmp(type, "deamon")) {
+    else if (4==argc && os_streq(type, "deamon")) {
         pidfile = argv[2];
         command = argv[3];
     }

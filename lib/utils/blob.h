@@ -389,7 +389,7 @@ blob_find_byname(const char *name, const blob_rule_t rule[], int count)
     int i;
 
     for (i=0; i<count; i++) {
-        if (rule[i].name && 0==os_strcmp(rule[i].name, name)) {
+        if (rule[i].name && os_streq(rule[i].name, name)) {
             return i;
         }
     }
