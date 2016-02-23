@@ -130,8 +130,9 @@ __cli_buffer(void)
 }
 
 #define cli_buffer_err      __cli_buffer()->err
-#define cli_buffer_buf      __cli_buffer()->buf
 #define cli_buffer_len      __cli_buffer()->len
+#define cli_buffer_buf      __cli_buffer()->buf
+#define cli_buffer_cursor   (cli_buffer_buf + cli_buffer_len)
 #define cli_buffer_size     (cli_buffer_hsize + cli_buffer_len)
 #define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_size)
 
@@ -152,7 +153,7 @@ cli_sprintf(const char *fmt, ...)
     
     if (cli_buffer_len < CLI_BUFFER_SIZE) {
         va_start(args, (char *)fmt);
-        len = os_vsnprintf(cli_buffer_buf + cli_buffer_len, cli_buffer_left fmt, args);
+        len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left fmt, args);
         va_end(args);
 
         if (len<0 || len > cli_buffer_left) {
@@ -169,7 +170,7 @@ cli_sprintf(const char *fmt, ...)
     int __len = 0;                                  \
     if (cli_buffer_len < CLI_BUFFER_SIZE) {         \
         __len = os_snprintf(                        \
-            cli_buffer_buf + cli_buffer_len,        \
+            cli_buffer_cursor,                      \
             cli_buffer_left,                        \
             _fmt, ##_args);                         \
         if (__len <= cli_buffer_left) {             \
