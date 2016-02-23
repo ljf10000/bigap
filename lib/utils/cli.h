@@ -96,17 +96,20 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 #endif /* defined(__APP__) || defined(__BOOT__) */
 /******************************************************************************/
 #ifdef __APP__
-#ifndef cli_buffer_hsize
-#define cli_buffer_hsize        (sizeof(int) + 3*sizeof(uint32_t))
-#endif
-
-#ifndef CLI_BUFFER_SIZE
-#define CLI_BUFFER_SIZE         (256*1024 - cli_buffer_hsize - 1)
-#endif
-
 typedef struct {
     uint32_t len, r0, r1;
     int err;
+} cli_header_t;
+
+#define cli_header_size         sizeof(cli_header_t)
+
+#ifndef CLI_BUFFER_SIZE
+#define CLI_BUFFER_SIZE         (256*1024 - cli_header_size - 1)
+#endif
+
+typedef struct {
+    cli_header_t header;
+
     char buf[1+CLI_BUFFER_SIZE];
 } cli_buffer_t;
 
@@ -127,11 +130,11 @@ __this_cli_buffer(void)
     return &__THIS_CLI_BUFFER;
 }
 
-#define cli_buffer_err      __this_cli_buffer()->err
-#define cli_buffer_len      __this_cli_buffer()->len
+#define cli_buffer_err      __this_cli_buffer()->header.err
+#define cli_buffer_len      __this_cli_buffer()->header.len
 #define cli_buffer_buf      __this_cli_buffer()->buf
 #define cli_buffer_cursor   (cli_buffer_buf + cli_buffer_len)
-#define cli_buffer_size     (cli_buffer_hsize + cli_buffer_len)
+#define cli_buffer_size     (cli_header_size + cli_buffer_len)
 #define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_size)
 
 #define cli_buffer_zero()   os_objzero(__this_cli_buffer())
