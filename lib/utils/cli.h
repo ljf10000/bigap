@@ -153,7 +153,7 @@ cli_sprintf(const char *fmt, ...)
     
     if (cli_buffer_len < CLI_BUFFER_SIZE) {
         va_start(args, (char *)fmt);
-        len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left fmt, args);
+        len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left, fmt, args);
         va_end(args);
 
         if (len<0 || len > cli_buffer_left) {
