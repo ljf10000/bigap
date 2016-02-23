@@ -186,11 +186,7 @@ DECLARE_FAKE_COROUTINE;
 static inline co_control_t *
 __this_coroutine(void)
 {
-#ifdef __COROUTINE__
     return &__THIS_COROUTINE;
-#else
-    return NULL;
-#endif
 }
 
 static inline void

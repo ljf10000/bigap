@@ -3,16 +3,11 @@
 #define __THIS_APP      testfd
 #endif
 
-#define __TIMER__
-#define __COROUTINE__
-#define __FD__
+#define BIGAP_EXT
 
 #include "utils.h"
 
 OS_INITER;
-DECLARE_TIMER;
-DECLARE_COROUTINE;
-DECLARE_FD;
 
 #define SERVER "server"
 #define CLIENT "client"

@@ -152,6 +152,23 @@
 
 #include "oem/oem.h"
 /******************************************************************************/
+#ifdef BIGAP_EXT
+#define OS_EXT_INITER       \
+    DECLARE_COROUTINE;      \
+    DECLARE_FD;             \
+    os_fake_declare /* last */ \
+    /* end */
+
+#define OS_REAL_EXT_INITER  \
+    DECLARE_REAL_COROUTINE; \
+    DECLARE_REAL_FD;        \
+    os_fake_declare /* last */ \
+    /* end */
+#else
+#define OS_EXT_INITER       os_fake_declare
+#define OS_REAL_EXT_INITER  os_fake_declare
+#endif
+
 #define OS_INITER       \
     DECLARE_DEAMON;     \
     DECLARE_FLOCK;      \
@@ -160,18 +177,20 @@
     DECLARE_AK;         \
     DECLARE_TIMER;      \
     DECLARE_CLI_BUFFER; \
-    DECLARE_DEBUGGER /* last */ \
+    DECLARE_DEBUGGER;   \
+    OS_EXT_INITER /* last */ \
     /* end */
 
-#define OS_REAL_INITER       \
-    DECLARE_REAL_DEAMON;     \
-    DECLARE_REAL_FLOCK;      \
-    DECLARE_REAL_JLOG;       \
-    DECLARE_REAL_OEM;        \
-    DECLARE_REAL_AK;         \
-    DECLARE_REAL_TIMER;      \
-    DECLARE_REAL_CLI_BUFFER; \
-    DECLARE_REAL_DEBUGGER /* last */ \
+#define OS_REAL_INITER          \
+    DECLARE_REAL_DEAMON;        \
+    DECLARE_REAL_FLOCK;         \
+    DECLARE_REAL_JLOG;          \
+    DECLARE_REAL_OEM;           \
+    DECLARE_REAL_AK;            \
+    DECLARE_REAL_TIMER;         \
+    DECLARE_REAL_CLI_BUFFER;    \
+    DECLARE_REAL_DEBUGGER;      \
+    OS_REAL_EXT_INITER /* last */ \
     /* end */
 
 static inline int

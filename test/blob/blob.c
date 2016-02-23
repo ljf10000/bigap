@@ -3,6 +3,8 @@
 #define __THIS_APP      testblob
 #endif
 
+#define BIGAP_EXT
+
 #include "utils.h"
 
 OS_INITER;

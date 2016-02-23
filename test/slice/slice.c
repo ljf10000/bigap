@@ -3,6 +3,7 @@
 #define __THIS_APP      testslice
 #endif
 
+#define BIGAP_EXT
 #include "utils.h"
 
 OS_INITER;

@@ -3,14 +3,11 @@
 #define __THIS_APP      testco
 #endif
 
-#define __TIMER__
-#define __COROUTINE__
+#define BIGAP_EXT
 
 #include "utils.h"
 
 OS_INITER;
-DECLARE_TIMER;
-DECLARE_COROUTINE;
 
 #define DELAY   (1000*100)
 #define COUNT   1000

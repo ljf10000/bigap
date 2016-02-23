@@ -3,8 +3,6 @@
 #define __THIS_APP      testtimer
 #endif
 
-#define __TIMER__
-
 #include "utils.h"
 
 OS_INITER;

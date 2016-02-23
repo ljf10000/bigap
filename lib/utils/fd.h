@@ -110,11 +110,7 @@ DECLARE_FAKE_FD;
 static inline fd_control_t *
 __this_fd(void)
 {
-#ifdef __FD__
     return &__THIS_FD;
-#else
-    return NULL;
-#endif
 }
 
 static inline void
