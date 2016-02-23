@@ -219,7 +219,7 @@ struct um_tag {
 #endif
 
 struct um_monitor {
-    char ssid[os_align(1+UM_SSID_MAX, 4)];
+    char ssid[OS_ALIGN(1+UM_SSID_MAX, 4)];
 };
 
 #define UM_F_MONITOR    0x01

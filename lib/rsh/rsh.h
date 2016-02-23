@@ -139,7 +139,7 @@ is_good_rsh_slot(int slot)
 static inline int
 rsh_align(int size)
 {
-    return os_align(size, RSH_ALIGN);
+    return OS_ALIGN(size, RSH_ALIGN);
 }
 
 /*

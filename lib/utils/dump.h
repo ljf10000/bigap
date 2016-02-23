@@ -132,7 +132,7 @@ __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line)
     /*
     * 行数，向上取整 
     */
-    line = __os_align(len, __DUMP_LINE_BYTES)/__DUMP_LINE_BYTES;
+    line = __OS_ALIGN(len, __DUMP_LINE_BYTES)/__DUMP_LINE_BYTES;
     /*
     * 尾行字节数
     *

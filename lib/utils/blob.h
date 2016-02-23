@@ -27,7 +27,7 @@ is_good_blob_type(int type)
     return is_good_enum(type, BLOB_T_END);
 }
 
-#define BLOB_ALIGN(_len)    os_align(_len, sizeof(uint32_t))
+#define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32_t))
 
 /*
 * liujf:

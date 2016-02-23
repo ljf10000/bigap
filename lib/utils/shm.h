@@ -68,7 +68,7 @@ os_shm_create(os_shm_t *shm, unsigned int size, bool readonly)
     pagesize = getpagesize();
     shm_println("pagesize=%d", pagesize);
     
-    shm->size = os_align(size, pagesize);
+    shm->size = OS_ALIGN(size, pagesize);
     shm->id = shmget(shm->key, shm->size, flags);
     if (false==is_good_shmid(shm->id)) {
         shm_println(

@@ -167,7 +167,7 @@ __bcookie_save(int begin, int size, struct bcookie *obj, int osize)
     os_memcpy(mem + offset, obj, osize);
 
     uint32_t block_begin = os_align_down(offset, BENV_BLOCK_SIZE)/BENV_BLOCK_SIZE;
-    uint32_t block_end   = os_align(offset + osize - 1, BENV_BLOCK_SIZE)/BENV_BLOCK_SIZE;
+    uint32_t block_end   = OS_ALIGN(offset + osize - 1, BENV_BLOCK_SIZE)/BENV_BLOCK_SIZE;
     uint32_t block_count = block_end - block_begin + 1;
     
     if (block_count * BENV_BLOCK_SIZE != benv_emmc_write(begin + block_begin * BENV_BLOCK_SIZE, 

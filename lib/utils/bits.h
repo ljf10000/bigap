@@ -1,16 +1,40 @@
 #ifndef __BITS_H_472ca09446fa4bc389460b4391206b0f__
 #define __BITS_H_472ca09446fa4bc389460b4391206b0f__
 /******************************************************************************/
+#ifndef __OS_ALIGN
+#define __OS_ALIGN(_x, _align)          ((((_x)+(_align)-1)/(_align))*(_align))
+#endif
+
 #ifndef __os_align
-#define __os_align(_x, _align)          ((((_x)+(_align)-1)/(_align))*(_align))
+#define __os_align(_x, _align)      ({  \
+    typeof(_align) __align = _align;    \
+                                        \
+    __OS_ALIGN(_x, __align);            \
+})
+#endif
+
+#ifndef __OS_ALIGN_DOWN
+#define __OS_ALIGN_DOWN(_x, _align)     ((((_x)+(_align)-1)/(_align) - 1)*(_align))
 #endif
 
 #ifndef __os_align_down
-#define __os_align_down(_x, _align)     ((((_x)+(_align)-1)/(_align) - 1)*(_align))
+#define __os_align_down(_x, _align) ({  \
+    typeof(_align) __align = _align;    \
+                                        \
+    __OS_ALIGN_DOWN(_x, __align);       \
+})
+#endif
+
+#ifndef OS_ALIGN
+#define OS_ALIGN(_x, _align)            (((_x)+(_align)-1) & ~((_align)-1))
 #endif
 
 #ifndef os_align
-#define os_align(_x, _align)            (((_x)+(_align)-1) & ~((_align)-1))
+#define os_align(_x, _align)        ({  \
+    typeof(_align) __align = _align;    \
+                                        \
+    OS_ALIGN(_x, __align);              \
+})
 #endif
 
 #ifndef os_align_down
@@ -19,11 +43,9 @@
 
 #define os_power_align(_x)  ({  \
     typeof(_x) __x = (_x);  \
-    typeof(_x) __y;         \
+    typeof(_x) __y = 0;     \
                             \
-    if (__x<=0) {           \
-        __y = 0;            \
-    } else {                \
+    if (__x > 0) {          \
         int __bits = 1;     \
                             \
         while((__x>>=1)) {  \
@@ -82,7 +104,8 @@
 
 #ifndef os_bitshift
 #define os_bitshift(_flag)      ({  \
-    typeof(_flag) __flag = (_flag), __mask; \
+    typeof(_flag) __flag = (_flag); \
+    typeof(_flag) __mask;           \
     int __pos = 0;                  \
                                     \
     if (__flag) {                   \
