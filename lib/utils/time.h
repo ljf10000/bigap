@@ -11,6 +11,7 @@
 #define __os_date_format        "1900-01-01"
 #define __os_time_format        "00:00:00"
 #define __os_fulltime_format    __os_date_format __space __os_time_format
+#define __os_fulltime_ifs       "- :"
 
 static inline struct tm *
 os_localtime(time_t *c)
@@ -77,7 +78,7 @@ os_time_string(time_t *t)
 }
 
 static inline char *
-__fulltime_string(struct tm *tm, int ifs[3])
+__fulltime_string(struct tm *tm, char ifs[3])
 {
     static char current[sizeof(__os_fulltime_format)];
 
@@ -92,9 +93,7 @@ __fulltime_string(struct tm *tm, int ifs[3])
 static inline char *
 os_fulltime_string(time_t *t)
 {
-    int ifs[] = {'-', ' ', ':'};
-
-    return __fulltime_string(os_gettm(t), ifs);
+    return __fulltime_string(os_gettm(t), __os_fulltime_ifs);
 }
 #endif /* __APP__ */
 /******************************************************************************/
