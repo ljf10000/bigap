@@ -96,10 +96,6 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 #endif /* defined(__APP__) || defined(__BOOT__) */
 /******************************************************************************/
 #ifdef __APP__
-#ifndef CLI_BUFFER_SIZE
-#define CLI_BUFFER_SIZE      (256*1024-1-sizeof(int)-3*sizeof(uint32_t))
-#endif
-
 typedef struct {
     uint32_t len, r0, r1;
     int err;
@@ -107,6 +103,10 @@ typedef struct {
 } cli_buffer_t;
 
 #define cli_buffer_hsize            offsetof(cli_buffer_t, buf)
+
+#ifndef CLI_BUFFER_SIZE
+#define CLI_BUFFER_SIZE             (256*1024 - cli_buffer_hsize - 1)
+#endif
 
 #define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t __THIS_CLI_BUFFER
 #define DECLARE_REAL_CLI_BUFFER     cli_buffer_t __THIS_CLI_BUFFER
