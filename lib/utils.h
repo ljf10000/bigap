@@ -125,6 +125,7 @@
 #include "utils/addr.h"
 #include "utils/japi.h"
 #include "utils/jlog.h"
+
 /* here, support debug_xxx */
 #include "utils/debug.h"
 #include "utils/dump.h"
@@ -139,7 +140,7 @@
 #include "utils/cli.h"
 #include "utils/timer.h"
 
-#ifdef BIGAP_EXT
+#ifdef OS_EXTEND
 #include "utils/slice.h"
 #include "utils/blob.h"
 #include "utils/autoarray.h"
@@ -148,25 +149,25 @@
 #include "utils/coroutine.h"
 #include "utils/fd.h"
 #include "utils/loop.h"
-#endif /* BIGAP_EXT */
+#endif /* OS_EXTEND */
 
 #include "oem/oem.h"
 /******************************************************************************/
-#ifdef BIGAP_EXT
+#ifdef OS_EXTEND
 #define OS_EXT_INITER       \
     DECLARE_COROUTINE;      \
     DECLARE_FD;             \
     os_fake_declare /* last */ \
     /* end */
 
-#define OS_REAL_EXT_INITER  \
+#define OS_EXT_REAL_INITER  \
     DECLARE_REAL_COROUTINE; \
     DECLARE_REAL_FD;        \
     os_fake_declare /* last */ \
     /* end */
 #else
 #define OS_EXT_INITER       os_fake_declare
-#define OS_REAL_EXT_INITER  os_fake_declare
+#define OS_EXT_REAL_INITER  os_fake_declare
 #endif
 
 #define OS_INITER       \
@@ -190,7 +191,7 @@
     DECLARE_REAL_TIMER;         \
     DECLARE_REAL_CLI_BUFFER;    \
     DECLARE_REAL_DEBUGGER;      \
-    OS_REAL_EXT_INITER /* last */ \
+    OS_EXT_REAL_INITER /* last */ \
     /* end */
 
 static inline int
