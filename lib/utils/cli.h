@@ -286,7 +286,7 @@ __cli_c_handle(
         }
 
         if (0==cli_buffer_err && cli_buffer_len && is_good_str(cli_buffer_buf)) {
-            os_println("%s", cli_buffer_buf);
+            os_printf("%s", cli_buffer_buf);
         }
 
         debug_trace("action:%s, error:%d, len:%d, buf:%s", 

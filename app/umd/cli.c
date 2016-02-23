@@ -243,7 +243,7 @@ show_user_byjson(char *json)
         return -ENOEXIST;
     }
     
-    cli_sprintf("%s", jobj_string(juser));
+    cli_sprintf("%s" __crlf, jobj_string(juser));
     jobj_put(juser);
     jobj_put(obj);
     
