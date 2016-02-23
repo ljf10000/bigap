@@ -142,8 +142,15 @@ __this_cli_buffer(void)
     cli_buffer_buf[0]  = 0;     \
     cli_buffer_len     = 0;     \
 }while(0)
-#define cli_buffer_error(_err)      (cli_buffer_err=(_err))
-#define cli_buffer_ok               cli_buffer_error(0)
+
+static inline int
+cli_buffer_error(int err)
+{
+    cli_buffer_err = err;
+
+    return err;
+}
+#define cli_buffer_ok       cli_buffer_error(0)
 
 static inline int
 cli_sprintf(const char *fmt, ...)
@@ -171,17 +178,29 @@ cli_sprintf(const char *fmt, ...)
     return len;
 }
 
-#define cli_recv(_fd, _timeout) \
-    io_recv(_fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), _timeout)
+static inline int
+cli_recv(int fd, int timeout /* ms */)
+{
+    return io_recv(fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), timeout);
+}
 
-#define cli_send(_fd) \
-    io_send(_fd, (char *)__this_cli_buffer(), cli_buffer_size)
+static inline int
+cli_send(int fd)
+{
+    return io_send(fd, (char *)__this_cli_buffer(), cli_buffer_size);
+}
 
-#define cli_recvfrom(_fd, _timeout, _addr, _paddrlen) \
-    io_recvfrom(_fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), _timeout, _addr, _paddrlen)
+static inline int
+cli_recvfrom(int fd, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen)
+{
+    return io_recvfrom(fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), timeout, addr, paddrlen);
+}
 
-#define cli_sendto(_fd, _addr, _addrlen) \
-    io_sendto(_fd, (char *)__this_cli_buffer(), cli_buffer_size, _addr, _addrlen)
+static inline int
+cli_sendto(int fd, sockaddr_t *addr, socklen_t addrlen)
+{
+    return io_sendto(fd, (char *)__this_cli_buffer(), cli_buffer_size, addr, addrlen);
+}
 
 typedef struct {
     int timeout;

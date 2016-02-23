@@ -297,8 +297,8 @@ __char_is(int ch, char_is_f *IS)
     if (IS) {
         return (*IS)(ch);
     } else {
-#ifdef CHAR_IS_F
-        return CHAR_IS_F(ch);
+#ifdef CHAR_IS
+        return CHAR_IS(ch);
 #else
         return NULL!=strchr(__blanks, ch);
 #endif
