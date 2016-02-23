@@ -275,7 +275,7 @@ cmd_tag(int argc, char *argv[])
     char *mac = argv[0];
 
     if (2!=argc || 3!=argc) {
-        __cli_argv_dump(println, argc, argv);
+        __cli_argv_dump(os_println, argc, argv);
         
         return -EFORMAT;
     }
