@@ -51,7 +51,7 @@ typedef struct {
 }while(0)
 
 static int
-cli_line_handle(cli_table_t tables[], int count, char *tag, char *args, int (*after)(void))
+cli_line_handle(cli_table_t tables[], int count, char *tag, char *args, int (*after)(int err))
 {
     int i, err;
     
@@ -62,7 +62,7 @@ cli_line_handle(cli_table_t tables[], int count, char *tag, char *args, int (*af
             err = (*table->u.line_cb)(args);
             
             if (table->syn && after) {
-                int len = (*after)();
+                int len = (*after)(err);
                 
                 debug_trace("send len:%d", len);
             }
@@ -164,7 +164,7 @@ cli_sprintf(const char *fmt, ...)
     }
 
     cli_buffer_len += len;
-    
+
     return len;
 }
 
@@ -193,7 +193,7 @@ typedef struct {
 }   /* end */
 
 static int
-____cli_d_handle(char *line, cli_table_t *table, int count, int (*after)(void))
+____cli_d_handle(char *line, cli_table_t *table, int count, int (*after)(int err))
 {
     char *method = line;
     char *args   = line;
@@ -203,12 +203,11 @@ ____cli_d_handle(char *line, cli_table_t *table, int count, int (*after)(void))
     
     os_str_strim_both(method, NULL);
     os_str_reduce(method, NULL);
-    
+
     cli_shift(args);
 
     cli_buffer_clear();
     err = cli_line_handle(table, count, method, args, after);
-    cli_buffer_error(err);
 
     debug_trace("action:%s %s, error:%d, len:%d, buf:%s", 
         method, args?args:__empty,
@@ -240,8 +239,10 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
         debug_trace("recv from:%s", get_abstract_path(pclient));
     }
     
-    int after(void)
+    int after(int err)
     {
+        cli_buffer_err = err;
+        
         return cli_sendto(fd, (sockaddr_t *)pclient, addrlen);
     }
     
