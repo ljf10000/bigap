@@ -3,7 +3,7 @@
 #define __THIS_APP      testfd
 #endif
 
-#define BIGAP_EXT
+#define OS_EXTEND
 
 #include "utils.h"
 
