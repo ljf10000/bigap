@@ -144,45 +144,31 @@ __cli_buffer(void)
 #define cli_buffer_error(_err)      (cli_buffer_err=(_err))
 #define cli_buffer_ok               cli_buffer_error(0)
 
-#if 1
 static inline int
 cli_sprintf(const char *fmt, ...)
 {
     int len = 0;
     va_list args;
-    
-    if (cli_buffer_len < CLI_BUFFER_SIZE) {
-        va_start(args, (char *)fmt);
-        len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left, fmt, args);
-        va_end(args);
 
-        if (len<0 || len > cli_buffer_left) {
-            len = 0;
-        } else {
-            cli_buffer_len = len;
-        }
+    if (cli_buffer_len >= CLI_BUFFER_SIZE) {
+        return -ENOSPACE;
+    }
+    
+    va_start(args, (char *)fmt);
+    len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left, fmt, args);
+    va_end(args);
+
+    if (len<0) {
+        return -errno;
+    }
+    else if (len > cli_buffer_left) {
+        return -ENOSPACE;
     }
 
-    return 0;
+    cli_buffer_len = len;
+    
+    return len;
 }
-#else
-#define cli_sprintf(_fmt, _args...)             ({  \
-    int __len = 0;                                  \
-    if (cli_buffer_len < CLI_BUFFER_SIZE) {         \
-        __len = os_snprintf(                        \
-            cli_buffer_cursor,                      \
-            cli_buffer_left,                        \
-            _fmt, ##_args);                         \
-        if (__len <= cli_buffer_left) {             \
-            cli_buffer_len += __len;                \
-        } else {                                    \
-            __len = 0;                              \
-        }                                           \
-    }                                               \
-                                                    \
-    __len;                                          \
-})  /* end */
-#endif
 
 #define cli_recv(_fd, _timeout) \
     io_recv(_fd, (char *)__cli_buffer(), sizeof(cli_buffer_t), _timeout)
