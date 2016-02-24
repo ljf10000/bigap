@@ -166,14 +166,10 @@ is_good_oem_type(int type)
 }
 
 #define DECLARE_FAKE_OEM    extern oem_t __THIS_OEM[]
-#if 0
 #define DECLARE_REAL_OEM    oem_t __THIS_OEM[OEM_END] = { \
     [OEM_DEFT]  = OEM_INITER,   \
     [OEM_1]     = OEM1_INITER,  \
 }
-#else
-#define DECLARE_REAL_OEM    oem_t __THIS_OEM[OEM_END]
-#endif
 
 #ifdef __BUSYBOX__
 #   define DECLARE_OEM      DECLARE_FAKE_OEM
@@ -234,21 +230,6 @@ __oem_type(void)
     }
 
     return OEM_DEFT;
-}
-
-static inline void
-__this_oem_init(void)
-{
-    int i;
-
-    oem_t oem[OEM_END] = { \
-        [OEM_DEFT]  = OEM_INITER,   \
-        [OEM_1]     = OEM1_INITER,  \
-    };
-
-    for (i=0; i<os_count_of(oem); i++) {
-        __THIS_OEM[i] = oem[i];
-    }
 }
 
 static inline oem_t *
