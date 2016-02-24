@@ -246,7 +246,7 @@ __this_oem_init(void)
         [OEM_1]     = OEM1_INITER,  \
     };
 
-    for (i=0; i<os_count_of(__THIS_OEM); i++) {
+    for (i=0; i<os_count_of(oem); i++) {
         __THIS_OEM[i] = oem[i];
     }
 }
