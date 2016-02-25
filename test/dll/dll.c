@@ -547,6 +547,7 @@ __libcall(void *f, libproto_t *proto)
 {
     switch(proto->count) {
         default:
+#if 0
         case 0:
             LIBCALL(f, proto, 0);
             break;
@@ -556,9 +557,11 @@ __libcall(void *f, libproto_t *proto)
         case 2:
             LIBCALL(f, proto, 2);
             break;
+#endif
         case 3:
             LIBCALL(f, proto, 3);
             break;
+#if 0
         case 4:
             LIBCALL(f, proto, 4);
             break;
@@ -577,6 +580,7 @@ __libcall(void *f, libproto_t *proto)
         case 9:
             LIBCALL(f, proto, 9);
             break;
+#endif
     }
 }
 
