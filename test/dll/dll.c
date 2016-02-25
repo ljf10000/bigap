@@ -634,9 +634,9 @@ __main(int argc, char *argv[])
         [2] = LIBVAL4_INITER(100),
     };
     libproto_t proto = LIBPROTO_INITER(int, params);
-#if 0
+
     libcall("libc.so", "printf", &proto);
-#endif
+
     return err;
 }
 
