@@ -591,7 +591,7 @@ libcall(const char *lib, const char *sym, libproto_t *proto)
 {
     int err = 0;
     
-    void *h = dlopen(lib, RTLD_LAZY);
+    void *h = dlopen(lib, RTLD_NOW | RTLD_GLOBAL);
     if (NULL==h) {
         os_println("load %s error:%d", lib, -errno);
         err = -ELOADDLL; goto error;
@@ -637,7 +637,7 @@ __main(int argc, char *argv[])
     };
     libproto_t proto = LIBPROTO_INITER(int, params);
 
-    libcall("/usr/lib/libc.so", "printf", &proto);
+    libcall("libc.so", "printf", &proto);
 
     return err;
 }
