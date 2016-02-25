@@ -593,10 +593,9 @@ libcall(const char *lib, const char *sym, libproto_t *proto)
     
     void *h = dlopen(lib, RTLD_NOW | RTLD_GLOBAL);
     if (NULL==h) {
-        os_println("load %s error:%d", lib, -errno);
+        debug_error("load %s error:%d", lib, -errno);
         err = -ELOADDLL; goto error;
     }
-    os_println("load %s=%p", lib, h);
     
     dlerror();
 
@@ -606,11 +605,11 @@ libcall(const char *lib, const char *sym, libproto_t *proto)
         err = -ELOADSYM; goto error;
     }
     else if (NULL!=(errstring=dlerror())) {
-        os_println("load %s:%s error:%s", lib, sym, errstring);
+        debug_error("load %s:%s error:%s", lib, sym, errstring);
 
         err = -ELOADSYM; goto error;
     }
-    os_println("load %s:%s=%p", lib, sym, f);
+    debug_trace("load %s:%s=%p", lib, sym, f);
 
     __libcall(f, proto);
     if (proto->result.u.b4) {
@@ -631,7 +630,7 @@ __main(int argc, char *argv[])
     int err = 0;
 
     libval_t params[] = {
-        [0] = LIBVALp_INITER("libc %s number %d"),
+        [0] = LIBVALp_INITER("libc %s number %d" __crlf),
         [1] = LIBVALp_INITER("printf"),
         [2] = LIBVAL4_INITER(100),
     };
