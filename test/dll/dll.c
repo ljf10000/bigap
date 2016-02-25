@@ -622,7 +622,7 @@ __main(int argc, char *argv[])
     };
     libproto_t proto = LIBPROTO_INITER(int, params);
     
-    libcall("libc.so", "printf");
+    libcall("libc.so", "printf", &proto);
     
     return err;
 }
