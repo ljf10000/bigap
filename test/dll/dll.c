@@ -547,12 +547,12 @@ typedef uint64_t func_8_8x(uint64_t, ...);
     }                                       \
 }while(0)
 
+#define LIBTEST 0
 static void
 __libcall(void *f, libproto_t *proto)
 {
     switch(proto->count) {
         default:
-#if 0
         case 0:
             LIBCALLV(f, proto);
             break;
@@ -562,9 +562,9 @@ __libcall(void *f, libproto_t *proto)
         case 2:
             LIBCALL(f, proto, 2);
             break;
-#endif
         case 3:
-            // LIBCALL(f, proto, 3);
+            LIBCALL(f, proto, 3);
+#if 0
             if (0==(proto)->result.size) {
                 if (4==LIBPARAM(proto, 0)->size) {
                     LIBFUN(f, func_v_4x)(LIBPARAMx(proto, 3));
@@ -584,9 +584,8 @@ __libcall(void *f, libproto_t *proto)
                     (proto)->result.u.b8 = LIBFUN(f, func_8_8x)(LIBPARAMx(proto, 3));
                 }
             }
-            
+#endif
             break;
-#if 0
         case 4:
             LIBCALL(f, proto, 4);
             break;
@@ -605,7 +604,6 @@ __libcall(void *f, libproto_t *proto)
         case 9:
             LIBCALL(f, proto, 9);
             break;
-#endif
     }
 }
 
