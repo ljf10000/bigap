@@ -218,6 +218,8 @@ enum {
     ESCRIPT     = ERRNO(57),
     EBOUND      = ERRNO(58),
     EPROTOCOL   = ERRNO(59),
+    ELOADDLL    = ERRNO(60),
+    ELOADSYM    = ERRNO(61),
 };
 
 static inline int
