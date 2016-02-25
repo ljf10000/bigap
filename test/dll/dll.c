@@ -500,7 +500,7 @@ typedef uint64_t func_8_8x(uint64_t, ...);
 
 #define LIBVAL(_val)                (4==(_val)->size?(_val)->u.b4:(_val)->u.b8)
 #define LIBFUN(_f, _type)           ((_type *)(_f))
-#define LIBPARAM(_proto, _idx)      LIBVAL(&(_proto)->param[_idx])
+#define LIBPARAM(_proto, _idx)      (&(_proto)->param[_idx])
 
 #define LIBPARAM0(_proto)           /* nothing */
 #define LIBPARAM1(_proto)           LIBPARAM(_proto, 0)

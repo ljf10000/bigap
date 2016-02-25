@@ -199,8 +199,6 @@ os_init(void)
 {
     int err;
 
-    __this_oem_init();
-
     srand(time(NULL));
 
     err = ak_init();
