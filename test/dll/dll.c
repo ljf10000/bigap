@@ -501,17 +501,18 @@ typedef uint64_t func_8_8x(uint64_t, ...);
 #define LIBVAL(_val)                (4==(_val)->size?(_val)->u.b4:(_val)->u.b8)
 #define LIBFUN(_f, _type)           ((_type *)(_f))
 #define LIBPARAM(_proto, _idx)      (&(_proto)->param[_idx])
+#define LIBPARAMVAL(_proto, _idx)   LIBVAL(LIBPARAM(_proto, _idx))
 
 #define LIBPARAM0(_proto)           /* nothing */
-#define LIBPARAM1(_proto)           LIBPARAM(_proto, 0)
-#define LIBPARAM2(_proto)           LIBPARAM1(_proto), LIBPARAM(_proto, 1)
-#define LIBPARAM3(_proto)           LIBPARAM2(_proto), LIBPARAM(_proto, 2)
-#define LIBPARAM4(_proto)           LIBPARAM3(_proto), LIBPARAM(_proto, 3)
-#define LIBPARAM5(_proto)           LIBPARAM4(_proto), LIBPARAM(_proto, 4)
-#define LIBPARAM6(_proto)           LIBPARAM5(_proto), LIBPARAM(_proto, 5)
-#define LIBPARAM7(_proto)           LIBPARAM6(_proto), LIBPARAM(_proto, 6)
-#define LIBPARAM8(_proto)           LIBPARAM7(_proto), LIBPARAM(_proto, 7)
-#define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAM(_proto, 8)
+#define LIBPARAM1(_proto)           LIBPARAMVAL(_proto, 0)
+#define LIBPARAM2(_proto)           LIBPARAM1(_proto), LIBPARAMVAL(_proto, 1)
+#define LIBPARAM3(_proto)           LIBPARAM2(_proto), LIBPARAMVAL(_proto, 2)
+#define LIBPARAM4(_proto)           LIBPARAM3(_proto), LIBPARAMVAL(_proto, 3)
+#define LIBPARAM5(_proto)           LIBPARAM4(_proto), LIBPARAMVAL(_proto, 4)
+#define LIBPARAM6(_proto)           LIBPARAM5(_proto), LIBPARAMVAL(_proto, 5)
+#define LIBPARAM7(_proto)           LIBPARAM6(_proto), LIBPARAMVAL(_proto, 6)
+#define LIBPARAM8(_proto)           LIBPARAM7(_proto), LIBPARAMVAL(_proto, 7)
+#define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAMVAL(_proto, 8)
 #define LIBPARAMx(_proto, _count)   LIBPARAM##_count(_proto)
 
 #define LIBCALLV(_f, _proto)            do{ \
