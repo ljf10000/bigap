@@ -525,19 +525,19 @@ typedef uint64_t func_8_8x(uint64_t, ...);
         }                                   \
     } else if (4==(_proto)->result.size) {  \
         if (0==(_count)) {                  \
-            (_proto)->result.b4 = LIBFUN(_f, func_4_v)(LIBPARAMx(_proto, _count)); \
+            (_proto)->result.u.b4 = LIBFUN(_f, func_4_v)(LIBPARAMx(_proto, _count)); \
         } else if (4==LIBPARAM1(_proto)->size) { \
-            (_proto)->result.b4 = LIBFUN(_f, func_4_4x)(LIBPARAMx(_proto, _count)); \
+            (_proto)->result.u.b4 = LIBFUN(_f, func_4_4x)(LIBPARAMx(_proto, _count)); \
         } else {                            \
-            (_proto)->result.b4 = LIBFUN(_f, func_4_8x)(LIBPARAMx(_proto, _count));  \
+            (_proto)->result.u.b4 = LIBFUN(_f, func_4_8x)(LIBPARAMx(_proto, _count));  \
         }                                   \
     } else {                                \
         if (0==(_count)) {                  \
-            (_proto)->result.b8 = LIBFUN(_f, func_8_v)(LIBPARAMx(_proto, _count)); \
+            (_proto)->result.u.b8 = LIBFUN(_f, func_8_v)(LIBPARAMx(_proto, _count)); \
         } else if (4==LIBPARAM1(_proto)->size) { \
-            (_proto)->result.b8 = LIBFUN(_f, func_8_4x)(LIBPARAMx(_proto, _count)); \
+            (_proto)->result.u.b8 = LIBFUN(_f, func_8_4x)(LIBPARAMx(_proto, _count)); \
         } else {                            \
-            (_proto)->result.b8 = LIBFUN(_f, func_8_8x)(LIBPARAMx(_proto, _count));  \
+            (_proto)->result.u.b8 = LIBFUN(_f, func_8_8x)(LIBPARAMx(_proto, _count));  \
         }                                   \
     }                                       \
 }while(0)
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_call(__init, __fini, __main, argc, argv);
+    return os_main(__main, argc, argv);
 }
 
 /******************************************************************************/
