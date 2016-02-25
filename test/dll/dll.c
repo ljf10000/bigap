@@ -514,27 +514,31 @@ typedef uint64_t func_8_8x(uint64_t, ...);
 #define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAM(_proto, 8)
 #define LIBPARAMx(_proto, _count)   LIBPARAM##_count(_proto)
 
+#define LIBCALLV(_f, _proto)            do{ \
+    if (0==(_proto)->result.size) {         \
+        LIBFUN(_f, func_v_v)();             \
+    } else if (4==(_proto)->result.size) {  \
+        (_proto)->result.u.b4 = LIBFUN(_f, func_4_v)(); \
+    } else {                                \
+        (_proto)->result.u.b8 = LIBFUN(_f, func_8_v)(); \
+    }                                       \
+}while(0)
+
 #define LIBCALL(_f, _proto, _count)   do{   \
     if (0==(_proto)->result.size) {         \
-        if (0==(_count)) {                  \
-            LIBFUN(_f, func_v_v)(LIBPARAMx(_proto, _count)); \
-        } else if (4==LIBPARAM1(_proto)->size) { \
+        if (4==LIBPARAM1(_proto)->size) {   \
             LIBFUN(_f, func_v_4x)(LIBPARAMx(_proto, _count)); \
         } else {                            \
             LIBFUN(_f, func_v_8x)(LIBPARAMx(_proto, _count));  \
         }                                   \
     } else if (4==(_proto)->result.size) {  \
-        if (0==(_count)) {                  \
-            (_proto)->result.u.b4 = LIBFUN(_f, func_4_v)(LIBPARAMx(_proto, _count)); \
-        } else if (4==LIBPARAM1(_proto)->size) { \
+        if (4==LIBPARAM1(_proto)->size) {   \
             (_proto)->result.u.b4 = LIBFUN(_f, func_4_4x)(LIBPARAMx(_proto, _count)); \
         } else {                            \
             (_proto)->result.u.b4 = LIBFUN(_f, func_4_8x)(LIBPARAMx(_proto, _count));  \
         }                                   \
     } else {                                \
-        if (0==(_count)) {                  \
-            (_proto)->result.u.b8 = LIBFUN(_f, func_8_v)(LIBPARAMx(_proto, _count)); \
-        } else if (4==LIBPARAM1(_proto)->size) { \
+        if (4==LIBPARAM1(_proto)->size) {   \
             (_proto)->result.u.b8 = LIBFUN(_f, func_8_4x)(LIBPARAMx(_proto, _count)); \
         } else {                            \
             (_proto)->result.u.b8 = LIBFUN(_f, func_8_8x)(LIBPARAMx(_proto, _count));  \
@@ -549,7 +553,7 @@ __libcall(void *f, libproto_t *proto)
         default:
 #if 0
         case 0:
-            LIBCALL(f, proto, 0);
+            LIBCALLV(f, proto);
             break;
         case 1:
             LIBCALL(f, proto, 1);
