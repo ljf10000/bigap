@@ -618,8 +618,10 @@ libcall(const char *lib, const char *sym, libproto_t *proto)
     }
     
 error:
-    dlclose(h);
-
+    if (h) {
+        dlclose(h);
+    }
+    
     return err;
 }
 
