@@ -500,44 +500,44 @@ typedef uint64_t func_8_8x(uint64_t, ...);
 
 #define LIBVAL(_val)                (4==(_val)->size?(_val)->u.b4:(_val)->u.b8)
 #define LIBFUN(_f, _type)           ((_type)(_f))
-#define __LIBPARAM(_param, _idx)    LIBVAL(&(_param)->param[_idx])
+#define LIBPARAM(_proto, _idx)      LIBVAL(&(_proto)->param[_idx])
 
-#define LIBPARAM0(_param)           /* nothing */
-#define LIBPARAM1(_param)           __LIBPARAM(_param, 0)
-#define LIBPARAM2(_param)           LIBPARAM1(_param), __LIBPARAM(_param, 1)
-#define LIBPARAM3(_param)           LIBPARAM2(_param), __LIBPARAM(_param, 2)
-#define LIBPARAM4(_param)           LIBPARAM3(_param), __LIBPARAM(_param, 3)
-#define LIBPARAM5(_param)           LIBPARAM4(_param), __LIBPARAM(_param, 4)
-#define LIBPARAM6(_param)           LIBPARAM5(_param), __LIBPARAM(_param, 5)
-#define LIBPARAM7(_param)           LIBPARAM6(_param), __LIBPARAM(_param, 6)
-#define LIBPARAM8(_param)           LIBPARAM7(_param), __LIBPARAM(_param, 7)
-#define LIBPARAM9(_param)           LIBPARAM8(_param), __LIBPARAM(_param, 8)
-#define LIBPARAMx(_param, _count)   LIBPARAM##_count(_param)
+#define LIBPARAM0(_proto)           /* nothing */
+#define LIBPARAM1(_proto)           LIBPARAM(_proto, 0)
+#define LIBPARAM2(_proto)           LIBPARAM1(_proto), LIBPARAM(_proto, 1)
+#define LIBPARAM3(_proto)           LIBPARAM2(_proto), LIBPARAM(_proto, 2)
+#define LIBPARAM4(_proto)           LIBPARAM3(_proto), LIBPARAM(_proto, 3)
+#define LIBPARAM5(_proto)           LIBPARAM4(_proto), LIBPARAM(_proto, 4)
+#define LIBPARAM6(_proto)           LIBPARAM5(_proto), LIBPARAM(_proto, 5)
+#define LIBPARAM7(_proto)           LIBPARAM6(_proto), LIBPARAM(_proto, 6)
+#define LIBPARAM8(_proto)           LIBPARAM7(_proto), LIBPARAM(_proto, 7)
+#define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAM(_proto, 8)
+#define LIBPARAMx(_proto, _count)   LIBPARAM##_count(_proto)
 
-#define LIBCALL(_f, _param, _count)   do{   \
-    if (0==(_param)->result.size) {         \
+#define LIBCALL(_f, _proto, _count)   do{   \
+    if (0==(_proto)->result.size) {         \
         if (0==(_count)) {                  \
-            LIBFUN(_f, func_v_v)(LIBPARAMx(_param, _count)); \
-        } else if (4==LIBPARAM1(_param)->size) { \
-            LIBFUN(_f, func_v_4x)(LIBPARAMx(_param, _count)); \
+            LIBFUN(_f, func_v_v)(LIBPARAMx(_proto, _count)); \
+        } else if (4==LIBPARAM1(_proto)->size) { \
+            LIBFUN(_f, func_v_4x)(LIBPARAMx(_proto, _count)); \
         } else {                            \
-            LIBFUN(_f, func_v_8x)(LIBPARAMx(_param, _count));  \
+            LIBFUN(_f, func_v_8x)(LIBPARAMx(_proto, _count));  \
         }                                   \
-    } else if (4==(_param)->result.size) {  \
+    } else if (4==(_proto)->result.size) {  \
         if (0==(_count)) {                  \
-            (_param)->result.b4 = LIBFUN(_f, func_4_v)(LIBPARAMx(_param, _count)); \
-        } else if (4==LIBPARAM1(_param)->size) { \
-            (_param)->result.b4 = LIBFUN(_f, func_4_4x)(LIBPARAMx(_param, _count)); \
+            (_proto)->result.b4 = LIBFUN(_f, func_4_v)(LIBPARAMx(_proto, _count)); \
+        } else if (4==LIBPARAM1(_proto)->size) { \
+            (_proto)->result.b4 = LIBFUN(_f, func_4_4x)(LIBPARAMx(_proto, _count)); \
         } else {                            \
-            (_param)->result.b4 = LIBFUN(_f, func_4_8x)(LIBPARAMx(_param, _count));  \
+            (_proto)->result.b4 = LIBFUN(_f, func_4_8x)(LIBPARAMx(_proto, _count));  \
         }                                   \
     } else {                                \
         if (0==(_count)) {                  \
-            (_param)->result.b8 = LIBFUN(_f, func_8_v)(LIBPARAMx(_param, _count)); \
-        } else if (4==LIBPARAM1(_param)->size) { \
-            (_param)->result.b8 = LIBFUN(_f, func_8_4x)(LIBPARAMx(_param, _count)); \
+            (_proto)->result.b8 = LIBFUN(_f, func_8_v)(LIBPARAMx(_proto, _count)); \
+        } else if (4==LIBPARAM1(_proto)->size) { \
+            (_proto)->result.b8 = LIBFUN(_f, func_8_4x)(LIBPARAMx(_proto, _count)); \
         } else {                            \
-            (_param)->result.b8 = LIBFUN(_f, func_8_8x)(LIBPARAMx(_param, _count));  \
+            (_proto)->result.b8 = LIBFUN(_f, func_8_8x)(LIBPARAMx(_proto, _count));  \
         }                                   \
     }                                       \
 }while(0)
