@@ -564,27 +564,6 @@ __libcall(void *f, libproto_t *proto)
             break;
         case 3:
             LIBCALL(f, proto, 3);
-#if 0
-            if (0==(proto)->result.size) {
-                if (4==LIBPARAM(proto, 0)->size) {
-                    LIBFUN(f, func_v_4x)(LIBPARAMx(proto, 3));
-                } else {
-                    LIBFUN(f, func_v_8x)(LIBPARAMx(proto, 3));
-                }
-            } else if (4==(proto)->result.size) {
-                if (4==LIBPARAM(proto, 0)->size) {
-                    (proto)->result.u.b4 = LIBFUN(f, func_4_4x)(LIBPARAMx(proto, 3));
-                } else {
-                    (proto)->result.u.b4 = LIBFUN(f, func_4_8x)(LIBPARAMx(proto, 3));
-                }
-            } else {
-                if (4==LIBPARAM(proto, 0)->size) {
-                    (proto)->result.u.b8 = LIBFUN(f, func_8_4x)(LIBPARAMx(proto, 3));
-                } else {
-                    (proto)->result.u.b8 = LIBFUN(f, func_8_8x)(LIBPARAMx(proto, 3));
-                }
-            }
-#endif
             break;
         case 4:
             LIBCALL(f, proto, 4);
