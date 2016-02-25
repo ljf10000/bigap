@@ -593,6 +593,7 @@ libcall(const char *lib, const char *sym, libproto_t *proto)
     
     void *h = dlopen(lib, RTLD_LAZY);
     if (NULL==h) {
+        os_println("load %s error:%d", lib, -errno);
         err = -ELOADDLL; goto error;
     }
     os_println("load %s=%p", lib, h);

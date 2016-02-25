@@ -200,25 +200,21 @@ os_init(void)
     int err;
 
     srand(time(NULL));
-    os_println("os_init 1");
     
     err = ak_init();
     if (err<0) {
         return err;
     }
-    os_println("os_init 2");
     
     err = jlog_init();
     if (err<0) {
         return err;
     }
-    os_println("os_init 3");
 
     err = os_deamon_check();
     if (err<0) {
         return err;
     }
-    os_println("os_init 4");
     
     return 0;
 }
