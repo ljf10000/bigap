@@ -589,31 +589,37 @@ __libcall(void *f, libproto_t *proto)
 static int
 libcall(const char *lib, const char *sym, libproto_t *proto)
 {
+    int err = 0;
+    
     void *h = dlopen(lib, RTLD_LAZY);
     if (NULL==h) {
-        return -ELOADDLL;
+        err = -ELOADDLL; goto error;
     }
-
+    debug_trace("load %s=%p", lib, h);
+    
     dlerror();
 
     char *errstring;
     void *f = dlsym(h, sym);
     if (NULL==f) {
-        return -ELOADSYM;
+        err = -ELOADSYM; goto error;
     }
     else if (NULL!=(errstring=dlerror())) {
         debug_error("load %s:%s error:%s", lib, sym, errstring);
 
-        return -ELOADSYM;
+        err = -ELOADSYM; goto error;
     }
+    debug_trace("load %s:%s=%p", lib, sym, f);
 
     __libcall(f, proto);
-    
     if (proto->result.u.b4) {
-        return (int)0==proto->result.u.b4;
-    } else {
-        return 0;
+        err = (int)proto->result.u.b4; goto error;
     }
+    
+error:
+    dlclose(h);
+
+    goto error;
 }
 
 static int
