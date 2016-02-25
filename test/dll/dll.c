@@ -595,7 +595,7 @@ libcall(const char *lib, const char *sym, libproto_t *proto)
     if (NULL==h) {
         err = -ELOADDLL; goto error;
     }
-    debug_trace("load %s=%p", lib, h);
+    os_println("load %s=%p", lib, h);
     
     dlerror();
 
@@ -605,11 +605,11 @@ libcall(const char *lib, const char *sym, libproto_t *proto)
         err = -ELOADSYM; goto error;
     }
     else if (NULL!=(errstring=dlerror())) {
-        debug_error("load %s:%s error:%s", lib, sym, errstring);
+        os_println("load %s:%s error:%s", lib, sym, errstring);
 
         err = -ELOADSYM; goto error;
     }
-    debug_trace("load %s:%s=%p", lib, sym, f);
+    os_println("load %s:%s=%p", lib, sym, f);
 
     __libcall(f, proto);
     if (proto->result.u.b4) {
