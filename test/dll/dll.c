@@ -619,7 +619,7 @@ libcall(const char *lib, const char *sym, libproto_t *proto)
 error:
     dlclose(h);
 
-    goto error;
+    return err;
 }
 
 static int
