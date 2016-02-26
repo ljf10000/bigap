@@ -218,8 +218,10 @@ enum {
     ESCRIPT     = ERRNO(57),
     EBOUND      = ERRNO(58),
     EPROTOCOL   = ERRNO(59),
-    ELOADDLL    = ERRNO(60),
-    ELOADSYM    = ERRNO(61),
+    EDLLLOAD        = ERRNO(60),
+    EDLLSYMLOAD     = ERRNO(61),
+    EDLLPARAMSIZE   = ERRNO(62),
+    EDLLRESULTSIZE  = ERRNO(63),
 };
 
 static inline int
