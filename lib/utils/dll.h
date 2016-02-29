@@ -92,6 +92,57 @@ typedef void *func_p_px(void *, ...);
 #define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAMVAL(_proto, 8)
 #define LIBPARAMx(_proto, _count)   LIBPARAM##_count(_proto)
 
+#if 1
+#define LIBCALL0(_f, _proto, _count)    ({  \
+    int __err = 0;                          \
+                                            \
+    if (0==(_proto)->result.size) {         \
+        LIBFUN(_f, func_v_v)();             \
+    } else if (4==(_proto)->result.size) {  \
+        (_proto)->result.u.b4 = LIBFUN(_f, func_4_v)(); \
+    } else if (8==(_proto)->result.size) {  \
+        (_proto)->result.u.b8 = LIBFUN(_f, func_8_v)(); \
+    } else {                                \
+        __err = -EDLLRESULTSIZE;            \
+    }                                       \
+                                            \
+    __err;                                  \
+}) /* end */
+
+#define LIBCALL(_f, _proto, _count)     ({  \
+    int __err = 0;                          \
+                                            \
+    if (0==(_proto)->result.size) {         \
+        if (4==LIBPARAM(_proto, 0)->size) { \
+            LIBFUN(_f, func_v_4x)(LIBPARAMx(_proto, _count)); \
+        } else if (8==LIBPARAM(_proto, 0)->size) { \
+            LIBFUN(_f, func_v_8x)(LIBPARAMx(_proto, _count));  \
+        } else {                            \
+            __err = EDLLPARAMSIZE;          \
+        }                                   \
+    } else if (4==(_proto)->result.size) {  \
+        if (4==LIBPARAM(_proto, 0)->size) { \
+            (_proto)->result.u.b4 = LIBFUN(_f, func_4_4x)(LIBPARAMx(_proto, _count)); \
+        } else if (8==LIBPARAM(_proto, 0)->size) {                            \
+            (_proto)->result.u.b4 = LIBFUN(_f, func_4_8x)(LIBPARAMx(_proto, _count));  \
+        } else {                            \
+            __err = EDLLPARAMSIZE;          \
+        }                                   \
+    } else if (8==(_proto)->result.size) {  \
+        if (4==LIBPARAM(_proto, 0)->size) { \
+            (_proto)->result.u.b8 = LIBFUN(_f, func_8_4x)(LIBPARAMx(_proto, _count)); \
+        } else if (8==LIBPARAM(_proto, 0)->size) {                            \
+            (_proto)->result.u.b8 = LIBFUN(_f, func_8_8x)(LIBPARAMx(_proto, _count));  \
+        } else {                            \
+            __err = EDLLPARAMSIZE;          \
+        }                                   \
+    } else {                                \
+        __err = -EDLLRESULTSIZE;            \
+    }                                       \
+                                            \
+    __err;                                  \
+}) /* end */
+#else
 #define LIBCALL(_f, _proto, _count)     ({  \
     int __err = 0;                          \
                                             \
@@ -131,6 +182,7 @@ typedef void *func_p_px(void *, ...);
                                             \
     __err;                                  \
 }) /* end */
+#endif
 
 static int
 __libcall(void *f, libproto_t *proto)
@@ -140,44 +192,7 @@ __libcall(void *f, libproto_t *proto)
     switch(proto->count) {
         default:
         case 0:
-#if 0
-            err = LIBCALL(f, proto, 0);
-#else
-            
-            if (0==(proto)->result.size) {         
-                if (0==(0)) {                  
-                    LIBFUN(f, func_v_v)();         
-                } else if (4==LIBPARAM(proto, 0)->size) { 
-                    LIBFUN(f, func_v_4x)(LIBPARAMx(proto, 0)); 
-                } else if (8==LIBPARAM(proto, 0)->size) { 
-                    LIBFUN(f, func_v_8x)(LIBPARAMx(proto, 0));  
-                } else {                            
-                    err = EDLLPARAMSIZE;          
-                }                                   
-            } else if (4==(proto)->result.size) {  
-                if (0==(0)) {                  
-                    (proto)->result.u.b4 = LIBFUN(f, func_4_v)(); 
-                } else if (4==LIBPARAM(proto, 0)->size) { 
-                    (proto)->result.u.b4 = LIBFUN(f, func_4_4x)(LIBPARAMx(proto, 0)); 
-                } else if (8==LIBPARAM(proto, 0)->size) {                            
-                    (proto)->result.u.b4 = LIBFUN(f, func_4_8x)(LIBPARAMx(proto, 0));  
-                } else {                            
-                    err = EDLLPARAMSIZE;          
-                }                                   
-            } else if (8==(proto)->result.size) {  
-                if (0==(0)) {                  
-                    (proto)->result.u.b8 = LIBFUN(f, func_8_v)(); 
-                } else if (4==LIBPARAM(proto, 0)->size) { 
-                    (proto)->result.u.b8 = LIBFUN(f, func_8_4x)(LIBPARAMx(proto, 0)); 
-                } else if (8==LIBPARAM(proto, 0)->size) {                            
-                    (proto)->result.u.b8 = LIBFUN(f, func_8_8x)(LIBPARAMx(proto, 0));  
-                } else {                            
-                    err = EDLLPARAMSIZE;          
-                }                                   
-            } else {                                
-                err = -EDLLRESULTSIZE;            
-            }                                       
-#endif
+            err = LIBCALL0(f, proto, 0);
             break;
         case 1:
             err = LIBCALL(f, proto, 1);
