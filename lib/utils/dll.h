@@ -70,10 +70,10 @@ typedef uint64_t func_8_4x(uint32_t, ...);
 typedef uint64_t func_8_8x(uint64_t, ...);
 typedef uint64_t func_8_px(void *, ...);
 
-typedef void *func_8_v(void);
-typedef void *func_8_4x(uint32_t, ...);
-typedef void *func_8_8x(uint64_t, ...);
-typedef void *func_8_px(void *, ...);
+typedef void *func_p_v(void);
+typedef void *func_p_4x(uint32_t, ...);
+typedef void *func_p_8x(uint64_t, ...);
+typedef void *func_p_px(void *, ...);
 
 #define LIBVAL(_val)                (4==(_val)->size?(_val)->u.b4:(_val)->u.b8)
 #define LIBFUN(_f, _type)           ((_type *)(_f))
@@ -132,7 +132,6 @@ typedef void *func_8_px(void *, ...);
     __err;                                  \
 }) /* end */
 
-#define LIBTEST 0
 static int
 __libcall(void *f, libproto_t *proto)
 {
@@ -176,7 +175,7 @@ __libcall(void *f, libproto_t *proto)
 }
 
 static int
-libcall(const char *lib, const char *sym, libproto_t *proto)
+os_libcall(const char *lib, const char *sym, libproto_t *proto)
 {
     int err = 0;
     

@@ -62,6 +62,7 @@
 #   include <fstab.h>
 #   include <mntent.h>
 #   include <limits.h>
+#   include <dlfcn.h>
 #   include <sys/types.h>
 #   include <sys/stat.h>
 #   include <sys/file.h>

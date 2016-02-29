@@ -6,7 +6,6 @@
 #define OS_EXTEND
 
 #include "utils.h"
-#include <dlfcn.h>
 
 OS_INITER;
 
@@ -445,7 +444,7 @@ __main(int argc, char *argv[])
     };
     libproto_t proto = LIBPROTO_INITER(int, params);
 
-    libcall("libc.so.6", "printf", &proto);
+    os_libcall("libc.so.6", "printf", &proto);
 
     return err;
 }
