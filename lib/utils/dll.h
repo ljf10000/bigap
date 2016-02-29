@@ -86,6 +86,64 @@ typedef uint64_t func_8_8(uint64_t, ...);
 #define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAMVAL(_proto, 8)
 #define LIBPARAMx(_proto, _count)   LIBPARAM##_count(_proto)
 
+#define __LIBCALL0(_f, _proto, _count)  ({  \
+    int __err = 0;                          \
+                                            \
+    if (4==LIBPARAM(_proto, 0)->size) {     \
+        LIBFUN(_f, func_0_4)(LIBPARAMx(_proto, _count)); \
+    } else if (8==LIBPARAM(_proto, 0)->size) { \
+        LIBFUN(_f, func_0_8)(LIBPARAMx(_proto, _count));  \
+    } else {                                \
+        __err = EDLLPARAMSIZE;              \
+    }                                       \
+                                            \
+    __err;                                  \
+})
+
+#define __LIBCALL4(_f, _proto, _count)  ({  \
+    int __err = 0;                          \
+                                            \
+    if (4==LIBPARAM(_proto, 0)->size) {     \
+        (_proto)->result.u.b4 = LIBFUN(_f, func_4_4)(LIBPARAMx(_proto, _count)); \
+    } else if (8==LIBPARAM(_proto, 0)->size) { \
+        (_proto)->result.u.b4 = LIBFUN(_f, func_4_8)(LIBPARAMx(_proto, _count));  \
+    } else {                                \
+        __err = EDLLPARAMSIZE;              \
+    }                                       \
+                                            \
+    __err;                                  \
+})
+
+#define __LIBCALL8(_f, _proto, _count)  ({  \
+    int __err = 0;                          \
+                                            \
+    if (4==LIBPARAM(_proto, 0)->size) {     \
+        (_proto)->result.u.b8 = LIBFUN(_f, func_8_4)(LIBPARAMx(_proto, _count)); \
+    } else if (8==LIBPARAM(_proto, 0)->size) { \
+        (_proto)->result.u.b8 = LIBFUN(_f, func_8_8)(LIBPARAMx(_proto, _count));  \
+    } else {                                \
+        __err = EDLLPARAMSIZE;              \
+    }                                       \
+                                            \
+    __err;                                  \
+})
+
+#define LIBCALLx(_f, _proto, _count)    ({  \
+    int __err = 0;                          \
+                                            \
+    if (0==(_proto)->result.size) {         \
+        __err=__LIBCALL0(_f,_proto,_count); \
+    } else if (4==(_proto)->result.size) {  \
+        __err=__LIBCALL4(_f,_proto,_count); \
+    } else if (8==(_proto)->result.size) {  \
+        __err=__LIBCALL8(_f,_proto,_count); \
+    } else {                                \
+        __err = -EDLLRESULTSIZE;            \
+    }                                       \
+                                            \
+    __err;                                  \
+}) /* end */
+
 static int
 LIBCALLv(void *f, libproto_t *proto)
 {
@@ -104,104 +162,22 @@ LIBCALLv(void *f, libproto_t *proto)
     return err;
 }
 
-#define LIBCALL0(_f, _proto, _count)    ({  \
-    int __err = 0;                          \
-                                            \
-    if (4==LIBPARAM(_proto, 0)->size) {     \
-        LIBFUN(_f, func_0_4)(LIBPARAMx(_proto, _count)); \
-    } else if (8==LIBPARAM(_proto, 0)->size) { \
-        LIBFUN(_f, func_0_8)(LIBPARAMx(_proto, _count));  \
-    } else {                                \
-        __err = EDLLPARAMSIZE;              \
-    }                                       \
-                                            \
-    __err;                                  \
-})
-
-#define LIBCALL4(_f, _proto, _count)    ({  \
-    int __err = 0;                          \
-                                            \
-    if (4==LIBPARAM(_proto, 0)->size) {     \
-        (_proto)->result.u.b4 = LIBFUN(_f, func_4_4)(LIBPARAMx(_proto, _count)); \
-    } else if (8==LIBPARAM(_proto, 0)->size) { \
-        (_proto)->result.u.b4 = LIBFUN(_f, func_4_8)(LIBPARAMx(_proto, _count));  \
-    } else {                                \
-        __err = EDLLPARAMSIZE;              \
-    }                                       \
-                                            \
-    __err;                                  \
-})
-
-#define LIBCALL8(_f, _proto, _count)    ({  \
-    int __err = 0;                          \
-                                            \
-    if (4==LIBPARAM(_proto, 0)->size) {     \
-        (_proto)->result.u.b8 = LIBFUN(_f, func_8_4)(LIBPARAMx(_proto, _count)); \
-    } else if (8==LIBPARAM(_proto, 0)->size) { \
-        (_proto)->result.u.b8 = LIBFUN(_f, func_8_8)(LIBPARAMx(_proto, _count));  \
-    } else {                                \
-        __err = EDLLPARAMSIZE;              \
-    }                                       \
-                                            \
-    __err;                                  \
-})
-
-#define LIBCALLx(_f, _proto, _count)    ({  \
-    int __err = 0;                          \
-                                            \
-    if (0==(_proto)->result.size) {         \
-        __err = LIBCALL0(_f,_proto,_count); \
-    } else if (4==(_proto)->result.size) {  \
-        __err = LIBCALL4(_f,_proto,_count); \
-    } else if (8==(_proto)->result.size) {  \
-        __err = LIBCALL8(_f,_proto,_count); \
-    } else {                                \
-        __err = -EDLLRESULTSIZE;            \
-    }                                       \
-                                            \
-    __err;                                  \
-}) /* end */
-
 static int
 __libcall(void *f, libproto_t *proto)
 {
-    int err = 0;
-    
     switch(proto->count) {
         default:
-        case 0:
-            err = LIBCALLv(f, proto);
-            break;
-        case 1:
-            err = LIBCALLx(f, proto, 1);
-            break;
-        case 2:
-            err = LIBCALLx(f, proto, 2);
-            break;
-        case 3:
-            err = LIBCALLx(f, proto, 3);
-            break;
-        case 4:
-            err = LIBCALLx(f, proto, 4);
-            break;
-        case 5:
-            err = LIBCALLx(f, proto, 5);
-            break;
-        case 6:
-            err = LIBCALLx(f, proto, 6);
-            break;
-        case 7:
-            err = LIBCALLx(f, proto, 7);
-            break;
-        case 8:
-            err = LIBCALLx(f, proto, 8);
-            break;
-        case 9:
-            err = LIBCALLx(f, proto, 9);
-            break;
+        case 0: return LIBCALLv(f, proto);
+        case 1: return LIBCALLx(f, proto, 1);
+        case 2: return LIBCALLx(f, proto, 2);
+        case 3: return LIBCALLx(f, proto, 3);
+        case 4: return LIBCALLx(f, proto, 4);
+        case 5: return LIBCALLx(f, proto, 5);
+        case 6: return LIBCALLx(f, proto, 6);
+        case 7: return LIBCALLx(f, proto, 7);
+        case 8: return LIBCALLx(f, proto, 8);
+        case 9: return LIBCALLx(f, proto, 9);
     }
-
-    return err;
 }
 
 static int
