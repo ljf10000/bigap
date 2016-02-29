@@ -140,7 +140,44 @@ __libcall(void *f, libproto_t *proto)
     switch(proto->count) {
         default:
         case 0:
+#if 0
             err = LIBCALL(f, proto, 0);
+#else
+            
+            if (0==(proto)->result.size) {         
+                if (0==(0)) {                  
+                    LIBFUN(f, func_v_v)();         
+                } else if (4==LIBPARAM(proto, 0)->size) { 
+                    LIBFUN(f, func_v_4x)(LIBPARAMx(proto, 0)); 
+                } else if (8==LIBPARAM(proto, 0)->size) { 
+                    LIBFUN(f, func_v_8x)(LIBPARAMx(proto, 0));  
+                } else {                            
+                    err = EDLLPARAMSIZE;          
+                }                                   
+            } else if (4==(proto)->result.size) {  
+                if (0==(0)) {                  
+                    (proto)->result.u.b4 = LIBFUN(f, func_4_v)(); 
+                } else if (4==LIBPARAM(proto, 0)->size) { 
+                    (proto)->result.u.b4 = LIBFUN(f, func_4_4x)(LIBPARAMx(proto, 0)); 
+                } else if (8==LIBPARAM(proto, 0)->size) {                            
+                    (proto)->result.u.b4 = LIBFUN(f, func_4_8x)(LIBPARAMx(proto, 0));  
+                } else {                            
+                    err = EDLLPARAMSIZE;          
+                }                                   
+            } else if (8==(proto)->result.size) {  
+                if (0==(0)) {                  
+                    (proto)->result.u.b8 = LIBFUN(f, func_8_v)(); 
+                } else if (4==LIBPARAM(proto, 0)->size) { 
+                    (proto)->result.u.b8 = LIBFUN(f, func_8_4x)(LIBPARAMx(proto, 0)); 
+                } else if (8==LIBPARAM(proto, 0)->size) {                            
+                    (proto)->result.u.b8 = LIBFUN(f, func_8_8x)(LIBPARAMx(proto, 0));  
+                } else {                            
+                    err = EDLLPARAMSIZE;          
+                }                                   
+            } else {                                
+                err = -EDLLRESULTSIZE;            
+            }                                       
+#endif
             break;
         case 1:
             err = LIBCALL(f, proto, 1);
