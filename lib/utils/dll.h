@@ -49,7 +49,7 @@ typedef struct {
     libval_t __##_obj##__params[] = { ##_params };  \
     libproto_t _obj = __LIBPROTO_INITER(_result_size, __##_obj##__params)
 
-#define LIBPROTO_DECLARE(_obj, _type, _params) \
+#define LIBPROTO_DECLARE(_obj, _type, _params...) \
     libval_t __##_obj##__params[] = { ##_params };  \
     libproto_t _obj = LIBPROTO_INITER(_type, __##_obj##__params)
 
