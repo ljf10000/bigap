@@ -139,6 +139,7 @@
 #include "utils/cmd.h"
 #include "utils/cli.h"
 #include "utils/timer.h"
+#include "utils/dll.h"
 
 #ifdef OS_EXTEND
 #include "utils/slice.h"
