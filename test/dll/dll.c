@@ -449,7 +449,7 @@ dll_memory(void)
 {
     void *pointer = NULL;
     
-    {
+    if (NULL==pointer) {
         libval_t params[] = {
             [0] = LIBVAL4_INITER(1024),
         };
@@ -461,7 +461,7 @@ dll_memory(void)
         os_println("libc malloc %p", pointer);
     }
     
-    {
+    if (pointer) {
         libval_t params[] = {
             [0] = LIBVAL4_INITER(pointer),
         };
@@ -474,6 +474,39 @@ dll_memory(void)
 }
 
 static int
+dll_tm(void)
+{
+    time_t t;
+    struct tm *tm;
+
+    {
+        libval_t params[] = {
+            [0] = LIBVALp_INITER(NULL),
+        };
+        libproto_t proto = LIBPROTO_INITER(time_t, params);
+        
+        os_libcall("libc.so.6", "time", &proto);
+
+        t = (time_t)proto.result.u.b4;
+    }
+
+    {
+        libval_t params[] = {
+            [0] = LIBVALp_INITER(&t),
+        };
+        libproto_t proto = LIBPROTO_INITER(struct tm *, params);
+        
+        os_libcall("libc.so.6", "gmtime", &proto);
+
+        tm = (struct tm *)proto.result.u.p;
+    }
+
+    os_println("time is %p:%s", tm, __fulltime_string(tm, __os_fulltime_ifs));
+
+    return 0;
+}
+
+static int
 __main(int argc, char *argv[])
 {
     int i, err = 0;
@@ -481,6 +514,7 @@ __main(int argc, char *argv[])
     int (*array[])(void) = {
         dll_printf,
         dll_memory,
+        dll_tm,
     };
 
     for (i=0; i<os_count_of(array); i++) {

@@ -2,14 +2,6 @@
 #define __DLL_H_246c16b7624f4197910c79d8f0707b65__
 #ifdef __APP__
 /******************************************************************************/
-enum {
-    LIB_T_POINTER,
-    LIB_T_V32,
-    LIB_T_V64,
-
-    LIB_T_END
-};
-
 typedef struct {
     int size;
 
@@ -20,7 +12,6 @@ typedef struct {
     } u;
 } libval_t;
 
-#define LIBVAL0_INITER()      {.size = 0}
 #define LIBVAL4_INITER(_val)  { \
     .size = sizeof(uint32_t),   \
     .u = {                      \
@@ -39,8 +30,6 @@ typedef struct {
         .p = (void *)(_val),    \
     },                          \
 } /* end */
-
-#define LIBRESULT_INITER(_type) {.size = sizeof(_type)}
 
 typedef struct {
     int count;
