@@ -449,7 +449,7 @@ dll_memory(void)
 {
     void *pointer = NULL;
     
-    if (NULL==pointer) {
+    {
         libval_t params[] = {
             [0] = LIBVAL4_INITER(1024),
         };
@@ -461,7 +461,7 @@ dll_memory(void)
         os_println("libc malloc %p", pointer);
     }
     
-    if (pointer) {
+    {
         libval_t params[] = {
             [0] = LIBVAL4_INITER(pointer),
         };

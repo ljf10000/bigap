@@ -38,11 +38,12 @@ typedef struct {
     libval_t result;
 } libproto_t;
 
-#define __LIBPROTO_INITER(_result_size, _params)  {  \
-    .count = os_count_of(_params),          \
+#define ____LIBPROTO_INITER(_result_size, _params, _param_count)  {  \
+    .count = _param_count,                  \
     .param = _params,                       \
     .result = {.size = _result_size},       \
 }
+#define __LIBPROTO_INITER(_result_size, _params)    ____LIBPROTO_INITER(_result_size, _params, os_count_of(_params))
 #define LIBPROTO_INITER(_type, _params)  __LIBPROTO_INITER(sizeof(_type), _params)
 
 typedef void func_0_0(void);
