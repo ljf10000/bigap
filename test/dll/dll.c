@@ -493,6 +493,9 @@ dll_tm(void)
     {
         libval_t params[] = {
             [0] = LIBVALp_INITER(&t),
+            [1] = LIBVALp_INITER(&t),
+            [2] = LIBVALp_INITER(&t),
+            [3] = LIBVALp_INITER(&t),
         };
         libproto_t proto = LIBPROTO_INITER(struct tm *, params);
         
@@ -501,7 +504,7 @@ dll_tm(void)
         tm = (struct tm *)proto.result.u.p;
     }
 
-    os_println("time is %p:%s", tm, __fulltime_string(tm, __os_fulltime_ifs));
+    os_println("time is %s", __fulltime_string(tm, __os_fulltime_ifs));
 
     return 0;
 }
