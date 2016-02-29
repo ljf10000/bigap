@@ -221,7 +221,8 @@ enum {
     EDLLLOAD        = ERRNO(60),
     EDLLSYMLOAD     = ERRNO(61),
     EDLLPARAMSIZE   = ERRNO(62),
-    EDLLRESULTSIZE  = ERRNO(63),
+    EDLLPARAMCOUNT  = ERRNO(63),
+    EDLLRESULTSIZE  = ERRNO(64),
 };
 
 static inline int

@@ -147,26 +147,18 @@ typedef uint64_t func_8_8(uint64_t, ...);
 static int
 LIBCALLv(void *f, libproto_t *proto)
 {
-    int err = 0;
-
-    if (0==(proto)->result.size) {
-        LIBFUN(f, func_0_0)();
-    } else if (4==(proto)->result.size) {
-        (proto)->result.u.b4 = LIBFUN(f, func_4_0)();
-    } else if (8==(proto)->result.size) {
-        (proto)->result.u.b8 = LIBFUN(f, func_8_0)();
-    } else {
-        err = -EDLLRESULTSIZE;
+    switch(proto->result.size) {
+        case 0: LIBFUN(f, func_0_0)(); return 0;
+        case 4: proto->result.u.b4 = LIBFUN(f, func_4_0)(); return 0;
+        case 8: proto->result.u.b8 = LIBFUN(f, func_8_0)(); return 0;
+        default: return -EDLLRESULTSIZE;
     }
-
-    return err;
 }
 
 static int
 __libcall(void *f, libproto_t *proto)
 {
     switch(proto->count) {
-        default:
         case 0: return LIBCALLv(f, proto);
         case 1: return LIBCALLx(f, proto, 1);
         case 2: return LIBCALLx(f, proto, 2);
@@ -177,6 +169,7 @@ __libcall(void *f, libproto_t *proto)
         case 7: return LIBCALLx(f, proto, 7);
         case 8: return LIBCALLx(f, proto, 8);
         case 9: return LIBCALLx(f, proto, 9);
+        default:return -EDLLPARAMCOUNT;
     }
 }
 
