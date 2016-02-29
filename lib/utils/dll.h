@@ -92,8 +92,7 @@ typedef void *func_p_px(void *, ...);
 #define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAMVAL(_proto, 8)
 #define LIBPARAMx(_proto, _count)   LIBPARAM##_count(_proto)
 
-#if 0
-#define LIBCALL0(_f, _proto, _count)    ({  \
+#define LIBCALL0(_f, _proto)            ({  \
     int __err = 0;                          \
                                             \
     if (0==(_proto)->result.size) {         \
@@ -109,7 +108,7 @@ typedef void *func_p_px(void *, ...);
     __err;                                  \
 }) /* end */
 
-#define LIBCALL(_f, _proto, _count)     ({  \
+#define LIBCALLx(_f, _proto, _count)    ({  \
     int __err = 0;                          \
                                             \
     if (0==(_proto)->result.size) {         \
@@ -123,7 +122,7 @@ typedef void *func_p_px(void *, ...);
     } else if (4==(_proto)->result.size) {  \
         if (4==LIBPARAM(_proto, 0)->size) { \
             (_proto)->result.u.b4 = LIBFUN(_f, func_4_4x)(LIBPARAMx(_proto, _count)); \
-        } else if (8==LIBPARAM(_proto, 0)->size) {                            \
+        } else if (8==LIBPARAM(_proto, 0)->size) { \
             (_proto)->result.u.b4 = LIBFUN(_f, func_4_8x)(LIBPARAMx(_proto, _count));  \
         } else {                            \
             __err = EDLLPARAMSIZE;          \
@@ -131,47 +130,7 @@ typedef void *func_p_px(void *, ...);
     } else if (8==(_proto)->result.size) {  \
         if (4==LIBPARAM(_proto, 0)->size) { \
             (_proto)->result.u.b8 = LIBFUN(_f, func_8_4x)(LIBPARAMx(_proto, _count)); \
-        } else if (8==LIBPARAM(_proto, 0)->size) {                            \
-            (_proto)->result.u.b8 = LIBFUN(_f, func_8_8x)(LIBPARAMx(_proto, _count));  \
-        } else {                            \
-            __err = EDLLPARAMSIZE;          \
-        }                                   \
-    } else {                                \
-        __err = -EDLLRESULTSIZE;            \
-    }                                       \
-                                            \
-    __err;                                  \
-}) /* end */
-#else
-#define LIBCALL(_f, _proto, _count)     ({  \
-    int __err = 0;                          \
-                                            \
-    if (0==(_proto)->result.size) {         \
-        if (0==(_count)) {                  \
-            LIBFUN(_f, func_v_v)(LIBPARAMx(_proto, _count)); \
-        } else if (4==LIBPARAM(_proto, 0)->size) { \
-            LIBFUN(_f, func_v_4x)(LIBPARAMx(_proto, _count)); \
         } else if (8==LIBPARAM(_proto, 0)->size) { \
-            LIBFUN(_f, func_v_8x)(LIBPARAMx(_proto, _count)); \
-        } else {                            \
-            __err = EDLLPARAMSIZE;          \
-        }                                   \
-    } else if (4==(_proto)->result.size) {  \
-        if (0==(_count)) {                  \
-            (_proto)->result.u.b4 = LIBFUN(_f, func_4_v)(LIBPARAMx(_proto, _count)); \
-        } else if (4==LIBPARAM(_proto, 0)->size) { \
-            (_proto)->result.u.b4 = LIBFUN(_f, func_4_4x)(LIBPARAMx(_proto, _count)); \
-        } else if (8==LIBPARAM(_proto, 0)->size) {                            \
-            (_proto)->result.u.b4 = LIBFUN(_f, func_4_8x)(LIBPARAMx(_proto, _count));  \
-        } else {                            \
-            __err = EDLLPARAMSIZE;          \
-        }                                   \
-    } else if (8==(_proto)->result.size) {  \
-        if (0==(_count)) {                  \
-            (_proto)->result.u.b8 = LIBFUN(_f, func_8_v)(LIBPARAMx(_proto, _count)); \
-        } else if (4==LIBPARAM(_proto, 0)->size) { \
-            (_proto)->result.u.b8 = LIBFUN(_f, func_8_4x)(LIBPARAMx(_proto, _count)); \
-        } else if (8==LIBPARAM(_proto, 0)->size) {                            \
             (_proto)->result.u.b8 = LIBFUN(_f, func_8_8x)(LIBPARAMx(_proto, _count));  \
         } else {                            \
             __err = EDLLPARAMSIZE;          \
@@ -182,7 +141,6 @@ typedef void *func_p_px(void *, ...);
                                             \
     __err;                                  \
 }) /* end */
-#endif
 
 static int
 __libcall(void *f, libproto_t *proto)
@@ -192,34 +150,34 @@ __libcall(void *f, libproto_t *proto)
     switch(proto->count) {
         default:
         case 0:
-            err = LIBCALL(f, proto, 0);
+            err = LIBCALL0(f, proto, 0);
             break;
         case 1:
-            err = LIBCALL(f, proto, 1);
+            err = LIBCALLx(f, proto, 1);
             break;
         case 2:
-            err = LIBCALL(f, proto, 2);
+            err = LIBCALLx(f, proto, 2);
             break;
         case 3:
-            err = LIBCALL(f, proto, 3);
+            err = LIBCALLx(f, proto, 3);
             break;
         case 4:
-            err = LIBCALL(f, proto, 4);
+            err = LIBCALLx(f, proto, 4);
             break;
         case 5:
-            err = LIBCALL(f, proto, 5);
+            err = LIBCALLx(f, proto, 5);
             break;
         case 6:
-            err = LIBCALL(f, proto, 6);
+            err = LIBCALLx(f, proto, 6);
             break;
         case 7:
-            err = LIBCALL(f, proto, 7);
+            err = LIBCALLx(f, proto, 7);
             break;
         case 8:
-            err = LIBCALL(f, proto, 8);
+            err = LIBCALLx(f, proto, 8);
             break;
         case 9:
-            err = LIBCALL(f, proto, 9);
+            err = LIBCALLx(f, proto, 9);
             break;
     }
 
