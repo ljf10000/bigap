@@ -49,11 +49,13 @@ typedef struct {
     libval_t result;
 } libproto_t;
 
-#define LIBPROTO_INITER(_type, _params)  {  \
+#define __LIBPROTO_INITER(_result_size, _params)  {  \
     .count = os_count_of(_params),          \
     .param = _params,                       \
-    .result = LIBRESULT_INITER(_type),      \
+    .result = {.size = _result_size},       \
 }
+
+#define LIBPROTO_INITER(_type, _params)  __LIBPROTO_INITER(sizeof(_type), _params)
 
 typedef void func_v_v(void);
 typedef void func_v_4x(uint32_t, ...);

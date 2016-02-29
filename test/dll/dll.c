@@ -431,12 +431,9 @@ typedef uint32_t f6_4_444448(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, u
 #endif
 #endif
 
-
 static int
-__main(int argc, char *argv[])
+dll_printf(void)
 {
-    int err = 0;
-
     libval_t params[] = {
         [0] = LIBVALp_INITER("libc %s number %d" __crlf),
         [1] = LIBVALp_INITER("printf"),
@@ -444,9 +441,53 @@ __main(int argc, char *argv[])
     };
     libproto_t proto = LIBPROTO_INITER(int, params);
 
-    os_libcall("libc.so.6", "printf", &proto);
+    return os_libcall("libc.so.6", "printf", &proto);
+}
 
-    return err;
+static int
+dll_memory(void)
+{
+    void *pointer = NULL;
+    
+    {
+        libval_t params[] = {
+            [0] = LIBVAL4_INITER(1024),
+        };
+        libproto_t proto = LIBPROTO_INITER(void *, params);
+        
+        os_libcall("libc.so.6", "malloc", &proto);
+        pointer = (void *)proto.result.u.p;
+    }
+    
+    {
+        libval_t params[] = {
+            [0] = LIBVAL4_INITER(pointer),
+        };
+        libproto_t proto = __LIBPROTO_INITER(0, params);
+        
+        os_libcall("libc.so.6", "free", &proto);
+    }
+    
+    return 0;
+}
+
+static int
+__main(int argc, char *argv[])
+{
+    int i, err = 0;
+
+    int (*array[])(void) = {
+        dll_printf,
+    };
+
+    for (i=0; i<os_count_of(array); i++) {
+        err = (*array[i])();
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
 }
 
 int main(int argc, char *argv[])
