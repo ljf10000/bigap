@@ -481,7 +481,9 @@ dll_tm(void)
 
     {
 #if 1
-        LIBPROTO_DECLARE(proto, time_t, LIBVALp_INITER(NULL));
+//        LIBPROTO_DECLARE(proto, time_t, LIBVALp_INITER(NULL));
+    libval_t __proto__params[] = {LIBVALp_INITER(NULL)};
+    libproto_t proto = LIBPROTO_INITER(time_t, __proto__params)
 #else
         libval_t params[] = {
             [0] = LIBVALp_INITER(NULL),
