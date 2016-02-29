@@ -457,6 +457,8 @@ dll_memory(void)
         
         os_libcall("libc.so.6", "malloc", &proto);
         pointer = (void *)proto.result.u.p;
+
+        os_println("libc malloc %p", pointer);
     }
     
     {
