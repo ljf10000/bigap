@@ -480,6 +480,7 @@ __main(int argc, char *argv[])
 
     int (*array[])(void) = {
         dll_printf,
+        dll_memory,
     };
 
     for (i=0; i<os_count_of(array); i++) {
