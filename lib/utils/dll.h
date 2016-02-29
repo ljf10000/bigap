@@ -94,21 +94,23 @@ typedef void *func_p_px(void *, ...);
 #define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAMVAL(_proto, 8)
 #define LIBPARAMx(_proto, _count)   LIBPARAM##_count(_proto)
 
-#define LIBCALL0(_f, _proto)            ({  \
-    int __err = 0;                          \
-                                            \
-    if (0==(_proto)->result.size) {         \
-        LIBFUN(_f, func_v_v)();             \
-    } else if (4==(_proto)->result.size) {  \
-        (_proto)->result.u.b4 = LIBFUN(_f, func_4_v)(); \
-    } else if (8==(_proto)->result.size) {  \
-        (_proto)->result.u.b8 = LIBFUN(_f, func_8_v)(); \
-    } else {                                \
-        __err = -EDLLRESULTSIZE;            \
-    }                                       \
-                                            \
-    __err;                                  \
-}) /* end */
+static int
+__libcall_0(void *f, libproto_t *proto)
+{
+    int err = 0;
+
+    if (0==(proto)->result.size) {
+        LIBFUN(f, func_v_v)();
+    } else if (4==(proto)->result.size) {
+        (proto)->result.u.b4 = LIBFUN(f, func_4_v)();
+    } else if (8==(proto)->result.size) {
+        (proto)->result.u.b8 = LIBFUN(f, func_8_v)();
+    } else {
+        err = -EDLLRESULTSIZE;
+    }
+
+    return err;
+}
 
 #define LIBCALLx(_f, _proto, _count)    ({  \
     int __err = 0;                          \
@@ -152,7 +154,7 @@ __libcall(void *f, libproto_t *proto)
     switch(proto->count) {
         default:
         case 0:
-            err = LIBCALL0(f, proto);
+            err = __libcall_0(f, proto);
             break;
         case 1:
             err = LIBCALLx(f, proto, 1);
