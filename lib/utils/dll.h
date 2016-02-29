@@ -150,7 +150,7 @@ __libcall(void *f, libproto_t *proto)
     switch(proto->count) {
         default:
         case 0:
-            err = LIBCALL0(f, proto, 0);
+            err = LIBCALL0(f, proto);
             break;
         case 1:
             err = LIBCALLx(f, proto, 1);
