@@ -480,11 +480,14 @@ dll_tm(void)
     struct tm *tm;
 
     {
+#if 1
+        LIBPROTO_DECLARE(proto, time_t, LIBVALp_INITER(NULL));
+#else
         libval_t params[] = {
             [0] = LIBVALp_INITER(NULL),
         };
         libproto_t proto = LIBPROTO_INITER(time_t, params);
-        
+#endif
         os_libcall("libc.so.6", "time", &proto);
 
         t = (time_t)proto.result.u.b4;
@@ -493,9 +496,6 @@ dll_tm(void)
     {
         libval_t params[] = {
             [0] = LIBVALp_INITER(&t),
-            [1] = LIBVALp_INITER(&t),
-            [2] = LIBVALp_INITER(&t),
-            [3] = LIBVALp_INITER(&t),
         };
         libproto_t proto = LIBPROTO_INITER(struct tm *, params);
         

@@ -43,8 +43,15 @@ typedef struct {
     .param = _params,                       \
     .result = {.size = _result_size},       \
 }
-
 #define LIBPROTO_INITER(_type, _params)  __LIBPROTO_INITER(sizeof(_type), _params)
+
+#define __LIBPROTO_DECLARE(_obj, _result_size, _params...) \
+    libval_t __##_obj##__params[] = { ##_params };  \
+    libproto_t _obj = __LIBPROTO_INITER(_result_size, __##_obj##__params)
+
+#define LIBPROTO_DECLARE(_obj, _type, _params) \
+    libval_t __##_obj##__params[] = { ##_params };  \
+    libproto_t _obj = LIBPROTO_INITER(_type, __##_obj##__params)
 
 typedef void func_0_0(void);
 typedef void func_0_4(uint32_t, ...);
