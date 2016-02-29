@@ -92,7 +92,7 @@ typedef void *func_p_px(void *, ...);
 #define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAMVAL(_proto, 8)
 #define LIBPARAMx(_proto, _count)   LIBPARAM##_count(_proto)
 
-#if 1
+#if 0
 #define LIBCALL0(_f, _proto, _count)    ({  \
     int __err = 0;                          \
                                             \
@@ -148,17 +148,17 @@ typedef void *func_p_px(void *, ...);
                                             \
     if (0==(_proto)->result.size) {         \
         if (0==(_count)) {                  \
-            LIBFUN(_f, func_v_v)();         \
+            LIBFUN(_f, func_v_v)(LIBPARAMx(_proto, _count)); \
         } else if (4==LIBPARAM(_proto, 0)->size) { \
             LIBFUN(_f, func_v_4x)(LIBPARAMx(_proto, _count)); \
         } else if (8==LIBPARAM(_proto, 0)->size) { \
-            LIBFUN(_f, func_v_8x)(LIBPARAMx(_proto, _count));  \
+            LIBFUN(_f, func_v_8x)(LIBPARAMx(_proto, _count)); \
         } else {                            \
             __err = EDLLPARAMSIZE;          \
         }                                   \
     } else if (4==(_proto)->result.size) {  \
         if (0==(_count)) {                  \
-            (_proto)->result.u.b4 = LIBFUN(_f, func_4_v)(); \
+            (_proto)->result.u.b4 = LIBFUN(_f, func_4_v)(LIBPARAMx(_proto, _count)); \
         } else if (4==LIBPARAM(_proto, 0)->size) { \
             (_proto)->result.u.b4 = LIBFUN(_f, func_4_4x)(LIBPARAMx(_proto, _count)); \
         } else if (8==LIBPARAM(_proto, 0)->size) {                            \
@@ -168,7 +168,7 @@ typedef void *func_p_px(void *, ...);
         }                                   \
     } else if (8==(_proto)->result.size) {  \
         if (0==(_count)) {                  \
-            (_proto)->result.u.b8 = LIBFUN(_f, func_8_v)(); \
+            (_proto)->result.u.b8 = LIBFUN(_f, func_8_v)(LIBPARAMx(_proto, _count)); \
         } else if (4==LIBPARAM(_proto, 0)->size) { \
             (_proto)->result.u.b8 = LIBFUN(_f, func_8_4x)(LIBPARAMx(_proto, _count)); \
         } else if (8==LIBPARAM(_proto, 0)->size) {                            \
