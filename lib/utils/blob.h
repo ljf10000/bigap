@@ -303,20 +303,6 @@ typedef struct blob_rule {
 } blob_rule_t;
 
 static inline int
-blob_rule_find(const blob_rule_t rule[], int count, bool (*eq)(blob_rule_t *))
-{
-    int i;
-
-    for (i=0; i<count; i++) {
-        if ((*eq)(&rule[i])) {
-            return i;
-        }
-    }
-    
-    return -ENOEXIST;
-}
-
-static inline int
 blob_rule_find_byname(const char *name, const blob_rule_t rule[], int count)
 {
     int i;
