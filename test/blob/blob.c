@@ -36,10 +36,11 @@ int __main(int argc, char *argv[])
 
     slice_alloc(bs, BUFFER_SIZE);    
     blob_root_init(bs, BLOB_T_OBJECT, "root");
-    
+    blob_t *root = blob_root(bs);
+
     put_somthing();
-    debug_ok("1:root blob vlen=%d", blob_root(bs)->vlen);
-    
+    debug_ok("1:root blob vlen=%d", root->vlen);
+
     obj = blob_object_start(bs, "obj");
     for (i=0; i<COUNT; i++) {
         debug_trace("obj %d begin", i);
@@ -49,8 +50,8 @@ int __main(int argc, char *argv[])
         debug_trace("obj %d end", i);
     }
     blob_object_end(bs, obj);
-    debug_ok("2:root blob vlen=%d", blob_root(bs)->vlen);
-    
+    debug_ok("2:root blob vlen=%d", root->vlen);
+
     arr = blob_array_start(bs, "array");
     for (i=0; i<COUNT; i++) {
         debug_trace("array %d begin", i);
@@ -60,15 +61,15 @@ int __main(int argc, char *argv[])
         debug_trace("array %d end", i);
     }
     blob_array_end(bs, arr);
-    debug_ok("3:root blob vlen=%d", blob_root(bs)->vlen);
-    
-    put_somthing();
-    debug_ok("4:root blob vlen=%d", blob_root(bs)->vlen);
 
-#if 0
-    json = blob_to_json(blob_root(bs), false);
-    os_println("%s", json);
-#endif
+    debug_ok("3:root blob vlen=%d", root->vlen);
+
+    put_somthing();
+    debug_ok("4:root blob vlen=%d", root->vlen);
+
+    jobj_t j = blob_btoj(root);
+    os_println("%s", jobj_string(j));
+    jobj_put(j);
 
     return 0;
 }

@@ -20,6 +20,15 @@ enum {
     _(BLOB_T_INT64,     7, "int64"),    \
     /* end */
 
+#define BLOB_T_EMPTY    BLOB_T_EMPTY
+#define BLOB_T_OBJECT   BLOB_T_OBJECT
+#define BLOB_T_ARRAY    BLOB_T_ARRAY
+#define BLOB_T_STRING   BLOB_T_STRING
+#define BLOB_T_BINARY   BLOB_T_BINARY
+#define BLOB_T_BOOL     BLOB_T_BOOL
+#define BLOB_T_INT32    BLOB_T_INT32
+#define BLOB_T_INT64    BLOB_T_INT64
+
 static inline bool is_good_blob_type(int type);
 static inline char *blob_type_string(int type);
 static inline int blob_type_idx(char *type_string);
@@ -30,6 +39,7 @@ DECLARE_ENUM(blob_type, BLOB_TYPE_LIST, BLOB_T_END);
 typedef struct {
     uint8_t     type;       /* enum blob_type */
     uint8_t     klen;       /* real key len, NOT include '\0' */
+    uint8_t     r[2];
     uint32_t    vlen;       /* real value len, NOT include '\0' if value is string */
 
 /*
@@ -237,7 +247,7 @@ blob_get_string(const blob_t *blob)
 static inline blob_t *
 blob_next(const blob_t *blob)
 {
-	return (blob_t *) ((char *)blob + blob_size(blob));
+	return (blob_t *)((char *)blob + blob_size(blob));
 }
 
 static inline void
@@ -803,6 +813,77 @@ blob_hton(blob_t *blob)
 {
     __blob_byteorder(blob, false);
 }
+
+static inline int
+__blob_btoj(blob_t *blob, jobj_t obj)
+{
+    blob_t *p;
+    uint32_t left;
+    jobj_t new;
+    
+    switch(blob->type) {
+        case BLOB_T_OBJECT:
+        case BLOB_T_ARRAY:
+            new = jobj_new_object();
+            if (NULL==new) {
+                return -ENOMEM;
+            }
+            
+            blob_foreach_safe(p, blob, left) {
+                __blob_btoj(p, new);
+                jobj_add(obj, blob_key(p), new);
+            }
+
+            break;
+        case BLOB_T_STRING:
+            jobj_add_string(obj, blob_key(blob), blob_get_string(blob));
+            
+            break;
+        case BLOB_T_BOOL:
+            jobj_add_bool(obj, blob_key(blob), blob_get_bool(blob));
+
+            break;
+        case BLOB_T_INT32:
+            jobj_add_int(obj, blob_key(blob), blob_get_i32(blob));
+
+            break;
+        case BLOB_T_INT64:
+            jobj_add_int64(obj, blob_key(blob), blob_get_i64(blob));
+
+            break;
+        case BLOB_T_EMPTY:
+        case BLOB_T_BINARY:
+        default:
+            /* do nothing */
+            break;
+    }
+
+    return 0;
+}
+
+static inline jobj_t
+blob_btoj(blob_t *blob)
+{
+    if (BLOB_T_ARRAY!=blob->type && BLOB_T_OBJECT!=blob->type) {
+        return NULL;
+    }
+    
+    jobj_t obj = jobj_new_object();
+    if (NULL==obj) {
+        return NULL;
+    }
+
+    __blob_btoj(blob, obj);
+
+    return obj;
+}
+
+static inline blob_t *
+blob_jtob(jobj_t obj)
+{
+    return NULL;
+}
+
 #endif
 
 /******************************************************************************/

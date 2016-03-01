@@ -73,6 +73,8 @@ typedef struct {
 #define jobj_new_object()       json_object_new_object()
 #define jobj_new_array()        json_object_new_array()
 
+#define jobj_type(_obj)         json_object_get_type(_obj)
+
 static inline void
 __jobj_put(jobj_t obj)
 {
