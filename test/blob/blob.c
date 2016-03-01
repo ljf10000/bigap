@@ -27,6 +27,14 @@ put_somthing(void)
     blob_put_i64(bs, "i64", -1);
 }
 
+static void
+put_obj(char *name)
+{
+    void *obj = blob_object_start(bs, name);
+    put_somthing();
+    blob_object_end(bs, obj);
+}
+
 #define COUNT   10
 int __main(int argc, char *argv[])
 {
@@ -38,7 +46,7 @@ int __main(int argc, char *argv[])
     blob_root_init(bs, BLOB_T_OBJECT, "root");
     blob_t *root = blob_root(bs);
 
-    //put_somthing();
+    put_obj("FIRST");
     //debug_ok("1:root blob vlen=%d", root->vlen);
 
     obj = blob_object_start(bs, "obj");
@@ -70,7 +78,7 @@ int __main(int argc, char *argv[])
 
     debug_ok("3:root blob vlen=%d", root->vlen);
 
-    //put_somthing();
+    put_obj("LAST");
     //debug_ok("4:root blob vlen=%d", root->vlen);
 
     jobj_t j = blob_btoj(root);
