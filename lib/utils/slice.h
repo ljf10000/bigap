@@ -257,7 +257,7 @@ slice_grow(slice_t *slice, uint32_t grow)
             grow = SLICE_GROW_STEP;
         }
     } else {
-        grow = os_max(SLICE_GROW_STEP, grow);
+        grow = OS_MAX(SLICE_GROW_STEP, grow);
     }
 
     buf = os_realloc(slice_head(slice), size + grow);
