@@ -38,8 +38,8 @@ int __main(int argc, char *argv[])
     blob_root_init(bs, BLOB_T_OBJECT, "root");
     blob_t *root = blob_root(bs);
 
-    put_somthing();
-    debug_ok("1:root blob vlen=%d", root->vlen);
+    //put_somthing();
+    //debug_ok("1:root blob vlen=%d", root->vlen);
 
     obj = blob_object_start(bs, "obj");
     for (i=0; i<COUNT; i++) {
