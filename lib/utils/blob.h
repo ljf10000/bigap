@@ -41,6 +41,12 @@ typedef struct {
 	char data[];            /* include name and value */
 } blob_t;
 
+static inline char *
+blob_data(const blob_t *blob)
+{
+    return (char *)blob->data;
+}
+
 static inline uint32_t
 blob_ksize(const blob_t *blob)
 {
@@ -56,13 +62,13 @@ blob_kpad_len(const blob_t *blob)
 static inline char *
 blob_key(const blob_t *blob)
 {
-    return blob->klen?blob->data:NULL;
+    return blob->klen?blob_data(blob):NULL;
 }
 
 static inline char *
 blob_KEY(const blob_t *blob)
 {
-    return blob->klen?blob->data:__empty;
+    return blob->klen?blob_data(blob):__empty;
 }
 
 static inline void *
@@ -91,7 +97,7 @@ blob_vsize(const blob_t *blob)
 static inline char *
 blob_value(const blob_t *blob)
 {
-    return blob->data + blob_ksize(blob);
+    return blob_data(blob) + blob_ksize(blob);
 }
 
 static inline uint32_t
