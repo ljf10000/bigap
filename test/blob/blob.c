@@ -20,9 +20,9 @@ put_somthing(void)
     blob_put_bool(bs, "bool", true);
 //    blob_put_binary(bs, "binary", "bbbbbbb", 7);
     blob_put_string(bs, "string", "sssssss");
-    blob_sprintf(bs "sprintf", "%s-%d", "bbbbbbb", 7);
-    blob_put_u32(bs, "u32", 0xf0000032);
-    blob_put_u64(bs, "u64", 0xf000000000000064);
+//    blob_sprintf(bs "sprintf", "%s-%d", "bbbbbbb", 7);
+    blob_put_u32(bs, "u32", 0x00000032);
+    blob_put_u64(bs, "u64", 0x0000000000000064);
     blob_put_i32(bs, "i32", -1);
     blob_put_i64(bs, "i64", -1);
 }

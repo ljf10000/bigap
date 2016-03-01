@@ -830,7 +830,7 @@ __blob_btoj(blob_t *blob, jobj_t obj)
                 return -ENOMEM;
             }
 
-            os_println("%s is object", blob_key(blob));
+            os_println("\n%s is object", blob_key(blob));
             
             blob_foreach_safe(p, blob, left) {
                 __blob_btoj(p, new);
