@@ -351,7 +351,6 @@ slice_unpull(slice_t *slice)
 static inline byte *
 slice_put(slice_t *slice, uint32_t len)
 {
-    os_println("slice=%p", slice);
     trace_assert(NULL!=slice, "slice is nil");
     
     if (len > slice_remain(slice)) {
