@@ -468,8 +468,11 @@ __dlogger(char *app, char *sub, const char *file, const char *func, int line, in
     __trace_error(_err, debug_trace, debug_error, _fmt, ##_args)
 
 #define __debug_assert(_condition, _debug, _fmt, _args...) do{ \
-    _debug(_fmt, ##_args);  \
-    os_assert(_condition);  \
+    bool __cond = _condition;   \
+    if (!__cond) {              \
+        _debug(_fmt, ##_args);  \
+        os_assert(0);           \
+    }                           \
 }while(0)
 
 #define __trace_assert(_condition, _fmt, _args...)  \
