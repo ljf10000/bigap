@@ -74,8 +74,10 @@ int __main(int argc, char *argv[])
     debug_ok("4:root blob vlen=%d", root->vlen);
 
     jobj_t j = blob_btoj(root);
-    os_println("begin print json");
-    os_println("%s", jobj_string(j));
+    os_println("begin get json");
+    char *json = jobj_string(j);
+    os_println("end get json");
+    os_println("%s", json);
     os_println("end print json");
     jobj_put(j);
 
