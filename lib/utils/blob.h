@@ -528,10 +528,11 @@ __blob_new(
     
     if (put) {
         blob_t *root = blob_root(slice);
-        slice_put(slice, size);
         if (root) {
             root->vlen += size;
         }
+        
+        slice_put(slice, size);
     }
 
 	return blob;
@@ -575,10 +576,10 @@ __blob_nest_end(slice_t *slice, void *cookie)
 	blob_t *new, *old;
     
 	new = blob_root(slice);
-	slice_offset(slice) = (int)cookie;
+	slice_offset(slice) = (uint32_t)cookie;
 	
 	old = blob_root(slice);
-	old->vlen += blob_vsize(new);
+	old->vlen += blob_size(new);
 }
 
 static inline void *
@@ -694,6 +695,7 @@ blob_put(
     if (value) {
 	    os_memcpy(blob_value(blob), value, len);
 	}
+	
     if (__is_ak_debug_trace) {
 	    __blob_dump(blob);
 
