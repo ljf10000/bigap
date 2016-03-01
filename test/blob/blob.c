@@ -75,7 +75,7 @@ int __main(int argc, char *argv[])
 
     jobj_t j = blob_btoj(root);
     os_println("begin get json");
-    char *json = jobj_string(j);
+    json = jobj_string(j);
     os_println("end get json");
     os_println("%s", json);
     os_println("end print json");
