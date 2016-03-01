@@ -4,7 +4,7 @@
 #ifdef  bool
 #undef  bool
 #endif
-#define bool            int
+#define bool            uint32_t
 #define __bool(_x)      ((bool)!!(_x))
 
 #ifdef  true

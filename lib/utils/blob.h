@@ -732,7 +732,7 @@ blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32_t l
 static inline blob_t *
 blob_put_bool(slice_t *slice, const char *name, bool val)
 {
-    int32_t b = !!val;
+    bool b = !!val;
     
 	return blob_put(slice, BLOB_T_BOOL, name, &b, sizeof(b));
 }
