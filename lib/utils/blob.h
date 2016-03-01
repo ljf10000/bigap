@@ -39,7 +39,7 @@ DECLARE_ENUM(blob_type, BLOB_TYPE_LIST, BLOB_T_END);
 typedef struct {
     uint8_t     type;       /* enum blob_type */
     uint8_t     klen;       /* real key len, NOT include '\0' */
-    uint8_t     r[2];
+    uint16_t    tag;
     uint32_t    vlen;       /* real value len, NOT include '\0' if value is string */
 
 /*
@@ -770,6 +770,7 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     uint32_t type = blob->type;
 
     if (ntoh) {
+        blob->tag  = bswap_16(blob->tag);
         blob->vlen = bswap_32(blob->vlen);
     }
     
@@ -798,6 +799,7 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     }
     
     if (false==ntoh) {
+        blob->tag  = bswap_16(blob->tag);
         blob->vlen = bswap_32(blob->vlen);
     }
 }
@@ -818,22 +820,35 @@ static inline int
 __blob_btoj(blob_t *blob, jobj_t obj)
 {
     blob_t *p;
-    uint32_t left;
+    uint32_t left, count;
     jobj_t new;
     
     switch(blob->type) {
         case BLOB_T_OBJECT:
-        case BLOB_T_ARRAY:
             new = jobj_new_object();
             if (NULL==new) {
                 return -ENOMEM;
             }
 
-            os_println("%s is obj/array", blob_key(blob));
+            os_println("%s is object", blob_key(blob));
             
             blob_foreach_safe(p, blob, left) {
                 __blob_btoj(p, new);
                 jobj_add(obj, blob_key(p), new);
+            }
+
+            break;
+        case BLOB_T_ARRAY:
+            new = jobj_new_array();
+            if (NULL==new) {
+                return -ENOMEM;
+            }
+
+            os_println("%s is array", blob_key(blob));
+
+            blob_foreach_safe(p, blob, left) {
+                __blob_btoj(p, new);
+                jobj_add(obj, NULL, new);
             }
 
             break;

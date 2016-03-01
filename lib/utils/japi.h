@@ -118,8 +118,23 @@ jobj_string_len(jobj_t obj)
 static inline void
 jobj_add(jobj_t obj, char *k, jobj_t v)
 {
-    if (obj && k && v) {
-        json_object_object_add(obj, k, v);
+    if (obj && v) {
+        switch(jobj_type(obj)) {
+            case jtype_object:
+                if (k) {
+                    json_object_object_add(obj, k, v);
+                }
+
+                break;
+            case jtype_array:
+                if (NULL==k) {
+                    json_object_array_add(obj, v);
+                } else {
+                    json_object_array_put_idx(obj, (int)k, v);
+                }
+                
+                break;
+        }       
     }
 }
 
@@ -144,12 +159,12 @@ jobj_get(jobj_t obj, char *key)
 
 #define jarray_length(_obj)             json_object_array_length(_obj)
 static inline jobj_t
-jarray_get(jobj_t obj, int idx)
+jarray_get(jobj_t array, int idx)
 {
     struct json_object *new = NULL;
     
-    if (obj && is_good_enum(idx, jarray_length(obj))) {
-    	new = json_object_array_get_idx(obj, idx);
+    if (array && is_good_enum(idx, jarray_length(array))) {
+    	new = json_object_array_get_idx(array, idx);
     }
 
     return new;
@@ -163,41 +178,17 @@ jarray_get(jobj_t obj, int idx)
 #define jtok_set_flags(_tok, _flag)     json_tokener_set_flags(_tok, _flag)
 #define jtok_parse_ex(_tok, _str, _len) json_tokener_parse_ex(_tok, _str, _len)
 
-static inline int
-jobj_add_checking(jobj_t obj, char *key)
-{
-    if (NULL==obj) {
-        japi_println("nil obj");
-        
-        return -EINVAL0;
-    }
-    else if (NULL==key) {
-        japi_println("nil key");
-        
-        return -EINVAL1;
-    }
-    else {
-        return 0;
-    }
-}
-
 #define jobj_add_value(_obj, _key, _value, _create) ({ \
     __label__ error;                            \
-    jobj_t __new;                               \
     int err = 0;                                \
                                                 \
-    err = jobj_add_checking(_obj, (char *)_key);\
-    if (err<0) {                                \
-        goto error;                             \
-    }                                           \
-                                                \
-    __new = _create(value);                     \
+    jobj_t __new = _create(_value);             \
     if (NULL==__new) {                          \
         japi_println(#_create "failed");        \
         err = -ENOMEM; goto error;              \
     }                                           \
                                                 \
-    jobj_add(obj, (char *)key, __new);          \
+    jobj_add(_obj, (char *)_key, __new);        \
 error:                                          \
     err;                                        \
 })
@@ -214,21 +205,21 @@ __jobj_add_int(jobj_t obj, char *key, int value)
 {
     return jobj_add_value(obj, key, value, jobj_new_int);
 }
-#define jobj_add_int(_obj, _key, _value)   __jobj_add_int(_obj, (char *)_key, _value)
+#define jobj_add_int(_obj, _key, _value)    __jobj_add_int(_obj, (char *)_key, _value)
 
 static inline int
 __jobj_add_int64(jobj_t obj, char *key, int64_t value)
 {
     return jobj_add_value(obj, key, value, jobj_new_int64);
 }
-#define jobj_add_int64(_obj, _key, _value)   __jobj_add_int64(_obj, (char *)_key, _value)
+#define jobj_add_int64(_obj, _key, _value)  __jobj_add_int64(_obj, (char *)_key, _value)
 
 static inline int
 __jobj_add_double(jobj_t obj, char *key, double value)
 {
     return jobj_add_value(obj, key, value, jobj_new_double);
 }
-#define jobj_add_double(_obj, _key, _value)   __jobj_add_double(_obj, (char *)_key, _value)
+#define jobj_add_double(_obj, _key, _value) __jobj_add_double(_obj, (char *)_key, _value)
 
 static inline int
 __jobj_add_string(jobj_t obj, char *key, char *value)
@@ -239,7 +230,7 @@ __jobj_add_string(jobj_t obj, char *key, char *value)
         return 0;
     }
 }
-#define jobj_add_string(_obj, _key, _value)   __jobj_add_string(_obj, (char *)_key, (char *)_value)
+#define jobj_add_string(_obj, _key, _value) __jobj_add_string(_obj, (char *)_key, (char *)_value)
 
 static inline int
 jobj_vsprintf(jobj_t obj, char *key, const char *fmt, va_list args)
