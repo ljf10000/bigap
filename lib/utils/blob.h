@@ -163,13 +163,13 @@ blob_size(const blob_t *blob)
 static inline void
 __blob_dump(const blob_t *blob)
 {
-#if 0
+#if 1
     os_println("blob");
-    os_println(__tab "len:%d", blob_len(blob));
-    os_println(__tab "type:%d", blob_type(blob));
+    os_println(__tab "len:%d", blob_size(blob));
+    os_println(__tab "type:%d", blob_type_string(blob->type));
     os_println(__tab "name:%s", blob_KEY(blob));
-    os_println(__tab "name_len:%d", blob_name_len(blob));
-    switch(blob_type(blob)) {
+    os_println(__tab "name_len:%d", blob->klen);
+    switch(blob->type) {
         case BLOB_T_STRING:
             os_println(__tab "value:%s", (char *)blob_value(blob));
             break;
@@ -182,9 +182,15 @@ __blob_dump(const blob_t *blob)
         case BLOB_T_INT64:
             os_println(__tab "value:%d", *(int64_t *)blob_value(blob));
             break;
-        
+        case BLOB_T_OBJECT:
+        case BLOB_T_ARRAY:
+        case BLOB_T_EMPTY:
+        case BLOB_T_BINARY:
+        default:
+            os_println(__tab "value:%p", blob_value(blob));
+            break;
     }
-    os_println(__tab "value_len:%d", blob_value_len(blob));
+    os_println(__tab "value_len:%d", blob->vlen);
     os_println(__tab "data:%p", blob_data(blob));
     os_println(__tab "name:%p", blob_key(blob));
     os_println(__tab "value:%p", blob_value(blob));
@@ -644,7 +650,7 @@ ok:                                                 \
 static inline blob_t *
 blob_put(
     slice_t *slice, 
-    int type, 
+    uint32_t type, 
     const char *name, 
     const void *value, 
     uint32_t len
@@ -683,13 +689,13 @@ blob_put(
 
         os_printf("blob_put" __crlf
             __tab "slice(size=%d, used=%d, remain=%d)" __crlf
-            __tab "root(offset=%d, key=%s, type=%d, vlen=%d)" __crlf, 
+            __tab "root(offset=%d, key=%s, type=%s, vlen=%d)" __crlf, 
             slice_size(slice),
             slice_tail(slice) - slice_data(slice),
             slice_remain(slice),
             slice_offset(slice),
             blob_KEY(blob_root(slice)),
-            blob_root(slice)->type,
+            blob_type_string(blob_root(slice)->type),
             blob_root(slice)->vlen);
 	}
 
