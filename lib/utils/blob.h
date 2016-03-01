@@ -297,8 +297,8 @@ typedef struct blob_rule {
     const char *name;
     uint32_t type;
     uint32_t flag;
-    uint32_t minlen; /* os_min value len */
-    uint32_t maxlen; /* os_max value len */
+    uint32_t minsize; /* min value size */
+    uint32_t maxsize; /* max value size */
     bool (*validate)(const struct blob_rule *, blob_t *);
 } blob_rule_t;
 
@@ -442,10 +442,10 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32_t cou
         if (false==blob_check(type, blob_value(p), vlen)) {
             continue;
         }
-        else if (rule[idx].minlen && vlen < rule[idx].minlen) {
+        else if (rule[idx].minsize && vlen < rule[idx].minsize) {
             continue;
         }
-        else if (rule[idx].maxlen && vlen > rule[idx].maxlen) {
+        else if (rule[idx].maxsize && vlen > rule[idx].maxsize) {
             continue;
         }
         else if (rule[idx].validate && !rule[idx].validate(&rule[idx], p)) {
