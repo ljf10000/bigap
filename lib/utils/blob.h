@@ -903,8 +903,10 @@ blob_btoj(blob_t *blob)
         return NULL;
     }
 
+    os_println("blob_btoj begin");
     __blob_btoj(blob, obj);
-
+    os_println("blob_btoj end");
+    
     return obj;
 }
 
