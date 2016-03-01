@@ -831,12 +831,14 @@ __blob_btoj(blob_t *blob, jobj_t obj)
             }
 
             os_println("\n%s is object", blob_key(blob));
-            
+
+            os_println("object begin");
             blob_foreach_safe(p, blob, left) {
                 __blob_btoj(p, new);
                 jobj_add(obj, blob_key(p), new);
             }
-
+            os_println("object end");
+            
             break;
         case BLOB_T_ARRAY:
             new = jobj_new_array();
@@ -846,10 +848,12 @@ __blob_btoj(blob_t *blob, jobj_t obj)
 
             os_println("%s is array", blob_key(blob));
 
+            os_println("array begin");
             blob_foreach_safe(p, blob, left) {
                 __blob_btoj(p, new);
                 jobj_add(obj, NULL, new);
             }
+            os_println("array end");
 
             break;
         case BLOB_T_STRING:
