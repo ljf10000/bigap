@@ -18,7 +18,7 @@ static void
 put_somthing(void)
 {
     blob_put_bool(bs, "bool", true);
-    blob_put_binary(bs, "binary", "bbbbbbb", 7);
+//    blob_put_binary(bs, "binary", "bbbbbbb", 7);
     blob_put_string(bs, "string", "sssssss");
     blob_sprintf(bs "sprintf", "%s-%d", "sssssss", 7);
     blob_put_u32(bs, "u32", 0xffffffff);

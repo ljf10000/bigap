@@ -854,7 +854,7 @@ __blob_btoj(blob_t *blob, jobj_t obj)
             break;
         case BLOB_T_INT64:
             jobj_add_int64(obj, blob_key(blob), blob_get_i64(blob));
-            os_println("%s:%ll", blob_key(blob), blob_get_i64(blob));
+            os_println("%s:%lld", blob_key(blob), blob_get_i64(blob));
 
             break;
         case BLOB_T_EMPTY:
