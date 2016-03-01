@@ -109,9 +109,6 @@ slice_is_empty(const slice_t *slice)
 static inline int 
 slice_reinit(slice_t *slice, uint32_t size, uint32_t resv, bool local)
 {
-    trace_assert(NULL==slice, "slice is nil");
-    trace_assert(0==size, "slice size==0");
-
     if (0==size) {
         debug_error("slice size==0");
         
@@ -123,8 +120,6 @@ slice_reinit(slice_t *slice, uint32_t size, uint32_t resv, bool local)
         return -EINVAL2;
     }
 
-    debug_ok("slice_reinit: local = %d", local);
-    
     slice_flag(slice)   = local?SLICE_STACK:0;
     slice_len(slice)    = 0;
     slice_size(slice)   = size - resv;
