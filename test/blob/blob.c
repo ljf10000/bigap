@@ -70,8 +70,8 @@ int __main(int argc, char *argv[])
 
     debug_ok("3:root blob vlen=%d", root->vlen);
 
-    put_somthing();
-    debug_ok("4:root blob vlen=%d", root->vlen);
+    //put_somthing();
+    //debug_ok("4:root blob vlen=%d", root->vlen);
 
     jobj_t j = blob_btoj(root);
     os_println("begin get json");

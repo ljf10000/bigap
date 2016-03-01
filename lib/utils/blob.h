@@ -894,9 +894,13 @@ blob_btoj(blob_t *blob)
     
     if (BLOB_T_ARRAY==blob->type) {
         obj = jobj_new_array();
+
+        os_println("root blob is array");
     }
     else if (BLOB_T_OBJECT==blob->type) {
         obj = jobj_new_object();
+
+        os_println("root blob is object");
     }
     
     if (NULL==obj) {
