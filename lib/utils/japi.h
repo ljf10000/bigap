@@ -134,6 +134,8 @@ jobj_add(jobj_t obj, char *k, jobj_t v)
                 }
                 
                 break;
+            default:
+                break;
         }       
     }
 }
