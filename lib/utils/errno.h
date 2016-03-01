@@ -168,6 +168,7 @@ enum {
     EINVAL7     = ERRNO(7),
     EINVAL8     = ERRNO(8),
     EINVAL9     = ERRNO(9),
+    
     ENOSUPPORT  = ERRNO(10),
     ENOINIT     = ERRNO(11),
     ENOEXIST    = ERRNO(12),
@@ -218,6 +219,7 @@ enum {
     ESCRIPT     = ERRNO(57),
     EBOUND      = ERRNO(58),
     EPROTOCOL   = ERRNO(59),
+    
     EDLLLOAD        = ERRNO(60),
     EDLLSYMLOAD     = ERRNO(61),
     EDLLPARAMSIZE   = ERRNO(62),

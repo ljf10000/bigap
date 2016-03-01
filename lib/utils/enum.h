@@ -9,12 +9,12 @@
     /* end */
 #endif
 
-#define __ENUM_VALUE_MAP(_key, _value, _name)   _key = _value
-#define __ENUM_NAME_MAP(_key, _value, _name)    [_key] = _name
+#define __ENUM_MAP_VALUE(_key, _value, _name)   _key = _value
+#define __ENUM_MAP_NAME(_key, _value, _name)    [_key] = _name
 
 #define DECLARE_ENUM(_mod, _list, _end) \
     enum {                          \
-        _list(__ENUM_VALUE_MAP)     \
+        _list(__ENUM_MAP_VALUE)     \
                                     \
         _end                        \
     };                              \
@@ -28,7 +28,7 @@
     static inline char **           \
     __##_mod##_strings(void)        \
     {                               \
-        static char *array[_end] = { _list(__ENUM_NAME_MAP) }; \
+        static char *array[_end] = { _list(__ENUM_MAP_NAME) }; \
                                     \
         return array;               \
     }                               \

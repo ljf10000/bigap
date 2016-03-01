@@ -210,16 +210,11 @@ hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline hash_idx_t
-hash_bybuf(byte *buf, int len, hash_idx_t mask)
+hash_bybuf(byte *buf, uint32_t len, hash_idx_t mask)
 {
-    int i;
-    hash_idx_t sum = 0;
+    bkdr_t bkdr = os_bin_bkdr(buf, len);
     
-    for (i=0; i<len; i++) {
-        sum += (hash_idx_t)buf[i];
-    }
-    
-    return sum & mask;
+    return (hash_idx_t)bkdr & mask;
 }
 
 #endif

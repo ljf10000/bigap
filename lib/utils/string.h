@@ -633,7 +633,7 @@ os_bin_bkdr(const byte *binary, uint32_t len)
 {
     bkdr_t bkdr = 0;
 
-    if (binary) {
+    if (binary && len) {
         int i;
         
         for (i=0; i<len; i++) {

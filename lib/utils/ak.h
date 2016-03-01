@@ -705,21 +705,19 @@ DECLARE_FAKE_AK;
 #define ak_reload()                     0
 #define ak_fini()                       0
 
-#if defined(__APP__) && !defined(__DEAMON__)
 static inline int 
 ak_init(void)
 {
+#if defined(__APP__) && !defined(__DEAMON__)
     char *value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
     
     __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
 
     ak_println("__THIS_DEBUG=%s==>0x%x", value, __THIS_DEBUG);
-    
+#endif
+
     return 0;
 }
-#else
-#define ak_init()                       0
-#endif
 #endif /* defined(__APP__) && defined(__DEAMON__) */
 /******************************************************************************/
 typedef struct {

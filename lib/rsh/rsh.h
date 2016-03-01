@@ -138,6 +138,12 @@ rsh_align(int size)
     return OS_ALIGN(size, RSH_ALIGN);
 }
 
+#define RSH_CMD_LIST(_) \
+    _(RSH_CMD_SHELL,    0, "shell"),    \
+    _(RSH_CMD_ECHO,     1, "echo"),     \
+    _(RSH_CMD_ACTIVE,   2, "active"),   \
+    /* end */
+
 /*
 * cloud:
 *   client
@@ -147,30 +153,27 @@ rsh_align(int size)
 *   cmd
 *   agent(master/slave, current/target/source/other)
 */
-enum {
     /*
+    * RSH_CMD_SHELL
+    *
     * client==>server(master)==>server(slave)==>agent(master)==>[agent(slave)==>]shell
     * cmd==>agent(current)==>agent(target)==>shell
     */
-    RSH_CMD_SHELL       = 0,
 
     /*
+    * RSH_CMD_ECHO
+    * RSH_CMD_ACTIVE
+    *
     * agent(master)==>server(slave)
     * agent(current)==>agent(other)
     *
     * zero body
     */
-    RSH_CMD_ECHO        = 1,
-    RSH_CMD_ACTIVE      = 2,
-    
-    RSH_CMD_END
-};
 
-static inline bool
-is_good_rsh_cmd(int cmd)
-{
-    return is_good_enum(cmd, RSH_CMD_END);
-}
+static inline bool is_good_rsh_cmd(int cmd);
+static inline char *rsh_cmd_string(int cmd);
+static inline int rsh_cmd_idx(char *cmd_string);
+DECLARE_ENUM(rsh_cmd, RSH_CMD_LIST, RSH_CMD_END);
 
 static inline bool
 is_rsh_zero_cmd(int cmd)
@@ -178,19 +181,16 @@ is_rsh_zero_cmd(int cmd)
     return RSH_CMD_ECHO==cmd;
 }
 
-enum {
-    RSH_MODE_SYN,
-    RSH_MODE_ACK,
-    RSH_MODE_ASYN,
+#define RSH_MODE_LIST(_) \
+    _(RSH_MODE_SYN,     0, "syn"),  \
+    _(RSH_MODE_ACK,     1, "ack"),  \
+    _(RSH_MODE_ASYN,    2, "asyn"), \
+    /* end */
 
-    RSH_MODE_END
-};
-
-static inline bool
-is_rsh_good_mode(int mode)
-{
-    return is_good_enum(mode, RSH_MODE_END);
-}
+static inline bool is_good_rsh_mode(int mode);
+static inline char *rsh_mode_string(int mode);
+static inline int rsh_mode_idx(char *mode_string);
+DECLARE_ENUM(rsh_mode, RSH_CMD_LIST, RSH_MODE_END);
 
 enum {
     RSH_F_ACK   = 0x01,
@@ -294,7 +294,7 @@ __is_good_rsh_msg(rsh_msg_t *msg)
     else if (false==is_good_rsh_cmd(msg->cmd)) {
         return false;
     }
-    else if (false==is_rsh_good_mode(msg->mode)) {
+    else if (false==is_good_rsh_mode(msg->mode)) {
         return false;
     }
     else if (msg->src == msg->dst) {
