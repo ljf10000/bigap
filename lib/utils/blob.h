@@ -491,7 +491,7 @@ __blob_new(
     
     size = blob_size(&tmp);
     
-    debug_test("__blob_new type=%d, name=%s, payload=%d, size=%d", type, name, payload, size);
+    debug_test("__blob_new type=%s, name=%s, payload=%d, size=%d", blob_type_string(type), name, payload, size);
     debug_test("__blob_new slice: size=%d, used=%d, remain=%d", 
         slice_size(slice),
         slice_tail(slice) - slice_data(slice),
@@ -545,16 +545,16 @@ blob_root_init(slice_t *slice, int type, const char *name)
 static inline void *
 __blob_nest_start(slice_t *slice, bool array, const char *name)
 {
-	blob_t *root_new;
+	blob_t *new;
 	int type = array?BLOB_T_ARRAY:BLOB_T_OBJECT;
     
-	root_new = blob_new(slice, type, name, 0);
-	if (NULL==root_new) {
+	new = blob_new(slice, type, name, 0);
+	if (NULL==new) {
         return NULL;
 	} else {
 	    int offset = slice_offset(slice);
 	    
-        slice_offset(slice) = (byte *)root_new - (byte *)slice_data(slice);
+        slice_offset(slice) = (byte *)new - (byte *)slice_data(slice);
 
         return (void *)offset;
 	}
