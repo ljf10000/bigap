@@ -38,7 +38,7 @@ int __main(int argc, char *argv[])
     blob_root_init(bs, BLOB_T_OBJECT, "root");
     
     put_somthing();
-    debug_trace("1:root blob vlen=%d", blob_root(bs)->vlen);
+    debug_ok("1:root blob vlen=%d", blob_root(bs)->vlen);
     
     obj = blob_object_start(bs, "obj");
     for (i=0; i<COUNT; i++) {
@@ -60,10 +60,10 @@ int __main(int argc, char *argv[])
         debug_trace("array %d end", i);
     }
     blob_array_end(bs, arr);
-    debug_trace("3:root blob vlen=%d", blob_root(bs)->vlen);
+    debug_ok("3:root blob vlen=%d", blob_root(bs)->vlen);
     
     put_somthing();
-    debug_trace("4:root blob vlen=%d", blob_root(bs)->vlen);
+    debug_ok("4:root blob vlen=%d", blob_root(bs)->vlen);
 
 #if 0
     json = blob_to_json(blob_root(bs), false);
