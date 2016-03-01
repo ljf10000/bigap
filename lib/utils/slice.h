@@ -60,7 +60,7 @@ slice_is_clean(const slice_t *slice)
 static inline bool
 slice_is_empty(const slice_t *slice)
 {
-    trace_assert(slice, "slice is nil");
+    trace_assert(NULL!=slice, "slice is nil");
     
     return !!slice_len(slice);
 }
@@ -280,7 +280,7 @@ slice_grow(slice_t *slice, uint32_t grow)
 static inline byte *
 slice_pull(slice_t *slice, uint32_t len)
 {
-    trace_assert(slice, "slice is nil");
+    trace_assert(NULL!=slice, "slice is nil");
 
     if (slice_size(slice) < len) {
         return os_assertV(NULL);
@@ -325,7 +325,7 @@ slice_pull(slice_t *slice, uint32_t len)
 static inline byte *
 slice_push(slice_t *slice, uint32_t len)
 {
-    trace_assert(slice,  "slice is nil");
+    trace_assert(NULL!=slice,  "slice is nil");
 
     if (slice_resv(slice) < len) {
         return os_assertV(NULL);
@@ -351,7 +351,7 @@ slice_unpull(slice_t *slice)
 static inline byte *
 slice_put(slice_t *slice, uint32_t len)
 {
-    trace_assert(slice, "slice is nil");
+    trace_assert(NULL!=slice, "slice is nil");
     
     if (len > slice_remain(slice)) {
         return os_assertV(NULL);
@@ -365,7 +365,7 @@ slice_put(slice_t *slice, uint32_t len)
 static inline byte *
 slice_trim(slice_t *slice, uint32_t len)
 {
-    trace_assert(slice, "slice is nil");
+    trace_assert(NULL!=slice, "slice is nil");
     
     if (len > slice_len(slice)) {
         return os_assertV(NULL);
@@ -381,7 +381,7 @@ slice_put_char(slice_t *slice, int ch)
 {
     byte *new;
     
-    trace_assert(slice, "slice is nil");
+    trace_assert(NULL!=slice, "slice is nil");
 
     new  = slice_put(slice, 1);
     if (new) {
@@ -394,7 +394,7 @@ slice_put_char(slice_t *slice, int ch)
 static inline byte *
 slice_put_buf(slice_t *slice, void *buf, uint32_t len)
 {
-    trace_assert(slice, "slice is nil");
+    trace_assert(NULL!=slice, "slice is nil");
 
     if (NULL==buf) {
         return os_assertV(NULL);

@@ -706,7 +706,7 @@ __co_signal(coroutine_t *co, enum co_event ev)
 static inline int
 __co_mail_send(coroutine_t *co, enum co_event ev, union co_mail *mail)
 {
-    trace_assert(co->ev.box[ev], "co send mail when empty");
+    trace_assert(NULL!=co->ev.box[ev], "co send mail when empty");
 
     __co_signal(co, ev);
     
@@ -716,7 +716,7 @@ __co_mail_send(coroutine_t *co, enum co_event ev, union co_mail *mail)
 static int
 __co_mail_recv(coroutine_t *co, enum co_event ev, union co_mail *mail)
 {
-    trace_assert(co->ev.box[ev], "co recv mail when not empty");
+    trace_assert(NULL!=co->ev.box[ev], "co recv mail when not empty");
     
     __co_ev_read_and_zero(co, ev);
     
