@@ -491,23 +491,16 @@ __blob_new(
     
     size = blob_size(&tmp);
     
-    debug_test("__blob_new type=%s, name=%s, payload=%d, size=%d", blob_type_string(type), name, payload, size);
-    debug_test("__blob_new slice: size=%d, used=%d, remain=%d", 
-        slice_size(slice),
-        slice_tail(slice) - slice_data(slice),
-        slice_remain(slice));
-
-    if ((slice_remain(slice) < size) && slice_grow(slice, size)) {
-        return NULL;
-    }
-    else if (slice_remain(slice) < size) {
-        return NULL;
-    }
+    debug_test("type=%s, name=%s, payload=%d, size=%d", blob_type_string(type), name, payload, size);
     
-    debug_test("__blob_new slice: size=%d, used=%d, remain=%d", 
-        slice_size(slice),
-        slice_len(slice),
-        slice_remain(slice));
+    if (slice_remain(slice) < size) {
+        if (slice_grow(slice, size) < 0) {
+            return NULL;
+        }
+        else if (slice_remain(slice) < size) {
+            return NULL;
+        }
+    }
     
     blob = (blob_t *)slice_tail(slice);
     __blob_init(blob, type, name, payload);
