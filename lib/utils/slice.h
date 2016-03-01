@@ -24,11 +24,11 @@ enum {
 };
 
 typedef struct {
-    int     flag;
-    int     resv;
-    int     offset;
-    int     len;
-    int     size;
+    uint32_t    flag;
+    uint32_t    resv;
+    uint32_t    offset;
+    uint32_t    len;
+    uint32_t    size;
     
     byte *head; /* fixed */
 } slice_t;
@@ -131,7 +131,7 @@ slice_reinit(slice_t *slice, int size, int resv, bool local)
 }
 
 static inline void 
-slice_init_resv(slice_t *slice, byte *data, int size, int resv, bool local)
+slice_init_resv(slice_t *slice, byte *data, uint32_t size, uint32_t resv, bool local)
 {
     slice_head(slice) = data;
 
@@ -139,7 +139,7 @@ slice_init_resv(slice_t *slice, byte *data, int size, int resv, bool local)
 }
 
 static inline void
-slice_init(slice_t *slice, byte *data, int size, bool local)
+slice_init(slice_t *slice, byte *data, uint32_t size, bool local)
 {
     slice_init_resv(slice, data, size, 0, local);
 }
@@ -190,7 +190,7 @@ slice_zero(slice_t *slice)
 }
 
 static inline int
-slice_alloc(slice_t *slice, int size)
+slice_alloc(slice_t *slice, uint32_t size)
 {
     void *buf = NULL;
 
@@ -240,7 +240,7 @@ slice_clone(slice_t *dst, const slice_t *src)
 #endif
 
 static inline int
-slice_grow(slice_t *slice, int grow)
+slice_grow(slice_t *slice, uint32_t grow)
 {
     void *buf;
     int size = slice_SIZE(slice);
@@ -249,10 +249,6 @@ slice_grow(slice_t *slice, int grow)
         debug_error("slice is in statck, can not grow");
         
         return os_assertV(-ENOSUPPORT);
-    }
-
-    if (grow < 0) {
-        grow = 0;
     }
 
     if (0==grow) {
@@ -283,14 +279,11 @@ slice_grow(slice_t *slice, int grow)
 *   remove data from the start of a buffer
 */
 static inline byte *
-slice_pull(slice_t *slice, int len)
+slice_pull(slice_t *slice, uint32_t len)
 {
     trace_assert(slice, "slice is nil");
 
-    if (len < 0) {
-        return os_assertV(NULL);
-    }
-    else if (slice_size(slice) < len) {
+    if (slice_size(slice) < len) {
         return os_assertV(NULL);
     }
     
@@ -331,14 +324,11 @@ slice_pull(slice_t *slice, int len)
 *   add data to the start of a buffer
 */
 static inline byte *
-slice_push(slice_t *slice, int len)
+slice_push(slice_t *slice, uint32_t len)
 {
     trace_assert(slice,  "slice is nil");
 
-    if (len < 0) {
-        return os_assertV(NULL);
-    }
-    else if (slice_resv(slice) < len) {
+    if (slice_resv(slice) < len) {
         return os_assertV(NULL);
     }
     
@@ -360,14 +350,11 @@ slice_unpull(slice_t *slice)
 *   add data to a buffer
 */
 static inline byte *
-slice_put(slice_t *slice, int len)
+slice_put(slice_t *slice, uint32_t len)
 {
     trace_assert(slice, "slice is nil");
     
-    if (len < 0) {
-        return os_assertV(NULL);
-    }
-    else if (len > slice_remain(slice)) {
+    if (len > slice_remain(slice)) {
         return os_assertV(NULL);
     }
     
@@ -377,14 +364,11 @@ slice_put(slice_t *slice, int len)
 }
 
 static inline byte *
-slice_trim(slice_t *slice, int len)
+slice_trim(slice_t *slice, uint32_t len)
 {
     trace_assert(slice, "slice is nil");
     
-    if (len < 0) {
-        return os_assertV(NULL);
-    }
-    else if (len > slice_len(slice)) {
+    if (len > slice_len(slice)) {
         return os_assertV(NULL);
     }
     
@@ -409,14 +393,11 @@ slice_put_char(slice_t *slice, int ch)
 }
 
 static inline byte *
-slice_put_buf(slice_t *slice, void *buf, int len)
+slice_put_buf(slice_t *slice, void *buf, uint32_t len)
 {
     trace_assert(slice, "slice is nil");
 
-    if (len < 0) {
-        return os_assertV(NULL);
-    }
-    else if (NULL==buf) {
+    if (NULL==buf) {
         return os_assertV(NULL);
     }
     
