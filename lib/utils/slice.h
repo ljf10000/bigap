@@ -261,6 +261,8 @@ slice_grow(slice_t *slice, int grow)
         } else {
             grow = SLICE_GROW_STEP;
         }
+    } else {
+        grow = os_max(SLICE_GROW_STEP, grow);
     }
 
     buf = os_realloc(slice_head(slice), size + grow);
@@ -423,10 +425,6 @@ slice_put_buf(slice_t *slice, void *buf, int len)
     return slice_put(slice, len);
 }
 
-enum {
-    SLICE_F_GROW = 0x01,
-};
-
 /*
 * ”Ô“Â¿‡À∆ snprintf
 * 
@@ -456,7 +454,7 @@ enum {
 *       }
 */
 static inline int
-slice_vsprintf(slice_t *slice, int flag, char *fmt, va_list args)
+slice_vsprintf(slice_t *slice, bool grow, char *fmt, va_list args)
 {
     int len = 0, space;
 
@@ -488,8 +486,7 @@ try_again:
 
     if (os_snprintf_is_full(space, len)) { /* no space */
         debug_trace("slice_vsprintf: full");
-        if (os_hasflag(flag, SLICE_F_GROW)
-            && 0==slice_grow(slice, len + 1 - space)) {
+        if (grow && 0==slice_grow(slice, len + 1 - space)) {
             debug_trace("slice_vsprintf: grow and try");
 
             goto try_again;
@@ -504,12 +501,12 @@ try_again:
 }
 
 static inline int
-slice_sprintf(slice_t *slice, int flag, char *fmt, ...)
+slice_sprintf(slice_t *slice, bool grow, char *fmt, ...)
 {
     va_list args;
     
     va_start(args, fmt);
-    int len = slice_vsprintf(slice, flag, fmt, args);
+    int len = slice_vsprintf(slice, grow, fmt, args);
     va_end(args);
     
     return len;

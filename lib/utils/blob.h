@@ -130,6 +130,16 @@ blob_vpad(const blob_t *blob)
     }
 }
 
+static inline void
+blob_sub_vlen(blob_t *blob, uint32_t len)
+{
+    if (len <= blob->vlen) {
+        blob->vlen -= len;
+    } else {
+        trace_assert(0, "SUB: len(%d) < vlen(%d)", len, blob->vlen);
+    }
+}
+
 static inline uint32_t
 blob_dsize(const blob_t *blob)
 {
@@ -209,7 +219,7 @@ blob_get_i64(const blob_t *blob)
 static inline bool
 blob_get_bool(const blob_t *blob)
 {
-	return !!blob_get_i32(blob);
+	return !!blob_get_u32(blob);
 }
 
 static inline const char *
@@ -231,28 +241,6 @@ blob_zero_pad(blob_t *blob)
     os_memzero(blob_vpad(blob), blob_vpad_len(blob));
 }
 
-static inline void
-blob_set_value_len(blob_t *blob, uint32_t len /* real value len */)
-{
-	blob->vlen = len;
-}
-
-static inline void
-blob_add_value_len(blob_t *blob, uint32_t len)
-{
-    blob->vlen += len;
-}
-
-static inline void
-blob_sub_value_len(blob_t *blob, uint32_t len)
-{
-    if (len <= blob->vlen) {
-        blob->vlen -= len;
-    } else {
-        trace_assert(0, "SUB: len(%d) < vlen(%d)", len, blob->vlen);
-    }
-}
-
 static inline bool
 blob_eq(const blob_t *a, const blob_t *b)
 {
@@ -264,8 +252,10 @@ blob_eq(const blob_t *a, const blob_t *b)
 	else if (!a || !b) {
 		return false;
     }
+    else if (a==b) {
+        return true;
+    }
 
-    
     len = blob_size(a);
 	if (len != blob_size(b)) {
 		return false;
@@ -281,10 +271,6 @@ blob_eq(const blob_t *a, const blob_t *b)
 	     _left -= blob_size(_pos), _pos = blob_next(_pos)) \
     /* end */
 
-/*
-* liujf:
-*   more safely
-*/
 #define blob_foreach_safe(_pos, _blob, _left)               \
 	for (_left = _blob?blob_size(_blob):0,                  \
 	        _pos = _blob?blob_vpointer(blob_t, _blob):0;    \
@@ -479,31 +465,31 @@ blob_root(slice_t *slice)
 static inline void
 __blob_init(
     blob_t *blob, 
-    int type, 
+    uint32_t type, 
     const char *name, 
-    int payload
+    uint32_t payload
 )
 {
     blob->type  = type;
     blob->klen  = name?os_strlen(name):0;
-    blob_set_value_len(blob, payload);
+    blob->vlen  = payload;
 }
 
 static inline blob_t *
 __blob_new(
     slice_t *slice, 
     bool put, 
-    int type, 
+    uint32_t type, 
     const char *name, 
-    int payload
+    uint32_t payload
 )
 {
-	blob_t *blob, tba;
+	blob_t *blob, tmp;
     int size;
     
-    __blob_init(&tba, type, name, payload);
+    __blob_init(&tmp, type, name, payload);
     
-    size = blob_size(&tba);
+    size = blob_size(&tmp);
     
     debug_test("__blob_new type=%d, name=%s, payload=%d, size=%d", type, name, payload, size);
     debug_test("__blob_new slice: size=%d, used=%d, remain=%d", 
@@ -511,7 +497,7 @@ __blob_new(
         slice_tail(slice) - slice_data(slice),
         slice_remain(slice));
 
-    if ((slice_remain(slice) < size) && slice_grow(slice, 0)) {
+    if ((slice_remain(slice) < size) && slice_grow(slice, size)) {
         return NULL;
     }
     else if (slice_remain(slice) < size) {
@@ -535,7 +521,7 @@ __blob_new(
         blob_t *root = blob_root(slice);
         slice_put(slice, size);
         if (root) {
-            blob_add_value_len(root, size);
+            root->vlen += size;
         }
     }
 
@@ -577,13 +563,13 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
 static inline void
 __blob_nest_end(slice_t *slice, void *cookie)
 {
-	blob_t *root_new, *root_old;
+	blob_t *new, *old;
     
-	root_new = blob_root(slice);
+	new = blob_root(slice);
 	slice_offset(slice) = (int)cookie;
-	root_old = blob_root(slice);
 	
-	blob_add_value_len(root_old, blob_vsize(root_new));
+	old = blob_root(slice);
+	old->vlen += blob_vsize(new);
 }
 
 static inline void *
@@ -644,8 +630,8 @@ blob_array_end(slice_t *slice, void *cookie)
     }                                               \
     /* put blob value */                            \
     slice_put(_slice, len);                         \
-    blob_add_value_len(blob, len);                  \
-    blob_add_value_len(blob_root(_slice),           \
+    blob_add_vlen(blob, len);                  \
+    blob_add_vlen(blob_root(_slice),           \
         blob_size(blob));                           \
     if (__is_ak_debug_trace) {                    \
         __blob_dump(blob);                          \
