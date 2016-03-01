@@ -28,7 +28,7 @@ put_somthing(void)
 }
 
 #define COUNT   1000
-int main(int argc, char *argv[])
+int __main(int argc, char *argv[])
 {
     char *json;
     void *arr, *obj;
@@ -73,5 +73,13 @@ int main(int argc, char *argv[])
 #endif
 
     return 0;
+}
+
+int main(int argc, char *argv[])
+{
+    setup_signal_exit(NULL);
+    setup_signal_callstack(NULL);
+    
+    return os_main(__main, argc, argv);
 }
 /******************************************************************************/
