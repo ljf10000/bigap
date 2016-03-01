@@ -43,8 +43,11 @@ int __main(int argc, char *argv[])
 
     obj = blob_object_start(bs, "obj");
     for (i=0; i<COUNT; i++) {
+        char buf[128];
+
+        os_sprintf(buf, "array-%d", i);
         debug_trace("obj %d begin", i);
-        arr = blob_array_start(bs, "array");
+        arr = blob_array_start(bs, buf);
         put_somthing();
         blob_array_end(bs, arr);
         debug_trace("obj %d end", i);
@@ -54,8 +57,11 @@ int __main(int argc, char *argv[])
 
     arr = blob_array_start(bs, "array");
     for (i=0; i<COUNT; i++) {
+        char buf[128];
+
+        os_sprintf(buf, "obj-%d", i);
         debug_trace("array %d begin", i);
-        obj = blob_object_start(bs, "obj");
+        obj = blob_object_start(bs, buf);
         put_somthing();
         blob_object_end(bs, obj);
         debug_trace("array %d end", i);

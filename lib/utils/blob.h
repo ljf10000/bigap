@@ -886,11 +886,15 @@ __blob_btoj(blob_t *blob, jobj_t obj)
 static inline jobj_t
 blob_btoj(blob_t *blob)
 {
-    if (BLOB_T_ARRAY!=blob->type && BLOB_T_OBJECT!=blob->type) {
-        return NULL;
+    jobj_t obj;
+    
+    if (BLOB_T_ARRAY==blob->type) {
+        obj = jobj_new_array();
+    }
+    else if (BLOB_T_OBJECT==blob->type) {
+        obj = jobj_new_object();
     }
     
-    jobj_t obj = jobj_new_object();
     if (NULL==obj) {
         return NULL;
     }
