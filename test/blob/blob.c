@@ -33,6 +33,8 @@ int main(int argc, char *argv[])
     char *json;
     void *arr, *obj;
     int i;
+
+    debug_trace("blob test begin");
     
     slice_alloc(bs, BUFFER_SIZE);    
     blob_root_init(bs, BLOB_T_OBJECT, "root");
