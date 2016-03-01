@@ -286,11 +286,11 @@ add_timer(int type)
     int err = 0;
     
     switch(type) {
-        case TIMER_APING:
-            __del_timer(TIMER_IPING);
+        case RSH_TIMER_APING:
+            __del_timer(RSH_TIMER_IPING);
             break;
-        case TIMER_IPING:
-            __del_timer(TIMER_APING);
+        case RSH_TIMER_IPING:
+            __del_timer(RSH_TIMER_APING);
             break;
         default:
             break;
@@ -307,9 +307,9 @@ add_pinger(void)
     int type;
     
     if (rsh.alive) {
-        type = TIMER_APING;
+        type = RSH_TIMER_APING;
     } else {
-        type = TIMER_IPING;
+        type = RSH_TIMER_IPING;
     }
 
     return add_timer(type);
@@ -369,12 +369,12 @@ rsh_timer_init(void)
     
     tm_init();
 
-    err = add_timer(TIMER_LINK);
+    err = add_timer(RSH_TIMER_LINK);
     if (err<0) {
         return err;
     }
 
-    err = add_timer(TIMER_CONNECT);
+    err = add_timer(RSH_TIMER_CONNECT);
     if (err<0) {
         return err;
     }

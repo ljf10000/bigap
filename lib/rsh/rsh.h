@@ -145,6 +145,10 @@ rsh_align(int size)
     /* end */
 
 /*
+* rshd: 
+*   (1) 
+*
+*
 * cloud:
 *   client
 *   server(master/slave)
@@ -153,22 +157,23 @@ rsh_align(int size)
 *   cmd
 *   agent(master/slave, current/target/source/other)
 */
-    /*
-    * RSH_CMD_SHELL
-    *
-    * client==>server(master)==>server(slave)==>agent(master)==>[agent(slave)==>]shell
-    * cmd==>agent(current)==>agent(target)==>shell
-    */
 
-    /*
-    * RSH_CMD_ECHO
-    * RSH_CMD_ACTIVE
-    *
-    * agent(master)==>server(slave)
-    * agent(current)==>agent(other)
-    *
-    * zero body
-    */
+/*
+* RSH_CMD_SHELL
+*
+* client==>server(master)==>server(slave)==>agent(master)==>[agent(slave)==>]shell
+* cmd==>agent(current)==>agent(target)==>shell
+*/
+
+/*
+* RSH_CMD_ECHO
+* RSH_CMD_ACTIVE
+*
+* agent(master)==>server(slave)
+* agent(current)==>agent(other)
+*
+* zero body
+*/
 
 static inline bool is_good_rsh_cmd(int cmd);
 static inline char *rsh_cmd_string(int cmd);
@@ -212,7 +217,7 @@ typedef struct {
     uint8_t  cookie2;   /* RSH_COOKIE2  */
     uint8_t  cmd;       /* RSH_CMD_END  */
     uint8_t  cookie3;   /* RSH_COOKIE3  */
-    
+
     uint16_t len;       /* msg length, NOT include header, NOT include '\0' */
     union {
         int16_t maxrun;
@@ -245,8 +250,22 @@ rsh_msg_t;
     },                          \
 }
 
-#ifndef RSH_MSG_SIZE
-#define RSH_MSG_SIZE            (64*1024 - 14/*eth*/ - 4/*vlan*/ - 20/*ip*/ - 16/*udp*/ - 8/*pad*/)
+#define RSH_PROTOCOL_UDP        1
+#define RSH_PROTOCOL_PRIVATE    2
+
+#ifndef RSH_PROTOCOL
+#define RSH_PROTOCOL            RSH_PROTOCOL_UDP
+#endif
+
+#if RSH_PROTOCOL_UDP==RSH_PROTOCOL
+#   ifndef RSH_MSG_SIZE_MAX
+#       define RSH_MSG_SIZE_MAX (64*1024)
+#   endif
+#   ifndef RSH_MSG_SIZE
+#       define RSH_MSG_SIZE     (RSH_MSG_SIZE_MAX - 14/*eth*/ - 4/*vlan*/ - 20/*ip*/ - 16/*udp*/ - 8/*pad*/)
+#   endif
+#else
+#   error "invalid rsh protocol"
 #endif
 
 #define RSH_MSG_DSIZE           (RSH_MSG_SIZE - sizeof(rsh_msg_t))

@@ -8,74 +8,49 @@ enum {
     BLOB_F_STRING   = 0x08, /* last must zero */
 };
 
-enum {
-    BLOB_T_EMPTY    = 0,
-	BLOB_T_OBJECT   = 1,
-	BLOB_T_ARRAY    = 2,
-	BLOB_T_STRING   = 3,
-	BLOB_T_BINARY   = 4,
-	BLOB_T_BOOL     = 5,
-	BLOB_T_INT32    = 6,
-	BLOB_T_INT64    = 7,
-	
-	BLOB_T_END
-};
+#define BLOB_TYPE_LIST(_) \
+    _(BLOB_T_EMPTY,     0, "empty"),    \
+    _(BLOB_T_OBJECT,    1, "object"),   \
+    _(BLOB_T_ARRAY,     2, "array"),    \
+    _(BLOB_T_STRING,    3, "string"),   \
+    _(BLOB_T_BINARY,    4, "binary"),   \
+    _(BLOB_T_BOOL,      5, "bool"),     \
+    _(BLOB_T_INT32,     6, "int32"),    \
+    _(BLOB_T_INT64,     7, "int64"),    \
+    /* end */
 
-static inline bool
-is_good_blob_type(int type)
-{
-    return is_good_enum(type, BLOB_T_END);
-}
+static inline bool is_good_blob_type(int type);
+static inline char *blob_type_string(int type);
+static inline int blob_type_idx(char *type_string);
+DECLARE_ENUM(blob_type, BLOB_TYPE_LIST, BLOB_T_END);
 
 #define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32_t))
 
-/*
-* liujf:
-    data: align by 4
-*/
 typedef struct {
     uint16_t    id;
     uint8_t     type;       /* enum blob_type */
     uint8_t     name_len;   /* real name len, NOT include '\0' */
-	uint32_t    len;        /* real blob len, include data and header */
-	
+	uint32_t    len;        /* real blob len, include header and data */
+
+/*
+    name/value align 4
+    ----------------------
+    |  name    | value   |
+    ----------------------
+*/
 	char data[];            /* include name and value */
 } blob_t;
 
 static inline uint32_t
-blob_id(const blob_t *blob)
-{
-    return (uint32_t)blob->id;
-}
-
-static inline uint32_t
-blob_len(const blob_t *blob)
-{
-    return (uint32_t)blob->len;
-}
-
-static inline int
-blob_type(const blob_t *blob)
-{
-    return blob->type;
-}
-
-static inline uint32_t
 blob_size(const blob_t *blob)
 {
-    return BLOB_ALIGN(blob_len(blob));
-}
-
-static inline char *
-blob_data(const blob_t *blob)
-{
-    return ((blob_t *)blob)->data;
+    return BLOB_ALIGN(blob->len);
 }
 
 static inline uint32_t
 blob_data_len(const blob_t *blob)
 {
-    return blob_len(blob) - sizeof(*blob);
+    return blob->len - sizeof(blob_t);
 }
 
 static inline uint32_t
@@ -85,15 +60,9 @@ blob_data_size(const blob_t *blob)
 }
 
 static inline uint32_t
-blob_name_len(const blob_t *blob)
-{
-    return (uint32_t)blob->name_len;
-}
-
-static inline uint32_t
 blob_name_size(const blob_t *blob)
 {
-    uint32_t name_len = blob_name_len(blob);
+    uint32_t name_len = blob->name_len;
     
     return name_len?BLOB_ALIGN(name_len + 1 /* '\0' */):0;
 }
@@ -101,7 +70,7 @@ blob_name_size(const blob_t *blob)
 static inline uint32_t
 blob_name_pad_len(const blob_t *blob)
 {
-    uint32_t name_len = blob_name_len(blob);
+    uint32_t name_len = blob->name_len;
     
     return name_len?(blob_name_size(blob) - name_len - 1):0;
 }
@@ -109,19 +78,19 @@ blob_name_pad_len(const blob_t *blob)
 static inline char *
 blob_name(const blob_t *blob)
 {
-    return blob_name_len(blob)?blob_data(blob):NULL;
+    return blob->name_len?blob->data:NULL;
 }
 
 static inline char *
 blob_NAME(const blob_t *blob)
 {
-    return blob_name_len(blob)?blob_data(blob):__empty;
+    return blob->name_len?blob->data:__empty;
 }
 
 static inline void *
 blob_name_pad(const blob_t *blob)
 {
-    uint32_t name_len = blob_name_len(blob);
+    uint32_t name_len = blob->name_len;
     
     return name_len?(blob_name(blob) + name_len + 1):NULL;
 }
@@ -133,13 +102,19 @@ blob_name_pad(const blob_t *blob)
 static inline uint32_t
 blob_value_len(const blob_t *blob)
 {
-    return blob_data_len(blob) - blob_name_size(blob);
+    return blob_data_len(blob) - blob_name_size(blob);;
 }
 
 static inline uint32_t
 blob_value_size(const blob_t *blob)
 {
-    return BLOB_ALIGN(blob_value_len(blob));
+    uint32_t value_len = blob_value_len(blob);
+    
+    if (BLOB_T_STRING==blob->type) {
+        value_len++;
+    }
+    
+    return BLOB_ALIGN(value_len);
 }
 
 static inline uint32_t
@@ -151,7 +126,7 @@ blob_value_pad_len(const blob_t *blob)
 static inline char *
 blob_value(const blob_t *blob)
 {
-    return blob_data(blob) + blob_name_size(blob);
+    return blob->data + blob_name_size(blob);
 }
 
 #define blob_pointer(_type, _blob)  ((_type *)blob_value(_blob))
@@ -250,7 +225,7 @@ blob_set_value_len(blob_t *blob, uint32_t len /* real value len */)
     /*
     * header + name size + value len
     */
-	blob->len = sizeof(*blob) + blob_name_size(blob) + len;
+	blob->len = sizeof(blob_t) + blob_name_size(blob) + len;
 }
 
 static inline void
@@ -411,10 +386,10 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], int count)
     blob_for_each_attr(pos, blob, rem) {
         int id;
         int nid = INVALID_VALUE;
-        int bid = blob_id(pos);
+        int bid = pos->id;
         uint32_t len    = blob_value_len(pos);
         const char *name    = blob_name(pos);
-        int type = blob_type(pos);
+        int type = pos->type;
         
         if (false==is_good_blob_type(type)) {
             continue;
@@ -718,8 +693,8 @@ blob_put(
             slice_remain(slice),
             slice_offset(slice),
             blob_NAME(blob_root(slice)),
-            blob_type(blob_root(slice)),
-            blob_len(blob_root(slice)));
+            blob_root(slice)->type,
+            blob_root(slice)->len);
 	}
 
 	return blob;
@@ -772,7 +747,7 @@ blob_put_i64(slice_t *slice, int id, const char *name, int64_t val)
 static inline blob_t *
 blob_put_blob(slice_t *slice, blob_t *blob)
 {
-	return blob_put(slice, blob_id(blob), blob_type(blob), blob_name(blob), 
+	return blob_put(slice, blob->id, blob->type, blob_name(blob), 
 	            blob_value(blob), blob_value_len(blob));
 }
 
@@ -781,7 +756,7 @@ static inline void
 __blob_byteorder(blob_t *blob, bool ntoh)
 {
     int rem;
-    int type = blob_type(blob);
+    int type = blob->type;
 
     if (ntoh) {
         blob->id  = bswap_16(blob->id);

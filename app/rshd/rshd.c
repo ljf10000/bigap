@@ -25,11 +25,11 @@ rsh_t rsh = {
     .fd     = {INVALID_FD},
     
     .timer  = {
-        [TIMER_APING]  = RSHA_TIMER_INITER(RSH_APING_INTERVAL,    rsh_pinger),
-        [TIMER_IPING]  = RSHA_TIMER_INITER(RSH_IPING_INTERVAL,    rsh_pinger),
-        [TIMER_LINK]   = RSHA_TIMER_INITER(RSH_LINK_INTERVAL,     rsh_linker),
-        [TIMER_TASK]   = RSHA_TIMER_INITER(RSH_TASK_INTERVAL,     rsh_tasker),
-        [TIMER_CONNECT]= RSHA_TIMER_INITER(RSH_CONNECT_INTERVAL,  rsh_connecter),
+        [RSH_TIMER_APING]  = RSH_TIMER_INITER(RSH_APING_INTERVAL,    rsh_pinger),
+        [RSH_TIMER_IPING]  = RSH_TIMER_INITER(RSH_IPING_INTERVAL,    rsh_pinger),
+        [RSH_TIMER_LINK]   = RSH_TIMER_INITER(RSH_LINK_INTERVAL,     rsh_linker),
+        [RSH_TIMER_TASK]   = RSH_TIMER_INITER(RSH_TASK_INTERVAL,     rsh_tasker),
+        [RSH_TIMER_CONNECT]= RSH_TIMER_INITER(RSH_CONNECT_INTERVAL,  rsh_connecter),
     },
 };
 

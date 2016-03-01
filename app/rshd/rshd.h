@@ -4,38 +4,26 @@
 #include "rsh/rsh.h"
 /******************************************************************************/
 
-enum {
-    /*
-    * active ping
-    */
-    TIMER_APING,
-    
-    /*
-    * inactive ping
-    */
-    TIMER_IPING,
-    
-    /*
-    * check (3g) link
-    */
-    TIMER_LINK,
-    
-    /*
-    * check task over
-    */
-    TIMER_TASK,
-    
-    TIMER_CONNECT,
+#define RSH_TIMER_LIST(_) \
+    _(RSH_TIMER_APING,  0, "aping"), /* active ping */      \
+    _(RSH_TIMER_IPING,  1, "iping"), /* inactive ping */    \
+    _(RSH_TIMER_LINK,   2, "link"),  /* check wan link */   \
+    _(RSH_TIMER_TASK,   3, "task"),  /* check task over */  \
+    _(RSH_TIMER_CONNECT,4, "connect"),  \
+    /* end */
 
-    TIMER_END
-};
+static inline bool is_good_rsh_timer(int id);
+static inline char *rsh_timer_string(int id);
+static inline int rsh_timer_idx(char *string);
+DECLARE_ENUM(rsh_timer, RSH_TIMER_LIST, RSH_TIMER_END);
 
 typedef struct {
     int interval;
     tm_callback_f *cb;
     tm_node_t node;
 } rsh_timer_t;
-#define RSHA_TIMER_INITER(_interval, _cb) { \
+
+#define RSH_TIMER_INITER(_interval, _cb) { \
     .interval   = _interval,    \
     .cb         = _cb,          \
 }   /* end */
@@ -63,8 +51,8 @@ typedef struct {
         } echo;
         
         bool alive;
-        uint64_t disconnect;
-        uint64_t connect;
+        uint64_t disconnect;    /* disconnect times */
+        uint64_t connect;       /* connect times */
     } st[RSH_SLOT_END];
     
     struct clist_table table;
@@ -121,7 +109,7 @@ rsh_ack(rsh_msg_t *msg, sockaddr_in_t *client)
     ack.flag |= RSH_F_ACK;
     ack.len = htonl(0);
 
-    return io_sendto(rsh_agent_fd, msg, sizeof(*msg), client, sizeof(*client));
+    return io_sendto(rsh.fd, msg, sizeof(*msg), client, sizeof(*client));
 }
 
 static inline int
