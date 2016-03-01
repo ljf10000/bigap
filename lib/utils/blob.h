@@ -828,6 +828,8 @@ __blob_btoj(blob_t *blob, jobj_t obj)
             if (NULL==new) {
                 return -ENOMEM;
             }
+
+            os_println("%s is obj/array", blob_key(blob));
             
             blob_foreach_safe(p, blob, left) {
                 __blob_btoj(p, new);
@@ -837,23 +839,28 @@ __blob_btoj(blob_t *blob, jobj_t obj)
             break;
         case BLOB_T_STRING:
             jobj_add_string(obj, blob_key(blob), blob_get_string(blob));
+            os_println("%s:%s", blob_key(blob), blob_get_string(blob));
             
             break;
         case BLOB_T_BOOL:
             jobj_add_bool(obj, blob_key(blob), blob_get_bool(blob));
+            os_println("%s:%d", blob_key(blob), blob_get_bool(blob));
 
             break;
         case BLOB_T_INT32:
             jobj_add_int(obj, blob_key(blob), blob_get_i32(blob));
+            os_println("%s:%d", blob_key(blob), blob_get_i32(blob));
 
             break;
         case BLOB_T_INT64:
             jobj_add_int64(obj, blob_key(blob), blob_get_i64(blob));
+            os_println("%s:%ll", blob_key(blob), blob_get_i64(blob));
 
             break;
         case BLOB_T_EMPTY:
         case BLOB_T_BINARY:
         default:
+            os_println("no support empty/binary");
             /* do nothing */
             break;
     }
