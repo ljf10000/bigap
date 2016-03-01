@@ -163,10 +163,10 @@ blob_size(const blob_t *blob)
 static inline void
 __blob_dump(const blob_t *blob)
 {
-#if 1
+#if 0
     os_println("blob");
     os_println(__tab "len:%d", blob_size(blob));
-    os_println(__tab "type:%d", blob_type_string(blob->type));
+    os_println(__tab "type:%s", blob_type_string(blob->type));
     os_println(__tab "name:%s", blob_KEY(blob));
     os_println(__tab "name_len:%d", blob->klen);
     switch(blob->type) {
