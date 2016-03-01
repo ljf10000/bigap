@@ -27,7 +27,7 @@ put_somthing(void)
     blob_put_i64(bs, "i64", -1);
 }
 
-#define COUNT   1000
+#define COUNT   10
 int __main(int argc, char *argv[])
 {
     char *json;
