@@ -826,10 +826,10 @@ __blob_jobj(blob_t *blob)
 static inline jobj_t
 __blob_btoj(blob_t *blob, jobj_t root)
 {
-    char *name;
-    blob_t *p;
+    char *name  = NULL;
+    blob_t *p   = NULL;
+    jobj_t obj  = NULL;
     uint32_t left, count;
-    jobj_t obj;
     int i;
 
     name = blob_key(blob);

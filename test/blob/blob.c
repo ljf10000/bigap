@@ -17,7 +17,7 @@ static slice_t *bs = &BS;
 static void
 put_somthing(char *name)
 {
-    void *obj;
+    void *obj = NULL;
     
     if (name) {
         obj = blob_object_start(bs, name);
