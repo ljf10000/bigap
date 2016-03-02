@@ -39,9 +39,8 @@ DECLARE_ENUM(blob_type, BLOB_TYPE_LIST, BLOB_T_END);
 typedef struct {
     uint8_t     type;       /* enum blob_type */
     uint8_t     klen;       /* real key len, NOT include '\0' */
-    uint16_t    tag;
+    uint16_t    count;      /* if current node is object/array, the count is node's sub node count */
     uint32_t    vlen;       /* real value len, NOT include '\0' if value is string */
-
 /*
     name/value align 4
     ----------------------
@@ -57,6 +56,9 @@ blob_data(const blob_t *blob)
     return (char *)blob->data;
 }
 
+/*
+* key + ['\0'] + [pad]
+*/
 static inline uint32_t
 blob_ksize(const blob_t *blob)
 {
@@ -75,12 +77,6 @@ blob_key(const blob_t *blob)
     return blob->klen?blob_data(blob):NULL;
 }
 
-static inline char *
-blob_KEY(const blob_t *blob)
-{
-    return blob->klen?blob_data(blob):__empty;
-}
-
 static inline void *
 blob_kpad(const blob_t *blob)
 {
@@ -88,7 +84,7 @@ blob_kpad(const blob_t *blob)
 }
 
 /*
-* value-size + ['\0'] + [pad]
+* value + ['\0'] + [pad]
 */
 static inline uint32_t
 blob_vsize(const blob_t *blob)
@@ -107,7 +103,7 @@ blob_vsize(const blob_t *blob)
 static inline char *
 blob_value(const blob_t *blob)
 {
-    return blob_data(blob) + blob_ksize(blob);
+    return blob->vlen?(blob_data(blob) + blob_ksize(blob)):NULL;
 }
 
 static inline uint32_t
@@ -127,8 +123,6 @@ blob_vpad_len(const blob_t *blob)
 static inline void *
 blob_vpad(const blob_t *blob)
 {
-    return blob_value(blob) + blob->vlen;
-
     if (blob->vlen) {
         if (BLOB_T_STRING==blob->type) {
             return blob_value(blob) + blob->vlen + 1;
@@ -140,6 +134,7 @@ blob_vpad(const blob_t *blob)
     }
 }
 
+#if 0
 static inline void
 blob_sub_vlen(blob_t *blob, uint32_t len)
 {
@@ -149,6 +144,7 @@ blob_sub_vlen(blob_t *blob, uint32_t len)
         trace_assert(0, "SUB: len(%d) < vlen(%d)", len, blob->vlen);
     }
 }
+#endif
 
 static inline uint32_t
 blob_dsize(const blob_t *blob)
@@ -208,16 +204,10 @@ __blob_dump(const blob_t *blob)
 #endif
 }
 
-static inline uint32_t
-blob_get_u32(const blob_t *blob)
+static inline bool
+blob_get_bool(const blob_t *blob)
 {
-	return *blob_vpointer(uint32_t, blob);
-}
-
-static inline uint64_t
-blob_get_u64(const blob_t *blob)
-{
-	return *blob_vpointer(uint64_t, blob);
+	return !!blob_get_u32(blob);
 }
 
 static inline int32_t
@@ -226,16 +216,22 @@ blob_get_i32(const blob_t *blob)
     return *blob_vpointer(int32_t, blob);
 }
 
+static inline uint32_t
+blob_get_u32(const blob_t *blob)
+{
+	return *blob_vpointer(uint32_t, blob);
+}
+
 static inline int64_t
 blob_get_i64(const blob_t *blob)
 {
 	return *blob_vpointer(int64_t, blob);
 }
 
-static inline bool
-blob_get_bool(const blob_t *blob)
+static inline uint64_t
+blob_get_u64(const blob_t *blob)
 {
-	return !!blob_get_u32(blob);
+	return *blob_vpointer(uint64_t, blob);
 }
 
 static inline const char *
@@ -245,23 +241,32 @@ blob_get_string(const blob_t *blob)
 }
 
 static inline blob_t *
+blob_first(const blob_t *blob)
+{
+	return blob?blob_vpointer(blob_t, blob):NULL;
+}
+
+static inline blob_t *
 blob_next(const blob_t *blob)
 {
-	return (blob_t *)((char *)blob + blob_size(blob));
+	return blob?(blob_t *)((char *)blob + blob_size(blob)):NULL;
 }
 
 static inline void
 blob_zero_pad(blob_t *blob)
 {
-    os_memzero(blob_kpad(blob), blob_kpad_len(blob));
-    os_memzero(blob_vpad(blob), blob_vpad_len(blob));
+    if (blob->klen) {
+        os_memzero(blob_kpad(blob), blob_kpad_len(blob));
+    }
+    
+    if (blob->vlen) {
+        os_memzero(blob_vpad(blob), blob_vpad_len(blob));
+    }
 }
 
 static inline bool
 blob_eq(const blob_t *a, const blob_t *b)
 {
-    uint32_t len;
-    
 	if (!a && !b) {
 		return true;
     }
@@ -272,29 +277,28 @@ blob_eq(const blob_t *a, const blob_t *b)
         return true;
     }
 
-    len = blob_size(a);
-	if (len != blob_size(b)) {
+    uint32_t size = blob_size(a);
+	if (size != blob_size(b)) {
 		return false;
     }
     
-	return os_memeq(a, b, len);
+	return os_memeq(a, b, size);
 }
 
-#define blob_foreach(_pos, _blob, _left)                \
-	for (_pos = (void *)_blob;                          \
-	     _left > 0 && (blob_size(_pos) <= _left) &&     \
-	        (blob_size(_pos) >= sizeof(blob_t));        \
-	     _left -= blob_size(_pos), _pos = blob_next(_pos)) \
+#if 1
+#define blob_foreach(_root, _blob, _i, _left) \
+	for (_left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
+	     _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
+	     _left -= blob_size(_blob), _blob = blob_next(_blob)) \
     /* end */
+#else
+#define blob_foreach(_root, _blob, _i, _left) \
+	for (_i = 0, _left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
+	     _i < (_root)->count && _blob && _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
+	     _i++, _left -= blob_size(_blob), _blob = blob_next(_blob))  \
+    /* end */
+#endif
 
-#define blob_foreach_safe(_pos, _blob, _left)               \
-	for (_left = _blob?blob_size(_blob):0,                  \
-	        _pos = _blob?blob_vpointer(blob_t, _blob):0;    \
-	     _left > 0 && (blob_size(_pos) <= _left) &&         \
-	        (blob_size(_pos) >= sizeof(blob_t));            \
-	     _left -= blob_size(_pos), _pos = blob_next(_pos))  \
-    /* end */
-    
 typedef struct blob_rule {
     const char *name;
     uint32_t type;
@@ -424,7 +428,7 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32_t cou
     uint32_t left, type;
     int i, found = 0;
 
-    blob_foreach_safe(p, blob, left) {
+    blob_foreach(blob, p, i, left) {
         type = p->type;
         if (false==is_good_blob_type(type)) {
             continue;
@@ -491,24 +495,39 @@ __blob_init(
     blob->vlen  = payload;
 }
 
+static inline void
+__blob_save_name(blob_t *blob, const char *name)
+{
+    if (name) {
+        os_strmcpy(blob_key(blob), name, blob->klen);
+    }
+
+    blob_zero_pad(blob);
+}
+
 static inline blob_t *
 __blob_new(
     slice_t *slice, 
-    bool put, 
     uint32_t type, 
     const char *name, 
-    uint32_t payload
+    uint32_t payload,
+    bool put
 )
 {
-	blob_t *blob, tmp;
+	blob_t *blob;
+	blob_t tmp;
     int size;
     
     __blob_init(&tmp, type, name, payload);
     
     size = blob_size(&tmp);
     
-    debug_test("type=%s, name=%s, payload=%d, size=%d", blob_type_string(type), name, payload, size);
-    
+    debug_test("type=%s, name=%s, payload=%d, size=%d", 
+        blob_type_string(type), 
+        name, 
+        payload, 
+        size);
+
     if (slice_remain(slice) < size) {
         if (slice_grow(slice, size) < 0) {
             return NULL;
@@ -520,12 +539,8 @@ __blob_new(
     
     blob = (blob_t *)slice_tail(slice);
     __blob_init(blob, type, name, payload);
-    
-    if (name) {
-        os_strcpy(blob_key(blob), name);
-    }
-    blob_zero_pad(blob);
-    
+    __blob_save_name(blob, name);
+
     if (put) {
         blob_t *root = blob_root(slice);
         if (root) {
@@ -541,7 +556,7 @@ __blob_new(
 static inline blob_t *
 blob_new(slice_t *slice, int type, const char *name, int payload)
 {
-	return __blob_new(slice, true, type, name, payload);
+	return __blob_new(slice, type, name, payload, true);
 }
 
 static inline blob_t *
@@ -555,31 +570,31 @@ blob_root_init(slice_t *slice, int type, const char *name)
 static inline void *
 __blob_nest_start(slice_t *slice, bool array, const char *name)
 {
-	blob_t *new;
 	int type = array?BLOB_T_ARRAY:BLOB_T_OBJECT;
     
-	new = blob_new(slice, type, name, 0);
+	blob_t *new = blob_new(slice, type, name, 0);
 	if (NULL==new) {
         return NULL;
-	} else {
-	    int offset = slice_offset(slice);
-	    
-        slice_offset(slice) = (byte *)new - (byte *)slice_data(slice);
-
-        return (void *)offset;
 	}
+
+    uint32_t offset = (byte *)new - (byte *)slice_data(slice);
+    
+    return (void *)slice_offset_save(slice, offset);
 }
 
 static inline void
 __blob_nest_end(slice_t *slice, void *cookie)
 {
-	blob_t *new, *old;
+    blob_t *root;
+    uint32_t size;
     
-	new = blob_root(slice);
+    root = blob_root(slice);
+    size = blob_vsize(root);
+    
 	slice_offset(slice) = (uint32_t)cookie;
 	
-	old = blob_root(slice);
-	old->vlen += blob_size(new);
+	root = blob_root(slice);
+	root->vlen += size;
 }
 
 static inline void *
@@ -667,27 +682,7 @@ blob_put(
     uint32_t len
 )
 {
-	blob_t *blob;
-    
-    if (value) {
-        if (len) {
-            /* do nothing */
-        } else {
-            trace_assert(0, "blob_put len 0");
-            
-            return NULL;
-        }
-    } else {
-        if (len) {
-            trace_assert(0, "blob_put value nil");
-            
-            return NULL;
-        } else {
-            type = BLOB_T_EMPTY;
-        }
-    }
-    
-	blob = blob_new(slice, type, name, len);
+	blob_t *blob = blob_new(slice, type, name, len);
 	if (NULL==blob) {
 		return NULL;
 	}
@@ -706,7 +701,7 @@ blob_put(
             slice_tail(slice) - slice_data(slice),
             slice_remain(slice),
             slice_offset(slice),
-            blob_KEY(blob_root(slice)),
+            blob_key(blob_root(slice)),
             blob_type_string(blob_root(slice)->type),
             blob_root(slice)->vlen);
 	}
@@ -717,7 +712,7 @@ blob_put(
 static inline blob_t *
 blob_put_string(slice_t *slice, const char *name, const char *str)
 {
-	return blob_put(slice, BLOB_T_STRING, name, str, 1 + os_strlen(str));
+	return blob_put(slice, BLOB_T_STRING, name, str, os_strlen(str));
 }
 
 static inline blob_t *
@@ -770,19 +765,20 @@ __blob_byteorder(blob_t *blob, bool ntoh)
 {
     uint32_t left;
     uint32_t type = blob->type;
-
+    int i;
+    
     if (ntoh) {
-        blob->tag  = bswap_16(blob->tag);
+        blob->count= bswap_16(blob->count);
         blob->vlen = bswap_32(blob->vlen);
     }
     
     switch(type) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY: {
-            blob_t *pos;
+            blob_t *p;
             
-            blob_foreach_safe(pos, blob, left) {
-                __blob_byteorder(pos, ntoh);
+            blob_foreach(blob, p, i, left) {
+                __blob_byteorder(p, ntoh);
             }
         }   break;
         case BLOB_T_INT64:           
@@ -801,7 +797,7 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     }
     
     if (false==ntoh) {
-        blob->tag  = bswap_16(blob->tag);
+        blob->count= bswap_16(blob->count);
         blob->vlen = bswap_32(blob->vlen);
     }
 }
@@ -824,6 +820,7 @@ __blob_btoj(blob_t *blob, jobj_t obj)
     blob_t *p;
     uint32_t left, count;
     jobj_t new;
+    int i;
     
     switch(blob->type) {
         case BLOB_T_OBJECT:
@@ -835,7 +832,7 @@ __blob_btoj(blob_t *blob, jobj_t obj)
             os_println("\n%s is object", blob_key(blob));
 
             os_println("object begin");
-            blob_foreach_safe(p, blob, left) {
+            blob_foreach(blob, p, i, left) {
                 __blob_btoj(p, new);
                 jobj_add(obj, blob_key(p), new);
             }
@@ -851,7 +848,7 @@ __blob_btoj(blob_t *blob, jobj_t obj)
             os_println("%s is array", blob_key(blob));
 
             os_println("array begin");
-            blob_foreach_safe(p, blob, left) {
+            blob_foreach(blob, p, i, left) {
                 __blob_btoj(p, new);
                 jobj_add(obj, NULL, new);
             }

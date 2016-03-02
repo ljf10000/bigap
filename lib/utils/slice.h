@@ -106,6 +106,16 @@ slice_is_empty(const slice_t *slice)
     (_iov)->iov_len  = slice_len(_slice);   \
 }while(0)
 
+static inline uint32_t
+slice_offset_save(slice_t *slice, uint32_t offset)
+{
+    uint32_t old = slice_offset(slice);
+
+    slice_offset(slice) = offset;
+
+    return old;
+}
+
 static inline int 
 slice_reinit(slice_t *slice, uint32_t size, uint32_t resv, bool local)
 {
