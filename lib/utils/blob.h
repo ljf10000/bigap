@@ -532,7 +532,7 @@ __blob_new(
     
     int size = blob_size(&tmp);
 
-    debug_entry("type=%s, name=%s, payload=%d, size=%d", 
+    os_println("type=%s, name=%s, payload=%d, size=%d", 
         blob_type_string(type), 
         name, 
         payload, 
