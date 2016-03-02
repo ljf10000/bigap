@@ -40,48 +40,59 @@ put_somthing(char *name)
 #define COUNT   2
 int __main(int argc, char *argv[])
 {
-    char *json;
+    char *json, *name;
     void *arr, *obj;
     int i;
-
+    char tmp[128];
+    
     slice_alloc(bs, BUFFER_SIZE);    
     blob_root_init(bs, BLOB_T_OBJECT, "ROOT");
     blob_t *root = blob_root(bs);
 
-    put_somthing("FIRST");
-    //debug_ok("1:root blob vlen=%d", root->vlen);
+    name = "FIRST";
+    os_println("%s begin", name);
+    put_somthing(name);
+    os_println("%s end", name);
+    
+    debug_ok("1:root blob vlen=%d", root->vlen);
 
+    name = "OBJ";
+    os_println("%s begin", name);
     obj = blob_object_start(bs, "OBJ");
     for (i=0; i<COUNT; i++) {
-        char buf[128];
-
-        os_sprintf(buf, "array-%d", i);
-        os_println("obj %d begin", i);
-        arr = blob_array_start(bs, buf);
+        os_sprintf(tmp, "array-%d", i);
+        
+        os_println("%s.%s begin", name, tmp);
+        arr = blob_array_start(bs, tmp);
         put_somthing(NULL);
         blob_array_end(bs, arr);
-        os_println("obj %d end", i);
+        os_println("%s.%s end", name, tmp);
     }
     blob_object_end(bs, obj);
+    os_println("%s end", name);
+    
     debug_ok("2:root blob vlen=%d", root->vlen);
 
     arr = blob_array_start(bs, "ARRAY");
     for (i=0; i<COUNT; i++) {
-        char buf[128];
-
-        os_sprintf(buf, "obj-%d", i);
-        os_println("array %d begin", i);
-        obj = blob_object_start(bs, buf);
+        os_sprintf(tmp, "obj-%d", i);
+        
+        os_println("%s.%s begin", name, tmp);
+        obj = blob_object_start(bs, tmp);
         put_somthing(NULL);
         blob_object_end(bs, obj);
-        os_println("array %d end", i);
+        os_println("%s.%s end", name, tmp);
     }
     blob_array_end(bs, arr);
 
     debug_ok("3:root blob vlen=%d", root->vlen);
 
-    put_somthing("LAST");
-    //debug_ok("4:root blob vlen=%d", root->vlen);
+    name = "LAST";
+    os_println("%s begin", name);
+    put_somthing(name);
+    os_println("%s end", name);
+
+    debug_ok("4:root blob vlen=%d", root->vlen);
 
     jobj_t j = blob_btoj(root);
     os_println("begin get json");
