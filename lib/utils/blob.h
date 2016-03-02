@@ -826,39 +826,43 @@ __blob_btoj(blob_t *blob, jobj_t root)
 {
     char *name  = NULL;
     blob_t *p   = NULL;
-    jobj_t obj  = NULL;
-    jobj_t sub  = NULL;
+    jobj_t container    = NULL;
+    jobj_t obj          = NULL;
     uint32_t left, count;
     int i = 0;
 
+    if (NULL==root) {
+        return NULL;
+    }
+    
     name = blob_key(blob);
     
     switch(blob->type) {
         case BLOB_T_OBJECT:
-            obj = __blob_jobj(p);
+            container = __blob_jobj(p);
             
             os_println("object %s begin", name);
             blob_foreach(blob, p, i, left) {
-                sub = __blob_jobj(p);
+                obj = __blob_jobj(p);
                 
-                jobj_add(obj, blob_key(p), __blob_btoj(p, sub));
+                jobj_add(container, blob_key(p), __blob_btoj(p, obj));
             }
             os_println("object %s end", name);
             
-            jobj_add(root, blob_key(p), obj);
+            jobj_add(root, blob_key(blob), container);
             break;
         case BLOB_T_ARRAY:
-            obj = __blob_jobj(p);
+            container = __blob_jobj(p);
             
             os_println("array %s begin", name);
             blob_foreach(blob, p, i, left) {
-                sub = __blob_jobj(p);
+                obj = __blob_jobj(p);
                 
-                jobj_add(obj, NULL, __blob_btoj(p, sub));
+                jobj_add(container, NULL, __blob_btoj(p, obj));
             }
             os_println("array %s end", name);
             
-            jobj_add(root, blob_key(p), obj);
+            jobj_add(root, blob_key(blob), container);
             break;
         case BLOB_T_STRING:
             jobj_add_string(root, name, blob_get_string(blob));
