@@ -18,6 +18,7 @@ enum {
     _(BLOB_T_BOOL,      5, "bool"),     \
     _(BLOB_T_INT32,     6, "int32"),    \
     _(BLOB_T_INT64,     7, "int64"),    \
+    _(BLOB_T_DOUBLE,    8, "double"),   \
     /* end */
 
 #define BLOB_T_EMPTY    BLOB_T_EMPTY
@@ -28,6 +29,7 @@ enum {
 #define BLOB_T_BOOL     BLOB_T_BOOL
 #define BLOB_T_INT32    BLOB_T_INT32
 #define BLOB_T_INT64    BLOB_T_INT64
+#define BLOB_T_DOUBLE   BLOB_T_DOUBLE
 
 static inline bool is_good_blob_type(int type);
 static inline char *blob_type_string(int type);
@@ -196,6 +198,12 @@ blob_get_u64(const blob_t *blob)
 	return *blob_vpointer(uint64_t, blob);
 }
 
+static inline double
+blob_get_double(const blob_t *blob)
+{
+	return *blob_vpointer(double, blob);
+}
+
 static inline bool
 blob_get_bool(const blob_t *blob)
 {
@@ -304,6 +312,9 @@ __blob_dump(const blob_t *blob, int level)
         case BLOB_T_INT64:
             os_println(", int64:%lld", *(int64_t *)blob_value(blob));
             break;
+        case BLOB_T_DOUBLE:
+            os_println(", double:%llf", *(double *)blob_value(blob));
+            break;
         case BLOB_T_EMPTY:
             os_println(", empty");
             break;
@@ -393,6 +404,10 @@ blob_check(uint32_t type, const void *value, uint32_t len)
         [BLOB_T_INT64] = {
             .flag   = BLOB_F_FIXED,
             .minsize= sizeof(uint64_t),
+        },
+        [BLOB_T_DOUBLE] = {
+            .flag   = BLOB_F_FIXED,
+            .minsize= sizeof(double),
         },
     };
     
@@ -768,6 +783,12 @@ blob_put_i64(slice_t *slice, const char *name, int64_t val)
 }
 
 static inline blob_t *
+blob_put_double(slice_t *slice, const char *name, double val)
+{
+	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(val));
+}
+
+static inline blob_t *
 blob_put_blob(slice_t *slice, blob_t *blob)
 {
 	return blob_put(slice, blob->type, blob_key(blob), blob_value(blob), blob->vlen);
@@ -795,7 +816,8 @@ __blob_byteorder(blob_t *blob, bool ntoh)
                 __blob_byteorder(p, ntoh);
             }
         }   break;
-        case BLOB_T_INT64:           
+        case BLOB_T_INT64:
+        case BLOB_T_DOUBLE:
             *blob_vpointer(int64_t, blob) = bswap_64(blob_get_u64(blob));
             break;
         case BLOB_T_BOOL:
@@ -876,6 +898,9 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
         case BLOB_T_INT64:
             jobj_add_int64(root, name, blob_get_i64(blob));
             break;
+        case BLOB_T_DOUBLE:
+            jobj_add_double(root, name, blob_get_double(blob));
+            break;
         case BLOB_T_EMPTY:
             debug_error("no support empty");
             break;
@@ -897,10 +922,65 @@ blob_btoj(blob_t *blob)
 }
 
 static inline blob_t *
+__blob_bobj(slice_t *slice, jobj_t obj)
+{
+    switch(jobj_type(obj)) {
+        case jtype_array:   return blob_root_array(slice);
+        case jtype_object:  return blob_root_object(slice);
+        default: return NULL;
+    }
+}
+
+static inline void
+__blob_jtob(slice_t *slice, char *name, jobj_t obj)
+{
+    void *cookie = NULL;
+    blob_t *root = blob_root(slice);
+    blob_t *blob;
+    
+    switch(jobj_type(obj)) {
+        case jtype_object:
+            cookie = blob_object_start(slice_t, name);
+            jobj_foreach(root, k, v) {
+                __blob_jtob(slice, k, v);
+            }
+            blob_object_end(slice, cookie);
+            break;
+        case jtype_array:
+            cookie = blob_array_start(slice_t, name);
+            jobj_foreach(root, k, v) {
+                __blob_jtob(slice, k, v);
+            }
+            blob_array_end(slice, cookie);
+            break;
+        case jtype_bool:
+            blob_put_bool(slice, name, jobj_get_bool(obj));
+            break;
+        case jtype_int:
+            blob_put_i32(slice, name, jobj_get_int(obj));
+            break;
+        case jtype_double:
+            blob_put_double(slice, name, jobj_get_double(obj));
+            break;
+        case jtype_string:
+            blob_put_string(slice, name, jobj_get_string(obj));
+            break;
+        case jtype_null:
+        default:
+            break;
+    }
+}
+
+static inline blob_t *
 blob_jtob(slice_t *slice, jobj_t obj)
 {
+    if (NULL==__blob_bobj(slice, obj)) {
+        return NULL;
+    }
     
-    return NULL;
+    __blob_jtob(slice, NULL, obj);
+
+    return blob_root(slice);
 }
 
 #endif

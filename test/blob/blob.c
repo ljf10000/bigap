@@ -69,7 +69,7 @@ root_array(void)
     jobj_t j = blob_btoj(root);
     json = jobj_string(j);
     os_println("%s", json);
-    jobj_put(j);
+//    jobj_put(j);
 }
 
 static void
@@ -138,7 +138,10 @@ root_object(void)
     jobj_t j = blob_btoj(root);
     json = jobj_string(j);
     os_println("%s", json);
-    jobj_put(j);
+//    jobj_put(j);
+
+    blob_jtob(bs, j);
+    blob_dump(blob_root(bs));
 }
 
 
