@@ -49,13 +49,11 @@ int __main(int argc, char *argv[])
 
     blob_root_init(bs, BLOB_T_OBJECT, "ROOT");
     blob_t *root = blob_root(bs);
-    os_println("ROOT size=%d", blob_size(root));
     
     name = "FIRST";
     os_println("%s begin", name);
     put_somthing(name);
     os_println("%s end", name);
-    os_println("ROOT size=%d", blob_size(root));
     
     debug_ok("1:root blob vlen=%d", root->vlen);
 
@@ -73,7 +71,6 @@ int __main(int argc, char *argv[])
     }
     blob_object_end(bs, obj);
     os_println("%s end", name);
-    os_println("ROOT size=%d", blob_size(root));
     
     debug_ok("2:root blob vlen=%d", root->vlen);
 
@@ -91,7 +88,6 @@ int __main(int argc, char *argv[])
     }
     blob_array_end(bs, arr);
     os_println("%s end", name);
-    os_println("ROOT size=%d", blob_size(root));
 
     debug_ok("3:root blob vlen=%d", root->vlen);
 
@@ -99,19 +95,14 @@ int __main(int argc, char *argv[])
     os_println("%s begin", name);
     put_somthing(name);
     os_println("%s end", name);
-    os_println("ROOT size=%d", blob_size(root));
 
     debug_ok("4:root blob vlen=%d", root->vlen);
-    os_println("ROOT size=%d", blob_size(root));
 
     blob_dump(root);
     
     jobj_t j = blob_btoj(root);
-    os_println("begin get json");
     json = jobj_string(j);
-    os_println("end get json");
     os_println("%s", json);
-    os_println("end print json");
     jobj_put(j);
 
     return 0;
