@@ -147,8 +147,8 @@ root_object(void)
 
 int __main(int argc, char *argv[])
 {
-    root_object();
     root_array();
+    root_object();
 
     return 0;
 }
