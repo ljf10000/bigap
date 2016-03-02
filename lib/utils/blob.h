@@ -848,7 +848,7 @@ __blob_btoj(blob_t *blob, jobj_t jroot)
                 }
                 
                 __blob_btoj(p, obj);
-                jobj_add(jroot, NULL, obj);
+                jobj_add(jroot, (char *)i, obj);
             }
             os_println("array %s end", name);
 
