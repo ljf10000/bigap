@@ -839,8 +839,13 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
                 if (NULL==obj) {
                     return -ENOMEM;
                 }
+
+                err = __blob_btoj(p, obj, level+1);
+                if (err<0) {
+                    return err;
+                }
                 
-                jobj_add(root, blob_key(p), __blob_btoj(p, obj, level+1));
+                jobj_add(root, blob_key(p), obj);
             }
             __printab(level); os_println("object %s end", name);
             __printab(level); os_println("root=%s", jobj_string(root));
@@ -857,8 +862,13 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
                 if (NULL==obj) {
                     return -ENOMEM;
                 }
+
+                err = __blob_btoj(p, obj, level+1);
+                if (err<0) {
+                    return err;
+                }
                 
-                jobj_add(root, NULL, __blob_btoj(p, obj, level+1));
+                jobj_add(root, blob_key(p), obj);
             }
             __printab(level); os_println("array %s end", name);
             __printab(level); os_println("root=%s", jobj_string(root));
