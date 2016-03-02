@@ -817,10 +817,13 @@ blob_hton(blob_t *blob)
 static inline int
 __blob_btoj(blob_t *blob, jobj_t obj)
 {
+    char *name;
     blob_t *p;
     uint32_t left, count;
     jobj_t new;
     int i;
+
+    name = blob_key(blob);
     
     switch(blob->type) {
         case BLOB_T_OBJECT:
@@ -829,14 +832,12 @@ __blob_btoj(blob_t *blob, jobj_t obj)
                 return -ENOMEM;
             }
 
-            os_println("\n%s is object", blob_key(blob));
-
-            os_println("object begin");
+            os_println("object %s begin", name);
             blob_foreach(blob, p, i, left) {
                 __blob_btoj(p, new);
                 jobj_add(obj, blob_key(p), new);
             }
-            os_println("object end");
+            os_println("object %s end", name);
             
             break;
         case BLOB_T_ARRAY:
@@ -845,34 +846,32 @@ __blob_btoj(blob_t *blob, jobj_t obj)
                 return -ENOMEM;
             }
 
-            os_println("%s is array", blob_key(blob));
-
-            os_println("array begin");
+            os_println("array %s begin", name);
             blob_foreach(blob, p, i, left) {
                 __blob_btoj(p, new);
                 jobj_add(obj, NULL, new);
             }
-            os_println("array end");
+            os_println("array %s end", name);
 
             break;
         case BLOB_T_STRING:
-            jobj_add_string(obj, blob_key(blob), blob_get_string(blob));
-            os_println("%s:%s", blob_key(blob), blob_get_string(blob));
+            jobj_add_string(obj, name, blob_get_string(blob));
+            os_println("%s:%s", name, blob_get_string(blob));
             
             break;
         case BLOB_T_BOOL:
-            jobj_add_bool(obj, blob_key(blob), blob_get_bool(blob));
-            os_println("%s:%d", blob_key(blob), blob_get_bool(blob));
+            jobj_add_bool(obj, name, blob_get_bool(blob));
+            os_println("%s:%d", name, blob_get_bool(blob));
 
             break;
         case BLOB_T_INT32:
-            jobj_add_int(obj, blob_key(blob), blob_get_i32(blob));
-            os_println("%s:%d", blob_key(blob), blob_get_i32(blob));
+            jobj_add_int(obj, name, blob_get_i32(blob));
+            os_println("%s:%d", name, blob_get_i32(blob));
 
             break;
         case BLOB_T_INT64:
-            jobj_add_int64(obj, blob_key(blob), blob_get_i64(blob));
-            os_println("%s:%lld", blob_key(blob), blob_get_i64(blob));
+            jobj_add_int64(obj, name, blob_get_i64(blob));
+            os_println("%s:%lld", name, blob_get_i64(blob));
 
             break;
         case BLOB_T_EMPTY:
