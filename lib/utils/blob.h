@@ -887,7 +887,7 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
                     
                     jobj_add(root, blob_key(p), obj);
                 } else {
-                    err = __blob_btoj(blob, root, level+1);
+                    err = __blob_btoj(p, root, level+1);
                     if (err<0) {
                         return err;
                     }
@@ -913,7 +913,7 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
                     
                     jobj_add(root, NULL, obj);
                 } else {
-                    err = __blob_btoj(blob, root, level+1);
+                    err = __blob_btoj(p, root, level+1);
                     if (err<0) {
                         return err;
                     }
