@@ -34,6 +34,12 @@ static inline char *blob_type_string(int type);
 static inline int blob_type_idx(char *type_string);
 DECLARE_ENUM(blob_type, BLOB_TYPE_LIST, BLOB_T_END);
 
+static inline bool
+is_blob_type_container(int type)
+{
+    return type==BLOB_T_OBJECT || type==BLOB_T_ARRAY;
+}
+
 #define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32_t))
 
 typedef struct {
@@ -866,37 +872,26 @@ blob_btoj(blob_t *blob)
         return NULL;
     }
     char *name = blob_key(blob);
-    
-    switch(blob->type) {
-        case BLOB_T_OBJECT: {
-            blob_t *p   = NULL;
-            uint32_t left, count;
-            int i = 0;
-            
-            os_println("object %s begin", name);
-            blob_foreach(blob, p, i, left) {
-                jobj_add(root, blob_key(p), blob_btoj(p));
-            }
-            os_println("object %s end", name);
-            os_println("root=%s", jobj_string(root));
-        }   break;
-        case BLOB_T_ARRAY: {
-            blob_t *p   = NULL;
-            uint32_t left, count;
-            int i = 0;
-            
-            os_println("array %s begin", name);
-            blob_foreach(blob, p, i, left) {
-                jobj_add(root, NULL, blob_btoj(p));
-            }
-            os_println("array %s end", name);
-            os_println("root=%s", jobj_string(root));
-        }   break;
-        default:
-            __blob_btoj(blob, root);
-            break;
-    }
 
+    if (is_blob_type_container(blob->type)) {
+        blob_t *p = NULL;
+        uint32_t left, count;
+        int i = 0;
+        
+        os_println("object %s begin", name);
+        blob_foreach(blob, p, i, left) {
+            if (is_blob_type_container(p->type)) {
+                jobj_add(root, name, blob_btoj(p));
+            } else {
+                __blob_btoj(p, root);
+            }
+        }
+        os_println("object %s end", name);
+        os_println("root=%s", jobj_string(root));
+    } else {
+        __blob_btoj(blob, root);
+    }
+    
     return root;
 }
 #else
