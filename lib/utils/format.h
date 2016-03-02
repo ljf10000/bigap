@@ -33,21 +33,21 @@
 #define os_println(_fmt, _args...)              os_printf(_fmt __crlf, ##_args)
 #define os_vprintln(_fmt, _args)                os_vprintf(_fmt __crlf, _args)
 
-#define os_printab(_count, _fmt, _args...) do{ \
+#define __printab(_count) do{ \
     int i;                      \
                                 \
     for (i=0; i<_count; i++) {  \
         os_printf(__tab);       \
     }                           \
+}while(0)
+
+#define os_printab(_count, _fmt, _args...) do{ \
+    __printab(_count);          \
     os_println(_fmt, ##_args);  \
 }while(0)
 
 #define os_vprintab(count, _fmt, _args) do{ \
-    int i;                      \
-                                \
-    for (i=0; i<count; i++) {   \
-        os_printf(__tab);       \
-    }                           \
+    __printab(_count);          \
     os_vprintln(_fmt, _args);   \
 }while(0)
 

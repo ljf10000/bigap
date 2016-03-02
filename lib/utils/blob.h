@@ -266,39 +266,41 @@ blob_dump(const blob_t *blob, int level)
 {
     int i, left;
     blob_t *p;
-#if 1
-    os_printab(level, "name:%s, count:%d", blob_key(blob), blob->count);
+
+    __printab(level); os_printf("name:%s, count:%d", blob_key(blob), blob->count);
+    
     switch(blob->type) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY:
+            os_printf(__crlf);
+            
             blob_foreach(blob, p, i, left) {
                 blob_dump(p, level+1);
             }
             
             break;
         case BLOB_T_STRING:
-            os_printab(level, "string:%s", (char *)blob_value(blob));
+            os_println("string:%s", (char *)blob_value(blob));
             break;
         case BLOB_T_BOOL:
-            os_printab(level, "bool:%d", *(int *)blob_value(blob));
+            os_println("bool:%d", *(int *)blob_value(blob));
             break;
         case BLOB_T_INT32:
-            os_printab(level, "int32:%d", *(int32_t *)blob_value(blob));
+            os_println("int32:%d", *(int32_t *)blob_value(blob));
             break;
         case BLOB_T_INT64:
-            os_printab(level, "int64:%lld", *(int64_t *)blob_value(blob));
+            os_println("int64:%lld", *(int64_t *)blob_value(blob));
             break;
         case BLOB_T_EMPTY:
-            os_printab(level, "empty");
+            os_println("empty");
             break;
         case BLOB_T_BINARY:
-            os_printab(level, "binary:%p", blob_value(blob));
+            os_println("binary:%p", blob_value(blob));
             break;
         default:
-            os_println(__tab "unknow:%p", blob_value(blob));
+            os_println("unknow:%p", blob_value(blob));
             break;
     }
-#endif
 }
 
 typedef struct blob_rule {
