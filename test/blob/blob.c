@@ -56,11 +56,11 @@ int __main(int argc, char *argv[])
         char buf[128];
 
         os_sprintf(buf, "array-%d", i);
-        debug_trace("obj %d begin", i);
+        os_println("obj %d begin", i);
         arr = blob_array_start(bs, buf);
         put_somthing(NULL);
         blob_array_end(bs, arr);
-        debug_trace("obj %d end", i);
+        os_println("obj %d end", i);
     }
     blob_object_end(bs, obj);
     debug_ok("2:root blob vlen=%d", root->vlen);
@@ -70,11 +70,11 @@ int __main(int argc, char *argv[])
         char buf[128];
 
         os_sprintf(buf, "obj-%d", i);
-        debug_trace("array %d begin", i);
+        os_println("array %d begin", i);
         obj = blob_object_start(bs, buf);
         put_somthing(NULL);
         blob_object_end(bs, obj);
-        debug_trace("array %d end", i);
+        os_println("array %d end", i);
     }
     blob_array_end(bs, arr);
 
