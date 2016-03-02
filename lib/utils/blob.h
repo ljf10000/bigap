@@ -897,8 +897,9 @@ blob_btoj(blob_t *blob)
 }
 
 static inline blob_t *
-blob_jtob(jobj_t obj)
+blob_jtob(slice_t *slice, jobj_t obj)
 {
+    
     return NULL;
 }
 

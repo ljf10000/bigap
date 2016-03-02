@@ -38,7 +38,9 @@ put_somthing(char *name)
 }
 
 #define COUNT   2
-int __main(int argc, char *argv[])
+
+static void
+root_array(void)
 {
     char *json, *name;
     void *arr, *obj;
@@ -47,7 +49,40 @@ int __main(int argc, char *argv[])
     
     slice_alloc(bs, BUFFER_SIZE);  
 
-    blob_root_init(bs, BLOB_T_OBJECT, NULL);
+    blob_root_array(bs);
+    blob_t *root = blob_root(bs);
+    
+    name = "FIRST";
+    os_println("%s begin", name);
+    put_somthing(name);
+    os_println("%s end", name);
+    
+    name = "LAST";
+    os_println("%s begin", name);
+    put_somthing(name);
+    os_println("%s end", name);
+
+    debug_ok("4:root blob vlen=%d", root->vlen);
+
+    blob_dump(root);
+    
+    jobj_t j = blob_btoj(root);
+    json = jobj_string(j);
+    os_println("%s", json);
+    jobj_put(j);
+}
+
+static void
+root_object(void)
+{
+    char *json, *name;
+    void *arr, *obj;
+    int i;
+    char tmp[128];
+    
+    slice_alloc(bs, BUFFER_SIZE);  
+
+    blob_root_object(bs);
     blob_t *root = blob_root(bs);
     
     name = "FIRST";
@@ -104,6 +139,13 @@ int __main(int argc, char *argv[])
     json = jobj_string(j);
     os_println("%s", json);
     jobj_put(j);
+}
+
+
+int __main(int argc, char *argv[])
+{
+    root_object();
+    root_array();
 
     return 0;
 }
