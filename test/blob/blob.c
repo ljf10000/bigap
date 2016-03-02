@@ -15,8 +15,14 @@ static slice_t *bs = &BS;
 #define BUFFER_SIZE     1024
 
 static void
-put_somthing(void)
+put_somthing(char *name)
 {
+    void *obj;
+    
+    if (name) {
+        obj = blob_object_start(bs, name);
+    }
+    
     blob_put_bool(bs, "bool", true);
 //    blob_put_binary(bs, "binary", "bbbbbbb", 7);
     blob_put_string(bs, "string", "sssssss");
@@ -25,14 +31,10 @@ put_somthing(void)
     blob_put_u64(bs, "u64", 0x0000000000000064);
     blob_put_i32(bs, "i32", -1);
     blob_put_i64(bs, "i64", -1);
-}
 
-static void
-put_obj(char *name)
-{
-    void *obj = blob_object_start(bs, name);
-    put_somthing();
-    blob_object_end(bs, obj);
+    if (name) {
+        blob_object_end(bs, obj);
+    }
 }
 
 #define COUNT   2
@@ -46,7 +48,7 @@ int __main(int argc, char *argv[])
     blob_root_init(bs, BLOB_T_OBJECT, "ROOT");
     blob_t *root = blob_root(bs);
 
-    put_obj("FIRST");
+    put_somthing("FIRST");
     //debug_ok("1:root blob vlen=%d", root->vlen);
 
     obj = blob_object_start(bs, "OBJ");
@@ -56,7 +58,7 @@ int __main(int argc, char *argv[])
         os_sprintf(buf, "array-%d", i);
         debug_trace("obj %d begin", i);
         arr = blob_array_start(bs, buf);
-        put_somthing();
+        put_somthing(NULL);
         blob_array_end(bs, arr);
         debug_trace("obj %d end", i);
     }
@@ -70,7 +72,7 @@ int __main(int argc, char *argv[])
         os_sprintf(buf, "obj-%d", i);
         debug_trace("array %d begin", i);
         obj = blob_object_start(bs, buf);
-        put_somthing();
+        put_somthing(NULL);
         blob_object_end(bs, obj);
         debug_trace("array %d end", i);
     }
@@ -78,7 +80,7 @@ int __main(int argc, char *argv[])
 
     debug_ok("3:root blob vlen=%d", root->vlen);
 
-    put_obj("LAST");
+    put_somthing("LAST");
     //debug_ok("4:root blob vlen=%d", root->vlen);
 
     jobj_t j = blob_btoj(root);
