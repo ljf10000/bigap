@@ -518,13 +518,7 @@ __blob_save_name(blob_t *blob, const char *name)
 }
 
 static inline blob_t *
-__blob_new(
-    slice_t *slice, 
-    uint32_t type, 
-    const char *name, 
-    uint32_t payload,
-    bool put
-)
+__blob_new(slice_t *slice, int type, const char *name, int payload)
 {
 	blob_t tmp;
     
@@ -551,23 +545,15 @@ __blob_new(
     __blob_init(blob, type, name, payload);
     __blob_save_name(blob, name);
 
-    if (put) {
-        blob_t *root = blob_root(slice);
-        if (root && root!=blob) {
-            root->vlen += size;
-            root->count++;
-        }
-        
-        slice_put(slice, size);
+    blob_t *root = blob_root(slice);
+    if (root && root!=blob) {
+        root->vlen += size;
+        root->count++;
     }
+    
+    slice_put(slice, size);
 
 	return blob;
-}
-
-static inline blob_t *
-blob_new(slice_t *slice, int type, const char *name, int payload)
-{
-	return __blob_new(slice, type, name, payload, true);
 }
 
 static inline blob_t *
@@ -575,7 +561,7 @@ blob_root_init(slice_t *slice, int type, const char *name)
 {
     slice_offset(slice) = 0;
 
-    return blob_new(slice, type, name, 0);
+    return __blob_new(slice, type, name, 0);
 }
 
 static inline void *
@@ -583,7 +569,7 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
 {
 	int type = array?BLOB_T_ARRAY:BLOB_T_OBJECT;
     
-	blob_t *new = blob_new(slice, type, name, 0);
+	blob_t *new = __blob_new(slice, type, name, 0);
 	if (NULL==new) {
         return NULL;
 	}
@@ -688,7 +674,7 @@ blob_put(
     uint32_t len
 )
 {
-	blob_t *blob = blob_new(slice, type, name, len);
+	blob_t *blob = __blob_new(slice, type, name, len);
 	if (NULL==blob) {
 		return NULL;
 	}
