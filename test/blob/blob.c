@@ -43,7 +43,7 @@ int __main(int argc, char *argv[])
     int i;
 
     slice_alloc(bs, BUFFER_SIZE);    
-    blob_root_init(bs, BLOB_T_OBJECT, "root");
+    blob_root_init(bs, BLOB_T_OBJECT, "ROOT");
     blob_t *root = blob_root(bs);
 
     put_obj("FIRST");

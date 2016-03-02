@@ -894,11 +894,9 @@ blob_btoj(blob_t *blob)
     switch(blob->type) {
         case BLOB_T_OBJECT:
             obj = jobj_new_object();
-            os_println("root blob is object");
             break;
         case BLOB_T_ARRAY:
             obj = jobj_new_array();
-            os_println("root blob is array");
             break;
         default:
             break;
@@ -908,9 +906,7 @@ blob_btoj(blob_t *blob)
         return NULL;
     }
 
-    os_println("blob_btoj begin");
     __blob_btoj(blob, obj);
-    os_println("blob_btoj end");
     
     return obj;
 }
