@@ -66,7 +66,7 @@ int __main(int argc, char *argv[])
         
         os_println("%s.%s begin", name, tmp);
         arr = blob_array_start(bs, tmp);
-        put_somthing(NULL);
+        put_somthing("sb");
         blob_array_end(bs, arr);
         os_println("%s.%s end", name, tmp);
     }
