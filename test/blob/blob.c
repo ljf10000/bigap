@@ -45,10 +45,12 @@ int __main(int argc, char *argv[])
     int i;
     char tmp[128];
     
-    slice_alloc(bs, BUFFER_SIZE);    
+    slice_alloc(bs, BUFFER_SIZE);  
+
     blob_root_init(bs, BLOB_T_OBJECT, "ROOT");
     blob_t *root = blob_root(bs);
-
+    os_println("ROOT begin");
+    
     name = "FIRST";
     os_println("%s begin", name);
     put_somthing(name);
@@ -93,6 +95,7 @@ int __main(int argc, char *argv[])
     os_println("%s end", name);
 
     debug_ok("4:root blob vlen=%d", root->vlen);
+    os_println("ROOT end");
 
     jobj_t j = blob_btoj(root);
     os_println("begin get json");
