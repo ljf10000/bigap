@@ -821,7 +821,7 @@ __blob_jobj(blob_t *blob)
 }
 
 static inline int
-__blob_btoj(blob_t *blob, jobj_t root)
+__blob_btoj(blob_t *blob, jobj_t root, int level)
 {
     char *name  = blob_key(blob);
     int err = 0;
@@ -830,64 +830,64 @@ __blob_btoj(blob_t *blob, jobj_t root)
         case BLOB_T_OBJECT: {
             blob_t *p   = NULL;
             jobj_t obj  = NULL;
-            uint32_t left, count;
+            uint32_t left;
             int i = 0;
             
-            os_println("object %s begin", name);
+            __printab(level); os_println("object %s begin", name);
             blob_foreach(blob, p, i, left) {
                 obj = __blob_jobj(p);
                 if (NULL==obj) {
                     return -ENOMEM;
                 }
                 
-                jobj_add(root, blob_key(p), __blob_btoj(p, obj));
+                jobj_add(root, blob_key(p), __blob_btoj(p, obj, level+1));
             }
-            os_println("object %s end", name);
-            os_println("root=%s", jobj_string(root));
+            __printab(level); os_println("object %s end", name);
+            __printab(level); os_println("root=%s", jobj_string(root));
         }   break;
         case BLOB_T_ARRAY: {
             blob_t *p   = NULL;
             jobj_t obj  = NULL;
-            uint32_t left, count;
+            uint32_t left;
             int i = 0;
             
-            os_println("array %s begin", name);
+            __printab(level); os_println("array %s begin", name);
             blob_foreach(blob, p, i, left) {
                 obj = __blob_jobj(p);
                 if (NULL==obj) {
                     return -ENOMEM;
                 }
                 
-                jobj_add(root, NULL, __blob_btoj(p, obj));
+                jobj_add(root, NULL, __blob_btoj(p, obj, level+1));
             }
-            os_println("array %s end", name);
-            os_println("root=%s", jobj_string(root));
+            __printab(level); os_println("array %s end", name);
+            __printab(level); os_println("root=%s", jobj_string(root));
         }   break;
         case BLOB_T_STRING:
             jobj_add_string(root, name, blob_get_string(blob));
-            os_println("%s:%s", name, blob_get_string(blob));
+            __printab(level); os_println("%s:%s", name, blob_get_string(blob));
             break;
         case BLOB_T_BOOL:
             jobj_add_bool(root, name, blob_get_bool(blob));
-            os_println("%s:%d", name, blob_get_bool(blob));
+            __printab(level); os_println("%s:%d", name, blob_get_bool(blob));
             break;
         case BLOB_T_INT32:
             jobj_add_int(root, name, blob_get_i32(blob));
-            os_println("%s:%d", name, blob_get_i32(blob));
+            __printab(level); os_println("%s:%d", name, blob_get_i32(blob));
 
             break;
         case BLOB_T_INT64:
             jobj_add_int64(root, name, blob_get_i64(blob));
-            os_println("%s:%lld", name, blob_get_i64(blob));
+            __printab(level); os_println("%s:%lld", name, blob_get_i64(blob));
             break;
         case BLOB_T_EMPTY:
-            os_println("no support empty");
+            __printab(level); os_println("no support empty");
             break;
         case BLOB_T_BINARY:
-            os_println("no support binary");
+            __printab(level); os_println("no support binary");
             break;
         default:
-            os_println("unknow blob type");
+            __printab(level); os_println("unknow blob type");
             break;
     }
 
@@ -902,7 +902,7 @@ blob_btoj(blob_t *blob)
         return NULL;
     }
     
-    int err = __blob_btoj(blob, root);
+    int err = __blob_btoj(blob, root, 0);
     if (err<0) {
         jobj_put(root);
         
