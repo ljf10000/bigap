@@ -880,11 +880,7 @@ blob_btoj(blob_t *blob)
         
         os_println("object %s begin", name);
         blob_foreach(blob, p, i, left) {
-            if (is_blob_type_container(p->type)) {
-                jobj_add(root, name, blob_btoj(p));
-            } else {
-                __blob_btoj(p, root);
-            }
+            jobj_add(root, name, blob_btoj(p));
         }
         os_println("object %s end", name);
         os_println("root=%s", jobj_string(root));
