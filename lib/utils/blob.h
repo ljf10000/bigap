@@ -267,11 +267,12 @@ blob_dump(const blob_t *blob, int level)
     int i, left;
     blob_t *p;
 
-    __printab(level); os_printf("name:%s, count:%d, klen=%d, vlen=%d", 
+    __printab(level); os_printf("name:%s, count:%d, klen:%d, vlen:%d, size:%d", 
         blob_key(blob), 
         blob->count,
         blob->klen,
-        blob->vlen);
+        blob->vlen,
+        blob_size(blob));
     
     switch(blob->type) {
         case BLOB_T_OBJECT:
