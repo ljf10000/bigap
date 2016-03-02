@@ -832,7 +832,7 @@ __blob_btoj(blob_t *blob, jobj_t obj)
                 return -ENOMEM;
             }
 
-            os_println("object %s begin", name);
+            os_println(__crlf "object %s begin", name);
             blob_foreach(blob, p, i, left) {
                 __blob_btoj(p, new);
                 jobj_add(obj, blob_key(p), new);
@@ -846,7 +846,7 @@ __blob_btoj(blob_t *blob, jobj_t obj)
                 return -ENOMEM;
             }
 
-            os_println("array %s begin", name);
+            os_println(__crlf "array %s begin", name);
             blob_foreach(blob, p, i, left) {
                 __blob_btoj(p, new);
                 jobj_add(obj, NULL, new);
