@@ -785,7 +785,7 @@ blob_put_i64(slice_t *slice, const char *name, int64_t val)
 static inline blob_t *
 blob_put_double(slice_t *slice, const char *name, double val)
 {
-	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(val));
+	return blob_put(slice, BLOB_T_DOUBLE, name, &val, sizeof(val));
 }
 
 static inline blob_t *
