@@ -824,40 +824,9 @@ __blob_jobj(blob_t *blob)
 static inline jobj_t
 __blob_btoj(blob_t *blob, jobj_t root)
 {
-    char *name  = NULL;
-    blob_t *p   = NULL;
-    jobj_t container    = NULL;
-    jobj_t obj          = NULL;
-    uint32_t left, count;
-    int i = 0;
-    
-    if (NULL==root) {
-        return NULL;
-    }
-
-    name = blob_key(blob);
+    char *name = blob_key(blob);
 
     switch(blob->type) {
-        case BLOB_T_OBJECT:
-            os_println("object %s begin", name);
-            blob_foreach(blob, p, i, left) {
-                obj = __blob_jobj(p);
-                
-                jobj_add(root, blob_key(p), __blob_btoj(p, obj));
-            }
-            os_println("object %s end", name);
-            
-            break;
-        case BLOB_T_ARRAY:
-            os_println("array %s begin", name);
-            blob_foreach(blob, p, i, left) {
-                obj = __blob_jobj(p);
-                
-                jobj_add(root, NULL, __blob_btoj(p, obj));
-            }
-            os_println("array %s end", name);
-            
-            break;
         case BLOB_T_STRING:
             jobj_add_string(root, name, blob_get_string(blob));
             os_println("%s:%s", name, blob_get_string(blob));
@@ -892,41 +861,79 @@ __blob_btoj(blob_t *blob, jobj_t root)
 static inline jobj_t
 blob_btoj(blob_t *blob)
 {
-    return __blob_btoj(blob, __blob_jobj(blob));
-}
-#else
-static inline jobj_t
-blob_btoj(blob_t *blob)
-{
-    char *name  = NULL;
-    blob_t *p   = NULL;
-    uint32_t left, count;
-    int i = 0;
-    
     jobj_t root = __blob_jobj(blob);
     if (NULL==root) {
         return NULL;
     }
-    
-    name = blob_key(blob);
+    char *name = blob_key(blob);
     
     switch(blob->type) {
-        case BLOB_T_OBJECT:
+        case BLOB_T_OBJECT: {
+            blob_t *p   = NULL;
+            uint32_t left, count;
+            int i = 0;
+            
             os_println("object %s begin", name);
             blob_foreach(blob, p, i, left) {
                 jobj_add(root, blob_key(p), blob_btoj(p));
             }
             os_println("object %s end", name);
             os_println("root=%s", jobj_string(root));
-            break;
-        case BLOB_T_ARRAY:
+        }   break;
+        case BLOB_T_ARRAY: {
+            blob_t *p   = NULL;
+            uint32_t left, count;
+            int i = 0;
+            
             os_println("array %s begin", name);
             blob_foreach(blob, p, i, left) {
                 jobj_add(root, NULL, blob_btoj(p));
             }
             os_println("array %s end", name);
             os_println("root=%s", jobj_string(root));
+        }   break;
+        default:
+            __blob_btoj(blob, root);
             break;
+    }
+
+    return root;
+}
+#else
+static inline jobj_t
+blob_btoj(blob_t *blob)
+{
+    jobj_t root = __blob_jobj(blob);
+    if (NULL==root) {
+        return NULL;
+    }
+    char *name = blob_key(blob);
+    
+    switch(blob->type) {
+        case BLOB_T_OBJECT: {
+            blob_t *p   = NULL;
+            uint32_t left, count;
+            int i = 0;
+            
+            os_println("object %s begin", name);
+            blob_foreach(blob, p, i, left) {
+                jobj_add(root, blob_key(p), blob_btoj(p));
+            }
+            os_println("object %s end", name);
+            os_println("root=%s", jobj_string(root));
+        }   break;
+        case BLOB_T_ARRAY: {
+            blob_t *p   = NULL;
+            uint32_t left, count;
+            int i = 0;
+            
+            os_println("array %s begin", name);
+            blob_foreach(blob, p, i, left) {
+                jobj_add(root, NULL, blob_btoj(p));
+            }
+            os_println("array %s end", name);
+            os_println("root=%s", jobj_string(root));
+        }   break;
         case BLOB_T_STRING:
             jobj_add_string(root, name, blob_get_string(blob));
             os_println("%s:%s", name, blob_get_string(blob));
