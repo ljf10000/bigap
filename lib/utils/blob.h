@@ -576,6 +576,18 @@ blob_root_init(slice_t *slice, int type, const char *name)
     return __blob_new(slice, type, name, 0);
 }
 
+static inline blob_t *
+blob_root_object(slice_t *slice)
+{
+    return blob_root_init(slice, BLOB_T_OBJECT, NULL);
+}
+
+static inline blob_t *
+blob_root_array(slice_t *slice)
+{
+    return blob_root_init(slice, BLOB_T_ARRAY, NULL);
+}
+
 static inline void *
 __blob_nest_start(slice_t *slice, bool array, const char *name)
 {
