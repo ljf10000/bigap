@@ -845,7 +845,7 @@ __blob_btoj(blob_t *blob, jobj_t root)
             blob_foreach(blob, p, i, left) {
                 obj = __blob_jobj(p);
                 
-                jobj_add(container, blob_key(p), __blob_btoj(p, obj));
+                jobj_add(container, blob_key(p), __blob_btoj(p, container));
             }
             os_println("object %s end", name);
             
@@ -858,7 +858,7 @@ __blob_btoj(blob_t *blob, jobj_t root)
             blob_foreach(blob, p, i, left) {
                 obj = __blob_jobj(p);
                 
-                jobj_add(container, NULL, __blob_btoj(p, obj));
+                jobj_add(container, NULL, __blob_btoj(p, container));
             }
             os_println("array %s end", name);
             
