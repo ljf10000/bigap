@@ -938,20 +938,20 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj)
     blob_t *blob;
     
     switch(jobj_type(obj)) {
-        case jtype_object:
+        case jtype_object: {
             cookie = blob_object_start(slice, name);
             jobj_foreach(obj, k, v) {
                 __blob_jtob(slice, k, v);
             }
             blob_object_end(slice, cookie);
-            break;
-        case jtype_array:
+        }   break;
+        case jtype_array: {
             cookie = blob_array_start(slice, name);
             jobj_foreach(obj, k, v) {
                 __blob_jtob(slice, k, v);
             }
             blob_array_end(slice, cookie);
-            break;
+        }   break;
         case jtype_bool:
             blob_put_bool(slice, name, jobj_get_bool(obj));
             break;
