@@ -908,6 +908,7 @@ blob_btoj(blob_t *blob)
                 jobj_add(root, blob_key(p), blob_btoj(p));
             }
             os_println("object %s end", name);
+            os_println("root=%s", jobj_string(root));
             break;
         case BLOB_T_ARRAY:
             os_println("array %s begin", name);
@@ -915,32 +916,40 @@ blob_btoj(blob_t *blob)
                 jobj_add(root, NULL, blob_btoj(p));
             }
             os_println("array %s end", name);
+            os_println("root=%s", jobj_string(root));
             break;
         case BLOB_T_STRING:
             jobj_add_string(root, name, blob_get_string(blob));
             os_println("%s:%s", name, blob_get_string(blob));
+            os_println("root=%s", jobj_string(root));
             break;
         case BLOB_T_BOOL:
             jobj_add_bool(root, name, blob_get_bool(blob));
             os_println("%s:%d", name, blob_get_bool(blob));
+            os_println("root=%s", jobj_string(root));
             break;
         case BLOB_T_INT32:
             jobj_add_int(root, name, blob_get_i32(blob));
             os_println("%s:%d", name, blob_get_i32(blob));
+            os_println("root=%s", jobj_string(root));
 
             break;
         case BLOB_T_INT64:
             jobj_add_int64(root, name, blob_get_i64(blob));
             os_println("%s:%lld", name, blob_get_i64(blob));
+            os_println("root=%s", jobj_string(root));
             break;
         case BLOB_T_EMPTY:
             os_println("no support empty");
+            os_println("root=%s", jobj_string(root));
             break;
         case BLOB_T_BINARY:
             os_println("no support binary");
+            os_println("root=%s", jobj_string(root));
             break;
         default:
             os_println("unknow blob type");
+            os_println("root=%s", jobj_string(root));
             break;
     }
 
