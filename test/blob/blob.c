@@ -80,9 +80,9 @@ int __main(int argc, char *argv[])
         os_sprintf(tmp, "obj-%d", i);
         
         os_println("%s.%s begin", name, tmp);
-        obj = blob_object_start(bs, tmp);
-        put_somthing(NULL);
-        blob_object_end(bs, obj);
+//        obj = blob_object_start(bs, tmp);
+        put_somthing("sb");
+//        blob_object_end(bs, obj);
         os_println("%s.%s end", name, tmp);
     }
     blob_array_end(bs, arr);
