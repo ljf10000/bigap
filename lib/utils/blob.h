@@ -841,7 +841,7 @@ __blob_btoj(blob_t *blob, jobj_t root)
         case BLOB_T_OBJECT:
             os_println("BLOB_T_OBJECT");
             
-            container = __blob_jobj(p);
+            container = __blob_jobj(blob);
             
             os_println("object %s begin", name);
             blob_foreach(blob, p, i, left) {
@@ -855,7 +855,7 @@ __blob_btoj(blob_t *blob, jobj_t root)
             break;
         case BLOB_T_ARRAY:
             os_println("BLOB_T_ARRAY");
-            container = __blob_jobj(p);
+            container = __blob_jobj(blob);
             
             os_println("array %s begin", name);
             blob_foreach(blob, p, i, left) {
