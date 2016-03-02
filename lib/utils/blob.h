@@ -267,7 +267,7 @@ blob_dump(const blob_t *blob, int level)
     int i, left;
     blob_t *p;
 #if 1
-    os_printab(level, "name:%s", blob_key(blob));
+    os_printab(level, "name:%s, count:%d", blob_key(blob), blob->count);
     switch(blob->type) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY:
