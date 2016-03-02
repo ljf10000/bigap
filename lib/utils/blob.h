@@ -898,7 +898,15 @@ __blob_btoj(blob_t *blob, jobj_t root)
 static inline jobj_t
 blob_btoj(blob_t *blob)
 {
-    return __blob_btoj(blob, __blob_jobj(blob));
+    jobj_t root = __blob_jobj(blob);
+    if (NULL==root) {
+        os_println("nil root");
+        return NULL;
+    }
+
+    os_println("root=%s", jobj_string(root));
+    
+    return __blob_btoj(blob, root);
 }
 #else
 static inline jobj_t
