@@ -140,8 +140,8 @@ root_object(void)
     os_println("%s", json);
 //    jobj_put(j);
 
-    blob_jtob(bs, j);
-    blob_dump(blob_root(bs));
+//    blob_jtob(bs, j);
+//    blob_dump(blob_root(bs));
 }
 
 
