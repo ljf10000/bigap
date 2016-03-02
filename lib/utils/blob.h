@@ -495,6 +495,7 @@ __blob_init(
     blob->type  = type;
     blob->klen  = name?os_strlen(name):0;
     blob->vlen  = payload;
+    blob->count = 0;
 }
 
 static inline void
@@ -547,6 +548,7 @@ __blob_new(
         blob_t *root = blob_root(slice);
         if (root) {
             root->vlen += size;
+            root->count++;
         }
         
         slice_put(slice, size);
