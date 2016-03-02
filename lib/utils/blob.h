@@ -166,44 +166,6 @@ blob_size(const blob_t *blob)
 
 #define blob_vpointer(_type, _blob)     ((_type *)blob_value(_blob))
 
-static inline void
-__blob_dump(const blob_t *blob)
-{
-#if 0
-    os_println("blob");
-    os_println(__tab "len:%d", blob_size(blob));
-    os_println(__tab "type:%s", blob_type_string(blob->type));
-    os_println(__tab "name:%s", blob_KEY(blob));
-    os_println(__tab "name_len:%d", blob->klen);
-    switch(blob->type) {
-        case BLOB_T_STRING:
-            os_println(__tab "value:%s", (char *)blob_value(blob));
-            break;
-        case BLOB_T_BOOL:
-            os_println(__tab "value:%d", *(int *)blob_value(blob));
-            break;
-        case BLOB_T_INT32:
-            os_println(__tab "value:%d", *(int32_t *)blob_value(blob));
-            break;
-        case BLOB_T_INT64:
-            os_println(__tab "value:%d", *(int64_t *)blob_value(blob));
-            break;
-        case BLOB_T_OBJECT:
-        case BLOB_T_ARRAY:
-        case BLOB_T_EMPTY:
-        case BLOB_T_BINARY:
-        default:
-            os_println(__tab "value:%p", blob_value(blob));
-            break;
-    }
-    os_println(__tab "value_len:%d", blob->vlen);
-    os_println(__tab "data:%p", blob_data(blob));
-    os_println(__tab "name:%p", blob_key(blob));
-    os_println(__tab "value:%p", blob_value(blob));
-    os_println("");
-#endif
-}
-
 static inline int32_t
 blob_get_i32(const blob_t *blob)
 {
@@ -298,6 +260,46 @@ blob_eq(const blob_t *a, const blob_t *b)
 	     _i++, _left -= blob_size(_blob), _blob = blob_next(_blob))  \
     /* end */
 #endif
+
+static inline void
+blob_dump(const blob_t *blob, int level)
+{
+    int i, left;
+    blob_t *p;
+#if 1
+    os_printab(level, "name:%s", blob_key(blob));
+    switch(blob->type) {
+        case BLOB_T_OBJECT:
+        case BLOB_T_ARRAY:
+            blob_foreach(blob, p, i, left) {
+                __blob_dump(p, level+1);
+            }
+            
+            break;
+        case BLOB_T_STRING:
+            os_printab(level, "string:%s", (char *)blob_value(blob));
+            break;
+        case BLOB_T_BOOL:
+            os_printab(level, "bool:%d", *(int *)blob_value(blob));
+            break;
+        case BLOB_T_INT32:
+            os_printab(level, "int32:%d", *(int32_t *)blob_value(blob));
+            break;
+        case BLOB_T_INT64:
+            os_printab(level, "int64:%lld", *(int64_t *)blob_value(blob));
+            break;
+        case BLOB_T_EMPTY:
+            os_printab(level, "empty");
+            break;
+        case BLOB_T_BINARY:
+            os_printab(level, "binary:%p", blob_value(blob));
+            break;
+        default:
+            os_println(__tab "unknow:%p", blob_value(blob));
+            break;
+    }
+#endif
+}
 
 typedef struct blob_rule {
     const char *name;
