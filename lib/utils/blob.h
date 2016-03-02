@@ -553,7 +553,8 @@ __blob_new(
 
     if (put) {
         blob_t *root = blob_root(slice);
-        if (root) {
+        if (root && root!=blob) {
+            root->vlen += size;
             root->count++;
         }
         
