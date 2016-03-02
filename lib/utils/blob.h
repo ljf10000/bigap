@@ -835,7 +835,7 @@ __blob_btoj(blob_t *blob, jobj_t root)
     blob_t *p   = NULL;
     jobj_t obj  = NULL;
     uint32_t left, count;
-    int i;
+    int i = 0;
 
     name = blob_key(blob);
     
