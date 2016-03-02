@@ -831,11 +831,19 @@ __blob_btoj(blob_t *blob, jobj_t root)
     uint32_t left, count;
     int i = 0;
 
+    os_println("__blob_btoj 1");
+    
     if (NULL==root) {
         return NULL;
     }
+
+    os_println("__blob_btoj 2");
+
     
     name = blob_key(blob);
+
+    os_println("__blob_btoj 3");
+
     
     switch(blob->type) {
         case BLOB_T_OBJECT:
@@ -898,15 +906,7 @@ __blob_btoj(blob_t *blob, jobj_t root)
 static inline jobj_t
 blob_btoj(blob_t *blob)
 {
-    jobj_t root = __blob_jobj(blob);
-    if (NULL==root) {
-        os_println("nil root");
-        return NULL;
-    }
-
-    os_println("root=%s", jobj_string(root));
-    
-    return __blob_btoj(blob, root);
+    return __blob_btoj(blob, __blob_jobj(blob));
 }
 #else
 static inline jobj_t
