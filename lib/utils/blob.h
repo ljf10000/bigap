@@ -839,30 +839,24 @@ __blob_btoj(blob_t *blob, jobj_t root)
 
     switch(blob->type) {
         case BLOB_T_OBJECT:
-            container = __blob_jobj(blob);
-            
             os_println("object %s begin", name);
             blob_foreach(blob, p, i, left) {
                 obj = __blob_jobj(p);
                 
-                jobj_add(container, blob_key(p), __blob_btoj(p, container));
+                jobj_add(root, blob_key(p), __blob_btoj(p, obj));
             }
             os_println("object %s end", name);
             
-            jobj_add(root, blob_key(blob), container);
             break;
         case BLOB_T_ARRAY:
-            container = __blob_jobj(blob);
-            
             os_println("array %s begin", name);
             blob_foreach(blob, p, i, left) {
                 obj = __blob_jobj(p);
                 
-                jobj_add(container, NULL, __blob_btoj(p, container));
+                jobj_add(root, NULL, __blob_btoj(p, obj));
             }
             os_println("array %s end", name);
             
-            jobj_add(root, blob_key(blob), container);
             break;
         case BLOB_T_STRING:
             jobj_add_string(root, name, blob_get_string(blob));
