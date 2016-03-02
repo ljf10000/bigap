@@ -935,20 +935,19 @@ static inline void
 __blob_jtob(slice_t *slice, char *name, jobj_t obj)
 {
     void *cookie = NULL;
-    blob_t *root = blob_root(slice);
     blob_t *blob;
     
     switch(jobj_type(obj)) {
         case jtype_object:
             cookie = blob_object_start(slice, name);
-            jobj_foreach(root, k, v) {
+            jobj_foreach(obj, k, v) {
                 __blob_jtob(slice, k, v);
             }
             blob_object_end(slice, cookie);
             break;
         case jtype_array:
             cookie = blob_array_start(slice, name);
-            jobj_foreach(root, k, v) {
+            jobj_foreach(obj, k, v) {
                 __blob_jtob(slice, k, v);
             }
             blob_array_end(slice, cookie);
