@@ -272,7 +272,7 @@ blob_dump(const blob_t *blob, int level)
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY:
             blob_foreach(blob, p, i, left) {
-                __blob_dump(p, level+1);
+                blob_dump(p, level+1);
             }
             
             break;
@@ -661,7 +661,7 @@ blob_array_end(slice_t *slice, void *cookie)
     blob_add_vlen(blob_root(_slice),           \
         blob_size(blob));                           \
     if (__is_ak_debug_trace) {                    \
-        __blob_dump(blob);                          \
+        blob_dump(blob);                          \
     }                                               \
                                                     \
     goto ok;                                        \
@@ -694,7 +694,7 @@ blob_put(
 	}
 	
     if (__is_ak_debug_trace) {
-	    __blob_dump(blob);
+	    blob_dump(blob);
 
         os_printf("blob_put" __crlf
             __tab "slice(size=%d, used=%d, remain=%d)" __crlf
