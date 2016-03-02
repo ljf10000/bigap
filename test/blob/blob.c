@@ -35,7 +35,7 @@ put_obj(char *name)
     blob_object_end(bs, obj);
 }
 
-#define COUNT   10
+#define COUNT   2
 int __main(int argc, char *argv[])
 {
     char *json;

@@ -889,19 +889,21 @@ __blob_btoj(blob_t *blob, jobj_t obj)
 static inline jobj_t
 blob_btoj(blob_t *blob)
 {
-    jobj_t obj;
-    
-    if (BLOB_T_ARRAY==blob->type) {
-        obj = jobj_new_array();
+    jobj_t obj = NULL;
 
-        os_println("root blob is array");
+    switch(blob->type) {
+        case BLOB_T_OBJECT:
+            obj = jobj_new_object();
+            os_println("root blob is object");
+            break;
+        case BLOB_T_ARRAY:
+            obj = jobj_new_array();
+            os_println("root blob is array");
+            break;
+        default:
+            break;
     }
-    else if (BLOB_T_OBJECT==blob->type) {
-        obj = jobj_new_object();
 
-        os_println("root blob is object");
-    }
-    
     if (NULL==obj) {
         return NULL;
     }
