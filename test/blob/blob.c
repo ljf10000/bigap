@@ -49,7 +49,7 @@ int __main(int argc, char *argv[])
     put_obj("FIRST");
     //debug_ok("1:root blob vlen=%d", root->vlen);
 
-    obj = blob_object_start(bs, "obj");
+    obj = blob_object_start(bs, "OBJ");
     for (i=0; i<COUNT; i++) {
         char buf[128];
 
@@ -63,7 +63,7 @@ int __main(int argc, char *argv[])
     blob_object_end(bs, obj);
     debug_ok("2:root blob vlen=%d", root->vlen);
 
-    arr = blob_array_start(bs, "array");
+    arr = blob_array_start(bs, "ARRAY");
     for (i=0; i<COUNT; i++) {
         char buf[128];
 
