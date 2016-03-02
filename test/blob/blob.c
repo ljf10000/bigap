@@ -60,7 +60,7 @@ int __main(int argc, char *argv[])
 
     name = "OBJ";
     os_println("%s begin", name);
-    obj = blob_object_start(bs, "OBJ");
+    obj = blob_object_start(bs, name);
     for (i=0; i<COUNT; i++) {
         os_sprintf(tmp, "array-%d", i);
         
@@ -75,7 +75,9 @@ int __main(int argc, char *argv[])
     
     debug_ok("2:root blob vlen=%d", root->vlen);
 
-    arr = blob_array_start(bs, "ARRAY");
+    name = "ARRAY";
+    os_println("%s begin", name);
+    arr = blob_array_start(bs, name);
     for (i=0; i<COUNT; i++) {
         os_sprintf(tmp, "obj-%d", i);
         
@@ -86,6 +88,7 @@ int __main(int argc, char *argv[])
         os_println("%s.%s end", name, tmp);
     }
     blob_array_end(bs, arr);
+    os_println("%s end", name);
 
     debug_ok("3:root blob vlen=%d", root->vlen);
 
