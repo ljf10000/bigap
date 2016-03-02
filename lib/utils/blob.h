@@ -262,7 +262,7 @@ blob_eq(const blob_t *a, const blob_t *b)
 #endif
 
 static inline void
-blob_dump(const blob_t *blob, int level)
+__blob_dump(const blob_t *blob, int level)
 {
     int i, left;
     blob_t *p;
@@ -282,7 +282,7 @@ blob_dump(const blob_t *blob, int level)
             os_printf(__crlf);
             
             blob_foreach(blob, p, i, left) {
-                blob_dump(p, level+1);
+                __blob_dump(p, level+1);
             }
             
             break;
@@ -308,6 +308,12 @@ blob_dump(const blob_t *blob, int level)
             os_println(", unknow:%p", blob_value(blob));
             break;
     }
+}
+
+static inline void
+blob_dump(const blob_t *blob)
+{
+    __blob_dump(blob, 0);
 }
 
 typedef struct blob_rule {
@@ -814,7 +820,7 @@ __blob_jobj(blob_t *blob)
     }
 }
 
-#if 0
+#if 1
 static inline jobj_t
 __blob_btoj(blob_t *blob, jobj_t root)
 {

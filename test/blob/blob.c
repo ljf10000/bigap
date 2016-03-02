@@ -104,7 +104,7 @@ int __main(int argc, char *argv[])
     debug_ok("4:root blob vlen=%d", root->vlen);
     os_println("ROOT size=%d", blob_size(root));
 
-    blob_dump(root, 0);
+    blob_dump(root);
     
     jobj_t j = blob_btoj(root);
     os_println("begin get json");
