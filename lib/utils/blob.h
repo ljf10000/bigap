@@ -875,10 +875,13 @@ __blob_btoj(blob_t *blob, jobj_t obj)
 
             break;
         case BLOB_T_EMPTY:
+            os_println("no support empty");
+            break;
         case BLOB_T_BINARY:
+            os_println("no support binary");
+            break;
         default:
-            os_println("no support empty/binary");
-            /* do nothing */
+            os_println("unknow blob type");
             break;
     }
 
