@@ -313,7 +313,7 @@ __blob_dump(const blob_t *blob, int level)
             os_println(", int64:%lld", *(int64_t *)blob_value(blob));
             break;
         case BLOB_T_DOUBLE:
-            os_println(", double:%llf", *(double *)blob_value(blob));
+            os_println(", double:%lf", *(double *)blob_value(blob));
             break;
         case BLOB_T_EMPTY:
             os_println(", empty");
@@ -940,14 +940,14 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj)
     
     switch(jobj_type(obj)) {
         case jtype_object:
-            cookie = blob_object_start(slice_t, name);
+            cookie = blob_object_start(slice, name);
             jobj_foreach(root, k, v) {
                 __blob_jtob(slice, k, v);
             }
             blob_object_end(slice, cookie);
             break;
         case jtype_array:
-            cookie = blob_array_start(slice_t, name);
+            cookie = blob_array_start(slice, name);
             jobj_foreach(root, k, v) {
                 __blob_jtob(slice, k, v);
             }
