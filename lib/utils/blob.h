@@ -204,12 +204,6 @@ __blob_dump(const blob_t *blob)
 #endif
 }
 
-static inline bool
-blob_get_bool(const blob_t *blob)
-{
-	return !!blob_get_u32(blob);
-}
-
 static inline int32_t
 blob_get_i32(const blob_t *blob)
 {
@@ -232,6 +226,12 @@ static inline uint64_t
 blob_get_u64(const blob_t *blob)
 {
 	return *blob_vpointer(uint64_t, blob);
+}
+
+static inline bool
+blob_get_bool(const blob_t *blob)
+{
+	return !!blob_get_u32(blob);
 }
 
 static inline const char *
