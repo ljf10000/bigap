@@ -526,14 +526,12 @@ __blob_new(
     bool put
 )
 {
-	blob_t *blob;
 	blob_t tmp;
-    int size;
     
     __blob_init(&tmp, type, name, payload);
     
-    size = blob_size(&tmp);
-    
+    int size = blob_size(&tmp);
+
     debug_test("type=%s, name=%s, payload=%d, size=%d", 
         blob_type_string(type), 
         name, 
@@ -549,7 +547,7 @@ __blob_new(
         }
     }
     
-    blob = (blob_t *)slice_tail(slice);
+    blob_t *blob = (blob_t *)slice_tail(slice);
     __blob_init(blob, type, name, payload);
     __blob_save_name(blob, name);
 
