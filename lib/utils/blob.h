@@ -657,12 +657,8 @@ blob_array_end(slice_t *slice, void *cookie)
     }                                               \
     /* put blob value */                            \
     slice_put(_slice, len);                         \
-    blob_add_vlen(blob, len);                  \
-    blob_add_vlen(blob_root(_slice),           \
-        blob_size(blob));                           \
-    if (__is_ak_debug_trace) {                    \
-        blob_dump(blob);                          \
-    }                                               \
+    blob_add_vlen(blob, len);                       \
+    blob_add_vlen(blob_root(_slice),blob_size(blob)); \
                                                     \
     goto ok;                                        \
 error:                                              \
@@ -672,7 +668,6 @@ ok:                                                 \
 })  /* end */
 #else
 #define blob_sprintf(_slice, _id, _name, _fmt, _args...)    NULL
-
 #endif
 
 static inline blob_t *
@@ -694,8 +689,6 @@ blob_put(
 	}
 	
     if (__is_ak_debug_trace) {
-	    blob_dump(blob);
-
         os_printf("blob_put" __crlf
             __tab "slice(size=%d, used=%d, remain=%d)" __crlf
             __tab "root(offset=%d, key=%s, type=%s, vlen=%d)" __crlf, 
