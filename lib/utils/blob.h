@@ -879,16 +879,19 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
             __printab(level); os_println("object %s begin", name);
             blob_foreach(blob, p, i, left) {
                 obj = __blob_jobj(p);
-                if (NULL==obj) {
-                    return -ENOMEM;
+                if (obj) {
+                    err = __blob_btoj(p, obj, level+1);
+                    if (err<0) {
+                        return err;
+                    }
+                    
+                    jobj_add(root, blob_key(p), obj);
+                } else {
+                    err = __blob_btoj(blob, root, level+1);
+                    if (err<0) {
+                        return err;
+                    }
                 }
-
-                err = __blob_btoj(p, obj, level+1);
-                if (err<0) {
-                    return err;
-                }
-                
-                jobj_add(root, blob_key(p), obj);
             }
             __printab(level); os_println("object %s end", name);
             __printab(level); os_println("root=%s", jobj_string(root));
@@ -902,16 +905,19 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
             __printab(level); os_println("array %s begin", name);
             blob_foreach(blob, p, i, left) {
                 obj = __blob_jobj(p);
-                if (NULL==obj) {
-                    return -ENOMEM;
+                if (obj) {
+                    err = __blob_btoj(p, obj, level+1);
+                    if (err<0) {
+                        return err;
+                    }
+                    
+                    jobj_add(root, NULL, obj);
+                } else {
+                    err = __blob_btoj(blob, root, level+1);
+                    if (err<0) {
+                        return err;
+                    }
                 }
-
-                err = __blob_btoj(p, obj, level+1);
-                if (err<0) {
-                    return err;
-                }
-                
-                jobj_add(root, NULL, obj);
             }
             __printab(level); os_println("array %s end", name);
             __printab(level); os_println("root=%s", jobj_string(root));
