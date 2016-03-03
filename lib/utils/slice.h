@@ -140,17 +140,17 @@ slice_reinit(slice_t *slice, uint32_t size, uint32_t resv, bool local)
 }
 
 static inline void 
-slice_init_resv(slice_t *slice, byte *data, uint32_t size, uint32_t resv, bool local)
+slice_init_resv(slice_t *slice, byte *buf, uint32_t size, uint32_t resv, bool local)
 {
-    slice_head(slice) = data;
+    slice_head(slice) = buf;
 
     slice_reinit(slice, size, resv, local);
 }
 
 static inline void
-slice_init(slice_t *slice, byte *data, uint32_t size, bool local)
+slice_init(slice_t *slice, byte *buf, uint32_t size, bool local)
 {
-    slice_init_resv(slice, data, size, 0, local);
+    slice_init_resv(slice, buf, size, 0, local);
 }
 
 static inline slice_t * 

@@ -592,14 +592,19 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
     
     int size = blob_size(&tmp);
 
-    if (__is_ak_debug_test) {
-        debug_blob("type=%s, name=%s, payload=%d, size=%d", 
+    if (__is_ak_debug_trace | __is_ak_debug_blob) {
+        os_printf("blob_new" __crlf
+            __tab "slice(size=%d, used=%d, remain=%d)" __crlf
+            __tab "blob(type=%s, name=%s, payload=%d, size=%d)" __crlf, 
+            slice_size(slice),
+            slice_tail(slice) - slice_data(slice),
+            slice_remain(slice),
             blob_type_string(type), 
             name, 
             payload, 
             size);
-    }
-    
+	}
+
     if (slice_remain(slice) < size) {
         if (slice_grow(slice, size) < 0) {
             return NULL;

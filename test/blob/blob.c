@@ -12,7 +12,7 @@ OS_INITER;
 static slice_t BS;
 static slice_t *bs = &BS;
 
-#define BUFFER_SIZE     1024
+#define BUFFER_SIZE     4096
 int COUNT = 2;
 
 static void
