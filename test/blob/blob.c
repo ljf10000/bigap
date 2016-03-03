@@ -77,6 +77,8 @@ object_btoj(void)
     
     blob_root_object(bs);
     blob_t *root = blob_root(bs);
+
+    put_somthing(NULL);
     
     name = "FIRST";
     os_println("%s begin", name);

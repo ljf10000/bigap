@@ -586,8 +586,7 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
 static inline blob_t *
 blob_root_init(slice_t *slice, int type, const char *name)
 {
-    slice_len(slice)    = 0;
-    slice_offset(slice) = 0;
+    slice_clean(slice);
     
     return __blob_new(slice, type, name, 0);
 }

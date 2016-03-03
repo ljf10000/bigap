@@ -153,6 +153,15 @@ slice_init(slice_t *slice, byte *data, uint32_t size, bool local)
     slice_init_resv(slice, data, size, 0, local);
 }
 
+static inline slice_t * 
+slice_clean(slice_t *slice)
+{
+    slice_len(slice)    = 0;
+    slice_offset(slice) = 0;
+
+    return slice;
+}
+
 /* real seize */
 static inline int 
 slice_SIZE(const slice_t *slice)
