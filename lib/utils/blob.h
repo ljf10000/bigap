@@ -679,6 +679,19 @@ __blob_nest_end(slice_t *slice, void *cookie)
 	root->vlen += size;
 
 	debug_blob("nest vlen += %u = %u", size, root->vlen);
+
+    if (__is_ak_debug_trace | __is_ak_debug_blob) {
+        os_printf("blob nest end" __crlf
+            __tab "slice(size=%d, used=%d, remain=%d)" __crlf
+            __tab "root(offset=%d, key=%s, type=%s, vlen=%d)" __crlf, 
+            slice_size(slice),
+            slice_tail(slice) - slice_data(slice),
+            slice_remain(slice),
+            slice_offset(slice),
+            blob_key(blob_root(slice)),
+            blob_type_string(blob_root(slice)->type),
+            blob_root(slice)->vlen);
+	}
 }
 
 static inline void *
