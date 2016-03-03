@@ -13,7 +13,7 @@ static slice_t BS;
 static slice_t *bs = &BS;
 
 #define BUFFER_SIZE     1024
-#define COUNT           512
+#define COUNT           256
 
 static void
 put_somthing(char *name)
