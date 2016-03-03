@@ -90,8 +90,6 @@ object_btoj(void)
     put_somthing(name);
     os_println("%s end", name);
     
-    debug_ok("1:root blob vlen=%u", root->vlen);
-
     name = "OBJ";
     os_println("%s begin", name);
     obj = blob_object_start(bs, name);
@@ -109,8 +107,6 @@ object_btoj(void)
     blob_object_end(bs, obj);
     os_println("%s end", name);
     
-    debug_ok("2:root blob vlen=%u", root->vlen);
-
     name = "ARRAY";
     os_println("%s begin", name);
     arr = blob_array_start(bs, name);
@@ -124,15 +120,12 @@ object_btoj(void)
     blob_array_end(bs, arr);
     os_println("%s end", name);
 
-    debug_ok("3:root blob vlen=%u", root->vlen);
-
     name = "LAST";
     os_println("%s begin", name);
     put_somthing(name);
     os_println("%s end", name);
 
-    debug_ok("4:root blob vlen=%u", root->vlen);
-
+    blob_t *root = blob_root(bs);
     blob_dump(root);
     
     return blob_btoj(root);
@@ -151,17 +144,21 @@ int __main(int argc, char *argv[])
     obj = array_btoj();
     json = jobj_string(obj);
     os_println("%s", json);
-//    blob_jtob(bs, obj);
-//    blob_dump(blob_root(bs));
-    jobj_put(obj);
 #if 0
+    blob_jtob(bs, obj);
+    blob_dump(blob_root(bs));
+#endif
+    jobj_put(obj);
+
     obj = object_btoj();
     json = jobj_string(obj);
     os_println("%s", json);
+#if 0
     blob_jtob(bs, obj);
     blob_dump(blob_root(bs));
-    jobj_put(obj);
 #endif
+    jobj_put(obj);
+
 
     return 0;
 }
