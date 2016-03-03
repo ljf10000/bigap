@@ -320,7 +320,7 @@ __blob_dump(const blob_t *blob, int level)
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY:
             os_printf(__crlf);
-
+            
             blob_foreach(blob, p, i, left) {
                 __blob_dump(p, level+1);
             }
@@ -359,7 +359,9 @@ __blob_dump(const blob_t *blob, int level)
 static inline void
 blob_dump(const blob_t *blob)
 {
-    __blob_dump(blob, 0);
+    if (__is_ak_debug_blob) {
+        __blob_dump(blob, 0);
+    }
 }
 
 static inline void
