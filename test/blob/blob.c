@@ -148,8 +148,8 @@ int __main(int argc, char *argv[])
     json = jobj_string(obj);
     os_println("%s", json);
 
-    blob_jtob(bs, json);
-    blob_dump(blob_root(bs));
+//    blob_jtob(bs, json);
+//    blob_dump(blob_root(bs));
 
     jobj_put(obj);
     
