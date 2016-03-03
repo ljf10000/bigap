@@ -927,14 +927,13 @@ static inline void
 __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level);
 
 static inline void
-____blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
+____blob_jtob(slice_t *slice, char *name, jobj_t obj, int ctype, int level)
 {
-    int type = jobj_type(obj);
-    bool is_container = jtype_is_container(type);
+    bool is_container = jobj_is_container(obj);
     void *cookie = NULL;
     
     if (is_container) {
-        cookie = __blob_nest_start(slice, jtype_array==type, name);
+        cookie = __blob_nest_start(slice, jtype_array==ctype, name);
     }
     
     __blob_jtob(slice, name, obj, 1+level);
@@ -959,13 +958,13 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
                     continue;
                 }
 
-                ____blob_jtob(slice, jobj_name(sub), sub, level);
+                ____blob_jtob(slice, jobj_name(sub), sub, jtype_array, level);
             }
             
         }   break;
         case jtype_object: {
             jobj_foreach(obj, k, sub) {
-                ____blob_jtob(slice, k, sub, level);
+                ____blob_jtob(slice, k, sub, jtype_object, level);
             }
             
         }   break;
