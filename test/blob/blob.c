@@ -39,10 +39,10 @@ put_somthing(char *name)
 
 #define COUNT   2
 
-static void
-root_array(void)
+static jobj_t
+test_btoj_array(void)
 {
-    char *json, *name;
+    char *name;
     void *arr, *obj;
     int i;
     char tmp[128];
@@ -66,16 +66,13 @@ root_array(void)
 
     blob_dump(root);
     
-    jobj_t j = blob_btoj(root);
-    json = jobj_string(j);
-    os_println("%s", json);
-//    jobj_put(j);
+    return blob_btoj(root);
 }
 
-static void
-root_object(void)
+static jobj_t
+test_btoj_object(void)
 {
-    char *json, *name;
+    char *name;
     void *arr, *obj;
     int i;
     char tmp[128];
@@ -135,21 +132,29 @@ root_object(void)
 
     blob_dump(root);
     
-    jobj_t j = blob_btoj(root);
-    json = jobj_string(j);
-    os_println("%s", json);
-//    jobj_put(j);
-
-    blob_jtob(bs, j);
-//    blob_dump(blob_root(bs));
+    return blob_btoj(root);
 }
 
 
 int __main(int argc, char *argv[])
 {
-    root_array();
-    root_object();
+    jobj_t obj;
+    char *json;
+    
+    obj = test_btoj_array();
+    json = jobj_string(obj);
+    os_println("%s", json);
+    jobj_put(obj);
+    
+    obj = test_btoj_object();
+    json = jobj_string(obj);
+    os_println("%s", json);
 
+//    blob_jtob(bs, json);
+//    blob_dump(blob_root(bs));
+
+    jobj_put(obj);
+    
     return 0;
 }
 
