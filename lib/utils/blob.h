@@ -922,10 +922,11 @@ __blob_bobj(slice_t *slice, jobj_t obj)
 }
 
 static inline void
-__blob_jtob(slice_t *slice, char *name, jobj_t obj)
+__blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 {
     int type = jobj_type(obj);
-    
+
+    __printab(level); os_println("__blob_jtob begin");
     switch(type) {
         case jtype_array:
         case jtype_object: {
@@ -937,7 +938,7 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj)
                     cookie = __blob_nest_start(slice, jtype_array==type, name);
                 }
                 
-                __blob_jtob(slice, k, v);
+                __blob_jtob(slice, k, v, 1+level);
                 
                 if (is_container) {
                     __blob_nest_end(slice, cookie);
@@ -960,6 +961,8 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj)
         default:
             break;
     }
+
+    __printab(level); os_println("__blob_jtob end");
 }
 
 static inline blob_t *
@@ -969,7 +972,7 @@ blob_jtob(slice_t *slice, jobj_t obj)
         return NULL;
     }
     
-    __blob_jtob(slice, NULL, obj);
+    __blob_jtob(slice, NULL, obj, 0);
 
     return blob_root(slice);
 }

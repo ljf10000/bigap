@@ -139,19 +139,19 @@ int __main(int argc, char *argv[])
     jobj_t obj;
     char *json;
     
-    slice_alloc(bs, BUFFER_SIZE);  
+    slice_alloc(bs, BUFFER_SIZE);
     
     obj = array_btoj();
     json = jobj_string(obj);
     os_println("%s", json);
-    blob_jtob(bs, json);
+    blob_jtob(bs, obj);
     blob_dump(blob_root(bs));
     jobj_put(obj);
     
     obj = object_btoj();
     json = jobj_string(obj);
     os_println("%s", json);
-    blob_jtob(bs, json);
+    blob_jtob(bs, obj);
     blob_dump(blob_root(bs));
     jobj_put(obj);
     
