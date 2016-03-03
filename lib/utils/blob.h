@@ -282,7 +282,7 @@ __blob_dump(const blob_t *blob, int level)
 {
     int i, left;
     blob_t *p;
-
+    
     if (0==level) {
         os_println("==DUMP BEGIN== name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
             blob_key(blob), 
@@ -315,8 +315,13 @@ __blob_dump(const blob_t *blob, int level)
     switch(blob->type) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY:
-            os_printf(__crlf);
-            
+#if !BLOB_DUMP_ATOMIC
+            if (is_blob_type_container(blob->type)) {
+#endif
+                os_printf(__crlf);
+#if !BLOB_DUMP_ATOMIC
+            }
+#endif
             blob_foreach(blob, p, i, left) {
                 __blob_dump(p, level+1);
             }
