@@ -1,6 +1,6 @@
 /******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      testblob
+#define __THIS_APP      blob
 #endif
 
 #define OS_EXTEND

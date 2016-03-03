@@ -17,7 +17,7 @@ include $(DIR_ROOT)/mk/define.mk
 #changed me, append obj
 #
 OBJS=$(DIR_SELF)/blob.o
-TARGET_NAME=testblob
+TARGET_NAME=blob
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=test
 LIB_DEPEND=c json-c
