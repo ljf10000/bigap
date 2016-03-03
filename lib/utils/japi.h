@@ -76,11 +76,15 @@ typedef struct {
 #define jobj_type(_obj)         json_object_get_type(_obj)
 
 static inline bool
+jtype_is_container(int type) 
+{
+    return jtype_object==type || jtype_array==type;
+}
+
+static inline bool
 jobj_is_container(jobj_t obj) 
 {
-    int type = jobj_type(obj);
-
-    return jtype_object==type || jtype_array==type;
+    return jtype_is_container(jobj_type(obj));
 }
 
 static inline void
@@ -180,6 +184,13 @@ jarray_get(jobj_t array, int idx)
     return obj;
 }
 
+static inline char *
+jobj_name(jobj_t obj)
+{
+    struct lh_entry *entry = json_object_get_object(obj);
+
+    return entry?(char *)entry->k:NULL;
+}
 
 #define jobj_foreach(_root, _k, _v)     json_object_object_foreach(_root, _k, _v)
 

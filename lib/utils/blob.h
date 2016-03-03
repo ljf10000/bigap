@@ -927,9 +927,10 @@ static inline void
 __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level);
 
 static inline void
-____blob_jtob(slice_t *slice, char *name, jobj_t obj, int type, int level)
+____blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 {
-    bool is_container = jobj_is_container(obj);
+    int type = jobj_type(obj);
+    bool is_container = jtype_is_container(type);
     void *cookie = NULL;
     
     if (is_container) {
@@ -953,18 +954,18 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
             int i, count = jarray_length(obj);
             
             for (i=0; i<count; i++) {
-                jobj_t v = jarray_get(obj, i);
-                if (NULL==v) {
+                jobj_t sub = jarray_get(obj, i);
+                if (NULL==sub) {
                     continue;
                 }
 
-                ____blob_jtob(slice, NULL, v, jtype_array, level);
+                ____blob_jtob(slice, jobj_name(sub), sub, level);
             }
             
         }   break;
         case jtype_object: {
-            jobj_foreach(obj, k, v) {
-                ____blob_jtob(slice, k, v, jtype_object, level);
+            jobj_foreach(obj, k, sub) {
+                ____blob_jtob(slice, k, sub, level);
             }
             
         }   break;
