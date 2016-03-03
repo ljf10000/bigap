@@ -13,7 +13,7 @@ static slice_t BS;
 static slice_t *bs = &BS;
 
 #define BUFFER_SIZE     1024
-#define COUNT           512
+int COUNT = 2;
 
 static void
 put_somthing(char *name)
@@ -145,6 +145,8 @@ int __main(int argc, char *argv[])
 {
     jobj_t obj;
     char *json;
+
+    COUNT = env_geti("__BLOB_COUNT__", 2);
     
     slice_alloc(bs, BUFFER_SIZE);
     
