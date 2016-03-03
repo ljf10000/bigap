@@ -753,37 +753,37 @@ blob_put_bool(slice_t *slice, const char *name, bool val)
 {
     bool b = !!val;
     
-	return blob_put(slice, BLOB_T_BOOL, name, &b, sizeof(b));
+	return blob_put(slice, BLOB_T_BOOL, name, &b, sizeof(bool));
 }
 
 static inline blob_t *
 blob_put_u32(slice_t *slice, const char *name, uint32_t val)
 {
-	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(val));
+	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(uint32_t));
 }
 
 static inline blob_t *
 blob_put_u64(slice_t *slice, const char *name, uint64_t val)
 {
-	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(val));
+	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(uint64_t));
 }
 
 static inline blob_t *
 blob_put_i32(slice_t *slice, const char *name, int32_t val)
 {
-	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(val));
+	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(int32_t));
 }
 
 static inline blob_t *
 blob_put_i64(slice_t *slice, const char *name, int64_t val)
 {
-	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(val));
+	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(int64_t));
 }
 
 static inline blob_t *
 blob_put_double(slice_t *slice, const char *name, double val)
 {
-	return blob_put(slice, BLOB_T_DOUBLE, name, &val, sizeof(val));
+	return blob_put(slice, BLOB_T_DOUBLE, name, &val, sizeof(double));
 }
 
 static inline blob_t *
