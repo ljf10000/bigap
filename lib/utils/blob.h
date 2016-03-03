@@ -941,7 +941,7 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
             debug_error("no support empty");
             break;
         case BLOB_T_BINARY:
-            debug_error("no support binary");
+            jobj_add_string(root, name, blob_get_string(blob));
             break;
         default:
             debug_error("unknow blob type");
