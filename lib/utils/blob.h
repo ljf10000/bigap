@@ -609,7 +609,7 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
     
     int size = blob_size(&tmp);
 
-    if (__is_ak_debug_trace | __is_ak_debug_blob) {
+    if (__is_ak_debug_trace && __is_ak_debug_blob) {
         os_printf("blob_new" __crlf
             __tab "slice(size=%d, used=%d, remain=%d)" __crlf
             __tab "blob(type=%s, name=%s, payload=%d, size=%d)" __crlf, 
@@ -676,7 +676,7 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
         return NULL;
 	}
 
-    if (__is_ak_debug_trace | __is_ak_debug_blob) {
+    if (__is_ak_debug_trace && __is_ak_debug_blob) {
         __blob_dump_slice(slice, "blob nest begin");
 	}
 
@@ -699,7 +699,7 @@ __blob_nest_end(slice_t *slice, void *cookie)
 	root = blob_root(slice);
 	root->vlen += size;
 
-    if (__is_ak_debug_trace | __is_ak_debug_blob) {
+    if (__is_ak_debug_trace && __is_ak_debug_blob) {
         os_printf("blob nest end" __crlf
             __tab "slice(size=%d, used=%d, remain=%d)" __crlf
             __tab "root(added=%d, vlen=%d)" __crlf, 
@@ -795,7 +795,7 @@ blob_put(
 	    }
 	}
 	
-    if (__is_ak_debug_trace | __is_ak_debug_blob) {
+    if (__is_ak_debug_trace && __is_ak_debug_blob) {
         __blob_dump_slice(slice, "blob_put");
 	}
 
