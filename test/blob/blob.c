@@ -144,14 +144,14 @@ int __main(int argc, char *argv[])
     obj = array_btoj();
     json = jobj_string(obj);
     os_println("%s", json);
-    blob_jtob(bs, json);
+    blob_jtob(bs, obj);
     blob_dump(blob_root(bs));
     jobj_put(obj);
     
     obj = object_btoj();
     json = jobj_string(obj);
     os_println("%s", json);
-    blob_jtob(bs, json);
+    blob_jtob(bs, obj);
     blob_dump(blob_root(bs));
     jobj_put(obj);
     
