@@ -958,7 +958,7 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
                     continue;
                 }
 
-                ____blob_jtob(slice, jobj_name(sub), sub, jtype_array, level);
+                ____blob_jtob(slice, NULL, sub, jtype_array, level);
             }
             
         }   break;
