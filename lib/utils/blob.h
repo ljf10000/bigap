@@ -316,7 +316,7 @@ __blob_dump(const blob_t *blob, int level)
             }
             
             break;
-#if BLOB_DUMP_ATOMIC
+#if 0
         case BLOB_T_BOOL:
             os_println(":%d", *(int *)blob_value(blob));
             break;
@@ -339,7 +339,7 @@ __blob_dump(const blob_t *blob, int level)
             break;
 #endif
         default:
-#if BLOB_DUMP_ATOMIC
+#if 0
             os_println(":%p", blob_value(blob));
 #else
             os_printf(__crlf);
