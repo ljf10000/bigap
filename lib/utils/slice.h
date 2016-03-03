@@ -250,7 +250,7 @@ slice_clone(slice_t *dst, const slice_t *src)
 }
 
 #ifndef SLICE_GROW_DOUBLE_LIMIT
-#define SLICE_GROW_DOUBLE_LIMIT     (256*1024)
+#define SLICE_GROW_DOUBLE_LIMIT     (128*1024)
 #endif
 
 #ifndef SLICE_GROW_STEP
@@ -269,16 +269,11 @@ slice_grow(slice_t *slice, uint32_t grow)
         return os_assertV(-ENOSUPPORT);
     }
 
-    if (0==grow) {
-        if (size < SLICE_GROW_DOUBLE_LIMIT) {
-            grow = size;
-        } else {
-            grow = SLICE_GROW_STEP;
-        }
-    } else {
-        grow = OS_MAX(SLICE_GROW_STEP, grow);
+    if (size < SLICE_GROW_DOUBLE_LIMIT) {
+        grow = OS_MAX(size, grow);
     }
-
+    grow = OS_MAX(SLICE_GROW_STEP, grow);
+    
     buf = os_realloc(slice_head(slice), size + grow);
     if (NULL==buf) {
         return -ENOMEM;
