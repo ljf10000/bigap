@@ -171,7 +171,7 @@ jobj_get(jobj_t obj, char *key)
 static inline jobj_t
 jarray_get(jobj_t array, int idx)
 {
-    jobj_t *obj = NULL;
+    jobj_t obj = NULL;
     
     if (array && is_good_enum(idx, jarray_length(array))) {
     	obj = json_object_array_get_idx(array, idx);
