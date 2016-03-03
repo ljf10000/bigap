@@ -44,7 +44,9 @@ is_blob_type_container(int type)
 
 #define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32_t))
 
+#if 0
 #define USE_BLOB_COUNT
+#endif
 
 typedef struct {
     uint8_t     type;       /* enum blob_type */
