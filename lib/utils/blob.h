@@ -368,6 +368,7 @@ __blob_dump(const blob_t *blob, int level)
 
     if (0==level) {
         __blob_dump_header(blob, "==DUMP END  ==");
+        os_printf(__crlf);
     }
 }
 
