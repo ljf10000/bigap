@@ -326,6 +326,19 @@ __blob_dump(const blob_t *blob, int level)
             os_println(":%p", blob_value(blob));
             break;
     }
+
+    if (0==level) {
+        __printab(level); 
+        os_printf("name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
+            blob_key(blob), 
+            blob->count,
+            blob_size(blob),
+            blob->klen,
+            blob_ksize(blob),
+            blob->vlen,
+            blob_vsize(blob),
+            blob_type_string(blob->type));
+    }
 }
 
 static inline void
@@ -751,39 +764,39 @@ blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32_t l
 static inline blob_t *
 blob_put_bool(slice_t *slice, const char *name, bool val)
 {
-    bool b = !!val;
+    val = !!val;
     
-	return blob_put(slice, BLOB_T_BOOL, name, &b, sizeof(bool));
+	return blob_put(slice, BLOB_T_BOOL, name, &val, sizeof(val));
 }
 
 static inline blob_t *
 blob_put_u32(slice_t *slice, const char *name, uint32_t val)
 {
-	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(uint32_t));
+	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(val));
 }
 
 static inline blob_t *
 blob_put_u64(slice_t *slice, const char *name, uint64_t val)
 {
-	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(uint64_t));
+	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(val));
 }
 
 static inline blob_t *
 blob_put_i32(slice_t *slice, const char *name, int32_t val)
 {
-	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(int32_t));
+	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(val));
 }
 
 static inline blob_t *
 blob_put_i64(slice_t *slice, const char *name, int64_t val)
 {
-	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(int64_t));
+	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(val));
 }
 
 static inline blob_t *
 blob_put_double(slice_t *slice, const char *name, double val)
 {
-	return blob_put(slice, BLOB_T_DOUBLE, name, &val, sizeof(double));
+	return blob_put(slice, BLOB_T_DOUBLE, name, &val, sizeof(val));
 }
 
 static inline blob_t *
