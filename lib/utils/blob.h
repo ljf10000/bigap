@@ -922,37 +922,54 @@ __blob_bobj(slice_t *slice, jobj_t obj)
 }
 
 static inline void
+__blob_jtob(slice_t *slice, char *name, jobj_t obj, int level);
+
+static inline void
+____blob_jtob(slice_t *slice, char *name, jobj_t obj, int type, int level)
+{
+    bool is_container = jobj_is_container(obj);
+    void *cookie = NULL;
+    
+    if (is_container) {
+        cookie = __blob_nest_start(slice, jtype_array==type, name);
+    }
+    
+    __blob_jtob(slice, name, obj, 1+level);
+    
+    if (is_container) {
+        __blob_nest_end(slice, cookie);
+    }
+}
+
+static inline void
 __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 {
     int type = jobj_type(obj);
 
     __printab(level); os_println("__blob_jtob begin");
     switch(type) {
-        case jtype_array:
-        case jtype_object: {
-            __printab(level); os_println("__blob_jtob foreach begin");
-            jobj_foreach(obj, k, v) {
-                __printab(level); os_println("__blob_jtob foreach 1");
-                bool is_container = jobj_is_container(v);
-                __printab(level); os_println("__blob_jtob foreach 2");
-                void *cookie = NULL;
-                __printab(level); os_println("__blob_jtob foreach 3");
-                if (is_container) {
-                    __printab(level); os_println("__blob_jtob foreach 3.1");
-                    cookie = __blob_nest_start(slice, jtype_array==type, name);
-                    __printab(level); os_println("__blob_jtob foreach 3.2");
+        case jtype_array:{
+            int i, count = jarray_length(obj);
+            
+            __printab(level); os_println("__blob_jtob array foreach begin");
+            for (i=0; i<count; i++) {
+                jobj_t v = jarray_get(obj, i);
+                if (NULL==v) {
+                    continue;
                 }
-                __printab(level); os_println("__blob_jtob foreach 4");
-                __blob_jtob(slice, k, v, 1+level);
-                __printab(level); os_println("__blob_jtob foreach 5");
-                if (is_container) {
-                    __printab(level); os_println("__blob_jtob foreach 5.1");
-                    __blob_nest_end(slice, cookie);
-                    __printab(level); os_println("__blob_jtob foreach 5.2");
-                }
-                __printab(level); os_println("__blob_jtob foreach 6");
+
+                ____blob_jtob(slice, NULL, v, jtype_array, level);
             }
-            __printab(level); os_println("__blob_jtob foreach begin");
+            __printab(level); os_println("__blob_jtob array foreach begin");
+            
+        }   break;
+        case jtype_object: {
+            __printab(level); os_println("__blob_jtob object foreach begin");
+            jobj_foreach(obj, k, v) {
+                ____blob_jtob(slice, k, v, jtype_object, level);
+            }
+            __printab(level); os_println("__blob_jtob object foreach begin");
+            
         }   break;
         case jtype_bool:
             blob_put_bool(slice, name, jobj_get_bool(obj));

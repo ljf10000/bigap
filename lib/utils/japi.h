@@ -171,13 +171,13 @@ jobj_get(jobj_t obj, char *key)
 static inline jobj_t
 jarray_get(jobj_t array, int idx)
 {
-    struct json_object *new = NULL;
+    jobj_t *obj = NULL;
     
     if (array && is_good_enum(idx, jarray_length(array))) {
-    	new = json_object_array_get_idx(array, idx);
+    	obj = json_object_array_get_idx(array, idx);
     }
 
-    return new;
+    return obj;
 }
 
 
