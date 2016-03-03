@@ -662,16 +662,18 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
 static inline void
 __blob_nest_end(slice_t *slice, void *cookie)
 {
-    blob_t *root;
     uint32_t size;
+    blob_t *root;
     
-    root = blob_root(slice);
-    size = blob_vsize(root);
-    
+    /*
+    * when nest start, root have save klen
+    */
+    size = blob_vsize(blob_root(slice));
 	slice_offset(slice) = (uint32_t)cookie;
-	
 	root = blob_root(slice);
 	root->vlen += size;
+
+	debug_blob("nest vlen += %u = %u", size, root->vlen);
 }
 
 static inline void *
