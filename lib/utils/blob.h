@@ -932,18 +932,25 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
         case jtype_object: {
             __printab(level); os_println("__blob_jtob foreach begin");
             jobj_foreach(obj, k, v) {
+                __printab(level); os_println("__blob_jtob foreach 1");
                 bool is_container = jobj_is_container(v);
+                __printab(level); os_println("__blob_jtob foreach 2");
                 void *cookie = NULL;
-                
+                __printab(level); os_println("__blob_jtob foreach 3");
                 if (is_container) {
+                    __printab(level); os_println("__blob_jtob foreach 3.1");
                     cookie = __blob_nest_start(slice, jtype_array==type, name);
+                    __printab(level); os_println("__blob_jtob foreach 3.2");
                 }
-                
+                __printab(level); os_println("__blob_jtob foreach 4");
                 __blob_jtob(slice, k, v, 1+level);
-                
+                __printab(level); os_println("__blob_jtob foreach 5");
                 if (is_container) {
+                    __printab(level); os_println("__blob_jtob foreach 5.1");
                     __blob_nest_end(slice, cookie);
+                    __printab(level); os_println("__blob_jtob foreach 5.2");
                 }
+                __printab(level); os_println("__blob_jtob foreach 6");
             }
             __printab(level); os_println("__blob_jtob foreach begin");
         }   break;
