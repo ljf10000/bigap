@@ -282,7 +282,7 @@ __blob_dump(const blob_t *blob, int level)
     blob_t *p;
 
     __printab(level); 
-    os_printf("name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, type:%s", 
+    os_printf("name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
         blob_key(blob), 
         blob->count,
         blob_size(blob),
@@ -303,28 +303,27 @@ __blob_dump(const blob_t *blob, int level)
             
             break;
         case BLOB_T_STRING:
-            os_println(", string:%s", (char *)blob_value(blob));
+            os_println(":%s", (char *)blob_value(blob));
             break;
         case BLOB_T_BOOL:
-            os_println(", bool:%d", *(int *)blob_value(blob));
+            os_println(":%d", *(int *)blob_value(blob));
             break;
         case BLOB_T_INT32:
-            os_println(", int32:%d", *(int32_t *)blob_value(blob));
+            os_println(":%d", *(int32_t *)blob_value(blob));
             break;
         case BLOB_T_INT64:
-            os_println(", int64:%lld", *(int64_t *)blob_value(blob));
+            os_println(":%lld", *(int64_t *)blob_value(blob));
             break;
         case BLOB_T_DOUBLE:
-            os_println(", double:%lf", *(double *)blob_value(blob));
+            os_println(":%lf", *(double *)blob_value(blob));
             break;
         case BLOB_T_EMPTY:
-            os_println(", empty");
             break;
         case BLOB_T_BINARY:
-            os_println(", binary:%p", blob_value(blob));
+            os_println(":%p", blob_value(blob));
             break;
         default:
-            os_println(", unknow:%p", blob_value(blob));
+            os_println(":%p", blob_value(blob));
             break;
     }
 }
