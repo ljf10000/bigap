@@ -75,6 +75,14 @@ typedef struct {
 
 #define jobj_type(_obj)         json_object_get_type(_obj)
 
+static inline bool
+jobj_is_container(jobj_t obj) 
+{
+    int type = jobj_type(obj);
+
+    return jtype_object==type || jtype_array==type;
+}
+
 static inline void
 __jobj_put(jobj_t obj)
 {

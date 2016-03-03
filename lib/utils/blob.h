@@ -638,24 +638,14 @@ blob_object_start(slice_t *slice, const char *name)
 {
     return __blob_nest_start(slice, false, name);
 }
-
-static inline void
-blob_object_end(slice_t *slice, void *cookie)
-{
-    __blob_nest_end(slice, cookie);
-}
+#define blob_object_end(_slice, _cookie)    __blob_nest_end(_slice, _cookie)
 
 static inline void *
 blob_array_start(slice_t *slice, const char *name)
 {
     return __blob_nest_start(slice, true, name);
 }
-
-static inline void
-blob_array_end(slice_t *slice, void *cookie)
-{
-    __blob_nest_end(slice, cookie);
-}
+#define blob_array_end(_slice, _cookie)    __blob_nest_end(_slice, _cookie)
 
 #if 0 /* todo: debug it */
 #define blob_sprintf(_slice, _id, _name, _fmt, _args...) ({ \
@@ -934,23 +924,25 @@ __blob_bobj(slice_t *slice, jobj_t obj)
 static inline void
 __blob_jtob(slice_t *slice, char *name, jobj_t obj)
 {
-    void *cookie = NULL;
-    blob_t *blob;
+    int type = jobj_type(obj);
     
-    switch(jobj_type(obj)) {
+    switch(type) {
+        case jtype_array:
         case jtype_object: {
-            cookie = blob_object_start(slice, name);
             jobj_foreach(obj, k, v) {
+                bool is_container = jobj_is_container(v);
+                void *cookie = NULL;
+                
+                if (is_container) {
+                    cookie = __blob_nest_start(slice, jtype_array==type, name);
+                }
+                
                 __blob_jtob(slice, k, v);
+                
+                if (is_container) {
+                    __blob_nest_end(slice, cookie);
+                }
             }
-            blob_object_end(slice, cookie);
-        }   break;
-        case jtype_array: {
-            cookie = blob_array_start(slice, name);
-            jobj_foreach(obj, k, v) {
-                __blob_jtob(slice, k, v);
-            }
-            blob_array_end(slice, cookie);
         }   break;
         case jtype_bool:
             blob_put_bool(slice, name, jobj_get_bool(obj));
