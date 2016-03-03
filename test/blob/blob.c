@@ -54,6 +54,14 @@ array_btoj(void)
     os_println("%s begin", name);
     put_somthing(name);
     os_println("%s end", name);
+
+    name = tmp;
+    for (i=0; i<COUNT; i++) {
+        os_sprintf(name, "object-%d", i);
+        os_println("%s begin", name);
+        put_somthing(name);
+        os_println("%s end", name);
+    }
     
     name = "LAST";
     os_println("%s begin", name);
