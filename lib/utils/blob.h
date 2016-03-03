@@ -281,6 +281,18 @@ __blob_dump(const blob_t *blob, int level)
     int i, left;
     blob_t *p;
 
+    if (0==level) {
+        os_println("==DUMP BEGIN== name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
+            blob_key(blob), 
+            blob->count,
+            blob_size(blob),
+            blob->klen,
+            blob_ksize(blob),
+            blob->vlen,
+            blob_vsize(blob),
+            blob_type_string(blob->type));
+    }
+
     __printab(level); 
     os_printf("name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
         blob_key(blob), 
@@ -328,7 +340,7 @@ __blob_dump(const blob_t *blob, int level)
     }
 
     if (0==level) {
-        os_println("==DUMP== name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
+        os_println("==DUMP END== name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
             blob_key(blob), 
             blob->count,
             blob_size(blob),
