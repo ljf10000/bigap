@@ -81,7 +81,9 @@ DECLARE_FAKE_DEBUGGER;
     _(____ak_debug_shell,   16,"shell"),    \
     _(____ak_debug_st,      17,"st"),       \
     _(____ak_debug_gc,      18,"gc"),       \
-    _(____ak_debug_test,    19,"test"),     \
+    _(____ak_debug_blob,    19,"blob"),     \
+    _(____ak_debug_json,    20,"json"),     \
+    _(____ak_debug_test,    21,"test"),     \
     /* end */
 
 static inline bool is_good_ak_DEBUG(int id);
@@ -109,6 +111,8 @@ enum {
     __ak_debug_shell    = os_bit(____ak_debug_shell),
     __ak_debug_st       = os_bit(____ak_debug_st),
     __ak_debug_gc       = os_bit(____ak_debug_gc),
+    __ak_debug_blob     = os_bit(____ak_debug_blob),
+    __ak_debug_json     = os_bit(____ak_debug_json),
     __ak_debug_test     = os_bit(____ak_debug_test),
 };
 
@@ -172,6 +176,8 @@ __ak_debug_getname(uint32_t level)
 #define __is_ak_debug_shell     __is_ak_debug(__ak_debug_shell)
 #define __is_ak_debug_st        __is_ak_debug(__ak_debug_st)
 #define __is_ak_debug_gc        __is_ak_debug(__ak_debug_gc)
+#define __is_ak_debug_blob      __is_ak_debug(__ak_debug_blob)
+#define __is_ak_debug_json      __is_ak_debug(__ak_debug_json)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
 #define __AK_SYS_LIST(_) \

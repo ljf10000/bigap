@@ -553,12 +553,14 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
     
     int size = blob_size(&tmp);
 
-    os_println("type=%s, name=%s, payload=%d, size=%d", 
-        blob_type_string(type), 
-        name, 
-        payload, 
-        size);
-
+    if (__is_ak_debug_test) {
+        debug_blob("type=%s, name=%s, payload=%d, size=%d", 
+            blob_type_string(type), 
+            name, 
+            payload, 
+            size);
+    }
+    
     if (slice_remain(slice) < size) {
         if (slice_grow(slice, size) < 0) {
             return NULL;
@@ -946,7 +948,6 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 {
     int type = jobj_type(obj);
 
-    __printab(level); os_println("__blob_jtob begin");
     switch(type) {
         case jtype_array:{
             int i, count = jarray_length(obj);
@@ -983,8 +984,6 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
         default:
             break;
     }
-
-    __printab(level); os_println("__blob_jtob end");
 }
 
 static inline blob_t *
