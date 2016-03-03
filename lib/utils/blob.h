@@ -712,7 +712,12 @@ blob_put(
 	}
     
     if (value) {
-	    os_memcpy(blob_value(blob), value, len);
+        char *bv = blob_value(blob);
+        
+	    os_memcpy(bv, value, len);
+	    if (BLOB_T_STRING==type) {
+            bv[len] = 0;
+	    }
 	}
 	
     if (__is_ak_debug_trace) {

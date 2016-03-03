@@ -203,8 +203,8 @@ static inline void
 slice_zero(slice_t *slice)
 {
     os_memzero(slice_data(slice), slice_size(slice));
-    
-    slice_len(slice) = 0;
+
+    slice_clean(slice);
 }
 
 static inline int
