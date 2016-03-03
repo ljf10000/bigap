@@ -302,9 +302,6 @@ __blob_dump(const blob_t *blob, int level)
             }
             
             break;
-        case BLOB_T_STRING:
-            os_println(":%s", (char *)blob_value(blob));
-            break;
         case BLOB_T_BOOL:
             os_println(":%d", *(int *)blob_value(blob));
             break;
@@ -317,10 +314,13 @@ __blob_dump(const blob_t *blob, int level)
         case BLOB_T_DOUBLE:
             os_println(":%lf", *(double *)blob_value(blob));
             break;
-        case BLOB_T_EMPTY:
+        case BLOB_T_STRING:
+            os_println(":%s", (char *)blob_value(blob));
             break;
         case BLOB_T_BINARY:
             os_println(":%p", blob_value(blob));
+            break;
+        case BLOB_T_EMPTY:
             break;
         default:
             os_println(":%p", blob_value(blob));
