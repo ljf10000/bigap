@@ -217,6 +217,12 @@ blob_get_string(const blob_t *blob)
 }
 
 static inline blob_t *
+blob_root(slice_t *slice)
+{
+    return (blob_t *)slice_cookie(slice);
+}
+
+static inline blob_t *
 blob_first(const blob_t *blob)
 {
 	return blob?blob_vpointer(blob_t, blob):NULL;
@@ -565,12 +571,6 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32_t cou
     }
 
     return found?found:-ENOEXIST;
-}
-
-static inline blob_t *
-blob_root(slice_t *slice)
-{
-    return (blob_t *)slice_cookie(slice);
 }
 
 static inline void
