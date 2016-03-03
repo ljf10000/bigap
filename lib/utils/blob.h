@@ -309,6 +309,7 @@ __blob_dump(const blob_t *blob, int level)
             blob_vsize(blob),
             blob_type_string(blob->type));
 #if !BLOB_DUMP_ATOMIC
+        os_printf(__crlf);
     }
 #endif
 
