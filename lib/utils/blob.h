@@ -284,7 +284,7 @@ __blob_dump(const blob_t *blob, int level)
     blob_t *p;
     
     if (0==level) {
-        os_println("==DUMP BEGIN== name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
+        os_println("==DUMP BEGIN== name:%s, count:%u, size:%u, klen:%u, ksize:%u, vlen:%u, vsize:%u, %s", 
             blob_key(blob), 
             blob->count,
             blob_size(blob),
@@ -299,7 +299,7 @@ __blob_dump(const blob_t *blob, int level)
     if (is_blob_type_container(blob->type)) {
 #endif
         __printab(level); 
-        os_printf("name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
+        os_printf("name:%s, count:%u, size:%u, klen:%u, ksize:%u, vlen:%u, vsize:%u, %s", 
             blob_key(blob), 
             blob->count,
             blob_size(blob),
@@ -354,7 +354,7 @@ __blob_dump(const blob_t *blob, int level)
     }
 
     if (0==level) {
-        os_println("==DUMP END  == name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
+        os_println("==DUMP END  == name:%s, count:%u, size:%u, klen:%u, ksize:%u, vlen:%u, vsize:%u, %s", 
             blob_key(blob), 
             blob->count,
             blob_size(blob),

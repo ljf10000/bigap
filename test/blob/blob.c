@@ -92,7 +92,7 @@ object_btoj(void)
     put_somthing(name);
     os_println("%s end", name);
     
-    debug_ok("1:root blob vlen=%d", root->vlen);
+    debug_ok("1:root blob vlen=%u", root->vlen);
 
     name = "OBJ";
     os_println("%s begin", name);
@@ -111,7 +111,7 @@ object_btoj(void)
     blob_object_end(bs, obj);
     os_println("%s end", name);
     
-    debug_ok("2:root blob vlen=%d", root->vlen);
+    debug_ok("2:root blob vlen=%u", root->vlen);
 
     name = "ARRAY";
     os_println("%s begin", name);
@@ -126,14 +126,14 @@ object_btoj(void)
     blob_array_end(bs, arr);
     os_println("%s end", name);
 
-    debug_ok("3:root blob vlen=%d", root->vlen);
+    debug_ok("3:root blob vlen=%u", root->vlen);
 
     name = "LAST";
     os_println("%s begin", name);
     put_somthing(name);
     os_println("%s end", name);
 
-    debug_ok("4:root blob vlen=%d", root->vlen);
+    debug_ok("4:root blob vlen=%u", root->vlen);
 
     blob_dump(root);
     
