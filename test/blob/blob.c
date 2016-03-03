@@ -81,7 +81,6 @@ object_btoj(void)
     char tmp[128];
     
     blob_root_object(bs);
-    blob_t *root = blob_root(bs);
 
     put_somthing(NULL);
     
