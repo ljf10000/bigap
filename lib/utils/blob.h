@@ -284,17 +284,18 @@ blob_eq(const blob_t *a, const blob_t *b)
 #define BLOB_DUMP_ATOMIC    0
 
 static inline void
-__blob_dump_header(const blob_t *blob)
+__blob_dump_header(const blob_t *blob, char *tag)
 {
-    os_printf("==DUMP BEGIN== "
-                    "name:%s, "
-                    "count:%u, "
-                    "size:%u, "
-                    "klen:%u, "
-                    "ksize:%u, "
-                    "vlen:%u, "
-                    "vsize:%u, "
-                    "%s", 
+    os_printf("%s "
+                "name:%s, "
+                "count:%u, "
+                "size:%u, "
+                "klen:%u, "
+                "ksize:%u, "
+                "vlen:%u, "
+                "vsize:%u, "
+                "%s", 
+        tag?tag:__empty,
         blob_key(blob), 
         blob->count,
         blob_size(blob),
@@ -312,14 +313,14 @@ __blob_dump(const blob_t *blob, int level)
     blob_t *p;
     
     if (0==level) {
-        __blob_dump_header(blob);
+        __blob_dump_header(blob, "==DUMP BEGIN==");
     }
     
 #if !BLOB_DUMP_ATOMIC
     if (is_blob_type_container(blob->type)) {
 #endif
         __printab(level);
-        __blob_dump_header(blob);
+        __blob_dump_header(blob, NULL);
 #if !BLOB_DUMP_ATOMIC
         os_printf(__crlf);
     }
@@ -366,7 +367,7 @@ __blob_dump(const blob_t *blob, int level)
     }
 
     if (0==level) {
-        __blob_dump_header(blob);
+        __blob_dump_header(blob, "==DUMP END  ==");
     }
 }
 
@@ -377,7 +378,7 @@ blob_dump(const blob_t *blob)
 }
 
 static inline void
-__blob_dump_slice(const slice_t *slice, const char *tag)
+__blob_dump_slice(slice_t *slice, char *tag)
 {
     os_printf("%s" __crlf
         __tab "slice(size=%d, used=%d, remain=%d)" __crlf
