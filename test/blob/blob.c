@@ -47,8 +47,6 @@ array_btoj(void)
     int i;
     char tmp[128];
     
-    slice_alloc(bs, BUFFER_SIZE);  
-
     blob_root_array(bs);
     blob_t *root = blob_root(bs);
     
@@ -77,8 +75,6 @@ object_btoj(void)
     int i;
     char tmp[128];
     
-    slice_alloc(bs, BUFFER_SIZE);  
-
     blob_root_object(bs);
     blob_t *root = blob_root(bs);
     
@@ -140,6 +136,8 @@ int __main(int argc, char *argv[])
 {
     jobj_t obj;
     char *json;
+    
+    slice_alloc(bs, BUFFER_SIZE);  
     
     obj = array_btoj();
     json = jobj_string(obj);
