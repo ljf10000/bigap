@@ -328,7 +328,7 @@ __blob_dump(const blob_t *blob, int level)
     }
 
     if (0==level) {
-        os_println("DUMP name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
+        os_println("==DUMP== name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
             blob_key(blob), 
             blob->count,
             blob_size(blob),
