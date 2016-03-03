@@ -15,6 +15,16 @@ static slice_t *bs = &BS;
 #define BUFFER_SIZE     4096
 int COUNT = 2;
 
+#define BLOB_TEST   0
+
+#if BLOB_TEST
+#define tprintf(_fmt, _args...)     os_printf(_fmt, ##_args)
+#define tprintln(_fmt, _args...)    os_println(_fmt, ##_args)
+#else
+#define tprintf(_fmt, _args...)     os_do_nothing()
+#define tprintln(_fmt, _args...)    os_do_nothing()
+#endif
+
 static void
 put_somthing(char *name)
 {
@@ -49,22 +59,22 @@ array_btoj(void)
     blob_root_array(bs);
     
     name = "FIRST";
-    os_println("%s begin", name);
+    tprintln("%s begin", name);
     put_somthing(name);
-    os_println("%s end", name);
+    tprintln("%s end", name);
 
     name = tmp;
     for (i=0; i<COUNT; i++) {
-        os_sprintf(name, "object-%.5d", i);
-        os_println("%s begin", name);
+        tprintln(name, "object-%.5d", i);
+        tprintln("%s begin", name);
         put_somthing(name);
-        os_println("%s end", name);
+        tprintln("%s end", name);
     }
     
     name = "LAST";
-    os_println("%s begin", name);
+    tprintln("%s begin", name);
     put_somthing(name);
-    os_println("%s end", name);
+    tprintln("%s end", name);
 
     blob_t *root = blob_root(bs);
     blob_dump(root);
@@ -85,44 +95,44 @@ object_btoj(void)
     put_somthing(NULL);
     
     name = "FIRST";
-    os_println("%s begin", name);
+    tprintln("%s begin", name);
     put_somthing(name);
-    os_println("%s end", name);
+    tprintln("%s end", name);
     
     name = "OBJ";
-    os_println("%s begin", name);
+    tprintln("%s begin", name);
     obj = blob_object_start(bs, name);
     for (i=0; i<COUNT; i++) {
-        os_sprintf(tmp, "array-%.5d", i);
+        tprintf(tmp, "array-%.5d", i);
         
-        os_println("%s.%s begin", name, tmp);
+        tprintln("%s.%s begin", name, tmp);
         arr = blob_array_start(bs, tmp);
         put_somthing("sb1");
         put_somthing("sb2");
         put_somthing("sb3");
         blob_array_end(bs, arr);
-        os_println("%s.%s end", name, tmp);
+        tprintln("%s.%s end", name, tmp);
     }
     blob_object_end(bs, obj);
-    os_println("%s end", name);
+    tprintln("%s end", name);
     
     name = "ARRAY";
-    os_println("%s begin", name);
+    tprintln("%s begin", name);
     arr = blob_array_start(bs, name);
     for (i=0; i<COUNT; i++) {
-        os_sprintf(tmp, "obj-%.5d", i);
+        tprintf(tmp, "obj-%.5d", i);
         
-        os_println("%s.%s begin", name, tmp);
+        tprintln("%s.%s begin", name, tmp);
         put_somthing(tmp);
-        os_println("%s.%s end", name, tmp);
+        tprintln("%s.%s end", name, tmp);
     }
     blob_array_end(bs, arr);
-    os_println("%s end", name);
+    tprintln("%s end", name);
 
     name = "LAST";
-    os_println("%s begin", name);
+    tprintln("%s begin", name);
     put_somthing(name);
-    os_println("%s end", name);
+    tprintln("%s end", name);
 
     blob_t *root = blob_root(bs);
     blob_dump(root);
