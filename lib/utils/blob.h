@@ -275,7 +275,7 @@ blob_eq(const blob_t *a, const blob_t *b)
     /* end */
 #endif
 
-#define BLOB_DUMP_ATOMIC    0
+#define BLOB_DUMP_ATOMIC    1
 
 static inline void
 __blob_dump(const blob_t *blob, int level)
