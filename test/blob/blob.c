@@ -40,7 +40,7 @@ put_somthing(char *name)
 #define COUNT   2
 
 static jobj_t
-test_btoj_array(void)
+array_btoj(void)
 {
     char *name;
     void *arr, *obj;
@@ -70,7 +70,7 @@ test_btoj_array(void)
 }
 
 static jobj_t
-test_btoj_object(void)
+object_btoj(void)
 {
     char *name;
     void *arr, *obj;
@@ -141,17 +141,17 @@ int __main(int argc, char *argv[])
     jobj_t obj;
     char *json;
     
-    obj = test_btoj_array();
+    obj = array_btoj();
     json = jobj_string(obj);
     os_println("%s", json);
     jobj_put(obj);
     
-    obj = test_btoj_object();
+    obj = object_btoj();
     json = jobj_string(obj);
     os_println("%s", json);
 
-//    blob_jtob(bs, json);
-//    blob_dump(blob_root(bs));
+    blob_jtob(bs, json);
+    blob_dump(blob_root(bs));
 
     jobj_put(obj);
     
