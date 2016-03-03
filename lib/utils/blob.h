@@ -370,6 +370,22 @@ blob_dump(const blob_t *blob)
     __blob_dump(blob, 0);
 }
 
+static inline void
+__blob_dump_slice(const slice_t *slice, const char *tag)
+{
+    os_printf("%s" __crlf
+        __tab "slice(size=%d, used=%d, remain=%d)" __crlf
+        __tab "root(offset=%d, key=%s, type=%s, vlen=%d)" __crlf, 
+        tag,
+        slice_size(slice),
+        slice_tail(slice) - slice_data(slice),
+        slice_remain(slice),
+        slice_offset(slice),
+        blob_key(blob_root(slice)),
+        blob_type_string(blob_root(slice)->type),
+        blob_root(slice)->vlen);
+}
+
 typedef struct blob_rule {
     const char *name;
     uint32_t type;
@@ -657,6 +673,10 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
         return NULL;
 	}
 
+    if (__is_ak_debug_trace | __is_ak_debug_blob) {
+        __blob_dump_slice(slice, "blob nest begin");
+	}
+
     uint32_t offset = (byte *)new - (byte *)slice_data(slice);
     
     return (void *)slice_offset_save(slice, offset);
@@ -676,19 +696,8 @@ __blob_nest_end(slice_t *slice, void *cookie)
 	root = blob_root(slice);
 	root->vlen += size;
 
-	debug_blob("nest vlen += %u = %u", size, root->vlen);
-
     if (__is_ak_debug_trace | __is_ak_debug_blob) {
-        os_printf("blob nest end" __crlf
-            __tab "slice(size=%d, used=%d, remain=%d)" __crlf
-            __tab "root(offset=%d, key=%s, type=%s, vlen=%d)" __crlf, 
-            slice_size(slice),
-            slice_tail(slice) - slice_data(slice),
-            slice_remain(slice),
-            slice_offset(slice),
-            blob_key(blob_root(slice)),
-            blob_type_string(blob_root(slice)->type),
-            blob_root(slice)->vlen);
+        __blob_dump_slice(slice, "blob nest end");
 	}
 }
 
@@ -777,16 +786,7 @@ blob_put(
 	}
 	
     if (__is_ak_debug_trace | __is_ak_debug_blob) {
-        os_printf("blob_put" __crlf
-            __tab "slice(size=%d, used=%d, remain=%d)" __crlf
-            __tab "root(offset=%d, key=%s, type=%s, vlen=%d)" __crlf, 
-            slice_size(slice),
-            slice_tail(slice) - slice_data(slice),
-            slice_remain(slice),
-            slice_offset(slice),
-            blob_key(blob_root(slice)),
-            blob_type_string(blob_root(slice)->type),
-            blob_root(slice)->vlen);
+        __blob_dump_slice(slice, "blob_put");
 	}
 
 	return blob;
