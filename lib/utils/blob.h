@@ -294,18 +294,24 @@ __blob_dump(const blob_t *blob, int level)
             blob_vsize(blob),
             blob_type_string(blob->type));
     }
-
-    __printab(level); 
-    os_printf("name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
-        blob_key(blob), 
-        blob->count,
-        blob_size(blob),
-        blob->klen,
-        blob_ksize(blob),
-        blob->vlen,
-        blob_vsize(blob),
-        blob_type_string(blob->type));
     
+#if !BLOB_DUMP_ATOMIC
+    if (is_blob_type_container(blob->type)) {
+#endif
+        __printab(level); 
+        os_printf("name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d, %s", 
+            blob_key(blob), 
+            blob->count,
+            blob_size(blob),
+            blob->klen,
+            blob_ksize(blob),
+            blob->vlen,
+            blob_vsize(blob),
+            blob_type_string(blob->type));
+#if !BLOB_DUMP_ATOMIC
+    }
+#endif
+
     switch(blob->type) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY:
@@ -316,7 +322,7 @@ __blob_dump(const blob_t *blob, int level)
             }
             
             break;
-#if 0
+#if BLOB_DUMP_ATOMIC
         case BLOB_T_BOOL:
             os_println(":%d", *(int *)blob_value(blob));
             break;
@@ -339,7 +345,7 @@ __blob_dump(const blob_t *blob, int level)
             break;
 #endif
         default:
-#if 0
+#if BLOB_DUMP_ATOMIC
             os_println(":%p", blob_value(blob));
 #else
             os_printf(__crlf);
