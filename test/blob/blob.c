@@ -103,7 +103,9 @@ object_btoj(void)
         
         os_println("%s.%s begin", name, tmp);
         arr = blob_array_start(bs, tmp);
-        put_somthing("sb");
+        put_somthing("sb1");
+        put_somthing("sb2");
+        put_somthing("sb3");
         blob_array_end(bs, arr);
         os_println("%s.%s end", name, tmp);
     }
@@ -119,9 +121,7 @@ object_btoj(void)
         os_sprintf(tmp, "obj-%d", i);
         
         os_println("%s.%s begin", name, tmp);
-//        obj = blob_object_start(bs, tmp);
-        put_somthing("sb");
-//        blob_object_end(bs, obj);
+        put_somthing(tmp);
         os_println("%s.%s end", name, tmp);
     }
     blob_array_end(bs, arr);
