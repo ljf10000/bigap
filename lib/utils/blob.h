@@ -281,8 +281,6 @@ blob_eq(const blob_t *a, const blob_t *b)
     /* end */
 #endif
 
-#define BLOB_DUMP_ATOMIC    0
-
 static inline void
 __blob_dump_header(const blob_t *blob, char *tag)
 {
@@ -313,32 +311,21 @@ __blob_dump(const blob_t *blob, int level)
     blob_t *p;
     
     if (0==level) {
-        __blob_dump_header(blob, "==DUMP BEGIN==");
-        os_printf(__crlf);
+        __blob_dump_header(blob, "==DUMP BEGIN=="); os_printf(__crlf);
     }
-    
-#if !BLOB_DUMP_ATOMIC
-    if (is_blob_type_container(blob->type)) {
-#endif
-        __printab(level);
-        __blob_dump_header(blob, NULL);
-#if !BLOB_DUMP_ATOMIC
-        os_printf(__crlf);
-    }
-#endif
+
+    __printab(level); __blob_dump_header(blob, NULL);
 
     switch(blob->type) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY:
-#if BLOB_DUMP_ATOMIC
             os_printf(__crlf);
-#endif
+
             blob_foreach(blob, p, i, left) {
                 __blob_dump(p, level+1);
             }
             
             break;
-#if BLOB_DUMP_ATOMIC
         case BLOB_T_BOOL:
             os_println(":%d", *(int *)blob_value(blob));
             break;
@@ -359,17 +346,13 @@ __blob_dump(const blob_t *blob, int level)
             break;
         case BLOB_T_EMPTY:
             break;
-#endif
         default:
-#if BLOB_DUMP_ATOMIC
             os_println(":%p", blob_value(blob));
-#endif
             break;
     }
 
     if (0==level) {
-        __blob_dump_header(blob, "==DUMP END  ==");
-        os_printf(__crlf);
+        __blob_dump_header(blob, "==DUMP END  =="); os_printf(__crlf);
     }
 }
 
