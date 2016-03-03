@@ -44,10 +44,15 @@ is_blob_type_container(int type)
 
 #define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32_t))
 
+#define USE_BLOB_COUNT
+
 typedef struct {
     uint8_t     type;       /* enum blob_type */
     uint8_t     klen;       /* real key len, NOT include '\0' */
-    uint16_t    count;      /* if current node is object/array, the count is node's sub node count */
+    uint8_t     r[2];
+#ifdef USE_BLOB_COUNT
+    uint32_t    count;      /* if current node is object/array, the count is node's sub node count */
+#endif
     uint32_t    vlen;       /* real value len, NOT include '\0' if value is string */
 /*
     name/value align 4
@@ -267,17 +272,17 @@ blob_eq(const blob_t *a, const blob_t *b)
 	return os_memeq(a, b, size);
 }
 
-#if 1
-#define blob_foreach(_root, _blob, _i, _left) \
-	for (_left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
-	     _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
-	     _left -= blob_size(_blob), _blob = blob_next(_blob)) \
-    /* end */
-#else
+#ifdef USE_BLOB_COUNT
 #define blob_foreach(_root, _blob, _i, _left) \
 	for (_i = 0, _left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
 	     _i < (_root)->count && _blob && _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
 	     _i++, _left -= blob_size(_blob), _blob = blob_next(_blob))  \
+    /* end */
+#else
+#define blob_foreach(_root, _blob, _i, _left) \
+	for (_left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
+	     _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
+	     _left -= blob_size(_blob), _blob = blob_next(_blob)) \
     /* end */
 #endif
 
@@ -286,7 +291,9 @@ __blob_dump_header(const blob_t *blob, char *tag)
 {
     os_printf("%s "
                 "name:%s, "
+#ifdef USE_BLOB_COUNT
                 "count:%u, "
+#endif
                 "size:%u, "
                 "klen:%u, "
                 "ksize:%u, "
@@ -295,7 +302,9 @@ __blob_dump_header(const blob_t *blob, char *tag)
                 "%s", 
         tag?tag:__empty,
         blob_key(blob), 
+#ifdef USE_BLOB_COUNT
         blob->count,
+#endif
         blob_size(blob),
         blob->klen,
         blob_ksize(blob),
@@ -572,7 +581,9 @@ __blob_init(
     blob->type  = type;
     blob->klen  = name?os_strlen(name):0;
     blob->vlen  = payload;
+#ifdef USE_BLOB_COUNT
     blob->count = 0;
+#endif
 }
 
 static inline void
@@ -623,7 +634,9 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
     blob_t *root = blob_root(slice);
     if (root && root!=blob) {
         root->vlen += size;
+#ifdef USE_BLOB_COUNT
         root->count++;
+#endif
     }
     
     slice_put(slice, size);
@@ -852,7 +865,9 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     int i;
     
     if (ntoh) {
-        blob->count= bswap_16(blob->count);
+#ifdef USE_BLOB_COUNT
+        blob->count= bswap_32(blob->count);
+#endif
         blob->vlen = bswap_32(blob->vlen);
     }
     
@@ -882,7 +897,9 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     }
     
     if (false==ntoh) {
-        blob->count= bswap_16(blob->count);
+#ifdef USE_BLOB_COUNT
+        blob->count= bswap_32(blob->count);
+#endif
         blob->vlen = bswap_32(blob->vlen);
     }
 }
