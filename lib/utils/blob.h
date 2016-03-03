@@ -930,6 +930,7 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
     switch(type) {
         case jtype_array:
         case jtype_object: {
+            __printab(level); os_println("__blob_jtob foreach begin");
             jobj_foreach(obj, k, v) {
                 bool is_container = jobj_is_container(v);
                 void *cookie = NULL;
@@ -944,6 +945,7 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
                     __blob_nest_end(slice, cookie);
                 }
             }
+            __printab(level); os_println("__blob_jtob foreach begin");
         }   break;
         case jtype_bool:
             blob_put_bool(slice, name, jobj_get_bool(obj));
