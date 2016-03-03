@@ -316,8 +316,9 @@ __blob_dump(const blob_t *blob, int level)
     switch(blob->type) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY:
+#if BLOB_DUMP_ATOMIC
             os_printf(__crlf);
-            
+#endif
             blob_foreach(blob, p, i, left) {
                 __blob_dump(p, level+1);
             }
