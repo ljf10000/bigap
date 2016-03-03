@@ -315,13 +315,8 @@ __blob_dump(const blob_t *blob, int level)
     switch(blob->type) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY:
-#if !BLOB_DUMP_ATOMIC
-            if (is_blob_type_container(blob->type)) {
-#endif
-                os_printf(__crlf);
-#if !BLOB_DUMP_ATOMIC
-            }
-#endif
+            os_printf(__crlf);
+            
             blob_foreach(blob, p, i, left) {
                 __blob_dump(p, level+1);
             }
@@ -352,8 +347,6 @@ __blob_dump(const blob_t *blob, int level)
         default:
 #if BLOB_DUMP_ATOMIC
             os_println(":%p", blob_value(blob));
-#else
-            os_printf(__crlf);
 #endif
             break;
     }
