@@ -156,14 +156,15 @@ int __main(int argc, char *argv[])
     blob_jtob(bs, obj);
     blob_dump(blob_root(bs));
     jobj_put(obj);
-    
+#if 0
     obj = object_btoj();
     json = jobj_string(obj);
     os_println("%s", json);
     blob_jtob(bs, obj);
     blob_dump(blob_root(bs));
     jobj_put(obj);
-    
+#endif
+
     return 0;
 }
 
