@@ -760,7 +760,7 @@ blob_put(
 	    }
 	}
 	
-    if (__is_ak_debug_trace) {
+    if (__is_ak_debug_trace | __is_ak_debug_blob) {
         os_printf("blob_put" __crlf
             __tab "slice(size=%d, used=%d, remain=%d)" __crlf
             __tab "root(offset=%d, key=%s, type=%s, vlen=%d)" __crlf, 
