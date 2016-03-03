@@ -281,7 +281,8 @@ __blob_dump(const blob_t *blob, int level)
     int i, left;
     blob_t *p;
 
-    __printab(level); os_printf("name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d", 
+    __printab(level); 
+    os_printf("name:%s, count:%d, size:%d, klen:%d, ksize:%d, vlen:%d, vsize:%d", 
         blob_key(blob), 
         blob->count,
         blob_size(blob),
