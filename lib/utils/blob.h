@@ -700,7 +700,14 @@ __blob_nest_end(slice_t *slice, void *cookie)
 	root->vlen += size;
 
     if (__is_ak_debug_trace | __is_ak_debug_blob) {
-        __blob_dump_slice(slice, "blob nest end");
+        os_printf("blob nest end" __crlf
+            __tab "slice(size=%d, used=%d, remain=%d)" __crlf
+            __tab "root(added=%d, vlen=%d)" __crlf, 
+            slice_size(slice),
+            slice_tail(slice) - slice_data(slice),
+            slice_remain(slice),
+            size,
+            root->vlen);
 	}
 }
 
