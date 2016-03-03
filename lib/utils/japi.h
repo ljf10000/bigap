@@ -187,9 +187,17 @@ jarray_get(jobj_t array, int idx)
 static inline char *
 jobj_name(jobj_t obj)
 {
-    struct lh_entry *entry = json_object_get_object(obj);
+    struct lh_table *table = json_object_get_object(obj);
+    if (NULL==table) {
+        return NULL;
+    }
 
-    return entry?(char *)entry->k:NULL;
+    struct lh_entry *entry = table->head;
+    if (NULL==entry) {
+        return NULL;
+    }
+
+    return (char *)entry->k;
 }
 
 #define jobj_foreach(_root, _k, _v)     json_object_object_foreach(_root, _k, _v)
