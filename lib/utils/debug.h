@@ -133,6 +133,7 @@ __sighandle_callstack(int signo)
     * copy app maps file
     */
     os_system("cp /proc/%d/maps " BACKTRACE_FILE_MAPS, pid);
+    os_system("chmow +w " BACKTRACE_FILE_MAPS);
     
     /*
     * locate bug file & line
