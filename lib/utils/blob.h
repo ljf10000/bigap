@@ -278,36 +278,42 @@ blob_eq(const blob_t *a, const blob_t *b)
 #define BLOB_DUMP_ATOMIC    0
 
 static inline void
+__blob_dump_header(const blob_t *blob)
+{
+    os_println("==DUMP BEGIN== "
+                    "name:%s, "
+                    "count:%u, "
+                    "size:%u, "
+                    "klen:%u, "
+                    "ksize:%u, "
+                    "vlen:%u, "
+                    "vsize:%u, "
+                    "%s", 
+        blob_key(blob), 
+        blob->count,
+        blob_size(blob),
+        blob->klen,
+        blob_ksize(blob),
+        blob->vlen,
+        blob_vsize(blob),
+        blob_type_string(blob->type));
+}
+
+static inline void
 __blob_dump(const blob_t *blob, int level)
 {
     int i, left;
     blob_t *p;
     
     if (0==level) {
-        os_println("==DUMP BEGIN== name:%s, count:%u, size:%u, klen:%u, ksize:%u, vlen:%u, vsize:%u, %s", 
-            blob_key(blob), 
-            blob->count,
-            blob_size(blob),
-            blob->klen,
-            blob_ksize(blob),
-            blob->vlen,
-            blob_vsize(blob),
-            blob_type_string(blob->type));
+        __blob_dump_header(blob);
     }
     
 #if !BLOB_DUMP_ATOMIC
     if (is_blob_type_container(blob->type)) {
 #endif
-        __printab(level); 
-        os_printf("name:%s, count:%u, size:%u, klen:%u, ksize:%u, vlen:%u, vsize:%u, %s", 
-            blob_key(blob), 
-            blob->count,
-            blob_size(blob),
-            blob->klen,
-            blob_ksize(blob),
-            blob->vlen,
-            blob_vsize(blob),
-            blob_type_string(blob->type));
+        __printab(level);
+        __blob_dump_header(blob);
 #if !BLOB_DUMP_ATOMIC
         os_printf(__crlf);
     }
@@ -354,15 +360,7 @@ __blob_dump(const blob_t *blob, int level)
     }
 
     if (0==level) {
-        os_println("==DUMP END  == name:%s, count:%u, size:%u, klen:%u, ksize:%u, vlen:%u, vsize:%u, %s", 
-            blob_key(blob), 
-            blob->count,
-            blob_size(blob),
-            blob->klen,
-            blob_ksize(blob),
-            blob->vlen,
-            blob_vsize(blob),
-            blob_type_string(blob->type));
+        __blob_dump_header(blob);
     }
 }
 
