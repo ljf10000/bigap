@@ -951,7 +951,6 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
         case jtype_array:{
             int i, count = jarray_length(obj);
             
-            __printab(level); os_println("__blob_jtob array foreach begin");
             for (i=0; i<count; i++) {
                 jobj_t v = jarray_get(obj, i);
                 if (NULL==v) {
@@ -960,15 +959,12 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 
                 ____blob_jtob(slice, NULL, v, jtype_array, level);
             }
-            __printab(level); os_println("__blob_jtob array foreach begin");
             
         }   break;
         case jtype_object: {
-            __printab(level); os_println("__blob_jtob object foreach begin");
             jobj_foreach(obj, k, v) {
                 ____blob_jtob(slice, k, v, jtype_object, level);
             }
-            __printab(level); os_println("__blob_jtob object foreach begin");
             
         }   break;
         case jtype_bool:
