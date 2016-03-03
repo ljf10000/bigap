@@ -13,6 +13,7 @@ static slice_t BS;
 static slice_t *bs = &BS;
 
 #define BUFFER_SIZE     1024
+#define COUNT           1024
 
 static void
 put_somthing(char *name)
@@ -36,8 +37,6 @@ put_somthing(char *name)
         blob_object_end(bs, obj);
     }
 }
-
-#define COUNT   2
 
 static jobj_t
 array_btoj(void)
