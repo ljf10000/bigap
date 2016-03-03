@@ -44,7 +44,7 @@ is_blob_type_container(int type)
 
 #define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32_t))
 
-#if 0
+#if 1
 #define USE_BLOB_COUNT
 #endif
 
