@@ -280,7 +280,7 @@ blob_eq(const blob_t *a, const blob_t *b)
 static inline void
 __blob_dump_header(const blob_t *blob)
 {
-    os_println("==DUMP BEGIN== "
+    os_printf("==DUMP BEGIN== "
                     "name:%s, "
                     "count:%u, "
                     "size:%u, "
