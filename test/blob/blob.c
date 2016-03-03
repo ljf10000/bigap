@@ -47,7 +47,6 @@ array_btoj(void)
     char tmp[128];
     
     blob_root_array(bs);
-    blob_t *root = blob_root(bs);
     
     name = "FIRST";
     os_println("%s begin", name);
@@ -67,8 +66,7 @@ array_btoj(void)
     put_somthing(name);
     os_println("%s end", name);
 
-    debug_ok("4:root blob vlen=%d", root->vlen);
-
+    blob_t *root = blob_root(bs);
     blob_dump(root);
     
     return blob_btoj(root);
