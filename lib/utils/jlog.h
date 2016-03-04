@@ -260,16 +260,52 @@ __jlog_server(void)
 }
 
 static inline int
-__jvlogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, const char *fmt, va_list args);
+__jvlogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI, 
+    const char *fmt, 
+    va_list args
+);
 
 static inline int
-__dvlogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, const char *fmt, va_list args);
+__dvlogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI, 
+    const char *fmt, 
+    va_list args
+);
 
 static inline int
-__jlogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, const char *fmt, ...);
+__jlogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI, 
+    const char *fmt, 
+    ...
+);
 
 static inline int
-__dlogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, const char *fmt, ...);
+__dlogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI, 
+    const char *fmt, 
+    ...
+);
 #else
 #define DECLARE_JLOG        os_fake_declare
 
@@ -512,7 +548,15 @@ __dlogger(char *app, char *sub, const char *file, const char *func, int line, in
 
 #ifdef __APP__
 static inline jobj_t
-__jlog_obj_header(jobj_t obj, char *app, char *sub, const char *file, const char *func, int line, int PRI)
+__jlog_obj_header(
+    jobj_t obj, 
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI
+)
 {
     int pri     = LOG_PRI(PRI);
     int level   = LOG_LEVEL(PRI);
@@ -556,7 +600,7 @@ __jlog_obj_header(jobj_t obj, char *app, char *sub, const char *file, const char
     }
     
     if (line) {
-        err = jobj_add_i32(obj, JLOG_KEY_LINE, line);
+        err = jobj_add_u32(obj, JLOG_KEY_LINE, line);
         if (err<0) {
             __debug_error("add line %d error", line);
             
@@ -653,7 +697,7 @@ error:
 }
 
 static inline int
-__jlog(jobj_t obj, char *app, char *sub, int PRI)
+__jlog(jobj_t obj, char *app, char *sub, uint32_t PRI)
 {
     int fd, len, err;
     
@@ -726,7 +770,16 @@ try_again:
 * v: as vsprintf
 */
 static inline int
-__jvlogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, const char *fmt, va_list args)
+__jvlogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI, 
+    const char *fmt, 
+    va_list args
+)
 {
     jobj_t obj = NULL;
     int err;
@@ -753,7 +806,16 @@ error:
 * v: as vsprintf
 */
 static inline int
-__dvlogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, const char *fmt, va_list args)
+__dvlogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI, 
+    const char *fmt, 
+    va_list args
+)
 {
     jobj_t obj = NULL;
     int err;
@@ -780,7 +842,15 @@ error:
 * c: by command
 */
 static inline int
-__jclogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, char *json)
+__jclogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI, 
+    char *json
+)
 {
     jobj_t obj = NULL;
     int err;
@@ -803,7 +873,16 @@ error:
 }
 
 static inline int
-__jlogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, const char *fmt, ...)
+__jlogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI, 
+    const char *fmt, 
+    ...
+)
 {
     int err = 0;
     va_list args;
@@ -816,7 +895,16 @@ __jlogger(char *app, char *sub, const char *file, const char *func, int line, in
 }
 
 static inline int
-__dlogger(char *app, char *sub, const char *file, const char *func, int line, int PRI, const char *fmt, ...)
+__dlogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32_t line, 
+    uint32_t PRI, 
+    const char *fmt, 
+    ...
+)
 {
     int err = 0;
     va_list args;
