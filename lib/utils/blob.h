@@ -797,16 +797,16 @@ blob_put(
 	}
     
     if (value) {
-        char *value = blob_value(blob);
+        char *v = blob_value(blob);
         
-	    os_memcpy(value, value, len);
+	    os_memcpy(v, value, len);
 	    
         /*
         * string length NOT include '\0'
         * string value keep '\0', for string function(strlen/strstr/...)
         */
 	    if (BLOB_T_STRING==type) {
-            value[len] = 0;
+            v[len] = 0;
 	    }
 	}
 	
