@@ -188,54 +188,6 @@ blob_size(const blob_t *blob)
 
 #define blob_vpointer(_type, _blob)     ((_type *)blob_value(_blob))
 
-static inline int32_t
-blob_get_i32(const blob_t *blob)
-{
-    return *blob_vpointer(int32_t, blob);
-}
-
-static inline uint32_t
-blob_get_u32(const blob_t *blob)
-{
-	return *blob_vpointer(uint32_t, blob);
-}
-
-static inline float32_t
-blob_get_f32(const blob_t *blob)
-{
-	return *blob_vpointer(float32_t, blob);
-}
-
-static inline int64_t
-blob_get_i64(const blob_t *blob)
-{
-	return *blob_vpointer(int64_t, blob);
-}
-
-static inline uint64_t
-blob_get_u64(const blob_t *blob)
-{
-	return *blob_vpointer(uint64_t, blob);
-}
-
-static inline float64_t
-blob_get_f64(const blob_t *blob)
-{
-	return *blob_vpointer(float64_t, blob);
-}
-
-static inline bool
-blob_get_bool(const blob_t *blob)
-{
-	return !!blob_get_u32(blob);
-}
-
-static inline const char *
-blob_get_string(const blob_t *blob)
-{
-	return blob_value(blob);
-}
-
 static inline blob_t *
 blob_root(slice_t *slice)
 {
@@ -287,10 +239,58 @@ blob_eq(const blob_t *a, const blob_t *b)
 	return os_memeq(a, b, size);
 }
 
+static inline int32_t
+blob_get_i32(const blob_t *blob)
+{
+    return *blob_vpointer(int32_t, blob);
+}
+
+static inline uint32_t
+blob_get_u32(const blob_t *blob)
+{
+	return *blob_vpointer(uint32_t, blob);
+}
+
+static inline float32_t
+blob_get_f32(const blob_t *blob)
+{
+	return *blob_vpointer(float32_t, blob);
+}
+
+static inline int64_t
+blob_get_i64(const blob_t *blob)
+{
+	return *blob_vpointer(int64_t, blob);
+}
+
+static inline uint64_t
+blob_get_u64(const blob_t *blob)
+{
+	return *blob_vpointer(uint64_t, blob);
+}
+
+static inline float64_t
+blob_get_f64(const blob_t *blob)
+{
+	return *blob_vpointer(float64_t, blob);
+}
+
+static inline bool
+blob_get_bool(const blob_t *blob)
+{
+	return !!blob_get_u32(blob);
+}
+
+static inline const char *
+blob_get_string(const blob_t *blob)
+{
+	return blob_value(blob);
+}
+
 #if 1
 #define blob_foreach(_root, _blob, _i, _left) \
 	for (_i = 0, _left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
-	     _i < (_root)->count && _blob && _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
+	     _i < blob_count(_root) && _blob && _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
 	     _i++, _left -= blob_size(_blob), _blob = blob_next(_blob))  \
     /* end */
 #else
@@ -300,6 +300,44 @@ blob_eq(const blob_t *a, const blob_t *b)
 	     _left -= blob_size(_blob), _blob = blob_next(_blob)) \
     /* end */
 #endif
+
+static inline blob_t *
+blob_getbyname(const blob_t *root, char *name)
+{
+    uint32_t i, left;
+    blob_t *blob;
+
+    if (NULL==name) {
+        return NULL;
+    }
+
+    blob_foreach(root, blob, i, left) {
+        if (0==os_streq(name, blob_key(blob))) {
+            return blob;
+        }
+    }
+    
+	return NULL;
+}
+
+static inline blob_t *
+blob_getbyidx(const blob_t *root, uint32_t idx)
+{
+    uint32_t i, left, count = blob_count(root);
+    blob_t *blob;
+
+    if (false==is_good_enum(idx, count)) {
+        return NULL;
+    }
+
+    blob_foreach(root, blob, i, left) {
+        if (i==idx) {
+            return blob;
+        }
+    }
+    
+	return NULL;
+}
 
 static inline void
 __blob_dump_header(const blob_t *blob, char *tag)
