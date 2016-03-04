@@ -891,7 +891,12 @@ blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32_t l
 static inline int
 blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args)
 {
-    int vsize = os_vsprintf_size(fmt, args);
+    va_list copy;
+
+    va_copy(copy, args);
+    int vsize = os_vsprintf_size(fmt, copy);
+    va_end(copy);
+    
     blob_t *blob = __blob_new(slice, BLOB_T_STRING, name, vsize);
     if (blob) {
         os_vsnprintf(blob_value(blob), vsize, fmt, args);

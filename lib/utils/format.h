@@ -182,11 +182,12 @@ static inline int
 os_vasprintf_resv(char **buf, int resv, const char *fmt, va_list args)
 {
     int len = 0;
-    va_list args2;
+    va_list copy;
     
-    va_copy(args2, args);
-    len = os_vsnprintf(NULL, 0, fmt, args2);
-
+    va_copy(copy, args);
+    len = os_vsnprintf(NULL, 0, fmt, copy);
+    va_end(copy);
+    
     char *p = (char *)os_zalloc(1+len+resv);
     if (NULL==p) {
         return -ENOMEM;
