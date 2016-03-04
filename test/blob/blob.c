@@ -36,10 +36,12 @@ put_somthing(char *name)
 //    blob_put_binary(bs, "binary", "bbbbbbb", 7);
     blob_put_string(bs, "string", "sssssss");
 //    blob_sprintf(bs "sprintf", "%s-%d", "bbbbbbb", 7);
-    blob_put_u32(bs, "u32", 0x00000032);
-    blob_put_u64(bs, "u64", 0x0000000000000064);
     blob_put_i32(bs, "i32", -1);
+    blob_put_u32(bs, "u32", 32);
+    blob_put_f32(bs, "f32", 0.1);
     blob_put_i64(bs, "i64", -1);
+    blob_put_u64(bs, "u64", 64);
+    blob_put_u64(bs, "f64", 0.1);
 
     if (name) {
         blob_object_end(bs, obj);
