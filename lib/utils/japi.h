@@ -164,6 +164,8 @@ jobj_add(jobj_t obj, char *k, jobj_t v)
 #define jobj_get_f64(_obj)              json_object_get_double(_obj)
 #define jobj_get_string(_obj)           ((char *)json_object_get_string(_obj))
 #define jobj_get_string_len(_obj)       json_object_get_string_len(_obj)
+#define jobj_get_binary(_obj)           ((byte *)json_object_get_string(_obj))
+#define jobj_get_binary_len(_obj)       json_object_get_string_len(_obj)
 
 static inline jobj_t
 jobj_get(jobj_t obj, char *key)
@@ -287,6 +289,7 @@ __jobj_add_string(jobj_t obj, char *key, char *value)
     }
 }
 #define jobj_add_string(_obj, _key, _value) __jobj_add_string(_obj, (char *)_key, (char *)_value)
+#define jobj_add_binary(_obj, _key, _value) __jobj_add_string(_obj, (char *)_key, (char *)_value)
 
 static inline int
 jobj_vsprintf(jobj_t obj, char *key, const char *fmt, va_list args)

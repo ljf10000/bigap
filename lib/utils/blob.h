@@ -1043,7 +1043,7 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
             jobj_add_f64(root, name, blob_get_f64(blob));
             break;
         case BLOB_T_BINARY:
-            jobj_add_string(root, name, (char *)blob_get_binary(blob));
+            jobj_add_binary(root, name, blob_get_binary(blob));
             break;
         default:
             debug_error("unknow blob type");
