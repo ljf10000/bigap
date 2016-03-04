@@ -163,7 +163,7 @@ os_vsprintf_size(char *fmt, va_list args)
     /*
     * 这里只是计算需要多少空间
     */
-    return os_snprintf(tmp, 0, fmt, args);
+    return os_vsnprintf(tmp, 0, fmt, args);
 }
 
 static inline int
