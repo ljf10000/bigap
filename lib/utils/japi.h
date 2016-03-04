@@ -30,9 +30,9 @@ enum {
 
 typedef union {
     bool        b;
-    float64_t      f;
     int32_t     d;
     int64_t     l;
+    float64_t   f;
     char *      s;
     char *      j;
     jobj_t      a;
