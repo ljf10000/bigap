@@ -158,7 +158,7 @@
 #define LOG_DEBUGLEVELPRI(_level)   LOG_LEVELPRI(_level, LOG_DEBUG)
 
 static inline void
-__jlog_header(char *app, char *sub, const char *file, const char *func, int line, int PRI)
+__jlog_header(char *app, char *sub, const char *file, const char *func, uint32_t line, uint32_t PRI)
 {
     int level = LOG_LEVEL(PRI);
     
