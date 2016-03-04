@@ -1,6 +1,6 @@
 /******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      testfd
+#define __THIS_APP      fd
 #endif
 
 #define OS_EXTEND

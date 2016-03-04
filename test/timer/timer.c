@@ -1,6 +1,6 @@
 /******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      testtimer
+#define __THIS_APP      timer
 #endif
 
 #include "utils.h"

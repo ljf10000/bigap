@@ -1,6 +1,6 @@
 /******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      testco
+#define __THIS_APP      coroutine
 #endif
 
 #define OS_EXTEND

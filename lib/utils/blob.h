@@ -24,6 +24,7 @@ enum {
     _(BLOB_T_FLOAT64,   11,"float64"),  \
     /* end */
 
+#if 1 /* just for sourceinsight */
 #define BLOB_T_EMPTY    BLOB_T_EMPTY
 #define BLOB_T_OBJECT   BLOB_T_OBJECT
 #define BLOB_T_ARRAY    BLOB_T_ARRAY
@@ -36,6 +37,7 @@ enum {
 #define BLOB_T_INT64    BLOB_T_INT64
 #define BLOB_T_UINT64   BLOB_T_UINT64
 #define BLOB_T_FLOAT64  BLOB_T_FLOAT64
+#endif /* just for sourceinsight */
 
 static inline bool is_good_blob_type(int type);
 static inline char *blob_type_string(int type);
@@ -193,10 +195,10 @@ blob_get_u32(const blob_t *blob)
 	return *blob_vpointer(uint32_t, blob);
 }
 
-static inline float
+static inline float32_t
 blob_get_f32(const blob_t *blob)
 {
-	return *blob_vpointer(float, blob);
+	return *blob_vpointer(float32_t, blob);
 }
 
 static inline int64_t
@@ -1034,6 +1036,9 @@ blob_btoj(blob_t *blob)
     return __blob_btoj(blob, __blob_jobj(blob), 0);
 }
 
+/*
+* blob to json
+*/
 static inline blob_t *
 __blob_bobj(slice_t *slice, jobj_t obj)
 {
@@ -1108,6 +1113,9 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
     }
 }
 
+/*
+* json to blob
+*/
 static inline blob_t *
 blob_jtob(slice_t *slice, jobj_t obj)
 {

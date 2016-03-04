@@ -3,8 +3,6 @@
 #define __THIS_APP      blob
 #endif
 
-#define OS_EXTEND
-
 #include "utils.h"
 
 OS_INITER;

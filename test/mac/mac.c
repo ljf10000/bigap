@@ -1,6 +1,6 @@
 /******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      testmac
+#define __THIS_APP      mac
 #endif
 
 #include "utils.h"

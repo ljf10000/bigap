@@ -1,9 +1,7 @@
 /******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      testdll
+#define __THIS_APP      dll
 #endif
-
-#define OS_EXTEND
 
 #include "utils.h"
 

@@ -1,6 +1,7 @@
 #ifndef __TYPE_H_65c53c7cd7364495b1d962dec632cfdb__
 #define __TYPE_H_65c53c7cd7364495b1d962dec632cfdb__
 /******************************************************************************/
+#if 1 /* just for sourceinsight */
 #ifndef int8_t
 #define int8_t          int8_t
 #endif
@@ -40,6 +41,7 @@
 #ifndef float64_t
 #define float64_t       double
 #endif
+#endif /* just for sourceinsight */
 
 #ifdef  bool
 #undef  bool

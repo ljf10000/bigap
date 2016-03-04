@@ -1,9 +1,8 @@
 /******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      testslice
+#define __THIS_APP      slice
 #endif
 
-#define OS_EXTEND
 #include "utils.h"
 
 OS_INITER;
