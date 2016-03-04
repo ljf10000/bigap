@@ -108,6 +108,10 @@ blob_vsize(const blob_t *blob)
 {
     if (blob->vlen) {
         if (BLOB_T_STRING==blob->type) {
+            /*
+            * string length NOT include '\0'
+            * string value keep '\0', for string function(strlen/strstr/...)
+            */
             return BLOB_ALIGN(1 + blob->vlen);
         } else {
             return BLOB_ALIGN(blob->vlen);
@@ -150,18 +154,6 @@ blob_vpad(const blob_t *blob)
         return NULL;
     }
 }
-
-#if 0
-static inline void
-blob_sub_vlen(blob_t *blob, uint32_t len)
-{
-    if (len <= blob->vlen) {
-        blob->vlen -= len;
-    } else {
-        trace_assert(0, "SUB: len(%d) < vlen(%d)", len, blob->vlen);
-    }
-}
-#endif
 
 static inline uint32_t
 blob_dsize(const blob_t *blob)
@@ -819,6 +811,11 @@ blob_put(
         char *bv = blob_value(blob);
         
 	    os_memcpy(bv, value, len);
+	    
+        /*
+        * string length NOT include '\0'
+        * string value keep '\0', for string function(strlen/strstr/...)
+        */
 	    if (BLOB_T_STRING==type) {
             bv[len] = 0;
 	    }
