@@ -286,10 +286,16 @@ blob_get_f64(const blob_t *blob)
 	return *blob_vpointer(float64_t, blob);
 }
 
-static inline const char *
+static inline char *
 blob_get_string(const blob_t *blob)
 {
-	return blob_value(blob);
+	return blob_vpointer(char, blob);
+}
+
+static inline byte *
+blob_get_binary(const blob_t *blob)
+{
+	return blob_vpointer(byte, blob);
 }
 
 #if 1
@@ -1037,7 +1043,7 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
             jobj_add_f64(root, name, blob_get_f64(blob));
             break;
         case BLOB_T_BINARY:
-            jobj_add_string(root, name, blob_get_string(blob));
+            jobj_add_string(root, name, (char *)blob_get_binary(blob));
             break;
         default:
             debug_error("unknow blob type");
