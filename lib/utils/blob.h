@@ -892,6 +892,7 @@ static inline int
 blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args)
 {
     int vsize = os_vsprintf_size(fmt, args);
+    os_println("os_vsprintf_size %d", vsize);
     blob_t *blob = __blob_new(slice, BLOB_T_STRING, name, vsize);
     if (blob) {
         os_vsnprintf(blob_value(blob), vsize, fmt, args);
