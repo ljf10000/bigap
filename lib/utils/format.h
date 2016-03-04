@@ -156,6 +156,29 @@ os_rsprintf(char **buf, int resv, const char *fmt, ...)
 #define os_vasprintf(_pbuf, _fmt, _args)        vasprintf(_pbuf, _fmt, _args)
 
 static inline int
+os_vsprintf_size(char *fmt, va_list args)
+{
+    char tmp[4];
+
+    /*
+    * 这里只是计算需要多少空间
+    */
+    return os_snprintf(tmp, 0, fmt, args);
+}
+
+static inline int
+os_sprintf_size(char *fmt, ...)
+{
+    va_list args;
+    
+    va_start(args, fmt);
+    int len = os_vsprintf_size(fmt, args);
+    va_end(args);
+    
+    return len;
+}
+
+static inline int
 os_vasprintf_resv(char **buf, int resv, const char *fmt, va_list args)
 {
     int len = 0;

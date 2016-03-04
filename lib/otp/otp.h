@@ -76,7 +76,7 @@ __otp_get_bystring(byte otp[OTP_SIZE], char *string)
     }
 
     for (i=0; i<OTP_SIZE; i++) {
-        otp[i] = os_digitstring2number(string + 2*i, 2, 16, int);
+        otp[i] = os_hex2number(string + 2*i, 2, 16, int);
     }
     
     return otp;

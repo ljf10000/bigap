@@ -325,7 +325,7 @@ __os_getmac_bystring_L(byte mac[], char macstring[])
     int i;
     
     for (i=0; i<OS_MACSIZE; i++) {
-        mac[i] = os_digitstring2number(macstring + 3*i, 2, 16, int);
+        mac[i] = os_hex2number(macstring + 3*i, 2, 16, int);
     }
 
     return mac;
@@ -337,8 +337,8 @@ __os_getmac_bystring_M(byte mac[], char macstring[])
     int i;
     
     for (i=0; i<OS_MACSIZE/2; i++) {
-        mac[i]  = os_digitstring2number(macstring + 5*i,     2, 16, int);
-        mac[i+1]= os_digitstring2number(macstring + 5*i + 2, 2, 16, int);
+        mac[i]  = os_hex2number(macstring + 5*i,     2, 16, int);
+        mac[i+1]= os_hex2number(macstring + 5*i + 2, 2, 16, int);
     }
 
     return mac;
@@ -350,7 +350,7 @@ __os_getmac_bystring_S(byte mac[], char macstring[])
     int i;
     
     for (i=0; i<OS_MACSIZE; i++) {
-        mac[i] = os_digitstring2number(macstring + 2*i, 2, 16, int);
+        mac[i] = os_hex2number(macstring + 2*i, 2, 16, int);
     }
 
     return mac;

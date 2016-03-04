@@ -789,53 +789,6 @@ blob_array_start(slice_t *slice, const char *name)
 }
 #define blob_array_end(_slice, _cookie)    __blob_nest_end(_slice, _cookie)
 
-#if 0 /* todo: debug it */
-#define blob_sprintf(_slice, _id, _name, _fmt, _args...) ({ \
-    __label__ error;                                \
-    __label__ ok;                                   \
-    int len, space, size;                           \
-    int payload = 1 + os_strlen(_fmt);              \
-    blob_t *blob = __blob_new(_slice, false, _id,   \
-        BLOB_T_STRING, _name, payload);             \
-                                                    \
-    /* pub blob header/_name */                     \
-    size = sizeof(*blob) + blob_ksize(blob);    \
-    if (NULL==slice_put(_slice, size)) {           \
-        blob = NULL; goto error;                    \
-    }                                               \
-                                                    \
-    space = slice_remain(_slice);                   \
-    debug_ok("blob_sprintf: remain %d", space);     \
-                                                    \
-    len = slice_sprintf(_slice,                     \
-        SLICE_F_GROW, _fmt, ##_args);               \
-    if (os_snprintf_is_full(space, len)) {          \
-        debug_error("blob_sprintf: full");         \
-        blob = NULL; goto error;                    \
-    }                                               \
-                                                    \
-    /* pad blob value */                            \
-    len++; /* '\0' */                               \
-    len = BLOB_ALIGN(len);                          \
-    if (os_snprintf_is_full(space, len)             \
-        && slice_grow(_slice, len - space)) {       \
-        blob = NULL; goto error;                    \
-    }                                               \
-    /* put blob value */                            \
-    slice_put(_slice, len);                         \
-    blob_add_vlen(blob, len);                       \
-    blob_add_vlen(blob_root(_slice),blob_size(blob)); \
-                                                    \
-    goto ok;                                        \
-error:                                              \
-    slice_trim(_slice, size);                       \
-ok:                                                 \
-    blob;                                           \
-})  /* end */
-#else
-#define blob_sprintf(_slice, _id, _name, _fmt, _args...)    NULL
-#endif
-
 static inline blob_t *
 blob_put(
     slice_t *slice, 
@@ -869,18 +822,6 @@ blob_put(
 	}
 
 	return blob;
-}
-
-static inline blob_t *
-blob_put_string(slice_t *slice, const char *name, const char *str)
-{
-	return blob_put(slice, BLOB_T_STRING, name, str, os_strlen(str));
-}
-
-static inline blob_t *
-blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32_t len)
-{
-	return blob_put(slice, BLOB_T_BINARY, name, binary, len);
 }
 
 static inline blob_t *
@@ -931,6 +872,45 @@ static inline blob_t *
 blob_put_blob(slice_t *slice, blob_t *blob)
 {
 	return blob_put(slice, blob_type(blob), blob_key(blob), blob_value(blob), blob_vlen(blob));
+}
+
+static inline blob_t *
+blob_put_string(slice_t *slice, const char *name, const char *str)
+{
+	return blob_put(slice, BLOB_T_STRING, name, str, os_strlen(str));
+}
+
+/*
+* convert buffer to hex-string
+*/
+static inline blob_t *
+blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32_t len)
+{
+	return blob_put(slice, BLOB_T_BINARY, name, binary, len);
+}
+
+static inline int
+blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args)
+{
+    int vsize = os_vsprintf_size(fmt, args);
+    blob_t *blob = __blob_new(slice, BLOB_T_STRING, name, vsize);
+    if (blob) {
+        os_vsnprintf(blob_value(blob), vsize, fmt, args);
+    }
+
+    return blob;
+}
+
+static inline blob_t *
+blob_put_sprintf(slice_t *slice, char *name, char *fmt, ...)
+{
+    va_list args;
+    
+    va_start(args, fmt);
+    blob_t *blob = blob_put_vsprintf(slice, name, fmt, args);
+    va_end(args);
+    
+    return blob;
 }
 
 #ifdef __APP__

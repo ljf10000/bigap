@@ -2,7 +2,7 @@
 #define __MATH_H_8ac85024e292430e93a9fb835069dbfd__
 /******************************************************************************/
 static inline int
-os_digitchar2int(int ch)
+os_chex2int(int ch)
 {
     switch(ch) {
         case '0' ... '9':
@@ -16,39 +16,59 @@ os_digitchar2int(int ch)
     }
 }
 
-#define os_digitstring2number(_digitstring, _len, _base, _type) ({ \
+#define os_hex2number(_hex, _len, _base, _type) ({ \
     _type n = 0;                                \
-    char *str = (char *)_digitstring;           \
+    char *str = (char *)_hex;                   \
     int __i;                                    \
                                                 \
     for (__i=0; __i<_len; __i++)  {             \
         n *= (_type)_base;                      \
-        n += (_type)os_digitchar2int(str[__i]); \
+        n += (_type)os_chex2int(str[__i]);      \
     }                                           \
                                                 \
     n;                                          \
 })
 
 static inline int
-os_hexstring2buf(char *hex, byte buf[], int len)
+os_hextobin(char *hex, byte *buf, int size)
 {
     int i;
-    int hexlen = strlen(hex);
+    int len = strlen(hex);
 
-    if (hexlen%2) {
-        return -EFORMAT;
+    if (len%2) {
+        return -EBADHEX;
     }
-    else if (hexlen > 2*len) {
-        return -ETOOBIG;
-    }
-
-    for (i=0; i<hexlen/2; i++) {
-        buf[i] = 16 * os_digitchar2int(hex[2*i]) + os_digitchar2int(hex[2*i+1]);
+    else if ((size + size) < len) {
+        return -ENOSPACE;
     }
 
-    return hexlen/2;
+    int hexlen = len/2;
+    for (i=0; i<hexlen; i++) {
+        buf[i] = 16 * os_chex2int(hex[2*i]) + os_chex2int(hex[2*i+1]);
+    }
+
+    return hexlen;
 }
+
+/*
+* space NOT include '\0'
+*/
+static inline int
+os_bintohex(char *hex, int space, byte *buf, int size)
+{
+    int i, len = size+size;
     
+    if (len < space) {
+        return -ENOSPACE;
+    }
+
+    for (i=0; i<size; i++) {
+        os_sprintf(hex + 2*i, "%.2X", buf[i]);
+    }
+    hex[len] = 0;
+    
+    return len;
+}
 
 #ifdef __BOOT__
 #define os_atoi(_string)    simple_strtol(_string, NULL, 0)

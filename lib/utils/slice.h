@@ -453,12 +453,7 @@ slice_vsprintf(slice_t *slice, bool grow, char *fmt, va_list args)
     int len = 0, space;
 
     if (NULL==slice) {
-        char tmp[4];
-
-        /*
-        * 这里只是计算需要多少空间
-        */
-        return os_snprintf(tmp, 0, fmt, args);
+        return os_vsprintf_size(fmt, args);
     }
 
 try_again:
