@@ -42,7 +42,7 @@ put_somthing(char *name)
     blob_put_string(bs, "string", "sssssss");
 #if 1
     blob_put_binary(bs, "binary", "bbbbbbb", 7);
-    blob_put_sprintf(bs, "sprintf", "%s-%d", "bbbbbbb", 7);
+    blob_put_sprintf(bs, "sprintf", "%s-%d", "vvvvvvv", 7);
 #endif
 
     if (name) {
