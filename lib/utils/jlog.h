@@ -619,7 +619,7 @@ __jlog_obj_header(
         }
     }
     
-    err = jobj_add_i32(obj, JLOG_KEY_PRI, pri);
+    err = jobj_add_u32(obj, JLOG_KEY_PRI, pri);
     if (err<0) {
         __debug_error("add pri %d error", pri);
         
