@@ -195,7 +195,7 @@ jadd(jlog_server_t *server)
         
         len = -EFORMAT; goto error;
     }
-    pri = LOG_PRI(jobj_get_int(opri));
+    pri = LOG_PRI(jobj_get_i32(opri));
     
     err = jobj_add_string(obj, JLOG_KEY_TIME, os_fulltime_string(NULL));
     if (err<0) {
@@ -204,7 +204,7 @@ jadd(jlog_server_t *server)
         len = err; goto error;
     }
     
-    err = jobj_add_int(obj, JLOG_KEY_SEQ, ++jlogd.seq);
+    err = jobj_add_i32(obj, JLOG_KEY_SEQ, ++jlogd.seq);
     if (err<0) {
         __debug_error("add seq error");
         

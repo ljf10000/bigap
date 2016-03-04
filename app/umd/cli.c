@@ -255,7 +255,7 @@ show_stat(void)
     }
 
     jobj_add_string(obj, "mac", os_macstring(umd.basemac));
-    jobj_add_int(obj, "user", h2_count(&umd.table));
+    jobj_add_i32(obj, "user", h2_count(&umd.table));
     jobj_add(obj, "flow", um_jflow());
 
     cli_sprintf(__tab "%s" __crlf, jobj_string(obj));

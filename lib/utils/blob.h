@@ -17,8 +17,11 @@ enum {
     _(BLOB_T_BINARY,    4, "binary"),   \
     _(BLOB_T_BOOL,      5, "bool"),     \
     _(BLOB_T_INT32,     6, "int32"),    \
-    _(BLOB_T_INT64,     7, "int64"),    \
-    _(BLOB_T_DOUBLE,    8, "double"),   \
+    _(BLOB_T_UINT32,    7, "uint32"),   \
+    _(BLOB_T_FLOAT32,   8, "float32"),  \
+    _(BLOB_T_INT64,     9, "int64"),    \
+    _(BLOB_T_UINT64,    10,"uint64"),   \
+    _(BLOB_T_FLOAT64,   11,"float64"),  \
     /* end */
 
 #define BLOB_T_EMPTY    BLOB_T_EMPTY
@@ -28,8 +31,11 @@ enum {
 #define BLOB_T_BINARY   BLOB_T_BINARY
 #define BLOB_T_BOOL     BLOB_T_BOOL
 #define BLOB_T_INT32    BLOB_T_INT32
+#define BLOB_T_UINT32   BLOB_T_UINT32
+#define BLOB_T_FLOAT32  BLOB_T_FLOAT32
 #define BLOB_T_INT64    BLOB_T_INT64
-#define BLOB_T_DOUBLE   BLOB_T_DOUBLE
+#define BLOB_T_UINT64   BLOB_T_UINT64
+#define BLOB_T_FLOAT64  BLOB_T_FLOAT64
 
 static inline bool is_good_blob_type(int type);
 static inline char *blob_type_string(int type);
@@ -65,12 +71,6 @@ typedef struct {
 	char data[];            /* include name and value */
 } blob_t;
 
-static inline char *
-blob_data(const blob_t *blob)
-{
-    return (char *)blob->data;
-}
-
 /*
 * key + ['\0'] + [pad]
 */
@@ -89,7 +89,7 @@ blob_kpad_len(const blob_t *blob)
 static inline char *
 blob_key(const blob_t *blob)
 {
-    return blob->klen?blob_data(blob):NULL;
+    return blob->klen?(char *)blob->data:NULL;
 }
 
 static inline void *
@@ -118,7 +118,7 @@ blob_vsize(const blob_t *blob)
 static inline char *
 blob_value(const blob_t *blob)
 {
-    return blob->vlen?(blob_data(blob) + blob_ksize(blob)):NULL;
+    return blob->vlen?((char *)blob->data + blob_ksize(blob)):NULL;
 }
 
 static inline uint32_t
@@ -193,6 +193,12 @@ blob_get_u32(const blob_t *blob)
 	return *blob_vpointer(uint32_t, blob);
 }
 
+static inline float
+blob_get_f32(const blob_t *blob)
+{
+	return *blob_vpointer(float, blob);
+}
+
 static inline int64_t
 blob_get_i64(const blob_t *blob)
 {
@@ -205,10 +211,10 @@ blob_get_u64(const blob_t *blob)
 	return *blob_vpointer(uint64_t, blob);
 }
 
-static inline double
-blob_get_double(const blob_t *blob)
+static inline float64_t
+blob_get_f64(const blob_t *blob)
 {
-	return *blob_vpointer(double, blob);
+	return *blob_vpointer(float64_t, blob);
 }
 
 static inline bool
@@ -338,19 +344,28 @@ __blob_dump(const blob_t *blob, int level)
             
             break;
         case BLOB_T_BOOL:
-            os_println(":%d", *(int *)blob_value(blob));
+            os_println(":%d",   *(int *)blob_value(blob));
             break;
         case BLOB_T_INT32:
-            os_println(":%d", *(int32_t *)blob_value(blob));
+            os_println(":%d",   *(int32_t *)blob_value(blob));
+            break;
+        case BLOB_T_UINT32:
+            os_println(":%u",   *(uint32_t *)blob_value(blob));
+            break;
+        case BLOB_T_FLOAT32:
+            os_println(":%f",   *(float32_t *)blob_value(blob));
             break;
         case BLOB_T_INT64:
             os_println(":%lld", *(int64_t *)blob_value(blob));
             break;
-        case BLOB_T_DOUBLE:
-            os_println(":%lf", *(double *)blob_value(blob));
+        case BLOB_T_UINT64:
+            os_println(":%llu", *(uint64_t *)blob_value(blob));
+            break;
+        case BLOB_T_FLOAT64:
+            os_println(":%lf",  *(float64_t *)blob_value(blob));
             break;
         case BLOB_T_STRING:
-            os_println(":%s", (char *)blob_value(blob));
+            os_println(":%s",   (char *)blob_value(blob));
             break;
         case BLOB_T_BINARY:
             os_println(":%p", blob_value(blob));
@@ -457,15 +472,27 @@ blob_check(uint32_t type, const void *value, uint32_t len)
         },
         [BLOB_T_INT32] = {
             .flag   = BLOB_F_FIXED,
+            .minsize= sizeof(int32_t),
+        },
+        [BLOB_T_UINT32] = {
+            .flag   = BLOB_F_FIXED,
             .minsize= sizeof(uint32_t),
+        },
+        [BLOB_T_FLOAT32] = {
+            .flag   = BLOB_F_FIXED,
+            .minsize= sizeof(float32_t),
         },
         [BLOB_T_INT64] = {
             .flag   = BLOB_F_FIXED,
+            .minsize= sizeof(int64_t),
+        },
+        [BLOB_T_UINT64] = {
+            .flag   = BLOB_F_FIXED,
             .minsize= sizeof(uint64_t),
         },
-        [BLOB_T_DOUBLE] = {
+        [BLOB_T_FLOAT64] = {
             .flag   = BLOB_F_FIXED,
-            .minsize= sizeof(double),
+            .minsize= sizeof(float64_t),
         },
     };
     
@@ -823,21 +850,21 @@ blob_put_bool(slice_t *slice, const char *name, bool val)
 }
 
 static inline blob_t *
-blob_put_u32(slice_t *slice, const char *name, uint32_t val)
-{
-	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(val));
-}
-
-static inline blob_t *
-blob_put_u64(slice_t *slice, const char *name, uint64_t val)
-{
-	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(val));
-}
-
-static inline blob_t *
 blob_put_i32(slice_t *slice, const char *name, int32_t val)
 {
 	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(val));
+}
+
+static inline blob_t *
+blob_put_u32(slice_t *slice, const char *name, uint32_t val)
+{
+	return blob_put(slice, BLOB_T_UINT32, name, &val, sizeof(val));
+}
+
+static inline blob_t *
+blob_put_f32(slice_t *slice, const char *name, float32_t val)
+{
+	return blob_put(slice, BLOB_T_FLOAT32, name, &val, sizeof(val));
 }
 
 static inline blob_t *
@@ -847,9 +874,15 @@ blob_put_i64(slice_t *slice, const char *name, int64_t val)
 }
 
 static inline blob_t *
-blob_put_double(slice_t *slice, const char *name, double val)
+blob_put_u64(slice_t *slice, const char *name, uint64_t val)
 {
-	return blob_put(slice, BLOB_T_DOUBLE, name, &val, sizeof(val));
+	return blob_put(slice, BLOB_T_UINT64, name, &val, sizeof(val));
+}
+
+static inline blob_t *
+blob_put_f64(slice_t *slice, const char *name, float64_t val)
+{
+	return blob_put(slice, BLOB_T_FLOAT64, name, &val, sizeof(val));
 }
 
 static inline blob_t *
@@ -883,11 +916,14 @@ __blob_byteorder(blob_t *blob, bool ntoh)
             }
         }   break;
         case BLOB_T_INT64:
-        case BLOB_T_DOUBLE:
+        case BLOB_T_UINT64:
+        case BLOB_T_FLOAT64:
             *blob_vpointer(int64_t, blob) = bswap_64(blob_get_u64(blob));
             break;
         case BLOB_T_BOOL:
         case BLOB_T_INT32:
+        case BLOB_T_UINT32:
+        case BLOB_T_FLOAT32:
             *blob_vpointer(int32_t, blob) = bswap_32(blob_get_u32(blob));
             break;
         case BLOB_T_STRING:
@@ -961,13 +997,22 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
             jobj_add_bool(root, name, blob_get_bool(blob));
             break;
         case BLOB_T_INT32:
-            jobj_add_int(root, name, blob_get_i32(blob));
+            jobj_add_i32(root, name, blob_get_i32(blob));
+            break;
+        case BLOB_T_UINT32:
+            jobj_add_u32(root, name, blob_get_u32(blob));
+            break;
+        case BLOB_T_FLOAT32:
+            jobj_add_f32(root, name, blob_get_f32(blob));
             break;
         case BLOB_T_INT64:
-            jobj_add_int64(root, name, blob_get_i64(blob));
+            jobj_add_i64(root, name, blob_get_i64(blob));
             break;
-        case BLOB_T_DOUBLE:
-            jobj_add_double(root, name, blob_get_double(blob));
+        case BLOB_T_UINT64:
+            jobj_add_u64(root, name, blob_get_u64(blob));
+            break;
+        case BLOB_T_FLOAT64:
+            jobj_add_f64(root, name, blob_get_f64(blob));
             break;
         case BLOB_T_EMPTY:
             debug_error("no support empty");
@@ -1049,10 +1094,10 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
             blob_put_bool(slice, name, jobj_get_bool(obj));
             break;
         case jtype_int:
-            blob_put_i32(slice, name, jobj_get_int(obj));
+            blob_put_i32(slice, name, jobj_get_i32(obj));
             break;
         case jtype_double:
-            blob_put_double(slice, name, jobj_get_double(obj));
+            blob_put_f64(slice, name, jobj_get_f64(obj));
             break;
         case jtype_string:
             blob_put_string(slice, name, jobj_get_string(obj));

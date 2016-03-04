@@ -397,16 +397,16 @@ um_jflow(void)
     jobj_t vlan= jobj_new_object();
     jobj_t ip  = jobj_new_object();
 
-    jobj_add_int(eth, "packets", flow.eth_packets);
-    jobj_add_int64(eth, "bytes", flow.eth_bytes);
+    jobj_add_i32(eth, "packets", flow.eth_packets);
+    jobj_add_i64(eth, "bytes", flow.eth_bytes);
     jobj_add(obj, "eth", eth);
 
-    jobj_add_int(vlan, "packets", flow.vlan_packets);
-    jobj_add_int64(vlan, "bytes", flow.vlan_bytes);
+    jobj_add_i32(vlan, "packets", flow.vlan_packets);
+    jobj_add_i64(vlan, "bytes", flow.vlan_bytes);
     jobj_add(obj, "vlan", vlan);
 
-    jobj_add_int(ip, "packets", flow.ip_packets);
-    jobj_add_int64(ip, "bytes", flow.ip_bytes);
+    jobj_add_i32(ip, "packets", flow.ip_packets);
+    jobj_add_i64(ip, "bytes", flow.ip_bytes);
     jobj_add(obj, "ip", ip);
 
     return obj;

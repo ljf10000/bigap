@@ -667,7 +667,7 @@ rsh_load(void)
 #if RSH_SLOT_MULTI
     jobj_t jcurrent = jobj_get(jcfg, "current");
     if (NULL==jcurrent) goto error;
-    rsh_current = jobj_get_int(jcurrent);
+    rsh_current = jobj_get_i32(jcurrent);
     if (false==is_good_rsh_local_slot(rsh_current)) goto error;
 #else
     rsh_current = RSH_SLOT_LOCAL;
@@ -689,7 +689,7 @@ rsh_load(void)
 
         jobj_t jport = jobj_get(obj, "port");
         if (NULL==jport) goto error;
-        uint16_t port = jobj_get_int(jport);
+        uint16_t port = jobj_get_i32(jport);
         rsh_slot_port(slot) = htons(port);
 
         jobj_t jecho = jobj_get(obj, "echo");
@@ -697,11 +697,11 @@ rsh_load(void)
         
         jobj_t jtimes = jobj_get(jecho, "times");
         if (NULL==jtimes) goto error;
-        rsh_slot_echo_times(slot) = jobj_get_int(jtimes);
+        rsh_slot_echo_times(slot) = jobj_get_i32(jtimes);
         
         jobj_t jinterval = jobj_get(jecho, "interval");
         if (NULL==jinterval) goto error;
-        rsh_slot_echo_interval(slot) = jobj_get_int(jinterval);
+        rsh_slot_echo_interval(slot) = jobj_get_i32(jinterval);
         
         rsh_slot_dump(slot);
     }

@@ -312,17 +312,17 @@ jcheck(jobj_t obj)
 
         return -EFAKESEVER;
     }
-    else if (get_mid()!=jobj_get_int(jmid)) {
-        debug_error("mid(%d)!=jmid(%d)", get_mid(), jobj_get_int(jmid));
+    else if (get_mid()!=jobj_get_i32(jmid)) {
+        debug_error("mid(%d)!=jmid(%d)", get_mid(), jobj_get_i32(jmid));
 
         return -EFAKESEVER;
     }
-    else if (get_psn()!=jobj_get_int(jpsn)) {
-        debug_error("psn(%d)!=jpsn(%d)", get_psn(), jobj_get_int(jpsn));
+    else if (get_psn()!=jobj_get_i32(jpsn)) {
+        debug_error("psn(%d)!=jpsn(%d)", get_psn(), jobj_get_i32(jpsn));
 
         return -EFAKESEVER;
     }
-    else if (0!=(code = jobj_get_int(jcode))) {
+    else if (0!=(code = jobj_get_i32(jcode))) {
         debug_error("jcode error %d", code);
 
         return -EFAKESEVER;
@@ -466,7 +466,7 @@ curl -d '{"mac":"00:1f:64:01:01:01","mid":1,"psn":2,"error":1}' -k --cert ./clie
     }
     
     jobj_t jerr = jobj_get(obj, "error");
-    if (NULL==jerr || hack!=jobj_get_int(jerr)) {
+    if (NULL==jerr || hack!=jobj_get_i32(jerr)) {
         debug_error("bad json error");
         err = -EFAKESEVER; goto error;
     }
@@ -767,7 +767,7 @@ do_cmd(void)
 
     jobj_t jsleep = jobj_get(obj, "sleep");
     if (jsleep) {
-        int tmpsleep = jobj_get_int(jsleep);
+        int tmpsleep = jobj_get_i32(jsleep);
         
         debug_ok("sleep changed from %d to %d", cmdsleep, tmpsleep);
         

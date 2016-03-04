@@ -21,7 +21,7 @@ enum {
     jfmt_bool    = 'b', /* bool */
     jfmt_long    = 'l', /* int64 */
     jfmt_int     = 'd', /* int32 */
-    jfmt_double  = 'f', /* double */
+    jfmt_double  = 'f', /* float64_t */
     jfmt_string  = 's',
     jfmt_array   = 'a',
     jfmt_object  = 'o',
@@ -30,7 +30,7 @@ enum {
 
 typedef union {
     bool        b;
-    double      f;
+    float64_t      f;
     int32_t     d;
     int64_t     l;
     char *      s;
@@ -66,9 +66,12 @@ typedef struct {
 }   /* end */
 
 #define jobj_new_bool(_v)       json_object_new_boolean(_v)
-#define jobj_new_int(_v)        json_object_new_int(_v)
-#define jobj_new_int64(_v)      json_object_new_int64(_v)
-#define jobj_new_double(_v)     json_object_new_double(_v)
+#define jobj_new_i32(_v)        json_object_new_int(_v)
+#define jobj_new_u32(_v)        json_object_new_int(_v)
+#define jobj_new_f32(_v)        json_object_new_double(_v)
+#define jobj_new_i64(_v)        json_object_new_int64(_v)
+#define jobj_new_u64(_v)        json_object_new_int64(_v)
+#define jobj_new_f64(_v)        json_object_new_double(_v)
 #define jobj_new_string(_v)     json_object_new_string(_v)
 #define jobj_new_object()       json_object_new_object()
 #define jobj_new_array()        json_object_new_array()
@@ -153,9 +156,12 @@ jobj_add(jobj_t obj, char *k, jobj_t v)
 }
 
 #define jobj_get_bool(_obj)             json_object_get_boolean(_obj)
-#define jobj_get_int(_obj)              json_object_get_int(_obj)
-#define jobj_get_int64(_obj)            json_object_get_int64(_obj)
-#define jobj_get_double(_obj)           json_object_get_double(_obj)
+#define jobj_get_i32(_obj)              json_object_get_int(_obj)
+#define jobj_get_u32(_obj)              ((uint32_t)json_object_get_int(_obj))
+#define jobj_get_f32(_obj)              ((float32_t)json_object_get_double(_obj))
+#define jobj_get_i64(_obj)              json_object_get_int64(_obj)
+#define jobj_get_u64(_obj)              ((uint64_t)json_object_get_int64(_obj))
+#define jobj_get_f64(_obj)              json_object_get_double(_obj)
 #define jobj_get_string(_obj)           ((char *)json_object_get_string(_obj))
 #define jobj_get_string_len(_obj)       json_object_get_string_len(_obj)
 
@@ -227,28 +233,49 @@ __jobj_add_bool(jobj_t obj, char *key, bool value)
 {
     return jobj_add_value(obj, key, value, jobj_new_bool);
 }
-#define jobj_add_bool(_obj, _key, _value)   __jobj_add_bool(_obj, (char *)_key, _value)
+#define jobj_add_bool(_obj, _key, _value)   __jobj_add_bool(_obj, (char *)_key, (bool)_value)
 
 static inline int
-__jobj_add_int(jobj_t obj, char *key, int value)
+__jobj_add_i32(jobj_t obj, char *key, int32_t value)
 {
-    return jobj_add_value(obj, key, value, jobj_new_int);
+    return jobj_add_value(obj, key, value, jobj_new_i32);
 }
-#define jobj_add_int(_obj, _key, _value)    __jobj_add_int(_obj, (char *)_key, _value)
+#define jobj_add_i32(_obj, _key, _value)    __jobj_add_i32(_obj, (char *)_key, (int32_t)_value)
 
 static inline int
-__jobj_add_int64(jobj_t obj, char *key, int64_t value)
+__jobj_add_u32(jobj_t obj, char *key, uint32_t value)
 {
-    return jobj_add_value(obj, key, value, jobj_new_int64);
+    return jobj_add_value(obj, key, value, jobj_new_u32);
 }
-#define jobj_add_int64(_obj, _key, _value)  __jobj_add_int64(_obj, (char *)_key, _value)
+#define jobj_add_u32(_obj, _key, _value)    __jobj_add_u32(_obj, (char *)_key, (uint32_t)_value)
 
 static inline int
-__jobj_add_double(jobj_t obj, char *key, double value)
+__jobj_add_f32(jobj_t obj, char *key, float32_t value)
 {
-    return jobj_add_value(obj, key, value, jobj_new_double);
+    return jobj_add_value(obj, key, value, jobj_new_f32);
 }
-#define jobj_add_double(_obj, _key, _value) __jobj_add_double(_obj, (char *)_key, _value)
+#define jobj_add_f32(_obj, _key, _value) __jobj_add_f32(_obj, (char *)_key, (float32_t)_value)
+
+static inline int
+__jobj_add_i64(jobj_t obj, char *key, int64_t value)
+{
+    return jobj_add_value(obj, key, value, jobj_new_i64);
+}
+#define jobj_add_i64(_obj, _key, _value)  __jobj_add_i64(_obj, (char *)_key, (int64_t)_value)
+
+static inline int
+__jobj_add_u64(jobj_t obj, char *key, uint64_t value)
+{
+    return jobj_add_value(obj, key, value, jobj_new_u64);
+}
+#define jobj_add_u64(_obj, _key, _value)  __jobj_add_u64(_obj, (char *)_key, (uint64_t)_value)
+
+static inline int
+__jobj_add_f64(jobj_t obj, char *key, float64_t value)
+{
+    return jobj_add_value(obj, key, value, jobj_new_f64);
+}
+#define jobj_add_f64(_obj, _key, _value) __jobj_add_f64(_obj, (char *)_key, (float64_t)_value)
 
 static inline int
 __jobj_add_string(jobj_t obj, char *key, char *value)
@@ -413,19 +440,19 @@ jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
             case jfmt_int:
                 var.d = va_arg(args, int32_t);
                 japi_println("int=%d", var.d);
-                err = jobj_add_int(obj, key, var.d);
+                err = jobj_add_i32(obj, key, var.d);
 
                 break;
             case jfmt_long:
                 var.l = va_arg(args, int64_t);
                 japi_println("int64=%lld", var.l);
-                err = jobj_add_int64(obj, key, var.l);
+                err = jobj_add_i64(obj, key, var.l);
                 
                 break;
             case jfmt_double:
-                var.f = va_arg(args, double);
-                japi_println("double=%lf", var.f);
-                err = jobj_add_double(obj, key, var.f);
+                var.f = va_arg(args, float64_t);
+                japi_println("float64_t=%lf", var.f);
+                err = jobj_add_f64(obj, key, var.f);
                 
                 break;
             case jfmt_string:
