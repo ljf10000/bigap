@@ -38,7 +38,7 @@ put_somthing(char *name)
     blob_put_f32(bs, "f32", 32.32);
     blob_put_i64(bs, "i64", -1);
     blob_put_u64(bs, "u64", 64);
-    blob_put_u64(bs, "f64", 64.64);
+    blob_put_f64(bs, "f64", 64.64);
     blob_put_string(bs, "string", "ccccccc");
 #if 0
     blob_put_binary(bs, "binary", "bbbbbbb", 7);

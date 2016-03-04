@@ -244,6 +244,12 @@ blob_eq(const blob_t *a, const blob_t *b)
 	return os_memeq(a, b, size);
 }
 
+static inline bool
+blob_get_bool(const blob_t *blob)
+{
+	return !!*blob_vpointer(bool, blob);
+}
+
 static inline int32_t
 blob_get_i32(const blob_t *blob)
 {
@@ -278,12 +284,6 @@ static inline float64_t
 blob_get_f64(const blob_t *blob)
 {
 	return *blob_vpointer(float64_t, blob);
-}
-
-static inline bool
-blob_get_bool(const blob_t *blob)
-{
-	return !!blob_get_u32(blob);
 }
 
 static inline const char *
