@@ -40,7 +40,7 @@ put_somthing(char *name)
     blob_put_u64(bs, "u64", 64);
     blob_put_u64(bs, "f64", 64.64);
     blob_put_string(bs, "string", "ccccccc");
-    blob_put_binary(bs, "binary", "bbbbbbb", 7);
+//    blob_put_binary(bs, "binary", "bbbbbbb", 7);
 //    blob_sprintf(bs "sprintf", "%s-%d", "bbbbbbb", 7);
 
     if (name) {
