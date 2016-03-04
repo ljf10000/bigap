@@ -73,6 +73,12 @@ typedef struct {
 #define blob_vlen(_blob)    (_blob)->vlen
 #define blob_count(_blob)   (_blob)->count
 
+static inline char *
+blob_data(const blob_t *blob)
+{
+    return (char *)blob->data;
+}
+
 /*
 * key + ['\0'] + [pad]
 */
@@ -95,7 +101,7 @@ blob_kpad_len(const blob_t *blob)
 static inline char *
 blob_key(const blob_t *blob)
 {
-    return blob_klen(blob)?(char *)blob->data:NULL;
+    return blob_klen(blob)?blob_data(blob):NULL;
 }
 
 static inline void *
@@ -132,7 +138,7 @@ blob_vsize(const blob_t *blob)
 static inline char *
 blob_value(const blob_t *blob)
 {
-    return blob_vlen(blob)?((char *)blob->data + blob_ksize(blob)):NULL;
+    return blob_vlen(blob)?(blob_data(blob) + blob_ksize(blob)):NULL;
 }
 
 static inline uint32_t
