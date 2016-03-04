@@ -12,7 +12,7 @@
 #define __update_online(_user, _obj, _TYPE, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "online", #_field, NULL); \
     if (o) {                                                    \
-        limit_online(_user, _TYPE)->_field = jobj_get_int(o);   \
+        limit_online(_user, _TYPE)->_field = jobj_get_i32(o);   \
     }                                                           \
 }while(0)
 
@@ -24,7 +24,7 @@
 #define __update_flow(_user, _obj, _TYPE, _DIR, _field) do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "flow", #_DIR, #_field, NULL); \
     if (o) {                                                        \
-        limit_flow(_user, _TYPE, _DIR)->_field = jobj_get_int64(o); \
+        limit_flow(_user, _TYPE, _DIR)->_field = jobj_get_i64(o); \
     }                                                               \
 }while(0)
 
@@ -40,7 +40,7 @@
 #define __update_rate(_user, _obj, _TYPE, _DIR, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "rate", #_DIR, #_field, NULL); \
     if (o) {                                                        \
-        limit_rate(_user, _TYPE, _DIR)->_field = jobj_get_int(o);   \
+        limit_rate(_user, _TYPE, _DIR)->_field = jobj_get_i32(o);   \
     }                                                               \
 }while(0)
 
@@ -1081,11 +1081,11 @@ juser_online(struct um_user *user, int type)
     jobj_t obj = jobj_new_object();
     time_t time;
 
-    jobj_add_int(obj, "max",            __online_max(user, type));
-    jobj_add_int(obj, "idle",           __online_idle(user, type));
-    jobj_add_int(obj, "aging",          __online_aging(user, type));
-    jobj_add_int(obj, "numerator",      __online_numerator(user, type));
-    jobj_add_int(obj, "denominator",    __online_denominator(user, type));
+    jobj_add_i32(obj, "max",            __online_max(user, type));
+    jobj_add_i32(obj, "idle",           __online_idle(user, type));
+    jobj_add_i32(obj, "aging",          __online_aging(user, type));
+    jobj_add_i32(obj, "numerator",      __online_numerator(user, type));
+    jobj_add_i32(obj, "denominator",    __online_denominator(user, type));
     
     time = __online_uptime(user, type);
     if (time) {
@@ -1105,10 +1105,10 @@ __juser_flow(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
-    jobj_add_int64(obj, "max",          __flow_max(user, type, dir));
-    jobj_add_int64(obj, "now",          __flow_now(user, type, dir));
-    jobj_add_int64(obj, "numerator",    __flow_numerator(user, type, dir));
-    jobj_add_int64(obj, "denominator",  __flow_denominator(user, type, dir));
+    jobj_add_i64(obj, "max",          __flow_max(user, type, dir));
+    jobj_add_i64(obj, "now",          __flow_now(user, type, dir));
+    jobj_add_i64(obj, "numerator",    __flow_numerator(user, type, dir));
+    jobj_add_i64(obj, "denominator",  __flow_denominator(user, type, dir));
 
     return obj;
 }
@@ -1131,8 +1131,8 @@ __juser_rate(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
-    jobj_add_int(obj, "max", __rate_max(user, type, dir));
-    jobj_add_int(obj, "avg", __rate_avg(user, type, dir));
+    jobj_add_i32(obj, "max", __rate_max(user, type, dir));
+    jobj_add_i32(obj, "avg", __rate_avg(user, type, dir));
 
     return obj;
 }
@@ -1199,7 +1199,7 @@ um_juser(struct um_user *user)
     jobj_add_string(obj, "create",  os_fulltime_string(&user->create));
     jobj_add_string(obj, "noused",  os_fulltime_string(&user->noused));
     
-    jobj_add_int(obj,   "group",    user->group);
+    jobj_add_i32(obj,   "group",    user->group);
     jobj_add_bool(obj,  "monitor",  is_monitor(user));
     
     jobj_add(obj, "tag",    juser_tag(user));

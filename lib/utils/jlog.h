@@ -556,7 +556,7 @@ __jlog_obj_header(jobj_t obj, char *app, char *sub, const char *file, const char
     }
     
     if (line) {
-        err = jobj_add_int(obj, JLOG_KEY_LINE, line);
+        err = jobj_add_i32(obj, JLOG_KEY_LINE, line);
         if (err<0) {
             __debug_error("add line %d error", line);
             
@@ -575,7 +575,7 @@ __jlog_obj_header(jobj_t obj, char *app, char *sub, const char *file, const char
         }
     }
     
-    err = jobj_add_int(obj, JLOG_KEY_PRI, pri);
+    err = jobj_add_i32(obj, JLOG_KEY_PRI, pri);
     if (err<0) {
         __debug_error("add pri %d error", pri);
         
