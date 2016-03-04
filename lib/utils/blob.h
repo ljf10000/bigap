@@ -287,7 +287,7 @@ blob_eq(const blob_t *a, const blob_t *b)
 	return os_memeq(a, b, size);
 }
 
-#ifdef 1
+#if 1
 #define blob_foreach(_root, _blob, _i, _left) \
 	for (_i = 0, _left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
 	     _i < (_root)->count && _blob && _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
