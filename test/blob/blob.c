@@ -40,10 +40,8 @@ put_somthing(char *name)
     blob_put_u64(bs, "u64", 64);
     blob_put_f64(bs, "f64", 64.64);
     blob_put_string(bs, "string", "sssssss");
-#if 1
     blob_put_binary(bs, "binary", "bbbbbbb", 7);
     blob_put_sprintf(bs, "sprintf", "%s-%d", "vvvvvvv", 7);
-#endif
 
     if (name) {
         blob_object_end(bs, obj);
