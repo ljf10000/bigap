@@ -899,7 +899,7 @@ blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args)
     
     blob_t *blob = __blob_new(slice, BLOB_T_STRING, name, vsize);
     if (blob) {
-        os_vsnprintf(blob_value(blob), vsize, fmt, args);
+        os_vsnprintf(blob_value(blob), 1+vsize, fmt, args);
     }
 
     return blob;
