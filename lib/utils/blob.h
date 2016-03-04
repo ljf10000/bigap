@@ -10,22 +10,20 @@ enum {
 };
 
 #define BLOB_TYPE_LIST(_) \
-    _(BLOB_T_EMPTY,     0, "empty"),    \
-    _(BLOB_T_OBJECT,    1, "object"),   \
-    _(BLOB_T_ARRAY,     2, "array"),    \
-    _(BLOB_T_STRING,    3, "string"),   \
-    _(BLOB_T_BINARY,    4, "binary"),   \
-    _(BLOB_T_BOOL,      5, "bool"),     \
-    _(BLOB_T_INT32,     6, "int32"),    \
-    _(BLOB_T_UINT32,    7, "uint32"),   \
-    _(BLOB_T_FLOAT32,   8, "float32"),  \
-    _(BLOB_T_INT64,     9, "int64"),    \
-    _(BLOB_T_UINT64,    10,"uint64"),   \
-    _(BLOB_T_FLOAT64,   11,"float64"),  \
+    _(BLOB_T_OBJECT,    0, "object"),   \
+    _(BLOB_T_ARRAY,     1, "array"),    \
+    _(BLOB_T_STRING,    2, "string"),   \
+    _(BLOB_T_BINARY,    3, "binary"),   \
+    _(BLOB_T_BOOL,      4, "bool"),     \
+    _(BLOB_T_INT32,     5, "int32"),    \
+    _(BLOB_T_UINT32,    6, "uint32"),   \
+    _(BLOB_T_FLOAT32,   7, "float32"),  \
+    _(BLOB_T_INT64,     8, "int64"),    \
+    _(BLOB_T_UINT64,    9, "uint64"),   \
+    _(BLOB_T_FLOAT64,   10,"float64"),  \
     /* end */
 
 #if 1 /* just for sourceinsight */
-#define BLOB_T_EMPTY    BLOB_T_EMPTY
 #define BLOB_T_OBJECT   BLOB_T_OBJECT
 #define BLOB_T_ARRAY    BLOB_T_ARRAY
 #define BLOB_T_STRING   BLOB_T_STRING
@@ -411,8 +409,6 @@ __blob_dump(const blob_t *blob, int level)
         case BLOB_T_BINARY:
             os_println(":%p", blob_value(blob));
             break;
-        case BLOB_T_EMPTY:
-            break;
         default:
             os_println(":%p", blob_value(blob));
             break;
@@ -503,9 +499,6 @@ blob_check(uint32_t type, const void *value, uint32_t len)
         [BLOB_T_BINARY] = {
             .flag   = BLOB_F_MIN,
             .minsize= 1,
-        },
-        [BLOB_T_EMPTY] = {
-            .flag   = BLOB_F_FIXED,
         },
         [BLOB_T_BOOL] = {
             .flag   = BLOB_F_FIXED,
@@ -947,7 +940,6 @@ __blob_byteorder(blob_t *blob, bool ntoh)
             break;
         case BLOB_T_STRING:
         case BLOB_T_BINARY:
-        case BLOB_T_EMPTY:
         default:
             /* do nothinig */
             break;
@@ -1007,6 +999,7 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
                     __blob_btoj(p, root, level+1);
                 }
             }
+            
         }   break;
         case BLOB_T_STRING:
             jobj_add_string(root, name, blob_get_string(blob));
@@ -1031,9 +1024,6 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
             break;
         case BLOB_T_FLOAT64:
             jobj_add_f64(root, name, blob_get_f64(blob));
-            break;
-        case BLOB_T_EMPTY:
-            debug_error("no support empty");
             break;
         case BLOB_T_BINARY:
             jobj_add_string(root, name, blob_get_string(blob));
@@ -1061,7 +1051,7 @@ __blob_bobj(slice_t *slice, jobj_t obj)
     switch(jobj_type(obj)) {
         case jtype_array:   return blob_root_array(slice);
         case jtype_object:  return blob_root_object(slice);
-        default: return NULL;
+        default:            return NULL;
     }
 }
 
