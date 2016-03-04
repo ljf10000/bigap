@@ -917,13 +917,13 @@ __blob_byteorder(blob_t *blob, bool ntoh)
         case BLOB_T_INT64:
         case BLOB_T_UINT64:
         case BLOB_T_FLOAT64:
-            *blob_vpointer(int64_t, blob) = bswap_64(blob_get_u64(blob));
+            *blob_vpointer(uint64_t, blob) = bswap_64(blob_get_u64(blob));
             break;
         case BLOB_T_BOOL:
         case BLOB_T_INT32:
         case BLOB_T_UINT32:
         case BLOB_T_FLOAT32:
-            *blob_vpointer(int32_t, blob) = bswap_32(blob_get_u32(blob));
+            *blob_vpointer(uint32_t, blob) = bswap_32(blob_get_u32(blob));
             break;
         case BLOB_T_STRING:
         case BLOB_T_BINARY:
