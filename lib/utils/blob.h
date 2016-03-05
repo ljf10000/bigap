@@ -23,6 +23,11 @@ enum {
     _(BLOB_T_FLOAT64,   10,"float64"),  \
     /* end */
 
+static inline bool is_good_blob_type(int type);
+static inline char *blob_type_string(int type);
+static inline int blob_type_idx(char *type_string);
+DECLARE_ENUM(blob_type, BLOB_TYPE_LIST, BLOB_T_END);
+
 #if 1 /* just for sourceinsight */
 #define BLOB_T_OBJECT   BLOB_T_OBJECT
 #define BLOB_T_ARRAY    BLOB_T_ARRAY
@@ -35,12 +40,8 @@ enum {
 #define BLOB_T_INT64    BLOB_T_INT64
 #define BLOB_T_UINT64   BLOB_T_UINT64
 #define BLOB_T_FLOAT64  BLOB_T_FLOAT64
+#define BLOB_T_END      BLOB_T_END
 #endif /* just for sourceinsight */
-
-static inline bool is_good_blob_type(int type);
-static inline char *blob_type_string(int type);
-static inline int blob_type_idx(char *type_string);
-DECLARE_ENUM(blob_type, BLOB_TYPE_LIST, BLOB_T_END);
 
 static inline bool
 is_blob_type_container(int type)

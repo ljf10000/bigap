@@ -114,9 +114,9 @@ enum {
     __ak_debug_blob     = os_bit(____ak_debug_blob),
     __ak_debug_json     = os_bit(____ak_debug_json),
     __ak_debug_test     = os_bit(____ak_debug_test),
-};
 
-#define __ak_debug_all              os_mask(____ak_debug_end)
+    __ak_debug_all      = os_mask(____ak_debug_end),
+};
 
 #ifndef __ak_debug_default
 #define __ak_debug_default          (__ak_debug_error | __ak_debug_bug)
@@ -187,6 +187,11 @@ __ak_debug_getname(uint32_t level)
 static inline bool is_good_ak_sys(int id);
 static inline int ak_sys_idx(char *name);
 DECLARE_ENUM(ak_sys, __AK_SYS_LIST, __AK_SYS_END);
+
+#if 1 /* just for sourceinsight */
+#define __AK_SYS_DEBUG  __AK_SYS_DEBUG
+#define __AK_SYS_END    __AK_SYS_END
+#endif /* just for sourceinsight */
 
 static inline uint32_t
 __ak_sys_debug(char *var)

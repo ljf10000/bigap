@@ -71,6 +71,14 @@ static inline char *sm_state_string(int id);
 static inline int sm_state_idx(char *name);
 DECLARE_ENUM(sm_state, __SM_LIST, SM_STATE_END);
 
+#if 1 /* just for sourceinsight */
+#define SM_STATE_INIT   SM_STATE_INIT
+#define SM_STATE_FORK   SM_STATE_FORK
+#define SM_STATE_RUN    SM_STATE_RUN
+#define SM_STATE_DIE    SM_STATE_DIE
+#define SM_STATE_END    SM_STATE_END
+#endif /* just for sourceinsight */
+
 static inline int
 get_smd_path_env(sockaddr_un_t *addr) 
 {

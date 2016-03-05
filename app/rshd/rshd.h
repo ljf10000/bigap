@@ -17,6 +17,15 @@ static inline char *rsh_timer_string(int id);
 static inline int rsh_timer_idx(char *string);
 DECLARE_ENUM(rsh_timer, RSH_TIMER_LIST, RSH_TIMER_END);
 
+#if 1 /* just for sourceinsight */
+#define RSH_TIMER_APING     RSH_TIMER_APING
+#define RSH_TIMER_IPING     RSH_TIMER_IPING
+#define RSH_TIMER_LINK      RSH_TIMER_LINK
+#define RSH_TIMER_TASK      RSH_TIMER_TASK
+#define RSH_TIMER_CONNECT   RSH_TIMER_CONNECT
+#define RSH_TIMER_END       RSH_TIMER_END
+#endif /* just for sourceinsight */
+
 typedef struct {
     int interval;
     tm_callback_f *cb;

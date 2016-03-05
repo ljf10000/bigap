@@ -98,6 +98,13 @@ static inline char *user_state_string(int id);
 static inline int user_state_idx(char *name);
 DECLARE_ENUM(user_state, __UM_STATE_LIST, UM_STATE_END);
 
+#if 1 /* just for sourceinsight */
+#define UM_STATE_NONE   UM_STATE_NONE
+#define UM_STATE_BIND   UM_STATE_BIND
+#define UM_STATE_AUTH   UM_STATE_AUTH
+#define UM_STATE_END    UM_STATE_END
+#endif /* just for sourceinsight */
+
 static inline bool
 __is_none(int state)
 {
@@ -148,6 +155,17 @@ static inline char *deauth_reason_string(int id);
 static inline int deauth_reason_idx(char *name);
 DECLARE_ENUM(deauth_reason, __UM_DEAUTH_LIST, UM_DEAUTH_END);
 
+#if 1 /* just for sourceinsight */
+#define UM_DEAUTH_NONE          UM_DEAUTH_NONE
+#define UM_DEAUTH_AUTO          UM_DEAUTH_AUTO
+#define UM_DEAUTH_ONLINETIME    UM_DEAUTH_ONLINETIME
+#define UM_DEAUTH_FLOWLIMIT     UM_DEAUTH_FLOWLIMIT
+#define UM_DEAUTH_ADMIN         UM_DEAUTH_ADMIN
+#define UM_DEAUTH_AGING         UM_DEAUTH_AGING
+#define UM_DEAUTH_INITIATIVE    UM_DEAUTH_INITIATIVE
+#define UM_DEAUTH_END           UM_DEAUTH_END
+#endif /* just for sourceinsight */
+
 static inline bool
 is_valid_deauth_reason(int reason)
 {
@@ -164,6 +182,12 @@ static inline char *flow_type_string(int id);
 static inline int flow_type_idx(char *name);
 DECLARE_ENUM(flow_type, __UM_FLOW_TYPE_LIST, um_flow_type_end);
 
+#if 1 /* just for sourceinsight */
+#define um_flow_type_lan    um_flow_type_lan
+#define um_flow_type_wan    um_flow_type_wan
+#define um_flow_type_end    um_flow_type_end
+#endif /* just for sourceinsight */
+
 enum {um_flow_type_local = um_flow_type_end};
 
 #define __UM_FLOW_DIR_LIST(_)       \
@@ -176,6 +200,13 @@ static inline bool is_good_flow_dir(int id);
 static inline char *flow_dir_string(int id);
 static inline int flow_dir_idx(char *name);
 DECLARE_ENUM(flow_dir, __UM_FLOW_DIR_LIST, um_flow_dir_end);
+
+#if 1 /* just for sourceinsight */
+#define um_flow_dir_up      um_flow_dir_up
+#define um_flow_dir_down    um_flow_dir_down
+#define um_flow_dir_all     um_flow_dir_all
+#define um_flow_dir_end     um_flow_dir_end
+#endif /* just for sourceinsight */
 
 struct um_limit_online {
     uint32_t max;   /* config */

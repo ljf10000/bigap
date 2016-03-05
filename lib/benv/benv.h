@@ -276,6 +276,14 @@ static inline bool is_good_benv_fsm(int id);
 static inline char *benv_fsm_string(int id);
 static inline int benv_fsm_idx(char *name);
 DECLARE_ENUM(benv_fsm, __BENV_FSM_LIST, BENV_FSM_END);
+
+#if 1 /* just for sourceinsight */
+#define BENV_FSM_FAIL   BENV_FSM_FAIL
+#define BENV_FSM_UNKNOW BENV_FSM_UNKNOW
+#define BENV_FSM_OK     BENV_FSM_OK
+#define BENV_FSM_END    BENV_FSM_END
+#endif /* just for sourceinsight */
+
 enum {BENV_FSM_INVALID = BENV_FSM_END};
 
 /*
