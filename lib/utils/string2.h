@@ -71,22 +71,31 @@ string_opt_t;
 #define __STRING_OPT_STACK_INITER(_eoz)   __STRING_OPT_INITER(false, true,  true,  false, _eoz)
 #define __STRING_OPT_HEAP_INITER(_eoz)    __STRING_OPT_INITER(false, true,  false, false, _eoz)
 
+#ifndef USE_STRING_BLOCK
+#define USE_STRING_BLOCK    0
+#endif
+
 typedef struct string_s {
     union {
         string_opt_t o;
         uint32_t v;
     } opt;
 
+#if USE_STRING_BLOCK
     uint32_t size;      /* root */
+#endif
     uint32_t begin;     /* all, begin to string */
     uint32_t len;       /* all */
 
     union {
         char *string;           /* root */
+#if USE_STRING_BLOCK
         char block[0];          /* root */
+#endif
         struct string_s *root;  /* current */
     } body;
-} string_t;
+} 
+string_t;
 
 #define sopt_tmp    opt.o.tmp
 #define sopt_top    opt.o.top
@@ -100,7 +109,7 @@ typedef struct string_s {
 #define sopt_rsv    opt.o.rsv
 #define sopt_val    opt.o.v
 
-#define STRING_ZERO { .body = { .string = NULL } }
+#define STRING_ZERO     { .body = { .string = NULL } }
 
 #define __STRING_P_INITER(_p, _begin, _len) { \
     .begin  = _begin,                       \
@@ -154,6 +163,7 @@ typedef struct string_s {
 }   /* end */
 #endif
 
+#if USE_STRING_BLOCK
 static inline string_t *
 __string_new(char *root, uint32_t len)
 {
@@ -174,6 +184,7 @@ __string_new(char *root, uint32_t len)
 
     return s;
 }
+#endif
 
 static inline string_t *
 __string_root(string_t *s)
@@ -195,9 +206,11 @@ __string_body(string_t *s)
     if (NULL==root) {
         return NULL;
     }
+#if USE_STRING_BLOCK
     else if (s->sopt_eob) {
         return root->body.block;
     }
+#endif
     else {
         return root->body.string;
     }
@@ -241,11 +254,15 @@ string_eoz(string_t *s)
 static inline bool
 __is_good_string(string_t *s)
 {
+#if USE_STRING_BLOCK
     if (s->sopt_eob) {
         return true;
     } else {
+#endif
         return is_good_str(__string_value(s));
+#if USE_STRING_BLOCK
     }
+#endif
 }
 
 static inline bool
@@ -280,18 +297,24 @@ __string_put(string_t *s)
     if (root && root->sopt_ref) {
         root->sopt_ref--;
         if (0==root->sopt_ref && root->sopt_clr) {
+#if USE_STRING_BLOCK
             if (root->sopt_eob) {
                 free(root);
 
                 return true;
             } else {
+#endif
                 free(root->body.string);
                 
                 root->body.string = NULL;
+#if USE_STRING_BLOCK
                 root->size  = 0;
+#endif
                 root->len   = 0;
                 root->begin = 0;
+#if USE_STRING_BLOCK
             }
+#endif
         }
     }
 
