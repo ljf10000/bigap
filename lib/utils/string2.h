@@ -89,9 +89,7 @@ typedef struct string_s {
 
     union {
         char *string;           /* root */
-#if USE_STRING_BLOCK
         char block[0];          /* root */
-#endif
         struct string_s *root;  /* current */
     } body;
 } 
@@ -257,12 +255,10 @@ __is_good_string(string_t *s)
 #if USE_STRING_BLOCK
     if (s->sopt_eob) {
         return true;
-    } else {
-#endif
-        return is_good_str(__string_value(s));
-#if USE_STRING_BLOCK
     }
 #endif
+
+    return is_good_str(__string_value(s));
 }
 
 static inline bool
@@ -307,12 +303,10 @@ __string_put(string_t *s)
                 free(root->body.string);
                 
                 root->body.string = NULL;
-#if USE_STRING_BLOCK
-                root->size  = 0;
-#endif
                 root->len   = 0;
                 root->begin = 0;
 #if USE_STRING_BLOCK
+                root->size  = 0;
             }
 #endif
         }
