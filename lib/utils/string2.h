@@ -229,7 +229,7 @@ string_value(string_t *s)
 static inline char *
 __string_eoz(string_t *s)
 {
-    return __string_value(s)[s->len];
+    return __string_value(s) + s->len;
 }
 
 static inline char *
