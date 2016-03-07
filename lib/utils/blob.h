@@ -351,6 +351,103 @@ blob_getbyidx(const blob_t *root, uint32_t idx)
 	return NULL;
 }
 
+typedef struct {
+    bool array;
+
+    union {
+        char *name;
+        uint32_t idx;
+    } u;
+} blob_key_t;
+
+static inline blob_t *
+__blob_getby_r(blob_t *root, blob_key_t *keys, uint32_t count)
+{
+    blob_key_t *key = &keys[0];
+    blob_t *blob = NULL;
+    
+    if (key->array) {
+        blob = blob_getbyidx(root, key->u.idx);
+    } else {
+        blob = blob_getbyname(root, key->u.name);
+    }
+
+    if (NULL==blob) {
+        return NULL;
+    } else if (1==count) {
+        return blob;
+    } else {
+        return __blob_getby_r(blob, &keys[1], count-1);
+    }
+}
+
+static inline blob_t *
+__blob_getby(blob_t *root, blob_key_t *keys, uint32_t count)
+{
+    if (NULL==root || NULL==keys || 0==count) {
+        return NULL;
+    }
+
+    return __blob_getby_r(root, keys, count);
+}
+#define blob_getby(_root, _keys)    __blob_getby(_root, _keys, os_count_of(_keys))
+
+enum {
+    bfmt_array  = 'a',
+    bfmt_object = 'o',
+};
+
+static inline blob_t *
+blob_vgetby(blob_t *blob, const char *fmt, va_list args)
+{
+    uint32_t idx;
+    char *name;
+
+    char *p = (char *)fmt;
+    while(*p) {
+        if ('%' != *p++) {
+            debug_blob("bad format:%s", fmt);
+            
+            return NULL;
+        }
+
+        switch(*p++) {
+            case bfmt_array:
+                idx = va_arg(args, uint32_t);
+                blob = blob_getbyidx(blob, idx);
+
+                break;
+            case bfmt_object:
+                name = va_arg(args, char *);
+                blob = blob_getbyname(blob, name);
+
+                break;
+            default:
+                debug_blob("bad format:%s", fmt);
+                
+                return NULL;
+        }
+
+        if (NULL==blob) {
+            return NULL;
+        }
+    }
+
+    return blob;
+}
+
+static inline blob_t *
+blob_sgetby(blob_t *root, const char *fmt, ...)
+{
+    va_list args;
+    
+    va_start(args, fmt);
+    blob_t *blob = blob_vgetby(root, fmt, args);
+    va_end(args);
+    
+    return blob;
+}
+
 static inline void
 __blob_dump_header(const blob_t *blob, char *tag)
 {
