@@ -58,13 +58,17 @@ typedef struct {
         uint32_t count;
     } slot[TM_SLOT];
     
-    int current;
+    uint32_t current;
     uint32_t count;
 } tm_ring_t;
 
 typedef struct {
     bool        init;
+    uint32_t    r;
+    uint32_t    count;
+    uint32_t    unit; // how much ms per tick
     uint64_t    ticks;
+    tm_ring_t   ring[TM_RING];
 
     uint64_t    triggered_safe;
     uint64_t    triggered_unsafe;
@@ -72,10 +76,6 @@ typedef struct {
     uint64_t    triggered_ok;
     uint64_t    inserted;
     uint64_t    removed;
-    
-    tm_ring_t   ring[TM_RING];
-    uint32_t    count;
-    uint32_t    unit; // how much ms per tick
 } tm_clock_t;
 
 #define DECLARE_REAL_TIMER  tm_clock_t __THIS_TIMER

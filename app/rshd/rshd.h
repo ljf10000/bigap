@@ -4,7 +4,7 @@
 #include "rsh/rsh.h"
 /******************************************************************************/
 
-#define RSH_TIMER_LIST(_) \
+#define __RSH_TIMER_LIST(_) \
     _(RSH_TIMER_APING,  0, "aping"), /* active ping */      \
     _(RSH_TIMER_IPING,  1, "iping"), /* inactive ping */    \
     _(RSH_TIMER_LINK,   2, "link"),  /* check wan link */   \
@@ -15,7 +15,7 @@
 static inline bool is_good_rsh_timer(int id);
 static inline char *rsh_timer_string(int id);
 static inline int rsh_timer_idx(char *string);
-DECLARE_ENUM(rsh_timer, RSH_TIMER_LIST, RSH_TIMER_END);
+DECLARE_ENUM(rsh_timer, __RSH_TIMER_LIST, RSH_TIMER_END);
 
 #if 1 /* just for sourceinsight */
 #define RSH_TIMER_APING     RSH_TIMER_APING

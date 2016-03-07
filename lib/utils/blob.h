@@ -9,7 +9,7 @@ enum {
     BLOB_F_MUST     = 0x10,
 };
 
-#define BLOB_TYPE_LIST(_) \
+#define __BLOB_TYPE_LIST(_) \
     _(BLOB_T_OBJECT,    0, "object"),   \
     _(BLOB_T_ARRAY,     1, "array"),    \
     _(BLOB_T_STRING,    2, "string"),   \
@@ -26,7 +26,7 @@ enum {
 static inline bool is_good_blob_type(int type);
 static inline char *blob_type_string(int type);
 static inline int blob_type_idx(char *type_string);
-DECLARE_ENUM(blob_type, BLOB_TYPE_LIST, BLOB_T_END);
+DECLARE_ENUM(blob_type, __BLOB_TYPE_LIST, BLOB_T_END);
 
 #if 1 /* just for sourceinsight */
 #define BLOB_T_OBJECT   BLOB_T_OBJECT

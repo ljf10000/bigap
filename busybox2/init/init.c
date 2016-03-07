@@ -106,22 +106,22 @@ struct init_action {
 }
 
 static struct init_action bigap[] = {
-    bigap_action("/bin/jlogd",  RESPAWN | STATICACT),
-    bigap_action("/bin/rt",     RESPAWN | STATICACT),
-    bigap_action("/bin/guard",  RESPAWN | STATICACT),
-    bigap_action("/bin/smd",    RESPAWN | STATICACT),
-    bigap_action("/bin/tmd",    RESPAWN | STATICACT),
-    bigap_action("/bin/umd",    RESPAWN | STATICACT),
+    bigap_action("/bin/busybox jlogd",  RESPAWN | STATICACT),
+    bigap_action("/bin/busybox rt",     RESPAWN | STATICACT),
+    bigap_action("/bin/busybox guard",  RESPAWN | STATICACT),
+    bigap_action("/bin/busybox smd",    RESPAWN | STATICACT),
+    bigap_action("/bin/busybox tmd",    RESPAWN | STATICACT),
+    bigap_action("/bin/busybox umd",    RESPAWN | STATICACT),
 #ifndef NO_3G
     bigap_action("/usr/sbin/3g_connect.sh",     RESPAWN | STATICACT),
     bigap_action("/usr/sbin/get_3g_state.sh",   RESPAWN | STATICACT),
 #endif
     bigap_action("/etc/rtsync/rtsyncd", RESPAWN | STATICACT),
     
-    bigap_action("/bin/bck",            ONCE | STATICACT),
-    bigap_action("/etc/init.d/rc.last", ONCE | STATICACT),
-    bigap_action("/bin/dog disable",    ONCE | STATICACT),
-    bigap_action("sysstartup",          ONCE | STATICACT),
+    bigap_action("/bin/busybox bck",            ONCE | STATICACT),
+    bigap_action("/etc/init.d/rc.last",         ONCE | STATICACT),
+    bigap_action("/bin/busybox dog disable",    ONCE | STATICACT),
+    bigap_action("/bin/busybox sysstartup",     ONCE | STATICACT),
 };
 
 static struct init_action *init_action_list = &bigap[0];

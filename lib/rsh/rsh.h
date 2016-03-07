@@ -168,7 +168,7 @@ rsh_align(int size)
     return OS_ALIGN(size, RSH_ALIGN);
 }
 
-#define RSH_CMD_LIST(_) \
+#define __RSH_CMD_LIST(_) \
     _(RSH_CMD_SHELL,    0, "shell"),    \
     _(RSH_CMD_ECHO,     1, "echo"),     \
     _(RSH_CMD_ACTIVE,   2, "active"),   \
@@ -177,7 +177,7 @@ rsh_align(int size)
 static inline bool is_good_rsh_cmd(int cmd);
 static inline char *rsh_cmd_string(int cmd);
 static inline int rsh_cmd_idx(char *cmd_string);
-DECLARE_ENUM(rsh_cmd, RSH_CMD_LIST, RSH_CMD_END);
+DECLARE_ENUM(rsh_cmd, __RSH_CMD_LIST, RSH_CMD_END);
 
 #if 1 /* just for sourceinsight */
 #define RSH_CMD_SHELL   RSH_CMD_SHELL
@@ -192,7 +192,7 @@ is_rsh_zero_cmd(int cmd)
     return RSH_CMD_ECHO==cmd;
 }
 
-#define RSH_MODE_LIST(_) \
+#define __RSH_CMD_LIST(_) \
     _(RSH_MODE_SYN,     0, "syn"),  \
     _(RSH_MODE_ACK,     1, "ack"),  \
     _(RSH_MODE_ASYN,    2, "asyn"), \
@@ -201,7 +201,7 @@ is_rsh_zero_cmd(int cmd)
 static inline bool is_good_rsh_mode(int mode);
 static inline char *rsh_mode_string(int mode);
 static inline int rsh_mode_idx(char *mode_string);
-DECLARE_ENUM(rsh_mode, RSH_CMD_LIST, RSH_MODE_END);
+DECLARE_ENUM(rsh_mode, __RSH_CMD_LIST, RSH_MODE_END);
 
 #if 1 /* just for sourceinsight */
 #define RSH_MODE_SYN    RSH_MODE_SYN
