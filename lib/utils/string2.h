@@ -28,31 +28,6 @@ typedef struct {
 } 
 string_opt_t;
 
-/*
-* global:
-*   con: false
-*   dyn: false
-*   stk: false
-*   clr: false
-*
-* const:
-*   con: true
-*   dyn: false
-*   stk: false
-*   clr: false
-*   
-* stack:
-*   con: false
-*   dyn: true
-*   stk: true
-*   clr: false
-*
-* heap:
-*   con: false
-*   dyn: true
-*   stk: false
-*   clr: true
-*/
 #define __STRING_OPT_INITER(_con, _dyn, _stk, _eob, _eoz)   { \
     .tmp    = 0,    \
     .top    = true, \
@@ -66,9 +41,37 @@ string_opt_t;
     .ref    = 1,    \
 }
 
+/*
+* global:
+*   con: false
+*   dyn: false
+*   stk: false
+*   clr: false
+*/
 #define __STRING_OPT_GLOBAL_INITER(_eoz)  __STRING_OPT_INITER(false, false, false, false, _eoz)
+/*
+* const:
+*   con: true
+*   dyn: false
+*   stk: false
+*   clr: false
+*/
 #define __STRING_OPT_CONST_INITER(_eoz)   __STRING_OPT_INITER(true,  false, false, false, _eoz)
+/*
+* stack:
+*   con: false
+*   dyn: true
+*   stk: true
+*   clr: false
+*/
 #define __STRING_OPT_STACK_INITER(_eoz)   __STRING_OPT_INITER(false, true,  true,  false, _eoz)
+/*
+* heap:
+*   con: false
+*   dyn: true
+*   stk: false
+*   clr: true
+*/
 #define __STRING_OPT_HEAP_INITER(_eoz)    __STRING_OPT_INITER(false, true,  false, false, _eoz)
 
 #ifndef USE_STRING_BLOCK
