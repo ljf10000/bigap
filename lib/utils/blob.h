@@ -895,7 +895,7 @@ blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32_t l
 	return blob_put(slice, BLOB_T_BINARY, name, binary, len);
 }
 
-static inline int
+static inline blob_t *
 blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args)
 {
     va_list copy;
