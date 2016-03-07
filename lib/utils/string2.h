@@ -223,7 +223,7 @@ __string_value(string_t *s)
 static inline char *
 string_value(string_t *s)
 {
-    return s?__string_value(s)?NULL;
+    return s?__string_value(s):NULL;
 }
 
 static inline char *
@@ -235,7 +235,7 @@ __string_eoz(string_t *s)
 static inline char *
 string_eoz(string_t *s)
 {
-    return s?__string_eoz(s)?NULL;
+    return s?__string_eoz(s):NULL;
 }
 
 static inline bool
