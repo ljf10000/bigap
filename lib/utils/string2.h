@@ -1,41 +1,84 @@
 #ifndef __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 #define __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 /******************************************************************************/
-struct string_s;
-
 typedef struct {
+#if __BYTE_ORDER == __BIG_ENDIAN
     uint32_t tmp:8;     /* all */
-    uint32_t top:1;     /* all */
-    uint32_t con:1;     /* all, const */
-    uint32_t dyn:1;     /* all, dynamic */
-    uint32_t stk:1;     /* all, in stack */
-    uint32_t eoz:1;     /* all: end of zero */
-    uint32_t eob:1;     /* root: end of block */
-    uint32_t clr:1;     /* root: need to clear */
+    uint32_t top:1;     /* all, is top ??? */
+    uint32_t con:1;     /* all, is const ??? */
+    uint32_t dyn:1;     /* all, is dynamic ??? */
+    uint32_t stk:1;     /* all, is in stack ??? */
+    uint32_t eoz:1;     /* all: end of zero ??? */
+    uint32_t eob:1;     /* root: end of block ??? */
+    uint32_t clr:1;     /* root: need to clear ??? */
     uint32_t rsv:1;
     uint32_t ref:16;    /* root */
-} string_opt_t;
+#elif __BYTE_ORDER == __LITTLE_ENDIAN
+    uint32_t ref:16;
+    uint32_t rsv:1;
+    uint32_t clr:1;
+    uint32_t eob:1;
+    uint32_t eoz:1;
+    uint32_t stk:1;
+    uint32_t dyn:1;
+    uint32_t con:1;
+    uint32_t top:1;
+    uint32_t tmp:8;
+#endif
+} 
+string_opt_t;
 
-#define __STRING_OPT_INITER(_con, _dyn, _stk, _eoz, _clr) { \
+/*
+* global:
+*   con: false
+*   dyn: false
+*   stk: false
+*   clr: false
+*
+* const:
+*   con: true
+*   dyn: false
+*   stk: false
+*   clr: false
+*   
+* stack:
+*   con: false
+*   dyn: true
+*   stk: true
+*   clr: false
+*
+* heap:
+*   con: false
+*   dyn: true
+*   stk: false
+*   clr: true
+*/
+#define __STRING_OPT_INITER(_con, _dyn, _stk, _eob, _eoz)   { \
     .tmp    = 0,    \
     .top    = true, \
     .con    = _con, \
     .dyn    = _dyn, \
     .stk    = _stk, \
     .eoz    = _eoz, \
-    .eob    = false,\
-    .clr    = _clr, \
+    .eob    = _eob, \
+    .clr    = (_con)?false:((_dyn)?((_stk)?false:true):false), \
     .rsv    = 0,    \
     .ref    = 1,    \
 }
+
+#define __STRING_OPT_GLOBAL_INITER(_eoz)  __STRING_OPT_INITER(false, false, false, false, _eoz)
+#define __STRING_OPT_CONST_INITER(_eoz)   __STRING_OPT_INITER(true,  false, false, false, _eoz)
+#define __STRING_OPT_STACK_INITER(_eoz)   __STRING_OPT_INITER(false, true,  true,  false, _eoz)
+#define __STRING_OPT_HEAP_INITER(_eoz)    __STRING_OPT_INITER(false, true,  false, false, _eoz)
 
 typedef struct string_s {
     union {
         string_opt_t o;
         uint32_t v;
     } opt;
-    
-    uint32_t begin;     /* all: begin to string */
+
+    uint32_t size;      /* root */
+    uint32_t begin;     /* all, begin to string */
     uint32_t len;       /* all */
 
     union {
@@ -43,8 +86,7 @@ typedef struct string_s {
         char block[0];          /* root */
         struct string_s *root;  /* current */
     } body;
-} 
-string_t;
+} string_t;
 
 #define sopt_tmp    opt.o.tmp
 #define sopt_top    opt.o.top
@@ -55,34 +97,83 @@ string_t;
 #define sopt_eob    opt.o.eob
 #define sopt_clr    opt.o.clr
 #define sopt_ref    opt.o.ref
+#define sopt_rsv    opt.o.rsv
+#define sopt_val    opt.o.v
 
 #define STRING_ZERO { .body = { .string = NULL } }
 
-#define __STRING_S_INITER(_s, _begin, _len, _con, _dyn, _stk, _eoz, _clr) { \
-    .opt = {                \
-        .o = __STRING_OPT_INITER(_con, _dyn, _stk, _eoz, _clr), \
-    },                      \
-    .begin  = (uint32_t)_begin, \
-    .len    = (uint32_t)_len, \
-    .body = {               \
-        .string = (char *)_s + (uint32_t)_begin, \
-    },                      \
+#define __STRING_P_INITER(_p, _begin, _len) { \
+    .begin  = _begin,                       \
+    .len    = _len,                         \
+    .body = {                               \
+        .string = (char *)(_p) + (_begin),  \
+    },                                      \
 }
 
-#define __STRING_S_CONST_INITER(_s, _begin, _len) \
-    __STRING_S_INITER(_s, _begin, _len, true, false, false, true, false)
+#if 1 /* root string */
+#define __STRING_S_GLOBAL_INITER(_p, _begin, _len)  {   \
+    .opt = { .o = __STRING_OPT_GLOBAL_INITER(true)},    \
+    __STRING_P_INITER(_p, _begin, _len),                \
+}   /* end */
 
-#define STRING_S_CONST_INITER(_s) \
-    __STRING_S_CONST_INITER(_s, 0, sizeof(_s) - 1)
+#define __STRING_S_CONST_INITER(_p, _begin, _len)   {   \
+    .opt = { .o = __STRING_OPT_CONST_INITER(true)},     \
+    __STRING_P_INITER(_p, _begin, _len),                \
+}   /* end */
 
-#define __STRING_B_INITER(_b, _begin, _len, _con, _dyn, _stk, _clr) \
-    __STRING_S_INITER(_b, _begin, _len, _con, _dyn, _stk, false, _clr)
+#define __STRING_S_STACK_INITER(_p, _begin, _len)   {   \
+    .opt = { .o = __STRING_OPT_STACK_INITER(true)},     \
+    __STRING_P_INITER(_p, _begin, _len),                \
+}   /* end */
 
-#define __STRING_B_CONST_INITER(_b, _begin, _len) \
-    __STRING_B_INITER(_b, _begin, _len, true, false, false, false)
+#define __STRING_S_HEAP_INITER(_p, _begin, _len)    {   \
+    .opt = { .o = __STRING_OPT_HEAP_INITER(true)},      \
+    __STRING_P_INITER(_p, _begin, _len),                \
+}   /* end */
+#endif
 
-#define STRING_B_CONST_INITER(_b) \
-    __STRING_B_CONST_INITER(_b, 0, sizeof(_s))
+#if 1 /* root binary */
+#define __STRING_B_GLOBAL_INITER(_p, _begin, _len)  {   \
+    .opt = { .o = __STRING_OPT_GLOBAL_INITER(false)},   \
+    __STRING_P_INITER(_p, _begin, _len),                \
+}   /* end */
+
+#define __STRING_B_CONST_INITER(_p, _begin, _len)   {   \
+    .opt = { .o = __STRING_OPT_CONST_INITER(false)},    \
+    __STRING_P_INITER(_p, _begin, _len),                \
+}   /* end */
+
+#define __STRING_B_STACK_INITER(_p, _begin, _len)   {   \
+    .opt = { .o = __STRING_OPT_STACK_INITER(false)},    \
+    __STRING_P_INITER(_p, _begin, _len),                \
+}   /* end */
+
+#define __STRING_B_HEAP_INITER(_p, _begin, _len)    {   \
+    .opt = { .o = __STRING_OPT_HEAP_INITER(false)},     \
+    __STRING_P_INITER(_p, _begin, _len),                \
+}   /* end */
+#endif
+
+static inline string_t *
+__string_new(char *root, uint32_t len)
+{
+    uint32_t rootlen = os_strlen(root);
+    uint32_t size = OS_ALIGN(1 + OS_MAX(len, rootlen), OS_ALIGN_SIZE);
+
+    string_t *s = (string_t *)os_zalloc(size + sizeof(string_t));
+    if (NULL==s) {
+        return NULL;
+    }
+
+    string_opt_t opt = __STRING_OPT_INITER(false, true,  false, true, true);
+    
+    s->opt.o    = opt;
+    s->size     = size;
+    s->begin    = 0;
+    s->len      = rootlen;
+
+    return s;
+}
 
 static inline string_t *
 __string_root(string_t *s)
@@ -96,30 +187,79 @@ string_root(string_t *s)
     return s?__string_root(s):NULL;
 }
 
-static inline bool
-is_good_string(string_t *s)
+static inline char *
+__string_body(string_t *s)
 {
-    if (s && s->len) {
-        if (false==s->sopt_top) {
-            string_t *root = s->body.root;
-            
-            return root && root->sopt_top && root->body.string && root->len;
-        } else {
-            return NULL!=s->body.string;
-        }
-    } else {
-        return false;
+    string_t *root = __string_root(s);
+
+    if (NULL==root) {
+        return NULL;
+    }
+    else if (s->sopt_eob) {
+        return root->body.block;
+    }
+    else {
+        return root->body.string;
     }
 }
 
 static inline char *
-string_string(string_t *s)
+string_body(string_t *s)
 {
-    if (is_good_string(s)) {
-        return string_root(s)->body.string + s->begin;
+    return s?__string_body(s):NULL;
+}
+
+static inline char *
+__string_value(string_t *s)
+{
+    char *body = __string_body(s);
+    if (body) {
+        return body + s->begin;
     } else {
         return NULL;
     }
+}
+
+static inline char *
+string_value(string_t *s)
+{
+    return s?__string_value(s)?NULL;
+}
+
+static inline char *
+__string_eoz(string_t *s)
+{
+    return __string_value(s)[s->len];
+}
+
+static inline char *
+string_eoz(string_t *s)
+{
+    return s?__string_eoz(s)?NULL;
+}
+
+static inline bool
+__is_good_string(string_t *s)
+{
+    if (s->sopt_eob) {
+        return true;
+    } else {
+        return is_good_str(__string_value(s));
+    }
+}
+
+static inline bool
+is_good_string(string_t *s)
+{
+    return s?__is_good_string(s):false;
+}
+
+static inline bool
+is_string_can_slice(string_t *s, uint32_t begin, uint32_t len)
+{
+    uint32_t max = begin + len - 1;
+
+    return begin <= max && max <= s->len;
 }
 
 static inline string_t *
@@ -133,18 +273,52 @@ string_get(string_t *s)
     return s;
 }
 
-static inline void
-string_put(string_t *s)
+static inline bool
+__string_put(string_t *s)
 {
     string_t *root = string_root(s);
     if (root && root->sopt_ref) {
         root->sopt_ref--;
         if (0==root->sopt_ref && root->sopt_clr) {
-            free(root->body.string - root->begin);
+            if (root->sopt_eob) {
+                free(root);
 
-            os_objzero(s);
+                return true;
+            } else {
+                free(root->body.string);
+                
+                root->body.string = NULL;
+                root->size  = 0;
+                root->len   = 0;
+                root->begin = 0;
+            }
         }
     }
+
+    return false;
+}
+
+#define string_put(_s)  do{ \
+    if (__string_put(_s)) { \
+        _s = NULL;          \
+    }                       \
+}while(0)
+
+static inline string_t
+string_slice(string_t *s, uint32_t begin, uint32_t len)
+{
+    string_t new = STRING_ZERO;
+    
+    if (is_string_can_slice(s, begin, len)) {
+        new = *s;
+        new.sopt_top    = false;
+        
+        new.len         = len;
+        new.begin       = s->begin + begin;
+        new.body.root   = string_get(s);
+    }
+    
+    return new;
 }
 
 /*
@@ -153,13 +327,16 @@ string_put(string_t *s)
 static inline char *
 string_steal(string_t *s)
 {
-    char *p = string_string(s);
-    if (p) {
-        s->sopt_tmp = p[s->len];
-        p[s->len] = 0;
+    char *v, *eoz;
+
+    if (NULL!=(v=string_value(s)) &&
+        NULL!=(eoz=string_eoz(s)) &&
+        *eoz) {
+        s->sopt_tmp = *eoz;
+        *eoz = 0;
     }
 
-    return p;
+    return v;
 }
 
 /*
@@ -168,37 +345,14 @@ string_steal(string_t *s)
 static inline void
 string_restore(string_t *s)
 {
-    char *p = string_string(s);
-    if (p) {
-        p[s->len] = s->sopt_tmp;
+    char *v, *eoz;
+
+    if (NULL!=(v=string_value(s)) &&
+        NULL!=(eoz=string_eoz(s)) &&
+        0==*eoz) {
+        *eoz = s->sopt_tmp;
         s->sopt_tmp = 0;
     }
-}
-
-static inline bool
-string_can_slice(string_t *s, uint32_t begin, uint32_t len)
-{
-    uint32_t max = begin + len - 1;
-
-    return 0 <= begin && begin <= max && max <= s->len;
-}
-
-static inline string_t
-string_slice(string_t *s, uint32_t begin, uint32_t len)
-{
-    string_t new = STRING_ZERO;
-    
-    if (string_can_slice(s, begin, len)) {
-        new = *s;
-        new.sopt_top    = false;
-        new.sopt_eoz    = false;
-        
-        new.len         = len;
-        new.begin       = s->begin + begin;
-        new.body.root   = string_get(string_root(s));
-    }
-    
-    return new;
 }
 
 static inline int
@@ -206,13 +360,29 @@ string_cmp(string_t *a, string_t *b)
 {
     if (a) {
         if (b) {
-            uint32_t min = (a->len==b->len)?a->len:OS_MIN(a->len, b->len);
+            char *va = string_value(a);
+            char *vb = string_value(b);
+            if (va==vb) {
+                return 0;
+            }
 
-            return memcmp(string_string(a), string_string(b), min);
-        } else {
+            uint32_t min = OS_MIN(a->len, b->len);
+            int cmp = os_memcmp(va, vb, min);
+            if (a->len==b->len) {
+                return cmp;
+            }
+            else if (a->len < b->len) {
+                return cmp?cmp:-1;
+            }
+            else if (a->len > b->len) {
+                return cmp?cmp:1;
+            }
+        }
+        else {
             return 1;
         }
-    } else {
+    }
+    else {
         if (b) {
             return -1;
         } else {
@@ -227,10 +397,10 @@ string_eq(string_t *a, string_t *b)
     if (a) {
         if (b) {
             if (a->len==b->len) {
-                char *ha = string_string(a);
-                char *hb = string_string(b);
+                char *va = string_value(a);
+                char *vb = string_value(b);
 
-                return ha==hb || 0==memcmp(ha, hb, a->len);
+                return va==vb || 0==memcmp(va, vb, a->len);
             } else {
                 return false;
             }

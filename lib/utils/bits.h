@@ -1,6 +1,10 @@
 #ifndef __BITS_H_472ca09446fa4bc389460b4391206b0f__
 #define __BITS_H_472ca09446fa4bc389460b4391206b0f__
 /******************************************************************************/
+#ifndef OS_ALIGN_SIZE
+#define OS_ALIGN_SIZE                   sizeof(void *)
+#endif
+
 #ifndef __OS_ALIGN
 #define __OS_ALIGN(_x, _align)          ((((_x)+(_align)-1)/(_align))*(_align))
 #endif
