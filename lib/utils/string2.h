@@ -1,25 +1,43 @@
 #ifndef __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 #define __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 /******************************************************************************/
+#define __STRING_TYPE_LIST(_) \
+    _(STRING_T_GLOBAL,  0, "global"),   \
+    _(STRING_T_CONST,   1, "const"),    \
+    _(STRING_T_HEAP,    3, "heap"),     \
+    /* end */
+
+static inline bool is_good_string_type(int type);
+static inline char *string_type_string(int type);
+static inline int string_type_idx(char *type_string);
+DECLARE_ENUM(string_type, __STRING_TYPE_LIST, STRING_T_END);
+
+#if 1 /* just for sourceinsight */
+#define STRING_T_GLOBAL     STRING_T_GLOBAL
+#define STRING_T_CONST      STRING_T_CONST
+#define STRING_T_HEAP       STRING_T_HEAP
+#define STRING_T_END        STRING_T_END
+#endif /* just for sourceinsight */
+
 typedef struct {
 #if __BYTE_ORDER == __BIG_ENDIAN
     uint32_t tmp:8;     /* all */
     uint32_t top:1;     /* all, is top ??? */
     uint32_t con:1;     /* all, is const ??? */
     uint32_t dyn:1;     /* all, is dynamic ??? */
-    uint32_t stk:1;     /* all, is in stack ??? */
     uint32_t eoz:1;     /* all: end of zero ??? */
     uint32_t eob:1;     /* root: end of block ??? */
     uint32_t clr:1;     /* root: need to clear ??? */
+    uint32_t bin:1;     /* root, is binary */
     uint32_t rsv:1;
     uint32_t ref:16;    /* root */
 #elif __BYTE_ORDER == __LITTLE_ENDIAN
     uint32_t ref:16;
     uint32_t rsv:1;
+    uint32_t bin:1;
     uint32_t clr:1;
     uint32_t eob:1;
     uint32_t eoz:1;
-    uint32_t stk:1;
     uint32_t dyn:1;
     uint32_t con:1;
     uint32_t top:1;
@@ -28,51 +46,28 @@ typedef struct {
 } 
 string_opt_t;
 
-#define __STRING_OPT_INITER(_con, _dyn, _stk, _eob, _eoz)   { \
+#define __STRING_OPT_INITER(_bin, _con, _dyn, _eoz, _eob) { \
     .tmp    = 0,    \
     .top    = true, \
     .con    = _con, \
     .dyn    = _dyn, \
-    .stk    = _stk, \
     .eoz    = _eoz, \
     .eob    = _eob, \
     .clr    = (_con)?false:((_dyn)?((_stk)?false:true):false), \
+    .bin    = _bin, \
     .rsv    = 0,    \
     .ref    = 1,    \
 }
 
-/*
-* global:
-*   con: false
-*   dyn: false
-*   stk: false
-*   clr: false
-*/
-#define __STRING_OPT_GLOBAL_INITER(_eoz)  __STRING_OPT_INITER(false, false, false, false, _eoz)
-/*
-* const:
-*   con: true
-*   dyn: false
-*   stk: false
-*   clr: false
-*/
-#define __STRING_OPT_CONST_INITER(_eoz)   __STRING_OPT_INITER(true,  false, false, false, _eoz)
-/*
-* stack:
-*   con: false
-*   dyn: true
-*   stk: true
-*   clr: false
-*/
-#define __STRING_OPT_STACK_INITER(_eoz)   __STRING_OPT_INITER(false, true,  true,  false, _eoz)
-/*
-* heap:
-*   con: false
-*   dyn: true
-*   stk: false
-*   clr: true
-*/
-#define __STRING_OPT_HEAP_INITER(_eoz)    __STRING_OPT_INITER(false, true,  false, false, _eoz)
+#define STRING_OPT_INITER(_bin, _con, _dyn, _eoz)   __STRING_OPT_INITER(_bin, _con, _dyn, _eoz, false)
+#define STRING_OPT_RO_INITER(_bin, _dyn, _eoz)      STRING_OPT_INITER(_bin, true,  _dyn,  _eoz)
+#define STRING_OPT_RW_INITER(_bin, _dyn, _eoz)      STRING_OPT_INITER(_bin, false, _dyn,  _eoz)
+#define STRING_OPT_DYNAMIC_INITER(_bin, _con, _eoz) STRING_OPT_INITER(_bin, _con,  true,  _eoz)
+#define STRING_OPT_STATIC_INITER(_bin, _con, _eoz)  STRING_OPT_INITER(_bin, _con,  false, _eoz)
+#define STRING_OPT_RO_DYNAMIC_INITER(_bin, _eoz)    STRING_OPT_INITER(_bin, true,  true,  _eoz)
+#define STRING_OPT_RW_DYNAMIC_INITER(_bin, _eoz)    STRING_OPT_INITER(_bin, false, true,  _eoz)
+#define STRING_OPT_RO_STATIC_INITER(_bin, _eoz)     STRING_OPT_INITER(_bin, true,  false, _eoz)
+#define STRING_OPT_RW_STATIC_INITER(_bin, _eoz)     STRING_OPT_INITER(_bin, false, false, _eoz)
 
 #ifndef USE_STRING_BLOCK
 #define USE_STRING_BLOCK    0
@@ -102,18 +97,13 @@ string_t;
 #define sopt_top    opt.o.top
 #define sopt_con    opt.o.con
 #define sopt_dyn    opt.o.dyn
-#define sopt_stk    opt.o.stk
 #define sopt_eoz    opt.o.eoz
 #define sopt_eob    opt.o.eob
 #define sopt_clr    opt.o.clr
-#define sopt_ref    opt.o.ref
+#define sopt_bin    opt.o.bin
 #define sopt_rsv    opt.o.rsv
+#define sopt_ref    opt.o.ref
 #define sopt_val    opt.o.v
-
-
-
-
-
 
 #define STRING_ZERO     { .body = { .string = NULL } }
 
@@ -124,49 +114,50 @@ string_t;
         .string = (char *)(_p) + (_begin),  \
     }   /* end */
 
-#if 1 /* root string */
-#define __STRING_S_GLOBAL_INITER(_p, _begin, _len)  {   \
-    .opt = { .o = __STRING_OPT_GLOBAL_INITER(true)},    \
-    __STRING_P_INITER(_p, _begin, _len),                \
+#define __STRING_INITER(_p, _begin, _len, _bin, _con, _dyn, _eoz) { \
+    .opt = { .o = __STRING_OPT_INITER(_bin, _con, _dyn, _eoz, false)}, \
+    __STRING_P_INITER(_p, _begin, _len), \
 }   /* end */
+#define __STRING_S_INITER(_p, _begin, _len, _con, _dyn, _eoz)   __STRING_INITER(_p, _begin, _len, false, _con, _dyn, _eoz)
+#define __STRING_B_INITER(_p, _begin, _len, _con, _dyn, _eoz)   __STRING_INITER(_p, _begin, _len, true, _con, _dyn, _eoz)
 
-#define __STRING_S_CONST_INITER(_p, _begin, _len)   {   \
-    .opt = { .o = __STRING_OPT_CONST_INITER(true)},     \
-    __STRING_P_INITER(_p, _begin, _len),                \
-}   /* end */
+/* root string */
+#define __STRING_S_RO_INITER(_p, _begin, _len, _dyn, _eoz)      __STRING_S_INITER(_p, _begin, _len, true, _dyn, _eoz)
+#define __STRING_S_RW_INITER(_p, _begin, _len, _dyn, _eoz)      __STRING_S_INITER(_p, _begin, _len, false, _dyn, _eoz)
+#define __STRING_S_DYNAMIC_INITER(_p, _begin, _len, _con, _eoz) __STRING_S_INITER(_p, _begin, _len, _con, true, _eoz)
+#define __STRING_S_STATIC_INITER(_p, _begin, _len, _con, _eoz)  __STRING_S_INITER(_p, _begin, _len, _con, false, _eoz)
+#define __STRING_S_RO_DYNAMIC_INITER(_p, _begin, _len, _eoz)    __STRING_S_INITER(_p, _begin, _len, true, true, _eoz)
+#define __STRING_S_RW_DYNAMIC_INITER(_p, _begin, _len, _eoz)    __STRING_S_INITER(_p, _begin, _len, false, true, _eoz)
+#define __STRING_S_RO_STATIC_INITER(_p, _begin, _len, _eoz)     __STRING_S_INITER(_p, _begin, _len, true, false, _eoz)
+#define __STRING_S_RW_STATIC_INITER(_p, _begin, _len, _eoz)     __STRING_S_INITER(_p, _begin, _len, true, false, _eoz)
 
-#define __STRING_S_STACK_INITER(_p, _begin, _len)   {   \
-    .opt = { .o = __STRING_OPT_STACK_INITER(true)},     \
-    __STRING_P_INITER(_p, _begin, _len),                \
-}   /* end */
+#define STRING_S_RO_INITER(_p, _begin, _len, _dyn)      __STRING_S_RO_INITER(_p, _begin, _len, _dyn, true)
+#define STRING_S_RW_INITER(_p, _begin, _len, _dyn)      __STRING_S_RW_INITER(_p, _begin, _len, _dyn, true)
+#define STRING_S_DYNAMIC_INITER(_p, _begin, _len, _con) __STRING_S_DYNAMIC_INITER(_p, _begin, _len, _con, true)
+#define STRING_S_STATIC_INITER(_p, _begin, _len, _con)  __STRING_S_STATIC_INITER(_p, _begin, _len, _con, true)
+#define STRING_S_RO_DYNAMIC_INITER(_p, _begin, _len)    __STRING_S_RO_DYNAMIC_INITER(_p, _begin, _len, true)
+#define STRING_S_RW_DYNAMIC_INITER(_p, _begin, _len)    __STRING_S_RW_DYNAMIC_INITER(_p, _begin, _len, true)
+#define STRING_S_RO_STATIC_INITER(_p, _begin, _len)     __STRING_S_RO_STATIC_INITER(_p, _begin, _len, true)
+#define STRING_S_RW_STATIC_INITER(_p, _begin, _len)     __STRING_S_RW_STATIC_INITER(_p, _begin, _len, true)
 
-#define __STRING_S_HEAP_INITER(_p, _begin, _len)    {   \
-    .opt = { .o = __STRING_OPT_HEAP_INITER(true)},      \
-    __STRING_P_INITER(_p, _begin, _len),                \
-}   /* end */
-#endif
+/* root binary */
+#define __STRING_B_RO_INITER(_p, _begin, _len, _dyn, _eoz)      __STRING_B_INITER(_p, _begin, _len, true, _dyn, _eoz)
+#define __STRING_B_RW_INITER(_p, _begin, _len, _dyn, _eoz)      __STRING_B_INITER(_p, _begin, _len, false, _dyn, _eoz)
+#define __STRING_B_DYNAMIC_INITER(_p, _begin, _len, _con, _eoz) __STRING_B_INITER(_p, _begin, _len, _con, true, _eoz)
+#define __STRING_B_STATIC_INITER(_p, _begin, _len, _con, _eoz)  __STRING_B_INITER(_p, _begin, _len, _con, false, _eoz)
+#define __STRING_B_RO_DYNAMIC_INITER(_p, _begin, _len, _eoz)    __STRING_B_INITER(_p, _begin, _len, true, true, _eoz)
+#define __STRING_B_RW_DYNAMIC_INITER(_p, _begin, _len, _eoz)    __STRING_B_INITER(_p, _begin, _len, false, true, _eoz)
+#define __STRING_B_RO_STATIC_INITER(_p, _begin, _len, _eoz)     __STRING_B_INITER(_p, _begin, _len, true, false, _eoz)
+#define __STRING_B_RW_STATIC_INITER(_p, _begin, _len, _eoz)     __STRING_B_INITER(_p, _begin, _len, true, false, _eoz)
 
-#if 1 /* root binary */
-#define __STRING_B_GLOBAL_INITER(_p, _begin, _len)  {   \
-    .opt = { .o = __STRING_OPT_GLOBAL_INITER(false)},   \
-    __STRING_P_INITER(_p, _begin, _len),                \
-}   /* end */
-
-#define __STRING_B_CONST_INITER(_p, _begin, _len)   {   \
-    .opt = { .o = __STRING_OPT_CONST_INITER(false)},    \
-    __STRING_P_INITER(_p, _begin, _len),                \
-}   /* end */
-
-#define __STRING_B_STACK_INITER(_p, _begin, _len)   {   \
-    .opt = { .o = __STRING_OPT_STACK_INITER(false)},    \
-    __STRING_P_INITER(_p, _begin, _len),                \
-}   /* end */
-
-#define __STRING_B_HEAP_INITER(_p, _begin, _len)    {   \
-    .opt = { .o = __STRING_OPT_HEAP_INITER(false)},     \
-    __STRING_P_INITER(_p, _begin, _len),                \
-}   /* end */
-#endif
+#define STRING_B_RO_INITER(_p, _begin, _len, _dyn)      __STRING_B_RO_INITER(_p, _begin, _len, _dyn, true)
+#define STRING_B_RW_INITER(_p, _begin, _len, _dyn)      __STRING_B_RW_INITER(_p, _begin, _len, _dyn, true)
+#define STRING_B_DYNAMIC_INITER(_p, _begin, _len, _con) __STRING_B_DYNAMIC_INITER(_p, _begin, _len, _con, true)
+#define STRING_B_STATIC_INITER(_p, _begin, _len, _con)  __STRING_B_STATIC_INITER(_p, _begin, _len, _con, true)
+#define STRING_B_RO_DYNAMIC_INITER(_p, _begin, _len)    __STRING_B_RO_DYNAMIC_INITER(_p, _begin, _len, true)
+#define STRING_B_RW_DYNAMIC_INITER(_p, _begin, _len)    __STRING_B_RW_DYNAMIC_INITER(_p, _begin, _len, true)
+#define STRING_B_RO_STATIC_INITER(_p, _begin, _len)     __STRING_B_RO_STATIC_INITER(_p, _begin, _len, true)
+#define STRING_B_RW_STATIC_INITER(_p, _begin, _len)     __STRING_B_RW_STATIC_INITER(_p, _begin, _len, true)
 
 static inline string_t *
 __string_root(string_t *s)
@@ -261,41 +252,49 @@ is_string_can_slice(string_t *s, uint32_t begin, uint32_t len)
 
 #if USE_STRING_BLOCK
 static inline string_t *
-string_block(char *raw, uint32_t len)
+__string_block(const char *raw, uint32_t len, bool bin)
 {
-    uint32_t need = os_min(os_strlen(raw), len);
-    uint32_t size = OS_ALIGN(1 + OS_MIN(len, need), OS_ALIGN_SIZE);
-
+    uint32_t size = OS_ALIGN(1 + len, OS_ALIGN_SIZE);
     string_t *s = (string_t *)os_malloc(size + sizeof(string_t));
     if (NULL==s) {
         return NULL;
     }
 
-    string_opt_t opt = __STRING_OPT_INITER(false, true,  false, true, true);
+    string_opt_t opt = __STRING_OPT_INITER(bin, false, true, true, true);
     
     s->opt.o    = opt;
     s->size     = size;
     s->begin    = 0;
-    s->len      = need;
+    s->len      = len;
 
-    os_strmcpy(string_value(s), raw, need);
+    os_strmcpy(string_value(s), raw, len);
     
     return s;
+}
+
+static inline string_t *
+string_block(const char *raw)
+{
+    return __string_block(raw, os_strlen(raw), false);
+}
+
+static inline string_t *
+binary_block(const char *raw, uint32_t len)
+{
+    return __string_block(raw, len, true);
 }
 #endif
 
 static inline string_t
-string_new(const char *raw, uint32_t len)
+__string_new(const char *raw, uint32_t len, bool bin, bool con)
 {
-    uint32_t need = os_strlen(raw); 
-             need = OS_MIN(need, len);
-    uint32_t size = OS_ALIGN(1 + need, OS_ALIGN_SIZE);
+    uint32_t size = OS_ALIGN(1 + len, OS_ALIGN_SIZE);
     
     char *p = (char *)os_malloc(size);
     if (p) {
-        os_strmcpy(p, raw, need);
+        os_strmcpy(p, raw, len);
         
-        string_t s = __STRING_S_HEAP_INITER(p, 0, need);
+        string_t s = __STRING_S_INITER(p, 0, len, con, true, true);
         
         return s;
     } else {
@@ -306,11 +305,15 @@ string_new(const char *raw, uint32_t len)
 }
 
 static inline string_t
-string_const(const char *p)
+string_new(const char *raw, bool con)
 {
-    string_t new = __STRING_S_CONST_INITER(p, 0, os_strlen(p));
+    return __string_new(raw, os_strlen(raw), false, con);
+}
 
-    return new;
+static inline string_t
+binary_new(const char *raw, uint32_t len, bool con)
+{
+    return __string_new(raw, len, true, con);
 }
 
 static inline string_t *

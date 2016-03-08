@@ -1,11 +1,16 @@
 #ifndef __SYMBOL_H_de411bf6443c4804bf7d2904733cfff6__
 #define __SYMBOL_H_de411bf6443c4804bf7d2904733cfff6__
 /******************************************************************************/
+
 typedef struct {
     string_t s;
-
     bkdr_t bkdr;
+    dlist_node_t node;
 } symbol_t;
+
+typedef struct {
+    dlist_t list[];
+} symbol_table_t;
 
 #if 0
 typedef struct {
