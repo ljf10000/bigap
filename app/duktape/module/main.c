@@ -35,7 +35,9 @@ __main(int argc, char *argv[])
     duk_peval_file(ctx, argv[1]);
     duk_pop(ctx);
 
+    debug_shell("before destroy duk heap");
     duk_destroy_heap(ctx);
+    debug_shell("after  destroy duk heap");
     
     return 0;
 }
