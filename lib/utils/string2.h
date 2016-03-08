@@ -122,8 +122,7 @@ string_t;
     .len    = _len,                         \
     .body = {                               \
         .string = (char *)(_p) + (_begin),  \
-    },                                      \
-    /* end */
+    }   /* end */
 
 #if 1 /* root string */
 #define __STRING_S_GLOBAL_INITER(_p, _begin, _len)  {   \
