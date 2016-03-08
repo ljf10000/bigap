@@ -118,10 +118,8 @@ string_t;
     .opt = { .o = __STRING_OPT_INITER(_bin, _con, _dyn, _eoz, false)}, \
     __STRING_P_INITER(_p, _begin, _len), \
 }   /* end */
-#define __STRING_S_INITER(_p, _begin, _len, _con, _dyn, _eoz)   __STRING_INITER(_p, _begin, _len, false, _con, _dyn, _eoz)
-#define __STRING_B_INITER(_p, _begin, _len, _con, _dyn, _eoz)   __STRING_INITER(_p, _begin, _len, true, _con, _dyn, _eoz)
 
-/* root string */
+#define __STRING_S_INITER(_p, _begin, _len, _con, _dyn, _eoz)   __STRING_INITER(_p, _begin, _len, false, _con, _dyn, _eoz)
 #define __STRING_S_RO_INITER(_p, _begin, _len, _dyn, _eoz)      __STRING_S_INITER(_p, _begin, _len, true, _dyn, _eoz)
 #define __STRING_S_RW_INITER(_p, _begin, _len, _dyn, _eoz)      __STRING_S_INITER(_p, _begin, _len, false, _dyn, _eoz)
 #define __STRING_S_DYNAMIC_INITER(_p, _begin, _len, _con, _eoz) __STRING_S_INITER(_p, _begin, _len, _con, true, _eoz)
@@ -131,16 +129,7 @@ string_t;
 #define __STRING_S_RO_STATIC_INITER(_p, _begin, _len, _eoz)     __STRING_S_INITER(_p, _begin, _len, true, false, _eoz)
 #define __STRING_S_RW_STATIC_INITER(_p, _begin, _len, _eoz)     __STRING_S_INITER(_p, _begin, _len, true, false, _eoz)
 
-#define STRING_S_RO_INITER(_p, _begin, _len, _dyn)      __STRING_S_RO_INITER(_p, _begin, _len, _dyn, true)
-#define STRING_S_RW_INITER(_p, _begin, _len, _dyn)      __STRING_S_RW_INITER(_p, _begin, _len, _dyn, true)
-#define STRING_S_DYNAMIC_INITER(_p, _begin, _len, _con) __STRING_S_DYNAMIC_INITER(_p, _begin, _len, _con, true)
-#define STRING_S_STATIC_INITER(_p, _begin, _len, _con)  __STRING_S_STATIC_INITER(_p, _begin, _len, _con, true)
-#define STRING_S_RO_DYNAMIC_INITER(_p, _begin, _len)    __STRING_S_RO_DYNAMIC_INITER(_p, _begin, _len, true)
-#define STRING_S_RW_DYNAMIC_INITER(_p, _begin, _len)    __STRING_S_RW_DYNAMIC_INITER(_p, _begin, _len, true)
-#define STRING_S_RO_STATIC_INITER(_p, _begin, _len)     __STRING_S_RO_STATIC_INITER(_p, _begin, _len, true)
-#define STRING_S_RW_STATIC_INITER(_p, _begin, _len)     __STRING_S_RW_STATIC_INITER(_p, _begin, _len, true)
-
-/* root binary */
+#define __STRING_B_INITER(_p, _begin, _len, _con, _dyn, _eoz)   __STRING_INITER(_p, _begin, _len, true, _con, _dyn, _eoz)
 #define __STRING_B_RO_INITER(_p, _begin, _len, _dyn, _eoz)      __STRING_B_INITER(_p, _begin, _len, true, _dyn, _eoz)
 #define __STRING_B_RW_INITER(_p, _begin, _len, _dyn, _eoz)      __STRING_B_INITER(_p, _begin, _len, false, _dyn, _eoz)
 #define __STRING_B_DYNAMIC_INITER(_p, _begin, _len, _con, _eoz) __STRING_B_INITER(_p, _begin, _len, _con, true, _eoz)
@@ -149,6 +138,15 @@ string_t;
 #define __STRING_B_RW_DYNAMIC_INITER(_p, _begin, _len, _eoz)    __STRING_B_INITER(_p, _begin, _len, false, true, _eoz)
 #define __STRING_B_RO_STATIC_INITER(_p, _begin, _len, _eoz)     __STRING_B_INITER(_p, _begin, _len, true, false, _eoz)
 #define __STRING_B_RW_STATIC_INITER(_p, _begin, _len, _eoz)     __STRING_B_INITER(_p, _begin, _len, true, false, _eoz)
+
+#define STRING_S_RO_INITER(_p, _begin, _len, _dyn)      __STRING_S_RO_INITER(_p, _begin, _len, _dyn, true)
+#define STRING_S_RW_INITER(_p, _begin, _len, _dyn)      __STRING_S_RW_INITER(_p, _begin, _len, _dyn, true)
+#define STRING_S_DYNAMIC_INITER(_p, _begin, _len, _con) __STRING_S_DYNAMIC_INITER(_p, _begin, _len, _con, true)
+#define STRING_S_STATIC_INITER(_p, _begin, _len, _con)  __STRING_S_STATIC_INITER(_p, _begin, _len, _con, true)
+#define STRING_S_RO_DYNAMIC_INITER(_p, _begin, _len)    __STRING_S_RO_DYNAMIC_INITER(_p, _begin, _len, true)
+#define STRING_S_RW_DYNAMIC_INITER(_p, _begin, _len)    __STRING_S_RW_DYNAMIC_INITER(_p, _begin, _len, true)
+#define STRING_S_RO_STATIC_INITER(_p, _begin, _len)     __STRING_S_RO_STATIC_INITER(_p, _begin, _len, true)
+#define STRING_S_RW_STATIC_INITER(_p, _begin, _len)     __STRING_S_RW_STATIC_INITER(_p, _begin, _len, true)
 
 #define STRING_B_RO_INITER(_p, _begin, _len, _dyn)      __STRING_B_RO_INITER(_p, _begin, _len, _dyn, true)
 #define STRING_B_RW_INITER(_p, _begin, _len, _dyn)      __STRING_B_RW_INITER(_p, _begin, _len, _dyn, true)
