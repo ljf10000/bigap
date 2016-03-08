@@ -299,7 +299,11 @@ string_new(const char *raw, uint32_t len)
         //string_t s = __STRING_S_HEAP_INITER(p, 0, need);
         string_t s = {
             .opt = { .o = __STRING_OPT_HEAP_INITER(true)},
-            __STRING_P_INITER(p, 0, need),
+            .begin  = 0,
+            .len    = need,
+            .body = {
+                .string = (char *)(p) + (0),
+            },
         };
         
         return s;
