@@ -9,7 +9,7 @@ typedef struct {
 } symbol_t;
 
 typedef struct {
-    dlist_t list[];
+    dlist_t list[0];
 } symbol_table_t;
 
 #if 0
