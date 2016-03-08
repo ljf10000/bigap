@@ -290,10 +290,12 @@ string_new(const char *raw, uint32_t len)
 {
     uint32_t need = os_min(os_strlen(raw), len);
     uint32_t size = OS_ALIGN(1 + OS_MIN(len, need), OS_ALIGN_SIZE);
-
+    
     char *p = (char *)os_malloc(size);
     if (NULL==p) {
-        return NULL;
+        string_t zero = STRING_ZERO;
+
+        return zero;
     }
     os_strmcpy(p, raw, need);
     
