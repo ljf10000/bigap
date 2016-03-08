@@ -13,7 +13,7 @@ static slice_t *bs = &BS;
 #define BUFFER_SIZE     4096
 int COUNT = 2;
 
-#define BLOB_TEST   1
+#define BLOB_TEST   0
 
 #if BLOB_TEST
 #define tprintf(_fmt, _args...)     os_printf(_fmt, ##_args)
