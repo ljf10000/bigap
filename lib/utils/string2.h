@@ -117,13 +117,13 @@ string_t;
 
 #define STRING_ZERO     { .body = { .string = NULL } }
 
-#define __STRING_P_INITER(_p, _begin, _len) { \
+#define __STRING_P_INITER(_p, _begin, _len) \
     .begin  = _begin,                       \
     .len    = _len,                         \
     .body = {                               \
         .string = (char *)(_p) + (_begin),  \
     },                                      \
-}
+    /* end */
 
 #if 1 /* root string */
 #define __STRING_S_GLOBAL_INITER(_p, _begin, _len)  {   \
