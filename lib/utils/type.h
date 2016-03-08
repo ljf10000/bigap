@@ -26,10 +26,6 @@
 #define uint32_t        uint32_t
 #endif
 
-#ifndef float32_t
-#define float32_t       float
-#endif
-
 #ifndef int64_t
 #define int64_t         int64_t
 #endif
@@ -37,11 +33,15 @@
 #ifndef uint64_t
 #define uint64_t        uint64_t
 #endif
+#endif /* just for sourceinsight */
+
+#ifndef float32_t
+#define float32_t       float
+#endif
 
 #ifndef float64_t
 #define float64_t       double
 #endif
-#endif /* just for sourceinsight */
 
 #ifdef  bool
 #undef  bool
