@@ -178,17 +178,43 @@ hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_
     }
 }
 
-#define hash_foreach(_bucket, _node)             \
+#define hash_bucket_foreach(_bucket, _node) \
     list_for_each_entry(_node, &(_bucket)->head, node)
 
-#define hash_foreach_safe(_bucket, _node, _tmp)   \
+#define hash_bucket_foreach_safe(_bucket, _node, _tmp) \
     list_for_each_entry_safe(_node, _tmp, &(_bucket)->head, node)
 
-#define hash_foreach_entry(_bucket, _pos, _member) \
-    list_for_each_entry(_pos, &(_bucket)->head, _member.node)
+#define hash_bucket_foreach_entry(_bucket, _node, _member) \
+    list_for_each_entry(_node, &(_bucket)->head, _member.node)
 
-#define hash_foreach_entry_safe(_bucket, _pos, _tmp, _member) \
-    list_for_each_entry_safe(_pos, _tmp, &(_bucket)->head, _member.node)
+#define hash_bucket_foreach_entry_safe(_bucket, _node, _tmp, _member) \
+    list_for_each_entry_safe(_node, _tmp, &(_bucket)->head, _member.node)
+
+#define __hash_foreach_bucket(_h, _hidx, _bucket) \
+    for (_hidx = 0, _bucket = __hash_bucket(_h, 0); \
+        _hidx<(_h)->count; \
+        _hidx++, _bucket = __hash_bucket(_h, _hidx)) \
+    /* end */
+
+#define hash_foreach(_h, _hidx, _bucket, _node) \
+    __hash_foreach_bucket(_h, _hidx, _bucket) \
+        hash_bucket_foreach(_bucket, _node) \
+    /* end */
+
+#define hash_foreach_safe(_h, _hidx, _bucket, _node, _tmp) \
+    __hash_foreach_bucket(_h, _hidx, _bucket) \
+        hash_bucket_foreach_safe(_bucket, _node, _tmp) \
+    /* end */
+
+#define hash_foreach_entry(_h, _hidx, _bucket, _node, _member) \
+    __hash_foreach_bucket(_h, _hidx, _bucket) \
+        hash_bucket_foreach_entry(_bucket, _node, _member) \
+    /* end */
+
+#define hash_foreach_entry_safe(_h, _hidx, _bucket, _node, _tmp, _member) \
+    __hash_foreach_bucket(_h, _hidx, _bucket) \
+        hash_bucket_foreach_entry_safe(_bucket, _node, _tmp, _member) \
+    /* end */
 
 static inline hash_node_t *
 hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
@@ -198,7 +224,7 @@ hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
         hash_node_t *node;
         
         if (bucket) {            
-            hash_foreach(bucket, node) {
+            hash_bucket_foreach(bucket, node) {
                 if ((*eq)(node)) {
                     return node;
                 }

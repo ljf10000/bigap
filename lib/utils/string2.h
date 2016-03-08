@@ -110,6 +110,11 @@ string_t;
 #define sopt_rsv    opt.o.rsv
 #define sopt_val    opt.o.v
 
+
+
+
+
+
 #define STRING_ZERO     { .body = { .string = NULL } }
 
 #define __STRING_P_INITER(_p, _begin, _len) { \
@@ -162,29 +167,6 @@ string_t;
     .opt = { .o = __STRING_OPT_HEAP_INITER(false)},     \
     __STRING_P_INITER(_p, _begin, _len),                \
 }   /* end */
-#endif
-
-#if USE_STRING_BLOCK
-static inline string_t *
-__string_new(char *root, uint32_t len)
-{
-    uint32_t rootlen = os_strlen(root);
-    uint32_t size = OS_ALIGN(1 + OS_MAX(len, rootlen), OS_ALIGN_SIZE);
-
-    string_t *s = (string_t *)os_zalloc(size + sizeof(string_t));
-    if (NULL==s) {
-        return NULL;
-    }
-
-    string_opt_t opt = __STRING_OPT_INITER(false, true,  false, true, true);
-    
-    s->opt.o    = opt;
-    s->size     = size;
-    s->begin    = 0;
-    s->len      = rootlen;
-
-    return s;
-}
 #endif
 
 static inline string_t *
@@ -276,6 +258,58 @@ is_string_can_slice(string_t *s, uint32_t begin, uint32_t len)
     uint32_t max = begin + len - 1;
 
     return begin <= max && max <= s->len;
+}
+
+#if USE_STRING_BLOCK
+static inline string_t *
+string_block(char *raw, uint32_t len)
+{
+    uint32_t need = os_min(os_strlen(raw), len);
+    uint32_t size = OS_ALIGN(1 + OS_MIN(len, need), OS_ALIGN_SIZE);
+
+    string_t *s = (string_t *)os_malloc(size + sizeof(string_t));
+    if (NULL==s) {
+        return NULL;
+    }
+
+    string_opt_t opt = __STRING_OPT_INITER(false, true,  false, true, true);
+    
+    s->opt.o    = opt;
+    s->size     = size;
+    s->begin    = 0;
+    s->len      = need;
+
+    os_strmcpy(string_value(s), raw, need);
+    
+    return s;
+}
+#endif
+
+static inline string_t
+string_new(const char *raw, uint32_t len)
+{
+    uint32_t need = os_min(os_strlen(raw), len);
+    uint32_t size = OS_ALIGN(1 + OS_MIN(len, need), OS_ALIGN_SIZE);
+
+    char *p = (char *)os_malloc(size);
+    if (NULL==p) {
+        return NULL;
+    }
+    os_strmcpy(p, raw, need);
+    
+    string_t s = __STRING_S_HEAP_INITER(p, 0, need);
+
+    string_opt_t opt = __STRING_OPT_INITER(false, true,  false, true, true);
+    
+    return s;
+}
+
+static inline string_t
+string_const(const char *p)
+{
+    string_t new = __STRING_S_CONST_INITER(p, 0, os_strlen(p));
+
+    return new;
 }
 
 static inline string_t *
@@ -435,5 +469,7 @@ string_eq(string_t *a, string_t *b)
         }
     }
 }
+
+
 /******************************************************************************/
 #endif /* __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__ */

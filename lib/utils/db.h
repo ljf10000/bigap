@@ -9,29 +9,29 @@
 
 #define in_hx_table(_node) __in_dlist(&(_node)->list)
 
-#define DECLARE_DB_TABLE(_name, _idx_count) \
+#define DECLARE_DB_TABLE(_name, _hash_count) \
 typedef struct {                        \
     dlist_t list;                       \
-    hash_t  hash[_idx_count];           \
+    hash_t  hash[_hash_count];          \
 } _name##_table_t;                      \
                                         \
 typedef struct {                        \
     dlist_node_t list;                  \
-    hash_node_t  hash[_idx_count];      \
+    hash_node_t  hash[_hash_count];     \
 } _name##_node_t;                       \
                                         \
 typedef mv_t _name##_foreach_f(_name##_node_t *node); \
                                         \
 static inline _name##_node_t *          \
-_name##_entry(hash_node_t *node, int nidx) \
+_name##_entry(hash_node_t *node, int hidx) \
 {                                       \
-    return hash_entry(node, _name##_node_t, hash[nidx]); \
+    return hash_entry(node, _name##_node_t, hash[hidx]); \
 }                                       \
                                         \
 static inline hash_idx_t                \
-_name##_size(_name##_table_t *table, int nidx) \
+_name##_size(_name##_table_t *table, int hidx) \
 {                                       \
-    return table->hash[nidx].size;      \
+    return table->hash[hidx].size;      \
 }                                       \
                                         \
 static inline uint32_t                  \
@@ -98,14 +98,14 @@ _name##_del(_name##_table_t *table, _name##_node_t *node) \
 }                                       \
                                         \
 static inline _name##_node_t *          \
-_name##_find(_name##_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq) \
+_name##_find(_name##_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq) \
 {                                       \
-    hash_node_t *node = hash_find(&table->hash[nidx], dhash, eq); \
+    hash_node_t *node = hash_find(&table->hash[hidx], dhash, eq); \
     if (NULL==node) {                   \
         return NULL;                    \
     }                                   \
                                         \
-    return _name##_entry(node, nidx);   \
+    return _name##_entry(node, hidx);   \
 }                                       \
                                         \
 static inline int                       \
@@ -149,7 +149,7 @@ os_fake_declare                         \
 * __h1_foreach_f;
 * 
 * void __h1_init(__h1_table_t *table, size_array);
-* int __h1_size(__h1_table_t *table, int nidx);
+* int __h1_size(__h1_table_t *table, int hidx);
 * int __h1_count(__h1_table_t *table);
 * int __h1_add(__h1_table_t *table, __h1_node_t *node, hash_node_calc_f *nhash);
 * void __h1_del(__h1_table_t *table, __h1_node_t *node);
@@ -221,11 +221,11 @@ h1_foreach_safe(h1_table_t *table, h1_foreach_f *foreach)
 * __hx_foreach_f;
 *
 * void __hx_init(__hx_table_t *table, size_array);
-* int __hx_size(__hx_table_t *table, int nidx);
+* int __hx_size(__hx_table_t *table, int hidx);
 * int __hx_count(__hx_table_t *table);
 * __hx_node_t *__hx_add(__hx_table_t *table, __hx_node_t *node, hash_node_calc_f *nhash[]);
 * void __hx_del(__hx_table_t *table, __hx_node_t *node);
-* __hx_node_t *__hx_find(__hx_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq);
+* __hx_node_t *__hx_find(__hx_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq);
 * int __hx_foreach(__hx_table_t *table, __hx_foreach_f *foreach);
 * int __hx_foreach_safe(__hx_table_t *table, __hx_foreach_f *foreach);
 */
@@ -314,51 +314,51 @@ h9_init(h9_table_t *table, int size_array[])
 }
 
 static inline hash_idx_t 
-h2_size(h2_table_t *table, int nidx)
+h2_size(h2_table_t *table, int hidx)
 {
-    return __h2_size(table, nidx);
+    return __h2_size(table, hidx);
 }
 
 static inline hash_idx_t 
-h3_size(h3_table_t *table, int nidx)
+h3_size(h3_table_t *table, int hidx)
 {
-    return __h3_size(table, nidx);
+    return __h3_size(table, hidx);
 }
 
 static inline hash_idx_t 
-h4_size(h4_table_t *table, int nidx)
+h4_size(h4_table_t *table, int hidx)
 {
-    return __h4_size(table, nidx);
+    return __h4_size(table, hidx);
 }
 
 static inline hash_idx_t 
-h5_size(h5_table_t *table, int nidx)
+h5_size(h5_table_t *table, int hidx)
 {
-    return __h5_size(table, nidx);
+    return __h5_size(table, hidx);
 }
 
 static inline hash_idx_t 
-h6_size(h6_table_t *table, int nidx)
+h6_size(h6_table_t *table, int hidx)
 {
-    return __h6_size(table, nidx);
+    return __h6_size(table, hidx);
 }
 
 static inline hash_idx_t 
-h7_size(h7_table_t *table, int nidx)
+h7_size(h7_table_t *table, int hidx)
 {
-    return __h7_size(table, nidx);
+    return __h7_size(table, hidx);
 }
 
 static inline hash_idx_t 
-h8_size(h8_table_t *table, int nidx)
+h8_size(h8_table_t *table, int hidx)
 {
-    return __h8_size(table, nidx);
+    return __h8_size(table, hidx);
 }
 
 static inline hash_idx_t 
-h9_size(h9_table_t *table, int nidx)
+h9_size(h9_table_t *table, int hidx)
 {
-    return __h9_size(table, nidx);
+    return __h9_size(table, hidx);
 }
 
 static inline uint32_t 
@@ -506,51 +506,51 @@ h9_del(h9_table_t *table, h9_node_t *node)
 }
 
 static inline h2_node_t *
-h2_find(h2_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+h2_find(h2_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
-    return __h2_find(table, nidx, dhash, eq);
+    return __h2_find(table, hidx, dhash, eq);
 }
 
 static inline h3_node_t *
-h3_find(h3_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+h3_find(h3_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
-    return __h3_find(table, nidx, dhash, eq);
+    return __h3_find(table, hidx, dhash, eq);
 }
 
 static inline h4_node_t *
-h4_find(h4_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+h4_find(h4_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
-    return __h4_find(table, nidx, dhash, eq);
+    return __h4_find(table, hidx, dhash, eq);
 }
 
 static inline h5_node_t *
-h5_find(h5_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+h5_find(h5_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
-    return __h5_find(table, nidx, dhash, eq);
+    return __h5_find(table, hidx, dhash, eq);
 }
 
 static inline h6_node_t *
-h6_find(h6_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+h6_find(h6_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
-    return __h6_find(table, nidx, dhash, eq);
+    return __h6_find(table, hidx, dhash, eq);
 }
 
 static inline h7_node_t *
-h7_find(h7_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+h7_find(h7_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
-    return __h7_find(table, nidx, dhash, eq);
+    return __h7_find(table, hidx, dhash, eq);
 }
 
 static inline h8_node_t *
-h8_find(h8_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+h8_find(h8_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
-    return __h8_find(table, nidx, dhash, eq);
+    return __h8_find(table, hidx, dhash, eq);
 }
 
 static inline h9_node_t *
-h9_find(h9_table_t *table, int nidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+h9_find(h9_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
-    return __h9_find(table, nidx, dhash, eq);
+    return __h9_find(table, hidx, dhash, eq);
 }
 
 static inline int 
