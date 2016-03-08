@@ -53,7 +53,7 @@ string_opt_t;
     .dyn    = _dyn, \
     .eoz    = _eoz, \
     .eob    = _eob, \
-    .clr    = (_con)?false:((_dyn)?((_stk)?false:true):false), \
+    .clr    = (!(_con)) && (_dyn), \
     .bin    = _bin, \
     .rsv    = 0,    \
     .ref    = 1,    \
