@@ -292,18 +292,17 @@ string_new(const char *raw, uint32_t len)
     uint32_t size = OS_ALIGN(1 + OS_MIN(len, need), OS_ALIGN_SIZE);
     
     char *p = (char *)os_malloc(size);
-    if (NULL==p) {
+    if (p) {
+        os_strmcpy(p, raw, need);
+        
+        string_t s = __STRING_S_HEAP_INITER(p, 0, need);
+        
+        return s;
+    } else {
         string_t zero = STRING_ZERO;
 
         return zero;
     }
-    os_strmcpy(p, raw, need);
-    
-    string_t s = __STRING_S_HEAP_INITER(p, 0, need);
-
-    string_opt_t opt = __STRING_OPT_INITER(false, true,  false, true, true);
-    
-    return s;
 }
 
 static inline string_t
