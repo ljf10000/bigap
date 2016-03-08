@@ -288,8 +288,9 @@ string_block(char *raw, uint32_t len)
 static inline string_t
 string_new(const char *raw, uint32_t len)
 {
-    uint32_t need = os_min(os_strlen(raw), len);
-    uint32_t size = OS_ALIGN(1 + OS_MIN(len, need), OS_ALIGN_SIZE);
+    uint32_t need = os_strlen(raw); 
+             need = OS_MIN(need, len);
+    uint32_t size = OS_ALIGN(1 + need, OS_ALIGN_SIZE);
     
     char *p = (char *)os_malloc(size);
     if (p) {
