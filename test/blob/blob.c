@@ -65,7 +65,7 @@ array_btoj(void)
 
     name = tmp;
     for (i=0; i<COUNT; i++) {
-        os_sprintf(name, "object-%.5d", i);
+        os_sprintf(name, "object-%d", i);
         
         tprintln("%s begin", name);
         put_somthing(name);
@@ -104,7 +104,7 @@ object_btoj(void)
     tprintln("%s begin", name);
     obj = blob_object_start(bs, name);
     for (i=0; i<COUNT; i++) {
-        os_sprintf(tmp, "array-%.5d", i);
+        os_sprintf(tmp, "array-%d", i);
         
         tprintln("%s.%s begin", name, tmp);
         arr = blob_array_start(bs, tmp);
@@ -119,7 +119,7 @@ object_btoj(void)
     tprintln("%s begin", name);
     arr = blob_array_start(bs, name);
     for (i=0; i<COUNT; i++) {
-        os_sprintf(tmp, "obj-%.5d", i);
+        os_sprintf(tmp, "obj-%d", i);
         
         tprintln("%s.%s begin", name, tmp);
         put_somthing(tmp);
