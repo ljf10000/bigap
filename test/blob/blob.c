@@ -108,9 +108,7 @@ object_btoj(void)
         
         tprintln("%s.%s begin", name, tmp);
         arr = blob_array_start(bs, tmp);
-        put_somthing("sb1");
-        put_somthing("sb2");
-        put_somthing("sb3");
+        put_somthing("sb");
         blob_array_end(bs, arr);
         tprintln("%s.%s end", name, tmp);
     }
@@ -158,9 +156,7 @@ int __main(int argc, char *argv[])
     blob_dump(blob_root(bs));
 #endif
     jobj_put(obj);
-    slice_release(bs);
 
-    slice_alloc(bs, BUFFER_SIZE);
     obj = object_btoj();
     json = jobj_string(obj);
     os_println(__tab "%s", json);
@@ -169,7 +165,6 @@ int __main(int argc, char *argv[])
     blob_dump(blob_root(bs));
 #endif
     jobj_put(obj);
-    slice_release(bs);
 
     return 0;
 }
