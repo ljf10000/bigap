@@ -153,7 +153,7 @@ int __main(int argc, char *argv[])
     
     obj = array_btoj();
     json = jobj_string(obj);
-    os_println("%s", json);
+    os_println(__tab "%s", json);
 #if 1
     blob_jtob(bs, obj);
     blob_dump(blob_root(bs));
@@ -162,7 +162,7 @@ int __main(int argc, char *argv[])
 
     obj = object_btoj();
     json = jobj_string(obj);
-    os_println("%s", json);
+    os_println(__tab "%s", json);
 #if 1
     blob_jtob(bs, obj);
     blob_dump(blob_root(bs));

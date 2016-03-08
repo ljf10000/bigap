@@ -1109,7 +1109,10 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
             blob_foreach(blob, p, i, left) {
                 jobj_t obj = __blob_jobj(p);
                 if (obj) {
-                    jobj_add(root, BLOB_T_OBJECT==type?blob_key(p):NULL, __blob_btoj(p, obj, level+1));
+                    char  *k = BLOB_T_OBJECT==type?blob_key(p):NULL;
+                    jobj_t v = __blob_btoj(p, obj, level+1);
+                    
+                    jobj_add(root, k, v);
                 } else {
                     __blob_btoj(p, root, level+1);
                 }
