@@ -150,7 +150,6 @@ int __main(int argc, char *argv[])
     COUNT = env_geti("__BLOB_COUNT__", 2);
     
     slice_alloc(bs, BUFFER_SIZE);
-    
     obj = array_btoj();
     json = jobj_string(obj);
     os_println(__tab "%s", json);
@@ -159,7 +158,9 @@ int __main(int argc, char *argv[])
     blob_dump(blob_root(bs));
 #endif
     jobj_put(obj);
+    slice_release(bs);
 
+    slice_alloc(bs, BUFFER_SIZE);
     obj = object_btoj();
     json = jobj_string(obj);
     os_println(__tab "%s", json);
@@ -168,7 +169,7 @@ int __main(int argc, char *argv[])
     blob_dump(blob_root(bs));
 #endif
     jobj_put(obj);
-
+    slice_release(bs);
 
     return 0;
 }
