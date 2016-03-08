@@ -296,7 +296,11 @@ string_new(const char *raw, uint32_t len)
     if (p) {
         os_strmcpy(p, raw, need);
         
-        string_t s = __STRING_S_HEAP_INITER(p, 0, need);
+        //string_t s = __STRING_S_HEAP_INITER(p, 0, need);
+        string_t s = {
+            .opt = { .o = __STRING_OPT_HEAP_INITER(true)},
+            __STRING_P_INITER(p, 0, need),
+        };
         
         return s;
     } else {
