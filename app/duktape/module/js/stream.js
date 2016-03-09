@@ -92,15 +92,3 @@ this.Stream = function (filename, mode) {
 		}
 	};
 };
-
-Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
-	if (heapDestruct) {
-		__close(obj);
-	}
-
-	if (obj === mod.Stream.prototype) {
-        return;  // called for the prototype itself
-    }
-
-	__close(obj);
-});
