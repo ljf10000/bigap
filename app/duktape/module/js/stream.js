@@ -1,7 +1,8 @@
 #!/bin/js
 
 print("stream 1");
-Global.Stream = function (filename, mode, pipe = false) {
+
+module.exports = function Stream (filename, mode, pipe = false) {
 	this.filename   = filename;
 	this.mode       = mode;
 	this.pipe       = pipe;
