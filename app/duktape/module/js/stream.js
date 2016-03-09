@@ -13,10 +13,4 @@ function Stream(filename, mode, pipe = false) {
 	}
 }
 
-print("stream 7");
-this.readEx = function (size) {
-	return __libc__.freadEx(this.stream, size);
-};
-
-
 print("stream 14");
