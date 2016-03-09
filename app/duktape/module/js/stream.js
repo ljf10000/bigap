@@ -12,29 +12,32 @@ function Stream(filename, mode, pipe = false) {
 	}
 }
 
-this.close = function () {
-	if (this.pipe) {
-		__libc__.pclose(obj.stream);
-	} else {
-		__libc__.fclose(obj.stream);
-	}
+this.__ok = function () {
+	return typeof this.stream === 'pointer' && null !== this.stream
+};
 
-	obj.stream = null;
+this.__close = function () {
+	if (this.__ok()) {
+		if (this.pipe) {
+			__libc__.pclose(this.stream);
+		} else {
+			__libc__.fclose(this.stream);
+		}
+
+		this.stream = null;
+	}
 };
 
 Duktape.fin(Stream.prototype, function (obj, heapDestruct) {
 	if (heapDestruct) {
-		obj.close();
+		obj.__close();
 	}
 
 	if (obj === Socket.prototype) {
         return;  // called for the prototype itself
     }
-    else if (typeof obj.stream !== 'pointer') {
-        return;  // already freed
-    }
 
-	obj.close();
+	obj.__close();
 });
 
 this.current    = __libc__.SEEK_CUR;
