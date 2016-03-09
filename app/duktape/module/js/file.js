@@ -6,7 +6,9 @@ this.begin      = __libc__.SEEK_SET;
 this.end        = __libc__.SEEK_END;
 
 print("stream 2");
-Stream = function (filename, mode, pipe = false) {
+this.Stream = function (filename, mode) {
+	var pipe        = arguments[2]?arguments[2]:false
+
 	this.filename   = filename;
 	this.mode       = mode;
 	this.pipe       = pipe;
