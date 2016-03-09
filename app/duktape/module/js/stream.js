@@ -6,6 +6,19 @@ this.end        = __libc__.SEEK_END;
 
 sb = true;
 
+this.Stream = function (filename, mode) {
+	var pipe        = arguments[2]?arguments[2]:false;
+
+	this.filename   = filename;
+	this.mode       = mode;
+	this.pipe       = pipe;
+
+	if (pipe) {
+		this.stream = __libc__.fopen(filename, mode);
+	} else {
+		this.stream = __libc__.popen(filename, mode);
+	}
+};
 
 this.__ok = function () {
 	return typeof this.stream === 'pointer' && null !== this.stream
@@ -22,18 +35,6 @@ this.close = function () {
 		this.stream = null;
 	}
 };
-
-Duktape.fin(Stream.prototype, function (obj, heapDestruct) {
-	if (heapDestruct) {
-		obj.close();
-	}
-
-	if (obj === Stream.prototype) {
-        return;  // called for the prototype itself
-    }
-
-	obj.close();
-});
 
 this.read = function (buffer, size) {
 	return __libc__.fread(buffer, size, 1, this.stream);
