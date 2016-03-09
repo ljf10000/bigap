@@ -1,5 +1,6 @@
 #!/bin/js
 
+print("stream 1");
 function Stream(filename, mode, pipe = false) {
 	this.filename   = filename;
 	this.mode       = mode;
@@ -12,10 +13,12 @@ function Stream(filename, mode, pipe = false) {
 	}
 }
 
+print("stream 2");
 this.__ok = function () {
 	return typeof this.stream === 'pointer' && null !== this.stream
 };
 
+print("stream 3");
 this.__close = function () {
 	if (this.__ok()) {
 		if (this.pipe) {
@@ -28,6 +31,7 @@ this.__close = function () {
 	}
 };
 
+print("stream 4");
 Duktape.fin(Stream.prototype, function (obj, heapDestruct) {
 	if (heapDestruct) {
 		obj.__close();
@@ -40,18 +44,22 @@ Duktape.fin(Stream.prototype, function (obj, heapDestruct) {
 	obj.__close();
 });
 
+print("stream 5");
 this.current    = __libc__.SEEK_CUR;
 this.begin      = __libc__.SEEK_SET;
 this.end        = __libc__.SEEK_END;
 
+print("stream 6");
 this.read = function (buffer, size) {
 	return __libc__.fread(buffer, size, 1, this.stream);
 };
 
+print("stream 7");
 this.readEx = function (size) {
 	return __libc__.freadEx(this.stream, size);
 };
 
+print("stream 8");
 this.write = function (buffer, size) {
 	if (this.pipe) {
 		return -(__libc__.ENOSUPPORT);
@@ -60,14 +68,17 @@ this.write = function (buffer, size) {
 	}
 };
 
+print("stream 9");
 this.eof = function () {
 	return __libc__.feof(this.stream);
 };
 
+print("stream 10");
 this.error = function () {
 	return __libc__.ferror(this.stream);
 };
 
+print("stream 11");
 this.tell = function () {
 	if (this.pipe) {
 		return -(__libc__.ENOSUPPORT);
@@ -76,6 +87,7 @@ this.tell = function () {
 	}
 };
 
+print("stream 12");
 this.seek = function (offset, where) {
 	if (this.pipe) {
 		return -(__libc__.ENOSUPPORT);
@@ -84,6 +96,7 @@ this.seek = function (offset, where) {
 	}
 };
 
+print("stream 13");
 this.flush = function () {
 	if (this.pipe) {
 		return -(__libc__.ENOSUPPORT);
@@ -92,3 +105,4 @@ this.flush = function () {
 	}
 };
 
+print("stream 14");
