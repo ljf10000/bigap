@@ -9,6 +9,7 @@ this.end        = __libc__.SEEK_END;
 var __ok = function (obj) {
 	return typeof obj.stream === 'pointer' && null !== obj.stream;
 };
+
 var __close = function (obj) {
 	if (__ok(obj)) {
 		if (obj.pipe) {
@@ -91,12 +92,14 @@ this.Stream = function (filename, mode) {
 	};
 };
 
-Duktape.fin(that.Stream.prototype, function (obj, heapDestruct) {
+var Stream = that.Stream;
+
+Duktape.fin(Stream.prototype, function (obj, heapDestruct) {
 	if (heapDestruct) {
 		__close(obj);
 	}
 
-	if (obj === that.Stream.prototype) {
+	if (obj === Stream.prototype) {
         return;  // called for the prototype itself
     }
 
