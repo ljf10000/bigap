@@ -14,9 +14,9 @@ var Stream = function (filename, mode) {
 	this.pipe       = pipe;
 
 	if (pipe) {
-		this.stream = __libc__.fopen(filename, mode);
-	} else {
 		this.stream = __libc__.popen(filename, mode);
+	} else {
+		this.stream = __libc__.fopen(filename, mode);
 	}
 };
 
