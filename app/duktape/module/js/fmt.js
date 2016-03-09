@@ -1,4 +1,4 @@
-#!../../js
+#!/bin/js
 
 this.print_tag = function (name) {
 	print("=========== test", name, "===========")

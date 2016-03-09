@@ -561,12 +561,12 @@ duke_fwrite(duk_context *ctx)
     duk_size_t bsize = 0;
     void *buf;
     
-    int err     = duk_require_buffer_or_lstring(ctx, 0, &buf, &bsize);
+    int err = duk_require_buffer_or_lstring(ctx, 0, &buf, &bsize);
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
 
-    int size    = duk_require_int(ctx, 1);
+    int size = duk_require_int(ctx, 1);
     if (bsize < size) {
         err = -E2SMALL; __seterrno(ctx, err); goto error;
     }
@@ -600,30 +600,6 @@ duke_freadEx(duk_context *ctx)
     }
     
 	return 1;
-}
-
-LIB_PARAM(fwriteEx, 3);
-static duk_ret_t
-duke_fwriteEx(duk_context *ctx)
-{
-    duk_size_t bsize = 0;
-    void *buf;
-    
-    FILE *f     = (FILE *)duk_require_pointer(ctx, 0);
-    int err     = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
-    if (err<0) {
-        __seterrno(ctx, err); goto error;
-    }
-    
-    int size    = duk_require_int(ctx, 2);
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
-
-    err = fwrite(buf, 1, size, f);
-
-error:
-    return duk_push_uint(ctx, err), 1;
 }
 
 LIB_PARAM(feof, 1);

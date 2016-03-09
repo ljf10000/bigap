@@ -1,4 +1,4 @@
-#!../../js
+#!/bin/js
 
 function main() {
 	var fd = __libc__.socket(__libc__.AF_UNIX, __libc__.SOCK_DGRAM, 0);
