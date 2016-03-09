@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/dll.o
 TARGET_NAME=dll
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=test
-LIB_DEPEND=c dl json-c
+LIB_DEPEND=dl json-c
 CFLAGS+=-D__TEST__ 
 
 #

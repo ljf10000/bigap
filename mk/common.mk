@@ -143,7 +143,7 @@ lib_depend+=-L$(LIBS)
 
 
 # =========  LDFLAGS ============
-EXE_LDFLAGS=-lrt -Wl,-Map=$(TARGET_NAME).map -Wl,-rpath,$(LIBS) -Wl,--export-dynamic
+EXE_LDFLAGS=-lrt -ldl -Wl,-Map=$(TARGET_NAME).map -Wl,-rpath,$(LIBS) -Wl,--export-dynamic
 TEST_LDFLAGS=$(EXE_LDFLAGS)
 LIB_LDFLAGS=-shared -Wl,-Map=lib$(TARGET_NAME).map -Wl,-soname,$(SONAME)
 
