@@ -42,6 +42,7 @@ duke_modSearch(duk_context * ctx)
     os_strtok_foreach(path, env, ":") {
         int len = os_strlen(path);
 
+        debug_js("search %s at %s ...", file, path);
         /*
         * path last char is '/'
         */
@@ -54,6 +55,7 @@ duke_modSearch(duk_context * ctx)
         if (os_file_exist(file)) {
             duk_push_string_file(ctx, file);
 
+            debug_js("search %s at %s OK.", file, path);
             ret = 1; goto error;
         }
     }
