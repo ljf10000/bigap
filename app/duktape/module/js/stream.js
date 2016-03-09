@@ -1,7 +1,7 @@
 #!/bin/js
 
 print("stream 1");
-function Stream(filename, mode, pipe = false) {
+Global.Stream = function (filename, mode, pipe = false) {
 	this.filename   = filename;
 	this.mode       = mode;
 	this.pipe       = pipe;
