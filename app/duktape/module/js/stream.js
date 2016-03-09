@@ -1,6 +1,6 @@
 #!/bin/js
 
-var that = this;
+var mod = this;
 
 this.current    = __libc__.SEEK_CUR;
 this.begin      = __libc__.SEEK_SET;
@@ -24,6 +24,7 @@ var __close = function (obj) {
 
 this.Stream = function (filename, mode) {
 	var pipe        = arguments[2]?arguments[2]:false;
+	var that        = this;
 
 	this.filename   = filename;
 	this.mode       = mode;
@@ -36,70 +37,68 @@ this.Stream = function (filename, mode) {
 	}
 
 	this.__ok = function () {
-		return __ok(this);
+		return __ok(that);
 	};
 
 	this.close = function () {
-		__close(this);
+		__close(that);
 	};
 
 	this.read = function (buffer, size) {
-		return __libc__.fread(buffer, size, 1, this.stream);
+		return __libc__.fread(buffer, size, 1, that.stream);
 	};
 
 	this.readEx = function (size) {
-		return __libc__.freadEx(this.stream, size);
+		return __libc__.freadEx(that.stream, size);
 	};
 
 	this.write = function (buffer, size) {
-		if (this.pipe) {
+		if (that.pipe) {
 			return -(__libc__.ENOSUPPORT);
 		} else {
-			return __libc__.fwrite(buffer, size, 1, this.stream);
+			return __libc__.fwrite(buffer, size, 1, that.stream);
 		}
 	};
 
 	this.eof = function () {
-		return __libc__.feof(this.stream);
+		return __libc__.feof(that.stream);
 	};
 
 	this.error = function () {
-		return __libc__.ferror(this.stream);
+		return __libc__.ferror(that.stream);
 	};
 
 	this.tell = function () {
-		if (this.pipe) {
+		if (that.pipe) {
 			return -(__libc__.ENOSUPPORT);
 		} else {
-			return __libc__.ftell(this.stream);
+			return __libc__.ftell(that.stream);
 		}
 	};
 
 	this.seek = function (offset, where) {
-		if (this.pipe) {
+		if (that.pipe) {
 			return -(__libc__.ENOSUPPORT);
 		} else {
-			return __libc__.ftell(this.stream, where);
+			return __libc__.ftell(that.stream, where);
 		}
 	};
 
 	this.flush = function () {
-		if (this.pipe) {
+		if (that.pipe) {
 			return -(__libc__.ENOSUPPORT);
 		} else {
-			return __libc__.fflush(this.stream);
+			return __libc__.fflush(that.stream);
 		}
 	};
 };
 
-var Stream = that.Stream;
-
-Duktape.fin(Stream.prototype, function (obj, heapDestruct) {
+Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 	if (heapDestruct) {
 		__close(obj);
 	}
 
-	if (obj === Stream.prototype) {
+	if (obj === mod.Stream.prototype) {
         return;  // called for the prototype itself
     }
 
