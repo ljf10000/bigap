@@ -4,6 +4,10 @@ this.current    = __libc__.SEEK_CUR;
 this.begin      = __libc__.SEEK_SET;
 this.end        = __libc__.SEEK_END;
 
+sb = {
+	name: "sb"
+};
+
 this.Stream = function (filename, mode) {
 	var pipe        = arguments[2]?arguments[2]:false;
 
