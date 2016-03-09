@@ -1,7 +1,12 @@
 #!/bin/js
 
 print("stream 1");
-function Stream(filename, mode, pipe = false) {
+this.current    = __libc__.SEEK_CUR;
+this.begin      = __libc__.SEEK_SET;
+this.end        = __libc__.SEEK_END;
+
+print("stream 2");
+Stream = function (filename, mode, pipe = false) {
 	this.filename   = filename;
 	this.mode       = mode;
 	this.pipe       = pipe;
@@ -11,15 +16,15 @@ function Stream(filename, mode, pipe = false) {
 	} else {
 		this.stream = __libc__.popen(filename, mode);
 	}
-}
+};
 
-print("stream 2");
+print("stream 3");
 this.__ok = function () {
 	return typeof this.stream === 'pointer' && null !== this.stream
 };
 
-print("stream 3");
-this.__close = function () {
+print("stream 4");
+this.close = function () {
 	if (this.__ok()) {
 		if (this.pipe) {
 			__libc__.pclose(this.stream);
@@ -31,23 +36,18 @@ this.__close = function () {
 	}
 };
 
-print("stream 4");
+print("stream 5");
 Duktape.fin(Stream.prototype, function (obj, heapDestruct) {
 	if (heapDestruct) {
-		obj.__close();
+		obj.close();
 	}
 
 	if (obj === Socket.prototype) {
         return;  // called for the prototype itself
     }
 
-	obj.__close();
+	obj.close();
 });
-
-print("stream 5");
-this.current    = __libc__.SEEK_CUR;
-this.begin      = __libc__.SEEK_SET;
-this.end        = __libc__.SEEK_END;
 
 print("stream 6");
 this.read = function (buffer, size) {
