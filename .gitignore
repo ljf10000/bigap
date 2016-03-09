@@ -37,3 +37,4 @@
 
 #bin
 app/duktape/module/.idea
+app/duktape/module/js/.idea
