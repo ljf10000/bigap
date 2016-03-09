@@ -6,7 +6,7 @@ this.begin      = __libc__.SEEK_SET;
 this.end        = __libc__.SEEK_END;
 
 print("stream 2");
-this.Stream = function (filename, mode) {
+function Stream (filename, mode) {
 	var pipe        = arguments[2]?arguments[2]:false
 
 	this.filename   = filename;
@@ -18,7 +18,7 @@ this.Stream = function (filename, mode) {
 	} else {
 		this.stream = __libc__.popen(filename, mode);
 	}
-};
+}
 
 print("stream 3");
 this.__ok = function () {
@@ -44,7 +44,7 @@ Duktape.fin(Stream.prototype, function (obj, heapDestruct) {
 		obj.close();
 	}
 
-	if (obj === Socket.prototype) {
+	if (obj === Stream.prototype) {
         return;  // called for the prototype itself
     }
 
