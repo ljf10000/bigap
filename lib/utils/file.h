@@ -171,10 +171,7 @@ __os_fscan_file_handle
     else if (NULL==filename) {
         return os_assertV(mv2_go(-EINVAL2));
     }
-    else if (NULL==line_handle) {
-        return os_assertV(mv2_go(-EINVAL3));
-    }
-    
+
     stream = os_v_fopen("r", "%s/%s", path, filename);
     if (NULL==stream) {
         file_println("open %s/%s error:%d", path, filename, -errno);
@@ -185,50 +182,48 @@ __os_fscan_file_handle
     }
 
     if (file_handle) {
-        mv.v = file_handle(path, filename, line_handle);
-
-        goto error;
+        mv.v = (*file_handle)(path, filename, line_handle);
+    } else if (line_handle) {
+        while(!os_feof(stream)) {
+            line[0] = 0;
+            os_freadline(stream, line, OS_LINE_LEN);
+            
+            /*
+            * strim left/right blank
+            */
+            os_str_strim_both(line, NULL);
+            
+            /*
+            * replace blank("\t \r\n") to ' '
+            */
+            os_str_replace(line, NULL, ' ');
+            
+            /*
+            * reduce ' '
+            */
+            os_str_reduce(line, NULL);
+            
+            /*
+            * skip blank line
+            */
+            if (__is_blank_line(line)) {
+                continue;
+            }
+            
+            /*
+            * skip notes line
+            */
+            if (__is_notes_line_deft(line)) {
+                continue;
+            }
+            
+            mv.v = (*line_handle)(filename, line);
+            if (is_mv2_break(mv)) {
+                goto error;
+            }
+        }
     }
     
-    while(!os_feof(stream)) {
-        line[0] = 0;
-        os_freadline(stream, line, OS_LINE_LEN);
-        
-        /*
-        * strim left/right blank
-        */
-        os_str_strim_both(line, NULL);
-        
-        /*
-        * replace blank("\t \r\n") to ' '
-        */
-        os_str_replace(line, NULL, ' ');
-        
-        /*
-        * reduce ' '
-        */
-        os_str_reduce(line, NULL);
-        
-        /*
-        * skip blank line
-        */
-        if (__is_blank_line(line)) {
-            continue;
-        }
-        
-        /*
-        * skip notes line
-        */
-        if (__is_notes_line_deft(line)) {
-            continue;
-        }
-        
-        mv.v = (*line_handle)(filename, line);
-        if (is_mv2_break(mv)) {
-            goto error;
-        }
-    }
-
     mv.v = mv2_ok;
 error:
     os_fclose(stream);
