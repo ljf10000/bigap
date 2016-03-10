@@ -68,6 +68,8 @@ __auto_eval(duk_context * ctx)
         os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
 
         __eval(ctx, file);
+
+        return mv2_ok;
     }
     
     os_fscan_dir(path, true, filter, handle, NULL);
