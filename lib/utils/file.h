@@ -293,7 +293,7 @@ os_fscan_dir
 
                 os_sprintf(line, "%s/%s", path, filename);
                 
-                err = __os_fscan_dir(line, recur, file_filter, file_handle, line_handle);
+                err = os_fscan_dir(line, recur, file_filter, file_handle, line_handle);
                 if (err<0) {
                     goto error;
                 }
