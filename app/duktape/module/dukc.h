@@ -737,11 +737,12 @@ __eval(duk_context *ctx, char *filename)
     int err = 0;
     uint32_t size = 0;
 
+    debug_js("eval %s ...", filename);
     if (os_file_exist(filename)) {
         char *buf = __readfileall(filename, &size, false);
         if (buf) {
             duk_eval_lstring_noresult(ctx, buf, size);
-            debug_js("eval %s", filename);
+            debug_js("eval %s OK.", filename);
             
             os_free(buf);
         } else {
