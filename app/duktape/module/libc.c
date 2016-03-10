@@ -590,16 +590,15 @@ duke_freadEx(duk_context *ctx)
 
     void *buf = duk_push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
-        os_println("duk_push_dynamic_buffer NULL");
         return duk_push_undefined(ctx), 1;
     }
     
     int c = fread(buf, 1, size, f);
-    if (c!=size) {
-        os_println("duk_push_dynamic_buffer c=%d size=%d", c, size);
-        
-        duk_pop(ctx); // pop buf
+    if (0==c) {
+        duk_pop(ctx);
         duk_push_undefined(ctx);
+    } else if (c>0 && c<size) {
+        duk_resize_buffer(ctx, 1, c);
     }
     
 	return 1;
