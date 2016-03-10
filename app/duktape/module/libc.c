@@ -554,6 +554,29 @@ error:
 	return duk_push_int(ctx, err), 1;
 }
 
+LIB_PARAM(freadEx, 2);
+static duk_ret_t
+duke_freadEx(duk_context *ctx)
+{
+    FILE *f     = (FILE *)duk_require_pointer(ctx, 0);
+    int size    = duk_require_int(ctx, 1);
+
+    void *buf = duk_push_dynamic_buffer(ctx, size);
+    if (NULL==buf) {
+        return duk_push_undefined(ctx), 1;
+    }
+    
+    int c = fread(buf, 1, size, f);
+    if (0==c) {
+        duk_pop(ctx);
+        duk_push_undefined(ctx);
+    } else if (c>0 && c<size) {
+        duk_resize_buffer(ctx, 2, c);
+    }
+    
+	return 1;
+}
+
 LIB_PARAM(fwrite, 4);
 static duk_ret_t
 duke_fwrite(duk_context *ctx)
@@ -579,29 +602,6 @@ duke_fwrite(duk_context *ctx)
 
 error:
     return duk_push_uint(ctx, err), 1;
-}
-
-LIB_PARAM(freadEx, 2);
-static duk_ret_t
-duke_freadEx(duk_context *ctx)
-{
-    FILE *f     = (FILE *)duk_require_pointer(ctx, 0);
-    int size    = duk_require_int(ctx, 1);
-
-    void *buf = duk_push_dynamic_buffer(ctx, size);
-    if (NULL==buf) {
-        return duk_push_undefined(ctx), 1;
-    }
-    
-    int c = fread(buf, 1, size, f);
-    if (0==c) {
-        duk_pop(ctx);
-        duk_push_undefined(ctx);
-    } else if (c>0 && c<size) {
-        duk_resize_buffer(ctx, 2, c);
-    }
-    
-	return 1;
 }
 
 LIB_PARAM(feof, 1);
