@@ -23,11 +23,8 @@ __eval(duk_context *ctx, char *filename)
 
     os_println("eval %s ...", filename);
     if (os_file_exist(filename)) {
-        os_println("eval %s 1 ...", filename);
         char *buf = __readfileall(filename, &size, false);
-        os_println("eval %s 2 ...", filename);
         if (buf) {
-            os_println("eval %s = \n%s ...", filename, buf);
             duk_eval_lstring_noresult(ctx, buf, size);
             os_println("eval %s OK.", filename);
             

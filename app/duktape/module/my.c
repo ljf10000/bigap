@@ -22,6 +22,22 @@ __set___info_t(duk_context *ctx, duk_idx_t idx, void *obj)
     return 0;
 }
 
+LIB_PARAM(debug, 2);
+static duk_ret_t
+duke_debug(duk_context *ctx)
+{
+    if (__ak_debug_js) {
+        uint32_t level = duk_require_uint(ctx, 0);
+        if (__is_js_debug(level)) {
+            const char *string = duk_require_string(ctx, 1);
+
+            debug_js(string);
+        }
+    }
+
+    return 0;
+}
+
 LIB_PARAM(pipe, 1);
 static duk_ret_t
 duke_pipe(duk_context * ctx)
@@ -153,22 +169,6 @@ error:
     os_free(line);
     
     return duk_push_int(ctx, err), 1;
-}
-
-LIB_PARAM(debugger, 2);
-static duk_ret_t
-duke_debugger(duk_context *ctx)
-{
-    if (__ak_debug_js) {
-        uint32_t level = duk_require_uint(ctx, 0);
-        if (__is_js_debug(level)) {
-            const char *string = duk_require_string(ctx, 1);
-
-            debug_js(string);
-        }
-    }
-    
-    return 0;
 }
 
 enum {
@@ -672,12 +672,12 @@ arg_register(duk_context *ctx)
 }
 
 static const dukc_func_entry_t my_func[] = {
+    LIB_FUNC(debug),
     LIB_FUNC(pipe),
     LIB_FUNC(shell),
     LIB_FUNC(readtxt),
     LIB_FUNC(readbin),
     LIB_FUNC(readline),
-    LIB_FUNC(debugger),
     LIB_FUNC(loop),
     
     LIB_FUNC_END
