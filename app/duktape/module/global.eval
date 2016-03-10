@@ -4,10 +4,6 @@ function printo (name, obj) {
 	}
 }
 
-function __debugger(level) {
-	var left = Array.prototype.slice.call(arguments).slice(1)
-	
-	print("debugger level=", level, left.toString())
-	
-	__my__.debugger(level, left.toString());
+function debugger(level) {
+	__my__.debugger(level, Array.prototype.slice.call(arguments).slice(1).toString());
 }
