@@ -1,0 +1,3 @@
+function printsb() {
+	print("sb")
+}
