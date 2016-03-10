@@ -1008,16 +1008,17 @@ __benv_clean_cookie(void)
 }
 
 enum {
-    __benvt_mark_ptest_control= 0,
-    __benv_mark_ptest_result  = 1,
+    __benvt_mark_ptest_control  = 0,
+    __benv_mark_ptest_result    = 1,
 
-    __benv_mark_private       = 2,
-    __benv_mark_debug         = __benv_mark_private,
-    __benv_mark_uptimes       = 3,
-    __benv_mark_runtime       = 4,
-    __benv_mark_cid_mid       = 5,
-    __benv_mark_cid_psn       = 6,
-    __benv_mark_noauth        = 7,
+    __benv_mark_private         = 2,
+    __benv_mark_debug           = __benv_mark_private,
+    __benv_mark_uptimes         = 3,
+    __benv_mark_runtime         = 4,
+    __benv_mark_cid_mid         = 5,
+    __benv_mark_cid_psn         = 6,
+    __benv_mark_noauth          = 7,
+    __benv_mark_jsdebug         = 8,
 
     __benv_mark_end
 };
@@ -1787,19 +1788,18 @@ benv_mark_add(int idx, int value)
     __BENV_MARK_OPS("rt",           __benv_mark_runtime,        NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("mid",          __benv_mark_cid_mid,        NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("psn",          __benv_mark_cid_psn,        NULL, NULL,             __benv_show_number), \
-    __BENV_MARK_OPS("na",           __benv_mark_noauth,         NULL, NULL,             __benv_show_number)  \
+    __BENV_MARK_OPS("na",           __benv_mark_noauth,         NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("js",           __benv_mark_jsdebug,        NULL, NULL,             __benv_show_number)  \
     /* end */
 
 #ifdef __BOOT__
 #define BENV_MARK_OPS_IDX       \
-    __BENV_MARK_OPS_IDX(8),     \
     __BENV_MARK_OPS_IDX(9)      \
     /* end */
 
 #elif defined(__APP__)
 
 #define BENV_MARK_OPS_IDX       \
-    __BENV_MARK_OPS_IDX(8),     \
     __BENV_MARK_OPS_IDX(9),     \
                                 \
     __BENV_MARK_OPS_IDX(10),    \

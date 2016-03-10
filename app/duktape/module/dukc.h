@@ -142,6 +142,17 @@ typedef void *duk_buffer_t;
 typedef const char *duk_string_t;
 typedef duk_double_t duk_number_t;
 
+typedef struct {
+    int type;
+
+    union {
+        bool b;
+        double n;
+        char *s;
+        void *p;
+    } u;
+} duk_val_t;
+
 #define duk_get_argc(_ctx)              duk_get_top(_ctx)
 #define duk_get_max_idx(_ctx)           duk_get_top_index(_ctx)
 

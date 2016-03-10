@@ -25,8 +25,16 @@
 #define AK_DEBUG_NAME           "debug"
 #endif
 
+#ifndef JS_DEBUG_NAME
+#define JS_DEBUG_NAME           "jsdebug"
+#endif
+
 #ifndef ENV_AK_DEBUG
 #define ENV_AK_DEBUG            "__AK_DEBUG__"
+#endif
+
+#ifndef ENV_JS_DEBUG
+#define ENV_JS_DEBUG            "__JS_DEBUG__"
 #endif
 
 enum {
@@ -46,20 +54,29 @@ enum {
 typedef uint32_t akid_t;
 
 #if defined(__BOOT__)
-#    define DECLARE_FAKE_DEBUGGER    extern akid_t *__THIS_DEBUG
-#    define DECLARE_REAL_DEBUGGER    akid_t *__THIS_DEBUG
-#    define DECLARE_DEBUGGER         DECLARE_REAL_DEBUGGER;
+#    define DECLARE_FAKE_DEBUGGER       extern akid_t *__THIS_DEBUG
+#    define DECLARE_REAL_DEBUGGER       akid_t *__THIS_DEBUG
+#    define DECLARE_DEBUGGER            DECLARE_REAL_DEBUGGER;
+
+#    define DECLARE_FAKE_JSDEBUGGER     extern akid_t *__THIS_JSDEBUG
+#    define DECLARE_REAL_JSDEBUGGER     akid_t *__THIS_JSDEBUG
+#    define DECLARE_JSDEBUGGER          DECLARE_REAL_JSDEBUGGER;
 #else
-#    define DECLARE_FAKE_DEBUGGER    extern akid_t __THIS_DEBUG
-#    define DECLARE_REAL_DEBUGGER    akid_t __THIS_DEBUG
+#    define DECLARE_FAKE_DEBUGGER       extern akid_t __THIS_DEBUG
+#    define DECLARE_REAL_DEBUGGER       akid_t __THIS_DEBUG
+#    define DECLARE_FAKE_JSDEBUGGER     extern akid_t __THIS_JSDEBUG
+#    define DECLARE_REAL_JSDEBUGGER     akid_t __THIS_JSDEBUG
 #    ifdef __BUSYBOX__
-#        define DECLARE_DEBUGGER     DECLARE_FAKE_DEBUGGER
+#        define DECLARE_DEBUGGER        DECLARE_FAKE_DEBUGGER
+#        define DECLARE_JSDEBUGGER      DECLARE_FAKE_JSDEBUGGER
 #    else
-#        define DECLARE_DEBUGGER     DECLARE_REAL_DEBUGGER
+#        define DECLARE_DEBUGGER        DECLARE_REAL_DEBUGGER
+#        define DECLARE_JSDEBUGGER      DECLARE_REAL_JSDEBUGGER
 #    endif
 #endif
 
 DECLARE_FAKE_DEBUGGER;
+DECLARE_FAKE_JSDEBUGGER;
 /******************************************************************************/
 #define __AK_DEBUG_LIST(_)                  \
     _(____ak_debug_ok,      0, "ok"),       \
@@ -124,8 +141,16 @@ enum {
 #define __ak_debug_default          (__ak_debug_error | __ak_debug_bug)
 #endif
 
+#ifndef __js_debug_default
+#define __js_debug_default          0
+#endif
+
 #ifndef __ak_debug_string_default
 #define __ak_debug_string_default   "error|bug"
+#endif
+
+#ifndef __js_debug_string_default
+#define __js_debug_string_default   "0"
 #endif
 
 static inline uint32_t
@@ -146,19 +171,26 @@ __ak_debug_getname(uint32_t level)
 
 #if defined(__BOOT__)
 #   define __ak_debug       (__THIS_DEBUG?(*__THIS_DEBUG):__ak_debug_default)
+#   define __js_debug       (__THIS_JSDEBUG?(*__THIS_JSDEBUG):__js_debug_default)
 #elif defined(__APP__)
 #   ifdef __DEAMON__
 #       define __ak_debug   ak_get(__THIS_DEBUG, __ak_debug_default)
+#       define __js_debug   ak_get(__THIS_JSDEBUG, __js_debug_default)
 #   else
 #       define __ak_debug   __THIS_DEBUG
+#       define __js_debug   __THIS_JSDEBUG
 #   endif
 #elif defined(__KERNEL__)
 #   define __ak_debug       __THIS_DEBUG
+#   define __js_debug       __THIS_JSDEBUG
 #else
 #   error "invalid __THIS_DEBUG"
+#   error "invalid __THIS_JSDEBUG"
 #endif
 
 #define __is_ak_debug(_level)   (os_hasflag(__ak_debug, _level))
+#define __is_js_debug(_level)   (os_hasflag(__js_debug, _level))
+
 #define __is_ak_debug_ok        __is_ak_debug(__ak_debug_ok)
 #define __is_ak_debug_bug       __is_ak_debug(__ak_debug_bug)
 #define __is_ak_debug_error     __is_ak_debug(__ak_debug_error)
@@ -723,11 +755,15 @@ static inline int
 ak_init(void)
 {
 #if defined(__APP__) && !defined(__DEAMON__)
-    char *value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
+    char *value;
     
+    value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
     __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
-
     ak_println("__THIS_DEBUG=%s==>0x%x", value, __THIS_DEBUG);
+
+    value = env_gets(ENV_JS_DEBUG, __js_debug_string_default);
+    __THIS_JSDEBUG = __ak_get_value(JS_DEBUG_NAME, value);
+    ak_println("__THIS_JSDEBUG=%s==>0x%x", value, __THIS_JSDEBUG);
 #endif
 
     return 0;

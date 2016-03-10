@@ -181,6 +181,7 @@
     DECLARE_TIMER;      \
     DECLARE_CLI_BUFFER; \
     DECLARE_DEBUGGER;   \
+    DECLARE_JSDEBUGGER; \
     OS_EXT_INITER /* last */ \
     /* end */
 
@@ -193,6 +194,7 @@
     DECLARE_REAL_TIMER;         \
     DECLARE_REAL_CLI_BUFFER;    \
     DECLARE_REAL_DEBUGGER;      \
+    DECLARE_REAL_JSDEBUGGER;    \
     OS_EXT_REAL_INITER /* last */ \
     /* end */
 

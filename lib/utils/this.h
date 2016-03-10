@@ -43,6 +43,10 @@
 #define __THIS_DEBUG            __SYMBOL_TO_VAR(__THIS_APP, _debugger)
 #endif
 
+#ifndef __THIS_JSDEBUG
+#define __THIS_JSDEBUG          __SYMBOL_TO_VAR(__THIS_APP, _js_debugger)
+#endif
+
 #ifndef __THIS_LOCKFD
 #define __THIS_LOCKFD           __SYMBOL_TO_VAR(__THIS_APP, _lock_fd)
 #endif

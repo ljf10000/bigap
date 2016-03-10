@@ -11,7 +11,7 @@
 
 LIB_PARAM(BufferToString, DUK_VARARGS);
 static duk_ret_t
-duke_BufferToString(duk_context * ctx)
+duke_BufferToString(duk_context *ctx)
 {
     int i, size = 0, offset = 0;
     
@@ -41,7 +41,7 @@ duke_BufferToString(duk_context * ctx)
 
 LIB_PARAM(StringToBuffer, DUK_VARARGS);
 static duk_ret_t
-duke_StringToBuffer(duk_context * ctx)
+duke_StringToBuffer(duk_context *ctx)
 {
     int i, size = 0, offset = 0;
     
@@ -68,9 +68,26 @@ duke_StringToBuffer(duk_context * ctx)
     return 1;
 }
 
+LIB_PARAM(debuger, 2);
+static duk_ret_t
+duke_debugger(duk_context *ctx)
+{
+    if (__ak_debug_js) {
+        uint32_t level = duk_require_uint(ctx, 0);
+        if (__is_js_debug(level)) {
+            char *string = duk_require_string(ctx, 1);
+
+            debug_js(string);
+        }
+    }
+    
+    return 0;
+}
+
 static const dukc_func_entry_t global_func[] = {
     LIB_FUNC(BufferToString),
     LIB_FUNC(StringToBuffer),
+    LIB_FUNC(debuger),
 
     LIB_FUNC_END
 };
