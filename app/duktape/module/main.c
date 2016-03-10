@@ -56,7 +56,7 @@ __auto_eval(duk_context * ctx)
         /*
         * filename as xxx.js
         */
-        return false== ('.'==filename[len-3] &&
+        return false==( '.'==filename[len-3] &&
                         'j'==filename[len-2] &&
                         's'==filename[len-1]);
     }
