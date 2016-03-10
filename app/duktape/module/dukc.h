@@ -708,7 +708,7 @@ __readfileall(const char *filename, uint32_t *filesize, bool bin)
         goto error;
     }
 
-    char *buf = (char *)os_malloc(pad+size);
+    buf = (char *)os_malloc(pad+size);
     if (NULL==buf) {
         goto error;
     }
