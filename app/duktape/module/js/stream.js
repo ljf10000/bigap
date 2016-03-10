@@ -51,11 +51,7 @@ mod.Stream = function (filename, mode) {
 	that.readEx = function (size) {
 		return __libc__.freadEx(that.stream, size);
 	};
-
-	that.readAll = function (size) {
-		return __libc__.freadEx(that.stream, size);
-	};
-
+	
 	that.write = function (buffer, size) {
 		if (that.pipe) {
 			return -(__libc__.ENOSUPPORT);
