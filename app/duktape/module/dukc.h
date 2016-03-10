@@ -698,7 +698,7 @@ error:
 }
 
 static inline char *
-__readfileall(const char *filename, uint32_t *filesize, bool bin)
+__readfileall(char *filename, uint32_t *filesize, bool bin)
 {
     char *buf = NULL;
     int pad = bin?0:1;
@@ -732,7 +732,7 @@ error:
 }
 
 static int
-__eval(duk_context *ctx, const char *filename)
+__eval(duk_context *ctx, char *filename)
 {
     int err = 0;
     uint32_t size = 0;

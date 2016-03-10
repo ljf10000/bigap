@@ -58,7 +58,7 @@ static duk_ret_t
 duke_readtxt(duk_context * ctx)
 {
     uint32_t size = 0;
-    const char *filename = duk_require_string(ctx, 0);
+    char *filename = (char *)duk_require_string(ctx, 0);
     
     char *buf = __readfileall(filename, &size, false);
     if (NULL==buf) {
