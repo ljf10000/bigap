@@ -741,7 +741,8 @@ __eval(duk_context *ctx, const char *filename)
         char *buf = __readfileall(filename, &size, false);
         if (buf) {
             duk_eval_lstring_noresult(ctx, buf, size);
-
+            debug_js("eval %s", filename);
+            
             os_free(buf);
         } else {
             err = -EIO;
