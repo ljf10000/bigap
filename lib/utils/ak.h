@@ -618,7 +618,7 @@ __ak_load(void)
         path = AK_PATH_DEFT;
     }
     
-    ret = os_fscan_dir(path, false, __ak_file_filter, __ak_load_line);
+    ret = os_fscan_dir(path, false, __ak_file_filter, NULL, __ak_load_line);
     if (ret<0) {
         ak_println("load(%s) error%d", path, ret);
         

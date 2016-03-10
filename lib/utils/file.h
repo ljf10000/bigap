@@ -157,6 +157,7 @@ __os_fscan_file_handle
 (
     char *path,
     char *filename,
+    os_fscan_file_handle_f *file_handle,
     os_fscan_line_handle_f *line_handle
 )
 {
@@ -180,6 +181,12 @@ __os_fscan_file_handle
         
         mv2_error(mv) = -errno;
         
+        goto error;
+    }
+
+    if (file_handle) {
+        mv.v = file_handle(path, filename, line_handle);
+
         goto error;
     }
     
@@ -233,7 +240,7 @@ error:
 * @filefilter: if return true, ignore file
 */
 static inline int 
-__os_fscan_dir
+os_fscan_dir
 (
     char *path, 
     bool recur,
@@ -250,9 +257,6 @@ __os_fscan_dir
 
     if (NULL==path) {
         return os_assertV(-EINVAL1);
-    }
-    else if (NULL==file_handle) {
-        return os_assertV(-EINVAL2);
     }
 
     file_println("begin scan %s", path);
@@ -310,7 +314,7 @@ __os_fscan_dir
         /*
         * file handle
         */
-        mv.v = (*file_handle)(path, filename, line_handle);
+        mv.v = __os_fscan_file_handle(path, filename, file_handle, line_handle);
         if (is_mv2_break(mv)) {
             err = mv2_error(mv);
 
@@ -329,17 +333,6 @@ error:
     return err;
 }
 
-static inline int 
-os_fscan_dir
-(
-    char *path, 
-    bool recur,
-    os_fscan_file_filter_f *file_filter,
-    os_fscan_line_handle_f *line_handle
-)
-{
-    return __os_fscan_dir(path, recur, file_filter, __os_fscan_file_handle, line_handle);
-}
 /******************************************************************************/
 #define ____os_xgetv(_prefix, _stream, _vfmt, _pv) ({ \
     int __err = 0;          \

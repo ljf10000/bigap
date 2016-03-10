@@ -731,29 +731,7 @@ error:
     return NULL;
 }
 
-static int
-__eval(duk_context *ctx, char *filename)
-{
-    int err = 0;
-    uint32_t size = 0;
-
-    debug_js("eval %s ...", filename);
-    if (os_file_exist(filename)) {
-        char *buf = __readfileall(filename, &size, false);
-        if (buf) {
-            duk_eval_lstring_noresult(ctx, buf, size);
-            debug_js("eval %s OK.", filename);
-            
-            os_free(buf);
-        } else {
-            err = -EIO;
-        }
-    }
-    
-    return err;
-}
-
-#define duk_code(_mod)     DIR_SELF "/module/" _mod ".eval"
+#define duk_code_pre(_mod)  DIR_SELF "/module/pre/" _mod ".js"
 
 extern duk_context *__ctx;
 extern int __argc;

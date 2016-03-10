@@ -10,7 +10,6 @@
 #include "dukc.h"
 
 
-
 LIB_PARAM(modSearch, DUK_VARARGS);
 static duk_ret_t
 duke_modSearch(duk_context * ctx)
