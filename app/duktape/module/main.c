@@ -11,6 +11,19 @@
 
 OS_INITER;
 
+#define duk_CODE                                                                \
+"function printo (name, obj) {"                                         __crlf  \
+"    for (var p in obj) {"                                              __crlf  \
+"            print(name + "." + p + " = " + obj[p]);"                   __crlf  \
+"    }"                                                                 __crlf  \
+"}"                                                                     __crlf  \
+                                                                                \
+"function debug(level) {"                                               __crlf  \
+"    var newa = Array.prototype.slice.call(arguments);"                 __crlf  \
+"    __my__.debug(level, newa.slice(1).toString());"                    __crlf  \
+"}"                                                                     __crlf  \
+/* end */
+
 duk_context *__ctx;
 int __argc;
 char **__argv;

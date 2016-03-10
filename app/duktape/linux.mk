@@ -3,8 +3,6 @@
 #
 DIR_SELF=$(shell pwd)
 
-duk_CODE="$(cat $(DIR_SELF)/module/global.js)"
-
 #
 #changed DIR_ROOT
 #
@@ -36,8 +34,6 @@ CFLAGS+= -std=gnu99 \
 	-Os -fomit-frame-pointer \
 	-fstrict-aliasing \
 	-DDUK_OPT_FORCE_ALIGN=4 \
-	-DDduk_CODE2=$(duk_CODE) \
-	-Dduk_CODE=\"$(duk_CODE)\" \
 	#end
 
 #
