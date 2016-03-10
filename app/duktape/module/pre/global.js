@@ -4,7 +4,7 @@ function printo (name, obj) {
 	}
 }
 
-function debug(level) {
+function __debug(level) {
 	var newa = Array.prototype.slice.call(arguments);
 	
 	__my__.debugger(level, newa.slice(1).toString());
