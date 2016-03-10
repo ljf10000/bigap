@@ -51,7 +51,7 @@ mod.Stream = function (filename, mode) {
 	that.readEx = function (size) {
 		return __libc__.freadEx(that.stream, size);
 	};
-	
+
 	that.write = function (buffer, size) {
 		if (that.pipe) {
 			return -(__libc__.ENOSUPPORT);
@@ -93,7 +93,6 @@ mod.Stream = function (filename, mode) {
 	};
 };
 
-/*
 Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 	if (heapDestruct) {
 		__close(obj);
@@ -105,4 +104,3 @@ Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 
 	__close(obj);
 });
-*/
