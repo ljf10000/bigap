@@ -51,6 +51,14 @@ __eval(duk_context *ctx, char *filename)
 }
 
 static int
+__pre_eval(duk_context * ctx)
+{
+    debug_js("pre eval ...");
+    duk_eval_lstring_noresult(ctx, duk_CODE, sizeof(duk_CODE));
+    debug_js("pre eval OK.");
+}
+
+static int
 __auto_eval(duk_context * ctx)
 {
     int err = 0;
@@ -109,7 +117,7 @@ __main(int argc, char *argv[])
     libc_register(ctx);
     libcurl_register(ctx);
 
-    duk_eval_lstring_noresult(ctx, duk_CODE, sizeof(duk_CODE));
+    __pre_eval(ctx);
     __auto_eval(ctx);
     
     duk_peval_file(ctx, argv[1]);
