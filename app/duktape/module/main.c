@@ -56,9 +56,9 @@ __auto_eval(duk_context * ctx)
         /*
         * filename as xxx.js
         */
-        return  '.'==filename[len-3] &&
-                'j'==filename[len-2] &&
-                's'==filename[len-1];
+        return false==('.'==filename[len-3] &&
+                        'j'==filename[len-2] &&
+                        's'==filename[len-1]);
     }
 
     mv_t handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
