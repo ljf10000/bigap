@@ -27,7 +27,7 @@ __eval(duk_context *ctx, char *filename)
         char *buf = __readfileall(filename, &size, false);
         os_println("eval %s 2 ...", filename);
         if (buf) {
-            os_println("eval %s 3 ...", filename);
+            os_println("eval %s = \n%s ...", filename, buf);
             duk_eval_lstring_noresult(ctx, buf, size);
             os_println("eval %s OK.", filename);
             
