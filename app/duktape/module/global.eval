@@ -9,5 +9,5 @@ function __debugger(level) {
 	
 	print("debugger level=", level, left.toString())
 	
-//	__my__.debugger(level, left.toString());
+	__my__.debugger(level, left.toString());
 }
