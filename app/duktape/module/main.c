@@ -53,8 +53,11 @@ __eval(duk_context *ctx, char *filename)
 static int
 __pre_eval(duk_context * ctx)
 {
+    char *code = duk_CODE;
+    uint32_t size = sizeof(duk_CODE) - 1;
+    
     debug_js("pre eval ...");
-    duk_eval_lstring_noresult(ctx, duk_CODE, sizeof(duk_CODE));
+    duk_eval_lstring_noresult(ctx, code, size);
     debug_js("pre eval OK.");
 }
 
