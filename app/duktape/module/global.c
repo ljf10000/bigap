@@ -68,7 +68,7 @@ duke_StringToBuffer(duk_context *ctx)
     return 1;
 }
 
-LIB_PARAM(debuger, 2);
+LIB_PARAM(debugger, 2);
 static duk_ret_t
 duke_debugger(duk_context *ctx)
 {
