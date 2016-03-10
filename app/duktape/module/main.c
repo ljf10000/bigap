@@ -14,7 +14,7 @@ OS_INITER;
 #define duk_CODE                                                                \
 "function printo (name, obj) {"                                         __crlf  \
 "    for (var p in obj) {"                                              __crlf  \
-"            print(name + "." + p + " = " + obj[p]);"                   __crlf  \
+"            print(name + '.' + p + ' = ' + obj[p]);"                   __crlf  \
 "    }"                                                                 __crlf  \
 "}"                                                                     __crlf  \
                                                                                 \
@@ -50,7 +50,7 @@ __eval(duk_context *ctx, char *filename)
     return err;
 }
 
-static int
+static void
 __pre_eval(duk_context * ctx)
 {
     char *code = duk_CODE;
@@ -61,10 +61,9 @@ __pre_eval(duk_context * ctx)
     debug_js("pre eval OK.");
 }
 
-static int
+static void
 __auto_eval(duk_context * ctx)
 {
-    int err = 0;
     char path[1+OS_LINE_LEN] = {0};
     
     /*
@@ -99,8 +98,6 @@ __auto_eval(duk_context * ctx)
     }
 
     os_fscan_dir(path, true, filter, handle, NULL);
-    
-    return err;
 }
 
 static int

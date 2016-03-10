@@ -1,6 +1,6 @@
 function printo (name, obj) {
 	for (var p in obj) {
-	        print(name + "." + p + " = " + obj[p]);
+	        print(name + '.' + p + ' = ' + obj[p]);
 	}
 }
 
