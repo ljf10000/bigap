@@ -21,12 +21,12 @@ __eval(duk_context *ctx, char *filename)
     int err = 0;
     uint32_t size = 0;
 
-    debug_js("eval %s ...", filename);
+    os_println("eval %s ...", filename);
     if (os_file_exist(filename)) {
         char *buf = __readfileall(filename, &size, false);
         if (buf) {
             duk_eval_lstring_noresult(ctx, buf, size);
-            debug_js("eval %s OK.", filename);
+            os_println("eval %s OK.", filename);
             
             os_free(buf);
         } else {
@@ -63,6 +63,8 @@ __auto_eval(duk_context * ctx)
 
     mv_t handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
     {
+        (void)line_handle;
+        
         char file[1+OS_LINE_LEN] = {0};
 
         os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
