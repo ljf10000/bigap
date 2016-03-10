@@ -103,4 +103,6 @@ Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
     }
 
 	__close(obj);
+
+	print("stream closed");
 });
