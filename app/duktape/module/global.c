@@ -75,7 +75,7 @@ duke_debugger(duk_context *ctx)
     if (__ak_debug_js) {
         uint32_t level = duk_require_uint(ctx, 0);
         if (__is_js_debug(level)) {
-            char *string = duk_require_string(ctx, 1);
+            const char *string = duk_require_string(ctx, 1);
 
             debug_js(string);
         }
@@ -87,7 +87,7 @@ duke_debugger(duk_context *ctx)
 static const dukc_func_entry_t global_func[] = {
     LIB_FUNC(BufferToString),
     LIB_FUNC(StringToBuffer),
-    LIB_FUNC(debuger),
+    LIB_FUNC(debugger),
 
     LIB_FUNC_END
 };
