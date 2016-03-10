@@ -598,7 +598,7 @@ duke_freadEx(duk_context *ctx)
         duk_pop(ctx);
         duk_push_undefined(ctx);
     } else if (c>0 && c<size) {
-        duk_resize_buffer(ctx, 1, c);
+        duk_resize_buffer(ctx, 2, c);
     }
     
 	return 1;
