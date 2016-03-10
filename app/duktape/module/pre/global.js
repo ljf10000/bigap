@@ -8,5 +8,5 @@ function __debug(level) {
 	var newa = Array.prototype.slice.call(arguments);
 	print("__debug", newa);
 	
-	__my__.debugger(level, newa.slice(1).toString());
+	__my__.debug(level, newa.slice(1).toString());
 }
