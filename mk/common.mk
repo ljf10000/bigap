@@ -149,11 +149,14 @@ LIB_LDFLAGS=-shared -Wl,-Map=lib$(TARGET_NAME).map -Wl,-soname,$(SONAME)
 
 AOBJS=$(OBJS) $(TOBJS)
 
-__CFLAGS+=	-DAK_PATH=\"$(AK_PATH)\"
+__CFLAGS+=	-DAK_PATH=\"$(AK_PATH)\" \
+		-DDIR_SELF=\"$(DIR_SELF)\" \
+		#end
 EXE_CFLAGS=	-DAPP_TYPE_EXE
 TEST_CFLAGS=	-DAPP_TYPE_EXE
 LIB_CFLAGS=	-fPIC -ljson-c \
-		-DAPP_TYPE_LIB
+		-DAPP_TYPE_LIB \
+		#end
 
 ifeq (exe,$(TARGET_TYPE))
 	FILENO_NAME=$(TARGET_NAME)

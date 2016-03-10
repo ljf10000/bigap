@@ -34,7 +34,6 @@ CFLAGS+= -std=gnu99 \
 	-Os -fomit-frame-pointer \
 	-fstrict-aliasing \
 	-DDUK_OPT_FORCE_ALIGN=4 \
-	-DDIR_SELF=\"$(DIR_SELF)\" \
 	#end
 
 #
