@@ -7,5 +7,5 @@ function printo (name, obj) {
 function __debugger(level) {
 	print("debugger level=", level, arguments.slice(1).toString())
 	
-	__my__.debugger(level, arguments.slice(1).toString());
+//	__my__.debugger(level, arguments.slice(1).toString());
 }
