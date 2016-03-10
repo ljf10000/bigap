@@ -51,7 +51,6 @@ mod.Stream = function (filename, mode) {
 		return __libc__.freadEx(that.stream, size);
 	};
 
-/*
 	that.write = function (buffer, size) {
 		if (that.pipe) {
 			return -(__libc__.ENOSUPPORT);
@@ -91,7 +90,6 @@ mod.Stream = function (filename, mode) {
 			return __libc__.fflush(that.stream);
 		}
 	};
-*/
 };
 
 /*
