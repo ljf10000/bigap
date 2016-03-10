@@ -34,7 +34,7 @@ mod.Stream = function (filename, mode) {
 	} else {
 		that.stream = __libc__.fopen(filename, mode);
 	}
-/*
+
 	that.__ok = function () {
 		return __ok(that);
 	};
@@ -51,6 +51,7 @@ mod.Stream = function (filename, mode) {
 		return __libc__.freadEx(that.stream, size);
 	};
 
+/*
 	that.write = function (buffer, size) {
 		if (that.pipe) {
 			return -(__libc__.ENOSUPPORT);
