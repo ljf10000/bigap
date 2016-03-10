@@ -68,9 +68,9 @@ duke_StringToBuffer(duk_context *ctx)
     return 1;
 }
 
-LIB_PARAM(debugger, 2);
+LIB_PARAM(__debugger, 2);
 static duk_ret_t
-duke_debugger(duk_context *ctx)
+duke___debugger(duk_context *ctx)
 {
     if (__ak_debug_js) {
         uint32_t level = duk_require_uint(ctx, 0);
@@ -87,7 +87,7 @@ duke_debugger(duk_context *ctx)
 static const dukc_func_entry_t global_func[] = {
     LIB_FUNC(BufferToString),
     LIB_FUNC(StringToBuffer),
-    LIB_FUNC(debugger),
+    LIB_FUNC(__debugger),
 
     LIB_FUNC_END
 };
