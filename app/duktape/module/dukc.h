@@ -675,15 +675,92 @@ __obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *o
 #define __obj_obj_set(_ctx, _idx, _get, _obj, _args...) \
     __obj_obj_op(_ctx, true, _idx, _get, _obj, ##_args)
 
+static inline int
+__readfile(char *filename, char *buf, int size)
+{
+    FILE *f = NULL;
+    int err = 0;
+
+    f = os_fopen(filename, "r");
+    if (NULL==f) {
+        err = -errno; goto error;
+    }
+
+    int len = os_fread(f, buf, size);
+    if (size!=len) {
+        err = -errno; goto error;
+    }
+
+error:
+    os_fclose(f);
+
+    return err;
+}
+
+static inline char *
+__readfileall(const char *filename, uint32_t *filesize, bool bin)
+{
+    char *buf = NULL;
+    int pad = bin?0:1;
+    
+    uint32_t size = os_fsize(filename);
+    if (size<0) {
+        goto error;
+    }
+
+    char *buf = (char *)os_malloc(pad+size);
+    if (NULL==buf) {
+        goto error;
+    }
+    
+    int err = __readfile(filename, buf, size);
+    if (err<0) {
+        goto error;
+    }
+
+    if (false==bin) {
+        buf[size] = 0;
+    }
+
+    *filesize = size;
+    
+    return buf;
+error:
+    os_free(buf);
+
+    return NULL;
+}
+
+static int
+__eval(duk_context *ctx, const char *filename)
+{
+    int err = 0;
+    uint32_t size = 0;
+
+    if (os_file_exist(filename)) {
+        char *buf = __readfileall(filename, &size, false);
+        if (buf) {
+            duk_eval_lstring_noresult(ctx, buf, size);
+
+            os_free(buf);
+        } else {
+            err = -EIO;
+        }
+    }
+    
+    return err;
+}
+
+#define duk_code(_mod)     DIR_SELF "/module/" _mod ".eval"
+
 extern duk_context *__ctx;
 extern int __argc;
 extern char **__argv;
 
 extern int duktape_register(duk_context *ctx);
 extern int global_register(duk_context *ctx);
-extern int my_register(duk_context *ctx, int argc, char *argv[]);
+extern int my_register(duk_context *ctx);
 extern int libc_register(duk_context *ctx);
-
 #if duk_LIBCURL
 extern int libcurl_register(duk_context *ctx);
 #endif

@@ -28,9 +28,15 @@ __main(int argc, char *argv[])
     
     global_register(ctx);
     duktape_register(ctx);
-    my_register(ctx, argc, argv);
+    my_register(ctx);
     libc_register(ctx);
     libcurl_register(ctx);
+
+    __eval(ctx, duk_code("global"));
+    __eval(ctx, duk_code("duk"));
+    __eval(ctx, duk_code("my"));
+    __eval(ctx, duk_code("libc"));
+    __eval(ctx, duk_code("libcurl"));
     
     duk_peval_file(ctx, argv[1]);
     duk_pop(ctx);

@@ -1,0 +1,9 @@
+function printo (name, obj) {
+	for (var p in obj) {
+	        print(name + "." + p + " = " + obj[p]);
+	}
+}
+
+function __debugger(level) {
+	__my__.debugger(level, arguments.slice(1).toString());
+}

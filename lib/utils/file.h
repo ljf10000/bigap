@@ -537,7 +537,7 @@ os_fscan_dir
 /*
 * get file size by full filename(include path)
 */
-static inline int
+static inline uint32_t
 os_fsize(char *filename)
 {
     struct stat st;

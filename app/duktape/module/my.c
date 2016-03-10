@@ -53,53 +53,22 @@ duke_shell(duk_context * ctx)
 	return duk_push_int(ctx, err), 1;
 }
 
-static int
-__readfile(char *filename, char *buf, int size)
-{
-    FILE *f = NULL;
-    int err = 0;
-
-    f = os_fopen(filename, "r");
-    if (NULL==f) {
-        err = -errno; goto error;
-    }
-
-    int len = os_fread(f, buf, size);
-    if (size!=len) {
-        err = -errno; goto error;
-    }
-    buf[size] = 0;
-    
-error:
-    os_fclose(f);
-
-    return err;
-}
-
 LIB_PARAM(readtxt, 1);
 static duk_ret_t
 duke_readtxt(duk_context * ctx)
 {
-    char *filename = (char *)duk_require_string(ctx, 0);
+    uint32_t size = 0;
+    const char *filename = duk_require_string(ctx, 0);
     
-    int size = os_fsize(filename);
-    if (size<0) {
-        return duk_push_undefined(ctx), 1;
-    }
-
-    char *buf = (char *)os_malloc(1+size);
+    char *buf = __readfileall(filename, &size, false);
     if (NULL==buf) {
-        return duk_push_undefined(ctx), 1;
-    }
-
-    if (__readfile(filename, buf, size) < 0) {
-        duk_push_undefined(ctx);
-    }
-    else {
+        duk_push_undefined(ctx), 1;
+    } else {
         duk_push_lstring(ctx, buf, size);
     }
-
+    
     os_free(buf);
+    
     return 1;
 }
 
@@ -184,6 +153,22 @@ error:
     os_free(line);
     
     return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(debugger, 2);
+static duk_ret_t
+duke_debugger(duk_context *ctx)
+{
+    if (__ak_debug_js) {
+        uint32_t level = duk_require_uint(ctx, 0);
+        if (__is_js_debug(level)) {
+            const char *string = duk_require_string(ctx, 1);
+
+            debug_js(string);
+        }
+    }
+    
+    return 0;
 }
 
 enum {
@@ -672,16 +657,16 @@ env_register(duk_context *ctx)
 }
 
 static void 
-arg_register(duk_context *ctx, int argc, char *argv[])
+arg_register(duk_context *ctx)
 {
     int i;
     
-    __set_obj_string(ctx, -1, "name", argv[0]);
-    __set_obj_string(ctx, -1, "script", argv[1]);
+    __set_obj_string(ctx, -1, "name", __argv[0]);
+    __set_obj_string(ctx, -1, "script", __argv[1]);
 
     duk_push_array(ctx);
-    for (i=0; i<argc-2; i++) {
-        __set_array_string(ctx, -1, i, argv[2+i]);
+    for (i=0; i<__argc-2; i++) {
+        __set_array_string(ctx, -1, i, __argv[2+i]);
     }
     duk_put_prop_string(ctx, -2, "argv");
 }
@@ -692,19 +677,20 @@ static const dukc_func_entry_t my_func[] = {
     LIB_FUNC(readtxt),
     LIB_FUNC(readbin),
     LIB_FUNC(readline),
+    LIB_FUNC(debugger),
     LIB_FUNC(loop),
     
     LIB_FUNC_END
 };
 
-int my_register(duk_context *ctx, int argc, char *argv[])
+int my_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);
             duk_put_functions(ctx, -1, my_func);
             
             env_register(ctx);
-            arg_register(ctx, argc, argv);
+            arg_register(ctx);
         duk_put_prop_string(ctx, -2, duk_MOD_MY);
     duk_pop(ctx);
     
