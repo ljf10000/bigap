@@ -34,6 +34,7 @@ CFLAGS+= -std=gnu99 \
 	-Os -fomit-frame-pointer \
 	-fstrict-aliasing \
 	-DDUK_OPT_FORCE_ALIGN=4 \
+	-Dduk_CODE=\"$(cat $(DIR_SELF)/module/global.js)\" \
 	#end
 
 #

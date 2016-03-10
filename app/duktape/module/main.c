@@ -21,12 +21,12 @@ __eval(duk_context *ctx, char *filename)
     int err = 0;
     uint32_t size = 0;
 
-    os_println("eval %s ...", filename);
+    debug_js("eval %s ...", filename);
     if (os_file_exist(filename)) {
         char *buf = __readfileall(filename, &size, false);
         if (buf) {
             duk_eval_lstring_noresult(ctx, buf, size);
-            os_println("eval %s OK.", filename);
+            debug_js("eval %s OK.", filename);
             
             os_free(buf);
         } else {
@@ -96,12 +96,7 @@ __main(int argc, char *argv[])
     libc_register(ctx);
     libcurl_register(ctx);
 
-    __eval(ctx, duk_code_pre("global"));
-    __eval(ctx, duk_code_pre("duk"));
-    __eval(ctx, duk_code_pre("my"));
-    __eval(ctx, duk_code_pre("libc"));
-    __eval(ctx, duk_code_pre("libcurl"));
-    
+    duk_eval_lstring_noresult(ctx, duk_CODE, sizeof(duk_CODE));
     __auto_eval(ctx);
     
     duk_peval_file(ctx, argv[1]);
