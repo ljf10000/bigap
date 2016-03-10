@@ -28,10 +28,9 @@ duk_context *__ctx;
 int __argc;
 char **__argv;
 
-static int
+static void
 __eval(duk_context *ctx, char *filename)
 {
-    int err = 0;
     uint32_t size = 0;
 
     debug_js("eval %s ...", filename);
@@ -42,12 +41,8 @@ __eval(duk_context *ctx, char *filename)
             debug_js("eval %s OK.", filename);
             
             os_free(buf);
-        } else {
-            err = -EIO;
         }
     }
-    
-    return err;
 }
 
 static void
