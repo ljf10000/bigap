@@ -23,19 +23,18 @@ var __close = function (obj) {
 };
 
 mod.Stream = function (filename, mode) {
-	var pipe        = arguments[2]?arguments[2]:false;
 	var that        = this;
 
 	that.filename   = filename;
 	that.mode       = mode;
-	that.pipe       = pipe;
+	that.pipe       = arguments[2]?arguments[2]:false;
 
-	if (pipe) {
+	if (that.pipe) {
 		that.stream = __libc__.popen(filename, mode);
 	} else {
 		that.stream = __libc__.fopen(filename, mode);
 	}
-
+/*
 	that.__ok = function () {
 		return __ok(that);
 	};
@@ -91,6 +90,7 @@ mod.Stream = function (filename, mode) {
 			return __libc__.fflush(that.stream);
 		}
 	};
+*/
 };
 
 /*
