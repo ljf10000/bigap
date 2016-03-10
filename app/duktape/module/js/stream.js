@@ -24,12 +24,13 @@ var __close = function (obj) {
 
 mod.Stream = function (filename, mode) {
 	var that        = this;
+	var pipe        = arguments[2]?arguments[2]:false;
 
 	that.filename   = filename;
 	that.mode       = mode;
-	that.pipe       = arguments[2]?arguments[2]:false;
+	that.pipe       = pipe;
 
-	if (that.pipe) {
+	if (pipe) {
 		that.stream = __libc__.popen(filename, mode);
 	} else {
 		that.stream = __libc__.fopen(filename, mode);
