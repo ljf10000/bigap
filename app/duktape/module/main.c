@@ -73,8 +73,10 @@ __auto_eval(duk_context * ctx)
 
         return mv2_ok;
     }
-    
+
+    os_println("auto load %s ...", path);
     os_fscan_dir(path, true, filter, handle, NULL);
+    os_println("auto load %s end", path);
     
     return err;
 }
