@@ -1,6 +1,4 @@
-#!../../js
-
-var fmt = require('fmt');
+#!/bin/js
 
 var name = new Array('mod', 'my', 'libc', 'libcurl');
 var argc = __my__.argv.length;

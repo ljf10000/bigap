@@ -1,26 +1,26 @@
-#!../../js
+#!/bin/js
 
 this.test = function() {
 	var libc = __libc__;
 
-	fmt.print_tag("libc")
-	fmt.print_obj("libc", libc);
+	fmt.separator("libc")
+	fmt.oprint("libc", libc);
 
-	fmt.print_tag("libc.stat");
+	fmt.separator("libc.stat");
 	var stat = Object();
 	libc.stat("./test.js", stat);
-	fmt.print_obj("libc.stat", stat);
+	fmt.oprint("libc.stat", stat);
 
-	fmt.print_tag("libc.mkdir");
+	fmt.separator("libc.mkdir");
 	libc.mkdir("sb", 0);
 	libc.mkdir("sb/sb", 0);
 	libc.mkdir("sb/sb/sb", 0);
 	libc.rmdir("sb", true);
 
-	fmt.print_tag("libc.getcwd");
+	fmt.separator("libc.getcwd");
 	print("getcwd=", libc.getcwd());
 
-	fmt.print_tag("libc.chdir");
+	fmt.separator("libc.chdir");
 	libc.chdir("..");
 	print("getcwd=", libc.getcwd());
 	libc.chdir("test");

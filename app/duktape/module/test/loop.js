@@ -1,6 +1,5 @@
-#!../../js
+#!/bin/js
 
-var fmt = require("fmt");
 var count = 0;
 
 var param = {
@@ -8,7 +7,7 @@ var param = {
 		handle: function (siginfo) {
 			if (siginfo.signo==__libc__.SIGUSR1) {
 		                print("recv signal SIGUSR1 times", count++);
-		                fmt.print_obj(siginfo)
+		                fmt.oprint(siginfo)
 		        }
 		},
 		sigs: [__libc__.SIGUSR1]

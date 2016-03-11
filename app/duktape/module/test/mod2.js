@@ -1,4 +1,4 @@
-#!../../js
+#!/bin/js
 
 this.name = "mod2";
 this.hello = function() {

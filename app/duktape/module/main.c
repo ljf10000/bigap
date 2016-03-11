@@ -44,8 +44,35 @@ __pre_eval(duk_context * ctx)
     debug_js("pre eval OK.");
 }
 
+static bool 
+__filter(char *path, char *filename)
+{
+    int len = os_strlen(filename);
+
+    /*
+    * filename as xxx.js
+    */
+    return false==( '.'==filename[len-3] &&
+                    'j'==filename[len-2] &&
+                    's'==filename[len-1]);
+}
+
+static mv_t 
+__auto_global_handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
+{
+    (void)line_handle;
+    
+    char file[1+OS_LINE_LEN] = {0};
+
+    os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
+
+    __eval(ctx, file);
+
+    return mv2_ok;
+}
+
 static void
-__auto_eval(duk_context * ctx)
+__auto_global_eval(duk_context * ctx)
 {
     char path[1+OS_LINE_LEN] = {0};
     
@@ -55,32 +82,40 @@ __auto_eval(duk_context * ctx)
     char *env = env_gets(ENV_duk_PATH, duk_PATH);
     os_snprintf(path, OS_LINE_LEN, "%s/auto", env);
 
-    bool filter(char *path, char *filename)
-    {
-        int len = os_strlen(filename);
+    os_fscan_dir(path, false, __filter, __auto_global_handle, NULL);
+}
 
-        /*
-        * filename as xxx.js
-        */
-        return false==( '.'==filename[len-3] &&
-                        'j'==filename[len-2] &&
-                        's'==filename[len-1]);
-    }
+static mv_t 
+__auto_mod_handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
+{
+    (void)line_handle;
+    char eval[1+OS_LINE_LEN] = {0};
+    char name[1+OS_LINE_LEN] = {0};
+    char *end = os_strchr(filename);
 
-    mv_t handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
-    {
-        (void)line_handle;
-        
-        char file[1+OS_LINE_LEN] = {0};
+    os_memcpy(name, filename, end-filename);
+    
+    os_snprintf(eval, OS_LINE_LEN, "var %s = require('%s');", name, name);
 
-        os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
+    debug_js("auto eval mod %s ...", name);
+    duk_eval_string_noresult(ctx, eval);
+    debug_js("auto eval mod %s OK.", name);
 
-        __eval(ctx, file);
+    return mv2_ok;
+}
 
-        return mv2_ok;
-    }
+static void
+__auto_mod_eval(duk_context * ctx)
+{
+    char path[1+OS_LINE_LEN] = {0};
+    
+    /*
+    * try eval duk_PATH/auto/xxx.js
+    */
+    char *env = env_gets(ENV_duk_PATH, duk_PATH);
+    os_snprintf(path, OS_LINE_LEN, "%s/auto/mod", env);
 
-    os_fscan_dir(path, true, filter, handle, NULL);
+    os_fscan_dir(path, false, __filter, __auto_mod_handle, NULL);
 }
 
 static int
@@ -101,7 +136,8 @@ __main(int argc, char *argv[])
     libcurl_register(ctx);
 
     __pre_eval(ctx);
-    __auto_eval(ctx);
+    __auto_global_eval(ctx);
+    __auto_mod_eval(ctx);
     
     duk_peval_file(ctx, argv[1]);
     duk_pop(ctx);
