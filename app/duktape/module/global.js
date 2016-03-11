@@ -5,9 +5,9 @@
 */
 
 function debug(level) {
-	var newa = Array.prototype.slice.call(arguments);
+	var slice = Array.prototype.slice.call(arguments).slice(1);
 
-	__my__.debug(level, newa.slice(1).toString());
+	__my__.debug(level, Duktape.enc('jc', slice));
 }
 
 var fmt = {
