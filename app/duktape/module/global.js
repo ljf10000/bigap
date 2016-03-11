@@ -1,3 +1,5 @@
+var fmt = require('auto/mode/fmt');
+
 function debug(level) {
 	var newa = Array.prototype.slice.call(arguments);
 

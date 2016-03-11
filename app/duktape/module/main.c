@@ -104,7 +104,7 @@ __auto_mod_eval(duk_context * ctx)
     
         os_memcpy(name, filename, end-filename);
         
-        os_snprintf(eval, OS_LINE_LEN, "var %s = require('mod/%s');", name, name);
+        os_snprintf(eval, OS_LINE_LEN, "var %s = require('auto/mod/%s');", name, name);
     
         debug_js("auto eval mod %s ...", name);
         duk_eval_string_noresult(ctx, eval);
@@ -135,7 +135,7 @@ __main(int argc, char *argv[])
 
     __pre_eval(ctx);
     __auto_global_eval(ctx);
-    __auto_mod_eval(ctx);
+//    __auto_mod_eval(ctx);
     
     duk_peval_file(ctx, argv[1]);
     duk_pop(ctx);
