@@ -1,4 +1,7 @@
-/* can not use require in this file */
+/* 
+* 1. can not use require in this file 
+* 2. can not use "xxxxx", should use 'xxxxx'
+*/
 
 function debug(level) {
 	var newa = Array.prototype.slice.call(arguments);
