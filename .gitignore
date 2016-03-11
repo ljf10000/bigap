@@ -1,6 +1,7 @@
 # UltraEdit backup file
 *.bak
 *.o
+*.code
 
 #sourceinght files
 *.IAB
