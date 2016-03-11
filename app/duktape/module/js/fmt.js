@@ -1,11 +1,9 @@
 #!/bin/js
 
-this.print_tag = function (name) {
-	print("=========== test", name, "===========");
-};
+this.oprint = function (name, obj) {
+	var c;
 
-this.print_obj = function (name, obj) {
-	for (var p in obj) {
-	        print(name + "." + p + " = " + obj[p]);
-	}
+	c[name] = obj;
+
+	print(Duktape.enc('jc',c));
 };

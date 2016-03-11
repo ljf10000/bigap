@@ -12,7 +12,7 @@
 OS_INITER;
 
 #define duk_CODE                                                                \
-"function printo (name, obj) {"                                         __crlf  \
+"function oprint (name, obj) {"                                         __crlf  \
 "    for (var p in obj) {"                                              __crlf  \
 "            print(name + '.' + p + ' = ' + obj[p]);"                   __crlf  \
 "    }"                                                                 __crlf  \
