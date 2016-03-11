@@ -743,7 +743,7 @@ static void
 __ceval(duk_context *ctx, char *code)
 {
     debug_js("buildin eval ...");
-    bool ok = duk_eval_string_noresult(ctx, code);
+    bool ok = duk_peval_string_noresult(ctx, code);
     debug_js("buildin eval %s.", ok?"OK":"FAIL");
 }
 
