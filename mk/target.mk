@@ -1,7 +1,7 @@
 .PHONY: all
 all:$(TARGET) install
 
-$(TARGET):$(OBJS) gen
+$(TARGET):gen $(OBJS)
 	$(dump_common_vars)
 	${CC} ${CFLAGS} ${__CFLAGS} ${LDFLAGS} ${__LDFLAGS} -o $(TARGET) $(OBJS) $(lib_depend)
 	@if [ -f "$(FILENO_NAME).key" ]; then \
@@ -10,8 +10,6 @@ $(TARGET):$(OBJS) gen
 	fi
 %.o:%.c
 	${CC} -c ${CFLAGS} ${__CFLAGS} $(INCS) $< -o $@
-
-
 
 pre:$(DEPS) $(PRES)
 	$(dump_common_vars)
@@ -22,7 +20,7 @@ pre:$(DEPS) $(PRES)
 
 gen:
 	@if [[ -x $(GEN_SH)]]; then \
-		./$(GEN_SH) \
+		./$(GEN_SH); \
 	fi
 
 .PHONY: check
