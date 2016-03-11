@@ -104,7 +104,7 @@ __auto_mod_eval(duk_context * ctx)
     
         os_memcpy(name, filename, end-filename);
         
-        os_snprintf(eval, OS_LINE_LEN, "var %s = require('%s');", name, name);
+        os_snprintf(eval, OS_LINE_LEN, "var %s = require('mod/%s');", name, name);
     
         debug_js("auto eval mod %s ...", name);
         duk_eval_string_noresult(ctx, eval);
