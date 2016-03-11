@@ -17,15 +17,16 @@ var __close = function (obj) {
 mod.File = function (filename, flag, mode) {
 	var that        = this;
 	var mode        = arguments[2]?arguments[2]:false;
+	var fd          = -1;
 
 	that.filename   = filename;
 	that.flag       = flag;
 	that.mode       = mode;
 
 	if (3==arguments) {
-		that.fd = __libc__.open(filename, flag, mode);
+		fd = __libc__.open(filename, flag, mode);
 	} else {
-		that.fd = __libc__.open(filename, flag);
+		fd = __libc__.open(filename, flag);
 	}
 
 	that.__ok = function () {

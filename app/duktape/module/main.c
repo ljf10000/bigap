@@ -17,7 +17,7 @@ int __argc;
 char **__argv;
 
 static void
-__eval(duk_context *ctx, char *filename)
+__feval(duk_context *ctx, char *filename)
 {
     uint32_t size = 0;
 
@@ -34,27 +34,23 @@ __eval(duk_context *ctx, char *filename)
 }
 
 static void
-__pre_eval(duk_context * ctx)
+__buildin_eval(duk_context * ctx)
 {
     char *code = duk_global_CODE;
     uint32_t size = sizeof(duk_global_CODE) - 1;
     
-    debug_js("pre eval ...");
+    debug_js("buildin eval ...");
     duk_eval_lstring_noresult(ctx, code, size);
-    debug_js("pre eval OK.");
+    debug_js("buildin eval OK.");
 }
 
 static bool 
 __filter(char *path, char *filename)
 {
-    int len = os_strlen(filename);
-
     /*
-    * filename as xxx.js
+    * skip NOT-js file
     */
-    return false==( '.'==filename[len-3] &&
-                    'j'==filename[len-2] &&
-                    's'==filename[len-1]);
+    return false==os_str_is_end_by(filename, ".js");
 }
 
 static void
@@ -76,7 +72,7 @@ __auto_eval(duk_context * ctx)
     
         os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
 
-        __eval(ctx, file);
+        __feval(ctx, file);
     
         return mv2_ok;
     }
@@ -101,7 +97,7 @@ __main(int argc, char *argv[])
     libc_register(ctx);
     libcurl_register(ctx);
 
-    __pre_eval(ctx);
+    __buildin_eval(ctx);
     __auto_eval(ctx);
     
     duk_peval_file(ctx, argv[1]);

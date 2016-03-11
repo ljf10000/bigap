@@ -485,6 +485,19 @@ os_str_strim_both(char *s, char_is_f *IS)
 }
 
 static inline bool
+os_str_is_end_by(char *s, char *end)
+{
+    uint32_t slen = os_strlen(s);
+    uint32_t elen = os_strlen(end);
+
+    if (slen >= elen) {
+        return os_memcmp(s + slen - elen, end, elen);
+    } else {
+        return false;
+    }
+}
+
+static inline bool
 __char_is_drop(int ch, char_is_f *IS)
 {
     if (IS) {
