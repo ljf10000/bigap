@@ -17,31 +17,9 @@ int __argc;
 char **__argv;
 
 static void
-__feval(duk_context *ctx, char *filename)
+__buildin_eval(duk_context *ctx)
 {
-    uint32_t size = 0;
-
-    debug_js("eval %s ...", filename);
-    if (os_file_exist(filename)) {
-        char *buf = __readfileall(filename, &size, false);
-        if (buf) {
-            duk_eval_lstring_noresult(ctx, buf, size);
-            debug_js("eval %s OK.", filename);
-            
-            os_free(buf);
-        }
-    }
-}
-
-static void
-__buildin_eval(duk_context * ctx)
-{
-    char *code = duk_global_CODE;
-    uint32_t size = sizeof(duk_global_CODE) - 1;
-    
-    debug_js("buildin eval ...");
-    duk_eval_lstring_noresult(ctx, code, size);
-    debug_js("buildin eval OK.");
+    __ceval(ctx, duk_global_CODE);
 }
 
 static bool 
@@ -54,7 +32,7 @@ __filter(char *path, char *filename)
 }
 
 static void
-__auto_eval(duk_context * ctx)
+__auto_eval(duk_context *ctx)
 {
     char path[1+OS_LINE_LEN] = {0};
     

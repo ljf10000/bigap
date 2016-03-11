@@ -731,7 +731,21 @@ error:
     return NULL;
 }
 
-#define duk_code_pre(_mod)  DIR_SELF "/module/pre/" _mod ".js"
+static void
+__feval(duk_context *ctx, char *filename)
+{
+    debug_js("eval %s ...", filename);
+    bool ok = os_file_exist(filename) && 0==duk_peval_file_noresult(ctx, filename);
+    debug_js("eval %s %s.", filename, ok?"OK":"FAIL");
+}
+
+static void
+__ceval(duk_context *ctx, char *code)
+{
+    debug_js("buildin eval ...");
+    bool ok = duk_eval_string_noresult(ctx, code);
+    debug_js("buildin eval %s.", ok?"OK":"FAIL");
+}
 
 extern duk_context *__ctx;
 extern int __argc;
