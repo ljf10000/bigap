@@ -100,7 +100,7 @@ __auto_mod_eval(duk_context * ctx)
         (void)line_handle;
         char eval[1+OS_LINE_LEN] = {0};
         char name[1+OS_LINE_LEN] = {0};
-        char *end = os_strchr(filename);
+        char *end = os_strchr(filename, '.');
     
         os_memcpy(name, filename, end-filename);
         
