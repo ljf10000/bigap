@@ -5,13 +5,13 @@ js2code() {
 	local name
 
 	for name in ${list}; do
-		echo "#define duk_${name}_CODE \\"> ${name}.code
+		echo "#define duk_${name}_CODE \\"> ${name}.h
 		
 		while read line; do 
-			echo "\"${line}\\n\" \\" >> ${name}.code
+			echo "\"${line}\\n\" \\" >> ${name}.h
 		done < ${name}.js
 		
-		echo "/* end */" >> ${name}.code
+		echo "/* end */" >> ${name}.h
 	done
 }
 

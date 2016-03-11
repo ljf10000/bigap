@@ -7,8 +7,8 @@
 #endif
 
 #include "utils.h"
+#include "global.h"
 #include "dukc.h"
-#include "global.code"
 
 OS_INITER;
 
