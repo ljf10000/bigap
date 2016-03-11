@@ -12,6 +12,7 @@ ifndef MK_DEFINE
 	export SCRIPT_PATH=$(DIR_ROOT)/script
 	
 	export AK_PATH=/tmp/$(shell whoami)/ak
+	export GEN_SH=gen.sh
 	export OS_TYPE=linux
 	
 	#export INCS=-I$(DIR_ROOT)/lib -I/usr/src/linux-headers-$(shell uname -r)/include
