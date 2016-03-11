@@ -19,7 +19,7 @@ pre:$(DEPS) $(PRES)
 	${CC} -E $(<) ${CFLAGS} ${__CFLAGS} $(INCS) >>$(@)
 
 gen:
-	@if [[ -x $(GEN_SH)]]; then \
+	@if [ -x $(GEN_SH) ]; then \
 		./$(GEN_SH); \
 	fi
 
