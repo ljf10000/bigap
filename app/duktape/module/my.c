@@ -660,13 +660,14 @@ static void
 arg_register(duk_context *ctx)
 {
     int i, argc = __argc - 2;
+    char **argv = __argv + 2;
     
     __set_obj_string(ctx, -1, "name", __argv[0]);
     __set_obj_string(ctx, -1, "script", __argv[1]);
 
     duk_push_array(ctx);
     for (i=0; i<argc; i++) {
-        __set_array_string(ctx, -1, i, __argv[2+i]);
+        __set_array_string(ctx, -1, i, argv[i]);
     }
     duk_put_prop_string(ctx, -2, "argv");
 }
