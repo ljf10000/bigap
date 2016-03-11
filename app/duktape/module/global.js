@@ -16,7 +16,7 @@ var fmt = {
 	},
 	
 	separator: function (name, sep) {
-		var s = sep?sep:"==========";
+		var s = sep?sep:.==========';
 	
 		print(s, name, s);
 	}
