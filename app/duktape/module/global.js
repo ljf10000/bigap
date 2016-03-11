@@ -1,6 +1,6 @@
 /* 
 * 1. can not use require in this file 
-* 2. can not use "xxxxx", should use 'xxxxx'
+* 2. only use 'xxxxx'
 */
 
 function debug(level) {
