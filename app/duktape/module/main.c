@@ -57,20 +57,6 @@ __filter(char *path, char *filename)
                     's'==filename[len-1]);
 }
 
-static mv_t 
-__auto_global_handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
-{
-    (void)line_handle;
-    
-    char file[1+OS_LINE_LEN] = {0};
-
-    os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
-
-    __eval(ctx, file);
-
-    return mv2_ok;
-}
-
 static void
 __auto_global_eval(duk_context * ctx)
 {
@@ -81,27 +67,21 @@ __auto_global_eval(duk_context * ctx)
     */
     char *env = env_gets(ENV_duk_PATH, duk_PATH);
     os_snprintf(path, OS_LINE_LEN, "%s/auto", env);
-
-    os_fscan_dir(path, false, __filter, __auto_global_handle, NULL);
-}
-
-static mv_t 
-__auto_mod_handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
-{
-    (void)line_handle;
-    char eval[1+OS_LINE_LEN] = {0};
-    char name[1+OS_LINE_LEN] = {0};
-    char *end = os_strchr(filename);
-
-    os_memcpy(name, filename, end-filename);
     
-    os_snprintf(eval, OS_LINE_LEN, "var %s = require('%s');", name, name);
+    mv_t __handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
+    {
+        (void)line_handle;
+        
+        char file[1+OS_LINE_LEN] = {0};
+    
+        os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
+    
+        __eval(ctx, file);
+    
+        return mv2_ok;
+    }
 
-    debug_js("auto eval mod %s ...", name);
-    duk_eval_string_noresult(ctx, eval);
-    debug_js("auto eval mod %s OK.", name);
-
-    return mv2_ok;
+    os_fscan_dir(path, false, __filter, __handle, NULL);
 }
 
 static void
@@ -114,8 +94,26 @@ __auto_mod_eval(duk_context * ctx)
     */
     char *env = env_gets(ENV_duk_PATH, duk_PATH);
     os_snprintf(path, OS_LINE_LEN, "%s/auto/mod", env);
+    
+    mv_t __handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
+    {
+        (void)line_handle;
+        char eval[1+OS_LINE_LEN] = {0};
+        char name[1+OS_LINE_LEN] = {0};
+        char *end = os_strchr(filename);
+    
+        os_memcpy(name, filename, end-filename);
+        
+        os_snprintf(eval, OS_LINE_LEN, "var %s = require('%s');", name, name);
+    
+        debug_js("auto eval mod %s ...", name);
+        duk_eval_string_noresult(ctx, eval);
+        debug_js("auto eval mod %s OK.", name);
+    
+        return mv2_ok;
+    }
 
-    os_fscan_dir(path, false, __filter, __auto_mod_handle, NULL);
+    os_fscan_dir(path, false, __filter, __handle, NULL);
 }
 
 static int
