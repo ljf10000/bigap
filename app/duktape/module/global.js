@@ -12,11 +12,11 @@ function debug(level) {
 
 var fmt = {
 	oprint: function (name, obj) {
-		var c;
+		var c = {};
 	
 		c[name] = obj;
 	
-		print(Duktape.enc('jc',c, null, 4));
+		print(Duktape.enc('jc', c, null, 4));
 	},
 	
 	separator: function (name, sep) {
