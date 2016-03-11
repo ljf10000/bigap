@@ -23,4 +23,4 @@ var fmt = (function (){
 	
 		print(s, name, s);
 	};
-})();
+}());
