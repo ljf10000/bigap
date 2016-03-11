@@ -1,6 +1,7 @@
 /* 
 * 1. can not use require in this file 
 * 2. only use 'xxxxx'
+* 3. must keep last empty line
 */
 
 function debug(level) {
