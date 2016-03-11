@@ -54,7 +54,7 @@ mod.Stream = function (filename, mode) {
 
 	that.write = function (buffer, size) {
 		if (that.pipe) {
-			return -(__libc__.ENOSUPPORT);
+			return -__libc__.ENOSUPPORT;
 		} else {
 			return __libc__.fwrite(buffer, size, 1, that.stream);
 		}
@@ -70,7 +70,7 @@ mod.Stream = function (filename, mode) {
 
 	that.tell = function () {
 		if (that.pipe) {
-			return -(__libc__.ENOSUPPORT);
+			return -__libc__.ENOSUPPORT;
 		} else {
 			return __libc__.ftell(that.stream);
 		}
@@ -78,15 +78,15 @@ mod.Stream = function (filename, mode) {
 
 	that.seek = function (offset, where) {
 		if (that.pipe) {
-			return -(__libc__.ENOSUPPORT);
+			return -__libc__.ENOSUPPORT;
 		} else {
-			return __libc__.ftell(that.stream, where);
+			return __libc__.fseek(that.stream, offset, where);
 		}
 	};
 
 	that.flush = function () {
 		if (that.pipe) {
-			return -(__libc__.ENOSUPPORT);
+			return -__libc__.ENOSUPPORT;
 		} else {
 			return __libc__.fflush(that.stream);
 		}

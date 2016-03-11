@@ -67,6 +67,7 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(readEx),
     LIB_FUNC(write),
     LIB_FUNC(pread),
+    LIB_FUNC(preadEx),
     LIB_FUNC(pwrite),
 
     // 13.3 Setting the File Position of a Descriptor

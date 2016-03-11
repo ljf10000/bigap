@@ -778,9 +778,33 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(pread, 4);
+LIB_PARAM(preadEx, 3);
 static duk_ret_t
 duke_pread(duk_context *ctx)
+{
+    int fd      = duk_require_int(ctx, 0);
+    int size    = duk_require_int(ctx, 1);
+    int offset  = duk_require_int(ctx, 2);
+
+    void *buf = duk_push_dynamic_buffer(ctx, size);
+    if (NULL==buf) {
+        __seterrno(ctx, ENOMEM); goto error;
+    }
+
+    int err = pread(fd, buf, size, offset);
+    if (err<0) {
+        duk_pop(ctx);
+        seterrno(ctx); goto error;
+    }
+
+	return 1;
+error:
+    return duk_push_undefined(ctx), 1;
+}
+
+LIB_PARAM(pread, 4);
+static duk_ret_t
+duke_preadEx(duk_context *ctx)
 {
     duk_size_t bsize = 0;
     int fd      = duk_require_int(ctx, 0);
