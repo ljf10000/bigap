@@ -9,7 +9,7 @@ function debug(level) {
 	__my__.debug(level, newa.slice(1).toString());
 }
 
-var fmt = {
+fmt = {
 	oprint: function (name, obj) {
 		var c;
 	
