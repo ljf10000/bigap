@@ -5,7 +5,7 @@ this.oprint = function (name, obj) {
 
 	c[name] = obj;
 
-	print(Duktape.enc('jc',c));
+	print(Duktape.enc('jc',c, null, 4));
 };
 
 this.separator = function (name, sep) {
