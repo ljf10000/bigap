@@ -309,6 +309,7 @@ os_fscan_dir
         /*
         * file handle
         */
+        os_println("file scan handle %s/%s", path, filename);
         mv.v = __os_fscan_file_handle(path, filename, file_handle, line_handle);
         if (is_mv2_break(mv)) {
             err = mv2_error(mv);

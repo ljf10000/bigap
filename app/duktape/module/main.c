@@ -75,7 +75,7 @@ __auto_global_eval(duk_context * ctx)
         char file[1+OS_LINE_LEN] = {0};
     
         os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
-    
+
         __eval(ctx, file);
     
         return mv2_ok;
