@@ -748,11 +748,11 @@ __feval(duk_context *ctx, char *filename)
 }
 
 static void
-__ceval(duk_context *ctx, char *code)
+__ceval(duk_context *ctx, char *tag, char *code)
 {
-    debug_js("buildin eval ...");
+    debug_js("%s eval ...", tag);
     bool ok = duk_peval_string_noresult(ctx, code);
-    debug_js("buildin eval %s.", ok?"OK":"FAIL");
+    debug_js("%s eval %s.", tag, ok?"OK":"FAIL");
 }
 
 extern duk_context *__ctx;

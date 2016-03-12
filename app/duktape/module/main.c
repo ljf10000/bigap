@@ -19,7 +19,7 @@ char **__argv;
 static void
 __buildin_eval(duk_context *ctx)
 {
-    __ceval(ctx, duk_global_CODE);
+    __ceval(ctx, "buildin", duk_global_CODE);
 }
 
 static bool 

@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "dukc.h"
 
+#if 0
 LIB_PARAM(BufferToString, DUK_VARARGS);
 static duk_ret_t
 duke_BufferToString(duk_context *ctx)
@@ -67,16 +68,20 @@ duke_StringToBuffer(duk_context *ctx)
     
     return 1;
 }
+#endif
 
 static const dukc_func_entry_t global_func[] = {
+#if 0
     LIB_FUNC(BufferToString),
     LIB_FUNC(StringToBuffer),
-
+#endif
     LIB_FUNC_END
 };
 
 int global_register(duk_context *ctx)
 {
+    __ceval(ctx, "__js__", "const __js__ = Duktape;");
+    
     duk_push_global_object(ctx);
 	    duk_put_functions(ctx, -1, global_func);
 	duk_pop(ctx);
