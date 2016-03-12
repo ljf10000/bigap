@@ -47,6 +47,10 @@
 #define duk_LIBCURL         1
 #endif
 
+#ifndef duk_LIBZ
+#define duk_LIBZ            1
+#endif
+
 #ifndef ENV_duk_PATH
 #define ENV_duk_PATH        "DUK_PATH"
 #endif
@@ -73,6 +77,10 @@
 
 #ifndef duk_MOD_LIBCURL
 #define duk_MOD_LIBCURL     "__libcurl__"
+#endif
+
+#ifndef duk_MOD_LIBZ
+#define duk_MOD_LIBZ        "__libz__"
 #endif
 
 typedef duk_number_list_entry   dukc_number_entry_t;
@@ -755,6 +763,11 @@ extern int duktape_register(duk_context *ctx);
 extern int global_register(duk_context *ctx);
 extern int my_register(duk_context *ctx);
 extern int libc_register(duk_context *ctx);
+
+#if duk_LIBZ
+extern int libz_register(duk_context *ctx);
+#endif
+
 #if duk_LIBCURL
 extern int libcurl_register(duk_context *ctx);
 #endif

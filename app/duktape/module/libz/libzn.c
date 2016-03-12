@@ -1,0 +1,47 @@
+static const dukc_number_entry_t libz_number[] = {
+    LIB_VALUE(Z_NO_FLUSH),
+    LIB_VALUE(Z_PARTIAL_FLUSH),
+    LIB_VALUE(Z_SYNC_FLUSH),
+    LIB_VALUE(Z_FULL_FLUSH),
+    LIB_VALUE(Z_FINISH),
+    LIB_VALUE(Z_BLOCK),
+    LIB_VALUE(Z_TREES),
+    
+    LIB_VALUE(Z_OK),
+    LIB_VALUE(Z_STREAM_END),
+    LIB_VALUE(Z_NEED_DICT),
+    LIB_VALUE(Z_ERRNO),
+    LIB_VALUE(Z_STREAM_ERROR),
+    LIB_VALUE(Z_DATA_ERROR),
+    LIB_VALUE(Z_MEM_ERROR),
+    LIB_VALUE(Z_BUF_ERROR),
+    LIB_VALUE(Z_VERSION_ERROR),
+    
+    LIB_VALUE(Z_NO_COMPRESSION),
+    LIB_VALUE(Z_BEST_SPEED),
+    LIB_VALUE(Z_BEST_COMPRESSION),
+    LIB_VALUE(Z_DEFAULT_COMPRESSION),
+    
+    LIB_VALUE(Z_FILTERED),
+    LIB_VALUE(Z_HUFFMAN_ONLY),
+    LIB_VALUE(Z_RLE),
+    LIB_VALUE(Z_FIXED),
+    LIB_VALUE(Z_DEFAULT_STRATEGY),
+    
+    LIB_VALUE(Z_BINARY),
+    LIB_VALUE(Z_TEXT),
+    LIB_VALUE(Z_ASCII),
+    LIB_VALUE(Z_UNKNOWN),
+    
+    LIB_VALUE(Z_DEFLATED),
+    LIB_VALUE(Z_NULL),
+    
+    LIB_VALUE_END
+};
+
+static void
+libzn_register(duk_context *ctx, duk_idx_t idx)
+{
+    duk_put_number_list(ctx, idx, libz_number);
+}
+

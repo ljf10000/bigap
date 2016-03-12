@@ -73,7 +73,12 @@ __main(int argc, char *argv[])
     duktape_register(ctx);
     my_register(ctx);
     libc_register(ctx);
+#if duk_LIBCURL
     libcurl_register(ctx);
+#endif
+#if duk_LIBZ
+    libz_register(ctx);
+#endif
 
     __buildin_eval(ctx);
     __auto_eval(ctx);
