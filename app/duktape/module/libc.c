@@ -65,7 +65,7 @@ duke_timerfd_settime(duk_context *ctx)
 
     __get_itimerspec(ctx, 2, &new);
     int err = timerfd_settime(fd, flags, &new, &old);
-    if (0==err) {
+    if (0==err) { // 0 is ok
         __set_itimerspec(ctx, 3, &old);
     }
     
@@ -80,7 +80,7 @@ duke_timerfd_gettime(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = timerfd_gettime(fd, &current);
-    if (0==err) {
+    if (0==err) { // 0 is ok
         __set_itimerspec(ctx, 1, &current);
     }
     
@@ -905,6 +905,7 @@ duke_mmap(duk_context *ctx)
     void *pointer = mmap(address, len, protect, flags, fd, offset);
     if (MAP_FAILED==pointer) {
         seterrno(ctx);
+        pointer = NULL;
     }
 
     return __push_pointer(ctx, pointer), 1;
@@ -947,6 +948,7 @@ duke_mremap(duk_context *ctx)
     void *pointer = mremap(address, len, nlen, flags);
     if (MAP_FAILED==pointer) {
         seterrno(ctx);
+        pointer = NULL;
     }
     
     return __push_pointer(ctx, pointer), 1;
@@ -961,11 +963,8 @@ duke_madvise(duk_context *ctx)
     int advice      = duk_require_int(ctx, 2);
 
     int err = madvise(address, len, advice);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 13.8 Waiting for Input or Output
@@ -1166,11 +1165,8 @@ duke_dup(duk_context *ctx)
     int old = duk_require_int(ctx, 0);
 
     int new = dup(old);
-    if (new<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, new), 1;
+
+	return __push_error(ctx, new), 1;
 }
 
 LIB_PARAM(dup2, 2);
@@ -1181,11 +1177,8 @@ duke_dup2(duk_context *ctx)
     int new = duk_require_int(ctx, 1);
 
     int fd = dup2(old, new);
-    if (fd<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, fd), 1;
+
+	return __push_error(ctx, fd), 1;
 }
 
 LIB_PARAM(ioctl, 3);
@@ -1232,11 +1225,8 @@ duke_chdir(duk_context *ctx)
     char *dirname = (char *)duk_require_string(ctx, 0);
 
     int err = chdir(dirname);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(fchdir, 1);
@@ -1246,11 +1236,8 @@ duke_fchdir(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = fchdir(fd);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 14.2 Accessing Directories
@@ -1314,11 +1301,8 @@ duke_closedir(duk_context *ctx)
     DIR *dir = (DIR *)duk_require_pointer(ctx, 0);
     
     int err = closedir(dir);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(rewinddir, 1);
@@ -1360,11 +1344,8 @@ duke_link(duk_context *ctx)
     char *new = (char *)duk_require_string(ctx, 1);
 
     int err = link(old, new);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 14.5 Symbolic Links
@@ -1376,11 +1357,8 @@ duke_symlink(duk_context *ctx)
     char *new = (char *)duk_require_string(ctx, 1);
 
     int err = symlink(old, new);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(readlink, 1);
@@ -1438,11 +1416,8 @@ duke_unlink(duk_context *ctx)
     char *filename = (char *)duk_require_string(ctx, 0);
 
     int err = unlink(filename);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 static inline int
@@ -1522,11 +1497,8 @@ duke_remove(duk_context *ctx)
     char *filename = (char *)duk_require_string(ctx, 0);
 
     int err = remove(filename);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 14.7 Renaming Files
@@ -1538,11 +1510,8 @@ duke_rename(duk_context *ctx)
     char *new = (char *)duk_require_string(ctx, 1);
 
     int err = rename(old, new);
-    if (err<0) {
-        seterrno(ctx);
-    }
     
-	return duk_push_int(ctx, err), 1;
+	return __push_error(ctx, err), 1;
 
 }
 
@@ -1582,13 +1551,11 @@ duke_stat(duk_context *ctx)
     char *filename = (char *)duk_require_string(ctx, 0);
 
     int err = stat(filename, &st);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_stat(ctx, 1, &st);
     }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(fstat, 2);
@@ -1600,13 +1567,11 @@ duke_fstat(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = fstat(fd, &st);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_stat(ctx, 1, &st);
     }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(lstat, 2);
@@ -1618,13 +1583,11 @@ duke_lstat(duk_context *ctx)
     char *filename = (char *)duk_require_string(ctx, 0);
 
     int err = lstat(filename, &st);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_stat(ctx, 1, &st);
     }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 14.9.3 Testing the Type of a File
@@ -1734,11 +1697,8 @@ duke_chown(duk_context *ctx)
 	gid_t group = duk_require_uint(ctx, 2);
 
     int err = chown(filename, owner, group);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(fchown, 3);
@@ -1750,11 +1710,8 @@ duke_fchown(duk_context *ctx)
 	int group = duk_require_int(ctx, 2);
 
     int err = fchown(fd, owner, group);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 14.9.7 Assigning File Permissions
@@ -1777,11 +1734,8 @@ duke_chmod(duk_context *ctx)
     mode_t mode = duk_require_uint(ctx, 1);
     
 	int err = chmod(filename, mode);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(fchmod, 2);
@@ -1792,11 +1746,8 @@ duke_fchmod(duk_context *ctx)
     mode_t mode = duk_require_uint(ctx, 1);
     
 	int err = fchmod(fd, mode);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 14.9.8 Testing Permission to Access a File
@@ -1808,11 +1759,8 @@ duke_access(duk_context *ctx)
     int how = duk_require_int(ctx, 1);
     
 	int err = access(filename, how);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 14.9.9 File Times
@@ -1825,11 +1773,8 @@ duke_utime(duk_context *ctx)
     __get_utimbuf(ctx, 1, &b);
     
 	int err = utime(filename, &b);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 14.9.10 File Size
@@ -1841,11 +1786,8 @@ duke_truncate(duk_context *ctx)
     duk_uint_t len = duk_require_uint(ctx, 1);
     
 	int err = truncate(filename, len);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(ftruncate, 2);
@@ -1856,11 +1798,8 @@ duke_ftruncate(duk_context *ctx)
     duk_uint_t len = duk_require_uint(ctx, 1);
     
 	int err = ftruncate(fd, len);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 14.10 Making Special Files
@@ -1873,11 +1812,8 @@ duke_mknod(duk_context *ctx)
     int dev = duk_require_int(ctx, 2);
     
 	int err = mknod(filename, mode, dev);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 14.11 Temporary Files
@@ -1897,11 +1833,8 @@ duke_mkstemp(duk_context *ctx)
     char *template = (char *)duk_require_string(ctx, 0);
     
 	int err = mkstemp(template);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(mkdtemp, 1);
@@ -1927,14 +1860,11 @@ duke_pipe(duk_context *ctx)
 	};
 	
     int err = pipe(fd);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
+
     __set_array_int(ctx, 0, 0, fd[0]);
     __set_array_int(ctx, 0, 1, fd[1]);
 
-	return duk_push_int(ctx, err), 1;
+	return __push_error(ctx, err), 1;
 }
 
 
@@ -1971,11 +1901,8 @@ duke_mkfifo(duk_context *ctx)
     int mode = duk_require_int(ctx, 1);
     
 	int err = mkfifo(filename, mode);
-	if (err<0) {
-        seterrno(ctx);
-	}
-	
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 16 Sockets
@@ -2015,13 +1942,11 @@ duke_getsockname(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
     
     int err = getsockname(fd, &sa.c, &len);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_sockaddr(ctx, 1, &sa);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(if_nametoindex, 1);
@@ -2363,11 +2288,8 @@ duke_socket(duk_context *ctx)
     int protocol= duk_require_int(ctx, 2);
     
     int fd = socket(domain, type, protocol);
-    if (fd<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, fd), 1;
+
+    return __push_error(ctx, fd), 1;
 }
 
 LIB_PARAM(shutdown, 2);
@@ -2378,11 +2300,8 @@ duke_shutdown(duk_context *ctx)
     int how = duk_require_int(ctx, 1);
 
     int err = shutdown(fd, how);
-    if (fd<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(socketpair, 4);
@@ -2398,11 +2317,8 @@ duke_socketpair(duk_context *ctx)
     };
 
     int err = socketpair(namespace, style, protocol, fd);
-    if (fd<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 16.9 Using Sockets with Connections
@@ -2419,11 +2335,9 @@ duke_connect(duk_context *ctx)
     }
     
     err = connect(fd, &sa.c, os_sockaddr_len(&sa.c));
-    if (fd<0) {
-        seterrno(ctx);
-    }
+
 error:
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(listen, 2);
@@ -2434,13 +2348,8 @@ duke_listen(duk_context *ctx)
     int backlog = duk_require_int(ctx, 1);
 
     int err = listen(fd, backlog);
-    if (fd<0) {
-        seterrno(ctx);
-    }
 
-    duk_push_int(ctx, err);
-    
-	return 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(accept, 2);
@@ -2453,13 +2362,11 @@ duke_accept(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
     
     int err = accept(fd, &sa.c, &len);
-    if (fd<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) {
         __set_sockaddr(ctx, 1, &sa);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(getpeername, 2);
@@ -2472,13 +2379,11 @@ duke_getpeername(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
     
     int err = getpeername(fd, &sa.c, &len);
-    if (fd<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_sockaddr(ctx, 1, &sa);
     }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(send, 4);
@@ -2558,7 +2463,6 @@ duke_sendto(duk_context *ctx)
         goto error;
     }
     
-
     err = sendto(fd, buf, size, flag, &sa.c, os_sockaddr_len(&sa.c));
     if (err<0) {
         seterrno(ctx); goto error;
@@ -2782,13 +2686,11 @@ duke_tcgetattr(duk_context *ctx)
 	int fd = duk_require_int(ctx, 0);
 
     int err = tcgetattr(fd, &t);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_termios(ctx, 1, &t);
     }
     
-	return duk_push_int(ctx, err), 1;
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(tcsetattr, 3);
@@ -2803,11 +2705,8 @@ duke_tcsetattr(duk_context *ctx)
     __get_termios(ctx, 2, &t);
     
     int err = tcsetattr(fd, when, &t);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(cfgetospeed, 1);
@@ -2846,11 +2745,8 @@ duke_cfsetospeed(duk_context *ctx)
     speed_t speed = duk_require_uint(ctx, 1);
 
     int err = cfsetospeed(&t, speed);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(cfsetispeed, 2);
@@ -2863,11 +2759,8 @@ duke_cfsetispeed(duk_context *ctx)
     speed_t speed = duk_require_uint(ctx, 1);
 
     int err = cfsetispeed(&t, speed);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(cfsetspeed, 2);
@@ -2880,11 +2773,8 @@ duke_cfsetspeed(duk_context *ctx)
     speed_t speed = duk_require_uint(ctx, 1);
 
     int err = cfsetspeed(&t, speed);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(cfmakeraw, 1);
@@ -2907,11 +2797,8 @@ duke_tcsendbreak(duk_context *ctx)
     int du = duk_require_int(ctx, 1);
 
     int err = tcsendbreak(fd, du);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(tcdrain, 1);
@@ -2921,11 +2808,8 @@ duke_tcdrain(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = tcdrain(fd);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(tcflush, 2);
@@ -2936,11 +2820,8 @@ duke_tcflush(duk_context *ctx)
     int q  = duk_require_int(ctx, 1);
 
     int err = tcflush(fd, q);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(tcflow, 2);
@@ -2951,11 +2832,8 @@ duke_tcflow(duk_context *ctx)
     int act= duk_require_int(ctx, 1);
 
     int err = tcflow(fd, act);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 // 17.8 Pseudo-Terminals
@@ -2964,11 +2842,8 @@ static duk_ret_t
 duke_getpt(duk_context *ctx)
 {
     int err = getpt();
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(grantpt, 1);
@@ -2978,11 +2853,8 @@ duke_grantpt(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = grantpt(fd);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(unlockpt, 1);
@@ -2992,11 +2864,8 @@ duke_unlockpt(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = unlockpt(fd);
-    if (err<0) {
-        seterrno(ctx);
-    }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(ptsname, 1);
@@ -3843,14 +3712,11 @@ duke_gettimeofday(duk_context *ctx)
     struct timezone tz;
 
     int err = gettimeofday(&tv, &tz);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
     __set_timeval(ctx, 0, &tv);
     __set_timezone(ctx, 1, &tz);
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(settimeofday, 2);
@@ -3864,11 +3730,8 @@ duke_settimeofday(duk_context *ctx)
     __get_timezone(ctx, 1, &tz);
 
     int err = settimeofday(&tv, &tz);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(adjtime, 2);
@@ -3880,13 +3743,10 @@ duke_adjtime(duk_context *ctx)
     __get_timeval(ctx, 0, &delta);
 
     int err = adjtime(&delta, &old);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
+
     __set_timeval(ctx, 1, &old);
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 21.4.3 Broken-down Time
@@ -3959,13 +3819,10 @@ duke_ntp_gettime(duk_context *ctx)
     struct ntptimeval ntv;
 
     int err = ntp_gettime(&ntv);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
     __set_ntptimeval(ctx, 0, &ntv);
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(ntp_adjtime, 1);
@@ -3975,13 +3832,10 @@ duke_ntp_adjtime(duk_context *ctx)
     struct timex tx;
 
     int err = ntp_adjtime(&tx);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
     __set_timex(ctx, 0, &tx);
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 21.4.5 Formatting Calendar Time
@@ -4049,13 +3903,11 @@ duke_setitimer(duk_context *ctx)
 
     __get_itimerval(ctx, 1, &new);
     int err = setitimer(which, &new, &old);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_itimerval(ctx, 2, &old);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(getitimer, 2);
@@ -4066,13 +3918,11 @@ duke_getitimer(duk_context *ctx)
     int which = duk_require_int(ctx, 0);
 
     int err = getitimer(which, &old);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_itimerval(ctx, 1, &old);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(alarm, 1);
@@ -4103,13 +3953,11 @@ duke_nanosleep(duk_context *ctx)
 
     __get_timespec(ctx, 1, &req);
     int err = nanosleep(&req, &remain);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_timespec(ctx, 2, &remain);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 #endif
 
@@ -4122,13 +3970,11 @@ duke_getrusage(duk_context *ctx)
     int processes = duk_require_int(ctx, 0);
 
     int err = getrusage(processes, &u);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_rusage(ctx, 1, &u);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(vtimes, 2);
@@ -4138,14 +3984,12 @@ duke_vtimes(duk_context *ctx)
     struct vtimes current, child;
 
     int err = vtimes(&current, &child);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // ???
         __set_vtimes(ctx, 0, &current);
         __set_vtimes(ctx, 1, &child);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 22.2 Limiting Resource Usage
@@ -4157,13 +4001,11 @@ duke_getrlimit(duk_context *ctx)
     int resource = duk_require_int(ctx, 0);
 
     int err = getrlimit(resource, &r);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_rlimit(ctx, 1, &r);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setrlimit, 2);
@@ -4175,11 +4017,8 @@ duke_setrlimit(duk_context *ctx)
 
     __get_rlimit(ctx, 1, &r);
     int err = setrlimit(resource, &r);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(ulimit, DUK_VARARGS);
@@ -4204,11 +4043,7 @@ duke_ulimit(duk_context *ctx)
             break;
     }
 
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(vlimit, 2);
@@ -4219,11 +4054,8 @@ duke_vlimit(duk_context *ctx)
     int limit = duk_require_int(ctx, 1);
 
     int err = vlimit(resource, limit);
-    if (err<0) {
-        seterrno(ctx);
-    }
-
-    return duk_push_int(ctx, err), 1;
+    
+    return __push_error(ctx, err), 1;
 }
 
 // 22.3 Process CPU Priority And Scheduling
@@ -4238,11 +4070,8 @@ duke_sched_setscheduler(duk_context *ctx)
     __get_sched_param(ctx, 2, &param);
     
     int err = sched_setscheduler(pid, policy, &param);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(sched_getscheduler, 1);
@@ -4252,11 +4081,8 @@ duke_sched_getscheduler(duk_context *ctx)
     pid_t pid = duk_require_int(ctx, 0);
     
     int err = sched_getscheduler(pid);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(sched_setparam, 2);
@@ -4269,11 +4095,8 @@ duke_sched_setparam(duk_context *ctx)
     __get_sched_param(ctx, 1, &param);
     
     int err = sched_setparam(pid, &param);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(sched_getparam, 2);
@@ -4285,13 +4108,11 @@ duke_sched_getparam(duk_context *ctx)
     pid_t pid = duk_require_int(ctx, 0);
     
     int err = sched_getparam(pid, &param);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_sched_param(ctx, 1, &param);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(sched_get_priority_min, 1);
@@ -4301,14 +4122,8 @@ duke_sched_get_priority_min(duk_context *ctx)
     int policy = duk_require_int(ctx, 0);
 
     int err = sched_get_priority_min(policy);
-    if (err<0) {
-        seterrno(ctx);
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_int(ctx, policy);
-    }
 
-    return 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(sched_get_priority_max, 1);
@@ -4318,14 +4133,8 @@ duke_sched_get_priority_max(duk_context *ctx)
     int policy = duk_require_int(ctx, 0);
 
     int err = sched_get_priority_max(policy);
-    if (err<0) {
-        seterrno(ctx);
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_int(ctx, policy);
-    }
 
-    return 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(sched_rr_get_interval, 2);
@@ -4336,13 +4145,11 @@ duke_sched_rr_get_interval(duk_context *ctx)
     pid_t pid = duk_require_int(ctx, 0);
 
     int err = sched_rr_get_interval(pid, &interval);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_timespec(ctx, 1, &interval);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(sched_yield, 0);
@@ -4350,11 +4157,8 @@ static duk_ret_t
 duke_sched_yield(duk_context *ctx)
 {
     int err = sched_yield();
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(getpriority, 2);
@@ -4365,11 +4169,8 @@ duke_getpriority(duk_context *ctx)
     int id = duk_require_uint(ctx, 1);
     
     int err = getpriority(class, id);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setpriority, 3);
@@ -4381,11 +4182,8 @@ duke_setpriority(duk_context *ctx)
     int niceval = duk_require_uint(ctx, 2);
     
     int err = setpriority(class, id, niceval);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(nice, 1);
@@ -4395,11 +4193,8 @@ duke_nice(duk_context *ctx)
     int increment = duk_require_uint(ctx, 0);
 
     int err = nice(increment);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 #ifdef _GNU_SOURCE
@@ -4570,9 +4365,7 @@ duke_getloadavg(duk_context *ctx)
     double loadavg[3];
 
     int err = getloadavg(loadavg, os_count_of(loadavg));
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (err>0) {
         int i;
         
         for (i=0; i<os_count_of(loadavg); i++) {
@@ -4580,7 +4373,7 @@ duke_getloadavg(duk_context *ctx)
         }
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 23 Non-Local Exits
@@ -4667,13 +4460,11 @@ duke_sigaction(duk_context *ctx)
 
     __get_sigaction(ctx, 1, sig, &action);
     int err = sigaction(sig, &action, &old);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // 0 is ok
         __set_sigaction(ctx, 2, sig, &old);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 24.6 Generating Signals
@@ -4696,11 +4487,8 @@ duke_kill(duk_context *ctx)
     int sig = duk_require_int(ctx, 1);
 
     int err = kill(pid, sig);
-    if (err<0) {
-        seterrno(ctx);
-    }
-
-    return duk_push_int(ctx, err), 1;
+    
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(killpg, 2);
@@ -4711,11 +4499,8 @@ duke_killpg(duk_context *ctx)
     int sig = duk_require_int(ctx, 1);
 
     int err = killpg(pid, sig);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 24.7 Blocking Signals
@@ -4869,11 +4654,8 @@ static duk_ret_t
 duke_pause(duk_context *ctx)
 {
     int err = pause();
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(sigsuspend, 1);
@@ -4928,11 +4710,8 @@ duke_putenv(duk_context *ctx)
     char *kv = (char *)duk_require_string(ctx, 0);
 
     int err = putenv(kv);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setenv, 3);
@@ -4944,11 +4723,8 @@ duke_setenv(duk_context *ctx)
     bool replace = duk_require_bool(ctx, 2);
 
     int err = setenv(k, v, replace);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(unsetenv, 1);
@@ -4958,11 +4734,8 @@ duke_unsetenv(duk_context *ctx)
     char *k = (char *)duk_require_string(ctx, 0);
 
     int err = unsetenv(k);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(clearenv, 0);
@@ -4970,11 +4743,8 @@ static duk_ret_t
 duke_clearenv(duk_context *ctx)
 {
     int err = clearenv();
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 // 25.6 System Calls
@@ -5051,11 +4821,8 @@ static duk_ret_t
 duke_fork(duk_context *ctx)
 {
     int pid = fork();
-    if (pid<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, pid), 1;
+
+    return __push_error(ctx, pid), 1;
 }
 
 LIB_PARAM(vfork, 0);
@@ -5063,11 +4830,8 @@ static duk_ret_t
 duke_vfork(duk_context *ctx)
 {
     int pid = vfork();
-    if (pid<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, pid), 1;
+
+    return __push_error(ctx, pid), 1;
 }
 
 LIB_PARAM(execv, 2);
@@ -5086,11 +4850,8 @@ duke_execv(duk_context *ctx)
     arg[len-1] = NULL;
 
     int err = execv(filename, arg);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(execve, 3);
@@ -5116,11 +4877,8 @@ duke_execve(duk_context *ctx)
     env[env_len-1] = NULL;
 
     int err = execve(filename, arg, env);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+ 
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(execvp, 2);
@@ -5139,11 +4897,8 @@ duke_execvp(duk_context *ctx)
     arg[len-1] = NULL;
 
     int err = execvp(filename, arg);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 // 26.6 Process Completion
@@ -5156,13 +4911,11 @@ duke_waitpid(duk_context *ctx)
     int opt = duk_require_int(ctx, 2);
 
     int err = waitpid(pid, &status, opt);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (err>0) {
         __set_obj_int(ctx, 1, "status", status);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(wait, 1);
@@ -5172,13 +4925,11 @@ duke_wait(duk_context *ctx)
     int status;
     
     int err = wait(&status);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (err>0) {
         __set_obj_int(ctx, 1, "status", status);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(wait4, 4);
@@ -5191,14 +4942,12 @@ duke_wait4(duk_context *ctx)
     int opt = duk_require_int(ctx, 2);
 
     int err = wait4(pid, &status, opt, &r);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (err>0) {
         __set_obj_int(ctx, 1, "status", status);
         __set_rusage(ctx, 3, &r);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(WIFEXITED, 1);
@@ -5271,11 +5020,8 @@ static duk_ret_t
 duke_setsid(duk_context *ctx)
 {
     int err = setsid();
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(getpgrp, 0);
@@ -5283,11 +5029,8 @@ static duk_ret_t
 duke_getpgrp(duk_context *ctx)
 {
     int err = getpgrp();
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(getpgid, 0);
@@ -5297,11 +5040,8 @@ duke_getpgid(duk_context *ctx)
     int pid = duk_require_int(ctx, 0);
     
     int err = getpgid(pid);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setpgid, 2);
@@ -5312,11 +5052,8 @@ duke_setpgid(duk_context *ctx)
     int pgid = duk_require_int(ctx, 1);
     
     int err = setpgid(pid, pgid);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 // 27.7.3 Functions for Controlling Terminal Access
@@ -5327,11 +5064,8 @@ duke_tcgetpgrp(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
     
     int err = tcgetpgrp(fd);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(tcsetpgrp, 2);
@@ -5342,11 +5076,8 @@ duke_tcsetpgrp(duk_context *ctx)
     int pgid = duk_require_int(ctx, 1);
     
     int err = tcsetpgrp(fd, pgid);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 // 29 Users and Groups
@@ -5390,16 +5121,13 @@ duke_getgroups(duk_context *ctx)
 
     gid_t groups[count];
     err = getgroups(count, groups);
-    if (err<0) {
-        seterrno(ctx); goto error;
+    if (err>0) {
+        for (i=0; i<count; i++) {
+            __set_array_uint(ctx, 0, i, groups[i]);
+        }
     }
-
-    for (i=0; i<count; i++) {
-        __set_array_uint(ctx, 0, i, groups[i]);
-    }
-
-error:
-    return duk_push_int(ctx, err), 1;
+    
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(seteuid, 1);
@@ -5409,11 +5137,8 @@ duke_seteuid(duk_context *ctx)
     uid_t uid = duk_require_uint(ctx, 0);
 
     int err = seteuid(uid);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setuid, 1);
@@ -5423,11 +5148,8 @@ duke_setuid(duk_context *ctx)
     uid_t uid = duk_require_uint(ctx, 0);
 
     int err = setuid(uid);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setreuid, 2);
@@ -5438,11 +5160,8 @@ duke_setreuid(duk_context *ctx)
     uid_t euid = duk_require_uint(ctx, 1);
 
     int err = setreuid(ruid, euid);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setegid, 1);
@@ -5452,11 +5171,8 @@ duke_setegid(duk_context *ctx)
     gid_t gid = duk_require_uint(ctx, 0);
 
     int err = setegid(gid);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setgid, 1);
@@ -5466,11 +5182,8 @@ duke_setgid(duk_context *ctx)
     gid_t gid = duk_require_uint(ctx, 0);
 
     int err = setgid(gid);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setregid, 2);
@@ -5481,11 +5194,8 @@ duke_setregid(duk_context *ctx)
     gid_t egid = duk_require_uint(ctx, 1);
 
     int err = setregid(rgid, egid);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(setgroups, 2);
@@ -5501,11 +5211,8 @@ duke_setgroups(duk_context *ctx)
     }
     
     err = setgroups(count, groups);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(initgroups, 2);
@@ -5516,11 +5223,8 @@ duke_initgroups(duk_context *ctx)
     gid_t group = duk_require_uint(ctx, 1);
     
     int err = initgroups(user, group);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 // 29.11 Identifying Who Logged In
@@ -5603,11 +5307,8 @@ duke_utmpname(duk_context *ctx)
     char *file = (char *)duk_require_string(ctx, 0);
 
     int err = utmpname(file);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(updwtmp, 2);
@@ -5630,11 +5331,8 @@ duke_login_tty(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = login_tty(fd);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(login, 1);
@@ -5740,11 +5438,8 @@ duke_putpwent(duk_context *ctx)
     FILE *f = (FILE *)duk_require_pointer(ctx, 1);
     
     int err = putpwent(&u, f);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 29.14 Group Database
@@ -5817,7 +5512,7 @@ duke_gethostname(duk_context *ctx)
         line = (char *)os_realloc(line, 1+size);
         
         err = gethostname(line, size);
-        if (0==err) {
+        if (0==err) { // 0 is ok
             __push_string(ctx, line);
 
             break;
@@ -5843,11 +5538,8 @@ duke_sethostname(duk_context *ctx)
     char *line = (char *)duk_require_lstring(ctx, 0, &size);
 
     int err = sethostname(line, size);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(getdomainname, 0);
@@ -5861,7 +5553,7 @@ duke_getdomainname(duk_context *ctx)
         line = (char *)os_realloc(line, 1+size);
         
         err = getdomainname(line, size);
-        if (0==err) {
+        if (0==err) { // 0 is ok
             __push_string(ctx, line);
 
             break;
@@ -5887,11 +5579,8 @@ duke_setdomainname(duk_context *ctx)
     char *line = (char *)duk_require_lstring(ctx, 0, &size);
 
     int err = setdomainname(line, size);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(gethostid, 0);
@@ -5908,11 +5597,8 @@ duke_sethostid(duk_context *ctx)
     int id = duk_require_int(ctx, 0);
 
     int err = sethostid(id);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 // 30.2 Platform Type Identification
@@ -5923,13 +5609,11 @@ duke_uname(duk_context *ctx)
     struct utsname u;
 
     int err = uname(&u);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) { // ???
         __set_utsname(ctx, 0, &u);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 30.3.1 Mount Information
@@ -6020,11 +5704,8 @@ duke_addmntent(duk_context *ctx)
     __get_mntent(ctx, 1, &m);
     
     int err = addmntent(f, &m);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(hasmntopt, 2);
@@ -6052,11 +5733,8 @@ duke_mount(duk_context *ctx)
     duk_uint_t opt = duk_require_uint(ctx, 3);
     
     int err = mount(file, dir, fstype, opt, "");
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(umount2, 2);
@@ -6067,11 +5745,8 @@ duke_umount2(duk_context *ctx)
     int flags   = duk_require_uint(ctx, 1);
     
     int err = umount2(file, flags);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(umount, 1);
@@ -6081,11 +5756,8 @@ duke_umount(duk_context *ctx)
     char *file  = (char *)duk_require_string(ctx, 0);
     
     int err = umount(file);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 30.4 System Parameters
@@ -6101,11 +5773,8 @@ duke_sysconf(duk_context *ctx)
     int parameter = duk_require_int(ctx, 0);
     
     int err = sysconf(parameter);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 31.9 Using pathconf
@@ -6117,11 +5786,8 @@ duke_pathconf(duk_context *ctx)
     int parameter = duk_require_int(ctx, 1);
     
     int err = pathconf(filename, parameter);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(fpathconf, 2);
@@ -6132,11 +5798,8 @@ duke_fpathconf(duk_context *ctx)
     int parameter = duk_require_int(ctx, 1);
     
     int err = fpathconf(fd, parameter);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 // 31.12 String-Valued Parameters

@@ -206,7 +206,6 @@ __push_error(duk_context *ctx, int err)
     return err;
 }
 
-
 static inline void * 
 __push_pointer(duk_context *ctx, void *pointer)
 {
