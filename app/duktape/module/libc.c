@@ -2106,7 +2106,7 @@ duke_if_nameindex(duk_context *ctx)
 {
 	struct if_nameindex *array = if_nameindex();
 	if (NULL==array) {
-        return duk_push_undefined(ctx), 1;
+        return duk_push_null(ctx), 1;
 	}
     
 	struct if_nameindex *p;
@@ -2132,8 +2132,8 @@ duke_inet_aton(duk_context *ctx)
     char *name = (char *)duk_require_string(ctx, 0);
     
 	int err = inet_aton(name, &in);
-	if (0==err) {
-        return duk_push_undefined(ctx), 1;
+	if (0==err) { // return 0 if failed
+	    in.s_addr = 0;
 	}
 
 	return duk_push_uint(ctx, in.s_addr), 1;
@@ -4241,17 +4241,27 @@ duke_ulimit(duk_context *ctx)
 {
     int cmd = duk_require_int(ctx, 0);
     int limit;
+    int err = -ENOSUPPORT;
     
     switch(cmd) {
         case UL_GETFSIZE:
-            return duk_push_uint(ctx, ulimit(cmd)), 1;
+            err = ulimit(cmd);
+            
+            break;
         case UL_SETFSIZE:
             limit = duk_require_int(ctx, 1);
-
-            return duk_push_uint(ctx, ulimit(cmd, limit)), 1;
+            err = ulimit(cmd, limit);
+            
+            break;
         default:
-            return duk_push_undefined(ctx), 1;
+            break;
     }
+
+    if (err<0) {
+        seterrno(ctx);
+    }
+    
+    return duk_push_int(ctx, err), 1;
 }
 
 LIB_PARAM(vlimit, 2);
@@ -4697,7 +4707,7 @@ duke_signal(duk_context *ctx)
     
     return 1;
 error:
-    return duk_push_undefined(ctx), 1;
+    return duk_push_null(ctx), 1;
 }
 
 // 24.3.2 Advanced Signal Handling
@@ -5037,7 +5047,7 @@ static duk_ret_t
 duke_atexit(duk_context *ctx)
 {
     if (!duk_is_function(ctx, 0)) {
-        return duk_push_undefined(ctx), 1;
+        return duk_push_null(ctx), 1;
     }
 
     atexit_name = __get_obj_string(ctx, 0, "name", NULL);

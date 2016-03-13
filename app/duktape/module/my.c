@@ -91,14 +91,14 @@ duke_readbin(duk_context * ctx)
 
     int size = os_fsize(filename);
     if (size<0) {
-        return duk_push_undefined(ctx), 1;
+        return duk_push_null(ctx), 1;
     }
 
     char *buf = __push_dynamic_buffer(ctx, size);
 
     if (__readfile(filename, buf, size) < 0) {
         duk_pop(ctx);
-        duk_push_undefined(ctx);
+        duk_push_null(ctx);
     }
     
     return 1;
