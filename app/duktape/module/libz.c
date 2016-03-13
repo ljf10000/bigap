@@ -408,10 +408,8 @@ duke_inflateGetHeader(duk_context *ctx)
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
 
     int err = inflateGetHeader(f, &header);
-
-    __obj_push(ctx, __set_gz_header, &header);
     
-    return 1;
+    return __obj_push(ctx, __set_gz_header, &header), 1;
 }
 
 LIB_PARAM(inflateBackInit, 2);

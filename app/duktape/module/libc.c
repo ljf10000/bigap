@@ -1355,12 +1355,9 @@ duke_readdir(duk_context *ctx)
     struct dirent *d = readdir(dir);
     if (NULL==d) {
         seterrno(ctx);
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_dirent, d);
     }
 
-	return 1;
+	return __obj_push(ctx, __set_dirent, readdir(dir)), 1;
 }
 
 LIB_PARAM(closedir, 1);
@@ -1453,7 +1450,7 @@ duke_readlink(duk_context *ctx)
         int len = readlink(filename, line, size);
         if (len<0) {
             seterrno(ctx); 
-            duk_push_undefined(ctx);
+            duk_push_null(ctx);
             
             break;
         }
@@ -2219,13 +2216,8 @@ duke_gethostbyname(duk_context *ctx)
     char *name = (char *)duk_require_string(ctx, 0);
 
     struct hostent *p = gethostbyname(name);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_hostent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_hostent, p), 1;
 }
 
 LIB_PARAM(gethostbyname2, 2);
@@ -2236,13 +2228,8 @@ duke_gethostbyname2(duk_context *ctx)
     int af = duk_require_int(ctx, 1);
     
     struct hostent *p = gethostbyname2(name, af);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_hostent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_hostent, p), 1;
 }
 
 LIB_PARAM(gethostbyaddr, 3);
@@ -2254,13 +2241,8 @@ duke_gethostbyaddr(duk_context *ctx)
     int af = duk_require_int(ctx, 2);
     
     struct hostent *p = gethostbyaddr(addr, len, af);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_hostent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_hostent, p), 1;
 }
 
 LIB_PARAM(sethostent, 1);
@@ -2277,13 +2259,8 @@ static duk_ret_t
 duke_gethostent(duk_context *ctx)
 {
 	struct hostent *p = gethostent();
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_hostent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_hostent, p), 1;
 }
 
 LIB_PARAM(endhostent, 0);
@@ -2301,13 +2278,8 @@ duke_getservbyname(duk_context *ctx)
     char *proto = (char *)duk_require_string(ctx, 1);
 	
 	struct servent *p = getservbyname(name, proto);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_servent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_servent, p), 1;
 }
 
 LIB_PARAM(getservbyport, 2);
@@ -2318,13 +2290,8 @@ duke_getservbyport(duk_context *ctx)
     char *proto = (char *)duk_require_string(ctx, 1);
 	
 	struct servent *p = getservbyport(port, proto);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_servent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_servent, p), 1;
 }
 
 LIB_PARAM(setservent, 1);
@@ -2341,13 +2308,8 @@ static duk_ret_t
 duke_getservent(duk_context *ctx)
 {
 	struct servent *p = getservent();
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_servent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_servent, p), 1;
 }
 
 LIB_PARAM(endservent, 0);
@@ -2404,13 +2366,8 @@ duke_getprotobyname(duk_context *ctx)
     char *name = (char *)duk_require_string(ctx, 0);
 	
 	struct protoent *p = getprotobyname(name);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_protoent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_protoent, p), 1;
 }
 
 LIB_PARAM(getprotobynumber, 1);
@@ -2420,13 +2377,8 @@ duke_getprotobynumber(duk_context *ctx)
     int proto = duk_require_int(ctx, 0);
 	
 	struct protoent *p = getprotobynumber(proto);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_protoent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_protoent, p), 1;
 }
 
 LIB_PARAM(setprotoent, 1);
@@ -2443,13 +2395,8 @@ static duk_ret_t
 duke_getprotoent(duk_context *ctx)
 {
 	struct protoent *p = getprotoent();
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-	    __obj_push(ctx, __set_protoent, p);
-	}
-	
-	return 1;
+
+	return __obj_push(ctx, __set_protoent, p), 1;
 }
 
 LIB_PARAM(endprotoent, 0);
@@ -2811,10 +2758,7 @@ duke_getnetbyname(duk_context *ctx)
 	char *name = (char *)duk_require_string(ctx, 0);
 	
     struct netent *ne = getnetbyname(name);
-	if (NULL==ne) {
-        return duk_push_undefined(ctx), 1;
-	}
-	
+
 	return __obj_push(ctx, __set_netent, ne), 1;
 }
 
@@ -2826,10 +2770,7 @@ duke_getnetbyaddr(duk_context *ctx)
 	int type= duk_require_int(ctx, 1);
 	
     struct netent *ne = getnetbyaddr(net, type);
-	if (NULL==ne) {
-        return duk_push_undefined(ctx), 1;
-	}
-	
+
 	return __obj_push(ctx, __set_netent, ne), 1;
 }
 
@@ -2847,10 +2788,7 @@ static duk_ret_t
 duke_getnetent(duk_context *ctx)
 {
     struct netent *ne = getnetent();
-	if (NULL==ne) {
-        return duk_push_undefined(ctx), 1;
-	}
-	
+
 	return __obj_push(ctx, __set_netent, ne), 1;
 }
 
@@ -4012,13 +3950,8 @@ duke_localtime(duk_context *ctx)
     time_t time = duk_require_uint(ctx, 0);
 
     struct tm *tm = localtime(&time);
-    if (NULL==tm) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_tm, tm);
-    }
-    
-    return 1;
+
+    return __obj_push(ctx, __set_tm, tm), 1;
 }
 
 LIB_PARAM(gmtime, 1);
@@ -4028,13 +3961,8 @@ duke_gmtime(duk_context *ctx)
     time_t time = duk_require_uint(ctx, 0);
 
     struct tm *tm = gmtime(&time);
-    if (NULL==tm) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_tm, tm);
-    }
-    
-    return 1;
+
+    return __obj_push(ctx, __set_tm, tm), 1;
 }
 
 LIB_PARAM(mktime, 1);
@@ -5661,13 +5589,8 @@ static duk_ret_t
 duke_getutent(duk_context *ctx)
 {
     struct utmp *p = getutent();
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_utmp, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_utmp, p), 1;
 }
 
 LIB_PARAM(endutent, 0);
@@ -5686,13 +5609,8 @@ duke_getutid(duk_context *ctx)
     __get_utmp(ctx, 0, &u);
     
     struct utmp *p = getutid(&u);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_utmp, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_utmp, p), 1;
 }
 
 LIB_PARAM(getutline, 1);
@@ -5704,13 +5622,8 @@ duke_getutline(duk_context *ctx)
     __get_utmp(ctx, 0, &u);
     
     struct utmp *p = getutline(&u);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_utmp, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_utmp, p), 1;
 }
 
 LIB_PARAM(pututline, 1);
@@ -5722,13 +5635,8 @@ duke_pututline(duk_context *ctx)
     __get_utmp(ctx, 0, &u);
     
     struct utmp *p = pututline(&u);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_utmp, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_utmp, p), 1;
 }
 
 LIB_PARAM(utmpname, 1);
@@ -5814,13 +5722,8 @@ duke_getpwuid(duk_context *ctx)
     uid_t uid = duk_require_uint(ctx, 0);
     
     struct passwd *p = getpwuid(uid);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_passwd, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_passwd, p), 1;
 }
 
 LIB_PARAM(getpwnam, 1);
@@ -5830,13 +5733,8 @@ duke_getpwnam(duk_context *ctx)
     char *name = (char *)duk_require_string(ctx, 0);
     
     struct passwd *p = getpwnam(name);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_passwd, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_passwd, p), 1;
 }
 
 // 29.13.3 Scanning the List of All Users
@@ -5847,13 +5745,8 @@ duke_fgetpwent(duk_context *ctx)
     FILE *f = (FILE *)duk_require_pointer(ctx, 0);
     
     struct passwd *p = fgetpwent(f);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_passwd, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_passwd, p), 1;
 }
 
 LIB_PARAM(setpwent, 0);
@@ -5868,13 +5761,8 @@ static duk_ret_t
 duke_getpwent(duk_context *ctx)
 {
     struct passwd *p = getpwent();
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_passwd, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_passwd, p), 1;
 }
 
 LIB_PARAM(endpwent, 0);
@@ -5910,13 +5798,8 @@ duke_getgrgid(duk_context *ctx)
     gid_t gid = duk_require_uint(ctx, 0);
     
     struct group *p = getgrgid(gid);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_group, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_group, p), 1;
 }
 
 LIB_PARAM(getgrnam, 1);
@@ -5926,13 +5809,8 @@ duke_getgrnam(duk_context *ctx)
     char *name = (char *)duk_require_string(ctx, 0);
     
     struct group *p = getgrnam(name);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_group, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_group, p), 1;
 }
 
 LIB_PARAM(fgetgrent, 1);
@@ -5942,13 +5820,8 @@ duke_fgetgrent(duk_context *ctx)
     FILE *f = (FILE *)duk_require_pointer(ctx, 0);
     
     struct group *p = fgetgrent(f);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_group, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_group, p), 1;
 }
 
 LIB_PARAM(setgrent, 0);
@@ -5963,13 +5836,8 @@ static duk_ret_t
 duke_getgrent(duk_context *ctx)
 {
     struct group *p = getgrent();
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_group, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_group, p), 1;
 }
 
 LIB_PARAM(endgrent, 0);
@@ -6127,13 +5995,8 @@ static duk_ret_t
 duke_getfsent(duk_context *ctx)
 {
     struct fstab *p = getfsent();
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_fstab, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_fstab, p), 1;
 }
 
 LIB_PARAM(getfsspec, 1);
@@ -6143,13 +6006,8 @@ duke_getfsspec(duk_context *ctx)
     char *name = (char *)duk_require_string(ctx, 0);
     
     struct fstab *p = getfsspec(name);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_fstab, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_fstab, p), 1;
 }
 
 LIB_PARAM(getfsfile, 1);
@@ -6159,13 +6017,8 @@ duke_getfsfile(duk_context *ctx)
     char *name = (char *)duk_require_string(ctx, 0);
     
     struct fstab *p = getfsfile(name);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_fstab, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_fstab, p), 1;
 }
 
 LIB_PARAM(setmntent, 2);
@@ -6196,13 +6049,8 @@ duke_getmntent(duk_context *ctx)
     FILE *f = duk_require_pointer(ctx, 0);
     
     struct mntent *p = getmntent(f);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        __obj_push(ctx, __set_mntent, p);
-    }
 
-    return 1;
+    return __obj_push(ctx, __set_mntent, p), 1;
 }
 
 LIB_PARAM(addmntent, 2);

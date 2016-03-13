@@ -656,9 +656,15 @@ typedef int dukc_obj_op_f(duk_context *ctx, duk_idx_t idx, void *obj);
 static inline int
 __obj_push(duk_context *ctx, dukc_obj_op_f *set, void *obj)
 {
-    duk_push_object(ctx);
+    if (obj) {
+        duk_push_object(ctx);
     
-    return (*set)(ctx, -1, obj);
+        return (*set)(ctx, -1, obj);
+    } else {
+        duk_push_null(ctx);
+
+        return 0;
+    }
 }
 
 static inline int
