@@ -310,7 +310,7 @@ duke_strerror(duk_context *ctx)
 
     const char *errstring = strerror(errnum);
 
-    return duk_push_string(ctx, errstring), 1;
+    return __push_string(ctx, errstring), 1;
 }
 #endif
 
@@ -519,7 +519,7 @@ duke_fopen(duk_context *ctx)
 
     FILE *f = os_fopen(filename, mode);
 
-    return duk_push_pointer(ctx, f), 1;
+    return __push_pointer(ctx, f), 1;
 }
 
 LIB_PARAM(fclose, 1);
@@ -563,13 +563,13 @@ duke_freadEx(duk_context *ctx)
 
     void *buf = duk_push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
-        return duk_push_undefined(ctx), 1;
+        return duk_push_null(ctx), 1;
     }
     
     int c = fread(buf, 1, size, f);
     if (0==c) {
         duk_pop(ctx);
-        duk_push_undefined(ctx);
+        duk_push_null(ctx);
     } else if (c>0 && c<size) {
         duk_resize_buffer(ctx, 2, c);
     }
@@ -748,7 +748,7 @@ duke_readEx(duk_context *ctx)
 
 	return 1;
 error:
-    return duk_push_undefined(ctx), 1;
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(write, 3);
@@ -799,7 +799,7 @@ duke_pread(duk_context *ctx)
 
 	return 1;
 error:
-    return duk_push_undefined(ctx), 1;
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(pread, 4);
@@ -879,12 +879,8 @@ duke_fdopen(duk_context *ctx)
     char *mode  = (char *)duk_require_string(ctx, 1);
 
     FILE *f = fdopen(fd, mode);
-    if (NULL==f) {
-        return -1;
-    }
-
-    duk_push_pointer(ctx, f);
-	return 0;
+    
+    return __push_pointer(ctx, f), 1;
 }
 
 LIB_PARAM(fileno, 1);
@@ -956,11 +952,9 @@ duke_mmap(duk_context *ctx)
     void *pointer = mmap(address, len, protect, flags, fd, offset);
     if (MAP_FAILED==pointer) {
         seterrno(ctx);
-
-        return duk_push_undefined(ctx), 1;
     }
-    
-	return duk_push_pointer(ctx, pointer), 1;
+
+    return __push_pointer(ctx, pointer), 1;
 }
 
 LIB_PARAM(munmap, 2);
@@ -1006,11 +1000,9 @@ duke_mremap(duk_context *ctx)
     void *pointer = mremap(address, len, nlen, flags);
     if (MAP_FAILED==pointer) {
         seterrno(ctx);
-
-        return duk_push_undefined(ctx), 1;
     }
     
-	return duk_push_pointer(ctx, pointer), 1;
+    return __push_pointer(ctx, pointer), 1;
 }
 
 LIB_PARAM(madvise, 3);
@@ -1275,7 +1267,7 @@ duke_getcwd(duk_context *ctx)
         else if (ERANGE!=errno) {
             seterrno(ctx);
             duk_pop(ctx);
-            duk_push_undefined(ctx);
+            duk_push_null(ctx);
             break;
         }
 
@@ -1324,12 +1316,9 @@ duke_opendir(duk_context *ctx)
     DIR *dir = opendir(dirname);
     if (NULL==dir) {
         seterrno(ctx);
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_pointer(ctx, dir);
     }
     
-	return 1;
+    return __push_pointer(ctx, dir), 1;
 }
 
 LIB_PARAM(fdopendir, 1);
@@ -1341,12 +1330,9 @@ duke_fdopendir(duk_context *ctx)
     DIR *dir = fdopendir(fd);
     if (NULL==dir) {
         seterrno(ctx);
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_pointer(ctx, dir);
     }
     
-	return 1;
+    return __push_pointer(ctx, dir), 1;
 }
 
 LIB_PARAM(dirfd, 1);
@@ -1473,7 +1459,7 @@ duke_readlink(duk_context *ctx)
         }
         else if (len<=size) {
             line[len] = 0;
-            duk_push_lstring(ctx, line, len);
+            __push_lstring(ctx, line, len);
             
             break;
         }
@@ -1495,11 +1481,9 @@ duke_realpath(duk_context *ctx)
     char *path = realpath(filename, NULL);
     if (NULL==path) {
         seterrno(ctx);
-
-        return duk_push_undefined(ctx), 1;
     }
 
-    return duk_push_string(ctx, path), 1;
+    return __push_string(ctx, path), 1;
 }
 
 // 14.6 Deleting Files
@@ -1958,13 +1942,8 @@ static duk_ret_t
 duke_tmpfile(duk_context *ctx)
 {
 	FILE *f = tmpfile();
-	if (NULL==f) {
-        duk_push_undefined(ctx);
-	} else {
-        duk_push_pointer(ctx, f);
-	}
-	
-	return 1;
+
+	return __push_pointer(ctx, f), 1;
 }
 
 LIB_PARAM(mkstemp, 1);
@@ -1988,13 +1967,8 @@ duke_mkdtemp(duk_context *ctx)
     char *template = (char *)duk_require_string(ctx, 0);
     
 	char *filename = mkdtemp(template);
-	if (NULL==filename) {
-        duk_push_undefined(ctx);
-	} else {
-        duk_push_string(ctx, filename);
-	}
-	
-	return 1;
+
+	return __push_string(ctx, filename), 1;
 }
 
 // 15 Pipes and FIFOs
@@ -2029,13 +2003,8 @@ duke_popen(duk_context *ctx)
     char *mode = (char *)duk_require_string(ctx, 1);
     
 	FILE *f = popen(command, mode);
-	if (NULL==f) {
-        duk_push_undefined(ctx);
-	} else {
-        duk_push_pointer(ctx, f);
-	}
-	
-	return 1;
+
+	return __push_pointer(ctx, f), 1;
 }
 
 LIB_PARAM(pclose, 1);
@@ -2130,13 +2099,8 @@ duke_if_indextoname(duk_context *ctx)
     char ifname[1+IFNAMSIZ] = {0};
     
 	char *name = if_indextoname(ifindex, ifname);
-	if (NULL==name) {
-        duk_push_undefined(ctx);
-	} else {
-        duk_push_string(ctx, name);
-	}
-	
-	return 1;
+
+	return __push_string(ctx, name), 1;
 }
 
 LIB_PARAM(if_nameindex, 0);
@@ -2209,7 +2173,7 @@ duke_inet_ntoa(duk_context *ctx)
     
 	char *name = inet_ntoa(in);
 	
-	return duk_push_string(ctx, name), 1;
+	return __push_string(ctx, name), 1;
 }
 
 LIB_PARAM(inet_makeaddr, 2);
@@ -2918,12 +2882,9 @@ duke_ttyname(duk_context *ctx)
     char *name = ttyname(fd);
     if (NULL==name) {
         seterrno(ctx);
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, name);
     }
     
-	return 1;
+	return __push_string(ctx, name), 1;
 }
 
 // 17.4 Terminal Modes
@@ -3162,13 +3123,9 @@ duke_ptsname(duk_context *ctx)
     char *name = ptsname(fd);
     if (NULL==name) {
         seterrno(ctx);
-
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, name);
     }
     
-    return 1;
+    return __push_string(ctx, name), 1;
 }
 #endif
 
@@ -4162,13 +4119,8 @@ duke_asctime(duk_context *ctx)
     __get_tm(ctx, 0, &tm);
     
     char *time = asctime(&tm);
-    if (NULL==time) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, time);
-    }
 
-    return 1;
+    return __push_string(ctx, time), 1;
 }
 
 LIB_PARAM(ctime, 1);
@@ -4178,13 +4130,8 @@ duke_ctime(duk_context *ctx)
     time_t t = duk_require_uint(ctx, 0);
 
     char *time = ctime(&t);
-    if (NULL==time) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, time);
-    }
 
-    return 1;
+    return __push_string(ctx, time), 1;
 }
 
 LIB_PARAM(strftime, 2);
@@ -4205,7 +4152,7 @@ duke_strftime(duk_context *ctx)
         size_t len = strftime(line, OS_LINE_LEN, template, &tm);
         if (len) {
             line[len] = 0;
-            duk_push_string(ctx, line);
+            __push_string(ctx, line);
 
             break;
         }
@@ -4766,13 +4713,8 @@ duke_strsignal(duk_context *ctx)
     int sig = duk_require_int(ctx, 0);
 
     char *string = strsignal(sig);
-    if (NULL==string) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, string);
-    }
 
-    return 1;
+    return __push_string(ctx, string), 1;
 }
 
 LIB_PARAM(psignal, 2);
@@ -5077,13 +5019,8 @@ duke_getenv(duk_context *ctx)
     char *k = (char *)duk_require_string(ctx, 0);
 
     char *env = getenv(k);
-    if (NULL==env) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, env);
-    }
-    
-    return 1;
+
+    return __push_string(ctx, env), 1;
 }
 
 #if defined(_GNU_SOURCE) && 0
@@ -5094,13 +5031,8 @@ duke_secure_getenv(duk_context *ctx)
     char *k = (char *)duk_require_string(ctx, 0);
 
     char *env = secure_getenv(k);
-    if (NULL==env) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, env);
-    }
-    
-    return 1;
+
+    return __push_string(ctx, env), 1;
 }
 #endif
 
@@ -5712,13 +5644,8 @@ static duk_ret_t
 duke_getlogin(duk_context *ctx)
 {
     char *name = getlogin();
-    if (NULL==name) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, name);
-    }
-    
-    return 1;
+
+    return __push_string(ctx, name), 1;
 }
 
 // 29.12.1 Manipulating the User Accounting Database
@@ -6066,13 +5993,13 @@ duke_gethostname(duk_context *ctx)
         
         err = gethostname(line, size);
         if (0==err) {
-            duk_push_string(ctx, line);
+            __push_string(ctx, line);
 
             break;
         }
         else if (err<0 && ENAMETOOLONG!=errno) {
             seterrno(ctx);
-            duk_push_undefined(ctx);
+            duk_push_null(ctx);
 
             break;
         }
@@ -6110,13 +6037,13 @@ duke_getdomainname(duk_context *ctx)
         
         err = getdomainname(line, size);
         if (0==err) {
-            duk_push_string(ctx, line);
+            __push_string(ctx, line);
 
             break;
         }
         else if (err<0 && ENAMETOOLONG!=errno) {
             seterrno(ctx);
-            duk_push_undefined(ctx);
+            duk_push_null(ctx);
 
             break;
         }
@@ -6249,13 +6176,8 @@ duke_setmntent(duk_context *ctx)
     char *mode = (char *)duk_require_string(ctx, 1);
     
     FILE *f = setmntent(name, mode);
-    if (NULL==f) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_pointer(ctx, f);
-    }
 
-    return 1;
+    return __push_pointer(ctx, f), 1;
 }
 
 LIB_PARAM(endmntent, 1);
@@ -6310,13 +6232,8 @@ duke_hasmntopt(duk_context *ctx)
     char *mnt = (char *)duk_require_string(ctx, 1);
     
     char *p = hasmntopt(&m, mnt);
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, p);
-    }
-
-    return 1;
+    
+    return __push_string(ctx, p), 1;
 }
 
 // 30.3.2 Mount, Unmount, Remount

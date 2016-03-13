@@ -18,13 +18,8 @@ static duk_ret_t
 duke_curl_easy_init(duk_context *ctx)
 {
     CURL *p = curl_easy_init();
-    if (NULL==p) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_pointer(ctx, p);
-    }
 
-    return 1;
+    return __push_pointer(ctx, p), 1;
 }
 
 LIB_PARAM(curl_easy_cleanup, 1);

@@ -77,12 +77,7 @@ duke_readtxt(duk_context * ctx)
     char *filename = (char *)duk_require_string(ctx, 0);
     
     char *buf = __readfileall(filename, &size, false);
-    if (NULL==buf) {
-        duk_push_undefined(ctx), 1;
-    } else {
-        duk_push_lstring(ctx, buf, size);
-    }
-    
+    __push_lstring(ctx, buf, size);
     os_free(buf);
     
     return 1;
@@ -148,7 +143,7 @@ duke_readline(duk_context * ctx)
         }
 
         duk_dup(ctx, 1);                        // dup callback         , callback
-        duk_push_lstring(ctx, line, len+1);     // push line            , callback line
+        __push_lstring(ctx, line, len+1);       // push line            , callback line
         int exec = duk_pcall(ctx, 1);           // call callback(line)  , result/error
         if (DUK_EXEC_SUCCESS==exec) {
             err = duk_get_int(ctx, -1);         // get callback error

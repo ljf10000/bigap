@@ -194,6 +194,38 @@ duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, void **pbuf, duk_
     return 0;
 }
 
+static inline void * 
+__push_pointer(duk_context *ctx, void *pointer)
+{
+    if (pointer) {
+        duk_push_pointer(ctx, pointer);
+    } else {
+        duk_push_null(ctx);
+    }
+
+    return pointer;
+}
+
+static inline const char * 
+__push_lstring(duk_context *ctx, const char *s, duk_size_t len)
+{
+    if (is_good_str(s) && len>0) {
+        return duk_push_lstring(ctx, s, len);
+    } else {
+        return duk_push_null(ctx), NULL;
+    }
+}
+
+static inline const char * 
+__push_string(duk_context *ctx, const char *s)
+{
+    if (s) {
+        return duk_push_string(ctx, s);
+    } else {
+        return duk_push_null(ctx), NULL;
+    }
+}
+
 static inline void
 __pcall(duk_context *ctx, duk_idx_t idx, int (*push)(void))
 {
@@ -403,7 +435,7 @@ __set_obj_string(duk_context *ctx, duk_idx_t idx, const char *k, char * v)
 {
     idx = duk_normalize_index(ctx, idx);
     
-    duk_push_string(ctx, v);
+    __push_string(ctx, v);
     duk_put_prop_string(ctx, idx, k);
 }
 
@@ -564,7 +596,7 @@ __set_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, char *v)
 {
     idx = duk_normalize_index(ctx, idx);
     
-    duk_push_string(ctx, (char *)v);
+    __push_string(ctx, (char *)v);
     duk_put_prop_index(ctx, idx, aidx);
 }
 

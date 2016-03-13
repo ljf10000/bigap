@@ -18,7 +18,7 @@ duke_BufferToString(duk_context *ctx)
     
     int count = duk_get_argc(ctx);
     if (count<1) {
-        return duk_push_string(ctx, __empty), 1;
+        return __push_string(ctx, __empty), 1;
     }
     
     void *buf[count];
@@ -37,7 +37,7 @@ duke_BufferToString(duk_context *ctx)
     }
     string[size] = 0;
     
-    return duk_push_lstring(ctx, string, size), 1;
+    return __push_lstring(ctx, string, size), 1;
 }
 
 LIB_PARAM(StringToBuffer, DUK_VARARGS);
@@ -48,7 +48,7 @@ duke_StringToBuffer(duk_context *ctx)
     
     int count = duk_get_argc(ctx);
     if (count<1) {
-        return duk_push_undefined(ctx), 1;
+        return duk_push_null(ctx), 1;
     }
     
     char *string[count];

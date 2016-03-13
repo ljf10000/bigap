@@ -17,13 +17,8 @@ static duk_ret_t
 duke_zlibVersion(duk_context *ctx)
 {
     char *version = zlibVersion();
-    if (NULL==version) {
-        duk_push_undefined(ctx);
-    } else {
-        duk_push_string(ctx, version);
-    }
 
-    return 1;
+    return __push_string(ctx, version), 1;
 }
 
 LIB_PARAM(deflateInit, 1);
@@ -41,11 +36,11 @@ duke_deflateInit(duk_context *ctx)
         goto error;
     }
     
-    return duk_push_pointer(ctx, f), 1;
+    return __push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
-    return duk_push_undefined(ctx), 1;
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(deflateInit2, 5);
@@ -68,11 +63,11 @@ duke_deflateInit2(duk_context *ctx)
         goto error;
     }
     
-    return duk_push_pointer(ctx, f), 1;
+    return __push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
-    return duk_push_undefined(ctx), 1;
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(deflate, 2);
@@ -93,8 +88,8 @@ duke_deflateEnd(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
 
-    int err = deflateEnd(f);
-    
+    int err = deflateEnd(f); os_free(f);
+
     return duk_push_int(ctx, err), 1;
 }
 
@@ -112,11 +107,11 @@ duke_inflateInit(duk_context *ctx)
         goto error;
     }
     
-    return duk_push_pointer(ctx, f), 1;
+    return __push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
-    return duk_push_undefined(ctx), 1;
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(inflateInit2, 1);
@@ -135,11 +130,11 @@ duke_inflateInit2(duk_context *ctx)
         goto error;
     }
     
-    return duk_push_pointer(ctx, f), 1;
+    return __push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
-    return duk_push_undefined(ctx), 1;
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(inflate, 2);
@@ -160,7 +155,7 @@ duke_inflateEnd(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
 
-    int err = inflateEnd(f);
+    int err = inflateEnd(f); os_free(f);
     
     return duk_push_int(ctx, err), 1;
 }
@@ -289,8 +284,8 @@ duke_deflateSetHeader(duk_context *ctx)
     gz_header header;
     
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
-    // todo: get header
-
+    __get_gz_header(ctx, 1, &header);
+    
     int err = deflateSetHeader(f, &header);
     
     return duk_push_int(ctx, err), 1;
@@ -413,7 +408,8 @@ duke_inflateGetHeader(duk_context *ctx)
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
 
     int err = inflateGetHeader(f, &header);
-    // todo: push header
+
+    __obj_push(ctx, __set_gz_header, &header);
     
     return 1;
 }
@@ -435,11 +431,11 @@ duke_inflateBackInit(duk_context *ctx)
         goto error;
     }
     
-    return duk_push_pointer(ctx, f), 1;
+    return __push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
-    return duk_push_undefined(ctx), 1;
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(inflateBackEnd, 1);
@@ -448,7 +444,7 @@ duke_inflateBackEnd(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
 
-    int err = inflateBackEnd(f);
+    int err = inflateBackEnd(f); os_free(f);
     
     return duk_push_int(ctx, err), 1;
 }
@@ -517,7 +513,7 @@ duke_gzdopen(duk_context *ctx)
 
     gzFile *f = gzdopen(fd, mode);
     
-    return duk_push_pointer(ctx, f), 1;
+    return __push_pointer(ctx, f), 1;
 }
 
 LIB_PARAM(gzbuffer, 2);
@@ -615,7 +611,7 @@ duke_gzgets(duk_context *ctx)
 
     // todo
     
-    return duk_push_string(ctx, line), 1;
+    return __push_string(ctx, line), 1;
 }
 
 LIB_PARAM(gzputc, 2);
