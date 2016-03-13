@@ -561,7 +561,7 @@ duke_freadEx(duk_context *ctx)
     FILE *f     = (FILE *)duk_require_pointer(ctx, 0);
     int size    = duk_require_int(ctx, 1);
 
-    void *buf = duk_push_dynamic_buffer(ctx, size);
+    void *buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
         return duk_push_null(ctx), 1;
     }
@@ -735,7 +735,7 @@ duke_readEx(duk_context *ctx)
     int fd      = duk_require_int(ctx, 0);
     int size    = duk_require_int(ctx, 1);
 
-    void *buf = duk_push_dynamic_buffer(ctx, size);
+    void *buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
         __seterrno(ctx, ENOMEM); goto error;
     }
@@ -786,7 +786,7 @@ duke_pread(duk_context *ctx)
     int size    = duk_require_int(ctx, 1);
     int offset  = duk_require_int(ctx, 2);
 
-    void *buf = duk_push_dynamic_buffer(ctx, size);
+    void *buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
         __seterrno(ctx, ENOMEM); goto error;
     }
@@ -1026,7 +1026,7 @@ LIB_PARAM(FD_NEW, 0);
 static duk_ret_t
 duke_FD_NEW(duk_context *ctx)
 {
-    return duk_push_dynamic_buffer(ctx, sizeof(fd_set)), 1;
+    return __push_dynamic_buffer(ctx, sizeof(fd_set)), 1;
 }
 
 LIB_PARAM(FD_ZERO, 1);
@@ -1258,7 +1258,7 @@ static duk_ret_t
 duke_getcwd(duk_context *ctx)
 {
     int size = 1+OS_LINE_LEN;
-    void *buf = duk_push_dynamic_buffer(ctx, size);
+    void *buf = __push_dynamic_buffer(ctx, size);
 
     while(1) {
         if (buf==getcwd(buf, size-1)) {
@@ -4450,7 +4450,7 @@ LIB_PARAM(CPU_NEW, 0);
 static duk_ret_t
 duke_CPU_NEW(duk_context *ctx)
 {
-    return duk_push_dynamic_buffer(ctx, sizeof(cpu_set_t)), 1;
+    return __push_dynamic_buffer(ctx, sizeof(cpu_set_t)), 1;
 }
 
 LIB_PARAM(CPU_ZERO, 1);
@@ -4766,7 +4766,7 @@ LIB_PARAM(signewset, 1);
 static duk_ret_t
 duke_signewset(duk_context *ctx)
 {
-    return duk_push_dynamic_buffer(ctx, sizeof(sigset_t)), 1;
+    return __push_dynamic_buffer(ctx, sizeof(sigset_t)), 1;
 }
 
 LIB_PARAM(sigemptyset, 1);

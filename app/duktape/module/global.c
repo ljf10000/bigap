@@ -60,7 +60,7 @@ duke_StringToBuffer(duk_context *ctx)
         size += bsize[i];
     }
     
-    void *buf = duk_push_dynamic_buffer(ctx, size);
+    void *buf = __push_dynamic_buffer(ctx, size);
     for (i=0; i<count; i++) {
         os_memcpy(buf + offset, string[i], bsize[i]);
         offset += bsize[i];

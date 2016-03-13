@@ -226,6 +226,42 @@ __push_string(duk_context *ctx, const char *s)
     }
 }
 
+static inline void * 
+__push_buffer(duk_context *ctx, duk_size_t size, bool dynamic)
+{
+    if (size>0) {
+        return duk_push_buffer(ctx, size, dynamic);
+    } else {
+        return duk_push_null(ctx), NULL;
+    }
+}
+
+static inline void * 
+__push_fixed_buffer(duk_context *ctx, duk_size_t size)
+{
+    if (size>0) {
+        return duk_push_fixed_buffer(ctx, size);
+    } else {
+        return duk_push_null(ctx), NULL;
+    }
+}
+
+static inline void * 
+__push_dynamic_buffer(duk_context *ctx, duk_size_t size)
+{
+    if (size>0) {
+        return duk_push_dynamic_buffer(ctx, size);
+    } else {
+        return duk_push_null(ctx), NULL;
+    }
+}
+
+static inline void * 
+__push_external_buffer(duk_context *ctx)
+{
+    return duk_push_external_buffer(ctx);
+}
+
 static inline void
 __pcall(duk_context *ctx, duk_idx_t idx, int (*push)(void))
 {
@@ -473,7 +509,7 @@ __set_obj_buffer(duk_context *ctx, duk_idx_t idx, const char *k, duk_buffer_t v,
 {
     idx = duk_normalize_index(ctx, idx);
     
-    duk_buffer_t buf = duk_push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
     os_memcpy(buf, v, size);
     duk_put_prop_string(ctx, idx, k);
 }
@@ -634,7 +670,7 @@ __set_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_t
 {
     idx = duk_normalize_index(ctx, idx);
     
-    duk_buffer_t buf = duk_push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
     os_memcpy(buf, v, size);
     duk_put_prop_index(ctx, idx, aidx);
 }

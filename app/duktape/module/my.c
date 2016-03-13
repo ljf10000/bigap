@@ -94,7 +94,7 @@ duke_readbin(duk_context * ctx)
         return duk_push_undefined(ctx), 1;
     }
 
-    char *buf = duk_push_dynamic_buffer(ctx, size);
+    char *buf = __push_dynamic_buffer(ctx, size);
 
     if (__readfile(filename, buf, size) < 0) {
         duk_pop(ctx);
