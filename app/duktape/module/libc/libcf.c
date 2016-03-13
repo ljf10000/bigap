@@ -583,7 +583,6 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(fpathconf),
     LIB_FUNC(confstr),
 
-
     LIB_FUNC_END
 };
 
