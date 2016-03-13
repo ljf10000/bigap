@@ -194,6 +194,19 @@ duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, void **pbuf, duk_
     return 0;
 }
 
+static inline int 
+__push_error(duk_context *ctx, int err)
+{
+    if (err<0) {
+        seterrno(ctx);
+    }
+
+    duk_push_int(ctx, err);
+    
+    return err;
+}
+
+
 static inline void * 
 __push_pointer(duk_context *ctx, void *pointer)
 {

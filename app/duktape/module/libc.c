@@ -51,11 +51,8 @@ duke_timerfd_create(duk_context *ctx)
     int flags = duk_require_int(ctx, 1);
 
     int fd = timerfd_create(clock, flags);
-    if (fd<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, fd), 1;
+
+    return __push_error(ctx, fd), 1;
 }
 
 LIB_PARAM(timerfd_settime, 4);
@@ -68,13 +65,11 @@ duke_timerfd_settime(duk_context *ctx)
 
     __get_itimerspec(ctx, 2, &new);
     int err = timerfd_settime(fd, flags, &new, &old);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) {
         __set_itimerspec(ctx, 3, &old);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(timerfd_gettime, 2);
@@ -85,13 +80,11 @@ duke_timerfd_gettime(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = timerfd_gettime(fd, &current);
-    if (err<0) {
-        seterrno(ctx);
-    } else {
+    if (0==err) {
         __set_itimerspec(ctx, 1, &current);
     }
     
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(eventfd, 2);
@@ -102,11 +95,8 @@ duke_eventfd(duk_context *ctx)
     int flags = duk_require_int(ctx, 1);
 
     int err = eventfd(intval, flags);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(signalfd, 3);
@@ -139,11 +129,8 @@ duke_epoll_create(duk_context *ctx)
     int size = duk_require_int(ctx, 0);
     
     int fd = epoll_create(size);
-    if (fd<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, fd), 1;
+
+    return __push_error(ctx, fd), 1;
 }
 
 LIB_PARAM(epoll_create1, 1);
@@ -153,11 +140,8 @@ duke_epoll_create1(duk_context *ctx)
     int flags = duk_require_int(ctx, 0);
     
     int fd = epoll_create1(flags);
-    if (fd<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, fd), 1;
+
+    return __push_error(ctx, fd), 1;
 }
 
 #define duk_epoll_event_size    (2*sizeof(uint32_t))
@@ -232,11 +216,8 @@ duke_epoll_ctl(duk_context *ctx)
     __get_epoll_event(ctx, 3, &ev);
     
     int err = epoll_ctl(epfd, op, fd, &ev);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(inotify_init, 0);
@@ -244,11 +225,8 @@ static duk_ret_t
 duke_inotify_init(duk_context *ctx)
 {
     int fd = inotify_init();
-    if (fd<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, fd), 1;
+
+    return __push_error(ctx, fd), 1;
 }
 
 LIB_PARAM(inotify_init1, 1);
@@ -258,11 +236,8 @@ duke_inotify_init1(duk_context *ctx)
     int flags = duk_require_int(ctx, 0);
     
     int err = inotify_init1(flags);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(inotify_add_watch, 3);
@@ -274,11 +249,8 @@ duke_inotify_add_watch(duk_context *ctx)
     duk_uint_t mask = duk_require_uint(ctx, 2);
     
     int err = inotify_add_watch(fd, path, mask);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(inotify_rm_watch, 2);
@@ -289,11 +261,8 @@ duke_inotify_rm_watch(duk_context *ctx)
     int wd = duk_require_int(ctx, 1);
     
     int err = inotify_rm_watch(fd, wd);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 #endif
@@ -674,21 +643,17 @@ duke_open(duk_context *ctx)
         default:
         case 1:
             fd = open(file, flag);
-            if (fd<0) {
-                seterrno(ctx);
-            }
+
             break;
         case 2: {
             uint32_t mode = duk_require_uint(ctx, 2);
 
             fd = open(file, flag, mode);
-            if (fd<0) {
-                seterrno(ctx);
-            }
+
         }   break;
     }
 
-    return duk_push_int(ctx, fd), 1;
+    return __push_error(ctx, fd), 1;
 }
 
 LIB_PARAM(close, 1);
@@ -698,11 +663,8 @@ duke_close(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
 
     int err = __os_close(fd);
-    if (err<0) {
-        seterrno(ctx);
-    }
 
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(read, 3);
@@ -864,11 +826,8 @@ duke_lseek(duk_context *ctx)
     int where   = duk_require_int(ctx, 2);
     
     int err = lseek(fd, offset, where);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-    return duk_push_int(ctx, err), 1;
+
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(fdopen, 2);
@@ -891,7 +850,7 @@ duke_fileno(duk_context *ctx)
 
     int fd = fileno(f);
 
-	return duk_push_int(ctx, fd), 1;
+	return __push_error(ctx, fd), 1;
 }
 
 // 13.6 Fast Scatter-Gather I/O
@@ -909,11 +868,8 @@ duke_readv(duk_context *ctx)
     }
 
     int err = readv(fd, iov, count);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(writev, 2);
@@ -930,11 +886,8 @@ duke_writev(duk_context *ctx)
     }
 
     int err = writev(fd, iov, count);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 // 13.7 Memory-mapped I/O
@@ -965,11 +918,8 @@ duke_munmap(duk_context *ctx)
     duk_uint_t len  = duk_require_uint(ctx, 1);
 
     int err = munmap(address, len);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(msync, 3);
@@ -981,11 +931,8 @@ duke_msync(duk_context *ctx)
     int flags       = duk_require_int(ctx, 2);
 
     int err = msync(address, len, flags);
-    if (err<0) {
-        seterrno(ctx);
-    }
-    
-	return duk_push_int(ctx, err), 1;
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(mremap, 4);
