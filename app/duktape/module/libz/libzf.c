@@ -20,7 +20,9 @@ static const dukc_func_entry_t libz_func[] = {
     LIB_FUNC(deflatePrime),
     LIB_FUNC(deflateSetHeader),
     LIB_FUNC(inflateSetDictionary),
+#if ZLIB_VERNUM >= 0x1271
     LIB_FUNC(inflateGetDictionary),
+#endif
     LIB_FUNC(inflateSync),
     LIB_FUNC(inflateCopy),
     LIB_FUNC(inflateReset),
