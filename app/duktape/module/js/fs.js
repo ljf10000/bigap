@@ -27,12 +27,12 @@ mod.Fs = function (fd) {
 		__close(that);
 	};
 
-	that.read = function (buffer, size) {
-		return __libc__.read(that.fd, buffer, size);
+	that.read = function (buffer) {
+		return __libc__.read(that.fd, buffer);
 	};
 
-	that.write = function (buffer, size) {
-		return __libc__.write(that.fd, buffer, size);
+	that.write = function (buffer) {
+		return __libc__.write(that.fd, buffer);
 	};
 };
 

@@ -44,19 +44,19 @@ mod.Stream = function (filename, mode) {
 		__close(that);
 	};
 
-	that.read = function (buffer, size) {
-		return __libc__.fread(buffer, size, 1, that.stream);
+	that.read = function (buffer) {
+		return __libc__.fread(that.stream, buffer);
 	};
 
 	that.readEx = function (size) {
 		return __libc__.freadEx(that.stream, size);
 	};
 
-	that.write = function (buffer, size) {
+	that.write = function (buffer) {
 		if (that.pipe) {
 			return -__libc__.ENOSUPPORT;
 		} else {
-			return __libc__.fwrite(buffer, size, 1, that.stream);
+			return __libc__.fwrite(that.stream, buffer);
 		}
 	};
 
