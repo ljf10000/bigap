@@ -5322,7 +5322,7 @@ duke_updwtmp(duk_context *ctx)
     return updwtmp(file, &u), 0;
 }
 
-#if duk_LIBUTIL
+#if duk_LIBC_UTIL
 // 29.12.3 Logging In and Out
 LIB_PARAM(login_tty, 1);
 static duk_ret_t

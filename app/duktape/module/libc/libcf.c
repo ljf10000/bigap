@@ -535,7 +535,7 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(pututline),
     LIB_FUNC(utmpname),
     LIB_FUNC(updwtmp),
-#if duk_LIBUTIL
+#if duk_LIBC_UTIL
     LIB_FUNC(login_tty),
     LIB_FUNC(login),
     LIB_FUNC(logout),

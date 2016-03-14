@@ -39,8 +39,8 @@
 #define duk_LIBC_LINUX      1
 #endif
 
-#ifndef duk_LIBUTIL
-#define duk_LIBUTIL         0
+#ifndef duk_LIBC_UTIL
+#define duk_LIBC_UTIL       0
 #endif
 
 #ifndef duk_LIBCURL
