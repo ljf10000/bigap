@@ -493,7 +493,7 @@ os_str_is_end_by(char *s, char *end)
     if (slen >= elen) {
         os_println("s=%s, begen=%s, end=%s, slen=%d, elen=%d",
             s, s + slen - elen, end, slen, elen);
-        return os_memcmp(s + slen - elen, end, elen);
+        return os_memeq(s + slen - elen, end, elen);
     } else {
         return false;
     }
