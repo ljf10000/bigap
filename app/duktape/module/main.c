@@ -79,7 +79,7 @@ __register(duk_context *ctx)
     int i, err;
 
     for (i=0; i<os_count_of(array); i++) {
-        err = (*array[i](ctx);
+        err = (*array[i])(ctx);
         if (err<0) {
             return err;
         }
