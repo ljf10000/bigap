@@ -96,7 +96,7 @@ is_good_str(const char *s)
 static inline char *
 os_safe_str(const char *s)
 {
-    return s?s:__nil;
+    return s?(char *)s:__nil;
 }
 
 static inline int
@@ -295,7 +295,7 @@ os_strncmp(const char *a, const char *b, int len)
 static inline char *
 __os_strlast(const char *s)
 {
-    return s?(s + os_strlen(s) - 1):NULL;
+    return s?((char *)s + os_strlen(s) - 1):NULL;
 }
 
 static inline char *

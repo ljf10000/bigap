@@ -16,9 +16,7 @@ LIB_PARAM(zlibVersion, 0);
 static duk_ret_t
 duke_zlibVersion(duk_context *ctx)
 {
-    char *version = zlibVersion();
-
-    return __push_string(ctx, version), 1;
+    return __push_string(ctx, zlibVersion()), 1;
 }
 
 LIB_PARAM(deflateInit, 1);
