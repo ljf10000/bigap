@@ -382,7 +382,7 @@ duke_curl_formadd(duk_context *ctx)
     
     int argc = duk_get_argc(ctx);
     if (argc < (1+2*1) || argc > (1+2*32) || 1!=(argc%2)) {
-        err = -EFORMAT; __seterrno(ctx, err); 
+        err = __seterrno(ctx, -EFORMAT); 
 
         return duk_push_int(ctx, err), 1;
     }
@@ -411,7 +411,7 @@ duke_curl_formadd(duk_context *ctx)
             case CURLFORM_CONTENTTYPE:
             case CURLFORM_FILENAME:
                 if (false==duk_is_string(ctx, idx)) {
-                    err = -EFORMAT; __seterrno(ctx, err); 
+                    err = __seterrno(ctx, -EFORMAT); 
 
                     return duk_push_int(ctx, err), 1;
                 }
@@ -423,7 +423,7 @@ duke_curl_formadd(duk_context *ctx)
             case CURLFORM_BUFFER:
             case CURLFORM_BUFFERPTR:
                 if (false==duk_is_buffer(ctx, idx)) {
-                    err = -EFORMAT; __seterrno(ctx, err); 
+                    err = __seterrno(ctx, -EFORMAT); 
 
                     return duk_push_int(ctx, err), 1;
                 }
@@ -435,7 +435,7 @@ duke_curl_formadd(duk_context *ctx)
             case CURLFORM_CONTENTSLENGTH:
             case CURLFORM_BUFFERLENGTH:
                 if (false==duk_is_int(ctx, idx)) {
-                    err = -EFORMAT; __seterrno(ctx, err); 
+                    err = __seterrno(ctx, -EFORMAT); 
 
                     return duk_push_int(ctx, err), 1;
                 }
@@ -446,7 +446,7 @@ duke_curl_formadd(duk_context *ctx)
             case CURLFORM_ARRAY:
             case CURLFORM_CONTENTHEADER:
             default:
-                err = -ENOSUPPORT; __seterrno(ctx, err); 
+                err = __seterrno(ctx, -ENOSUPPORT); 
 
                 return duk_push_int(ctx, err), 1;
         }
@@ -521,7 +521,7 @@ duke_curl_formadd(duk_context *ctx)
         params_case(30);
         params_case(31);
         params_case(32);
-        default:err = -EFORMAT; __seterrno(ctx, err); break;
+        default:err = __seterrno(ctx, -EFORMAT); break;
     }
     
 #undef params

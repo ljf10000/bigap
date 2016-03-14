@@ -189,6 +189,7 @@ enum {
     EBADJSON    = ERRNO(26),
     EBADSTATE   = ERRNO(27),
     EBADHEX     = ERRNO(28),
+    EBADARGS    = ERRNO(29),
     
     ETOOBIG     = ERRNO(30),
     ETOOSMALL   = ERRNO(31),

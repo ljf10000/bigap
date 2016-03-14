@@ -677,7 +677,7 @@ __set_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_t
     duk_put_prop_index(ctx, idx, aidx);
 }
 
-static inline void
+static inline int
 __seterrno(duk_context *ctx, int err)
 {
     duk_push_global_object(ctx);
@@ -686,6 +686,8 @@ __seterrno(duk_context *ctx, int err)
         }
     	duk_pop(ctx);
     duk_pop(ctx);
+
+    return err;
 }
 #define seterrno(_ctx)  __seterrno(ctx, -errno)
 

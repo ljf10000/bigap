@@ -41,6 +41,7 @@ static const dukc_func_entry_t libz_func[] = {
 #endif
     LIB_FUNC(gzsetparams),
     LIB_FUNC(gzread),
+    LIB_FUNC(gzreadEx),
     LIB_FUNC(gzwrite),
     LIB_FUNC(gzputs),
     LIB_FUNC(gzgets),

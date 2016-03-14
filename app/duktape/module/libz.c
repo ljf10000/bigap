@@ -159,7 +159,7 @@ duke_inflateEnd(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(deflateSetDictionary, 3);
+LIB_PARAM(deflateSetDictionary, 2);
 static duk_ret_t
 duke_deflateSetDictionary(duk_context *ctx)
 {
@@ -168,17 +168,12 @@ duke_deflateSetDictionary(duk_context *ctx)
     int err = 0;
     
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
-    err = duk_require_buffer_or_lstring(ctx, 0, &buf, &bsize);
+    err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
-    
-    int size = duk_require_int(ctx, 1);
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
 
-    err = deflateSetDictionary(f, buf, size);
+    err = deflateSetDictionary(f, buf, bsize);
     
 error:
     return duk_push_uint(ctx, err), 1;
@@ -293,7 +288,7 @@ duke_deflateSetHeader(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(inflateSetDictionary, 3);
+LIB_PARAM(inflateSetDictionary, 2);
 static duk_ret_t
 duke_inflateSetDictionary(duk_context *ctx)
 {
@@ -302,17 +297,12 @@ duke_inflateSetDictionary(duk_context *ctx)
     int err = 0;
     
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
-    err = duk_require_buffer_or_lstring(ctx, 0, &buf, &bsize);
+    err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
     
-    int size = duk_require_int(ctx, 1);
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
-
-    err = inflateSetDictionary(f, buf, size);
+    err = inflateSetDictionary(f, buf, bsize);
     
 error:
     return duk_push_uint(ctx, err), 1;
@@ -543,28 +533,40 @@ duke_gzsetparams(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzread, 3);
+LIB_PARAM(gzread, 2);
 static duk_ret_t
 duke_gzread(duk_context *ctx)
 {
     duk_size_t bsize = 0;
-    int err     = 0;
-    
+
     gzFile f = (gzFile)duk_require_pointer(ctx, 0);
     void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
-    int size = duk_require_int(ctx, 2);
 
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
+    int err = gzread(f, buf, bsize);
+
+	return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(gzreadEx, 2);
+static duk_ret_t
+duke_gzreadEx(duk_context *ctx)
+{
+    int err = 0;
+    
+    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    int size    = duk_require_int(ctx, 1);
+
+    void *buf = __push_dynamic_buffer(ctx, size);
+    if (NULL==buf) {
+        err = __seterrno(ctx, -ENOMEM); goto error;
     }
 
     err = gzread(f, buf, size);
-    
 error:
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzwrite, 3);
+LIB_PARAM(gzwrite, 2);
 static duk_ret_t
 duke_gzwrite(duk_context *ctx)
 {
@@ -578,12 +580,7 @@ duke_gzwrite(duk_context *ctx)
         __seterrno(ctx, err); goto error;
     }
 
-    int size = duk_require_int(ctx, 2);
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
-
-    err = gzwrite(f, buf, size);
+    err = gzwrite(f, buf, bsize);
     
 error:
 	return duk_push_int(ctx, err), 1;
@@ -765,7 +762,7 @@ duke_adler32(duk_context *ctx)
     int size = duk_require_int(ctx, 2);
 
     if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -E2SMALL); goto error;
     }
 
     err = adler32(adler, buf, size);
@@ -786,7 +783,7 @@ duke_crc32(duk_context *ctx)
     int size = duk_require_int(ctx, 2);
 
     if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -E2SMALL); goto error;
     }
 
     err = crc32(adler, buf, size);

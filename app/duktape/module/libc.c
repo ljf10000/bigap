@@ -108,7 +108,7 @@ duke_signalfd(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL2; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL2); goto error;
     }
     int flags = duk_require_int(ctx, 2);
     
@@ -156,7 +156,7 @@ duke_epoll_wait(duk_context *ctx)
     int epfd = duk_require_int(ctx, 0);
     void *buffer = duk_require_buffer_data(ctx, 1, &bsize);
     if (0!=bsize%duk_epoll_event_size) {
-        err = -EINVAL2; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL2); goto error;
     } else {
         count = bsize/duk_epoll_event_size;
         ev = (struct epoll_event *)buffer;
@@ -183,7 +183,7 @@ duke_epoll_pwait(duk_context *ctx)
     int epfd = duk_require_int(ctx, 0);
     void *buffer = duk_require_buffer_data(ctx, 1, &bsize);
     if (0!=bsize%duk_epoll_event_size) {
-        err = -EINVAL2; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL2); goto error;
     } else {
         count = bsize/duk_epoll_event_size;
         ev = (struct epoll_event *)buffer;
@@ -191,7 +191,7 @@ duke_epoll_pwait(duk_context *ctx)
     int timeout = duk_require_int(ctx, 2);
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 3, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL4; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL4); goto error;
     }
     
     err = epoll_pwait(epfd, ev, count, timeout, set);
@@ -501,23 +501,16 @@ duke_fclose(duk_context *ctx)
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(fread, 4);
+LIB_PARAM(fread, 2);
 static duk_ret_t
 duke_fread(duk_context *ctx)
 {
     duk_size_t bsize = 0;
-    int err     = 0;
-    void *buf   = duk_require_buffer_data(ctx, 0, &bsize);
-    int size    = duk_require_int(ctx, 1);
-    int count   = duk_require_int(ctx, 2);
-    FILE *f     = (FILE *)duk_require_pointer(ctx, 3);
-    
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
 
-    err = fread(buf, size, count, f);
+    FILE *f     = (FILE *)duk_require_pointer(ctx, 0);
+    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
 
+    int err = fread(buf, 1, bsize, f);
 error:
 	return duk_push_int(ctx, err), 1;
 }
@@ -545,29 +538,20 @@ duke_freadEx(duk_context *ctx)
 	return 1;
 }
 
-LIB_PARAM(fwrite, 4);
+LIB_PARAM(fwrite, 2);
 static duk_ret_t
 duke_fwrite(duk_context *ctx)
 {
+    void *buf = NULL;
     duk_size_t bsize = 0;
-    void *buf;
     
-    int err = duk_require_buffer_or_lstring(ctx, 0, &buf, &bsize);
+    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
-
-    int size = duk_require_int(ctx, 1);
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
     
-    int count   = duk_require_int(ctx, 2);
-    FILE *f     = (FILE *)duk_require_pointer(ctx, 3);
-    
-
-    err = fwrite(buf, size, count, f);
-
+    err = fwrite(buf, 1, bsize, f);
 error:
     return duk_push_uint(ctx, err), 1;
 }
@@ -666,27 +650,19 @@ duke_close(duk_context *ctx)
     return __push_error(ctx, err), 1;
 }
 
-LIB_PARAM(read, 3);
+LIB_PARAM(read, 2);
 static duk_ret_t
 duke_read(duk_context *ctx)
 {
+    void *buf;
     duk_size_t bsize = 0;
-    int err     = 0;
+    
     int fd      = duk_require_int(ctx, 0);
     void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
-    int size    = duk_require_int(ctx, 2);
     
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
+    int err = read(fd, buf, bsize);
 
-    err = read(fd, buf, size);
-    if (err<0) {
-        seterrno(ctx);
-    }
-
-error:
-    return duk_push_int(ctx, err), 1;
+    return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(readEx, 2);
@@ -698,7 +674,7 @@ duke_readEx(duk_context *ctx)
 
     void *buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
-        __seterrno(ctx, ENOMEM); goto error;
+        __seterrno(ctx, -ENOMEM); goto error;
     }
 
     int err = read(fd, buf, size);
@@ -712,12 +688,12 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(write, 3);
+LIB_PARAM(write, 2);
 static duk_ret_t
 duke_write(duk_context *ctx)
 {
     duk_size_t bsize = 0;
-    void *buf;
+    void *buf = NULL;
     
     int fd      = duk_require_int(ctx, 0);
     int err     = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
@@ -725,12 +701,7 @@ duke_write(duk_context *ctx)
         __seterrno(ctx, err); goto error;
     }
     
-    int size    = duk_require_int(ctx, 2);
-    if (bsize < size) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
-    }
-
-    err = write(fd, buf, size);
+    err = write(fd, buf, bsize);
     if (err<0) {
         seterrno(ctx); goto error;
     }
@@ -739,9 +710,23 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(preadEx, 3);
+LIB_PARAM(pread, 3);
 static duk_ret_t
 duke_pread(duk_context *ctx)
+{
+    duk_size_t bsize = 0;
+    int fd      = duk_require_int(ctx, 0);
+    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    int offset  = duk_require_int(ctx, 2);
+
+    int err = pread(fd, buf, bsize, offset);
+
+    return __push_error(ctx, err), 1;
+}
+
+LIB_PARAM(preadEx, 3);
+static duk_ret_t
+duke_preadEx(duk_context *ctx)
 {
     int fd      = duk_require_int(ctx, 0);
     int size    = duk_require_int(ctx, 1);
@@ -749,7 +734,7 @@ duke_pread(duk_context *ctx)
 
     void *buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
-        __seterrno(ctx, ENOMEM); goto error;
+        __seterrno(ctx, -ENOMEM); goto error;
     }
 
     int err = pread(fd, buf, size, offset);
@@ -763,31 +748,7 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(pread, 4);
-static duk_ret_t
-duke_preadEx(duk_context *ctx)
-{
-    duk_size_t bsize = 0;
-    int fd      = duk_require_int(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
-    int size    = duk_require_int(ctx, 2);
-    int offset  = duk_require_int(ctx, 3);
-    int err     = 0;
-    
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
-    
-    err = pread(fd, buf, size, offset);
-    if (err<0) {
-        seterrno(ctx);
-    }
-
-error:
-    return duk_push_int(ctx, err), 1;
-}
-
-LIB_PARAM(pwrite, 4);
+LIB_PARAM(pwrite, 3);
 static duk_ret_t
 duke_pwrite(duk_context *ctx)
 {
@@ -799,15 +760,9 @@ duke_pwrite(duk_context *ctx)
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
+    int offset  = duk_require_int(ctx, 2);
     
-    int size    = duk_require_int(ctx, 2);
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
-    int offset  = duk_require_int(ctx, 3);
-    
-    
-    err = pwrite(fd, buf, size, offset);
+    err = pwrite(fd, buf, bsize, offset);
     if (err<0) {
         seterrno(ctx);
     }
@@ -983,7 +938,7 @@ duke_FD_ZERO(duk_context *ctx)
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(fd_set)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
     
     FD_ZERO(set);
@@ -1001,7 +956,7 @@ duke_FD_SET(duk_context *ctx)
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(fd_set)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
     int fd = duk_require_int(ctx, 1);
 
@@ -1020,7 +975,7 @@ duke_FD_CLR(duk_context *ctx)
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(fd_set)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
     int fd = duk_require_int(ctx, 1);
 
@@ -1039,7 +994,7 @@ duke_FD_ISSET(duk_context *ctx)
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(fd_set)) {
-        err = -EINVAL1; __seterrno(ctx, err); return duk_push_false(ctx), 1;
+        err = __seterrno(ctx, -EINVAL1); return duk_push_false(ctx), 1;
     }
     int fd = duk_require_int(ctx, 1);
 
@@ -1061,21 +1016,21 @@ duke_select(duk_context *ctx)
     if (duk_is_buffer(ctx, 1)) {
         rset = (fd_set *)duk_require_buffer_data(ctx, 1, &bsize);
         if (bsize!=sizeof(fd_set)) {
-            err = -EINVAL2; __seterrno(ctx, err); goto error;
+            err = __seterrno(ctx, -EINVAL2); goto error;
         }
     }
 
     if (duk_is_buffer(ctx, 2)) {
         wset = (fd_set *)duk_require_buffer_data(ctx, 2, &bsize);
         if (bsize!=sizeof(fd_set)) {
-            err = -EINVAL3; __seterrno(ctx, err); goto error;
+            err = __seterrno(ctx, -EINVAL3); goto error;
         }
     }
 
     if (duk_is_buffer(ctx, 3)) {
         eset = (fd_set *)duk_require_buffer_data(ctx, 3, &bsize);
         if (bsize!=sizeof(fd_set)) {
-            err = -EINVAL4; __seterrno(ctx, err); goto error;
+            err = __seterrno(ctx, -EINVAL4); goto error;
         }
     }
     
@@ -1149,8 +1104,7 @@ duke_fcntl(duk_context *ctx)
             
         }   break;
         default:
-            err = -ENOSUPPORT;
-            __seterrno(ctx, err);
+            err = __seterrno(ctx, -ENOSUPPORT);
             break;
     }
     
@@ -2385,26 +2339,21 @@ duke_getpeername(duk_context *ctx)
     return __push_error(ctx, err), 1;
 }
 
-LIB_PARAM(send, 4);
+LIB_PARAM(send, 3);
 static duk_ret_t
 duke_send(duk_context *ctx)
 {
     duk_size_t bsize = 0;
     void *buf;
     
-    int fd      = duk_require_int(ctx, 0);
-    int err     = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
+    int fd  = duk_require_int(ctx, 0);
+    int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
-    int size    = duk_require_int(ctx, 2);
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
-    int flag    = duk_require_int(ctx, 3);
-    
+    int flag= duk_require_int(ctx, 2);
 
-    err = send(fd, buf, size, flag);
+    err = send(fd, buf, bsize, flag);
     if (err<0) {
         seterrno(ctx); goto error;
     }
@@ -2413,32 +2362,22 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(recv, 4);
+LIB_PARAM(recv, 3);
 static duk_ret_t
 duke_recv(duk_context *ctx)
 {
     duk_size_t bsize = 0;
-    int err     = 0;
     int fd      = duk_require_int(ctx, 0);
     void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
-    int size    = duk_require_int(ctx, 2);
-    int flag    = duk_require_int(ctx, 3);
+    int flag    = duk_require_int(ctx, 2);
     
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
-    
-    err = recv(fd, buf, size, flag);
-    if (err<0) {
-        seterrno(ctx); goto error;
-    }
-    
-error:
-    return duk_push_int(ctx, err), 1;
+    int err = recv(fd, buf, bsize, flag);
+
+    return __push_error(ctx, err), 1;
 }
 
 // 16.10 Datagram Socket Operations
-LIB_PARAM(sendto, 5);
+LIB_PARAM(sendto, 4);
 static duk_ret_t
 duke_sendto(duk_context *ctx)
 {
@@ -2451,18 +2390,13 @@ duke_sendto(duk_context *ctx)
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
-    int size    = duk_require_int(ctx, 2);
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
-    int flag    = duk_require_int(ctx, 3);
-    
-    err = __get_sockaddr(ctx, 4, &sa);
+    int flag    = duk_require_int(ctx, 2);
+    err = __get_sockaddr(ctx, 3, &sa);
     if (err<0) {
         goto error;
     }
     
-    err = sendto(fd, buf, size, flag, &sa.c, os_sockaddr_len(&sa.c));
+    err = sendto(fd, buf, bsize, flag, &sa.c, os_sockaddr_len(&sa.c));
     if (err<0) {
         seterrno(ctx); goto error;
     }
@@ -2471,28 +2405,23 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(recvfrom, 5);
+LIB_PARAM(recvfrom, 4);
 static duk_ret_t
 duke_recvfrom(duk_context *ctx)
 {
     socklen_t len = sizeof(sockaddr_t);
     os_sockaddr_t sa = OS_SOCKADDR_ZERO();
     duk_size_t bsize = 0;
-    int err     = 0;
+
     int fd      = duk_require_int(ctx, 0);
     void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
-    int size    = duk_require_int(ctx, 2);
-    int flag    = duk_require_int(ctx, 3);
+    int flag    = duk_require_int(ctx, 2);
     
-    if (bsize < size) {
-        err = -E2SMALL; __seterrno(ctx, err); goto error;
-    }
-    
-    err = recvfrom(fd, buf, size, flag, &sa.c, &len);
+    int err = recvfrom(fd, buf, size, flag, &sa.c, &len);
     if (err<0) {
         seterrno(ctx);
     } else {
-        __set_sockaddr(ctx, 4, &sa);
+        __set_sockaddr(ctx, 3, &sa);
     }
 
 error:
@@ -4213,7 +4142,7 @@ duke_CPU_ZERO(duk_context *ctx)
     
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
     CPU_ZERO(set);
     
@@ -4231,7 +4160,7 @@ duke_CPU_SET(duk_context *ctx)
     int cpu = duk_require_int(ctx, 0);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = -EINVAL2; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL2); goto error;
     }
     CPU_SET(cpu, set);
     
@@ -4249,7 +4178,7 @@ duke_CPU_CLR(duk_context *ctx)
     int cpu = duk_require_int(ctx, 0);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = -EINVAL2; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL2); goto error;
     }
     CPU_CLR(cpu, set);
     
@@ -4267,7 +4196,7 @@ duke_CPU_ISSET(duk_context *ctx)
     int cpu = duk_require_int(ctx, 0);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = -EINVAL2; __seterrno(ctx, err); return duk_push_false(ctx), 1;
+        err = __seterrno(ctx, -EINVAL2); return duk_push_false(ctx), 1;
     }
     
     return duk_push_bool(ctx, CPU_ISSET(cpu, set)), 1;
@@ -4284,7 +4213,7 @@ duke_sched_getaffinity(duk_context *ctx)
     size_t size = duk_require_uint(ctx, 1);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = -EINVAL3; __seterrno(ctx, err); return duk_push_false(ctx), 1;
+        err = __seterrno(ctx, -EINVAL3); return duk_push_false(ctx), 1;
     }
 
     err = sched_getaffinity(pid, size, set);
@@ -4307,7 +4236,7 @@ duke_sched_setaffinity(duk_context *ctx)
     size_t size = duk_require_uint(ctx, 1);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = -EINVAL3; __seterrno(ctx, err); return duk_push_false(ctx), 1;
+        err = __seterrno(ctx, -EINVAL3); return duk_push_false(ctx), 1;
     }
 
     err = sched_setaffinity(pid, size, set);
@@ -4519,7 +4448,7 @@ duke_sigemptyset(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
     
     err = sigemptyset(set);
@@ -4537,7 +4466,7 @@ duke_sigfillset(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
 
     err = sigfillset(set);
@@ -4555,7 +4484,7 @@ duke_sigaddset(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
     int sig = duk_require_int(ctx, 1);
     
@@ -4574,7 +4503,7 @@ duke_sigdelset(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
     int sig = duk_require_int(ctx, 1);
     
@@ -4593,7 +4522,7 @@ duke_sigismember(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL1; __seterrno(ctx, err); duk_push_false(ctx), 1;
+        err = __seterrno(ctx, -EINVAL1); duk_push_false(ctx), 1;
     }
     int sig = duk_require_int(ctx, 1);
     
@@ -4611,13 +4540,13 @@ duke_sigprocmask(duk_context *ctx)
     int how = duk_require_int(ctx, 0);
     new = (sigset_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL2; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL2); goto error;
     }
 
     if (2==duk_get_argc(ctx) && duk_is_buffer(ctx, 2)) {
         old = (sigset_t *)duk_require_buffer_data(ctx, 2, &bsize);
         if (bsize!=sizeof(sigset_t)) {
-            err = -EINVAL3; __seterrno(ctx, err); goto error;
+            err = __seterrno(ctx, -EINVAL3); goto error;
         }
     }
     
@@ -4639,7 +4568,7 @@ duke_sigpending(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
     
     err = sigpending(set);
@@ -4666,7 +4595,7 @@ duke_sigsuspend(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = -EINVAL1; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL1); goto error;
     }
     
     err = sigsuspend(set);
@@ -5810,7 +5739,7 @@ duke_confstr(duk_context *ctx)
     
     int parameter = duk_require_int(ctx, 0);
     if (false==duk_is_dynamic_buffer(ctx, 1)) {
-        err = -EINVAL; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -EINVAL); goto error;
     }
     
     size_t len = confstr(parameter, NULL, 0);

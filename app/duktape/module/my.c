@@ -116,12 +116,12 @@ duke_readline(duk_context * ctx)
 
     line = (char *)os_malloc(1+OS_FILE_LEN);
     if (NULL==line) {
-        err = -ENOMEM; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -ENOMEM); goto error;
     }
     
     f = os_fopen(filename, "r");
     if (NULL==f) {
-        err = -ENOEXIST; __seterrno(ctx, err); goto error;
+        err = __seterrno(ctx, -ENOEXIST); goto error;
     }
 
     while(!os_feof(f)) {
@@ -151,7 +151,7 @@ duke_readline(duk_context * ctx)
         duk_pop(ctx);                           // pop callback result  , empty
         
         if (DUK_EXEC_ERROR==exec) { // check callback exec
-            err = -ESCRIPT; __seterrno(ctx, err); goto error;
+            err = __seterrno(ctx, -ESCRIPT); goto error;
         }
         else if (err<0) {             // check callback result
             goto error;
