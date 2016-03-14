@@ -831,16 +831,20 @@ static void
 __feval(duk_context *ctx, char *filename)
 {
     debug_js("eval %s ...", filename);
+    
     bool ok = os_file_exist(filename) && 0==duk_peval_file_noresult(ctx, filename);
-    debug_js("eval %s %s.", filename, ok?"OK":"FAIL");
+    
+    debug_js("eval %s %s.", filename, __ok_string(ok));
 }
 
 static void
 __ceval(duk_context *ctx, char *tag, char *code)
 {
     debug_js("%s eval ...", tag);
+
     bool ok = (0==duk_peval_string_noresult(ctx, code));
-    debug_js("%s eval %s.", tag, ok?"OK":"FAIL");
+
+    debug_js("%s eval %s.", tag, __ok_string(ok));
 }
 
 extern duk_context *__ctx;

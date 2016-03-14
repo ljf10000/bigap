@@ -82,7 +82,7 @@ __main(int argc, char *argv[])
 
     __buildin_eval(ctx);
     __auto_eval(ctx);
-    
+
     duk_peval_file(ctx, argv[1]);
     duk_pop(ctx);
 

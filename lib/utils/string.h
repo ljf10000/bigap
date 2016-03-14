@@ -5,6 +5,10 @@
 #define __empty         ""
 #endif
 
+#ifndef __
+#define __(x)           #x
+#endif
+
 #ifndef __space
 #define __space         " "
 #endif
@@ -15,6 +19,14 @@
 
 #ifndef __nil
 #define __nil           "nil"
+#endif
+
+#ifndef __ok
+#define __ok            "ok"
+#endif
+
+#ifndef __fail
+#define __fail          "fail"
 #endif
 
 #ifndef __space2
@@ -31,6 +43,14 @@
 
 #ifndef __blanks
 #define __blanks        "\t \r\n"
+#endif
+
+#ifndef __ok_string
+#define __ok_string(__is_ok)        ((__is_ok)?__ok:__fail)
+#endif
+
+#ifndef __true_string
+#define __true_string(__is_true)    ((__is_true)?"true":"false")
 #endif
 
 #ifndef __tab
