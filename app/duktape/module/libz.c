@@ -246,6 +246,8 @@ duke_deflateBound(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
+
+#if ZLIB_VERNUM >= 0x1251
 LIB_PARAM(deflatePending, 3);
 static duk_ret_t
 duke_deflatePending(duk_context *ctx)
@@ -261,6 +263,7 @@ duke_deflatePending(duk_context *ctx)
     
     return duk_push_int(ctx, err), 1;
 }
+#endif
 
 LIB_PARAM(deflatePrime, 3);
 static duk_ret_t
@@ -512,6 +515,7 @@ duke_gzdopen(duk_context *ctx)
     return __push_pointer(ctx, f), 1;
 }
 
+#if ZLIB_VERNUM >= 0x1235
 LIB_PARAM(gzbuffer, 2);
 static duk_ret_t
 duke_gzbuffer(duk_context *ctx)
@@ -523,6 +527,7 @@ duke_gzbuffer(duk_context *ctx)
     
     return duk_push_int(ctx, err), 1;
 }
+#endif
 
 LIB_PARAM(gzsetparams, 3);
 static duk_ret_t
@@ -701,6 +706,7 @@ duke_gzclose(duk_context *ctx)
     return duk_push_bool(ctx, err), 1;
 }
 
+#if ZLIB_VERNUM >= 0x1235
 LIB_PARAM(gzclose_r, 1);
 static duk_ret_t
 duke_gzclose_r(duk_context *ctx)
@@ -722,6 +728,7 @@ duke_gzclose_w(duk_context *ctx)
     
     return duk_push_bool(ctx, err), 1;
 }
+#endif
 
 LIB_PARAM(gzerror, 1);
 static duk_ret_t

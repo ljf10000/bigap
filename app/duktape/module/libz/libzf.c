@@ -14,7 +14,9 @@ static const dukc_func_entry_t libz_func[] = {
     LIB_FUNC(deflateParams),
     LIB_FUNC(deflateTune),
     LIB_FUNC(deflateBound),
+#if ZLIB_VERNUM >= 0x1251
     LIB_FUNC(deflatePending),
+#endif
     LIB_FUNC(deflatePrime),
     LIB_FUNC(deflateSetHeader),
     LIB_FUNC(inflateSetDictionary),
@@ -34,7 +36,9 @@ static const dukc_func_entry_t libz_func[] = {
     LIB_FUNC(compressBound),
     LIB_FUNC(uncompress),
     LIB_FUNC(gzdopen),
+#if ZLIB_VERNUM >= 0x1235
     LIB_FUNC(gzbuffer),
+#endif
     LIB_FUNC(gzsetparams),
     LIB_FUNC(gzread),
     LIB_FUNC(gzwrite),
@@ -48,8 +52,10 @@ static const dukc_func_entry_t libz_func[] = {
     LIB_FUNC(gzeof),
     LIB_FUNC(gzdirect),
     LIB_FUNC(gzclose),
+#if ZLIB_VERNUM >= 0x1235
     LIB_FUNC(gzclose_r),
     LIB_FUNC(gzclose_w),
+#endif
     LIB_FUNC(gzerror),
     LIB_FUNC(gzclearerr),
     LIB_FUNC(adler32),
