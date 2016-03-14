@@ -781,7 +781,7 @@ duke_crc32(duk_context *ctx)
         err = -E2SMALL; __seterrno(ctx, err); goto error;
     }
 
-    err = crc32(adler, buf, len);
+    err = crc32(adler, buf, size);
     
 error:
 	return duk_push_int(ctx, err), 1;
