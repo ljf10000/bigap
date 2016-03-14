@@ -33,6 +33,14 @@
 #ifndef uint64_t
 #define uint64_t        uint64_t
 #endif
+
+#ifndef ulong_t
+#define ulong_t         unsigned long
+#endif
+
+#ifndef uint
+#define uint            unsigned int
+#endif
 #endif /* just for sourceinsight */
 
 #ifndef float32_t

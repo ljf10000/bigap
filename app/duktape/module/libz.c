@@ -476,7 +476,7 @@ duke_compress(duk_context *ctx)
 
     void *dst = duk_require_buffer_data(ctx, 0, &dst_size);
     void *src = duk_require_buffer_data(ctx, 1, &src_size);
-    unsigned long dst_len = compressBound(src_size);
+    ulong_t dst_len = compressBound(src_size);
 
     if (dst_len>dst_size) {
         err = __seterrno(ctx, -ENOSPACE); goto error;
@@ -500,7 +500,7 @@ duke_compressEx(duk_context *ctx)
     duk_size_t src_size = 0;
 
     void *src = duk_require_buffer_data(ctx, 0, &src_size);
-    unsigned long dst_size = compressBound(src_size);
+    ulong_t dst_size = compressBound(src_size);
 
     void *dst = __push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
@@ -528,7 +528,7 @@ duke_compress2(duk_context *ctx)
     void *dst = duk_require_buffer_data(ctx, 0, &dst_size);
     void *src = duk_require_buffer_data(ctx, 1, &src_size);
     int level = duk_require_int(ctx, 2);
-    unsigned long dst_len = compressBound(src_size);
+    ulong_t dst_len = compressBound(src_size);
 
     if (dst_len>dst_size) {
         err = __seterrno(ctx, -ENOSPACE); goto error;
@@ -553,7 +553,7 @@ duke_compress2Ex(duk_context *ctx)
 
     void *src = duk_require_buffer_data(ctx, 0, &src_size);
     int level = duk_require_int(ctx, 1);
-    unsigned long dst_size = compressBound(src_size);
+    ulong_t dst_size = compressBound(src_size);
 
     void *dst = __push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
@@ -591,7 +591,7 @@ duke_uncompress(duk_context *ctx)
 
     void *dst = duk_require_buffer_data(ctx, 0, &dst_size);
     void *src = duk_require_buffer_data(ctx, 1, &src_size);
-    unsigned long dst_len = compressBound(src_size);
+    ulong_t dst_len = compressBound(src_size);
 
     if (dst_len>dst_size) {
         err = __seterrno(ctx, -ENOSPACE); goto error;
@@ -615,7 +615,7 @@ duke_uncompressEx(duk_context *ctx)
     duk_size_t src_size = 0;
 
     void *src = duk_require_buffer_data(ctx, 0, &src_size);
-    unsigned long dst_size = compressBound(src_size);
+    ulong_t dst_size = compressBound(src_size);
 
     void *dst = __push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
@@ -745,9 +745,10 @@ duke_gzgets(duk_context *ctx)
     gzFile f    = (gzFile)duk_require_pointer(ctx, 0);
     void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
 
-    int err = gzgets(f, buf, bsize);
-
-	return __push_error(ctx, err), 1;
+    char *s = gzgets(f, buf, bsize);
+    int len = os_strlen(s);
+    
+	return duk_push_int(ctx, len), 1;
 }
 
 LIB_PARAM(gzputc, 2);
@@ -872,9 +873,12 @@ duke_gzerror(duk_context *ctx)
     gzFile f = (gzFile)duk_require_pointer(ctx, 0);
 
     int err = 0;
-    char *errstring = gzerror(f, &err);
+    char *errstring = (char *)gzerror(f, &err);
 
-    // push obj
+    duk_push_object(ctx);
+        __set_obj_string(ctx, -1, "errstring", errstring);
+        __set_obj_int(ctx, -1, "errno", err);
+
     return 1;
 }
 
