@@ -491,6 +491,8 @@ os_str_is_end_by(char *s, char *end)
     uint32_t elen = os_strlen(end);
 
     if (slen >= elen) {
+        os_println("s=%s, begen=%s, end=%s, slen=%d, elen=%d",
+            s, s + slen - elen, end, slen, elen);
         return os_memcmp(s + slen - elen, end, elen);
     } else {
         return false;

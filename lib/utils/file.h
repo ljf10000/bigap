@@ -301,7 +301,7 @@ os_fscan_dir
         * file filter
         */
         if (file_filter && (*file_filter)(path, filename)) {
-            file_println("skip %s/%s", path, filename);
+            file_println("filter %s/%s", path, filename);
             
             continue;
         }
