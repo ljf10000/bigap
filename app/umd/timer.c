@@ -57,8 +57,7 @@ __is_gc(struct um_user *user, time_t now)
     return is;
 }
 
-mv_t 
-umd_gc(struct um_user *user)
+mv_t umd_gc(struct um_user *user)
 {
     if (is_noused(user)) {
         um_user_debug("gc", user, __is_ak_debug_gc);
@@ -69,8 +68,7 @@ umd_gc(struct um_user *user)
     return mv2_ok;
 }
 
-mv_t 
-umd_gc_auto(struct um_user *user, time_t now)
+mv_t umd_gc_auto(struct um_user *user, time_t now)
 {
     if (__is_gc(user, now)) {
         umd_gc(user);

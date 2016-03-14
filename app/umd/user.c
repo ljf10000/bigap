@@ -891,8 +891,7 @@ user_create(byte mac[])
     return __user_create(mac, NULL);
 }
 
-int
-user_delete(struct um_user *user)
+int user_delete(struct um_user *user)
 {
     return __user_delete(user, delete_cb);
 }
@@ -917,8 +916,7 @@ user_bind(struct um_user *user, uint32_t ip)
     return __user_bind(user, ip, bind_cb);
 }
 
-int
-user_unbind(struct um_user *user, int reason)
+int user_unbind(struct um_user *user, int reason)
 {
     if (is_valid_deauth_reason(reason)) {
         return __user_unbind(user, reason, unbind_cb);
@@ -933,14 +931,12 @@ user_auth(struct um_user *user, int group, jobj_t obj)
     return __user_auth(user, group, obj, auth_cb);
 }
 
-int 
-user_reauth(struct um_user *user)
+int user_reauth(struct um_user *user)
 {
     return __user_reauth(user, reauth_cb);
 }
 
-int
-user_deauth(struct um_user *user, int reason)
+int user_deauth(struct um_user *user, int reason)
 {
     if (is_valid_deauth_reason(reason)) {
         return __user_deauth(user, reason, deauth_cb);
@@ -976,8 +972,7 @@ um_tag_set(byte mac[], char *k, char *v)
     return __tag_set(__user_get(mac), k, v);
 }
 
-int
-um_user_delete(byte mac[])
+int um_user_delete(byte mac[])
 {
     return user_delete(__user_get(mac));
 }
@@ -997,8 +992,7 @@ um_user_enter(byte mac[], jobj_t obj)
     return user_enter(um_user_create(mac), obj);
 }
 
-int
-um_user_leave(byte mac[])
+int um_user_leave(byte mac[])
 {
     return user_leave(user_get(mac));
 }
@@ -1010,8 +1004,7 @@ um_user_bind(byte mac[], uint32_t ip)
     return user_bind(um_user_create(mac), ip);
 }
 
-int
-um_user_unbind(byte mac[])
+int um_user_unbind(byte mac[])
 {
     return user_unbind(user_get(mac), UM_DEAUTH_INITIATIVE);
 }
@@ -1022,20 +1015,17 @@ um_user_auth(byte mac[], int group, jobj_t obj)
     return user_auth(um_user_create(mac), group, obj);
 }
 
-int
-um_user_reauth(byte mac[])
+int um_user_reauth(byte mac[])
 {
     return user_reauth(user_get(mac));
 }
 
-int
-um_user_deauth(byte mac[], int reason)
+int um_user_deauth(byte mac[], int reason)
 {
     return user_deauth(user_get(mac), reason);
 }
 
-int
-um_user_foreach(um_foreach_f *foreach, bool safe)
+int um_user_foreach(um_foreach_f *foreach, bool safe)
 {
     return user_foreach(foreach, safe);
 }
@@ -1069,8 +1059,7 @@ um_user_getbyip(uint32_t ip)
     return NULL;
 }
 
-int
-um_user_delbyip(uint32_t ip)
+int um_user_delbyip(uint32_t ip)
 {
     return user_delete(um_user_getbyip(ip));
 }
@@ -1186,8 +1175,7 @@ juser_tag(struct um_user *user)
     return obj;
 }
 
-jobj_t
-um_juser(struct um_user *user)
+jobj_t um_juser(struct um_user *user)
 {
     jobj_t obj = jobj_new_object();
 
@@ -1287,8 +1275,7 @@ match_user(struct um_user *user, struct um_user_filter *filter)
     return true;
 }
 
-int
-um_user_delby(struct um_user_filter *filter)
+int um_user_delby(struct um_user_filter *filter)
 {
     mv_t cb(struct um_user *user)
     {
@@ -1302,8 +1289,7 @@ um_user_delby(struct um_user_filter *filter)
     return um_user_foreach(cb, true);
 }
 
-int
-um_user_getby(struct um_user_filter *filter, um_get_f *get)
+int um_user_getby(struct um_user_filter *filter, um_get_f *get)
 {
     mv_t cb(struct um_user *user)
     {
