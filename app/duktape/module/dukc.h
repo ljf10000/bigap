@@ -839,7 +839,7 @@ static void
 __ceval(duk_context *ctx, char *tag, char *code)
 {
     debug_js("%s eval ...", tag);
-    bool ok = duk_peval_string_noresult(ctx, code);
+    bool ok = (0==duk_peval_string_noresult(ctx, code));
     debug_js("%s eval %s.", tag, ok?"OK":"FAIL");
 }
 
