@@ -88,13 +88,13 @@
 #endif
 
 static inline bool
-is_good_str(char *s)
+is_good_str(const char *s)
 {
     return s && s[0];
 }
 
 static inline char *
-os_safe_str(char *s)
+os_safe_str(const char *s)
 {
     return s?s:__nil;
 }
@@ -293,13 +293,13 @@ os_strncmp(const char *a, const char *b, int len)
 #endif
 
 static inline char *
-__os_strlast(char *s)
+__os_strlast(const char *s)
 {
     return s?(s + os_strlen(s) - 1):NULL;
 }
 
 static inline char *
-os_strlast(char *s, int ch)
+os_strlast(const char *s, int ch)
 {
     char *last = __os_strlast(s);
 
@@ -533,13 +533,13 @@ os_str_drop(char *s, char_is_f *IS)
 }
 
 static inline bool 
-__is_blank_line(char *line)
+__is_blank_line(const char *line)
 {
     return 0==line[0] || '\n'==line[0] || ('\r'==line[0] && '\n'==line[1]);
 }
 
 static inline bool 
-__is_notes_line(char *line, char *notes)
+__is_notes_line(const char *line, const char *notes)
 {
     int len = os_strlen(notes);
 
@@ -547,7 +547,7 @@ __is_notes_line(char *line, char *notes)
 }
 
 static inline bool 
-__is_notes_line_deft(char *line)
+__is_notes_line_deft(const char *line)
 {
     return __is_notes_line(line, __notes);
 }
