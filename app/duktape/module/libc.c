@@ -654,7 +654,6 @@ LIB_PARAM(read, 2);
 static duk_ret_t
 duke_read(duk_context *ctx)
 {
-    void *buf;
     duk_size_t bsize = 0;
     
     int fd      = duk_require_int(ctx, 0);
@@ -2417,7 +2416,7 @@ duke_recvfrom(duk_context *ctx)
     void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
     int flag    = duk_require_int(ctx, 2);
     
-    int err = recvfrom(fd, buf, size, flag, &sa.c, &len);
+    int err = recvfrom(fd, buf, bsize, flag, &sa.c, &len);
     if (err<0) {
         seterrno(ctx);
     } else {
