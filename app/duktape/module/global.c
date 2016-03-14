@@ -80,11 +80,11 @@ static const dukc_func_entry_t global_func[] = {
 
 int global_register(duk_context *ctx)
 {
-    __ceval(ctx, "__js__", "const __js__ = Duktape;");
-    
     duk_push_global_object(ctx);
 	    duk_put_functions(ctx, -1, global_func);
 	duk_pop(ctx);
+	
+    __ceval(ctx, "__js__", "var __js__ = Duktape;");
 	
     return 0;
 }
