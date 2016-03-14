@@ -3,11 +3,11 @@
 #ifdef __APP__
 /******************************************************************************/
 #ifndef FILE_DPRINT
-#define FILE_DPRINT             0
+#define FILE_DPRINT             1
 #endif
 
-#if SHM_DPRINT
-#define file_println(_fmt, _args...)    printf(_fmt "\n", ##_args)
+#if FILE_DPRINT
+#define file_println(_fmt, _args...)    os_println(_fmt, ##_args)
 #else
 #define file_println(_fmt, _args...)    os_do_nothing()
 #endif
