@@ -194,9 +194,9 @@ duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, void **pbuf, duk_
     return 0;
 }
 
-static inline void __push_error(duk_context *ctx, int err);
+static inline int __push_error(duk_context *ctx, int err);
 
-static inline void
+static inline void *
 __push_pointer(duk_context *ctx, void *pointer)
 {
     if (pointer) {
@@ -204,62 +204,64 @@ __push_pointer(duk_context *ctx, void *pointer)
     } else {
         duk_push_null(ctx);
     }
+
+    return pointer;
 }
 
-static inline void
+static inline const char *
 __push_lstring(duk_context *ctx, const char *s, duk_size_t len)
 {
     if (is_good_str(s) && len>0) {
-        duk_push_lstring(ctx, s, len);
+        return duk_push_lstring(ctx, s, len);
     } else {
-        duk_push_null(ctx);
+        return duk_push_null(ctx), NULL;
     }
 }
 
-static inline void
+static inline const char *
 __push_string(duk_context *ctx, const char *s)
 {
     if (s) {
-        duk_push_string(ctx, s);
+        return duk_push_string(ctx, s);
     } else {
-        duk_push_null(ctx);
+        return duk_push_null(ctx), NULL;
     }
 }
 
-static inline void
+static inline void *
 __push_buffer(duk_context *ctx, duk_size_t size, bool dynamic)
 {
     if (size>0) {
-        duk_push_buffer(ctx, size, dynamic);
+        return duk_push_buffer(ctx, size, dynamic);
     } else {
-        duk_push_null(ctx);
+        return duk_push_null(ctx), NULL;
     }
 }
 
-static inline void
+static inline void *
 __push_fixed_buffer(duk_context *ctx, duk_size_t size)
 {
     if (size>0) {
-        duk_push_fixed_buffer(ctx, size);
+        return duk_push_fixed_buffer(ctx, size);
     } else {
-        duk_push_null(ctx);
+        return duk_push_null(ctx), NULL;
     }
 }
 
-static inline void
+static inline void *
 __push_dynamic_buffer(duk_context *ctx, duk_size_t size)
 {
     if (size>0) {
-        duk_push_dynamic_buffer(ctx, size);
+        return duk_push_dynamic_buffer(ctx, size);
     } else {
-        duk_push_null(ctx);
+        return duk_push_null(ctx), NULL;
     }
 }
 
-static inline void
+static inline void *
 __push_external_buffer(duk_context *ctx)
 {
-    duk_push_external_buffer(ctx);
+    return duk_push_buffer_raw(ctx, 0, DUK_BUF_FLAG_DYNAMIC | DUK_BUF_FLAG_EXTERNAL);
 }
 
 static inline void
@@ -689,7 +691,7 @@ __seterrno(duk_context *ctx, int err)
 
 typedef int dukc_obj_op_f(duk_context *ctx, duk_idx_t idx, void *obj);
 
-static inline void 
+static inline int 
 __push_error(duk_context *ctx, int err)
 {
     if (err<0) {
@@ -697,17 +699,21 @@ __push_error(duk_context *ctx, int err)
     }
 
     duk_push_int(ctx, err);
+    
+    return err;
 }
 
-static inline void
+static inline int
 __obj_push(duk_context *ctx, dukc_obj_op_f *set, void *obj)
 {
     if (obj) {
         duk_push_object(ctx);
     
-        (*set)(ctx, -1, obj);
+        return (*set)(ctx, -1, obj);
     } else {
         duk_push_null(ctx);
+
+        return 0;
     }
 }
 
