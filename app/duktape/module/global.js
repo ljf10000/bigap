@@ -3,6 +3,7 @@
 * 2. only use 'xxxxx'
 * 3. must keep last empty line
 */
+const __js__ = Duktape;
 
 function debug(level) {
 	__my__.debug(level, Array.prototype.slice.call(arguments).slice(1).toString());
