@@ -32,9 +32,12 @@ static const dukc_func_entry_t libz_func[] = {
     LIB_FUNC(inflateBackEnd),
     LIB_FUNC(zlibCompileFlags),
     LIB_FUNC(compress),
+    LIB_FUNC(compressEx),
     LIB_FUNC(compress2),
+    LIB_FUNC(compress2Ex),
     LIB_FUNC(compressBound),
     LIB_FUNC(uncompress),
+    LIB_FUNC(uncompressEx),
     LIB_FUNC(gzdopen),
 #if ZLIB_VERNUM >= 0x1235
     LIB_FUNC(gzbuffer),

@@ -747,8 +747,8 @@ __obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, v
 
 #define __obj_get(_ctx, _idx, _get, _obj, _k) \
     __obj_op(_ctx, false, _idx, _get, _obj, _k)
-#define __obj_set(_ctx, _idx, _get, _obj, _k) \
-    __obj_op(_ctx, true, _idx, _get, _obj, _k)
+#define __obj_set(_ctx, _idx, _set, _obj, _k) \
+    __obj_op(_ctx, true, _idx, _set, _obj, _k)
 
 static inline int
 __obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, void *obj, ...)

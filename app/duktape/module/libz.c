@@ -244,20 +244,24 @@ duke_deflateBound(duk_context *ctx)
 
 
 #if ZLIB_VERNUM >= 0x1251
-LIB_PARAM(deflatePending, 3);
+LIB_PARAM(deflatePending, 1);
 static duk_ret_t
 duke_deflatePending(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
-    unsigned *pending = (unsigned *)duk_require_pointer(ctx, 1);
-    int *bits = (int *)duk_require_pointer(ctx, 2);
+    unsigned int pending;
+    int bits;
 
-    /*
-    * todo: how ???
-    */
-    int err = deflatePending(f, pending, bits);
+    int err = deflatePending(f, &pending, &bits);
+    if (err<0) {
+        return duk_push_null(ctx, 1);
+    }
     
-    return duk_push_int(ctx, err), 1;
+    duk_push_object(ctx);
+        __set_obj_uint(ctx, -1, "pending", pending);
+        __set_obj_int(ctx, -1, "bits", bits);
+    
+    return 1;
 }
 #endif
 
@@ -313,12 +317,24 @@ static duk_ret_t
 duke_inflateGetDictionary(duk_context *ctx)
 {
     int err = 0;
+    duk_uint_t size = 0;
     
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
-
-    // todo
+    inflateGetDictionary(f, NULL, &size);
     
-    return duk_push_uint(ctx, err), 1;
+    void *buf = __push_dynamic_buffer(ctx, size);
+    if (NULL==buf) {
+        err = __seterrno(ctx, -ENOMEM); goto error;
+    }
+
+    err = inflateGetDictionary(f, buf, size);
+    if (err<0) {
+        duk_pop(ctx); goto error;
+    }
+
+    return 1;
+error:
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(inflateSync, 1);
@@ -448,26 +464,108 @@ duke_zlibCompileFlags(duk_context *ctx)
     return duk_push_uint(ctx, flag), 1;
 }
 
-LIB_PARAM(compress, 4);
+LIB_PARAM(compress, 2);
 static duk_ret_t
 duke_compress(duk_context *ctx)
 {
     int err = 0;
+    duk_size_t src_size = 0;
+    duk_size_t dst_size = 0;
 
-    // todo:
+    void *dst = duk_require_buffer_data(ctx, 0, &dst_size);
+    void *src = duk_require_buffer_data(ctx, 1, &src_size);
+    duk_size_t dst_len = compressBound(src_size);
+
+    if (dst_len>dst_size) {
+        err = __seterrno(ctx, -ENOSPACE); goto error;
+    }
     
-    return duk_push_uint(ctx, err), 1;
+    err = compress(dst, &dst_len, src, src_size);
+    if (err<0) {
+        __seterrno(ctx, err); goto error;
+    }
+
+    err = dst_len;    
+error:
+    return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(compress2, 5);
+LIB_PARAM(compressEx, 1);
+static duk_ret_t
+duke_compressEx(duk_context *ctx)
+{
+    int err = 0;
+    duk_size_t src_size = 0;
+
+    void *src = duk_require_buffer_data(ctx, 0, &src_size);
+    duk_size_t dst_size = compressBound(src_size);
+
+    void *dst = __push_dynamic_buffer(ctx, dst_size);
+    if (NULL==dst) {
+        __seterrno(ctx, -ENOMEM); goto error;
+    }
+
+    err = compress(dst, &dst_size, src, src_size);
+    if (err<0) {
+        __seterrno(ctx, err); goto error;
+    }
+    
+    return 1;
+error:
+    return duk_push_null(ctx), 1;
+}
+
+LIB_PARAM(compress2, 3);
 static duk_ret_t
 duke_compress2(duk_context *ctx)
 {
     int err = 0;
+    duk_size_t src_size = 0;
+    duk_size_t dst_size = 0;
 
-    // todo:
+    void *dst = duk_require_buffer_data(ctx, 0, &dst_size);
+    void *src = duk_require_buffer_data(ctx, 1, &src_size);
+    int level = duk_require_int(ctx, 2);
+    duk_size_t dst_len = compressBound(src_size);
+
+    if (dst_len>dst_size) {
+        err = __seterrno(ctx, -ENOSPACE); goto error;
+    }
     
-    return duk_push_uint(ctx, err), 1;
+    err = compress2(dst, &dst_len, src, src_size, level);
+    if (err<0) {
+        __seterrno(ctx, err); goto error;
+    }
+
+    err = dst_len;    
+error:
+    return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(compress2Ex, 2);
+static duk_ret_t
+duke_compress2Ex(duk_context *ctx)
+{
+    int err = 0;
+    duk_size_t src_size = 0;
+
+    void *src = duk_require_buffer_data(ctx, 0, &src_size);
+    int level = duk_require_int(ctx, 1);
+    duk_size_t dst_size = compressBound(src_size);
+
+    void *dst = __push_dynamic_buffer(ctx, dst_size);
+    if (NULL==dst) {
+        __seterrno(ctx, -ENOMEM); goto error;
+    }
+
+    err = compress2(dst, &dst_size, src, src_size, level);
+    if (err<0) {
+        __seterrno(ctx, err); goto error;
+    }
+    
+    return 1;
+error:
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(compressBound, 1);
@@ -476,22 +574,60 @@ duke_compressBound(duk_context *ctx)
 {
     duk_uint_t sourceLen = duk_require_uint(ctx, 0);
     
-    int err = compressBound(sourceLen);
+    duk_uint_t size = compressBound(sourceLen);
 
-    // todo:
-    
-    return duk_push_uint(ctx, err), 1;
+    return duk_push_uint(ctx, size), 1;
 }
 
-LIB_PARAM(uncompress, 4);
+LIB_PARAM(uncompress, 2);
 static duk_ret_t
 duke_uncompress(duk_context *ctx)
 {
     int err = 0;
+    duk_size_t src_size = 0;
+    duk_size_t dst_size = 0;
 
-    // todo:
+    void *dst = duk_require_buffer_data(ctx, 0, &dst_size);
+    void *src = duk_require_buffer_data(ctx, 1, &src_size);
+    duk_size_t dst_len = compressBound(src_size);
+
+    if (dst_len>dst_size) {
+        err = __seterrno(ctx, -ENOSPACE); goto error;
+    }
     
-    return duk_push_uint(ctx, err), 1;
+    err = uncompress(dst, &dst_len, src, src_size);
+    if (err<0) {
+        __seterrno(ctx, err); goto error;
+    }
+
+    err = dst_len;    
+error:
+    return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(uncompressEx, 1);
+static duk_ret_t
+duke_uncompressEx(duk_context *ctx)
+{
+    int err = 0;
+    duk_size_t src_size = 0;
+
+    void *src = duk_require_buffer_data(ctx, 0, &src_size);
+    duk_size_t dst_size = compressBound(src_size);
+
+    void *dst = __push_dynamic_buffer(ctx, dst_size);
+    if (NULL==dst) {
+        __seterrno(ctx, -ENOMEM); goto error;
+    }
+
+    err = uncompress(dst, &dst_size, src, src_size);
+    if (err<0) {
+        __seterrno(ctx, err); goto error;
+    }
+    
+    return 1;
+error:
+    return duk_push_null(ctx), 1;
 }
 
 LIB_PARAM(gzdopen, 2);
@@ -586,8 +722,6 @@ error:
 	return duk_push_int(ctx, err), 1;
 }
 
-// todo: gzprintf
-
 LIB_PARAM(gzputs, 2);
 static duk_ret_t
 duke_gzputs(duk_context *ctx)
@@ -600,17 +734,18 @@ duke_gzputs(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-
-LIB_PARAM(gzgets, 1);
+LIB_PARAM(gzgets, 2);
 static duk_ret_t
 duke_gzgets(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
-    char *line = NULL;
+    duk_size_t bsize = 0;
 
-    // todo
-    
-    return __push_string(ctx, line), 1;
+    gzFile f    = (gzFile)duk_require_pointer(ctx, 0);
+    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+
+    int err = gzgets(f, buf, bsize);
+
+	return __push_error(ctx, err), 1;
 }
 
 LIB_PARAM(gzputc, 2);
