@@ -25,6 +25,7 @@ OBJS=$(DIR_SELF)/src/duktape.o \
 	$(DIR_SELF)/module/my.o \
 	$(DIR_SELF)/module/libc.o \
 	$(DIR_SELF)/module/libcurl.o \
+	$(DIR_SELF)/module/libz.o \
 	#end
 TARGET_NAME=js
 TARGET=$(TARGET_NAME)

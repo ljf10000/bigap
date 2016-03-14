@@ -9,7 +9,7 @@
 #include "utils.h"
 #include "dukc.h"
 #if duk_LIBZ
-#include "zlib.h"
+#include <zlib.h>
 #include "libz.h"
 
 LIB_PARAM(zlibVersion, 0);
