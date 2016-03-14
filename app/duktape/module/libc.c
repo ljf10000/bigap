@@ -932,7 +932,7 @@ LIB_PARAM(FD_ZERO, 1);
 static duk_ret_t
 duke_FD_ZERO(duk_context *ctx)
 {
-    int err;
+    int err = 0;
     duk_size_t bsize;
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
@@ -950,7 +950,7 @@ LIB_PARAM(FD_SET, 2);
 static duk_ret_t
 duke_FD_SET(duk_context *ctx)
 {
-    int err;
+    int err = 0;
     duk_size_t bsize;
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
@@ -969,7 +969,7 @@ LIB_PARAM(FD_CLR, 2);
 static duk_ret_t
 duke_FD_CLR(duk_context *ctx)
 {
-    int err;
+    int err = 0;
     duk_size_t bsize;
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
@@ -988,7 +988,7 @@ LIB_PARAM(FD_ISSET, 2);
 static duk_ret_t
 duke_FD_ISSET(duk_context *ctx)
 {
-    int err;
+    int err = 0;
     duk_size_t bsize;
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
@@ -1006,7 +1006,7 @@ LIB_PARAM(select, 5);
 static duk_ret_t
 duke_select(duk_context *ctx)
 {
-    int err;
+    int err = 0;
     duk_size_t bsize;
     fd_set *rset = NULL, *wset = NULL, *eset = NULL;
     struct timeval tv;
@@ -4136,7 +4136,7 @@ LIB_PARAM(CPU_ZERO, 1);
 static duk_ret_t
 duke_CPU_ZERO(duk_context *ctx)
 {
-    int err;
+    int err = 0;
     duk_size_t bsize;
     
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 0, &bsize);
@@ -4153,7 +4153,7 @@ LIB_PARAM(CPU_SET, 2);
 static duk_ret_t
 duke_CPU_SET(duk_context *ctx)
 {
-    int err;
+    int err = 0;
     duk_size_t bsize;
     
     int cpu = duk_require_int(ctx, 0);
@@ -4171,7 +4171,7 @@ LIB_PARAM(CPU_CLR, 2);
 static duk_ret_t
 duke_CPU_CLR(duk_context *ctx)
 {
-    int err;
+    int err = 0;
     duk_size_t bsize;
     
     int cpu = duk_require_int(ctx, 0);
