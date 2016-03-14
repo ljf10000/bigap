@@ -17,7 +17,7 @@ int __argc;
 char **__argv;
 
 static int
-__buildin_eval(duk_context *ctx)
+buildin_register(duk_context *ctx)
 {
     return __ceval(ctx, "buildin", duk_global_CODE);
 }
@@ -32,7 +32,7 @@ __filter(char *path, char *filename)
 }
 
 static int
-__auto_eval(duk_context *ctx)
+auto_register(duk_context *ctx)
 {
     char path[1+OS_LINE_LEN] = {0};
     
@@ -64,7 +64,7 @@ __auto_eval(duk_context *ctx)
 static inline int
 __register(duk_context *ctx)
 {
-    static duk_register_f *array[] = {   \
+    static duk_register_f *array[] = {
         global_register,
         duktape_register,
         my_register,
@@ -73,8 +73,8 @@ __register(duk_context *ctx)
         libcurl_register,
 
         /*keep below last*/
-        __buildin_eval,
-        __auto_eval,
+        buildin_register,
+        auto_register,
     };
     int i, err;
 
@@ -91,24 +91,31 @@ __register(duk_context *ctx)
 static int
 __main(int argc, char *argv[])
 {
+    duk_context *ctx = NULL;
+    int err = 0;
+    
     __argc = argc;
     __argv = argv;
     
-    duk_context *ctx = __ctx = duk_create_heap_default();
+    ctx = __ctx = duk_create_heap_default();
     if (NULL==ctx) {
         return -ENOMEM;
     }
 
-    __register(ctx);
+    err = __register(ctx);
+    if (err<0) {
+        goto error;
+    }
     
     duk_peval_file(ctx, argv[1]);
     duk_pop(ctx);
-    
+
+error:
     debug_shell("before destroy duk heap");
     duk_destroy_heap(ctx);
     debug_shell("after  destroy duk heap");
 
-    return 0;
+    return err;
 }
 
 #ifndef __BUSYBOX__
