@@ -552,7 +552,7 @@ duke_gzread(duk_context *ctx)
         err = -E2SMALL; __seterrno(ctx, err); goto error;
     }
 
-    err = gzread(f, buf, len);
+    err = gzread(f, buf, size);
     
 error:
 	return duk_push_int(ctx, err), 1;
@@ -577,7 +577,7 @@ duke_gzwrite(duk_context *ctx)
         err = -E2SMALL; __seterrno(ctx, err); goto error;
     }
 
-    err = gzwrite(f, buf, len);
+    err = gzwrite(f, buf, size);
     
 error:
 	return duk_push_int(ctx, err), 1;
@@ -685,7 +685,7 @@ duke_gzdirect(duk_context *ctx)
 {
     gzFile f = (gzFile)duk_require_pointer(ctx, 0);
 
-    bool eof = !!gzdirect(f);
+    bool is = !!gzdirect(f);
     
     return duk_push_bool(ctx, is), 1;
 }
@@ -738,7 +738,7 @@ duke_gzerror(duk_context *ctx)
 
 LIB_PARAM(gzclearerr, 1);
 static duk_ret_t
-duke_gzerror(duk_context *ctx)
+duke_gzclearerr(duk_context *ctx)
 {
     gzFile f = (gzFile)duk_require_pointer(ctx, 0);
 
@@ -760,7 +760,7 @@ duke_adler32(duk_context *ctx)
         err = -E2SMALL; __seterrno(ctx, err); goto error;
     }
 
-    err = adler32(adler, buf, len);
+    err = adler32(adler, buf, size);
     
 error:
 	return duk_push_int(ctx, err), 1;
