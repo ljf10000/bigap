@@ -847,6 +847,11 @@ extern duk_context *__ctx;
 extern int __argc;
 extern char **__argv;
 
+#if duk_LIBC_SIG
+extern char *libc_sig_name[];
+extern void libc_sig_handler(int sig);
+#endif
+
 extern int duktape_register(duk_context *ctx);
 extern int global_register(duk_context *ctx);
 extern int my_register(duk_context *ctx);
@@ -858,11 +863,6 @@ extern int libz_register(duk_context *ctx);
 
 #if duk_LIBCURL
 extern int libcurl_register(duk_context *ctx);
-#endif
-
-#if duk_LIBC_SIG
-extern char *libc_sig_name[];
-extern void libc_sig_handler(int sig);
 #endif
 
 #include "libc.h"   /* mast end */

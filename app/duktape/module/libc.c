@@ -11,8 +11,7 @@
 
 #if duk_LIBC_SIG
 char *libc_sig_name[NSIG];
-void
-libc_sig_handler(int sig)
+void libc_sig_handler(int sig)
 {
     /*
     * global handler sig
