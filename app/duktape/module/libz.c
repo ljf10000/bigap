@@ -415,7 +415,7 @@ static duk_ret_t
 duke_inflateBackInit(duk_context *ctx)
 {
     int windowBits  = duk_require_int(ctx, 0);
-    int window      = duk_require_int(ctx, 1);
+    byte *window = (byte *)duk_require_pointer(ctx, 1);
     
     z_streamp f = (z_streamp)os_malloc(sizeof(*f));
     if (NULL==f) {
