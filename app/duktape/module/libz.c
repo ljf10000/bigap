@@ -8,6 +8,7 @@
 
 #include "utils.h"
 #include "dukc.h"
+
 #if duk_LIBZ
 #include <zlib.h>
 #include "libz.h"
@@ -796,17 +797,19 @@ error:
 
 #include "libz/libzf.c"
 #include "libz/libzn.c"
+#endif
 
 int libz_register(duk_context *ctx)
 {
+#if duk_LIBZ
     duk_push_global_object(ctx);
         duk_push_object(ctx);
             libzf_register(ctx, -1);
             libzn_register(ctx, -1);
         duk_put_prop_string(ctx, -2, duk_MOD_LIBZ);
     duk_pop(ctx);
-    
+#endif
+
     return 0;
 }
-#endif
 

@@ -827,24 +827,30 @@ error:
     return NULL;
 }
 
-static void
+static inline int
 __feval(duk_context *ctx, char *filename)
 {
+    int err = -ENOEXIST;
+    
     debug_js("eval %s ...", filename);
-    
-    bool ok = os_file_exist(filename) && 0==duk_peval_file_noresult(ctx, filename);
-    
-    debug_js("eval %s %s.", filename, __ok_string(ok));
+    if (os_file_exist(filename)) {
+        err = duk_peval_file_noresult(ctx, filename);
+    }
+    debug_js("eval %s %s.", filename, __ok_string(0==err));
+
+    return err;
 }
 
-static void
+static inline int
 __ceval(duk_context *ctx, char *tag, char *code)
 {
+    int err = 0;
+    
     debug_js("%s eval ...", tag);
+    err = duk_peval_string_noresult(ctx, code);
+    debug_js("%s eval %s.", tag, __ok_string(0==err));
 
-    bool ok = (0==duk_peval_string_noresult(ctx, code));
-
-    debug_js("%s eval %s.", tag, __ok_string(ok));
+    return err;
 }
 
 extern duk_context *__ctx;
@@ -856,18 +862,14 @@ extern char *libc_sig_name[];
 extern void libc_sig_handler(int sig);
 #endif
 
-extern int duktape_register(duk_context *ctx);
+typedef int duk_register_f(duk_context *);
+
 extern int global_register(duk_context *ctx);
+extern int duktape_register(duk_context *ctx);
 extern int my_register(duk_context *ctx);
 extern int libc_register(duk_context *ctx);
-
-#if duk_LIBZ
 extern int libz_register(duk_context *ctx);
-#endif
-
-#if duk_LIBCURL
 extern int libcurl_register(duk_context *ctx);
-#endif
 
 #include "libc.h"   /* mast end */
 /******************************************************************************/

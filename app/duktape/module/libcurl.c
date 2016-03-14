@@ -611,17 +611,19 @@ duke_curl_slist_free_all(duk_context *ctx)
 
 #include "libcurl/libcurlf.c"
 #include "libcurl/libcurln.c"
+#endif
 
 int libcurl_register(duk_context *ctx)
 {
+#if duk_LIBCURL
     duk_push_global_object(ctx);
         duk_push_object(ctx);
             libcurlf_register(ctx, -1);
             libcurln_register(ctx, -1);
         duk_put_prop_string(ctx, -2, duk_MOD_LIBCURL);
     duk_pop(ctx);
-    
+#endif
+
     return 0;
 }
-#endif
 

@@ -16,10 +16,10 @@ duk_context *__ctx;
 int __argc;
 char **__argv;
 
-static void
+static int
 __buildin_eval(duk_context *ctx)
 {
-    __ceval(ctx, "buildin", duk_global_CODE);
+    return __ceval(ctx, "buildin", duk_global_CODE);
 }
 
 static bool 
@@ -31,7 +31,7 @@ __filter(char *path, char *filename)
     return false==os_str_is_end_by(filename, ".js");
 }
 
-static void
+static int
 __auto_eval(duk_context *ctx)
 {
     char path[1+OS_LINE_LEN] = {0};
@@ -50,12 +50,42 @@ __auto_eval(duk_context *ctx)
     
         os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
 
-        __feval(ctx, file);
-    
+        int err = __feval(ctx, file);
+        if (err<0) {
+            return mv2_go(err);
+        }
+        
         return mv2_ok;
     }
 
-    os_fscan_dir(path, false, __filter, __handle, NULL);
+    return os_fscan_dir(path, false, __filter, __handle, NULL);
+}
+
+static inline int
+__register(duk_context *ctx)
+{
+    static duk_register_f *array[] = {   \
+        global_register,
+        duktape_register,
+        my_register,
+        libc_register,
+        libz_register,
+        libcurl_register,
+
+        /*keep below last*/
+        __buildin_eval,
+        __auto_eval,
+    };
+    int i, err;
+
+    for (i=0; i<os_count_of(array); i++) {
+        err = (*array[i](ctx);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
 }
 
 static int
@@ -68,24 +98,12 @@ __main(int argc, char *argv[])
     if (NULL==ctx) {
         return -ENOMEM;
     }
+
+    __register(ctx);
     
-    global_register(ctx);
-    duktape_register(ctx);
-    my_register(ctx);
-    libc_register(ctx);
-#if duk_LIBCURL
-    libcurl_register(ctx);
-#endif
-#if duk_LIBZ
-    libz_register(ctx);
-#endif
-
-    __buildin_eval(ctx);
-    __auto_eval(ctx);
-
     duk_peval_file(ctx, argv[1]);
     duk_pop(ctx);
-
+    
     debug_shell("before destroy duk heap");
     duk_destroy_heap(ctx);
     debug_shell("after  destroy duk heap");
