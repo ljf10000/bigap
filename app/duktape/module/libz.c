@@ -480,7 +480,7 @@ duke_compress2(duk_context *ctx)
 
 LIB_PARAM(compressBound, 1);
 static duk_ret_t
-duke_compress(duk_context *ctx)
+duke_compressBound(duk_context *ctx)
 {
     duk_uint_t sourceLen = duk_require_uint(ctx, 0);
     
