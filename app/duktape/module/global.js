@@ -6,10 +6,15 @@
 const __js__ = Duktape;
 
 __js__.classFinalizer = function (prototype, close) {
+	print('enter classFinalizer');
+	
 	if (close) {
+		print('enter classFinalizer close');
+		
 		__js__.fin(prototype, function (obj, heapDestruct) {
 			var name = prototype.name || obj.name || obj.prototype.name || typeof prototype;
-
+			print('name =', name);
+			
 			if (heapDestruct) {
 				close(obj);
 

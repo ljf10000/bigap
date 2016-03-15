@@ -32,7 +32,7 @@ mod.Stream = function (filename, mode) {
 	that.filename   = filename;
 	that.mode       = mode;
 	that.pipe       = pipe;
-	that.name       = mod.name + filename;
+	that.name       = mod.name + '(' + filename + ')';
 
 	if (pipe) {
 		that.stream = __libc__.popen(filename, mode);
