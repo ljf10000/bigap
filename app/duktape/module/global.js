@@ -10,6 +10,8 @@ __js__.classFinalizer = function (prototype, close) {
 		__js__.fin(prototype, function (obj, heapDestruct) {
 			var name;
 			
+			printf('__js__.fin get name');
+			
 			if (obj.name) {
 				name = obj.name;
 				debug_destructor('name is obj.name =', name);
@@ -23,7 +25,8 @@ __js__.classFinalizer = function (prototype, close) {
 				name = typeof prototype;
 				debug_destructor('name is typeof prototype.name =', name);
 			}
-
+			
+			printf('__js__.fin begin');
 			if (heapDestruct) {
 				for (var i=0; i<100; i++)
 					print('heapDestruct');
