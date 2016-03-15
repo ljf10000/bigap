@@ -43,6 +43,8 @@ __js__.classFinalizer = function (prototype, close) {
 				
 				debug_destructor(name, 'closed @destructor');
 			}
+			
+			printf('__js__.fin end');
 		});
 	} else {
 		return __js__.fin(prototype);
