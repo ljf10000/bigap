@@ -37,13 +37,13 @@ __js__.classFinalizer = function (prototype, close) {
 			if (heapDestruct) {
 				close(obj);
 
-				debug_destructor(obj.name, 'closed @fini');
+				debug_destructor(name, 'closed @fini');
 			} else if (obj === mod.Stream.prototype) {
-		        debug_destructor(obj.name, 'called for the prototype itself');
+		        debug_destructor(name, 'called for the prototype itself');
 		    } else {
 				close(obj);
 				
-				debug_destructor(obj.name, 'closed @destructor');
+				debug_destructor(name, 'closed @destructor');
 			}
 		});
 	} else {
