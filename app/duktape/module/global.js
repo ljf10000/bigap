@@ -39,7 +39,7 @@ __js__.classFinalizer = function (prototype, close) {
 
 				debug_destructor(obj.name, 'closed @fini');
 			} else if (obj === mod.Stream.prototype) {
-		        return;  // called for the prototype itself
+		        debug_destructor(obj.name, 'called for the prototype itself');
 		    } else {
 				close(obj);
 				
