@@ -97,7 +97,6 @@ mod.Stream = function (filename, mode) {
 	};
 };
 
-/*
 Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 	if (heapDestruct) {
 		__close(obj);
@@ -111,6 +110,6 @@ Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 		debug_destructor("stream closed @destructor");
 	}
 });
-*/
 
-__js__.classFinalizer(mod.Stream.prototype, __close);
+
+//__js__.classFinalizer(mod.Stream.prototype, __close);
