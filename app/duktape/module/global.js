@@ -13,13 +13,13 @@ __js__.classFinalizer = function (prototype, close) {
 			if (heapDestruct) {
 				close(obj);
 
-				debug_destructor(obj.name, "closed @fini");
+				debug_destructor(obj.name, 'closed @fini');
 			} else if (obj === mod.Stream.prototype) {
 		        return;  // called for the prototype itself
 		    } else {
 				close(obj);
 				
-				debug_destructor(obj.name, "closed @destructor");
+				debug_destructor(obj.name, 'closed @destructor');
 			}
 		});
 	} else {
@@ -33,7 +33,7 @@ __js__.objFinalizer = function (x, close) {
 			var when = heapDestruct?'fini':'destructor';
 			var name = obj.name || obj.prototype.name || typeof obj;
 
-			debug_destructor(name, "closed when", when);
+			debug_destructor(name, 'closed when', when);
 			
 			close(obj);
 		});
