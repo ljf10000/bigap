@@ -15,16 +15,15 @@ __js__.classDestructor = function (prototype, close) {
 				debug_destructor('name is obj.name =', name);
 			} else if (obj.prototype.name) {
 				name = obj.prototype.name;
-				debug_destructor('name is obj.prototype.name.name =', name);
+				debug_destructor('name is obj.prototype.name =', name);
 			} else if (prototype.name) {
 				name = prototype.name;
-				debug_destructor('name is prototype.name.name =', name);
+				debug_destructor('name is prototype.name =', name);
 			} else {
 				name = typeof prototype;
 				debug_destructor('name is typeof prototype.name =', name);
 			}
 			
-			print('__js__.fin begin');
 			if (heapDestruct) {
 				close(obj);
 
@@ -46,7 +45,18 @@ __js__.objDestructor = function (x, close) {
 	if (close) {
 		__js__.fin(x, function (obj, heapDestruct) {
 			var when = heapDestruct?'fini':'destructor';
-			var name = obj.name || obj.prototype.name || typeof obj;
+			var name;
+			
+			if (obj.name) {
+				name = obj.name;
+				debug_destructor('name is obj.name =', name);
+			} else if (obj.prototype.name) {
+				name = obj.prototype.name;
+				debug_destructor('name is obj.prototype.name =', name);
+			} else {
+				name = typeof obj;
+				debug_destructor('name is typeof obj.name =', name);
+			}
 
 			debug_destructor(name, 'closed when', when);
 			
