@@ -27,17 +27,20 @@ __js__.classFinalizer = function (prototype, close) {
 			print('name =', name);
 			
 			if (heapDestruct) {
-				print('heapDestruct');
+				for (var i=0; i<100; i++)
+					print('heapDestruct');
 				
 				close(obj);
 
 				debug_destructor(name, 'closed @fini');
 			} else if (obj === mod.Stream.prototype) {
-				print('obj === mod.Stream.prototype');
+				for (var i=0; i<100; i++)
+					print('obj === mod.Stream.prototype');
 				
 		        debug_destructor(name, 'called for the prototype itself');
 		    } else {
-		    	print('else');
+				for (var i=0; i<100; i++)
+		    		print('else');
 				close(obj);
 				
 				debug_destructor(name, 'closed @destructor');
