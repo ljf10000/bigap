@@ -5,7 +5,7 @@
 */
 const __js__ = Duktape;
 
-__js__.classFinalizer = function (prototype, close) {
+__js__.classDestructor = function (prototype, close) {
 	if (close) {
 		__js__.fin(prototype, function (obj, heapDestruct) {
 			var name;
@@ -34,9 +34,9 @@ __js__.classFinalizer = function (prototype, close) {
 				close(obj);
 
 				print(name, 'closed @fini');
-			} else if (obj === mod.Stream.prototype) {
+			} else if (obj === prototype) {
 				for (var i=0; i<100; i++)
-					print('obj === mod.Stream.prototype');
+					print('obj === prototype');
 				
 		        print(name, 'called for the prototype itself');
 		    } else {
@@ -54,7 +54,7 @@ __js__.classFinalizer = function (prototype, close) {
 	}
 };
 
-__js__.objFinalizer = function (x, close) {
+__js__.objDestructor = function (x, close) {
 	if (close) {
 		__js__.fin(x, function (obj, heapDestruct) {
 			var when = heapDestruct?'fini':'destructor';
