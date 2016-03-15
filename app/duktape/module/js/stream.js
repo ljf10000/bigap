@@ -96,13 +96,13 @@ mod.Stream = function (filename, mode) {
 Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 	if (heapDestruct) {
 		__close(obj);
-	}
 
-	if (obj === mod.Stream.prototype) {
+		debug_destructor("stream closed");
+	} else if (obj === mod.Stream.prototype) {
         return;  // called for the prototype itself
-    }
+    } else {
+		__close(obj);
 
-	__close(obj);
-
-	print("stream closed");
+		debug_destructor("stream closed");
+	}
 });
