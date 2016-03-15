@@ -10,44 +10,44 @@ __js__.classFinalizer = function (prototype, close) {
 		__js__.fin(prototype, function (obj, heapDestruct) {
 			var name;
 			
-			debug_destructor('__js__.fin get name');
+			print('__js__.fin get name');
 			
 			if (obj.name) {
 				name = obj.name;
-				debug_destructor('name is obj.name =', name);
+				print('name is obj.name =', name);
 			} else if (obj.prototype.name) {
 				name = obj.prototype.name;
-				debug_destructor('name is obj.prototype.name.name =', name);
+				print('name is obj.prototype.name.name =', name);
 			} else if (prototype.name) {
 				name = prototype.name;
-				debug_destructor('name is prototype.name.name =', name);
+				print('name is prototype.name.name =', name);
 			} else {
 				name = typeof prototype;
-				debug_destructor('name is typeof prototype.name =', name);
+				print('name is typeof prototype.name =', name);
 			}
 			
-			debug_destructor('__js__.fin begin');
+			print('__js__.fin begin');
 			if (heapDestruct) {
 				for (var i=0; i<100; i++)
 					print('heapDestruct');
 				
 				close(obj);
 
-				debug_destructor(name, 'closed @fini');
+				print(name, 'closed @fini');
 			} else if (obj === mod.Stream.prototype) {
 				for (var i=0; i<100; i++)
 					print('obj === mod.Stream.prototype');
 				
-		        debug_destructor(name, 'called for the prototype itself');
+		        print(name, 'called for the prototype itself');
 		    } else {
 				for (var i=0; i<100; i++)
 		    		print('else');
 				close(obj);
 				
-				debug_destructor(name, 'closed @destructor');
+				print(name, 'closed @destructor');
 			}
 			
-			printf('__js__.fin end');
+			print('__js__.fin end');
 		});
 	} else {
 		return __js__.fin(prototype);
