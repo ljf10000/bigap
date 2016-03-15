@@ -289,6 +289,7 @@ mod.Stream.prototype = {
 	}
 };
 
+
 __js__.classDestructor(mod.Stream.prototype, __close);
 
 /* eof */
