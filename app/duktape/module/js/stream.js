@@ -40,7 +40,6 @@ var __close = function (obj) {
 	}
 };
 
-/*
 mod.Stream = function (filename, mode, type) {
 	var that        = this;
 
@@ -163,131 +162,133 @@ mod.Stream = function (filename, mode, type) {
 		}
 	};
 };
-*/
 
+/*
 mod.Stream = function (filename, mode, type) {
-	this.filename = filename;
-	this.mode = mode;
-	this.name = mod.name + '(' + filename + ')';
-	this.type = type;
+	var that = this;
+
+	that.filename = filename;
+	that.mode = mode;
+	that.name = mod.name + '(' + filename + ')';
 	switch (type) {
 		case mod.type.pipe:
-			this.stream = __libc__.popen(filename, mode);
+			that.type = type;
+			that.stream = __libc__.popen(filename, mode);
 			break;
 		case mod.type.gzip:
-			this.stream = __libz__.gzopen(filename, mode);
+			that.type = type;
+			that.stream = __libz__.gzopen(filename, mode);
 			break;
-		case mod.type.file:
-			this.stream = __libc__.fopen(filename, mode);
-			break;
+		case mod.type.file: // down
 		default:
-			this.type = mod.type.file;
-			this.stream = __libc__.fopen(filename, mode);
+			that.type = type;
+			that.stream = __libc__.fopen(filename, mode);
 			break;
 	}
 };
 
 mod.Stream.prototype = {
 	ok: function () {
-		return __ok(this);
+		return __ok(that);
 	},
 
 	close: function () {
-		__close(this);
+		__close(that);
 	},
 
 	read: function (buffer) {
-		switch(this.type) {
+		switch(obj.type) {
 			case mod.type.gzip:
-				return __libz__.gzread(this.stream, buffer);
+				return __libz__.gzread(that.stream, buffer);
 			case mod.type.file: // down
 			case mod.type.pipe: // down
 			default:
-				return __libc__.fread(this.stream, buffer);
+				return __libc__.fread(that.stream, buffer);
 		}
 	},
 
 	readEx: function (size) {
-		switch(this.type) {
+		switch(obj.type) {
 			case mod.type.gzip:
-				return __libz__.gzreadEx(this.stream, size);
+				return __libz__.gzreadEx(that.stream, size);
 			case mod.type.file: // down
 			case mod.type.pipe: // down
 			default:
-				return __libc__.freadEx(this.stream, size);
+				return __libc__.freadEx(that.stream, size);
 		}
 	},
 
 	write: function (buffer) {
-		switch(this.type) {
+		switch(obj.type) {
 			case mod.type.pipe:
 				return -__libc__.ENOSUPPORT;
 			case mod.type.gzip:
-				return __libz__.gzwrite(this.stream, buffer);
+				return __libz__.gzwrite(that.stream, buffer);
 			case mod.type.file: // down
 			default:
-				return __libc__.fwrite(this.stream, buffer);
+				return __libc__.fwrite(that.stream, buffer);
 		}
 	},
 
 	error: function () {
-		switch(this.type) {
+		switch(obj.type) {
 			case mod.type.gzip:
-				return __libz__.gzerror(this.stream);
+				return __libz__.gzerror(that.stream);
 			case mod.type.file: // down
 			case mod.type.pipe: // down
 			default:
-				return __libc__.ferror(this.stream);
+				return __libc__.ferror(that.stream);
 		}
 	},
 
 	tell: function () {
-		switch(this.type) {
+		switch(obj.type) {
 			case mod.type.pipe:
 				return -__libc__.ENOSUPPORT;
 			case mod.type.gzip:
-				return __libz__.gztell(this.stream);
+				return __libz__.gztell(that.stream);
 			case mod.type.file: // down
 			default:
-				return __libc__.ftell(this.stream);
+				return __libc__.ftell(that.stream);
 		}
 	},
 
 	seek: function (offset, where) {
-		switch(this.type) {
+		switch(obj.type) {
 			case mod.type.pipe:
 				return -__libc__.ENOSUPPORT;
 			case mod.type.gzip:
-				return __libz__.gzseek(this.stream, offset, where);
+				return __libz__.gzseek(that.stream, offset, where);
 			case mod.type.file: // down
 			default:
-				return __libc__.fseek(this.stream, offset, where);
+				return __libc__.fseek(that.stream, offset, where);
 		}
 	},
 
 	flush: function () {
-		switch(this.type) {
+		switch(obj.type) {
 			case mod.type.pipe:
 				return -__libc__.ENOSUPPORT;
 			case mod.type.gzip:
-				return __libz__.gzflush(this.stream);
+				return __libz__.gzflush(that.stream);
 			case mod.type.file: // down
 			default:
-				return __libc__.fflush(this.stream);
+				return __libc__.fflush(that.stream);
 		}
 	},
 
 	eof: function () {
-		switch(this.type) {
+		switch(obj.type) {
 			case mod.type.gzip:
-				return __libz__.gzeof(this.stream);
+				return __libz__.gzeof(that.stream);
 			case mod.type.file: // down
 			case mod.type.pipe: // down
 			default:
-				return __libc__.feof(this.stream);
+				return __libc__.feof(that.stream);
 		}
 	}
 };
+*/
 
 
 __js__.classDestructor(mod.Stream.prototype, __close);
