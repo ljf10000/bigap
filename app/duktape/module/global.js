@@ -10,36 +10,32 @@ __js__.classDestructor = function (prototype, close) {
 		__js__.fin(prototype, function (obj, heapDestruct) {
 			var name;
 			
-			print('__js__.fin get name');
-			
 			if (obj.name) {
 				name = obj.name;
-				print('name is obj.name =', name);
+				debug_destructor('name is obj.name =', name);
 			} else if (obj.prototype.name) {
 				name = obj.prototype.name;
-				print('name is obj.prototype.name.name =', name);
+				debug_destructor('name is obj.prototype.name.name =', name);
 			} else if (prototype.name) {
 				name = prototype.name;
-				print('name is prototype.name.name =', name);
+				debug_destructor('name is prototype.name.name =', name);
 			} else {
 				name = typeof prototype;
-				print('name is typeof prototype.name =', name);
+				debug_destructor('name is typeof prototype.name =', name);
 			}
 			
 			print('__js__.fin begin');
 			if (heapDestruct) {
 				close(obj);
 
-				print(name, 'closed @fini');
+				debug_destructor(name, 'closed @fini');
 			} else if (obj === prototype) {
-		        print(name, 'called for the prototype itself');
+		        debug_destructor(name, 'called for the prototype itself');
 		    } else {
 				close(obj);
 				
-				print(name, 'closed @destructor');
+				debug_destructor(name, 'closed @destructor');
 			}
-			
-			print('__js__.fin end');
 		});
 	} else {
 		return __js__.fin(prototype);
