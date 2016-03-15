@@ -6,41 +6,38 @@
 const __js__ = Duktape;
 
 __js__.classFinalizer = function (prototype, close) {
-	print('enter classFinalizer');
-	
 	if (close) {
-		print('enter classFinalizer close');
-		
 		__js__.fin(prototype, function (obj, heapDestruct) {
 			var name;
 			
-			if (prototype.name) {
-				name = prototype.name;
-				print('name = prototype.name');
-			}
-			else if (obj.name) {
+			if (obj.name) {
 				name = obj.name;
-				print('name = obj.name');
-			}
-			else if (obj.prototype.name) {
+				print('name is obj.name');
+			} else if (obj.prototype.name) {
 				name = obj.prototype.name;
-				print('name = obj.prototype.name');
-			}
-			else {
+				print('name is obj.prototype.name');
+			} else if (prototype.name) {
+				name = prototype.name;
+				print('name is prototype.name');
+			} else {
 				name = typeof prototype;
-				print('name = typeof prototype');
-				
+				print('name is typeof prototype');
 			}
 			// var name = prototype.name || obj.name || obj.prototype.name || typeof prototype;
 			print('name =', name);
 			
 			if (heapDestruct) {
+				print('heapDestruct');
+				
 				close(obj);
 
 				debug_destructor(name, 'closed @fini');
 			} else if (obj === mod.Stream.prototype) {
+				print('obj === mod.Stream.prototype');
+				
 		        debug_destructor(name, 'called for the prototype itself');
 		    } else {
+		    	print('else');
 				close(obj);
 				
 				debug_destructor(name, 'closed @destructor');
