@@ -28,20 +28,12 @@ __js__.classDestructor = function (prototype, close) {
 			
 			print('__js__.fin begin');
 			if (heapDestruct) {
-				for (var i=0; i<100; i++)
-					print('heapDestruct');
-				
 				close(obj);
 
 				print(name, 'closed @fini');
 			} else if (obj === prototype) {
-				for (var i=0; i<100; i++)
-					print('obj === prototype');
-				
 		        print(name, 'called for the prototype itself');
 		    } else {
-				for (var i=0; i<100; i++)
-		    		print('else');
 				close(obj);
 				
 				print(name, 'closed @destructor');
