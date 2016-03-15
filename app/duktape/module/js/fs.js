@@ -49,3 +49,5 @@ Duktape.fin(mod.Fs.prototype, function (obj, heapDestruct) {
 
 	print("file closed");
 });
+
+/* eof */

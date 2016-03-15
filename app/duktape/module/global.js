@@ -132,4 +132,4 @@ const fmt = {
 	}
 };
 
-/* end of file */
+/* eof */

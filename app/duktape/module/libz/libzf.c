@@ -40,6 +40,7 @@ static const dukc_func_entry_t libz_func[] = {
     LIB_FUNC(compressBound),
     LIB_FUNC(uncompress),
     LIB_FUNC(uncompressEx),
+    LIB_FUNC(gzopen),
     LIB_FUNC(gzdopen),
 #if ZLIB_VERNUM >= 0x1235
     LIB_FUNC(gzbuffer),
@@ -55,6 +56,9 @@ static const dukc_func_entry_t libz_func[] = {
     LIB_FUNC(gzungetc),
     LIB_FUNC(gzflush),
     LIB_FUNC(gzrewind),
+    LIB_FUNC(gzseek),
+    LIB_FUNC(gztell),
+    LIB_FUNC(gzoffset),
     LIB_FUNC(gzeof),
     LIB_FUNC(gzdirect),
     LIB_FUNC(gzclose),

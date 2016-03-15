@@ -2413,7 +2413,7 @@ duke_recvfrom(duk_context *ctx)
     duk_size_t bsize = 0;
 
     int fd      = duk_require_int(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
     int flag    = duk_require_int(ctx, 2);
     
     int err = recvfrom(fd, buf, bsize, flag, &sa.c, &len);

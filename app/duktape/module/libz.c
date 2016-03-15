@@ -635,6 +635,18 @@ error:
     return duk_push_null(ctx), 1;
 }
 
+LIB_PARAM(gzopen, 2);
+static duk_ret_t
+duke_gzopen(duk_context *ctx)
+{
+    char *filename = (char *)duk_require_string(ctx, 0);
+    char *mode = (char *)duk_require_string(ctx, 1);
+
+    gzFile *f = gzopen(filename, mode);
+    
+    return __push_pointer(ctx, f), 1;
+}
+
 LIB_PARAM(gzdopen, 2);
 static duk_ret_t
 duke_gzdopen(duk_context *ctx)
@@ -808,6 +820,41 @@ duke_gzrewind(duk_context *ctx)
     gzFile f = (gzFile)duk_require_pointer(ctx, 0);
 
     int err = gzrewind(f);
+    
+    return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(gzseek, 3);
+static duk_ret_t
+duke_gzseek(duk_context *ctx)
+{
+    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    int offset = duk_require_int(ctx, 1);
+    int where = duk_require_int(ctx, 2);
+
+    int err = gzseek(f, offset, where);
+    
+    return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(gztell, 1);
+static duk_ret_t
+duke_gztell(duk_context *ctx)
+{
+    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+
+    int err = gztell(f);
+    
+    return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(gzoffset, 1);
+static duk_ret_t
+duke_gzoffset(duk_context *ctx)
+{
+    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+
+    int err = gzoffset(f);
     
     return duk_push_int(ctx, err), 1;
 }
