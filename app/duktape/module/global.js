@@ -25,59 +25,59 @@ const __debug__ = {
 	test: 	0x80000000
 };
 
-function debug(level) {
+const debug = function (level) {
 	__my__.debug(level, Array.prototype.slice.call(arguments).slice(1).toString());
 }
 
-function debug_init() {
+const debug_init = function () {
 	__my__.debug(__debug__.init, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_fini() {
+const debug_fini = function () {
 	__my__.debug(__debug__.fini, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_constructor() {
+const debug_constructor = function () {
 	__my__.debug(__debug__.constructor, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_destructor() {
+const debug_destructor = function () {
 	__my__.debug(__debug__.destructor, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_ok() {
+const debug_ok = function () {
 	__my__.debug(__debug__.ok, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_error() {
+const debug_error = function () {
 	__my__.debug(__debug__.error, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_trace() {
+const debug_trace = function () {
 	__my__.debug(__debug__.trace, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_bug() {
+const debug_bug = function () {
 	__my__.debug(__debug__.bug, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_mod() {
+const debug_mod = function () {
 	__my__.debug(__debug__.mod, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_io() {
+const debug_io = function () {
 	__my__.debug(__debug__.io, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_st() {
+const debug_st = function () {
 	__my__.debug(__debug__.st, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-function debug_test() {
+const debug_test = function () {
 	__my__.debug(__debug__.test, Array.prototype.slice.call(arguments).slice(0).toString());
 }
 
-var fmt = {
+const fmt = {
 	oprint: function (name, obj) {
 		var c = {};
 	
