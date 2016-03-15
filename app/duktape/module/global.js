@@ -12,7 +12,26 @@ __js__.classFinalizer = function (prototype, close) {
 		print('enter classFinalizer close');
 		
 		__js__.fin(prototype, function (obj, heapDestruct) {
-			var name = prototype.name || obj.name || obj.prototype.name || typeof prototype;
+			var name;
+			
+			if (prototype.name) {
+				name = prototype.name;
+				print('name = prototype.name');
+			}
+			else if (obj.name) {
+				name = obj.name;
+				print('name = obj.name');
+			}
+			else if (obj.prototype.name) {
+				name = obj.prototype.name;
+				print('name = obj.prototype.name');
+			}
+			else {
+				name = typeof prototype;
+				print('name = typeof prototype');
+				
+			}
+			// var name = prototype.name || obj.name || obj.prototype.name || typeof prototype;
 			print('name =', name);
 			
 			if (heapDestruct) {
