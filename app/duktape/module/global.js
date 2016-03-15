@@ -108,7 +108,7 @@ __js__.objDestructor = function (x, close) {
 			
 			close(obj);
 			
-			debug_destructor(name, 'closed when', when);
+			debug_destructor(name, 'closed @', when);
 		});
 	} else {
 		return __js__.fin(x);
