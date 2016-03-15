@@ -3,69 +3,6 @@
 * 2. only use 'xxxxx'
 * 3. must keep last empty line
 */
-const __js__ = Duktape;
-
-__js__.classDestructor = function (prototype, close) {
-	if (close) {
-		__js__.fin(prototype, function (obj, heapDestruct) {
-			var name;
-			
-			if (obj.name) {
-				name = obj.name;
-				debug_destructor('name is obj.name =', name);
-			} else if (obj.prototype.name) {
-				name = obj.prototype.name;
-				debug_destructor('name is obj.prototype.name =', name);
-			} else if (prototype.name) {
-				name = prototype.name;
-				debug_destructor('name is prototype.name =', name);
-			} else {
-				name = typeof prototype;
-				debug_destructor('name is typeof prototype.name =', name);
-			}
-			
-			if (heapDestruct) {
-				close(obj);
-
-				debug_destructor(name, 'closed @fini');
-			} else if (obj === prototype) {
-		        debug_destructor(name, 'called for the prototype itself');
-		    } else {
-				close(obj);
-				
-				debug_destructor(name, 'closed @destructor');
-			}
-		});
-	} else {
-		return __js__.fin(prototype);
-	}
-};
-
-__js__.objDestructor = function (x, close) {
-	if (close) {
-		__js__.fin(x, function (obj, heapDestruct) {
-			var when = heapDestruct?'fini':'destructor';
-			var name;
-			
-			if (obj.name) {
-				name = obj.name;
-				debug_destructor('name is obj.name =', name);
-			} else if (obj.prototype.name) {
-				name = obj.prototype.name;
-				debug_destructor('name is obj.prototype.name =', name);
-			} else {
-				name = typeof obj;
-				debug_destructor('name is typeof obj.name =', name);
-			}
-
-			debug_destructor(name, 'closed when', when);
-			
-			close(obj);
-		});
-	} else {
-		return __js__.fin(x);
-	}
-};
 
 /*
 * 0x00000001 ~ 0x00008000, user debug level
@@ -138,6 +75,45 @@ const debug_st = function () {
 const debug_test = function () {
 	__my__.debug(__debug__.test, Array.prototype.slice.call(arguments).slice(0).toString());
 }
+
+const __js__ = Duktape;
+
+__js__.classDestructor = function (prototype, close) {
+	if (close) {
+		__js__.fin(prototype, function (obj, heapDestruct) {
+			var name = obj.name || prototype.name || obj.prototype.name || typeof prototype;
+
+			if (heapDestruct) {
+				close(obj);
+
+				debug_destructor(name, 'closed @fini');
+			} else if (obj === prototype) {
+		        debug_destructor(name, 'called for the prototype itself');
+		    } else {
+				close(obj);
+				
+				debug_destructor(name, 'closed @destructor');
+			}
+		});
+	} else {
+		return __js__.fin(prototype);
+	}
+};
+
+__js__.objDestructor = function (x, close) {
+	if (close) {
+		__js__.fin(x, function (obj, heapDestruct) {
+			var when = heapDestruct?'fini':'destructor';
+			var name = obj.name || obj.prototype.name || typeof obj;
+			
+			close(obj);
+			
+			debug_destructor(name, 'closed when', when);
+		});
+	} else {
+		return __js__.fin(x);
+	}
+};
 
 const fmt = {
 	oprint: function (name, obj) {
