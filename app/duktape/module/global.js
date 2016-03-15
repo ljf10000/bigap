@@ -5,20 +5,41 @@
 */
 const __js__ = Duktape;
 
-__js__.finalizer = function (name, prototype, close) {
-	__js__.fin(prototype, function (obj, heapDestruct) {
-		if (heapDestruct) {
+__js__.classFinalizer = function (prototype, close) {
+	if (close) {
+		__js__.fin(prototype, function (obj, heapDestruct) {
+			var name = prototype.name || obj.name || obj.prototype.name || typeof prototype;
+
+			if (heapDestruct) {
+				close(obj);
+
+				debug_destructor(obj.name, "closed @fini");
+			} else if (obj === mod.Stream.prototype) {
+		        return;  // called for the prototype itself
+		    } else {
+				close(obj);
+				
+				debug_destructor(obj.name, "closed @destructor");
+			}
+		});
+	} else {
+		return __js__.fin(prototype);
+	}
+};
+
+__js__.objFinalizer = function (x, close) {
+	if (close) {
+		__js__.fin(x, function (obj, heapDestruct) {
+			var when = heapDestruct?'fini':'destructor';
+			var name = obj.name || obj.prototype.name || typeof obj;
+
+			debug_destructor(name, "closed when", when);
+			
 			close(obj);
-	
-			debug_destructor(name, "closed @fini");
-		} else if (obj === mod.Stream.prototype) {
-	        return;  // called for the prototype itself
-	    } else {
-			close(obj);
-	
-			debug_destructor(name, "closed @destructor");
-		}
-	});
+		});
+	} else {
+		return __js__.fin(x);
+	}
 };
 
 /*

@@ -2,9 +2,10 @@
 
 var mod = this;
 
-mod.current    = __libc__.SEEK_CUR;
-mod.begin      = __libc__.SEEK_SET;
-mod.end        = __libc__.SEEK_END;
+mod.name    = 'stream';
+mod.current = __libc__.SEEK_CUR;
+mod.begin   = __libc__.SEEK_SET;
+mod.end     = __libc__.SEEK_END;
 
 var __ok = function (obj) {
 	return typeof obj === 'object'
@@ -31,6 +32,7 @@ mod.Stream = function (filename, mode) {
 	that.filename   = filename;
 	that.mode       = mode;
 	that.pipe       = pipe;
+	that.name       = mod.name + filename;
 
 	if (pipe) {
 		that.stream = __libc__.popen(filename, mode);
@@ -111,4 +113,4 @@ Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 });
 */
 
-__js__.finalizer('stream', mod.Stream.prototype, __close);
+__js__.finalizer(mod.Stream.prototype, __close);
