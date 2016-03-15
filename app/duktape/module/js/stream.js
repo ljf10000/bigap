@@ -7,7 +7,9 @@ mod.begin      = __libc__.SEEK_SET;
 mod.end        = __libc__.SEEK_END;
 
 var __ok = function (obj) {
-	return typeof obj.stream === 'pointer' && null !== obj.stream;
+	return typeof obj === 'object'
+		&& typeof obj.stream === 'pointer'
+		&& null !== obj.stream;
 };
 
 var __close = function (obj) {
