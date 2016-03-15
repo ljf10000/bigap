@@ -5,6 +5,22 @@
 */
 const __js__ = Duktape;
 
+__js__.finalizer = function (name, prototype, close) {
+	__js__.fin(prototype, function (obj, heapDestruct) {
+		if (heapDestruct) {
+			close(obj);
+	
+			debug_destructor(name, "closed @fini");
+		} else if (obj === mod.Stream.prototype) {
+	        return;  // called for the prototype itself
+	    } else {
+			close(obj);
+	
+			debug_destructor(name, "closed @destructor");
+		}
+	});
+};
+
 /*
 * 0x00000001 ~ 0x00008000, user debug level
 * 0x00010000 ~ 0x80000000, sys  debug level
