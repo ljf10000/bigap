@@ -113,4 +113,4 @@ Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 });
 */
 
-__js__.finalizer(mod.Stream.prototype, __close);
+__js__.classFinalizer(mod.Stream.prototype, __close);
