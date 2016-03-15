@@ -97,12 +97,12 @@ Duktape.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 	if (heapDestruct) {
 		__close(obj);
 
-		debug_destructor("stream closed");
+		debug_destructor("stream closed @fini");
 	} else if (obj === mod.Stream.prototype) {
         return;  // called for the prototype itself
     } else {
 		__close(obj);
 
-		debug_destructor("stream closed");
+		debug_destructor("stream closed @destructor");
 	}
 });
