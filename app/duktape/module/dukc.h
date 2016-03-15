@@ -147,6 +147,7 @@ duk_put_functions(duk_context *ctx, duk_idx_t obj_index, const dukc_func_entry_t
 
 typedef void *duk_pointer_t;
 typedef void *duk_buffer_t;
+typedef void *duk_object_t;
 typedef const char *duk_string_t;
 typedef duk_double_t duk_number_t;
 
@@ -173,9 +174,9 @@ typedef struct {
 #define duk_is_bool(_ctx, _idx)         duk_is_boolean(_ctx, _idx)
 
 static inline int
-duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, void **pbuf, duk_size_t *psize)
+duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, duk_buffer_t *pbuf, duk_size_t *psize)
 {
-    void *buf = NULL;
+    duk_buffer_t buf = NULL;
     
     int type = duk_get_type(ctx, idx);
     
@@ -183,7 +184,7 @@ duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, void **pbuf, duk_
         buf = duk_get_buffer_data(ctx, idx, psize);
     }
     else if (DUK_TYPE_STRING==type) {
-        buf = (void *)duk_get_lstring(ctx, idx, psize);
+        buf = (duk_buffer_t)duk_get_lstring(ctx, idx, psize);
     }
     else {
         return -EFORMAT;
@@ -196,8 +197,8 @@ duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, void **pbuf, duk_
 
 static inline int __push_error(duk_context *ctx, int err);
 
-static inline void *
-__push_pointer(duk_context *ctx, void *pointer)
+static inline duk_buffer_t
+__push_pointer(duk_context *ctx, duk_pointer_t pointer)
 {
     if (pointer) {
         duk_push_pointer(ctx, pointer);
@@ -208,8 +209,8 @@ __push_pointer(duk_context *ctx, void *pointer)
     return pointer;
 }
 
-static inline const char *
-__push_lstring(duk_context *ctx, const char *s, duk_size_t len)
+static inline duk_string_t
+__push_lstring(duk_context *ctx, duk_string_t s, duk_size_t len)
 {
     if (is_good_str(s) && len>0) {
         return duk_push_lstring(ctx, s, len);
@@ -218,8 +219,8 @@ __push_lstring(duk_context *ctx, const char *s, duk_size_t len)
     }
 }
 
-static inline const char *
-__push_string(duk_context *ctx, const char *s)
+static inline duk_string_t
+__push_string(duk_context *ctx, duk_string_t s)
 {
     if (s) {
         return duk_push_string(ctx, s);
@@ -228,7 +229,7 @@ __push_string(duk_context *ctx, const char *s)
     }
 }
 
-static inline void *
+static inline duk_buffer_t
 __push_buffer(duk_context *ctx, duk_size_t size, bool dynamic)
 {
     if (size>0) {
@@ -238,7 +239,7 @@ __push_buffer(duk_context *ctx, duk_size_t size, bool dynamic)
     }
 }
 
-static inline void *
+static inline duk_buffer_t
 __push_fixed_buffer(duk_context *ctx, duk_size_t size)
 {
     if (size>0) {
@@ -248,7 +249,7 @@ __push_fixed_buffer(duk_context *ctx, duk_size_t size)
     }
 }
 
-static inline void *
+static inline duk_buffer_t
 __push_dynamic_buffer(duk_context *ctx, duk_size_t size)
 {
     if (size>0) {
@@ -258,7 +259,7 @@ __push_dynamic_buffer(duk_context *ctx, duk_size_t size)
     }
 }
 
-static inline void *
+static inline duk_buffer_t
 __push_external_buffer(duk_context *ctx)
 {
     return duk_push_buffer_raw(ctx, 0, DUK_BUF_FLAG_DYNAMIC | DUK_BUF_FLAG_EXTERNAL);
@@ -380,67 +381,67 @@ __get_prop_string(duk_context *ctx, bool auto_create, duk_idx_t idx, int *level,
 }while(0)
 
 static inline bool
-__get_obj_bool(duk_context *ctx, duk_idx_t idx, const char *k)
+__get_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
     return __get_obj_field(ctx, idx, bool, k);
 }
 
 static inline void
-__set_obj_bool(duk_context *ctx, duk_idx_t idx, const char *k, duk_bool_t v)
+__set_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_bool_t v)
 {
     __set_obj_field(ctx, idx, bool, k, v);
 }
 
 static inline int
-__get_obj_int(duk_context *ctx, duk_idx_t idx, const char *k)
+__get_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
     return __get_obj_field(ctx, idx, int, k);
 }
 
 static inline void
-__set_obj_int(duk_context *ctx, duk_idx_t idx, const char *k, duk_int_t v)
+__set_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_int_t v)
 {
     __set_obj_field(ctx, idx, int, k, v);
 }
 
 static inline duk_uint_t
-__get_obj_uint(duk_context *ctx, duk_idx_t idx, const char *k)
+__get_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
     return __get_obj_field(ctx, idx, uint, k);
 }
 
 static inline void
-__set_obj_uint(duk_context *ctx, duk_idx_t idx, const char *k, duk_uint_t v)
+__set_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_uint_t v)
 {
     __set_obj_field(ctx, idx, uint, k, v);
 }
 
 static inline double
-__get_obj_number(duk_context *ctx, duk_idx_t idx, const char *k)
+__get_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
     return __get_obj_field(ctx, idx, number, k);
 }
 
 static inline void
-__set_obj_number(duk_context *ctx, duk_idx_t idx, const char *k, duk_double_t v)
+__set_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_double_t v)
 {
     __set_obj_field(ctx, idx, number, k, v);
 }
 
-static inline void *
-__get_obj_pointer(duk_context *ctx, duk_idx_t idx, const char *k)
+static inline duk_pointer_t
+__get_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
     return __get_obj_field(ctx, idx, pointer, k);
 }
 
 static inline void
-__set_obj_pointer(duk_context *ctx, duk_idx_t idx, const char *k, duk_pointer_t v)
+__set_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_pointer_t v)
 {
     __set_obj_field(ctx, idx, pointer, k, v);
 }
 
 static inline char *
-__get_obj_string(duk_context *ctx, duk_idx_t idx, const char *k, duk_size_t *plen)
+__get_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *plen)
 {
     char *v = NULL;
     
@@ -454,7 +455,7 @@ __get_obj_string(duk_context *ctx, duk_idx_t idx, const char *k, duk_size_t *ple
 }
 
 static inline char *
-__copy_obj_string(duk_context *ctx, duk_idx_t idx, const char *k, char *buffer, int size)
+__copy_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, char *buffer, int size)
 {
     duk_size_t len = 0;
     char *v = __get_obj_string(ctx, idx, k, &len);
@@ -469,7 +470,7 @@ __copy_obj_string(duk_context *ctx, duk_idx_t idx, const char *k, char *buffer, 
 }
 
 static inline void
-__set_obj_string(duk_context *ctx, duk_idx_t idx, const char *k, char * v)
+__set_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, char * v)
 {
     idx = duk_normalize_index(ctx, idx);
     
@@ -477,10 +478,10 @@ __set_obj_string(duk_context *ctx, duk_idx_t idx, const char *k, char * v)
     duk_put_prop_string(ctx, idx, k);
 }
 
-static inline void *
-__get_obj_buffer(duk_context *ctx, duk_idx_t idx, const char *k, duk_size_t *plen)
+static inline duk_buffer_t
+__get_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *plen)
 {
-    void *v = NULL;
+    duk_buffer_t v = NULL;
     
     duk_get_prop_string(ctx, idx, k);
     if (duk_is_buffer(ctx, -1)) {
@@ -492,10 +493,10 @@ __get_obj_buffer(duk_context *ctx, duk_idx_t idx, const char *k, duk_size_t *ple
 }
 
 static inline char *
-__copy_obj_buffer(duk_context *ctx, duk_idx_t idx, const char *k, duk_buffer_t buffer, int size)
+__copy_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t buffer, int size)
 {
     duk_size_t len = 0;
-    void *v = __get_obj_buffer(ctx, idx, k, &len);
+    duk_buffer_t v = __get_obj_buffer(ctx, idx, k, &len);
     if (v && size>=len) {
         os_memcpy(buffer, v, len);
         v = buffer;
@@ -507,7 +508,7 @@ __copy_obj_buffer(duk_context *ctx, duk_idx_t idx, const char *k, duk_buffer_t b
 }
 
 static inline void
-__set_obj_buffer(duk_context *ctx, duk_idx_t idx, const char *k, duk_buffer_t v, int size)
+__set_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t v, int size)
 {
     idx = duk_normalize_index(ctx, idx);
     
@@ -588,7 +589,7 @@ __set_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_number_t
     __set_array_field(ctx, idx, number, aidx, v);
 }
 
-static inline void *
+static inline duk_pointer_t
 __get_array_pointer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
 {
     return __get_array_field(ctx, idx, pointer, aidx);
@@ -638,10 +639,10 @@ __set_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, char *v)
     duk_put_prop_index(ctx, idx, aidx);
 }
 
-static inline void *
+static inline duk_buffer_t
 __get_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *plen)
 {
-    void *v = NULL;
+    duk_buffer_t v = NULL;
     
     duk_get_prop_index(ctx, idx, aidx);
     if (duk_is_buffer(ctx, -1)) {
@@ -656,7 +657,7 @@ static inline char *
 __copy_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_t buffer, int size)
 {
     duk_size_t len = 0;
-    void *v = __get_array_buffer(ctx, idx, aidx, &len);
+    duk_buffer_t v = __get_array_buffer(ctx, idx, aidx, &len);
     if (v && size >= len) {
         os_memcpy(buffer, v, len);
         v = buffer;
@@ -691,7 +692,7 @@ __seterrno(duk_context *ctx, int err)
 }
 #define seterrno(_ctx)  __seterrno(ctx, -errno)
 
-typedef int dukc_obj_op_f(duk_context *ctx, duk_idx_t idx, void *obj);
+typedef int dukc_obj_op_f(duk_context *ctx, duk_idx_t idx, duk_object_t obj);
 
 static inline int 
 __push_error(duk_context *ctx, int err)
@@ -706,7 +707,7 @@ __push_error(duk_context *ctx, int err)
 }
 
 static inline int
-__obj_push(duk_context *ctx, dukc_obj_op_f *set, void *obj)
+__obj_push(duk_context *ctx, dukc_obj_op_f *set, duk_object_t obj)
 {
     if (obj) {
         duk_push_object(ctx);
@@ -720,7 +721,7 @@ __obj_push(duk_context *ctx, dukc_obj_op_f *set, void *obj)
 }
 
 static inline int
-__obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, void *obj, const char *k)
+__obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, duk_object_t obj, duk_string_t k)
 {
     int err = 0;
 
@@ -751,7 +752,7 @@ __obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, v
     __obj_op(_ctx, true, _idx, _set, _obj, _k)
 
 static inline int
-__obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, void *obj, ...)
+__obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, duk_object_t obj, ...)
 {
     int err = 0, level = 0;
     va_list args;

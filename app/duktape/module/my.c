@@ -11,7 +11,7 @@
 #include "dukc.h"
 
 static int
-__set___info_t(duk_context *ctx, duk_idx_t idx, void *obj)
+__set___info_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     pipe_info_t *p = (pipe_info_t *)obj;
     

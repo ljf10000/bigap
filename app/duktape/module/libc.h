@@ -2,7 +2,7 @@
 #define __LIBC_H_46966fd8100c4718872a30b740b9561d__
 /******************************************************************************/
 static inline int
-__get_sockaddr(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_sockaddr(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     os_sockaddr_t *p = (os_sockaddr_t *)obj; os_objzero(p);
     
@@ -44,7 +44,7 @@ __get_sockaddr(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_sockaddr(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_sockaddr(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     os_sockaddr_t *p = (os_sockaddr_t *)obj;
     
@@ -85,7 +85,7 @@ __set_sockaddr(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_linger(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_linger(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct linger *p = (struct linger *)obj; os_objzero(p);
     
@@ -96,7 +96,7 @@ __get_linger(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_linger(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_linger(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct linger *p = (struct linger *)obj;
     
@@ -107,7 +107,7 @@ __set_linger(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_dirent(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_dirent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct dirent *p = (struct dirent *)obj; os_objzero(p);
     
@@ -120,7 +120,7 @@ __get_dirent(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_dirent(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_dirent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct dirent *p = (struct dirent *)obj;
     
@@ -133,7 +133,7 @@ __set_dirent(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_stat(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_stat(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct stat *p = (struct stat *)obj; os_objzero(p);
     
@@ -155,7 +155,7 @@ __get_stat(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_stat(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_stat(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct stat *p = (struct stat *)obj;
     
@@ -177,7 +177,7 @@ __set_stat(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_if_nameindex(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_if_nameindex(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct if_nameindex *p = (struct if_nameindex *)obj; os_objzero(p);
     
@@ -188,7 +188,7 @@ __get_if_nameindex(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_if_nameindex(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_if_nameindex(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct if_nameindex *p = (struct if_nameindex *)obj;
     
@@ -199,7 +199,7 @@ __set_if_nameindex(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_hostent(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_hostent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct hostent *p = (struct hostent *)obj;
     char *a;
@@ -226,7 +226,7 @@ __set_hostent(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_servent(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_servent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct servent *p = (struct servent *)obj;
     char *a;
@@ -246,7 +246,7 @@ __set_servent(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_protoent(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_protoent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct protoent *p = (struct protoent *)obj;
     char *a;
@@ -265,7 +265,7 @@ __set_protoent(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_netent(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_netent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct netent *p = (struct netent *)obj;
     int i;
@@ -284,7 +284,7 @@ __set_netent(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_utimbuf(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_utimbuf(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct utimbuf *p = (struct utimbuf *)obj; os_objzero(p);
     
@@ -295,7 +295,7 @@ __get_utimbuf(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_utimbuf(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_utimbuf(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct utimbuf *p = (struct utimbuf *)obj;
     
@@ -306,7 +306,7 @@ __set_utimbuf(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_timeval(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_timeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct timeval *p = (struct timeval *)obj; os_objzero(p);
     
@@ -317,7 +317,7 @@ __get_timeval(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_timeval(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_timeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct timeval *p = (struct timeval *)obj;
     
@@ -328,7 +328,7 @@ __set_timeval(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_itimerval(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_itimerval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct itimerval *p = (struct itimerval *)obj; os_objzero(p);
 
@@ -339,7 +339,7 @@ __get_itimerval(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_itimerval(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_itimerval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct itimerval *p = (struct itimerval *)obj;
     
@@ -350,7 +350,7 @@ __set_itimerval(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_timespec(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_timespec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct timespec *p = (struct timespec *)obj; os_objzero(p);
     
@@ -361,7 +361,7 @@ __get_timespec(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_timespec(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_timespec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct timespec *p = (struct timespec *)obj;
     
@@ -372,7 +372,7 @@ __set_timespec(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_itimerspec(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_itimerspec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct itimerspec *p = (struct itimerspec *)obj; os_objzero(p);
 
@@ -383,7 +383,7 @@ __get_itimerspec(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_itimerspec(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_itimerspec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct itimerspec *p = (struct itimerspec *)obj;
 
@@ -396,7 +396,7 @@ __set_itimerspec(duk_context *ctx, duk_idx_t idx, void *obj)
 #if duk_LIBC_LINUX
 
 static inline int
-__get_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct signalfd_siginfo *p = (struct signalfd_siginfo *)obj; os_objzero(p);
     
@@ -417,7 +417,7 @@ __get_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct signalfd_siginfo *p = (struct signalfd_siginfo *)obj;
     
@@ -438,7 +438,7 @@ __set_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_epoll_event(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_epoll_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct epoll_event *p = (struct epoll_event *)obj; os_objzero(p);
     
@@ -449,7 +449,7 @@ __get_epoll_event(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_epoll_event(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_epoll_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct epoll_event *p = (struct epoll_event *)obj;
     
@@ -460,7 +460,7 @@ __set_epoll_event(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_inotify_event(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_inotify_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct inotify_event *p = (struct inotify_event *)obj; os_objzero(p);
     
@@ -474,7 +474,7 @@ __get_inotify_event(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_inotify_event(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_inotify_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct inotify_event *p = (struct inotify_event *)obj;
     
@@ -488,7 +488,7 @@ __set_inotify_event(duk_context *ctx, duk_idx_t idx, void *obj)
 #endif
 
 static inline int
-__get_tms(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_tms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct tms *p = (struct tms *)obj; os_objzero(p);
     
@@ -501,7 +501,7 @@ __get_tms(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_tms(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_tms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct tms *p = (struct tms *)obj;
     
@@ -514,7 +514,7 @@ __set_tms(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_timezone(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_timezone(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct timezone *p = (struct timezone *)obj; os_objzero(p);
     
@@ -525,7 +525,7 @@ __get_timezone(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_timezone(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_timezone(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct timezone *p = (struct timezone *)obj;
     
@@ -536,7 +536,7 @@ __set_timezone(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_tm(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_tm(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct tm *p = (struct tm *)obj; os_objzero(p);
     
@@ -555,7 +555,7 @@ __get_tm(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_tm(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_tm(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct tm *p = (struct tm *)obj;
     
@@ -574,7 +574,7 @@ __set_tm(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_ntptimeval(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_ntptimeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct ntptimeval *p = (struct ntptimeval *)obj; os_objzero(p);
     
@@ -589,7 +589,7 @@ __get_ntptimeval(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_ntptimeval(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_ntptimeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct ntptimeval *p = (struct ntptimeval *)obj;
     
@@ -602,7 +602,7 @@ __set_ntptimeval(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_timex(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_timex(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct timex *p = (struct timex *)obj; os_objzero(p);
     
@@ -635,7 +635,7 @@ __get_timex(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_timex(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_timex(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct timex *p = (struct timex *)obj;
     
@@ -666,7 +666,7 @@ __set_timex(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_rusage(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_rusage(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct rusage *p = (struct rusage *)obj; os_objzero(p);
     
@@ -695,7 +695,7 @@ __get_rusage(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_rusage(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_rusage(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct rusage *p = (struct rusage *)obj;
     
@@ -721,7 +721,7 @@ __set_rusage(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_vtimes(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_vtimes(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct vtimes *p = (struct vtimes *)obj; os_objzero(p);
     
@@ -741,7 +741,7 @@ __get_vtimes(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_vtimes(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_vtimes(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct vtimes *p = (struct vtimes *)obj;
     
@@ -760,7 +760,7 @@ __set_vtimes(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_flock(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_flock(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct flock *p = (struct flock *)obj; os_objzero(p);
     
@@ -774,7 +774,7 @@ __get_flock(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_flock(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_flock(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct flock *p = (struct flock *)obj;
     
@@ -788,7 +788,7 @@ __set_flock(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_termios(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_termios(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct termios *p = (struct termios *)obj; os_objzero(p);
     int i;
@@ -810,7 +810,7 @@ __get_termios(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_termios(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_termios(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct termios *p = (struct termios *)obj;
     int i;
@@ -832,7 +832,7 @@ __set_termios(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_div(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_div(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     div_t *p = (div_t *)obj; os_objzero(p);
     
@@ -843,7 +843,7 @@ __get_div(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_div(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_div(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     div_t *p = (div_t *)obj;
     
@@ -854,7 +854,7 @@ __set_div(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_rlimit(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_rlimit(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct rlimit *p = (struct rlimit *)obj; os_objzero(p);
     
@@ -865,7 +865,7 @@ __get_rlimit(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_rlimit(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_rlimit(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct rlimit *p = (struct rlimit *)obj;
     
@@ -876,7 +876,7 @@ __set_rlimit(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_sched_param(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_sched_param(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct sched_param *p = (struct sched_param *)obj; os_objzero(p);
     
@@ -886,7 +886,7 @@ __get_sched_param(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_sched_param(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_sched_param(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct sched_param *p = (struct sched_param *)obj;
     
@@ -897,7 +897,7 @@ __set_sched_param(duk_context *ctx, duk_idx_t idx, void *obj)
 
 #if duk_LIBC_SIG
 static inline int
-__get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, void *obj)
+__get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 {
     struct sigaction *p = (struct sigaction *)obj; os_objzero(p);
     
@@ -925,7 +925,7 @@ __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, void *obj)
 }
 
 static inline int
-__set_sigaction(duk_context *ctx, duk_idx_t idx, int sig, void *obj)
+__set_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 {
     struct sigaction *p = (struct sigaction *)obj;
     
@@ -950,7 +950,7 @@ __set_sigaction(duk_context *ctx, duk_idx_t idx, int sig, void *obj)
 #endif
 
 static inline int
-__get_exit_status(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_exit_status(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct exit_status *p = (struct exit_status *)obj; os_objzero(p);
     
@@ -961,7 +961,7 @@ __get_exit_status(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_exit_status(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_exit_status(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct exit_status *p = (struct exit_status *)obj;
     
@@ -972,7 +972,7 @@ __set_exit_status(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_utmp(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_utmp(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct utmp *p = (struct utmp *)obj; os_objzero(p);
     int i;
@@ -999,7 +999,7 @@ __get_utmp(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_utmp(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_utmp(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct utmp *p = (struct utmp *)obj;
     int i;
@@ -1026,7 +1026,7 @@ __set_utmp(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_passwd(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_passwd(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct passwd *p = (struct passwd *)obj; os_objzero(p);
     
@@ -1042,7 +1042,7 @@ __get_passwd(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_passwd(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_passwd(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct passwd *p = (struct passwd *)obj;
     
@@ -1058,7 +1058,7 @@ __set_passwd(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_group(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_group(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct group *p = (struct group *)obj;
     int i, count;
@@ -1079,7 +1079,7 @@ __set_group(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_utsname(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_utsname(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct utsname *p = (struct utsname *)obj; os_objzero(p);
     
@@ -1093,7 +1093,7 @@ __get_utsname(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_utsname(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_utsname(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct utsname *p = (struct utsname *)obj;
     
@@ -1107,7 +1107,7 @@ __set_utsname(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_fstab(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_fstab(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct fstab *p = (struct fstab *)obj; os_objzero(p);
     
@@ -1123,7 +1123,7 @@ __get_fstab(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_fstab(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_fstab(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct fstab *p = (struct fstab *)obj;
     
@@ -1139,7 +1139,7 @@ __set_fstab(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__get_mntent(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_mntent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct mntent *p = (struct mntent *)obj; os_objzero(p);
     
@@ -1154,7 +1154,7 @@ __get_mntent(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_mntent(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_mntent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct mntent *p = (struct mntent *)obj;
     

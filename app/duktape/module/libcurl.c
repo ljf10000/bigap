@@ -201,7 +201,7 @@ duke_curl_easy_setopt(duk_context *ctx)
         }   break;
         // ERROR OPTIONS
         case CURLOPT_ERRORBUFFER: {
-            void *val = duk_require_buffer_data(ctx, 2, NULL);
+            duk_buffer_t val = duk_require_buffer_data(ctx, 2, NULL);
 
             err = curl_easy_setopt(p, opt, val);
         }   break;

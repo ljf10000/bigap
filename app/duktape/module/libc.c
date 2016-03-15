@@ -154,7 +154,7 @@ duke_epoll_wait(duk_context *ctx)
     struct epoll_event *ev;
     
     int epfd = duk_require_int(ctx, 0);
-    void *buffer = duk_require_buffer_data(ctx, 1, &bsize);
+    duk_buffer_t buffer = duk_require_buffer_data(ctx, 1, &bsize);
     if (0!=bsize%duk_epoll_event_size) {
         err = __seterrno(ctx, -EINVAL2); goto error;
     } else {
@@ -181,7 +181,7 @@ duke_epoll_pwait(duk_context *ctx)
     struct epoll_event *ev;
     
     int epfd = duk_require_int(ctx, 0);
-    void *buffer = duk_require_buffer_data(ctx, 1, &bsize);
+    duk_buffer_t buffer = duk_require_buffer_data(ctx, 1, &bsize);
     if (0!=bsize%duk_epoll_event_size) {
         err = __seterrno(ctx, -EINVAL2); goto error;
     } else {
@@ -507,8 +507,8 @@ duke_fread(duk_context *ctx)
 {
     duk_size_t bsize = 0;
 
-    FILE *f     = (FILE *)duk_require_pointer(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
 
     int err = fread(buf, 1, bsize, f);
 error:
@@ -522,7 +522,7 @@ duke_freadEx(duk_context *ctx)
     FILE *f     = (FILE *)duk_require_pointer(ctx, 0);
     int size    = duk_require_int(ctx, 1);
 
-    void *buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
         return duk_push_null(ctx), 1;
     }
@@ -542,7 +542,7 @@ LIB_PARAM(fwrite, 2);
 static duk_ret_t
 duke_fwrite(duk_context *ctx)
 {
-    void *buf = NULL;
+    duk_buffer_t buf = NULL;
     duk_size_t bsize = 0;
     
     FILE *f = (FILE *)duk_require_pointer(ctx, 0);
@@ -656,8 +656,8 @@ duke_read(duk_context *ctx)
 {
     duk_size_t bsize = 0;
     
-    int fd      = duk_require_int(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    int fd = duk_require_int(ctx, 0);
+    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
     
     int err = read(fd, buf, bsize);
 
@@ -671,7 +671,7 @@ duke_readEx(duk_context *ctx)
     int fd      = duk_require_int(ctx, 0);
     int size    = duk_require_int(ctx, 1);
 
-    void *buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
         __seterrno(ctx, -ENOMEM); goto error;
     }
@@ -692,7 +692,7 @@ static duk_ret_t
 duke_write(duk_context *ctx)
 {
     duk_size_t bsize = 0;
-    void *buf = NULL;
+    duk_buffer_t buf = NULL;
     
     int fd      = duk_require_int(ctx, 0);
     int err     = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
@@ -715,7 +715,7 @@ duke_pread(duk_context *ctx)
 {
     duk_size_t bsize = 0;
     int fd      = duk_require_int(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
     int offset  = duk_require_int(ctx, 2);
 
     int err = pread(fd, buf, bsize, offset);
@@ -731,7 +731,7 @@ duke_preadEx(duk_context *ctx)
     int size    = duk_require_int(ctx, 1);
     int offset  = duk_require_int(ctx, 2);
 
-    void *buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
         __seterrno(ctx, -ENOMEM); goto error;
     }
@@ -752,7 +752,7 @@ static duk_ret_t
 duke_pwrite(duk_context *ctx)
 {
     duk_size_t bsize = 0;
-    void *buf;
+    duk_buffer_t buf;
     
     int fd      = duk_require_int(ctx, 0);
     int err     = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
@@ -848,14 +848,14 @@ LIB_PARAM(mmap, 6);
 static duk_ret_t
 duke_mmap(duk_context *ctx)
 {
-    void *address   = duk_require_pointer(ctx, 0);
+    duk_pointer_t address = duk_require_pointer(ctx, 0);
     duk_uint_t len  = duk_require_uint(ctx, 1);
     int protect     = duk_require_int(ctx, 2);
     int flags       = duk_require_int(ctx, 3);
     int fd          = duk_require_int(ctx, 4);
     duk_uint_t offset = duk_require_uint(ctx, 5);
 
-    void *pointer = mmap(address, len, protect, flags, fd, offset);
+    duk_pointer_t pointer = mmap(address, len, protect, flags, fd, offset);
     if (MAP_FAILED==pointer) {
         seterrno(ctx);
         pointer = NULL;
@@ -868,7 +868,7 @@ LIB_PARAM(munmap, 2);
 static duk_ret_t
 duke_munmap(duk_context *ctx)
 {
-    void *address   = duk_require_pointer(ctx, 0);
+    duk_pointer_t address = duk_require_pointer(ctx, 0);
     duk_uint_t len  = duk_require_uint(ctx, 1);
 
     int err = munmap(address, len);
@@ -880,7 +880,7 @@ LIB_PARAM(msync, 3);
 static duk_ret_t
 duke_msync(duk_context *ctx)
 {
-    void *address   = duk_require_pointer(ctx, 0);
+    duk_pointer_t address = duk_require_pointer(ctx, 0);
     duk_uint_t len  = duk_require_uint(ctx, 1);
     int flags       = duk_require_int(ctx, 2);
 
@@ -893,12 +893,12 @@ LIB_PARAM(mremap, 4);
 static duk_ret_t
 duke_mremap(duk_context *ctx)
 {
-    void *address   = duk_require_pointer(ctx, 0);
+    duk_pointer_t address = duk_require_pointer(ctx, 0);
     duk_uint_t len  = duk_require_uint(ctx, 1);
     duk_uint_t nlen = duk_require_uint(ctx, 2);
     int flags       = duk_require_int(ctx, 3);
     
-    void *pointer = mremap(address, len, nlen, flags);
+    duk_pointer_t pointer = mremap(address, len, nlen, flags);
     if (MAP_FAILED==pointer) {
         seterrno(ctx);
         pointer = NULL;
@@ -911,7 +911,7 @@ LIB_PARAM(madvise, 3);
 static duk_ret_t
 duke_madvise(duk_context *ctx)
 {
-    void *address   = duk_require_pointer(ctx, 0);
+    duk_pointer_t address = duk_require_pointer(ctx, 0);
     duk_uint_t len  = duk_require_uint(ctx, 1);
     int advice      = duk_require_int(ctx, 2);
 
@@ -1150,7 +1150,7 @@ static duk_ret_t
 duke_getcwd(duk_context *ctx)
 {
     int size = 1+OS_LINE_LEN;
-    void *buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
 
     while(1) {
         if (buf==getcwd(buf, size-1)) {
@@ -2343,7 +2343,7 @@ static duk_ret_t
 duke_send(duk_context *ctx)
 {
     duk_size_t bsize = 0;
-    void *buf;
+    duk_buffer_t buf;
     
     int fd  = duk_require_int(ctx, 0);
     int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
@@ -2367,7 +2367,7 @@ duke_recv(duk_context *ctx)
 {
     duk_size_t bsize = 0;
     int fd      = duk_require_int(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
     int flag    = duk_require_int(ctx, 2);
     
     int err = recv(fd, buf, bsize, flag);
@@ -2382,7 +2382,7 @@ duke_sendto(duk_context *ctx)
 {
     os_sockaddr_t sa = OS_SOCKADDR_ZERO();
     duk_size_t bsize = 0;
-    void *buf;
+    duk_buffer_t buf;
     
     int fd      = duk_require_int(ctx, 0);
     int err     = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);

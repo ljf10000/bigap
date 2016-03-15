@@ -163,7 +163,7 @@ LIB_PARAM(deflateSetDictionary, 2);
 static duk_ret_t
 duke_deflateSetDictionary(duk_context *ctx)
 {
-    void *buf = NULL;
+    duk_buffer_t buf = NULL;
     duk_size_t bsize = 0;
     int err = 0;
     
@@ -296,7 +296,7 @@ LIB_PARAM(inflateSetDictionary, 2);
 static duk_ret_t
 duke_inflateSetDictionary(duk_context *ctx)
 {
-    void *buf = NULL;
+    duk_buffer_t buf = NULL;
     duk_size_t bsize = 0;
     int err = 0;
     
@@ -323,7 +323,7 @@ duke_inflateGetDictionary(duk_context *ctx)
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
     inflateGetDictionary(f, NULL, &size);
     
-    void *buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
         err = __seterrno(ctx, -ENOMEM); goto error;
     }
@@ -474,8 +474,8 @@ duke_compress(duk_context *ctx)
     duk_size_t src_size = 0;
     duk_size_t dst_size = 0;
 
-    void *dst = duk_require_buffer_data(ctx, 0, &dst_size);
-    void *src = duk_require_buffer_data(ctx, 1, &src_size);
+    duk_buffer_t dst = duk_require_buffer_data(ctx, 0, &dst_size);
+    duk_buffer_t src = duk_require_buffer_data(ctx, 1, &src_size);
     ulong_t dst_len = compressBound(src_size);
 
     if (dst_len>dst_size) {
@@ -499,10 +499,10 @@ duke_compressEx(duk_context *ctx)
     int err = 0;
     duk_size_t src_size = 0;
 
-    void *src = duk_require_buffer_data(ctx, 0, &src_size);
+    duk_buffer_t src = duk_require_buffer_data(ctx, 0, &src_size);
     ulong_t dst_size = compressBound(src_size);
 
-    void *dst = __push_dynamic_buffer(ctx, dst_size);
+    duk_buffer_t dst = __push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
         __seterrno(ctx, -ENOMEM); goto error;
     }
@@ -511,6 +511,7 @@ duke_compressEx(duk_context *ctx)
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
+    duk_resize_buffer(ctx, -1, dst_size);
     
     return 1;
 error:
@@ -525,8 +526,8 @@ duke_compress2(duk_context *ctx)
     duk_size_t src_size = 0;
     duk_size_t dst_size = 0;
 
-    void *dst = duk_require_buffer_data(ctx, 0, &dst_size);
-    void *src = duk_require_buffer_data(ctx, 1, &src_size);
+    duk_buffer_t dst = duk_require_buffer_data(ctx, 0, &dst_size);
+    duk_buffer_t src = duk_require_buffer_data(ctx, 1, &src_size);
     int level = duk_require_int(ctx, 2);
     ulong_t dst_len = compressBound(src_size);
 
@@ -551,11 +552,11 @@ duke_compress2Ex(duk_context *ctx)
     int err = 0;
     duk_size_t src_size = 0;
 
-    void *src = duk_require_buffer_data(ctx, 0, &src_size);
+    duk_buffer_t src = duk_require_buffer_data(ctx, 0, &src_size);
     int level = duk_require_int(ctx, 1);
     ulong_t dst_size = compressBound(src_size);
 
-    void *dst = __push_dynamic_buffer(ctx, dst_size);
+    duk_buffer_t dst = __push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
         __seterrno(ctx, -ENOMEM); goto error;
     }
@@ -564,6 +565,7 @@ duke_compress2Ex(duk_context *ctx)
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
+    duk_resize_buffer(ctx, -1, dst_size);
     
     return 1;
 error:
@@ -589,8 +591,8 @@ duke_uncompress(duk_context *ctx)
     duk_size_t src_size = 0;
     duk_size_t dst_size = 0;
 
-    void *dst = duk_require_buffer_data(ctx, 0, &dst_size);
-    void *src = duk_require_buffer_data(ctx, 1, &src_size);
+    duk_buffer_t dst = duk_require_buffer_data(ctx, 0, &dst_size);
+    duk_buffer_t src = duk_require_buffer_data(ctx, 1, &src_size);
     ulong_t dst_len = compressBound(src_size);
 
     if (dst_len>dst_size) {
@@ -614,10 +616,10 @@ duke_uncompressEx(duk_context *ctx)
     int err = 0;
     duk_size_t src_size = 0;
 
-    void *src = duk_require_buffer_data(ctx, 0, &src_size);
+    duk_buffer_t src = duk_require_buffer_data(ctx, 0, &src_size);
     ulong_t dst_size = compressBound(src_size);
 
-    void *dst = __push_dynamic_buffer(ctx, dst_size);
+    duk_buffer_t dst = __push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
         __seterrno(ctx, -ENOMEM); goto error;
     }
@@ -626,6 +628,7 @@ duke_uncompressEx(duk_context *ctx)
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
+    duk_resize_buffer(ctx, -1, dst_size);
     
     return 1;
 error:
@@ -678,7 +681,7 @@ duke_gzread(duk_context *ctx)
     duk_size_t bsize = 0;
 
     gzFile f = (gzFile)duk_require_pointer(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
 
     int err = gzread(f, buf, bsize);
 
@@ -692,9 +695,9 @@ duke_gzreadEx(duk_context *ctx)
     int err = 0;
     
     gzFile f = (gzFile)duk_require_pointer(ctx, 0);
-    int size    = duk_require_int(ctx, 1);
+    int size = duk_require_int(ctx, 1);
 
-    void *buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
         err = __seterrno(ctx, -ENOMEM); goto error;
     }
@@ -709,7 +712,7 @@ static duk_ret_t
 duke_gzwrite(duk_context *ctx)
 {
     duk_size_t bsize = 0;
-    void *buf;
+    duk_buffer_t buf;
     
     gzFile f = (gzFile)duk_require_pointer(ctx, 0);
     
@@ -742,8 +745,8 @@ duke_gzgets(duk_context *ctx)
 {
     duk_size_t bsize = 0;
 
-    gzFile f    = (gzFile)duk_require_pointer(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
 
     char *s = gzgets(f, buf, bsize);
     int len = os_strlen(s);
@@ -899,7 +902,7 @@ duke_adler32(duk_context *ctx)
     int err     = 0;
     
     duk_uint_t adler = duk_require_uint(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
     int size = duk_require_int(ctx, 2);
 
     if (bsize < size) {
@@ -920,7 +923,7 @@ duke_crc32(duk_context *ctx)
     int err     = 0;
     
     duk_uint_t adler = duk_require_uint(ctx, 0);
-    void *buf   = duk_require_buffer_data(ctx, 1, &bsize);
+    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
     int size = duk_require_int(ctx, 2);
 
     if (bsize < size) {

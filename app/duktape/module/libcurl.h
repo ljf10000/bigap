@@ -2,7 +2,7 @@
 #define __LIBCURL_H_5cb068d46d6644ecb80a359194ae20d2__
 /******************************************************************************/
 static inline int
-__get_curl_forms(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_curl_forms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_forms *p = (struct curl_forms *)obj; os_objzero(p);
     
@@ -13,7 +13,7 @@ __get_curl_forms(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_curl_forms(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_curl_forms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_forms *p = (struct curl_forms *)obj;
     
@@ -29,7 +29,7 @@ struct curl_httppost_obj {
 };
 
 static inline int
-__get_curl_httppost_obj(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_curl_httppost_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_httppost_obj *p = (struct curl_httppost_obj *)obj; os_objzero(p);
     
@@ -40,7 +40,7 @@ __get_curl_httppost_obj(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_curl_httppost_obj(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_curl_httppost_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_httppost_obj *p = (struct curl_httppost_obj *)obj;
     
@@ -55,7 +55,7 @@ struct curl_slist_obj {
 };
 
 static inline int
-__get_curl_slist_obj(duk_context *ctx, duk_idx_t idx, void *obj)
+__get_curl_slist_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_slist_obj *p = (struct curl_slist_obj *)obj; os_objzero(p);
     
@@ -65,7 +65,7 @@ __get_curl_slist_obj(duk_context *ctx, duk_idx_t idx, void *obj)
 }
 
 static inline int
-__set_curl_slist_obj(duk_context *ctx, duk_idx_t idx, void *obj)
+__set_curl_slist_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_slist_obj *p = (struct curl_slist_obj *)obj;
     
