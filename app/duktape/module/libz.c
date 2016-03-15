@@ -659,20 +659,6 @@ duke_gzdopen(duk_context *ctx)
     return __push_pointer(ctx, f), 1;
 }
 
-#if ZLIB_VERNUM >= 0x1235
-LIB_PARAM(gzbuffer, 2);
-static duk_ret_t
-duke_gzbuffer(duk_context *ctx)
-{
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
-    duk_uint_t size = duk_require_uint(ctx, 1);
-
-    int err = gzbuffer(f, size);
-    
-    return duk_push_int(ctx, err), 1;
-}
-#endif
-
 LIB_PARAM(gzsetparams, 3);
 static duk_ret_t
 duke_gzsetparams(duk_context *ctx)
@@ -848,17 +834,6 @@ duke_gztell(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzoffset, 1);
-static duk_ret_t
-duke_gzoffset(duk_context *ctx)
-{
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
-
-    int err = gzoffset(f);
-    
-    return duk_push_int(ctx, err), 1;
-}
-
 LIB_PARAM(gzeof, 1);
 static duk_ret_t
 duke_gzeof(duk_context *ctx)
@@ -893,6 +868,29 @@ duke_gzclose(duk_context *ctx)
 }
 
 #if ZLIB_VERNUM >= 0x1235
+LIB_PARAM(gzbuffer, 2);
+static duk_ret_t
+duke_gzbuffer(duk_context *ctx)
+{
+    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    duk_uint_t size = duk_require_uint(ctx, 1);
+
+    int err = gzbuffer(f, size);
+    
+    return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(gzoffset, 1);
+static duk_ret_t
+duke_gzoffset(duk_context *ctx)
+{
+    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+
+    int err = gzoffset(f);
+    
+    return duk_push_int(ctx, err), 1;
+}
+
 LIB_PARAM(gzclose_r, 1);
 static duk_ret_t
 duke_gzclose_r(duk_context *ctx)
