@@ -14,14 +14,19 @@ mod.type = {
 	gzip: 3
 };
 
-var __ok = function (obj) {
+var ok = function (obj) {
 	return typeof obj === 'object'
 		&& typeof obj.stream === 'pointer'
 		&& null !== obj.stream;
 };
 
-var __close = function (obj) {
-	if (__ok(obj)) {
+var close = function (obj) {
+	return obj.close();
+};
+
+/*
+var close = function (obj) {
+	if (ok(obj)) {
 		switch(obj.type) {
 			case mod.type.pipe:
 				__libc__.pclose(obj.stream);
@@ -30,7 +35,7 @@ var __close = function (obj) {
 			case mod.type.gzip:
 				__libz__.gzclose(obj.stream);
 				break;
-			case mod.type.file:  /* down */
+			case mod.type.file: // down
 			default:
 				__libc__.fclose(obj.stream);
 				break;
@@ -39,7 +44,169 @@ var __close = function (obj) {
 		obj.stream = null;
 	}
 };
+*/
 
+var stream_base = function (filename, mode, type) {
+	var obj = {
+		name: mod.name + '(' + filename + ')',
+		filename: filename,
+		mode: mode,
+		type: type,
+
+		close: function() {
+			return __libc__.fclose(obj.stream);
+		},
+
+		read: function (buffer) {
+			return __libc__.fread(obj.stream, buffer);
+		},
+
+		readEx: function (size) {
+			return __libc__.freadEx(obj.stream, size);
+		},
+
+		write: function (buffer) {
+			return __libc__.fwrite(obj.stream, buffer);
+	    },
+
+		error: function () {
+			return __libc__.ferror(obj.stream);
+		},
+
+		tell: function () {
+			return __libc__.ftell(obj.stream);
+		},
+
+		seek: function (offset, where) {
+			return __libc__.fseek(obj.stream, offset, where);
+		},
+
+		flush: function () {
+			return __libc__.fflush(obj.stream);
+		},
+
+		eof: function () {
+			return __libc__.feof(obj.stream);
+		}
+	};
+
+	return obj;
+};
+
+var file = function (filename, mode) {
+	var obj = stream_base(filename, mode, mod.type.file);
+
+	obj.stream = __libc__.fopen(obj.filename, obj.mode);
+
+	return obj.stream?obj:null;
+};
+
+var pipe = function (filename, mode) {
+	var obj = stream_base(filename, mode, mod.type.pipe);
+
+	obj.close = function() {
+		return __libc__.pclose(obj.filename, obj.mode);
+	};
+
+	obj.read = function (buffer) {
+		return __libc__.fread(obj.stream, buffer);
+	};
+
+	obj.readEx = function (size) {
+		return __libc__.freadEx(obj.stream, size);
+	};
+
+	obj.write = function (buffer) {
+		return -__libc__.ENOSUPPORT;
+	};
+
+	obj.error = function () {
+		return __libc__.ferror(obj.stream);
+	};
+
+	obj.tell = function () {
+		return -__libc__.ENOSUPPORT;
+	};
+
+	obj.seek = function (offset, where) {
+		return -__libc__.ENOSUPPORT;
+	};
+
+	obj.flush = function () {
+		return -__libc__.ENOSUPPORT;
+	};
+
+	obj.eof = function () {
+		return __libc__.feof(obj.stream);
+	};
+
+	obj.stream = __libc__.popen(obj.filename, obj.mode);
+
+	return obj.stream?obj:null;
+};
+
+var gzip = function (filename, mode) {
+	var obj = stream_base(filename, mode, mod.type.gzip);
+
+	obj.close = function() {
+		return __libz__.gzclose(obj.filename, obj.mode);
+	};
+
+	obj.read = function (buffer) {
+		return __libz__.gzread(obj.stream, buffer);
+	};
+
+	obj.readEx = function (size) {
+		return __libz__.gzreadEx(obj.stream, size);
+	};
+
+	obj.write = function (buffer) {
+		return __libz__.gzwrite(obj.stream, buffer);
+	};
+
+	obj.error = function () {
+		return __libz__.gzerror(obj.stream);
+	};
+
+	obj.tell = function () {
+		return __libz__.gztell(obj.stream);
+	};
+
+	obj.seek = function (offset, where) {
+		return __libz__.gzseek(obj.stream, offset, where);
+	};
+
+	obj.flush = function () {
+		return __libz__.gzflush(obj.stream);
+	};
+
+	obj.eof = function () {
+		return __libz__.gzeof(obj.stream);
+	};
+
+	obj.stream = __libz__.gzopen(obj.filename, obj.mode);
+
+	return obj.stream?obj:null;
+};
+
+var stream = function (filename, mode, type) {
+	switch (type) {
+		case mod.type.pipe:
+			return pipe(filename, mode);
+		case mod.type.gzip:
+			return gzip(filename, mode);
+		case mod.type.file: // down
+		default:
+			return file(filename, mode);
+	}
+};
+
+mod.file = file;
+mod.pipe = pipe;
+mod.gzip = gzip;
+mod.stream = stream;
+
+/*
 mod.Stream = function (filename, mode, type) {
 	this.filename = filename;
 	this.mode = mode;
@@ -64,11 +231,11 @@ mod.Stream = function (filename, mode, type) {
 
 mod.Stream.prototype = {
 	ok: function () {
-		return __ok(this);
+		return ok(this);
 	},
 
 	close: function () {
-		__close(this);
+		close(this);
 	},
 
 	read: function (buffer) {
@@ -163,7 +330,8 @@ mod.Stream.prototype = {
 		}
 	}
 };
+*/
 
-__js__.classDestructor(mod.Stream.prototype, __close);
+__js__.classDestructor(mod.Stream.prototype, close);
 
 /* eof */
