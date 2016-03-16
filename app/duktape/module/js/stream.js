@@ -1,4 +1,9 @@
 #!/bin/js
+
+/*
+* module: stream
+*/
+
 var mod = this;
 var prototype = mod.constructor.prototype;
 
@@ -154,7 +159,7 @@ mod.Stream = function (filename, mode, type) {
 	return prototype.open(this, filename, mode, type)
 };
 
-mode.Stream.prototype = {
+mod.Stream.prototype = {
 	read: function (buffer) {
 		return prototype.read(this, buffer);
 	},
