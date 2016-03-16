@@ -96,10 +96,9 @@ const fmt = {
 const __js__ = Duktape;
 
 __js__.destructor = function (is_class, x, close) {
-	if (close) {
+	if (typeof close === 'function') {
 		__js__.fin(x, function (obj, heapDestruct) {
 			var name;
-
 			if (is_class) {
 				name = obj.name || obj.prototype.name || x.name || typeof x;
 			} else {
