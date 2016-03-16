@@ -15,13 +15,15 @@ mod.type = {
 };
 
 var ok = function (obj) {
-	return typeof obj === 'object'
+	return obj
 		&& typeof obj.stream === 'pointer'
 		&& null !== obj.stream;
 };
 
 var close = function (obj) {
-	return obj.close();
+	if (obj && typeof obj.close  === 'function') {
+		return obj.close();
+	}
 };
 
 /*
@@ -54,7 +56,11 @@ var stream_base = function (filename, mode, type) {
 		type: type,
 
 		close: function() {
-			return __libc__.fclose(obj.stream);
+			if (obj.stream) {
+				__libc__.fclose(obj.stream);
+
+				obj.stream = nul;
+			}
 		},
 
 		read: function (buffer) {
@@ -105,7 +111,11 @@ var pipe = function (filename, mode) {
 	var obj = stream_base(filename, mode, mod.type.pipe);
 
 	obj.close = function() {
-		return __libc__.pclose(obj.filename, obj.mode);
+		if (obj.stream) {
+			__libc__.pclose(obj.stream);
+
+			obj.stream = nul;
+		}
 	};
 
 	obj.read = function (buffer) {
@@ -149,7 +159,11 @@ var gzip = function (filename, mode) {
 	var obj = stream_base(filename, mode, mod.type.gzip);
 
 	obj.close = function() {
-		return __libz__.gzclose(obj.filename, obj.mode);
+		if (obj.stream) {
+			__libz__.gzclose(obj.stream);
+
+			obj.stream = nul;
+		}
 	};
 
 	obj.read = function (buffer) {
