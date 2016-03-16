@@ -3,15 +3,23 @@
 var mod = this;
 
 mod.name = 'stream';
+
 mod.seek = {
 	current:__libc__.SEEK_CUR,
 	begin:  __libc__.SEEK_SET,
 	end:    __libc__.SEEK_END
 };
+
 mod.type = {
 	file: 1,
 	pipe: 2,
 	gzip: 3
+};
+
+mod.constructor.prototype = {
+	test: function () {
+		print('test');
+	}
 };
 
 var close = function (obj) {
