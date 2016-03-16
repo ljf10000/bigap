@@ -193,7 +193,7 @@ mod.Stream.prototype = {
 	}*/
 };
 
-__js__.fin(mode.Stream.prototype, function (obj, heapDestruct) {
+__js__.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 	var name = prototype.name;
 
 	if (heapDestruct) {

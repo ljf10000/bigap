@@ -79,10 +79,8 @@ const debug_test = function () {
 
 const __js__ = Duktape;
 
-__js__.destructor = function destructor (is_class, x, close) {
-	print(1);
+__js__.destructor = function (is_class, x, close) {
 	if (close) {
-	print(2);
 		__js__.fin(x, function (obj, heapDestruct) {
 			var name;
 			
@@ -104,12 +102,9 @@ __js__.destructor = function destructor (is_class, x, close) {
 				debug_destructor(name, 'closed @destructor');
 			}
 		});
-	print(3);
 	} else {
-	print(4);
 		return __js__.fin(x);
 	}
-	print(5);
 };
 
 const fmt = {
