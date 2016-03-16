@@ -193,7 +193,7 @@ mod.Stream.prototype = {
 	}*/
 };
 
-print(1);
+print(__js__.destructor);
 __js__.destructor(true, mode.Stream.prototype, prototype.close);
 print(2);
 /* eof */
