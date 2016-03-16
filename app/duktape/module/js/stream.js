@@ -1,16 +1,17 @@
 #!/bin/js
 
 var mod = this;
+var prototype = mod.constructor.prototype;
 
-mod.name = 'stream';
+prototype.name = 'stream';
 
-mod.seek = {
+prototype.seek = {
 	current:__libc__.SEEK_CUR,
 	begin:  __libc__.SEEK_SET,
 	end:    __libc__.SEEK_END
 };
 
-mod.type = {
+prototype.type = {
 	file: 1,
 	pipe: 2,
 	gzip: 3
@@ -188,7 +189,6 @@ mod.pipe = pipe;
 mod.gzip = gzip;
 mod.stream = stream;
 */
-var prototype = mod.constructor.prototype;
 
 prototype.file = file;
 prototype.pipe = pipe;
