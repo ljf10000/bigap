@@ -28,7 +28,7 @@ var close = function (obj) {
 
 var stream_base = function (filename, mode, type) {
 	var obj = {
-		name: mod.name + '(' + filename + ')',
+		name: prototype.name + '(' + filename + ')',
 		filename: filename,
 		mode: mode,
 		type: type,
@@ -60,7 +60,7 @@ var stream_base = function (filename, mode, type) {
 };
 
 var file = function (filename, mode) {
-	var obj = stream_base(filename, mode, mod.type.file);
+	var obj = stream_base(filename, mode, prototype.type.file);
 
 	obj.close = function() {
 		if (obj.ok()) {
@@ -92,7 +92,7 @@ var file = function (filename, mode) {
 };
 
 var pipe = function (filename, mode) {
-	var obj = stream_base(filename, mode, mod.type.pipe);
+	var obj = stream_base(filename, mode, prototype.type.pipe);
 
 	obj.close = function() {
 		if (obj.ok()) {
@@ -124,7 +124,7 @@ var pipe = function (filename, mode) {
 };
 
 var gzip = function (filename, mode) {
-	var obj = stream_base(filename, mode, mod.type.gzip);
+	var obj = stream_base(filename, mode, prototype.type.gzip);
 
 	obj.close = function() {
 		if (obj.ok()) {
@@ -173,11 +173,11 @@ var gzip = function (filename, mode) {
 
 var stream = function (filename, mode, type) {
 	switch (type) {
-		case mod.type.pipe:
+		case prototype.type.pipe:
 			return pipe(filename, mode);
-		case mod.type.gzip:
+		case prototype.type.gzip:
 			return gzip(filename, mode);
-		case mod.type.file: // down
+		case prototype.type.file: // down
 		default:
 			return file(filename, mode);
 	}
