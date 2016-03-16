@@ -79,40 +79,40 @@ const debug_test = function () {
 
 const __js__ = Duktape;
 
-__js__.classDestructor = function (prototype, close) {
-	if (close) {
-		__js__.fin(prototype, function (obj, heapDestruct) {
-			var name = obj.name || prototype.name || obj.prototype.name || typeof prototype;
-
-			if (heapDestruct) {
-				close(obj);
-
-				debug_destructor(name, 'closed @fini');
-			} else if (obj === prototype) {
-		        debug_destructor(name, 'called for the prototype itself');
-		    } else {
-				close(obj);
-
-				debug_destructor(name, 'closed @destructor');
-			}
-		});
+__js__.destructor = function (is_class, prototype, close) {
+	if (is_class) {
+		if (close) {
+			__js__.fin(prototype, function (obj, heapDestruct) {
+				var name = obj.name || prototype.name || obj.prototype.name || typeof prototype;
+	
+				if (heapDestruct) {
+					close(obj);
+	
+					debug_destructor(name, 'closed @fini');
+				} else if (obj === prototype) {
+			        debug_destructor(name, 'called for the prototype itself');
+			    } else {
+					close(obj);
+	
+					debug_destructor(name, 'closed @destructor');
+				}
+			});
+		} else {
+			return __js__.fin(prototype);
+		}
 	} else {
-		return __js__.fin(prototype);
-	}
-};
-
-__js__.objDestructor = function (x, close) {
-	if (close) {
-		__js__.fin(x, function (obj, heapDestruct) {
-			var when = heapDestruct?'fini':'destructor';
-			var name = obj.name || obj.prototype.name || typeof obj;
-
-			close(obj);
-
-			debug_destructor(name, 'closed @', when);
-		});
-	} else {
-		return __js__.fin(x);
+		if (close) {
+			__js__.fin(x, function (obj, heapDestruct) {
+				var when = heapDestruct?'fini':'destructor';
+				var name = obj.name || obj.prototype.name || typeof obj;
+	
+				close(obj);
+	
+				debug_destructor(name, 'closed @', when);
+			});
+		} else {
+			return __js__.fin(x);
+		}
 	}
 };
 
