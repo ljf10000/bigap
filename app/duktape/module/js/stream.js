@@ -12,37 +12,12 @@ prototype.SEEK_CUR = __libc__.SEEK_CUR;
 prototype.SEEK_SET = __libc__.SEEK_SET;
 prototype.SEEK_END = __libc__.SEEK_END;
 
-prototype.__good_type = function(type) {
-	switch (type) {
-		case prototype.pipetype: // down
-		case prototype.gziptype: // down
-		case prototype.filetype: // down
-			return type;
-		default:
-			return prototype.filetype;
-	}
-};
-
-prototype.__ok = function(obj) {
-	return obj && typeof obj.stream === 'pointer' && obj.stream;
-};
-
-prototype.__nok = function(obj) {
-	return obj && (typeof obj.stream !== 'pointer' || obj.stream);
-};
-
-prototype.__init = function (obj, filename, mode, type) {
-	obj.filename = filename;
-	obj.mode = mode;
-	obj.type = type;
-	obj.name = prototype.name + '(' + filename + ')';
-};
-
 prototype.open = function (obj, filename, mode, type) {
-	if (prototype.__nok(obj)) {
-		type = prototype.__good_type(type);
-
-		prototype.__init(obj, filename, mode, type);
+	if (obj && (typeof obj.stream !== 'pointer' || null === obj.stream)) {
+		obj.filename = filename;
+		obj.mode = mode;
+		obj.type = type;
+		obj.name = prototype.name + '(' + filename + ')';
 
 		switch (type) {
 			case prototype.pipetype:
@@ -53,6 +28,7 @@ prototype.open = function (obj, filename, mode, type) {
 				break;
 			case prototype.filetype:   // down
 			default:
+				obj.type = prototype.filetype;
 				obj.stream = __libc__.fopen(filename, mode);
 				break;
 		}
@@ -62,7 +38,7 @@ prototype.open = function (obj, filename, mode, type) {
 };
 
 prototype.close = function (obj) {
-	if (prototype.__ok(obj)) {
+	if (obj && typeof obj.stream === 'pointer' && obj.stream) {
 		switch (obj.type) {
 			case prototype.pipetype:
 				__libc__.pclose(obj.stream);
