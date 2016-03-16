@@ -166,7 +166,7 @@ mod.Stream.prototype = {
 
 	readEx: function (size) {
 		return prototype.readEx(this, size);
-	}/*,
+	},
 
 	write: function (buffer) {
 		return prototype.write(this, buffer);
@@ -190,7 +190,7 @@ mod.Stream.prototype = {
 
 	eof: function () {
 		return prototype.eof(this);
-	}*/
+	}
 };
 
 __js__.destructor(true, mod.Stream.prototype, prototype.close);
