@@ -3,15 +3,15 @@
 var mod = this;
 var prototype = mod.constructor.prototype;
 
-prototype.name = 'stream';
+prototype.name = prototype.name || 'stream';
 
-prototype.seek = {
+prototype.seek = prototype.seek || {
 	current:__libc__.SEEK_CUR,
 	begin:  __libc__.SEEK_SET,
 	end:    __libc__.SEEK_END
 };
 
-prototype.type = {
+prototype.type = prototype.type || {
 	file: 1,
 	pipe: 2,
 	gzip: 3
@@ -190,10 +190,10 @@ mod.gzip = gzip;
 mod.stream = stream;
 */
 
-prototype.file = file;
-prototype.pipe = pipe;
-prototype.gzip = gzip;
-prototype.stream = stream;
+prototype.file = prototype.file || file;
+prototype.pipe = prototype.pipe || pipe;
+prototype.gzip = prototype.gzip || gzip;
+prototype.stream = prototype.stream || stream;
 
 /*
 mod.Stream = function (filename, mode, type) {
