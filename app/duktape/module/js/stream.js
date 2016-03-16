@@ -7,17 +7,16 @@
 var mod = this;
 var prototype = mod.constructor.prototype;
 
-print(1);
 prototype.name = prototype.name || 'stream';
-print(2);
+
 prototype.filetype = 1;
 prototype.pipetype = 2;
 prototype.gziptype = 3;
-print(3);
+
 prototype.SEEK_CUR = __libc__.SEEK_CUR;
 prototype.SEEK_SET = __libc__.SEEK_SET;
 prototype.SEEK_END = __libc__.SEEK_END;
-print(4);
+
 prototype.open = function (obj, filename, mode, type) {
 	if (obj && (typeof obj.stream !== 'pointer' || null === obj.stream)) {
 		obj.filename = filename;
@@ -42,7 +41,7 @@ prototype.open = function (obj, filename, mode, type) {
 
 	return obj;
 };
-print(5);
+
 prototype.close = function (obj) {
 	if (obj && typeof obj.stream === 'pointer' && obj.stream) {
 		switch (obj.type) {
@@ -63,7 +62,7 @@ prototype.close = function (obj) {
 
 	return 0;
 };
-print(6);
+
 prototype.read = function (obj, buffer) {
 	switch(obj.type) {
 		case prototype.gziptype:
@@ -74,7 +73,7 @@ prototype.read = function (obj, buffer) {
 			return __libc__.fread(obj.stream, buffer);
 	}
 };
-print(7);
+
 prototype.readEx = function (obj, size) {
 	switch(obj.type) {
 		case prototype.gziptype:
@@ -85,7 +84,6 @@ prototype.readEx = function (obj, size) {
 			return __libc__.freadEx(obj.stream, size);
 	}
 };
-print(8);
 /*
 prototype.write = function (obj, buffer) {
 	switch(obj.type) {
@@ -160,7 +158,7 @@ prototype.eof = function (obj) {
 mod.Stream = function (filename, mode, type) {
 	return prototype.open(this, filename, mode, type)
 };
-print(9);
+
 mod.Stream.prototype = {
 	read: function (buffer) {
 		return prototype.read(this, buffer);
@@ -194,7 +192,8 @@ mod.Stream.prototype = {
 		return prototype.eof(this);
 	}*/
 };
-print(10);
+
+print(1);
 __js__.destructor(true, mode.Stream.prototype, prototype.close);
-print(11);
+print(2);
 /* eof */
