@@ -81,7 +81,9 @@ const __js__ = Duktape;
 
 __js__.destructor = function (is_class, x, close) {
 	if (is_class) {
+		print(1);
 		if (close) {
+			print(1.1);
 			__js__.fin(x, function (obj, heapDestruct) {
 				var name = obj.name || x.name || obj.prototype.name || typeof x;
 	
@@ -98,10 +100,13 @@ __js__.destructor = function (is_class, x, close) {
 				}
 			});
 		} else {
+			print(1.2);
 			return __js__.fin(x);
 		}
 	} else {
+		print(2);
 		if (close) {
+			print(2.1);
 			__js__.fin(x, function (obj, heapDestruct) {
 				var when = heapDestruct?'fini':'destructor';
 				var name = obj.name || obj.prototype.name || typeof obj;
@@ -111,6 +116,7 @@ __js__.destructor = function (is_class, x, close) {
 				debug_destructor(name, 'closed @', when);
 			});
 		} else {
+			print(2.2);
 			return __js__.fin(x);
 		}
 	}
