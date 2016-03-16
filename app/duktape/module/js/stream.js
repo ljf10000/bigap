@@ -16,10 +16,6 @@ mod.type = {
 	gzip: 3
 };
 
-mod.constructor.prototype.test = function () {
-	print('testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttest');
-};
-
 var close = function (obj) {
 	if (obj
 		&& typeof obj.stream === 'pointer'
@@ -186,10 +182,18 @@ var stream = function (filename, mode, type) {
 	}
 };
 
+/*
 mod.file = file;
 mod.pipe = pipe;
 mod.gzip = gzip;
 mod.stream = stream;
+*/
+var prototype = mod.constructor.prototype;
+
+prototype.file = file;
+prototype.pipe = pipe;
+prototype.gzip = gzip;
+prototype.stream = stream;
 
 /*
 mod.Stream = function (filename, mode, type) {
