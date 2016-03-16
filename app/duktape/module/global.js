@@ -77,12 +77,31 @@ const debug_test = function () {
 	__my__.debug(__debug__.test, Array.prototype.slice.call(arguments).slice(0).toString());
 };
 
+const fmt = {
+	oprint: function (name, obj) {
+		var c = {};
+
+		c[name] = obj;
+
+		print(Duktape.enc('jc', c, null, 4));
+	},
+
+	separator: function (name, sep) {
+		var s = sep?sep:'==========';
+
+		print(s, name, s);
+	}
+};
+
 const __js__ = Duktape;
 
 __js__.destructor = function (is_class, x, close) {
 	if (close) {
 		__js__.fin(x, function (obj, heapDestruct) {
 			var name;
+			print("is class", is_class, x, obj);
+			fmt.oprint(x);
+			fmt.oprint(obj);
 			
 			if (is_class) {
 				name = obj.name || x.name || obj.prototype.name || typeof x;
@@ -104,22 +123,6 @@ __js__.destructor = function (is_class, x, close) {
 		});
 	} else {
 		return __js__.fin(x);
-	}
-};
-
-const fmt = {
-	oprint: function (name, obj) {
-		var c = {};
-
-		c[name] = obj;
-
-		print(Duktape.enc('jc', c, null, 4));
-	},
-
-	separator: function (name, sep) {
-		var s = sep?sep:'==========';
-
-		print(s, name, s);
 	}
 };
 
