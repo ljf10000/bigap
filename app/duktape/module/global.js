@@ -99,7 +99,7 @@ __js__.destructor = function (is_class, x, close) {
 	if (close) {
 		__js__.fin(x, function (obj, heapDestruct) {
 			var name;
-			debug_destructor('is class', is_class, x, obj);
+			print('is class', is_class, x, obj);
 			fmt.oprint(x);
 			fmt.oprint(obj);
 			
