@@ -194,16 +194,16 @@ mod.Stream.prototype = {
 };
 
 __js__.fin(mode.Stream.prototype, function (obj, heapDestruct) {
-	var name = mode.Stream.prototype.name;
-	
+	var name = prototype.name;
+
 	if (heapDestruct) {
-		close(obj);
+		prototype.close(obj);
 
 		debug_destructor(name, 'closed @fini');
 	} else if (is_class && obj === x) {
         debug_destructor(name, 'skip, called for the prototype itself');
     } else {
-		close(obj);
+		prototype.close(obj);
 
 		debug_destructor(name, 'closed @destructor');
 	}
