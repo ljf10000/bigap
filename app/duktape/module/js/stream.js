@@ -16,10 +16,8 @@ mod.type = {
 	gzip: 3
 };
 
-mod.constructor.prototype = {
-	test: function () {
-		print('testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttest');
-	}
+mod.constructor.prototype.test = function () {
+	print('testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttest');
 };
 
 var close = function (obj) {
