@@ -98,32 +98,26 @@ const __js__ = Duktape;
 __js__.destructor = function (is_class, x, close) {
 	if (close) {
 		__js__.fin(x, function (obj, heapDestruct) {
-			var name;
-
-			if (is_class) {
-				name = obj.name || obj.prototype.name || x.name || typeof x;
-			} else {
-				name = obj.name || obj.prototype.name || typeof obj;
-			}
-
-			if (heapDestruct) {
-				close(obj);
-
-				debug_destructor(name, 'closed @fini');
-		    } else {
-		    	if (is_class) {
-		    		if (obj === x) {
-		    			debug_destructor(name, 'skip, called for the prototype itself');
-		    		} else {
-			    		close(obj);
+			if (obj) {
+				var name;
 	
-						debug_destructor(name, 'closed @destructor');
-		    		}
-		    	} else {
-		    		close(obj);
+				if (is_class) {
+					name = obj.name || obj.prototype.name || x.name || typeof x;
+				} else {
+					name = obj.name || obj.prototype.name || typeof obj;
+				}
 
+				if (heapDestruct) {
+					close(obj);
+	
+					debug_destructor(name, 'closed @fini');
+				} else if (is_class && obj === x) {
+			        debug_destructor(name, 'skip, called for the prototype itself');
+			    } else {
+					close(obj);
+	
 					debug_destructor(name, 'closed @destructor');
-		    	}
+				}
 			}
 		});
 	} else {
