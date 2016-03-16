@@ -110,12 +110,20 @@ __js__.destructor = function (is_class, x, close) {
 				close(obj);
 
 				debug_destructor(name, 'closed @fini');
-			} else if (is_class && obj === x) {
-		        debug_destructor(name, 'skip, called for the prototype itself');
 		    } else {
-				close(obj);
+		    	if (is_class) {
+		    		if (obj === x) {
+		    			debug_destructor(name, 'skip, called for the prototype itself');
+		    		} else {
+			    		close(obj);
+	
+						debug_destructor(name, 'closed @destructor');
+		    		}
+		    	} else {
+		    		close(obj);
 
-				debug_destructor(name, 'closed @destructor');
+					debug_destructor(name, 'closed @destructor');
+		    	}
 			}
 		});
 	} else {
