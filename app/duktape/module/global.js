@@ -79,7 +79,7 @@ const debug_test = function () {
 
 const __js__ = Duktape;
 
-__js__.destructor = function (is_class, x, close) {
+__js__.destructor = function destructor (is_class, x, close) {
 	print(1);
 	if (close) {
 	print(2);
