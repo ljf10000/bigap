@@ -14,39 +14,14 @@ mod.type = {
 	gzip: 3
 };
 
-var ok = function (obj) {
-	return obj
-		&& typeof obj.stream === 'pointer'
-		&& null !== obj.stream;
-};
-
 var close = function (obj) {
-	if (obj && typeof obj.close  === 'function') {
+	if (obj
+		&& typeof obj.stream === 'pointer'
+		&& null !== obj.stream
+		&& typeof obj.close  === 'function') {
 		return obj.close();
 	}
 };
-
-/*
-var close = function (obj) {
-	if (ok(obj)) {
-		switch(obj.type) {
-			case mod.type.pipe:
-				__libc__.pclose(obj.stream);
-
-				break;
-			case mod.type.gzip:
-				__libz__.gzclose(obj.stream);
-				break;
-			case mod.type.file: // down
-			default:
-				__libc__.fclose(obj.stream);
-				break;
-		}
-
-		obj.stream = null;
-	}
-};
-*/
 
 var stream_base = function (filename, mode, type) {
 	var obj = {
@@ -54,6 +29,10 @@ var stream_base = function (filename, mode, type) {
 		filename: filename,
 		mode: mode,
 		type: type,
+
+		ok: function() {
+			return typeof obj.stream === 'pointer' && obj.stream;
+		},
 
 		read: function (buffer) {
 			return __libc__.fread(obj.stream, buffer);
@@ -81,7 +60,7 @@ var file = function (filename, mode) {
 	var obj = stream_base(filename, mode, mod.type.file);
 
 	obj.close = function() {
-		if (obj.stream) {
+		if (obj.ok()) {
 			__libc__.fclose(obj.stream);
 
 			obj.stream = null;
@@ -113,7 +92,7 @@ var pipe = function (filename, mode) {
 	var obj = stream_base(filename, mode, mod.type.pipe);
 
 	obj.close = function() {
-		if (obj.stream) {
+		if (obj.ok()) {
 			__libc__.pclose(obj.stream);
 
 			obj.stream = null;
@@ -145,7 +124,7 @@ var gzip = function (filename, mode) {
 	var obj = stream_base(filename, mode, mod.type.gzip);
 
 	obj.close = function() {
-		if (obj.stream) {
+		if (obj.ok()) {
 			__libz__.gzclose(obj.stream);
 
 			obj.stream = null;
@@ -230,12 +209,24 @@ mod.Stream = function (filename, mode, type) {
 };
 
 mod.Stream.prototype = {
-	ok: function () {
-		return ok(this);
-	},
-
 	close: function () {
-		close(this);
+		if (typeof this.stream === 'pointer' && null !== this.stream) {
+			switch(this.type) {
+				case mod.type.pipe:
+					__libc__.pclose(this.stream);
+
+					break;
+				case mod.type.gzip:
+					__libz__.gzclose(this.stream);
+					break;
+				case mod.type.file: // down
+				default:
+					__libc__.fclose(this.stream);
+					break;
+			}
+
+			this.stream = null;
+		}
 	},
 
 	read: function (buffer) {
@@ -333,6 +324,5 @@ mod.Stream.prototype = {
 
 __js__.classDestructor(mod.Stream.prototype, close);
 */
-
 
 /* eof */
