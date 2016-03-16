@@ -164,27 +164,27 @@ mode.Stream.prototype = {
 	}/*,
 
 	write: function (buffer) {
-		return prototype.write(obj, buffer);
+		return prototype.write(this, buffer);
 	},
 
 	tell: function () {
-		return prototype.tell(obj);
+		return prototype.tell(this);
 	},
 
 	seek: function (offset, where) {
-		return prototype.seek(obj, offset, where);
+		return prototype.seek(this, offset, where);
 	},
 
 	flush: function () {
-		return prototype.flush(obj);
+		return prototype.flush(this);
 	},
 
 	error: function () {
-		return prototype.error(obj);
+		return prototype.error(this);
 	},
 
 	eof: function () {
-		return prototype.eof(obj);
+		return prototype.eof(this);
 	}*/
 };
 
