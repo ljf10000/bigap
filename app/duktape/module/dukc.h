@@ -831,27 +831,27 @@ error:
 }
 
 static inline int
-__feval(duk_context *ctx, char *filename)
+__load_file(duk_context *ctx, char *filename)
 {
     int err = -ENOEXIST;
     
-    debug_js("eval %s ...", filename);
+    debug_js("load %s ...", filename);
     if (os_file_exist(filename)) {
         err = duk_peval_file_noresult(ctx, filename);
     }
-    debug_js("eval %s %s.", filename, __ok_string(0==err));
+    debug_js("load %s %s.", filename, __ok_string(0==err));
 
     return err;
 }
 
 static inline int
-__ceval(duk_context *ctx, char *tag, char *code)
+__load_code(duk_context *ctx, char *tag, char *code)
 {
     int err = 0;
     
-    debug_js("%s eval ...", tag);
+    debug_js("load %s ...", tag);
     err = duk_peval_string_noresult(ctx, code);
-    debug_js("%s eval %s.", tag, __ok_string(0==err));
+    debug_js("load %s %s.", tag, __ok_string(0==err));
 
     return err;
 }

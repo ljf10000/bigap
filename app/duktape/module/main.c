@@ -19,7 +19,7 @@ char **__argv;
 static int
 buildin_register(duk_context *ctx)
 {
-    return __ceval(ctx, "buildin", duk_global_CODE);
+    return __load_code(ctx, "buildin", duk_global_CODE);
 }
 
 static bool 
@@ -50,7 +50,7 @@ auto_register(duk_context *ctx)
     
         os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
 
-        int err = __feval(ctx, file);
+        int err = __load_file(ctx, file);
         if (err<0) {
             return mv2_go(err);
         }
