@@ -105,7 +105,19 @@ __js__.destructor = function (is_class, x, close) {
 			} else {
 				name = obj.name || obj.prototype.name || typeof obj;
 			}
+			
+			if (is_class && obj === x) {
+		        debug_destructor(name, 'skip, called for the prototype itself');
+		    } else if (heapDestruct) {
+				close(obj);
 
+				debug_destructor(name, 'closed @fini');
+		    } else {
+				close(obj);
+
+				debug_destructor(name, 'closed @destructor');
+			}
+/*
 			if (heapDestruct) {
 				close(obj);
 
@@ -117,6 +129,7 @@ __js__.destructor = function (is_class, x, close) {
 
 				debug_destructor(name, 'closed @destructor');
 			}
+*/
 		});
 	} else {
 		return __js__.fin(x);
