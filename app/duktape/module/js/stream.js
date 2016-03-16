@@ -79,7 +79,7 @@ prototype.readEx = function (obj, size) {
 			return __libc__.freadEx(obj.stream, size);
 	}
 };
-
+/*
 prototype.write = function (obj, buffer) {
 	switch(obj.type) {
 		case prototype.pipetype:
@@ -149,7 +149,7 @@ prototype.eof = function (obj) {
 			return __libc__.feof(obj.stream);
 	}
 };
-
+*/
 mod.Stream = function (filename, mode, type) {
 	return prototype.open(this, filename, mode, type)
 };
@@ -161,7 +161,7 @@ mode.Stream.prototype = {
 
 	readEx: function (size) {
 		return prototype.readEx(this, size);
-	},
+	}/*,
 
 	write: function (buffer) {
 		return prototype.write(obj, buffer);
@@ -185,7 +185,7 @@ mode.Stream.prototype = {
 
 	eof: function () {
 		return prototype.eof(obj);
-	}
+	}*/
 };
 
 __js__.destructor(true, mode.Stream.prototype, prototype.close);
