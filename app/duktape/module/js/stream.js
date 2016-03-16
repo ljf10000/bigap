@@ -18,7 +18,7 @@ mod.type = {
 
 mod.constructor.prototype = {
 	test: function () {
-		print('test');
+		print('testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttest');
 	}
 };
 
