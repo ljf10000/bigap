@@ -55,14 +55,6 @@ var stream_base = function (filename, mode, type) {
 		mode: mode,
 		type: type,
 
-		close: function() {
-			if (obj.stream) {
-				__libc__.fclose(obj.stream);
-
-				obj.stream = nul;
-			}
-		},
-
 		read: function (buffer) {
 			return __libc__.fread(obj.stream, buffer);
 		},
@@ -71,24 +63,8 @@ var stream_base = function (filename, mode, type) {
 			return __libc__.freadEx(obj.stream, size);
 		},
 
-		write: function (buffer) {
-			return __libc__.fwrite(obj.stream, buffer);
-	    },
-
 		error: function () {
 			return __libc__.ferror(obj.stream);
-		},
-
-		tell: function () {
-			return __libc__.ftell(obj.stream);
-		},
-
-		seek: function (offset, where) {
-			return __libc__.fseek(obj.stream, offset, where);
-		},
-
-		flush: function () {
-			return __libc__.fflush(obj.stream);
 		},
 
 		eof: function () {
@@ -96,11 +72,37 @@ var stream_base = function (filename, mode, type) {
 		}
 	};
 
+	__js__.objDestructor(obj, close);
+
 	return obj;
 };
 
 var file = function (filename, mode) {
 	var obj = stream_base(filename, mode, mod.type.file);
+
+	obj.close = function() {
+		if (obj.stream) {
+			__libc__.fclose(obj.stream);
+
+			obj.stream = null;
+		}
+	};
+
+	obj.write = function (buffer) {
+		return __libc__.fwrite(obj.stream, buffer);
+    };
+
+	obj.tell = function () {
+		return __libc__.ftell(obj.stream);
+	};
+
+	obj.seek = function (offset, where) {
+		return __libc__.fseek(obj.stream, offset, where);
+	};
+
+	obj.flush = function () {
+		return __libc__.fflush(obj.stream);
+	};
 
 	obj.stream = __libc__.fopen(obj.filename, obj.mode);
 
@@ -114,24 +116,12 @@ var pipe = function (filename, mode) {
 		if (obj.stream) {
 			__libc__.pclose(obj.stream);
 
-			obj.stream = nul;
+			obj.stream = null;
 		}
-	};
-
-	obj.read = function (buffer) {
-		return __libc__.fread(obj.stream, buffer);
-	};
-
-	obj.readEx = function (size) {
-		return __libc__.freadEx(obj.stream, size);
 	};
 
 	obj.write = function (buffer) {
 		return -__libc__.ENOSUPPORT;
-	};
-
-	obj.error = function () {
-		return __libc__.ferror(obj.stream);
 	};
 
 	obj.tell = function () {
@@ -146,10 +136,6 @@ var pipe = function (filename, mode) {
 		return -__libc__.ENOSUPPORT;
 	};
 
-	obj.eof = function () {
-		return __libc__.feof(obj.stream);
-	};
-
 	obj.stream = __libc__.popen(obj.filename, obj.mode);
 
 	return obj.stream?obj:null;
@@ -162,7 +148,7 @@ var gzip = function (filename, mode) {
 		if (obj.stream) {
 			__libz__.gzclose(obj.stream);
 
-			obj.stream = nul;
+			obj.stream = null;
 		}
 	};
 
@@ -344,8 +330,9 @@ mod.Stream.prototype = {
 		}
 	}
 };
-*/
 
 __js__.classDestructor(mod.Stream.prototype, close);
+*/
+
 
 /* eof */
