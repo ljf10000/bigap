@@ -193,6 +193,7 @@ mod.Stream.prototype = {
 	}*/
 };
 
+/*
 __js__.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 	var name = prototype.name;
 
@@ -208,7 +209,8 @@ __js__.fin(mod.Stream.prototype, function (obj, heapDestruct) {
 		debug_destructor(name, 'closed @destructor');
 	}
 });
+*/
 
-//__js__.destructor(true, mode.Stream.prototype, prototype.close);
+__js__.destructor(true, mod.Stream.prototype, prototype.close);
 
 /* eof */
