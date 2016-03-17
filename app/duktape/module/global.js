@@ -25,12 +25,15 @@ const __debug_level__ = {
 	all:	0xffffffff
 };
 const __debug_module__ = JSON.parse(__my__.env.__JS_DEBUG_MOD__);
+
+/*
 const __is_debug = function (mod, level) {
 	if (__my__.is_debug(level)) {
 		if ('all' === mod) {
 			return true;
 		} else {
 			var count = __debug_module__.length;
+			var i;
 			
 			for (i=0; i<count; i++) {
 				if (mod === __debug_module__[i]) {
@@ -42,7 +45,6 @@ const __is_debug = function (mod, level) {
 
 	return false;
 };
-/*
 const debug = function (mod, level) {
 	if (__is_debug(mod, level)) {
 		__my__.debug(Array.prototype.slice.call(arguments).slice(2).toString());
