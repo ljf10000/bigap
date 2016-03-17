@@ -154,7 +154,7 @@ prototype.eof = function (obj) {
 	}
 };
 
-mod.debugger = new Debugger(prototype.name);
+mod.debugger = new ModDebugger(prototype.name);
 
 mod.Stream = function (filename, mode, type) {
 	return prototype.open(this, filename, mode, type)

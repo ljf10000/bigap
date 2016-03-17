@@ -135,11 +135,11 @@ const debug_test = function (mod) {
 	}
 };
 
-const Debugger = function (mod) {
+const ModDebugger = function (mod) {
 	this.mod = mod;	
 };
 
-Debugger.prototype = {
+ModDebugger.prototype = {
 	debug: function (level) {
 		if (__is_debug(this.mod, level)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
@@ -212,7 +212,6 @@ Debugger.prototype = {
 		}
 	}
 };
-const dbg = new Debugger('all');
 
 __js__.destructor = function (is_class, x, close) {
 	if (typeof close === 'function') {
@@ -225,15 +224,15 @@ __js__.destructor = function (is_class, x, close) {
 			}
 
 			if (is_class && obj === x) {
-		        dbg.destructor(name, 'skip, called for the prototype itself');
+		        debug_destructor('all', name, 'skip, called for the prototype itself');
 		    } else if (heapDestruct) {
 				close(obj);
 
-				dbg.destructor(name, 'closed @fini');
+				debug_destructor('all', name, 'closed @fini');
 		    } else {
 				close(obj);
 
-				dbg.destructor(name, 'closed @destructor');
+				debug_destructor('all', name, 'closed @destructor');
 			}
 		});
 	} else {
