@@ -122,7 +122,7 @@ const debug_test = function (mod) {
 const ModDebugger = function (mod) {
 	this.mod = mod;	
 };
-
+/*
 ModDebugger.prototype = {
 	debug: function (level) {
 		if (__is_debug(this.mod, level)) {
@@ -194,8 +194,8 @@ ModDebugger.prototype = {
 		}
 	}
 };
-
-const debugger = new ModDebugger('all');
+*/
+const dbg = new ModDebugger('all');
 
 const fmt = {
 	oprint: function (name, obj) {
@@ -212,7 +212,7 @@ const fmt = {
 		print(s, name, s);
 	}
 };
-
+/*
 __js__.destructor = function (is_class, x, close) {
 	if (typeof close === 'function') {
 		__js__.fin(x, function (obj, heapDestruct) {
@@ -224,20 +224,20 @@ __js__.destructor = function (is_class, x, close) {
 			}
 
 			if (is_class && obj === x) {
-		        debugger.destructor(name, 'skip, called for the prototype itself');
+		        dbg.destructor(name, 'skip, called for the prototype itself');
 		    } else if (heapDestruct) {
 				close(obj);
 
-				debugger.destructor(name, 'closed @fini');
+				dbg.destructor(name, 'closed @fini');
 		    } else {
 				close(obj);
 
-				debugger.destructor(name, 'closed @destructor');
+				dbg.destructor(name, 'closed @destructor');
 			}
 		});
 	} else {
 		return __js__.fin(x);
 	}
 };
-
+*/
 /* eof */
