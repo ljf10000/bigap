@@ -16,7 +16,6 @@ prototype.SEEK_CUR = __libc__.SEEK_CUR;
 prototype.SEEK_SET = __libc__.SEEK_SET;
 prototype.SEEK_END = __libc__.SEEK_END;
 
-
 prototype.open = function (obj, filename, mode, type) {
 	if (obj && (typeof obj.stream !== 'pointer' || null === obj.stream)) {
 		obj.filename = filename;
@@ -155,7 +154,7 @@ prototype.eof = function (obj) {
 	}
 };
 
-mod.debugger = new ModDebugger(prototype.name);
+//mod.debugger = new ModDebugger(prototype.name);
 
 mod.Stream = function (filename, mode, type) {
 	return prototype.open(this, filename, mode, type)
