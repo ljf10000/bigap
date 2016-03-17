@@ -129,7 +129,7 @@ Debugger.prototype = {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
 		}
 	},
-	
+	/*
 	init: function () {
 		if (__is_debug(this.mod, __debug_level__.init)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
@@ -189,7 +189,7 @@ Debugger.prototype = {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
-	
+	*/
 	test: function () {
 		if (__is_debug(this.mod, __debug_level__.test)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
