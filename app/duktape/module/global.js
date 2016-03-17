@@ -212,7 +212,7 @@ ModDebugger.prototype = {
 		}
 	}
 };
-const dbg = new ModDebugger('all');
+const debugger = new ModDebugger('all');
 
 __js__.destructor = function (is_class, x, close) {
 	if (typeof close === 'function') {
@@ -225,15 +225,15 @@ __js__.destructor = function (is_class, x, close) {
 			}
 
 			if (is_class && obj === x) {
-		        dbg.destructor(name, 'skip, called for the prototype itself');
+		        debugger.destructor(name, 'skip, called for the prototype itself');
 		    } else if (heapDestruct) {
 				close(obj);
 
-				dbg.destructor(name, 'closed @fini');
+				debugger.destructor(name, 'closed @fini');
 		    } else {
 				close(obj);
 
-				dbg.destructor(name, 'closed @destructor');
+				debugger.destructor(name, 'closed @destructor');
 			}
 		});
 	} else {
