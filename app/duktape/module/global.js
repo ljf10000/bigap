@@ -24,10 +24,8 @@ const __debug_level__ = {
 	
 	all:	0xffffffff
 };
-print(__my__);
-print(__my__.env);
-print(__my__.env.__JS_DEBUG_MOD__);
-const __debug_module__ = JSON.parse(__my__.env.__JS_DEBUG_MOD__);
+
+const __debug_module__ = JSON.parse('[]');
 
 /*
 const __is_debug = function (mod, level) {
