@@ -28,7 +28,6 @@ print(__my__.env.__JS_DEBUG_MOD__);
 const __debug_module__ = JSON.parse(__my__.env.__JS_DEBUG_MOD__);
 print(__my__.env.__JS_DEBUG_MOD__);
 
-/*
 const __is_debug = function (mod, level) {
 	if (__my__.is_debug(level)) {
 		if ('all' === mod) {
@@ -119,14 +118,13 @@ const debug_test = function (mod) {
 		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
 	}
 };
-*/
 
+/*
 const Debugger = function (mod) {
 	this.mod = mod;	
 };
 
 Debugger.prototype = {
-	/*
 	debug: function (level) {
 		if (__is_debug(this.mod, level)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
@@ -196,11 +194,10 @@ Debugger.prototype = {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	}
-	*/
 };
 
 const debugger = new Debugger('all');
-/*
+
 const fmt = {
 	oprint: function (name, obj) {
 		var c = {};
