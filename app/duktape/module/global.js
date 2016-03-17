@@ -119,11 +119,11 @@ const debug_test = function (mod) {
 	}
 };
 
-/*
 const Debugger = function (mod) {
 	this.mod = mod;	
 };
 
+/*
 Debugger.prototype = {
 	debug: function (level) {
 		if (__is_debug(this.mod, level)) {
@@ -195,9 +195,9 @@ Debugger.prototype = {
 		}
 	}
 };
+*/
 
 const debugger = new Debugger('all');
-*/
 
 const fmt = {
 	oprint: function (name, obj) {
