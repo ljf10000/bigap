@@ -214,7 +214,7 @@ const fmt = {
 		print(s, name, s);
 	}
 };
-
+/*
 __js__.destructor = function (is_class, x, close) {
 	if (typeof close === 'function') {
 		__js__.fin(x, function (obj, heapDestruct) {
@@ -241,5 +241,5 @@ __js__.destructor = function (is_class, x, close) {
 		return __js__.fin(x);
 	}
 };
-
+*/
 /* eof */
