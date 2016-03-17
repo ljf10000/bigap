@@ -197,6 +197,7 @@ Debugger.prototype = {
 };
 
 const debugger = new Debugger('all');
+*/
 
 const fmt = {
 	oprint: function (name, obj) {
@@ -240,5 +241,5 @@ __js__.destructor = function (is_class, x, close) {
 		return __js__.fin(x);
 	}
 };
-*/
+
 /* eof */
