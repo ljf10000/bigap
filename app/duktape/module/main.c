@@ -19,7 +19,7 @@ char **__argv;
 static int
 buildin_register(duk_context *ctx)
 {
-    return __load_code(ctx, "buildin", duk_global_CODE);
+    return __load_code(ctx, "buildin global", duk_global_CODE);
 }
 
 static bool 
