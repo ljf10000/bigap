@@ -25,9 +25,7 @@ const __debug_level__ = {
 	all:	0xffffffff
 };
 print(__my__.env.__JS_DEBUG_MOD__);
-const __debug_module__ = JSON.parse(__my__.env.__JS_DEBUG_MOD__);
-print(__my__.env.__JS_DEBUG_MOD__);
-
+const __debug_module__ = __my__.env.__JS_DEBUG_MOD__?JSON.parse(__my__.env.__JS_DEBUG_MOD__):[];
 const __is_debug = function (mod, level) {
 	if (__my__.is_debug(level)) {
 		if ('all' === mod) {
@@ -124,12 +122,12 @@ const ModDebugger = function (mod) {
 };
 
 ModDebugger.prototype = {
-/*
 	debug: function (level) {
 		if (__is_debug(this.mod, level)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
 		}
 	},
+	
 	init: function () {
 		if (__is_debug(this.mod, __debug_level__.init)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
@@ -154,6 +152,7 @@ ModDebugger.prototype = {
 		}
 	},
 	
+/*
 	ok: function () {
 		if (__is_debug(this.mod, __debug_level__.ok)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
