@@ -122,8 +122,9 @@ const debug_test = function (mod) {
 const ModDebugger = function (mod) {
 	this.mod = mod;	
 };
-/*
+
 ModDebugger.prototype = {
+/*
 	debug: function (level) {
 		if (__is_debug(this.mod, level)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
@@ -188,13 +189,13 @@ ModDebugger.prototype = {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
+*/
 	test: function () {
 		if (__is_debug(this.mod, __debug_level__.test)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	}
 };
-*/
 const dbg = new ModDebugger('all');
 
 const fmt = {
