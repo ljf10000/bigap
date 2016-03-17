@@ -43,7 +43,7 @@ const __is_debug = function (mod, level) {
 	return false;
 };
 
-const __debug = function (mod, level) {
+const debug = function (mod, level) {
 	if (__is_debug(mod, level)) {
 		__my__.debug(Array.prototype.slice.call(arguments).slice(2).toString());
 	}
