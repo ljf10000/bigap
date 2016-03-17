@@ -3,12 +3,17 @@
 /******************************************************************************/
 #include "../src/duktape.h"
 
-#define duk_LIBC_UCLIBC     0
-#define duk_LIBC_GLIBC      1
-#define duk_LIBC            duk_LIBC_UCLIBC
+#define duk_UCLIBC          1
+#define duk_GLIBC           2
+#define duk_LIBC            duk_UCLIBC
 
+#if 1 /* libc */
 #ifndef duk_LIGHT_FUNC
 #define duk_LIGHT_FUNC      0
+#endif
+
+#ifndef duk_LIBC_CHAR
+#define duk_LIBC_CHAR       0
 #endif
 
 #ifndef duk_LIBC_ERROR
@@ -42,6 +47,7 @@
 #ifndef duk_LIBC_UTIL
 #define duk_LIBC_UTIL       0
 #endif
+#endif /* libc */
 
 #ifndef duk_LIBCURL
 #define duk_LIBCURL         1

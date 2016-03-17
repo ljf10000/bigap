@@ -8,7 +8,6 @@
 * 0x00000001 ~ 0x00008000, user debug level
 * 0x00010000 ~ 0x80000000, sys  debug level
 */
-
 const __debug__ = {
 	init:	0x00010000,
 	fini:	0x00020000,

@@ -22,6 +22,7 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(strerror),
 #endif
 
+#if duk_LIBC_CHAR
     // 4.1 Classification of Characters
     LIB_FUNC(islower),
     LIB_FUNC(isupper),
@@ -41,6 +42,7 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(tolower),
     LIB_FUNC(toupper),
     LIB_FUNC(toascii),
+#endif
 
     // 5.5 String/Array Comparison
     LIB_FUNC(memcmp),

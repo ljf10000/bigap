@@ -27,7 +27,7 @@ void libc_sig_handler(int sig)
     }
     duk_pop_2(__ctx);
 }
-#endif
+#endif /* duk_LIBC_SIG */
 
 static char *atexit_name;
 static void
@@ -263,8 +263,7 @@ duke_inotify_rm_watch(duk_context *ctx)
 
     return __push_error(ctx, err), 1;
 }
-
-#endif
+#endif /* duk_LIBC_LINUX */
 
 #if duk_LIBC_ERROR
 // 2.3 Error Messages
@@ -280,11 +279,12 @@ duke_strerror(duk_context *ctx)
 
     return __push_string(ctx, errstring), 1;
 }
-#endif
+#endif /* duk_LIBC_ERROR */
 
 // 3.2.2 Unconstrained Allocation
 // malloc free realloc calloc
 
+#if duk_LIBC_CHAR
 // 4.1 Classification of Characters
 LIB_PARAM(islower, 1);
 static duk_ret_t
@@ -430,6 +430,7 @@ duke_toascii(duk_context *ctx)
 
     return duk_push_int(ctx, toascii(c)), 1;
 }
+#endif /* duk_LIBC_CHAR */
 
 // 4.3 Character class determination for wide characters
 
@@ -2808,7 +2809,7 @@ duke_ptsname(duk_context *ctx)
     
     return __push_string(ctx, name), 1;
 }
-#endif
+#endif /* duk_LIBC_TTY */
 
 #if duk_LIBC_LOG
 // 18 Syslog
@@ -2868,7 +2869,7 @@ duke_LOG_UPTO(duk_context *ctx)
 
     return duk_push_int(ctx, LOG_UPTO(mask)), 1;
 }
-#endif
+#endif /* duk_LIBC_LOG */
 
 #if duk_LIBC_MATH
 // 19 Mathematics
@@ -3589,7 +3590,7 @@ duke_fma(duk_context *ctx)
     
     return duk_push_number(ctx, fma(x, y, z)), 1;
 }
-#endif
+#endif /* duk_LIBC_MATH */
 
 #if duk_LIBC_TIME
 // 21 Date and Time
@@ -3886,7 +3887,7 @@ duke_nanosleep(duk_context *ctx)
     
     return __push_error(ctx, err), 1;
 }
-#endif
+#endif /* duk_LIBC_TIME */
 
 // 22 Resource Usage And Limitation
 LIB_PARAM(getrusage, 2);
@@ -4246,7 +4247,7 @@ duke_sched_setaffinity(duk_context *ctx)
 error:
     return duk_push_int(ctx, err), 1;
 }
-#endif
+#endif /* _GNU_SOURCE */
 
 // 22.4 Querying memory available resources
 LIB_PARAM(getpagesize, 0);
@@ -4602,7 +4603,7 @@ duke_sigsuspend(duk_context *ctx)
 error:
     return duk_push_int(ctx, err), 1;
 }
-#endif
+#endif /* duk_LIBC_SIG */
 
 // 25 The Basic Program/System Interface
 // 25.4 Environment Variables
@@ -5294,7 +5295,7 @@ duke_logwtmp(duk_context *ctx)
     
     return logwtmp(line, name, host), 0;
 }
-#endif
+#endif /* duk_LIBC_UTIL */
 
 // 29.13 User Database
 LIB_PARAM(getpwuid, 1);
