@@ -5,6 +5,22 @@
 */
 const __js__ = Duktape;
 
+const fmt = {
+	oprint: function (name, obj) {
+		var c = {};
+
+		c[name] = obj;
+
+		print(Duktape.enc('jc', c, null, 4));
+	},
+
+	separator: function (name, sep) {
+		var s = sep?sep:'==========';
+
+		print(s, name, s);
+	}
+};
+
 /*
 * 0x00000001 ~ 0x00008000, user debug level
 * 0x00010000 ~ 0x80000000, sys  debug level
@@ -24,8 +40,10 @@ const __debug_level__ = {
 	
 	all:	0xffffffff
 };
-print(__my__.env.__JS_DEBUG_MOD__);
+
 const __debug_module__ = __my__.env.__JS_DEBUG_MOD__?JSON.parse(__my__.env.__JS_DEBUG_MOD__):[];
+fmt.oprint('__debug_module__', __debug_module__);
+
 const __is_debug = function (mod, level) {
 	if (__my__.is_debug(level)) {
 		if ('all' === mod) {
@@ -195,22 +213,6 @@ ModDebugger.prototype = {
 	}
 };
 const dbg = new ModDebugger('all');
-
-const fmt = {
-	oprint: function (name, obj) {
-		var c = {};
-
-		c[name] = obj;
-
-		print(Duktape.enc('jc', c, null, 4));
-	},
-
-	separator: function (name, sep) {
-		var s = sep?sep:'==========';
-
-		print(s, name, s);
-	}
-};
 
 __js__.destructor = function (is_class, x, close) {
 	if (typeof close === 'function') {
