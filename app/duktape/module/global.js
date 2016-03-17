@@ -119,12 +119,11 @@ const debug_test = function (mod) {
 	}
 };
 
-const Debugger = function (mod) {
+const ModDebugger = function (mod) {
 	this.mod = mod;	
 };
 
-/*
-Debugger.prototype = {
+ModDebugger.prototype = {
 	debug: function (level) {
 		if (__is_debug(this.mod, level)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
@@ -195,9 +194,8 @@ Debugger.prototype = {
 		}
 	}
 };
-*/
 
-const debugger = new Debugger('all');
+const debugger = new ModDebugger('all');
 
 const fmt = {
 	oprint: function (name, obj) {
@@ -214,7 +212,7 @@ const fmt = {
 		print(s, name, s);
 	}
 };
-/*
+
 __js__.destructor = function (is_class, x, close) {
 	if (typeof close === 'function') {
 		__js__.fin(x, function (obj, heapDestruct) {
@@ -241,5 +239,5 @@ __js__.destructor = function (is_class, x, close) {
 		return __js__.fin(x);
 	}
 };
-*/
+
 /* eof */
