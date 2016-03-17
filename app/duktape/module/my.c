@@ -22,18 +22,57 @@ __set___info_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
-LIB_PARAM(debug, 2);
+/*
+LIB_PARAM(is_debug_mod, 1);
+static duk_ret_t
+duke_is_debug_mod(duk_context *ctx)
+{
+    bool is = false;
+
+    static char *env_mod;
+    static jobj_t jmod;
+    static hash_t table;
+    
+    if (NULL==env_mod) {
+        env_mod = env_gets(ENV_duk_DEBUG_MODE, "[]");
+    }
+
+    if (NULL==jmod) {
+        jmod = jobj(env_mod);
+    }
+
+    if (NULL==table) {
+        
+    }
+    
+    if (__ak_debug_js) {
+        is = __is_js_debug(duk_require_uint(ctx, 0));
+    }
+
+    return duk_push_bool(ctx, is), 1;
+}
+*/
+
+LIB_PARAM(is_debug, 1);
+static duk_ret_t
+duke_is_debug(duk_context *ctx)
+{
+    bool is = false;
+    
+    if (__ak_debug_js) {
+        is = __is_js_debug(duk_require_uint(ctx, 0));
+    }
+
+    return duk_push_bool(ctx, is), 1;
+}
+
+LIB_PARAM(debug, 1);
 static duk_ret_t
 duke_debug(duk_context *ctx)
 {
-    if (__ak_debug_js) {
-        uint32_t level = duk_require_uint(ctx, 0);
-        if (__is_js_debug(level)) {
-            const char *string = duk_require_string(ctx, 1);
+    const char *string = duk_require_string(ctx, 0);
 
-            debug_js(string);
-        }
-    }
+    debug_js(string);
 
     return 0;
 }
@@ -668,6 +707,7 @@ arg_register(duk_context *ctx)
 }
 
 static const dukc_func_entry_t my_func[] = {
+    LIB_FUNC(is_debug),
     LIB_FUNC(debug),
     LIB_FUNC(pipe),
     LIB_FUNC(shell),

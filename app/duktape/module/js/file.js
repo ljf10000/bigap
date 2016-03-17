@@ -6,7 +6,6 @@
 
 var mod = this;
 var prototype = mod.constructor.prototype;
-
 prototype.name = prototype.name || 'fd';
 
 prototype.filetype = 1;
@@ -16,6 +15,7 @@ prototype.socktype = 3;
 prototype.SEEK_CUR = __libc__.SEEK_CUR;
 prototype.SEEK_SET = __libc__.SEEK_SET;
 prototype.SEEK_END = __libc__.SEEK_END;
+
 
 prototype.open = function (obj, filename, mode, type) {
 	if (obj && (typeof obj.stream !== 'pointer' || null === obj.stream)) {
@@ -154,6 +154,8 @@ prototype.eof = function (obj) {
 			return __libc__.feof(obj.stream);
 	}
 };
+
+mod.debugger = new Debugger(prototype.name);
 
 mod.Stream = function (filename, mode, type) {
 	return prototype.open(this, filename, mode, type)

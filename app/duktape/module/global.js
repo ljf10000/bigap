@@ -3,12 +3,13 @@
 * 2. only use 'xxxxx'
 * 3. must keep last empty line
 */
+const __js__ = Duktape;
 
 /*
 * 0x00000001 ~ 0x00008000, user debug level
 * 0x00010000 ~ 0x80000000, sys  debug level
 */
-const __debug__ = {
+const __debug_level__ = {
 	init:	0x00010000,
 	fini:	0x00020000,
 	constructor:0x00040000,
@@ -17,64 +18,182 @@ const __debug__ = {
 	error:	0x00200000,
 	trace:	0x00400000,
 	bug:	0x00800000,
-	mod:	0x01000000,
-	io:		0x02000000,
-	st:		0x04000000,
+	io:		0x01000000,
+	st:		0x02000000,
+	test: 	0x04000000,
+	
+	all:	0xffffffff
+};
+const __debug_module__ = JSON.parse(__my__.env.__JS_DEBUG_MOD__);
+const __is_debug = function (mod, level) {
+	if (__my__.is_debug(level)) {
+		if ('all' === mod) {
+			return true;
+		} else {
+			var count = __debug_module__.length;
+			
+			for (i=0; i<count; i++) {
+				if (mod === __debug_module__[i]) {
+					return true;	
+				}
+			}
+		}
+	}
 
-	test: 	0x80000000
+	return false;
 };
 
-const debug = function (level) {
-	__my__.debug(level, Array.prototype.slice.call(arguments).slice(1).toString());
+const __debug = function (mod, level) {
+	if (__is_debug(mod, level)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(2).toString());
+	}
 };
 
-const debug_init = function () {
-	__my__.debug(__debug__.init, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_init = function (mod) {
+	if (__is_debug(mod, __debug_level__.init)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_fini = function () {
-	__my__.debug(__debug__.fini, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_fini = function (mod) {
+	if (__is_debug(mod, __debug_level__.fini)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_constructor = function () {
-	__my__.debug(__debug__.constructor, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_constructor = function (mod) {
+	if (__is_debug(mod, __debug_level__.constructor)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_destructor = function () {
-	__my__.debug(__debug__.destructor, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_destructor = function (mod) {
+	if (__is_debug(mod, __debug_level__.destructor)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_ok = function () {
-	__my__.debug(__debug__.ok, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_ok = function (mod) {
+	if (__is_debug(mod, __debug_level__.ok)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_error = function () {
-	__my__.debug(__debug__.error, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_error = function (mod) {
+	if (__is_debug(mod, __debug_level__.error)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_trace = function () {
-	__my__.debug(__debug__.trace, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_trace = function (mod) {
+	if (__is_debug(mod, __debug_level__.trace)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_bug = function () {
-	__my__.debug(__debug__.bug, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_bug = function (mod) {
+	if (__is_debug(mod, __debug_level__.bug)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_mod = function () {
-	__my__.debug(__debug__.mod, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_io = function (mod) {
+	if (__is_debug(mod, __debug_level__.io)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_io = function () {
-	__my__.debug(__debug__.io, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_st = function (mod) {
+	if (__is_debug(mod, __debug_level__.st)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_st = function () {
-	__my__.debug(__debug__.st, Array.prototype.slice.call(arguments).slice(0).toString());
+const debug_test = function (mod) {
+	if (__is_debug(mod, __debug_level__.test)) {
+		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+	}
 };
 
-const debug_test = function () {
-	__my__.debug(__debug__.test, Array.prototype.slice.call(arguments).slice(0).toString());
+const Debugger = function (mod) {
+	this.mod = mod;	
 };
+
+Debugger.prototype = {
+	debug: function (level) {
+		if (__is_debug(this.mod, level)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
+		}
+	},
+	
+	init: function () {
+		if (__is_debug(this.mod, __debug_level__.init)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+	
+	fini = function () {
+		if (__is_debug(this.mod, __debug_level__.fini)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+	
+	constructor = function () {
+		if (__is_debug(this.mod, __debug_level__.constructor)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+	
+	destructor = function () {
+		if (__is_debug(this.mod, __debug_level__.destructor)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+	
+	ok = function () {
+		if (__is_debug(this.mod, __debug_level__.ok)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+	
+	error = function () {
+		if (__is_debug(this.mod, __debug_level__.error)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+	
+	trace = function () {
+		if (__is_debug(this.mod, __debug_level__.trace)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+	
+	bug = function () {
+		if (__is_debug(this.mod, __debug_level__.bug)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+
+	io = function () {
+		if (__is_debug(this.mod, __debug_level__.io)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+	
+	st = function () {
+		if (__is_debug(this.mod, __debug_level__.st)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	},
+	
+	test = function () {
+		if (__is_debug(this.mod, __debug_level__.test)) {
+			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
+		}
+	}
+};
+
+const debugger = new Debugger('all');
 
 const fmt = {
 	oprint: function (name, obj) {
@@ -92,8 +211,6 @@ const fmt = {
 	}
 };
 
-const __js__ = Duktape;
-
 __js__.destructor = function (is_class, x, close) {
 	if (typeof close === 'function') {
 		__js__.fin(x, function (obj, heapDestruct) {
@@ -105,15 +222,15 @@ __js__.destructor = function (is_class, x, close) {
 			}
 
 			if (is_class && obj === x) {
-		        debug_destructor(name, 'skip, called for the prototype itself');
+		        debugger.destructor(name, 'skip, called for the prototype itself');
 		    } else if (heapDestruct) {
 				close(obj);
 
-				debug_destructor(name, 'closed @fini');
+				debugger.destructor(name, 'closed @fini');
 		    } else {
 				close(obj);
 
-				debug_destructor(name, 'closed @destructor');
+				debugger.destructor(name, 'closed @destructor');
 			}
 		});
 	} else {

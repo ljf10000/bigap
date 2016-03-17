@@ -58,7 +58,11 @@
 #endif
 
 #ifndef ENV_duk_PATH
-#define ENV_duk_PATH        "DUK_PATH"
+#define ENV_duk_PATH        "UDK_PATH"
+#endif
+
+#ifndef ENV_duk_DEBUG_MOD
+#define ENV_duk_DEBUG_MOD   "__JS_DEBUG_MOD__"
 #endif
 
 #ifndef duk_PATH
