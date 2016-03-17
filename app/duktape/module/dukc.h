@@ -58,7 +58,7 @@
 #endif
 
 #ifndef ENV_duk_PATH
-#define ENV_duk_PATH        "UDK_PATH"
+#define ENV_duk_PATH        "DUK_PATH"
 #endif
 
 #ifndef ENV_duk_DEBUG_MOD
