@@ -9,7 +9,6 @@ const __js__ = Duktape;
 * 0x00000001 ~ 0x00008000, user debug level
 * 0x00010000 ~ 0x80000000, sys  debug level
 */
-/*
 const __debug_level__ = {
 	init:	0x00010000,
 	fini:	0x00020000,
@@ -27,6 +26,7 @@ const __debug_level__ = {
 };
 const __debug_module__ = JSON.parse(__my__.env.__JS_DEBUG_MOD__);
 
+/*
 const __is_debug = function (mod, level) {
 	if (__my__.is_debug(level)) {
 		if ('all' === mod) {
