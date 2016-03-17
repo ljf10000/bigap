@@ -42,7 +42,7 @@ const __is_debug = function (mod, level) {
 
 	return false;
 };
-
+/*
 const debug = function (mod, level) {
 	if (__is_debug(mod, level)) {
 		__my__.debug(Array.prototype.slice.call(arguments).slice(2).toString());
@@ -114,11 +114,13 @@ const debug_test = function (mod) {
 		__my__.debug(Array.prototype.slice.call(arguments).slice(1).toString());
 	}
 };
+*/
 
+/*
 const Debugger = function (mod) {
 	this.mod = mod;	
 };
-/*
+
 Debugger.prototype = {
 	debug: function (level) {
 		if (__is_debug(this.mod, level)) {
@@ -194,7 +196,6 @@ Debugger.prototype = {
 };
 
 const debugger = new Debugger('all');
-*/
 const fmt = {
 	oprint: function (name, obj) {
 		var c = {};
@@ -237,5 +238,6 @@ __js__.destructor = function (is_class, x, close) {
 		return __js__.fin(x);
 	}
 };
+*/
 
 /* eof */
