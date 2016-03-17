@@ -123,7 +123,6 @@ const Debugger = function (mod) {
 	this.mod = mod;	
 };
 
-/*
 Debugger.prototype = {
 	debug: function (level) {
 		if (__is_debug(this.mod, level)) {
@@ -137,61 +136,61 @@ Debugger.prototype = {
 		}
 	},
 	
-	fini = function () {
+	fini: function () {
 		if (__is_debug(this.mod, __debug_level__.fini)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
 	
-	constructor = function () {
+	constructor: function () {
 		if (__is_debug(this.mod, __debug_level__.constructor)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
 	
-	destructor = function () {
+	destructor: function () {
 		if (__is_debug(this.mod, __debug_level__.destructor)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
 	
-	ok = function () {
+	ok: function () {
 		if (__is_debug(this.mod, __debug_level__.ok)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
 	
-	error = function () {
+	error: function () {
 		if (__is_debug(this.mod, __debug_level__.error)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
 	
-	trace = function () {
+	trace: function () {
 		if (__is_debug(this.mod, __debug_level__.trace)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
 	
-	bug = function () {
+	bug: function () {
 		if (__is_debug(this.mod, __debug_level__.bug)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
 
-	io = function () {
+	io: function () {
 		if (__is_debug(this.mod, __debug_level__.io)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
 	
-	st = function () {
+	st: function () {
 		if (__is_debug(this.mod, __debug_level__.st)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
 	},
 	
-	test = function () {
+	test: function () {
 		if (__is_debug(this.mod, __debug_level__.test)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
 		}
@@ -243,5 +242,4 @@ __js__.destructor = function (is_class, x, close) {
 	}
 };
 
-*/
 /* eof */
