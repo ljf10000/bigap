@@ -170,7 +170,6 @@ ModDebugger.prototype = {
 		}
 	},
 	
-/*
 	bug: function () {
 		if (__is_debug(this.mod, __debug_level__.bug)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
@@ -183,6 +182,7 @@ ModDebugger.prototype = {
 		}
 	},
 	
+/*
 	st: function () {
 		if (__is_debug(this.mod, __debug_level__.st)) {
 			__my__.debug(Array.prototype.slice.call(arguments).slice(0).toString());
