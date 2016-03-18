@@ -55,7 +55,8 @@ typedef struct {
         char        *s;
         void        *p;
     } u;
-} libval_t;
+} 
+libval_t;
 
 #define LIBVAL_F4_INITER(_dir, _val) { \
     .size = sizeof(float32_t),  \
@@ -166,7 +167,7 @@ typedef uint64_t func_8_0(void);
 typedef uint64_t func_8_4(uint32_t, ...);
 typedef uint64_t func_8_8(uint64_t, ...);
 
-#if 1
+#if 0
 #define LIBVAL(_val)   ( \
     LIBVAL_F32==(_val)->type?(_val)->u.f4: \
     LIBVAL_I32==(_val)->type?(_val)->u.i4: \
