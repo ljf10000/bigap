@@ -22,7 +22,7 @@ output(char *tag, int level, byte *buf, int len)
 
 int __main(int argc, char *argv[])
 {
-    char input_compress[] = "hello, world\n";
+    byte input_compress[] = "hello, world\n";
     byte input_uncompress0[] = {120,1,1,14,0,241,255,104,101,108,108,111,44,32,119,111,114,108,100,10,0,38,122,4,147};
     byte input_uncompress1[] = {120,1,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147};
     byte input_uncompress2[] = {120,94,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147};
@@ -36,8 +36,8 @@ int __main(int argc, char *argv[])
     byte input_uncompress[] = {120, 156, 202, 72, 205, 201, 201, 215, 81, 40, 207,
 		47, 202, 73, 225, 2, 4, 0, 0, 255, 255, 33, 231, 4, 147};
     
-    char output_compress[1+OS_LINE_LEN] = {0};
-    char output_uncompress[1+OS_LINE_LEN] = {0};
+    byte output_compress[1+OS_LINE_LEN] = {0};
+    byte output_uncompress[1+OS_LINE_LEN] = {0};
     int err = 0;
     unsigned long output_compress_len = OS_LINE_LEN;
     unsigned long output_uncompress_len = OS_LINE_LEN;
