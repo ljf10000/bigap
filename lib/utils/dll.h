@@ -264,8 +264,8 @@ LIBCALLv(void *f, libproto_t *proto)
 {
     switch(proto->result.size) {
         case 0: LIBFUN(f, func_0_0)(); return 0;
-        case 4: proto->result.u.b4 = LIBFUN(f, func_4_0)(); return 0;
-        case 8: proto->result.u.b8 = LIBFUN(f, func_8_0)(); return 0;
+        case 4: proto->result.u.u4 = LIBFUN(f, func_4_0)(); return 0;
+        case 8: proto->result.u.u8 = LIBFUN(f, func_8_0)(); return 0;
         default: return -EDLLRESULTSIZE;
     }
 }
@@ -329,8 +329,8 @@ os_libcall(const char *lib, const char *sym, libproto_t *proto)
     if (err<0) {
         goto error;
     }
-    else if (proto->result.u.b4) {
-        err = (int)proto->result.u.b4; goto error;
+    else if (proto->result.u.u4) {
+        err = (int)proto->result.u.u4; goto error;
     }
     
 error:
