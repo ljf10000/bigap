@@ -139,7 +139,6 @@ object_btoj(void)
     return blob_btoj(root);
 }
 
-
 int __main(int argc, char *argv[])
 {
     jobj_t obj;
