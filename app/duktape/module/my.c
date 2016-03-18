@@ -655,6 +655,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
+#if duk_LIBCALL
 static duk_ret_t
 libcall(duk_context *ctx)
 {
@@ -667,34 +668,37 @@ libcall(duk_context *ctx)
     }
     
     libval_t result;
-    err = __get_libval_t(ctx, 3, &result);
-    if (err<0) {
-        return err;
-    }
+    __get_libval_t(ctx, 3, &result);
 
+    libval_t *param;
     libval_t params[count];
     libproto_t proto = ____LIBPROTO_INITER(result.size, params, count);
 
     int i;
     for (i=0; i<count; i++) {
+        param = &params[i];
+        
         duk_get_prop_index(ctx, 2, i);
-        err = __get_libval_t(ctx, -1, &params[i]);
+        __get_libval_t(ctx, -1, param);
         duk_pop(ctx);
-
-        if (err<0) {
-            return err;
-        }
     }
 
     err = os_libcall(lib, sym, &proto);
     if (err<0) {
         return err;
     }
-
-    err = __set_libval_t(ctx, 3, &proto.result);
-    if (err<0) {
-        return err;
+    
+    for (i=0; i<count; i++) {
+        param = &params[i];
+        
+        if (LIBVAL_OUT & param->dir) {
+            duk_get_prop_index(ctx, 2, i);
+            __set_libval_t(ctx, -1, param);
+            duk_pop(ctx);
+        }
     }
+
+    __set_libval_t(ctx, 3, &proto.result);
 
     return 0;
 }
@@ -705,6 +709,7 @@ duke_libcall(duk_context *ctx)
 {
     return duk_push_int(ctx, libcall(ctx)), 1;
 }
+#endif
 
 static void 
 env_register(duk_context *ctx)
@@ -755,8 +760,10 @@ static const dukc_func_entry_t my_func[] = {
     LIB_FUNC(readbin),
     LIB_FUNC(readline),
     LIB_FUNC(loop),
+#if duk_LIBCALL
     LIB_FUNC(libcall),
-    
+#endif
+
     LIB_FUNC_END
 };
 

@@ -57,6 +57,10 @@
 #define duk_LIBZ            1
 #endif
 
+#ifndef duk_LIBCALL
+#define duk_LIBCALL         0
+#endif
+
 #ifndef ENV_duk_PATH
 #define ENV_duk_PATH        "DUK_PATH"
 #endif
@@ -160,17 +164,6 @@ typedef void *duk_buffer_t;
 typedef void *duk_object_t;
 typedef const char *duk_string_t;
 typedef duk_double_t duk_number_t;
-
-typedef struct {
-    int type;
-
-    union {
-        bool b;
-        double n;
-        char *s;
-        void *p;
-    } u;
-} duk_val_t;
 
 #define duk_get_argc(_ctx)              duk_get_top(_ctx)
 #define duk_get_max_idx(_ctx)           duk_get_top_index(_ctx)
@@ -426,14 +419,14 @@ __set_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_uint_t v)
     __set_obj_field(ctx, idx, uint, k, v);
 }
 
-static inline double
+static inline duk_number_t
 __get_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
     return __get_obj_field(ctx, idx, number, k);
 }
 
 static inline void
-__set_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_double_t v)
+__set_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_number_t v)
 {
     __set_obj_field(ctx, idx, number, k, v);
 }
@@ -587,7 +580,7 @@ __set_array_uint(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_uint_t v)
     __set_array_field(ctx, idx, uint, aidx, v);
 }
 
-static inline double
+static inline duk_number_t
 __get_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
 {
     return __get_array_field(ctx, idx, number, aidx);

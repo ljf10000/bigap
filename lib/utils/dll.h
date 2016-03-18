@@ -12,9 +12,10 @@
     _(LIBVAL_BUF,   6, "buf"),  \
     _(LIBVAL_STR,   7, "str"),  \
     _(LIBVAL_PTR,   8, "ptr"),  \
+    _(LIBVAL_VOD,   9, "void"), \
     /* end */
 
-static inline bool is_libval_type(int id);
+static inline bool is_good_libval_type(int id);
 static inline char *libval_type_string(int id);
 static inline int libval_type_idx(char *name);
 DECLARE_ENUM(libval_type, __LIBVAL_TYPE_LIST, LIBVAL_END);
@@ -29,6 +30,7 @@ DECLARE_ENUM(libval_type, __LIBVAL_TYPE_LIST, LIBVAL_END);
 #define LIBVAL_BUF  LIBVAL_BUF
 #define LIBVAL_STR  LIBVAL_STR
 #define LIBVAL_PTR  LIBVAL_PTR
+#define LIBVAL_VOD  LIBVAL_VOD
 #define LIBVAL_END  LIBVAL_END
 #endif /* just for sourceinsight */
 
@@ -37,10 +39,10 @@ DECLARE_ENUM(libval_type, __LIBVAL_TYPE_LIST, LIBVAL_END);
 #define LIBVAL_INOUT    (LIBVAL_IN | LIBVAL_OUT)
 
 typedef struct {
-    int size;   /* sizeof */
-    int type;   /* LIBVAL_END */
-    int len;    /* just for buffer */
-    int dir;    /* LIBVAL_IN/LIBVAL_OUT/LIBVAL_INOUT */
+    uint32_t size;  /* sizeof */
+    uint32_t type;  /* LIBVAL_END */
+    uint32_t len;   /* just for buffer/string */
+    uint32_t dir;   /* LIBVAL_IN/LIBVAL_OUT/LIBVAL_INOUT */
 
     union {
         float32_t   f4;
@@ -140,6 +142,15 @@ libval_t;
     },                          \
 } /* end */
 
+#define LIBVAL_V_INITER(_dir, _val) { \
+    .size = 0,                  \
+    .type = LIBVAL_VOD,         \
+    .dir  = 0,                  \
+    .u = {                      \
+        .p = NULL,              \
+    },                          \
+} /* end */
+
 typedef struct {
     int count;
     libval_t *param;
@@ -186,29 +197,68 @@ typedef uint64_t func_8_8(uint64_t, ...);
 #define LIBFUN(_f, _type)           ((_type *)(_f))
 #define LIBPARAM(_proto, _IDX)      (&(_proto)->param[_IDX])
 
+#ifndef LIBPARAMMAX
+#define LIBPARAMMAX     9
+#endif
+
 #define LIBPARAMVAL(_proto, _IDX)   LIBVAL(LIBPARAM(_proto, _IDX))
 #define LIBPARAM0(_proto)           /* nothing */
 #define LIBPARAM1(_proto)           LIBPARAMVAL(_proto, 0)
+#if LIBPARAMMAX >= 2
 #define LIBPARAM2(_proto)           LIBPARAM1(_proto), LIBPARAMVAL(_proto, 1)
+#endif
+#if LIBPARAMMAX >= 3
 #define LIBPARAM3(_proto)           LIBPARAM2(_proto), LIBPARAMVAL(_proto, 2)
+#endif
+#if LIBPARAMMAX >= 4
 #define LIBPARAM4(_proto)           LIBPARAM3(_proto), LIBPARAMVAL(_proto, 3)
+#endif
+#if LIBPARAMMAX >= 5
 #define LIBPARAM5(_proto)           LIBPARAM4(_proto), LIBPARAMVAL(_proto, 4)
+#endif
+#if LIBPARAMMAX >= 6
 #define LIBPARAM6(_proto)           LIBPARAM5(_proto), LIBPARAMVAL(_proto, 5)
+#endif
+#if LIBPARAMMAX >= 7
 #define LIBPARAM7(_proto)           LIBPARAM6(_proto), LIBPARAMVAL(_proto, 6)
+#endif
+#if LIBPARAMMAX >= 8
 #define LIBPARAM8(_proto)           LIBPARAM7(_proto), LIBPARAMVAL(_proto, 7)
+#endif
+#if LIBPARAMMAX >= 9
 #define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAMVAL(_proto, 8)
-#if 0
+#endif
+#if LIBPARAMMAX >= 10
 #define LIBPARAM10(_proto)          LIBPARAM9(_proto), LIBPARAMVAL(_proto, 9)
+#endif
+#if LIBPARAMMAX >= 11
 #define LIBPARAM11(_proto)          LIBPARAM10(_proto),LIBPARAMVAL(_proto, 10)
+#endif
+#if LIBPARAMMAX >= 12
 #define LIBPARAM12(_proto)          LIBPARAM11(_proto),LIBPARAMVAL(_proto, 11)
+#endif
+#if LIBPARAMMAX >= 13
 #define LIBPARAM13(_proto)          LIBPARAM12(_proto),LIBPARAMVAL(_proto, 12)
+#endif
+#if LIBPARAMMAX >= 14
 #define LIBPARAM14(_proto)          LIBPARAM13(_proto),LIBPARAMVAL(_proto, 13)
+#endif
+#if LIBPARAMMAX >= 15
 #define LIBPARAM15(_proto)          LIBPARAM14(_proto),LIBPARAMVAL(_proto, 14)
+#endif
+#if LIBPARAMMAX >= 16
 #define LIBPARAM16(_proto)          LIBPARAM15(_proto),LIBPARAMVAL(_proto, 15)
+#endif
+#if LIBPARAMMAX >= 17
 #define LIBPARAM17(_proto)          LIBPARAM16(_proto),LIBPARAMVAL(_proto, 16)
+#endif
+#if LIBPARAMMAX >= 18
 #define LIBPARAM18(_proto)          LIBPARAM17(_proto),LIBPARAMVAL(_proto, 17)
+#endif
+#if LIBPARAMMAX >= 19
 #define LIBPARAM19(_proto)          LIBPARAM18(_proto),LIBPARAMVAL(_proto, 18)
 #endif
+
 #define LIBPARAMx(_proto, _COUNT)   LIBPARAM##_COUNT(_proto)
 
 #define __LIBCALL0(_f, _proto, _COUNT)  ({  \
@@ -277,24 +327,58 @@ __libcall(void *f, libproto_t *proto)
     switch(proto->count) {
         case 0: return LIBCALLv(f, proto);
         case 1: return LIBCALLx(f, proto, 1);
+#if LIBPARAMMAX >= 2
         case 2: return LIBCALLx(f, proto, 2);
+#endif
+#if LIBPARAMMAX >= 3
         case 3: return LIBCALLx(f, proto, 3);
+#endif
+#if LIBPARAMMAX >= 4
         case 4: return LIBCALLx(f, proto, 4);
+#endif
+#if LIBPARAMMAX >= 5
         case 5: return LIBCALLx(f, proto, 5);
+#endif
+#if LIBPARAMMAX >= 6
         case 6: return LIBCALLx(f, proto, 6);
+#endif
+#if LIBPARAMMAX >= 7
         case 7: return LIBCALLx(f, proto, 7);
+#endif
+#if LIBPARAMMAX >= 8
         case 8: return LIBCALLx(f, proto, 8);
+#endif
+#if LIBPARAMMAX >= 9
         case 9: return LIBCALLx(f, proto, 9);
-#if 0
+#endif
+#if LIBPARAMMAX >= 10
         case 10:return LIBCALLx(f, proto, 10);
+#endif
+#if LIBPARAMMAX >= 11
         case 11:return LIBCALLx(f, proto, 11);
+#endif
+#if LIBPARAMMAX >= 12
         case 12:return LIBCALLx(f, proto, 12);
+#endif
+#if LIBPARAMMAX >= 13
         case 13:return LIBCALLx(f, proto, 13);
+#endif
+#if LIBPARAMMAX >= 14
         case 14:return LIBCALLx(f, proto, 14);
+#endif
+#if LIBPARAMMAX >= 15
         case 15:return LIBCALLx(f, proto, 15);
+#endif
+#if LIBPARAMMAX >= 16
         case 16:return LIBCALLx(f, proto, 16);
+#endif
+#if LIBPARAMMAX >= 17
         case 17:return LIBCALLx(f, proto, 17);
+#endif
+#if LIBPARAMMAX >= 18
         case 18:return LIBCALLx(f, proto, 18);
+#endif
+#if LIBPARAMMAX >= 19
         case 19:return LIBCALLx(f, proto, 19);
 #endif
         default:return -EDLLPARAMCOUNT;
