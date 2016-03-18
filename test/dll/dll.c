@@ -11,9 +11,9 @@ static int
 dll_printf(void)
 {
     libval_t params[] = {
-        [0] = LIBVALp_INITER("libc %s number %d" __crlf),
-        [1] = LIBVALp_INITER("printf"),
-        [2] = LIBVAL4_INITER(100),
+        [0] = LIBVAL_S_INITER(LIBVAL_IN, "libc %s number %d" __crlf),
+        [1] = LIBVAL_S_INITER(LIBVAL_IN, "printf"),
+        [2] = LIBVAL_I4_INITER(LIBVAL_IN, 100),
     };
     libproto_t proto = LIBPROTO_INITER(int, params);
 
@@ -27,7 +27,7 @@ dll_memory(void)
     
     {
         libval_t params[] = {
-            [0] = LIBVAL4_INITER(1024),
+            [0] = LIBVAL_I4_INITER(LIBVAL_IN, 1024),
         };
         libproto_t proto = LIBPROTO_INITER(void *, params);
 
@@ -39,7 +39,7 @@ dll_memory(void)
     
     {
         libval_t params[] = {
-            [0] = LIBVAL4_INITER(pointer),
+            [0] = LIBVAL_I4_INITER(LIBVAL_IN, pointer),
         };
         libproto_t proto = __LIBPROTO_INITER(0, params);
         
@@ -57,7 +57,7 @@ dll_tm(void)
 
     {
         libval_t params[] = {
-            [0] = LIBVALp_INITER(NULL),
+            [0] = LIBVAL_P_INITER(LIBVAL_IN, NULL),
         };
         libproto_t proto = LIBPROTO_INITER(time_t, params);
 
@@ -68,7 +68,7 @@ dll_tm(void)
 
     {
         libval_t params[] = {
-            [0] = LIBVALp_INITER(&t),
+            [0] = LIBVAL_P_INITER(LIBVAL_IN, &t),
         };
         libproto_t proto = LIBPROTO_INITER(struct tm *, params);
         

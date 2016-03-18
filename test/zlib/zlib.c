@@ -141,7 +141,6 @@ int __main(int argc, char *argv[])
     os_println("after  uncompress[level=%d]:%s", 6, output_uncompress, output_uncompress_len);
     os_println("-------------------------");
         
-        
     return 0;
 }
 
