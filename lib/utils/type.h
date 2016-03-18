@@ -38,8 +38,8 @@
 #define ulong_t         unsigned long
 #endif
 
-#ifndef uint
-#define uint            unsigned int
+#ifndef uint_t
+#define uint_t          unsigned int
 #endif
 #endif /* just for sourceinsight */
 
