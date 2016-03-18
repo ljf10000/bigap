@@ -178,18 +178,18 @@ typedef uint64_t func_8_0(void);
 typedef uint64_t func_8_4(uint32_t, ...);
 typedef uint64_t func_8_8(uint64_t, ...);
 
-#if 0
-#define LIBVAL(_val)   ( \
-    LIBVAL_F32==(_val)->type?(_val)->u.f4: \
-    LIBVAL_I32==(_val)->type?(_val)->u.i4: \
-    LIBVAL_U32==(_val)->type?(_val)->u.u4: \
-    LIBVAL_F64==(_val)->type?(_val)->u.f8: \
-    LIBVAL_I64==(_val)->type?(_val)->u.i8: \
-    LIBVAL_U64==(_val)->type?(_val)->u.u8: \
-    LIBVAL_BUF==(_val)->type?(_val)->u.b: \
-    LIBVAL_STR==(_val)->type?(_val)->u.s: \
-    LIBVAL_PTR==(_val)->type?(_val)->u.p: \
-0) /* end */
+#if 1
+#define LIBVAL(_val)                      ( \
+    LIBVAL_F32==(_val)->type?(_val)->u.f4:( \
+    LIBVAL_I32==(_val)->type?(_val)->u.i4:( \
+    LIBVAL_U32==(_val)->type?(_val)->u.u4:( \
+    LIBVAL_F64==(_val)->type?(_val)->u.f8:( \
+    LIBVAL_I64==(_val)->type?(_val)->u.i8:( \
+    LIBVAL_U64==(_val)->type?(_val)->u.u8:( \
+    LIBVAL_BUF==(_val)->type?(_val)->u.b: ( \
+    LIBVAL_STR==(_val)->type?(_val)->u.s: ( \
+    LIBVAL_PTR==(_val)->type?(_val)->u.p: ( \
+0)))))))))) /* end */
 #else
 #define LIBVAL(_val)                (4==(_val)->size?(_val)->u.u4:(_val)->u.u8)
 #endif
