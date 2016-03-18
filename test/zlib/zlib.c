@@ -23,18 +23,17 @@ output(char *tag, int level, byte *buf, int len)
 int __main(int argc, char *argv[])
 {
     char input_compress[] = "hello, world\n";
-    byte input_uncompress[][10] = {
-        [0] = {120,1,1,14,0,241,255,104,101,108,108,111,44,32,119,111,114,108,100,10,0,38,122,4,14},
-        [1] = {120,1,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
-        [2] = {120,94,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
-        [3] = {120,94,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
-        [4] = {120,94,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
-        [5] = {120,94,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
-        [6] = {120,156,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
-        [7] = {120,218,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
-        [8] = {120,218,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
-        [9] = {120,218,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
-    };
+    byte input_uncompress0[] = {120,1,1,14,0,241,255,104,101,108,108,111,44,32,119,111,114,108,100,10,0,38,122,4,14},
+    byte input_uncompress1[] = {120,1,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
+    byte input_uncompress2[] = {120,94,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
+    byte input_uncompress3[] = {120,94,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
+    byte input_uncompress4[] = {120,94,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
+    byte input_uncompress5[] = {120,94,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
+    byte input_uncompress6[] = {120,156,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
+    byte input_uncompress7[] = {120,218,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
+    byte input_uncompress8[] = {120,218,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
+    byte input_uncompress9[] = {120,218,203,72,205,201,201,215,81,40,207,47,202,73,225,98,0,0,38,122,4,147},
+
     char output_compress[1+OS_LINE_LEN] = {0};
     char output_uncompress[1+OS_LINE_LEN] = {0};
     int err = 0;
@@ -42,16 +41,96 @@ int __main(int argc, char *argv[])
     int output_uncompress_len = OS_LINE_LEN;
     int i;
 
-    for (i=Z_NO_COMPRESSION; i<=Z_BEST_COMPRESSION; i++) {
-        os_println("before compress[level=%d]:%s", i, input_compress);
-        err = compress2(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), i);
-        output("after compress", i, output_compress, output_compress_len);
+    os_println("before compress[level=%d]:%s", 0, input_compress);
+    err = compress2(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 0);
+    output("after compress", 0, output_compress, output_compress_len);
+    
+    output("before uncompress", 0, input_uncompress0, os_count_of(input_uncompress0));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress0, os_count_of(input_uncompress0));
+    os_println("after uncompress[level=%d]:%s", 0, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
+
+    os_println("before compress[level=%d]:%s", 1, input_compress);
+    err = compress2(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 1);
+    output("after compress", 1, output_compress, output_compress_len);
+    
+    output("before uncompress", 1, input_uncompress1, os_count_of(input_uncompress1));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress1, os_count_of(input_uncompress1));
+    os_println("after uncompress[level=%d]:%s", 1, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
+
+    os_println("before compress[level=%d]:%s", 2, input_compress);
+    err = compress2(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 2);
+    output("after compress", 2, output_compress, output_compress_len);
+    
+    output("before uncompress", 2, input_uncompress2, os_count_of(input_uncompress2));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress2, os_count_of(input_uncompress2));
+    os_println("after uncompress[level=%d]:%s", 2, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
+
+    os_println("before compress[level=%d]:%s", 3, input_compress);
+    err = compress3(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 3);
+    output("after compress", 3, output_compress, output_compress_len);
+    
+    output("before uncompress", 3, input_uncompress3, os_count_of(input_uncompress3));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress3, os_count_of(input_uncompress3));
+    os_println("after uncompress[level=%d]:%s", 3, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
+
+    os_println("before compress[level=%d]:%s", 4, input_compress);
+    err = compress4(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 4);
+    output("after compress", 4, output_compress, output_compress_len);
+    
+    output("before uncompress", 4, input_uncompress4, os_count_of(input_uncompress4));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress4, os_count_of(input_uncompress4));
+    os_println("after uncompress[level=%d]:%s", 4, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
+
+    os_println("before compress[level=%d]:%s", 5, input_compress);
+    err = compress5(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 5);
+    output("after compress", 5, output_compress, output_compress_len);
+    
+    output("before uncompress", 5, input_uncompress5, os_count_of(input_uncompress5));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress5, os_count_of(input_uncompress5));
+    os_println("after uncompress[level=%d]:%s", 5, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
+
+    os_println("before compress[level=%d]:%s", 6, input_compress);
+    err = compress6(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 6);
+    output("after compress", 6, output_compress, output_compress_len);
+    
+    output("before uncompress", 6, input_uncompress6, os_count_of(input_uncompress6));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress6, os_count_of(input_uncompress6));
+    os_println("after uncompress[level=%d]:%s", 6, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
+
+    os_println("before compress[level=%d]:%s", 7, input_compress);
+    err = compress7(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 7);
+    output("after compress", 7, output_compress, output_compress_len);
+    
+    output("before uncompress", 7, input_uncompress7, os_count_of(input_uncompress7));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress7, os_count_of(input_uncompress7));
+    os_println("after uncompress[level=%d]:%s", 7, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
+
+    os_println("before compress[level=%d]:%s", 8, input_compress);
+    err = compress8(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 8);
+    output("after compress", 8, output_compress, output_compress_len);
+    
+    output("before uncompress", 8, input_uncompress8, os_count_of(input_uncompress8));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress8, os_count_of(input_uncompress8));
+    os_println("after uncompress[level=%d]:%s", 8, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
+
+    os_println("before compress[level=%d]:%s", 9, input_compress);
+    err = compress9(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 9);
+    output("after compress", 9, output_compress, output_compress_len);
+    
+    output("before uncompress", 9, input_uncompress9, os_count_of(input_uncompress9));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress9, os_count_of(input_uncompress9));
+    os_println("after uncompress[level=%d]:%s", 9, output_uncompress, output_uncompress_len);
+    os_println("-------------------------");
         
-        output("before uncompress", i, input_uncompress[i], os_count_of(input_uncompress[i]));
-        err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress[i], os_count_of(input_uncompress[i]));
-        os_println("after uncompress[level=%d]:%s", i, output_uncompress, output_uncompress_len);
-        os_println("-------------------------");
-    }
         
     return 0;
 }
