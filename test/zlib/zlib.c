@@ -33,7 +33,7 @@ int __main(int argc, char *argv[])
     int output_uncompress_len = OS_LINE_LEN;
 
     os_println("before compress:%s", input_compress);
-    err = compress2(output_compress, &output_compress_len, input_compress, os_strlen(input_compress), Z_BEST_COMPRESSION);
+    err = compress2(output_compress, &output_compress_len, input_compress, os_strlen(input_compress), Z_BEST_SPEED);
     output("after compress", output_compress, output_compress_len);
 
     output("before uncompress", input_uncompress, os_count_of(input_uncompress));
