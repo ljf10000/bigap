@@ -665,14 +665,15 @@ libcall(duk_context *ctx)
     if (count<=0) {
         return -EKEYBAD;
     }
-
-    libval_t params[count];
+    
     libval_t result;
     err = __get_libval_t(ctx, 3, &result);
     if (err<0) {
         return err;
     }
-    libproto_t proto = __LIBPROTO_INITER(result.size, params);
+
+    libval_t params[count];
+    libproto_t proto = ____LIBPROTO_INITER(result.size, params, count);
 
     int i;
     for (i=0; i<count; i++) {
@@ -690,7 +691,7 @@ libcall(duk_context *ctx)
         return err;
     }
 
-    err = __set_libval_t(ctx, 3, &result);
+    err = __set_libval_t(ctx, 3, &proto.result);
     if (err<0) {
         return err;
     }

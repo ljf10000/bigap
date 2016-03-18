@@ -73,6 +73,16 @@ typedef uint64_t func_8_8(uint64_t, ...);
 #define LIBPARAM7(_proto)           LIBPARAM6(_proto), LIBPARAMVAL(_proto, 6)
 #define LIBPARAM8(_proto)           LIBPARAM7(_proto), LIBPARAMVAL(_proto, 7)
 #define LIBPARAM9(_proto)           LIBPARAM8(_proto), LIBPARAMVAL(_proto, 8)
+#define LIBPARAM10(_proto)          LIBPARAM9(_proto), LIBPARAMVAL(_proto, 9)
+#define LIBPARAM11(_proto)          LIBPARAM10(_proto),LIBPARAMVAL(_proto, 10)
+#define LIBPARAM12(_proto)          LIBPARAM11(_proto),LIBPARAMVAL(_proto, 11)
+#define LIBPARAM13(_proto)          LIBPARAM12(_proto),LIBPARAMVAL(_proto, 12)
+#define LIBPARAM14(_proto)          LIBPARAM13(_proto),LIBPARAMVAL(_proto, 13)
+#define LIBPARAM15(_proto)          LIBPARAM14(_proto),LIBPARAMVAL(_proto, 14)
+#define LIBPARAM16(_proto)          LIBPARAM15(_proto),LIBPARAMVAL(_proto, 15)
+#define LIBPARAM17(_proto)          LIBPARAM16(_proto),LIBPARAMVAL(_proto, 16)
+#define LIBPARAM18(_proto)          LIBPARAM17(_proto),LIBPARAMVAL(_proto, 17)
+#define LIBPARAM19(_proto)          LIBPARAM18(_proto),LIBPARAMVAL(_proto, 18)
 #define LIBPARAMx(_proto, _count)   LIBPARAM##_count(_proto)
 
 #define __LIBCALL0(_f, _proto, _count)  ({  \
@@ -149,6 +159,16 @@ __libcall(void *f, libproto_t *proto)
         case 7: return LIBCALLx(f, proto, 7);
         case 8: return LIBCALLx(f, proto, 8);
         case 9: return LIBCALLx(f, proto, 9);
+        case 10:return LIBCALLx(f, proto, 10);
+        case 11:return LIBCALLx(f, proto, 11);
+        case 12:return LIBCALLx(f, proto, 12);
+        case 13:return LIBCALLx(f, proto, 13);
+        case 14:return LIBCALLx(f, proto, 14);
+        case 15:return LIBCALLx(f, proto, 15);
+        case 16:return LIBCALLx(f, proto, 16);
+        case 17:return LIBCALLx(f, proto, 17);
+        case 18:return LIBCALLx(f, proto, 18);
+        case 19:return LIBCALLx(f, proto, 19);
         default:return -EDLLPARAMCOUNT;
     }
 }
