@@ -31,11 +31,14 @@ int __main(int argc, char *argv[])
     int err = 0;
     int output_compress_len = OS_LINE_LEN;
     int output_uncompress_len = OS_LINE_LEN;
+    int i;
 
-    os_println("before compress:%s", input_compress);
-    err = compress2(output_compress, &output_compress_len, input_compress, os_strlen(input_compress), Z_BEST_SPEED);
-    output("after compress", output_compress, output_compress_len);
-
+    for (i=Z_NO_COMPRESSION; i<=Z_BEST_COMPRESSION; i++) {
+        os_println("before compress[level=%d]:%s", i, input_compress);
+        err = compress2(output_compress, &output_compress_len, input_compress, os_strlen(input_compress), i);
+        output("after compress", output_compress, output_compress_len);
+    }
+    
     output("before uncompress", input_uncompress, os_count_of(input_uncompress));
     err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress, os_count_of(input_uncompress));
     os_println("after uncompress:%s", output_uncompress, output_uncompress_len);
