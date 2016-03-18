@@ -22,7 +22,7 @@ output(char *tag, byte *buf, int len)
 
 int __main(int argc, char *argv[])
 {
-    char input_compress[] = "hello, world\n";
+    char input_compress[] = "1234567890";
     byte input_uncompress[] = {
         120, 156, 202, 72, 205, 201, 201, 215, 81, 40, 207,
 		47, 202, 73, 225, 2, 4, 0, 0, 255, 255, 33, 231, 4, 147};
