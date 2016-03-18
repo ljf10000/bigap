@@ -39,8 +39,8 @@ int __main(int argc, char *argv[])
     char output_compress[1+OS_LINE_LEN] = {0};
     char output_uncompress[1+OS_LINE_LEN] = {0};
     int err = 0;
-    int output_compress_len = OS_LINE_LEN;
-    int output_uncompress_len = OS_LINE_LEN;
+    unsigned long output_compress_len = OS_LINE_LEN;
+    unsigned long output_uncompress_len = OS_LINE_LEN;
 
     os_println("before compress  [level=%d]:%s", 0, input_compress);
     err = compress2(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), 0);
