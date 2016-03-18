@@ -35,7 +35,7 @@ int __main(int argc, char *argv[])
 
     for (i=Z_NO_COMPRESSION; i<=Z_BEST_COMPRESSION; i++) {
         os_println("before compress[level=%d]:%s", i, input_compress);
-        err = compress2(output_compress, &output_compress_len, input_compress, os_strlen(input_compress), i);
+        err = compress2(output_compress, &output_compress_len, input_compress, os_count_of(input_compress), i);
         output("after compress", output_compress, output_compress_len);
     }
     
