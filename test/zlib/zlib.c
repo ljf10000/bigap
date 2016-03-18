@@ -32,13 +32,13 @@ int __main(int argc, char *argv[])
     int output_compress_len = OS_LINE_LEN;
     int output_uncompress_len = OS_LINE_LEN;
 
-    output("before compress", input_compress, os_strlen(input_compress));
+    os_println("before compress:%s", input_compress);
     err = compress(output_compress, &output_compress_len, input_compress, os_strlen(input_compress));
     output("after compress", output_compress, output_compress_len);
 
     output("before uncompress", input_uncompress, os_count_of(input_uncompress));
     err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress, os_count_of(input_uncompress));
-    output("after uncompress", output_uncompress, output_uncompress_len);
+    os_println("after uncompress:%s", output_uncompress, output_uncompress_len);
     
     return 0;    
 }
