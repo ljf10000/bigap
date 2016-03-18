@@ -15,14 +15,14 @@ output(char *tag, byte *buf, int len)
 
     os_printf("%s:%d:", tag, len);
     for (i=0; i<len; i++) {
-        os_printf("%d ", buf[i]);
+        os_printf("%d,", buf[i]);
     }
     os_println(__empty);
 }
 
 int __main(int argc, char *argv[])
 {
-    char input_compress[] = "1234567890";
+    char input_compress[] = "hello, world\n";
     byte input_uncompress[] = {
         120, 156, 202, 72, 205, 201, 201, 215, 81, 40, 207,
 		47, 202, 73, 225, 2, 4, 0, 0, 255, 255, 33, 231, 4, 147};
