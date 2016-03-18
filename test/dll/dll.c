@@ -63,7 +63,7 @@ dll_tm(void)
 
         os_libcall("libc.so.6", "time", &proto);
 
-        t = (time_t)proto.result.u.b4;
+        t = (time_t)proto.result.u.u4;
     }
 
     {
