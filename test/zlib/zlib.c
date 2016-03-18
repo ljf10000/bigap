@@ -50,6 +50,7 @@ int __main(int argc, char *argv[])
         output("before uncompress", i, input_uncompress[i], os_count_of(input_uncompress[i]));
         err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress[i], os_count_of(input_uncompress[i]));
         os_println("after uncompress[level=%d]:%s", i, output_uncompress, output_uncompress_len);
+        os_println("-------------------------");
     }
         
     return 0;
