@@ -124,7 +124,7 @@ typedef uint64_t func_8_8(uint64_t, ...);
     __err;                                  \
 }) /* end */
 
-static int
+static inline int
 LIBCALLv(void *f, libproto_t *proto)
 {
     switch(proto->result.size) {
@@ -135,7 +135,7 @@ LIBCALLv(void *f, libproto_t *proto)
     }
 }
 
-static int
+static inline int
 __libcall(void *f, libproto_t *proto)
 {
     switch(proto->count) {
@@ -153,7 +153,7 @@ __libcall(void *f, libproto_t *proto)
     }
 }
 
-static int
+static inline int
 os_libcall(const char *lib, const char *sym, libproto_t *proto)
 {
     int err = 0;
