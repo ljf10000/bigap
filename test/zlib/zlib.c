@@ -13,7 +13,7 @@ output(char *tag, byte *buf, int len)
 {
     int i;
 
-    os_printf("%s:", tag);
+    os_printf("%s:%d:", tag, len);
     for (i=0; i<len; i++) {
         os_printf("%d ", buf[i]);
     }
@@ -26,17 +26,19 @@ int __main(int argc, char *argv[])
     byte input_uncompress[] = {
         120, 156, 202, 72, 205, 201, 201, 215, 81, 40, 207,
 		47, 202, 73, 225, 2, 4, 0, 0, 255, 255, 33, 231, 4, 147};
-    char buf_compress[1+OS_LINE_LEN] = {0};
-    char buf_uncompress[1+OS_LINE_LEN] = {0};
+    char output_compress[1+OS_LINE_LEN] = {0};
+    char output_uncompress[1+OS_LINE_LEN] = {0};
     int err = 0;
-    int len_compress = OS_LINE_LEN;
-    int len_uncompress = OS_LINE_LEN;
-    
-    err = compress(buf_compress, &len_compress, input_compress, os_strlen(input_compress));
-    output("after compress", buf_compress, len_compress);
+    int output_compress_len = OS_LINE_LEN;
+    int output_uncompress_len = OS_LINE_LEN;
 
-    err = uncompress(buf_uncompress, &len_uncompress, input_uncompress, os_count_of(input_uncompress));
-    output("after uncompress", buf_compress, len_compress);
+    output("before compress", input_compress, os_strlen(input_compress));
+    err = compress(output_compress, &output_compress_len, input_compress, os_strlen(input_compress));
+    output("after compress", output_compress, output_compress_len);
+
+    output("before uncompress", input_uncompress, os_count_of(input_uncompress));
+    err = uncompress(output_uncompress, &output_uncompress_len, input_uncompress, os_count_of(input_uncompress));
+    output("after uncompress", output_uncompress, output_uncompress_len);
     
     return 0;    
 }
