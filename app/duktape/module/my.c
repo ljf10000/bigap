@@ -655,23 +655,22 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(libcall, 4);
 static duk_ret_t
-duke_libcall(duk_context *ctx)
+libcall(duk_context *ctx)
 {
     int err = 0;
     duk_string_t lib = (duk_string_t)duk_require_string(ctx, 0);
     duk_string_t sym = (duk_string_t)duk_require_string(ctx, 1);
     int count = __get_array_length(ctx, 2);
     if (count<=0) {
-        err = -EKEYBAD; goto error;
+        return -EKEYBAD;
     }
 
     libval_t params[count];
     libval_t result;
     err = __get_libval_t(ctx, 3, &result);
     if (err<0) {
-        goto error;
+        return err;
     }
     libproto_t proto = __LIBPROTO_INITER(result.size, params);
 
@@ -682,22 +681,28 @@ duke_libcall(duk_context *ctx)
         duk_pop(ctx);
 
         if (err<0) {
-            goto error;
+            return err;
         }
     }
 
     err = os_libcall(lib, sym, &proto);
     if (err<0) {
-        goto error;
+        return err;
     }
 
     err = __set_libval_t(ctx, 3, &result);
     if (err<0) {
-        goto error;
+        return err;
     }
 
-error:
-    return duk_push_int(ctx, err), 1;
+    return 0;
+}
+
+LIB_PARAM(libcall, 4);
+static duk_ret_t
+duke_libcall(duk_context *ctx)
+{
+    return duk_push_int(ctx, libcall(ctx)), 1;
 }
 
 static void 
