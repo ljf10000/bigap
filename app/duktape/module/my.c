@@ -9,18 +9,7 @@
 #include "utils.h"
 #include "utils/pipe.h"
 #include "dukc.h"
-
-static int
-__set___info_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
-{
-    pipe_info_t *p = (pipe_info_t *)obj;
-    
-    __set_obj_string(ctx, idx, "stdout", p->std[__stdout].buf);
-    __set_obj_string(ctx, idx, "stderr", p->std[__stderr].buf);
-    __set_obj_int(ctx, idx, "errno", p->err);
-
-    return 0;
-}
+#include "my.h"
 
 /*
 LIB_PARAM(is_debug_mod, 1);
@@ -666,6 +655,51 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
+LIB_PARAM(libcall, 4);
+static duk_ret_t
+duke_libcall(duk_context *ctx)
+{
+    int err = 0;
+    duk_string_t lib = (duk_string_t)duk_require_string(ctx, 0);
+    duk_string_t sym = (duk_string_t)duk_require_string(ctx, 1);
+    int count = __get_array_length(ctx, 2);
+    if (count<=0) {
+        err = -EKEYBAD; goto error;
+    }
+
+    libval_t params[count];
+    libval_t result;
+    err = __get_libval_t(ctx, 3, &result);
+    if (err<0) {
+        goto error;
+    }
+    libproto_t proto = __LIBPROTO_INITER(result.size, params);
+
+    int i;
+    for (i=0; i<count; i++) {
+        duk_get_prop_index(ctx, 2, i);
+        err = __get_libval_t(ctx, -1, &params[i]);
+        duk_pop(ctx);
+
+        if (err<0) {
+            goto error;
+        }
+    }
+
+    err = os_libcall(lib, sym, &proto);
+    if (err<0) {
+        goto error;
+    }
+
+    err = __set_libval_t(ctx, 3, &result);
+    if (err<0) {
+        goto error;
+    }
+
+error:
+    return duk_push_int(ctx, err), 1;
+}
+
 static void 
 env_register(duk_context *ctx)
 {
@@ -715,6 +749,7 @@ static const dukc_func_entry_t my_func[] = {
     LIB_FUNC(readbin),
     LIB_FUNC(readline),
     LIB_FUNC(loop),
+    LIB_FUNC(libcall),
     
     LIB_FUNC_END
 };

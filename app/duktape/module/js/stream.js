@@ -10,7 +10,7 @@ prototype.name = prototype.name || 'stream';
 
 prototype.filetype = 1;
 prototype.pipetype = 2;
-prototype.gziptype = 3;
+prototype.zlibtype = 3;
 
 prototype.SEEK_CUR = __libc__.SEEK_CUR;
 prototype.SEEK_SET = __libc__.SEEK_SET;
@@ -27,7 +27,7 @@ prototype.open = function (obj, filename, mode, type) {
 			case prototype.pipetype:
 				obj.stream = __libc__.popen(filename, mode);
 				break;
-			case prototype.gziptype:
+			case prototype.zlibtype:
 				obj.stream = __libz__.gzopen(filename, mode);
 				break;
 			case prototype.filetype:   // down
@@ -47,7 +47,7 @@ prototype.close = function (obj) {
 			case prototype.pipetype:
 				__libc__.pclose(obj.stream);
 				break;
-			case prototype.gziptype:
+			case prototype.zlibtype:
 				__libz__.gzclose(obj.stream);
 				break;
 			case prototype.filetype: // down
@@ -64,7 +64,7 @@ prototype.close = function (obj) {
 
 prototype.read = function (obj, buffer) {
 	switch(obj.type) {
-		case prototype.gziptype:
+		case prototype.zlibtype:
 			return __libz__.gzread(obj.stream, buffer);
 		case prototype.filetype: // down
 		case prototype.pipetype: // down
@@ -75,7 +75,7 @@ prototype.read = function (obj, buffer) {
 
 prototype.readEx = function (obj, size) {
 	switch(obj.type) {
-		case prototype.gziptype:
+		case prototype.zlibtype:
 			return __libz__.gzreadEx(obj.stream, size);
 		case prototype.filetype: // down
 		case prototype.pipetype: // down
@@ -88,7 +88,7 @@ prototype.write = function (obj, buffer) {
 	switch(obj.type) {
 		case prototype.pipetype:
 			return -__libc__.ENOSUPPORT;
-		case prototype.gziptype:
+		case prototype.zlibtype:
 			return __libz__.gzwrite(obj.stream, buffer);
 		case prototype.filetype: // down
 		default:
@@ -100,7 +100,7 @@ prototype.tell = function (obj) {
 	switch(type) {
 		case prototype.pipetype:
 			return -__libc__.ENOSUPPORT;
-		case prototype.gziptype:
+		case prototype.zlibtype:
 			return __libz__.gztell(obj.stream);
 		case prototype.filetype: // down
 		default:
@@ -112,7 +112,7 @@ prototype.seek = function (obj, offset, where) {
 	switch(type) {
 		case prototype.pipetype:
 			return -__libc__.ENOSUPPORT;
-		case prototype.gziptype:
+		case prototype.zlibtype:
 			return __libz__.gzseek(obj.stream, offset, where);
 		case prototype.filetype: // down
 		default:
@@ -124,7 +124,7 @@ prototype.flush = function (obj) {
 	switch(type) {
 		case prototype.pipetype:
 			return -__libc__.ENOSUPPORT;
-		case prototype.gziptype:
+		case prototype.zlibtype:
 			return __libz__.gzflush(obj.stream);
 		case prototype.filetype: // down
 		default:
@@ -134,7 +134,7 @@ prototype.flush = function (obj) {
 
 prototype.error = function (obj) {
 	switch(type) {
-		case prototype.gziptype:
+		case prototype.zlibtype:
 			return __libz__.gzerror(obj.stream);
 		case prototype.filetype: // down
 		case prototype.pipetype: // down
@@ -145,7 +145,7 @@ prototype.error = function (obj) {
 
 prototype.eof = function (obj) {
 	switch(type) {
-		case prototype.gziptype:
+		case prototype.zlibtype:
 			return __libz__.gzeof(obj.stream);
 		case prototype.filetype: // down
 		case prototype.pipetype: // down

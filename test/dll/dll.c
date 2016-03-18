@@ -30,7 +30,7 @@ dll_memory(void)
             [0] = LIBVAL4_INITER(1024),
         };
         libproto_t proto = LIBPROTO_INITER(void *, params);
-        
+
         os_libcall("libc.so.6", "malloc", &proto);
         pointer = (void *)proto.result.u.p;
 

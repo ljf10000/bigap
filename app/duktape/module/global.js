@@ -42,7 +42,6 @@ const __debug_level__ = {
 };
 
 const __debug_module__ = __my__.env.__JS_DEBUG_MOD__?JSON.parse(__my__.env.__JS_DEBUG_MOD__):[];
-fmt.oprint('__debug_module__', __debug_module__);
 
 const __is_debug = function (mod, level) {
 	if (__my__.is_debug(level)) {
