@@ -774,7 +774,7 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
     
     __blob_init(&tmp, type, name, payload);
     
-    int size = blob_size(&tmp);
+    uint32_t size = blob_size(&tmp);
 
     if (__is_ak_debug_trace && __is_ak_debug_blob) {
         os_printf("blob_new" __crlf

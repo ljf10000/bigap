@@ -163,13 +163,13 @@ slice_clean(slice_t *slice)
 }
 
 /* real seize */
-static inline int 
+static inline uint32_t 
 slice_SIZE(const slice_t *slice)
 {
     return slice_size(slice) + slice_resv(slice);
 }
 
-static inline int 
+static inline uint32_t 
 slice_remain(const slice_t *slice)
 {
     return slice_size(slice) - slice_len(slice);

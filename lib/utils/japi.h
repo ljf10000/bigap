@@ -145,7 +145,7 @@ jobj_add(jobj_t obj, char *k, jobj_t v)
                 if (NULL==k) {
                     json_object_array_add(obj, v);
                 } else {
-                    json_object_array_put_idx(obj, (int)k, v);
+                    json_object_array_put_idx(obj, (int)(uintptr_t)k, v);
                 }
                 
                 break;
