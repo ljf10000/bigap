@@ -198,13 +198,15 @@ typedef uint64_t func_8_8(uint64_t, ...);
 #define LIBPARAM(_proto, _IDX)      (&(_proto)->param[_IDX])
 
 #ifndef LIBPARAMMAX
-#define LIBPARAMMAX     9
+#define LIBPARAMMAX                 9
 #endif
+
+#define LIBPARAMMATCH(n)            (LIBPARAMMAX>=n)
 
 #define LIBPARAMVAL(_proto, _IDX)   LIBVAL(LIBPARAM(_proto, _IDX))
 #define LIBPARAM0(_proto)           /* nothing */
 #define LIBPARAM1(_proto)           LIBPARAMVAL(_proto, 0)
-#if LIBPARAMMAX >= 2
+#if LIBPARAMMATCH(2)
 #define LIBPARAM2(_proto)           LIBPARAM1(_proto), LIBPARAMVAL(_proto, 1)
 #endif
 #if LIBPARAMMAX >= 3
