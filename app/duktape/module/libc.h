@@ -911,7 +911,7 @@ __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
         libc_sig_name[sig] = __get_obj_string(ctx, idx, "name", NULL);
     }
     else if (duk_is_number(ctx, -1)) {
-        __sighandler_t action = (__sighandler_t)duk_require_int(ctx, -1);
+        __sighandler_t action = (__sighandler_t)(uintptr_t)duk_require_int(ctx, -1);
         if (SIG_DFL!=action && SIG_IGN!=action) {
             action = SIG_DFL;
         }
@@ -933,7 +933,7 @@ __set_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
     __set_obj_int(ctx, idx, "flags", p->sa_flags);
 
     if (SIG_DFL==p->sa_handler || SIG_IGN==p->sa_handler) {
-        __set_obj_int(ctx, idx, "handler", (int)p->sa_handler);
+        __set_obj_int(ctx, idx, "handler", (uintptr_t)p->sa_handler);
     } else {
         duk_push_global_object(ctx);                    // global
         duk_get_prop_string(ctx, -1, libc_sig_name[sig]);  // global function/undefined

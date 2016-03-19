@@ -4348,7 +4348,7 @@ duke_signal(duk_context *ctx)
         libc_sig_name[sig] = __get_obj_string(ctx, 1, "name", NULL);
     }
     else if (duk_is_number(ctx, 1)) {
-        action = (__sighandler_t)duk_require_int(ctx, 1);
+        action = (__sighandler_t)(uintptr_t)duk_require_int(ctx, 1);
         if (SIG_DFL!=action && SIG_IGN!=action) {
             goto error;
         }
@@ -4365,7 +4365,7 @@ duke_signal(duk_context *ctx)
     }
 
     if (SIG_DFL==old || SIG_IGN==old) {
-        duk_push_int(ctx, (int)old);
+        duk_push_int(ctx, (uintptr_t)old);
     } else {
         duk_push_global_object(ctx);
         duk_get_prop_string(ctx, -1, libc_sig_name[sig]);
