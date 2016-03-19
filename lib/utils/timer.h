@@ -17,7 +17,7 @@
 enum {
     TM_MASK     = os_mask(TM_BIT),
     TM_SLOT     = (TM_MASK+1),
-    TM_RING     = (sizeof(void *)*8/TM_BIT),
+    TM_RING     = (sizeof(uint32_t)*8/TM_BIT),
     TM_RINGMAX  = (TM_RING-1),
 };
 
@@ -210,7 +210,7 @@ __tm_slot_dump(tm_ring_t *ring, int slot)
     struct list_head *head = __tm_slot(ring, slot);
 
     if (false==list_empty(head)) {
-        os_println(__tab2 "ring(%d) slot(%d) count(%d)", ring-__tm_ring0, slot, ring->slot[slot].count);
+        os_println(__tab2 "ring(%u) slot(%d) count(%u)", ring-__tm_ring0, slot, ring->slot[slot].count);
     }
 }
 
@@ -219,7 +219,7 @@ __tm_ring_dump(tm_ring_t *ring)
 {
     int i;
     
-    os_println(__tab "ring(%d) count(%d), current(%d)", ring-__tm_ring0, ring->count, ring->current);
+    os_println(__tab "ring(%u) count(%u), current(%u)", ring-__tm_ring0, ring->count, ring->current);
     
     if (ring->count) {
         for (i=0; i<TM_SLOT; i++) {

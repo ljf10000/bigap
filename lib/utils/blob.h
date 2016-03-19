@@ -541,8 +541,8 @@ static inline void
 __blob_dump_slice(slice_t *slice, char *tag)
 {
     os_printf("%s" __crlf
-        __tab "slice(size=%d, used=%d, remain=%d)" __crlf
-        __tab "root(offset=%d, key=%s, type=%s, vlen=%d)" __crlf, 
+        __tab "slice(size=%u, used=%u, remain=%u)" __crlf
+        __tab "root(offset=%u, key=%s, type=%s, vlen=%u)" __crlf, 
         tag,
         slice_size(slice),
         slice_tail(slice) - slice_data(slice),
@@ -778,8 +778,8 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
 
     if (__is_ak_debug_trace && __is_ak_debug_blob) {
         os_printf("blob_new" __crlf
-            __tab "slice(size=%d, used=%d, remain=%d)" __crlf
-            __tab "blob(type=%s, name=%s, payload=%d, size=%d)" __crlf, 
+            __tab "slice(size=%u, used=%u, remain=%u)" __crlf
+            __tab "blob(type=%s, name=%s, payload=%u, size=%u)" __crlf, 
             slice_size(slice),
             slice_tail(slice) - slice_data(slice),
             slice_remain(slice),
@@ -868,8 +868,8 @@ __blob_nest_end(slice_t *slice, void *cookie)
 
     if (__is_ak_debug_trace && __is_ak_debug_blob) {
         os_printf("blob nest end" __crlf
-            __tab "slice(size=%d, used=%d, remain=%d)" __crlf
-            __tab "root(added=%d, vlen=%d)" __crlf, 
+            __tab "slice(size=%u, used=%u, remain=%u)" __crlf
+            __tab "root(added=%u, vlen=%u)" __crlf, 
             slice_size(slice),
             slice_tail(slice) - slice_data(slice),
             slice_remain(slice),
