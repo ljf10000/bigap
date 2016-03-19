@@ -802,7 +802,7 @@ duke_curl_slist_free_all(duk_context *ctx)
 
 #include "libcurl/libcurlf.c"
 #include "libcurl/libcurln.c"
-#endif
+#endif /* duk_LIBCURL */
 
 int libcurl_register(duk_context *ctx)
 {

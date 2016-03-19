@@ -983,7 +983,7 @@ error:
 
 #include "libz/libzf.c"
 #include "libz/libzn.c"
-#endif
+#endif /* duk_LIBZ */
 
 int libz_register(duk_context *ctx)
 {
