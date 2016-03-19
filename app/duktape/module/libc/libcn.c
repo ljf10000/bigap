@@ -777,9 +777,9 @@ static const dukc_number_entry_t libc_number[] = {
     LIB_VALUE(SIGUSR2),
     LIB_VALUE(SIGWINCH),
     // 24.3.1 Basic Signal Handling
-    LIB_TVAR(SIG_DFL, int),
-    LIB_TVAR(SIG_IGN, int),
-    LIB_TVAR(SIG_ERR, int),
+    LIB_TVAR((uintptr_t)SIG_DFL, int),
+    LIB_TVAR((uintptr_t)SIG_IGN, int),
+    LIB_TVAR((uintptr_t)SIG_ERR, int),
     // 24.3.5 Flags for sigaction
     LIB_VALUE(SA_NOCLDSTOP),
     LIB_VALUE(SA_ONSTACK),
@@ -811,8 +811,10 @@ static const dukc_number_entry_t libc_number[] = {
     // 30.3.2 Mount, Unmount, Remount
     LIB_VALUE(MS_REMOUNT),
     LIB_VALUE(MS_RDONLY),
+#if 0 /* not supprot @64 bit ??? */
     LIB_VALUE(S_IMMUTABLE),
     LIB_VALUE(S_APPEND),
+#endif
     LIB_VALUE(MS_NOSUID),
     LIB_VALUE(MS_NOEXEC),
     LIB_VALUE(MS_NODEV),
