@@ -35,14 +35,6 @@
 #endif
 #endif /* just for sourceinsight */
 
-#ifndef ulong_t
-#define ulong_t         unsigned long
-#endif
-
-#ifndef uint_t
-#define uint_t          unsigned int
-#endif
-
 #ifndef float32_t
 #define float32_t       float
 #endif
@@ -51,10 +43,74 @@
 #define float64_t       double
 #endif
 
+#ifndef uint_t
+#define uint_t          unsigned int
+#endif
+
+#ifndef ulong_t
+#define ulong_t         unsigned long
+#endif
+
+#ifndef uintptr_t
+#define uintptr_t       ulong_t
+#endif
+
+#ifndef int8
+#define int8            int8_t
+#endif
+
+#ifndef uint8
+#define uint8           uint8_t
+#endif
+
+#ifndef int16
+#define int16           int16_t
+#endif
+
+#ifndef uint16
+#define uint16          uint16_t
+#endif
+
+#ifndef int32
+#define int32           int32_t
+#endif
+
+#ifndef uint32
+#define uint32          uint32_t
+#endif
+
+#ifndef float32
+#define float32         float32_t
+#endif
+
+#ifndef int64
+#define int64           int64_t
+#endif
+
+#ifndef uint64
+#define uint64          uint64_t
+#endif
+
+#ifndef float64
+#define float64         float64_t
+#endif
+
+#ifndef uint
+#define uint            uint_t
+#endif
+
+#ifndef ulong
+#define ulong           ulong_t
+#endif
+
+#ifndef uintptr
+#define uintptr         uintptr_t
+#endif
+
 #ifdef  bool
 #undef  bool
 #endif
-#define bool            uint32_t
+#define bool            int
 #define __bool(_x)      ((bool)!!(_x))
 
 #ifdef  true

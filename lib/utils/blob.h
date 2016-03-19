@@ -849,7 +849,7 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
 
     uint32_t offset = (byte *)new - (byte *)slice_data(slice);
     
-    return (void *)slice_offset_save(slice, offset);
+    return (void *)(uintptr_t)slice_offset_save(slice, offset);
 }
 
 static inline void
@@ -862,7 +862,7 @@ __blob_nest_end(slice_t *slice, void *cookie)
     * when nest start, root have save klen
     */
     size = blob_vsize(blob_root(slice));
-	slice_offset(slice) = (uint32_t)cookie;
+	slice_offset(slice) = (uint32_t)(uintptr_t)cookie;
 	root = blob_root(slice);
 	blob_vlen(root) += size;
 
