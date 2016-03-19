@@ -50,7 +50,7 @@
 #endif /* libc */
 
 #ifndef duk_LIBCURL
-#define duk_LIBCURL         1
+#define duk_LIBCURL         0
 #endif
 
 #ifndef duk_LIBZ
