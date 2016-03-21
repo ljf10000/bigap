@@ -1,0 +1,11 @@
+curl -d '{"mac":"00:1f:64:01:01:01","mid":69,"psn":29899348,"error":1}' -k --cert /tmp/.cookie.202e7c983371 --key /tmp/.cookie.206f896d850 -u LSS:LTEFISecurityServer2012-2015 -s  https://its.raytight.com:9999/service3
+
+scp liujingfei@192.168.15.110:/home/liujingfei/v1/release/bin/busybox /mnt/flash/rootfs2/bin/busybox
+
+scp liujingfei@192.168.15.110:/home/liujingfei/v1/release/bin/busybox /mnt/flash/rootfs1/bin/busybox
+
+151225
+
+curl -d '{"mac":"00:1f:64:01:01:01","mid":69,"psn":29899348}' -k --cert client.crt --key client.key -u LSS:LTEFISecurityServer2012-2015 -v https://its.raytight.com:9999/service1
+
+curl -d '{"mac":"00:1f:64:01:01:01","mid":69,"psn":29899348}' -k --cert client.crt --key client.key -u LSS:LTEFISecurityServer2012-2015 -v https://lms2.autelan.com:9998/service1
