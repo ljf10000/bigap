@@ -1,3 +1,4 @@
+#undef OEM_lms_server_key
 #define OEM_lms_server_key \
     "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBMlI4TEZLRHdJ" \
     "OUdYb1hYY2hRRFlRMS9VZUN0UEQvdmZ3d0s1VnRMRUVkbUhobjRaCm9saDNDdnFLOWs1YXVTZ0hh" \

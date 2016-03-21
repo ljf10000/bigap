@@ -1,3 +1,4 @@
+#undef OEM_ums_client_key
 #define OEM_ums_client_key \
     "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBekIvRTFic0pm" \
     "OEJhcXo3clNURnllRmI4WVhPcXBsVm5lSFBRQVcrckZxUHg3MHBlCk1HTzB4Vjlab3VJNG5FVXZ1" \

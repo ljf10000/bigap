@@ -1,3 +1,4 @@
+#undef OEM_lms_client_key
 #define OEM_lms_client_key \
     "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBeDlmS2kwbnRU" \
     "TStxUzFPQkZvZmJ6MFVjU1JuSXVoVWdVTXQvanBTci9GQ1E1VENsCmtqOXowNHBNUFRqUHcrQlg2" \

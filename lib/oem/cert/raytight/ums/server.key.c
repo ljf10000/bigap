@@ -1,3 +1,4 @@
+#undef OEM_ums_server_key
 #define OEM_ums_server_key \
     "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBd3ZsZjdtTklN" \
     "RFBPbitKRmkrbGY3WjBRc09vdzlTNHh6akx5NHBES0Q4V09HOHYyCnViK1lWK2JDbDVuczZqUGlt" \
