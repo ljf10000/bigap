@@ -35,10 +35,10 @@
 #include "cert/raytight/lms/server.key.c"
 #include "cert/raytight/lms/server.crt.c"
 
-#define OEM1_CERT_LMS_INITER {          \
-    [OEM_CERT_CA]   = OEM_ca_crt,       \
-    [OEM_CERT_KEY]  = OEM_client_key,   \
-    [OEM_CERT_CERT] = OEM_client_crt,   \
+#define OEM1_CERT_LMS_INITER {              \
+    [OEM_CA_CERT]       = OEM_ca_crt,       \
+    [OEM_CLIENT_KEY]    = OEM_client_key,   \
+    [OEM_CLIENT_CERT]   = OEM_client_crt,   \
 }   /* end */
 
 #include "cert/raytight/lss/ca.crt.c"
@@ -48,10 +48,10 @@
 #include "cert/raytight/lss/server.key.c"
 #include "cert/raytight/lss/server.crt.c"
 
-#define OEM1_CERT_LSS_INITER {          \
-    [OEM_CERT_CA]   = OEM_ca_crt,       \
-    [OEM_CERT_KEY]  = OEM_client_key,   \
-    [OEM_CERT_CERT] = OEM_client_crt,   \
+#define OEM1_CERT_LSS_INITER {              \
+    [OEM_CA_CERT]       = OEM_ca_crt,       \
+    [OEM_CLIENT_KEY]    = OEM_client_key,   \
+    [OEM_CLIENT_CERT]   = OEM_client_crt,   \
 }   /* end */
 
 #include "cert/raytight/ums/ca.crt.c"
@@ -61,10 +61,10 @@
 #include "cert/raytight/ums/server.key.c"
 #include "cert/raytight/ums/server.crt.c"
 
-#define OEM1_CERT_UMS_INITER     {      \
-    [OEM_CERT_CA]   = OEM_ca_crt,       \
-    [OEM_CERT_KEY]  = OEM_client_key,   \
-    [OEM_CERT_CERT] = OEM_client_crt,   \
+#define OEM1_CERT_UMS_INITER     {          \
+    [OEM_CA_CERT]       = OEM_ca_crt,       \
+    [OEM_CLIENT_KEY]    = OEM_client_key,   \
+    [OEM_CLIENT_CERT]   = OEM_client_crt,   \
 }   /* end */
 
 #define OEM1_CERT_INITER                    {   \

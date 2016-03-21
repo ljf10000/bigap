@@ -112,9 +112,14 @@ typedef struct {
 }
 
 enum {
-    OEM_CERT_CA,
-    OEM_CERT_KEY,
-    OEM_CERT_CERT,
+    OEM_CA_CERT,
+    OEM_CLIENT_KEY,
+    OEM_CLIENT_CERT,
+#if 0
+    OEM_CA_KEY,
+    OEM_SERVER_KEY,
+    OEM_SERVER_CERT,
+#endif
 
     OEM_CERT_END
 };
@@ -262,16 +267,16 @@ __this_oem(void)
 #define oem_lss_server      __this_oem()->lss.server
 #define oem_lss_port        __this_oem()->lss.port
 
-#define oem_lss_ca          __this_oem()->cert.cert[OEM_APP_LSS][OEM_CERT_CA]
-#define oem_lss_key         __this_oem()->cert.cert[OEM_APP_LSS][OEM_CERT_KEY]
-#define oem_lss_cert        __this_oem()->cert.cert[OEM_APP_LSS][OEM_CERT_CERT]
+#define oem_lss_ca          __this_oem()->cert.cert[OEM_APP_LSS][OEM_CA_CERT]
+#define oem_lss_key         __this_oem()->cert.cert[OEM_APP_LSS][OEM_CLIENT_KEY]
+#define oem_lss_cert        __this_oem()->cert.cert[OEM_APP_LSS][OEM_CLIENT_CERT]
 
-#define oem_lms_ca          __this_oem()->cert.cert[OEM_APP_LMS][OEM_CERT_CA]
-#define oem_lms_key         __this_oem()->cert.cert[OEM_APP_LMS][OEM_CERT_KEY]
-#define oem_lms_cert        __this_oem()->cert.cert[OEM_APP_LMS][OEM_CERT_CERT]
+#define oem_lms_ca          __this_oem()->cert.cert[OEM_APP_LMS][OEM_CA_CERT]
+#define oem_lms_key         __this_oem()->cert.cert[OEM_APP_LMS][OEM_CLIENT_KEY]
+#define oem_lms_cert        __this_oem()->cert.cert[OEM_APP_LMS][OEM_CLIENT_CERT]
 
-#define oem_ums_ca          __this_oem()->cert.cert[OEM_APP_UMS][OEM_CERT_CA]
-#define oem_ums_key         __this_oem()->cert.cert[OEM_APP_UMS][OEM_CERT_KEY]
-#define oem_ums_cert        __this_oem()->cert.cert[OEM_APP_UMS][OEM_CERT_CERT]
+#define oem_ums_ca          __this_oem()->cert.cert[OEM_APP_UMS][OEM_CA_CERT]
+#define oem_ums_key         __this_oem()->cert.cert[OEM_APP_UMS][OEM_CLIENT_KEY]
+#define oem_ums_cert        __this_oem()->cert.cert[OEM_APP_UMS][OEM_CLIENT_CERT]
 /******************************************************************************/
 #endif /* __OEM_H_57688f1c133d4ebdae411669109ffdc9__ */
