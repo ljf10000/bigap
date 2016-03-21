@@ -1,5 +1,5 @@
-#undef OEM_ums_ca_key
-#define OEM_ums_ca_key \
+#undef OEM_ca_key
+#define OEM_ca_key \
     "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBd3RuNENuc3V5" \
     "TExGWlNUUXlRbmdBZzN3bENOaWUwUjZ6WTAyUU9DWi9CWmh2eGNNCmZ2SVQ0TTRkb0F6ak83ZVJr" \
     "R3FmaGF3NXdDWXVyK1h3UmtYWWp4UTdmampaSHc4ektvK2tMUkc2dHo1aWhXVEgKUitDRW5YZGp4" \

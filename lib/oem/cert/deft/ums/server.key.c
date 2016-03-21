@@ -1,5 +1,5 @@
-#undef OEM_ums_server_key
-#define OEM_ums_server_key \
+#undef OEM_server_key
+#define OEM_server_key \
     "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBbnNpRHd5WUh6" \
     "emlQQWJHVjQ4bUkvVWxtS3lySVlBbmwzdVZ0WFlLYlVTVTY5QnhRCkRQRVRMdDJ3WitmeW9qY05h" \
     "VzVaWFJTelFkSUZTNm95WHBDcWM3ZklGaGg0aDZyRVJwbk9jOXNUa0k2ZUdiWXMKazBrNmlQS1RK" \

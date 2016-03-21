@@ -1,5 +1,5 @@
-#undef OEM_ums_client_crt
-#define OEM_ums_client_crt \
+#undef OEM_client_crt
+#define OEM_client_crt \
     "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5akNDQWJLZ0F3SUJBZ0lKQU1BNUJLamtR" \
     "ZVN3TUEwR0NTcUdTSWIzRFFFQkJRVUFNQmd4RmpBVUJnTlYKQkFNVURTb3VZWFYwWld4aGJpNWpi" \
     "MjB3SGhjTk1UVXhNakEwTWpFeE56UTBXaGNOTWprd09ERXlNakV4TnpRMApXakFZTVJZd0ZBWURW" \

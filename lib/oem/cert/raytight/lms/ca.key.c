@@ -1,5 +1,5 @@
-#undef OEM_lms_ca_key
-#define OEM_lms_ca_key \
+#undef OEM_ca_key
+#define OEM_ca_key \
     "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBeEM2enJ6czBU" \
     "Qjh1M25ValVyZmZaZW9MU1QzSXpkbUVmVCtqN2dnZUkzK2ZQWW14CmE1ZTRRZlNwVHl5M1hqSWN1" \
     "MXA2MTJ0VFlwOFJLUTcyaGdZMnZJeWlheGxoblRZblNWYU05Sk1PaXNMN0RHQ00KaWt1MEF1M3lj" \

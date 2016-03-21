@@ -1,5 +1,5 @@
-#undef OEM_lss_server_key
-#define OEM_lss_server_key \
+#undef OEM_server_key
+#define OEM_server_key \
     "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBczVYVkQvVVlU" \
     "VXhUa3VqU2JzbmtCVzNkQ0pjTXpVVUUyWDJ4dTJnNWJ0VlBtTS9wCkJjaEFvTXlwZDJxam40cWFi" \
     "YnlFbDhNWjhuMElTbFlTNEp6TEE3MHJPdHZWSmk3ZUd4Z2FkMTdRb1IyanVVTjEKcUR4VmUyMC9M" \

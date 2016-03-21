@@ -1,5 +1,5 @@
-#undef OEM_ums_server_crt
-#define OEM_ums_server_crt \
+#undef OEM_server_crt
+#define OEM_server_crt \
     "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNyakNDQVpZQ0NRQ1RVZ3dqSkNrQnhqQU5C" \
     "Z2txaGtpRzl3MEJBUXNGQURBWk1SY3dGUVlEVlFRRERBNHEKTG5KaGVYUnBaMmgwTG1OdmJUQWVG" \
     "dzB4TmpBeE1UTXdOVE15TURKYUZ3MHpOakF4TURnd05UTXlNREphTUJreApGekFWQmdOVkJBTU1E" \

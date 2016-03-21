@@ -1,5 +1,5 @@
-#undef OEM_ums_client_key
-#define OEM_ums_client_key \
+#undef OEM_client_key
+#define OEM_client_key \
     "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBekIvRTFic0pm" \
     "OEJhcXo3clNURnllRmI4WVhPcXBsVm5lSFBRQVcrckZxUHg3MHBlCk1HTzB4Vjlab3VJNG5FVXZ1" \
     "WGIrTzR1M1NyMmlFL2RpQ201aEFvYXh3dWkzT0tnRGorWTlJMW5ZWFpKa0VCTHYKZlY0MENGSm1P" \
