@@ -62,11 +62,11 @@
 #endif
 
 #ifndef ENV_duk_PATH
-#define ENV_duk_PATH        "DUK_PATH"
+#define ENV_duk_PATH        "JLIB_PATH"
 #endif
 
-#ifndef ENV_duk_DEBUG_MOD
-#define ENV_duk_DEBUG_MOD   "__JS_DEBUG_MOD__"
+#ifndef ENV_duk_JDEBUG_MOD
+#define ENV_duk_JDEBUG_MOD  "__JDEBUG_MOD__"
 #endif
 
 #ifndef duk_PATH

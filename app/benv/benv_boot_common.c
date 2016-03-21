@@ -10,7 +10,7 @@ benv_control_t benv_control     = BENV_CONTROL_DEFT(NULL, __ops, __cache);
 
 extern env_t *env_ptr;
 DECLARE_REAL_DEBUGGER;
-DECLARE_REAL_JSDEBUGGER;
+DECLARE_REAL_JDEBUGGER;
 
 /*
 * call it in fastboot
@@ -21,7 +21,7 @@ benv_boot_init(void)
     __benv_control->env = (benv_env_t *)(env_ptr->env);
     
     __THIS_DEBUG    = benv_mark_pointer(__benv_mark_debug);
-    __THIS_JSDEBUG  = benv_mark_pointer(__benv_mark_jsdebug);
+    __THIS_JDEBUG  = benv_mark_pointer(__benv_mark_jsdebug);
 }
 
 /******************************************************************************/
