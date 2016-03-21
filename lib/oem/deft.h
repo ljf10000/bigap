@@ -40,14 +40,13 @@
     OEM_RSYNC_PORT,     \
     OEM_RSYNC_TIMEOUT)
 
-// deft/lms/ca.crt.base64
-#include OEM_CERT_PATH "deft/lms/ca.crt.c"
+#include "cert/deft/lms/ca.crt.c"
 #define OEM_lms_ca_crt      OEM_lms_ca_crt
 
-#include OEM_CERT_PATH "deft/lms/client.key.c"
+#include "cert/deft/lms/client.key.c"
 #define OEM_lms_client_key  OEM_lms_client_key
 
-#include OEM_CERT_PATH "deft/lms/client.crt.c"
+#include "cert/deft/lms/client.crt.c"
 #define OEM_lms_client_crt  OEM_lms_client_crt
 
 #define OEM_CERT_LMS_INITER {               \
@@ -56,14 +55,13 @@
     [OEM_CERT_CERT] = OEM_lms_client_crt,   \
 }   /* end */
 
-// deft/lms/ca.crt.base64
-#include OEM_CERT_PATH "deft/lss/ca.crt.c"
+#include "cert/deft/lss/ca.crt.c"
 #define OEM_lss_ca_crt      OEM_lss_ca_crt
 
-#include OEM_CERT_PATH "deft/lss/client.key.c"
+#include "cert/deft/lss/client.key.c"
 #define OEM_lss_client_key  OEM_lss_client_key
 
-#include OEM_CERT_PATH "deft/lss/client.crt.c"
+#include "cert/deft/lss/client.crt.c"
 #define OEM_lss_client_crt  OEM_lss_client_crt
 
 #define OEM_CERT_LSS_INITER {               \
@@ -72,14 +70,13 @@
     [OEM_CERT_CERT] = OEM_lss_client_crt,   \
 }   /* end */
 
-// deft/lms/ca.crt.base64
-#include OEM_CERT_PATH "deft/ums/ca.crt.c"
+#include "cert/deft/ums/ca.crt.c"
 #define OEM_ums_ca_crt      OEM_ums_ca_crt
 
-#include OEM_CERT_PATH "deft/ums/client.key.c"
+#include "cert/deft/ums/client.key.c"
 #define OEM_ums_client_key  OEM_ums_client_key
 
-#include OEM_CERT_PATH "deft/ums/client.crt.c"
+#include "cert/deft/ums/client.crt.c"
 #define OEM_ums_client_crt  OEM_ums_client_crt
 
 #define OEM_CERT_UMS_INITER     {           \
