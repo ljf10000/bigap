@@ -29,13 +29,8 @@
     OEM_RSYNC_TIMEOUT)
 
 #include "cert/raytight/lms/ca.crt.c"
-#define OEM1_lms_ca_crt     OEM1_lms_ca_crt
-
 #include "cert/raytight/lms/client.key.c"
-#define OEM1_lms_client_key OEM1_lms_client_key
-
 #include "cert/raytight/lms/client.crt.c"
-#define OEM1_lms_client_crt OEM1_lms_client_crt
 
 #define OEM1_CERT_LMS_INITER {              \
     [OEM_CERT_CA]   = OEM1_lms_ca_crt,      \
@@ -44,13 +39,8 @@
 }   /* end */
 
 #include "cert/raytight/lss/ca.crt.c"
-#define OEM1_lss_ca_crt     OEM1_lss_ca_crt
-
 #include "cert/raytight/lss/client.key.c"
-#define OEM1_lss_client_key OEM1_lss_client_key
-
 #include "cert/raytight/lss/client.crt.c"
-#define OEM1_lss_client_crt OEM1_lss_client_crt
 
 #define OEM1_CERT_LSS_INITER {              \
     [OEM_CERT_CA]   = OEM1_lss_ca_crt,      \
@@ -59,13 +49,8 @@
 }   /* end */
 
 #include "cert/raytight/ums/ca.crt.c"
-#define OEM1_ums_ca_crt     OEM1_ums_ca_crt
-
 #include "cert/raytight/ums/client.key.c"
-#define OEM1_ums_client_key OEM1_ums_client_key
-
 #include "cert/raytight/ums/client.crt.c"
-#define OEM1_ums_client_crt OEM1_ums_client_crt
 
 #define OEM1_CERT_UMS_INITER     {  \
     [OEM_CERT_CA]   = OEM1_ums_ca_crt,  \
