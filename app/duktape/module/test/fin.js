@@ -2,12 +2,19 @@
 
 var stream = require("stream");
 var file = new stream.Stream("fin.js", "r");
+file=null;
 
-var obj = {};
-function close (obj) {
-	print('obj closed');
-};
+function close (obj) {};
 
-obj.name = 'my obj';
-__js__.objDestructor(obj, close);
+var obj1 = {name:'obj1'};
+__js__.destructor(false, obj1, close);
+obj1=null;
+
+var Obj2 = function() {};
+__js__.destructor(true, Obj2.prototype, close);
+var obj2 = new Obj2();
+obj2.name = 'obj2';
+obj2=null;
+
+stream = null;
 
