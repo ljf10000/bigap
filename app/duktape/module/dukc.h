@@ -62,7 +62,7 @@
 #endif
 
 #ifndef ENV_duk_PATH
-#define ENV_duk_PATH        "JLIB_PATH"
+#define ENV_duk_PATH        "JPATH"
 #endif
 
 #ifndef ENV_duk_JDEBUG_MOD
@@ -70,7 +70,7 @@
 #endif
 
 #ifndef duk_PATH
-#define duk_PATH            "/lib/duk"
+#define duk_PATH            "/lib/js"
 #endif
 
 #ifndef duk_DUKTAPE
