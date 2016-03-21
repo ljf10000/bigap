@@ -55,28 +55,28 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_VERBOSE:
         case CURLOPT_HEADER:
         case CURLOPT_NOPROGRESS:
-#if LIBCURL_VERSION(7, 10, 0)
+#if LIB_VERSION(7, 10, 0)
         case CURLOPT_NOSIGNAL:
 #endif
-#if LIBCURL_VERSION(7, 21, 0)
+#if LIB_VERSION(7, 21, 0)
         case CURLOPT_WILDCARDMATCH:
 #endif
         // ERROR OPTIONS
         case CURLOPT_FAILONERROR:
         // NETWORK OPTIONS
-#if LIBCURL_VERSION(7, 42, 0)
+#if LIB_VERSION(7, 42, 0)
         case CURLOPT_PATH_AS_IS:
 #endif
 #if 0 /* Subject for removal in the future. Do not use! */
         case CURLOPT_DNS_USE_GLOBAL_CACHE:
 #endif
         // NAMES and PASSWORDS OPTIONS (Authentication)
-#if LIBCURL_VERSION(7, 31, 0)
+#if LIB_VERSION(7, 31, 0)
         case CURLOPT_SASL_IR:
 #endif
         // HTTP OPTIONS
         case CURLOPT_AUTOREFERER:
-#if LIBCURL_VERSION(7, 21, 6)
+#if LIB_VERSION(7, 21, 6)
         case CURLOPT_TRANSFER_ENCODING:
 #endif
         case CURLOPT_FOLLOWLOCATION:
@@ -87,37 +87,37 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_POST:
         case CURLOPT_COOKIESESSION:
         case CURLOPT_HTTPGET:
-#if LIBCURL_VERSION(7, 14, 1)
+#if LIB_VERSION(7, 14, 1)
         case CURLOPT_IGNORE_CONTENT_LENGTH:
 #endif
-#if LIBCURL_VERSION(7, 16, 2)
+#if LIB_VERSION(7, 16, 2)
         case CURLOPT_HTTP_CONTENT_DECODING:
         case CURLOPT_HTTP_TRANSFER_DECODING:
 #endif
         // FTP OPTIONS
-#if LIBCURL_VERSION(7, 16, 4)
+#if LIB_VERSION(7, 16, 4)
         case CURLOPT_APPEND:
 #endif
-#if LIBCURL_VERSION(7, 10, 5)
+#if LIB_VERSION(7, 10, 5)
         case CURLOPT_FTP_USE_EPRT:
 #endif
         case CURLOPT_FTP_USE_EPSV:
-#if LIBCURL_VERSION(7, 20, 0)
+#if LIB_VERSION(7, 20, 0)
         case CURLOPT_FTP_USE_PRET:
 #endif
-#if LIBCURL_VERSION(7, 14, 2)
+#if LIB_VERSION(7, 14, 2)
         case CURLOPT_FTP_SKIP_PASV_IP:
 #endif
         // PROTOCOL OPTIONS
         case CURLOPT_TRANSFERTEXT:
-#if LIBCURL_VERSION(7, 18, 0)
+#if LIB_VERSION(7, 18, 0)
         case CURLOPT_PROXY_TRANSFER_MODE:
 #endif
-#if LIBCURL_VERSION(7, 40, 0)
+#if LIB_VERSION(7, 40, 0)
         case CURLOPT_CRLF:
 #endif
         case CURLOPT_FILETIME:
-#if LIBCURL_VERSION(7, 16, 4)
+#if LIB_VERSION(7, 16, 4)
         case CURLOPT_DIRLISTONLY:
 #endif
         case CURLOPT_NOBODY:
@@ -125,24 +125,24 @@ duke_curl_easy_setopt(duk_context *ctx)
         // CONNECTION OPTIONS
         case CURLOPT_FRESH_CONNECT:
         case CURLOPT_FORBID_REUSE:
-#if LIBCURL_VERSION(7, 15, 2)
+#if LIB_VERSION(7, 15, 2)
         case CURLOPT_CONNECT_ONLY:
 #endif
         // SSL and SECURITY OPTIONS
-#if LIBCURL_VERSION(7, 36, 0)
+#if LIB_VERSION(7, 36, 0)
         case CURLOPT_SSL_ENABLE_ALPN:
         case CURLOPT_SSL_ENABLE_NPN:
 #endif
         case CURLOPT_SSLENGINE_DEFAULT:
-#if LIBCURL_VERSION(7, 42, 0)
+#if LIB_VERSION(7, 42, 0)
         case CURLOPT_SSL_FALSESTART:
 #endif
         case CURLOPT_SSL_VERIFYPEER:
-#if LIBCURL_VERSION(7, 41, 0)
+#if LIB_VERSION(7, 41, 0)
         case CURLOPT_SSL_VERIFYSTATUS:
 #endif
         case CURLOPT_CERTINFO:
-#if LIBCURL_VERSION(7, 16, 0)
+#if LIB_VERSION(7, 16, 0)
         case CURLOPT_SSL_SESSIONID_CACHE:
 #endif
         {
@@ -154,30 +154,30 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_PROXYPORT:
         case CURLOPT_PROXYTYPE:
         case CURLOPT_HTTPPROXYTUNNEL:
-#if LIBCURL_VERSION(7, 19, 4)
+#if LIB_VERSION(7, 19, 4)
         case CURLOPT_SOCKS5_GSSAPI_NEC:
 #endif
-#if LIBCURL_VERSION(7, 15, 2)
+#if LIB_VERSION(7, 15, 2)
         case CURLOPT_LOCALPORT:
         case CURLOPT_LOCALPORTRANGE:
 #endif
         case CURLOPT_DNS_CACHE_TIMEOUT:
-#if LIBCURL_VERSION(7, 10, 0)
+#if LIB_VERSION(7, 10, 0)
         case CURLOPT_BUFFERSIZE:
 #endif
         case CURLOPT_PORT:
         case CURLOPT_TCP_NODELAY:
-#if LIBCURL_VERSION(7, 19, 0)
+#if LIB_VERSION(7, 19, 0)
         case CURLOPT_ADDRESS_SCOPE:
 #endif
-#if LIBCURL_VERSION(7, 25, 0)
+#if LIB_VERSION(7, 25, 0)
         case CURLOPT_TCP_KEEPALIVE:
         case CURLOPT_TCP_KEEPIDLE:
 #endif
         case CURLOPT_TCP_KEEPINTVL:
         // NAMES and PASSWORDS OPTIONS (Authentication)
         case CURLOPT_NETRC:
-#if LIBCURL_VERSION(7, 10, 7)
+#if LIB_VERSION(7, 10, 7)
         case CURLOPT_PROXYAUTH:
 #endif
         // HTTP OPTIONS
@@ -185,58 +185,58 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_POSTFIELDSIZE:
         case CURLOPT_POSTFIELDSIZE_LARGE:
         case CURLOPT_HTTP_VERSION:
-#if LIBCURL_VERSION(7, 37, 0)
+#if LIB_VERSION(7, 37, 0)
         case CURLOPT_HEADEROPT:
 #endif
-#if LIBCURL_VERSION(7, 36, 0)
+#if LIB_VERSION(7, 36, 0)
         case CURLOPT_EXPECT_100_TIMEOUT_MS:
 #endif
-#if LIBCURL_VERSION(7, 43, 0)
+#if LIB_VERSION(7, 43, 0)
         case CURLOPT_PIPEWAIT:
 #endif
-#if LIBCURL_VERSION(7, 46, 0)
+#if LIB_VERSION(7, 46, 0)
         case CURLOPT_STREAM_WEIGHT:
 #endif
         // TFTP OPTIONS
-#if LIBCURL_VERSION(7, 19, 4)
+#if LIB_VERSION(7, 19, 4)
         case CURLOPT_TFTP_BLKSIZE:
 #endif
-#if LIBCURL_VERSION(7, 48, 0)
+#if LIB_VERSION(7, 48, 0)
         case CURLOPT_TFTP_NO_OPTIONS:
 #endif
         // FTP OPTIONS
-#if LIBCURL_VERSION(7, 19, 4)
+#if LIB_VERSION(7, 19, 4)
         case CURLOPT_FTP_CREATE_MISSING_DIRS:
 #endif
-#if LIBCURL_VERSION(7, 10, 8)
+#if LIB_VERSION(7, 10, 8)
         case CURLOPT_FTP_RESPONSE_TIMEOUT:
 #endif
-#if LIBCURL_VERSION(7, 12, 2)
+#if LIB_VERSION(7, 12, 2)
         case CURLOPT_FTPSSLAUTH:
 #endif
-#if LIBCURL_VERSION(7, 16, 1)
+#if LIB_VERSION(7, 16, 1)
         case CURLOPT_FTP_SSL_CCC:
 #endif
-#if LIBCURL_VERSION(7, 15, 1)
+#if LIB_VERSION(7, 15, 1)
         case CURLOPT_FTP_FILEMETHOD:
 #endif
         // RTSP OPTIONS
-#if LIBCURL_VERSION(7, 20, 0)
+#if LIB_VERSION(7, 20, 0)
         case CURLOPT_RTSP_REQUEST:
         case CURLOPT_RTSP_CLIENT_CSEQ:
         case CURLOPT_RTSP_SERVER_CSEQ:
 #endif
         // PROTOCOL OPTIONS
         case CURLOPT_RESUME_FROM:
-#if LIBCURL_VERSION(7, 11, 0)
+#if LIB_VERSION(7, 11, 0)
         case CURLOPT_RESUME_FROM_LARGE:
 #endif
-#if LIBCURL_VERSION(7, 23, 0)
+#if LIB_VERSION(7, 23, 0)
         case CURLOPT_INFILESIZE:
         case CURLOPT_INFILESIZE_LARGE:
 #endif
         case CURLOPT_MAXFILESIZE:
-#if LIBCURL_VERSION(7, 11, 0)
+#if LIB_VERSION(7, 11, 0)
         case CURLOPT_MAXFILESIZE_LARGE:
 #endif
         case CURLOPT_TIMECONDITION:
@@ -246,7 +246,7 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_TIMEOUT_MS:
         case CURLOPT_LOW_SPEED_LIMIT:
         case CURLOPT_LOW_SPEED_TIME:
-#if LIBCURL_VERSION(7, 15, 5)
+#if LIB_VERSION(7, 15, 5)
         case CURLOPT_MAX_SEND_SPEED_LARGE:
         case CURLOPT_MAX_RECV_SPEED_LARGE:
 #endif
@@ -254,14 +254,14 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_CONNECTTIMEOUT:
         case CURLOPT_CONNECTTIMEOUT_MS:
         case CURLOPT_IPRESOLVE:
-#if LIBCURL_VERSION(7, 11, 0)
+#if LIB_VERSION(7, 11, 0)
         case CURLOPT_USE_SSL:
 #endif
-#if LIBCURL_VERSION(7, 24, 0)
+#if LIB_VERSION(7, 24, 0)
         case CURLOPT_ACCEPTTIMEOUT_MS:
 #endif
         // SSL and SECURITY OPTIONS
-#if LIBCURL_VERSION(7, 18, 1)
+#if LIB_VERSION(7, 18, 1)
         case CURLOPT_SSLVERSION:
 #endif
         case CURLOPT_SSL_VERIFYHOST: {
@@ -270,31 +270,31 @@ duke_curl_easy_setopt(duk_context *ctx)
             err = curl_easy_setopt(p, opt, val);
         }   break;
         // NETWORK OPTIONS
-#if LIBCURL_VERSION(7, 19, 4)
+#if LIB_VERSION(7, 19, 4)
         case CURLOPT_PROTOCOLS:
         case CURLOPT_REDIR_PROTOCOLS:
 #endif
         // NAMES and PASSWORDS OPTIONS (Authentication)
-#if LIBCURL_VERSION(7, 10, 6)
+#if LIB_VERSION(7, 10, 6)
         case CURLOPT_HTTPAUTH:
 #endif
         // HTTP OPTIONS
-#if LIBCURL_VERSION(7, 17, 1)
+#if LIB_VERSION(7, 17, 1)
         case CURLOPT_POSTREDIR:
 #endif
         // SSL and SECURITY OPTIONS
-#if LIBCURL_VERSION(7, 25, 0)
+#if LIB_VERSION(7, 25, 0)
         case CURLOPT_SSL_OPTIONS:
 #endif
-#if LIBCURL_VERSION(7, 22, 0)
+#if LIB_VERSION(7, 22, 0)
         case CURLOPT_GSSAPI_DELEGATION:
 #endif
         // SSH OPTIONS
-#if LIBCURL_VERSION(7, 28, 0)
+#if LIB_VERSION(7, 28, 0)
         case CURLOPT_SSH_AUTH_TYPES:
 #endif
         // OTHER OPTIONS
-#if LIBCURL_VERSION(7, 16, 4)
+#if LIB_VERSION(7, 16, 4)
         case CURLOPT_NEW_FILE_PERMS:
         case CURLOPT_NEW_DIRECTORY_PERMS:
 #endif
@@ -317,53 +317,53 @@ duke_curl_easy_setopt(duk_context *ctx)
         }   break;
         // NETWORK OPTIONS
         case CURLOPT_URL:
-#if LIBCURL_VERSION(7, 45, 0)
+#if LIB_VERSION(7, 45, 0)
         case CURLOPT_DEFAULT_PROTOCOL:
 #endif
-#if LIBCURL_VERSION(7, 21, 7)
+#if LIB_VERSION(7, 21, 7)
         case CURLOPT_PROXY:
 #endif
-#if LIBCURL_VERSION(7, 19, 4)
+#if LIB_VERSION(7, 19, 4)
         case CURLOPT_NOPROXY:
 #endif
-#if LIBCURL_VERSION(7, 19, 4)
+#if LIB_VERSION(7, 19, 4)
         case CURLOPT_SOCKS5_GSSAPI_SERVICE:
 #endif
-#if LIBCURL_VERSION(7, 43, 0)
+#if LIB_VERSION(7, 43, 0)
         case CURLOPT_PROXY_SERVICE_NAME:
         case CURLOPT_SERVICE_NAME:
 #endif
         case CURLOPT_INTERFACE:
-#if LIBCURL_VERSION(7, 40, 0)
+#if LIB_VERSION(7, 40, 0)
         case CURLOPT_UNIX_SOCKET_PATH:
 #endif
         // NAMES and PASSWORDS OPTIONS (Authentication)
-#if LIBCURL_VERSION(7, 10, 9)
+#if LIB_VERSION(7, 10, 9)
         case CURLOPT_NETRC_FILE:
 #endif
         case CURLOPT_USERPWD:
         case CURLOPT_PROXYUSERPWD:
-#if LIBCURL_VERSION(7, 19, 1)
+#if LIB_VERSION(7, 19, 1)
         case CURLOPT_USERNAME:
         case CURLOPT_PASSWORD:
 #endif
-#if LIBCURL_VERSION(7, 34, 0)
+#if LIB_VERSION(7, 34, 0)
         case CURLOPT_LOGIN_OPTIONS:
 #endif
-#if LIBCURL_VERSION(7, 19, 1)
+#if LIB_VERSION(7, 19, 1)
         case CURLOPT_PROXYUSERNAME:
         case CURLOPT_PROXYPASSWORD:
 #endif
-#if LIBCURL_VERSION(7, 21, 4)
+#if LIB_VERSION(7, 21, 4)
         case CURLOPT_TLSAUTH_USERNAME:
         case CURLOPT_TLSAUTH_PASSWORD:
         case CURLOPT_TLSAUTH_TYPE:
 #endif
-#if LIBCURL_VERSION(7, 33, 0)
+#if LIB_VERSION(7, 33, 0)
         case CURLOPT_XOAUTH2_BEARER:
 #endif
         // HTTP OPTIONS
-#if LIBCURL_VERSION(7, 21, 6)
+#if LIB_VERSION(7, 21, 6)
         case CURLOPT_ACCEPT_ENCODING:
 #endif
         case CURLOPT_POSTFIELDS:
@@ -373,86 +373,86 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_COOKIE:
         case CURLOPT_COOKIEFILE:
         case CURLOPT_COOKIEJAR:
-#if LIBCURL_VERSION(7, 39, 0)
+#if LIB_VERSION(7, 39, 0)
         case CURLOPT_COOKIELIST:
 #endif
         // SMTP OPTIONS
-#if LIBCURL_VERSION(7, 20, 0)
+#if LIB_VERSION(7, 20, 0)
         case CURLOPT_MAIL_FROM:
 #endif
-#if LIBCURL_VERSION(7, 25, 0)
+#if LIB_VERSION(7, 25, 0)
         case CURLOPT_MAIL_AUTH:
 #endif
         // FTP OPTIONS
-#if LIBCURL_VERSION(7, 19, 5)
+#if LIB_VERSION(7, 19, 5)
         case CURLOPT_FTPPORT:
 #endif
         case CURLOPT_PREQUOTE:
-#if LIBCURL_VERSION(7, 15, 5)
+#if LIB_VERSION(7, 15, 5)
         case CURLOPT_FTP_ALTERNATIVE_TO_USER:
 #endif
-#if LIBCURL_VERSION(7, 13, 0)
+#if LIB_VERSION(7, 13, 0)
         case CURLOPT_FTP_ACCOUNT:
 #endif
         // RTSP OPTIONS
-#if LIBCURL_VERSION(7, 20, 0)
+#if LIB_VERSION(7, 20, 0)
         case CURLOPT_RTSP_SESSION_ID:
         case CURLOPT_RTSP_STREAM_URI:
         case CURLOPT_RTSP_TRANSPORT:
 #endif
         // PROTOCOL OPTIONS
-#if LIBCURL_VERSION(7, 18, 0)
+#if LIB_VERSION(7, 18, 0)
         case CURLOPT_RANGE:
 #endif
-#if LIBCURL_VERSION(7, 34, 0)
+#if LIB_VERSION(7, 34, 0)
         case CURLOPT_CUSTOMREQUEST:
 #endif
         // CONNECTION OPTIONS
-#if LIBCURL_VERSION(7, 33, 0)
+#if LIB_VERSION(7, 33, 0)
         case CURLOPT_DNS_INTERFACE:
         case CURLOPT_DNS_LOCAL_IP4:
         case CURLOPT_DNS_LOCAL_IP6:
 #endif
-#if LIBCURL_VERSION(7, 24, 0)
+#if LIB_VERSION(7, 24, 0)
         case CURLOPT_DNS_SERVERS:
 #endif
         // SSL and SECURITY OPTIONS
         case CURLOPT_SSLCERT:
-#if LIBCURL_VERSION(7, 9, 3)
+#if LIB_VERSION(7, 9, 3)
         case CURLOPT_SSLCERTTYPE:
 #endif
         case CURLOPT_SSLKEY:
         case CURLOPT_SSLKEYTYPE:
-#if LIBCURL_VERSION(7, 16, 4)
+#if LIB_VERSION(7, 16, 4)
         case CURLOPT_KEYPASSWD:
 #endif
         case CURLOPT_SSLENGINE:
         case CURLOPT_CAINFO:
         case CURLOPT_ISSUERCERT:
         case CURLOPT_CAPATH:
-#if LIBCURL_VERSION(7, 19, 0)
+#if LIB_VERSION(7, 19, 0)
         case CURLOPT_CRLFILE:
 #endif
-#if LIBCURL_VERSION(7, 39, 0)
+#if LIB_VERSION(7, 39, 0)
         case CURLOPT_PINNEDPUBLICKEY:
 #endif
         case CURLOPT_RANDOM_FILE:
         case CURLOPT_EGDSOCKET:
         case CURLOPT_SSL_CIPHER_LIST:
-#if LIBCURL_VERSION(7, 16, 3)
+#if LIB_VERSION(7, 16, 3)
         case CURLOPT_KRBLEVEL:
 #endif
         // SSH OPTIONS
-#if LIBCURL_VERSION(7, 17, 1)
+#if LIB_VERSION(7, 17, 1)
         case CURLOPT_SSH_HOST_PUBLIC_KEY_MD5:
 #endif
-#if LIBCURL_VERSION(7, 26, 0)
+#if LIB_VERSION(7, 26, 0)
         case CURLOPT_SSH_PUBLIC_KEYFILE:
 #endif
-#if LIBCURL_VERSION(7, 16, 1)
+#if LIB_VERSION(7, 16, 1)
         case CURLOPT_SSH_PRIVATE_KEYFILE:
 #endif
-#if LIBCURL_VERSION(7, 19, 6)
+#if LIB_VERSION(7, 19, 6)
         case CURLOPT_SSH_KNOWNHOSTS:
 #endif
         {
@@ -470,23 +470,23 @@ duke_curl_easy_setopt(duk_context *ctx)
         }   break;
         // HTTP OPTIONS
         case CURLOPT_HTTPHEADER:
-#if LIBCURL_VERSION(7, 37, 0)
+#if LIB_VERSION(7, 37, 0)
         case CURLOPT_PROXYHEADER:
 #endif
-#if LIBCURL_VERSION(7, 10, 3)
+#if LIB_VERSION(7, 10, 3)
         case CURLOPT_HTTP200ALIASES:
 #endif
         // SMTP OPTIONS
-#if LIBCURL_VERSION(7, 20, 0)
+#if LIB_VERSION(7, 20, 0)
         case CURLOPT_MAIL_RCPT:
 #endif
         // FTP OPTIONS
-#if LIBCURL_VERSION(7, 24, 0)
+#if LIB_VERSION(7, 24, 0)
         case CURLOPT_QUOTE:
 #endif
         case CURLOPT_POSTQUOTE:
         // CONNECTION OPTIONS
-#if LIBCURL_VERSION(7, 21, 3)
+#if LIB_VERSION(7, 21, 3)
         case CURLOPT_RESOLVE:
 #endif
         // TELNET OPTIONS
@@ -498,7 +498,7 @@ duke_curl_easy_setopt(duk_context *ctx)
             err = curl_easy_setopt(p, opt, obj.list);
         }   break;
         // HTTP OPTIONS
-#if LIBCURL_VERSION(7, 46, 0)
+#if LIB_VERSION(7, 46, 0)
         case CURLOPT_STREAM_DEPENDS:
         case CURLOPT_STREAM_DEPENDS_E: {
             CURL *dep = (CURL *)duk_require_pointer(ctx, 2);
@@ -544,12 +544,12 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_FNMATCH_DATA:
 #endif
         // SSH OPTIONS
-#if LIBCURL_VERSION(7, 19, 6)
+#if LIB_VERSION(7, 19, 6)
         case CURLOPT_SSH_KEYFUNCTION:
         case CURLOPT_SSH_KEYDATA:
 #endif
         // OTHER OPTIONS
-#if LIBCURL_VERSION(7, 10, 3)
+#if LIB_VERSION(7, 10, 3)
         case CURLOPT_PRIVATE:
 #endif
         case CURLOPT_SHARE:
