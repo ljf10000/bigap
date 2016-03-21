@@ -6,10 +6,12 @@ c() {
 	local name="$3"
 	local obj=${name%%.*}
 	local type=${name##*.}
+	local tag="OEM_${service}_${obj}_${type}"
 	local line
 
 	rm -f ${name}.c
-	echo "#define OEM_${service}_${obj}_${type} \\" > ${name}.c
+	echo "#undef ${tag}" > ${name}.c
+	echo "#define ${tag} \\" >> ${name}.c
 	while read line; do
 		echo "    \"${line}\" \\" >> ${name}.c
 	done < ${name}.base64
