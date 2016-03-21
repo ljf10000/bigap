@@ -44,30 +44,30 @@
 #include "cert/deft/lms/client.key.c"
 #include "cert/deft/lms/client.crt.c"
 
-#define OEM_CERT_LMS_INITER {               \
-    [OEM_CERT_CA]   = OEM_lms_ca_crt,       \
-    [OEM_CERT_KEY]  = OEM_lms_client_key,   \
-    [OEM_CERT_CERT] = OEM_lms_client_crt,   \
+#define OEM_CERT_LMS_INITER {           \
+    [OEM_CERT_CA]   = OEM_ca_crt,       \
+    [OEM_CERT_KEY]  = OEM_client_key,   \
+    [OEM_CERT_CERT] = OEM_client_crt,   \
 }   /* end */
 
 #include "cert/deft/lss/ca.crt.c"
 #include "cert/deft/lss/client.key.c"
 #include "cert/deft/lss/client.crt.c"
 
-#define OEM_CERT_LSS_INITER {               \
-    [OEM_CERT_CA]   = OEM_lss_ca_crt,       \
-    [OEM_CERT_KEY]  = OEM_lss_client_key,   \
-    [OEM_CERT_CERT] = OEM_lss_client_crt,   \
+#define OEM_CERT_LSS_INITER {           \
+    [OEM_CERT_CA]   = OEM_ca_crt,       \
+    [OEM_CERT_KEY]  = OEM_client_key,   \
+    [OEM_CERT_CERT] = OEM_client_crt,   \
 }   /* end */
 
 #include "cert/deft/ums/ca.crt.c"
 #include "cert/deft/ums/client.key.c"
 #include "cert/deft/ums/client.crt.c"
 
-#define OEM_CERT_UMS_INITER     {           \
-    [OEM_CERT_CA]   = OEM_ums_ca_crt,       \
-    [OEM_CERT_KEY]  = OEM_ums_client_key,   \
-    [OEM_CERT_CERT] = OEM_ums_client_crt,   \
+#define OEM_CERT_UMS_INITER     {       \
+    [OEM_CERT_CA]   = OEM_ca_crt,       \
+    [OEM_CERT_KEY]  = OEM_client_key,   \
+    [OEM_CERT_CERT] = OEM_client_crt,   \
 }   /* end */
 
 #define OEM_CERT_INITER                     {   \

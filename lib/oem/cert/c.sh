@@ -6,7 +6,7 @@ c() {
 	local name="$3"
 	local obj=${name%%.*}
 	local type=${name##*.}
-	local tag="OEM_${service}_${obj}_${type}"
+	local tag="OEM_${obj}_${type}"
 	local line
 
 	rm -f ${name}.c
