@@ -11,7 +11,7 @@ c() {
 	rm -f ${name}.c
 	echo "#define OEM_${service}_${obj}_${type} \\" > ${name}.c
 	while read line; do
-		echo "    \"${line}\" \\" >> ${name}.c
+		echo "\"${line}\" \\" >> ${name}.c
 	done < ${name}.base64
 	echo "/* end */" >> ${name}.c
 }
