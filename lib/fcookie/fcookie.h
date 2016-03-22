@@ -4,7 +4,7 @@
 #include "oem/oem.h"
 
 /*
-* NOT depend bigap
+* NOT depend actions
 */
 
 enum {

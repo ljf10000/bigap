@@ -99,40 +99,40 @@ struct init_action {
     "--------------------------------------------------"    "\n" \
     /* end */
 
-#define bigap_action(_command, _action_type) { \
+#define action_entry(_command, _action_type) { \
     .command    = _command,     \
     .terminal   = "",           \
     .action_type= _action_type, \
 }
 
-static struct init_action bigap[] = {
-    bigap_action("/bin/busybox jlogd",  RESPAWN | STATICACT),
-    bigap_action("/bin/busybox rt",     RESPAWN | STATICACT),
-    bigap_action("/bin/busybox guard",  RESPAWN | STATICACT),
-    bigap_action("/bin/busybox smd",    RESPAWN | STATICACT),
-    bigap_action("/bin/busybox tmd",    RESPAWN | STATICACT),
-    bigap_action("/bin/busybox umd",    RESPAWN | STATICACT),
+static struct init_action actions[] = {
+    action_entry("/bin/busybox jlogd",  RESPAWN | STATICACT),
+    action_entry("/bin/busybox rt",     RESPAWN | STATICACT),
+    action_entry("/bin/busybox guard",  RESPAWN | STATICACT),
+    action_entry("/bin/busybox smd",    RESPAWN | STATICACT),
+    action_entry("/bin/busybox tmd",    RESPAWN | STATICACT),
+    action_entry("/bin/busybox umd",    RESPAWN | STATICACT),
 #ifndef NO_3G
-    bigap_action("/usr/sbin/3g_connect.sh",     RESPAWN | STATICACT),
-    bigap_action("/usr/sbin/get_3g_state.sh",   RESPAWN | STATICACT),
+    action_entry("/usr/sbin/3g_connect.sh",     RESPAWN | STATICACT),
+    action_entry("/usr/sbin/get_3g_state.sh",   RESPAWN | STATICACT),
 #endif
-    bigap_action("/etc/rtsync/rtsyncd", RESPAWN | STATICACT),
+    action_entry("/etc/rtsync/rtsyncd",         RESPAWN | STATICACT),
     
-    bigap_action("/bin/busybox bck",            ONCE | STATICACT),
-    bigap_action("/etc/init.d/rc.last",         ONCE | STATICACT),
-    bigap_action("/bin/busybox dog disable",    ONCE | STATICACT),
-    bigap_action("/bin/busybox sysstartup",     ONCE | STATICACT),
+    action_entry("/bin/busybox bck",            ONCE | STATICACT),
+    action_entry("/etc/init.d/rc.last",         ONCE | STATICACT),
+    action_entry("/bin/busybox dog disable",    ONCE | STATICACT),
+    action_entry("/bin/busybox sysstartup",     ONCE | STATICACT),
 };
 
-static struct init_action *init_action_list = &bigap[0];
+static struct init_action *init_action_list = &actions[0];
 
 static inline void
-bigap_action_init(void)
+action_init(void)
 {
     int i;
 
-    for (i=0; i<sizeof(bigap)/sizeof(bigap[0]) - 1; i++) {
-        bigap[i].next = &bigap[i+1];
+    for (i=0; i<sizeof(actions)/sizeof(actions[0]) - 1; i++) {
+        actions[i].next = &actions[i+1];
     }
 }
 
@@ -927,7 +927,7 @@ int init_main(int argc UNUSED_PARAM, char **argv)
 	}
 
 #ifdef BIGAP
-    bigap_action_init();
+    action_init();
 #endif
 
 	/* Figure out where the default console should be */
