@@ -213,19 +213,19 @@ os_memmem(const void *mem, size_t mem_size,
 #endif
 
 #define os_objdeft(_obj, _deft) do{ \
-    typeof(*_obj) new = _deft;      \
-    os_objcpy(_obj, &new);          \
+    typeof(*_obj) __new_in_os_objdeft = _deft;      \
+    os_objcpy(_obj, &__new_in_os_objdeft);          \
 }while(0)
 
 #define os_vcmp(_a, _b)     ({  \
-    typeof(_a)  __a = (_a);     \
-    typeof(_b)  __b = (_b);     \
+    typeof(_a)  __a_in_os_vcmp = (_a); \
+    typeof(_b)  __b_in_os_vcmp = (_b); \
     int ret;                    \
                                 \
-    if (__a > __b) {            \
+    if (__a_in_os_vcmp > __b_in_os_vcmp) { \
         ret = 1;                \
     }                           \
-    else if (__a==__b) {        \
+    else if (__a_in_os_vcmp==__b_in_os_vcmp) { \
         ret = 0;                \
     }                           \
     else {                      \
@@ -242,18 +242,18 @@ os_memmem(const void *mem, size_t mem_size,
 * all is good, use _objcmp
 */
 #define __os_objcmp(_a, _b, _is_good, _objcmp) ({ \
-    typeof(_a)  __a = (_a);                 \
-    typeof(_b)  __b = (_b);                 \
+    typeof(_a)  __a_in___os_objcmp = (_a);  \
+    typeof(_b)  __b_in___os_objcmp = (_b);  \
     int ret;                                \
                                             \
-    if (_is_good(__a)) {                    \
-        if (_is_good(__b)) {                \
-            ret = _objcmp(__a, __b);        \
+    if (_is_good(__a_in___os_objcmp)) {     \
+        if (_is_good(__b_in___os_objcmp)) { \
+            ret = _objcmp(__a_in___os_objcmp, __b_in___os_objcmp); \
         } else {                            \
             ret = 1;                        \
         }                                   \
     } else {                                \
-        if (_is_good(__b)) {                \
+        if (_is_good(__b_in___os_objcmp)) { \
             ret = -1;                       \
         } else {                            \
             ret = 0;                        \

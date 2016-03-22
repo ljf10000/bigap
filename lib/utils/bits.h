@@ -11,9 +11,9 @@
 
 #ifndef __os_align
 #define __os_align(_x, _align)      ({  \
-    typeof(_align) __align = _align;    \
+    typeof(_align) __align_in___os_align = _align; \
                                         \
-    __OS_ALIGN(_x, __align);            \
+    __OS_ALIGN(_x, __align_in___os_align); \
 })
 #endif
 
@@ -23,9 +23,9 @@
 
 #ifndef __os_align_down
 #define __os_align_down(_x, _align) ({  \
-    typeof(_align) __align = _align;    \
+    typeof(_align) __align_in___os_align_down = _align; \
                                         \
-    __OS_ALIGN_DOWN(_x, __align);       \
+    __OS_ALIGN_DOWN(_x, __align_in___os_align_down); \
 })
 #endif
 
@@ -35,9 +35,9 @@
 
 #ifndef os_align
 #define os_align(_x, _align)        ({  \
-    typeof(_align) __align = _align;    \
+    typeof(_align) __align_in_os_align = _align; \
                                         \
-    OS_ALIGN(_x, __align);              \
+    OS_ALIGN(_x, __align_in_os_align);  \
 })
 #endif
 
@@ -46,20 +46,20 @@
 #endif
 
 #define os_power_align(_x)  ({  \
-    typeof(_x) __x = (_x);  \
-    typeof(_x) __y = 0;     \
+    typeof(_x) __x_in_os_power_align = (_x);  \
+    typeof(_x) __y_in_os_power_align = 0; \
                             \
-    if (__x > 0) {          \
+    if (__x_in_os_power_align > 0) { \
         int __bits = 1;     \
                             \
-        while((__x>>=1)) {  \
+        while((__x_in_os_power_align>>=1)) { \
             __bits++;       \
         }                   \
                             \
-        __y = 1<<__bits;    \
+        __y_in_os_power_align = 1<<__bits; \
     }                       \
                             \
-    __y;                    \
+    __y_in_os_power_align;  \
 })  /* end */
 
 #ifndef os_setflag
@@ -108,15 +108,15 @@
 
 #ifndef os_bitshift
 #define os_bitshift(_flag)      ({  \
-    typeof(_flag) __flag = (_flag); \
-    typeof(_flag) __mask;           \
+    typeof(_flag) __flag_in_os_bitshift = (_flag); \
+    typeof(_flag) __mask_in_os_bitshift; \
     int __pos = 0;                  \
                                     \
-    if (__flag) {                   \
+    if (__flag_in_os_bitshift) {    \
         do {                        \
-            __mask = (1UL<<__pos);  \
+            __mask_in_os_bitshift = (1UL<<__pos); \
             __pos++;                \
-        }while(!(__flag & __mask)); \
+        }while(!(__flag_in_os_bitshift & __mask_in_os_bitshift)); \
     }                               \
                                     \
     __pos-1;                        \

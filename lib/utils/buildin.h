@@ -72,9 +72,9 @@
 #endif
 
 #define os_swap_value(_a, _b) do {  \
-    typeof(_a) __tmp = (_a);        \
+    typeof(_a) __tmp_in_os_swap_value = (_a); \
     (_a) = (_b);                    \
-    (_b) = __tmp;                   \
+    (_b) = __tmp_in_os_swap_value;  \
 }while(0)
 
 #define INVALID_VALUE       (-1)
@@ -116,8 +116,8 @@ static inline bool is_good_common_id(int id)
 #define IS_GOOD_VALUE(_value, _begin, _end)     \
     (_value >= (_begin) && _value < (_end))
 #define is_good_value(_value, _begin, _end) ({  \
-    typeof(_value) __v = (_value);              \
-    IS_GOOD_VALUE(__v, _begin, _end);           \
+    typeof(_value) __v_in_is_good_value = (_value);     \
+    IS_GOOD_VALUE(__v_in_is_good_value, _begin, _end);  \
 })  /* end */
 
 /*
@@ -129,21 +129,21 @@ static inline bool is_good_common_id(int id)
     (((_value)<(_min) || (_value)>(_max))?(_deft):(_value))
 
 #define os_safe_value_deft(_value, _min, _max, _deft) ({ \
-    typeof(_value)  __value   = _value; \
-    typeof(_value)  __deft    = _deft;  \
-                                        \
-    OS_SAFE_VALUE_DEFT(__value, _min, _max, __deft); \
+    typeof(_value)  __value_in_os_safe_value_deft   = _value;   \
+    typeof(_value)  __deft_in_os_safe_value_deft    = _deft;    \
+                                                                \
+    OS_SAFE_VALUE_DEFT(__value_in_os_safe_value_deft, _min, _max, __deft_in_os_safe_value_deft); \
 })  /* end */
 
 #define OS_SAFE_VALUE(_value, _min, _max)   \
     ((_value)<(_min)?(_min):((_value)>(_max)?(_max):(_value)))
 
 #define os_safe_value(_value, _min, _max) ({ \
-    typeof(_value)  __value   = _value;     \
-    typeof(_value)  __min     = _min;       \
-    typeof(_value)  __max     = _max;       \
-                                            \
-    OS_SAFE_VALUE(__value, __min, __max);   \
+    typeof(_value)  __value_in_os_safe_value= _value;   \
+    typeof(_value)  __min_in_os_safe_value  = _min      \
+    typeof(_value)  __max_in_os_safe_value  = _max;     \
+                                                        \
+    OS_SAFE_VALUE(__value_in_os_safe_value, __min_in_os_safe_value, __max_in_os_safe_value);   \
 })  /* end */
 
 /*
@@ -152,18 +152,18 @@ static inline bool is_good_common_id(int id)
 #if 1
 #define OS_MIN(_x, _y)  ((_x)<(_y)?(_x):(_y))
 #define os_min(_x,_y)   ({  \
-    typeof(_x) __x = (_x);  \
-    typeof(_y) __y = (_y);  \
-    (void) (&__x == &__y);  \
-    OS_MIN(__x, __y);       \
+    typeof(_x) __x_in_os_min = (_x);  \
+    typeof(_y) __y_in_os_min = (_y);  \
+    (void) (&__x_in_os_min == &__y_in_os_min);  \
+    OS_MIN(__x_in_os_min, __y_in_os_min);       \
 })  /* end */
 
 #define OS_MAX(_x, _y)  ((_x)>(_y)?(_x):(_y))
 #define os_max(_x,_y)   ({  \
-    typeof(_x) __x = (_x);  \
-    typeof(_y) __y = (_y);  \
-    (void) (&__x == &__y);  \
-    OS_MAX(__x, __y);       \
+    typeof(_x) __x_in_os_max = (_x);  \
+    typeof(_y) __y_in_os_max = (_y);  \
+    (void) (&__x_in_os_max == &__y_in_os_max);  \
+    OS_MAX(__x_in_os_max, __y_in_os_max);       \
 })  /* end */
 #endif
 
