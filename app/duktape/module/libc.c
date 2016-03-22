@@ -5538,7 +5538,7 @@ duke_uname(duk_context *ctx)
 
     int err = uname(&name);
     if (err<0) {
-        seterrno(ctx, err);
+        seterrno(ctx);
 
         duk_push_null(ctx);
     } else {
