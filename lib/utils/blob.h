@@ -51,8 +51,8 @@ is_blob_type_container(int type)
 
 #define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32_t))
 
-#ifndef BLOB_COUNT
-#define BLOB_COUNT          0
+#ifndef USE_BLOB_COUNT
+#define USE_BLOB_COUNT      1
 #endif
 
 typedef struct {
@@ -61,7 +61,7 @@ typedef struct {
     uint16_t    flag;
     
     uint32_t    vlen;       /* real value len, NOT include '\0' if value is string */
-#if BLOB_COUNT
+#if USE_BLOB_COUNT
     uint32_t    count;      /* if current node is object/array, the count is node's sub node count */
 #endif
 
@@ -305,7 +305,7 @@ blob_get_binary(const blob_t *blob)
 	return blob_vpointer(byte, blob);
 }
 
-#if BLOB_COUNT
+#if USE_BLOB_COUNT
 #define blob_foreach(_root, _blob, _i, _left) \
 	for (_i = 0, _left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
 	     _i < blob_count(_root) && _blob && _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
@@ -344,7 +344,7 @@ blob_getbyidx(const blob_t *root, uint32_t idx)
     uint32_t i, left;
     blob_t *blob;
 
-#if BLOB_COUNT
+#if USE_BLOB_COUNT
     if (false==is_good_enum(idx, blob_count(root))) {
         return NULL;
     }
@@ -461,7 +461,7 @@ __blob_dump_header(const blob_t *blob, char *tag)
 {
     os_printf("%s "
                 "name:%s, "
-#if BLOB_COUNT
+#if USE_BLOB_COUNT
                 "count:%u, "
 #endif
                 "size:%u, "
@@ -472,7 +472,7 @@ __blob_dump_header(const blob_t *blob, char *tag)
                 "%s", 
         tag?tag:__empty,
         blob_key(blob), 
-#if BLOB_COUNT
+#if USE_BLOB_COUNT
         blob_count(blob),
 #endif
         blob_size(blob),
@@ -766,7 +766,7 @@ __blob_init(
     blob_type(blob) = type;
     blob_klen(blob) = name?os_strlen(name):0;
     blob_vlen(blob) = payload;
-#if BLOB_COUNT
+#if USE_BLOB_COUNT
     blob_count(blob)= 0;
 #endif
 }
@@ -819,7 +819,7 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
     blob_t *root = blob_root(slice);
     if (root && root!=blob) {
         blob_vlen(root) += size;
-#if BLOB_COUNT
+#if USE_BLOB_COUNT
         blob_count(root)++;
 #endif
     }
@@ -1045,7 +1045,7 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     if (ntoh) {
         blob_flag(blob) = bswap_16(blob_flag(blob));
         blob_vlen(blob) = bswap_32(blob_vlen(blob));
-#if BLOB_COUNT
+#if USE_BLOB_COUNT
         blob_count(blob)= bswap_32(blob_count(blob));
 #endif
     }
@@ -1081,7 +1081,7 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     if (false==ntoh) {
         blob_flag(blob) = bswap_16(blob_flag(blob));
         blob_vlen(blob) = bswap_32(blob_vlen(blob));
-#if BLOB_COUNT
+#if USE_BLOB_COUNT
         blob_count(blob)= bswap_32(blob_count(blob));
 #endif
     }
