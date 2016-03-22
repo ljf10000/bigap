@@ -5530,18 +5530,22 @@ duke_sethostid(duk_context *ctx)
 }
 
 // 30.2 Platform Type Identification
-LIB_PARAM(uname, 1);
+LIB_PARAM(uname, 0);
 static duk_ret_t
 duke_uname(duk_context *ctx)
 {
-    struct utsname u;
+    struct utsname name;
 
-    int err = uname(&u);
-    if (0==err) { // ???
-        __set_utsname(ctx, 0, &u);
+    int err = uname(&name);
+    if (err<0) {
+        seterrno(ctx, err);
+
+        duk_push_null(ctx);
+    } else {
+        __obj_push(ctx, __set_utsname, &name);
     }
-    
-    return __push_error(ctx, err), 1;
+
+    return 1;
 }
 
 // 30.3.1 Mount Information

@@ -89,6 +89,7 @@
 #   include <sys/eventfd.h>
 #   include <sys/signalfd.h>
 #   include <sys/inotify.h>
+#   include <sys/utsname.h>
 #   include <netpacket/packet.h>
 #   include <netinet/ether.h>
 #   include <netinet/in.h>
