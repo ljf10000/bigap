@@ -27,11 +27,19 @@
 #endif
 
 #ifndef int64_t
-#define int64_t         int64_t
+#if OS64
+#   define int64_t      long long
+#else
+#   define int64_t      int64_t
+#endif
 #endif
 
 #ifndef uint64_t
-#define uint64_t        uint64_t
+#if OS64
+#   define uint64_t     unsigned long long
+#else
+#   define uint64_t     uint64_t
+#endif
 #endif
 #endif /* just for sourceinsight */
 

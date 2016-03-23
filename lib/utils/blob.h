@@ -57,9 +57,9 @@ is_blob_type_container(int type)
 
 typedef struct {
     uint8_t     type;       /* enum blob_type */
-    uint8_t     klen;       /* real key len, NOT include '\0' */
-    uint16_t    flag;
-    
+    uint8_t     flag;
+    uint16_t    klen;       /* real key len, NOT include '\0' */
+
     uint32_t    vlen;       /* real value len, NOT include '\0' if value is string */
 #if USE_BLOB_COUNT
     uint32_t    count;      /* if current node is object/array, the count is node's sub node count */
@@ -307,15 +307,27 @@ blob_get_binary(const blob_t *blob)
 
 #if USE_BLOB_COUNT
 #define blob_foreach(_root, _blob, _i, _left) \
-	for (_i = 0, _left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
-	     _i < blob_count(_root) && _blob && _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
-	     _i++, _left -= blob_size(_blob), _blob = blob_next(_blob))  \
+	for (_i = 0, \
+	        _left = _root?blob_vsize(_root):0, \
+	        _blob = blob_first(_root); \
+	     _i < blob_count(_root) \
+	        && _blob \
+	        && _left > 0 \
+	        && blob_size(_blob) <= _left \
+	        && blob_size(_blob) >= sizeof(blob_t); \
+	     _i++, \
+	        _left -= blob_size(_blob), \
+	        _blob = blob_next(_blob))  \
     /* end */
 #else
 #define blob_foreach(_root, _blob, _i, _left) \
-	for (_left = _root?blob_vsize(_root):0, _blob = blob_first(_root); \
-	     _left > 0 && blob_size(_blob) <= _left && blob_size(_blob) >= sizeof(blob_t); \
-	     _left -= blob_size(_blob), _blob = blob_next(_blob)) \
+	for (_left = _root?blob_vsize(_root):0, \
+	        _blob = blob_first(_root); \
+	     _left > 0 \
+	        && blob_size(_blob) <= _left \
+	        && blob_size(_blob) >= sizeof(blob_t); \
+	     _left -= blob_size(_blob), \
+	        _blob = blob_next(_blob)) \
     /* end */
 #endif
 
@@ -1043,7 +1055,7 @@ __blob_byteorder(blob_t *blob, bool ntoh)
 {
     
     if (ntoh) {
-        blob_flag(blob) = bswap_16(blob_flag(blob));
+        blob_klen(blob) = bswap_16(blob_klen(blob));
         blob_vlen(blob) = bswap_32(blob_vlen(blob));
 #if USE_BLOB_COUNT
         blob_count(blob)= bswap_32(blob_count(blob));
@@ -1079,7 +1091,7 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     }
     
     if (false==ntoh) {
-        blob_flag(blob) = bswap_16(blob_flag(blob));
+        blob_klen(blob) = bswap_16(blob_klen(blob));
         blob_vlen(blob) = bswap_32(blob_vlen(blob));
 #if USE_BLOB_COUNT
         blob_count(blob)= bswap_32(blob_count(blob));
