@@ -49,12 +49,32 @@
 #endif
 #endif /* libc */
 
+#ifndef duk_MOD_LIBC
+#define duk_MOD_LIBC        "__libc__"
+#endif
+
 #ifndef duk_LIBCURL
 #define duk_LIBCURL         1
 #endif
 
+#ifndef duk_MOD_LIBCURL
+#define duk_MOD_LIBCURL     "__libcurl__"
+#endif
+
 #ifndef duk_LIBZ
 #define duk_LIBZ            1
+#endif
+
+#ifndef duk_MOD_LIBZ
+#define duk_MOD_LIBZ        "__libz__"
+#endif
+
+#ifndef duk_LIBBZ
+#define duk_LIBBZ           0
+#endif
+
+#ifndef duk_MOD_LIBBZ
+#define duk_MOD_LIBBZ       "__libbz__"
 #endif
 
 #ifndef duk_LIBCALL
@@ -83,18 +103,6 @@
 
 #ifndef duk_MOD_MY
 #define duk_MOD_MY          "__my__"
-#endif
-
-#ifndef duk_MOD_LIBC
-#define duk_MOD_LIBC        "__libc__"
-#endif
-
-#ifndef duk_MOD_LIBCURL
-#define duk_MOD_LIBCURL     "__libcurl__"
-#endif
-
-#ifndef duk_MOD_LIBZ
-#define duk_MOD_LIBZ        "__libz__"
 #endif
 
 typedef duk_number_list_entry   dukc_number_entry_t;
@@ -875,6 +883,7 @@ extern int duktape_register(duk_context *ctx);
 extern int my_register(duk_context *ctx);
 extern int libc_register(duk_context *ctx);
 extern int libz_register(duk_context *ctx);
+extern int libbz_register(duk_context *ctx);
 extern int libcurl_register(duk_context *ctx);
 
 #include "libc.h"   /* mast end */

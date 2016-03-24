@@ -775,7 +775,7 @@ int my_register(duk_context *ctx)
             
             env_register(ctx);
             arg_register(ctx);
-        duk_put_prop_string(ctx, -2, duk_MOD_MY);
+        duk_put_prop_string(ctx, -2, duk_MY_NAME);
     duk_pop(ctx);
     
     return 0;
