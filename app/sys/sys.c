@@ -474,7 +474,7 @@ mount_rootfs(void)
                     readonly,
                     true);  /* repair   */
             if (err<0) {
-                errs = err;
+                errs = err; /* NOT return */
             }
         }
     }

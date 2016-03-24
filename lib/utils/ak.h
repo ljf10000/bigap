@@ -78,7 +78,7 @@ typedef uint32_t akid_t;
 DECLARE_FAKE_DEBUGGER;
 DECLARE_FAKE_JDEBUGGER;
 /******************************************************************************/
-#define __AK_DEBUG_LIST(_)                  \
+#define __XLIST_AK_DEBUG(_)                 \
     _(____ak_debug_ok,      0, "ok"),       \
     _(____ak_debug_bug,     1, "bug"),      \
     _(____ak_debug_error,   2, "error"),    \
@@ -107,7 +107,7 @@ DECLARE_FAKE_JDEBUGGER;
 static inline bool is_good_ak_DEBUG(int id);
 static inline char *ak_DEBUG_string(int id);
 static inline int ak_DEBUG_idx(char *name);
-DECLARE_ENUM(ak_DEBUG, __AK_DEBUG_LIST, ____ak_debug_end);
+DECLARE_ENUM(ak_DEBUG, __XLIST_AK_DEBUG, ____ak_debug_end);
 
 enum {
     __ak_debug_ok       = os_bit(____ak_debug_ok),
@@ -215,13 +215,13 @@ __ak_debug_getname(uint32_t level)
 #define __is_ak_debug_json      __is_ak_debug(__ak_debug_json)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
-#define __AK_SYS_LIST(_) \
+#define __XLIST_AK_SYS(_) \
     _(__AK_SYS_DEBUG, 0, AK_DEBUG_NAME), \
     /* end */
     
 static inline bool is_good_ak_sys(int id);
 static inline int ak_sys_idx(char *name);
-DECLARE_ENUM(ak_sys, __AK_SYS_LIST, __AK_SYS_END);
+DECLARE_ENUM(ak_sys, __XLIST_AK_SYS, __AK_SYS_END);
 
 #if 1 /* just for sourceinsight */
 #define __AK_SYS_DEBUG  __AK_SYS_DEBUG

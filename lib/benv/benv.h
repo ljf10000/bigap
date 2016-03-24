@@ -266,16 +266,16 @@ enum {
 /*
 * ok > unknow > fail
 */
-#define __BENV_FSM_LIST(_)          \
-    _(BENV_FSM_FAIL,    0, "fail"), \
-    _(BENV_FSM_UNKNOW,  1, "unknow"), \
-    _(BENV_FSM_OK,      2, "ok"),   \
+#define __XLIST_BENV_FSM(_)             \
+    _(BENV_FSM_FAIL,    0, "fail"),     \
+    _(BENV_FSM_UNKNOW,  1, "unknow"),   \
+    _(BENV_FSM_OK,      2, "ok"),       \
     /* end */
 
 static inline bool is_good_benv_fsm(int id);
 static inline char *benv_fsm_string(int id);
 static inline int benv_fsm_idx(char *name);
-DECLARE_ENUM(benv_fsm, __BENV_FSM_LIST, BENV_FSM_END);
+DECLARE_ENUM(benv_fsm, __XLIST_BENV_FSM, BENV_FSM_END);
 
 #if 1 /* just for sourceinsight */
 #define BENV_FSM_FAIL   BENV_FSM_FAIL

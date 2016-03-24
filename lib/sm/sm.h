@@ -59,17 +59,17 @@
 #endif
 #endif
 
-#define __SM_LIST(_) \
-    _(SM_STATE_INIT,  0, "init"), \
-    _(SM_STATE_FORK,  1, "fork"), \
-    _(SM_STATE_RUN,   2, "run"),  \
-    _(SM_STATE_DIE,   3, "die"),  \
+#define __XLIST_SM(_)               \
+    _(SM_STATE_INIT,  0, "init"),   \
+    _(SM_STATE_FORK,  1, "fork"),   \
+    _(SM_STATE_RUN,   2, "run"),    \
+    _(SM_STATE_DIE,   3, "die"),    \
     /* end */
 
 static inline bool is_good_sm_state(int id);
 static inline char *sm_state_string(int id);
 static inline int sm_state_idx(char *name);
-DECLARE_ENUM(sm_state, __SM_LIST, SM_STATE_END);
+DECLARE_ENUM(sm_state, __XLIST_SM, SM_STATE_END);
 
 #if 1 /* just for sourceinsight */
 #define SM_STATE_INIT   SM_STATE_INIT

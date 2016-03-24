@@ -1,7 +1,7 @@
 #ifndef __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 #define __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 /******************************************************************************/
-#define __STRING_TYPE_LIST(_) \
+#define __XLIST_STRING_TYPE(_)          \
     _(STRING_T_GLOBAL,  0, "global"),   \
     _(STRING_T_CONST,   1, "const"),    \
     _(STRING_T_HEAP,    3, "heap"),     \
@@ -10,7 +10,7 @@
 static inline bool is_good_string_type(int type);
 static inline char *string_type_string(int type);
 static inline int string_type_idx(char *type_string);
-DECLARE_ENUM(string_type, __STRING_TYPE_LIST, STRING_T_END);
+DECLARE_ENUM(string_type, __XLIST_STRING_TYPE, STRING_T_END);
 
 #if 1 /* just for sourceinsight */
 #define STRING_T_GLOBAL     STRING_T_GLOBAL

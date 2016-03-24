@@ -87,7 +87,7 @@
 #   endif
 #endif
 
-#define __UM_STATE_LIST(_)          \
+#define __XLIST_UM_STATE(_)         \
     _(UM_STATE_NONE, 0, "none"),    \
     _(UM_STATE_BIND, 1, "bind"),    \
     _(UM_STATE_AUTH, 2, "auth"),    \
@@ -96,7 +96,7 @@
 static inline bool is_good_user_state(int id);
 static inline char *user_state_string(int id);
 static inline int user_state_idx(char *name);
-DECLARE_ENUM(user_state, __UM_STATE_LIST, UM_STATE_END);
+DECLARE_ENUM(user_state, __XLIST_UM_STATE, UM_STATE_END);
 
 #if 1 /* just for sourceinsight */
 #define UM_STATE_NONE   UM_STATE_NONE
@@ -140,7 +140,7 @@ __have_bind(int state)
 #define is_noused(_user)    (__is_none((_user)->state) && 0==(_user)->flags)
 #define have_bind(_user)    __have_bind((_user)->state)
 
-#define __UM_DEAUTH_LIST(_)                     \
+#define __XLIST_UM_DEAUTH(_)                    \
     _(UM_DEAUTH_NONE,       0, "none"),         \
     _(UM_DEAUTH_AUTO,       1, "auto"),         \
     _(UM_DEAUTH_ONLINETIME, 2, "onlinetime"),   \
@@ -153,7 +153,7 @@ __have_bind(int state)
 static inline bool is_good_deauth_reason(int id);
 static inline char *deauth_reason_string(int id);
 static inline int deauth_reason_idx(char *name);
-DECLARE_ENUM(deauth_reason, __UM_DEAUTH_LIST, UM_DEAUTH_END);
+DECLARE_ENUM(deauth_reason, __XLIST_UM_DEAUTH, UM_DEAUTH_END);
 
 #if 1 /* just for sourceinsight */
 #define UM_DEAUTH_NONE          UM_DEAUTH_NONE
@@ -172,7 +172,7 @@ is_valid_deauth_reason(int reason)
     return IS_GOOD_VALUE(reason, UM_DEAUTH_NONE+1, UM_DEAUTH_END);
 }
 
-#define __UM_FLOW_TYPE_LIST(_)      \
+#define __XLIST_UM_FLOW_TYPE(_)     \
     _(um_flow_type_lan, 0, "lan"),  \
     _(um_flow_type_wan, 1, "wan"),  \
     /* end */
@@ -180,7 +180,7 @@ is_valid_deauth_reason(int reason)
 static inline bool is_good_flow_type(int id);
 static inline char *flow_type_string(int id);
 static inline int flow_type_idx(char *name);
-DECLARE_ENUM(flow_type, __UM_FLOW_TYPE_LIST, um_flow_type_end);
+DECLARE_ENUM(flow_type, __XLIST_UM_FLOW_TYPE, um_flow_type_end);
 
 #if 1 /* just for sourceinsight */
 #define um_flow_type_lan    um_flow_type_lan
@@ -190,7 +190,7 @@ DECLARE_ENUM(flow_type, __UM_FLOW_TYPE_LIST, um_flow_type_end);
 
 enum {um_flow_type_local = um_flow_type_end};
 
-#define __UM_FLOW_DIR_LIST(_)       \
+#define __XLIST_UM_FLOW_DIR(_)      \
     _(um_flow_dir_up,   0, "up"),   \
     _(um_flow_dir_down, 1, "down"), \
     _(um_flow_dir_all,  2, "all"),  \
@@ -199,7 +199,7 @@ enum {um_flow_type_local = um_flow_type_end};
 static inline bool is_good_flow_dir(int id);
 static inline char *flow_dir_string(int id);
 static inline int flow_dir_idx(char *name);
-DECLARE_ENUM(flow_dir, __UM_FLOW_DIR_LIST, um_flow_dir_end);
+DECLARE_ENUM(flow_dir, __XLIST_UM_FLOW_DIR, um_flow_dir_end);
 
 #if 1 /* just for sourceinsight */
 #define um_flow_dir_up      um_flow_dir_up

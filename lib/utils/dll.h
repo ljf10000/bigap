@@ -2,7 +2,7 @@
 #define __DLL_H_246c16b7624f4197910c79d8f0707b65__
 #ifdef __APP__
 /******************************************************************************/
-#define __LIBVAL_TYPE_LIST(_)   \
+#define __XLIST_LIBVAL_TYPE(_)  \
     _(LIBVAL_F32,   0, "f32"),  \
     _(LIBVAL_I32,   1, "i32"),  \
     _(LIBVAL_U32,   2, "u32"),  \
@@ -18,7 +18,7 @@
 static inline bool is_good_libval_type(int id);
 static inline char *libval_type_string(int id);
 static inline int libval_type_idx(char *name);
-DECLARE_ENUM(libval_type, __LIBVAL_TYPE_LIST, LIBVAL_END);
+DECLARE_ENUM(libval_type, __XLIST_LIBVAL_TYPE, LIBVAL_END);
 
 #if 1 /* just for sourceinsight */
 #define LIBVAL_F32  LIBVAL_F32
