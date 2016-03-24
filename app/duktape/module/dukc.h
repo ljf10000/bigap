@@ -47,10 +47,18 @@
 #ifndef duk_LIBC_UTIL
 #define duk_LIBC_UTIL       0
 #endif
-#endif /* libc */
 
 #ifndef duk_MOD_LIBC
 #define duk_MOD_LIBC        "__libc__"
+#endif
+#endif /* libc */
+
+#ifndef duk_LIBCALL
+#define duk_LIBCALL         0
+#endif
+
+#ifndef duk_MOD_MY
+#define duk_MOD_MY          "__my__"
 #endif
 
 #ifndef duk_LIBCURL
@@ -77,10 +85,6 @@
 #define duk_MOD_LIBBZ       "__libbz__"
 #endif
 
-#ifndef duk_LIBCALL
-#define duk_LIBCALL         0
-#endif
-
 #ifndef ENV_duk_PATH
 #define ENV_duk_PATH        "JPATH"
 #endif
@@ -99,10 +103,6 @@
 
 #ifndef duk_SEARCH
 #define duk_SEARCH          "modSearch"
-#endif
-
-#ifndef duk_MOD_MY
-#define duk_MOD_MY          "__my__"
 #endif
 /******************************************************************************/
 typedef duk_number_list_entry   dukc_number_entry_t;
