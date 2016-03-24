@@ -157,18 +157,21 @@ typedef struct {
 #include "deft.h"
 #include "oem1.h"
 /******************************************************************************/
-enum {
-    OEM_DEFT,
-    OEM_1,  /* RAYTIGHT */
-    
-    OEM_END
-};
+#define __XLIST_OEM(_)          \
+    _(OEM_DEFT, 0, OEM_NAME),   \
+    _(OEM_1,    1, OEM1_NAME),  \
+    /* end */
 
-static inline bool
-is_good_oem_type(int type)
-{
-    return is_good_enum(type, OEM_END);
-}
+static inline bool is_good_oem_type(int id);
+static inline char *oem_type_string(int id);
+static inline int oem_type_idx(char *type);
+DECLARE_ENUM(oem_type, __XLIST_OEM, OEM_END);
+
+#if 1 /* just for sourceinsight */
+#define OEM_DEFT    OEM_DEFT
+#define OEM_1       OEM_1
+#define OEM_END     OEM_END
+#endif /* just for sourceinsight */
 
 #define DECLARE_FAKE_OEM    extern oem_t __THIS_OEM[]
 #define DECLARE_REAL_OEM    oem_t __THIS_OEM[OEM_END] = { \
@@ -189,28 +192,6 @@ DECLARE_FAKE_OEM;
 #endif
 
 static inline int
-__oem_type_get_by_vendor(char *vendor)
-{
-    static struct {
-        int type;
-        char *vendor;
-    } map[] = {
-        { .type = OEM_DEFT, .vendor = OEM_NAME},
-        { .type = OEM_1,    .vendor = OEM1_NAME},
-    };
-
-    int i;
-
-    for (i=0; i<os_count_of(map); i++) {
-        if (os_streq(vendor, map[i].vendor)) {
-            return map[i].type;
-        }
-    }
-
-    return OEM_END;
-}
-
-static inline int
 __oem_type(void)
 {
     int type;
@@ -218,7 +199,7 @@ __oem_type(void)
 
     if (os_file_exist(OEM_FILE)) {
         os_v_fgets(vendor, OEM_NAME_LEN, OEM_FILE);
-        type = __oem_type_get_by_vendor(vendor);
+        type = oem_type_idx(vendor);
         if (is_good_oem_type(type)) {
             return type;
         }
@@ -229,7 +210,7 @@ __oem_type(void)
 #elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC
     os_v_pgets(vendor, OEM_NAME_LEN, "benv oem/vendor");
 #endif
-    type = __oem_type_get_by_vendor(vendor);
+    type = oem_type_idx(vendor);
     if (is_good_oem_type(type)) {
         return type;
     }
