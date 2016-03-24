@@ -125,7 +125,7 @@ int libbz_register(duk_context *ctx)
         duk_push_object(ctx);
             libbzf_register(ctx, -1);
             libbzn_register(ctx, -1);
-        duk_put_prop_string(ctx, -2, duk_LIBBZ_NAME);
+        duk_put_prop_string(ctx, -2, duk_MOD_LIBBZ);
     duk_pop(ctx);
 #endif
 

@@ -992,7 +992,7 @@ int libz_register(duk_context *ctx)
         duk_push_object(ctx);
             libzf_register(ctx, -1);
             libzn_register(ctx, -1);
-        duk_put_prop_string(ctx, -2, duk_LIBZ_NAME);
+        duk_put_prop_string(ctx, -2, duk_MOD_LIBZ);
     duk_pop(ctx);
 #endif
 

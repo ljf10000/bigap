@@ -104,7 +104,7 @@
 #ifndef duk_MOD_MY
 #define duk_MOD_MY          "__my__"
 #endif
-
+/******************************************************************************/
 typedef duk_number_list_entry   dukc_number_entry_t;
 
 typedef struct {

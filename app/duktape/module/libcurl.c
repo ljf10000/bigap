@@ -811,7 +811,7 @@ int libcurl_register(duk_context *ctx)
         duk_push_object(ctx);
             libcurlf_register(ctx, -1);
             libcurln_register(ctx, -1);
-        duk_put_prop_string(ctx, -2, duk_LIBCURL_NAME);
+        duk_put_prop_string(ctx, -2, duk_MOD_LIBCURL);
     duk_pop(ctx);
 #endif
 
