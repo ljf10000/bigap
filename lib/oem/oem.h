@@ -157,26 +157,26 @@ typedef struct {
 #include "deft.h"
 #include "oem1.h"
 /******************************************************************************/
-#define __XLIST_OEM(_)          \
-    _(OEM_DEFT, 0, OEM_NAME),   \
-    _(OEM_1,    1, OEM1_NAME),  \
+#define __XLIST_OEM(_)              \
+    _(OEM_T_DEFT, 0, OEM_NAME),     \
+    _(OEM_T_1,    1, OEM1_NAME),    \
     /* end */
 
 static inline bool is_good_oem_type(int id);
 static inline char *oem_type_string(int id);
 static inline int oem_type_idx(char *type);
-DECLARE_ENUM(oem_type, __XLIST_OEM, OEM_END);
+DECLARE_ENUM(oem_type, __XLIST_OEM, OEM_T_END);
 
 #if 1 /* just for sourceinsight */
-#define OEM_DEFT    OEM_DEFT
-#define OEM_1       OEM_1
-#define OEM_END     OEM_END
+#define OEM_T_DEFT  OEM_T_DEFT
+#define OEM_T_1     OEM_T_1
+#define OEM_T_END   OEM_T_END
 #endif /* just for sourceinsight */
 
 #define DECLARE_FAKE_OEM    extern oem_t __THIS_OEM[]
-#define DECLARE_REAL_OEM    oem_t __THIS_OEM[OEM_END] = { \
-    [OEM_DEFT]  = OEM_INITER,   \
-    [OEM_1]     = OEM1_INITER,  \
+#define DECLARE_REAL_OEM    oem_t __THIS_OEM[OEM_T_END] = { \
+    [OEM_T_DEFT]  = OEM_INITER,   \
+    [OEM_T_1]     = OEM1_INITER,  \
 }
 
 #ifdef __BUSYBOX__
@@ -215,15 +215,15 @@ __oem_type(void)
         return type;
     }
 
-    return OEM_DEFT;
+    return OEM_T_DEFT;
 }
 
 static inline oem_t *
 __this_oem(void)
 {
-    static int type = OEM_END;
+    static int type = OEM_T_END;
 
-    if (OEM_END==type) {
+    if (OEM_T_END==type) {
         type = __oem_type();
     }
 
