@@ -177,7 +177,7 @@ DECLARE_ENUM(oem_type, __XLIST_OEM, OEM_T_END);
 #define DECLARE_REAL_OEM    oem_t __THIS_OEM[OEM_T_END] = { \
     [OEM_T_DEFT]  = OEM_INITER,   \
     [OEM_T_1]     = OEM1_INITER,  \
-}
+}   /* end */
 
 #ifdef __BUSYBOX__
 #   define DECLARE_OEM      DECLARE_FAKE_OEM
