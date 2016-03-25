@@ -3,15 +3,15 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "libbz"
+#define __THIS_FILE     "liblz"
 #endif
 
 #include "utils.h"
 #include "dukc.h"
 
-#if duk_LIBBZ
-#include <bzlib.h>
-#include "libbz.h"
+#if duk_LIBLZ
+#include <lzlib.h>
+#include "liblz.h"
 
 #define BZ2_CALL(x)     BZ2_##x
 
@@ -193,22 +193,18 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-#ifndef BZ_NO_STDIO
+#include "liblz/liblzf.c"
+#include "liblz/liblzn.c"
+#endif /* duk_LIBLZ */
 
-#endif
-
-#include "libbz/libbzf.c"
-#include "libbz/libbzn.c"
-#endif /* duk_LIBBZ */
-
-int libbz_register(duk_context *ctx)
+int liblz_register(duk_context *ctx)
 {
-#if duk_LIBBZ
+#if duk_LIBLZ
     duk_push_global_object(ctx);
         duk_push_object(ctx);
-            libbzf_register(ctx, -1);
-            libbzn_register(ctx, -1);
-        duk_put_prop_string(ctx, -2, duk_MOD_LIBBZ);
+            liblzf_register(ctx, -1);
+            liblzn_register(ctx, -1);
+        duk_put_prop_string(ctx, -2, duk_MOD_LIBLZ);
     duk_pop(ctx);
 #endif
 

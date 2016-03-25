@@ -498,11 +498,10 @@ duke_compressEx(duk_context *ctx)
 {
     int err = 0;
     duk_size_t src_size = 0;
-
     duk_buffer_t src = duk_require_buffer_data(ctx, 0, &src_size);
-    ulong_t dst_size = compressBound(src_size);
 
-    duk_buffer_t dst = __push_dynamic_buffer(ctx, dst_size);
+    ulong_t dst_size = compressBound(src_size);
+    duk_buffer_t dst = duk_push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
         __seterrno(ctx, -ENOMEM); goto error;
     }
@@ -511,9 +510,8 @@ duke_compressEx(duk_context *ctx)
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
-    duk_resize_buffer(ctx, -1, dst_size);
-    
-    return 1;
+
+    return duk_resize_buffer(ctx, -1, dst_size), 1;
 error:
     return duk_push_null(ctx), 1;
 }
@@ -556,7 +554,7 @@ duke_compress2Ex(duk_context *ctx)
     int level = duk_require_int(ctx, 1);
     ulong_t dst_size = compressBound(src_size);
 
-    duk_buffer_t dst = __push_dynamic_buffer(ctx, dst_size);
+    duk_buffer_t dst = duk_push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
         __seterrno(ctx, -ENOMEM); goto error;
     }
@@ -565,9 +563,8 @@ duke_compress2Ex(duk_context *ctx)
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
-    duk_resize_buffer(ctx, -1, dst_size);
-    
-    return 1;
+
+    return duk_resize_buffer(ctx, -1, dst_size), 1;
 error:
     return duk_push_null(ctx), 1;
 }

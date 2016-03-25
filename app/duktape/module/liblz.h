@@ -1,6 +1,6 @@
-#ifndef __LIBBZ_H_17116ab96ac74fce8f0242cf765529b9__
-#define __LIBBZ_H_17116ab96ac74fce8f0242cf765529b9__
+#ifndef __LIBLZ_H_fc1af6f10ea746e2bd6c4e2226cb0e2e__
+#define __LIBLZ_H_fc1af6f10ea746e2bd6c4e2226cb0e2e__
 /******************************************************************************/
 
 /******************************************************************************/
-#endif /* __LIBBZ_H_17116ab96ac74fce8f0242cf765529b9__ */
+#endif /* __LIBLZ_H_fc1af6f10ea746e2bd6c4e2226cb0e2e__ */

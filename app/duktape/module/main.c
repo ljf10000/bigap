@@ -70,6 +70,8 @@ __register(duk_context *ctx)
         my_register,
         libc_register,
         libz_register,
+        libbz_register,
+        liblz_register,
         libcurl_register,
 
         /*keep below last*/

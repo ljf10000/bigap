@@ -85,6 +85,14 @@
 #define duk_MOD_LIBBZ       "__libbz__"
 #endif
 
+#ifndef duk_LIBLZ
+#define duk_LIBLZ           0
+#endif
+
+#ifndef duk_MOD_LIBLZ
+#define duk_MOD_LIBLZ       "__liblz__"
+#endif
+
 #ifndef ENV_duk_PATH
 #define ENV_duk_PATH        "JPATH"
 #endif
@@ -878,6 +886,7 @@ extern int my_register(duk_context *ctx);
 extern int libc_register(duk_context *ctx);
 extern int libz_register(duk_context *ctx);
 extern int libbz_register(duk_context *ctx);
+extern int liblz_register(duk_context *ctx);
 extern int libcurl_register(duk_context *ctx);
 
 #include "libc.h"   /* mast end */
