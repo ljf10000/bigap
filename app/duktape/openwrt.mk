@@ -1,6 +1,6 @@
 INCS+=-Isrc
 
-OBJS=src/duktape.o module/main.o module/global.o module/duk.o module/my.o module/libc.o module/libcurl.o
+OBJS=src/duktape.o module/main.o module/global.o module/duk.o module/my.o module/libc.o module/libcurl.o module/libz.o module/libbz.o
 __TARGET=duktape
 TARGET=$(__TARGET)
 LIBS_DEPEND=
