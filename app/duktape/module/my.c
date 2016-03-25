@@ -194,15 +194,6 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-enum {
-    LOOP_SIGNAL,
-    LOOP_TIMER,
-    LOOP_EPOLL,
-    LOOP_INOTIFY,
-
-    LOOP_END
-};
-
 typedef struct {
     char *obj;
     char *param;
@@ -221,17 +212,18 @@ typedef struct {
 }
 
 #define LOOP_HANDLE     "handle"
-static loop_info_t LOOP[LOOP_END] = {
-    [LOOP_SIGNAL]   = LOOP_INFO("signal",   "sigs"),
-    [LOOP_TIMER]    = LOOP_INFO("timer",    "spec"),
-    [LOOP_EPOLL]    = LOOP_INFO("epoll",    "fds"),
-    [LOOP_INOTIFY]  = LOOP_INFO("inotify",  "paths"),
-};
 
-#define __loop_signal   LOOP[LOOP_SIGNAL]
-#define __loop_timer    LOOP[LOOP_TIMER]
-#define __loop_epoll    LOOP[LOOP_EPOLL]
-#define __loop_inotify  LOOP[LOOP_INOTIFY]
+static loop_info_t __loop_signal    = LOOP_INFO("signal",   "sigs");
+static loop_info_t __loop_timer     = LOOP_INFO("timer",    "spec");
+static loop_info_t __loop_epoll     = LOOP_INFO("epoll",    "fds");
+static loop_info_t __loop_inotify   = LOOP_INFO("inotify",  "paths");
+
+static loop_info_t *LOOP[] = {
+    &__loop_signal,
+    &__loop_timer,
+    &__loop_timer,
+    &__loop_inotify,
+};
 
 static int loop_param_idx;
 
@@ -447,10 +439,10 @@ loop_save(duk_context *ctx)
 {
     int i;
 
-    for (i=0; i<LOOP_END; i++) {
-        if (LOOP[i].used) {
-            duk_get_prop_string(ctx, loop_param_idx, LOOP[i].obj);
-            __set_obj_int(ctx, -1, "fd", LOOP[i].fd);
+    for (i=0; i<os_count_of(LOOP); i++) {
+        if (LOOP[i]->used) {
+            duk_get_prop_string(ctx, loop_param_idx, LOOP[i]->obj);
+            __set_obj_int(ctx, -1, "fd", LOOP[i]->fd);
             duk_pop(ctx);
         }
     }
@@ -461,14 +453,14 @@ loop_push_func(duk_context *ctx)
 {
     int i;
 
-    for (i=0; i<LOOP_END; i++) {
-        if (LOOP[i].used) {
-            duk_get_prop_string(ctx, loop_param_idx, LOOP[i].obj);
+    for (i=0; i<os_count_of(LOOP); i++) {
+        if (LOOP[i]->used) {
+            duk_get_prop_string(ctx, loop_param_idx, LOOP[i]->obj);
             duk_get_prop_string(ctx, -1, LOOP_HANDLE);
             duk_swap(ctx, -1, -2);
             duk_pop(ctx);
             
-            LOOP[i].func = duk_normalize_index(ctx, -1);
+            LOOP[i]->func = duk_normalize_index(ctx, -1);
         }
     }
 }
@@ -478,8 +470,8 @@ loop_pop_func(duk_context *ctx)
 {
     int i;
 
-    for (i=0; i<LOOP_END; i++) {
-        if (LOOP[i].used) {
+    for (i=0; i<os_count_of(LOOP); i++) {
+        if (LOOP[i]->used) {
             duk_pop(ctx);
         }
     }
