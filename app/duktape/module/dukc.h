@@ -878,8 +878,6 @@ extern char *libc_sig_name[];
 extern void libc_sig_handler(int sig);
 #endif
 
-typedef int duk_register_f(duk_context *);
-
 extern int global_register(duk_context *ctx);
 extern int duktape_register(duk_context *ctx);
 extern int my_register(duk_context *ctx);
