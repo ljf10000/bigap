@@ -221,7 +221,7 @@ static loop_info_t __loop_inotify   = LOOP_INFO("inotify",  "paths");
 static loop_info_t *LOOP[] = {
     &__loop_signal,
     &__loop_timer,
-    &__loop_timer,
+    &__loop_epoll,
     &__loop_inotify,
 };
 
