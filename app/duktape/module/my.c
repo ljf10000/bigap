@@ -228,10 +228,10 @@ static loop_info_t LOOP[LOOP_END] = {
     [LOOP_INOTIFY]  = LOOP_INFO("inotify",  "paths"),
 };
 
-#define loop_signal     LOOP[LOOP_SIGNAL]
-#define loop_timer      LOOP[LOOP_TIMER]
-#define loop_epoll      LOOP[LOOP_EPOLL]
-#define loop_inotify    LOOP[LOOP_INOTIFY]
+#define __loop_signal   LOOP[LOOP_SIGNAL]
+#define __loop_timer    LOOP[LOOP_TIMER]
+#define __loop_epoll    LOOP[LOOP_EPOLL]
+#define __loop_inotify  LOOP[LOOP_INOTIFY]
 
 static int loop_param_idx;
 
@@ -243,7 +243,7 @@ loop_add(int fd)
     ev.events   = EPOLLIN;
     ev.data.fd  = fd;
     
-    return epoll_ctl(loop_epoll.fd, EPOLL_CTL_ADD, fd, &ev);
+    return epoll_ctl(__loop_epoll.fd, EPOLL_CTL_ADD, fd, &ev);
 }
 
 static int
@@ -251,7 +251,7 @@ loop_signal_init(duk_context *ctx)
 {
     int err = 0, pop = 0;
 
-    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, loop_signal.obj)) {
+    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, __loop_signal.obj)) {
         goto error;
     }
 
@@ -260,7 +260,7 @@ loop_signal_init(duk_context *ctx)
     }
     --pop; duk_pop(ctx);
     
-    if (++pop, false==duk_get_prop_string(ctx, -1, loop_signal.param)) {
+    if (++pop, false==duk_get_prop_string(ctx, -1, __loop_signal.param)) {
         goto error;
     }
     
@@ -280,17 +280,17 @@ loop_signal_init(duk_context *ctx)
     }
     sigprocmask(SIG_SETMASK, &set, NULL);
 
-    loop_signal.fd = signalfd(-1, &set, 0/*EFD_CLOEXEC*/);
-    if (loop_signal.fd<0) {
+    __loop_signal.fd = signalfd(-1, &set, 0/*EFD_CLOEXEC*/);
+    if (__loop_signal.fd<0) {
         err = -errno; goto error;
     }
 
-    err = loop_add(loop_signal.fd);
+    err = loop_add(__loop_signal.fd);
     if (err<0) {
         goto error;
     }
 
-    loop_signal.used = true;
+    __loop_signal.used = true;
 error:
     duk_pop_n(ctx, pop);
     
@@ -302,7 +302,7 @@ loop_timer_init(duk_context *ctx)
 {
     int err = 0, pop = 0;
 
-    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, loop_timer.obj)) {
+    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, __loop_timer.obj)) {
         goto error;
     }
     
@@ -311,7 +311,7 @@ loop_timer_init(duk_context *ctx)
     }
     --pop; duk_pop(ctx);
 
-    if (++pop, false==duk_get_prop_string(ctx, -1, loop_timer.param)) {
+    if (++pop, false==duk_get_prop_string(ctx, -1, __loop_timer.param)) {
         goto error;
     }
 
@@ -325,22 +325,22 @@ loop_timer_init(duk_context *ctx)
         new.it_value.tv_nsec = 1;
     }
     
-    loop_timer.fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
-    if (loop_timer.fd<0) {
+    __loop_timer.fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
+    if (__loop_timer.fd<0) {
         err = -errno; goto error;
     }
 
-    err = timerfd_settime(loop_timer.fd, 0, &new, NULL);
+    err = timerfd_settime(__loop_timer.fd, 0, &new, NULL);
     if (err<0) {
         err = -errno; goto error;
     }
 
-    err = loop_add(loop_timer.fd);
+    err = loop_add(__loop_timer.fd);
     if (err<0) {
         goto error;
     }
 
-    loop_timer.used = true;
+    __loop_timer.used = true;
 error:
     duk_pop_n(ctx, pop);
 
@@ -352,7 +352,7 @@ loop_epoll_init(duk_context *ctx)
 {
     int err = 0, pop = 0;
 
-    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, loop_epoll.obj)) {
+    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, __loop_epoll.obj)) {
         goto error;
     }
     
@@ -361,7 +361,7 @@ loop_epoll_init(duk_context *ctx)
     }
     --pop; duk_pop(ctx);
     
-    if (++pop, false==duk_get_prop_string(ctx, -1, loop_epoll.param)) {
+    if (++pop, false==duk_get_prop_string(ctx, -1, __loop_epoll.param)) {
         goto error;
     }
     
@@ -381,7 +381,7 @@ loop_epoll_init(duk_context *ctx)
         }
     }
 
-    loop_epoll.used = true;
+    __loop_epoll.used = true;
 error:
     duk_pop_n(ctx, pop);
     
@@ -393,7 +393,7 @@ loop_inotify_init(duk_context *ctx)
 {
     int err = 0, pop = 0;
 
-    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, loop_inotify.obj)) {
+    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, __loop_inotify.obj)) {
         goto error;
     }
     
@@ -402,18 +402,18 @@ loop_inotify_init(duk_context *ctx)
     }
     --pop; duk_pop(ctx);
     
-    loop_inotify.fd = inotify_init1(IN_CLOEXEC);
-    if (loop_inotify.fd<0) {
+    __loop_inotify.fd = inotify_init1(IN_CLOEXEC);
+    if (__loop_inotify.fd<0) {
         err = -errno; goto error;
     }
     
-    err = loop_add(loop_inotify.fd);
+    err = loop_add(__loop_inotify.fd);
     if (err<0) {
         goto error;
     }
-    loop_signal.used = true;
+    __loop_signal.used = true;
     
-    if (++pop, false==duk_get_prop_string(ctx, -1, loop_inotify.param)) {
+    if (++pop, false==duk_get_prop_string(ctx, -1, __loop_inotify.param)) {
         goto error;
     }
     
@@ -430,7 +430,7 @@ loop_inotify_init(duk_context *ctx)
         char *path = __get_array_string(ctx, -1, i, NULL);
         uint32_t mask = __get_array_uint(ctx, -1, i);
 
-        err = inotify_add_watch(loop_inotify.fd, path, mask);
+        err = inotify_add_watch(__loop_inotify.fd, path, mask);
         if (err<0) {
             goto error;
         }
@@ -494,8 +494,8 @@ loop_init(duk_context *ctx)
         return -EFORMAT;
     }
     
-    loop_epoll.fd = epoll_create1(EPOLL_CLOEXEC);
-    if (loop_epoll.fd<0) {
+    __loop_epoll.fd = epoll_create1(EPOLL_CLOEXEC);
+    if (__loop_epoll.fd<0) {
         return -errno;
     }
 
@@ -525,24 +525,24 @@ loop_init(duk_context *ctx)
 static void
 loop_fini(void)
 {
-    os_close(loop_epoll.fd);
-    os_close(loop_timer.fd);
-    os_close(loop_signal.fd);
-    os_close(loop_inotify.fd);
+    os_close(__loop_epoll.fd);
+    os_close(__loop_timer.fd);
+    os_close(__loop_signal.fd);
+    os_close(__loop_inotify.fd);
 }
 
 static void
 loop_signal_handle(duk_context *ctx)
 {
     struct signalfd_siginfo siginfo;
-    
+
     int push_signal(void) {
-        return __obj_push(ctx, __set_signalfd_siginfo, &siginfo);
+        return __obj_push(ctx, __set_signalfd_siginfo, &siginfo), 1;
     }
-    
-    int len = read(loop_signal.fd, &siginfo, sizeof(siginfo));
+
+    int len = read(__loop_signal.fd, &siginfo, sizeof(siginfo));
     if (len==sizeof(siginfo)) {
-        __pcall(ctx, loop_signal.func, push_signal);
+        __pcall(ctx, __loop_signal.func, push_signal);
     }
 }
 
@@ -555,9 +555,9 @@ loop_timer_handle(duk_context *ctx)
         return duk_push_int(ctx, (int)val), 1;
     }
     
-    int len = read(loop_timer.fd, &val, sizeof(val));
+    int len = read(__loop_timer.fd, &val, sizeof(val));
     if (len==sizeof(val)) {
-        __pcall(ctx, loop_timer.func, push_timer);
+        __pcall(ctx, __loop_timer.func, push_timer);
     }
 }
 
@@ -568,7 +568,7 @@ loop_epoll_handle(duk_context *ctx, struct epoll_event *ev)
         return __obj_push(ctx, __set_epoll_event, ev), 1;
     }
 
-    __pcall(ctx, loop_epoll.func, push_epoll);
+    __pcall(ctx, __loop_epoll.func, push_epoll);
 }
 
 static void
@@ -577,12 +577,12 @@ loop_inotify_handle(duk_context *ctx)
     struct inotify_event val;
     
     int push_inotify(void) {
-        return __obj_push(ctx, __set_inotify_event, &val);
+        return __obj_push(ctx, __set_inotify_event, &val), 1;
     }
     
-    int len = read(loop_inotify.fd, &val, sizeof(val));
+    int len = read(__loop_inotify.fd, &val, sizeof(val));
     if (len==sizeof(val)) {
-        __pcall(ctx, loop_inotify.func, push_inotify);
+        __pcall(ctx, __loop_inotify.func, push_inotify);
     }
 }
 
@@ -592,7 +592,7 @@ loop_handle(duk_context *ctx)
     struct epoll_event evs[32];
     int i;
     
-    int nfds = epoll_wait(loop_epoll.fd, evs, os_count_of(evs), -1);
+    int nfds = epoll_wait(__loop_epoll.fd, evs, os_count_of(evs), -1);
     if (nfds<0) {
         if (EINTR==errno) {
             return 0;
@@ -604,16 +604,16 @@ loop_handle(duk_context *ctx)
     for (i=0; i<nfds; i++) {
         struct epoll_event *ev = &evs[i];
         
-        if (loop_signal.used && ev->data.fd==loop_signal.fd) {
+        if (__loop_signal.used && ev->data.fd==__loop_signal.fd) {
             loop_signal_handle(ctx);
         }
-        else if (loop_timer.used && ev->data.fd==loop_timer.fd) {
+        else if (__loop_timer.used && ev->data.fd==__loop_timer.fd) {
             loop_timer_handle(ctx);
         }
-        else if (loop_inotify.used && ev->data.fd==loop_inotify.fd) {
+        else if (__loop_inotify.used && ev->data.fd==__loop_inotify.fd) {
             loop_inotify_handle(ctx);
         }
-        else if (loop_epoll.used) {
+        else if (__loop_epoll.used) {
             loop_epoll_handle(ctx, ev);
         }
         else {

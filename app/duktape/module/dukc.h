@@ -270,12 +270,6 @@ __push_dynamic_buffer(duk_context *ctx, duk_size_t size)
     }
 }
 
-static inline duk_buffer_t
-__push_external_buffer(duk_context *ctx)
-{
-    return duk_push_buffer_raw(ctx, 0, DUK_BUF_FLAG_DYNAMIC | DUK_BUF_FLAG_EXTERNAL);
-}
-
 static inline void
 __pcall(duk_context *ctx, duk_idx_t idx, int (*push)(void))
 {
@@ -722,7 +716,7 @@ __obj_push(duk_context *ctx, dukc_obj_op_f *set, duk_object_t obj)
 {
     if (obj) {
         duk_push_object(ctx);
-    
+
         return (*set)(ctx, -1, obj);
     } else {
         duk_push_null(ctx);
