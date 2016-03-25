@@ -297,7 +297,7 @@ loop_timer_init(duk_context *ctx)
     if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, __loop_timer.obj)) {
         goto error;
     }
-    
+
     if (++pop, false==duk_get_prop_string(ctx, -1, LOOP_HANDLE)) {
         goto error;
     }
@@ -310,13 +310,13 @@ loop_timer_init(duk_context *ctx)
     if (false==duk_is_object(ctx, -1)) {
         goto error;
     }
-    
+
     struct itimerspec new;
     __get_itimerspec(ctx, -1, &new);
     if (0==new.it_value.tv_sec && 0==new.it_value.tv_nsec) {
         new.it_value.tv_nsec = 1;
     }
-    
+
     __loop_timer.fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
     if (__loop_timer.fd<0) {
         err = -errno; goto error;
@@ -480,35 +480,29 @@ loop_pop_func(duk_context *ctx)
 static int
 loop_init(duk_context *ctx)
 {
-    int err = 0;
+    int i, err = 0;
+    
+    static int (*init[])(duk_context *) = {
+        loop_signal_init,
+        loop_timer_init,
+        loop_inotify_init,
+        loop_epoll_init,
+    };
 
     if (false==duk_is_object(ctx, loop_param_idx)) {
         return -EFORMAT;
     }
-    
+
     __loop_epoll.fd = epoll_create1(EPOLL_CLOEXEC);
     if (__loop_epoll.fd<0) {
         return -errno;
     }
 
-    err = loop_signal_init(ctx);
-    if (err<0) {
-        return err;
-    }
-
-    err = loop_timer_init(ctx);
-    if (err<0) {
-        return err;
-    }
-
-    err = loop_inotify_init(ctx);
-    if (err<0) {
-        return err;
-    }
-
-    err = loop_epoll_init(ctx);
-    if (err<0) {
-        return err;
+    for (i=0; i<os_count_of(init); i++) {
+        err = (*init[i])(ctx);
+        if (err<0) {
+            return err;
+        }
     }
     
     return 0;
