@@ -24,7 +24,7 @@ duke_bzCompressInit(duk_context *ctx)
     int verbosity = duk_require_int(ctx, 2);
     int workFactor = duk_require_int(ctx, 3);
 
-    int err = BZ2_CALL(bzCompressInit)(f, blockSize100k, verbosity, workFactor);
+    int err = BZ2_bzCompressInit(f, blockSize100k, verbosity, workFactor);
 
     return duk_push_int(ctx, err), 1;
 }
@@ -36,7 +36,7 @@ duke_bzCompress(duk_context *ctx)
     duk_pointer_t f = duk_require_pointer(ctx, 0);
     int action = duk_require_int(ctx, 1);
 
-    int err = BZ2_CALL(bzCompress)(f, action);
+    int err = BZ2_bzCompress(f, action);
 
     return duk_push_int(ctx, err), 1;
 }
@@ -47,7 +47,7 @@ duke_bzCompressEnd(duk_context *ctx)
 {
     duk_pointer_t f = duk_require_pointer(ctx, 0);
 
-    int err = BZ2_CALL(bzCompressEnd)(f);
+    int err = BZ2_bzCompressEnd(f);
 
     return duk_push_int(ctx, err), 1;
 }
@@ -60,7 +60,7 @@ duke_bzDecompressInit(duk_context *ctx)
     int verbosity = duk_require_int(ctx, 1);
     int small = duk_require_int(ctx, 2);
 
-    int err = BZ2_CALL(bzDecompressInit)(f, verbosity, small);
+    int err = BZ2_bzDecompressInit(f, verbosity, small);
 
     return duk_push_int(ctx, err), 1;
 }
@@ -71,7 +71,7 @@ duke_bzDecompress(duk_context *ctx)
 {
     duk_pointer_t f = duk_require_pointer(ctx, 0);
 
-    int err = BZ2_CALL(bzDecompress)(f);
+    int err = BZ2_bzDecompress(f);
 
     return duk_push_int(ctx, err), 1;
 }
@@ -82,7 +82,7 @@ duke_bzDecompressEnd(duk_context *ctx)
 {
     duk_pointer_t f = duk_require_pointer(ctx, 0);
 
-    int err = BZ2_CALL(bzDecompressEnd)(f);
+    int err = BZ2_bzDecompressEnd(f);
 
     return duk_push_int(ctx, err), 1;
 }
@@ -103,7 +103,7 @@ duke_bzBuffToBuffCompress(duk_context *ctx)
 
     ulong_t dst_len = dst_size;
 
-    err = BZ2_CALL(bzBuffToBuffCompress)(dst, &dst_len, src, src_size, blockSize100k, verbosity, workFactor);
+    err = BZ2_bzBuffToBuffCompress(dst, &dst_len, src, src_size, blockSize100k, verbosity, workFactor);
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
@@ -131,7 +131,7 @@ duke_bzBuffToBuffCompressEx(duk_context *ctx)
         __seterrno(ctx, -ENOMEM); goto error;
     }
 
-    err = BZ2_CALL(bzBuffToBuffCompress)(dst, &dst_size, src, src_size, blockSize100k, verbosity, workFactor);
+    err = BZ2_bzBuffToBuffCompress(dst, &dst_size, src, src_size, blockSize100k, verbosity, workFactor);
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
@@ -156,7 +156,7 @@ duke_bzBuffToBuffDecompress(duk_context *ctx)
 
     ulong_t dst_len = dst_size;
 
-    err = BZ2_CALL(bzBuffToBuffDecompress)(dst, &dst_len, src, src_size, small, verbosity);
+    err = BZ2_bzBuffToBuffDecompress(dst, &dst_len, src, src_size, small, verbosity);
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
@@ -183,7 +183,7 @@ duke_bzBuffToBuffDecompressEx(duk_context *ctx)
         __seterrno(ctx, -ENOMEM); goto error;
     }
 
-    err = BZ2_CALL(bzBuffToBuffDecompress)(dst, &dst_size, src, src_size, small, verbosity);
+    err = BZ2_bzBuffToBuffDecompress(dst, &dst_size, src, src_size, small, verbosity);
     if (err<0) {
         __seterrno(ctx, err); goto error;
     }
