@@ -165,8 +165,8 @@ duk_put_functions(duk_context *ctx, duk_idx_t obj_index, const dukc_func_entry_t
 }
 
 #define __LIB_PARAM_VERSION_DEFT    1
-#define __LIB_PARAM_NUMBER(x)       duke_##x##_param_number
-#define __LIB_PARAM_VERSION(x)      duke_##x##_version
+#define __LIB_PARAM_NUMBER(x)       duke_##__THIS_FILE##x##_param_number
+#define __LIB_PARAM_VERSION(x)      duke_##__THIS_FILE##x##_version
 #define LIB_PARAM_API(x, n, v)      enum{ __LIB_PARAM_NUMBER(x) = n, __LIB_PARAM_VERSION(x) = v }
 #define LIB_PARAM(x, n)             LIB_PARAM_API(x, n, __LIB_PARAM_VERSION_DEFT)
 #define LIB_FUNC(x)                 {#x, duke_##x, __LIB_PARAM_NUMBER(x), __LIB_PARAM_VERSION(x)}

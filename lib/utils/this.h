@@ -21,9 +21,9 @@
 
 #ifndef __THIS_FILE_NAME
 #ifdef __THIS_FILE
-#define __THIS_FILE_NAME        __SYMBOL_TO_STRING(__THIS_FILE)
+#   define __THIS_FILE_NAME     __SYMBOL_TO_STRING(__THIS_FILE)
 #else
-#define __THIS_FILE_NAME        __THIS_APP_NAME
+#   define __THIS_FILE_NAME     __THIS_APP_NAME
 #endif
 #endif
 
