@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "duk"
+#define __THIS_FILE     duk
 #endif
 
 #include "utils.h"

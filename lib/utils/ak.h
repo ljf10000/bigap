@@ -664,7 +664,7 @@ __ak_init(uint32_t limit)
     return 0;
 }
 
-#define ak_getbyname(_key)  __ak_getbyname(__THIS_NAME, _key)
+#define ak_getbyname(_key)  __ak_getbyname(__THIS_APP_NAME, _key)
 
 static inline uint32_t
 ak_get(akid_t akid, uint32_t deft)

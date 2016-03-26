@@ -68,7 +68,7 @@
 #endif
 #endif
 
-#define BACKTRACE_NAME          BACKTRACE_PATH "/" __THIS_NAME
+#define BACKTRACE_NAME          BACKTRACE_PATH "/" __THIS_APP_NAME
 #define BACKTRACE_FILE_TRACE    BACKTRACE_NAME ".trace"
 #define BACKTRACE_FILE_MAPS     BACKTRACE_NAME ".maps"
 #define BACKTRACE_FILE_LOCATE   BACKTRACE_NAME ".locate"
@@ -154,7 +154,7 @@ __sighandle_callstack(int signo)
         /*
         * exe
         */
-        os_system("addr2line -e ./%s 0x%lx > " BACKTRACE_FILE_LOCATE, __THIS_NAME, dead_address);
+        os_system("addr2line -e ./%s 0x%lx > " BACKTRACE_FILE_LOCATE, __THIS_APP_NAME, dead_address);
     } else {
         /*
         * lib

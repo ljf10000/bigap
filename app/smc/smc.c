@@ -15,10 +15,10 @@ static cli_client_t smc = CLI_CLIENT_INITER(SM_TIMEOUT, SMD_UNIX);
 static int
 usage(int error)
 {
-    os_eprintln(__THIS_NAME " insert deamon name pidfile command");
-    os_eprintln(__THIS_NAME " insert normal name command");
-    os_eprintln(__THIS_NAME " remove name");
-    os_eprintln(__THIS_NAME " show");
+    os_eprintln(__THIS_APP_NAME " insert deamon name pidfile command");
+    os_eprintln(__THIS_APP_NAME " insert normal name command");
+    os_eprintln(__THIS_APP_NAME " remove name");
+    os_eprintln(__THIS_APP_NAME " show");
 
     return error;
 }

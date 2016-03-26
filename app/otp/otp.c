@@ -18,8 +18,8 @@ OS_INITER;
 static int
 usage(void)
 {
-    os_eprintln(__THIS_NAME " custom  show");
-    os_eprintln(__THIS_NAME " private show");
+    os_eprintln(__THIS_APP_NAME " custom  show");
+    os_eprintln(__THIS_APP_NAME " private show");
 
     return -EFORMAT;
 }

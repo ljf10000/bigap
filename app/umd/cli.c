@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "cli"
+#define __THIS_FILE     cli
 #endif
 
 #define __DEAMON__

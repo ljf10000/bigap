@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "libcurl"
+#define __THIS_FILE     libcurl
 #endif
 
 #include "utils.h"

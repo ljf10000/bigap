@@ -15,12 +15,16 @@
 #   define __SYMBOL_TO_VAR(_prefix, _name)      __SYMBOL_TO_VAR2(_prefix, _name)
 #endif
 
-#ifndef __THIS_NAME
-#define __THIS_NAME             __SYMBOL_TO_STRING(__THIS_APP)
+#ifndef __THIS_APP_NAME
+#define __THIS_APP_NAME         __SYMBOL_TO_STRING(__THIS_APP)
 #endif
 
-#ifndef __THIS_FILE
-#define __THIS_FILE             __THIS_NAME
+#ifndef __THIS_FILE_NAME
+#ifdef __THIS_FILE
+#define __THIS_FILE_NAME        __SYMBOL_TO_STRING(__THIS_FILE)
+#else
+#define __THIS_FILE_NAME        __THIS_APP_NAME
+#endif
 #endif
 
 #ifndef __THIS_JLOGGER
@@ -68,11 +72,11 @@
 #endif
 
 #ifndef __THIS_LOCKFILE
-#define __THIS_LOCKFILE         "/tmp/." __THIS_NAME ".lock"
+#define __THIS_LOCKFILE         "/tmp/." __THIS_APP_NAME ".lock"
 #endif
 
 #ifndef __THIS_PIDFILE
-#define __THIS_PIDFILE          "/tmp/." __THIS_NAME ".pid"
+#define __THIS_PIDFILE          "/tmp/." __THIS_APP_NAME ".pid"
 #endif
 /******************************************************************************/
 #endif /* __THIS_H_bb55b32c2226479dab1f126ea1ba1e9f__ */

@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "global"
+#define __THIS_FILE     global
 #endif
 
 #include "utils.h"

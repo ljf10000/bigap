@@ -20,7 +20,7 @@ static char sub[1+OS_APPNAMELEN];
 static int
 usage(int error)
 {
-    os_eprintln(__THIS_NAME " pri app json");
+    os_eprintln(__THIS_APP_NAME " pri app json");
 
     return error;
 }

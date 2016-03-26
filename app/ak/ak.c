@@ -15,7 +15,7 @@ cmd_reload(int argc, char *argv[])
 static int
 usage(void)
 {
-    os_eprintln(__THIS_NAME " reload");
+    os_eprintln(__THIS_APP_NAME " reload");
 
     return -EFORMAT;
 }

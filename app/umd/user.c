@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "user"
+#define __THIS_FILE     user
 #endif
 
 #define __DEAMON__

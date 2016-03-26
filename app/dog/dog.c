@@ -189,11 +189,11 @@ static cmd_table_t cmd[] = {
 static int
 usage(void)
 {
-    os_eprintln(__THIS_NAME " enable");
-    os_eprintln(__THIS_NAME " disable");
-    os_eprintln(__THIS_NAME " clear");
-    os_eprintln(__THIS_NAME " reset");
-    os_eprintln(__THIS_NAME " timeout [timeout(ms)]");
+    os_eprintln(__THIS_APP_NAME " enable");
+    os_eprintln(__THIS_APP_NAME " disable");
+    os_eprintln(__THIS_APP_NAME " clear");
+    os_eprintln(__THIS_APP_NAME " reset");
+    os_eprintln(__THIS_APP_NAME " timeout [timeout(ms)]");
 
     return -EFORMAT;
 }

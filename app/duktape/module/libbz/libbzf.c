@@ -6,10 +6,10 @@ static const dukc_func_entry_t libbz_func[] = {
     LIB_FUNC(bzDecompress),
     LIB_FUNC(bzDecompressEnd),
     
-    LIB_FUNC(bzBuffToBuffCompress),
-    LIB_FUNC(bzBuffToBuffCompressEx),
-    LIB_FUNC(bzBuffToBuffDecompress),
-    LIB_FUNC(bzBuffToBuffDecompressEx),
+    LIB_FUNC(compress),
+    LIB_FUNC(compressEx),
+    LIB_FUNC(uncompress),
+    LIB_FUNC(uncompressEx),
 
 #ifndef BZ_NO_STDIO
     LIB_FUNC(bzopen),

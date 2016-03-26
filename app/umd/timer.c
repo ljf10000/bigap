@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "timer"
+#define __THIS_FILE     timer
 #endif
 
 #define __DEAMON__

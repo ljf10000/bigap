@@ -6,7 +6,7 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "proxy"
+#define __THIS_FILE     proxy
 #endif
 
 #include "rshd.h"

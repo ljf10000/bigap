@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "libbz"
+#define __THIS_FILE     libbz
 #endif
 
 #include "utils.h"
@@ -86,9 +86,9 @@ duke_bzDecompressEnd(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(bzBuffToBuffCompress, 5);
+LIB_PARAM(compress, 5);
 static duk_ret_t
-duke_bzBuffToBuffCompress(duk_context *ctx)
+duke_compress(duk_context *ctx)
 {
     int err = 0;
     duk_size_t src_size = 0;
@@ -112,9 +112,9 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(bzBuffToBuffCompressEx, 4);
+LIB_PARAM(compressEx, 4);
 static duk_ret_t
-duke_bzBuffToBuffCompressEx(duk_context *ctx)
+duke_compressEx(duk_context *ctx)
 {
     int err = 0;
     duk_size_t src_size = 0;
@@ -140,9 +140,9 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(bzBuffToBuffDecompress, 4);
+LIB_PARAM(uncompress, 4);
 static duk_ret_t
-duke_bzBuffToBuffDecompress(duk_context *ctx)
+duke_uncompress(duk_context *ctx)
 {
     int err = 0;
     duk_size_t src_size = 0;
@@ -165,9 +165,9 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(bzBuffToBuffDecompressEx, 3);
+LIB_PARAM(uncompressEx, 3);
 static duk_ret_t
-duke_bzBuffToBuffDecompressEx(duk_context *ctx)
+duke_uncompressEx(duk_context *ctx)
 {
     int err = 0;
     duk_size_t src_size = 0;

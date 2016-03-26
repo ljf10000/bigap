@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "flow"
+#define __THIS_FILE     flow
 #endif
 
 #define __DEAMON__

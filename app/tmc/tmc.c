@@ -15,9 +15,9 @@ static cli_client_t tmc = CLI_CLIENT_INITER(TM_TIMEOUT, TMD_UNIX);
 static int
 usage(int error)
 {
-    os_eprintln(__THIS_NAME " insert name delay(second) interval(second) limit command");
-    os_eprintln(__THIS_NAME " remove name");
-    os_eprintln(__THIS_NAME " show [name]");
+    os_eprintln(__THIS_APP_NAME " insert name delay(second) interval(second) limit command");
+    os_eprintln(__THIS_APP_NAME " remove name");
+    os_eprintln(__THIS_APP_NAME " show [name]");
 
     return error;
 }

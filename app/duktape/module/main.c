@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "main"
+#define __THIS_FILE     main
 #endif
 
 #include "utils.h"

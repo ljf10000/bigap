@@ -2,10 +2,6 @@
 #define __THIS_APP      umc
 #endif
 
-#ifndef __THIS_FILE
-#define __THIS_FILE     "umc"
-#endif
-
 #include "utils.h"
 #include "um/um.h"
 
@@ -16,18 +12,18 @@ static cli_client_t umc = CLI_CLIENT_INITER(UM_TIMEOUT, UMD_UNIX);
 static int
 usage(int error)
 {
-    os_eprintln(__THIS_NAME " bind   {mac} {ip}");
-    os_eprintln(__THIS_NAME " unbind {mac}");
-    os_eprintln(__THIS_NAME " auth   {mac} {group} {json}");
-    os_eprintln(__THIS_NAME " reauth {mac}");
-    os_eprintln(__THIS_NAME " deauth {mac}");
-    os_eprintln(__THIS_NAME " tag    {mac} {key} [value]");
+    os_eprintln(__THIS_APP_NAME " bind   {mac} {ip}");
+    os_eprintln(__THIS_APP_NAME " unbind {mac}");
+    os_eprintln(__THIS_APP_NAME " auth   {mac} {group} {json}");
+    os_eprintln(__THIS_APP_NAME " reauth {mac}");
+    os_eprintln(__THIS_APP_NAME " deauth {mac}");
+    os_eprintln(__THIS_APP_NAME " tag    {mac} {key} [value]");
 #if UM_USE_MONITOR
-    os_eprintln(__THIS_NAME " enter  {mac} {json}");
-    os_eprintln(__THIS_NAME " leave  {mac}");
+    os_eprintln(__THIS_APP_NAME " enter  {mac} {json}");
+    os_eprintln(__THIS_APP_NAME " leave  {mac}");
 #endif
-    os_eprintln(__THIS_NAME " gc");
-    os_eprintln(__THIS_NAME " show [stat | json]");
+    os_eprintln(__THIS_APP_NAME " gc");
+    os_eprintln(__THIS_APP_NAME " show [stat | json]");
 
     return error;
 }

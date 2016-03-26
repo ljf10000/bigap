@@ -3,7 +3,7 @@
 #endif
 
 #ifndef __THIS_FILE
-#define __THIS_FILE     "umd"
+#define __THIS_FILE     umd
 #endif
 
 #define __DEAMON__
