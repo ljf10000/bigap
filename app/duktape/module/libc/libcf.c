@@ -49,6 +49,7 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(bufcmp),
 
     // 12 Input/Output on Streams
+    LIB_FUNC(fexist),
     LIB_FUNC(fopen),
     LIB_FUNC(fclose),
     LIB_FUNC(fread),

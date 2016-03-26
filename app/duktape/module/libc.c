@@ -478,6 +478,15 @@ cmp:
     return duk_push_int(ctx, ret), 1;
 }
 
+LIB_PARAM(fexist, 1);
+static duk_ret_t
+duke_fexist(duk_context *ctx)
+{
+    char *filename  = (char *)duk_require_string(ctx, 0);
+
+    return duk_push_bool(ctx, os_file_exist(filename)), 1;
+}
+
 // 12 Input/Output on Streams
 LIB_PARAM(fopen, 2);
 static duk_ret_t

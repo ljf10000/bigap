@@ -17,14 +17,18 @@ prototype.SEEK_CUR = __libc__.SEEK_CUR;
 prototype.SEEK_SET = __libc__.SEEK_SET;
 prototype.SEEK_END = __libc__.SEEK_END;
 
+function is_good_obj(obj) {
+	return typeof obj.stream === 'pointer' && obj.stream;
+}
+
 prototype.open = function (obj, filename, mode, type) {
-	if (obj && (typeof obj.stream !== 'pointer' || null === obj.stream)) {
+	if (obj && !is_good_obj(obj) && __libc__.fexist(filename)) {
 		obj.filename = filename;
-		obj.mode = mode;
-		obj.type = type;
+		obj.mode = mode || 'r';
+		obj.type = type || prototype.filetype;
 		obj.name = prototype.name + '(' + filename + ')';
 
-		switch (type) {
+		switch (obj.type) {
 			case prototype.filetype:
 				obj.stream = __libc__.fopen(filename, mode);
 				break;
@@ -38,7 +42,7 @@ prototype.open = function (obj, filename, mode, type) {
 				obj.stream = __libbz__.bzopen(filename, mode);
 				break;
 			default:
-				obj.type = 0; // invalid type
+				obj.stream = null;
 				break;
 		}
 	}
@@ -47,7 +51,7 @@ prototype.open = function (obj, filename, mode, type) {
 };
 
 prototype.close = function (obj) {
-	if (obj && typeof obj.stream === 'pointer' && obj.stream) {
+	if (obj && is_good_obj(obj)) {
 		switch (obj.type) {
 			case prototype.filetype:
 				__libc__.fclose(obj.stream);
