@@ -12,6 +12,7 @@
 #if duk_LIBZ
 #include <zlib.h>
 #include "libz.h"
+#include "libxz.h"
 
 LIB_PARAM(zlibVersion, 0);
 static duk_ret_t
@@ -632,35 +633,27 @@ error:
     return duk_push_null(ctx), 1;
 }
 
+#define HFILE   gzFile
+
 LIB_PARAM(gzopen, 2);
 static duk_ret_t
 duke_gzopen(duk_context *ctx)
 {
-    char *filename = (char *)duk_require_string(ctx, 0);
-    char *mode = (char *)duk_require_string(ctx, 1);
-
-    gzFile *f = gzopen(filename, mode);
-    
-    return __push_pointer(ctx, f), 1;
+    return xzopen(ctx, gzopen);
 }
 
 LIB_PARAM(gzdopen, 2);
 static duk_ret_t
 duke_gzdopen(duk_context *ctx)
 {
-    int fd = duk_require_int(ctx, 0);
-    char *mode = (char *)duk_require_string(ctx, 1);
-
-    gzFile *f = gzdopen(fd, mode);
-    
-    return __push_pointer(ctx, f), 1;
+    return xzdopen(ctx, gzdopen);
 }
 
 LIB_PARAM(gzsetparams, 3);
 static duk_ret_t
 duke_gzsetparams(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
     int level = duk_require_int(ctx, 1);
     int strategy= duk_require_int(ctx, 2);
 
@@ -673,60 +666,28 @@ LIB_PARAM(gzread, 2);
 static duk_ret_t
 duke_gzread(duk_context *ctx)
 {
-    duk_size_t bsize = 0;
-
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
-    duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
-
-    int err = gzread(f, buf, bsize);
-
-	return duk_push_int(ctx, err), 1;
+    return xzread(ctx, gzread);
 }
 
 LIB_PARAM(gzreadEx, 2);
 static duk_ret_t
 duke_gzreadEx(duk_context *ctx)
 {
-    int err = 0;
-    
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
-    int size = duk_require_int(ctx, 1);
-
-    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
-    if (NULL==buf) {
-        err = __seterrno(ctx, -ENOMEM); goto error;
-    }
-
-    err = gzread(f, buf, size);
-error:
-	return duk_push_int(ctx, err), 1;
+    return xzreadEx(ctx, gzread);
 }
 
 LIB_PARAM(gzwrite, 2);
 static duk_ret_t
 duke_gzwrite(duk_context *ctx)
 {
-    duk_size_t bsize = 0;
-    duk_buffer_t buf;
-    
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
-    
-    int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
-    if (err<0) {
-        __seterrno(ctx, err); goto error;
-    }
-
-    err = gzwrite(f, buf, bsize);
-    
-error:
-	return duk_push_int(ctx, err), 1;
+    return xzwrite(ctx, gzwrite);
 }
 
 LIB_PARAM(gzputs, 2);
 static duk_ret_t
 duke_gzputs(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
     char *s = (char *)duk_require_string(ctx, 1);
 
     int err = gzputs(f, s);
@@ -740,7 +701,7 @@ duke_gzgets(duk_context *ctx)
 {
     duk_size_t bsize = 0;
 
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
     duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
 
     char *s = gzgets(f, buf, bsize);
@@ -753,7 +714,7 @@ LIB_PARAM(gzputc, 2);
 static duk_ret_t
 duke_gzputc(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
     int ch = duk_require_int(ctx, 1);
 
     int err = gzputc(f, ch);
@@ -765,7 +726,7 @@ LIB_PARAM(gzgetc, 1);
 static duk_ret_t
 duke_gzgetc(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     int ch = gzgetc(f);
     
@@ -776,7 +737,7 @@ LIB_PARAM(gzungetc, 2);
 static duk_ret_t
 duke_gzungetc(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
     int ch = duk_require_int(ctx, 1);
 
     int err = gzungetc(ch, f);
@@ -788,7 +749,7 @@ LIB_PARAM(gzflush, 2);
 static duk_ret_t
 duke_gzflush(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
     int flush = duk_require_int(ctx, 1);
 
     int err = gzflush(f, flush);
@@ -800,7 +761,7 @@ LIB_PARAM(gzrewind, 1);
 static duk_ret_t
 duke_gzrewind(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     int err = gzrewind(f);
     
@@ -811,7 +772,7 @@ LIB_PARAM(gzseek, 3);
 static duk_ret_t
 duke_gzseek(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
     int offset = duk_require_int(ctx, 1);
     int where = duk_require_int(ctx, 2);
 
@@ -824,7 +785,7 @@ LIB_PARAM(gztell, 1);
 static duk_ret_t
 duke_gztell(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     int err = gztell(f);
     
@@ -835,7 +796,7 @@ LIB_PARAM(gzeof, 1);
 static duk_ret_t
 duke_gzeof(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     bool is = !!gzeof(f);
     
@@ -846,7 +807,7 @@ LIB_PARAM(gzdirect, 1);
 static duk_ret_t
 duke_gzdirect(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     bool is = !!gzdirect(f);
     
@@ -857,7 +818,7 @@ LIB_PARAM(gzclose, 1);
 static duk_ret_t
 duke_gzclose(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     int err = gzclose(f);
     
@@ -869,7 +830,7 @@ LIB_PARAM(gzbuffer, 2);
 static duk_ret_t
 duke_gzbuffer(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
     duk_uint_t size = duk_require_uint(ctx, 1);
 
     int err = gzbuffer(f, size);
@@ -881,7 +842,7 @@ LIB_PARAM(gzoffset, 1);
 static duk_ret_t
 duke_gzoffset(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     int err = gzoffset(f);
     
@@ -892,7 +853,7 @@ LIB_PARAM(gzclose_r, 1);
 static duk_ret_t
 duke_gzclose_r(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     int err = gzclose_r(f);
     
@@ -903,7 +864,7 @@ LIB_PARAM(gzclose_w, 1);
 static duk_ret_t
 duke_gzclose_w(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     int err = gzclose_w(f);
     
@@ -915,23 +876,14 @@ LIB_PARAM(gzerror, 1);
 static duk_ret_t
 duke_gzerror(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
-
-    int err = 0;
-    char *errstring = (char *)gzerror(f, &err);
-
-    duk_push_object(ctx);
-        __set_obj_string(ctx, -1, "errstring", errstring);
-        __set_obj_int(ctx, -1, "errno", err);
-
-    return 1;
+    return xzerror(ctx, gzerror);
 }
 
 LIB_PARAM(gzclearerr, 1);
 static duk_ret_t
 duke_gzclearerr(duk_context *ctx)
 {
-    gzFile f = (gzFile)duk_require_pointer(ctx, 0);
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
 
     return gzclearerr(f), 0;
 }

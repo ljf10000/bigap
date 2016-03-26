@@ -64,7 +64,7 @@ auto_register(duk_context *ctx)
 static inline int
 __register(duk_context *ctx)
 {
-    static int (*register[])(duk_context *) = {
+    static int (*registers[])(duk_context *) = {
         global_register,
         duktape_register,
         my_register,
@@ -80,8 +80,8 @@ __register(duk_context *ctx)
     };
     int i, err;
 
-    for (i=0; i<os_count_of(register); i++) {
-        err = (*register[i])(ctx);
+    for (i=0; i<os_count_of(registers); i++) {
+        err = (*registers[i])(ctx);
         if (err<0) {
             return err;
         }

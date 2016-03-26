@@ -12,6 +12,7 @@
 #if duk_LIBBZ
 #include <bzlib.h>
 #include "libbz.h"
+#include "libxz.h"
 
 LIB_PARAM(bzCompressInit, 4);
 static duk_ret_t
@@ -191,8 +192,79 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-#ifndef BZ_NO_STDIO
+LIB_PARAM(bzlibVersion, 0);
+static duk_ret_t
+duke_bzlibVersion(duk_context *ctx)
+{
+    return __push_string(ctx, BZ2_bzlibVersion()), 1;
+}
 
+#ifndef BZ_NO_STDIO
+#define HFILE   BZFILE*
+
+LIB_PARAM(bzopen, 2);
+static duk_ret_t
+duke_bzopen(duk_context *ctx)
+{
+    return xzopen(ctx, BZ2_bzopen);
+}
+
+LIB_PARAM(bzdopen, 2);
+static duk_ret_t
+duke_bzdopen(duk_context *ctx)
+{
+    return xzdopen(ctx, BZ2_bzdopen);
+}
+
+LIB_PARAM(bzread, 2);
+static duk_ret_t
+duke_bzread(duk_context *ctx)
+{
+    return xzread(ctx, BZ2_bzread);
+}
+
+LIB_PARAM(bzreadEx, 2);
+static duk_ret_t
+duke_bzreadEx(duk_context *ctx)
+{
+    return xzreadEx(ctx, BZ2_bzread);
+}
+
+LIB_PARAM(bzwrite, 2);
+static duk_ret_t
+duke_bzwrite(duk_context *ctx)
+{
+    return xzwrite(ctx, BZ2_bzwrite);
+}
+
+LIB_PARAM(bzflush, 1);
+static duk_ret_t
+duke_bzflush(duk_context *ctx)
+{
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
+
+    int err = BZ2_bzflush(f);
+    
+    return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(bzclose, 1);
+static duk_ret_t
+duke_bzclose(duk_context *ctx)
+{
+    HFILE f = (HFILE)duk_require_pointer(ctx, 0);
+
+    BZ2_bzclose(f);
+    
+    return duk_push_int(ctx, 0), 1;
+}
+
+LIB_PARAM(bzerror, 1);
+static duk_ret_t
+duke_bzerror(duk_context *ctx)
+{
+    return xzerror(ctx, BZ2_bzerror);
+}
 #endif
 
 #include "libbz/libbzf.c"

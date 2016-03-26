@@ -12,7 +12,14 @@ static const dukc_func_entry_t libbz_func[] = {
     LIB_FUNC(bzBuffToBuffDecompressEx),
 
 #ifndef BZ_NO_STDIO
-    
+    LIB_FUNC(bzopen),
+    LIB_FUNC(bzdopen),
+    LIB_FUNC(bzread),
+    LIB_FUNC(bzreadEx),
+    LIB_FUNC(bzwrite),
+    LIB_FUNC(bzflush),
+    LIB_FUNC(bzclose),
+    LIB_FUNC(bzerror),    
 #endif
 
     LIB_FUNC_END

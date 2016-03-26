@@ -284,7 +284,7 @@ duke_strerror(duk_context *ctx)
 // 3.2.2 Unconstrained Allocation
 // malloc free realloc calloc
 
-#if duk_LIBC_CHAR
+#if duk_LIBC_CTYPE
 // 4.1 Classification of Characters
 LIB_PARAM(islower, 1);
 static duk_ret_t
@@ -430,7 +430,7 @@ duke_toascii(duk_context *ctx)
 
     return duk_push_int(ctx, toascii(c)), 1;
 }
-#endif /* duk_LIBC_CHAR */
+#endif /* duk_LIBC_CTYPE */
 
 // 4.3 Character class determination for wide characters
 

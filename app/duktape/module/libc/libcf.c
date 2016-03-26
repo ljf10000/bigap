@@ -22,7 +22,7 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(strerror),
 #endif
 
-#if duk_LIBC_CHAR
+#if duk_LIBC_CTYPE
     // 4.1 Classification of Characters
     LIB_FUNC(islower),
     LIB_FUNC(isupper),

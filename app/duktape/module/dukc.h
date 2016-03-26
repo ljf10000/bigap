@@ -12,8 +12,8 @@
 #define duk_LIGHT_FUNC      0
 #endif
 
-#ifndef duk_LIBC_CHAR
-#define duk_LIBC_CHAR       0
+#ifndef duk_LIBC_CTYPE
+#define duk_LIBC_CTYPE      0
 #endif
 
 #ifndef duk_LIBC_ERROR
