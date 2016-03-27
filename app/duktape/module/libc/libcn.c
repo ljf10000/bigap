@@ -191,6 +191,7 @@ static const dukc_number_entry_t libc_number[] = {
     LIB_VALUE(ERFKILL),
     LIB_VALUE(EHWPOISON),
 #endif
+
     // private Error Codes
     LIB_VALUE(EINVAL0),
     LIB_VALUE(EINVAL1),
@@ -254,6 +255,7 @@ static const dukc_number_entry_t libc_number[] = {
     LIB_VALUE(SEEK_END),
 
     // 13.7 Memory-mapped I/O
+#if duk_LIBC_MEMORY
     LIB_VALUE(MAP_PRIVATE),
     LIB_VALUE(MAP_SHARED),
     LIB_VALUE(MAP_FIXED),
@@ -274,6 +276,7 @@ static const dukc_number_entry_t libc_number[] = {
     LIB_VALUE(POSIX_MADV_SEQUENTIAL),
     LIB_VALUE(POSIX_MADV_WILLNEED),
     LIB_VALUE(POSIX_MADV_DONTNEED),
+#endif
 
     // 13.8 Waiting for Input or Output
     LIB_VALUE(FD_SETSIZE),

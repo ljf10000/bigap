@@ -7,9 +7,17 @@
 #define duk_GLIBC           2
 #define duk_LIBC            duk_UCLIBC
 
-#if 1 /* libc */
 #ifndef duk_LIGHT_FUNC
 #define duk_LIGHT_FUNC      0
+#endif
+
+#if 1 /* libc */
+#ifndef duk_LIBC_PRIVATE
+#define duk_LIBC_PRIVATE    1
+#endif
+
+#ifndef duk_LIBC_MEMORY
+#define duk_LIBC_MEMORY     0
 #endif
 
 #ifndef duk_LIBC_CTYPE
@@ -815,7 +823,7 @@ __readfileall(char *filename, uint32_t *filesize, bool bin)
     char *buf = NULL;
     int pad = bin?0:1;
     
-    uint32_t size = os_fsize(filename);
+    int size = os_fsize(filename);
     if (size<0) {
         goto error;
     }

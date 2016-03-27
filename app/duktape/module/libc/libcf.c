@@ -45,11 +45,15 @@ static const dukc_func_entry_t libc_func[] = {
 #endif
 
     // 5.5 String/Array Comparison
+#if duk_LIBC_MEMORY
     LIB_FUNC(memcmp),
-    LIB_FUNC(bufcmp),
+#endif
 
     // 12 Input/Output on Streams
+#if duk_LIBC_PRIVATE
+    LIB_FUNC(fsize),
     LIB_FUNC(fexist),
+#endif
     LIB_FUNC(fopen),
     LIB_FUNC(fclose),
     LIB_FUNC(fread),
@@ -85,11 +89,13 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(writev),
 
     // 13.7 Memory-mapped I/O
+#if duk_LIBC_MEMORY
     LIB_FUNC(mmap),
     LIB_FUNC(munmap),
     LIB_FUNC(msync),
     LIB_FUNC(mremap),
     LIB_FUNC(madvise),
+#endif
 
     // 13.8 Waiting for Input or Output
     LIB_FUNC(FD_NEW),

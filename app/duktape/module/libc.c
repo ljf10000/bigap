@@ -435,6 +435,7 @@ duke_toascii(duk_context *ctx)
 // 4.3 Character class determination for wide characters
 
 // 5.5 String/Array Comparison
+#if duk_LIBC_MEMORY
 LIB_PARAM(memcmp, 3);
 static duk_ret_t
 duke_memcmp(duk_context *ctx)
@@ -447,35 +448,16 @@ duke_memcmp(duk_context *ctx)
 
     return duk_push_int(ctx, cmp), 1;
 }
+#endif
 
-LIB_PARAM(bufcmp, DUK_VARARGS);
+#if duk_LIBC_PRIVATE
+LIB_PARAM(fsize, 1);
 static duk_ret_t
-duke_bufcmp(duk_context *ctx)
+duke_fsize(duk_context *ctx)
 {
-    duk_size_t sizea, sizeb, size;
-    duk_buffer_t a = duk_require_buffer_data(ctx, 0, &sizea);
-    duk_buffer_t b = duk_require_buffer_data(ctx, 1, &sizeb);
+    char *filename = (char *)duk_require_string(ctx, 0);
 
-    if (2==duk_get_max_idx(ctx)) {
-        size = duk_require_int(ctx, 2);
-
-        if (size > sizea || size > sizeb) {
-            goto cmp;
-        }
-    } else {
-cmp:
-        if (sizea<sizeb) {
-            return duk_push_int(ctx, -1), 1;
-        } else if (sizea>sizeb) {
-            return duk_push_int(ctx, 1), 1;
-        }
-
-        size = sizea;
-    }
-    
-    int ret = os_memcmp(a, b, size);
-    
-    return duk_push_int(ctx, ret), 1;
+    return duk_push_int(ctx, os_fsize(filename)), 1;
 }
 
 LIB_PARAM(fexist, 1);
@@ -486,6 +468,7 @@ duke_fexist(duk_context *ctx)
 
     return duk_push_bool(ctx, os_file_exist(filename)), 1;
 }
+#endif
 
 // 12 Input/Output on Streams
 LIB_PARAM(fopen, 2);
@@ -854,6 +837,7 @@ duke_writev(duk_context *ctx)
 }
 
 // 13.7 Memory-mapped I/O
+#if duk_LIBC_MEMORY
 LIB_PARAM(mmap, 6);
 static duk_ret_t
 duke_mmap(duk_context *ctx)
@@ -929,6 +913,7 @@ duke_madvise(duk_context *ctx)
 
 	return __push_error(ctx, err), 1;
 }
+#endif
 
 // 13.8 Waiting for Input or Output
 LIB_PARAM(FD_NEW, 0);

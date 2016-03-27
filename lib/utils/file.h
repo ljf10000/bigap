@@ -525,7 +525,7 @@ error:
 /*
 * get file size by full filename(include path)
 */
-static inline uint32_t
+static inline int
 os_fsize(char *filename)
 {
     struct stat st;
