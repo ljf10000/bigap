@@ -68,7 +68,7 @@ duke_debug(duk_context *ctx)
 
 LIB_PARAM(pipe, 1);
 static duk_ret_t
-duke_pipe(duk_context * ctx)
+duke_pipe(duk_context *ctx)
 {
     int err;
     char *line = (char *)duk_require_string(ctx, 0);
@@ -88,7 +88,7 @@ duke_pipe(duk_context * ctx)
 
 LIB_PARAM(shell, 1);
 static duk_ret_t
-duke_shell(duk_context * ctx)
+duke_shell(duk_context *ctx)
 {
     char *line = (char *)duk_require_string(ctx, 0);
     
@@ -99,12 +99,12 @@ duke_shell(duk_context * ctx)
 
 LIB_PARAM(readtxt, 1);
 static duk_ret_t
-duke_readtxt(duk_context * ctx)
+duke_readtxt(duk_context *ctx)
 {
     uint32_t size = 0;
     char *filename = (char *)duk_require_string(ctx, 0);
     
-    char *buf = __readfileall(filename, &size, false);
+    char *buf = os_readfileall(filename, &size, false);
     __push_lstring(ctx, buf, size);
     os_free(buf);
     
@@ -113,7 +113,7 @@ duke_readtxt(duk_context * ctx)
 
 LIB_PARAM(readbin, 1);
 static duk_ret_t
-duke_readbin(duk_context * ctx)
+duke_readbin(duk_context *ctx)
 {
     char *filename = (char *)duk_require_string(ctx, 0);
 
@@ -124,7 +124,7 @@ duke_readbin(duk_context * ctx)
 
     char *buf = __push_dynamic_buffer(ctx, size);
 
-    if (__readfile(filename, buf, size) < 0) {
+    if (os_readfile(filename, buf, size) < 0) {
         duk_pop(ctx);
         duk_push_null(ctx);
     }
@@ -132,9 +132,45 @@ duke_readbin(duk_context * ctx)
     return 1;
 }
 
+static duk_ret_t
+__writefile(duk_context *ctx, bool append)
+{
+    duk_buffer_t buf = NULL;
+    duk_size_t bsize = 0;
+    bool bin = false;
+    
+    char *filename = (char *)duk_require_string(ctx, 0);
+    int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
+    if (err<0) {
+        __seterrno(ctx, err); goto error;
+    }
+
+    if (2==duk_get_max_idx(ctx)) {
+        bin = duk_require_bool(ctx, 2);
+    }
+
+    err = os_writefile(filename, buf, bsize, append, bin);
+error:
+    return duk_push_int(ctx, err), 1;
+}
+
+LIB_PARAM(writefile, 2);
+static duk_ret_t
+duke_writefile(duk_context *ctx)
+{
+    return __writefile(ctx, false);
+}
+
+LIB_PARAM(appendfile, DUK_VARARGS);
+static duk_ret_t
+duke_appendfile(duk_context *ctx)
+{
+    return __writefile(ctx, true);
+}
+
 LIB_PARAM(readline, 2);
 static duk_ret_t
-duke_readline(duk_context * ctx)
+duke_readline(duk_context *ctx)
 {
     int err = 0, len;
     FILE *f = NULL;
@@ -745,6 +781,8 @@ static const dukc_func_entry_t my_func[] = {
     LIB_FUNC(readtxt),
     LIB_FUNC(readbin),
     LIB_FUNC(readline),
+    LIB_FUNC(writefile),
+    LIB_FUNC(appendfile),
     LIB_FUNC(loop),
 #if duk_LIBCALL
     LIB_FUNC(libcall),

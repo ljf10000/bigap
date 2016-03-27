@@ -133,6 +133,99 @@ os_fwriteline(FILE *stream, const char *line)
     return len;
 }
 
+
+static inline int
+os_readfile(char *filename, char *buf, int size)
+{
+    FILE *f = NULL;
+    int err = 0;
+
+    f = os_fopen(filename, "r");
+    if (NULL==f) {
+        err = -errno; goto error;
+    }
+
+    int len = os_fread(f, buf, size);
+    if (size!=len) {
+        err = -errno; goto error;
+    }
+
+error:
+    os_fclose(f);
+
+    return err;
+}
+
+static inline char *
+os_readfileall(char *filename, uint32_t *filesize, bool bin)
+{
+    char *buf = NULL;
+    int pad = bin?0:1;
+    
+    int size = os_fsize(filename);
+    if (size<0) {
+        goto error;
+    }
+
+    buf = (char *)os_malloc(pad+size);
+    if (NULL==buf) {
+        goto error;
+    }
+    
+    int err = os_readfile(filename, buf, size);
+    if (err<0) {
+        goto error;
+    }
+
+    if (false==bin) {
+        int tail = buf[size-1];
+        
+        /*
+        * cut tail crlf
+        */
+        while(size>0 && ('\r'==tail || '\n'==tail)) {
+            size--;
+            tail = buf[size-1];
+        }
+        
+        buf[size] = 0;
+    }
+
+    *filesize = size;
+    
+    return buf;
+error:
+    os_free(buf);
+
+    return NULL;
+}
+
+static inline int
+os_writefile(char *filename, byte *buf, int size, bool append, bool bin)
+{
+    FILE *f = NULL;
+    int err = 0;
+
+    f = os_fopen(filename, append?"a":"w");
+    if (NULL==f) {
+        err = -errno; goto error;
+    }
+
+    int len = os_fwrite(f, buf, size);
+    if (size!=len) {
+        err = -errno; goto error;
+    }
+
+    if (false==bin) {
+        os_fwrite(f, __crlf, sizeof(__crlf) - 1);
+    }
+    
+error:
+    os_fclose(f);
+
+    return err;
+}
+
 static inline bool
 is_current_dir(char *filename/* not include path */)
 {

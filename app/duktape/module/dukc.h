@@ -796,62 +796,6 @@ __obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *o
     __obj_obj_op(_ctx, true, _idx, _get, _obj, ##_args)
 
 static inline int
-__readfile(char *filename, char *buf, int size)
-{
-    FILE *f = NULL;
-    int err = 0;
-
-    f = os_fopen(filename, "r");
-    if (NULL==f) {
-        err = -errno; goto error;
-    }
-
-    int len = os_fread(f, buf, size);
-    if (size!=len) {
-        err = -errno; goto error;
-    }
-
-error:
-    os_fclose(f);
-
-    return err;
-}
-
-static inline char *
-__readfileall(char *filename, uint32_t *filesize, bool bin)
-{
-    char *buf = NULL;
-    int pad = bin?0:1;
-    
-    int size = os_fsize(filename);
-    if (size<0) {
-        goto error;
-    }
-
-    buf = (char *)os_malloc(pad+size);
-    if (NULL==buf) {
-        goto error;
-    }
-    
-    int err = __readfile(filename, buf, size);
-    if (err<0) {
-        goto error;
-    }
-
-    if (false==bin) {
-        buf[size] = 0;
-    }
-
-    *filesize = size;
-    
-    return buf;
-error:
-    os_free(buf);
-
-    return NULL;
-}
-
-static inline int
 __load_file(duk_context *ctx, char *filename)
 {
     int err = -ENOEXIST;
