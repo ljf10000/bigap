@@ -7,6 +7,7 @@ var mod = this;
 var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'file.json';
 pt.debugger = new ModDebugger(pt.$name);
+
 pt.load = function () {
 	if (this.$filename) {
 		this.content = JSON.parse(__my__.readtxt(this.$filename));

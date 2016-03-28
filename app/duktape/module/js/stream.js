@@ -7,13 +7,14 @@
 var mod = this;
 var pt = mod.constructor.prototype;
 pt.name = pt.name || 'stream';
+pt.debugger = new ModDebugger(pt.name);
+
 pt.type = {
 	file: 1,
 	pipe: 2,
 	zlib: 3,
 	bzip: 4
 };
-pt.debugger = new ModDebugger(pt.name);
 
 function is_good_obj(obj) {
 	return typeof obj.stream === 'pointer' && obj.stream;

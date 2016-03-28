@@ -7,6 +7,7 @@ var mod = this;
 var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'file.direct';
 pt.debugger = new ModDebugger(pt.$name);
+
 pt.load = do_nothing;
 pt.save = do_nothing;
 
