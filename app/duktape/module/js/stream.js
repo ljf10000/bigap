@@ -183,8 +183,6 @@ pt.eof = function (obj) {
 	}
 };
 
-mod.debugger = pt.debugger;
-
 mod.Stream = function (filename, mode, type) {
 	return pt.open(this, filename, mode, type)
 };
