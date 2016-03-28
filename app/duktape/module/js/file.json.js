@@ -5,7 +5,7 @@
 */
 var mod = this;
 var pt = mod.constructor.prototype;
-pt.$name = pt.$name || 'file.cache';
+pt.$name = pt.$name || 'file.json';
 pt.debugger = new ModDebugger(pt.$name);
 pt.load = function () {
 	if (this.$filename) {
