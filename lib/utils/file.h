@@ -32,6 +32,51 @@
 #define os_v_open(_flag, _fmt, _args...) \
     __os_v_xopen(int, open, _flag, _fmt, ##_args)
 
+/*
+* get file size by full filename(include path)
+*/
+static inline int
+os_fsize(char *filename)
+{
+    struct stat st;
+    int err;
+    
+    err = stat(filename, &st);
+    if (err<0) {
+        return -errno;
+    } else {
+        return st.st_size;
+    }
+}
+
+static inline int
+__v_fsize(const char *fmt, va_list args)
+{
+    int err = 0;
+    char *filename = NULL;
+
+    err = os_vasprintf(&filename, fmt, args);
+    if (err>0) {
+        err = os_fsize(filename);
+    }
+    os_free(filename);
+
+    return err;
+}
+
+static inline int
+os_v_fsize(const char *fmt, ...)
+{
+    int err;
+    va_list args;
+    
+    va_start(args, (char *)fmt);
+    err = __v_fsize(fmt, args);
+    va_end(args);
+    
+    return err;
+}
+
 static inline int
 __os_system(char *cmd);
 
@@ -42,13 +87,9 @@ os_vsystem(const char *fmt, va_list args)
     char *cmd = NULL;
 
     err = os_vasprintf(&cmd, fmt, args);
-    if (err<0) {
-        goto error;
-    } else {
+    if (err>0) {
         err = __os_system(cmd);
     }
-    
-error:
     os_free(cmd);
 
     return err;
@@ -614,36 +655,6 @@ error:
 #define os_v_fsetb(_buf, _size, _fmt, _args...) __os_v_xsetb(f, _buf, _size, _fmt, ##_args)
 #define os_v_fseti(_vi, _fmt, _args...)         __os_v_xseti(f, _vi, _fmt, ##_args)
 #define os_v_fsetll(_vll, _fmt, _args...)       __os_v_xsetll(f, _vll, _fmt, ##_args)
-
-/*
-* get file size by full filename(include path)
-*/
-static inline int
-os_fsize(char *filename)
-{
-    struct stat st;
-    int err;
-    
-    err = stat(filename, &st);
-    if (err<0) {
-        return -errno;
-    } else {
-        return st.st_size;
-    }
-}
-
-/*
-* get file size
-*/
-#define os_v_fsize(_fmt, _args...)      ({  \
-    int __size;                             \
-    char __buf[1+OS_FILENAME_LEN] = {0};    \
-                                            \
-    os_saprintf(__buf, _fmt, ##_args);      \
-    __size = os_fsize(__buf);               \
-                                            \
-    __size;                                 \
-})
 
 #define DECLARE_FAKE_FLOCK  extern int __THIS_LOCKFD
 #define DECLARE_REAL_FLOCK  int __THIS_LOCKFD = INVALID_FD
