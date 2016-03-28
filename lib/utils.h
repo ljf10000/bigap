@@ -104,6 +104,7 @@
 #include "config.h"
 #include "utils/this.h"
 #include "utils/type.h"
+#include "utils/lanmbda.h"
 #include "utils/errno.h"
 #include "utils/buildin.h"
 #include "utils/enum.h"

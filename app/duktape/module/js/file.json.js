@@ -5,33 +5,28 @@
 */
 var mod = this;
 var pt = mod.constructor.prototype;
-pt.name = pt.name || 'file.json';
-pt.debugger = new ModDebugger(pt.name);
+pt.$name = pt.$name || 'file.cache';
+pt.debugger = new ModDebugger(pt.$name);
+pt.load = function () {
+	var fobj = Object.create(pt, JSON.parse(__my__.readtxt(this.$filename)));
+	fobj.$name = this.$name;
+	fobj.$filename = this.$filename;
 
-pt.proxy = function (filename) {
-	return new Proxy({
-		filename: filename,
-		name: pt.name + '(' + filename + ')'
-	}, {
-		get: function (obj, key) {
-			if (key==='content') {
-				if (__libc__.fexist(obj.filename)) {
-					return __my__.readtxt(obj.filename);
-				} else {
-					return '';
-				}
-			} else {
-				return obj[key];
-			}
-		},
+	return fobj;
+};
 
-		set: function (obj, key, value) {
-			if (key==='content') {
-				__my__.writefile(obj.filename, value);
-			} else {
-				obj[key] = value;
-			}
-		}
+pt.save = function () {
+	var obj = JSON.parse(JSON.stringify(this));
+	delete obj.$name;
+	delete obj.$filename;
+
+	__my__.writefile(this.$filename, JSON.stringify(obj));
+};
+
+pt.bind = function (filename) {
+	return Object.create(pt, {
+		$name: pt.$name + '(' + filename + ')',
+		$filename: filename,
 	});
 };
 

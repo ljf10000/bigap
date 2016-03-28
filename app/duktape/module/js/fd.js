@@ -6,7 +6,7 @@
 
 var mod = this;
 var prototype = mod.constructor.prototype;
-prototype.name = prototype.name || 'fd';
+prototype.$name = prototype.$name || 'fd';
 
 prototype.filetype = 1;
 prototype.pipetype = 2;

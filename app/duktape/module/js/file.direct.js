@@ -5,12 +5,12 @@
 */
 var mod = this;
 var pt = mod.constructor.prototype;
-pt.name = pt.name || 'file.direct';
-pt.debugger = new ModDebugger(pt.name);
+pt.$name = pt.$name || 'file.direct';
+pt.debugger = new ModDebugger(pt.$name);
 
-pt.proxy = function (filename) {
+pt.bind = function (filename) {
 	return new Proxy({
-		name: pt.name + '(' + filename + ')'
+		$name: pt.$name + '(' + filename + ')'
 	}, {
 		get: function (obj, key) {
 			if (key==='content') {

@@ -217,9 +217,9 @@ __js__.destructor = function (is_class, x, close) {
 		__js__.fin(x, function (obj, heapDestruct) {
 			var name;
 			if (is_class) {
-				name = obj.name || obj.prototype.name || x.name || typeof x;
+				name = obj.$name || obj.prototype.$name || x.name || typeof x;
 			} else {
-				name = obj.name || obj.prototype.name || typeof obj;
+				name = obj.$name || obj.prototype.$name || typeof obj;
 			}
 
 			if (is_class && obj === x) {
