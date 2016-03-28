@@ -1289,7 +1289,6 @@ int um_user_delby(struct um_user_filter *filter)
     return um_user_foreach(cb, true);
 }
 
-#if 0
 int um_user_getby(struct um_user_filter *filter, um_get_f *get)
 {
     mv_t cb(struct um_user *user)
@@ -1303,17 +1302,4 @@ int um_user_getby(struct um_user_filter *filter, um_get_f *get)
     
     return um_user_foreach(cb, false);
 }
-#else
-int um_user_getby(struct um_user_filter *filter, um_get_f *get)
-{
-    return um_user_foreach(lanmbda(mv_t, (struct um_user *user) {
-        if (match_user(user, filter)) {
-            return (*get)(user);
-        } else {
-            return mv2_ok;
-        }
-    }), false);
-}
-#endif
-
 /******************************************************************************/
