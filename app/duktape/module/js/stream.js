@@ -5,40 +5,38 @@
 */
 
 var mod = this;
-var prototype = mod.constructor.prototype;
-prototype.name = prototype.name || 'stream';
-
-prototype.filetype = 1;
-prototype.pipetype = 2;
-prototype.zlibtype = 3;
-prototype.bziptype = 4;
-
-prototype.SEEK_CUR = __libc__.SEEK_CUR;
-prototype.SEEK_SET = __libc__.SEEK_SET;
-prototype.SEEK_END = __libc__.SEEK_END;
+var pt = mod.constructor.prototype;
+pt.name = pt.name || 'stream';
+pt.type = {
+	file: 1,
+	pipe: 2,
+	zlib: 3,
+	bzip: 4
+};
+pt.debugger = new ModDebugger(pt.name);
 
 function is_good_obj(obj) {
 	return typeof obj.stream === 'pointer' && obj.stream;
 }
 
-prototype.open = function (obj, filename, mode, type) {
+pt.open = function (obj, filename, mode, type) {
 	if (obj && !is_good_obj(obj) && __libc__.fexist(filename)) {
 		obj.filename = filename;
 		obj.mode = mode || 'r';
-		obj.type = type || prototype.filetype;
-		obj.name = prototype.name + '(' + filename + ')';
+		obj.type = type || pt.type.file;
+		obj.name = pt.name + '(' + filename + ')';
 
 		switch (obj.type) {
-			case prototype.filetype:
+			case pt.type.file:
 				obj.stream = __libc__.fopen(filename, mode);
 				break;
-			case prototype.pipetype:
+			case pt.type.pipe:
 				obj.stream = __libc__.popen(filename, mode);
 				break;
-			case prototype.zlibtype:
+			case pt.type.zlib:
 				obj.stream = __libz__.gzopen(filename, mode);
 				break;
-			case prototype.bziptype:
+			case pt.type.bzip:
 				obj.stream = __libbz__.bzopen(filename, mode);
 				break;
 			default:
@@ -50,19 +48,19 @@ prototype.open = function (obj, filename, mode, type) {
 	return obj;
 };
 
-prototype.close = function (obj) {
+pt.close = function (obj) {
 	if (obj && is_good_obj(obj)) {
 		switch (obj.type) {
-			case prototype.filetype:
+			case pt.type.file:
 				__libc__.fclose(obj.stream);
 				break;
-			case prototype.pipetype:
+			case pt.type.pipe:
 				__libc__.pclose(obj.stream);
 				break;
-			case prototype.zlibtype:
+			case pt.type.zlib:
 				__libz__.gzclose(obj.stream);
 				break;
-			case prototype.bziptype:
+			case pt.type.bzip:
 				__libbz__.bzclose(obj.stream);
 				break;
 			default:
@@ -75,156 +73,156 @@ prototype.close = function (obj) {
 	return 0;
 };
 
-prototype.read = function (obj, buffer) {
+pt.read = function (obj, buffer) {
 	switch(obj.type) {
-		case prototype.filetype: // down
-		case prototype.pipetype:
+		case pt.type.file: // down
+		case pt.type.pipe:
 			return __libc__.fread(obj.stream, buffer);
-		case prototype.zlibtype:
+		case pt.type.zlib:
 			return __libz__.gzread(obj.stream, buffer);
-		case prototype.bziptype:
+		case pt.type.bzip:
 			return __libbz__.bzread(obj.stream, buffer);
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
-prototype.readEx = function (obj, size) {
+pt.readEx = function (obj, size) {
 	switch(obj.type) {
-		case prototype.filetype: // down
-		case prototype.pipetype:
+		case pt.type.file: // down
+		case pt.type.pipe:
 			return __libc__.freadEx(obj.stream, size);
-		case prototype.zlibtype:
+		case pt.type.zlib:
 			return __libz__.gzreadEx(obj.stream, size);
-		case prototype.bziptype:
+		case pt.type.bzip:
 			return __libbz__.bzreadEx(obj.stream, size);
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
-prototype.write = function (obj, buffer) {
+pt.write = function (obj, buffer) {
 	switch(obj.type) {
-		case prototype.filetype:
+		case pt.type.file:
 			return __libc__.fwrite(obj.stream, buffer);
-		case prototype.zlibtype:
+		case pt.type.zlib:
 			return __libz__.gzwrite(obj.stream, buffer);
-		case prototype.bziptype:
+		case pt.type.bzip:
 			return __libbz__.bzwrite(obj.stream, buffer);
-		case prototype.pipetype: // down
+		case pt.type.pipe: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
-prototype.tell = function (obj) {
+pt.tell = function (obj) {
 	switch(type) {
-		case prototype.filetype:
+		case pt.type.file:
 			return __libc__.ftell(obj.stream);
-		case prototype.zlibtype:
+		case pt.type.zlib:
 			return __libz__.gztell(obj.stream);
-		case prototype.pipetype: // down
-		case prototype.bziptype: // down
+		case pt.type.pipe: // down
+		case pt.type.bzip: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
-prototype.seek = function (obj, offset, where) {
+pt.seek = function (obj, offset, where) {
 	switch(type) {
-		case prototype.filetype:
+		case pt.type.file:
 			return __libc__.fseek(obj.stream, offset, where);
-		case prototype.pipetype:
+		case pt.type.pipe:
 			return -__libc__.ENOSUPPORT;
-		case prototype.zlibtype:
+		case pt.type.zlib:
 			return __libz__.gzseek(obj.stream, offset, where);
-		case prototype.bziptype: // down
+		case pt.type.bzip: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
-prototype.flush = function (obj) {
+pt.flush = function (obj) {
 	switch(type) {
-		case prototype.filetype:
+		case pt.type.file:
 			return __libc__.fflush(obj.stream);
-		case prototype.zlibtype:
+		case pt.type.zlib:
 			return __libz__.gzflush(obj.stream, __libz__.Z_NO_FLUSH);
-		case prototype.bziptype:
+		case pt.type.bzip:
 			return __libbz__.bzflush(obj.stream);
-		case prototype.pipetype: // down
+		case pt.type.pipe: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
-prototype.error = function (obj) {
+pt.error = function (obj) {
 	switch(type) {
-		case prototype.filetype: // down
-		case prototype.pipetype:
+		case pt.type.file: // down
+		case pt.type.pipe:
 			return __libc__.ferror(obj.stream);
-		case prototype.zlibtype:
+		case pt.type.zlib:
 			return __libz__.gzerror(obj.stream);
-		case prototype.bziptype:
+		case pt.type.bzip:
 			return __libbz__.bzerror(obj.stream);
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
-prototype.eof = function (obj) {
+pt.eof = function (obj) {
 	switch(type) {
-		case prototype.filetype: // down
-		case prototype.pipetype:
+		case pt.type.file: // down
+		case pt.type.pipe:
 			return __libc__.feof(obj.stream);
-		case prototype.zlibtype:
+		case pt.type.zlib:
 			return __libz__.gzeof(obj.stream);
-		case prototype.bziptype: // down
+		case pt.type.bzip: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
-mod.debugger = new ModDebugger(prototype.name);
+mod.debugger = pt.debugger;
 
 mod.Stream = function (filename, mode, type) {
-	return prototype.open(this, filename, mode, type)
+	return pt.open(this, filename, mode, type)
 };
 
 mod.Stream.prototype = {
 	read: function (buffer) {
-		return prototype.read(this, buffer);
+		return pt.read(this, buffer);
 	},
 
 	readEx: function (size) {
-		return prototype.readEx(this, size);
+		return pt.readEx(this, size);
 	},
 
 	write: function (buffer) {
-		return prototype.write(this, buffer);
+		return pt.write(this, buffer);
 	},
 
 	tell: function () {
-		return prototype.tell(this);
+		return pt.tell(this);
 	},
 
 	seek: function (offset, where) {
-		return prototype.seek(this, offset, where);
+		return pt.seek(this, offset, where);
 	},
 
 	flush: function () {
-		return prototype.flush(this);
+		return pt.flush(this);
 	},
 
 	error: function () {
-		return prototype.error(this);
+		return pt.error(this);
 	},
 
 	eof: function () {
-		return prototype.eof(this);
+		return pt.eof(this);
 	}
 };
 
-__js__.destructor(true, mod.Stream.prototype, prototype.close);
+__js__.destructor(true, mod.Stream.prototype, pt.close);
 
 /* eof */

@@ -28,7 +28,7 @@ duke_modSearch(duk_context * ctx)
     os_snprintf(file, OS_LINE_LEN, "%s.js", id);
     if (os_file_exist(file)) {
         duk_push_string_file(ctx, file);
-    
+
         ret = 1; goto error;
     }
 
