@@ -12,12 +12,12 @@
 #define file_println(_fmt, _args...)    os_do_nothing()
 #endif
 
-#define __os_v_xopen(_type, _func, _mod, _fmt, _args...) ({  \
+#define __v_xopen(_type, _func, _mod, _fmt, _args...) ({  \
     char *__line = NULL;                    \
     _type __v = (_type)0;                   \
                                             \
     if (os_asprintf(&__line, _fmt, ##_args) > 0 && __line) { \
-        file_println("__os_v_xopen %s", __line); \
+        file_println("__v_xopen %s", __line); \
         __v = _func(__line, _mod);          \
         free(__line);                       \
     }                                       \
@@ -25,12 +25,12 @@
     __v;                                    \
 })
 
-#define os_v_popen(_mod, _fmt, _args...)      \
-    __os_v_xopen(FILE*, popen, _mod, _fmt, ##_args)
-#define os_v_fopen(_mod, _fmt, _args...) \
-    __os_v_xopen(FILE*, fopen, _mod, _fmt, ##_args)
-#define os_v_open(_flag, _fmt, _args...) \
-    __os_v_xopen(int, open, _flag, _fmt, ##_args)
+#define os_v_popen(_mod, _fmt, _args...)    \
+    __v_xopen(FILE*, popen, _mod, _fmt, ##_args)
+#define os_v_fopen(_mod, _fmt, _args...)    \
+    __v_xopen(FILE*, fopen, _mod, _fmt, ##_args)
+#define os_v_open(_flag, _fmt, _args...)    \
+    __v_xopen(int, open, _flag, _fmt, ##_args)
 
 /*
 * get file size by full filename(include path)
@@ -77,8 +77,7 @@ os_v_fsize(const char *fmt, ...)
     return err;
 }
 
-static inline int
-__os_system(char *cmd);
+static inline int __os_system(char *cmd);
 
 static inline int
 os_vsystem(const char *fmt, va_list args)
@@ -197,8 +196,8 @@ error:
     return err;
 }
 
-static inline char *
-os_readfileall(char *filename, uint32_t *filesize, bool bin)
+static inline int
+os_readfileall(char *filename, char **content, uint32_t *filesize, bool bin)
 {
     char *buf = NULL;
     int pad = bin?0:1;
@@ -232,13 +231,14 @@ os_readfileall(char *filename, uint32_t *filesize, bool bin)
         buf[size] = 0;
     }
 
-    *filesize = size;
+    *filesize   = size;
+    *content    = buf;
     
-    return buf;
+    return err;
 error:
     os_free(buf);
 
-    return NULL;
+    return err;
 }
 
 static inline int

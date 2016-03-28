@@ -101,10 +101,11 @@ LIB_PARAM(readtxt, 1);
 static duk_ret_t
 duke_readtxt(duk_context *ctx)
 {
+    char *buf = NULL;
     uint32_t size = 0;
     char *filename = (char *)duk_require_string(ctx, 0);
     
-    char *buf = os_readfileall(filename, &size, false);
+    int err = os_readfileall(filename, &buf, &size, false);
     __push_lstring(ctx, buf, size);
     os_free(buf);
     
