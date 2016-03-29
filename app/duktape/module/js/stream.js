@@ -16,12 +16,12 @@ pt.type = {
 	bzip: 4
 };
 
-function is_good_obj(obj) {
+pt.is_good = function (obj) {
 	return typeof obj.stream === 'pointer' && obj.stream;
-}
+};
 
 pt.open = function (obj, filename, mode, type) {
-	if (obj && !is_good_obj(obj) && __libc__.fexist(filename)) {
+	if (obj && !pt.is_good(obj) && __libc__.fexist(filename)) {
 		obj.filename = filename;
 		obj.mode = mode || 'r';
 		obj.type = type || pt.type.file;
@@ -50,7 +50,7 @@ pt.open = function (obj, filename, mode, type) {
 };
 
 pt.close = function (obj) {
-	if (obj && is_good_obj(obj)) {
+	if (obj && pt.is_good(obj)) {
 		switch (obj.type) {
 			case pt.type.file:
 				__libc__.fclose(obj.stream);
@@ -185,7 +185,7 @@ pt.eof = function (obj) {
 };
 
 mod.Stream = function (filename, mode, type) {
-	return pt.open(this, filename, mode, type)
+	return pt.open(this, filename, mode, type);
 };
 
 mod.Stream.prototype = {
