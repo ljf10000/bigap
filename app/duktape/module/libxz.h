@@ -64,7 +64,7 @@
     if (err<0) {                    \
         __seterrno(ctx, err);       \
     } else {                        \
-        err = BZ2_bzwrite(f, buf, bsize); \
+        err = func(f, buf, bsize);  \
     }                               \
                                     \
 	duk_push_int(ctx, err);         \
