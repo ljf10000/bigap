@@ -98,11 +98,13 @@ static const dukc_func_entry_t libc_func[] = {
 #endif
 
     // 13.8 Waiting for Input or Output
+#if duk_LIBC_FDSET
     LIB_FUNC(FD_NEW),
     LIB_FUNC(FD_ZERO),
     LIB_FUNC(FD_SET),
     LIB_FUNC(FD_CLR),
     LIB_FUNC(FD_ISSET),
+#endif
     LIB_FUNC(select),
 
     // 13.9 Synchronizing I/O operations

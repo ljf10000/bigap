@@ -53,7 +53,6 @@ static const dukc_number_entry_t libc_number[] = {
 
     LIB_VALUE(__NFDBITS),
     LIB_VALUE(__FD_SETSIZE),
-    {"size_fd_set", sizeof(fd_set)},
     
     // 2.2 Error Codes
     LIB_VALUE(EPERM),

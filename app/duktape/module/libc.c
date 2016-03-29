@@ -916,6 +916,7 @@ duke_madvise(duk_context *ctx)
 #endif
 
 // 13.8 Waiting for Input or Output
+#if duk_LIBC_FDSET
 LIB_PARAM(FD_NEW, 0);
 static duk_ret_t
 duke_FD_NEW(duk_context *ctx)
@@ -996,6 +997,7 @@ duke_FD_ISSET(duk_context *ctx)
     
 	return duk_push_bool(ctx, is_set), 1;
 }
+#endif
 
 LIB_PARAM(select, 5);
 static duk_ret_t
