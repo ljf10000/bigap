@@ -16,4 +16,5 @@ prototype.SEEK_CUR = __libc__.SEEK_CUR;
 prototype.SEEK_SET = __libc__.SEEK_SET;
 prototype.SEEK_END = __libc__.SEEK_END;
 
+
 /* eof */
