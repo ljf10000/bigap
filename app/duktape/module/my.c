@@ -799,8 +799,8 @@ static const dukc_number_entry_t my_number[] = {
     __LIB_VALUE("SIZEOF_LONGLONG",  sizeof(long long));
     __LIB_VALUE("SIZEOF_POINTER",   sizeof(void *));
 
-    __LIB_VALUE("BIG_ENDIAN",       *(uint32 *)"\x12\x34\x56\x78"==0x12345678);
-    __LIB_VALUE("LITTLE_ENDIAN",    *(uint32 *)"\x78\x56\x34\x12"==0x12345678);
+    __LIB_VALUE("BIG_ENDIAN",       *(uint16 *)"\x12\x34"==0x1234);
+    __LIB_VALUE("LITTLE_ENDIAN",    *(uint16 *)"\x12\x34"==0x3412);
 
     LIB_VALUE_END
 };

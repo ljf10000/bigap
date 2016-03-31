@@ -3,9 +3,9 @@
 /*
 * module: stream
 */
+var mod = this,
+	pt = mod.constructor.prototype;
 
-var mod = this;
-var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'stream';
 pt.$debugger = new $Debugger(pt.$name);
 

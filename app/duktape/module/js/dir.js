@@ -3,100 +3,50 @@
 /*
 * module: dir
 */
+var mod = this,
+	pt = mod.constructor.prototype;
 
-var mod = this;
-var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'dir';
 pt.$debugger = new $Debugger(pt.$name);
 
-pt.getcwd = function () {
-	return __libc__.getcwd();
+pt.is_open = function is_open (obj) {
+	return typeof obj.dir === 'pointer' && obj.dir;
 };
 
-pt.chdir = function (dir) {
-	return __libc__.chdir(dir);
+pt.is_close = function is_close (obj) {
+	return null === obj.dir;
 };
 
-pt.link = function (olddir, newdir) {
-	return __libc__.link(olddir, newdir);
+pt.open = function (obj) {
+	if (is_close(obj)) {
+		obj.dir = __libc__.opendir(obj.dirname);
+	}
+
+	return obj;
 };
 
-pt.unlink = function (link) {
-	return __libc__.unlink(link);
-};
+pt.close = function (obj) {
+	if (is_open(obj)) {
+		__libc__.closedir(obj.dir);
 
-pt.symlink = function (olddir, newdir) {
-	return __libc__.symlink(olddir, newdir);
-};
-
-pt.readlink = function (link) {
-	return __libc__.readlink(link);
-};
-
-pt.realpath = function (link) {
-	return __libc__.realpath(link);
-};
-
-pt.rmdir = function (dir, recursion) {
-	return __libc__.rmdir(dir, recursion);
-};
-
-pt.remove = function (dir) {
-	return __libc__.remove(dir);
-};
-
-pt.rename = function (oldfile, newfile) {
-	return __libc__.rename(oldfile, newfile);
-};
-
-pt.mkdir = function (dir, mod) {
-	return __libc__.mkdir(dir, mod);
-};
-
-pt.stat = function (file) {
-	return __libc__.stat(file);
-};
-
-pt.lstat = function (file) {
-	return __libc__.lstat(file);
-};
-
-
-
-pt.open = function (dir) {
-	switch (typeof dir) {
-		case 'number':
-			return __libc__.fdopendir(dir);
-		case 'string':
-			return __libc__.opendir(dir);
-		default:
-			return null;
+		obj.dir = null;
 	}
 };
 
-pt.dirfd = function (DIR) {
-	return __libc__.dirfd(DIR);
+pt.read = function (obj) {
+	return __libc__.readdir(obj.dir);
 };
 
-pt.read = function (DIR) {
-	return __libc__.readdir(DIR);
+pt.rewind = function (obj) {
+	return __libc__.rewinddir(obj.dir);
 };
 
-pt.close = function (DIR) {
-	return __libc__.closedir(DIR);
+pt.tell = function (obj) {
+	return __libc__.telldir(obj.dir);
 };
 
-pt.rewind = function (DIR) {
-	return __libc__.rewinddir(DIR);
+pt.seek = function (obj, pos) {
+	__libc__.seekdir(obj.dir, pos);
 };
-
-pt.tell = function (DIR) {
-	return __libc__.telldir(DIR);
-};
-
-pt.seek = function (DIR, pos) {
-	__libc__.seekdir(DIR, pos);
-};
-
 
 /* eof */

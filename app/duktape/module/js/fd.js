@@ -3,9 +3,9 @@
 /*
 * module: fd
 */
+var mod = this,
+	pt = mod.constructor.prototype;
 
-var mod = this;
-var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'fd';
 pt.$debugger = new $Debugger(pt.$name);
 

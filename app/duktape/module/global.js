@@ -3,23 +3,26 @@
 * 2. only use 'xxxxx'
 * 3. must keep last empty line
 */
-const __js__ = Duktape;
+const
+	__js__        = Duktape,
+	BIG_ENDIAN    = (1==__my__.BIG_ENDIAN),
+	LITTLE_ENDIAN = (1==__my__.LITTLE_ENDIAN),
+	OS_BITS       = 8*__my__.SIZEOF_POINTER,
+	fmt = {
+		oprint: function (name, obj) {
+			var root = {};
 
-const fmt = {
-	oprint: function (name, obj) {
-		var c = {};
+			root[name] = obj;
 
-		c[name] = obj;
+			print(Duktape.enc('jc', root, null, 4));
+		},
 
-		print(Duktape.enc('jc', c, null, 4));
-	},
+		separator: function (name, sep) {
+			var s = sep?sep:'==========';
 
-	separator: function (name, sep) {
-		var s = sep?sep:'==========';
-
-		print(s, name, s);
-	}
-};
+			print(s, name, s);
+		}
+	};
 
 function do_nothing () {}
 

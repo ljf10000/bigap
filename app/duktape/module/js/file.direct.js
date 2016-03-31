@@ -3,8 +3,9 @@
 /*
 * module: txt-file
 */
-var mod = this;
-var pt = mod.constructor.prototype;
+var mod = this,
+	pt = mod.constructor.prototype;
+
 pt.$name = pt.$name || 'file.direct';
 pt.$debugger = new $Debugger(pt.$name);
 

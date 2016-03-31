@@ -3,8 +3,8 @@
 /*
 * module: pt
 */
-var mod = this;
-var pt = mod.constructor.prototype;
+var mod = this,
+	pt = mod.constructor.prototype;
 
 pt.__proto__ = require('fd').constructor.prototype;
 pt.$name = pt.$name || 'socket';
