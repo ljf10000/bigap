@@ -7,7 +7,7 @@
 var mod = this;
 var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'fd';
-pt.debugger = new ModDebugger(pt.$name);
+pt.$debugger = new ModDebugger(pt.$name);
 
 pt.is_good = function (obj) {
 	return typeof obj.fd === 'number' && obj.fd >= 0;

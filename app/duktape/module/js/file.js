@@ -8,7 +8,7 @@ var pt = mod.constructor.prototype;
 
 pt.__proto__ = require('fd').constructor.prototype;
 pt.$name = pt.$name || 'file';
-pt.debugger = new ModDebugger(pt.$name);
+pt.$debugger = new ModDebugger(pt.$name);
 
 pt.open = function (obj, filename, flag, mode) {
 	if (obj && !pt.is_good(obj)) {

@@ -15,4 +15,4 @@ file = null;
 var b3 = new Uint8Array(b2);
 print(b3);
 
-stream.debugger.destructor("asdf");
+stream.$debugger.destructor("asdf");

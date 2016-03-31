@@ -7,7 +7,7 @@
 var mod = this;
 var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'uri';
-pt.debugger = new ModDebugger(pt.$name);
+pt.$debugger = new ModDebugger(pt.$name);
 
 pt.scheme = {
 	file: 1,

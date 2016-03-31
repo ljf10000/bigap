@@ -6,7 +6,7 @@
 var mod = this;
 var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'file.cache';
-pt.debugger = new ModDebugger(pt.$name);
+pt.$debugger = new ModDebugger(pt.$name);
 
 pt.load = function () {
 	if (this.$filename) {
