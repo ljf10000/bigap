@@ -10,5 +10,4 @@ pt.$name = pt.$name || 'fs';
 pt.$debugger = new $Debugger(pt.$name);
 
 
-
 /* eof */

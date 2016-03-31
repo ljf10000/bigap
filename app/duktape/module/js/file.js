@@ -10,13 +10,9 @@ pt.__proto__ = require('fd').constructor.prototype;
 pt.$name = pt.$name || 'file';
 pt.$debugger = new $Debugger(pt.$name);
 
-pt.open = function (obj, filename, flag, mode) {
-	if (obj && !pt.is_good(obj)) {
-		obj.filename = filename;
-		obj.flag = flag || __libc__.O_RDONLY;
-		obj.mode = mode || 0;
-
-		obj.fd = __libc__.open(filename, obj.flag, obj.mode);
+pt.open = function (obj) {
+	if (obj && pt.is_close(obj)) {
+		obj.fd = __libc__.open(obj.filename, obj.flag, obj.mode);
 	}
 
 	return obj;
@@ -36,11 +32,31 @@ pt.sync = function (obj) {
 
 pt.flush = pt.sync;
 
-mod.File = function (filename, flag, mode) {
-	return pt.open(this, filename, flag, mode);
+mod.File = function (filename, flag, mode, open) {
+	var obj = {
+		filename: filename,
+		flag: flag || __libc__.O_RDONLY,
+		mode: mode || 0,
+
+		fd: -1
+	};
+
+	if (true === open) {
+		pt.open(obj);
+	}
+
+	return obj;
 };
 
 mod.File.prototype = {
+	open: function () {
+		return pt.open(this);
+	},
+
+	close: function () {
+		pt.close(this);
+	},
+
 	read: function (buffer) {
 		return pt.read(this, buffer);
 	},

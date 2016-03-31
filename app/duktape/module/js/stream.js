@@ -16,17 +16,16 @@ pt.type = {
 	bzip: 4
 };
 
-pt.is_good = function (obj) {
+pt.is_open = function is_open (obj) {
 	return typeof obj.stream === 'pointer' && obj.stream;
 };
 
-pt.open = function (obj, filename, mode, type) {
-	if (obj && !pt.is_good(obj) && __libc__.fexist(filename)) {
-		obj.filename = filename;
-		obj.mode = mode || 'r';
-		obj.type = type || pttype.file;
-		obj.$name = pt.$name + '(' + filename + ')';
+pt.is_close = function is_close (obj) {
+	return null === obj.stream;
+};
 
+pt.open = function (obj) {
+	if (obj && is_close(obj)) {
 		var pttype = pt.type;
 
 		switch (obj.type) {
@@ -52,7 +51,7 @@ pt.open = function (obj, filename, mode, type) {
 };
 
 pt.close = function (obj) {
-	if (obj && pt.is_good(obj)) {
+	if (obj && is_open(obj)) {
 		var pttype = pt.type;
 
 		switch (obj.type) {
@@ -74,8 +73,6 @@ pt.close = function (obj) {
 
 		obj.stream = null;
 	}
-
-	return 0;
 };
 
 pt.read = function (obj, buffer) {
@@ -204,11 +201,32 @@ pt.eof = function (obj) {
 	}
 };
 
-mod.Stream = function (filename, mode, type) {
-	return pt.open(this, filename, mode, type);
+mod.Stream = function (filename, mode, type, open) {
+	var obj = {
+		filename: filename,
+		mode: mode || 'r',
+		type: type || pt.type.file,
+		$name: pt.$name + '(' + filename + ')',
+
+		stream: null
+	};
+
+	if (true === open) {
+		pt.open(obj);
+	}
+
+	return obj;
 };
 
 mod.Stream.prototype = {
+	open: function () {
+		return pt.open(this);
+	},
+
+	close: function () {
+		pt.close(this);
+	},
+
 	read: function (buffer) {
 		return pt.read(this, buffer);
 	},

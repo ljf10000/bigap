@@ -9,12 +9,22 @@ var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'fd';
 pt.$debugger = new $Debugger(pt.$name);
 
-pt.is_good = function is_good (obj) {
+pt.type = {
+	file: 1,
+	pipe: 2,
+	sock: 3
+};
+
+pt.is_open = function is_open (obj) {
 	return typeof obj.fd === 'number' && obj.fd >= 0;
 };
 
+pt.is_close = function is_close (obj) {
+	return typeof obj.fd === 'number' && obj.fd < 0;
+};
+
 pt.close = function (obj) {
-	if (obj && is_good(obj)) {
+	if (obj && is_open(obj)) {
 		__libc__.close(obj.fd);
 
 		obj.fd = -1;
