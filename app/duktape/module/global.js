@@ -29,6 +29,8 @@ function do_nothing () {}
 	* 0x00010000 ~ 0x80000000, sys  debug level
 	*/
 	const
+		debug_module = __my__.env.__JS_DEBUG_MOD__?JSON.parse(__my__.env.__JS_DEBUG_MOD__):[],
+		slice = Array.prototype.slice,
 		debug_level_init        = 0x00010000,
 		debug_level_fini        = 0x00020000,
 		debug_level_constructor = 0x00040000,
@@ -40,10 +42,8 @@ function do_nothing () {}
 		debug_level_io          = 0x01000000,
 		debug_level_st          = 0x02000000,
 		debug_level_test        = 0x04000000,
-		debug_level_all         = 0xffffffff,
-		debug_module = __my__.env.__JS_DEBUG_MOD__?JSON.parse(__my__.env.__JS_DEBUG_MOD__):[],
-		slice = Array.prototype.slice;
-	
+		debug_level_all         = 0xffffffff;
+
 	function is_debug(mod, level) {
 		if (__my__.is_debug(level)) {
 			if ('all' === mod) {
@@ -135,11 +135,11 @@ function do_nothing () {}
 		}
 	};
 
-	global.ModDebugger = function ModDebugger (mod) {
+	global.$Debugger = function $Debugger (mod) {
 		return {mod: mod};
 	};
 
-	ModDebugger.prototype = {
+	$Debugger.prototype = {
 		debug: function (level) {
 			if (is_debug(this.mod, level)) {
 				__my__.debug(slice.call(arguments).slice(1).toString());

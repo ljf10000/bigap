@@ -7,14 +7,14 @@
 var mod = this;
 var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'fd';
-pt.$debugger = new ModDebugger(pt.$name);
+pt.$debugger = new $Debugger(pt.$name);
 
-pt.is_good = function (obj) {
+pt.is_good = function is_good (obj) {
 	return typeof obj.fd === 'number' && obj.fd >= 0;
 };
 
 pt.close = function (obj) {
-	if (obj && pt.is_good(obj)) {
+	if (obj && is_good(obj)) {
 		__libc__.close(obj.fd);
 
 		obj.fd = -1;

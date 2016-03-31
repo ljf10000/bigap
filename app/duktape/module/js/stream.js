@@ -7,7 +7,7 @@
 var mod = this;
 var pt = mod.constructor.prototype;
 pt.$name = pt.$name || 'stream';
-pt.$debugger = new ModDebugger(pt.$name);
+pt.$debugger = new $Debugger(pt.$name);
 
 pt.type = {
 	file: 1,
