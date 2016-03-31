@@ -170,9 +170,11 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(S_ISFIFO),
     LIB_FUNC(S_ISLNK),
     LIB_FUNC(S_ISSOCK),
+#if 0
     LIB_FUNC(S_TYPEISMQ),
     LIB_FUNC(S_TYPEISSEM),
     LIB_FUNC(S_TYPEISSHM),
+#endif
 
     // 14.9.4 File Owner
     LIB_FUNC(chown),

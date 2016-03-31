@@ -324,6 +324,25 @@ static const dukc_number_entry_t libc_number[] = {
     // 13.16 Interrupt-Driven Input
     LIB_VALUE(F_GETOWN),
     LIB_VALUE(F_SETOWN),
+
+    // 14 File System Interface
+    LIB_VALUE(__S_IFMT),
+    LIB_VALUE(__S_IFDIR),
+    LIB_VALUE(__S_IFCHR),
+    LIB_VALUE(__S_IFBLK),
+    LIB_VALUE(__S_IFREG),
+    LIB_VALUE(__S_IFIFO),
+    LIB_VALUE(__S_IFLNK),
+    LIB_VALUE(__S_IFSOCK),
+    LIB_VALUE(__S_ISUID),
+    LIB_VALUE(__S_ISGID),
+    LIB_VALUE(__S_IREAD),
+    LIB_VALUE(__S_IWRITE),
+    LIB_VALUE(__S_IEXEC),
+    LIB_VALUE(R_OK),
+    LIB_VALUE(W_OK),
+    LIB_VALUE(X_OK),
+    LIB_VALUE(F_OK),
     
     // 14.2.1 Format of a Directory Entry
     LIB_VALUE(DT_UNKNOWN),

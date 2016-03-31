@@ -1603,6 +1603,7 @@ duke_S_ISSOCK(duk_context *ctx)
     return duk_push_bool(ctx, S_ISSOCK(mode)), 1;
 }
 
+#if 0
 LIB_PARAM(S_TYPEISMQ, 1);
 static duk_ret_t
 duke_S_TYPEISMQ(duk_context *ctx)
@@ -1635,6 +1636,7 @@ duke_S_TYPEISSHM(duk_context *ctx)
 
     return duk_push_bool(ctx, S_TYPEISSHM(&st)), 1;
 }
+#endif
 
 // 14.9.4 File Owner
 LIB_PARAM(chown, 3);

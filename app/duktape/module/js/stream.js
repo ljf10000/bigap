@@ -6,8 +6,8 @@
 
 var mod = this;
 var pt = mod.constructor.prototype;
-pt.name = pt.name || 'stream';
-pt.debugger = new ModDebugger(pt.name);
+pt.$name = pt.$name || 'stream';
+pt.debugger = new ModDebugger(pt.$name);
 
 pt.type = {
 	file: 1,
@@ -24,20 +24,22 @@ pt.open = function (obj, filename, mode, type) {
 	if (obj && !pt.is_good(obj) && __libc__.fexist(filename)) {
 		obj.filename = filename;
 		obj.mode = mode || 'r';
-		obj.type = type || pt.type.file;
-		obj.name = pt.name + '(' + filename + ')';
+		obj.type = type || pttype.file;
+		obj.$name = pt.$name + '(' + filename + ')';
+
+		var pttype = pt.type;
 
 		switch (obj.type) {
-			case pt.type.file:
+			case pttype.file:
 				obj.stream = __libc__.fopen(filename, mode);
 				break;
-			case pt.type.pipe:
+			case pttype.pipe:
 				obj.stream = __libc__.popen(filename, mode);
 				break;
-			case pt.type.zlib:
+			case pttype.zlib:
 				obj.stream = __libz__.gzopen(filename, mode);
 				break;
-			case pt.type.bzip:
+			case pttype.bzip:
 				obj.stream = __libbz__.bzopen(filename, mode);
 				break;
 			default:
@@ -51,17 +53,19 @@ pt.open = function (obj, filename, mode, type) {
 
 pt.close = function (obj) {
 	if (obj && pt.is_good(obj)) {
+		var pttype = pt.type;
+
 		switch (obj.type) {
-			case pt.type.file:
+			case pttype.file:
 				__libc__.fclose(obj.stream);
 				break;
-			case pt.type.pipe:
+			case pttype.pipe:
 				__libc__.pclose(obj.stream);
 				break;
-			case pt.type.zlib:
+			case pttype.zlib:
 				__libz__.gzclose(obj.stream);
 				break;
-			case pt.type.bzip:
+			case pttype.bzip:
 				__libbz__.bzclose(obj.stream);
 				break;
 			default:
@@ -75,13 +79,15 @@ pt.close = function (obj) {
 };
 
 pt.read = function (obj, buffer) {
+	var pttype = pt.type;
+
 	switch(obj.type) {
-		case pt.type.file: // down
-		case pt.type.pipe:
+		case pttype.file: // down
+		case pttype.pipe:
 			return __libc__.fread(obj.stream, buffer);
-		case pt.type.zlib:
+		case pttype.zlib:
 			return __libz__.gzread(obj.stream, buffer);
-		case pt.type.bzip:
+		case pttype.bzip:
 			return __libbz__.bzread(obj.stream, buffer);
 		default:
 			return -__libc__.ENOSUPPORT;
@@ -89,13 +95,15 @@ pt.read = function (obj, buffer) {
 };
 
 pt.readEx = function (obj, size) {
+	var pttype = pt.type;
+
 	switch(obj.type) {
-		case pt.type.file: // down
-		case pt.type.pipe:
+		case pttype.file: // down
+		case pttype.pipe:
 			return __libc__.freadEx(obj.stream, size);
-		case pt.type.zlib:
+		case pttype.zlib:
 			return __libz__.gzreadEx(obj.stream, size);
-		case pt.type.bzip:
+		case pttype.bzip:
 			return __libbz__.bzreadEx(obj.stream, size);
 		default:
 			return -__libc__.ENOSUPPORT;
@@ -103,68 +111,78 @@ pt.readEx = function (obj, size) {
 };
 
 pt.write = function (obj, buffer) {
+	var pttype = pt.type;
+
 	switch(obj.type) {
-		case pt.type.file:
+		case pttype.file:
 			return __libc__.fwrite(obj.stream, buffer);
-		case pt.type.zlib:
+		case pttype.zlib:
 			return __libz__.gzwrite(obj.stream, buffer);
-		case pt.type.bzip:
+		case pttype.bzip:
 			return __libbz__.bzwrite(obj.stream, buffer);
-		case pt.type.pipe: // down
+		case pttype.pipe: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
 pt.tell = function (obj) {
+	var pttype = pt.type;
+
 	switch(type) {
-		case pt.type.file:
+		case pttype.file:
 			return __libc__.ftell(obj.stream);
-		case pt.type.zlib:
+		case pttype.zlib:
 			return __libz__.gztell(obj.stream);
-		case pt.type.pipe: // down
-		case pt.type.bzip: // down
+		case pttype.pipe: // down
+		case pttype.bzip: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
 pt.seek = function (obj, offset, where) {
+	var pttype = pt.type;
+
 	switch(type) {
-		case pt.type.file:
+		case pttype.file:
 			return __libc__.fseek(obj.stream, offset, where);
-		case pt.type.pipe:
+		case pttype.pipe:
 			return -__libc__.ENOSUPPORT;
-		case pt.type.zlib:
+		case pttype.zlib:
 			return __libz__.gzseek(obj.stream, offset, where);
-		case pt.type.bzip: // down
+		case pttype.bzip: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
 pt.flush = function (obj) {
+	var pttype = pt.type;
+
 	switch(type) {
-		case pt.type.file:
+		case pttype.file:
 			return __libc__.fflush(obj.stream);
-		case pt.type.zlib:
+		case pttype.zlib:
 			return __libz__.gzflush(obj.stream, __libz__.Z_NO_FLUSH);
-		case pt.type.bzip:
+		case pttype.bzip:
 			return __libbz__.bzflush(obj.stream);
-		case pt.type.pipe: // down
+		case pttype.pipe: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}
 };
 
 pt.error = function (obj) {
+	var pttype = pt.type;
+
 	switch(type) {
-		case pt.type.file: // down
-		case pt.type.pipe:
+		case pttype.file: // down
+		case pttype.pipe:
 			return __libc__.ferror(obj.stream);
-		case pt.type.zlib:
+		case pttype.zlib:
 			return __libz__.gzerror(obj.stream);
-		case pt.type.bzip:
+		case pttype.bzip:
 			return __libbz__.bzerror(obj.stream);
 		default:
 			return -__libc__.ENOSUPPORT;
@@ -172,13 +190,15 @@ pt.error = function (obj) {
 };
 
 pt.eof = function (obj) {
+	var pttype = pt.type;
+
 	switch(type) {
-		case pt.type.file: // down
-		case pt.type.pipe:
+		case pttype.file: // down
+		case pttype.pipe:
 			return __libc__.feof(obj.stream);
-		case pt.type.zlib:
+		case pttype.zlib:
 			return __libz__.gzeof(obj.stream);
-		case pt.type.bzip: // down
+		case pttype.bzip: // down
 		default:
 			return -__libc__.ENOSUPPORT;
 	}

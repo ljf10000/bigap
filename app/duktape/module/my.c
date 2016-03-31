@@ -792,11 +792,22 @@ static const dukc_func_entry_t my_func[] = {
     LIB_FUNC_END
 };
 
+static const dukc_number_entry_t my_number[] = {
+    __LIB_VALUE("sizeof_short",     sizeof(short));
+    __LIB_VALUE("sizeof_int",       sizeof(int));
+    __LIB_VALUE("sizeof_long",      sizeof(long));
+    __LIB_VALUE("sizeof_longlong",  sizeof(long long));
+    __LIB_VALUE("sizeof_pointer",   sizeof(void *));
+    
+    LIB_VALUE_END
+};
+
 int my_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);
             duk_put_functions(ctx, -1, my_func);
+            duk_put_number_list(ctx, -1, my_number);
             
             env_register(ctx);
             arg_register(ctx);

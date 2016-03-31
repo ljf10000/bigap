@@ -183,9 +183,10 @@ duk_put_functions(duk_context *ctx, duk_idx_t obj_index, const dukc_func_entry_t
 #define LIB_PARAM(x, n)             LIB_PARAM_API(x, n, __LIB_PARAM_VERSION_DEFT)
 #define LIB_FUNC(x)                 {#x, duke_##x, __LIB_PARAM_NUMBER(x), __LIB_PARAM_VERSION(x)}
 #define LIB_FUNC_END                {NULL, NULL, 0, __LIB_PARAM_VERSION_DEFT}
-#define LIB_TVAR(x, _type)          {#x, (_type)(x)}
-#define LIB_VALUE(x)                {#x, x}
-#define LIB_VALUE_END               {NULL, 0}
+#define __LIB_VALUE(_name, _value)  {_name, _value}
+#define LIB_TVAR(x, _type)          __LIB_VALUE(#x, (_type)(x))
+#define LIB_VALUE(x)                __LIB_VALUE(#x, x)
+#define LIB_VALUE_END               __LIB_VALUE(NULL, 0)
 
 typedef void *duk_pointer_t;
 typedef void *duk_buffer_t;
