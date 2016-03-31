@@ -159,8 +159,8 @@ static const dukc_func_entry_t libc_func[] = {
     // 14.9 File Attributes
     // 14.9.2 Reading the Attributes of a File
     LIB_FUNC(stat),
-    LIB_FUNC(fstat),
     LIB_FUNC(lstat),
+    LIB_FUNC(fstat),
 
     // 14.9.3 Testing the Type of a File
     LIB_FUNC(S_ISDIR),

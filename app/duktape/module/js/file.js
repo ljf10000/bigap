@@ -22,6 +22,10 @@ pt.open = function (obj, filename, flag, mode) {
 	return obj;
 };
 
+pt.stat = function (obj) {
+	return __libc__.fstat(obj.fd);
+};
+
 pt.seek = function (obj, offset, where) {
 	return __libc__.fseek(obj.fd, offset, where);
 };

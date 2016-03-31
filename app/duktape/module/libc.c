@@ -1146,22 +1146,13 @@ LIB_PARAM(getcwd, 0);
 static duk_ret_t
 duke_getcwd(duk_context *ctx)
 {
-    int size = 1+OS_LINE_LEN;
-    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
-
-    while(1) {
-        if (buf==getcwd(buf, size-1)) {
-            break;
-        }
-        else if (ERANGE!=errno) {
-            seterrno(ctx);
-            duk_pop(ctx);
-            duk_push_null(ctx);
-            break;
-        }
-
-        size += size;
-        buf = duk_resize_buffer(ctx, -1, size);
+    char *cwd = getcwd(NULL, -1);
+    if (NULL==cmd) {
+        seterrno(ctx);
+        duk_push_null(ctx);
+    } else {
+        duk_push_string(ctx, cwd);
+        os_free(cwd);
     }
 
 	return 1;
@@ -1507,22 +1498,6 @@ duke_stat(duk_context *ctx)
     return __push_error(ctx, err), 1;
 }
 
-LIB_PARAM(fstat, 2);
-static duk_ret_t
-duke_fstat(duk_context *ctx)
-{
-    struct stat st;
-    
-    int fd = duk_require_int(ctx, 0);
-
-    int err = fstat(fd, &st);
-    if (0==err) { // 0 is ok
-        __set_stat(ctx, 1, &st);
-    }
-
-    return __push_error(ctx, err), 1;
-}
-
 LIB_PARAM(lstat, 2);
 static duk_ret_t
 duke_lstat(duk_context *ctx)
@@ -1532,6 +1507,22 @@ duke_lstat(duk_context *ctx)
     char *filename = (char *)duk_require_string(ctx, 0);
 
     int err = lstat(filename, &st);
+    if (0==err) { // 0 is ok
+        __set_stat(ctx, 1, &st);
+    }
+
+    return __push_error(ctx, err), 1;
+}
+
+LIB_PARAM(fstat, 2);
+static duk_ret_t
+duke_fstat(duk_context *ctx)
+{
+    struct stat st;
+    
+    int fd = duk_require_int(ctx, 0);
+
+    int err = fstat(fd, &st);
     if (0==err) { // 0 is ok
         __set_stat(ctx, 1, &st);
     }
