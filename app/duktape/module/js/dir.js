@@ -4,49 +4,60 @@
 * module: dir
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.constructor.prototype,
+	dir = require('helper/dir');
 
+pt.__proto__ = dir.constructor.prototype;
 pt.$name = pt.$name || 'dir';
 pt.$debugger = new $Debugger(pt.$name);
 
-pt.is_open = function is_open (obj) {
-	return typeof obj.dir === 'pointer' && obj.dir;
-};
+mod.Dir = function (filename, pre_open) {
+	var obj = {
+		filename: filename,
+		dir: null
+	};
 
-pt.is_close = function is_close (obj) {
-	return null === obj.dir;
-};
-
-pt.open = function (obj) {
-	if (is_close(obj)) {
-		obj.dir = __libc__.opendir(obj.dirname);
+	if (true === pre_open) {
+		pt.open(obj);
 	}
 
 	return obj;
 };
 
-pt.close = function (obj) {
-	if (is_open(obj)) {
-		__libc__.closedir(obj.dir);
+mod.Dir.prototype = {
+	is_open: function () {
+		return pt.is_open(this);
+	},
 
-		obj.dir = null;
+	is_close: function () {
+		return pt.is_close(this);
+	},
+
+	open: function () {
+		return pt.open(this);
+	},
+
+	close: function () {
+		pt.close(this);
+	},
+
+	read: function () {
+		return pt.read(this);
+	},
+
+	tell: function () {
+		return pt.tell(this);
+	},
+
+	seek: function (pos) {
+		return pt.seek(this, pos);
+	},
+
+	rewind: function () {
+		return pt.seek(rewind);
 	}
 };
 
-pt.read = function (obj) {
-	return __libc__.readdir(obj.dir);
-};
-
-pt.rewind = function (obj) {
-	return __libc__.rewinddir(obj.dir);
-};
-
-pt.tell = function (obj) {
-	return __libc__.telldir(obj.dir);
-};
-
-pt.seek = function (obj, pos) {
-	__libc__.seekdir(obj.dir, pos);
-};
+__js__.destructor(true, mod.Dir.prototype, pt.close);
 
 /* eof */

@@ -1,7 +1,7 @@
 #!/bin/js
 
 /*
-* module: fdset
+* module: fdset helper
 */
 var mod = this,
 	pt = mod.constructor.prototype;

@@ -1,7 +1,7 @@
 #!/bin/js
 
 /*
-* module: fd
+* module: fd helper
 */
 var mod = this,
 	pt = mod.constructor.prototype;
@@ -9,14 +9,8 @@ var mod = this,
 pt.$name = pt.$name || 'fd';
 pt.$debugger = new $Debugger(pt.$name);
 
-pt.type = {
-	file: 1,
-	pipe: 2,
-	sock: 3
-};
-
 pt.is_open = function is_open (obj) {
-	return typeof obj.fd === 'number' && obj.fd >= 0;
+	return typeof obj.fd === 'number' && obj.fd > 0;
 };
 
 pt.is_close = function is_close (obj) {
@@ -26,7 +20,6 @@ pt.is_close = function is_close (obj) {
 pt.close = function (obj) {
 	if (obj && is_open(obj)) {
 		__libc__.close(obj.fd);
-
 		obj.fd = -1;
 	}
 
@@ -34,7 +27,7 @@ pt.close = function (obj) {
 };
 
 pt.fcntl = function (obj, cmd, flag) {
-	if (undefined===flag) {
+	if (undefined === flag) {
 		return __libc__.fcntl(obj.fd, cmd);
 	} else {
 		return __libc__.fcntl(obj.fd, cmd, flag);

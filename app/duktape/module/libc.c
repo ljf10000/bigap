@@ -1531,6 +1531,7 @@ duke_fstat(duk_context *ctx)
 }
 
 // 14.9.3 Testing the Type of a File
+#if 0
 LIB_PARAM(S_ISDIR, 1);
 static duk_ret_t
 duke_S_ISDIR(duk_context *ctx)
@@ -1594,7 +1595,6 @@ duke_S_ISSOCK(duk_context *ctx)
     return duk_push_bool(ctx, S_ISSOCK(mode)), 1;
 }
 
-#if 0
 LIB_PARAM(S_TYPEISMQ, 1);
 static duk_ret_t
 duke_S_TYPEISMQ(duk_context *ctx)

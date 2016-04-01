@@ -11,13 +11,13 @@ pt.$debugger = new $Debugger(pt.$name);
 
 pt.load = function () {
 	if (this.filename) {
-		this.content = __my__.readtxt(this.filename);
+		this.cache = __my__.readtxt(this.filename);
 	}
 };
 
 pt.save = function () {
 	if (this.filename) {
-		__my__.writefile(this.filename, this.content);
+		__my__.writefile(this.filename, this.cache);
 	}
 };
 

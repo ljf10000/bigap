@@ -25,6 +25,11 @@ const
 	};
 
 function do_nothing () {}
+function no_support() { return -__LIBC__.ENOSUPPORT; }
+function allways_null() { return null; }
+function allways_undefined() { return undefined; }
+function allways_false() { return false; }
+function allways_true() { return true; }
 
 (function (global) {
 	/*
@@ -34,6 +39,7 @@ function do_nothing () {}
 	const
 		module = __my__.env.__JS_DEBUG_MOD__?JSON.parse(__my__.env.__JS_DEBUG_MOD__):[],
 		call = Array.prototype.slice.call,
+        empty = {},
 		level_init          = 0x00010000,
 		level_fini          = 0x00020000,
 		level_constructor   = 0x00040000,
@@ -65,6 +71,10 @@ function do_nothing () {}
 
 		return false;
 	}
+
+	global.allways_empty = function allways_empty() {
+		return empty;
+	};
 
 	global.debug = function debug (mod, level) {
 		if (is_debug(mod, level)) {

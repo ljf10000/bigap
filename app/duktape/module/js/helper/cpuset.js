@@ -1,7 +1,7 @@
 #!/bin/js
 
 /*
-* module: cpuset
+* module: cpuset helper
 */
 var mod = this,
 	pt = mod.constructor.prototype;

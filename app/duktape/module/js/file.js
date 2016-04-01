@@ -4,44 +4,185 @@
 * module: file
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.constructor.prototype,
+	fd = require('helper/fd'),
+	dir = require('helper/dir'),
+	fmode = require('helper/file.mode');
 
-pt.__proto__ = require('fd').constructor.prototype;
 pt.$name = pt.$name || 'file';
 pt.$debugger = new $Debugger(pt.$name);
 
-pt.open = function (obj) {
+pt.type = {
+	file: 1,
+	pipe: 2,
+	sock: 3,
+	dir: 4
+};
+
+function fproxy (obj, func) {
+	var type = pt.type;
+	var proxy;
+
+	switch(obj.type) {
+		case type.dir:
+			proxy = dir;
+			break;
+		case type.file:
+		case type.pipe:
+		case type.sock:
+		default:
+			proxy = fd;
+			break;
+	}
+
+	return proxy[func] || no_support;
+}
+
+pt.is_open = function is_open (obj) {
+	return fproxy(obj, 'is_open')(obj);
+};
+
+pt.is_close = function is_close (obj) {
+	return fproxy(obj, 'is_close')(obj);
+};
+
+pt.open = function (obj, flag, mode) {
 	if (obj && pt.is_close(obj)) {
-		obj.fd = __libc__.open(obj.filename, obj.flag, obj.mode);
+		var type = pt.type;
+
+		switch(obj.type) {
+			case type.file:
+			case type.pipe:
+				flag = flag || obj.flag;
+				mode = mode || obj.mode;
+
+				obj.fd = __libc__.open(obj.filename, flag, mode);
+				if (fd.is_open(obj)) {
+					obj.flag = flag;
+					obj.mode = mode;
+
+					/*
+					* maybe file not exist, but after open, the file is created
+					*/
+					obj.fmode = obj.fmode || __libc__.lstat(filename).mode;
+					obj.ftype = obj.ftype || fmode.get_type(obj.fmode);
+				}
+
+				break;
+			case type.sock:
+				break;
+			case type.dir:
+				obj.dir = __libc__.opendir(obj.filename);
+				break;
+			default:
+				break;
+		}
 	}
 
 	return obj;
 };
 
+pt.close = function (obj) {
+	return fproxy(obj, 'close')(obj);
+};
+
 pt.stat = function (obj) {
-	return __libc__.fstat(obj.fd);
+	var type = pt.type;
+
+	switch(obj.type) {
+		case type.file:
+		case type.dir:
+			return __libc__.stat(obj.filename);
+		default:
+			return no_support();
+	}
+};
+
+pt.lstat = function (obj) {
+	var type = pt.type;
+
+	switch(obj.type) {
+		case type.file:
+		case type.dir:
+			return __libc__.lstat(obj.filename);
+		default:
+			return no_support();
+	}
 };
 
 pt.seek = function (obj, offset, where) {
-	return __libc__.fseek(obj.fd, offset, where);
+	var type = pt.type;
+
+	switch(obj.type) {
+		case type.file:
+			return __libc__.lseek(obj.fd, offset, where);
+		case type.dir:
+			return __libc__.seekdir(obj.dir, offset/* pos */);
+		default:
+			return no_support();
+	}
 };
 
-pt.sync = function (obj) {
-	return __libc__.fsync(obj.fd);
+pt.rewind = function (obj) {
+	var type = pt.type;
+
+	switch(obj.type) {
+		case type.file:
+			return __libc__.lseek(obj.fd, 0, __libc__.SEEK_SET);
+		case type.dir:
+			return __libc__.rewinddir(obj.dir);
+		default:
+			return no_support();
+	}
 };
 
-pt.flush = pt.sync;
+pt.tell = function (obj) {
+	return fproxy(obj, 'tell')(obj);
+};
 
-mod.File = function (filename, flag, mode, open) {
-	var obj = {
-		filename: filename,
-		flag: flag || __libc__.O_RDONLY,
-		mode: mode || 0,
+pt.sync = pt.flush = function (obj) {
+	var type = pt.type;
 
-		fd: -1
-	};
+	switch(obj.type) {
+		case type.file:
+			return __libc__.fsync(obj.fd);
+		default:
+			return no_support();
+	}
+};
 
-	if (true === open) {
+pt.read = function (obj, buffer) {
+	return fproxy(obj, 'read')(obj, buffer);
+};
+
+pt.readEx = function (obj, size) {
+	return fproxy(obj, 'readEx')(obj, size);
+};
+
+pt.readv = function (obj, buffers) {
+	return fproxy(obj, 'readv')(obj, buffers);
+};
+
+pt.write = function (obj, buffer) {
+	return fproxy(obj, 'write')(obj, buffer);
+};
+
+pt.writev = function (obj, buffers) {
+	return fproxy(obj, 'writev')(obj, buffers);
+};
+
+mod.File = function (filename, flag, mode, pre_open) {
+	var tmp_fmode = __libc__.fexist(filename)?__libc__.lstat(filename).mode: 0,
+		obj = {
+			filename: filename,
+			flag: flag || __libc__.O_RDONLY,
+			mode: mode || 0,
+			fmode: tmp_fmode,
+			ftype: fmode.get_type(tmp_fmode),
+			fd: -1
+		};
+
+	if (true === pre_open) {
 		pt.open(obj);
 	}
 
@@ -49,8 +190,8 @@ mod.File = function (filename, flag, mode, open) {
 };
 
 mod.File.prototype = {
-	open: function () {
-		return pt.open(this);
+	open: function (flag, mode) {
+		return pt.open(this, flag, mode);
 	},
 
 	close: function () {
