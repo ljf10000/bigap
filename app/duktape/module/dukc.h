@@ -117,6 +117,10 @@
 #define duk_PATH            "/lib/js"
 #endif
 
+#ifndef duk_auto_PATH
+#define duk_auto_PATH       ".auto"
+#endif
+
 #ifndef duk_DUKTAPE
 #define duk_DUKTAPE         "Duktape"
 #endif

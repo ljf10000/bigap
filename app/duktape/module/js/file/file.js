@@ -5,11 +5,11 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	fd = require('helper/fd'),
-	dir = require('helper/dir'),
-	fmode = require('helper/file.mode');
+	fd = require('io/fp/fd'),
+	dir = require('fs/fp/dir'),
+	fmode = require('file/fp/mode');
 
-pt.$name = pt.$name || 'file';
+pt.$name = pt.$name || 'file/file';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.type = {

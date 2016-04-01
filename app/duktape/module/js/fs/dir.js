@@ -5,10 +5,10 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	dir = require('helper/dir');
+	dir = require('fs/fp/dir');
 
 pt.__proto__ = dir.constructor.prototype;
-pt.$name = pt.$name || 'dir';
+pt.$name = pt.$name || 'fs/dir';
 pt.$debugger = new $Debugger(pt.$name);
 
 mod.Dir = function (filename, pre_open) {

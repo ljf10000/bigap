@@ -5,10 +5,10 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	stream = require('helper/stream');
+	stream = require('stream/fp/stream');
 
 pt.__proto__ = stream.constructor.prototype;
-pt.$name = pt.$name || 'stream';
+pt.$name = pt.$name || 'stream/stream';
 pt.$debugger = new $Debugger(pt.$name);
 
 mod.Stream = function (filename, mode, type, pre_open) {

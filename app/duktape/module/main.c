@@ -40,7 +40,7 @@ auto_register(duk_context *ctx)
     * try eval duk_PATH/auto/xxx.js
     */
     char *env = env_gets(ENV_duk_PATH, duk_PATH);
-    os_snprintf(path, OS_LINE_LEN, "%s/auto", env);
+    os_snprintf(path, OS_LINE_LEN, "%s/" duk_auto_PATH, env);
     
     mv_t __handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
     {

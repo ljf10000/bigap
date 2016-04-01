@@ -6,7 +6,7 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.$name = pt.$name || 'fd';
+pt.$name = pt.$name || 'io/fp/fd';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.is_open = function is_open (obj) {

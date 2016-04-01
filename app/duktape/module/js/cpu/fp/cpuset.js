@@ -6,7 +6,7 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.$name = pt.$name || 'cpuset';
+pt.$name = pt.$name || 'cpu/fp/cpuset';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.fdset = function () {
