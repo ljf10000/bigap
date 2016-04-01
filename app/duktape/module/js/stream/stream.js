@@ -5,7 +5,7 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	stream = require('stream/fp/stream');
+	stream = require('stream/helper/stream');
 
 pt.__proto__ = stream.constructor.prototype;
 pt.$name = pt.$name || 'stream/stream';

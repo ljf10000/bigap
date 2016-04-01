@@ -6,7 +6,7 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.$name = pt.$name || 'io/fp/fdset';
+pt.$name = pt.$name || 'io/helper/fdset';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.fdset = function () {

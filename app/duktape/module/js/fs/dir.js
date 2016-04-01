@@ -5,7 +5,7 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	dir = require('fs/fp/dir');
+	dir = require('fs/helper/dir');
 
 pt.__proto__ = dir.constructor.prototype;
 pt.$name = pt.$name || 'fs/dir';

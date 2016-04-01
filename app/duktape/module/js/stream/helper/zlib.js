@@ -5,9 +5,9 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	base = require('stream/fp/base');
+	base = require('stream/helper/base');
 
-pt.$name = pt.$name || 'stream/fp/zlib';
+pt.$name = pt.$name || 'stream/helper/zlib';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.open = function (obj, mode) {

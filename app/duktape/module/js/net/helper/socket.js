@@ -6,8 +6,8 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.__proto__ = require('fd').constructor.prototype;
-pt.$name = pt.$name || 'socket';
+pt.__proto__ = require('io/helper/fd').constructor.prototype;
+pt.$name = pt.$name || 'net/helper/socket';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.open = function (obj, domain, type, protocol) {

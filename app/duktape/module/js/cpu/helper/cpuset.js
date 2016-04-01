@@ -6,10 +6,10 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.$name = pt.$name || 'cpu/fp/cpuset';
+pt.$name = pt.$name || 'cpu/helper/cpuset';
 pt.$debugger = new $Debugger(pt.$name);
 
-pt.fdset = function () {
+pt.cpuset = function () {
 	return new Uint32Array(__libc__.__CPU_SETSIZE/Uint32Array.BYTES_PER_ELEMENT);
 };
 

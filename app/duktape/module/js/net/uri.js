@@ -6,7 +6,7 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.$name = pt.$name || 'uri';
+pt.$name = pt.$name || 'net/uri';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.scheme = {

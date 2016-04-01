@@ -6,7 +6,7 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.$name = pt.$name || 'file/fp/mode';
+pt.$name = pt.$name || 'file/helper/mode';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.type = {

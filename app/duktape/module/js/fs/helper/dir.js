@@ -6,7 +6,7 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.$name = pt.$name || 'fs/fp/dir';
+pt.$name = pt.$name || 'fs/helper/dir';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.is_open = function is_open (obj) {

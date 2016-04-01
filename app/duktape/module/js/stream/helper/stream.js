@@ -5,14 +5,14 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	base = require('stream/fp/base'),
-	file = require('stream/fp/file'),
-	pipe = require('stream/fp/pipe'),
-	zlib = require('stream/fp/zlib'),
-	bzip = require('stream/fp/bzip');
+	base = require('stream/helper/base'),
+	file = require('stream/helper/file'),
+	pipe = require('stream/helper/pipe'),
+	zlib = require('stream/helper/zlib'),
+	bzip = require('stream/helper/bzip');
 
 pt.__proto__ = base.constructor.prototype;
-pt.$name = pt.$name || 'stream/fp/stream';
+pt.$name = pt.$name || 'stream/helper/stream';
 pt.$debugger = new $Debugger(pt.$name);
 
 function fproxy (obj, func, unsupport) {

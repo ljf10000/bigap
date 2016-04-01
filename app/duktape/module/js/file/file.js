@@ -5,9 +5,9 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	fd = require('io/fp/fd'),
-	dir = require('fs/fp/dir'),
-	fmode = require('file/fp/mode');
+	fd = require('io/helper/fd'),
+	dir = require('fs/helper/dir'),
+	fmode = require('file/helper/mode');
 
 pt.$name = pt.$name || 'file/file';
 pt.$debugger = new $Debugger(pt.$name);
