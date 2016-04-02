@@ -4,14 +4,14 @@
 * module: pipe stream helper
 */
 var mod = this,
-	pt = mod.constructor.prototype,
-	base = require('stream/helper/base');
+	pt = mod.constructor.prototype;
 
+pt.__proto__ = require('stream/helper/base').constructor.prototype;
 pt.$name = pt.$name || 'stream/helper/pipe';
 pt.$debugger = new $Debugger(pt.$name);
 
 pt.open = function (obj, mode) {
-	if (obj && base.is_close(obj)) {
+	if (obj && pt.is_close(obj)) {
 		obj.mode = mode || obj.mode;
 		obj.stream = __libc__.popen(obj.filename, obj.mode);
 	}
@@ -20,7 +20,7 @@ pt.open = function (obj, mode) {
 };
 
 pt.close = function (obj) {
-	if (obj && base.is_open(obj)) {
+	if (obj && pt.is_open(obj)) {
 		__libc__.pclose(obj.stream);
 		obj.stream = null;
 	}

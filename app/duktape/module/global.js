@@ -30,6 +30,9 @@ function allways_null() { return null; }
 function allways_undefined() { return undefined; }
 function allways_false() { return false; }
 function allways_true() { return true; }
+function safefun(f, fsafe) {
+	return (typeof f === 'function' && f) || fsafe || no_support;
+}
 
 (function (global) {
 	/*
@@ -254,6 +257,7 @@ function allways_true() { return true; }
 	};
 }(this));
 
+// extend TypedArray
 (function () {
 	function bits_mask (obj, bit) {
 		return 1<<(bit%(8*obj.BYTES_PER_ELEMENT));
@@ -294,4 +298,20 @@ function allways_true() { return true; }
 	}
 }());
 
+// extend Array
+(function () {
+	var pt = Array.prototype;
+
+	pt.includes = function (element, fromIndex) {
+		var i, count = this.length;
+
+		for (i=fromIndex; i<count; i++) {
+			if (element===this[i]) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+}());
 /* eof */

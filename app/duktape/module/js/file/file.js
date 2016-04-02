@@ -19,31 +19,31 @@ pt.type = {
 	dir: 4
 };
 
-function fproxy (obj, func) {
+function method (obj, funcname) {
 	var type = pt.type;
-	var proxy;
+	var helper;
 
 	switch(obj.type) {
 		case type.dir:
-			proxy = dir;
+			helper = dir;
 			break;
 		case type.file:
 		case type.pipe:
 		case type.sock:
 		default:
-			proxy = fd;
+			helper = fd;
 			break;
 	}
 
-	return proxy[func] || no_support;
+	return helper[funcname] || no_support;
 }
 
 pt.is_open = function is_open (obj) {
-	return fproxy(obj, 'is_open')(obj);
+	return method(obj, 'is_open')(obj);
 };
 
 pt.is_close = function is_close (obj) {
-	return fproxy(obj, 'is_close')(obj);
+	return method(obj, 'is_close')(obj);
 };
 
 pt.open = function (obj, flag, mode) {
@@ -83,7 +83,7 @@ pt.open = function (obj, flag, mode) {
 };
 
 pt.close = function (obj) {
-	return fproxy(obj, 'close')(obj);
+	return method(obj, 'close')(obj);
 };
 
 pt.stat = function (obj) {
@@ -137,7 +137,7 @@ pt.rewind = function (obj) {
 };
 
 pt.tell = function (obj) {
-	return fproxy(obj, 'tell')(obj);
+	return method(obj, 'tell')(obj);
 };
 
 pt.sync = pt.flush = function (obj) {
@@ -152,23 +152,23 @@ pt.sync = pt.flush = function (obj) {
 };
 
 pt.read = function (obj, buffer) {
-	return fproxy(obj, 'read')(obj, buffer);
+	return method(obj, 'read')(obj, buffer);
 };
 
 pt.readEx = function (obj, size) {
-	return fproxy(obj, 'readEx')(obj, size);
+	return method(obj, 'readEx')(obj, size);
 };
 
 pt.readv = function (obj, buffers) {
-	return fproxy(obj, 'readv')(obj, buffers);
+	return method(obj, 'readv')(obj, buffers);
 };
 
 pt.write = function (obj, buffer) {
-	return fproxy(obj, 'write')(obj, buffer);
+	return method(obj, 'write')(obj, buffer);
 };
 
 pt.writev = function (obj, buffers) {
-	return fproxy(obj, 'writev')(obj, buffers);
+	return method(obj, 'writev')(obj, buffers);
 };
 
 mod.File = function (filename, flag, mode, pre_open) {

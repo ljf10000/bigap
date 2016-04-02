@@ -47,7 +47,7 @@ auto_register(duk_context *ctx)
         (void)line_handle;
         
         char file[1+OS_LINE_LEN] = {0};
-    
+
         os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
 
         int err = __load_file(ctx, file);
