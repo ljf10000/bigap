@@ -6,7 +6,7 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.__proto__ = require('file/helper/fd').constructor.prototype;
+Object.setPrototypeOf(pt, require('file/helper/fd').constructor.prototype);
 pt.$name = pt.$name || 'file/helper/file';
 pt.$debugger = new $Debugger(pt.$name);
 

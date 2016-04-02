@@ -6,7 +6,8 @@
 var mod = this,
 	pt = mod.constructor.prototype;
 
-pt.__proto__ = require('stream/helper/base').constructor.prototype;
+Object.setPrototypeOf(pt, require('stream/helper/base').constructor.prototype);
+
 pt.$name = pt.$name || 'stream/helper/bzip';
 pt.$debugger = new $Debugger(pt.$name);
 

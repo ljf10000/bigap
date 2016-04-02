@@ -34,6 +34,7 @@ function safefun(f, fsafe) {
 	return (typeof f === 'function' && f) || fsafe || no_support;
 }
 
+// $Debugger
 (function (global) {
 	/*
 	* 0x00000001 ~ 0x00008000, user debug level
@@ -257,7 +258,34 @@ function safefun(f, fsafe) {
 	};
 }(this));
 
-// extend TypedArray
+// Object
+(function () {
+	var pt = Object.prototype;
+
+	pt.setPrototypeOf = pt.setPrototypeOf || function(obj, proto) {
+	  obj.__proto__ = proto;
+	  return obj;
+	};
+}());
+
+// Array
+(function () {
+	var pt = Array.prototype;
+
+	pt.includes = function (element, fromIndex) {
+		var i, count = this.length;
+
+		for (i=fromIndex; i<count; i++) {
+			if (element===this[i]) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+}());
+
+// TypedArray
 (function () {
 	function bits_mask (obj, bit) {
 		return 1<<(bit%(8*obj.BYTES_PER_ELEMENT));
@@ -298,20 +326,4 @@ function safefun(f, fsafe) {
 	}
 }());
 
-// extend Array
-(function () {
-	var pt = Array.prototype;
-
-	pt.includes = function (element, fromIndex) {
-		var i, count = this.length;
-
-		for (i=fromIndex; i<count; i++) {
-			if (element===this[i]) {
-				return true;
-			}
-		}
-
-		return false;
-	};
-}());
 /* eof */
