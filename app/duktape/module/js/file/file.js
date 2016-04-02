@@ -5,81 +5,29 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	fd = require('io/helper/fd'),
-	dir = require('fs/helper/dir'),
+	helper = {
+		file: require('file/helper/file'),
+		dir: require('fs/helper/dir')
+	},
 	fmode = require('file/helper/mode');
 
 pt.$name = pt.$name || 'file/file';
 pt.$debugger = new $Debugger(pt.$name);
 
-pt.type = {
-	file: 1,
-	pipe: 2,
-	sock: 3,
-	dir: 4
-};
-
-function method (obj, funcname) {
-	var type = pt.type;
-	var helper;
-
-	switch(obj.type) {
-		case type.dir:
-			helper = dir;
-			break;
-		case type.file:
-		case type.pipe:
-		case type.sock:
-		default:
-			helper = fd;
-			break;
-	}
-
-	return helper[funcname] || no_support;
+function method (obj, funcname, fsafe) {
+	return safefun(helper[obj.type][funcname], fsafe);
 }
 
 pt.is_open = function is_open (obj) {
-	return method(obj, 'is_open')(obj);
+	return method(obj, 'is_open', allways_false)(obj);
 };
 
 pt.is_close = function is_close (obj) {
-	return method(obj, 'is_close')(obj);
+	return method(obj, 'is_close', allways_true)(obj);
 };
 
 pt.open = function (obj, flag, mode) {
-	if (obj && pt.is_close(obj)) {
-		var type = pt.type;
-
-		switch(obj.type) {
-			case type.file:
-			case type.pipe:
-				flag = flag || obj.flag;
-				mode = mode || obj.mode;
-
-				obj.fd = __libc__.open(obj.filename, flag, mode);
-				if (fd.is_open(obj)) {
-					obj.flag = flag;
-					obj.mode = mode;
-
-					/*
-					* maybe file not exist, but after open, the file is created
-					*/
-					obj.fmode = obj.fmode || __libc__.lstat(filename).mode;
-					obj.ftype = obj.ftype || fmode.get_type(obj.fmode);
-				}
-
-				break;
-			case type.sock:
-				break;
-			case type.dir:
-				obj.dir = __libc__.opendir(obj.filename);
-				break;
-			default:
-				break;
-		}
-	}
-
-	return obj;
+	return method(obj, 'open', function () {return obj;})(obj, flag, mode);
 };
 
 pt.close = function (obj) {
@@ -87,53 +35,19 @@ pt.close = function (obj) {
 };
 
 pt.stat = function (obj) {
-	var type = pt.type;
-
-	switch(obj.type) {
-		case type.file:
-		case type.dir:
-			return __libc__.stat(obj.filename);
-		default:
-			return no_support();
-	}
+	return method(obj, 'stat')(obj);
 };
 
 pt.lstat = function (obj) {
-	var type = pt.type;
-
-	switch(obj.type) {
-		case type.file:
-		case type.dir:
-			return __libc__.lstat(obj.filename);
-		default:
-			return no_support();
-	}
+	return method(obj, 'lstat')(obj);
 };
 
 pt.seek = function (obj, offset, where) {
-	var type = pt.type;
-
-	switch(obj.type) {
-		case type.file:
-			return __libc__.lseek(obj.fd, offset, where);
-		case type.dir:
-			return __libc__.seekdir(obj.dir, offset/* pos */);
-		default:
-			return no_support();
-	}
+	return method(obj, 'seek')(obj, offset, where);
 };
 
 pt.rewind = function (obj) {
-	var type = pt.type;
-
-	switch(obj.type) {
-		case type.file:
-			return __libc__.lseek(obj.fd, 0, __libc__.SEEK_SET);
-		case type.dir:
-			return __libc__.rewinddir(obj.dir);
-		default:
-			return no_support();
-	}
+	return method(obj, 'rewind')(obj);
 };
 
 pt.tell = function (obj) {
@@ -141,14 +55,7 @@ pt.tell = function (obj) {
 };
 
 pt.sync = pt.flush = function (obj) {
-	var type = pt.type;
-
-	switch(obj.type) {
-		case type.file:
-			return __libc__.fsync(obj.fd);
-		default:
-			return no_support();
-	}
+	return method(obj, 'flush')(obj);
 };
 
 pt.read = function (obj, buffer) {
@@ -190,6 +97,14 @@ mod.File = function (filename, flag, mode, pre_open) {
 };
 
 mod.File.prototype = {
+	is_open: function () {
+		return pt.is_open(this);
+	},
+
+	is_close: function () {
+		return pt.is_close(this);
+	},
+
 	open: function (flag, mode) {
 		return pt.open(this, flag, mode);
 	},
