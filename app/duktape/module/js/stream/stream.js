@@ -12,8 +12,7 @@ var mod = this,
 		bzip: require('stream/helper/bzip')
 	};
 
-Object.setPrototypeOf(pt, require('stream/helper/base').constructor.prototype);
-
+pt.__proto__ = require('stream/helper/base').constructor.prototype;
 pt.$name = pt.$name || 'stream/stream';
 pt.$debugger = new $Debugger(pt.$name);
 

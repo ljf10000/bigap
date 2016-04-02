@@ -4,9 +4,10 @@
 * module: file helper
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.constructor.prototype,
+	fmode = require('file/helper/mode');
 
-Object.setPrototypeOf(pt, require('file/helper/fd').constructor.prototype);
+pt.__proto__ = require('file/helper/fd').constructor.prototype;
 pt.$name = pt.$name || 'file/helper/file';
 pt.$debugger = new $Debugger(pt.$name);
 
@@ -16,14 +17,14 @@ pt.open = function (obj, flag, mode) {
 		mode = mode || obj.mode;
 
 		obj.fd = __libc__.open(obj.filename, flag, mode);
-		if (fd.is_open(obj)) {
+		if (pt.is_open(obj)) {
 			obj.flag = flag;
 			obj.mode = mode;
 
 			/*
 			* maybe file not exist, but after open, the file is created
 			*/
-			obj.fmode = obj.fmode || __libc__.lstat(filename).mode;
+			obj.fmode = obj.fmode || __libc__.lstat(obj.filename).mode;
 			obj.ftype = obj.ftype || fmode.get_type(obj.fmode);
 		}
 	}
