@@ -5,7 +5,7 @@
 */
 var mod = this,
 	pt = mod.constructor.prototype,
-	helper = {
+	helpers = {
 		file: require('file/helper/file'),
 		dir: require('fs/helper/dir')
 	},
@@ -15,7 +15,7 @@ pt.$name = pt.$name || 'file/file';
 pt.$debugger = new $Debugger(pt.$name);
 
 function method (obj, funcname, fsafe) {
-	return safefun(helper[obj.type][funcname], fsafe);
+	return safefun(helpers[obj.type][funcname], fsafe);
 }
 
 pt.is_open = function is_open (obj) {
