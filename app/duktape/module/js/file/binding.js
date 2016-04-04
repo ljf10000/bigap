@@ -27,8 +27,8 @@ pt.binding = function (filename, direct, reader, writer) {
 	var obj = {
 		$name: pt.$name + '(' + filename + ')',
 		filename: filename,
-		reader: reader || allways_immutable,
-		writer: writer || allways_immutable
+		reader: reader || allways_pass,
+		writer: writer || allways_pass
 	};
 
 	if (true === direct) {
