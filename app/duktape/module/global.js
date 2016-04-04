@@ -26,6 +26,7 @@ const
 
 function do_nothing () {}
 function no_support() { return -__LIBC__.ENOSUPPORT; }
+function allways_immutable(obj) { return obj; }
 function allways_null() { return null; }
 function allways_undefined() { return undefined; }
 function allways_false() { return false; }
