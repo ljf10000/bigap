@@ -113,9 +113,9 @@ __main(int argc, char *argv[])
     duk_pop(ctx);
 
 error:
-    debug_shell("before destroy duk heap");
+    debug_js("before destroy duk heap");
     duk_destroy_heap(ctx);
-    debug_shell("after  destroy duk heap");
+    debug_js("after  destroy duk heap");
 
     return err;
 }

@@ -124,10 +124,6 @@
 #ifndef duk_DUKTAPE
 #define duk_DUKTAPE         "Duktape"
 #endif
-
-#ifndef duk_SEARCH
-#define duk_SEARCH          "modSearch"
-#endif
 /******************************************************************************/
 typedef duk_number_list_entry   dukc_number_entry_t;
 

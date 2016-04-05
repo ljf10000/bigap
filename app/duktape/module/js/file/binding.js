@@ -24,15 +24,17 @@ pt.save = function (obj, writer) {
 };
 
 pt.binding = function (filename, direct, reader, writer) {
-	var obj = {
+	var binding = {
 		$name: pt.$name + '(' + filename + ')',
 		filename: filename,
 		reader: reader || allways_pass,
 		writer: writer || allways_pass
 	};
 
+	fmt.oprint('inline binding', binding);
+	
 	if (true === direct) {
-		return new Proxy(obj, {
+		return new Proxy(binding, {
 			get: function (obj, key) {
 				if (key==='content') {
 					pt.load(obj);
@@ -58,7 +60,7 @@ pt.binding = function (filename, direct, reader, writer) {
 			save: function () {
 				pt.save(this);
 			}
-		}, obj);
+		}, binding);
 	}
 };
 
