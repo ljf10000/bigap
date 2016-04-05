@@ -16,11 +16,11 @@ pt.load = function (obj) {
 		obj.content = obj.reader('');
 	}
 
-	pt.$debugger.trace('load ' + obj.content);
+	print('load ' + obj.content);
 };
 
 pt.save = function (obj, writer) {
-	pt.$debugger.trace('save ' + obj.filename + ':' + obj.content);
+	print('save ' + obj.filename + ':' + obj.content);
 
 	if (obj.filename && obj.content) {
 		__my__.writefile(obj.filename, obj.writer(obj.content));
