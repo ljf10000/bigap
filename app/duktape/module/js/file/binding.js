@@ -31,7 +31,8 @@ pt.binding = function (filename, direct, reader, writer) {
 		writer: writer || allways_pass
 	},  new_binding;
 
-	pt.$debugger.init(binding);
+	//pt.$debugger.init(binding);
+	fmt.oprint('binding', binding);
 
 	if (true === direct) {
 		new_binding = new Proxy(binding, {
@@ -63,7 +64,8 @@ pt.binding = function (filename, direct, reader, writer) {
 		}, binding);
 	}
 
-	pt.$debugger.init(new_binding);
+	//pt.$debugger.init(new_binding);
+	fmt.oprint('new_binding', new_binding);
 
 	return new_binding;
 };

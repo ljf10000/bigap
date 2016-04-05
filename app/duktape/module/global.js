@@ -54,7 +54,6 @@ function safefun(f, fsafe) {
 	* 0x00000001 ~ 0x00008000, user debug level
 	* 0x00010000 ~ 0x80000000, sys  debug level
 	*/
-	print('__my__.env.__JMOD__='+__my__.env.__JMOD__);
 	const
 		modules = __my__.env.__JMOD__?JSON.parse(__my__.env.__JMOD__):[],
 		call = Array.prototype.slice.call;
