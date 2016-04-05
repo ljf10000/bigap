@@ -150,7 +150,7 @@ function safefun(f, fsafe) {
 	};
 
 	global.$Debugger = function $Debugger (mod) {
-		return {mod: mod};
+		this.mod = mod;
 	};
 
 	$Debugger.prototype = {
