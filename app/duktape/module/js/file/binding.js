@@ -56,6 +56,7 @@ pt.binding = function (filename, direct, reader, writer) {
 	} else {
 		print('before Object.create');
 		new_binding = Object.create({
+			/*
 			load: function () {
 				pt.load(this);
 			},
@@ -63,6 +64,7 @@ pt.binding = function (filename, direct, reader, writer) {
 			save: function () {
 				pt.save(this);
 			}
+			*/
 		}, binding);
 		print('after Object.create');
 	}
