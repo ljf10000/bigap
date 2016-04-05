@@ -29,13 +29,13 @@ pt.binding = function (filename, direct, reader, writer) {
 		filename: filename,
 		reader: reader || allways_pass,
 		writer: writer || allways_pass
-	},  new_binding;
+	};
 
 	//pt.$debugger.init(binding);
 	fmt.oprint('binding', binding);
 
 	if (true === direct) {
-		new_binding = new Proxy(binding, {
+		return new Proxy(binding, {
 			get: function (obj, key) {
 				if (key==='content') {
 					pt.load(obj);
@@ -61,15 +61,9 @@ pt.binding = function (filename, direct, reader, writer) {
 				pt.save(binding);
 			}
 		};
-		
-		new_binding = binding;
-		print('new_binding 3');
+
+		return binding;
 	}
-
-	//pt.$debugger.init(new_binding);
-	fmt.oprint('new_binding', new_binding);
-
-	return new_binding;
 };
 
 pt.jsonBinding = function (filename) {
