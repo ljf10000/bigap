@@ -61,6 +61,8 @@ duke_debug(duk_context *ctx)
 {
     const char *string = duk_require_string(ctx, 0);
 
+    os_println("duke_debug:%s", string);
+    
     debug_js(string);
 
     return 0;
