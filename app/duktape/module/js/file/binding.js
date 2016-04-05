@@ -55,11 +55,11 @@ pt.binding = function (filename, direct, reader, writer) {
 	} else {
 		new_binding = Object.create({
 			load: function () {
-				pt.load(this);
+				pt.load(binding);
 			},
 
 			save: function () {
-				pt.save(this);
+				pt.save(binding);
 			}
 		}, binding);
 	}
