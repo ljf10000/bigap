@@ -56,7 +56,7 @@ function safefun(f, fsafe) {
 	*/
 	const
 		modules = __my__.env.__JMOD__?JSON.parse(__my__.env.__JMOD__):[],
-		call = Array.prototype.slice.call;
+		slice = Array.prototype.slice;
 
 	function is_debug(mod, level) {
 		if (__my__.is_debug(level)) {
@@ -79,73 +79,73 @@ function safefun(f, fsafe) {
 
 	global.debug = function (mod, level) {
 		if (is_debug(mod, level)) {
-			__my__.debug(call(arguments).slice(2).toString());
+			__my__.debug(slice.call(arguments).slice(2).toString());
 		}
 	};
 
 	global.debug_init = function (mod) {
 		if (is_debug(mod, $debug_level_init)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_fini = function (mod) {
 		if (is_debug(mod, $debug_level_fini)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_constructor = function (mod) {
 		if (is_debug(mod, $debug_level_constructor)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_destructor = function (mod) {
 		if (is_debug(mod, $debug_level_destructor)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_ok = function (mod) {
 		if (is_debug(mod, $debug_level_ok)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_error = function (mod) {
 		if (is_debug(mod, $debug_level_error)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_trace = function (mod) {
 		if (is_debug(mod, $debug_level_trace)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_bug = function (mod) {
 		if (is_debug(mod, $debug_level_bug)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_io = function (mod) {
 		if (is_debug(mod, $debug_level_io)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_st = function (mod) {
 		if (is_debug(mod, $debug_level_st)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
 	global.debug_test = function (mod) {
 		if (is_debug(mod, $debug_level_test)) {
-			__my__.debug(call(arguments).slice(1).toString());
+			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
@@ -156,78 +156,75 @@ function safefun(f, fsafe) {
 	global.$Debugger.prototype = {
 		debug: function (level) {
 			if (is_debug(this.mod, level)) {
-				__my__.debug(call(arguments).slice(1).toString());
+				__my__.debug(slice.call(arguments).slice(1).toString());
 			}
 		},
 
 		init: function () {
-			print('debug init 1');
 			if (is_debug(this.mod, $debug_level_init)) {
-				print('debug init 2');
-				var slice = Array.prototype.slice;
 				var s = slice.call(arguments).slice(0).toString();
 				print('debug init:' + s);
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		fini: function () {
 			if (is_debug(this.mod, $debug_level_fini)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		constructor: function () {
 			if (is_debug(this.mod, $debug_level_constructor)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		destructor: function () {
 			if (is_debug(this.mod, $debug_level_destructor)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		ok: function () {
 			if (is_debug(this.mod, $debug_level_ok)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		error: function () {
 			if (is_debug(this.mod, $debug_level_error)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		trace: function () {
 			if (is_debug(this.mod, $debug_level_trace)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		bug: function () {
 			if (is_debug(this.mod, $debug_level_bug)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		io: function () {
 			if (is_debug(this.mod, $debug_level_io)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		st: function () {
 			if (is_debug(this.mod, $debug_level_st)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
 		test: function () {
 			if (is_debug(this.mod, $debug_level_test)) {
-				__my__.debug(call(arguments).slice(0).toString());
+				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		}
 	};
