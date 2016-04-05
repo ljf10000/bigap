@@ -4,7 +4,7 @@
 * module: base stream helper
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.__proto__;
 
 pt.$name = pt.$name || 'stream/helper/base';
 pt.$debugger = new $Debugger(pt.$name);

@@ -4,7 +4,7 @@
 * module: fdset helper
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.__proto__;
 
 pt.$name = pt.$name || 'io/helper/fdset';
 pt.$debugger = new $Debugger(pt.$name);

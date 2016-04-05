@@ -4,7 +4,7 @@
 * module: stream
 */
 var mod = this,
-	pt = mod.constructor.prototype,
+	pt = mod.__proto__,
 	helper = {
 		file: require('stream/helper/file'),
 		pipe: require('stream/helper/pipe'),
@@ -12,7 +12,7 @@ var mod = this,
 		bzip: require('stream/helper/bzip')
 	};
 
-pt.__proto__ = require('stream/helper/base').constructor.prototype;
+pt.__proto__ = require('stream/helper/base').__proto__;
 pt.$name = pt.$name || 'stream/stream';
 pt.$debugger = new $Debugger(pt.$name);
 

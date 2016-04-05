@@ -4,7 +4,7 @@
 * module: file
 */
 var mod = this,
-	pt = mod.constructor.prototype,
+	pt = mod.__proto__,
 	helpers = {
 		file: require('file/helper/file'),
 		dir: require('fs/helper/dir')

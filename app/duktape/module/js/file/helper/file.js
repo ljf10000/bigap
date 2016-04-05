@@ -4,10 +4,10 @@
 * module: file helper
 */
 var mod = this,
-	pt = mod.constructor.prototype,
+	pt = mod.__proto__,
 	fmode = require('file/helper/mode');
 
-pt.__proto__ = require('file/helper/fd').constructor.prototype;
+pt.__proto__ = require('file/helper/fd').__proto__;
 pt.$name = pt.$name || 'file/helper/file';
 pt.$debugger = new $Debugger(pt.$name);
 

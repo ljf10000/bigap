@@ -4,7 +4,7 @@
 * module: file binding
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.__proto__;
 
 pt.$name = pt.$name || 'file/binding';
 pt.$debugger = new $Debugger(pt.$name);

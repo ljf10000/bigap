@@ -4,7 +4,7 @@
 * module: uri
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.__proto__;
 
 pt.$name = pt.$name || 'net/uri';
 pt.$debugger = new $Debugger(pt.$name);

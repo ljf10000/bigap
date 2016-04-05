@@ -4,9 +4,9 @@
 * module: pipe stream helper
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.__proto__;
 
-pt.__proto__ = require('stream/helper/base').constructor.prototype;
+pt.__proto__ = require('stream/helper/base').__proto__;
 pt.$name = pt.$name || 'stream/helper/pipe';
 pt.$debugger = new $Debugger(pt.$name);
 

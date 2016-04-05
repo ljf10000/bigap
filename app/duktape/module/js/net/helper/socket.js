@@ -4,9 +4,9 @@
 * module: pt
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.__proto__;
 
-pt.__proto__ = require('io/helper/fd').constructor.prototype;
+pt.__proto__ = require('io/helper/fd').__proto__;
 pt.$name = pt.$name || 'net/helper/socket';
 pt.$debugger = new $Debugger(pt.$name);
 

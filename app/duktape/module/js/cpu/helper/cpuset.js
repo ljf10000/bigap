@@ -4,7 +4,7 @@
 * module: cpuset helper
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.__proto__;
 
 pt.$name = pt.$name || 'cpu/helper/cpuset';
 pt.$debugger = new $Debugger(pt.$name);

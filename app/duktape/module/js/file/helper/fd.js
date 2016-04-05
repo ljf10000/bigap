@@ -4,7 +4,7 @@
 * module: fd helper
 */
 var mod = this,
-	pt = mod.constructor.prototype;
+	pt = mod.__proto__;
 
 pt.$name = pt.$name || 'file/helper/fd';
 pt.$debugger = new $Debugger(pt.$name);
