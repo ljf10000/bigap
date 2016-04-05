@@ -53,19 +53,16 @@ pt.binding = function (filename, direct, reader, writer) {
 			}
 		});
 	} else {
-		print('new_binding 1');
-		new_binding = Object.create({}, binding);
-		print('new_binding 2');
-
-		new_binding = Object.create({
+		binding.__proto__ = {
 			load: function () {
 				pt.load(binding);
 			},
-
 			save: function () {
 				pt.save(binding);
 			}
-		}, binding);
+		};
+		
+		new_binding = binding;
 		print('new_binding 3');
 	}
 
