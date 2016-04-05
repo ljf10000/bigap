@@ -29,12 +29,12 @@ pt.binding = function (filename, direct, reader, writer) {
 		filename: filename,
 		reader: reader || allways_pass,
 		writer: writer || allways_pass
-	};
+	},  new_binding;
 
 	fmt.oprint('inline binding', binding);
-	
+
 	if (true === direct) {
-		return new Proxy(binding, {
+		new_binding = new Proxy(binding, {
 			get: function (obj, key) {
 				if (key==='content') {
 					pt.load(obj);
@@ -52,7 +52,7 @@ pt.binding = function (filename, direct, reader, writer) {
 			}
 		});
 	} else {
-		return Object.create({
+		new_binding = Object.create({
 			load: function () {
 				pt.load(this);
 			},
@@ -62,6 +62,10 @@ pt.binding = function (filename, direct, reader, writer) {
 			}
 		}, binding);
 	}
+
+	fmt.oprint('new binding', new_binding);
+
+	return new_binding;
 };
 
 pt.jsonBinding = function (filename) {
