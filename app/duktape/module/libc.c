@@ -1147,7 +1147,7 @@ static duk_ret_t
 duke_getcwd(duk_context *ctx)
 {
     char *cwd = getcwd(NULL, -1);
-    if (NULL==cmd) {
+    if (NULL==cwd) {
         seterrno(ctx);
         duk_push_null(ctx);
     } else {
