@@ -15,9 +15,13 @@ pt.load = function (obj) {
 	} else {
 		obj.content = obj.reader('');
 	}
+
+	print('load ' + obj.content);
 };
 
 pt.save = function (obj, writer) {
+	print('save ' + obj.filename + ':' + obj.content);
+
 	if (obj.filename && obj.content) {
 		__my__.writefile(obj.filename, obj.writer(obj.content));
 	}
