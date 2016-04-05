@@ -792,25 +792,30 @@ static const dukc_func_entry_t my_func[] = {
     LIB_FUNC_END
 };
 
-static const dukc_number_entry_t my_number[] = {
-    __LIB_VALUE("SIZEOF_SHORT",     sizeof(short)),
-    __LIB_VALUE("SIZEOF_INT",       sizeof(int)),
-    __LIB_VALUE("SIZEOF_LONG",      sizeof(long)),
-    __LIB_VALUE("SIZEOF_LONGLONG",  sizeof(long long)),
-    __LIB_VALUE("SIZEOF_POINTER",   sizeof(void *)),
-
-    __LIB_VALUE("BIG_ENDIAN",       !!(*(uint16 *)"\x12\x34"==0x1234)),
-    __LIB_VALUE("LITTLE_ENDIAN",    !!(*(uint16 *)"\x12\x34"==0x3412)),
-
+static const dukc_number_entry_t my_static_number[] = {
     LIB_VALUE_END
 };
 
 int my_register(duk_context *ctx)
 {
+    const dukc_number_entry_t my_dynamic_number[] = {
+        __LIB_VALUE("SIZEOF_SHORT",     sizeof(short)),
+        __LIB_VALUE("SIZEOF_INT",       sizeof(int)),
+        __LIB_VALUE("SIZEOF_LONG",      sizeof(long)),
+        __LIB_VALUE("SIZEOF_LONGLONG",  sizeof(long long)),
+        __LIB_VALUE("SIZEOF_POINTER",   sizeof(void *)),
+
+        __LIB_VALUE("BIG_ENDIAN",       !!(*(uint16 *)"\x12\x34"==0x1234)),
+        __LIB_VALUE("LITTLE_ENDIAN",    !!(*(uint16 *)"\x12\x34"==0x3412)),
+
+        LIB_VALUE_END
+    };
+    
     duk_push_global_object(ctx);
         duk_push_object(ctx);
             duk_put_functions(ctx, -1, my_func);
-            duk_put_number_list(ctx, -1, my_number);
+            duk_put_number_list(ctx, -1, my_static_number);
+            duk_put_number_list(ctx, -1, my_dynamic_number);
             
             env_register(ctx);
             arg_register(ctx);
