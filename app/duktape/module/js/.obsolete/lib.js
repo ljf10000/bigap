@@ -2,6 +2,7 @@
 
 // just for webstorm
 function require (mod) {return null;}
+function Proxy(obj, handler) {return obj;}
 
 __my__ = __my__ || null;
 __libc__ = __libc__ || null;

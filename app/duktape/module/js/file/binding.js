@@ -34,6 +34,7 @@ pt.binding = function (filename, direct, reader, writer) {
 	fmt.oprint('inline binding', binding);
 
 	if (true === direct) {
+		print('before Proxy');
 		new_binding = new Proxy(binding, {
 			get: function (obj, key) {
 				if (key==='content') {
@@ -51,7 +52,9 @@ pt.binding = function (filename, direct, reader, writer) {
 				}
 			}
 		});
+		print('after Proxy');
 	} else {
+		print('before Object.create');
 		new_binding = Object.create({
 			load: function () {
 				pt.load(this);
@@ -61,6 +64,7 @@ pt.binding = function (filename, direct, reader, writer) {
 				pt.save(this);
 			}
 		}, binding);
+		print('after Object.create');
 	}
 
 	fmt.oprint('new binding', new_binding);
