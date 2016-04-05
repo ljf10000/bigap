@@ -16,11 +16,11 @@ pt.load = function (obj) {
 		obj.content = obj.reader('');
 	}
 
-	print('load ' + obj.content);
+	pt.$debugger.trace('load ' + obj.content);
 };
 
 pt.save = function (obj, writer) {
-	print('save ' + obj.filename + ':' + obj.content);
+	pt.$debugger.trace('save ' + obj.filename + ':' + obj.content);
 
 	if (obj.filename && obj.content) {
 		__my__.writefile(obj.filename, obj.writer(obj.content));
@@ -34,10 +34,7 @@ pt.binding = function (filename, direct, reader, writer) {
 		reader: reader || allways_pass,
 		writer: writer || allways_pass
 	};
-
-	//pt.$debugger.init(binding);
-	fmt.oprint('binding', binding);
-
+	
 	if (true === direct) {
 		return new Proxy(binding, {
 			get: function (obj, key) {
