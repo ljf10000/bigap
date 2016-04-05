@@ -53,8 +53,9 @@ pt.binding = function (filename, direct, reader, writer) {
 			}
 		});
 	} else {
+		print('new_binding 1');
 		new_binding = Object.create({}, binding);
-		fmt.oprint('new_binding', new_binding);
+		print('new_binding 2');
 
 		new_binding = Object.create({
 			load: function () {
@@ -65,6 +66,7 @@ pt.binding = function (filename, direct, reader, writer) {
 				pt.save(binding);
 			}
 		}, binding);
+		print('new_binding 3');
 	}
 
 	//pt.$debugger.init(new_binding);
