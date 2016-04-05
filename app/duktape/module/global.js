@@ -155,8 +155,9 @@ function safefun(f, fsafe) {
 
 	global.$Debugger.prototype = {
 		debug: function (level) {
+			print('debug init 1');
 			if (is_debug(this.mod, level)) {
-				print('debug init');
+				print('debug init 2');
 				var s = call(arguments).slice(1).toString();
 				print('debug init:' + s);
 				__my__.debug(call(arguments).slice(1).toString());
