@@ -151,6 +151,8 @@ function safefun(f, fsafe) {
 
 	global.$Debugger = function (mod) {
 		this.mod = mod;
+
+		print('new Debugger(' + mod + ')');
 	};
 
 	global.$Debugger.prototype = {
@@ -161,6 +163,8 @@ function safefun(f, fsafe) {
 		},
 
 		init: function () {
+			print('debug init:', call(arguments).slice(0).toString());
+			
 			if (is_debug(this.mod, $debug_level_init)) {
 				__my__.debug(call(arguments).slice(0).toString());
 			}
