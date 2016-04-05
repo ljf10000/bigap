@@ -149,11 +149,11 @@ function safefun(f, fsafe) {
 		}
 	};
 
-	global.$Debugger = function $Debugger (mod) {
+	global.$Debugger = function (mod) {
 		this.mod = mod;
 	};
 
-	$Debugger.prototype = {
+	global.$Debugger.prototype = {
 		debug: function (level) {
 			if (is_debug(this.mod, level)) {
 				__my__.debug(call(arguments).slice(1).toString());
