@@ -53,6 +53,9 @@ pt.binding = function (filename, direct, reader, writer) {
 			}
 		});
 	} else {
+		new_binding = Object.create({}, binding);
+		fmt.oprint('new_binding', new_binding);
+
 		new_binding = Object.create({
 			load: function () {
 				pt.load(binding);
