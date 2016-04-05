@@ -163,9 +163,11 @@ function safefun(f, fsafe) {
 		},
 
 		init: function () {
-			print('debug init:', call(arguments).slice(0).toString());
-			
+			print('debug init 1');
+
 			if (is_debug(this.mod, $debug_level_init)) {
+				print('debug init 2');
+
 				__my__.debug(call(arguments).slice(0).toString());
 			}
 		},
