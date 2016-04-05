@@ -109,10 +109,6 @@
 #define ENV_duk_PATH        "JPATH"
 #endif
 
-#ifndef ENV_duk_JDEBUG_MOD
-#define ENV_duk_JDEBUG_MOD  "__JDEBUG_MOD__"
-#endif
-
 #ifndef duk_PATH
 #define duk_PATH            "/lib/js"
 #endif

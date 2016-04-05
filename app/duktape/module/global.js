@@ -55,7 +55,7 @@ function safefun(f, fsafe) {
 	* 0x00010000 ~ 0x80000000, sys  debug level
 	*/
 	const
-		modules = __my__.env.__JS_DEBUG_MOD__?JSON.parse(__my__.env.__JS_DEBUG_MOD__):[],
+		modules = __my__.env.__JMOD__?JSON.parse(__my__.env.__JMOD__):[],
 		call = Array.prototype.slice.call;
 
 	function is_debug(mod, level) {
