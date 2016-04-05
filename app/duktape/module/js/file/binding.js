@@ -65,7 +65,12 @@ pt.binding = function (filename, direct, reader, writer) {
 				pt.save(this);
 			}
 			*/
-		}, binding);
+		}, {
+				$name: pt.$name + '(' + filename + ')',
+				filename: filename,
+				reader: reader || allways_pass,
+				writer: writer || allways_pass
+			});
 		print('after Object.create');
 	}
 
