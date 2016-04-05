@@ -34,7 +34,7 @@ pt.binding = function (filename, direct, reader, writer) {
 		reader: reader || allways_pass,
 		writer: writer || allways_pass
 	};
-	
+
 	if (true === direct) {
 		return new Proxy(binding, {
 			get: function (obj, key) {
