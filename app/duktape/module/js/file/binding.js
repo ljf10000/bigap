@@ -57,6 +57,8 @@ pt.binding = function (filename, direct, reader, writer) {
 			}
 		});
 	} else {
+		binding.content = {};
+
 		binding.__proto__ = {
 			load: function () {
 				pt.load(binding);
