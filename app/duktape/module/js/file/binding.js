@@ -31,10 +31,9 @@ pt.binding = function (filename, direct, reader, writer) {
 		writer: writer || allways_pass
 	},  new_binding;
 
-	fmt.oprint('inline binding', binding);
+	pt.$debugger.init(binding);
 
 	if (true === direct) {
-		print('before Proxy');
 		new_binding = new Proxy(binding, {
 			get: function (obj, key) {
 				if (key==='content') {
@@ -52,11 +51,8 @@ pt.binding = function (filename, direct, reader, writer) {
 				}
 			}
 		});
-		print('after Proxy');
 	} else {
-		print('before Object.create');
 		new_binding = Object.create({
-			/*
 			load: function () {
 				pt.load(this);
 			},
@@ -64,17 +60,10 @@ pt.binding = function (filename, direct, reader, writer) {
 			save: function () {
 				pt.save(this);
 			}
-			*/
-		}, {
-				$name: pt.$name + '(' + filename + ')',
-				filename: filename,
-				reader: reader || allways_pass,
-				writer: writer || allways_pass
-			});
-		print('after Object.create');
+		}, binding);
 	}
 
-	fmt.oprint('new binding', new_binding);
+	pt.$debugger.init(new_binding);
 
 	return new_binding;
 };
