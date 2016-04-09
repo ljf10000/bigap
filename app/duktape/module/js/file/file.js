@@ -16,7 +16,7 @@ pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
 function method (obj, funcname, fsafe) {
-	return safefun(helpers[obj.type][funcname], fsafe);
+	return safe_function(helpers[obj.type][funcname], fsafe);
 }
 
 pt.is_open = function is_open (obj) {
@@ -80,11 +80,13 @@ pt.writev = function (obj, buffers) {
 };
 
 mod.File = function (filename, flag, mode, pre_open) {
-	var tmp_fmode = __libc__.fexist(filename)?__libc__.lstat(filename).mode: 0,
+	var tmp_filename = maybe_string(filename),
+		tmp_fmode = __libc__.fexist(tmp_filename)?__libc__.lstat(tmp_filename).mode: 0,
 		obj = {
-			filename: filename,
-			flag: flag || __libc__.O_RDONLY,
-			mode: mode || 0,
+			$name: pt.$name() + '(' + tmp_filename + ')',
+			filename: tmp_filename,
+			flag: maybe_number(flag) || __libc__.O_RDONLY,
+			mode: maybe_number(mode) || 0,
 			fmode: tmp_fmode,
 			ftype: fmode.get_type(tmp_fmode),
 			fd: -1

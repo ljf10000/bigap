@@ -8,6 +8,8 @@ const
 	BIG_ENDIAN    = (1===__my__.BIG_ENDIAN),
 	LITTLE_ENDIAN = (1===__my__.LITTLE_ENDIAN),
 	OS_BITS       = 8*__my__.SIZEOF_POINTER,
+	UNKNOW_STRING = 'unknow',
+	UNKNOW_NUMBER = 0,
 	fmt = {
 		oprint: function (name, obj) {
 			var root = {};
@@ -33,19 +35,39 @@ const
 	$LOG_DEBUG            = 7;
 
 function do_nothing () {}
-function no_support() { return -__LIBC__.ENOSUPPORT; }
-function allways_null() { return null; }
-function allways_undefined() { return undefined; }
-function allways_false() { return false; }
-function allways_true() { return true; }
-function allways_empty() { return {}; }
-function allways_pass(obj) { return obj; }
-function safefun(f, fsafe) {
-	return (typeof f === 'function' && f) || fsafe || no_support;
+function no_support () { return -__LIBC__.ENOSUPPORT; }
+
+function must (obj, type) { return typeof obj === type;}
+function must_object (obj) { return obj && must(obj, 'object'); }
+function must_function (obj) { return must(obj, 'function'); }
+function must_string (obj) { return must(obj, 'string'); }
+function must_number (obj) { return must(obj, 'number'); }
+function must_bool (obj) { return must(obj, 'boolean'); }
+
+function maybe (obj, type) { return typeof obj === type ? obj : undefined;}
+function maybe_object (obj) { return (obj && typeof obj === 'object') ? obj : undefined; }
+function maybe_function (obj) { return maybe(obj, 'function'); }
+function maybe_string (obj) { return maybe(obj, 'string'); }
+function maybe_number (obj) { return maybe(obj, 'number'); }
+function maybe_bool (obj) { return maybe(obj, 'boolean'); }
+
+function allways (obj) { return obj; }
+function allways_null () { return null; }
+function allways_undefined () { return undefined; }
+function allways_false () { return false; }
+function allways_true () { return true; }
+function allways_empty () { return {}; }
+
+function safe_function (f, safe) {
+	return maybe_function(f) || maybe_function(safe) || no_support;
 }
 
-function function_or_undefined (f) {
-	return typeof f === 'function'?f:undefined;
+function safe_string (s, safe) {
+	return maybe_string(s) || maybe_string(safe) || UNKNOW_STRING;
+}
+
+function safe_number (n, safe) {
+	return maybe_number(n) || maybe_number(safe) || UNKNOW_NUMBER;
 }
 
 // Object
@@ -310,9 +332,9 @@ function function_or_undefined (f) {
 	__js__.destructor = function (is_class, x, close) {
 		if (typeof close === 'function') {
 			__js__.fin(x, function (obj, heapDestruct) {
-				var name = function_or_undefined(obj.$name)
-					|| function_or_undefined(obj.prototype.$name)
-					|| function_or_undefined(x.$name)
+				var name = maybe_function(obj.$name)
+					|| maybe_function(obj.prototype.$name)
+					|| maybe_function(x.$name)
 					|| function () {
 						return typeof x;
 					};

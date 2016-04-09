@@ -13,9 +13,9 @@ pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
 pt.open = function (obj, flag, mode) {
-	if (obj && pt.is_close(obj)) {
-		flag = flag || obj.flag;
-		mode = mode || obj.mode;
+	if (must_object(obj) && pt.is_close(obj)) {
+		flag = maybe_number(flag) || obj.flag;
+		mode = maybe_number(mode) || obj.mode;
 
 		obj.fd = __libc__.open(obj.filename, flag, mode);
 		if (pt.is_open(obj)) {

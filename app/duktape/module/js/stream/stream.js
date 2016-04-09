@@ -18,7 +18,7 @@ pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
 function method (obj, funcname, fsafe) {
-	return safefun(helper[obj.type][funcname], fsafe);
+	return safe_function(helper[obj.type][funcname], fsafe);
 }
 
 pt.open = function (obj, mode) {
@@ -66,11 +66,12 @@ pt.eof = function (obj) {
 };
 
 mod.Stream = function (filename, mode, type, pre_open) {
-	var obj = {
-		    filename: filename,
-		  	mode: mode || 'r',
-		  	type: helper.hasOwnProperty(type)?type:'file',
-		  	$name: pt.$name + '(' + filename + ')',
+	var tmp_filename = maybe_string(filename),
+		obj = {
+		    filename: tmp_filename,
+		  	mode: maybe_string(mode) || 'r',
+		  	type: (must_string(type) && helper.hasOwnProperty(type))?type:'file',
+		  	$name: pt.$name() + '(' + tmp_filename + ')',
 		  	stream: null
 	    };
 

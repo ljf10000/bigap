@@ -29,11 +29,12 @@ pt.save = function (obj, writer) {
 };
 
 pt.binding = function (filename, direct, reader, writer) {
-	var binding = {
-		$name: pt.$name + '(' + filename + ')',
-		filename: filename,
-		reader: reader || allways_pass,
-		writer: writer || allways_pass
+	var tmp_filename = maybe_string(filename),
+		binding = {
+		$name: name + '(' + tmp_filename + ')',
+		filename: tmp_filename,
+		reader: maybe_function(reader) || allways,
+		writer: maybe_function(writer) || allways
 	};
 
 	if (true === direct) {
