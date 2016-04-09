@@ -5,14 +5,15 @@
 */
 var mod = this,
 	pt = mod.__proto__,
+	name = 'file/file',
 	helpers = {
 		file: require('file/helper/file'),
 		dir: require('fs/helper/dir')
 	},
 	fmode = require('file/helper/mode');
 
-pt.$name = pt.$name || 'file/file';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function () { return name; };
+pt.$debugger = new $Debugger(name);
 
 function method (obj, funcname, fsafe) {
 	return safefun(helpers[obj.type][funcname], fsafe);

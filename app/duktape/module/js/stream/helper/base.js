@@ -4,10 +4,11 @@
 * module: base stream helper
 */
 var mod = this,
-	pt = mod.__proto__;
+	pt = mod.__proto__,
+	name = 'stream/helper/base';
 
-pt.$name = pt.$name || 'stream/helper/base';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function () { return name; };
+pt.$debugger = new $Debugger(name);
 
 pt.is_open = function (obj) {
 	return typeof obj.stream === 'pointer' && obj.stream;

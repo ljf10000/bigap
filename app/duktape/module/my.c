@@ -46,12 +46,8 @@ LIB_PARAM(is_debug, 1);
 static duk_ret_t
 duke_is_debug(duk_context *ctx)
 {
-    bool is = false;
+    bool is = __is_js_debug(duk_require_uint(ctx, 0));
     
-    if (__ak_debug_js) {
-        is = __is_js_debug(duk_require_uint(ctx, 0));
-    }
-
     return duk_push_bool(ctx, is), 1;
 }
 
@@ -61,11 +57,7 @@ duke_debug(duk_context *ctx)
 {
     const char *string = duk_require_string(ctx, 0);
 
-    os_println("duke_debug:%s", string);
-    
-    debug_js(string);
-
-    return 0;
+    return debug_js(string), 0;
 }
 
 LIB_PARAM(pipe, 1);

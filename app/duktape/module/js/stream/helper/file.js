@@ -4,11 +4,12 @@
 * module: file stream helper
 */
 var mod = this,
-	pt = mod.__proto__;
+	pt = mod.__proto__,
+	name = 'stream/helper/file';
 
 pt.__proto__ = require('stream/helper/base').__proto__;
-pt.$name = pt.$name || 'stream/helper/file';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function () { return name; };
+pt.$debugger = new $Debugger(name);
 
 pt.open = function (obj, mode) {
 	if (obj && pt.is_close(obj)) {

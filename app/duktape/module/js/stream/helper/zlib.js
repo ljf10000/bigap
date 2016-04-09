@@ -4,11 +4,12 @@
 * module: zlib stream helper
 */
 var mod = this,
-	pt = mod.__proto__;
+	pt = mod.__proto__,
+	name = 'stream/helper/zlib';
 
 pt.__proto__ = require('stream/helper/base').__proto__;
-pt.$name = pt.$name || 'stream/helper/zlib';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function () { return name; };
+pt.$debugger = new $Debugger(name);
 
 pt.open = function (obj, mode) {
 	if (obj && pt.is_close(obj)) {

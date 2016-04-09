@@ -4,10 +4,11 @@
 * module: file mode helper
 */
 var mod = this,
-	pt = mod.__proto__;
+	pt = mod.__proto__,
+	name = 'file/helper/mode';
 
-pt.$name = pt.$name || 'file/helper/mode';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function () { return name; };
+pt.$debugger = new $Debugger(name);
 
 pt.type = {
 	nothing: 0,

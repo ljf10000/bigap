@@ -5,11 +5,12 @@
 */
 var mod = this,
 	pt = mod.__proto__,
+	name = 'file/helper/file';
 	fmode = require('file/helper/mode');
 
 pt.__proto__ = require('file/helper/fd').__proto__;
-pt.$name = pt.$name || 'file/helper/file';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function () { return name; };
+pt.$debugger = new $Debugger(name);
 
 pt.open = function (obj, flag, mode) {
 	if (obj && pt.is_close(obj)) {

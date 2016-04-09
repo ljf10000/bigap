@@ -4,11 +4,12 @@
 * module: pt
 */
 var mod = this,
-	pt = mod.__proto__;
+	pt = mod.__proto__,
+	name = 'net/helper/socket';
 
 pt.__proto__ = require('io/helper/fd').__proto__;
-pt.$name = pt.$name || 'net/helper/socket';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function () { return name; };
+pt.$debugger = new $Debugger(name);
 
 pt.open = function (obj, domain, type, protocol) {
 	if (obj && !pt.is_good(obj)) {

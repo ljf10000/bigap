@@ -4,10 +4,11 @@
 * module: file binding
 */
 var mod = this,
-	pt = mod.__proto__;
+	pt = mod.__proto__,
+	name = 'file/binding';
 
-pt.$name = pt.$name || 'file/binding';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function () { return name; };
+pt.$debugger = new $Debugger(name);
 
 pt.load = function (obj) {
 	if (obj.filename && __libc__.fexist(obj.filename)) {

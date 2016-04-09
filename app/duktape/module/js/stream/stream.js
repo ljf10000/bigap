@@ -5,6 +5,7 @@
 */
 var mod = this,
 	pt = mod.__proto__,
+	name = 'stream/stream',
 	helper = {
 		file: require('stream/helper/file'),
 		pipe: require('stream/helper/pipe'),
@@ -13,8 +14,8 @@ var mod = this,
 	};
 
 pt.__proto__ = require('stream/helper/base').__proto__;
-pt.$name = pt.$name || 'stream/stream';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function () { return name; };
+pt.$debugger = new $Debugger(name);
 
 function method (obj, funcname, fsafe) {
 	return safefun(helper[obj.type][funcname], fsafe);

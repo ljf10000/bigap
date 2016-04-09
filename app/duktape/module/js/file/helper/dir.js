@@ -4,10 +4,11 @@
 * module: dir helper
 */
 var mod = this,
-	pt = mod.__proto__;
+	pt = mod.__proto__,
+	name = 'file/helper/dir';
 
-pt.$name = pt.$name || 'file/helper/dir';
-pt.$debugger = new $Debugger(pt.$name);
+pt.$name = function() { return name; };
+pt.$debugger = new $Debugger(name);
 
 pt.is_open = function is_open (obj) {
 	return typeof obj.dir === 'pointer' && obj.dir;
