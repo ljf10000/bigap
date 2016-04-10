@@ -11,6 +11,43 @@
 #include "dukc.h"
 #include "my.h"
 
+LIB_PARAM(ak_getbyname, 2);
+static duk_ret_t
+duke_ak_getbyname(duk_context *ctx)
+{
+    char *app = (char *)duk_require_string(ctx, 0);
+    char *key = (char *)duk_require_string(ctx, 1);
+    
+    return duk_push_uint(ctx, ak_getbyname(app, key)), 1;
+}
+
+LIB_PARAM(ak_get, 2);
+static duk_ret_t
+duke_ak_get(duk_context *ctx)
+{
+    uint32_t akid = duk_require_uint(ctx, 0);
+    uint32_t deft = duk_require_uint(ctx, 1);
+    
+    return duk_push_uint(ctx, ak_get(akid, deft)), 1;
+}
+
+LIB_PARAM(ak_set, 2);
+static duk_ret_t
+duke_ak_set(duk_context *ctx)
+{
+    uint32_t akid = duk_require_uint(ctx, 0);
+    uint32_t value = duk_require_uint(ctx, 1);
+    
+    return duk_push_int(ctx, ak_set(akid, value)), 1;
+}
+
+LIB_PARAM(ak_reload, 0);
+static duk_ret_t
+duke_ak_reload(duk_context *ctx)
+{
+    return duk_push_int(ctx, ak_reload()), 1;
+}
+
 /*
 LIB_PARAM(is_debug_mod, 1);
 static duk_ret_t
@@ -769,6 +806,11 @@ arg_register(duk_context *ctx)
 }
 
 static const dukc_func_entry_t my_func[] = {
+    LIB_FUNC(ak_getbyname),
+    LIB_FUNC(ak_get),
+    LIB_FUNC(ak_set),
+    LIB_FUNC(ak_reload),
+
     LIB_FUNC(is_debug),
     LIB_FUNC(debug),
     LIB_FUNC(pipe),

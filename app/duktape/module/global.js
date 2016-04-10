@@ -3,36 +3,6 @@
 * 2. only use 'xxxxx'
 * 3. must keep last empty line
 */
-const
-	__js__        = Duktape,
-	BIG_ENDIAN    = (1===__my__.BIG_ENDIAN),
-	LITTLE_ENDIAN = (1===__my__.LITTLE_ENDIAN),
-	OS_BITS       = 8*__my__.SIZEOF_POINTER,
-	UNKNOW_STRING = 'unknow',
-	UNKNOW_NUMBER = 0,
-	fmt = {
-		oprint: function (name, obj) {
-			var root = {};
-
-			root[name] = obj;
-
-			print(Duktape.enc('jc', root, null, 4));
-		},
-
-		separator: function (name, sep) {
-			var s = sep?sep:'==========';
-
-			print(s, name, s);
-		}
-	},
-	$LOG_EMERG            = 0,
-	$LOG_ALERT            = 1,
-	$LOG_CRIT             = 2,
-	$LOG_ERROR            = 3,
-	$LOG_WARNING          = 4,
-	$LOG_NOTICE           = 5,
-	$LOG_INFO             = 6,
-	$LOG_DEBUG            = 7;
 
 function do_nothing () {}
 function no_support () { return -__LIBC__.ENOSUPPORT; }
@@ -69,6 +39,37 @@ function safe_string (s, safe) {
 function safe_number (n, safe) {
 	return maybe_number(n) || maybe_number(safe) || UNKNOW_NUMBER;
 }
+
+const
+	__js__        = Duktape,
+	BIG_ENDIAN    = (1===__my__.BIG_ENDIAN),
+	LITTLE_ENDIAN = (1===__my__.LITTLE_ENDIAN),
+	OS_BITS       = 8*__my__.SIZEOF_POINTER,
+	UNKNOW_STRING = 'unknow',
+	UNKNOW_NUMBER = 0,
+	fmt = {
+		oprint: function (name, obj) {
+			var root = {};
+
+			root[name] = obj;
+
+			print(Duktape.enc('jc', root, null, 4));
+		},
+
+		separator: function (name, sep) {
+			var s = maybe_string(sep)?sep:'==========';
+
+			print(s, name, s);
+		}
+	},
+	$LOG_EMERG            = 0,
+	$LOG_ALERT            = 1,
+	$LOG_CRIT             = 2,
+	$LOG_ERROR            = 3,
+	$LOG_WARNING          = 4,
+	$LOG_NOTICE           = 5,
+	$LOG_INFO             = 6,
+	$LOG_DEBUG            = 7;
 
 // Object
 (function () {
@@ -333,23 +334,22 @@ function safe_number (n, safe) {
 		if (typeof close === 'function') {
 			__js__.fin(x, function (obj, heapDestruct) {
 				var name = maybe_function(obj.$name)
-					|| maybe_function(obj.prototype.$name)
-					|| maybe_function(x.$name)
-					|| function () {
-						return typeof x;
-					};
+						|| maybe_function(obj.prototype.$name)
+						|| maybe_function(x.$name)
+						|| function () { return typeof x;},
+					info;
 
 				if (is_class && obj === x) {
-			        debug_destructor('all', name(), 'skip, called for the prototype itself');
+					info = 'closed skip, called for the prototype itself';
 			    } else if (heapDestruct) {
 					close(obj);
-
-					debug_destructor('all', name(), 'closed @fini');
+					info = 'closed @fini';
 			    } else {
 					close(obj);
-
-					debug_destructor('all', name(), 'closed @destructor');
+					info = 'closed @destructor';
 				}
+
+				debug_destructor('all', name(), info);
 			});
 		} else {
 			return __js__.fin(x);
