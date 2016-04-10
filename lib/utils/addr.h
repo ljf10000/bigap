@@ -97,18 +97,13 @@ os_sockaddr_len(sockaddr_t *addr)
             } else {
                 return sizeof(sockaddr_un_t);
             }
-        case AF_INET:
-            return sizeof(sockaddr_in_t);
-        case AF_PACKET:
-            return sizeof(sockaddr_ll_t);
+        case AF_INET:   return sizeof(sockaddr_in_t);
+        case AF_PACKET: return sizeof(sockaddr_ll_t);
 #if 0
-        case AF_INET6:
-            return sizeof(struct sockaddr_in6);
+        case AF_INET6:  return sizeof(struct sockaddr_in6);
 #endif
-        case AF_NETLINK:
-            return sizeof(sockaddr_nl_t);
-        default:
-            return sizeof(sockaddr_t);
+        case AF_NETLINK:return sizeof(sockaddr_nl_t);
+        default: return sizeof(sockaddr_t);
     }
 }
 /******************************************************************************/
@@ -308,14 +303,10 @@ static inline bool
 __is_good_macstring(char *macstring)
 {
     switch(os_strlen(macstring)) {
-        case MACSTRINGLEN_L:
-            return __is_good_macstring_L(macstring);
-        case MACSTRINGLEN_M:
-            return __is_good_macstring_M(macstring);
-        case MACSTRINGLEN_S:
-            return __is_good_macstring_S(macstring);
-        default:
-            return false;
+        case MACSTRINGLEN_L: return __is_good_macstring_L(macstring);
+        case MACSTRINGLEN_M: return __is_good_macstring_M(macstring);
+        case MACSTRINGLEN_S: return __is_good_macstring_S(macstring);
+        default: return false;
     }
 }
 
@@ -360,14 +351,10 @@ static inline byte *
 __os_getmac_bystring(byte mac[], char macstring[])
 {
     switch(os_strlen(macstring)) {
-        case MACSTRINGLEN_L:
-            return __os_getmac_bystring_L(mac, macstring);
-        case MACSTRINGLEN_M:
-            return __os_getmac_bystring_M(mac, macstring);
-        case MACSTRINGLEN_S:
-            return __os_getmac_bystring_S(mac, macstring);
-        default:
-            return OS_2BMAC;
+        case MACSTRINGLEN_L: return __os_getmac_bystring_L(mac, macstring);
+        case MACSTRINGLEN_M: return __os_getmac_bystring_M(mac, macstring);
+        case MACSTRINGLEN_S: return __os_getmac_bystring_S(mac, macstring);
+        default: return OS_2BMAC;
     }
 }
 
@@ -450,13 +437,9 @@ static inline int
 os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep)
 {
     switch(type) {
-        case MACSTRINGLEN_L:
-            return __os_macsnprintf_L(mac, macstring, size, sep);
-        case MACSTRINGLEN_M:
-            return __os_macsnprintf_M(mac, macstring, size, sep);
-        case MACSTRINGLEN_S:
-        default:
-            return __os_macsnprintf_S(mac, macstring, size, sep);
+        case MACSTRINGLEN_L: return __os_macsnprintf_L(mac, macstring, size, sep);
+        case MACSTRINGLEN_M: return __os_macsnprintf_M(mac, macstring, size, sep);
+        case MACSTRINGLEN_S: default: return __os_macsnprintf_S(mac, macstring, size, sep);
     }
 }
 

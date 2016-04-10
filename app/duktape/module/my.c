@@ -741,7 +741,7 @@ libcall(duk_context *ctx)
     if (err<0) {
         return err;
     }
-    
+
     for (i=0; i<count; i++) {
         param = &params[i];
         

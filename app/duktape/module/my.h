@@ -105,5 +105,58 @@ __set_libval_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     
     return 0;
 }
+
+static inline int
+__set_oem_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    (void)obj;
+
+    idx = duk_normalize_index(ctx, idx);
+    __set_obj_string(ctx, idx, "type",   oem_type_string(__oem_type()));
+    
+    duk_push_object(ctx);
+    __set_obj_string(ctx, -1, "name",   oem_base_name);
+    __set_obj_string(ctx, -1, "mac",    oem_base_mac);
+    __set_obj_string(ctx, -1, "sn",     oem_base_sn);
+    __set_obj_string(ctx, -1, "type",   oem_base_type);
+    __set_obj_string(ctx, -1, "version",oem_base_version);
+    duk_put_prop_string(ctx, idx, "base");
+
+#if 0
+    duk_push_object(ctx);
+    __set_obj_string(ctx, -1, "user",       oem_rsync_user);
+    __set_obj_string(ctx, -1, "pwdfile",    oem_rsync_pwdfile);
+    __set_obj_string(ctx, -1, "path",       oem_rsync_path);
+    __set_obj_string(ctx, -1, "server",     oem_rsync_server);
+    __set_obj_string(ctx, -1, "port",       oem_rsync_port);
+    __set_obj_string(ctx, -1, "timeout",    oem_rsync_timeout);
+    duk_put_prop_string(ctx, idx, "rsync");
+    
+    duk_push_object(ctx);
+    __set_obj_string(ctx, -1, "user",       oem_lss_user);
+    __set_obj_string(ctx, -1, "password",   oem_lss_password);
+    __set_obj_string(ctx, -1, "server",     oem_lss_server);
+    __set_obj_string(ctx, -1, "port",       oem_lss_port);
+    __set_obj_string(ctx, -1, "ca",         oem_lss_ca);
+    __set_obj_string(ctx, -1, "key",        oem_lss_key);
+    __set_obj_string(ctx, -1, "cert",       oem_lss_cert);
+    duk_put_prop_string(ctx, idx, "lss");
+
+    duk_push_object(ctx);
+    __set_obj_string(ctx, -1, "ca",         oem_lms_ca);
+    __set_obj_string(ctx, -1, "key",        oem_lms_key);
+    __set_obj_string(ctx, -1, "cert",       oem_lms_cert);
+    duk_put_prop_string(ctx, idx, "lms");
+
+    duk_push_object(ctx);
+    __set_obj_string(ctx, -1, "ca",         oem_ums_ca);
+    __set_obj_string(ctx, -1, "key",        oem_ums_key);
+    __set_obj_string(ctx, -1, "cert",       oem_ums_cert);
+    duk_put_prop_string(ctx, idx, "ums");
+#endif
+
+    return 0;
+}
+
 /******************************************************************************/
 #endif /* __MY_H_86ec299bb02d4b26b31952dd31eef107__ */
