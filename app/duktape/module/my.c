@@ -96,7 +96,7 @@ duke_debug(duk_context *ctx)
 {
     const char *string = duk_require_string(ctx, 0);
 
-    return debug_js(string), 0;
+    return debug_js("%s", string), 0;
 }
 
 LIB_PARAM(pipe, 1);
