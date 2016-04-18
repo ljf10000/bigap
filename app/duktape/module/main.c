@@ -30,6 +30,23 @@ __filter(char *path, char *filename)
     */
     return false==os_str_is_end_by(filename, ".js");
 }
+    
+static mv_t
+__handler(char *path, char *filename, os_fscan_line_handle_f *line_handle)
+{
+    (void)line_handle;
+    
+    char file[1+OS_LINE_LEN] = {0};
+
+    os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
+
+    int err = __load_file(ctx, file);
+    if (err<0) {
+        return mv2_go(err);
+    }
+    
+    return mv2_ok;
+}
 
 static int
 auto_register(duk_context *ctx)
@@ -41,24 +58,8 @@ auto_register(duk_context *ctx)
     */
     char *env = env_gets(ENV_duk_PATH, duk_PATH);
     os_snprintf(path, OS_LINE_LEN, "%s/" duk_auto_PATH, env);
-    
-    mv_t __handle(char *path, char *filename, os_fscan_line_handle_f *line_handle)
-    {
-        (void)line_handle;
-        
-        char file[1+OS_LINE_LEN] = {0};
 
-        os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
-
-        int err = __load_file(ctx, file);
-        if (err<0) {
-            return mv2_go(err);
-        }
-        
-        return mv2_ok;
-    }
-
-    return os_fscan_dir(path, false, __filter, __handle, NULL);
+    return os_fscan_dir(path, false, __filter, __handler, NULL);
 }
 
 static inline int

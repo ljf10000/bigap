@@ -225,7 +225,7 @@ os_asprintf_resv(char **buf, int resv, const char *fmt, ...)
 */
 #define os_soprintf(_buf, _offset, _fmt, _args...)  \
     os_snprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, ##_args)
-#define os_voaprintf(_buf, _offset, _fmt, _args)    \
+#define os_vsoprintf(_buf, _offset, _fmt, _args)    \
     os_vsnprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, _args)
 /******************************************************************************/
 #endif /* __FORMAT_H_099e7e9b6a574b4e87f5851b04db1a9d__ */

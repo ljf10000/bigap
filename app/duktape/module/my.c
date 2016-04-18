@@ -18,7 +18,7 @@ duke_ak_getbyname(duk_context *ctx)
     char *app = (char *)duk_require_string(ctx, 0);
     char *key = (char *)duk_require_string(ctx, 1);
     
-    return duk_push_uint(ctx, ak_getbyname(app, key)), 1;
+    return duk_push_uint(ctx, __ak_getbyname(app, key)), 1;
 }
 
 LIB_PARAM(ak_get, 2);
