@@ -3,6 +3,10 @@
 // just for webstorm
 function require (mod) {return null;}
 function Proxy(obj, handler) {return obj;}
+Object.setPrototypeOf = function(obj, proto) {
+  obj.__proto__ = proto;
+  return obj;
+};
 
 __my__ = __my__ || null;
 __libc__ = __libc__ || null;
