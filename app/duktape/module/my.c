@@ -6,6 +6,8 @@
 #define __THIS_FILE     my
 #endif
 
+#define __RUNAS_UNKNOW__
+
 #include "utils.h"
 #include "utils/pipe.h"
 #include "dukc.h"

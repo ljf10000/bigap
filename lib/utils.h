@@ -40,8 +40,7 @@
 #   endif
 #   ifdef __DEAMON__
 #       defined __RUNAS__   RUN_AS_DEAMON
-#   elif defined(__RUNAS__)
-#       undef __RUNAS__
+#   elif defined(__RUNAS_UNKNOW__)
 #       defined __RUNAS__   RUN_AS_UNKNOW
 #   else
 #       define __RUNAS__    RUN_AS_COMMAND

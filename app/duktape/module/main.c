@@ -6,6 +6,8 @@
 #define __THIS_FILE     main
 #endif
 
+#define __RUNAS_UNKNOW__
+
 #include "utils.h"
 #include "global.h"
 #include "dukc.h"
