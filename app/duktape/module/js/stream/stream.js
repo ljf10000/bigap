@@ -19,6 +19,7 @@ pt.is_close = function (obj) {
 	return null === obj.stream;
 };
 
+print('stream', 1);
 bzip.open = function (obj, mode) {
 	if (obj && pt.is_close(obj)) {
 		obj.mode = mode || obj.mode;
@@ -55,6 +56,7 @@ bzip.error = function (obj) {
 	return __libbz__.bzerror(obj.stream);
 };
 
+print('stream', 2);
 file.open = function (obj, mode) {
 	print('mode=', mode);
 	if (obj && pt.is_close(obj)) {
@@ -110,6 +112,7 @@ file.eof = function (obj) {
 };
 
 
+print('stream', 3);
 pipe.open = function (obj, mode) {
 	if (obj && pt.is_close(obj)) {
 		obj.mode = mode || obj.mode;
@@ -152,6 +155,7 @@ zlib.open = function (obj, mode) {
 	return obj;
 };
 
+print('stream', 4);
 zlib.close = function (obj) {
 	if (obj && pt.is_open(obj)) {
 		__libz__.gzclose(obj.stream);
@@ -206,6 +210,7 @@ zlib.eof = function (obj) {
 	return __libz__.gzeof(obj.stream);
 };
 
+print('stream', 5);
 var helper = {
 	file: file,
 	pipe: pipe,
@@ -218,6 +223,7 @@ function method (obj, funcname, fsafe) {
 	return safe_function(helper[obj.type][funcname], fsafe);
 }
 
+print('stream', 6);
 pt.open = function (obj, mode) {
 	print('stream pt open mode=', mode);
 	return method(obj, 'open', function() {return obj;})(obj, mode);
@@ -273,6 +279,7 @@ pt.eof = function (obj) {
 	return method(obj, 'eof', allways_true)(obj);
 };
 
+print('stream', 7);
 mod.Stream = function (filename, mode, type, pre_open) {
 	var tmp_filename = maybe_string(filename);
 
@@ -289,6 +296,7 @@ mod.Stream = function (filename, mode, type, pre_open) {
 	}
 };
 
+print('stream', 8);
 mod.Stream.prototype = {
 	is_open: function () {
 		return pt.is_open(this);
@@ -350,4 +358,5 @@ mod.Stream.prototype = {
 
 __js__.destructor(true, mod.Stream.prototype, pt.close);
 
+print('stream', 9);
 /* eof */
