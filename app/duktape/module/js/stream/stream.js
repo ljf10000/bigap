@@ -77,8 +77,9 @@ mod.Stream = function (filename, mode, type, pre_open) {
 		  	stream: null
 	    };
 
+	print('stream.open pre_open=', pre_open);
+
 	if (true === pre_open) {
-		print('stream.open pre_open=', pre_open);
 		pt.open(obj);
 	}
 
