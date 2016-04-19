@@ -13,7 +13,7 @@ var mod = this,
 		bzip: require('stream/helper/bzip')
 	};
 
-pt.constructor.prototype = require('stream/helper/base').__proto__;
+pt.__proto__ = require('stream/helper/base').__proto__;
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
