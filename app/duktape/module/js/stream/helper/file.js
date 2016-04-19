@@ -9,17 +9,7 @@ var mod = this,
 	name = 'stream/helper/file';
 print('file 2');
 var base = require('stream/helper/base');
-print('file 2.1');
-print(Object.setPrototypeOf);
-print('file 2.2');
-print(pt.constructor);
-print(pt.constructor === Object.constructor);
-print(pt.constructor === Object.prototype.constructor);
-print(pt.constructor instanceof Object);
-print(pt.constructor instanceof Function);
 pt.constructor.prototype = base.__proto__;
-print('file 2.3');
-Object.setPrototypeOf(pt, base.__proto__);
 print('file 3');
 pt.$name = function () { return name; };
 print('file 4');
