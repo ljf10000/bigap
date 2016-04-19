@@ -3,7 +3,6 @@
 * 2. only use 'xxxxx'
 * 3. must keep last empty line
 */
-print('global 1');
 function do_nothing () {}
 function no_support () { return -__LIBC__.ENOSUPPORT; }
 
@@ -39,7 +38,7 @@ function safe_string (s, safe) {
 function safe_number (n, safe) {
 	return maybe_number(n) || maybe_number(safe) || UNKNOW_NUMBER;
 }
-print('global 2');
+
 const
 	__js__        = Duktape,
 	BIG_ENDIAN    = (1===__my__.BIG_ENDIAN),
@@ -70,12 +69,12 @@ const
 	$LOG_NOTICE           = 5,
 	$LOG_INFO             = 6,
 	$LOG_DEBUG            = 7;
-print('global 3');
+
 // Object
 (function () {
 	do_nothing();
 }());
-print('global 4');
+
 // Array
 (function () {
 	var pt = Array.prototype;
@@ -92,62 +91,48 @@ print('global 4');
 		return false;
 	};
 }());
-print('global 5');
+
 // TypedArray
 (function () {
-	print('global TypedArray 1');
 	function bits_mask (obj, bit) {
 		return 1<<(bit%(8*obj.BYTES_PER_ELEMENT));
 	}
-	print('global TypedArray 2');
+
 	function bits_elt (obj, bit) {
 		return Math.floor(bit/(8*obj.BYTES_PER_ELEMENT));
 	}
-	print('global TypedArray 3');
 
 	function bits_set (obj, bit) {
 		obj[bits_elt(obj, bit)] |= bits_mask(obj, bit);
 	}
-	print('global TypedArray 4');
 
 	function bits_clr (obj, bit) {
 		obj[bits_elt(obj, bit)] &= ~bits_mask(obj, bit);
 	}
-	print('global TypedArray 5');
 
 	function bits_isset (obj, bit) {
 		return 0 != (obj[bits_elt(obj, bit)] & bits_mask(obj, bit));
 	}
-	print('global TypedArray 6');
 
 	var arrays = [Uint8Array, Uint16Array, Uint32Array];
-	print('global TypedArray 7');
 	var i, pt, count = arrays.length;
-	print('global TypedArray 8');
 
 	for (i=0; i<count; i++) {
-		print('global TypedArray 8.1');
 		pt = arrays[i].prototype;
-		print('global TypedArray 8.2');
 
 		pt.BITS_PER_ELEMENT = 8*pt.BYTES_PER_ELEMENT;
-		print('global TypedArray 8.3');
 		pt.bits_set = function (bit) {
 			bits_set(this, bit);
 		};
-		print('global TypedArray 8.4');
 		pt.bits_clr = function (bit) {
 			bits_clr(this, bit);
 		};
-		print('global TypedArray 8.5');
 		pt.bits_isset = function (bit) {
 			return bits_isset(this, bit);
 		};
-		print('global TypedArray 8.6');
 	}
-	print('global TypedArray 9');
 }());
-print('global 6');
+
 // $Debugger
 (function (global) {
 	/*
@@ -341,7 +326,7 @@ print('global 6');
 		}
 	};
 }(this));
-print('global 7');
+
 // __js__
 (function () {
 	__js__.destructor = function (is_class, x, close) {
@@ -370,5 +355,5 @@ print('global 7');
 		}
 	};
 }());
-print('global 8');
+
 /* eof */
