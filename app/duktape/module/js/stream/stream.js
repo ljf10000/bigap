@@ -13,7 +13,6 @@ var mod = this,
 		bzip: require('stream/helper/bzip')
 	};
 
-pt.__proto__ = require('stream/helper/base').__proto__;
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
@@ -21,6 +20,14 @@ function method (obj, funcname, fsafe) {
 	print('type=', obj.type);
 	return safe_function(helper[obj.type][funcname], fsafe);
 }
+
+pt.is_open = function (obj) {
+	return typeof obj.stream === 'pointer' && obj.stream;
+};
+
+pt.is_close = function (obj) {
+	return null === obj.stream;
+};
 
 pt.open = function (obj, mode) {
 	print('stream pt open mode=', mode);
