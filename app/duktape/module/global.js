@@ -130,7 +130,7 @@ print('global 5');
 		pt = arrays[i].prototype;
 		print('global TypedArray 8.2');
 
-		pt.BITS_PER_ELEMENT = 8*func.BYTES_PER_ELEMENT;
+		pt.BITS_PER_ELEMENT = 8*pt.BYTES_PER_ELEMENT;
 		print('global TypedArray 8.3');
 		pt.bits_set = function (bit) {
 			bits_set(this, bit);
