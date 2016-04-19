@@ -37,6 +37,10 @@
 #define ENV_JS_DEBUG            "__JS_DEBUG__"
 #endif
 
+#ifndef ENV_RUNAS_DEAMON
+#define ENV_RUNAS_DEAMON        "__RUN_AS_DEAMON__"
+#endif
+
 enum {
     INVALID_AKID    = 0,
 };
@@ -173,12 +177,12 @@ __ak_debug_getname(uint32_t level)
 #   define __ak_debug       (__THIS_DEBUG?(*__THIS_DEBUG):__ak_debug_default)
 #   define __js_debug       (__THIS_JDEBUG?(*__THIS_JDEBUG):__js_debug_default)
 #elif defined(__APP__)
-#   ifdef __DEAMON__
-#       define __ak_debug   ak_get(__THIS_DEBUG, __ak_debug_default)
-#       define __js_debug   ak_get(__THIS_JDEBUG, __js_debug_default)
-#   else
+#   if __RUNAS__==RUN_AS_COMMAND
 #       define __ak_debug   __THIS_DEBUG
 #       define __js_debug   __THIS_JDEBUG
+#   else /* run as deamon/unknow */
+#       define __ak_debug   ak_get(__THIS_DEBUG, __ak_debug_default)
+#       define __js_debug   ak_get(__THIS_JDEBUG, __js_debug_default)
 #   endif
 #elif defined(__KERNEL__)
 #   define __ak_debug       __THIS_DEBUG
@@ -216,7 +220,8 @@ __ak_debug_getname(uint32_t level)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
 #define __XLIST_AK_SYS(_) \
-    _(__AK_SYS_DEBUG, 0, AK_DEBUG_NAME), \
+    _(__AK_SYS_DEBUG,   0, AK_DEBUG_NAME), \
+    _(__AK_SYS_JDEBUG,  1, JS_DEBUG_NAME), \
     /* end */
     
 static inline bool is_good_ak_sys(int id);
@@ -225,6 +230,7 @@ DECLARE_ENUM(ak_sys, __XLIST_AK_SYS, __AK_SYS_END);
 
 #if 1 /* just for sourceinsight */
 #define __AK_SYS_DEBUG  __AK_SYS_DEBUG
+#define __AK_SYS_JDEBUG __AK_SYS_JDEBUG
 #define __AK_SYS_END    __AK_SYS_END
 #endif /* just for sourceinsight */
 
@@ -297,7 +303,43 @@ __ak_get_value(char *key, char *value)
 }
 
 /******************************************************************************/
-#if defined(__APP__) && defined(__DEAMON__)
+#define DECLARE_FAKE_COMMAND  extern bool __THIS_COMMAND
+#define DECLARE_REAL_COMMAND  bool __THIS_COMMAND = true;
+
+#ifdef __BUSYBOX__
+#   define DECLARE_COMMAND  DECLARE_FAKE_COMMAND
+#else
+#   define DECLARE_COMMAND  DECLARE_REAL_COMMAND
+#endif
+
+DECLARE_FAKE_COMMAND;
+
+static inline int __ak_init(void);
+
+#if !defined(__APP__) || __RUNAS__==RUN_AS_COMMAND
+#define DECLARE_FAKE_AK     os_fake_declare
+#define DECLARE_REAL_AK     os_fake_declare
+#define DECLARE_AK          os_fake_declare
+DECLARE_FAKE_AK;
+/*
+* kernel/boot/(app cmd)
+*/
+#define ak_getbyname(_key)              0
+
+#define ak_get(_akid, _deft)            (_akid)
+#define ak_set(_akid, _value)           0
+
+#define ak_reload()                     0
+#define ak_fini()                       0
+
+static inline int 
+ak_init(void)
+{
+    __ak_init();
+
+    return 0;
+}
+#else /* defined(__APP__) && !defined(__COMMAND__) */
 /*
 * app deamon
 */
@@ -374,7 +416,6 @@ __ak_offset(akid_t akid)
 
 DECLARE_FAKE_AK;
 
-
 static inline os_shm_t *
 __this_ak(void)
 {
@@ -443,7 +484,7 @@ __ak_new(char *app, char *k)
 }
 
 static inline ak_t *
-____ak_getbyname(char *app, char *k)
+__ak_getbyname2(char *app, char *k)
 {
     ak_t *ak = NULL;
     
@@ -466,7 +507,7 @@ __ak_getbyname(char *app, char *k)
         return os_assertV(INVALID_AKID);
     }
     
-    ak_t *ak = ____ak_getbyname(app, k);
+    ak_t *ak = __ak_getbyname2(app, k);
 
     return ak?__ak_make(__ak_getidx(ak), __ak_getoffset(ak)):INVALID_AKID;
 }
@@ -565,7 +606,7 @@ __ak_load_line(char *filename/* not include path */, char *line)
     }
     info.v = __ak_get_value(info.key, info.var);
     
-    ak_t *ak = ____ak_getbyname(info.app, info.key);
+    ak_t *ak = __ak_getbyname2(info.app, info.key);
     if (NULL==ak) {
         ak = __ak_new(info.app, info.key);
         if (NULL==ak) {
@@ -649,43 +690,42 @@ __ak_show(void)
     }
 }
 
-static inline int 
-__ak_init(uint32_t limit)
+static inline akid_t 
+ak_getbyname(char *k)
 {
-    if (false==__ak_inited) {
-        __ak_inited   = true;
-        __ak_limit    = limit;
-        __ak_protect_0 = OS_PROTECTED;
-        __ak_protect_1 = OS_PROTECTED;
-        
-        __ak_load();
+    if (__THIS_COMMAND) {
+        return __ak_getbyname(__THIS_APP_NAME, k);
+    } else {
+        return 0;
     }
-    
-    return 0;
 }
-
-#define ak_getbyname(_key)  __ak_getbyname(__THIS_APP_NAME, _key)
 
 static inline uint32_t
 ak_get(akid_t akid, uint32_t deft)
 {
-    uint32_t v = deft;
+    if (__THIS_COMMAND) {
+        uint32_t v = deft;
 
-    __ak_get(akid, &v);
+        __ak_get(akid, &v);
 
-    return v;
+        return v;
+    } else {
+        return akid;
+    }
 }
 
 static inline int 
 ak_set(akid_t akid, uint32_t v)
 {
-    ak_t *ak = __ak_getbyid(akid);
+    if (__THIS_COMMAND) {
+        ak_t *ak = __ak_getbyid(akid);
 
-    if (NULL==ak) {
-        return -ENOEXIST;
+        if (NULL==ak) {
+            return -ENOEXIST;
+        }
+        
+        ak->v = v;
     }
-    
-    ak->v = v;
     
     return 0;
 }
@@ -712,6 +752,7 @@ ak_fini(void)
     return 0;
 }
 
+
 static inline int 
 ak_init(void) 
 {
@@ -722,10 +763,17 @@ ak_init(void)
         goto error;
     }
     
-    __ak_init(AK_LIMIT);
+    if (false==__ak_inited) {
+        __ak_inited     = true;
+        __ak_limit      = AK_LIMIT;
+        __ak_protect_0  = OS_PROTECTED;
+        __ak_protect_1  = OS_PROTECTED;
+        
+        __ak_load();
+    }
 
-    __THIS_DEBUG = ak_getbyname(AK_DEBUG_NAME);
-    
+    __ak_init();
+
     ak_println("init OK!");
     
     return 0;
@@ -736,25 +784,11 @@ error:
 
     return err;
 }
-#else
-#define DECLARE_FAKE_AK     os_fake_declare
-#define DECLARE_REAL_AK     os_fake_declare
-#define DECLARE_AK          os_fake_declare
-DECLARE_FAKE_AK;
-/*
-* kernel/boot/(app cmd)
-*/
-#define ak_getbyname(_key)              0
-#define ak_get(_akid, _deft)            (_deft)
-#define ak_set(_akid, _value)           0
+#endif /* !defined(__APP__) || defined(__COMMAND__) */
 
-#define ak_reload()                     0
-#define ak_fini()                       0
-
-static inline int 
-ak_init(void)
+#if defined(__APP__) && (__RUNAS__ & RUN_AS_COMMAND)
+void __ak_init_command() 
 {
-#if defined(__APP__) && !defined(__DEAMON__)
     char *value;
     
     value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
@@ -764,11 +798,48 @@ ak_init(void)
     value = env_gets(ENV_JS_DEBUG, __js_debug_string_default);
     __THIS_JDEBUG = __ak_get_value(JS_DEBUG_NAME, value);
     ak_println("__THIS_JDEBUG=%s==>0x%x", value, __THIS_JDEBUG);
+}
+#endif
+
+#if defined(__APP__) && (__RUNAS__ & RUN_AS_DEAMON)
+void __ak_init_deamon() 
+{
+    __THIS_DEBUG    = ak_getbyname(AK_DEBUG_NAME);
+    __THIS_JDEBUG   = ak_getbyname(JS_DEBUG_NAME);
+}
+#endif
+
+#if defined(__APP__) && (__RUNAS__ & RUN_AS_UNKNOW)
+void __ak_init_unknow() 
+{
+    __THIS_COMMAND = (NULL==env_gets(ENV_RUNAS_DEAMON, NULL));
+    ak_println("ENV_RUNAS=%s, __THIS_COMMAND=%d", ENV_RUNAS_DEAMON, __THIS_COMMAND);
+
+    if (__THIS_COMMAND) {
+        __ak_init_command();
+    } else {
+        __ak_init_deamon();
+    }
+}
+#endif
+
+static inline int 
+__ak_init(void)
+{
+#ifdef __APP__
+#if __RUNAS__==RUN_AS_COMMAND
+    __ak_init_command();
+#elif __RUNAS__==RUN_AS_DEAMON
+    __ak_init_deamon();
+#elif __RUNAS__==RUN_AS_UNKNOW
+    __ak_init_unknow();
+#else
+#   error "bad __RUNAS__"
+#endif
 #endif
 
     return 0;
 }
-#endif /* defined(__APP__) && defined(__DEAMON__) */
 /******************************************************************************/
 typedef struct {
     akid_t id;

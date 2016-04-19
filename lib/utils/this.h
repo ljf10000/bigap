@@ -27,6 +27,10 @@
 #endif
 #endif
 
+#ifndef __THIS_COMMAND
+#define __THIS_COMMAND          __SYMBOL_TO_VAR(__THIS_APP, _command)
+#endif
+
 #ifndef __THIS_JLOGGER
 #define __THIS_JLOGGER          __SYMBOL_TO_VAR(__THIS_APP, _jlogger)
 #endif

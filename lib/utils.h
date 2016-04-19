@@ -32,6 +32,20 @@
 #   ifdef __BUSYBOX__
 #       include "libbb.h"
 #   endif
+#   define RUN_AS_DEAMON    1
+#   define RUN_AS_COMMAND   2
+#   define RUN_AS_UNKNOW    (RUN_AS_DEAMON|RUN_AS_COMMAND)
+#   if defined(__DEAMON__) && defined(__RUNAS__)
+#       undef __DEAMON__
+#   endif
+#   ifdef __DEAMON__
+#       defined __RUNAS__   RUN_AS_DEAMON
+#   elif defined(__RUNAS__)
+#       undef __RUNAS__
+#       defined __RUNAS__   RUN_AS_UNKNOW
+#   else
+#       define __RUNAS__    RUN_AS_COMMAND
+#   endif
 #   include <stdint.h>
 #   include <stdarg.h>
 #   include <stdlib.h>
@@ -175,6 +189,7 @@
 #endif
 
 #define OS_INITER       \
+    DECLARE_COMMAND;    \
     DECLARE_DEAMON;     \
     DECLARE_FLOCK;      \
     DECLARE_JLOG;       \
@@ -188,6 +203,7 @@
     /* end */
 
 #define OS_REAL_INITER          \
+    DECLARE_REAL_COMMAND;       \
     DECLARE_REAL_DEAMON;        \
     DECLARE_REAL_FLOCK;         \
     DECLARE_REAL_JLOG;          \

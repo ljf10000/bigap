@@ -11,7 +11,7 @@
 #include "dukc.h"
 #include "my.h"
 
-#if 0
+#if 1
 LIB_PARAM(ak_getbyname, 2);
 static duk_ret_t
 duke_ak_getbyname(duk_context *ctx)
@@ -810,7 +810,7 @@ arg_register(duk_context *ctx)
 }
 
 static const dukc_func_entry_t my_func[] = {
-#if 0
+#if 1
     LIB_FUNC(ak_getbyname),
     LIB_FUNC(ak_get),
     LIB_FUNC(ak_set),

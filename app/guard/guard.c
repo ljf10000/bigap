@@ -6,6 +6,7 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #endif
 
 #define __DEAMON__
+
 #include "utils.h"
 #include "otp/otp.h"
 #include "benv/bcookie.h"
