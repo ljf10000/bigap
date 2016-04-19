@@ -3,6 +3,7 @@
 /*
 * module: stream
 */
+print('stream 0');
 var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/stream',

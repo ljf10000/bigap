@@ -3,6 +3,7 @@
 /*
 * module: file stream helper
 */
+print('file 1');
 var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/helper/file';
@@ -62,5 +63,5 @@ pt.error = function (obj) {
 pt.eof = function (obj) {
 	return __libc__.feof(obj.stream);
 };
-
+print('file 2');
 /* eof */

@@ -1,5 +1,5 @@
 #!/bin/js
-
+print('zlib 1');
 /*
 * module: zlib stream helper
 */
@@ -73,5 +73,5 @@ pt.error = function (obj) {
 pt.eof = function (obj) {
 	return __libz__.gzeof(obj.stream);
 };
-
+print('zlib 2');
 /* eof */

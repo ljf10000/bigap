@@ -1,5 +1,6 @@
 #!/bin/js
 
+print('base 1');
 /*
 * module: base stream helper
 */
@@ -17,5 +18,5 @@ pt.is_open = function (obj) {
 pt.is_close = function (obj) {
 	return null === obj.stream;
 };
-
+print('base 2');
 /* eof */
