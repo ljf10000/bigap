@@ -818,7 +818,7 @@ __ak_init_unknow()
     char *value = getenv(ENV_RUNAS_DEAMON);
     
     __THIS_COMMAND = (NULL==value);
-    ak_println("ENV_RUNAS=%s, __THIS_COMMAND=%d", value, __THIS_COMMAND);
+    ak_println(ENV_RUNAS_DEAMON "=%s, __THIS_COMMAND=%d", value, __THIS_COMMAND);
 
     if (__THIS_COMMAND) {
         __ak_init_command();
