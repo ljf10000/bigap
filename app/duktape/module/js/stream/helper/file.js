@@ -8,7 +8,9 @@ var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/helper/file';
 print('file 2');
-pt.__proto__ = require('stream/helper/base').__proto__;
+var base = require('stream/helper/base');
+print('file 2.1');
+pt.__proto__ = base.__proto__;
 print('file 3');
 pt.$name = function () { return name; };
 print('file 4');
