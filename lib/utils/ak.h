@@ -809,7 +809,7 @@ void __ak_init_deamon()
 }
 #endif
 
-#if defined(__APP__) && (__RUNAS__ & RUN_AS_UNKNOW)
+#if defined(__APP__) && (__RUNAS__==RUN_AS_UNKNOW)
 void __ak_init_unknow() 
 {
     __THIS_COMMAND = (NULL==env_gets(ENV_RUNAS_DEAMON, NULL));
