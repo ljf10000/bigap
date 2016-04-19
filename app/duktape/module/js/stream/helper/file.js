@@ -7,6 +7,7 @@ var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/helper/file';
 
+
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
