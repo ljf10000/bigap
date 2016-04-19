@@ -347,7 +347,7 @@ const
 					close(obj);
 					info = 'closed @destructor';
 				}
-
+				print(name(), info);
 				debug_destructor('all', name(), info);
 			});
 		} else {
