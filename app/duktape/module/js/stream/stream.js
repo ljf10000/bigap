@@ -6,7 +6,7 @@
 var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/stream',
-	bzip, file, pipe, zlib;
+	bzip = {}, file = {}, pipe = {}, zlib = {};
 
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
