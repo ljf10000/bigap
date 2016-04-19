@@ -6,6 +6,7 @@
 var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/stream',
+	base = require('stream/helper/base'),
 	helper = {
 		file: require('stream/helper/file'),
 		pipe: require('stream/helper/pipe'),
@@ -85,13 +86,7 @@ pt.eof = function (obj) {
 };
 
 mod.Stream = function (filename, mode, type, pre_open) {
-	var tmp_filename = maybe_string(filename);
-
-	this.filename = tmp_filename;
-	this.mode = maybe_string(mode) || 'r';
-	this.type = (must_string(type) && helper.hasOwnProperty(type))?type:'file';
-	this.$name = function () { return pt.$name() + '(' + tmp_filename + ')'; };
-	this.stream = null;
+	base.stream(this, pt.$name(), maybe_string(filename), mode, type);
 
 	print('stream.open pre_open=', pre_open);
 

@@ -18,4 +18,16 @@ pt.is_close = function (obj) {
 	return null === obj.stream;
 };
 
+pt.stream = function (obj, name, filename, mode, type) {
+	var tmp_filename = maybe_string(filename);
+
+	obj.filename = tmp_filename;
+	obj.mode = maybe_string(mode) || 'r';
+	obj.type = (must_string(type) && helper.hasOwnProperty(type))?type:'file';
+	obj.$name = function () { return name + '(' + tmp_filename + ')'; };
+	obj.stream = null;
+
+	return obj;
+};
+
 /* eof */
