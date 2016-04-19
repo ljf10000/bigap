@@ -694,9 +694,9 @@ static inline akid_t
 ak_getbyname(char *k)
 {
     if (__THIS_COMMAND) {
-        return __ak_getbyname(__THIS_APP_NAME, k);
-    } else {
         return 0;
+    } else {
+        return __ak_getbyname(__THIS_APP_NAME, k);
     }
 }
 
@@ -704,20 +704,20 @@ static inline uint32_t
 ak_get(akid_t akid, uint32_t deft)
 {
     if (__THIS_COMMAND) {
+        return akid;
+    } else {
         uint32_t v = deft;
 
         __ak_get(akid, &v);
 
         return v;
-    } else {
-        return akid;
     }
 }
 
 static inline int 
 ak_set(akid_t akid, uint32_t v)
 {
-    if (__THIS_COMMAND) {
+    if (false==__THIS_COMMAND) {
         ak_t *ak = __ak_getbyid(akid);
 
         if (NULL==ak) {

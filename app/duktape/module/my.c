@@ -13,7 +13,6 @@
 #include "dukc.h"
 #include "my.h"
 
-#if 1
 LIB_PARAM(ak_getbyname, 2);
 static duk_ret_t
 duke_ak_getbyname(duk_context *ctx)
@@ -50,7 +49,6 @@ duke_ak_reload(duk_context *ctx)
 {
     return duk_push_int(ctx, ak_reload()), 1;
 }
-#endif
 
 /*
 LIB_PARAM(is_debug_mod, 1);
@@ -812,12 +810,10 @@ arg_register(duk_context *ctx)
 }
 
 static const dukc_func_entry_t my_func[] = {
-#if 1
     LIB_FUNC(ak_getbyname),
     LIB_FUNC(ak_get),
     LIB_FUNC(ak_set),
     LIB_FUNC(ak_reload),
-#endif
     LIB_FUNC(is_debug),
     LIB_FUNC(debug),
     LIB_FUNC(pipe),
