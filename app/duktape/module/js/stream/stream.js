@@ -47,7 +47,7 @@ bzip.write = function (obj, buffer) {
 	return __libbz__.bzwrite(obj.stream, buffer);
 };
 
-bzip.sync = pt.flush = function (obj) {
+bzip.sync = bzip.flush = function (obj) {
 	return __libbz__.bzflush(obj.stream);
 };
 
@@ -97,7 +97,7 @@ file.rewind = function (obj) {
 	return __libc__.fseek(obj.stream, 0, __libc__.SEEK_SET);
 };
 
-file.sync = pt.flush = function (obj) {
+file.sync = file.flush = function (obj) {
 	return __libc__.fflush(obj.stream);
 };
 
@@ -194,7 +194,7 @@ zlib.rewind = function (obj) {
 	return __libz__.gzseek(obj.stream, 0, __libc__.SEEK_SET);
 };
 
-zlib.sync = pt.flush = function (obj) {
+zlib.sync = zlib.flush = function (obj) {
 	return __libz__.gzflush(obj.stream, __libz__.Z_NO_FLUSH);
 };
 
