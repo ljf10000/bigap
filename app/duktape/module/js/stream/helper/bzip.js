@@ -1,5 +1,5 @@
 #!/bin/js
-print('bzip 1');
+
 /*
 * module: bzip stream helper
 */
@@ -46,5 +46,5 @@ pt.sync = pt.flush = function (obj) {
 pt.error = function (obj) {
 	return __libbz__.bzerror(obj.stream);
 };
-print('bzip 2');
+
 /* eof */

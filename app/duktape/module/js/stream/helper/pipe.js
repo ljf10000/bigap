@@ -1,5 +1,5 @@
 #!/bin/js
-print('pipe 1');
+
 /*
 * module: pipe stream helper
 */
@@ -42,5 +42,5 @@ pt.error = function (obj) {
 pt.eof = function (obj) {
 	return __libc__.feof(obj.stream);
 };
-print('pipe 2');
+
 /* eof */
