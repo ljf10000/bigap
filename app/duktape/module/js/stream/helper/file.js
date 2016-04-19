@@ -13,8 +13,10 @@ pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
 pt.open = function (obj, mode) {
+	print('mode=', mode);
 	if (obj && pt.is_close(obj)) {
 		obj.mode = mode || obj.mode;
+		print('filename=',obj.filename, 'mode=', obj.mode);
 		obj.stream = __libc__.fopen(obj.filename, obj.mode);
 	}
 
