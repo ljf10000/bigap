@@ -22,6 +22,7 @@ function method (obj, funcname, fsafe) {
 }
 
 pt.open = function (obj, mode) {
+	print('mode=', mode);
 	return method(obj, 'open', function() {return obj;})(obj, mode);
 };
 
