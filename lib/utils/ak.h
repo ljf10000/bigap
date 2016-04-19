@@ -787,7 +787,8 @@ error:
 #endif /* !defined(__APP__) || defined(__COMMAND__) */
 
 #if defined(__APP__) && (__RUNAS__ & RUN_AS_COMMAND)
-void __ak_init_command() 
+static inline void 
+__ak_init_command() 
 {
     char *value;
     
@@ -802,7 +803,8 @@ void __ak_init_command()
 #endif
 
 #if defined(__APP__) && (__RUNAS__ & RUN_AS_DEAMON)
-void __ak_init_deamon() 
+static inline void 
+__ak_init_deamon() 
 {
     __THIS_DEBUG    = ak_getbyname(AK_DEBUG_NAME);
     __THIS_JDEBUG   = ak_getbyname(JS_DEBUG_NAME);
@@ -810,7 +812,8 @@ void __ak_init_deamon()
 #endif
 
 #if defined(__APP__) && (__RUNAS__==RUN_AS_UNKNOW)
-void __ak_init_unknow() 
+static inline void 
+__ak_init_unknow() 
 {
     __THIS_COMMAND = (NULL==env_gets(ENV_RUNAS_DEAMON, NULL));
     ak_println("ENV_RUNAS=%s, __THIS_COMMAND=%d", ENV_RUNAS_DEAMON, __THIS_COMMAND);
