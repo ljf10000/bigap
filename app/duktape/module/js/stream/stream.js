@@ -28,6 +28,7 @@ bzip.open = function (obj, mode) {
 
 	return obj;
 };
+print('stream', 1.2);
 
 bzip.close = function (obj) {
 	if (obj && pt.is_open(obj)) {
@@ -35,23 +36,24 @@ bzip.close = function (obj) {
 		obj.stream = null;
 	}
 };
+print('stream', 1.3);
 
 bzip.read = function (obj, buffer) {
 	return __libbz__.bzread(obj.stream, buffer);
 };
-
+print('stream', 1.4);
 bzip.readEx = function (obj, size) {
 	return __libbz__.bzreadEx(obj.stream, size);
 };
-
+print('stream', 1.5);
 bzip.write = function (obj, buffer) {
 	return __libbz__.bzwrite(obj.stream, buffer);
 };
-
+print('stream', 1.6);
 bzip.sync = bzip.flush = function (obj) {
 	return __libbz__.bzflush(obj.stream);
 };
-
+print('stream', 1.7);
 bzip.error = function (obj) {
 	return __libbz__.bzerror(obj.stream);
 };
