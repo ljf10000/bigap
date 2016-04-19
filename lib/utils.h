@@ -35,13 +35,10 @@
 #   define RUN_AS_DEAMON    1
 #   define RUN_AS_COMMAND   2
 #   define RUN_AS_UNKNOW    (RUN_AS_DEAMON|RUN_AS_COMMAND)
-#   if defined(__DEAMON__) && defined(__RUNAS_UNKNOW__)
-#       undef __DEAMON__
-#   endif
-#   ifdef __DEAMON__
-#       defined __RUNAS__   RUN_AS_DEAMON
-#   elif defined(__RUNAS_UNKNOW__)
-#       defined __RUNAS__   RUN_AS_UNKNOW
+#   ifdef __RUNAS_UNKNOW__
+#       define __RUNAS__    RUN_AS_UNKNOW
+#   elif defined(__DEAMON__)
+#       define __RUNAS__    RUN_AS_DEAMON
 #   else
 #       define __RUNAS__    RUN_AS_COMMAND
 #   endif
