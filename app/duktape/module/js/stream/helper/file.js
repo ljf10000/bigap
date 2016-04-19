@@ -10,7 +10,7 @@ var mod = this,
 print('file 2');
 var base = require('stream/helper/base');
 print('file 2.1');
-pt.__proto__ = base.__proto__;
+Object.setPrototypeOf(pt, base.__proto__);
 print('file 3');
 pt.$name = function () { return name; };
 print('file 4');
