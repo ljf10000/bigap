@@ -23,47 +23,57 @@ function method (obj, funcname, fsafe) {
 }
 
 pt.open = function (obj, mode) {
-	print('stream pt mode=', mode);
+	print('stream pt open mode=', mode);
 	return method(obj, 'open', function() {return obj;})(obj, mode);
 };
 
 pt.close = function (obj) {
+	print('stream pt close');
 	return method(obj, 'close')(obj);
 };
 
 pt.read = function (obj, buffer) {
+	print('stream pt read');
 	return method(obj, 'read')(obj, buffer);
 };
 
 pt.readEx = function (obj, size) {
+	print('stream pt readEx');
 	return method(obj, 'readEx')(obj, size);
 };
 
 pt.write = function (obj, buffer) {
+	print('stream pt write');
 	return method(obj, 'write')(obj, buffer);
 };
 
 pt.tell = function (obj) {
+	print('stream pt tell');
 	return method(obj, 'tell')(obj);
 };
 
 pt.seek = function (obj, offset, where) {
+	print('stream pt seek');
 	return method(obj, 'seek')(obj, offset, where);
 };
 
 pt.rewind = function (obj) {
+	print('stream pt rewind');
 	return method(obj, 'rewind')(obj);
 };
 
 pt.sync = pt.flush = function (obj) {
+	print('stream pt sync');
 	return method(obj, 'sync')(obj);
 };
 
 pt.error = function (obj) {
+	print('stream pt error');
 	return method(obj, 'error')(obj);
 };
 
 pt.eof = function (obj) {
+	print('stream pt eof');
 	return method(obj, 'eof', allways_true)(obj);
 };
 
