@@ -95,43 +95,57 @@ print('global 4');
 print('global 5');
 // TypedArray
 (function () {
+	print('global TypedArray 1');
 	function bits_mask (obj, bit) {
 		return 1<<(bit%(8*obj.BYTES_PER_ELEMENT));
 	}
-
+	print('global TypedArray 2');
 	function bits_elt (obj, bit) {
 		return Math.floor(bit/(8*obj.BYTES_PER_ELEMENT));
 	}
+	print('global TypedArray 3');
 
 	function bits_set (obj, bit) {
 		obj[bits_elt(obj, bit)] |= bits_mask(obj, bit);
 	}
+	print('global TypedArray 4');
 
 	function bits_clr (obj, bit) {
 		obj[bits_elt(obj, bit)] &= ~bits_mask(obj, bit);
 	}
+	print('global TypedArray 5');
 
 	function bits_isset (obj, bit) {
 		return 0 != (obj[bits_elt(obj, bit)] & bits_mask(obj, bit));
 	}
+	print('global TypedArray 6');
 
 	var arrays = [Uint8Array, Uint16Array, Uint32Array];
+	print('global TypedArray 7');
 	var i, pt, count = arrays.length;
+	print('global TypedArray 8');
 
 	for (i=0; i<count; i++) {
+		print('global TypedArray 8.1');
 		pt = arrays[i].prototype;
+		print('global TypedArray 8.2');
 
 		pt.BITS_PER_ELEMENT = 8*func.BYTES_PER_ELEMENT;
+		print('global TypedArray 8.3');
 		pt.bits_set = function (bit) {
 			bits_set(this, bit);
 		};
+		print('global TypedArray 8.4');
 		pt.bits_clr = function (bit) {
 			bits_clr(this, bit);
 		};
+		print('global TypedArray 8.5');
 		pt.bits_isset = function (bit) {
 			return bits_isset(this, bit);
 		};
+		print('global TypedArray 8.6');
 	}
+	print('global TypedArray 9');
 }());
 print('global 6');
 // $Debugger
