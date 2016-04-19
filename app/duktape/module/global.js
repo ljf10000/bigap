@@ -3,7 +3,7 @@
 * 2. only use 'xxxxx'
 * 3. must keep last empty line
 */
-
+print('global 1');
 function do_nothing () {}
 function no_support () { return -__LIBC__.ENOSUPPORT; }
 
@@ -39,7 +39,7 @@ function safe_string (s, safe) {
 function safe_number (n, safe) {
 	return maybe_number(n) || maybe_number(safe) || UNKNOW_NUMBER;
 }
-
+print('global 2');
 const
 	__js__        = Duktape,
 	BIG_ENDIAN    = (1===__my__.BIG_ENDIAN),
@@ -70,12 +70,12 @@ const
 	$LOG_NOTICE           = 5,
 	$LOG_INFO             = 6,
 	$LOG_DEBUG            = 7;
-
+print('global 3');
 // Object
 (function () {
 	do_nothing();
 }());
-
+print('global 4');
 // Array
 (function () {
 	var pt = Array.prototype;
@@ -92,7 +92,7 @@ const
 		return false;
 	};
 }());
-
+print('global 5');
 // TypedArray
 (function () {
 	function bits_mask (obj, bit) {
@@ -133,7 +133,7 @@ const
 		};
 	}
 }());
-
+print('global 6');
 // $Debugger
 (function (global) {
 	/*
@@ -327,7 +327,7 @@ const
 		}
 	};
 }(this));
-
+print('global 7');
 // __js__
 (function () {
 	__js__.destructor = function (is_class, x, close) {
@@ -356,5 +356,5 @@ const
 		}
 	};
 }());
-
+print('global 8');
 /* eof */
