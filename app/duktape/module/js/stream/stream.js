@@ -86,13 +86,13 @@ pt.eof = function (obj) {
 
 mod.Stream = function (filename, mode, type, pre_open) {
 	var tmp_filename = maybe_string(filename),
-		obj = {
-		    filename: tmp_filename,
-		  	mode: maybe_string(mode) || 'r',
-		  	type: (must_string(type) && helper.hasOwnProperty(type))?type:'file',
-		  	$name: function () { return pt.$name() + '(' + tmp_filename + ')'; },
-		  	stream: null
-	    };
+		obj;
+
+	obj.filename = tmp_filename;
+	obj.mode = maybe_string(mode) || 'r';
+	obj.type = (must_string(type) && helper.hasOwnProperty(type))?type:'file';
+	obj.$name = function () { return pt.$name() + '(' + tmp_filename + ')'; };
+	obj.stream = null;
 
 	print('stream.open pre_open=', pre_open);
 
