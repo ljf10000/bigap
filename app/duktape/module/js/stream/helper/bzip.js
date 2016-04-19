@@ -7,7 +7,7 @@ var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/helper/bzip';
 
-pt.__proto__ = require('stream/helper/base').__proto__;
+pt.constructor.prototype = require('stream/helper/base').__proto__;
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 

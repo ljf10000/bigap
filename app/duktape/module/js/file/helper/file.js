@@ -8,7 +8,7 @@ var mod = this,
 	name = 'file/helper/file';
 	fmode = require('file/helper/mode');
 
-pt.__proto__ = require('file/helper/fd').__proto__;
+pt.constructor.prototype = require('file/helper/fd').__proto__;
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 

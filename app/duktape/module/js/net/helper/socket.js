@@ -7,7 +7,7 @@ var mod = this,
 	pt = mod.__proto__,
 	name = 'net/helper/socket';
 
-pt.__proto__ = require('io/helper/fd').__proto__;
+pt.constructor.prototype = require('io/helper/fd').__proto__;
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
