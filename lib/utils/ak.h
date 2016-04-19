@@ -815,8 +815,10 @@ __ak_init_deamon()
 static inline void 
 __ak_init_unknow() 
 {
-    __THIS_COMMAND = (NULL==env_gets(ENV_RUNAS_DEAMON, NULL));
-    ak_println("ENV_RUNAS=%s, __THIS_COMMAND=%d", ENV_RUNAS_DEAMON, __THIS_COMMAND);
+    char *value = env_gets(ENV_RUNAS_DEAMON, NULL);
+    
+    __THIS_COMMAND = (NULL==value);
+    ak_println("ENV_RUNAS=%s, __THIS_COMMAND=%d", value, __THIS_COMMAND);
 
     if (__THIS_COMMAND) {
         __ak_init_command();
