@@ -23,7 +23,7 @@ function method (obj, funcname, fsafe) {
 }
 
 pt.open = function (obj, mode) {
-	print('mode=', mode);
+	print('stream pt mode=', mode);
 	return method(obj, 'open', function() {return obj;})(obj, mode);
 };
 
@@ -94,7 +94,7 @@ mod.Stream.prototype = {
 	},
 
 	open: function (mode) {
-		print('mode=', mode);
+		print('stream.open mode=', mode);
 		return pt.open(this, mode);
 	},
 
