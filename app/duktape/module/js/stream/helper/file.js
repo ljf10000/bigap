@@ -3,7 +3,6 @@
 /*
 * module: file stream helper
 */
-print('file 1');
 var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/helper/file';
