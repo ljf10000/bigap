@@ -68,8 +68,6 @@ pt.eof = function (obj) {
 };
 
 mod.Stream = function (filename, mode, type, pre_open) {
-	print('must_string(type)', must_string(type));
-	print('helper.hasOwnProperty(type)', helper.hasOwnProperty(type));
 	var tmp_filename = maybe_string(filename),
 		obj = {
 		    filename: tmp_filename,
@@ -78,9 +76,9 @@ mod.Stream = function (filename, mode, type, pre_open) {
 		  	$name: pt.$name() + '(' + tmp_filename + ')',
 		  	stream: null
 	    };
-	print('obj.type', obj.type);
 
 	if (true === pre_open) {
+		print('stream.open pre_open=', pre_open);
 		pt.open(obj);
 	}
 
