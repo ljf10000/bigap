@@ -11,6 +11,13 @@ var mod = this,
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
+pt.is_open = function (obj) {
+	return typeof obj.stream === 'pointer' && obj.stream;
+};
+
+pt.is_close = function (obj) {
+	return null === obj.stream;
+};
 
 bzip.open = function (obj, mode) {
 	if (obj && pt.is_close(obj)) {
@@ -47,7 +54,6 @@ bzip.sync = pt.flush = function (obj) {
 bzip.error = function (obj) {
 	return __libbz__.bzerror(obj.stream);
 };
-
 
 file.open = function (obj, mode) {
 	print('mode=', mode);
@@ -211,14 +217,6 @@ function method (obj, funcname, fsafe) {
 	print('method type=', obj.type);
 	return safe_function(helper[obj.type][funcname], fsafe);
 }
-
-pt.is_open = function (obj) {
-	return typeof obj.stream === 'pointer' && obj.stream;
-};
-
-pt.is_close = function (obj) {
-	return null === obj.stream;
-};
 
 pt.open = function (obj, mode) {
 	print('stream pt open mode=', mode);
