@@ -85,22 +85,19 @@ pt.eof = function (obj) {
 };
 
 mod.Stream = function (filename, mode, type, pre_open) {
-	var tmp_filename = maybe_string(filename),
-		obj;
+	var tmp_filename = maybe_string(filename);
 
-	obj.filename = tmp_filename;
-	obj.mode = maybe_string(mode) || 'r';
-	obj.type = (must_string(type) && helper.hasOwnProperty(type))?type:'file';
-	obj.$name = function () { return pt.$name() + '(' + tmp_filename + ')'; };
-	obj.stream = null;
+	this.filename = tmp_filename;
+	this.mode = maybe_string(mode) || 'r';
+	this.type = (must_string(type) && helper.hasOwnProperty(type))?type:'file';
+	this.$name = function () { return pt.$name() + '(' + tmp_filename + ')'; };
+	this.stream = null;
 
 	print('stream.open pre_open=', pre_open);
 
 	if (true === pre_open) {
-		pt.open(obj);
+		pt.open(this);
 	}
-
-	return obj;
 };
 
 mod.Stream.prototype = {
