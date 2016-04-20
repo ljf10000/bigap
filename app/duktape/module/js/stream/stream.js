@@ -90,7 +90,7 @@ mod.Stream = function (filename, mode, type, pre_open) {
 	            pt.$name(),
 	            maybe_string(filename),
 	            mode,
-	            helper.hasOwnProperty(type) || 'file');
+	            helper.hasOwnProperty(type)?type:'file');
 
 	print('stream.open pre_open=', pre_open);
 
