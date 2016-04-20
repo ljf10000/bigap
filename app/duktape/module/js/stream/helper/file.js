@@ -73,8 +73,10 @@ pt.stream = function (obj, name, filename, mode, type) {
 
 	return base.stream(obj, name, filename, mode, type);
 };
+
+var stream = {};
+base.stream(stream, 'stream in file', 'sb', 'r', 'file');
+fmt.oprint('stream', stream);
 print(name, 'load.');
-fmt.oprint('base in file', base);
-fmt.oprint('base.pt in file', base.__proto__);
 
 /* eof */
