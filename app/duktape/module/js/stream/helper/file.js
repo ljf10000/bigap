@@ -66,21 +66,22 @@ pt.eof = function (obj) {
 	return __libc__.feof(obj.stream);
 };
 
-function stream (obj, name, filename, mode, type) {
+pt.stream = function (obj, name, filename, mode, type) {
 	print('file.pt.stream 1');
 	if (obj.constructor === Object) {
 		__js__.destructor(false, obj, pt.close);
 	}
 	print('file.pt.stream 2');
 
-	print(stream === base.stream);
-	print(stream === base.__proto__.stream);
+	print(pt.stream === base.stream);
+	print(pt.stream === base.__proto__.stream);
 	print(pt === base.__proto__);
+	print(mod.__proto__ === base.__proto__);
+	print(mod === base);
+	print(this === base);
 
 	return base.__proto__.stream(obj, name, filename, mode, type);
-}
-
-pt.stream = stream;
+};
 
 print(name, 'load.');
 
