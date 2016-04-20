@@ -1,5 +1,4 @@
 #!/bin/js
-
 /*
 * module: base stream helper
 */
@@ -7,6 +6,7 @@ var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/helper/base';
 
+print('loading...', name);
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
@@ -30,5 +30,5 @@ pt.stream = function (obj, name, filename, mode, type) {
 	return obj;
 };
 
-print('load', name);
+print('loaded', name);
 /* eof */
