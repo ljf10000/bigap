@@ -7,16 +7,9 @@ var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/helper/file';
 
+pt.__proto__ = require('stream/helper/base').constructor.prototype;
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
-
-pt.is_open = function (obj) {
-	return typeof obj.stream === 'pointer' && obj.stream;
-};
-
-pt.is_close = function (obj) {
-	return null === obj.stream;
-};
 
 pt.open = function (obj, mode) {
 	if (obj && pt.is_close(obj)) {
