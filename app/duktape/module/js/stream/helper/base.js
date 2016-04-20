@@ -30,4 +30,5 @@ pt.stream = function (obj, name, filename, mode, type) {
 	return obj;
 };
 
+print('load', name);
 /* eof */
