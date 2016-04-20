@@ -18,8 +18,7 @@ pt.is_close = function (obj) {
 	return null === obj.stream;
 };
 
-pt.init_stream = function (obj, name, filename, mode, type) {
-	/*
+pt.stream = function (obj, name, filename, mode, type) {
 	var tmp_filename = maybe_string(filename);
 
 	obj.filename = tmp_filename;
@@ -27,10 +26,11 @@ pt.init_stream = function (obj, name, filename, mode, type) {
 	obj.type = maybe_string(type) || 'file';
 	obj.$name = function () { return name + '(' + tmp_filename + ')'; };
 	obj.stream = null;
-	*/
 
 	return obj;
 };
+
+mod.stream = pt.stream;
 
 print(name, 'load.');
 /* eof */

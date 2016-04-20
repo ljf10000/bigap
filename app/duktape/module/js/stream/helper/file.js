@@ -66,16 +66,16 @@ pt.eof = function (obj) {
 	return __libc__.feof(obj.stream);
 };
 
-pt.init_stream = function (obj, name, filename, mode, type) {
+pt.stream = function (obj, name, filename, mode, type) {
 	if (obj.constructor === Object) {
 		__js__.destructor(false, obj, pt.close);
 	}
 
-	return base.init_stream(obj, name, filename, mode, type);
+	return base.stream(obj, name, filename, mode, type);
 };
 
 var stream = {};
-base.init_stream(stream, 'stream in file', 'sb', 'r', 'file');
+base.stream(stream, 'stream in file', 'sb', 'r', 'file');
 fmt.oprint('stream', stream);
 
 print(name, 'load.');
