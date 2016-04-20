@@ -86,7 +86,11 @@ pt.eof = function (obj) {
 };
 
 mod.Stream = function (filename, mode, type, pre_open) {
-	base.stream(this, pt.$name(), maybe_string(filename), mode, type);
+	base.stream(this,
+	            pt.$name(),
+	            maybe_string(filename),
+	            mode,
+	            helper.hasOwnProperty(type) || 'file');
 
 	print('stream.open pre_open=', pre_open);
 

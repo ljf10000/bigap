@@ -23,7 +23,7 @@ pt.stream = function (obj, name, filename, mode, type) {
 
 	obj.filename = tmp_filename;
 	obj.mode = maybe_string(mode) || 'r';
-	obj.type = (must_string(type) && helper.hasOwnProperty(type))?type:'file';
+	obj.type = must_string(type) || 'file';
 	obj.$name = function () { return name + '(' + tmp_filename + ')'; };
 	obj.stream = null;
 
