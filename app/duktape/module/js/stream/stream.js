@@ -22,70 +22,51 @@ function method (obj, funcname, fsafe) {
 	return safe_function(helper[obj.type][funcname], fsafe);
 }
 
-pt.stream = function (obj, name, filename, mode, type) {
-	return base.stream(obj, name, filename, mode, type);
-};
-
-pt.is_open = function (obj) {
-	return base.is_open(obj);
-};
-
-pt.is_close = function (obj) {
-	return base.is_close(obj);
-};
+pt.stream = base.stream;
+pt.is_open = base.is_open;
+pt.is_close = base.is_close;
 
 pt.open = function (obj, mode) {
-	print('stream pt open mode=', mode);
 	return method(obj, 'open', function() {return obj;})(obj, mode);
 };
 
 pt.close = function (obj) {
-	print('stream pt close');
 	return method(obj, 'close')(obj);
 };
 
 pt.read = function (obj, buffer) {
-	print('stream pt read');
 	return method(obj, 'read')(obj, buffer);
 };
 
 pt.readEx = function (obj, size) {
-	print('stream pt readEx');
 	return method(obj, 'readEx')(obj, size);
 };
 
 pt.write = function (obj, buffer) {
-	print('stream pt write');
 	return method(obj, 'write')(obj, buffer);
 };
 
 pt.tell = function (obj) {
-	print('stream pt tell');
 	return method(obj, 'tell')(obj);
 };
 
 pt.seek = function (obj, offset, where) {
-	print('stream pt seek');
 	return method(obj, 'seek')(obj, offset, where);
 };
 
 pt.rewind = function (obj) {
-	print('stream pt rewind');
 	return method(obj, 'rewind')(obj);
 };
 
 pt.sync = pt.flush = function (obj) {
-	print('stream pt sync');
 	return method(obj, 'sync')(obj);
 };
 
 pt.error = function (obj) {
-	print('stream pt error');
 	return method(obj, 'error')(obj);
 };
 
 pt.eof = function (obj) {
-	print('stream pt eof');
 	return method(obj, 'eof', allways_true)(obj);
 };
 
