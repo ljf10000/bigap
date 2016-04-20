@@ -73,6 +73,10 @@ pt.stream = function (obj, name, filename, mode, type) {
 	}
 	print('file.pt.stream 2');
 
+	print(pt.stream === base.stream);
+	print(pt.stream === base.__proto__.stream);
+	print(pt === base.__proto__);
+
 	return base.__proto__.stream(obj, name, filename, mode, type);
 };
 
