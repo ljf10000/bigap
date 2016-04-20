@@ -74,10 +74,6 @@ pt.stream = function (obj, name, filename, mode, type) {
 	return base.stream(obj, name, filename, mode, type);
 };
 
-var stream = {};
-base.stream(stream, 'stream in file', 'sb', 'r', 'file');
-fmt.oprint('stream', stream);
-
 print(name, 'load.');
 
 /* eof */
