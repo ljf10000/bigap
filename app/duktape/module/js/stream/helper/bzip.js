@@ -11,20 +11,12 @@ var mod = this,
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
-pt.stream = function (obj, name, filename, mode, type) {
-	return base.stream(obj, name, filename, mode, type);
-};
-
-pt.is_open = function (obj) {
-	return base.is_open(obj);
-};
-
-pt.is_close = function (obj) {
-	return base.is_close(obj);
-};
+pt.stream = base.stream;
+pt.is_open = base.is_open;
+pt.is_close = base.is_close;
 
 pt.open = function (obj, mode) {
-	if (obj && base.is_close(obj)) {
+	if (obj && pt.is_close(obj)) {
 		obj.mode = mode || obj.mode;
 		obj.stream = __libbz__.bzopen(obj.filename, obj.mode);
 	}
@@ -33,7 +25,7 @@ pt.open = function (obj, mode) {
 };
 
 pt.close = function (obj) {
-	if (obj && base.is_open(obj)) {
+	if (obj && pt.is_open(obj)) {
 		__libbz__.bzclose(obj.stream);
 		obj.stream = null;
 	}
