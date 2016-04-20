@@ -7,7 +7,7 @@ var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/helper/file';
 
-pt.__proto__ = require('stream/helper/base').constructor.prototype;
+Object.setPrototypeOf(pt, require('stream/helper/base').constructor.prototype);
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
