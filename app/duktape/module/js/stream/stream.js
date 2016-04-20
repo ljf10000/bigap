@@ -22,6 +22,10 @@ function method (obj, funcname, fsafe) {
 	return safe_function(helper[obj.type][funcname], fsafe);
 }
 
+pt.stream = function (obj, name, filename, mode, type) {
+	return base.stream(obj, name, filename, mode, type);
+};
+
 pt.is_open = function (obj) {
 	return typeof obj.stream === 'pointer' && obj.stream;
 };
@@ -91,8 +95,6 @@ mod.Stream = function (filename, mode, type, pre_open) {
 	            maybe_string(filename),
 	            mode,
 	            helper.hasOwnProperty(type)?type:'file');
-
-	print('stream.open pre_open=', pre_open);
 
 	if (true === pre_open) {
 		pt.open(this);

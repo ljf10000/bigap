@@ -5,21 +5,26 @@
 */
 var mod = this,
 	pt = mod.__proto__,
-	name = 'stream/helper/bzip';
+	name = 'stream/helper/bzip',
+	base = require('stream/helper/base');
 
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
+pt.stream = function (obj, name, filename, mode, type) {
+	return base.stream(obj, name, filename, mode, type);
+};
+
 pt.is_open = function (obj) {
-	return typeof obj.stream === 'pointer' && obj.stream;
+	return base.is_open(obj);
 };
 
 pt.is_close = function (obj) {
-	return null === obj.stream;
+	return base.is_close(obj);
 };
 
 pt.open = function (obj, mode) {
-	if (obj && pt.is_close(obj)) {
+	if (obj && base.is_close(obj)) {
 		obj.mode = mode || obj.mode;
 		obj.stream = __libbz__.bzopen(obj.filename, obj.mode);
 	}
@@ -28,7 +33,7 @@ pt.open = function (obj, mode) {
 };
 
 pt.close = function (obj) {
-	if (obj && pt.is_open(obj)) {
+	if (obj && base.is_open(obj)) {
 		__libbz__.bzclose(obj.stream);
 		obj.stream = null;
 	}
