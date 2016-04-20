@@ -71,7 +71,7 @@ pt.stream = function (obj, name, filename, mode, type) {
 		__js__.destructor(false, obj, pt.close);
 	}
 
-	return base.stream(obj, name, filename, mode, type);
+	return base.__proto__.stream(obj, name, filename, mode, type);
 };
 
 print(name, 'load.');
