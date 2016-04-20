@@ -67,9 +67,11 @@ pt.eof = function (obj) {
 };
 
 pt.stream = function (obj, name, filename, mode, type) {
+	print('file.pt.stream 1');
 	if (obj.constructor === Object) {
 		__js__.destructor(false, obj, pt.close);
 	}
+	print('file.pt.stream 2');
 
 	return base.__proto__.stream(obj, name, filename, mode, type);
 };
