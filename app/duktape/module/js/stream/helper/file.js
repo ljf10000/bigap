@@ -75,6 +75,9 @@ pt.stream = function (obj, name, filename, mode, type) {
 };
 
 var stream = {};
+base.sb(stream, 'stream in file', 'sb', 'r', 'file');
+fmt.oprint('stream', stream);
+
 base.stream(stream, 'stream in file', 'sb', 'r', 'file');
 fmt.oprint('stream', stream);
 

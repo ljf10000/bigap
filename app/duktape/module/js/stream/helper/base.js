@@ -28,7 +28,11 @@ pt.stream = function (obj, name, filename, mode, type) {
 	obj.$name = function () { return name + '(' + tmp_filename + ')'; };
 	obj.stream = null;
 	*/
-	
+
+	return obj;
+};
+
+mod.sb = function (obj, name, filename, mode, type) {
 	return obj;
 };
 
