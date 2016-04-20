@@ -11,8 +11,8 @@ pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
 pt.is_open = function (obj) {
-	print('base.pt.is_open', typeof obj.stream === 'pointer' && obj.stream);
-	return typeof obj.stream === 'pointer' && obj.stream;
+	print('base.pt.is_open', typeof obj.stream === 'pointer' && null !== obj.stream);
+	return typeof obj.stream === 'pointer' && null !== obj.stream;
 };
 
 pt.is_close = function (obj) {
@@ -32,7 +32,7 @@ pt.stream = function (obj, name, filename, mode, type) {
 	return obj;
 };
 
-mod.stream = pt.stream;
+//mod.stream = pt.stream;
 
 print(name, 'load.');
 /* eof */
