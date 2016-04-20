@@ -27,11 +27,11 @@ pt.stream = function (obj, name, filename, mode, type) {
 };
 
 pt.is_open = function (obj) {
-	return typeof obj.stream === 'pointer' && obj.stream;
+	return base.is_open(obj);
 };
 
 pt.is_close = function (obj) {
-	return null === obj.stream;
+	return base.is_close(obj);
 };
 
 pt.open = function (obj, mode) {
