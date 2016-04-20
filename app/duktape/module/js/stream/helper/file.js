@@ -66,22 +66,12 @@ mod.eof = function (obj) {
 };
 
 mod.stream = function (obj, name, filename, mode, type) {
-	print('file.mod.stream 1');
 	if (obj.constructor === Object) {
 		__js__.destructor(false, obj, mod.close);
 	}
-	print('file.mod.stream 2');
 
-	print(mod.stream === base.stream);
-	print(mod.stream === base.__proto__.stream);
-	print(mod === base.__proto__);
-	print(mod.__proto__ === base.__proto__);
-	print(mod === base);
-	print(this === base);
-
-	return base.__proto__.stream(obj, name, filename, mode, type);
+	return base.stream(obj, name, filename, mode, type);
 };
-fmt.oprint('base.mod', base.__proto__);
 print(name, 'load.');
 
 /* eof */

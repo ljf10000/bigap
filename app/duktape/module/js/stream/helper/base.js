@@ -19,13 +19,13 @@ mod.is_close = function (obj) {
 
 mod.stream = function (obj, name, filename, mode, type) {
 	var tmp_filename = maybe_string(filename);
-	print('base.mod.stream 1');
+
 	obj.filename = tmp_filename;
 	obj.mode = maybe_string(mode) || 'r';
 	obj.type = maybe_string(type) || 'file';
 	obj.$name = function () { return name + '(' + tmp_filename + ')'; };
 	obj.stream = null;
-	print('base.mod.stream 2');
+
 	return obj;
 };
 
