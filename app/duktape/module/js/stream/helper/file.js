@@ -23,7 +23,9 @@ pt.open = function (obj, mode) {
 	if (obj && pt.is_close(obj)) {
 		obj.mode = mode || obj.mode;
 		print('filename=',obj.filename, 'mode=', obj.mode);
+		print('stream=',obj.stream);
 		obj.stream = __libc__.fopen(obj.filename, obj.mode);
+		print('stream=',obj.stream);
 	}
 
 	return obj;
