@@ -18,7 +18,7 @@ pt.is_close = function (obj) {
 	return null === obj.stream;
 };
 
-pt.stream = function (obj, name, filename, mode, type) {
+pt.init_stream = function (obj, name, filename, mode, type) {
 	/*
 	var tmp_filename = maybe_string(filename);
 
@@ -29,10 +29,6 @@ pt.stream = function (obj, name, filename, mode, type) {
 	obj.stream = null;
 	*/
 
-	return obj;
-};
-
-mod.sb = function (obj, name, filename, mode, type) {
 	return obj;
 };
 
