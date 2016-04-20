@@ -30,7 +30,7 @@ pt.stream = function (obj, name, filename, mode, type) {
 	return obj;
 };
 
-//mod.stream = pt.stream;
+mod.init_stream = pt.stream;
 
 print(name, 'load.');
 /* eof */
