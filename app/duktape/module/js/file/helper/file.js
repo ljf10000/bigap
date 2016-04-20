@@ -4,21 +4,19 @@
 * module: file helper
 */
 var mod = this,
-	pt = mod.__proto__,
 	name = 'file/helper/file';
 	fmode = require('file/helper/mode');
 
-pt.constructor.prototype = require('file/helper/fd').__proto__;
-pt.$name = function () { return name; };
-pt.$debugger = new $Debugger(name);
+mod.$name = function () { return name; };
+mod.$debugger = new $Debugger(name);
 
-pt.open = function (obj, flag, mode) {
-	if (must_object(obj) && pt.is_close(obj)) {
+mod.open = function (obj, flag, mode) {
+	if (must_object(obj) && mod.is_close(obj)) {
 		flag = maybe_number(flag) || obj.flag;
 		mode = maybe_number(mode) || obj.mode;
 
 		obj.fd = __libc__.open(obj.filename, flag, mode);
-		if (pt.is_open(obj)) {
+		if (mod.is_open(obj)) {
 			obj.flag = flag;
 			obj.mode = mode;
 
@@ -33,20 +31,20 @@ pt.open = function (obj, flag, mode) {
 	return obj;
 };
 
-pt.stat = function (obj) {
+mod.stat = function (obj) {
 	return __libc__.stat(obj.filename);
 };
 
-pt.lstat = function (obj) {
+mod.lstat = function (obj) {
 	return __libc__.lstat(obj.filename);
 };
 
-pt.seek = function (obj, offset, where) {
+mod.seek = function (obj, offset, where) {
 	return __libc__.lseek(obj.fd, offset, where);
 };
 
-pt.rewind = function (obj) {
-	var type = pt.type;
+mod.rewind = function (obj) {
+	var type = mod.type;
 
 	switch(obj.type) {
 		case type.file:
@@ -58,7 +56,7 @@ pt.rewind = function (obj) {
 	}
 };
 
-pt.sync = pt.flush = function (obj) {
+mod.sync = mod.flush = function (obj) {
 	return __libc__.fsync(obj.fd);
 };
 

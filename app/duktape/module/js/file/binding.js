@@ -4,31 +4,30 @@
 * module: file binding
 */
 var mod = this,
-	pt = mod.__proto__,
 	name = 'file/binding';
 
-pt.$name = function () { return name; };
-pt.$debugger = new $Debugger(name);
+mod.$name = function () { return name; };
+mod.$debugger = new $Debugger(name);
 
-pt.load = function (obj) {
+mod.load = function (obj) {
 	if (obj.filename && __libc__.fexist(obj.filename)) {
 		obj.content = obj.reader(__my__.readtxt(obj.filename));
 	} else {
 		obj.content = obj.reader('');
 	}
 
-	pt.$debugger.trace('load ' + obj.content);
+	mod.$debugger.trace('load ' + obj.content);
 };
 
-pt.save = function (obj, writer) {
-	pt.$debugger.trace('save ' + obj.filename + ':' + obj.content);
+mod.save = function (obj, writer) {
+	mod.$debugger.trace('save ' + obj.filename + ':' + obj.content);
 
 	if (obj.filename && obj.content) {
 		__my__.writefile(obj.filename, obj.writer(obj.content));
 	}
 };
 
-pt.binding = function (filename, direct, reader, writer) {
+mod.binding = function (filename, direct, reader, writer) {
 	var tmp_filename = maybe_string(filename),
 		binding = {
 		$name: name + '(' + tmp_filename + ')',
@@ -41,7 +40,7 @@ pt.binding = function (filename, direct, reader, writer) {
 		return new Proxy(binding, {
 			get: function (obj, key) {
 				if (key==='content') {
-					pt.load(obj);
+					mod.load(obj);
 				}
 
 				return obj[key];
@@ -51,7 +50,7 @@ pt.binding = function (filename, direct, reader, writer) {
 				obj[key] = value;
 
 				if (key==='content') {
-					pt.save(obj);
+					mod.save(obj);
 				}
 			}
 		});
@@ -60,10 +59,10 @@ pt.binding = function (filename, direct, reader, writer) {
 
 		binding.__proto__ = {
 			load: function () {
-				pt.load(binding);
+				mod.load(binding);
 			},
 			save: function () {
-				pt.save(binding);
+				mod.save(binding);
 			}
 		};
 
@@ -71,16 +70,16 @@ pt.binding = function (filename, direct, reader, writer) {
 	}
 };
 
-pt.jsonBinding = function (filename) {
-	return pt.binding(filename, false, JSON.parse, JSON.stringify);
+mod.jsonBinding = function (filename) {
+	return mod.binding(filename, false, JSON.parse, JSON.stringify);
 };
 
-pt.txtCacheBinding = function (filename) {
-	return pt.binding(filename, false);
+mod.txtCacheBinding = function (filename) {
+	return mod.binding(filename, false);
 };
 
-pt.txtDirectBinding = function (filename) {
-	return pt.binding(filename, true);
+mod.txtDirectBinding = function (filename) {
+	return mod.binding(filename, true);
 };
 
 /* eof */

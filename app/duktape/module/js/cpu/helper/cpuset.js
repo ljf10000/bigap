@@ -4,12 +4,12 @@
 * module: cpuset helper
 */
 var mod = this,
-	pt = mod.__proto__;
+    name = 'cpu/helper/cpuset';
 
-pt.$name = pt.$name || 'cpu/helper/cpuset';
-pt.$debugger = new $Debugger(pt.$name);
+mod.$name = function () { return name; };
+mod.$debugger = new $Debugger(name);
 
-pt.cpuset = function () {
+mod.cpuset = function () {
 	return new Uint32Array(__libc__.__CPU_SETSIZE/Uint32Array.BYTES_PER_ELEMENT);
 };
 

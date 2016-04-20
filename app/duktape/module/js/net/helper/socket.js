@@ -1,18 +1,16 @@
 #!/bin/js
 
 /*
-* module: pt
+* module: mod
 */
 var mod = this,
-	pt = mod.__proto__,
 	name = 'net/helper/socket';
 
-pt.constructor.prototype = require('io/helper/fd').__proto__;
-pt.$name = function () { return name; };
-pt.$debugger = new $Debugger(name);
+mod.$name = function () { return name; };
+mod.$debugger = new $Debugger(name);
 
-pt.open = function (obj, domain, type, protocol) {
-	if (obj && !pt.is_good(obj)) {
+mod.open = function (obj, domain, type, protocol) {
+	if (obj && !mod.is_good(obj)) {
 		obj.domain = domain;
 		obj.type = type;
 		obj.protocol = protocol || 0;
@@ -24,34 +22,34 @@ pt.open = function (obj, domain, type, protocol) {
 };
 
 mod.Socket = function (domain, type, protocol) {
-	return pt.open(this, domain, type, protocol);
+	return mod.open(this, domain, type, protocol);
 };
 
 mod.Socket.prototype = {
 	read: function (buffer) {
-		return pt.read(this, buffer);
+		return mod.read(this, buffer);
 	},
 
 	readEx: function (size) {
-		return pt.readEx(this, size);
+		return mod.readEx(this, size);
 	},
 
 	readv: function (buffers) {
-		return pt.readv(this, buffers);
+		return mod.readv(this, buffers);
 	},
 
 	write: function (buffer) {
-		return pt.write(this, buffer);
+		return mod.write(this, buffer);
 	},
 
 	writev: function (buffers) {
-		return pt.writev(this, buffers);
+		return mod.writev(this, buffers);
 	},
 
 	seek: function (offset, where) {
-		return pt.seek(this, offset, where);
+		return mod.seek(this, offset, where);
 	}
 };
 
-__js__.destructor(true, mod.Socket.prototype, pt.close);
+__js__.destructor(true, mod.Socket.prototype, mod.close);
 /* eof */

@@ -4,18 +4,17 @@
 * module: bzip stream helper
 */
 var mod = this,
-	pt = mod.__proto__,
 	name = 'stream/helper/bzip',
 	base = require('stream/helper/base');
 
-pt.$name = function () { return name; };
-pt.$debugger = new $Debugger(name);
+mod.$name = function () { return name; };
+mod.$debugger = new $Debugger(name);
 
-pt.is_open = base.is_open;
-pt.is_close = base.is_close;
+mod.is_open = base.is_open;
+mod.is_close = base.is_close;
 
-pt.open = function (obj, mode) {
-	if (obj && pt.is_close(obj)) {
+mod.open = function (obj, mode) {
+	if (obj && mod.is_close(obj)) {
 		obj.mode = mode || obj.mode;
 		obj.stream = __libbz__.bzopen(obj.filename, obj.mode);
 	}
@@ -23,36 +22,36 @@ pt.open = function (obj, mode) {
 	return obj;
 };
 
-pt.close = function (obj) {
-	if (obj && pt.is_open(obj)) {
+mod.close = function (obj) {
+	if (obj && mod.is_open(obj)) {
 		__libbz__.bzclose(obj.stream);
 		obj.stream = null;
 	}
 };
 
-pt.read = function (obj, buffer) {
+mod.read = function (obj, buffer) {
 	return __libbz__.bzread(obj.stream, buffer);
 };
 
-pt.readEx = function (obj, size) {
+mod.readEx = function (obj, size) {
 	return __libbz__.bzreadEx(obj.stream, size);
 };
 
-pt.write = function (obj, buffer) {
+mod.write = function (obj, buffer) {
 	return __libbz__.bzwrite(obj.stream, buffer);
 };
 
-pt.sync = pt.flush = function (obj) {
+mod.sync = mod.flush = function (obj) {
 	return __libbz__.bzflush(obj.stream);
 };
 
-pt.error = function (obj) {
+mod.error = function (obj) {
 	return __libbz__.bzerror(obj.stream);
 };
 
-pt.stream = function (obj, name, filename, mode, type) {
+mod.stream = function (obj, name, filename, mode, type) {
 	if (obj.constructor === Object) {
-		__js__.destructor(false, obj, pt.close);
+		__js__.destructor(false, obj, mod.close);
 	}
 
 	return base.stream(obj, name, filename, mode, type);

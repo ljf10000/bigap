@@ -4,21 +4,20 @@
 * module: dir helper
 */
 var mod = this,
-	pt = mod.__proto__,
 	name = 'file/helper/dir';
 
-pt.$name = function() { return name; };
-pt.$debugger = new $Debugger(name);
+mod.$name = function() { return name; };
+mod.$debugger = new $Debugger(name);
 
-pt.is_open = function is_open (obj) {
+mod.is_open = function is_open (obj) {
 	return typeof obj.dir === 'pointer' && obj.dir;
 };
 
-pt.is_close = function is_close (obj) {
+mod.is_close = function is_close (obj) {
 	return null === obj.dir;
 };
 
-pt.open = function (obj) {
+mod.open = function (obj) {
 	if (obj && is_close(obj)) {
 		obj.dir = __libc__.opendir(obj.filename);
 	}
@@ -26,7 +25,7 @@ pt.open = function (obj) {
 	return obj;
 };
 
-pt.close = function (obj) {
+mod.close = function (obj) {
 	if (obj && is_open(obj)) {
 		__libc__.closedir(obj.dir);
 		obj.dir = null;
@@ -35,19 +34,19 @@ pt.close = function (obj) {
 	return 0;
 };
 
-pt.read = function (obj) {
+mod.read = function (obj) {
 	return __libc__.readdir(obj.dir);
 };
 
-pt.tell = function (obj) {
+mod.tell = function (obj) {
 	return __libc__.telldir(obj.dir);
 };
 
-pt.seek = function (obj, pos) {
+mod.seek = function (obj, pos) {
 	return __libc__.seekdir(obj.dir, pos);
 };
 
-pt.rewind = function (obj) {
+mod.rewind = function (obj) {
 	return __libc__.rewinddir(obj.dir);
 };
 

@@ -4,7 +4,6 @@
 * module: stream
 */
 var mod = this,
-	pt = mod.__proto__,
 	name = 'stream/stream',
 	base = require('stream/helper/base'),
 	helper = {
@@ -14,63 +13,63 @@ var mod = this,
 		bzip: require('stream/helper/bzip')
 	};
 
-pt.$name = function () { return name; };
-pt.$debugger = new $Debugger(name);
+mod.$name = function () { return name; };
+mod.$debugger = new $Debugger(name);
 
 function method (obj, funcname, fsafe) {
 	return safe_function(helper[obj.type][funcname], fsafe);
 }
 
-pt.is_open = base.is_open;
-pt.is_close = base.is_close;
+mod.is_open = base.is_open;
+mod.is_close = base.is_close;
 
-pt.open = function (obj, mode) {
+mod.open = function (obj, mode) {
 	return method(obj, 'open', function() {return obj;})(obj, mode);
 };
 
-pt.close = function (obj) {
+mod.close = function (obj) {
 	return method(obj, 'close')(obj);
 };
 
-pt.read = function (obj, buffer) {
+mod.read = function (obj, buffer) {
 	return method(obj, 'read')(obj, buffer);
 };
 
-pt.readEx = function (obj, size) {
+mod.readEx = function (obj, size) {
 	return method(obj, 'readEx')(obj, size);
 };
 
-pt.write = function (obj, buffer) {
+mod.write = function (obj, buffer) {
 	return method(obj, 'write')(obj, buffer);
 };
 
-pt.tell = function (obj) {
+mod.tell = function (obj) {
 	return method(obj, 'tell')(obj);
 };
 
-pt.seek = function (obj, offset, where) {
+mod.seek = function (obj, offset, where) {
 	return method(obj, 'seek')(obj, offset, where);
 };
 
-pt.rewind = function (obj) {
+mod.rewind = function (obj) {
 	return method(obj, 'rewind')(obj);
 };
 
-pt.sync = pt.flush = function (obj) {
+mod.sync = mod.flush = function (obj) {
 	return method(obj, 'sync')(obj);
 };
 
-pt.error = function (obj) {
+mod.error = function (obj) {
 	return method(obj, 'error')(obj);
 };
 
-pt.eof = function (obj) {
+mod.eof = function (obj) {
 	return method(obj, 'eof', allways_true)(obj);
 };
 
-pt.stream = function (obj, name, filename, mode, type) {
+mod.stream = function (obj, name, filename, mode, type) {
 	if (obj.constructor === Object) {
-		__js__.destructor(false, obj, pt.close);
+		__js__.destructor(false, obj, mod.close);
 	}
 
 	return base.stream(obj, name, filename, mode, type);
@@ -78,75 +77,75 @@ pt.stream = function (obj, name, filename, mode, type) {
 
 mod.Stream = function (filename, mode, type, pre_open) {
 	base.stream(this,
-	            pt.$name(),
+	            mod.$name(),
 	            maybe_string(filename),
 	            mode,
 	            helper.hasOwnProperty(type)?type:'file');
 
 	if (true === pre_open) {
-		pt.open(this);
+		mod.open(this);
 	}
 };
 
 mod.Stream.prototype = {
 	is_open: function () {
-		return pt.is_open(this);
+		return mod.is_open(this);
 	},
 
 	is_close: function () {
-		return pt.is_close(this);
+		return mod.is_close(this);
 	},
 
 	open: function (mode) {
 		print('stream.open mode=', mode);
-		return pt.open(this, mode);
+		return mod.open(this, mode);
 	},
 
 	close: function () {
-		pt.close(this);
+		mod.close(this);
 	},
 
 	read: function (buffer) {
-		return pt.read(this, buffer);
+		return mod.read(this, buffer);
 	},
 
 	readEx: function (size) {
-		return pt.readEx(this, size);
+		return mod.readEx(this, size);
 	},
 
 	write: function (buffer) {
-		return pt.write(this, buffer);
+		return mod.write(this, buffer);
 	},
 
 	tell: function () {
-		return pt.tell(this);
+		return mod.tell(this);
 	},
 
 	seek: function (offset, where) {
-		return pt.seek(this, offset, where);
+		return mod.seek(this, offset, where);
 	},
 
 	rewind: function () {
-		return pt.rewind(this);
+		return mod.rewind(this);
 	},
 
 	sync: function () {
-		return pt.sync(this);
+		return mod.sync(this);
 	},
 
 	flush: function () {
-		return pt.flush(this);
+		return mod.flush(this);
 	},
 
 	error: function () {
-		return pt.error(this);
+		return mod.error(this);
 	},
 
 	eof: function () {
-		return pt.eof(this);
+		return mod.eof(this);
 	}
 };
 
-__js__.destructor(true, mod.Stream.prototype, pt.close);
+__js__.destructor(true, mod.Stream.prototype, mod.close);
 
 /* eof */

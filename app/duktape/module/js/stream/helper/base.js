@@ -3,34 +3,31 @@
 * module: base stream helper
 */
 var mod = this,
-	pt = mod.__proto__,
 	name = 'stream/helper/base';
 
 print(name, 'loading...');
-pt.$name = function () { return name; };
-pt.$debugger = new $Debugger(name);
+mod.$name = function () { return name; };
+mod.$debugger = new $Debugger(name);
 
-pt.is_open = function (obj) {
+mod.is_open = function (obj) {
 	return typeof obj.stream === 'pointer' && null !== obj.stream;
 };
 
-pt.is_close = function (obj) {
+mod.is_close = function (obj) {
 	return null === obj.stream;
 };
 
-pt.stream = function (obj, name, filename, mode, type) {
+mod.stream = function (obj, name, filename, mode, type) {
 	var tmp_filename = maybe_string(filename);
-	print('base.pt.stream 1');
+	print('base.mod.stream 1');
 	obj.filename = tmp_filename;
 	obj.mode = maybe_string(mode) || 'r';
 	obj.type = maybe_string(type) || 'file';
 	obj.$name = function () { return name + '(' + tmp_filename + ')'; };
 	obj.stream = null;
-	print('base.pt.stream 2');
+	print('base.mod.stream 2');
 	return obj;
 };
 
-//mod.stream = pt.stream;
-fmt.oprint('base.pt', pt);
 print(name, 'load.');
 /* eof */

@@ -4,13 +4,12 @@
 * module: uri
 */
 var mod = this,
-	pt = mod.__proto__,
 	name = 'net/uri';
 
-pt.$name = function () { return name; };
-pt.$debugger = new $Debugger(name);
+mod.$name = function () { return name; };
+mod.$debugger = new $Debugger(name);
 
-pt.scheme = {
+mod.scheme = {
 	file: 1,
 	http: 2,
 	https: 3,
