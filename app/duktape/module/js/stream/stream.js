@@ -18,7 +18,6 @@ pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
 function method (obj, funcname, fsafe) {
-	print('method type=', obj.type);
 	return safe_function(helper[obj.type][funcname], fsafe);
 }
 
