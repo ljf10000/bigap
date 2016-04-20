@@ -481,7 +481,8 @@ duke_fopen(duk_context *ctx)
     char *mode      = (char *)duk_require_string(ctx, 1);
 
     FILE *f = os_fopen(filename, mode);
-
+    os_println("filename=%s, mode=%s, f=%p", filename, mode, f);
+    
     return __push_pointer(ctx, f), 1;
 }
 
