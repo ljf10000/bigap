@@ -11,10 +11,12 @@ pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
 pt.is_open = function (obj) {
+	print('base.pt.is_open', typeof obj.stream === 'pointer' && obj.stream);
 	return typeof obj.stream === 'pointer' && obj.stream;
 };
 
 pt.is_close = function (obj) {
+	print('base.pt.is_close', null === obj.stream);
 	return null === obj.stream;
 };
 
