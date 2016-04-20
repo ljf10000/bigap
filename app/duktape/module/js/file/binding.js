@@ -27,14 +27,14 @@ mod.save = function (obj, writer) {
 	}
 };
 
-mod.binding = function (filename, direct, reader, writer) {
+mod.bind = function (filename, direct, reader, writer) {
 	var tmp_filename = maybe_string(filename),
 		binding = {
-		$name: name + '(' + tmp_filename + ')',
-		filename: tmp_filename,
-		reader: maybe_function(reader) || allways,
-		writer: maybe_function(writer) || allways
-	};
+			$name: function() { return name + '(' + tmp_filename + ')'; },
+			filename: tmp_filename,
+			reader: maybe_function(reader) || allways,
+			writer: maybe_function(writer) || allways
+		};
 
 	if (true === direct) {
 		return new Proxy(binding, {
@@ -70,16 +70,16 @@ mod.binding = function (filename, direct, reader, writer) {
 	}
 };
 
-mod.jsonBinding = function (filename) {
-	return mod.binding(filename, false, JSON.parse, JSON.stringify);
+mod.bind_json = function (filename) {
+	return mod.bind(filename, false, JSON.parse, JSON.stringify);
 };
 
-mod.txtCacheBinding = function (filename) {
-	return mod.binding(filename, false);
+mod.bind_txt_cache = function (filename) {
+	return mod.bind(filename, false);
 };
 
-mod.txtDirectBinding = function (filename) {
-	return mod.binding(filename, true);
+mod.bind_txt_direct = function (filename) {
+	return mod.bind(filename, true);
 };
 
 /* eof */

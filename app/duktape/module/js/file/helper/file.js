@@ -4,11 +4,26 @@
 * module: file helper
 */
 var mod = this,
-	name = 'file/helper/file';
-	fmode = require('file/helper/mode');
+	name = 'file/helper/file',
+	base = require('file/helper/base'),
+	fmode = require('file/helper/mode'),
+	fd = require('file/helper/fd');
 
 mod.$name = function () { return name; };
 mod.$debugger = new $Debugger(name);
+
+
+mod.is_open = fd.is_open;
+mod.is_close= fd.is_close;
+mod.close   = fd.close;
+mod.fcntl   = fd.fcntl;
+mod.dup     = fd.dup;
+mod.dup2    = fd.dup2;
+mod.read    = fd.read;
+mod.readEx  = fd.readEx;
+mod.readv   = fd.readv;
+mod.write   = fd.write;
+mod.writev  = fd.writev;
 
 mod.open = function (obj, flag, mode) {
 	if (must_object(obj) && mod.is_close(obj)) {
@@ -58,6 +73,14 @@ mod.rewind = function (obj) {
 
 mod.sync = mod.flush = function (obj) {
 	return __libc__.fsync(obj.fd);
+};
+
+mod.stream = function (obj, name, filename, flag, mode) {
+	if (obj.constructor === Object) {
+		__js__.destructor(false, obj, mod.close);
+	}
+
+	return base.file(obj, name, filename, flag, mode);
 };
 
 /* eof */

@@ -5,11 +5,12 @@
 */
 var mod = this,
 	name = 'file/file',
+	base = require('file/helper/base'),
+	fmode = require('file/helper/mode'),
 	helpers = {
 		file: require('file/helper/file'),
 		dir: require('fs/helper/dir')
-	},
-	fmode = require('file/helper/mode');
+	};
 
 mod.$name = function () { return name; };
 mod.$debugger = new $Debugger(name);
@@ -78,24 +79,20 @@ mod.writev = function (obj, buffers) {
 	return method(obj, 'writev')(obj, buffers);
 };
 
-mod.File = function (filename, flag, mode, pre_open) {
-	var tmp_filename = maybe_string(filename),
-		tmp_fmode = __libc__.fexist(tmp_filename)?__libc__.lstat(tmp_filename).mode: 0,
-		obj = {
-			$name: mod.$name() + '(' + tmp_filename + ')',
-			filename: tmp_filename,
-			flag: maybe_number(flag) || __libc__.O_RDONLY,
-			mode: maybe_number(mode) || 0,
-			fmode: tmp_fmode,
-			ftype: fmode.get_type(tmp_fmode),
-			fd: -1
-		};
-
-	if (true === pre_open) {
-		mod.open(obj);
+mod.stream = function (obj, name, filename, flag, mode) {
+	if (obj.constructor === Object) {
+		__js__.destructor(false, obj, mod.close);
 	}
 
-	return obj;
+	return base.file(obj, name, filename, flag, mode);
+};
+
+mod.File = function (filename, flag, mode, pre_open) {
+	base.file(this, mod.name, filename, flag, mode);
+
+	if (true === pre_open) {
+		mod.open(this);
+	}
 };
 
 mod.File.prototype = {

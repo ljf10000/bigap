@@ -77,7 +77,7 @@ mod.stream = function (obj, name, filename, mode, type) {
 
 mod.Stream = function (filename, mode, type, pre_open) {
 	base.stream(this,
-	            mod.$name(),
+	            mod.name,
 	            maybe_string(filename),
 	            mode,
 	            helper.hasOwnProperty(type)?type:'file');

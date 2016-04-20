@@ -4,7 +4,8 @@
 * module: dir helper
 */
 var mod = this,
-	name = 'file/helper/dir';
+	name = 'file/helper/dir',
+	base = require('file/helper/base');
 
 mod.$name = function() { return name; };
 mod.$debugger = new $Debugger(name);
@@ -48,6 +49,14 @@ mod.seek = function (obj, pos) {
 
 mod.rewind = function (obj) {
 	return __libc__.rewinddir(obj.dir);
+};
+
+mod.stream = function (obj, name, filename, flag, mode) {
+	if (obj.constructor === Object) {
+		__js__.destructor(false, obj, mod.close);
+	}
+
+	return base.file(obj, name, filename, flag, mode);
 };
 
 /* eof */
