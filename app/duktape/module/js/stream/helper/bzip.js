@@ -11,7 +11,6 @@ var mod = this,
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
-pt.stream = base.stream;
 pt.is_open = base.is_open;
 pt.is_close = base.is_close;
 
@@ -49,6 +48,14 @@ pt.sync = pt.flush = function (obj) {
 
 pt.error = function (obj) {
 	return __libbz__.bzerror(obj.stream);
+};
+
+pt.stream = function (obj, name, filename, mode, type) {
+	if (obj.constructor === Object) {
+		__js__.destructor(false, obj, pt.close);
+	}
+
+	return base.stream(obj, name, filename, mode, type);
 };
 
 /* eof */

@@ -21,7 +21,6 @@ function method (obj, funcname, fsafe) {
 	return safe_function(helper[obj.type][funcname], fsafe);
 }
 
-pt.stream = base.stream;
 pt.is_open = base.is_open;
 pt.is_close = base.is_close;
 
@@ -67,6 +66,14 @@ pt.error = function (obj) {
 
 pt.eof = function (obj) {
 	return method(obj, 'eof', allways_true)(obj);
+};
+
+pt.stream = function (obj, name, filename, mode, type) {
+	if (obj.constructor === Object) {
+		__js__.destructor(false, obj, pt.close);
+	}
+
+	return base.stream(obj, name, filename, mode, type);
 };
 
 mod.Stream = function (filename, mode, type, pre_open) {
