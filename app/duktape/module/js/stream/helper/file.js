@@ -6,7 +6,7 @@
 var mod = this,
 	name = 'stream/helper/file',
 	base = require('stream/helper/base');
-print(name, 'loading...');
+
 mod.$name = function () { return name; };
 mod.$debugger = new $Debugger(name);
 
@@ -72,6 +72,5 @@ mod.stream = function (obj, name, filename, mode, type) {
 
 	return base.stream(obj, name, filename, mode, type);
 };
-print(name, 'load.');
 
 /* eof */
