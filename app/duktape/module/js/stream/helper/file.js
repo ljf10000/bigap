@@ -82,7 +82,7 @@ pt.stream = function (obj, name, filename, mode, type) {
 
 	return base.__proto__.stream(obj, name, filename, mode, type);
 };
-
+fmt.oprint('base.pt', base.__proto__);
 print(name, 'load.');
 
 /* eof */

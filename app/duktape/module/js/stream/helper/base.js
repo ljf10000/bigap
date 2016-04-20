@@ -31,6 +31,6 @@ pt.stream = function (obj, name, filename, mode, type) {
 };
 
 //mod.stream = pt.stream;
-
+fmt.oprint('base.pt', pt);
 print(name, 'load.');
 /* eof */
