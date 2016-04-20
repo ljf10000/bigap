@@ -1,26 +1,28 @@
 #!/bin/js
 
-print(1);
-var fname = 'stream/helper/file';
 var bname = 'stream/helper/base';
-var f = require(fname);
-fmt.oprint(fname, f);
-
 var b = require(bname);
 fmt.oprint(bname, b);
 
-var stream = {};
-b.stream(stream, fname, 'stream.js', 'r', 'file');
+var fname = 'stream/helper/file';
+var f = require(fname);
+fmt.oprint(fname, f);
 
+var stream = {};
+b.stream(stream, fname, 'stream/helper/file.js', 'r', 'file');
+fmt.oprint('stream', stream);
+
+print(f.open);
 f.open(stream);
+fmt.oprint('stream', stream);
 print(6);
 
-var b1 = f.readEx(10000);
+var b1 = f.readEx(stream, 10000);
 print(7);
 print(b1);
 var b2 = Buffer(10000);
 print(8);
-var len = f.read(b2);
+var len = f.read(stream, b2);
 print(9);
 f = null;
 print(10);
