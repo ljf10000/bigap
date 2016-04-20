@@ -6,7 +6,7 @@ var mod = this,
 	pt = mod.__proto__,
 	name = 'stream/helper/base';
 
-print('loading...', name);
+print(name, 'loading...');
 pt.$name = function () { return name; };
 pt.$debugger = new $Debugger(name);
 
@@ -30,5 +30,5 @@ pt.stream = function (obj, name, filename, mode, type) {
 	return obj;
 };
 
-print('loaded', name);
+print(name, 'load.');
 /* eof */
