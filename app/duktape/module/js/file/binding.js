@@ -5,37 +5,28 @@
 */
 var mod = this,
 	name = 'file/binding';
-print('loading', name);
+
 mod.$name = function () { return name; };
 mod.$debugger = new $Debugger(name);
 
 mod.load = function (obj, reader) {
-	print('load', obj.filename, 1);
 	var safe_reader = maybe_function(reader) || allways;
-	print('load', obj.filename, 2);
 
 	if (obj.filename && __libc__.fexist(obj.filename)) {
-		print('load', obj.filename, 2.1);
 		obj.content = safe_reader(__my__.readtxt(obj.filename));
 	} else {
-		print('load', obj.filename, 2.2);
 		obj.content = safe_reader('');
 	}
-	print('load', obj.filename, 3, obj.content);
 
 	mod.$debugger.trace('load ' + obj.content);
 };
 
 mod.save = function (obj, writer) {
-	print('safe', obj.filename, 1);
 	var safe_writer = maybe_function(writer) || allways;
-	print('safe', obj.filename, 2);
 
 	if (obj.filename && obj.content) {
-		print('safe', obj.filename, 2.1);
 		__my__.writefile(obj.filename, safe_writer(obj.content));
 	}
-	print('safe', obj.filename, 3, obj.content);
 
 	mod.$debugger.trace('save ' + obj.filename + ':' + obj.content);
 };
@@ -47,17 +38,11 @@ function init (obj, filename, is_object) {
 }
 
 mod.Json = function (filename, pre_load) {
-	print('bind', filename, 1);
 	init(this, filename, true);
-	print('bind', filename, 2);
 
 	if (undefined === pre_load || maybe_bool(pre_load)) {
-		print('bind', filename, 2.1);
 		this.load();
-		print('bind', filename, 2.2);
 	}
-
-	print('bind', filename, 3);
 };
 
 mod.Json.prototype = {
@@ -70,17 +55,11 @@ mod.Json.prototype = {
 };
 
 mod.Cache = function (filename, pre_load) {
-	print('bind', filename, 1);
 	init(this, filename);
-	print('bind', filename, 2);
 
 	if (undefined === pre_load || maybe_bool(pre_load)) {
-		print('bind', filename, 2.1);
 		this.load();
-		print('bind', filename, 2.2);
 	}
-
-	print('bind', filename, 3);
 };
 
 mod.Cache.prototype = {
@@ -94,10 +73,8 @@ mod.Cache.prototype = {
 
 mod.Direct = function (filename) {
 	var binding = {};
-	print('bind', filename, 1);
 
 	init(binding, filename);
-	print('bind', filename, 2);
 
 	return new Proxy(binding, {
 		get: function (obj, key) {
@@ -118,5 +95,4 @@ mod.Direct = function (filename) {
 	});
 };
 
-print('loaded', name);
 /* eof */
