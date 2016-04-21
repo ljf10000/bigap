@@ -39,6 +39,8 @@ mod.bind = function (obj, filename, reader, writer) {
 	obj.filename = maybe_string(filename);
 	obj.$name = function() { return name + '(' + obj.filename + ')'; };
 	obj.content = (reader && writer)?{}:'';
+
+	return obj;
 };
 
 mod.Cache = function (filename, reader, writer) {
