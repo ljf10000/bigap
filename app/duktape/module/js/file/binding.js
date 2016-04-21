@@ -35,55 +35,30 @@ mod.save = function (obj, writer) {
 	return obj;
 };
 
-function init (obj, filename, is_object) {
+mod.bind = function (obj, filename, reader, writer) {
 	obj.filename = maybe_string(filename);
 	obj.$name = function() { return name + '(' + obj.filename + ')'; };
-	obj.content = is_object?{}:'';
-}
-
-mod.Json = function (filename, pre_load) {
-	init(this, filename, true);
-
-	if (undefined === pre_load || maybe_bool(pre_load)) {
-		this.load();
-	}
+	obj.content = (reader && writer)?{}:'';
 };
 
-mod.Json.prototype = {
-	load: function () {
-		return mod.load(this, JSON.parse);
-	},
-	save: function () {
-		return mod.save(this, JSON.stringify);
-	}
-};
-
-mod.Cache = function (filename, pre_load) {
-	init(this, filename);
-
-	if (undefined === pre_load || maybe_bool(pre_load)) {
-		this.load();
-	}
+mod.Cache = function (filename, reader, writer) {
+	mod.bind(this, filename, reader, writer);
 };
 
 mod.Cache.prototype = {
 	load: function () {
-		mod.load(this);
+		mod.load(this, reader);
 	},
 	save: function () {
-		mod.save(this);
+		mod.save(this, writer);
 	}
 };
 
-mod.Direct = function (filename) {
-	var binding = {};
-
-	init(binding, filename);
-
-	return new Proxy(binding, {
+mod.Direct = function (filename, reader, writer) {
+	return new Proxy(mod.bind({}, filename, reader, writer), {
 		get: function (obj, key) {
 			if (key==='content') {
-				mod.load(obj);
+				mod.load(obj, reader);
 			}
 
 			return obj[key];
@@ -93,7 +68,7 @@ mod.Direct = function (filename) {
 			obj[key] = value;
 
 			if (key==='content') {
-				mod.save(obj);
+				mod.save(obj, writer);
 			}
 		}
 	});
