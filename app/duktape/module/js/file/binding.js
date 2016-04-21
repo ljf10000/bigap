@@ -47,17 +47,17 @@ function init (obj, filename, is_object) {
 }
 
 mod.Json = function (filename, pre_load) {
-	print('bind', obj.filename, 1);
+	print('bind', filename, 1);
 	init(this, filename, true);
-	print('bind', obj.filename, 2);
+	print('bind', filename, 2);
 
 	if (undefined === pre_load || maybe_bool(pre_load)) {
-		print('bind', obj.filename, 2.1);
+		print('bind', filename, 2.1);
 		this.load();
-		print('bind', obj.filename, 2.2);
+		print('bind', filename, 2.2);
 	}
 
-	print('bind', obj.filename, 3);
+	print('bind', filename, 3);
 };
 
 mod.Json.prototype = {
@@ -70,17 +70,17 @@ mod.Json.prototype = {
 };
 
 mod.Cache = function (filename, pre_load) {
-	print('bind', obj.filename, 1);
+	print('bind', filename, 1);
 	init(this, filename);
-	print('bind', obj.filename, 2);
+	print('bind', filename, 2);
 
 	if (undefined === pre_load || maybe_bool(pre_load)) {
-		print('bind', obj.filename, 2.1);
+		print('bind', filename, 2.1);
 		this.load();
-		print('bind', obj.filename, 2.2);
+		print('bind', filename, 2.2);
 	}
 
-	print('bind', obj.filename, 3);
+	print('bind', filename, 3);
 };
 
 mod.Cache.prototype = {
@@ -94,10 +94,10 @@ mod.Cache.prototype = {
 
 mod.Direct = function (filename) {
 	var binding = {};
-	print('bind', binding.filename, 1);
+	print('bind', filename, 1);
 
 	init(binding, filename);
-	print('bind', binding.filename, 2);
+	print('bind', filename, 2);
 
 	return new Proxy(binding, {
 		get: function (obj, key) {
@@ -110,7 +110,8 @@ mod.Direct = function (filename) {
 
 		set: function (obj, key, value) {
 			obj[key] = value;
-				if (key==='content') {
+
+			if (key==='content') {
 				mod.save(obj);
 			}
 		}
