@@ -21,7 +21,7 @@ mod.load = function (obj, reader) {
 		print('load', obj.filename, 2.2);
 		obj.content = safe_reader('');
 	}
-	print('load', obj.filename, 3);
+	print('load', obj.filename, 3, obj.content);
 
 	mod.$debugger.trace('load ' + obj.content);
 };
@@ -35,7 +35,7 @@ mod.save = function (obj, writer) {
 		print('safe', obj.filename, 2.1);
 		__my__.writefile(obj.filename, safe_writer(obj.content));
 	}
-	print('safe', obj.filename, 3);
+	print('safe', obj.filename, 3, obj.content);
 
 	mod.$debugger.trace('save ' + obj.filename + ':' + obj.content);
 };
@@ -47,13 +47,17 @@ function init (obj, filename, is_object) {
 }
 
 mod.Json = function (filename, pre_load) {
+	print('bind', obj.filename, 1);
 	init(this, filename, true);
+	print('bind', obj.filename, 2);
 
 	if (pre_load) {
+		print('bind', obj.filename, 2.1);
 		this.load();
+		print('bind', obj.filename, 2.2);
 	}
 
-	print('bind', obj.filename);
+	print('bind', obj.filename, 3);
 };
 
 mod.Json.prototype = {
@@ -66,13 +70,17 @@ mod.Json.prototype = {
 };
 
 mod.Cache = function (filename, pre_load) {
+	print('bind', obj.filename, 1);
 	init(this, filename);
+	print('bind', obj.filename, 2);
 
 	if (pre_load) {
+		print('bind', obj.filename, 2.1);
 		this.load();
+		print('bind', obj.filename, 2.2);
 	}
 
-	print('bind', obj.filename);
+	print('bind', obj.filename, 3);
 };
 
 mod.Cache.prototype = {
@@ -86,11 +94,11 @@ mod.Cache.prototype = {
 
 mod.Direct = function (filename) {
 	var binding = {};
+	print('bind', binding.filename, 1);
 
 	init(binding, filename);
-
-	print('bind', binding.filename);
-
+	print('bind', binding.filename, 2);
+	
 	return new Proxy(binding, {
 		get: function (obj, key) {
 			if (key==='content') {
