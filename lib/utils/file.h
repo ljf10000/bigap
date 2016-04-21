@@ -141,6 +141,12 @@ os_fwrite(FILE *stream, const void *buf, int size)
 }
 
 static inline int
+os_fwrite_crlf(FILE *stream)
+{
+    return os_fwrite(stream, __crlf, sizeof(__crlf) - 1);
+}
+
+static inline int
 os_fread(FILE *stream, void *buf, int size)
 {
     int err = fread(buf, 1, size, stream);
@@ -258,7 +264,7 @@ os_writefile(char *filename, byte *buf, int size, bool append, bool bin)
     }
 
     if (false==bin) {
-        os_fwrite(f, __crlf, sizeof(__crlf) - 1);
+        os_fwrite_crlf(f);
     }
     
 error:

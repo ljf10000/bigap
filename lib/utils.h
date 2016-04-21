@@ -144,6 +144,7 @@
 #include "utils/dump.h"
 #include "utils/time.h"
 #include "utils/crc32.h"
+#include "utils/pipe.h"
 #include "utils/pid.h"
 #include "utils/if.h"
 #include "utils/io.h"

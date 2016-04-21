@@ -9,7 +9,6 @@
 #define __RUNAS_UNKNOW__
 
 #include "utils.h"
-#include "utils/pipe.h"
 #include "dukc.h"
 #include "my.h"
 
