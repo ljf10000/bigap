@@ -9,73 +9,97 @@ print('loading', name);
 mod.$name = function () { return name; };
 mod.$debugger = new $Debugger(name);
 
-mod.load = function (obj) {
+mod.load = function (obj, reader) {
+	print('load', obj.filename, 1);
+	var safe_reader = maybe_function(reader) || allways;
+	print('load', obj.filename, 2);
+
 	if (obj.filename && __libc__.fexist(obj.filename)) {
-		obj.content = obj.reader(__my__.readtxt(obj.filename));
+		print('load', obj.filename, 2.1);
+		obj.content = safe_reader(__my__.readtxt(obj.filename));
 	} else {
-		obj.content = obj.reader('');
+		print('load', obj.filename, 2.2);
+		obj.content = safe_reader('');
 	}
+	print('load', obj.filename, 3);
 
 	mod.$debugger.trace('load ' + obj.content);
 };
 
 mod.save = function (obj, writer) {
-	mod.$debugger.trace('save ' + obj.filename + ':' + obj.content);
+	print('safe', obj.filename, 1);
+	var safe_writer = maybe_function(writer) || allways;
+	print('safe', obj.filename, 2);
 
 	if (obj.filename && obj.content) {
-		__my__.writefile(obj.filename, obj.writer(obj.content));
+		print('safe', obj.filename, 2.1);
+		__my__.writefile(obj.filename, safe_writer(obj.content));
+	}
+	print('safe', obj.filename, 3);
+
+	mod.$debugger.trace('save ' + obj.filename + ':' + obj.content);
+};
+
+function init (obj, filename, is_object) {
+	obj.filename = maybe_string(filename);
+	obj.$name = function() { return name + '(' + obj.filename + ')'; };
+	obj.content = is_object?{}:'';
+}
+
+mod.Json = function (filename) {
+	init(this, filename, true);
+
+	print('bind', obj.filename);
+};
+
+mod.Json.prototype = {
+	load: function () {
+		mod.load(this, JSON.parse);
+	},
+	save: function () {
+		mod.save(this, JSON.stringify);
 	}
 };
 
-mod.bind = function (filename, direct, reader, writer) {
-	var tmp_filename = maybe_string(filename),
-		binding = {
-			$name: function() { return name + '(' + tmp_filename + ')'; },
-			filename: tmp_filename,
-			reader: maybe_function(reader) || allways,
-			writer: maybe_function(writer) || allways
-		};
+mod.Cache = function (filename) {
+	init(this, filename);
 
-	if (true === direct) {
-		return new Proxy(binding, {
-			get: function (obj, key) {
-				if (key==='content') {
-					mod.load(obj);
-				}
+	print('bind', obj.filename);
+};
 
-				return obj[key];
-			},
+mod.Cache.prototype = {
+	load: function () {
+		mod.load(this);
+	},
+	save: function () {
+		mod.save(this);
+	}
+};
 
-			set: function (obj, key, value) {
-				obj[key] = value;
+mod.Direct = function (filename) {
+	var binding = {};
 
-				if (key==='content') {
-					mod.save(obj);
-				}
+	init(binding, filename);
+
+	print('bind', binding.filename);
+
+	return new Proxy(binding, {
+		get: function (obj, key) {
+			if (key==='content') {
+				mod.load(obj);
 			}
-		});
-	} else {
-		binding.content = {};
 
-		binding.__proto__ = {
-			load: function () {
-				mod.load(binding);
-			},
-			save: function () {
-				mod.save(binding);
+			return obj[key];
+		},
+
+		set: function (obj, key, value) {
+			obj[key] = value;
+				if (key==='content') {
+				mod.save(obj);
 			}
-		};
-
-		return binding;
-	}
+		}
+	});
 };
 
-mod.bindEx = function (filename, type) {
-	switch(type) {
-		case 'cache': return mod.bind(filename, false);
-		case 'direct': return mod.bind(filename, true);
-		case 'json':default: return mod.bind(filename, false, JSON.parse, JSON.stringify);
-	}
-};
 print('loaded', name);
 /* eof */
