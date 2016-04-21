@@ -51,7 +51,7 @@ mod.Json = function (filename, pre_load) {
 	init(this, filename, true);
 	print('bind', obj.filename, 2);
 
-	if (undefined === preload || maybe_bool(pre_load)) {
+	if (undefined === pre_load || maybe_bool(pre_load)) {
 		print('bind', obj.filename, 2.1);
 		this.load();
 		print('bind', obj.filename, 2.2);
@@ -74,7 +74,7 @@ mod.Cache = function (filename, pre_load) {
 	init(this, filename);
 	print('bind', obj.filename, 2);
 
-	if (undefined === preload || maybe_bool(pre_load)) {
+	if (undefined === pre_load || maybe_bool(pre_load)) {
 		print('bind', obj.filename, 2.1);
 		this.load();
 		print('bind', obj.filename, 2.2);
