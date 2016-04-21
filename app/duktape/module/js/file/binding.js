@@ -46,8 +46,12 @@ function init (obj, filename, is_object) {
 	obj.content = is_object?{}:'';
 }
 
-mod.Json = function (filename) {
+mod.Json = function (filename, pre_load) {
 	init(this, filename, true);
+
+	if (pre_load) {
+		this.load();
+	}
 
 	print('bind', obj.filename);
 };
@@ -61,8 +65,12 @@ mod.Json.prototype = {
 	}
 };
 
-mod.Cache = function (filename) {
+mod.Cache = function (filename, pre_load) {
 	init(this, filename);
+
+	if (pre_load) {
+		this.load();
+	}
 
 	print('bind', obj.filename);
 };
