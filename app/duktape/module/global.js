@@ -48,11 +48,17 @@ const
 	UNKNOW_NUMBER = 0,
 	fmt = {
 		oprint: function (name, obj) {
-			var root = {};
+			if (must_string(name) && must_object(obj)) {
+				var root = {};
 
-			root[name] = obj;
+				root[name] = obj;
 
-			print(Duktape.enc('jc', root, null, 4));
+				print(Duktape.enc('jc', root, null, 4));
+			} else if (must_object(name)) { // not input name, just obj
+				print(Duktape.enc('jc', name, null, 4));
+			} else {
+				print(Array.prototype.slice.call(arguments).slice(0).toString());
+			}
 		},
 
 		separator: function (name, sep) {
