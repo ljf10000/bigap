@@ -1,22 +1,17 @@
 #!/bin/js
 
-fmt.separator('binding test begin');
-var binding = require('file/binding');
+var jname = 'test.json';
+var cname = 'test.cache.txt';
+var dname = 'test.direct.txt';
 
-fmt.separator('binding txtDirectBinding test');
-var direct = binding.txtDirectBinding('/tmp/txtDirectBinding');
-print(direct.content);
-direct.content = 'txtDirectBinding';
-print(direct.content);
+var bd = require('file/binding');
 
-fmt.separator('binding jsonBinding test');
-var json = binding.jsonBinding('/tmp/json_binding');
-json.content.a = 1;
-json.content.b = 2;
-json.save();
+var j = new bd.Json(jname);
+var c = new bd.Cache(cname);
+var d = new bd.Direct(dname);
 
-json = binding.jsonBinding('/tmp/json_binding');
-json.load();
-fmt.oprint('json', json);
+fmt.oprint(jname, j.content);
+print(cname, c.content);
+print(dname, d.content);
 
-fmt.separator('binding test end');
+/* eof */

@@ -49,11 +49,17 @@
 "UNKNOW_NUMBER = 0,\n" \
 "fmt = {\n" \
 "oprint: function (name, obj) {\n" \
+"if (must_string(name) && must_object(obj)) {\n" \
 "var root = {};\n" \
 "\n" \
 "root[name] = obj;\n" \
 "\n" \
 "print(Duktape.enc('jc', root, null, 4));\n" \
+"} else if (must_object(name)) { // not input name, just obj\n" \
+"print(Duktape.enc('jc', name, null, 4));\n" \
+"} else {\n" \
+"print(Array.prototype.slice.call(arguments).slice(0).toString());\n" \
+"}\n" \
 "},\n" \
 "\n" \
 "separator: function (name, sep) {\n" \
