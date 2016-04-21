@@ -48,8 +48,10 @@ __env_copy(char *envname, char *deft, char s[], int size)
     return 0;
 }
 
-#define env_copy(_envname, _deft, _string) \
-    __env_copy(_envname, _deft, _string, sizeof(_string))
+#define env_copy(_envname, _deft, _string)              ({  \
+    BUILD_BUG_NOT_ARRAY(_string);                           \
+    __env_copy(_envname, _deft, _string, sizeof(_string));  \
+})
 
 static inline int
 env_geti(char *envname, int deft) 

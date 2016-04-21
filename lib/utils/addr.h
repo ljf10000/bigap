@@ -443,8 +443,10 @@ os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep)
     }
 }
 
-#define os_macsaprintf(_mac, _macstring, _type, _sep) \
-        os_macsnprintf(_mac, _macstring, sizeof(_macstring), _type, _sep)
+#define os_macsaprintf(_mac, _macstring, _type, _sep)   ({  \
+    BUILD_BUG_NOT_ARRAY(_macstring);                        \
+    os_macsnprintf(_mac, _macstring, sizeof(_macstring), _type, _sep); \
+})
 
 /*
 *  multi-thread unsafe

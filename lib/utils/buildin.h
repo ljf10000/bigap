@@ -18,6 +18,14 @@
 #define BUILD_BUG_ON_NULL(_e)       ((void *)sizeof(struct { int:-!!(_e); }))
 #endif
 
+#ifndef BUILD_BUG_NOT_ARRAY
+#   ifdef  BUILD_BUG_NOT_ARRAY_SKIP
+#       define BUILD_BUG_NOT_ARRAY(_a)  BUILD_BUG_ON(false)
+#   else
+#       define BUILD_BUG_NOT_ARRAY(_a)  BUILD_BUG_ON(sizeof(_a)==sizeof(void *))
+#   endif
+#endif
+
 #ifndef offsetof
 #define offsetof(_TYPE, _MEMBER)    __builtin_offsetof(_TYPE, _MEMBER)
 #endif

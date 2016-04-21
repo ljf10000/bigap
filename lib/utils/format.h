@@ -219,12 +219,12 @@ os_asprintf_resv(char **buf, int resv, const char *fmt, ...)
 * snprintf for array buffer
 */
 #define os_saprintf(_buf, _fmt, _args...)       ({  \
-    BUILD_BUG_ON(sizeof(_buf)==sizeof(void *));     \
+    BUILD_BUG_NOT_ARRAY(_buf);                      \
     os_snprintf(_buf, sizeof(_buf), _fmt, ##_args); \
 })
 
 #define os_vsaprintf(_buf, _fmt, _args)         ({  \
-    BUILD_BUG_ON(sizeof(_buf)==sizeof(void *));     \
+    BUILD_BUG_NOT_ARRAY(_buf);                      \
     os_vsnprintf(_buf, sizeof(_buf), _fmt, _args);  \
 })
 
@@ -232,12 +232,12 @@ os_asprintf_resv(char **buf, int resv, const char *fmt, ...)
 * snprintf for array buffer + offset
 */
 #define os_soprintf(_buf, _offset, _fmt, _args...)  ({  \
-    BUILD_BUG_ON(sizeof(_buf)==sizeof(void *));         \
+    BUILD_BUG_NOT_ARRAY(_buf);                          \
     os_snprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, ##_args); \
 })
 
 #define os_vsoprintf(_buf, _offset, _fmt, _args)    ({  \
-    BUILD_BUG_ON(sizeof(_buf)==sizeof(void *));         \
+    BUILD_BUG_NOT_ARRAY(_buf);                          \
     os_vsnprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, _args); \
 })
 /******************************************************************************/

@@ -95,7 +95,10 @@ os_memmem(const void *mem, size_t mem_size,
 *   _array is array name
 */
 #ifndef os_arrayzero
-#define os_arrayzero(_array)        os_memzero(_array, sizeof(_array))
+#define os_arrayzero(_array)            ({  \
+    BUILD_BUG_NOT_ARRAY(_array);            \
+    os_memzero(_array, sizeof(_array));     \
+})
 #endif
 
 /*
@@ -103,7 +106,10 @@ os_memmem(const void *mem, size_t mem_size,
 *   _dst and _src is array name
 */
 #ifndef os_arraydcpy
-#define os_arraydcpy(_dst, _src)    os_memcpy(_dst, _src, sizeof(_dst))
+#define os_arraydcpy(_dst, _src)        ({  \
+    BUILD_BUG_NOT_ARRAY(_dst);              \
+    os_memcpy(_dst, _src, sizeof(_dst));    \
+})
 #endif
 
 /*
@@ -111,7 +117,10 @@ os_memmem(const void *mem, size_t mem_size,
 *   _dst and _src is array name
 */
 #ifndef os_arrayscpy
-#define os_arrayscpy(_dst, _src)    os_memcpy(_dst, _src, sizeof(_src))
+#define os_arrayscpy(_dst, _src)        ({  \
+    BUILD_BUG_NOT_ARRAY(_src);              \
+    os_memcpy(_dst, _src, sizeof(_src));    \
+})
 #endif
 
 /*
@@ -119,7 +128,10 @@ os_memmem(const void *mem, size_t mem_size,
 *   _a and _b is array name
 */
 #ifndef os_arraycmp
-#define os_arraycmp(_a, _b)         os_memcmp(_a, _b, sizeof(_a))
+#define os_arraycmp(_a, _b)         ({  \
+    BUILD_BUG_NOT_ARRAY(_a);            \
+    os_memcmp(_a, _b, sizeof(_a));      \
+})
 #endif
 
 /*
