@@ -5,7 +5,7 @@
 */
 var mod = this,
 	name = 'file/binding';
-
+print('loading', name);
 mod.$name = function () { return name; };
 mod.$debugger = new $Debugger(name);
 
@@ -70,16 +70,12 @@ mod.bind = function (filename, direct, reader, writer) {
 	}
 };
 
-mod.bind_json = function (filename) {
-	return mod.bind(filename, false, JSON.parse, JSON.stringify);
+mod.bindEx = function (filename, type) {
+	switch(type) {
+		case 'cache': return mod.bind(filename, false);
+		case 'direct': return mod.bind(filename, true);
+		case 'json':default: return mod.bind(filename, false, JSON.parse, JSON.stringify);
+	}
 };
-
-mod.bind_txt_cache = function (filename) {
-	return mod.bind(filename, false);
-};
-
-mod.bind_txt_direct = function (filename) {
-	return mod.bind(filename, true);
-};
-
+print('loaded', name);
 /* eof */
