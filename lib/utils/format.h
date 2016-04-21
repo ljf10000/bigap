@@ -218,14 +218,27 @@ os_asprintf_resv(char **buf, int resv, const char *fmt, ...)
 /*
 * snprintf for array buffer
 */
-#define os_saprintf(_buf, _fmt, _args...)       os_snprintf(_buf, sizeof(_buf), _fmt, ##_args)
-#define os_vsaprintf(_buf, _fmt, _args)         os_vsnprintf(_buf, sizeof(_buf), _fmt, _args)
+#define os_saprintf(_buf, _fmt, _args...)       ({  \
+    BUILD_BUG_ON(sizeof(_buf)==sizeof(void *));     \
+    os_snprintf(_buf, sizeof(_buf), _fmt, ##_args); \
+})
+
+#define os_vsaprintf(_buf, _fmt, _args)         ({  \
+    BUILD_BUG_ON(sizeof(_buf)==sizeof(void *));     \
+    os_vsnprintf(_buf, sizeof(_buf), _fmt, _args);  \
+})
+
 /*
 * snprintf for array buffer + offset
 */
-#define os_soprintf(_buf, _offset, _fmt, _args...)  \
-    os_snprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, ##_args)
-#define os_vsoprintf(_buf, _offset, _fmt, _args)    \
-    os_vsnprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, _args)
+#define os_soprintf(_buf, _offset, _fmt, _args...)  ({  \
+    BUILD_BUG_ON(sizeof(_buf)==sizeof(void *));         \
+    os_snprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, ##_args); \
+})
+
+#define os_vsoprintf(_buf, _offset, _fmt, _args)    ({  \
+    BUILD_BUG_ON(sizeof(_buf)==sizeof(void *));         \
+    os_vsnprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, _args); \
+})
 /******************************************************************************/
 #endif /* __FORMAT_H_099e7e9b6a574b4e87f5851b04db1a9d__ */

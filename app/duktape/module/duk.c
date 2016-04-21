@@ -16,32 +16,26 @@ LIB_PARAM(modSearch, DUK_VARARGS);
 static duk_ret_t
 duke_modSearch(duk_context * ctx)
 {
-    int ret = 1;
-    char *path  = NULL;
-    char *env   = NULL;
-
     char *id = (char *)duk_require_string(ctx, 0);
-
-    char file[1+OS_LINE_LEN] = {0};
-
+    
     /*
     * try file.js
     */
+    char file[1+OS_LINE_LEN] = {0};
     os_snprintf(file, OS_LINE_LEN, "%s.js", id);
     if (os_file_exist(file)) {
         duk_push_string_file(ctx, file);
 
-        ret = 1; goto error;
+        return 1;
     }
 
     /*
     * try duk_PATH/file.js
     */
-    env = strdup(env_gets(ENV_duk_PATH, duk_PATH));
-    if (NULL==env) {
-        ret = -1; goto error;
-    }
-    
+    char env[1+OS_LINE_LEN] = {0};
+    os_strdcpy(env, env_gets(ENV_duk_PATH, duk_PATH));
+
+    char *path = NULL;
     os_strtok_foreach(path, env, ":") {
         int len = os_strlen(path);
 
@@ -50,27 +44,23 @@ duke_modSearch(duk_context * ctx)
         * path last char is '/'
         */
         if (len>1 && '/'==path[len-1]) {
-            os_snprintf(file, OS_LINE_LEN, "%s%s.js", path, id);
+            os_saprintf(file, "%s%s.js", path, id);
         } else {
-            os_snprintf(file, OS_LINE_LEN, "%s/%s.js", path, id);
+            os_saprintf(file, "%s/%s.js", path, id);
         }
 
         if (os_file_exist(file)) {
             duk_push_string_file(ctx, file);
 
             debug_js("search %s at %s OK.", file, path);
-            ret = 1; goto error;
+            return 1;
         }
     }
 
     /*
     * no found
     */
-    ret = -1;
-error:
-    os_free(env);
-    
-    return ret;
+    return -1;
 }
 
 static const dukc_func_entry_t duktape_func[] = {
