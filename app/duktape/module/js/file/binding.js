@@ -51,7 +51,7 @@ mod.Json = function (filename, pre_load) {
 	init(this, filename, true);
 	print('bind', obj.filename, 2);
 
-	if (pre_load) {
+	if (undefined === preload || maybe_bool(pre_load)) {
 		print('bind', obj.filename, 2.1);
 		this.load();
 		print('bind', obj.filename, 2.2);
@@ -74,7 +74,7 @@ mod.Cache = function (filename, pre_load) {
 	init(this, filename);
 	print('bind', obj.filename, 2);
 
-	if (pre_load) {
+	if (undefined === preload || maybe_bool(pre_load)) {
 		print('bind', obj.filename, 2.1);
 		this.load();
 		print('bind', obj.filename, 2.2);
@@ -98,7 +98,7 @@ mod.Direct = function (filename) {
 
 	init(binding, filename);
 	print('bind', binding.filename, 2);
-	
+
 	return new Proxy(binding, {
 		get: function (obj, key) {
 			if (key==='content') {
