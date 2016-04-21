@@ -19,6 +19,8 @@ mod.load = function (obj, reader) {
 	}
 
 	mod.$debugger.trace('load ' + obj.content);
+
+	return obj;
 };
 
 mod.save = function (obj, writer) {
@@ -29,6 +31,8 @@ mod.save = function (obj, writer) {
 	}
 
 	mod.$debugger.trace('save ' + obj.filename + ':' + obj.content);
+
+	return obj;
 };
 
 function init (obj, filename, is_object) {
@@ -47,10 +51,10 @@ mod.Json = function (filename, pre_load) {
 
 mod.Json.prototype = {
 	load: function () {
-		mod.load(this, JSON.parse);
+		return mod.load(this, JSON.parse);
 	},
 	save: function () {
-		mod.save(this, JSON.stringify);
+		return mod.save(this, JSON.stringify);
 	}
 };
 
