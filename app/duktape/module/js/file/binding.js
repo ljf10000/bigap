@@ -43,20 +43,18 @@ mod.bind = function (obj, filename, reader, writer) {
 	return obj;
 };
 
-mod.Cache = function (filename, reader, writer) {
-	mod.bind(this, filename, reader, writer);
+mod.cache = function (filename, reader, writer) {
+	return Object.setPrototypeOf(mod.bind({}, filename, reader, writer),{
+		load: function () {
+			mod.load(this, reader);
+		},
+		save: function () {
+			mod.save(this, writer);
+		}
+	});
 };
 
-mod.Cache.prototype = {
-	load: function () {
-		mod.load(this, reader);
-	},
-	save: function () {
-		mod.save(this, writer);
-	}
-};
-
-mod.Direct = function (filename, reader, writer) {
+mod.direct = function (filename, reader, writer) {
 	return new Proxy(mod.bind({}, filename, reader, writer), {
 		get: function (obj, key) {
 			if (key==='content') {
