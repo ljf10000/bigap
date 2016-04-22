@@ -39,7 +39,7 @@ function loadl (array, reader) {
 
 	if (array.filename && __libc__.fexist(array.filename)) {
 		print('loadl', 2.1);
-		__my__.readline(obj.filename, function (line) {
+		__my__.readline(array.filename, function (line) {
 			print('loadl', 2.2);
 			array[count] = safe_reader(line);
 		});
