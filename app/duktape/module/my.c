@@ -253,11 +253,11 @@ duke_readline(duk_context *ctx)
         else if (len>=2 && '\r'==line[len-2] && '\n'==line[len-1]) {
             line[len-2] = 0; len -= 2;
         }
-
+#if 0
         if (__is_blank_line(line)) {
             continue;
         }
-        
+#endif   
         os_println("duke_readline %s", line);
         os_println("duke_readline top:%d", duk_get_top_index(ctx));
         
