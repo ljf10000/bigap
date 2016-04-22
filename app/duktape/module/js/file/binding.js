@@ -85,13 +85,9 @@ mod.direct = function (filename, reader, writer) {
 };
 
 mod.append = function (filename, reader, writer) {
-	return new Proxy(bind({}, filename, reader, writer), {
-		set: function (obj, key, value) {
-			obj[key] = value;
-
-			if (key==='content') {
-				append(obj, writer);
-			}
+	return Object.setPrototypeOf(bind({}, filename, reader, writer),{
+		save: function () {
+			append(this, writer);
 		}
 	});
 };
