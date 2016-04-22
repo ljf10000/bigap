@@ -7,6 +7,7 @@ function bprint (name) {
 	print(name, ':', __my__.readtxt(name));
 }
 
+/*
 // json cache write
 name = 'test.cache_w.json';
 f = binding.cache_w(name, JSON.parse, JSON.stringify);
@@ -22,15 +23,14 @@ f.content = {name: 'liujf', age: 30};
 f.content.age = 30; f.save(); bprint(name);
 f.content.age = 40; f.save(); bprint(name);
 f.content.age = 50; f.save(); bprint(name);
-
+*/
 // json direct write
 name = 'test.direct_w.json';
 f = binding.direct_w(name, JSON.parse, JSON.stringify);
-f.content = {name: 'liujf', age: 30};
 f.content.age = 30; bprint(name);
 f.content.age = 40; bprint(name);
 f.content.age = 50; bprint(name);
-
+/*
 // json direct append
 name = 'test.direct_a.json';
 f = binding.direct_a(name, JSON.parse, JSON.stringify);
@@ -68,5 +68,5 @@ f = binding.direct_a(name);
 f.content = 30; bprint(name);
 f.content = 40; bprint(name);
 f.content = 50; bprint(name);
-
+*/
 /* eof */

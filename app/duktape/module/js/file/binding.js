@@ -104,12 +104,6 @@ mod.direct_w = function (filename, reader, writer) {
 
 mod.direct_a = function (filename, reader, writer) {
 	return new Proxy(bind({}, filename, reader, writer), {
-		get: function (obj, key) {
-			print('direct_a get 1');
-
-			return obj[key];
-		},
-
 		set: function (obj, key, value) {
 			print('direct_a set 1');
 			obj[key] = value;
