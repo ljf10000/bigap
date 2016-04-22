@@ -7,7 +7,6 @@ function bprint (name) {
 	print(name, ':', __my__.readtxt(name));
 }
 
-
 // json cache write
 name = 'test.cache_w.json';
 f = binding.cache_w(name, JSON.parse, JSON.stringify);
