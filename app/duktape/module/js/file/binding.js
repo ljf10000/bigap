@@ -74,4 +74,12 @@ mod.direct = function (filename, reader, writer) {
 	});
 };
 
+mod.object = function (filename, is_direct, reader, writer) {
+	if (is_direct) {
+		return mod.direct(filename, reader, writer);
+	} else {
+		return mod.cache(filename, reader, writer);
+	}
+};
+
 /* eof */
