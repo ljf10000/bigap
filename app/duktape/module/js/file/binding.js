@@ -24,22 +24,14 @@ function load (obj, reader) {
 }
 
 function loadl (array, reader) {
-	print('loadl', 0);
-
 	var safe_reader = maybe_function(reader) || allways;
-	var i, count = 0;
-
-	print('loadl', 1);
+	var count = 0;
 
 	if (array.filename && __libc__.fexist(array.filename)) {
-		print('loadl', 2.1);
 		__my__.readline(array.filename, function (line) {
-			print('loadl count:', count, 'line:', line);
 			array[count++] = safe_reader(line);
-			print('loadl count:', count, 'line:', line);
 		});
 	}
-	print('loadl', 2);
 
 	return array;
 }
@@ -61,15 +53,11 @@ function write (obj, append, writer) {
 function writel (array, writer) {
 	var safe_writer = maybe_function(writer) || allways_string;
 	var i, count = array.length;
-	print('writel', 1);
 
 	if (array.filename) {
-		print('writel', 1.1);
 		__my__.cleanfile(array.filename);
-		print('writel', 1.2);
 
 		for (i=0; i<count; i++) {
-			print('writel 1.3', i);
 			if (array[i]) {
 				__my__.appendfile(array.filename, safe_writer(array[i]));
 			}
@@ -99,22 +87,16 @@ function bindl (array, filename) {
 	array.filename = maybe_string(filename);
 	array.$name = function() { return name + '(' + array.filename + ')'; };
 
-	print('bindl', name);
-
 	return array;
 }
 
 mod.cache_l = function (filename, reader, writer) {
 	return Object.setPrototypeOf(bindl([], filename, reader, writer), {
 		load: function () {
-			print('cache_l.load', 1);
 			loadl(this, reader);
-			print('cache_l.load', 2);
 		},
 		save: function () {
-			print('cache_l.save', 1);
 			writel(this, writer);
-			print('cache_l.save', 2);
 		}
 	});
 };
