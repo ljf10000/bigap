@@ -27,7 +27,7 @@ function loadl (array, reader) {
 	print('loadl', 0);
 
 	var safe_reader = maybe_function(reader) || allways;
-	var count = 0;
+	var i, count = 0;
 
 	print('loadl', 1);
 
@@ -36,9 +36,13 @@ function loadl (array, reader) {
 		__my__.readline(array.filename, function (line) {
 			print('loadl count:', count, 'line:', line);
 			//array[count++] = safe_reader(line);
-			array[count++] = JSON.parse(line);
+			array[count++] = line;
 			print('loadl count:', count, 'line:', line);
 		});
+
+		for (i=0; i<array.length; i++) {
+			array[i] = safe_reader(array[i]);
+		}
 	}
 	print('loadl', 2);
 
