@@ -41,7 +41,8 @@ function loadl (array, reader) {
 		});
 
 		for (i=0; i<array.length; i++) {
-			array[i] = safe_reader(array[i]);
+			print('loadl', 2.2);
+			array[i] = JSON.parse(array[i]);
 		}
 	}
 	print('loadl', 2);
