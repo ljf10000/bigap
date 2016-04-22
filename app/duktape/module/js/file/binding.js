@@ -103,7 +103,7 @@ function bindl (array, filename) {
 
 	print('bindl', name);
 
-	return obj;
+	return array;
 }
 
 mod.cache_l = function (filename, reader, writer) {
