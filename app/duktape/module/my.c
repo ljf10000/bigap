@@ -221,25 +221,20 @@ duke_readline(duk_context *ctx)
     char *line = NULL;
     
     char *filename = (char *)duk_require_string(ctx, 0);
-    os_println("duke_readline %s", filename);
     
     line = (char *)os_malloc(1+OS_FILE_LEN);
     if (NULL==line) {
         err = __seterrno(ctx, -ENOMEM); goto error;
     }
-    os_println("duke_readline 1");
     
     f = os_fopen(filename, "r");
     if (NULL==f) {
         err = __seterrno(ctx, -ENOEXIST); goto error;
     }
-    os_println("duke_readline 2");
     
     while(!os_feof(f)) {
-        os_println("duke_readline 2.1");
         line[0] = 0;
         os_freadline(f, line, OS_LINE_LEN);
-        os_println("duke_readline %s", line);
         /*
         * cut tail
         *   "\n"
@@ -258,35 +253,20 @@ duke_readline(duk_context *ctx)
             continue;
         }
 
-        os_println("duke_readline %s", line);
-        os_println("duke_readline top:%d", duk_get_top_index(ctx));
-        
         duk_dup(ctx, 1);                        // dup callback         , callback
-        os_println("duke_readline top:%d", duk_get_top_index(ctx));
-        os_println("duke_readline 2.3");
         __push_lstring(ctx, line, len);       // push line            , callback line
-        os_println("duke_readline top:%d", duk_get_top_index(ctx));
-        os_println("duke_readline 2.4");
         int exec = duk_pcall(ctx, 1);           // call callback(line)  , result/error
-        os_println("duke_readline top:%d", duk_get_top_index(ctx));
-        os_println("duke_readline exec:%d", exec);
         err = duk_get_int(ctx, -1);             // get callback error
-        os_println("duke_readline err:%d", err);
         duk_pop(ctx);                           // pop callback result  , empty
-        os_println("duke_readline top:%d", duk_get_top_index(ctx));
-        os_println("duke_readline 2.7");
         
         if (DUK_EXEC_ERROR==exec) { // check callback exec
-            os_println("duke_readline 2.7.1");
             err = __seterrno(ctx, -ESCRIPT); goto error;
         }
         else if (err<0) {             // check callback result
-            os_println("duke_readline 2.7.2");
             goto error;
         }
     }
 
-    os_println("duke_readline 3");
     err = 0;
 error:
     os_fclose(f);
