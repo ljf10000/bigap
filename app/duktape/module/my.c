@@ -189,7 +189,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(writefile, 2);
+LIB_PARAM(writefile, DUK_VARARGS);
 static duk_ret_t
 duke_writefile(duk_context *ctx)
 {
@@ -201,6 +201,15 @@ static duk_ret_t
 duke_appendfile(duk_context *ctx)
 {
     return __writefile(ctx, true);
+}
+
+LIB_PARAM(cleanfile, 1);
+static duk_ret_t
+duke_cleanfile(duk_context *ctx)
+{
+    char *filename = (char *)duk_require_string(ctx, 0);
+
+    return os_fclean(filename), 0;
 }
 
 LIB_PARAM(readline, 2);
@@ -822,6 +831,7 @@ static const dukc_func_entry_t my_func[] = {
     LIB_FUNC(readline),
     LIB_FUNC(writefile),
     LIB_FUNC(appendfile),
+    LIB_FUNC(cleanfile),
     LIB_FUNC(loop),
 #if duk_LIBCALL
     LIB_FUNC(libcall),

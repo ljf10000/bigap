@@ -23,6 +23,12 @@ f.content.age = 30; f.save(); bprint(name);
 f.content.age = 40; f.save(); bprint(name);
 f.content.age = 50; f.save(); bprint(name);
 
+// json cache line
+name = 'test.cache_a.json';
+f = binding.cache_l(name, JSON.parse, JSON.stringify);
+f.load();
+fmt.oprint(name, f);
+
 // json direct write
 name = 'test.direct_w.json';
 f = binding.direct_w(name, JSON.parse, JSON.stringify);
@@ -54,6 +60,12 @@ f = binding.cache_a(name);
 f.content = 30; f.save(); bprint(name);
 f.content = 40; f.save(); bprint(name);
 f.content = 50; f.save(); bprint(name);
+
+// txt cache line
+name = 'test.cache_a.txt';
+f = binding.cache_l(name);
+f.load();
+fmt.oprint(name, f);
 
 // txt direct write
 name = 'test.direct_w.txt';

@@ -23,6 +23,21 @@ function load (obj, reader) {
 	return obj;
 }
 
+function loadl (array, reader) {
+	var safe_reader = maybe_function(reader) || allways;
+	var count = 0;
+
+	function readline (line) {
+		array[count] = safe_reader(line);
+	}
+
+	if (array.filename && __libc__.fexist(array.filename)) {
+		__my__.readline(obj.filename, readline);
+	}
+
+	return array;
+}
+
 function write (obj, append, writer) {
 	var safe_writer = maybe_function(writer) || allways_string;
 
@@ -33,6 +48,23 @@ function write (obj, append, writer) {
 	}
 
 	mod.$debugger.trace(append?'append ':'save ' + obj.filename + ':' + obj.content);
+
+	return obj;
+}
+
+function writel (array, writer) {
+	var safe_writer = maybe_function(writer) || allways_string;
+	var i, count = array.length;
+
+	if (array.filename) {
+		__my__.cleanfile(array.filename);
+
+		for (i=0; i<count; i++) {
+			if (array[i]) {
+				__my__.appendfile(array.filename, safe_writer(array[i]));
+			}
+		}
+	}
 
 	return obj;
 }
@@ -52,6 +84,24 @@ function bind (obj, filename, reader, writer) {
 
 	return obj;
 }
+
+function bindl (array, filename) {
+	array.filename = maybe_string(filename);
+	array.$name = function() { return name + '(' + array.filename + ')'; };
+
+	return obj;
+}
+
+mod.cache_l = function (filename, reader, writer) {
+	return Object.setPrototypeOf(bindl([], filename, reader, writer),{
+		load: function () {
+			loadl(this, reader);
+		},
+		save: function () {
+			writel(this, writer);
+		}
+	});
+};
 
 mod.cache_w = function (filename, reader, writer) {
 	return Object.setPrototypeOf(bind({}, filename, reader, writer),{
@@ -102,26 +152,6 @@ mod.direct_a = function (filename, reader, writer) {
 			}
 		}
 	});
-};
-
-mod.object = function (filename, is_direct, is_append, reader, writer) {
-	var binding;
-
-	if (is_direct) {
-		if (is_append) {
-			binding = mod.direct_a;
-		} else {
-			binding = mod.direct_w;
-		}
-	} else {
-		if (is_append) {
-			binding = mod.cache_a;
-		} else {
-			binding = mod.cache_w;
-		}
-	}
-
-	return binding(filename, reader, writer);
 };
 
 /* eof */
