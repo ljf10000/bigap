@@ -16,7 +16,8 @@ function load (obj, reader) {
 		obj.content = safe_reader(__my__.readtxt(obj.filename));
 	} else {
 		var content = safe_reader(maybe_function(reader)?'{}':'');
-		print(obj.filename, 'not exist, load content:', content);
+		print(obj.filename, 'not exist');
+		fmt.oprint('load content:', content);
 		obj.content = content;
 	}
 
@@ -28,6 +29,7 @@ function load (obj, reader) {
 function write (obj, append, writer) {
 	var safe_writer = maybe_function(writer) || allways_string;
 
+	fmt.oprint(obj.filename, 'save content:', content);
 	if (obj.filename && obj.content) {
 		var writefile = append?__my__.appendfile:__my__.writefile;
 
