@@ -56,10 +56,14 @@ function bind (obj, filename, reader, writer) {
 mod.cache_w = function (filename, reader, writer) {
 	return Object.setPrototypeOf(bind({}, filename, reader, writer),{
 		load: function () {
+			print('cache_w load 1');
 			load(this, reader);
+			print('cache_w load 2');
 		},
 		save: function () {
+			print('cache_w save 1');
 			save(this, writer);
+			print('cache_w save 2');
 		}
 	});
 };
@@ -67,7 +71,9 @@ mod.cache_w = function (filename, reader, writer) {
 mod.cache_a = function (filename, reader, writer) {
 	return Object.setPrototypeOf(bind({}, filename, reader, writer),{
 		save: function () {
+			print('cache_a save 1');
 			append(this, writer);
+			print('cache_a save 2');
 		}
 	});
 };
@@ -75,19 +81,23 @@ mod.cache_a = function (filename, reader, writer) {
 mod.direct_w = function (filename, reader, writer) {
 	return new Proxy(bind({}, filename, reader, writer), {
 		get: function (obj, key) {
+			print('direct_w get 1');
 			if (key==='content') {
 				load(obj, reader);
 			}
 
+			print('direct_w get 2');
 			return obj[key];
 		},
 
 		set: function (obj, key, value) {
+			print('direct_w set 1');
 			obj[key] = value;
 
 			if (key==='content') {
 				save(obj, writer);
 			}
+			print('direct_w set 2');
 		}
 	});
 };
@@ -95,11 +105,13 @@ mod.direct_w = function (filename, reader, writer) {
 mod.direct_a = function (filename, reader, writer) {
 	return new Proxy(bind({}, filename, reader, writer), {
 		set: function (obj, key, value) {
+			print('direct_a set 1');
 			obj[key] = value;
 
 			if (key==='content') {
 				append(obj, writer);
 			}
+			print('direct_a set 2');
 		}
 	});
 };
