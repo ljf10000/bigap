@@ -89,7 +89,6 @@ var pt = {
 	},
 
 	open: function (mode) {
-		print('stream.open mode=', mode);
 		return mod.open(this, mode);
 	},
 
