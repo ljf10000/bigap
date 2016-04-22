@@ -67,27 +67,19 @@ mod.eof = function (obj) {
 	return method(obj, 'eof', allways_true)(obj);
 };
 
-mod.stream = function (obj, name, filename, mode, type) {
-	if (obj.constructor === Object) {
-		__js__.destructor(false, obj, mod.close);
-	}
+function init (obj, filename, mode, type) {
+	obj.stream = null;
+	obj.filename = maybe_string(filename);
+	obj.mode = maybe_string(mode) || 'r';
+	obj.type = maybe_string(type) || obj.type || 'file';
+	obj.$name = function () { return name + '(' + obj.filename + ')'; };
 
-	return base.stream(obj, name, filename, mode, type);
-};
+	__js__.destructor(obj, mod.close);
 
-mod.Stream = function (filename, mode, type, pre_open) {
-	base.stream(this,
-	            mod.name,
-	            maybe_string(filename),
-	            mode,
-	            helper.hasOwnProperty(type)?type:'file');
+	return obj;
+}
 
-	if (true === pre_open) {
-		mod.open(this);
-	}
-};
-
-mod.Stream.prototype = {
+var pt = {
 	is_open: function () {
 		return mod.is_open(this);
 	},
@@ -146,6 +138,11 @@ mod.Stream.prototype = {
 	}
 };
 
-__js__.destructor(true, mod.Stream.prototype, mod.close);
+mod.object = function (filename, mode, type) {
+	return Object.setPrototypeOf(init({},
+				maybe_string(filename),
+				mode,
+				helper.hasOwnProperty(type)?type:'file'), pt);
+};
 
 /* eof */

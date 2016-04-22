@@ -4,34 +4,33 @@
 * module: file mode helper
 */
 var mod = this,
-	name = 'file/helper/mode';
+	name = 'file/helper/mode',
+	ftype = {
+		nothing: 0,
+
+		file: 1,
+		dir: 2,
+		chr: 3,
+		blk: 4,
+		reg: 5,
+		fifo: 6,
+		link: 7,
+		sock: 8
+	};
 
 mod.$name = function () { return name; };
 mod.$debugger = new $Debugger(name);
 
-mod.type = {
-	nothing: 0,
-
-	file: 1,
-	dir: 2,
-	chr: 3,
-	blk: 4,
-	reg: 5,
-	fifo: 6,
-	link: 7,
-	sock: 8
-};
-
-mod.get_type = function (mode) {
+mod.ftype = function (mode) {
 	switch (safe_number(mode) & __libc__.S_IFMT) {
-		case __libc__.S_IFSOCK: return mod.type.sock;
-		case __libc__.S_IFLNK:  return mod.type.link;
-		case __libc__.S_IFREG:  return mod.type.reg;
-		case __libc__.S_IFBLK:  return mod.type.blk;
-		case __libc__.S_IFDIR:  return mod.type.dir;
-		case __libc__.S_IFCHR:  return mod.type.chr;
-		case __libc__.S_IFIFO:  return mod.type.fifo;
-		default:                return mod.type.nothing;
+		case __libc__.S_IFSOCK: return ftype.sock;
+		case __libc__.S_IFLNK:  return ftype.link;
+		case __libc__.S_IFREG:  return ftype.reg;
+		case __libc__.S_IFBLK:  return ftype.blk;
+		case __libc__.S_IFDIR:  return ftype.dir;
+		case __libc__.S_IFCHR:  return ftype.chr;
+		case __libc__.S_IFIFO:  return ftype.fifo;
+		default:                return ftype.nothing;
 	}
 };
 

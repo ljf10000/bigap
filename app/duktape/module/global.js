@@ -335,9 +335,9 @@ const
 
 // __js__
 (function () {
-	__js__.destructor = function (is_class, x, close) {
+	__js__.destructor = function (x, close, is_class) {
 		if (typeof close === 'function') {
-			__js__.fin(x, function (obj, heapDestruct) {
+			return __js__.fin(x, function (obj, heapDestruct) {
 				var name = maybe_function(obj.$name)
 						|| maybe_function(obj.prototype.$name)
 						|| maybe_function(x.$name)

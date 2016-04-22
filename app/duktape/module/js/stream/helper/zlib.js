@@ -65,12 +65,4 @@ mod.eof = function (obj) {
 	return __libz__.gzeof(obj.stream);
 };
 
-mod.stream = function (obj, name, filename, mode, type) {
-	if (obj.constructor === Object) {
-		__js__.destructor(false, obj, mod.close);
-	}
-
-	return base.stream(obj, name, filename, mode, type);
-};
-
 /* eof */

@@ -5,7 +5,6 @@
 */
 var mod = this,
 	name = 'file/file',
-	base = require('file/helper/base'),
 	fmode = require('file/helper/mode'),
 	helpers = {
 		file: require('file/helper/file'),
@@ -79,23 +78,21 @@ mod.writev = function (obj, buffers) {
 	return method(obj, 'writev')(obj, buffers);
 };
 
-mod.stream = function (obj, name, filename, flag, mode) {
-	if (obj.constructor === Object) {
-		__js__.destructor(false, obj, mod.close);
-	}
+function init (obj, filename, flag, mode) {
+	obj.fd = null;
+	obj.filename = maybe_string(filename);
+	obj.flag = maybe_number(flag) || __libc__.O_RDONLY;
+	obj.mode = maybe_number(mode) || 0;
+	obj.fmode = __libc__.fexist(obj.filename)?__libc__.lstat(obj.filename).mode: 0;
+	obj.ftype = fmode.ftype(obj.fmode);
+	obj.$name = function () { return name + '(' + obj.filename + ')'; };
 
-	return base.file(obj, name, filename, flag, mode);
-};
+	__js__.destructor(obj, mod.close);
 
-mod.File = function (filename, flag, mode, pre_open) {
-	base.file(this, mod.name, filename, flag, mode);
+	return obj;
+}
 
-	if (true === pre_open) {
-		mod.open(this);
-	}
-};
-
-mod.File.prototype = {
+var pt = {
 	is_open: function () {
 		return mod.is_open(this);
 	},
@@ -145,6 +142,8 @@ mod.File.prototype = {
 	}
 };
 
-__js__.destructor(true, mod.File.prototype, mod.close);
+mod.object = function (filename, flag, mode) {
+	return Object.setPrototypeOf(init({}, filename, flag, mode), pt);
+};
 
 /* eof */

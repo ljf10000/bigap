@@ -11,16 +11,16 @@ mod.$name = function() { return name; };
 mod.$debugger = new $Debugger(name);
 
 mod.is_open = function is_open (obj) {
-	return typeof obj.dir === 'pointer' && obj.dir;
+	return typeof obj.fd === 'pointer' && obj.fd;
 };
 
 mod.is_close = function is_close (obj) {
-	return null === obj.dir;
+	return null === obj.fd;
 };
 
 mod.open = function (obj) {
 	if (obj && is_close(obj)) {
-		obj.dir = __libc__.opendir(obj.filename);
+		obj.fd = __libc__.opendir(obj.filename);
 	}
 
 	return obj;
@@ -28,35 +28,27 @@ mod.open = function (obj) {
 
 mod.close = function (obj) {
 	if (obj && is_open(obj)) {
-		__libc__.closedir(obj.dir);
-		obj.dir = null;
+		__libc__.closedir(obj.fd);
+		obj.fd = null;
 	}
 
 	return 0;
 };
 
 mod.read = function (obj) {
-	return __libc__.readdir(obj.dir);
+	return __libc__.readdir(obj.fd);
 };
 
 mod.tell = function (obj) {
-	return __libc__.telldir(obj.dir);
+	return __libc__.telldir(obj.fd);
 };
 
 mod.seek = function (obj, pos) {
-	return __libc__.seekdir(obj.dir, pos);
+	return __libc__.seekdir(obj.fd, pos);
 };
 
 mod.rewind = function (obj) {
-	return __libc__.rewinddir(obj.dir);
-};
-
-mod.stream = function (obj, name, filename, flag, mode) {
-	if (obj.constructor === Object) {
-		__js__.destructor(false, obj, mod.close);
-	}
-
-	return base.file(obj, name, filename, flag, mode);
+	return __libc__.rewinddir(obj.fd);
 };
 
 /* eof */

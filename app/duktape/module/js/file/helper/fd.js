@@ -10,17 +10,17 @@ mod.$name = function() { return name; };
 mod.$debugger = new $Debugger(name);
 
 mod.is_open = function is_open (obj) {
-	return typeof obj.fd === 'number' && obj.fd > 0;
+	return typeof obj.fd === 'number' && obj.fd >= 0;
 };
 
 mod.is_close = function is_close (obj) {
-	return typeof obj.fd === 'number' && obj.fd < 0;
+	return null === obj.fd || -1 === obj.fd;
 };
 
 mod.close = function (obj) {
 	if (obj && is_open(obj)) {
 		__libc__.close(obj.fd);
-		obj.fd = -1;
+		obj.fd = null;
 	}
 
 	return 0;

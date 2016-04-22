@@ -49,12 +49,4 @@ mod.error = function (obj) {
 	return __libbz__.bzerror(obj.stream);
 };
 
-mod.stream = function (obj, name, filename, mode, type) {
-	if (obj.constructor === Object) {
-		__js__.destructor(false, obj, mod.close);
-	}
-
-	return base.stream(obj, name, filename, mode, type);
-};
-
 /* eof */
