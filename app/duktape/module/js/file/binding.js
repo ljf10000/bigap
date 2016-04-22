@@ -15,7 +15,9 @@ function load (obj, reader) {
 	if (obj.filename && __libc__.fexist(obj.filename)) {
 		obj.content = safe_reader(__my__.readtxt(obj.filename));
 	} else {
-		obj.content = safe_reader(maybe_function(reader)?'{}':'');
+		var content = safe_reader(maybe_function(reader)?'{}':'');
+		print(obj.filename, 'not exist, load content:', content);
+		obj.content = content;
 	}
 
 	mod.$debugger.trace('load ' + obj.content);
