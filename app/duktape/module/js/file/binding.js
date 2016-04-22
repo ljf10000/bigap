@@ -24,6 +24,8 @@ function load (obj, reader) {
 }
 
 function loadl (array, reader) {
+	print('loadl', 0);
+
 	var safe_reader = maybe_function(reader) || allways;
 	var count = 0;
 
@@ -107,10 +109,14 @@ function bindl (array, filename) {
 mod.cache_l = function (filename, reader, writer) {
 	return Object.setPrototypeOf(bindl([], filename, reader, writer),{
 		load: function () {
+			print('cache_l.load', 1);
 			loadl(this, reader);
+			print('cache_l.load', 2);
 		},
 		save: function () {
+			print('cache_l.save', 1);
 			writel(this, writer);
+			print('cache_l.save', 2);
 		}
 	});
 };
