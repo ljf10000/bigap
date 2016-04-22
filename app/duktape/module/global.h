@@ -22,6 +22,7 @@
 "function maybe_bool (obj) { return maybe(obj, 'boolean'); }\n" \
 "\n" \
 "function allways (obj) { return obj; }\n" \
+"function allways_string (obj) { return obj.toString(); }\n" \
 "function allways_null () { return null; }\n" \
 "function allways_undefined () { return undefined; }\n" \
 "function allways_false () { return false; }\n" \
@@ -336,9 +337,9 @@
 "\n" \
 "// __js__\n" \
 "(function () {\n" \
-"__js__.destructor = function (is_class, x, close) {\n" \
+"__js__.destructor = function (x, close, is_class) {\n" \
 "if (typeof close === 'function') {\n" \
-"__js__.fin(x, function (obj, heapDestruct) {\n" \
+"return __js__.fin(x, function (obj, heapDestruct) {\n" \
 "var name = maybe_function(obj.$name)\n" \
 "|| maybe_function(obj.prototype.$name)\n" \
 "|| maybe_function(x.$name)\n" \
