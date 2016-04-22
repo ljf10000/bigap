@@ -221,21 +221,25 @@ duke_readline(duk_context *ctx)
     char *line = NULL;
     
     char *filename = (char *)duk_require_string(ctx, 0);
-
+    os_println("duke_readline %s", filename);
+    
     line = (char *)os_malloc(1+OS_FILE_LEN);
     if (NULL==line) {
         err = __seterrno(ctx, -ENOMEM); goto error;
     }
+    os_println("duke_readline 1");
     
     f = os_fopen(filename, "r");
     if (NULL==f) {
         err = __seterrno(ctx, -ENOEXIST); goto error;
     }
-
+    os_println("duke_readline 2");
+    
     while(!os_feof(f)) {
+        os_println("duke_readline 2.1");
         line[0] = 0;
         os_freadline(f, line, OS_LINE_LEN);
-
+        os_println("duke_readline %s", line);
         /*
         * cut tail
         *   "\n"
@@ -249,23 +253,33 @@ duke_readline(duk_context *ctx)
         else if (len>=2 && '\r'==line[len-2] && '\n'==line[len-1]) {
             line[len-2] = 0; len -= 2;
         }
-
+        os_println("duke_readline 2.2");
+        
         duk_dup(ctx, 1);                        // dup callback         , callback
+        os_println("duke_readline 2.3");
         __push_lstring(ctx, line, len+1);       // push line            , callback line
+        os_println("duke_readline 2.4");
         int exec = duk_pcall(ctx, 1);           // call callback(line)  , result/error
+        os_println("duke_readline 2.5");
         if (DUK_EXEC_SUCCESS==exec) {
+            os_println("duke_readline 2.5.1");
             err = duk_get_int(ctx, -1);         // get callback error
         }
+        os_println("duke_readline 2.6");
         duk_pop(ctx);                           // pop callback result  , empty
+        os_println("duke_readline 2.7");
         
         if (DUK_EXEC_ERROR==exec) { // check callback exec
+            os_println("duke_readline 2.8");
             err = __seterrno(ctx, -ESCRIPT); goto error;
         }
         else if (err<0) {             // check callback result
+            os_println("duke_readline 2.9");
             goto error;
         }
     }
 
+    os_println("duke_readline 3");
     err = 0;
 error:
     os_fclose(f);

@@ -107,7 +107,6 @@ function bindl (array, filename) {
 }
 
 mod.cache_l = function (filename, reader, writer) {
-	print('cache_l', 1);
 	return Object.setPrototypeOf(bindl([], filename, reader, writer), {
 		load: function () {
 			print('cache_l.load', 1);
