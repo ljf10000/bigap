@@ -107,7 +107,8 @@ function bindl (array, filename) {
 }
 
 mod.cache_l = function (filename, reader, writer) {
-	return Object.setPrototypeOf(bindl([], filename, reader, writer),{
+	print('cache_l', 1);
+	return Object.setPrototypeOf(bindl([], filename, reader, writer), {
 		load: function () {
 			print('cache_l.load', 1);
 			loadl(this, reader);
@@ -122,7 +123,7 @@ mod.cache_l = function (filename, reader, writer) {
 };
 
 mod.cache_w = function (filename, reader, writer) {
-	return Object.setPrototypeOf(bind({}, filename, reader, writer),{
+	return Object.setPrototypeOf(bind({}, filename, reader, writer), {
 		load: function () {
 			load(this, reader);
 		},
@@ -133,7 +134,7 @@ mod.cache_w = function (filename, reader, writer) {
 };
 
 mod.cache_a = function (filename, reader, writer) {
-	return Object.setPrototypeOf(bind({}, filename, reader, writer),{
+	return Object.setPrototypeOf(bind({}, filename, reader, writer), {
 		save: function () {
 			append(this, writer);
 		}
