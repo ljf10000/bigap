@@ -22,7 +22,6 @@ f.content.age = 50; f.save(); print(name, ':', __my__.readtxt(name));
 // json direct write
 name = 'test.direct_w.json';
 f = binding.direct_w(name, JSON.parse, JSON.stringify);
-f.load();
 f.content.age = 30; print(name, ':', __my__.readtxt(name));
 f.content.age = 40; print(name, ':', __my__.readtxt(name));
 f.content.age = 50; print(name, ':', __my__.readtxt(name));
@@ -54,7 +53,6 @@ f.content = 50; f.save(); print(name, ':', __my__.readtxt(name));
 // txt direct write
 name = 'test.direct_w.txt';
 f = binding.direct_w(name);
-f.load();
 f.content = 30; print(name, ':', __my__.readtxt(name));
 f.content = 40; print(name, ':', __my__.readtxt(name));
 f.content = 50; print(name, ':', __my__.readtxt(name));
