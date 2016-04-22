@@ -35,7 +35,7 @@ function loadl (array, reader) {
 		print('loadl', 2.1);
 		__my__.readline(array.filename, function (line) {
 			print('loadl count:', count, 'line:', line);
-			array[count++] = safe_reader(line);
+			//array[count++] = safe_reader(line);
 			print('loadl count:', count, 'line:', line);
 		});
 	}
