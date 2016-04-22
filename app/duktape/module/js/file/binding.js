@@ -18,7 +18,7 @@ function load (obj, reader) {
 		print('load 1.2');
 	} else {
 		print('load 1.3');
-		obj.content = safe_reader(maybe_function(reader)?{}:'');
+		obj.content = safe_reader(maybe_function(reader)?'{}':'');
 		print('load 1.4');
 	}
 	print('load 2');
@@ -51,7 +51,7 @@ function append (obj, writer) {
 
 function bind (obj, filename, reader, writer) {
 	obj.filename = maybe_string(filename);
-	obj.content = (reader && writer)?{}:'';
+	obj.content = (maybe_function(reader) && maybe_function(writer))?{}:'';
 	obj.$name = function() { return name + '(' + obj.filename + ')'; };
 
 	return obj;
