@@ -15846,6 +15846,7 @@ DUK_EXTERNAL duk_int_t duk_pcall(duk_context *ctx, duk_idx_t nargs) {
 		 * fatal error.
 		 */
 		DUK_ERROR(thr, DUK_ERR_API_ERROR, DUK_STR_INVALID_CALL_ARGS);
+		printf("duk_pcall 1\n");
 		return DUK_EXEC_ERROR;  /* unreachable */
 	}
 
@@ -57699,6 +57700,8 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 		DUK_ASSERT(thr->heap->lj.iserror == 0);
 		DUK_ASSERT(DUK_TVAL_IS_UNDEFINED(&thr->heap->lj.value1));
 		DUK_ASSERT(DUK_TVAL_IS_UNDEFINED(&thr->heap->lj.value2));
+
+		printf("duk_handle_call_protected 1\n");
 		return DUK_EXEC_ERROR;
 	}
 #if defined(DUK_USE_CPP_EXCEPTIONS)
@@ -57722,6 +57725,7 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 			                       entry_thread_state,
 			                       entry_ptr_curr_pc,
 			                       idx_func);
+           printf("duk_handle_call_protected 2\n");
 			return DUK_EXEC_ERROR;
 		}
 	} catch (...) {
@@ -57740,6 +57744,7 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 			                       entry_thread_state,
 			                       entry_ptr_curr_pc,
 			                       idx_func);
+           printf("duk_handle_call_protected 3\n");
 			return DUK_EXEC_ERROR;
 		}
 	}
