@@ -15,7 +15,7 @@ function load (obj, reader) {
 	if (obj.filename && __libc__.fexist(obj.filename)) {
 		obj.content = safe_reader(__my__.readtxt(obj.filename));
 	} else {
-		obj.content = safe_reader('');
+		obj.content = safe_reader(reader?{}:'');
 	}
 
 	mod.$debugger.trace('load ' + obj.content);
@@ -53,7 +53,7 @@ function bind (obj, filename, reader, writer) {
 	return obj;
 }
 
-mod.cache = function (filename, reader, writer) {
+mod.cache_w = function (filename, reader, writer) {
 	return Object.setPrototypeOf(bind({}, filename, reader, writer),{
 		load: function () {
 			load(this, reader);
@@ -64,7 +64,15 @@ mod.cache = function (filename, reader, writer) {
 	});
 };
 
-mod.direct = function (filename, reader, writer) {
+mod.cache_a = function (filename, reader, writer) {
+	return Object.setPrototypeOf(bind({}, filename, reader, writer),{
+		save: function () {
+			append(this, writer);
+		}
+	});
+};
+
+mod.direct_w = function (filename, reader, writer) {
 	return new Proxy(bind({}, filename, reader, writer), {
 		get: function (obj, key) {
 			if (key==='content') {
@@ -84,20 +92,36 @@ mod.direct = function (filename, reader, writer) {
 	});
 };
 
-mod.append = function (filename, reader, writer) {
-	return Object.setPrototypeOf(bind({}, filename, reader, writer),{
-		save: function () {
-			append(this, writer);
+mod.direct_a = function (filename, reader, writer) {
+	return new Proxy(bind({}, filename, reader, writer), {
+		set: function (obj, key, value) {
+			obj[key] = value;
+
+			if (key==='content') {
+				append(obj, writer);
+			}
 		}
 	});
 };
 
-mod.object = function (filename, type, reader, writer) {
-	switch(type) {
-		case 'direct': return mod.direct(filename, reader, writer);
-		case 'append': return mod.append(filename, reader, writer);
-		case 'cache': default: return mod.cache(filename, reader, writer);
+mod.object = function (filename, is_direct, is_append, reader, writer) {
+	var binding;
+
+	if (is_direct) {
+		if (is_append) {
+			binding = mod.direct_a;
+		} else {
+			binding = mod.direct_w;
+		}
+	} else {
+		if (is_append) {
+			binding = mod.cache_a;
+		} else {
+			binding = mod.cache_w;
+		}
 	}
+
+	return binding(filename, reader, writer);
 };
 
 /* eof */
