@@ -101,7 +101,7 @@ function bindl (array, filename) {
 	array.filename = maybe_string(filename);
 	array.$name = function() { return name + '(' + array.filename + ')'; };
 
-	print('bindl', array.$name);
+	print('bindl', name);
 
 	return obj;
 }
