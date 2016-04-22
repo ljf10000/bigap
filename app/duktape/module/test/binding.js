@@ -22,6 +22,7 @@ f.content.age = 50; f.save(); print(name, ':', __my__.readtxt(name));
 // json direct write
 name = 'test.direct_w.json';
 f = binding.direct_w(name, JSON.parse, JSON.stringify);
+f.content = {name: 'liujf', age: 30};
 f.content.age = 30; print(name, ':', __my__.readtxt(name));
 f.content.age = 40; print(name, ':', __my__.readtxt(name));
 f.content.age = 50; print(name, ':', __my__.readtxt(name));
