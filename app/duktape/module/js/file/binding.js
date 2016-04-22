@@ -11,17 +11,13 @@ mod.$debugger = new $Debugger(name);
 
 function load (obj, reader) {
 	var safe_reader = maybe_function(reader) || allways;
-	print('load 1');
+
 	if (obj.filename && __libc__.fexist(obj.filename)) {
-		print('load 1.1');
 		obj.content = safe_reader(__my__.readtxt(obj.filename));
-		print('load 1.2');
 	} else {
-		print('load 1.3');
 		obj.content = safe_reader(maybe_function(reader)?'{}':'');
-		print('load 1.4');
 	}
-	print('load 2');
+
 	mod.$debugger.trace('load ' + obj.content);
 
 	return obj;
