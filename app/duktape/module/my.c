@@ -260,7 +260,7 @@ duke_readline(duk_context *ctx)
         __push_lstring(ctx, line, len+1);       // push line            , callback line
         os_println("duke_readline 2.4");
         int exec = duk_pcall(ctx, 1);           // call callback(line)  , result/error
-        os_println("duke_readline 2.5");
+        os_println("duke_readline exec:%d", exec);
         err = duk_get_int(ctx, -1);             // get callback error
         os_println("duke_readline err:%d", err);
         duk_pop(ctx);                           // pop callback result  , empty
