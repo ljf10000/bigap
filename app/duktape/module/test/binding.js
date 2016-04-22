@@ -27,9 +27,15 @@ f.content.age = 50; f.save(); bprint(name);
 // json direct write
 name = 'test.direct_w.json';
 f = binding.direct_w(name, JSON.parse, JSON.stringify);
+obj = {name: 'liujf', age: 30};
+obj.age = 30; f.content = obj; bprint(name);
+obj.age = 40; f.content = obj; bprint(name);
+obj.age = 50; f.content = obj; bprint(name);
+/*
 f.content.age = 30; bprint(name);
 f.content.age = 40; bprint(name);
 f.content.age = 50; bprint(name);
+*/
 /*
 // json direct append
 name = 'test.direct_a.json';
