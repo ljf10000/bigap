@@ -82,7 +82,7 @@
 #endif
 
 #ifndef duk_LIBZ
-#define duk_LIBZ            1
+#define duk_LIBZ            0
 #endif
 
 #ifndef duk_MOD_LIBZ
