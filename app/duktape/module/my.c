@@ -263,10 +263,12 @@ duke_readline(duk_context *ctx)
         os_println("duke_readline top:%d", duk_get_top_index(ctx));
         os_println("duke_readline 2.4");
         int exec = duk_pcall(ctx, 1);           // call callback(line)  , result/error
+        os_println("duke_readline top:%d", duk_get_top_index(ctx));
         os_println("duke_readline exec:%d", exec);
         err = duk_get_int(ctx, -1);             // get callback error
         os_println("duke_readline err:%d", err);
         duk_pop(ctx);                           // pop callback result  , empty
+        os_println("duke_readline top:%d", duk_get_top_index(ctx));
         os_println("duke_readline 2.7");
         
         if (DUK_EXEC_ERROR==exec) { // check callback exec
