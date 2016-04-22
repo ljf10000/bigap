@@ -254,10 +254,13 @@ duke_readline(duk_context *ctx)
             line[len-2] = 0; len -= 2;
         }
         os_println("duke_readline %s", line);
+        os_println("duke_readline top:%d", duk_get_top_index(ctx));
         
         duk_dup(ctx, 1);                        // dup callback         , callback
+        os_println("duke_readline top:%d", duk_get_top_index(ctx));
         os_println("duke_readline 2.3");
         __push_lstring(ctx, line, len+1);       // push line            , callback line
+        os_println("duke_readline top:%d", duk_get_top_index(ctx));
         os_println("duke_readline 2.4");
         int exec = duk_pcall(ctx, 1);           // call callback(line)  , result/error
         os_println("duke_readline exec:%d", exec);
