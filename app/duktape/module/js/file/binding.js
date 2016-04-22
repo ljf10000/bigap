@@ -30,7 +30,7 @@ function loadl (array, reader) {
 	var count = 0;
 
 	print('loadl', 1);
-	
+
 	if (array.filename && __libc__.fexist(array.filename)) {
 		print('loadl', 2.1);
 		__my__.readline(array.filename, function (line) {

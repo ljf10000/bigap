@@ -253,7 +253,7 @@ duke_readline(duk_context *ctx)
         else if (len>=2 && '\r'==line[len-2] && '\n'==line[len-1]) {
             line[len-2] = 0; len -= 2;
         }
-        os_println("duke_readline 2.2");
+        os_println("duke_readline %s", line);
         
         duk_dup(ctx, 1);                        // dup callback         , callback
         os_println("duke_readline 2.3");
@@ -261,20 +261,17 @@ duke_readline(duk_context *ctx)
         os_println("duke_readline 2.4");
         int exec = duk_pcall(ctx, 1);           // call callback(line)  , result/error
         os_println("duke_readline 2.5");
-        if (DUK_EXEC_SUCCESS==exec) {
-            os_println("duke_readline 2.5.1");
-            err = duk_get_int(ctx, -1);         // get callback error
-        }
-        os_println("duke_readline 2.6");
+        err = duk_get_int(ctx, -1);             // get callback error
+        os_println("duke_readline err:%d", err);
         duk_pop(ctx);                           // pop callback result  , empty
         os_println("duke_readline 2.7");
         
         if (DUK_EXEC_ERROR==exec) { // check callback exec
-            os_println("duke_readline 2.8");
+            os_println("duke_readline 2.7.1");
             err = __seterrno(ctx, -ESCRIPT); goto error;
         }
         else if (err<0) {             // check callback result
-            os_println("duke_readline 2.9");
+            os_println("duke_readline 2.7.2");
             goto error;
         }
     }
