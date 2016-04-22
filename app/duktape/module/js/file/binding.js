@@ -40,6 +40,7 @@ function loadl (array, reader) {
 			print('loadl count:', count, 'line:', line);
 		});
 
+		
 		for (i=0; i<array.length; i++) {
 			print('loadl', 2.2);
 			array[i] = JSON.parse(array[i]);
