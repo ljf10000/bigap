@@ -27,13 +27,19 @@ function loadl (array, reader) {
 	var safe_reader = maybe_function(reader) || allways;
 	var count = 0;
 
+	print('loadl', 1);
+
 	function readline (line) {
 		array[count] = safe_reader(line);
 	}
 
+	print('loadl', 2);
+
 	if (array.filename && __libc__.fexist(array.filename)) {
+		print('loadl', 2.1);
 		__my__.readline(obj.filename, readline);
 	}
+	print('loadl', 3);
 
 	return array;
 }
@@ -55,11 +61,15 @@ function write (obj, append, writer) {
 function writel (array, writer) {
 	var safe_writer = maybe_function(writer) || allways_string;
 	var i, count = array.length;
+	print('writel', 1);
 
 	if (array.filename) {
+		print('writel', 1.1);
 		__my__.cleanfile(array.filename);
+		print('writel', 1.2);
 
 		for (i=0; i<count; i++) {
+			print('writel 1.3', i);
 			if (array[i]) {
 				__my__.appendfile(array.filename, safe_writer(array[i]));
 			}
@@ -88,6 +98,8 @@ function bind (obj, filename, reader, writer) {
 function bindl (array, filename) {
 	array.filename = maybe_string(filename);
 	array.$name = function() { return name + '(' + array.filename + ')'; };
+
+	print('bindl', array.$name);
 
 	return obj;
 }
