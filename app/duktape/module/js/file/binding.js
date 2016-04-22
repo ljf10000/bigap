@@ -81,7 +81,7 @@ function writel (array, writer) {
 		}
 	}
 
-	return obj;
+	return array;
 }
 
 function save (obj, writer) {
