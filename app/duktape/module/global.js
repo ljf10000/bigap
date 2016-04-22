@@ -21,6 +21,7 @@ function maybe_number (obj) { return maybe(obj, 'number'); }
 function maybe_bool (obj) { return maybe(obj, 'boolean'); }
 
 function allways (obj) { return obj; }
+function allways_string (obj) { return obj.toString(); }
 function allways_null () { return null; }
 function allways_undefined () { return undefined; }
 function allways_false () { return false; }

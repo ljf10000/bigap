@@ -24,7 +24,7 @@ mod.load = function (obj, reader) {
 };
 
 mod.save = function (obj, writer) {
-	var safe_writer = maybe_function(writer) || allways;
+	var safe_writer = maybe_function(writer) || allways_string;
 
 	if (obj.filename && obj.content) {
 		__my__.writefile(obj.filename, safe_writer(obj.content));
