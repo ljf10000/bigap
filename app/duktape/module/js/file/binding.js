@@ -29,7 +29,7 @@ function load (obj, reader) {
 function write (obj, append, writer) {
 	var safe_writer = maybe_function(writer) || allways_string;
 
-	fmt.oprint(obj.filename, 'save content:', content);
+	fmt.oprint(obj.filename, 'save content:', obj.content);
 	if (obj.filename && obj.content) {
 		var writefile = append?__my__.appendfile:__my__.writefile;
 
