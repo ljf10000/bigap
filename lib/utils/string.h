@@ -320,8 +320,8 @@ os_strncmp(const char *a, const char *b, int len)
 #endif
 #endif /* __BOOT__ */
 
-#ifndef os_strton_is_good
-#define os_strton_is_good(_endptr)          (NULL==(_endptr) || 0==(_endptr)[0])
+#ifndef os_strton_is_good_end
+#define os_strton_is_good_end(_endptr)      (NULL==(_endptr) || 0==(_endptr)[0])
 #endif
 
 static inline char *
