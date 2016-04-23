@@ -37,7 +37,7 @@ typedef struct {
 
 #define cli_argv_dump(_argc, _argv)         __cli_argv_dump(debug_trace, _argc, _argv)
 
-#define __cli_line_next(_args)              os_str_next_byifs(_args, ' ')
+#define __cli_line_next(_args)              os_str_next_byifs(_args, " ")
 #define __cli_shift(_args, _count)      do{ \
     int i, count = (_count);                \
                                             \

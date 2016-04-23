@@ -241,20 +241,14 @@ duke_readline(duk_context *ctx)
         *   "\r"
         *   "\r\n"
         */
-        len = os_strlen(line);
-        if (len>=1 && ('\n'==line[len-1] || '\r'==line[len-1])) {
-            line[len-1] = 0; len -= 1;
-        }
-        else if (len>=2 && '\r'==line[len-2] && '\n'==line[len-1]) {
-            line[len-2] = 0; len -= 2;
-        }
-
+        os_str_rstrim(line, iscrlf);
         if (__is_blank_line(line)) {
             continue;
         }
+        len = os_strlen(line);
 
         duk_dup(ctx, 1);                        // dup callback         , callback
-        __push_lstring(ctx, line, len);       // push line            , callback line
+        __push_lstring(ctx, line, len);         // push line            , callback line
         int exec = duk_pcall(ctx, 1);           // call callback(line)  , result/error
         err = duk_get_int(ctx, -1);             // get callback error
         duk_pop(ctx);                           // pop callback result  , empty

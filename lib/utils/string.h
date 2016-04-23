@@ -174,11 +174,17 @@ os_strlcpy(char *dst, const char *src, uint32_t size)
 }
 
 #ifndef os_strdcpy
-#define os_strdcpy(_dst, _src)      os_strlcpy(_dst, _src, sizeof(_dst))
+#define os_strdcpy(_dst, _src)          ({  \
+    BUILD_BUG_NOT_ARRAY(_dst);              \
+    os_strlcpy(_dst, _src, sizeof(_dst));   \
+})
 #endif
 
 #ifndef os_strscpy
-#define os_strscpy(_dst, _src)      os_strlcpy(_dst, _src, sizeof(_src))
+#define os_strscpy(_dst, _src)          ({  \
+    BUILD_BUG_NOT_ARRAY(_src);              \
+    os_strlcpy(_dst, _src, sizeof(_src));   \
+})
 #endif
 
 static inline int
@@ -210,7 +216,7 @@ os_strncmp(const char *a, const char *b, int len)
 {
     if (a) {
         if (b) {
-            return (a==b)?0:strncmp(a, b, len);
+            return ((a==b) || len<=0)?0:strncmp(a, b, len);
         } else {
             return 1;
         }
@@ -227,14 +233,20 @@ os_strncmp(const char *a, const char *b, int len)
 * use a's size
 */
 #ifndef os_stracmp
-#define os_stracmp(_a, _b)          os_strncmp(_a, _b, sizeof(_a))
+#define os_stracmp(_a, _b)          ({  \
+    BUILD_BUG_NOT_ARRAY(_a);            \
+    os_strncmp(_a, _b, sizeof(_a)-1);   \
+})
 #endif
 
 /*
 * use b's size
 */
 #ifndef os_strbcmp
-#define os_strbcmp(_a, _b)          os_strncmp(_a, _b, sizeof(_b))
+#define os_strbcmp(_a, _b)          ({  \
+    BUILD_BUG_NOT_ARRAY(_b);            \
+    os_strncmp(_a, _b, sizeof(_b)-1);   \
+})
 #endif
 
 /*
@@ -331,26 +343,24 @@ os_strlast(const char *s, int ch)
 
 typedef bool char_is_f(int ch);
 
-static inline bool 
-__char_is(int ch, char_is_f *IS)
+static inline bool
+iscrlf(int ch)
 {
-    if (IS) {
-        return (*IS)(ch);
-    } else {
-#ifdef CHAR_IS
-        return CHAR_IS(ch);
-#else
-        return NULL!=strchr(__blanks, ch);
-#endif
-    }
+    return '\r'==ch || '\n'==ch;
+}
+
+static inline bool 
+__char_is(int ch, char_is_f *is)
+{
+    return is?(*is)(ch):(isblank(ch) || iscrlf(ch));
 }
 
 static inline char *
-os_str_skip(char *s, char_is_f *IS)
+os_str_skip(char *s, char_is_f *is)
 {
     char *p = s;
 
-    while(*p && __char_is(*p, IS)) {
+    while(*p && __char_is(*p, is)) {
         p++;
     }
 
@@ -358,17 +368,17 @@ os_str_skip(char *s, char_is_f *IS)
 }
 
 /*
-* 将 string 内的 old 替换 为 new
+* 将 string 内的 is 替换 为 new
 *
 * 注意 : string被修改，不可重入
 */
 static inline char *
-os_str_replace(char *s, char_is_f *IS_OLD, int new)
+os_str_replace(char *s, char_is_f *is, int new)
 {
     char *p = s;
 
     while(*p) {
-        if (__char_is(*p, IS_OLD)) {
+        if (__char_is(*p, is)) {
             *p++ = new;
         } else {
             p++;
@@ -384,14 +394,14 @@ os_str_replace(char *s, char_is_f *IS_OLD, int new)
 * 注意 : str被修改，不可重入
 */
 static inline char *
-os_str_reduce(char *str, char_is_f *IS)
+os_str_reduce(char *str, char_is_f *is)
 {
     char *p = str; /* 记录指针 */
     char *s = str; /* 扫描指针 */
     bool in_reduce = false; /* reduce 模式 */
     
     while(*s) {
-        if (__char_is(*s, IS)) {
+        if (__char_is(*s, is)) {
             /*
             * 扫描到 去重字符, 则记录之
             *
@@ -429,18 +439,18 @@ os_str_reduce(char *str, char_is_f *IS)
 }
 
 /*
-* 消除 str 内满足 IS 的 字符
+* 消除 str 内满足 is 的 字符
 * 
 * 注意 : str被修改，不可重入
 */
 static inline char *
-os_str_strim(char *str, char_is_f *IS)
+os_str_strim(char *str, char_is_f *is)
 {
     char *p = str; /* 记录指针 */
     char *s = str; /* 扫描指针 */
 
     while(*s) {
-        if (__char_is(*s, IS)) {
+        if (__char_is(*s, is)) {
             s++;
         } else {
             *p++ = *s++;
@@ -451,57 +461,60 @@ os_str_strim(char *str, char_is_f *IS)
 }
 
 /*
-* 消除 str 左侧满足 IS 的 字符
+* 消除 str 左侧满足 is 的 字符
 * 
 * 注意 : str被修改，不可重入
 */
 static inline char *
-os_str_lstrim(char *str, char_is_f *IS)
+os_str_lstrim(char *str, char_is_f *is)
 {
     char *p = str; /* 记录指针 */
     char *s = str; /* 扫描指针 */
 
-    /* find first no-match IS */
-    while(*s && __char_is(*s, IS)) {
-        s++;
-    }
+    // begin with is
+    if (__char_is(*p, is)) {
+        /* find first no-match is */
+        while(*s && __char_is(*s, is)) {
+            s++;
+        }
 
-    /* all move to begin */
-    while(*s) {
-        *p++ = *s++;
+        /* all move to begin */
+        while(*s) {
+            *p++ = *s++;
+        }
+        
+        *p = 0;
     }
-    
-    *p = 0;
     
     return s;
 }
 
 /*
-* 消除 str 右侧满足 IS 的 字符
+* 消除 str 右侧满足 is 的 字符
 * 
 * 注意 : str被修改，不可重入
 */
 static inline char *
-os_str_rstrim(char *s, char_is_f *IS)
+os_str_rstrim(char *s, char_is_f *is)
 {
     /* pointer to last char */
     char *p = s + os_strlen(s) - 1;
 
     /* scan, from last char to begin */
-    while(p>=s && __char_is(*p, IS)) {
+    while(p>=s && __char_is(*p, is)) {
         p--;
     }
 
-    /* now, pointer to the right first no-match IS */
+    /* now, pointer to the right first no-match is */
     *(p+1) = 0;
     
     return s;
 }
 
 static inline char *
-os_str_strim_both(char *s, char_is_f *IS)
+os_str_strim_both(char *s, char_is_f *is)
 {
-    return os_str_rstrim(s, IS), os_str_lstrim(s, IS);
+    return os_str_rstrim(s, is), os_str_lstrim(s, is);
 }
 
 static inline bool
@@ -518,32 +531,28 @@ os_str_is_end_by(char *s, char *end)
 }
 
 static inline bool
-__char_is_drop(int ch, char_is_f *IS)
+__char_is_drop(int ch, char_is_f *is)
 {
-    if (IS) {
-        return (*IS)(ch);
+    if (is) {
+        return (*is)(ch);
     } else {
-#ifdef CHAR_IS_DROP
-        return CHAR_IS_DROP(ch)
-#else
         return ch=='#';
-#endif
     }
 }
 
 /*
-* 消除 string 右侧满足 IS 的 字符及后面字符
+* 消除 string 右侧满足 is 的 字符及后面字符
 * 
 * 注意 : string被修改，不可重入
 */
 static inline char *
-os_str_drop(char *s, char_is_f *IS)
+os_str_drop(char *s, char_is_f *is)
 {
     /* pointer to last char */
     char *p = s;
 
     /* scan, from last char to begin */
-    while(*p && false==__char_is_drop(*p, IS)) {
+    while(*p && false==__char_is_drop(*p, is)) {
         p++;
     }
 
@@ -555,7 +564,9 @@ os_str_drop(char *s, char_is_f *IS)
 static inline bool 
 __is_blank_line(const char *line)
 {
-    return 0==line[0] || '\n'==line[0] || ('\r'==line[0] && '\n'==line[1]);
+    return 0==line[0] 
+        || ('\n'==line[0] && 0==line[1])
+        || ('\r'==line[0] && '\n'==line[1] && 0==line[2]);
 }
 
 static inline bool 
@@ -573,7 +584,7 @@ __is_notes_line_deft(const char *line)
 }
 
 static inline char *
-os_str_next(char *s, char_is_f *IS)
+os_str_next(char *s, char_is_f *is)
 {
     char *p = s;
 
@@ -581,7 +592,7 @@ os_str_next(char *s, char_is_f *IS)
         return NULL;
     }
     
-    while(*p && false==__char_is(*p, IS)) {
+    while(*p && false==__char_is(*p, is)) {
         p++;
     }
     
@@ -595,11 +606,11 @@ os_str_next(char *s, char_is_f *IS)
 }
 
 static inline char *
-os_str_next_byifs(char *s, int ifs)
+os_str_next_byifs(char *s, char *ifs)
 {
     bool is_ifs(int ch)
     {
-        return ch==ifs;
+        return NULL!=os_strchr(ifs, ch);
     }
     
     return os_str_next(s, is_ifs);
