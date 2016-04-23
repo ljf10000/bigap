@@ -20,9 +20,17 @@
 
 #ifndef BUILD_BUG_NOT_ARRAY
 #   ifdef  BUILD_BUG_NOT_ARRAY_SKIP
-#       define BUILD_BUG_NOT_ARRAY(_a)  BUILD_BUG_ON(false)
+#       define BUILD_BUG_NOT_ARRAY(_array)  BUILD_BUG_ON(false)
 #   else
-#       define BUILD_BUG_NOT_ARRAY(_a)  BUILD_BUG_ON(sizeof(_a)==sizeof(void *))
+#       define BUILD_BUG_NOT_ARRAY(_array)  BUILD_BUG_ON(sizeof(_array)==sizeof(void *))
+#   endif
+#endif
+
+#ifndef BUILD_BUG_NOT_OBJECT
+#   ifdef  BUILD_BUG_NOT_OBJECT_SKIP
+#       define BUILD_BUG_NOT_OBJECT(_obj)   BUILD_BUG_ON(false)
+#   else
+#       define BUILD_BUG_NOT_OBJECT(_obj)   BUILD_BUG_ON(sizeof(_obj)==sizeof(void *))
 #   endif
 #endif
 

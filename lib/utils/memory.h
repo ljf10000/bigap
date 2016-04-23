@@ -158,21 +158,30 @@ os_memmem(const void *mem, size_t mem_size,
 *   sizeof(&array)==sizeof(void *)
 */
 #ifndef os_objzero
-#define os_objzero(_pobj)           os_memzero(_pobj, sizeof(*(_pobj)))
+#define os_objzero(_obj)                ({  \
+    BUILD_BUG_NOT_OBJECT(_obj);             \
+    os_memzero(_obj, sizeof(*(_obj)));      \
+})
 #endif
 
 /*
 * use (*_dst)'s size
 */
 #ifndef os_objdcpy
-#define os_objdcpy(_dst, _src)      os_memcpy(_dst, _src, sizeof(*(_dst)))
+#define os_objdcpy(_dst, _src)          ({  \
+    BUILD_BUG_NOT_OBJECT(_dst);             \
+    os_memcpy(_dst, _src, sizeof(*(_dst))); \
+})
 #endif
 
 /*
 * use (*_src)'s size
 */
 #ifndef os_objscpy
-#define os_objscpy(_dst, _src)      os_memcpy(_dst, _src, sizeof(*(_src)))
+#define os_objscpy(_dst, _src)          ({  \
+    BUILD_BUG_NOT_OBJECT(_src);             \
+    os_memcpy(_dst, _src, sizeof(*(_src))); \
+})
 #endif
 
 /*
@@ -186,14 +195,20 @@ os_memmem(const void *mem, size_t mem_size,
 * use (*_a)'s size
 */
 #ifndef os_objacmp
-#define os_objacmp(_a, _b)          os_memcmp(_a, _b, sizeof(*(_a)))
+#define os_objacmp(_a, _b)          ({  \
+    BUILD_BUG_NOT_OBJECT(_a);           \
+    os_memcmp(_a, _b, sizeof(*(_a)));   \
+})
 #endif
 
 /*
 * use (*_b)'s size
 */
 #ifndef os_objbcmp
-#define os_objbcmp(_a, _b)          os_memcmp(_a, _b, sizeof(*(_b)))
+#define os_objbcmp(_a, _b)          ({  \
+    BUILD_BUG_NOT_OBJECT(_b):           \
+    os_memcmp(_a, _b, sizeof(*(_b)));   \
+})
 #endif
 
 /*
@@ -298,12 +313,12 @@ os_memmem(const void *mem, size_t mem_size,
 
 #if defined(__BOOT__) || defined(__APP__)
 #define os_malloc(_size)            malloc(_size)
-#define os_calloc(_count, _size)        ({  \
+#define os_calloc(_count, _size)            ({  \
     void *__obj = os_malloc((_count)*(_size));  \
-    if (__obj) {                            \
+    if (__obj) {                                \
         os_memzero(__obj, (_count)*(_size));    \
-    }                                       \
-    __obj;                                  \
+    }                                           \
+    __obj;                                      \
 })  /* end */
 
 #define os_realloc(_ptr, _size)     realloc(_ptr, _size)
