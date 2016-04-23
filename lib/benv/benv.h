@@ -414,7 +414,7 @@ __benv_version_atoi(benv_version_t * version, char *string)
         char *end = NULL;
 
         version->number[i] = os_strtoul(number[i], &end, 0);
-        if (false==os_strton_is_good(end)) {
+        if (false==os_strton_is_good_end(end)) {
             debug_error("bad-version:%s", string);
 
             return -EFORMAT;
@@ -1620,7 +1620,7 @@ __benv_check_current(benv_ops_t * ops, char *value)
 
         return -EFORMAT;
     }
-    else if (false==os_strton_is_good(end)) {
+    else if (false==os_strton_is_good_end(end)) {
         debug_error("input invalid current:%s", value);
         
         return -EFORMAT;

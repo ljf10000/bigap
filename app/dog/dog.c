@@ -144,7 +144,7 @@ cmd_set_timeout(int argc, char *argv[])
     char *string = argv[1];
     
     timeout = os_strtol(string, &end, 0);
-    if (false==os_strton_is_good(end) || timeout <= 0) {
+    if (false==os_strton_is_good_end(end) || timeout <= 0) {
         os_println("bad timeout:%s", string);
         
         return -EFORMAT;
