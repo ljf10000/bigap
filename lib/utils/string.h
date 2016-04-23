@@ -325,9 +325,15 @@ os_strncmp(const char *a, const char *b, int len)
 #endif
 
 static inline char *
+____os_strlast(const char *s, int len)
+{
+    return s?((char *)s + len - 1):NULL;
+}
+
+static inline char *
 __os_strlast(const char *s)
 {
-    return s?((char *)s + os_strlen(s) - 1):NULL;
+    return ____os_strlast(s, os_strlen(s));
 }
 
 static inline char *
@@ -495,10 +501,10 @@ os_str_lstrim(char *str, char_is_f *is)
 * 注意 : str被修改，不可重入
 */
 static inline char *
-os_str_rstrim(char *s, char_is_f *is)
+__os_str_rstrim(char *s, int len, char_is_f *is)
 {
     /* pointer to last char */
-    char *p = s + os_strlen(s) - 1;
+    char *p = ____os_strlast(s, len);
 
     /* scan, from last char to begin */
     while(p>=s && __char_is(*p, is)) {
@@ -509,6 +515,12 @@ os_str_rstrim(char *s, char_is_f *is)
     *(p+1) = 0;
     
     return s;
+}
+
+static inline char *
+os_str_rstrim(char *s, char_is_f *is)
+{
+    return __os_str_rstrim(s, os_strlen(s), is);
 }
 
 static inline char *
