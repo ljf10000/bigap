@@ -323,7 +323,6 @@ os_memmem(const void *mem, size_t mem_size,
 #endif
 
 #ifdef __APP__
-#define os_alloca(_size)            alloca(_size)
 #define os_calloc(_count, _size)    calloc(_count, _size)
 #else
 static inline void *
