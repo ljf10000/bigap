@@ -1,6 +1,6 @@
 #!/bin/js
 
-var name = new Array('mod', 'my', 'libc', 'libcurl');
+var name = ['mod', 'my', 'libc', 'libcurl'];
 var argc = __my__.argv.length;
 
 if (0==argc) {
@@ -14,6 +14,6 @@ var mod;
 
 for (i=0; i<argc; i++) {
 	mod = require(name[i]);
-	mod.test()
+	mod.test();
 }
 

@@ -7,13 +7,13 @@ var mod = this,
 	name = 'stream/helper/bzip',
 	base = require('stream/helper/base');
 
-mod.$name = function () { return name; };
+mod.$name = function() { return name; };
 mod.$debugger = new $Debugger(name);
 
 mod.is_open = base.is_open;
 mod.is_close = base.is_close;
 
-mod.open = function (obj, mode) {
+mod.open = function(obj, mode) {
 	if (obj && mod.is_close(obj)) {
 		obj.mode = mode || obj.mode;
 		obj.stream = __libbz__.bzopen(obj.filename, obj.mode);
@@ -22,30 +22,30 @@ mod.open = function (obj, mode) {
 	return obj;
 };
 
-mod.close = function (obj) {
+mod.close = function(obj) {
 	if (obj && mod.is_open(obj)) {
 		__libbz__.bzclose(obj.stream);
 		obj.stream = null;
 	}
 };
 
-mod.read = function (obj, buffer) {
+mod.read = function(obj, buffer) {
 	return __libbz__.bzread(obj.stream, buffer);
 };
 
-mod.readEx = function (obj, size) {
+mod.readEx = function(obj, size) {
 	return __libbz__.bzreadEx(obj.stream, size);
 };
 
-mod.write = function (obj, buffer) {
+mod.write = function(obj, buffer) {
 	return __libbz__.bzwrite(obj.stream, buffer);
 };
 
-mod.sync = mod.flush = function (obj) {
+mod.sync = mod.flush = function(obj) {
 	return __libbz__.bzflush(obj.stream);
 };
 
-mod.error = function (obj) {
+mod.error = function(obj) {
 	return __libbz__.bzerror(obj.stream);
 };
 

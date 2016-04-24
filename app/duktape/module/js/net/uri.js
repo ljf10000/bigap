@@ -6,7 +6,7 @@
 var mod = this,
 	name = 'net/uri';
 
-mod.$name = function () { return name; };
+mod.$name = function() { return name; };
 mod.$debugger = new $Debugger(name);
 
 mod.scheme = {

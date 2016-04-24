@@ -8,7 +8,7 @@ var mod = this,
 	fmode = require('file/helper/mode'),
 	fd = require('file/helper/fd');
 
-mod.$name = function () { return name; };
+mod.$name = function() { return name; };
 mod.$debugger = new $Debugger(name);
 
 mod.is_open = fd.is_open;
@@ -24,7 +24,7 @@ mod.write   = fd.write;
 mod.writev  = fd.writev;
 mod.init    = fd.init;
 
-mod.open = function (obj, flag, mode) {
+mod.open = function(obj, flag, mode) {
 	if (must_object(obj) && mod.is_close(obj)) {
 		flag = maybe_number(flag) || obj.flag;
 		mode = maybe_number(mode) || obj.mode;
@@ -45,23 +45,23 @@ mod.open = function (obj, flag, mode) {
 	return obj;
 };
 
-mod.stat = function (obj) {
+mod.stat = function(obj) {
 	return __libc__.stat(obj.filename);
 };
 
-mod.lstat = function (obj) {
+mod.lstat = function(obj) {
 	return __libc__.lstat(obj.filename);
 };
 
-mod.seek = function (obj, offset, where) {
+mod.seek = function(obj, offset, where) {
 	return __libc__.lseek(obj.fd, offset, where);
 };
 
-mod.rewind = function (obj) {
+mod.rewind = function(obj) {
 	return __libc__.lseek(obj.fd, 0, __libc__.SEEK_SET);
 };
 
-mod.sync = mod.flush = function (obj) {
+mod.sync = mod.flush = function(obj) {
 	return __libc__.fsync(obj.fd);
 };
 

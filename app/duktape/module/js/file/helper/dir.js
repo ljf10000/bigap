@@ -10,24 +10,24 @@ var mod = this,
 mod.$name = function() { return name; };
 mod.$debugger = new $Debugger(name);
 
-mod.is_open = function is_open (obj) {
+mod.is_open = function(obj) {
 	return typeof obj.fd === 'pointer' && obj.fd;
 };
 
-mod.is_close = function is_close (obj) {
+mod.is_close = function(obj) {
 	return null === obj.fd;
 };
 
-mod.open = function (obj) {
-	if (obj && is_close(obj)) {
+mod.open = function(obj) {
+	if (obj && mod.is_close(obj)) {
 		obj.fd = __libc__.opendir(obj.filename);
 	}
 
 	return obj;
 };
 
-mod.close = function (obj) {
-	if (obj && is_open(obj)) {
+mod.close = function(obj) {
+	if (obj && mod.is_open(obj)) {
 		__libc__.closedir(obj.fd);
 		obj.fd = null;
 	}
@@ -35,19 +35,19 @@ mod.close = function (obj) {
 	return 0;
 };
 
-mod.read = function (obj) {
+mod.read = function(obj) {
 	return __libc__.readdir(obj.fd);
 };
 
-mod.tell = function (obj) {
+mod.tell = function(obj) {
 	return __libc__.telldir(obj.fd);
 };
 
-mod.seek = function (obj, pos) {
+mod.seek = function(obj, pos) {
 	return __libc__.seekdir(obj.fd, pos);
 };
 
-mod.rewind = function (obj) {
+mod.rewind = function(obj) {
 	return __libc__.rewinddir(obj.fd);
 };
 

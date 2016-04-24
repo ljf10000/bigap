@@ -1,7 +1,7 @@
 #!/bin/js
 
 // just for webstorm
-function require (mod) {return null;}
+function require(mod) {return null;}
 function Proxy(obj, handler) {return obj;}
 Object.setPrototypeOf = function(obj, proto) {
   obj.__proto__ = proto;

@@ -6,10 +6,10 @@
 var mod = this,
 	name = 'file/binding';
 
-mod.$name = function () { return name; };
+mod.$name = function() { return name; };
 mod.$debugger = new $Debugger(name);
 
-function load (obj, reader) {
+function load(obj, reader) {
 	var safe_reader = maybe_function(reader) || allways;
 
 	if (obj.filename && __libc__.fexist(obj.filename)) {
@@ -23,7 +23,7 @@ function load (obj, reader) {
 	return obj;
 }
 
-function loadl (array, reader) {
+function loadl(array, reader) {
 	var safe_reader = maybe_function(reader) || allways;
 	var count = 0;
 
@@ -36,7 +36,7 @@ function loadl (array, reader) {
 	return array;
 }
 
-function write (obj, append, writer) {
+function write(obj, append, writer) {
 	var safe_writer = maybe_function(writer) || allways_string;
 
 	if (obj.filename && obj.content) {
@@ -50,7 +50,7 @@ function write (obj, append, writer) {
 	return obj;
 }
 
-function writel (array, writer) {
+function writel(array, writer) {
 	var safe_writer = maybe_function(writer) || allways_string;
 	var i, count = array.length;
 
@@ -67,15 +67,15 @@ function writel (array, writer) {
 	return array;
 }
 
-function save (obj, writer) {
+function save(obj, writer) {
 	return write(obj, false, writer);
 }
 
-function append (obj, writer) {
+function append(obj, writer) {
 	return write(obj, true, writer);
 }
 
-function bind (obj, filename, reader, writer) {
+function bind(obj, filename, reader, writer) {
 	obj.filename = maybe_string(filename);
 	obj.content = (maybe_function(reader) && maybe_function(writer))?{}:'';
 	obj.$name = function() { return name + '(' + obj.filename + ')'; };
@@ -83,14 +83,14 @@ function bind (obj, filename, reader, writer) {
 	return obj;
 }
 
-function bindl (array, filename) {
+function bindl(array, filename) {
 	array.filename = maybe_string(filename);
 	array.$name = function() { return name + '(' + array.filename + ')'; };
 
 	return array;
 }
 
-mod.cache_l = function (filename, reader, writer) {
+mod.cache_l = function(filename, reader, writer) {
 	return Object.setPrototypeOf(bindl([], filename, reader, writer), {
 		load: function () {
 			loadl(this, reader);
@@ -101,7 +101,7 @@ mod.cache_l = function (filename, reader, writer) {
 	});
 };
 
-mod.cache_w = function (filename, reader, writer) {
+mod.cache_w = function(filename, reader, writer) {
 	return Object.setPrototypeOf(bind({}, filename, reader, writer), {
 		load: function () {
 			load(this, reader);
@@ -112,7 +112,7 @@ mod.cache_w = function (filename, reader, writer) {
 	});
 };
 
-mod.cache_a = function (filename, reader, writer) {
+mod.cache_a = function(filename, reader, writer) {
 	return Object.setPrototypeOf(bind({}, filename, reader, writer), {
 		save: function () {
 			append(this, writer);
@@ -120,9 +120,9 @@ mod.cache_a = function (filename, reader, writer) {
 	});
 };
 
-mod.direct_w = function (filename, reader, writer) {
+mod.direct_w = function(filename, reader, writer) {
 	return new Proxy(bind({}, filename, reader, writer), {
-		get: function (obj, key) {
+		get: function(obj, key) {
 			if (key==='content') {
 				load(obj, reader);
 			}
@@ -130,7 +130,7 @@ mod.direct_w = function (filename, reader, writer) {
 			return obj[key];
 		},
 
-		set: function (obj, key, value) {
+		set: function(obj, key, value) {
 			obj[key] = value;
 
 			if (key==='content') {
@@ -140,7 +140,7 @@ mod.direct_w = function (filename, reader, writer) {
 	});
 };
 
-mod.direct_a = function (filename, reader, writer) {
+mod.direct_a = function(filename, reader, writer) {
 	return new Proxy(bind({}, filename, reader, writer), {
 		set: function (obj, key, value) {
 			obj[key] = value;

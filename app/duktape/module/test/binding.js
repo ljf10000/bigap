@@ -3,7 +3,7 @@
 var binding = require('file/binding');
 var name, f, obj;
 
-function bprint (name) {
+function bprint(name) {
 	print(name, ':', __my__.readtxt(name));
 }
 

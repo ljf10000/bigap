@@ -26,4 +26,4 @@ var param = {
 
 __my__.loop(param);
 
-print("errno=", __libc__.errno)
+print("errno=", __libc__.errno);

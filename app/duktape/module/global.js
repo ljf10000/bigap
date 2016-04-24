@@ -3,40 +3,40 @@
 * 2. only use 'xxxxx'
 * 3. must keep last empty line
 */
-function do_nothing () {}
-function no_support () { return -__LIBC__.ENOSUPPORT; }
+function do_nothing() {}
+function no_support() { return -__LIBC__.ENOSUPPORT; }
 
-function must (obj, type) { return typeof obj === type;}
-function must_object (obj) { return obj && must(obj, 'object'); }
-function must_function (obj) { return must(obj, 'function'); }
-function must_string (obj) { return must(obj, 'string'); }
-function must_number (obj) { return must(obj, 'number'); }
-function must_bool (obj) { return must(obj, 'boolean'); }
+function must(obj, type) { return typeof obj === type;}
+function must_object(obj) { return obj && must(obj, 'object'); }
+function must_function(obj) { return must(obj, 'function'); }
+function must_string(obj) { return must(obj, 'string'); }
+function must_number(obj) { return must(obj, 'number'); }
+function must_bool(obj) { return must(obj, 'boolean'); }
 
-function maybe (obj, type) { return typeof obj === type ? obj : undefined;}
-function maybe_object (obj) { return (obj && typeof obj === 'object') ? obj : undefined; }
-function maybe_function (obj) { return maybe(obj, 'function'); }
-function maybe_string (obj) { return maybe(obj, 'string'); }
-function maybe_number (obj) { return maybe(obj, 'number'); }
-function maybe_bool (obj) { return maybe(obj, 'boolean'); }
+function maybe(obj, type) { return typeof obj === type ? obj : undefined;}
+function maybe_object(obj) { return (obj && typeof obj === 'object') ? obj : undefined; }
+function maybe_function(obj) { return maybe(obj, 'function'); }
+function maybe_string(obj) { return maybe(obj, 'string'); }
+function maybe_number(obj) { return maybe(obj, 'number'); }
+function maybe_bool(obj) { return maybe(obj, 'boolean'); }
 
-function allways (obj) { return obj; }
-function allways_string (obj) { return obj.toString(); }
-function allways_null () { return null; }
-function allways_undefined () { return undefined; }
-function allways_false () { return false; }
-function allways_true () { return true; }
-function allways_empty () { return {}; }
+function allways(obj) { return obj; }
+function allways_string(obj) { return obj.toString(); }
+function allways_null() { return null; }
+function allways_undefined() { return undefined; }
+function allways_false() { return false; }
+function allways_true() { return true; }
+function allways_empty() { return {}; }
 
-function safe_function (f, safe) {
+function safe_function(f, safe) {
 	return maybe_function(f) || maybe_function(safe) || no_support;
 }
 
-function safe_string (s, safe) {
+function safe_string(s, safe) {
 	return maybe_string(s) || maybe_string(safe) || UNKNOW_STRING;
 }
 
-function safe_number (n, safe) {
+function safe_number(n, safe) {
 	return maybe_number(n) || maybe_number(safe) || UNKNOW_NUMBER;
 }
 
@@ -48,7 +48,7 @@ const
 	UNKNOW_STRING = 'unknow',
 	UNKNOW_NUMBER = 0,
 	fmt = {
-		oprint: function (name, obj) {
+		oprint: function(name, obj) {
 			if (must_string(name) && must_object(obj)) {
 				var root = {};
 
@@ -62,7 +62,7 @@ const
 			}
 		},
 
-		separator: function (name, sep) {
+		separator: function(name, sep) {
 			var s = maybe_string(sep)?sep:'==========';
 
 			print(s, name, s);
@@ -78,15 +78,15 @@ const
 	$LOG_DEBUG            = 7;
 
 // Object
-(function () {
+(function() {
 	do_nothing();
 }());
 
 // Array
-(function () {
+(function() {
 	var pt = Array.prototype;
 
-	pt.includes = function (element, fromIndex) {
+	pt.includes = function(element, fromIndex) {
 		var i, count = this.length;
 
 		for (i=fromIndex; i<count; i++) {
@@ -100,24 +100,24 @@ const
 }());
 
 // TypedArray
-(function () {
-	function bits_mask (obj, bit) {
+(function() {
+	function bits_mask(obj, bit) {
 		return 1<<(bit%(8*obj.BYTES_PER_ELEMENT));
 	}
 
-	function bits_elt (obj, bit) {
+	function bits_elt(obj, bit) {
 		return Math.floor(bit/(8*obj.BYTES_PER_ELEMENT));
 	}
 
-	function bits_set (obj, bit) {
+	function bits_set(obj, bit) {
 		obj[bits_elt(obj, bit)] |= bits_mask(obj, bit);
 	}
 
-	function bits_clr (obj, bit) {
+	function bits_clr(obj, bit) {
 		obj[bits_elt(obj, bit)] &= ~bits_mask(obj, bit);
 	}
 
-	function bits_isset (obj, bit) {
+	function bits_isset(obj, bit) {
 		return 0 != (obj[bits_elt(obj, bit)] & bits_mask(obj, bit));
 	}
 
@@ -128,20 +128,20 @@ const
 		pt = arrays[i].prototype;
 
 		pt.BITS_PER_ELEMENT = 8*pt.BYTES_PER_ELEMENT;
-		pt.bits_set = function (bit) {
+		pt.bits_set = function(bit) {
 			bits_set(this, bit);
 		};
-		pt.bits_clr = function (bit) {
+		pt.bits_clr = function(bit) {
 			bits_clr(this, bit);
 		};
-		pt.bits_isset = function (bit) {
+		pt.bits_isset = function(bit) {
 			return bits_isset(this, bit);
 		};
 	}
 }());
 
 // $Debugger
-(function (global) {
+(function(global) {
 	/*
 	* 0x00000001 ~ 0x00008000, user debug level
 	* 0x00010000 ~ 0x80000000, sys  debug level
@@ -170,8 +170,8 @@ const
 		return false;
 	}
 
-	global.$Debugger = function (mod) {
-		this.mod = function () { return mod; };
+	global.$Debugger = function(mod) {
+		this.mod = function() { return mod; };
 	};
 
 	global.$Debugger.prototype = pt = {
@@ -188,146 +188,146 @@ const
 		TEST: 0x04000000,
 		ALL: 0xffffffff,
 
-		debug: function (level) {
+		debug: function(level) {
 			if (is_debug(this.mod(), level)) {
 				__my__.debug(slice.call(arguments).slice(1).toString());
 			}
 		},
 
-		init: function () {
+		init: function() {
 			if (is_debug(this.mod(), pt.INIT)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		fini: function () {
+		fini: function() {
 			if (is_debug(this.mod(), pt.FINI)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		constructor: function () {
+		constructor: function() {
 			if (is_debug(this.mod(), pt.CONSTRUCTOR)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		destructor: function () {
+		destructor: function() {
 			if (is_debug(this.mod(), pt.DESTRUCTOR)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		ok: function () {
+		ok: function() {
 			if (is_debug(this.mod(), pt.OK)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		error: function () {
+		error: function() {
 			if (is_debug(this.mod(), pt.ERROR)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		trace: function () {
+		trace: function() {
 			if (is_debug(this.mod(), pt.TRACE)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		bug: function () {
+		bug: function() {
 			if (is_debug(this.mod(), pt.BUG)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		io: function () {
+		io: function() {
 			if (is_debug(this.mod(), pt.IO)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		st: function () {
+		st: function() {
 			if (is_debug(this.mod(), pt.ST)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		},
 
-		test: function () {
+		test: function() {
 			if (is_debug(this.mod(), pt.TEST)) {
 				__my__.debug(slice.call(arguments).slice(0).toString());
 			}
 		}
 	};
 
-	global.debug = function (mod, level) {
+	global.debug = function(mod, level) {
 		if (is_debug(mod, level)) {
 			__my__.debug(slice.call(arguments).slice(2).toString());
 		}
 	};
 
-	global.debug_init = function (mod) {
+	global.debug_init = function(mod) {
 		if (is_debug(mod, pt.INIT)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_fini = function (mod) {
+	global.debug_fini = function(mod) {
 		if (is_debug(mod, pt.FINI)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_constructor = function (mod) {
+	global.debug_constructor = function(mod) {
 		if (is_debug(mod, pt.CONSTRUCTOR)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_destructor = function (mod) {
+	global.debug_destructor = function(mod) {
 		if (is_debug(mod, pt.DESTRUCTOR)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_ok = function (mod) {
+	global.debug_ok = function(mod) {
 		if (is_debug(mod, pt.OK)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_error = function (mod) {
+	global.debug_error = function(mod) {
 		if (is_debug(mod, pt.ERROR)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_trace = function (mod) {
+	global.debug_trace = function(mod) {
 		if (is_debug(mod, pt.TRACE)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_bug = function (mod) {
+	global.debug_bug = function(mod) {
 		if (is_debug(mod, pt.BUG)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_io = function (mod) {
+	global.debug_io = function(mod) {
 		if (is_debug(mod, pt.IO)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_st = function (mod) {
+	global.debug_st = function(mod) {
 		if (is_debug(mod, pt.ST)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
 	};
 
-	global.debug_test = function (mod) {
+	global.debug_test = function(mod) {
 		if (is_debug(mod, pt.TEST)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}
@@ -336,13 +336,13 @@ const
 
 // __js__
 (function () {
-	__js__.destructor = function (x, close, is_class) {
+	__js__.destructor = function(x, close, is_class) {
 		if (typeof close === 'function') {
-			return __js__.fin(x, function (obj, heapDestruct) {
+			return __js__.fin(x, function(obj, heapDestruct) {
 				var name = maybe_function(obj.$name)
 						|| maybe_function(obj.prototype.$name)
 						|| maybe_function(x.$name)
-						|| function () { return typeof x;},
+						|| function() { return typeof x;},
 					info;
 
 				if (is_class && obj === x) {

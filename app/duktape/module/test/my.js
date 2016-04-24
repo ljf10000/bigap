@@ -15,7 +15,7 @@ this.test = function() {
 
 	fmt.separator("readline");
 	err = my.readline("test.txt", function(line) {
-		print("inline line =", line)
+		print("inline line =", line);
 
 		return 0;
 	});

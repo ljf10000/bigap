@@ -3,7 +3,7 @@
 var mod1 = require('mod1');
 var mod2 = require('mod2');
 
-this.name = 'mod'
+this.name = 'mod';
 this.test = function() {
 	mod1.hello();
 	mod2.hello();
