@@ -14,7 +14,7 @@
 
 LIB_PARAM(modSearch, DUK_VARARGS);
 static duk_ret_t
-duke_modSearch(duk_context * ctx)
+duke_modSearch(duk_context *ctx)
 {
     char *id = (char *)duk_require_string(ctx, 0);
     
