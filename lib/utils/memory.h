@@ -310,23 +310,13 @@ os_memmem(const void *mem, size_t mem_size,
         __os_getobjarrayidx(_array, _obj, os_objcmp, _begin, _end)
 #endif
 
-
 #if defined(__BOOT__) || defined(__APP__)
 #define os_malloc(_size)            malloc(_size)
-#define os_calloc(_count, _size)            ({  \
-    void *__obj = os_malloc((_count)*(_size));  \
-    if (__obj) {                                \
-        os_memzero(__obj, (_count)*(_size));    \
-    }                                           \
-    __obj;                                      \
-})  /* end */
-
 #define os_realloc(_ptr, _size)     realloc(_ptr, _size)
 #define os_free(_ptr) \
         do{ if (_ptr) { free(_ptr); (_ptr) = NULL; } }while(0)
 #else
 #define os_malloc(_size)            kmalloc(_size, GFP_KERNEL)
-#define os_calloc(_count, _size)    calloc(_count, _size)
 #define os_realloc(_ptr, _size)     krealloc(_ptr, _size, GFP_KERNEL)
 #define os_free(_ptr) \
         do{ if (_ptr) { kfree(_ptr); (_ptr) = NULL; } }while(0)
@@ -334,6 +324,18 @@ os_memmem(const void *mem, size_t mem_size,
 
 #ifdef __APP__
 #define os_alloca(_size)            alloca(_size)
+#define os_calloc(_count, _size)    calloc(_count, _size)
+#else
+static inline void *
+os_calloc(uint32_t count, uint32_t size)
+{
+    void *obj = os_malloc(count*size);
+    if (obj) {
+        os_memzero(obj, count*size);
+    }
+    
+    return obj;
+}
 #endif
 
 #define os_zalloc(_size)            os_calloc(1, _size)
