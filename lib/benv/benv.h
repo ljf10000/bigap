@@ -446,7 +446,7 @@ benv_version_atoi(char *string)
 }
 
 static inline int
-benv_version_cmp(benv_version_t * a, benv_version_t * b)
+benv_version_cmp(benv_version_t *a, benv_version_t *b)
 {
     return os_objcmp(a, b);
 }
