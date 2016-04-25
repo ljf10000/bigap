@@ -159,7 +159,7 @@ os_memmem(const void *mem, size_t mem_size,
 */
 #ifndef os_objzero
 #define os_objzero(_obj)                ({  \
-    BUILD_BUG_NOT_OBJECT(_obj);             \
+    BUILD_BUG_NOT_OBJECT(*(_obj));          \
     os_memzero(_obj, sizeof(*(_obj)));      \
 })
 #endif
@@ -169,7 +169,7 @@ os_memmem(const void *mem, size_t mem_size,
 */
 #ifndef os_objdcpy
 #define os_objdcpy(_dst, _src)          ({  \
-    BUILD_BUG_NOT_OBJECT(_dst);             \
+    BUILD_BUG_NOT_OBJECT(*(_dst));          \
     os_memcpy(_dst, _src, sizeof(*(_dst))); \
 })
 #endif
@@ -179,7 +179,7 @@ os_memmem(const void *mem, size_t mem_size,
 */
 #ifndef os_objscpy
 #define os_objscpy(_dst, _src)          ({  \
-    BUILD_BUG_NOT_OBJECT(_src);             \
+    BUILD_BUG_NOT_OBJECT(*(_src));          \
     os_memcpy(_dst, _src, sizeof(*(_src))); \
 })
 #endif
@@ -196,7 +196,7 @@ os_memmem(const void *mem, size_t mem_size,
 */
 #ifndef os_objacmp
 #define os_objacmp(_a, _b)          ({  \
-    BUILD_BUG_NOT_OBJECT(_a);           \
+    BUILD_BUG_NOT_OBJECT(*(_a));        \
     os_memcmp(_a, _b, sizeof(*(_a)));   \
 })
 #endif
@@ -206,7 +206,7 @@ os_memmem(const void *mem, size_t mem_size,
 */
 #ifndef os_objbcmp
 #define os_objbcmp(_a, _b)          ({  \
-    BUILD_BUG_NOT_OBJECT(_b):           \
+    BUILD_BUG_NOT_OBJECT(*(_b)):        \
     os_memcmp(_a, _b, sizeof(*(_b)));   \
 })
 #endif
