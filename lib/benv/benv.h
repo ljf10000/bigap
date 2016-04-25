@@ -448,9 +448,7 @@ benv_version_atoi(char *string)
 static inline int
 benv_version_cmp(benv_version_t *a, benv_version_t *b)
 {
-#define BUILD_BUG_NOT_OBJECT_SKIP
     return os_objcmp(a, b);
-#undef  BUILD_BUG_NOT_OBJECT_SKIP
 }
 #define benv_version_eq(_a, _b)   (0==benv_version_cmp(_a, _b))
 
@@ -1560,9 +1558,7 @@ __benv_set_version(benv_ops_t * ops, char *value)
     } else {
         benv_version_t version = BENV_DEFT_VERSION;
 
-#define BUILD_BUG_NOT_OBJECT_SKIP
         os_objscpy(v, &version);
-#undef  BUILD_BUG_NOT_OBJECT_SKIP
     }
 }
 
