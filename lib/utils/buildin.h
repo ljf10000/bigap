@@ -18,7 +18,6 @@
 #define BUILD_BUG_ON_NULL(_e)       ((void *)sizeof(struct { int:-!!(_e); }))
 #endif
 
-#define BUILD_BUG_NOT_ARRAY_SKIP
 #ifndef BUILD_BUG_NOT_ARRAY
 #   ifdef  BUILD_BUG_NOT_ARRAY_SKIP
 #       define BUILD_BUG_NOT_ARRAY(_array)  BUILD_BUG_ON(false)
