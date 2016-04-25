@@ -448,6 +448,8 @@ benv_version_atoi(char *string)
 static inline int
 benv_version_cmp(benv_version_t *a, benv_version_t *b)
 {
+    BUILD_BUG_NOT_OBJECT(*a);
+    
     return os_objcmp(a, b);
 }
 #define benv_version_eq(_a, _b)   (0==benv_version_cmp(_a, _b))
