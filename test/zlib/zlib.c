@@ -39,10 +39,10 @@ int __main(int argc, char *argv[])
 {
     byte output[2048];
     int i, level, err = 0;
-    unsigned long output_len = sizeof(output);
 
     for (i=0; i<os_count_of(pkt); i++) {
         for (level=Z_BEST_SPEED; level<=Z_BEST_COMPRESSION; level++) {
+            unsigned long output_len = sizeof(output);
             err = compress2(output, &output_len, pkt[i].pkt, pkt[i].len, level);
 
             os_println("input:%d, level:%d, output:%d",
