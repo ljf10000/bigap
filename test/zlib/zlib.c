@@ -15,7 +15,7 @@ struct pktinfo {
     int len;
 };
 
-#define PKT(x)  [x] = {     \
+#define PKT(x)  {           \
     .pkt = pkt##x,          \
     .len = sizeof(pkt##x),  \
 }
