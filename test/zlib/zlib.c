@@ -33,9 +33,8 @@ static struct pktinfo pkt[] = {
     PKT(90), PKT(91), PKT(92), PKT(93), PKT(94), PKT(95), PKT(96), PKT(97), PKT(98), PKT(99), 
 };
 
-static 
-
-int __main(int argc, char *argv[])
+static int 
+__main(int argc, char *argv[])
 {
     byte output[2048];
     int i, level, err = 0;
@@ -45,7 +44,8 @@ int __main(int argc, char *argv[])
             unsigned long output_len = sizeof(output);
             err = compress2(output, &output_len, pkt[i].pkt, pkt[i].len, level);
 
-            os_println("input:%d, level:%d, output:%d",
+            os_println("index:%d, input:%d, level:%d, output:%d",
+                i,
                 pkt[i].len,
                 level, 
                 output_len);
