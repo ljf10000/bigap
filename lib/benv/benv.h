@@ -375,7 +375,7 @@ enum {
 };
 
 static inline char *
-__benv_version_itoa(benv_version_t * version, char string[])
+__benv_version_itoa(benv_version_t *version, char string[])
 {
     os_sprintf(string, "%d.%d.%d.%d",
            version->number[0],
@@ -387,7 +387,7 @@ __benv_version_itoa(benv_version_t * version, char string[])
 }
 
 static inline int
-__benv_version_atoi(benv_version_t * version, char *string)
+__benv_version_atoi(benv_version_t *version, char *string)
 {
     char line[1 + OS_LINE_LEN] = { 0 };
     char *number[4] = { line, NULL, NULL, NULL };
@@ -425,7 +425,7 @@ __benv_version_atoi(benv_version_t * version, char *string)
 }
 
 static inline char *
-benv_version_itoa(benv_version_t * version)
+benv_version_itoa(benv_version_t *version)
 {
     static char string[1+BENV_VERSION_STRING_LEN];
 
@@ -506,7 +506,7 @@ benv_error_cmp(uint32_t a, unsigned b)
 }
 
 static inline bool
-benv_vcs_is_good(benv_vcs_t * vcs)
+benv_vcs_is_good(benv_vcs_t *vcs)
 {
     return is_benv_good(vcs->error)           /* no error */
         && BENV_FSM_OK == vcs->upgrade        /* upgrade ok */
@@ -686,7 +686,7 @@ benv_ops_match_wildcard(benv_ops_t * ops, char *path, int len)
 * path maybe with last '*' 
 */
 static inline bool
-benv_ops_match(benv_ops_t * ops, char *path, int len, bool wildcard)
+benv_ops_match(benv_ops_t *ops, char *path, int len, bool wildcard)
 {
     if (wildcard) {
         return benv_ops_match_wildcard(ops, path, len - 1);
@@ -754,13 +754,13 @@ benv_ops(int idx)
 }
 
 static inline int
-benv_ops_idx(benv_ops_t * ops)
+benv_ops_idx(benv_ops_t *ops)
 {
     return (benv_ops_t *) ops - __benv_ops;
 }
 
 static inline char *
-__benv_ops_obj(benv_ops_t * ops)
+__benv_ops_obj(benv_ops_t *ops)
 {
     return (char *)__benv_env + ops->offset;
 }
@@ -776,7 +776,7 @@ __benv_set_dirty(int idx)
 }
 
 static inline void
-benv_set_dirty(benv_ops_t * ops)
+benv_set_dirty(benv_ops_t *ops)
 {
     int offset = benv_ops_obj(char, ops) - (char *)__benv_env;
     int idx = offset / BENV_BLOCK_SIZE;
@@ -803,7 +803,7 @@ benv_set_dirty_all(void)
 }
 
 static inline int
-benv_ops_check(benv_ops_t * ops, char *value)
+benv_ops_check(benv_ops_t *ops, char *value)
 {
     if (NULL == ops->write) {
         debug_error("no support write %s", ops->path);
@@ -817,7 +817,7 @@ benv_ops_check(benv_ops_t * ops, char *value)
 }
 
 static inline void
-benv_ops_show(benv_ops_t * ops)
+benv_ops_show(benv_ops_t *ops)
 {
     if (ops->show) {
         (*ops->show)(ops);
@@ -825,7 +825,7 @@ benv_ops_show(benv_ops_t * ops)
 }
 
 static inline void
-benv_ops_write(benv_ops_t * ops, char *value)
+benv_ops_write(benv_ops_t *ops, char *value)
 {
     if (ops->write) {
         (*ops->write)(ops, value);
@@ -844,7 +844,7 @@ benv_cache(benv_ops_t * ops)
 #define benv_cache_showit(_ops)     benv_cache(_ops)->showit
 
 static inline void
-__benv_ops_dump(benv_ops_t * ops)
+__benv_ops_dump(benv_ops_t *ops)
 {
     debug_trace("ops idx=%d, path=%s, value=%s, showit=%s",
         benv_ops_idx(ops),
