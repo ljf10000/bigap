@@ -307,7 +307,7 @@ duke_curl_easy_setopt(duk_context *ctx)
         }   break;
         // ERROR OPTIONS
         case CURLOPT_STDERR: {
-            FILE *val = (FILE *)duk_require_pointer(ctx, 2);
+            STREAM val = (STREAM)duk_require_pointer(ctx, 2);
 
             err = curl_easy_setopt(p, opt, val);
         }   break;

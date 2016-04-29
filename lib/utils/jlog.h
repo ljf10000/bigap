@@ -158,7 +158,7 @@
 #define LOG_DEBUGLEVELPRI(_level)   LOG_LEVELPRI(_level, LOG_DEBUG)
 
 static inline void
-__jlog_header(char *app, char *sub, const char *file, const char *func, uint32_t line, uint32_t PRI)
+__jlog_header(char *app, char *sub, const char *file, const char *func, uint32 line, uint32 PRI)
 {
     int level = LOG_LEVEL(PRI);
     
@@ -265,8 +265,8 @@ __jvlogger(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI, 
+    uint32 line, 
+    uint32 PRI, 
     const char *fmt, 
     va_list args
 );
@@ -277,8 +277,8 @@ __dvlogger(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI, 
+    uint32 line, 
+    uint32 PRI, 
     const char *fmt, 
     va_list args
 );
@@ -289,8 +289,8 @@ __jlogger(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI, 
+    uint32 line, 
+    uint32 PRI, 
     const char *fmt, 
     ...
 );
@@ -301,8 +301,8 @@ __dlogger(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI, 
+    uint32 line, 
+    uint32 PRI, 
     const char *fmt, 
     ...
 );
@@ -560,8 +560,8 @@ __jlog_obj_header(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI
+    uint32 line, 
+    uint32 PRI
 )
 {
     int pri     = LOG_PRI(PRI);
@@ -703,7 +703,7 @@ error:
 }
 
 static inline int
-__jlog(jobj_t obj, char *app, char *sub, uint32_t PRI)
+__jlog(jobj_t obj, char *app, char *sub, uint32 PRI)
 {
     int fd, len, err;
     
@@ -781,8 +781,8 @@ __jvlogger(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI, 
+    uint32 line, 
+    uint32 PRI, 
     const char *fmt, 
     va_list args
 )
@@ -817,8 +817,8 @@ __dvlogger(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI, 
+    uint32 line, 
+    uint32 PRI, 
     const char *fmt, 
     va_list args
 )
@@ -853,8 +853,8 @@ __jclogger(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI, 
+    uint32 line, 
+    uint32 PRI, 
     char *json
 )
 {
@@ -884,8 +884,8 @@ __jlogger(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI, 
+    uint32 line, 
+    uint32 PRI, 
     const char *fmt, 
     ...
 )
@@ -906,8 +906,8 @@ __dlogger(
     char *sub, 
     const char *file, 
     const char *func, 
-    uint32_t line, 
-    uint32_t PRI, 
+    uint32 line, 
+    uint32 PRI, 
     const char *fmt, 
     ...
 )
@@ -942,7 +942,7 @@ __jlog_env_init(void)
             
         }   break;
         case AF_INET: {
-            uint32_t ip;
+            uint32 ip;
             char ipaddress[32] = {0};
             sockaddr_in_t *iserver = __jlog_iserver();
             

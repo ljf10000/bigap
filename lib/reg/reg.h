@@ -4,8 +4,8 @@
 #define REG_DEBUG    0
 
 typedef struct {
-    uint32_t addr;
-    uint32_t value;
+    uint32 addr;
+    uint32 value;
 #if REG_DEBUG
     char name[16];
 #endif
@@ -30,23 +30,23 @@ typedef struct {
 
 #if REG_DEBUG
 #define io_read(_addr) ({ \
-    uint32_t addr   = (_addr); \
-    uint32_t value  = *(volatile uint32_t *)addr; \
+    uint32 addr   = (_addr); \
+    uint32 value  = *(volatile uint32 *)addr; \
     printf("read addr:0x%x, value:0x%x\n", addr, value); \
     value; \
 })
 
 #define io_write(_addr, _val) do{   \
-    uint32_t addr   = (_addr);  \
-    uint32_t value  = (_val);   \
+    uint32 addr   = (_addr);  \
+    uint32 value  = (_val);   \
                                     \
-    *(volatile uint32_t *)addr = value; \
+    *(volatile uint32 *)addr = value; \
                                     \
     printf("write addr:0x%x, value:0x%x\n", addr, value); \
 }while(0)
 #else
-#define io_read( _addr)         (*(volatile uint32_t *)(_addr))
-#define io_write(_addr, _val)   (*(volatile uint32_t *)(_addr) = (_val))
+#define io_read( _addr)         (*(volatile uint32 *)(_addr))
+#define io_write(_addr, _val)   (*(volatile uint32 *)(_addr) = (_val))
 #endif
 
 static inline void

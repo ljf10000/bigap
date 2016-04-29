@@ -142,12 +142,12 @@ os_bmask_match(byte *a, byte *b, byte *mask, int len)
 #endif
 
 enum {
-    BITMAPSLOT  = (sizeof(uint32_t)*8),
+    BITMAPSLOT  = (sizeof(uint32)*8),
     BITMAPSIZE  = (BITMAPBITS/BITMAPSLOT),
 };
 
 typedef struct {
-    uint32_t map[BITMAPSIZE];
+    uint32 map[BITMAPSIZE];
 } os_bitmap_t;
 
 static inline void

@@ -87,26 +87,26 @@ enum co_fsm {
 };
 
 union co_mail {
-    void *P[CO_MAIL_POINTER_COUNT];
-     uint8_t    B[CO_MAIL_POINTER_COUNT*sizeof(void*)/sizeof( uint8_t)];
-    uint16_t    S[CO_MAIL_POINTER_COUNT*sizeof(void*)/sizeof(uint16_t)];
-    uint32_t    I[CO_MAIL_POINTER_COUNT*sizeof(void*)/sizeof(uint32_t)];
-    uint64_t    L[CO_MAIL_POINTER_COUNT*sizeof(void*)/sizeof(uint64_t)];
+    void    *P[CO_MAIL_POINTER_COUNT];
+    uint8   B[CO_MAIL_POINTER_COUNT*sizeof(void*)/sizeof( uint8)];
+    uint16  S[CO_MAIL_POINTER_COUNT*sizeof(void*)/sizeof(uint16)];
+    uint32  I[CO_MAIL_POINTER_COUNT*sizeof(void*)/sizeof(uint32)];
+    uint64  L[CO_MAIL_POINTER_COUNT*sizeof(void*)/sizeof(uint64)];
 };
 
-typedef uint32_t co_id_t;
-typedef uint64_t co_cred_t;
+typedef uint32 co_id_t;
+typedef uint64 co_cred_t;
 
 #if OS64
-typedef uint32_t co_mask_t;
+typedef uint32 co_mask_t;
 #else
-typedef uint64_t co_mask_t;
+typedef uint64 co_mask_t;
 #endif
 
 typedef int co_main_f(void *data);
 
 typedef struct {
-    uint32_t    protectedH; /* first */
+    uint32    protectedH; /* first */
     char name[1+CO_NAME_LEN];
     ucontext_t  ctx;
     co_id_t id;
@@ -118,7 +118,7 @@ typedef struct {
     } fsm;
     
     struct {
-        uint64_t fsm[CO_END];
+        uint64 fsm[CO_END];
     } st;
     
     struct {
@@ -131,7 +131,7 @@ typedef struct {
         enum co_pri now;
     } pri;
 
-    uint32_t *protectedT;
+    uint32 *protectedT;
     
     struct {
         int size;
@@ -150,7 +150,7 @@ typedef struct {
         tm_node_t timer;
     } suspend;
     
-    uint32_t    protectedM; /* last */
+    uint32    protectedM; /* last */
 }
 coroutine_t;
 
@@ -521,14 +521,14 @@ ____co_destroy(coroutine_t *co)
 }while(0)
 
 static void
-__co_main(uint32_t L32, uint32_t H32)
+__co_main(uint32 L32, uint32 H32)
 {
     int err = 0;
     coroutine_t *co;
 #if defined(LP64) || defined(LLP64)
-    uint64_t L = (uint64_t)L32;
-    uint64_t H = (uint64_t)H32;
-    uint64_t V = L | (H<<32);
+    uint64 L = (uint64)L32;
+    uint64 H = (uint64)H32;
+    uint64 V = L | (H<<32);
     co = (coroutine_t *)V;
 #else
     co = (coroutine_t *)L32;
@@ -592,12 +592,12 @@ __co_init(coroutine_t *co)
         }
 
 #if defined(LP64) || defined(LLP64)
-        uint64_t V = (uint64_t)co;
-        uint64_t L = (V<<32)>>32;
-        uint64_t H = V>>32;
-        makecontext(&co->ctx, (void (*)(void))__co_main, 2, (uint32_t)L, (uint32_t)H);
+        uint64 V = (uint64)co;
+        uint64 L = (V<<32)>>32;
+        uint64 H = V>>32;
+        makecontext(&co->ctx, (void (*)(void))__co_main, 2, (uint32)L, (uint32)H);
 #else
-        makecontext(&co->ctx, (void (*)(void))__co_main, 2, (uint32_t)co, 0);
+        makecontext(&co->ctx, (void (*)(void))__co_main, 2, (uint32)co, 0);
 #endif
     }
     
@@ -625,7 +625,7 @@ __co_create(
         stack_size = CO_STACK_DEFAULT;
     }
     
-    co = (coroutine_t *)os_zalloc(sizeof(*co) + stack_size + sizeof(uint32_t)/* protectedT */);
+    co = (coroutine_t *)os_zalloc(sizeof(*co) + stack_size + sizeof(uint32)/* protectedT */);
     if (NULL==co) {
         return NULL;
     }
@@ -648,7 +648,7 @@ __co_create(
     
     co->protectedH = OS_PROTECTED;
     co->protectedM = OS_PROTECTED;
-    co->protectedT = (uint32_t *)(co->stack.sp + stack_size);
+    co->protectedT = (uint32 *)(co->stack.sp + stack_size);
     *co->protectedT= OS_PROTECTED;
     
     err = __co_init(co);

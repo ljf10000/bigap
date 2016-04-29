@@ -62,14 +62,14 @@ struct command_item {
     *       执行 "xxx" 或 "xxx -h" 时不显示帮助信息，但实际可执行
     *       执行 "xxx --" 会显示帮助信息, "xxx --"自身不在help信息中
     */
-    uint32_t flag;
+    uint32 flag;
 
     /*
     * 命令有效性控制，与 command_ctrl is_use_mask/bit 配合使用
     *
     * 先使用32位，后续如不够用改为64位
     */
-    uint32_t mask;
+    uint32 mask;
 };
 
 struct command_ctrl {

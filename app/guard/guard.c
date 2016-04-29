@@ -125,10 +125,10 @@ get_mac(void)
     return __empty;
 }
     
-static uint32_t
+static uint32
 get_mid(void)
 {
-    static uint32_t mid;
+    static uint32 mid;
 
     if (0==mid) {
         os_pgeti(&mid, "bootm mid");
@@ -137,10 +137,10 @@ get_mid(void)
     return mid;
 }
 
-static uint32_t
+static uint32
 get_psn(void)
 {
-    static uint32_t psn;
+    static uint32 psn;
 
     if (0==psn) {
         os_pgeti(&psn, "bootm psn");
@@ -149,10 +149,10 @@ get_psn(void)
     return psn;
 }
 
-static uint32_t
+static uint32
 get_rt(void)
 {
-    static uint32_t rt;
+    static uint32 rt;
 
     if (0==rt) {
         os_pgeti(&rt, "bootm rt");
@@ -161,9 +161,9 @@ get_rt(void)
     return rt;
 }
 
-static uint32_t na;
+static uint32 na;
 
-static uint32_t
+static uint32
 get_na(void)
 {
     if (0==na) {
@@ -249,10 +249,10 @@ prepare(void)
         __prepare();
         
         char *mac = get_mac();
-        uint32_t mid = get_mid();
-        uint32_t psn = get_psn();
-        uint32_t rt  = get_rt();
-        uint32_t na  = get_na();
+        uint32 mid = get_mid();
+        uint32 psn = get_psn();
+        uint32 rt  = get_rt();
+        uint32 na  = get_na();
         
         ok = is_good_macstring(mac) && mid && psn;
         if (false==ok) {

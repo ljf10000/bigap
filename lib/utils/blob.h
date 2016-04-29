@@ -49,20 +49,20 @@ is_blob_type_container(int type)
     return BLOB_T_OBJECT==type || BLOB_T_ARRAY==type;
 }
 
-#define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32_t))
+#define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32))
 
 #ifndef USE_BLOB_COUNT
 #define USE_BLOB_COUNT      1
 #endif
 
 typedef struct {
-    uint8_t     type;       /* enum blob_type */
-    uint8_t     flag;
-    uint16_t    klen;       /* real key len, NOT include '\0' */
+    byte    type;       /* enum blob_type */
+    byte    flag;
+    uint16  klen;       /* real key len, NOT include '\0' */
 
-    uint32_t    vlen;       /* real value len, NOT include '\0' if value is string */
+    uint32  vlen;       /* real value len, NOT include '\0' if value is string */
 #if USE_BLOB_COUNT
-    uint32_t    count;      /* if current node is object/array, the count is node's sub node count */
+    uint32  count;      /* if current node is object/array, the count is node's sub node count */
 #endif
 
 /*
@@ -89,18 +89,18 @@ blob_data(const blob_t *blob)
 /*
 * key + ['\0'] + [pad]
 */
-static inline uint32_t
+static inline uint32
 blob_ksize(const blob_t *blob)
 {
-    uint32_t klen = blob_klen(blob);
+    uint32 klen = blob_klen(blob);
     
     return klen?BLOB_ALIGN(1 + klen):0;
 }
 
-static inline uint32_t
+static inline uint32
 blob_kpad_len(const blob_t *blob)
 {
-    uint32_t klen = blob_klen(blob);
+    uint32 klen = blob_klen(blob);
     
     return klen?(blob_ksize(blob) - klen - 1):0;
 }
@@ -114,7 +114,7 @@ blob_key(const blob_t *blob)
 static inline void *
 blob_kpad(const blob_t *blob)
 {
-    uint32_t klen = blob_klen(blob);
+    uint32 klen = blob_klen(blob);
     
     return klen?(blob_key(blob) + klen + 1):NULL;
 }
@@ -122,10 +122,10 @@ blob_kpad(const blob_t *blob)
 /*
 * value + ['\0'] + [pad]
 */
-static inline uint32_t
+static inline uint32
 blob_vsize(const blob_t *blob)
 {
-    uint32_t vlen = blob_vlen(blob);
+    uint32 vlen = blob_vlen(blob);
     
     if (vlen) {
         if (BLOB_T_STRING==blob_type(blob)) {
@@ -148,10 +148,10 @@ blob_value(const blob_t *blob)
     return blob_vlen(blob)?(blob_data(blob) + blob_ksize(blob)):NULL;
 }
 
-static inline uint32_t
+static inline uint32
 blob_vpad_len(const blob_t *blob)
 {
-    uint32_t vlen = blob_vlen(blob);
+    uint32 vlen = blob_vlen(blob);
     
     if (vlen) {
         if (BLOB_T_STRING==blob_type(blob)) {
@@ -167,7 +167,7 @@ blob_vpad_len(const blob_t *blob)
 static inline void *
 blob_vpad(const blob_t *blob)
 {
-    uint32_t vlen = blob_vlen(blob);
+    uint32 vlen = blob_vlen(blob);
     
     if (vlen) {
         if (BLOB_T_STRING==blob_type(blob)) {
@@ -180,19 +180,19 @@ blob_vpad(const blob_t *blob)
     }
 }
 
-static inline uint32_t
+static inline uint32
 blob_dsize(const blob_t *blob)
 {
     return blob_ksize(blob) + blob_vsize(blob);
 }
 
-static inline uint32_t
+static inline uint32
 blob_dlen(const blob_t *blob)
 {
     return blob_ksize(blob) + blob_vlen(blob);
 }
 
-static inline uint32_t
+static inline uint32
 blob_size(const blob_t *blob)
 {
     return blob_dsize(blob) + sizeof(blob_t);
@@ -243,7 +243,7 @@ blob_eq(const blob_t *a, const blob_t *b)
         return true;
     }
 
-    uint32_t size = blob_size(a);
+    uint32 size = blob_size(a);
 	if (size != blob_size(b)) {
 		return false;
     }
@@ -257,16 +257,16 @@ blob_get_bool(const blob_t *blob)
 	return !!*blob_vpointer(bool, blob);
 }
 
-static inline int32_t
+static inline int32
 blob_get_i32(const blob_t *blob)
 {
-    return *blob_vpointer(int32_t, blob);
+    return *blob_vpointer(int32, blob);
 }
 
-static inline uint32_t
+static inline uint32
 blob_get_u32(const blob_t *blob)
 {
-	return *blob_vpointer(uint32_t, blob);
+	return *blob_vpointer(uint32, blob);
 }
 
 static inline float32_t
@@ -275,16 +275,16 @@ blob_get_f32(const blob_t *blob)
 	return *blob_vpointer(float32_t, blob);
 }
 
-static inline int64_t
+static inline int64
 blob_get_i64(const blob_t *blob)
 {
-	return *blob_vpointer(int64_t, blob);
+	return *blob_vpointer(int64, blob);
 }
 
-static inline uint64_t
+static inline uint64
 blob_get_u64(const blob_t *blob)
 {
-	return *blob_vpointer(uint64_t, blob);
+	return *blob_vpointer(uint64, blob);
 }
 
 static inline float64_t
@@ -334,7 +334,7 @@ blob_get_binary(const blob_t *blob)
 static inline blob_t *
 blob_getbyname(const blob_t *root, char *name)
 {
-    uint32_t i, left;
+    uint32 i, left;
     blob_t *blob;
 
     if (NULL==name) {
@@ -351,9 +351,9 @@ blob_getbyname(const blob_t *root, char *name)
 }
 
 static inline blob_t *
-blob_getbyidx(const blob_t *root, uint32_t idx)
+blob_getbyidx(const blob_t *root, uint32 idx)
 {
-    uint32_t i, left;
+    uint32 i, left;
     blob_t *blob;
 
 #if USE_BLOB_COUNT
@@ -376,12 +376,12 @@ typedef struct {
 
     union {
         char *name;
-        uint32_t idx;
+        uint32 idx;
     } u;
 } blob_key_t;
 
 static inline blob_t *
-__blob_getby_r(blob_t *root, blob_key_t *keys, uint32_t count)
+__blob_getby_r(blob_t *root, blob_key_t *keys, uint32 count)
 {
     blob_key_t *key = &keys[0];
     blob_t *blob = NULL;
@@ -402,7 +402,7 @@ __blob_getby_r(blob_t *root, blob_key_t *keys, uint32_t count)
 }
 
 static inline blob_t *
-__blob_getby(blob_t *root, blob_key_t *keys, uint32_t count)
+__blob_getby(blob_t *root, blob_key_t *keys, uint32 count)
 {
     if (NULL==root || NULL==keys || 0==count) {
         return NULL;
@@ -420,7 +420,7 @@ enum {
 static inline blob_t *
 blob_vgetby(blob_t *blob, const char *fmt, va_list args)
 {
-    uint32_t idx;
+    uint32 idx;
     char *name;
 
     char *p = (char *)fmt;
@@ -433,7 +433,7 @@ blob_vgetby(blob_t *blob, const char *fmt, va_list args)
 
         switch(*p++) {
             case bfmt_array:
-                idx = va_arg(args, uint32_t);
+                idx = va_arg(args, uint32);
                 blob = blob_getbyidx(blob, idx);
 
                 break;
@@ -507,7 +507,7 @@ __blob_dump(const blob_t *blob, int level)
     switch(blob_type(blob)) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY: {
-            uint32_t i, left;
+            uint32 i, left;
             blob_t *p;
             os_printf(__crlf);
             
@@ -520,19 +520,19 @@ __blob_dump(const blob_t *blob, int level)
             os_println(":%d",   *(int *)blob_value(blob));
             break;
         case BLOB_T_INT32:
-            os_println(":%d",   *(int32_t *)blob_value(blob));
+            os_println(":%d",   *(int32 *)blob_value(blob));
             break;
         case BLOB_T_UINT32:
-            os_println(":%u",   *(uint32_t *)blob_value(blob));
+            os_println(":%u",   *(uint32 *)blob_value(blob));
             break;
         case BLOB_T_FLOAT32:
             os_println(":%f",   *(float32_t *)blob_value(blob));
             break;
         case BLOB_T_INT64:
-            os_println(":%lld", *(int64_t *)blob_value(blob));
+            os_println(":%lld", *(int64 *)blob_value(blob));
             break;
         case BLOB_T_UINT64:
-            os_println(":%llu", *(uint64_t *)blob_value(blob));
+            os_println(":%llu", *(uint64 *)blob_value(blob));
             break;
         case BLOB_T_FLOAT64:
             os_println(":%lf",  *(float64_t *)blob_value(blob));
@@ -579,10 +579,10 @@ __blob_dump_slice(slice_t *slice, char *tag)
 
 typedef struct blob_rule {
     const char *name;
-    uint32_t type;
-    uint32_t flag;
-    uint32_t minsize; /* min value size */
-    uint32_t maxsize; /* max value size */
+    uint32 type;
+    uint32 flag;
+    uint32 minsize; /* min value size */
+    uint32 maxsize; /* max value size */
     bool (*validate)(const struct blob_rule *, blob_t *);
 } blob_rule_t;
 
@@ -601,7 +601,7 @@ blob_rule_find_byname(const char *name, const blob_rule_t rule[], int count)
 }
 
 static inline int
-blob_rule_find_bytypename(uint32_t type, const char *name, const blob_rule_t rule[], int count)
+blob_rule_find_bytypename(uint32 type, const char *name, const blob_rule_t rule[], int count)
 {
     int i;
 
@@ -615,7 +615,7 @@ blob_rule_find_bytypename(uint32_t type, const char *name, const blob_rule_t rul
 }
 
 static inline bool
-blob_check(uint32_t type, const void *value, uint32_t len)
+blob_check(uint32 type, const void *value, uint32 len)
 {
     static blob_rule_t rule[BLOB_T_END] = {
         [BLOB_T_OBJECT] = {
@@ -636,15 +636,15 @@ blob_check(uint32_t type, const void *value, uint32_t len)
         },
         [BLOB_T_BOOL] = {
             .flag   = BLOB_F_FIXED,
-            .minsize= sizeof(uint32_t),
+            .minsize= sizeof(uint32),
         },
         [BLOB_T_INT32] = {
             .flag   = BLOB_F_FIXED,
-            .minsize= sizeof(int32_t),
+            .minsize= sizeof(int32),
         },
         [BLOB_T_UINT32] = {
             .flag   = BLOB_F_FIXED,
-            .minsize= sizeof(uint32_t),
+            .minsize= sizeof(uint32),
         },
         [BLOB_T_FLOAT32] = {
             .flag   = BLOB_F_FIXED,
@@ -652,11 +652,11 @@ blob_check(uint32_t type, const void *value, uint32_t len)
         },
         [BLOB_T_INT64] = {
             .flag   = BLOB_F_FIXED,
-            .minsize= sizeof(int64_t),
+            .minsize= sizeof(int64),
         },
         [BLOB_T_UINT64] = {
             .flag   = BLOB_F_FIXED,
-            .minsize= sizeof(uint64_t),
+            .minsize= sizeof(uint64),
         },
         [BLOB_T_FLOAT64] = {
             .flag   = BLOB_F_FIXED,
@@ -668,8 +668,8 @@ blob_check(uint32_t type, const void *value, uint32_t len)
         return false;
     }
     
-    uint32_t flag   = rule[type].flag;
-    uint32_t min    = rule[type].minsize;
+    uint32 flag   = rule[type].flag;
+    uint32 min    = rule[type].minsize;
     char *data      = (char *)value;
     
     if (os_hasflag(flag, BLOB_F_FIXED)) {
@@ -700,7 +700,7 @@ blob_check(uint32_t type, const void *value, uint32_t len)
 }
 
 static inline int
-blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32_t count)
+blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32 count)
 {
 
     if (NULL==blob) {
@@ -716,7 +716,7 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32_t cou
 
     char *name;
     blob_t *p;
-    uint32_t i, left, type;
+    uint32 i, left, type;
     int found = 0;
 
     blob_foreach(blob, p, i, left) {
@@ -735,7 +735,7 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32_t cou
             continue;
         }
 
-        uint32_t vlen = blob_vlen(p);
+        uint32 vlen = blob_vlen(p);
         if (false==blob_check(type, blob_value(p), vlen)) {
             continue;
         }
@@ -770,9 +770,9 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32_t cou
 static inline void
 __blob_init(
     blob_t *blob, 
-    uint32_t type, 
+    uint32 type, 
     const char *name, 
-    uint32_t payload
+    uint32 payload
 )
 {
     blob_type(blob) = type;
@@ -800,7 +800,7 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
     
     __blob_init(&tmp, type, name, payload);
     
-    uint32_t size = blob_size(&tmp);
+    uint32 size = blob_size(&tmp);
 
     if (__is_ak_debug_trace && __is_ak_debug_blob) {
         os_printf("blob_new" __crlf
@@ -875,7 +875,7 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
         __blob_dump_slice(slice, "blob nest begin");
 	}
 
-    uint32_t offset = (byte *)new - (byte *)slice_data(slice);
+    uint32 offset = (byte *)new - (byte *)slice_data(slice);
     
     return (void *)(uintptr_t)slice_offset_save(slice, offset);
 }
@@ -883,14 +883,14 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
 static inline void
 __blob_nest_end(slice_t *slice, void *cookie)
 {
-    uint32_t size;
+    uint32 size;
     blob_t *root;
     
     /*
     * when nest start, root have save klen
     */
     size = blob_vsize(blob_root(slice));
-	slice_offset(slice) = (uint32_t)(uintptr_t)cookie;
+	slice_offset(slice) = (uint32)(uintptr_t)cookie;
 	root = blob_root(slice);
 	blob_vlen(root) += size;
 
@@ -923,10 +923,10 @@ blob_array_start(slice_t *slice, const char *name)
 static inline blob_t *
 blob_put(
     slice_t *slice, 
-    uint32_t type, 
+    uint32 type, 
     const char *name, 
     const void *value, 
-    uint32_t len
+    uint32 len
 )
 {
 	blob_t *blob = __blob_new(slice, type, name, len);
@@ -964,13 +964,13 @@ blob_put_bool(slice_t *slice, const char *name, bool val)
 }
 
 static inline blob_t *
-blob_put_i32(slice_t *slice, const char *name, int32_t val)
+blob_put_i32(slice_t *slice, const char *name, int32 val)
 {
 	return blob_put(slice, BLOB_T_INT32, name, &val, sizeof(val));
 }
 
 static inline blob_t *
-blob_put_u32(slice_t *slice, const char *name, uint32_t val)
+blob_put_u32(slice_t *slice, const char *name, uint32 val)
 {
 	return blob_put(slice, BLOB_T_UINT32, name, &val, sizeof(val));
 }
@@ -982,13 +982,13 @@ blob_put_f32(slice_t *slice, const char *name, float32_t val)
 }
 
 static inline blob_t *
-blob_put_i64(slice_t *slice, const char *name, int64_t val)
+blob_put_i64(slice_t *slice, const char *name, int64 val)
 {
 	return blob_put(slice, BLOB_T_INT64, name, &val, sizeof(val));
 }
 
 static inline blob_t *
-blob_put_u64(slice_t *slice, const char *name, uint64_t val)
+blob_put_u64(slice_t *slice, const char *name, uint64 val)
 {
 	return blob_put(slice, BLOB_T_UINT64, name, &val, sizeof(val));
 }
@@ -1015,7 +1015,7 @@ blob_put_string(slice_t *slice, const char *name, const char *str)
 * convert buffer to hex-string
 */
 static inline blob_t *
-blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32_t len)
+blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32 len)
 {
 	return blob_put(slice, BLOB_T_BINARY, name, binary, len);
 }
@@ -1065,7 +1065,7 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     switch(blob_type(blob)) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY: {
-            uint32_t i, left;
+            uint32 i, left;
             blob_t *p;
             
             blob_foreach(blob, p, i, left) {
@@ -1075,13 +1075,13 @@ __blob_byteorder(blob_t *blob, bool ntoh)
         case BLOB_T_INT64:
         case BLOB_T_UINT64:
         case BLOB_T_FLOAT64:
-            *blob_vpointer(uint64_t, blob) = bswap_64(blob_get_u64(blob));
+            *blob_vpointer(uint64, blob) = bswap_64(blob_get_u64(blob));
             break;
         case BLOB_T_BOOL:
         case BLOB_T_INT32:
         case BLOB_T_UINT32:
         case BLOB_T_FLOAT32:
-            *blob_vpointer(uint32_t, blob) = bswap_32(blob_get_u32(blob));
+            *blob_vpointer(uint32, blob) = bswap_32(blob_get_u32(blob));
             break;
         case BLOB_T_STRING:
         case BLOB_T_BINARY:
@@ -1125,7 +1125,7 @@ static inline jobj_t
 __blob_btoj(blob_t *blob, jobj_t root, int level)
 {
     char *name      = blob_key(blob);
-    uint32_t type   = blob_type(blob);
+    uint32 type   = blob_type(blob);
     int err = 0;
 
     if (NULL==root) {
@@ -1135,7 +1135,7 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
     switch(type) {
         case BLOB_T_OBJECT:
         case BLOB_T_ARRAY: {
-            uint32_t i, left;
+            uint32 i, left;
             blob_t *p = NULL;
             
             blob_foreach(blob, p, i, left) {

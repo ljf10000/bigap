@@ -457,10 +457,10 @@ enum {
 };
 
 typedef struct {
-    uint32_t self;
-    uint32_t other;
-    uint32_t upgrade;
-    uint32_t error;
+    uint32 self;
+    uint32 other;
+    uint32 upgrade;
+    uint32 error;
     
     benv_version_t version;
 
@@ -500,7 +500,7 @@ __benv_vcs_deft(benv_vcs_t *vcs)
 #define is_benv_error(_error)       (false==is_benv_good(_error))
 
 static inline int
-benv_error_cmp(uint32_t a, unsigned b)
+benv_error_cmp(uint32 a, unsigned b)
 {
     return __os_objcmp(a, b, is_benv_good, os_cmp_always_eq);
 }
@@ -536,12 +536,12 @@ __benv_firmware_deft(benv_firmware_t *firmware)
 }   /* end */
 
 enum {
-    BENV_OS_SIZE = (2*sizeof(uint32_t) + OS_COUNT*sizeof(benv_firmware_t)),
+    BENV_OS_SIZE = (2*sizeof(uint32) + OS_COUNT*sizeof(benv_firmware_t)),
 };
 
 typedef struct {
-    uint32_t current;
-    uint32_t reserved;
+    uint32 current;
+    uint32 reserved;
 
     benv_firmware_t firmware[OS_COUNT];
     char pad[BENV_BLOCK_SIZE - BENV_OS_SIZE];
@@ -594,11 +594,11 @@ rootfs* 1       0       fail    unknow  unknow
 }
 
 enum {
-    BENV_MARK_COUNT = (BENV_BLOCK_SIZE/sizeof(uint32_t)),   /* 128 */
+    BENV_MARK_COUNT = (BENV_BLOCK_SIZE/sizeof(uint32)),   /* 128 */
 };
 
 typedef struct {
-    uint32_t key[BENV_MARK_COUNT];
+    uint32 key[BENV_MARK_COUNT];
 } benv_mark_t; /* 512 */
 
 #define BENV_DEFT_MARK { .key = {0} }
@@ -631,7 +631,7 @@ typedef struct {
 } benv_env_t;
 
 static inline int
-__benv_ops_is(uint32_t offset)
+__benv_ops_is(uint32 offset)
 {
     if (offset >= sizeof(benv_env_t)) {
         return -ENOEXIST;
@@ -660,8 +660,8 @@ __benv_ops_is(uint32_t offset)
 typedef struct struct_benv_ops benv_ops_t;
 struct struct_benv_ops {
     char *path;
-    uint32_t offset;
-    uint32_t flag;
+    uint32 offset;
+    uint32 flag;
 
     int  (*check)(benv_ops_t* ops, char *value);
     void (*write)(benv_ops_t* ops, char *value);
@@ -1024,7 +1024,7 @@ enum {
 };
 
 static inline void
-__benv_mark_private_save(uint32_t backup[])
+__benv_mark_private_save(uint32 backup[])
 {
     int i;
     
@@ -1034,7 +1034,7 @@ __benv_mark_private_save(uint32_t backup[])
 }
 
 static inline void
-__benv_mark_private_restore(uint32_t backup[])
+__benv_mark_private_restore(uint32 backup[])
 {
     int i;
     
@@ -1047,7 +1047,7 @@ __benv_mark_private_restore(uint32_t backup[])
 static inline void
 __benv_clean_mark(void)
 {
-    uint32_t backup[__benv_mark_end] = {0};
+    uint32 backup[__benv_mark_end] = {0};
     
     __benv_mark_private_save(backup);
     os_objzero(__benv_mark);
@@ -1071,7 +1071,7 @@ __benv_clean_info(void)
 static inline void
 __benv_clean(void)
 {
-    uint32_t backup[__benv_mark_end] = {0};
+    uint32 backup[__benv_mark_end] = {0};
     
     __benv_mark_private_save(backup);
     os_objzero(__benv_env);
@@ -1491,7 +1491,7 @@ __benv_show_number(benv_ops_t * ops)
 {
     __benv_show_header(ops);
 
-    os_println("%u", *benv_ops_obj(uint32_t, ops));
+    os_println("%u", *benv_ops_obj(uint32, ops));
 }
 
 static inline void
@@ -1509,8 +1509,8 @@ __benv_show_string(benv_ops_t * ops)
 static inline void
 __benv_set_number(benv_ops_t * ops, char *value)
 {
-    *benv_ops_obj(uint32_t, ops) =
-        (uint32_t)(value[0] ? os_atoi(value) : 0);
+    *benv_ops_obj(uint32, ops) =
+        (uint32)(value[0] ? os_atoi(value) : 0);
 }
 
 static inline void
@@ -1585,7 +1585,7 @@ __benv_check_fsm(benv_ops_t * ops, char *value)
 static inline void
 __benv_show_fsm(benv_ops_t * ops)
 {
-    int fsm = *benv_ops_obj(uint32_t, ops);
+    int fsm = *benv_ops_obj(uint32, ops);
 
     __benv_show_header(ops);
 
@@ -1595,7 +1595,7 @@ __benv_show_fsm(benv_ops_t * ops)
 static inline void
 __benv_set_fsm(benv_ops_t * ops, char *value)
 {
-    uint32_t fsm;
+    uint32 fsm;
 
     if (value[0]) {
         fsm = benv_fsm_idx(value);
@@ -1603,7 +1603,7 @@ __benv_set_fsm(benv_ops_t * ops, char *value)
         fsm = BENV_FSM_UNKNOW;
     }
 
-    *benv_ops_obj(uint32_t, ops) = fsm;
+    *benv_ops_obj(uint32, ops) = fsm;
 }
 
 static inline int
@@ -1756,25 +1756,25 @@ __benv_check_string(benv_ops_t * ops, char *value)
 #define __BENV_MARK_OPS_IDX_RO(_idx) \
     __BENV_MARK_OPS(#_idx, _idx, NULL, NULL, __benv_show_number)
 
-static inline uint32_t *
+static inline uint32 *
 benv_mark_pointer(int idx)
 {
     return &benv_mark(idx);
 }
 
-static inline uint32_t
+static inline uint32
 benv_mark_get(int idx)
 {
     return benv_mark(idx);
 }
 
-static inline uint32_t
-benv_mark_set(int idx, uint32_t value)
+static inline uint32
+benv_mark_set(int idx, uint32 value)
 {
     return (benv_mark(idx) = value);
 }
 
-static inline uint32_t
+static inline uint32
 benv_mark_add(int idx, int value)
 {
     return (benv_mark(idx) += value);
@@ -2290,10 +2290,10 @@ benv_command(int argc, char *argv[])
 
 #ifdef __BOOT__
 extern int 
-benv_emmc_read(uint32_t begin, void *buf, int size);
+benv_emmc_read(uint32 begin, void *buf, int size);
 
 extern int 
-benv_emmc_write(uint32_t begin, void *buf, int size);
+benv_emmc_write(uint32 begin, void *buf, int size);
 
 #define benv_open()           0
 #define benv_close()          0

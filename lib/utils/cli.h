@@ -97,7 +97,7 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 /******************************************************************************/
 #ifdef __APP__
 typedef struct {
-    uint32_t len, r0, r1;
+    uint32 len, r0, r1;
     int err;
 } cli_header_t;
 

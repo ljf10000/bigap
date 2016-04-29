@@ -58,7 +58,7 @@ U_BOOT_CMD(
 static int 
 do_endian (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-    uint32_t v = 0xaabbccdd;  
+    uint32 v = 0xaabbccdd;  
     byte c = *(byte *)(&v);  
 
     switch(c) {

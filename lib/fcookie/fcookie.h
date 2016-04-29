@@ -101,7 +101,7 @@ __fcookie_file_create(fcookie_file_t *cert, char *tmp_file)
         return NULL;
     }
 
-    FILE *f = fopen(tmp_file, "r+");
+    STREAM f = fopen(tmp_file, "r+");
     if (NULL==f) {
         goto error;
     }

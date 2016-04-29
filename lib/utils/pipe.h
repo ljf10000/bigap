@@ -3,7 +3,7 @@
 #ifdef __APP__
 /******************************************************************************/
 typedef struct {
-    uint32_t grow, size, len;
+    uint32 grow, size, len;
     char *buf;
     
     int fd[2];      /* father/son */
@@ -278,7 +278,7 @@ __pipe_son_handle(pipe_info_t *info)
 typedef int os_pipe_system_callback_t(pipe_info_t *info);
 
 static inline int
-__os_pipe_system(uint32_t timeout, os_pipe_system_callback_t *cb, char *cmd)
+__os_pipe_system(uint32 timeout, os_pipe_system_callback_t *cb, char *cmd)
 {
     pipe_info_t info;
     int err = 0, pid = 0;
@@ -306,7 +306,7 @@ error:
 }
 
 static inline int
-__os_pipe_vsystem(uint32_t timeout, os_pipe_system_callback_t *cb, char *fmt, ...)
+__os_pipe_vsystem(uint32 timeout, os_pipe_system_callback_t *cb, char *fmt, ...)
 {
     va_list args;
     char *cmd = NULL;

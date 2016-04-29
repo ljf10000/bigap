@@ -33,7 +33,7 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
             CONFIG_BOOTCOMMAND_END      \
             /* end */
 #if 0
-static uint32_t kernel_offset[OS_COUNT] = {
+static uint32 kernel_offset[OS_COUNT] = {
     [0] = 0x06000,
     [1] = 0x0E000,
     [2] = 0x16000,
@@ -54,7 +54,7 @@ static uint32_t kernel_offset[OS_COUNT] = {
 *
 * rootfs  size (block count) = 256M/512 = 512K = 0x80000
 */
-static uint32_t rootfs_offset[OS_COUNT] = {
+static uint32 rootfs_offset[OS_COUNT] = {
     [0] = 0x03E000,
     [1] = 0x0BE000,
     [2] = 0x13E000,
@@ -70,13 +70,13 @@ static uint32_t rootfs_offset[OS_COUNT] = {
 * bootargs/bootcmd is dirty???
 */
 bool bootenv_dirty;
-uint32_t emmc_cid[4];
+uint32 emmc_cid[4];
 
 static struct bcookie_otp botp = BCOOKIE_OBJ(BCOOKIE_OTP);
 static struct bcookie_cid bcid = BCOOKIE_OBJ(BCOOKIE_CID);
 
 static int 
-__read_emmc(uint32_t begin, void *buf, int count)
+__read_emmc(uint32 begin, void *buf, int count)
 {
     struct mmc *mmc = find_mmc_device(0);
     int ret;
@@ -96,7 +96,7 @@ __read_emmc(uint32_t begin, void *buf, int count)
 }
 
 static int 
-__write_emmc(uint32_t begin, void *buf, int count)
+__write_emmc(uint32 begin, void *buf, int count)
 {
     struct mmc *mmc = find_mmc_device(0);
     int ret;
@@ -118,7 +118,7 @@ __write_emmc(uint32_t begin, void *buf, int count)
 }
 
 int 
-benv_emmc_read(uint32_t begin, void *buf, int size)
+benv_emmc_read(uint32 begin, void *buf, int size)
 {
     int ret;
 
@@ -131,7 +131,7 @@ benv_emmc_read(uint32_t begin, void *buf, int size)
 }
 
 int 
-benv_emmc_write(uint32_t begin, void *buf, int size)
+benv_emmc_write(uint32 begin, void *buf, int size)
 {
     int ret;
 
@@ -278,9 +278,9 @@ benv_boot_check(void)
 static void
 percentage(int count)
 {
-    static uint32_t last            = 0;
-    static uint32_t last_percent    = 0;
-    uint32_t persend;
+    static uint32 last            = 0;
+    static uint32 last_percent    = 0;
+    uint32 persend;
     
     last++;
     persend = last*100/count;
@@ -293,9 +293,9 @@ percentage(int count)
 
 static int
 copy_emmc(
-    uint32_t dst,
-    uint32_t src,
-    uint32_t count
+    uint32 dst,
+    uint32 src,
+    uint32 count
 )
 {
     int i, err;
@@ -408,7 +408,7 @@ benv_boot_save(void)
 void
 md_boot_init(void)
 {
-    uint32_t zero[4] = {0};
+    uint32 zero[4] = {0};
     
     bcookie_add_ref(&botp.header);
     bcookie_add_ref(&bcid.header);

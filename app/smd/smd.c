@@ -27,9 +27,9 @@ static struct {
         sockaddr_un_t addr;
     } server;
 
-    FILE *f;    /* todo: cache entry */
+    STREAM f;    /* todo: cache entry */
     int timeout;
-    uint32_t time;
+    uint32 time;
     
     struct list_head list;
 }
@@ -60,7 +60,7 @@ struct sm {
     int flags;
     int offset; /* todo: in cache file's offset */
     
-    uint32_t time[SM_STATE_END];
+    uint32 time[SM_STATE_END];
     
     struct list_head node;
 };

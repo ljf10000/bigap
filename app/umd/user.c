@@ -202,7 +202,7 @@ hashmac(byte mac[])
 }
 
 static inline hash_idx_t
-haship(uint32_t ip)
+haship(uint32 ip)
 {
     return hash_bybuf((byte *)&ip, sizeof(ip), UMD_HASHMASK);
 }
@@ -506,7 +506,7 @@ __set_reason(struct um_user *user, int reason)
 }
 
 static void
-__set_ip(struct um_user *user, uint32_t ip)
+__set_ip(struct um_user *user, uint32 ip)
 {
     if (NULL==user) {
         debug_bug("user nil");
@@ -712,7 +712,7 @@ __user_enter(struct um_user *user, jobj_t obj, event_cb_t *cb)
 #endif
 
 static struct um_user *
-__user_bind(struct um_user *user, uint32_t ip, event_cb_t *cb)
+__user_bind(struct um_user *user, uint32 ip, event_cb_t *cb)
 {
     if (NULL==user) {
         return NULL;
@@ -911,7 +911,7 @@ user_leave(struct um_user *user)
 #endif
 
 static struct um_user *
-user_bind(struct um_user *user, uint32_t ip)
+user_bind(struct um_user *user, uint32 ip)
 {
     return __user_bind(user, ip, bind_cb);
 }
@@ -999,7 +999,7 @@ int um_user_leave(byte mac[])
 #endif
 
 struct um_user *
-um_user_bind(byte mac[], uint32_t ip)
+um_user_bind(byte mac[], uint32 ip)
 {
     return user_bind(um_user_create(mac), ip);
 }
@@ -1037,7 +1037,7 @@ um_user_get(byte mac[])
 }
 
 struct um_user *
-um_user_getbyip(uint32_t ip)
+um_user_getbyip(uint32 ip)
 {
     hash_idx_t dhash(void)
     {
@@ -1059,7 +1059,7 @@ um_user_getbyip(uint32_t ip)
     return NULL;
 }
 
-int um_user_delbyip(uint32_t ip)
+int um_user_delbyip(uint32 ip)
 {
     return user_delete(um_user_getbyip(ip));
 }
@@ -1227,7 +1227,7 @@ match_mac(byte umac[], byte fmac[], byte mask[])
 }
 
 static inline bool
-match_ip(uint32_t uip, uint32_t fip, uint32_t mask)
+match_ip(uint32 uip, uint32 fip, uint32 mask)
 {
     if (fip) {
         if (0==mask) {

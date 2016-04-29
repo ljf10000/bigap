@@ -18,7 +18,7 @@ struct nbus_method {
 };
 
 struct nbus_service {
-	uint32_t id;
+	uint32 id;
 	const char *name;
 
 	const struct nbus_method *methods;

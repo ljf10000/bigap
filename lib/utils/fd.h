@@ -71,8 +71,8 @@ typedef struct loop_node {
 typedef struct {
     loop_node_t loop;
     loop_node_t *node;
-    uint32_t events;
-    uint32_t flag;
+    uint32 events;
+    uint32 flag;
     co_id_t coid;
     co_cred_t cred;
     int read_timeout;
@@ -257,7 +257,7 @@ __fd_loop_once(void)
         struct epoll_event *evs = __fd_evs(i);
         fd_map_t *map;
         loop_node_t *node;
-        uint32_t events;
+        uint32 events;
         int err, fd;
         
         if (NULL==evs) {

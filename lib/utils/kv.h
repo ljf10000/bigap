@@ -22,23 +22,23 @@ typedef struct {
 } kv_t;
 
 typedef struct {
-	uint32_t hash;
-	uint32_t ref:31;
-    uint32_t sort:1; /* false:not sort, true:up sort */
-    uint32_t count;
+	uint32 hash;
+	uint32 ref:31;
+    uint32 sort:1; /* false:not sort, true:up sort */
+    uint32 count;
     struct mlist_node node;
     struct list_head  list;
 } kvs_t;
 
 typedef struct mlist_table kvc_t;
 
-static inline uint32_t
+static inline uint32
 __kv_hash(kv_t *kv)
 {
 	return __bkdr_push(kv->k->hash, kv->v->hash);
 }
 
-static inline uint32_t
+static inline uint32
 __kvs_hash_push(kvs_t *kvs, kv_t *kv)
 {
     kvs->hash = __bkdr_push(kvs->hash, __kv_hash(kv));
@@ -46,7 +46,7 @@ __kvs_hash_push(kvs_t *kvs, kv_t *kv)
     return kvs->hash;
 }
 
-static inline uint32_t
+static inline uint32
 __kvs_hash_pop(kvs_t *kvs, kv_t *kv)
 {
     kvs->hash = __bkdr_pop(kvs->hash, __kv_hash(kv));
@@ -652,14 +652,14 @@ kvs_new(void)
 #define KV_CONTAINER_HASHSIZE   (1024*1024)
 #endif
 
-static inline uint32_t
+static inline uint32
 kvs_hash(kvs_t *kvs)
 {
 	return kvs->hash & (KV_CONTAINER_HASHSIZE-1);
 }
 
 static inline int
-kvc_init(struct mlist_table *table, uint32_t size)
+kvc_init(struct mlist_table *table, uint32 size)
 {
     return mlist_table_init(table, size);
 }

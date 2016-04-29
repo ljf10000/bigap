@@ -18,13 +18,13 @@ is_local_mac(byte mac[])
 }
 
 static inline bool
-is_local_ip(uint32_t ip)
+is_local_ip(uint32 ip)
 {
     return ip==umd.intf[UM_INTF_TC].ip;
 }
 
 static inline bool
-is_user_ip(uint32_t ip)
+is_user_ip(uint32 ip)
 {
     struct um_intf *intf = &umd.intf[UM_INTF_TC];
     
@@ -170,8 +170,8 @@ ip_check(cli_server_t *server)
         return -EFORMAT;
     }
 
-    uint32_t sip = iph->ip_src.s_addr;
-    uint32_t dip = iph->ip_dst.s_addr;
+    uint32 sip = iph->ip_src.s_addr;
+    uint32 dip = iph->ip_dst.s_addr;
     
     if (4!=iph->ip_v) {
         return -EFORMAT;
@@ -274,8 +274,8 @@ ip_check(cli_server_t *server)
 static inline bool
 __is_flow_reauth(struct um_user *user, int type, int dir)
 {
-    uint64_t reauth = __flow_reauth(user, type, dir);
-    uint64_t now    = __flow_now(user, type, dir);
+    uint64 reauth = __flow_reauth(user, type, dir);
+    uint64 now    = __flow_now(user, type, dir);
     
     bool is = reauth && reauth < now;
     if (is) {
@@ -308,8 +308,8 @@ flow_reauth(struct um_user *user, int type, int dir)
 static inline bool
 __is_overflow(struct um_user *user, int type, int dir)
 {
-    uint64_t max    = __flow_max(user, type, dir);
-    uint64_t now    = __flow_now(user, type, dir);
+    uint64 max    = __flow_max(user, type, dir);
+    uint64 now    = __flow_now(user, type, dir);
     
     bool is = max && max < now;
     if (is) {

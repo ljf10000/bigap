@@ -13,15 +13,15 @@ enum {
 
 struct mnlmsghdr {
     char        magic[3];
-    uint8_t     protocol;
+    byte     protocol;
 
     union {
         struct {
-            uint8_t     version;
-            uint8_t     reserved8;
-            uint16_t    group; /* dst_group */
-            uint32_t    spid;
-            uint32_t    reserved32;
+            uint8     version;
+            uint8     reserved8;
+            uint16    group; /* dst_group */
+            uint32    spid;
+            uint32    reserved32;
         } m;
     } u;
 };

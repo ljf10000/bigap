@@ -209,10 +209,10 @@ DECLARE_ENUM(flow_dir, __XLIST_UM_FLOW_DIR, um_flow_dir_end);
 #endif /* just for sourceinsight */
 
 struct um_limit_online {
-    uint32_t max;   /* config */
-    uint32_t idle;  /* config */
-    uint32_t numerator;
-    uint32_t denominator;
+    uint32 max;   /* config */
+    uint32 idle;  /* config */
+    uint32 numerator;
+    uint32 denominator;
 
     int aging; /* run data */
     time_t uptime;  /* run data */
@@ -220,16 +220,16 @@ struct um_limit_online {
 };
 
 struct um_limit_flow {
-    uint64_t max;   /* config */
-    uint64_t now;   /* run data */
+    uint64 max;   /* config */
+    uint64 now;   /* run data */
     
-    uint64_t numerator;
-    uint64_t denominator;
+    uint64 numerator;
+    uint64 denominator;
 };
 
 struct um_limit_rate {
-    uint32_t max;   /* config */
-    uint32_t avg;   /* config */
+    uint32 max;   /* config */
+    uint32 avg;   /* config */
 };
 
 struct um_limit {
@@ -266,7 +266,7 @@ struct um_user {
     byte mac[OS_MACSIZE];
     byte flags;
     byte __r0;
-    uint32_t ip; /* network */
+    uint32 ip; /* network */
     
     int state;
     int reason;
@@ -377,10 +377,10 @@ enum {
 struct um_intf {
     char name[1+OS_IFNAME_LEN];
     
-    uint32_t index;
-    uint32_t ip;
-    uint32_t mask;
-    uint32_t flag;
+    uint32 index;
+    uint32 ip;
+    uint32 mask;
+    uint32 flag;
     byte mac[OS_MACSIZE], __r0[2];
 };
 
@@ -397,12 +397,12 @@ enum {
 
 struct um_control {
     byte resv[2], basemac[OS_MACSIZE]; /* local ap's base mac */
-    uint32_t ticks;
+    uint32 ticks;
     bool deinit;
 
     cli_server_t *server[UM_SERVER_END];
     struct um_intf intf[UM_INTF_END];
-    uint32_t gc;
+    uint32 gc;
     
     h2_table_t table;
     int hash_size[UM_USER_NIDX_END];
@@ -416,22 +416,22 @@ struct um_user_filter {
     byte mac[OS_MACSIZE];
     byte macmask[OS_MACSIZE]; /* zero, not use mac as filter */
     
-    uint32_t ip; /* network */
-    uint32_t ipmask;/* network. zero, not use ip as filter */
+    uint32 ip; /* network */
+    uint32 ipmask;/* network. zero, not use ip as filter */
 };
 
 struct vlan_header {
 #if __BYTE_ORDER == __BIG_ENDIAN
-    uint16_t pri:3;
-    uint16_t cfi:1;
-    uint16_t vid:12;
+    uint16 pri:3;
+    uint16 cfi:1;
+    uint16 vid:12;
 #elif __BYTE_ORDER == __LITTLE_ENDIAN
-    uint16_t vid:12;
-    uint16_t cfi:1;
-    uint16_t pri:3;
+    uint16 vid:12;
+    uint16 cfi:1;
+    uint16 pri:3;
 #endif
 
-    uint16_t type;
+    uint16 type;
 };
 
 struct um_flow {
@@ -442,25 +442,25 @@ struct um_flow {
     struct vlan_header  *vlan;
     struct ip           *iph;
 
-    uint16_t ether_type_ip;   /* network sort */
-    uint16_t ether_type_vlan; /* network sort */
-    uint16_t ether_type_all;  /* network sort */
-    uint16_t __r0;
+    uint16 ether_type_ip;   /* network sort */
+    uint16 ether_type_vlan; /* network sort */
+    uint16 ether_type_all;  /* network sort */
+    uint16 __r0;
     
-    uint32_t userip; /* network sort */
+    uint32 userip; /* network sort */
     byte *usermac;
     
     int type;   /* um_flow_type_lan/um_flow_type_wan */
     int dir;    /* um_flow_dir_up/um_flow_dir_down/um_flow_dir_all */
     
-    uint32_t eth_packets;
-    uint64_t eth_bytes;
+    uint32 eth_packets;
+    uint64 eth_bytes;
     
-    uint32_t vlan_packets;
-    uint64_t vlan_bytes;
+    uint32 vlan_packets;
+    uint64 vlan_bytes;
     
-    uint32_t ip_packets;
-    uint64_t ip_bytes;
+    uint32 ip_packets;
+    uint64 ip_bytes;
 };
 /******************************************************************************/
 extern jobj_t
@@ -524,7 +524,7 @@ um_user_leave(byte mac[]);
 #endif
 
 extern struct um_user *
-um_user_bind(byte mac[], uint32_t ip);
+um_user_bind(byte mac[], uint32 ip);
 
 extern int
 um_user_unbind(byte mac[]);
@@ -545,13 +545,13 @@ extern struct um_user *
 um_user_get(byte mac[]);
 
 extern struct um_user *
-um_user_getbyip(uint32_t ip);
+um_user_getbyip(uint32 ip);
 
 extern int
 um_user_getby(struct um_user_filter *filter, um_get_f *get);
 
 extern int
-um_user_delbyip(uint32_t ip);
+um_user_delbyip(uint32 ip);
 
 extern int
 um_user_delby(struct um_user_filter *filter);

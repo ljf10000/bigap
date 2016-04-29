@@ -45,8 +45,8 @@ typedef struct {
     int ping;
     int timeout;
     
-    uint32_t id;
-    uint32_t taskid;
+    uint32 id;
+    uint32 taskid;
 
     rsh_timer_t timer[TIMER_END];
 
@@ -55,13 +55,13 @@ typedef struct {
             int interval;   /* seconds */
             int times;
             
-            uint64_t send[2];   /* 0: send ok, 1: send fail */
-            uint64_t recv[2];   /* 0: send ok, 1: send fail */
+            uint64 send[2];   /* 0: send ok, 1: send fail */
+            uint64 recv[2];   /* 0: send ok, 1: send fail */
         } echo;
         
         bool alive;
-        uint64_t disconnect;    /* disconnect times */
-        uint64_t connect;       /* connect times */
+        uint64 disconnect;    /* disconnect times */
+        uint64 connect;       /* connect times */
     } st[RSH_SLOT_END];
     
     struct clist_table table;

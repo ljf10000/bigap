@@ -17,7 +17,7 @@
 enum {
     TM_MASK     = os_mask(TM_BIT),
     TM_SLOT     = (TM_MASK+1),
-    TM_RING     = (sizeof(uint32_t)*8/TM_BIT),
+    TM_RING     = (sizeof(uint32)*8/TM_BIT),
     TM_RINGMAX  = (TM_RING-1),
 };
 
@@ -44,38 +44,38 @@ typedef struct __tm_node {
     struct list_head node;
     tm_callback_f *cb;
 
-    uint8_t     flags;
-    uint8_t     ring_idx;
-    uint16_t    ring_slot;
-    uint32_t    expires;
+    byte        flags;
+    byte        ring_idx;
+    uint16      ring_slot;
+    uint32      expires;
     
-    uint64_t    create;
+    uint64      create;
 } tm_node_t;
 
 typedef struct {
     struct {
         struct list_head list;
-        uint32_t count;
+        uint32 count;
     } slot[TM_SLOT];
     
-    uint32_t current;
-    uint32_t count;
+    uint32 current;
+    uint32 count;
 } tm_ring_t;
 
 typedef struct {
     bool        init;
-    uint32_t    r;
-    uint32_t    count;
-    uint32_t    unit; // how much ms per tick
-    uint64_t    ticks;
+    uint32    r;
+    uint32    count;
+    uint32    unit; // how much ms per tick
+    uint64    ticks;
     tm_ring_t   ring[TM_RING];
 
-    uint64_t    triggered_safe;
-    uint64_t    triggered_unsafe;
-    uint64_t    triggered_error;
-    uint64_t    triggered_ok;
-    uint64_t    inserted;
-    uint64_t    removed;
+    uint64    triggered_safe;
+    uint64    triggered_unsafe;
+    uint64    triggered_error;
+    uint64    triggered_ok;
+    uint64    inserted;
+    uint64    removed;
 } tm_clock_t;
 
 #define DECLARE_REAL_TIMER  tm_clock_t __THIS_TIMER
@@ -126,13 +126,13 @@ __tm_is_pending(tm_node_t *timer)
     return os_hasflag(timer->flags, TM_PENDING);
 }
 
-static inline uint32_t
+static inline uint32
 __tm_left(tm_node_t *timer)
 {
-    uint64_t timeout = timer->create + (uint64_t)timer->expires;
+    uint64 timeout = timer->create + (uint64)timer->expires;
     
     if (timeout > __this_timer()->ticks) {
-        return (uint32_t)(timeout - __this_timer()->ticks);
+        return (uint32)(timeout - __this_timer()->ticks);
     } else {
         return 0;
     }
@@ -142,8 +142,8 @@ static inline tm_ring_t *
 __tm_find_ring(tm_node_t *timer, int *slot)
 {
     int idx;
-    uint32_t left = __tm_left(timer);
-    uint32_t offset;
+    uint32 left = __tm_left(timer);
+    uint32 offset;
     tm_ring_t *ring;
     
     for (idx=TM_RINGMAX; idx>0; idx--) {
@@ -211,7 +211,7 @@ __tm_slot_dump(tm_ring_t *ring, int slot)
 
     if (false==list_empty(head)) {
         os_println(__tab2 "ring(%u) slot(%d) count(%u)", 
-            (uint32_t)(ring-__tm_ring0), 
+            (uint32)(ring-__tm_ring0), 
             slot, 
             ring->slot[slot].count);
     }
@@ -223,7 +223,7 @@ __tm_ring_dump(tm_ring_t *ring)
     int i;
     
     os_println(__tab "ring(%u) count(%u), current(%u)", 
-        (uint32_t)(ring-__tm_ring0), 
+        (uint32)(ring-__tm_ring0), 
         ring->count, 
         ring->current);
     
@@ -334,9 +334,9 @@ __tm_trigger(tm_ring_t *ring)
 *  >=0: sucess tigger times
 */
 static inline int
-tm_trigger(uint32_t times)
+tm_trigger(uint32 times)
 {
-    uint32_t i;
+    uint32 i;
     int err, ret = 0;
     int count = 0;
     
@@ -355,19 +355,19 @@ tm_trigger(uint32_t times)
     return ret?ret:count;
 }
 
-static inline uint64_t
+static inline uint64
 tm_ticks(void)
 {
     return __this_timer()->ticks;
 }
 
 static inline void
-tm_unit_set(uint32_t ms) // how much ms per tick
+tm_unit_set(uint32 ms) // how much ms per tick
 {
     __this_timer()->unit = ms?ms:TM_MS;
 }
 
-static inline uint32_t //ms, how much ms per tick
+static inline uint32 //ms, how much ms per tick
 tm_unit(void)
 {
     return __this_timer()->unit;
@@ -397,7 +397,7 @@ tm_insert(
     } 
     
     timer->create   = __this_timer()->ticks;
-    timer->expires  = (uint32_t)after;
+    timer->expires  = (uint32)after;
     timer->flags    = once?TM_ONCE:0;
     timer->cb       = cb;
 
@@ -441,13 +441,13 @@ tm_once(tm_node_t *timer)
 }
 
 static inline int
-tm_change(tm_node_t *timer, uint32_t after)
+tm_change(tm_node_t *timer, uint32 after)
 {
     if (NULL==timer) {
         return error_assertV(-EKEYNULL, "timer is nil");
     }
     else if (__tm_is_pending(timer)) {
-        uint32_t left = __tm_left(timer);
+        uint32 left = __tm_left(timer);
 
         __tm_remove(timer);
 
@@ -470,7 +470,7 @@ tm_change(tm_node_t *timer, uint32_t after)
 * call it in callback
 */
 static inline int
-tm_change_expires(tm_node_t *timer, uint32_t expires)
+tm_change_expires(tm_node_t *timer, uint32 expires)
 {
     if (NULL==timer) {
         return error_assertV(-EKEYNULL, "timer is nil");
@@ -586,7 +586,7 @@ tm_fini(void)
 }
 
 static inline int
-tm_fd(uint32_t sec, uint32_t nsec)
+tm_fd(uint32 sec, uint32 nsec)
 {
     struct itimerspec new = OS_ITIMESPEC_INITER(sec, nsec);
     int fd = INVALID_FD;
@@ -601,12 +601,12 @@ tm_fd(uint32_t sec, uint32_t nsec)
     return fd;
 }
 
-static inline uint32_t
+static inline uint32
 tm_fd_read(int fd)
 {
-    uint64_t timeout = 0;
+    uint64 timeout = 0;
     int err = read(fd, &timeout, sizeof(timeout));
-    uint32_t times = (err<0)?1:(uint32_t)timeout;
+    uint32 times = (err<0)?1:(uint32)timeout;
 
     debug_timeout("read timerfd %d times", times);
     

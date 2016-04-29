@@ -4,7 +4,7 @@
 /******************************************************************************/
 typedef struct {
     int id;
-    uint32_t key;
+    uint32 key;
     bool owner;
 } os_sem_t;
 

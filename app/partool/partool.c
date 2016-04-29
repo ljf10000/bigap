@@ -639,7 +639,7 @@ part_xor(struct part_block *block)
 static inline int
 part_human_read(struct part_block *block, char *human)
 {
-    FILE *f = NULL;
+    STREAM f = NULL;
     int err = 0, size;
     struct stat st;
 
@@ -1662,7 +1662,7 @@ __partool_init(char *partition)
 static inline int 
 __partool_read(char *partition)
 {
-    FILE *f = NULL;
+    STREAM f = NULL;
     int err;
     
     f = fopen(partition, "r");
@@ -1691,7 +1691,7 @@ error:
 static inline int 
 __partool_write(char *partition)
 {
-    FILE *f = NULL;
+    STREAM f = NULL;
     int err;
     
     f = fopen(partition, "r+");

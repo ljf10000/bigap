@@ -145,7 +145,7 @@ duke_epoll_create1(duk_context *ctx)
     return __push_error(ctx, fd), 1;
 }
 
-#define duk_epoll_event_size    (2*sizeof(uint32_t))
+#define duk_epoll_event_size    (2*sizeof(uint32))
 
 LIB_PARAM(epoll_wait, 3);
 static duk_ret_t
@@ -480,7 +480,7 @@ duke_fopen(duk_context *ctx)
     char *filename  = (char *)duk_require_string(ctx, 0);
     char *mode      = (char *)duk_require_string(ctx, 1);
 
-    FILE *f = os_fopen(filename, mode);
+    STREAM f = os_fopen(filename, mode);
     
     return __push_pointer(ctx, f), 1;
 }
@@ -489,7 +489,7 @@ LIB_PARAM(fclose, 1);
 static duk_ret_t
 duke_fclose(duk_context *ctx)
 {
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
 
     int err = __os_fclose(f);
 
@@ -502,7 +502,7 @@ duke_fread(duk_context *ctx)
 {
     duk_size_t bsize = 0;
 
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
     duk_buffer_t buf = duk_require_buffer_data(ctx, 1, &bsize);
 
     int err = fread(buf, 1, bsize, f);
@@ -514,7 +514,7 @@ LIB_PARAM(freadEx, 2);
 static duk_ret_t
 duke_freadEx(duk_context *ctx)
 {
-    FILE *f     = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f     = (STREAM)duk_require_pointer(ctx, 0);
     int size    = duk_require_int(ctx, 1);
 
     duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
@@ -540,7 +540,7 @@ duke_fwrite(duk_context *ctx)
     duk_buffer_t buf = NULL;
     duk_size_t bsize = 0;
     
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
     int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
         __seterrno(ctx, err); goto error;
@@ -555,7 +555,7 @@ LIB_PARAM(feof, 1);
 static duk_ret_t
 duke_feof(duk_context *ctx)
 {
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
 
     bool eof = os_feof(f);
 
@@ -566,7 +566,7 @@ LIB_PARAM(ferror, 1);
 static duk_ret_t
 duke_ferror(duk_context *ctx)
 {
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
 
     int err = ferror(f);
 
@@ -577,7 +577,7 @@ LIB_PARAM(ftell, 1);
 static duk_ret_t
 duke_ftell(duk_context *ctx)
 {
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
 
     int len = ftell(f);
 
@@ -588,7 +588,7 @@ LIB_PARAM(fseek, 3);
 static duk_ret_t
 duke_fseek(duk_context *ctx)
 {
-    FILE *f     = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f     = (STREAM)duk_require_pointer(ctx, 0);
     int offset  = duk_require_int(ctx, 1);
     int where   = duk_require_int(ctx, 2);
 
@@ -601,7 +601,7 @@ LIB_PARAM(fflush, 1);
 static duk_ret_t
 duke_fflush(duk_context *ctx)
 {
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
 
     int err = fflush(f);
 
@@ -624,7 +624,7 @@ duke_open(duk_context *ctx)
 
             break;
         case 2: {
-            uint32_t mode = duk_require_uint(ctx, 2);
+            uint32 mode = duk_require_uint(ctx, 2);
 
             fd = open(file, flag, mode);
 
@@ -785,7 +785,7 @@ duke_fdopen(duk_context *ctx)
     int fd      = duk_require_int(ctx, 0);
     char *mode  = (char *)duk_require_string(ctx, 1);
 
-    FILE *f = fdopen(fd, mode);
+    STREAM f = fdopen(fd, mode);
     
     return __push_pointer(ctx, f), 1;
 }
@@ -794,7 +794,7 @@ LIB_PARAM(fileno, 1);
 static duk_ret_t
 duke_fileno(duk_context *ctx)
 {
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
 
     int fd = fileno(f);
 
@@ -1765,7 +1765,7 @@ LIB_PARAM(tmpfile, 0);
 static duk_ret_t
 duke_tmpfile(duk_context *ctx)
 {
-	FILE *f = tmpfile();
+	STREAM f = tmpfile();
 
 	return __push_pointer(ctx, f), 1;
 }
@@ -1820,7 +1820,7 @@ duke_popen(duk_context *ctx)
     char *command = (char *)duk_require_string(ctx, 0);
     char *mode = (char *)duk_require_string(ctx, 1);
     
-	FILE *f = popen(command, mode);
+	STREAM f = popen(command, mode);
 
 	return __push_pointer(ctx, f), 1;
 }
@@ -1829,7 +1829,7 @@ LIB_PARAM(pclose, 1);
 static duk_ret_t
 duke_pclose(duk_context *ctx)
 {
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
     
 	int err = pclose(f);
 	
@@ -5316,7 +5316,7 @@ LIB_PARAM(fgetpwent, 1);
 static duk_ret_t
 duke_fgetpwent(duk_context *ctx)
 {
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
     
     struct passwd *p = fgetpwent(f);
 
@@ -5354,7 +5354,7 @@ duke_putpwent(duk_context *ctx)
     struct passwd u;
     
     __get_passwd(ctx, 0, &u);
-    FILE *f = (FILE *)duk_require_pointer(ctx, 1);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 1);
     
     int err = putpwent(&u, f);
 
@@ -5388,7 +5388,7 @@ LIB_PARAM(fgetgrent, 1);
 static duk_ret_t
 duke_fgetgrent(duk_context *ctx)
 {
-    FILE *f = (FILE *)duk_require_pointer(ctx, 0);
+    STREAM f = (STREAM)duk_require_pointer(ctx, 0);
     
     struct group *p = fgetgrent(f);
 
@@ -5592,7 +5592,7 @@ duke_setmntent(duk_context *ctx)
     char *name = (char *)duk_require_string(ctx, 0);
     char *mode = (char *)duk_require_string(ctx, 1);
     
-    FILE *f = setmntent(name, mode);
+    STREAM f = setmntent(name, mode);
 
     return __push_pointer(ctx, f), 1;
 }
@@ -5601,7 +5601,7 @@ LIB_PARAM(endmntent, 1);
 static duk_ret_t
 duke_endmntent(duk_context *ctx)
 {
-    FILE *f = duk_require_pointer(ctx, 0);
+    STREAM f = duk_require_pointer(ctx, 0);
     
     return duk_push_int(ctx, endmntent(f)), 1;
 }
@@ -5610,7 +5610,7 @@ LIB_PARAM(getmntent, 1);
 static duk_ret_t
 duke_getmntent(duk_context *ctx)
 {
-    FILE *f = duk_require_pointer(ctx, 0);
+    STREAM f = duk_require_pointer(ctx, 0);
     
     struct mntent *p = getmntent(f);
 
@@ -5623,7 +5623,7 @@ duke_addmntent(duk_context *ctx)
 {
     struct mntent m;
     
-    FILE *f = duk_require_pointer(ctx, 0);
+    STREAM f = duk_require_pointer(ctx, 0);
     __get_mntent(ctx, 1, &m);
     
     int err = addmntent(f, &m);

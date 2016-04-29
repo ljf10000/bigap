@@ -26,8 +26,8 @@ LIB_PARAM(ak_get, 2);
 static duk_ret_t
 duke_ak_get(duk_context *ctx)
 {
-    uint32_t akid = duk_require_uint(ctx, 0);
-    uint32_t deft = duk_require_uint(ctx, 1);
+    uint32 akid = duk_require_uint(ctx, 0);
+    uint32 deft = duk_require_uint(ctx, 1);
     
     return duk_push_uint(ctx, ak_get(akid, deft)), 1;
 }
@@ -36,8 +36,8 @@ LIB_PARAM(ak_set, 2);
 static duk_ret_t
 duke_ak_set(duk_context *ctx)
 {
-    uint32_t akid = duk_require_uint(ctx, 0);
-    uint32_t value = duk_require_uint(ctx, 1);
+    uint32 akid = duk_require_uint(ctx, 0);
+    uint32 value = duk_require_uint(ctx, 1);
     
     return duk_push_int(ctx, ak_set(akid, value)), 1;
 }
@@ -136,7 +136,7 @@ static duk_ret_t
 duke_readtxt(duk_context *ctx)
 {
     char *buf = NULL;
-    uint32_t size = 0;
+    uint32 size = 0;
     char *filename = (char *)duk_require_string(ctx, 0);
     
     int err = os_readfileall(filename, &buf, &size, false);
@@ -217,7 +217,7 @@ static duk_ret_t
 duke_readline(duk_context *ctx)
 {
     int err = 0, len;
-    FILE *f = NULL;
+    STREAM f = NULL;
     char *line = NULL;
     
     char *filename = (char *)duk_require_string(ctx, 0);
@@ -501,7 +501,7 @@ loop_inotify_init(duk_context *ctx)
     
     for (i=0; i<count; i++) {
         char *path = __get_array_string(ctx, -1, i, NULL);
-        uint32_t mask = __get_array_uint(ctx, -1, i);
+        uint32 mask = __get_array_uint(ctx, -1, i);
 
         err = inotify_add_watch(__loop_inotify.fd, path, mask);
         if (err<0) {
@@ -616,7 +616,7 @@ loop_signal_handle(duk_context *ctx)
 static void
 loop_timer_handle(duk_context *ctx)
 {
-    uint64_t val = 0;
+    uint64 val = 0;
     
     int push_timer(void) {
         return duk_push_int(ctx, (int)val), 1;

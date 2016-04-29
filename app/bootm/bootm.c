@@ -220,7 +220,7 @@ enum {
 };
 
 static int
-env_write(FILE *f)
+env_write(STREAM f)
 {
     int i, k, idx, ret = 0;
 
@@ -246,7 +246,7 @@ env_write(FILE *f)
 }
 
 static int 
-env_read(FILE *f)
+env_read(STREAM f)
 {
     int count;
     
@@ -303,7 +303,7 @@ getvalue_byname(char *name)
 
 int bootm_main(int argc, char *argv[])
 {
-    FILE *f = NULL;
+    STREAM f = NULL;
     int count;
     int err = 0;
     int len;

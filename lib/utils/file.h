@@ -26,9 +26,9 @@
 })
 
 #define os_v_popen(_mod, _fmt, _args...)    \
-    __v_xopen(FILE*, popen, _mod, _fmt, ##_args)
+    __v_xopen(STREAM, popen, _mod, _fmt, ##_args)
 #define os_v_fopen(_mod, _fmt, _args...)    \
-    __v_xopen(FILE*, fopen, _mod, _fmt, ##_args)
+    __v_xopen(STREAM, fopen, _mod, _fmt, ##_args)
 #define os_v_open(_flag, _fmt, _args...)    \
     __v_xopen(int, open, _flag, _fmt, ##_args)
 
@@ -110,7 +110,7 @@ os_system(const char *fmt, ...)
 #define os_fopen(_file, _mode)      fopen(_file, _mode)
 
 static inline int
-__os_fclose(FILE *stream)
+__os_fclose(STREAM stream)
 {
     int err = 0;
 
@@ -130,8 +130,16 @@ __os_fclose(FILE *stream)
 #define os_fclean(_file)            __os_fclose(fopen(_file, "w"))
 #define os_feof(_stream)            (_stream?!!feof(_stream):true)
 
+static inline int 
+os_fseek(STREAM stream, int offset, int fromwhere)
+{
+    int err = fseek(stream, offset, fromwhere);
+
+    return err<0?-errno:err;
+}
+
 static inline int
-os_fwrite(FILE *stream, const void *buf, int size)
+os_fwrite(STREAM stream, const void *buf, int size)
 {
     int err = fwrite(buf, 1, size, stream);
     
@@ -141,13 +149,13 @@ os_fwrite(FILE *stream, const void *buf, int size)
 }
 
 static inline int
-os_fwrite_crlf(FILE *stream)
+os_fwrite_crlf(STREAM stream)
 {
     return os_fwrite(stream, __crlf, sizeof(__crlf) - 1);
 }
 
 static inline int
-os_fread(FILE *stream, void *buf, int size)
+os_fread(STREAM stream, void *buf, int size)
 {
     int err = fread(buf, 1, size, stream);
 
@@ -155,7 +163,7 @@ os_fread(FILE *stream, void *buf, int size)
 }
 
 static inline char *
-os_freadline(FILE *stream, char *line, int size)
+os_freadline(STREAM stream, char *line, int size)
 {
     char *p = NULL;
 
@@ -167,7 +175,7 @@ os_freadline(FILE *stream, char *line, int size)
 }
 
 static inline int
-os_fwriteline(FILE *stream, const char *line)
+os_fwriteline(STREAM stream, const char *line)
 {
     int len = 0;
 
@@ -183,7 +191,7 @@ os_fwriteline(FILE *stream, const char *line)
 static inline int
 os_readfile(char *filename, char *buf, int size)
 {
-    FILE *f = NULL;
+    STREAM f = NULL;
     int err = 0;
 
     f = os_fopen(filename, "r");
@@ -203,7 +211,7 @@ error:
 }
 
 static inline int
-os_readfileall(char *filename, char **content, uint32_t *filesize, bool bin)
+os_readfileall(char *filename, char **content, uint32 *filesize, bool bin)
 {
     char *buf = NULL;
     int pad = bin?0:1;
@@ -250,7 +258,7 @@ error:
 static inline int
 os_writefile(char *filename, byte *buf, int size, bool append, bool bin)
 {
-    FILE *f = NULL;
+    STREAM f = NULL;
     int err = 0;
 
     f = os_fopen(filename, append?"a":"w");
@@ -301,7 +309,7 @@ __os_fscan_file_handle
     os_fscan_line_handle_f *line_handle
 )
 {
-    FILE *stream = NULL;
+    STREAM stream = NULL;
     char line[1+OS_LINE_LEN];
     mv_u mv;
 
@@ -528,17 +536,17 @@ error:
 }) /* end */
 
 #define __os_xgetv(_prefix, _vfmt, _pv, _filename) ({ \
-    FILE *__f = _prefix##open(_filename, "r");  \
+    STREAM __f = _prefix##open(_filename, "r");  \
     ____os_xgetv(_prefix, __f, _vfmt, _pv);     \
 })  /* end */
 
 #define __os_xgets(_prefix, _line, _space, _filename) ({ \
-    FILE *__f = _prefix##open(_filename, "r");  \
+    STREAM __f = _prefix##open(_filename, "r");  \
     ____os_xgets(_prefix, __f, _line, _space);  \
 })  /* end */
 
 #define __os_xgetb(_prefix, _buf, _size, _filename) ({ \
-    FILE *__f = _prefix##open(_filename, "r");  \
+    STREAM __f = _prefix##open(_filename, "r");  \
     ____os_xgetb(_prefix, __f, _buf, _size);    \
 })  /* end */
 
@@ -546,17 +554,17 @@ error:
 #define __os_xgetll(_prefix, _pll, _filename)    __os_xgetv(_prefix, "%llu", _pll, _filename)
 
 #define __os_v_xgetv(_prefix, _vfmt, _pv, _fmt, _args...) ({ \
-    FILE *__f = os_v_##_prefix##open("r", _fmt, ##_args);   \
+    STREAM __f = os_v_##_prefix##open("r", _fmt, ##_args);   \
     ____os_xgetv(_prefix, __f, _vfmt, _pv);                 \
 })  /* end */
 
 #define __os_v_xgets(_prefix, _line, _space, _fmt, _args...) ({ \
-    FILE *__f = os_v_##_prefix##open("r", _fmt, ##_args);   \
+    STREAM __f = os_v_##_prefix##open("r", _fmt, ##_args);   \
     ____os_xgets(_prefix, __f, _line, _space);              \
 })  /* end */
 
 #define __os_v_xgetb(_prefix, _buf, _size, _fmt, _args...) ({ \
-    FILE *__f = os_v_##_prefix##open("r", _fmt, ##_args);   \
+    STREAM __f = os_v_##_prefix##open("r", _fmt, ##_args);   \
     ____os_xgetb(_prefix, __f, _buf, _size);                \
 })  /* end */
 
@@ -622,22 +630,22 @@ error:
 })  /* end */
 
 #define __os_xsetv(_prefix, _vfmt, _v, _filename) ({ \
-    FILE *__f = _prefix##open(_filename, "w");  \
+    STREAM __f = _prefix##open(_filename, "w");  \
     ____os_xsetv(_prefix, __f, _vfmt, _v);      \
 })  /* end */
 
 #define __os_xsetb(_prefix, _buf, _size, _filename) ({ \
-    FILE *__f = _prefix##open(_filename, "w");  \
+    STREAM __f = _prefix##open(_filename, "w");  \
     ____os_xsetb(_prefix, __f, _buf, _size);    \
 })  /* end */
 
 #define __os_v_xsetv(_prefix, _vfmt, _v, _fmt, _args...) ({ \
-    FILE *__f = os_v_##_prefix##open("w", _fmt, ##_args);   \
+    STREAM __f = os_v_##_prefix##open("w", _fmt, ##_args);   \
     ____os_xsetv(_prefix, __f, _vfmt, _v);                  \
 })  /* end */
 
 #define __os_v_xsetb(_prefix, _buf, _size, _fmt, _args...) ({ \
-    FILE *__f = os_v_##_prefix##open("w", _fmt, ##_args);   \
+    STREAM __f = os_v_##_prefix##open("w", _fmt, ##_args);   \
     ____os_xsetb(_prefix, __f, _buf, _size);                  \
 })  /* end */
 

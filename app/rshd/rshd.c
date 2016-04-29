@@ -177,7 +177,7 @@ rsh_echo_timer(void)
 }
 
 static int
-rsh_timer(uint32_t times)
+rsh_timer(uint32 times)
 {
     int i;
 

@@ -31,11 +31,11 @@ typedef struct {
     os_sockaddr_t addr;
     
     struct {
-        FILE *stream;
+        STREAM stream;
         
         env_string_t *envar;
 
-        uint32_t count;
+        uint32 count;
     } log, cache;
 } jlog_server_t;
 
@@ -73,8 +73,8 @@ typedef struct {
     int pri;
     int timeout;
     int cut;
-    uint32_t seq;
-    uint32_t event;
+    uint32 seq;
+    uint32 event;
     char mac[1+MACSTRINGLEN_L];
 
     jlog_server_t server[JLOG_END_SERVER];
@@ -379,7 +379,7 @@ init_env(void)
 
     jlogd.server[JLOG_ISERVER].addr.in.sin_port = env_geti(ENV_JLOG_PORT, JLOG_PORT);
     {
-        uint32_t ip;
+        uint32 ip;
         char ipaddress[32] = {0};
 
         err = env_copy(ENV_JLOG_IP, JLOG_IP, ipaddress);

@@ -6,7 +6,7 @@
 #if 1
 struct hash_s;
 
-typedef uint32_t hash_idx_t;
+typedef uint32 hash_idx_t;
 #define INVALID_HASH_IDX   0xffffffff
 
 typedef struct {
@@ -24,7 +24,7 @@ typedef struct {
 typedef struct hash_s {
     hash_bucket_t *bucket;
     hash_idx_t size;
-    uint32_t count;
+    uint32 count;
 } hash_t;
 
 #define HASH_INITER(_size) {    \
@@ -236,7 +236,7 @@ hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline hash_idx_t
-hash_bybuf(byte *buf, uint32_t len, hash_idx_t mask)
+hash_bybuf(byte *buf, uint32 len, hash_idx_t mask)
 {
     bkdr_t bkdr = os_bin_bkdr(buf, len);
     

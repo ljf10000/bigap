@@ -148,8 +148,8 @@ enum {
 static inline byte *
 os_maccpy(byte dst[], byte src[])
 {
-    *(uint32_t *)(dst+0) = *(uint32_t *)(src+0);
-    *(uint16_t *)(dst+4) = *(uint16_t *)(src+4);
+    *(uint32 *)(dst+0) = *(uint32 *)(src+0);
+    *(uint16 *)(dst+4) = *(uint16 *)(src+4);
 
     return dst;
 }
@@ -157,8 +157,8 @@ os_maccpy(byte dst[], byte src[])
 static inline byte *
 os_maczero(byte mac[])
 {
-    *(uint32_t *)(mac+0) = 0;
-    *(uint16_t *)(mac+4) = 0;
+    *(uint32 *)(mac+0) = 0;
+    *(uint16 *)(mac+4) = 0;
     
     return mac;
 }
@@ -166,8 +166,8 @@ os_maczero(byte mac[])
 static inline byte *
 os_macfull(byte mac[])
 {
-    *(uint32_t *)(mac+0) = 0xffffffff;
-    *(uint16_t *)(mac+4) = 0xffff;
+    *(uint32 *)(mac+0) = 0xffffffff;
+    *(uint16 *)(mac+4) = 0xffff;
     
     return mac;
 }
@@ -181,8 +181,8 @@ os_maccmp(byte a[], byte b[])
 static inline bool
 os_maceq(byte a[], byte b[])
 {
-    return *(uint32_t *)(a+0) == *(uint32_t *)(b+0)
-        && *(uint16_t *)(a+4) == *(uint16_t *)(b+4);
+    return *(uint32 *)(a+0) == *(uint32 *)(b+0)
+        && *(uint16 *)(a+4) == *(uint16 *)(b+4);
 }
 
 static inline bool
@@ -194,15 +194,15 @@ os_macmaskmach(byte a[], byte b[], byte mask[])
 static inline bool
 is_zero_mac(byte mac[])
 {
-    return *(uint32_t *)(mac+0) == 0
-        && *(uint16_t *)(mac+4) == 0;
+    return *(uint32 *)(mac+0) == 0
+        && *(uint16 *)(mac+4) == 0;
 }
 
 static inline bool
 is_full_mac(byte mac[])
 {
-    return *(uint32_t *)(mac+0) == 0xffffffff
-        && *(uint16_t *)(mac+4) == 0xffff;
+    return *(uint32 *)(mac+0) == 0xffffffff
+        && *(uint16 *)(mac+4) == 0xffff;
 }
 
 static inline bool
@@ -486,7 +486,7 @@ enum {
 * @ip: network sort
 */
 static inline char *
-os_ipstring(uint32_t ip)
+os_ipstring(uint32 ip)
 {
     struct in_addr in = {.s_addr = ip};
     
@@ -501,7 +501,7 @@ is_good_ipstring(char *ip)
 #endif
 
 static inline bool
-os_ipmatch(uint32_t ipa, uint32_t ipb, uint32_t mask)
+os_ipmatch(uint32 ipa, uint32 ipb, uint32 mask)
 {
     return (ipa & mask)==(ipb & mask);
 }

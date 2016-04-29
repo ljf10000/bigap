@@ -241,7 +241,7 @@ static inline bool is_good_common_id(int id)
 *
 * seq1 is before seq2
 */
-static inline bool os_seq_before(uint32_t seq1, uint32_t seq2)
+static inline bool os_seq_before(uint32 seq1, uint32 seq2)
 {
     return ((int)(seq1-seq2)) < 0;
 }
@@ -367,7 +367,7 @@ __os_wait_error(int status)
 
 typedef struct {
     char *k;
-    uint32_t v;
+    uint32 v;
 } os_kv_t;
 
 #define OS_KV_INITER(_k, _v)    { .k = _k, .v = _v }

@@ -209,7 +209,7 @@ intf_set_mac(char *ifname, byte mac[])
 }
 
 static inline int
-intf_get_ip(char *ifname, uint32_t *ip)
+intf_get_ip(char *ifname, uint32 *ip)
 {
     struct ifreq ifr = OS_IFREQ_ZERO;
     int err;
@@ -227,7 +227,7 @@ intf_get_ip(char *ifname, uint32_t *ip)
 }
 
 static inline int
-intf_get_netmask(char *ifname, uint32_t *mask)
+intf_get_netmask(char *ifname, uint32 *mask)
 {
     struct ifreq ifr = OS_IFREQ_ZERO;
     int err;

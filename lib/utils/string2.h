@@ -21,27 +21,27 @@ DECLARE_ENUM(string_type, __XLIST_STRING_TYPE, STRING_T_END);
 
 typedef struct {
 #if __BYTE_ORDER == __BIG_ENDIAN
-    uint32_t tmp:8;     /* all */
-    uint32_t top:1;     /* all, is top ??? */
-    uint32_t con:1;     /* all, is const ??? */
-    uint32_t dyn:1;     /* all, is dynamic ??? */
-    uint32_t eoz:1;     /* all: end of zero ??? */
-    uint32_t eob:1;     /* root: end of block ??? */
-    uint32_t clr:1;     /* root: need to clear ??? */
-    uint32_t bin:1;     /* root, is binary */
-    uint32_t rsv:1;
-    uint32_t ref:16;    /* root */
+    uint32 tmp:8;     /* all */
+    uint32 top:1;     /* all, is top ??? */
+    uint32 con:1;     /* all, is const ??? */
+    uint32 dyn:1;     /* all, is dynamic ??? */
+    uint32 eoz:1;     /* all: end of zero ??? */
+    uint32 eob:1;     /* root: end of block ??? */
+    uint32 clr:1;     /* root: need to clear ??? */
+    uint32 bin:1;     /* root, is binary */
+    uint32 rsv:1;
+    uint32 ref:16;    /* root */
 #elif __BYTE_ORDER == __LITTLE_ENDIAN
-    uint32_t ref:16;
-    uint32_t rsv:1;
-    uint32_t bin:1;
-    uint32_t clr:1;
-    uint32_t eob:1;
-    uint32_t eoz:1;
-    uint32_t dyn:1;
-    uint32_t con:1;
-    uint32_t top:1;
-    uint32_t tmp:8;
+    uint32 ref:16;
+    uint32 rsv:1;
+    uint32 bin:1;
+    uint32 clr:1;
+    uint32 eob:1;
+    uint32 eoz:1;
+    uint32 dyn:1;
+    uint32 con:1;
+    uint32 top:1;
+    uint32 tmp:8;
 #endif
 } 
 string_opt_t;
@@ -76,14 +76,14 @@ string_opt_t;
 typedef struct string_s {
     union {
         string_opt_t o;
-        uint32_t v;
+        uint32 v;
     } opt;
 
 #if USE_STRING_BLOCK
-    uint32_t size;      /* root */
+    uint32 size;      /* root */
 #endif
-    uint32_t begin;     /* all, begin to string */
-    uint32_t len;       /* all */
+    uint32 begin;     /* all, begin to string */
+    uint32 len;       /* all */
 
     union {
         char *string;           /* root */
@@ -241,18 +241,18 @@ is_good_string(string_t *s)
 }
 
 static inline bool
-is_string_can_slice(string_t *s, uint32_t begin, uint32_t len)
+is_string_can_slice(string_t *s, uint32 begin, uint32 len)
 {
-    uint32_t max = begin + len - 1;
+    uint32 max = begin + len - 1;
 
     return begin <= max && max <= s->len;
 }
 
 #if USE_STRING_BLOCK
 static inline string_t *
-__string_block(const char *raw, uint32_t len, bool bin)
+__string_block(const char *raw, uint32 len, bool bin)
 {
-    uint32_t size = OS_ALIGN(1 + len, OS_ALIGN_SIZE);
+    uint32 size = OS_ALIGN(1 + len, OS_ALIGN_SIZE);
     string_t *s = (string_t *)os_malloc(size + sizeof(string_t));
     if (NULL==s) {
         return NULL;
@@ -277,16 +277,16 @@ string_block(const char *raw)
 }
 
 static inline string_t *
-binary_block(const char *raw, uint32_t len)
+binary_block(const char *raw, uint32 len)
 {
     return __string_block(raw, len, true);
 }
 #endif
 
 static inline string_t
-__string_new(const char *raw, uint32_t len, bool bin, bool con)
+__string_new(const char *raw, uint32 len, bool bin, bool con)
 {
-    uint32_t size = OS_ALIGN(1 + len, OS_ALIGN_SIZE);
+    uint32 size = OS_ALIGN(1 + len, OS_ALIGN_SIZE);
     
     char *p = (char *)os_malloc(size);
     if (p) {
@@ -309,7 +309,7 @@ string_new(const char *raw, bool con)
 }
 
 static inline string_t
-binary_new(const char *raw, uint32_t len, bool con)
+binary_new(const char *raw, uint32 len, bool con)
 {
     return __string_new(raw, len, true, con);
 }
@@ -361,7 +361,7 @@ __string_put(string_t *s)
 }while(0)
 
 static inline string_t
-string_slice(string_t *s, uint32_t begin, uint32_t len)
+string_slice(string_t *s, uint32 begin, uint32 len)
 {
     string_t new = STRING_ZERO;
     
@@ -422,7 +422,7 @@ string_cmp(string_t *a, string_t *b)
                 return 0;
             }
 
-            uint32_t min = OS_MIN(a->len, b->len);
+            uint32 min = OS_MIN(a->len, b->len);
             int cmp = os_memcmp(va, vb, min);
             if (a->len==b->len) {
                 return cmp;

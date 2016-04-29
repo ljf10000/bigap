@@ -131,7 +131,7 @@ typedef struct {
 	duk_c_function value;
 	duk_idx_t nargs;
 	
-	uint32_t version;
+	uint32 version;
 } dukc_func_entry_t;
 
 typedef struct {

@@ -124,7 +124,7 @@ enum {
 };
 
 static inline int
-__otp_file_offset(FILE *f)
+__otp_file_offset(STREAM f)
 {
     int fd, err;
     char *buf = (char *)os_malloc(OTP_FILE_SIZE);
@@ -170,7 +170,7 @@ __otp_file_op(int id, char *mode, byte otp[OTP_SIZE])
     static int otp_offset = 0;
     int offset, err = 0;
 
-    FILE *f = os_fopen(OTP_FILE, mode);
+    STREAM f = os_fopen(OTP_FILE, mode);
     if (NULL==f) {
         err = -EACCES; goto error;
     }

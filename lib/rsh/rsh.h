@@ -218,26 +218,26 @@ enum {
 
 typedef struct {
     byte     mac[6];
-    uint8_t  src;       /* src slot     */
-    uint8_t  dst;       /* dst slot     */
+    byte  src;       /* src slot     */
+    byte  dst;       /* dst slot     */
     
-    uint8_t  cookie0;   /* RSH_COOKIE0  */
-    uint8_t  mode;      /* RSH_F_XXX    */
-    uint8_t  cookie1;   /* RSH_COOKIE1  */
-    uint8_t  flag;      /* RSH_F_XXX    */
+    byte  cookie0;   /* RSH_COOKIE0  */
+    byte  mode;      /* RSH_F_XXX    */
+    byte  cookie1;   /* RSH_COOKIE1  */
+    byte  flag;      /* RSH_F_XXX    */
     
-    uint8_t  version;   /* RSH_VERSION  */
-    uint8_t  cookie2;   /* RSH_COOKIE2  */
-    uint8_t  cmd;       /* RSH_CMD_END  */
-    uint8_t  cookie3;   /* RSH_COOKIE3  */
+    byte  version;   /* RSH_VERSION  */
+    byte  cookie2;   /* RSH_COOKIE2  */
+    byte  cmd;       /* RSH_CMD_END  */
+    byte  cookie3;   /* RSH_COOKIE3  */
 
-    uint16_t len;       /* msg length, NOT include header, NOT include '\0' */
+    uint16 len;       /* msg length, NOT include header, NOT include '\0' */
     union {
-        int16_t maxrun;
-        int16_t error;
+        int16 maxrun;
+        int16 error;
     } u;
 
-    uint32_t id;        /* msg id       */
+    uint32 id;        /* msg id       */
 
     union {
         char data[0];
@@ -408,7 +408,7 @@ rsh_msg_ntoh(rsh_msg_t *msg)
 }
 /******************************************************************************/
 typedef struct {
-    uint32_t ip;    /* network sort */
+    uint32 ip;    /* network sort */
     int port;       /* network sort */
     
     int interval;   /* seconds */
@@ -523,7 +523,7 @@ rsh_msg_init(
     int mode,
     int flag,
     int maxrun, 
-    uint32_t id
+    uint32 id
 )
 {
     os_objzero(msg);
@@ -696,13 +696,13 @@ rsh_load(void)
         jobj_t jip = jobj_get(obj, "ip");
         if (NULL==jip) goto error;
         char *ipstring = jobj_get_string(obj);
-        uint32_t ip = inet_addr(ipstring);
+        uint32 ip = inet_addr(ipstring);
         if (rsh_is_local(slot) && INADDR_NONE==ip) goto error;
         rsh_slot_ip(slot) = htonl(ip);
 
         jobj_t jport = jobj_get(obj, "port");
         if (NULL==jport) goto error;
-        uint16_t port = jobj_get_i32(jport);
+        uint16 port = jobj_get_i32(jport);
         rsh_slot_port(slot) = htons(port);
 
         jobj_t jecho = jobj_get(obj, "echo");

@@ -147,8 +147,8 @@ os_strmcpy(char *dst, const char *src, int len)
 /*
 * no use strncpy(is unsafe)
 */
-static inline uint32_t 
-os_strlcpy(char *dst, const char *src, uint32_t size)
+static inline uint32 
+os_strlcpy(char *dst, const char *src, uint32 size)
 {
     char *d = (char *)dst;
     char *s = (char *)src;
@@ -532,8 +532,8 @@ os_str_strim_both(char *s, char_is_f *is)
 static inline bool
 os_str_is_end_by(char *s, char *end)
 {
-    uint32_t slen = os_strlen(s);
-    uint32_t elen = os_strlen(end);
+    uint32 slen = os_strlen(s);
+    uint32 elen = os_strlen(end);
 
     if (slen >= elen) {
         return os_memeq(s + slen - elen, end, elen);
@@ -632,7 +632,7 @@ os_str_next_byifs(char *s, char *ifs)
 #define OS_STRING_BKDR      31
 #endif
 
-typedef uint32_t bkdr_t;
+typedef uint32 bkdr_t;
 
 static inline bkdr_t
 __bkdr_push(bkdr_t a, bkdr_t b)
@@ -647,13 +647,13 @@ __bkdr_pop(bkdr_t a, bkdr_t b)
 }
 
 static inline bkdr_t
-os_str_BKDR(const char *s, uint32_t *plen)
+os_str_BKDR(const char *s, uint32 *plen)
 {
     bkdr_t bkdr = 0;
     
     if (s) {
         const char *p = s;
-        uint32_t len = 0;
+        uint32 len = 0;
         
         while(*p) {
             len++;
@@ -685,7 +685,7 @@ os_str_bkdr(const char *s)
 }
 
 static inline bkdr_t
-os_bin_bkdr(const byte *binary, uint32_t len)
+os_bin_bkdr(const byte *binary, uint32 len)
 {
     bkdr_t bkdr = 0;
 

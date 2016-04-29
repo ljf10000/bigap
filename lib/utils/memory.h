@@ -2,7 +2,7 @@
 #define __MEMORY_H_ee1cba9efbf54f0b88b7ba0ee5ee3c4a__
 /******************************************************************************/
 #ifdef __BOOT__
-#define size_t uint32_t
+#define size_t uint32
 #endif
 
 static inline void *
@@ -326,7 +326,7 @@ os_memmem(const void *mem, size_t mem_size,
 #define os_calloc(_count, _size)    calloc(_count, _size)
 #else
 static inline void *
-os_calloc(uint32_t count, uint32_t size)
+os_calloc(uint32 count, uint32 size)
 {
     void *obj = os_malloc(count*size);
     if (obj) {

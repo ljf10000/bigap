@@ -13,7 +13,7 @@ typedef struct {
 typedef struct dlist_s {
     struct list_head head;
 
-    uint32_t count;
+    uint32 count;
 } dlist_t;
 
 #define DLIST_INITER(_list)      {  \

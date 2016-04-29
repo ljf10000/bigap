@@ -13,11 +13,11 @@ struct nlmsghdr {
 #endif
 
 struct nbusmsg {
-    int8_t      nlmsg_magic[4]; /* must "nbus" */
+    char      nlmsg_magic[4]; /* must "nbus" */
     
-    uint8_t     nlmsg_subsystem;/* enum ubus_subsystem */
-    uint8_t     nlmsg_version;
-    uint8_t     nlmsg_reserved[2];
+    byte     nlmsg_subsystem;/* enum ubus_subsystem */
+    byte     nlmsg_version;
+    byte     nlmsg_reserved[2];
 };
 
 enum ubus_subsystem {
@@ -42,8 +42,8 @@ enum ubus_subsystem {
 */
 
 struct nbusmsg_obj_create {
-    uint32_t    class;  
-    uint32_t    object;
+    uint32    class;  
+    uint32    object;
     
 };
 

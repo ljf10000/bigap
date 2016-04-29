@@ -51,7 +51,7 @@ static struct {
         
         struct list_head  list;
         
-        uint32_t count;
+        uint32 count;
     } head;
     
     rsh_task_t *pipe[1024];

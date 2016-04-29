@@ -113,7 +113,7 @@ __sighandle_callstack(int signo)
     void *array[BACKTRACE_ASIZE] = {NULL};
     int i, count, fd;
     int pid = getpid();
-    uint32_t now = (uint32_t)time(NULL);
+    uint32 now = (uint32)time(NULL);
     
     /*
     * create app trace file
@@ -143,7 +143,7 @@ __sighandle_callstack(int signo)
     unsigned long base_address = 0;
     unsigned long dead_address = (unsigned long)array[3];
     
-    FILE *stream = os_v_popen("r", 
+    STREAM stream = os_v_popen("r", 
         "awk -F\"[- ]\" '{if($1<=\"%lx\" && $2>=\"%lx\") print$1, $NF}' "
         BACKTRACE_FILE_MAPS,
         dead_address,

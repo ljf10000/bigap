@@ -34,7 +34,7 @@ _name##_size(_name##_table_t *table, int hidx) \
     return table->hash[hidx].size;      \
 }                                       \
                                         \
-static inline uint32_t                  \
+static inline uint32                    \
 _name##_count(_name##_table_t *table)   \
 {                                       \
     return table->list.count;           \
@@ -177,7 +177,7 @@ h1_size(h1_table_t *table)
     return __h1_size(table, 0);
 }
 
-static inline uint32_t 
+static inline uint32 
 h1_count(h1_table_t *table)
 {
     return __h1_count(table);
@@ -361,49 +361,49 @@ h9_size(h9_table_t *table, int hidx)
     return __h9_size(table, hidx);
 }
 
-static inline uint32_t 
+static inline uint32 
 h2_count(h2_table_t *table)
 {
     return __h2_count(table);
 }
 
-static inline uint32_t 
+static inline uint32 
 h3_count(h3_table_t *table)
 {
     return __h3_count(table);
 }
 
-static inline uint32_t 
+static inline uint32 
 h4_count(h4_table_t *table)
 {
     return __h4_count(table);
 }
 
-static inline uint32_t 
+static inline uint32 
 h5_count(h5_table_t *table)
 {
     return __h5_count(table);
 }
 
-static inline uint32_t 
+static inline uint32 
 h6_count(h6_table_t *table)
 {
     return __h6_count(table);
 }
 
-static inline uint32_t 
+static inline uint32 
 h7_count(h7_table_t *table)
 {
     return __h7_count(table);
 }
 
-static inline uint32_t 
+static inline uint32 
 h8_count(h8_table_t *table)
 {
     return __h8_count(table);
 }
 
-static inline uint32_t 
+static inline uint32 
 h9_count(h9_table_t *table)
 {
     return __h9_count(table);

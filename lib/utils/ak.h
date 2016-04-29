@@ -2,7 +2,7 @@
 #define __AK_H_2e420d20ac8a47b188d92ef8448db5fa__
 /******************************************************************************/
 #ifndef OS_APPNAMELEN
-#define OS_APPNAMELEN           (32 - sizeof(uint32_t) - 1)
+#define OS_APPNAMELEN           (32 - sizeof(uint32) - 1)
 #endif
 
 #ifndef OS_AKNAME_LEN
@@ -55,7 +55,7 @@ enum {
 #define ak_println(_fmt, _args...)  os_do_nothing()
 #endif
 
-typedef uint32_t akid_t;
+typedef uint32 akid_t;
 
 #if defined(__BOOT__)
 #    define DECLARE_FAKE_DEBUGGER       extern akid_t *__THIS_DEBUG
@@ -157,7 +157,7 @@ enum {
 #define __js_debug_string_default   "0"
 #endif
 
-static inline uint32_t
+static inline uint32
 __ak_debug_getbyname(char *name)
 {
     int idx = ak_DEBUG_idx(name);
@@ -166,7 +166,7 @@ __ak_debug_getbyname(char *name)
 }
 
 static inline char *
-__ak_debug_getname(uint32_t level)
+__ak_debug_getname(uint32 level)
 {
     int idx = os_bitshift(level);
 
@@ -234,12 +234,12 @@ DECLARE_ENUM(ak_sys, __XLIST_AK_SYS, __AK_SYS_END);
 #define __AK_SYS_END    __AK_SYS_END
 #endif /* just for sourceinsight */
 
-static inline uint32_t
+static inline uint32
 __ak_sys_debug(char *var)
 {
     char line[1+OS_LINE_LEN] = {0};
     char *name;
-    uint32_t v = 0;
+    uint32 v = 0;
 
     os_strdcpy(line, var);
     os_strtok_foreach(name, line, "|") {
@@ -257,7 +257,7 @@ __ak_sys_debug(char *var)
     return v;
 }
 
-static inline uint32_t
+static inline uint32
 __ak_sys_value(int sys, char *line)
 {
     /*
@@ -280,7 +280,7 @@ __ak_get_value(char *key, char *value)
 {
     int sys = INVALID_VALUE;
     char *end = NULL;
-    uint32_t v = 0;
+    uint32 v = 0;
     
     /*
     * first, try value as digit string
@@ -346,11 +346,11 @@ ak_init(void)
 typedef struct {
     char app[1+OS_APPNAMELEN];
     char k[1+OS_AKNAME_LEN];
-    uint32_t v;
+    uint32 v;
 } ak_t;
 
 typedef struct {
-    uint32_t protect;
+    uint32 protect;
     bool inited;
     int count;
     int limit;
@@ -361,15 +361,15 @@ typedef union {
     akid_t akid;
 
     struct {
-        uint16_t idx;
-        uint16_t offset;
+        uint16 idx;
+        uint16 offset;
     } v;
 } ak_u;
 
 #define __AKU_MAKE(_idx, _offset)    {  \
     .v = {                              \
-        .idx = (uint16_t)(_idx),        \
-        .offset = (uint16_t)(_offset),  \
+        .idx = (uint16)(_idx),          \
+        .offset = (uint16)(_offset),    \
     }                                   \
 }
 
@@ -402,7 +402,7 @@ __ak_offset(akid_t akid)
 #define appkey_shm_size     (0  \
     + sizeof(ak_hdr_t)          \
     + sizeof(ak_t) * AK_LIMIT   \
-    + sizeof(uint32_t)          \
+    + sizeof(uint32)          \
 )   /* end */
 
 #define DECLARE_FAKE_AK  extern os_shm_t __THIS_AK
@@ -438,7 +438,7 @@ __ak_hdr(void)
 #define __ak_END            __ak_entry(__ak_limit)
 #define __ak_foreach(ak)    for (ak=__ak_0; ak<__ak_end; ak++)
 #define __ak_protect_0      __ak_hdr()->protect
-#define __ak_protect_1      (*(uint32_t *)__ak_END)
+#define __ak_protect_1      (*(uint32 *)__ak_END)
 
 static inline int 
 __ak_getidx(ak_t *ak)
@@ -513,7 +513,7 @@ __ak_getbyname(char *app, char *k)
 }
 
 static inline int 
-__ak_get(akid_t akid, uint32_t *pv)
+__ak_get(akid_t akid, uint32 *pv)
 {
     ak_t *ak = __ak_getbyid(akid);
 
@@ -535,7 +535,7 @@ struct akinfo {
     char app[1+OS_LINE_LEN];
     char key[1+OS_LINE_LEN];
     char var[1+OS_LINE_LEN];
-    uint32_t v;
+    uint32 v;
 };
 #define AKINFO_INITER(_filename, _line) {  \
     .filename = _filename, \
@@ -700,13 +700,13 @@ ak_getbyname(char *k)
     }
 }
 
-static inline uint32_t
-ak_get(akid_t akid, uint32_t deft)
+static inline uint32
+ak_get(akid_t akid, uint32 deft)
 {
     if (__THIS_COMMAND) {
         return akid;
     } else {
-        uint32_t v = deft;
+        uint32 v = deft;
 
         __ak_get(akid, &v);
 
@@ -715,7 +715,7 @@ ak_get(akid_t akid, uint32_t deft)
 }
 
 static inline int 
-ak_set(akid_t akid, uint32_t v)
+ak_set(akid_t akid, uint32 v)
 {
     if (false==__THIS_COMMAND) {
         ak_t *ak = __ak_getbyid(akid);
@@ -849,7 +849,7 @@ __ak_init(void)
 typedef struct {
     akid_t id;
     char *key;
-    uint32_t deft;
+    uint32 deft;
 } ak_var_t;
 
 #define AK_VAR_INITER(_key, _deft)  { \
@@ -870,14 +870,14 @@ ak_var_init(ak_var_t *var)
     }
 }
 
-static inline uint32_t
+static inline uint32
 ak_var_get(ak_var_t *var)
 {
     return ak_get(var->id, var->deft);
 }
 
 static inline int 
-ak_var_set(ak_var_t *var, uint32_t v)
+ak_var_set(ak_var_t *var, uint32 v)
 {
     return ak_set(var->id, v);
 }

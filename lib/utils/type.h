@@ -135,6 +135,12 @@
 #define byte            uint8_t
 #endif
 
+#ifdef __BOOL__
+typedef FILE* STREAM;
+#elif defined(__APP__)
+typedef void* STREAM;
+#endif
+
 enum {
     OS_DISABLE          = 0,
     OS_ENABLE           = 1,
@@ -161,27 +167,27 @@ enum {
     __MV_BREAK          = 1,
 };
 
-typedef int32_t mv_t;
+typedef int32 mv_t;
 
 typedef union {
     mv_t v;
 
     struct {
-        int32_t error:24;
-        int32_t control:8;
+        int32 error:24;
+        int32 control:8;
     } v2;
     
     struct {
-        int32_t error:16;
-        int32_t control:8;
-        int32_t private:8;
+        int32 error:16;
+        int32 control:8;
+        int32 private:8;
     } v3;
     
     struct {
-        int32_t error:8;
-        int32_t control:8;
-        int32_t private:8;
-        int32_t value:8;
+        int32 error:8;
+        int32 control:8;
+        int32 private:8;
+        int32 value:8;
     } v4;
 }
 mv_u;

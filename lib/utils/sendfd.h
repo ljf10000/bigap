@@ -37,7 +37,7 @@ os_fdtransfer_close(int fd)
 }
 
 #define __FDTRANSFER_BUFMIN             1024
-#define __FDTRANSFER_CMSG_LEN           CMSG_SPACE(sizeof(int32_t))
+#define __FDTRANSFER_CMSG_LEN           CMSG_SPACE(sizeof(int32))
 
 #define __FDTRANSFER_EMPTY              "noNe"
 #define __FDTRANSFER_EMPTY_SIZE         (sizeof(__FDTRANSFER_EMPTY) - 1)
@@ -75,7 +75,7 @@ os_fdsend(int sender, int fd, void *buf, int len)
     cmsg->cmsg_level = SOL_SOCKET;
     cmsg->cmsg_type  = SCM_RIGHTS;
     cmsg->cmsg_len   = __FDTRANSFER_CMSG_LEN;
-    *(int32_t *)CMSG_DATA(cmsg) = fd;
+    *(int32 *)CMSG_DATA(cmsg) = fd;
 
     err = fd_sendmsg(sender, &msg, 0);
     if (2!=err) {

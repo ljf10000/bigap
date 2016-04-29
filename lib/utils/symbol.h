@@ -21,7 +21,7 @@ typedef struct {
 typedef struct mlist_table symbol_table_t;
 
 static inline int
-sysbol_table_init(symbol_table_t *table, uint32_t size)
+sysbol_table_init(symbol_table_t *table, uint32 size)
 {
     return mlist_table_init(table, size);
 }
@@ -44,7 +44,7 @@ __symbol_string_new(const char *s)
 }
 
 static inline symbol_t *
-__symbol_binary_new(const void *binary, uint32_t len)
+__symbol_binary_new(const void *binary, uint32 len)
 {
     symbol_t *sym = binary_NEW(symbol_t, string, binary, len);
 
@@ -62,8 +62,8 @@ __symbol_eq(
     const symbol_t *sym, 
     const void *binary, 
     bool bin, 
-    uint32_t len, 
-    uint32_t hash
+    uint32 len, 
+    uint32 hash
 )
 {
     return __string_eq(&sym->string, binary, true, bin, len, hash);
@@ -74,7 +74,7 @@ __symbol_cmp(
     const symbol_t *sym, 
     const void *binary, 
     bool bin, 
-    uint32_t len
+    uint32 len
 )
 {
     return __string_cmp(&sym->string, binary, true, bin, len);
@@ -102,8 +102,8 @@ __symbol_insert(
 static inline symbol_t *
 __symbol_push_string(symbol_table_t *table, const char *s)
 {
-    uint32_t len = 0;
-    uint32_t hash = os_str_BKDR(s, &len);
+    uint32 len = 0;
+    uint32 hash = os_str_BKDR(s, &len);
 
     int data_hash(void)
     {
@@ -133,9 +133,9 @@ __symbol_push_string(symbol_table_t *table, const char *s)
 }
 
 static inline symbol_t *
-__symbol_push_binary(symbol_table_t *table, void *binary, uint32_t len)
+__symbol_push_binary(symbol_table_t *table, void *binary, uint32 len)
 {
-    uint32_t hash = os_bin_bkdr(binary, len);
+    uint32 hash = os_bin_bkdr(binary, len);
 
     int data_hash(void)
     {
@@ -179,7 +179,7 @@ symbol_push_string(symbol_table_t *table, char *s)
 }
 
 static inline symbol_t *
-symbol_push_binary(symbol_table_t *table, void *binary, uint32_t len)
+symbol_push_binary(symbol_table_t *table, void *binary, uint32 len)
 {
     if (NULL==table) {
         return os_assertV(NULL);

@@ -78,7 +78,7 @@ struct init_action {
 	struct init_action *next;
 	pid_t pid;
 #ifdef BIGAP
-    uint32_t action_type;
+    uint32 action_type;
 #else
 	uint8_t  action_type;
 #endif

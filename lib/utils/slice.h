@@ -24,11 +24,11 @@ enum {
 };
 
 typedef struct {
-    uint32_t    flag;
-    uint32_t    resv;
-    uint32_t    offset;
-    uint32_t    len;
-    uint32_t    size;
+    uint32    flag;
+    uint32    resv;
+    uint32    offset;
+    uint32    len;
+    uint32    size;
     
     byte *head; /* fixed */
 } slice_t;
@@ -106,10 +106,10 @@ slice_is_empty(const slice_t *slice)
     (_iov)->iov_len  = slice_len(_slice);   \
 }while(0)
 
-static inline uint32_t
-slice_offset_save(slice_t *slice, uint32_t offset)
+static inline uint32
+slice_offset_save(slice_t *slice, uint32 offset)
 {
-    uint32_t old = slice_offset(slice);
+    uint32 old = slice_offset(slice);
 
     slice_offset(slice) = offset;
 
@@ -117,7 +117,7 @@ slice_offset_save(slice_t *slice, uint32_t offset)
 }
 
 static inline int 
-slice_reinit(slice_t *slice, uint32_t size, uint32_t resv, bool local)
+slice_reinit(slice_t *slice, uint32 size, uint32 resv, bool local)
 {
     if (0==size) {
         debug_error("slice size==0");
@@ -140,7 +140,7 @@ slice_reinit(slice_t *slice, uint32_t size, uint32_t resv, bool local)
 }
 
 static inline void 
-slice_init_resv(slice_t *slice, byte *buf, uint32_t size, uint32_t resv, bool local)
+slice_init_resv(slice_t *slice, byte *buf, uint32 size, uint32 resv, bool local)
 {
     slice_head(slice) = buf;
 
@@ -148,7 +148,7 @@ slice_init_resv(slice_t *slice, byte *buf, uint32_t size, uint32_t resv, bool lo
 }
 
 static inline void
-slice_init(slice_t *slice, byte *buf, uint32_t size, bool local)
+slice_init(slice_t *slice, byte *buf, uint32 size, bool local)
 {
     slice_init_resv(slice, buf, size, 0, local);
 }
@@ -163,13 +163,13 @@ slice_clean(slice_t *slice)
 }
 
 /* real seize */
-static inline uint32_t 
+static inline uint32 
 slice_SIZE(const slice_t *slice)
 {
     return slice_size(slice) + slice_resv(slice);
 }
 
-static inline uint32_t 
+static inline uint32 
 slice_remain(const slice_t *slice)
 {
     return slice_size(slice) - slice_len(slice);
@@ -208,7 +208,7 @@ slice_zero(slice_t *slice)
 }
 
 static inline int
-slice_alloc(slice_t *slice, uint32_t size)
+slice_alloc(slice_t *slice, uint32 size)
 {
     void *buf = NULL;
 
@@ -258,7 +258,7 @@ slice_clone(slice_t *dst, const slice_t *src)
 #endif
 
 static inline int
-slice_grow(slice_t *slice, uint32_t grow)
+slice_grow(slice_t *slice, uint32 grow)
 {
     void *buf;
     int size = slice_SIZE(slice);
@@ -292,7 +292,7 @@ slice_grow(slice_t *slice, uint32_t grow)
 *   remove data from the start of a buffer
 */
 static inline byte *
-slice_pull(slice_t *slice, uint32_t len)
+slice_pull(slice_t *slice, uint32 len)
 {
     trace_assert(NULL!=slice, "slice is nil");
 
@@ -337,7 +337,7 @@ slice_pull(slice_t *slice, uint32_t len)
 *   add data to the start of a buffer
 */
 static inline byte *
-slice_push(slice_t *slice, uint32_t len)
+slice_push(slice_t *slice, uint32 len)
 {
     trace_assert(NULL!=slice,  "slice is nil");
 
@@ -363,7 +363,7 @@ slice_unpull(slice_t *slice)
 *   add data to a buffer
 */
 static inline byte *
-slice_put(slice_t *slice, uint32_t len)
+slice_put(slice_t *slice, uint32 len)
 {
     trace_assert(NULL!=slice, "slice is nil");
     
@@ -377,7 +377,7 @@ slice_put(slice_t *slice, uint32_t len)
 }
 
 static inline byte *
-slice_trim(slice_t *slice, uint32_t len)
+slice_trim(slice_t *slice, uint32 len)
 {
     trace_assert(NULL!=slice, "slice is nil");
     
@@ -406,7 +406,7 @@ slice_put_char(slice_t *slice, int ch)
 }
 
 static inline byte *
-slice_put_buf(slice_t *slice, void *buf, uint32_t len)
+slice_put_buf(slice_t *slice, void *buf, uint32 len)
 {
     trace_assert(NULL!=slice, "slice is nil");
 

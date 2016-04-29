@@ -39,7 +39,7 @@ struct app {
 };
 
 static struct {
-    uint32_t ip;
+    uint32 ip;
     int port;
     
     int fd;

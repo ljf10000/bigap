@@ -24,7 +24,7 @@ typedef struct loop_timer {
     struct itimerspec new;
 
     int (*init)(struct loop_timer *loop);
-    int (*cb)(uint32_t times);
+    int (*cb)(uint32 times);
 } loop_timer_t;
 
 #define LOOP_TIMER_INITER(_sec, _nsec, _init, _cb) {   \
@@ -238,11 +238,11 @@ __loop_signal_handle(loop_t *loop)
 static void
 __loop_timer_handle(loop_t *loop)
 {
-    uint64_t val = 0;
+    uint64 val = 0;
     
     int len = read(loop->timer.fd, &val, sizeof(val));
     if (len==sizeof(val)) {
-        (*loop->timer.cb)((uint32_t)val);
+        (*loop->timer.cb)((uint32)val);
     }
 }
 

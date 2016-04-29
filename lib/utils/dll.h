@@ -39,78 +39,78 @@ DECLARE_ENUM(libval_type, __XLIST_LIBVAL_TYPE, LIBVAL_END);
 #define LIBVAL_INOUT    (LIBVAL_IN | LIBVAL_OUT)
 
 typedef struct {
-    uint32_t size;  /* sizeof */
-    uint32_t type;  /* LIBVAL_END */
-    uint32_t len;   /* just for buffer/string */
-    uint32_t dir;   /* LIBVAL_IN/LIBVAL_OUT/LIBVAL_INOUT */
+    uint32 size;  /* sizeof */
+    uint32 type;  /* LIBVAL_END */
+    uint32 len;   /* just for buffer/string */
+    uint32 dir;   /* LIBVAL_IN/LIBVAL_OUT/LIBVAL_INOUT */
 
     union {
-        float32_t   f4;
-        int32_t     i4;
-        uint32_t    u4;
+        float32 f4;
+        int32   i4;
+        uint32  u4;
 
-        float64_t   f8;
-        int64_t     i8;
-        uint64_t    u8;
+        float64 f8;
+        int64   i8;
+        uint64  u8;
 
-        byte        *b;
-        char        *s;
-        void        *p;
+        byte    *b;
+        char    *s;
+        void    *p;
     } u;
 } 
 libval_t;
 
 #define LIBVAL_F4_INITER(_dir, _val) { \
-    .size = sizeof(float32_t),  \
+    .size = sizeof(float32),  \
     .type = LIBVAL_F32,         \
     .dir  = _dir,               \
     .u = {                      \
-        .f4 = (float32_t)_val,  \
+        .f4 = (float32)_val,  \
     },                          \
 } /* end */
 
 #define LIBVAL_I4_INITER(_dir, _val) { \
-    .size = sizeof(int32_t),    \
+    .size = sizeof(int32),    \
     .type = LIBVAL_I32,         \
     .dir  = _dir,               \
     .u = {                      \
-        .i4 = (int32_t)_val,    \
+        .i4 = (int32)_val,    \
     },                          \
 } /* end */
 
 #define LIBVAL_U4_INITER(_dir, _val) { \
-    .size = sizeof(uint32_t),   \
+    .size = sizeof(uint32),   \
     .type = LIBVAL_U32,         \
     .dir  = _dir,               \
     .u = {                      \
-        .u4 = (uint32_t)_val,   \
+        .u4 = (uint32)_val,   \
     },                          \
 } /* end */
 
 #define LIBVAL_F8_INITER(_dir, _val) { \
-    .size = sizeof(float64_t),  \
+    .size = sizeof(float64),  \
     .type = LIBVAL_F64,         \
     .dir  = _dir,               \
     .u = {                      \
-        .f8 = (float64_t)_val,  \
+        .f8 = (float64)_val,  \
     },                          \
 } /* end */
 
 #define LIBVAL_I8_INITER(_dir, _val) { \
-    .size = sizeof(int64_t),    \
+    .size = sizeof(int64),    \
     .type = LIBVAL_I64,         \
     .dir  = _dir,               \
     .u = {                      \
-        .i8 = (int64_t)_val,    \
+        .i8 = (int64)_val,    \
     },                          \
 } /* end */
 
 #define LIBVAL_U8_INITER(_dir, _val) { \
-    .size = sizeof(uint64_t),   \
+    .size = sizeof(uint64),   \
     .type = LIBVAL_U64,         \
     .dir  = _dir,               \
     .u = {                      \
-        .u8 = (uint64_t)_val,   \
+        .u8 = (uint64)_val,   \
     },                          \
 } /* end */
 
@@ -167,16 +167,16 @@ typedef struct {
 #define LIBPROTO_INITER(_type, _params)  __LIBPROTO_INITER(sizeof(_type), _params)
 
 typedef void func_0_0(void);
-typedef void func_0_4(uint32_t, ...);
-typedef void func_0_8(uint64_t, ...);
+typedef void func_0_4(uint32, ...);
+typedef void func_0_8(uint64, ...);
 
-typedef uint32_t func_4_0(void);
-typedef uint32_t func_4_4(uint32_t, ...);
-typedef uint32_t func_4_8(uint64_t, ...);
+typedef uint32 func_4_0(void);
+typedef uint32 func_4_4(uint32, ...);
+typedef uint32 func_4_8(uint64, ...);
 
-typedef uint64_t func_8_0(void);
-typedef uint64_t func_8_4(uint32_t, ...);
-typedef uint64_t func_8_8(uint64_t, ...);
+typedef uint64 func_8_0(void);
+typedef uint64 func_8_4(uint32, ...);
+typedef uint64 func_8_8(uint64, ...);
 
 #if 0
 #define LIBVAL(_val)                      ( \

@@ -12,7 +12,7 @@ enum {
 };
 
 struct bcookie {
-    uint32_t id[BCOOKIE_COUNT];
+    uint32 id[BCOOKIE_COUNT];
 };
 
 #define BCOOKIE(_id)    {   \
@@ -45,7 +45,7 @@ struct bcookie_otp {
 
 struct bcookie_cid {
     struct bcookie header;
-    uint32_t cid[4];
+    uint32 cid[4];
 };
 
 #define bcookie_cid_psn(_cid)   (((_cid[2] & 0xffff) << 16) | (_cid[3] >> 16))
@@ -86,7 +86,7 @@ bcookie_find(byte *mem, int size, int id)
 
 #ifdef __BOOT__
 static inline int
-__bcookie_check(uint32_t begin, uint32_t size, struct bcookie *obj, uint32_t osize)
+__bcookie_check(uint32 begin, uint32 size, struct bcookie *obj, uint32 osize)
 {
     if (osize<=sizeof(struct bcookie)) {
         return os_assertV(-EINVAL5);
@@ -166,9 +166,9 @@ __bcookie_save(int begin, int size, struct bcookie *obj, int osize)
     }
     os_memcpy(mem + offset, obj, osize);
 
-    uint32_t block_begin = os_align_down(offset, BENV_BLOCK_SIZE)/BENV_BLOCK_SIZE;
-    uint32_t block_end   = OS_ALIGN(offset + osize - 1, BENV_BLOCK_SIZE)/BENV_BLOCK_SIZE;
-    uint32_t block_count = block_end - block_begin + 1;
+    uint32 block_begin = os_align_down(offset, BENV_BLOCK_SIZE)/BENV_BLOCK_SIZE;
+    uint32 block_end   = OS_ALIGN(offset + osize - 1, BENV_BLOCK_SIZE)/BENV_BLOCK_SIZE;
+    uint32 block_count = block_end - block_begin + 1;
     
     if (block_count * BENV_BLOCK_SIZE != benv_emmc_write(begin + block_begin * BENV_BLOCK_SIZE, 
                     mem + block_begin * BENV_BLOCK_SIZE, 
@@ -199,7 +199,7 @@ bcookie_save(struct bcookie *obj, int size)
 }
 #elif defined(__APP__)
 static inline int
-__bcookie_check(char *file, uint32_t fsize, struct bcookie *obj, uint32_t osize)
+__bcookie_check(char *file, uint32 fsize, struct bcookie *obj, uint32 osize)
 {
     if (NULL==file) {
         return os_assertV(-EINVAL8);

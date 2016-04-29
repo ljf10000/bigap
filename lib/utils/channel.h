@@ -13,17 +13,17 @@ enum channel_type {
 };
 
 typedef struct {
-    uint32_t size;
-    uint32_t limit;
-    uint32_t type;
-    uint32_t reader;
-    uint32_t writer;
+    uint32 size;
+    uint32 limit;
+    uint32 type;
+    uint32 reader;
+    uint32 writer;
 
     byte buf[0];
 } channel_t;
 
 static inline int
-__ch_align(channel_t *ch, uint32_t number)
+__ch_align(channel_t *ch, uint32 number)
 {
     return number % ch->limit;
 }
@@ -39,7 +39,7 @@ __ch_align(channel_t *ch, uint32_t number)
 }while(0)
 
 static inline byte *
-__ch_buffer(channel_t *ch, uint32_t idx)
+__ch_buffer(channel_t *ch, uint32 idx)
 {
     return ch->buf + ch->size * idx;
 }
@@ -69,10 +69,10 @@ __ch_is_full(channel_t *ch)
 }
 
 static inline bool
-__ch_is_writeable(channel_t *ch, uint32_t idx)
+__ch_is_writeable(channel_t *ch, uint32 idx)
 {
-    uint32_t reader = ch->reader;
-    uint32_t writer = ch->writer;
+    uint32 reader = ch->reader;
+    uint32 writer = ch->writer;
     
     idx = __ch_align(ch, idx);
 
@@ -91,13 +91,13 @@ __ch_is_writeable(channel_t *ch, uint32_t idx)
 }
 
 static inline bool
-__ch_is_readable(channel_t *ch, uint32_t idx)
+__ch_is_readable(channel_t *ch, uint32 idx)
 {
     return false==__ch_is_writeable(ch, idx);
 }
 
 static inline int
-__ch_SIZE(uint32_t type, uint32_t size)
+__ch_SIZE(uint32 type, uint32 size)
 {
     switch(type) {
         case CHANNEL_OBJECT:
@@ -115,15 +115,15 @@ __ch_SIZE(uint32_t type, uint32_t size)
             
             break;
         case CHANNEL_U16:
-            size = sizeof(uint16_t);
+            size = sizeof(uint16);
             
             break;
         case CHANNEL_U32:
-            size = sizeof(uint32_t);
+            size = sizeof(uint32);
             
             break;
         case CHANNEL_U64:
-            size = sizeof(uint64_t);
+            size = sizeof(uint64);
             
             break;
         default:
@@ -134,7 +134,7 @@ __ch_SIZE(uint32_t type, uint32_t size)
 }
 
 static inline channel_t *
-__ch_new(uint32_t type, uint32_t limit, uint32_t size)
+__ch_new(uint32 type, uint32 limit, uint32 size)
 {
     if (0==size) {
         return os_assertV(NULL);
@@ -151,7 +151,7 @@ __ch_new(uint32_t type, uint32_t limit, uint32_t size)
 }
 
 static inline int
-__ch_get(channel_t *ch, uint32_t idx, void *obj)
+__ch_get(channel_t *ch, uint32 idx, void *obj)
 {
     idx = __ch_align(ch, idx);
     
@@ -169,19 +169,19 @@ __ch_get(channel_t *ch, uint32_t idx, void *obj)
             trace_assert(NULL != *(void **)obj, "*obj is nil");
             break;
         case CHANNEL_U8:
-            __ch_GET(ch, uint8_t, idx, obj);
+            __ch_GET(ch, byte, idx, obj);
             
             break;
         case CHANNEL_U16:
-            __ch_GET(ch, uint16_t, idx, obj);
+            __ch_GET(ch, uint16, idx, obj);
             
             break;
         case CHANNEL_U32:
-            __ch_GET(ch, uint32_t, idx, obj);
+            __ch_GET(ch, uint32, idx, obj);
             
             break;
         case CHANNEL_U64:
-            __ch_GET(ch, uint64_t, idx, obj);
+            __ch_GET(ch, uint64, idx, obj);
             
             break;
         default:
@@ -192,7 +192,7 @@ __ch_get(channel_t *ch, uint32_t idx, void *obj)
 }
 
 static inline int
-__ch_set(channel_t *ch, uint32_t idx, void *obj)
+__ch_set(channel_t *ch, uint32 idx, void *obj)
 {
     idx = __ch_align(ch, idx);
     
@@ -206,19 +206,19 @@ __ch_set(channel_t *ch, uint32_t idx, void *obj)
             
             break;
         case CHANNEL_U8:
-            __ch_SET(ch, uint8_t, idx, obj);
+            __ch_SET(ch, byte, idx, obj);
             
             break;
         case CHANNEL_U16:
-            __ch_SET(ch, uint16_t, idx, obj);
+            __ch_SET(ch, uint16, idx, obj);
             
             break;
         case CHANNEL_U32:
-            __ch_SET(ch, uint32_t, idx, obj);
+            __ch_SET(ch, uint32, idx, obj);
             
             break;
         case CHANNEL_U64:
-            __ch_SET(ch, uint64_t, idx, obj);
+            __ch_SET(ch, uint64, idx, obj);
             
             break;
         default:
@@ -231,7 +231,7 @@ __ch_set(channel_t *ch, uint32_t idx, void *obj)
 static inline int
 __ch_read(channel_t *ch, void *obj)
 {
-    uint32_t reader = ch->reader;
+    uint32 reader = ch->reader;
     int err = 0;
 
     if (false==__ch_is_readable(ch, reader)) {
@@ -251,7 +251,7 @@ __ch_read(channel_t *ch, void *obj)
 static inline int
 __ch_write(channel_t *ch, void *obj)
 {
-    uint32_t writer = ch->writer;
+    uint32 writer = ch->writer;
     int err = 0;
 
     if (false==__ch_is_writeable(ch, writer)) {
@@ -315,7 +315,7 @@ os_ch_is_full(channel_t *ch)
 }
 
 static inline bool
-os_ch_is_writeable(channel_t *ch, uint32_t idx)
+os_ch_is_writeable(channel_t *ch, uint32 idx)
 {
     if (NULL==ch) {
         /*
@@ -328,7 +328,7 @@ os_ch_is_writeable(channel_t *ch, uint32_t idx)
 }
 
 static inline bool
-os_ch_is_readable(channel_t *ch, uint32_t idx)
+os_ch_is_readable(channel_t *ch, uint32 idx)
 {
     if (NULL==ch) {
         /*
@@ -341,7 +341,7 @@ os_ch_is_readable(channel_t *ch, uint32_t idx)
 }
 
 static inline channel_t *
-os_ch_new(uint32_t type, uint32_t limit, uint32_t size)
+os_ch_new(uint32 type, uint32 limit, uint32 size)
 {
     return __ch_new(type, os_power_align(limit), __ch_SIZE(type, size));
 }
@@ -349,7 +349,7 @@ os_ch_new(uint32_t type, uint32_t limit, uint32_t size)
 #define os_ch_free(_ch)     os_free(_ch)
 
 static inline int
-os_ch_get(channel_t *ch, uint32_t idx, void *obj)
+os_ch_get(channel_t *ch, uint32 idx, void *obj)
 {
     if (NULL==ch) {
         return os_assertV(-EKEYBAD);
@@ -361,7 +361,7 @@ os_ch_get(channel_t *ch, uint32_t idx, void *obj)
 }
 
 static inline int
-os_ch_set(channel_t *ch, uint32_t idx, void *obj)
+os_ch_set(channel_t *ch, uint32 idx, void *obj)
 {
     if (NULL==ch) {
         return os_assertV(-EKEYBAD);
@@ -405,25 +405,25 @@ os_ch_write(channel_t *ch, void *obj)
 #define os_8ch_new(_limit)          os_ch_new(CHANNEL_U8, _limit, 0)
 
 static inline int
-os_8ch_get(channel_t *ch, uint32_t idx, uint8_t *pv)
+os_8ch_get(channel_t *ch, uint32 idx, byte *pv)
 {
     return os_ch_get(ch, idx, pv);
 }
 
 static inline int
-os_8ch_set(channel_t *ch, uint32_t idx, uint8_t v)
+os_8ch_set(channel_t *ch, uint32 idx, byte v)
 {
     return os_ch_set(ch, idx, &v);
 }
 
 static inline int
-os_8ch_read(channel_t *ch, uint8_t *pv)
+os_8ch_read(channel_t *ch, byte *pv)
 {
     return os_ch_read(ch, pv);
 }
 
 static inline int
-os_8ch_write(channel_t *ch, uint8_t v)
+os_8ch_write(channel_t *ch, byte v)
 {
     return os_ch_write(ch, &v);
 }
@@ -431,25 +431,25 @@ os_8ch_write(channel_t *ch, uint8_t v)
 #define os_16ch_new(_limit)         os_ch_new(CHANNEL_U16, _limit, 0)
 
 static inline int
-os_16ch_get(channel_t *ch, uint32_t idx, uint16_t *pv)
+os_16ch_get(channel_t *ch, uint32 idx, uint16 *pv)
 {
     return os_ch_get(ch, idx, pv);
 }
 
 static inline int
-os_16ch_set(channel_t *ch, uint32_t idx, uint16_t v)
+os_16ch_set(channel_t *ch, uint32 idx, uint16 v)
 {
     return os_ch_set(ch, idx, &v);
 }
 
 static inline int
-os_16ch_read(channel_t *ch, uint16_t *pv)
+os_16ch_read(channel_t *ch, uint16 *pv)
 {
     return os_ch_read(ch, pv);
 }
 
 static inline int
-os_16ch_write(channel_t *ch, uint16_t v)
+os_16ch_write(channel_t *ch, uint16 v)
 {
     return os_ch_write(ch, &v);
 }
@@ -457,25 +457,25 @@ os_16ch_write(channel_t *ch, uint16_t v)
 #define os_32ch_new(_limit)         os_ch_new(CHANNEL_U32, _limit, 0)
 
 static inline int
-os_32ch_get(channel_t *ch, uint32_t idx, uint32_t *pv)
+os_32ch_get(channel_t *ch, uint32 idx, uint32 *pv)
 {
     return os_ch_get(ch, idx, pv);
 }
 
 static inline int
-os_32ch_set(channel_t *ch, uint32_t idx, uint32_t v)
+os_32ch_set(channel_t *ch, uint32 idx, uint32 v)
 {
     return os_ch_set(ch, idx, &v);
 }
 
 static inline int
-os_32ch_read(channel_t *ch, uint32_t *pv)
+os_32ch_read(channel_t *ch, uint32 *pv)
 {
     return os_ch_read(ch, pv);
 }
 
 static inline int
-os_32ch_write(channel_t *ch, uint32_t v)
+os_32ch_write(channel_t *ch, uint32 v)
 {
     return os_ch_write(ch, &v);
 }
@@ -483,25 +483,25 @@ os_32ch_write(channel_t *ch, uint32_t v)
 #define os_64ch_new(_limit)         os_ch_new(CHANNEL_U64, _limit, 0)
 
 static inline int
-os_64ch_get(channel_t *ch, uint32_t idx, uint64_t *pv)
+os_64ch_get(channel_t *ch, uint32 idx, uint64 *pv)
 {
     return os_ch_get(ch, idx, pv);
 }
 
 static inline int
-os_64ch_set(channel_t *ch, uint32_t idx, uint64_t v)
+os_64ch_set(channel_t *ch, uint32 idx, uint64 v)
 {
     return os_ch_set(ch, idx, &v);
 }
 
 static inline int
-os_64ch_read(channel_t *ch, uint64_t *pv)
+os_64ch_read(channel_t *ch, uint64 *pv)
 {
     return os_ch_read(ch, pv);
 }
 
 static inline int
-os_64ch_write(channel_t *ch, uint64_t v)
+os_64ch_write(channel_t *ch, uint64 v)
 {
     return os_ch_write(ch, &v);
 }
@@ -509,13 +509,13 @@ os_64ch_write(channel_t *ch, uint64_t v)
 #define os_pch_new(_limit)          os_ch_new(CHANNEL_POINTER, _limit, 0)
 
 static inline int
-os_pch_get(channel_t *ch, uint32_t idx, void **pointer)
+os_pch_get(channel_t *ch, uint32 idx, void **pointer)
 {
     return os_ch_get(ch, idx, (void *)pointer);
 }
 
 static inline int
-os_pch_set(channel_t *ch, uint32_t idx, void *pointer)
+os_pch_set(channel_t *ch, uint32 idx, void *pointer)
 {
     return os_ch_set(ch, idx, (void *)&pointer);
 }

@@ -31,7 +31,7 @@ enum {
 typedef struct {
     char data[SDB_ENTRY_SIZE];
     
-    uint32_t flag;
+    uint32 flag;
     
     struct {
         struct hlist_node hash[SDB_HASHCOUNT];
@@ -40,7 +40,7 @@ typedef struct {
 } sdb_entry_t;
 
 typedef struct {
-    uint32_t protect;
+    uint32 protect;
     bool inited;
     int count;
     int limit;
@@ -49,7 +49,7 @@ typedef struct {
 } sdb_hdr_t;
 
 typedef struct {
-    uint32_t protect;
+    uint32 protect;
 } sdb_tail_t;
 
 typedef struct {

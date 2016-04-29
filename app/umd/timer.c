@@ -197,7 +197,7 @@ timer_server_init(cli_server_t *server)
 static int
 timer_server_handle(cli_server_t *server)
 {
-    uint32_t times = tm_fd_read(server->fd);
+    uint32 times = tm_fd_read(server->fd);
     time_t now = time(NULL);
     int i;
     

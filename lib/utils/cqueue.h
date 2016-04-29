@@ -6,7 +6,7 @@ enum {
 };
 
 typedef struct {
-    uint32_t flag;
+    uint32 flag;
     
     channel_t *ch;
     
@@ -20,7 +20,7 @@ cq_is_block(cqueue_t *cq)
 }
 
 static inline int
-cq_init(cqueue_t *cq, int count, uint32_t flag)
+cq_init(cqueue_t *cq, int count, uint32 flag)
 {
     cq->ch = os_pch_new(count);
     if (NULL==cq->ch) {
@@ -47,13 +47,13 @@ cq_fini(cqueue_t *cq)
 }
 
 static inline int
-cq_get(cqueue_t *cq, uint32_t idx, void **pointer)
+cq_get(cqueue_t *cq, uint32 idx, void **pointer)
 {
     return os_pch_get(cq->ch, idx, pointer);
 }
 
 static inline int
-cq_set(cqueue_t *cq, uint32_t idx, void *pointer)
+cq_set(cqueue_t *cq, uint32 idx, void *pointer)
 {
     void *old = NULL;
     
