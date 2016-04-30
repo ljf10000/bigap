@@ -525,6 +525,7 @@ is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 static inline int
 haee_set(haenv_entry_t *e, char *k, char *v)
 {
+    haenv_debug("...");
     if (e) {
         e->klen = os_strlen(k);
         e->vlen = os_strlen(v);
@@ -697,6 +698,7 @@ hae_find(haenv_t *env, char *k)
 static inline haenv_entry_t *
 hae_append(haenv_t *env, char *k, char *v)
 {
+    haenv_debug("...");
     haenv_entry_t *e = hae_empty(env);
     if (NULL==e) {
         return NULL;
@@ -707,6 +709,7 @@ hae_append(haenv_t *env, char *k, char *v)
         return NULL;
     }
     env->unsaved += haee_size(e);
+    haenv_debug("env[%d] unsaved==>0x%x", env->id, env->unsaved);
     
     return e;
 }
@@ -867,7 +870,8 @@ static inline int
 haenv_append(char *k, char *v)
 {
     int i, err;
-
+    haenv_debug("...");
+    
     haenv_seq++;
     
     haenv_entry_t *e = hae_append(haenv_first(), k, v);
