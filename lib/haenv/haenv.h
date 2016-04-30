@@ -533,7 +533,7 @@ __is_good_haee_md5(haenv_entry_t *e)
 }
 
 static inline bool
-is_good_haee(haenv_t *env, haenv_entry_t *e)
+is_good_haee(haenv_entry_t *e)
 {
     return e->klen && e->vlen &&__is_good_haee_md5(e);
 }
