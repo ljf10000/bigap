@@ -517,9 +517,14 @@ static inline bool
 is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 {
     byte md5[16] = {0};
-    __haee_md5(e, md5);
-    
-    return md5_eq(md5, e->md5);
+
+    if (md5_eq(md5, e->md5)) {
+        return false;
+    } else {
+        __haee_md5(e, md5);
+        
+        return md5_eq(md5, e->md5);
+    }
 }
 
 static inline int
