@@ -88,13 +88,13 @@
 #endif
 
 #ifndef HAENV_DPRINT
-#define HAENV_DPRINT            0
+#define HAENV_DPRINT            1
 #endif
 
 #if HAENV_DPRINT
-#define haenv_println(_fmt, _args...)   os_println(_fmt "\n", ##_args)
+#define haenv_debug(_fmt, _args...)     os_println(_fmt "\n", ##_args)
 #else
-#define haenv_println(_fmt, _args...)   os_do_nothing()
+#define haenv_debug(_fmt, _args...)     os_do_nothing()
 #endif
 
 
@@ -294,6 +294,7 @@ static inline int
 hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     if (false==is_good_haenv_zone(begin, begin + size)) {
+        haenv_debug("hae_read error: bad zone[0x%x, 0x%x)", begin, begin+size);
         return -ERANGE;
     }
     
@@ -307,6 +308,7 @@ static inline int
 hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     if (false==is_good_haenv_zone(begin, begin + size)) {
+        haenv_debug("hae_write error: bad zone[0x%x, 0x%x)", begin, begin+size);
         return -ERANGE;
     }
     
@@ -928,19 +930,19 @@ haenv_init(void)
         return -EIO;
     }
 
-    haenv_println("open " HAENV_FILE);
+    haenv_debug("open " HAENV_FILE);
 #endif
 
     err = os_sem_create(haenv_sem(), OS_HAENV_SEM_ID);
     if (err<0) {
         return err;
     }
-    haenv_println("create sem");
+    haenv_debug("create sem");
     
     haenv_foreach(i, env) {
         env->f  = f;
         env->start = HAENV_START + i*HAENV_SIZE;
-        haenv_println("env[%d] start at 0x%x", i, env->start);
+        haenv_debug("env[%d] start at 0x%x", i, env->start);
     }
     
     return 0;
@@ -951,6 +953,7 @@ haenv_fini(void)
 {
 #ifdef __APP__
     os_fclose(haenv_first()->f);
+    haenv_debug("close " HAENV_FILE);
 #endif
 
     // os_sem_destroy(haenv_sem());
