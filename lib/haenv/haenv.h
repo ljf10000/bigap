@@ -184,12 +184,13 @@ typedef struct {
     uint32 seq;     // next seq
 } haenv_file_t;
 
-#define DECLARE_FAKE_HAENV          extern haenv_file_t *__THIS_HAENV
 #if defined(__BOOT__)
 #   define DECLARE_REAL_HAENV       haenv_file_t *__THIS_HAENV
+#   define DECLARE_FAKE_HAENV       extern haenv_file_t *__THIS_HAENV
 #   define DECLARE_HAENV            DECLARE_REAL_HAENV
 #else
 #   define DECLARE_REAL_HAENV       haenv_file_t __THIS_HAENV
+#   define DECLARE_FAKE_HAENV       extern haenv_file_t __THIS_HAENV
 #   ifdef __BUSYBOX__
 #       define DECLARE_HAENV        DECLARE_FAKE_HAENV
 #   else
