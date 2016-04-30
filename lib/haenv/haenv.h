@@ -280,8 +280,8 @@ __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
         return err;
     }
     haenv_debug("ok");
-    
-    return 0;
+
+    return err;
 }
 
 /*
@@ -306,6 +306,8 @@ __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
     }
     
     haenv_debug("ok");
+
+    return err;
 }
 #endif
 
@@ -322,7 +324,15 @@ hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
         return -ERANGE;
     }
     
-    return __hae_read(env, begin, buf, size);
+    int err = __hae_read(env, begin, buf, size);
+    if (err<0) {
+        haenv_debug("read error:%d", err);
+        
+        return err;
+    }
+    haenv_debug("ok");
+
+    return err;
 }
 
 /*
@@ -337,7 +347,15 @@ hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
         return -ERANGE;
     }
     
-    return __hae_write(env, begin, buf, size);
+    int err = __hae_write(env, begin, buf, size);
+    if (err<0) {
+        haenv_debug("read error:%d", err);
+        
+        return err;
+    }
+    haenv_debug("ok");
+
+    return err;
 }
 
 static inline uint32
