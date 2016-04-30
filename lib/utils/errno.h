@@ -224,6 +224,7 @@ enum {
     ESCRIPT     = ERRNO(60),
     EBOUND      = ERRNO(61),
     EPROTOCOL   = ERRNO(62),
+    EDAMAGED    = ERRNO(63),
     
     EDLLLOAD        = ERRNO(70),
     EDLLSYMLOAD     = ERRNO(71),

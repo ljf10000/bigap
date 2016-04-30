@@ -75,6 +75,10 @@
 #define __THIS_CLI_BUFFER       __SYMBOL_TO_VAR(__THIS_APP, _cli_buffer)
 #endif
 
+#ifndef __THIS_HAENV
+#define __THIS_HAENV            __SYMBOL_TO_VAR(__THIS_APP, _haenv)
+#endif
+
 #ifndef __THIS_LOCKFILE
 #define __THIS_LOCKFILE         "/tmp/." __THIS_APP_NAME ".lock"
 #endif

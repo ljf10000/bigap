@@ -11,13 +11,13 @@
 #endif
 
 #ifndef HAENV_COUNT
-#define HAENV_COUNT                 3
+#define HAENV_COUNT                 4
 #endif
 
 #ifndef HAENV_SIZE
 #define HAENV_SIZE                  (64*1024)
 #endif
-#define HAENV_SIZE_MASK             (HAENV_SIZE-1)
+#define HAENV_GCSIZE                (HAENV_SIZE*3/4)
 
 #ifndef HAENV_BLOCK_SIZE
 #define HAENV_BLOCK_SIZE            512
@@ -35,13 +35,39 @@
 #ifndef HAENV_START
 #ifdef __BOOT__ /* offset of flash(global) */
 #   define HAENV_START              (HAENV_BOOT_SIZE + HAENV_BOOTENV_SIZE)
-#else /* offset of file(/dev/bootenv) */
-#   define HAENV_START              HAENV_BOOTENV_SIZE
+#else /* offset of HAENV_FILE */
+#   ifdef __PC__
+#       define HAENV_START          0
+#   else
+#       define HAENV_START          HAENV_BOOTENV_SIZE
+#   endif
 #endif
+#endif
+
+#ifndef HAENV_FILE
+#   ifdef __PC__
+#       define HAENV_FILE           "bootenv"
+#   else
+#       define HAENV_FILE           "/dev/mmcblk0p02"
+#   endif
 #endif
 
 #ifndef HAENV_ROOT
 #define HAENV_ROOT                  "/dev/mmcblk0p14"
+#endif
+
+/*
+* for read
+*/
+#ifndef HAENV_EXPORT
+#define HAENV_EXPORT                "/tmp/.haenv"
+#endif
+
+/*
+* after write, load to it, and rename to HAENV_EXPORT
+*/
+#ifndef HAENV_TEMP
+#define HAENV_TEMP                  "/tmp/.haenv.tmp"
 #endif
 
 #define HAENV_ROOTFS_MODE_TYPE_RW   1
@@ -125,34 +151,170 @@
 
 #define HAENV_ALIGN(_len)       OS_ALIGN(_len, sizeof(uint32))
 
+#define HAENV_F_DIRTY           0x01
+
 typedef struct {
-    byte md5[HAENV_MD5_SIZE];
-    byte used;
-    byte klen;
-    uint16 vlen;
-    uint32 seq;
+    byte    md5[HAENV_MD5_SIZE];
+    byte    flag;
+    byte    klen;
+    uint16  vlen;
+    
+    uint32  seq;
     
     char data[0];
 } haenv_entry_t;
 
-typedef struct {
+typedef struct {    
     char mirror[HAENV_SIZE];
     
-    uint32 saved;   // size: have saved to flash
-    uint32 unsaved; // size: not unsaved to flash
+    STREAM f;       // set @init
+    uint32  start;  // set @init
+    
+    uint32  saved;  // size: have saved to flash
+    uint32  unsaved;// size: not unsaved to flash
+    
+    bool    damaged;
 } haenv_t;
 
 typedef struct {
-    haenv_t env[1+HAENV_COUNT];
-
-    STREAM f;
+    haenv_t env[HAENV_COUNT];
+    
+    os_sem_t sem;
+    
+    uint32 seq;     // next seq
 } haenv_file_t;
 
-#define HAENV_TEMP  HAENV_COUNT
+#define DECLARE_FAKE_HAENV          extern haenv_file_t *__THIS_HAENV
+#if defined(__BOOT__)
+#   define DECLARE_REAL_HAENV       haenv_file_t *__THIS_HAENV
+#   define DECLARE_HAENV            DECLARE_REAL_HAENV
+#else
+#   define DECLARE_REAL_HAENV       haenv_file_t __THIS_HAENV
+#   ifdef __BUSYBOX__
+#       define DECLARE_HAENV        DECLARE_FAKE_HAENV
+#   else
+#       define DECLARE_HAENV        DECLARE_REAL_HAENV
+#   endif
+#endif
 
-extern haenv_file_t haenv_file;
+DECLARE_FAKE_HAENV;
 
-#define haenv_foreach(_i)   for (_i=0; _i<HAENV_COUNT; _i++)
+static inline haenv_file_t *
+haenv(void)
+{
+#ifdef __BOOT__
+    return __THIS_HAENV;
+#else
+    return &__THIS_HAENV;
+#endif
+}
+
+#define haenv_seq       haenv()->seq
+#define haenv_env(_id)  (&haenv()->env[_id])
+#define haenv_first()   haenv_env(0)
+#define haenv_sem()     (&haenv()->sem)
+
+/*
+* zone as [begin, end)
+*/
+static inline bool
+is_good_haenv_zone(uint32 begin, uint32 end)
+{
+    return  begin < end && begin < HAENV_SIZE && end <= HAENV_SIZE;
+}
+
+
+#ifdef __BOOT__
+extern int 
+benv_emmc_read(uint32 begin, void *buf, int size);
+
+extern int 
+benv_emmc_write(uint32 begin, void *buf, int size);
+
+/*
+* begin: haenv file offset
+*/
+static inline int
+__hae_read(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+{
+    return benv_emmc_read(env->start + begin, buf, size);
+}
+
+/*
+* begin:  haenv file offset
+*/
+static inline int
+__hae_write(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+{
+    return benv_emmc_write(env->start + begin, buf, size);
+}
+#else
+/*
+* begin: haenv file offset
+*/
+static inline int
+__hae_read(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+{
+    int err = os_fseek(env->f, env->start + begin, SEEK_SET);
+    if (err<0) {
+        return err;
+    }
+    
+    return os_fread(env->f, buf, size);
+}
+
+/*
+* begin:  haenv file offset
+*/
+static inline int
+__hae_write(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+{
+    int err = os_fseek(env->f, env->start + begin, SEEK_SET);
+    if (err<0) {
+        return err;
+    }
+    
+    return os_fwrite(env->f, buf, size);
+}
+#endif
+
+/*
+* begin:  haenv offset
+*/
+static inline int
+hae_read(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+{
+    if (false==is_good_haenv_zone(begin, begin + size)) {
+        return -ERANGE;
+    }
+    
+    return __hae_read(env, begin, buf, size);
+}
+
+/*
+* begin:  haenv offset
+*/
+static inline int
+hae_write(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+{
+    if (false==is_good_haenv_zone(begin, begin + size)) {
+        return -ERANGE;
+    }
+    
+    return __hae_write(env, begin, buf, size);
+}
+
+static inline uint32
+hae_offsetof(haenv_t *env, haenv_entry_t *e)
+{
+    return (uint32)pointer_offset(e, env);
+}
+
+static inline bool
+is_haee_dirty(haenv_entry_t *e)
+{
+    return os_hasflag(e->flag, HAENV_F_DIRTY);
+}
 
 /*
 * key + ['\0'] + [pad]
@@ -179,6 +341,15 @@ static inline char *
 haee_kpad(haenv_entry_t *e)
 {
     return e->klen?(haee_key(e) + e->klen + 1):NULL;
+}
+
+static inline void
+haee_kpad_zero(haenv_entry_t *e)
+{
+    char *pad = haee_kpad(e);
+    if (pad) {
+        os_memzero(pad, haee_kpad_len(e));
+    }
 }
 
 /*
@@ -212,6 +383,15 @@ haee_vpad(haenv_entry_t *e)
     return e->vlen?(haee_value(e) + e->vlen + 1):NULL;
 }
 
+static inline void
+haee_vpad_zero(haenv_entry_t *e)
+{
+    char *pad = haee_vpad(e);
+    if (pad) {
+        os_memzero(pad, haee_vpad_len(e));
+    }
+}
+
 static inline uint32
 haee_dsize(haenv_entry_t *e)
 {
@@ -230,376 +410,512 @@ haee_size(haenv_entry_t *e)
     return haee_dsize(e) + sizeof(haenv_entry_t);
 }
 
+static inline void
+haee_pad_zero(haenv_entry_t *e)
+{
+    haee_kpad_zero(e);
+    haee_vpad_zero(e);
+}
+
 static inline haenv_entry_t *
 haee_next(haenv_entry_t *e)
 {
     return (haenv_entry_t *)(e->data + haee_dsize(e));
 }
 
-/*
-* zone as [begin, end)
-*/
 static inline bool
-is_good_haenv_zone(uint32 begin, uint32 end)
+is_good_haee(haenv_t *env, haenv_entry_t *e)
 {
-    return  begin < end && begin < HAENV_SIZE && end <= HAENV_SIZE;
+    return e >= hae_first(env) && haee_next(e) <= hae_end(env);
 }
 
 static inline bool
-__is_good_haenv_entryEx(haenv_entry_t *e)
+is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 {
-    // md5 check
-
-    return e->used;
+    return true;
 }
 
-static inline bool
-__is_good_haenv_entry(haenv_t *env, haenv_entry_t *e)
+static inline int
+haee_set(haenv_entry_t *e, char *k, char *v)
 {
-    if ((char *)e < env->mirror) {
-        /*
-        * e's begin < mirror's begin
-        */
-        return false;
-    }
-    else if ((char *)e + haee_size(e) > env->mirror + HAENV_SIZE) {
-        /*
-        * e' end > mirror's end
-        */
-        return false;
-    }
-    else {
-        return true;
-    }
-}
-
-static inline bool
-is_good_haenv_entry(haenv_t *env, haenv_entry_t *e)
-{
-    return __is_good_haenv_entryEx(e) && __is_good_haenv_entry(env, e);
-}
-
-static inline haenv_entry_t *
-__haenv_entry_first(haenv_t *env)
-{
-    haenv_entry_t *e = (haenv_entry_t *)env->mirror;
-
-    return __is_good_haenv_entry(env, e)?e:NULL;
-}
-
-static inline haenv_entry_t *
-__haenv_entry_next(haenv_t *env, haenv_entry_t *current)
-{
-    haenv_entry_t *e = haee_next(current);
-    
-    return __is_good_haenv_entry(env, e)?e:NULL;
-}
-
-static inline haenv_entry_t *
-__haenv_entry_empty(haenv_t *env)
-{
-    haenv_entry_t *e = (haenv_entry_t *)(env->mirror + env->size);
-
-    return __is_good_haenv_entry(env, e)?e:NULL;
-}
-
-static inline haenv_entry_t *
-haenv_entry_first(haenv_t *env)
-{
-    haenv_entry_t *e = (haenv_entry_t *)env->mirror;
-
-    return is_good_haenv_entry(env, e)?e:NULL;
-}
-
-static inline haenv_entry_t *
-haenv_entry_next(haenv_t *env, haenv_entry_t *current)
-{
-    haenv_entry_t *e = haee_next(current);
-    
-    return is_good_haenv_entry(env, e)?e:NULL;
-}
-
-static inline haenv_entry_t *
-haenv_entry_empty(haenv_t *env)
-{
-    haenv_entry_t *e = (haenv_entry_t *)(env->mirror + env->size);
-
-    return is_good_haenv_entry(env, e)?e:NULL;
-}
-
-static inline haenv_entry_t *
-haenv_entry_append(haenv_t *env, haenv_entry_t *new)
-{
-    haenv_entry_t *e = haenv_entry_empty(env);
-    
-    os_memcpy(e, new, haee_size(new));
-    
-    return e;
-}
-
-static inline hash_idx_t
-haenv_cache_hash(hash_node_t *node)
-{
-    haenv_cache_t *c = HAENV_CACHE(node);
-
-    return os_str_bkdr(haee_key(c->entry));
-}
-
-static inline bool
-haenv_cache_eq(hash_node_t *node, char *key)
-{
-    haenv_cache_t *c = HAENV_CACHE(node);
-
-    return os_strcmp(key, haee_key(c->entry));
-}
-
-static inline haenv_cache_t *
-haenv_cache_find(haenv_t *env, char *key)
-{
-    bool eq(hash_node_t *node)
-    {
-        return haenv_cache_eq(node, key);
-    }
-
-    return h1_find(&env->table, haenv_cache_hash, eq);
-}
-
-static inline haenv_cache_t *
-__haenv_cache_merge(haenv_cache_t *c, haenv_entry_t *e)
-{
-    if (c->entry->seq < e->seq) {
-        c->entry = e;
-    }
-    
-    return c;
-}
-
-static inline haenv_cache_t *
-__haenv_cache_new(haenv_t *env, haenv_entry_t *e)
-{
-    haenv_cache_t *c = (haenv_cache_t *)os_zalloc(sizeof(*c));
-    if (c) {
-        c->entry = e;
+    if (e) {
+        e->klen = os_strlen(k);
+        e->vlen = os_strlen(v);
+        e->seq  = haenv_seq;
+        e->flag = HAENV_F_DIRTY;
         
-        int err = h1_add(&env->table, &c->node, haenv_cache_hash);
-        if (err<0) {
-            return NULL;
-        }
-    }
+        os_strmcpy(haee_key(e), k, e->klen);
+        os_strmcpy(haee_value(e), v, e->vlen);
+        haee_pad_zero(e);
 
-    return c;
+        // todo: md5
+
+        return 0;
+    } else {
+        return -EKEYNULL;
+    }
 }
 
-static inline haenv_cache_t *
-__haenv_cache_load(haenv_t *env, haenv_entry_t *e)
+static inline haenv_entry_t *
+haee_clone(haenv_entry_t *dst, haenv_entry_t *src)
 {
-    haenv_cache_t *c = haenv_cache_find(env, haee_key(e));
-    
-    return c?__haenv_cache_merge(c, e):__haenv_cache_new(env, e);
-}
-
-static inline int
-haenv_cache_load(haenv_t *env)
-{
-    haenv_entry_t *e;
-
-    for (e = haenv_entry_first(env); e; e = haenv_entry_next(env, e)) {
-
-    }
+    return (haenv_entry_t *)os_memcpy(dst, src, haee_size(src));
 }
 
 static inline int
-haenv_clear(haenv_t *env)
+haee_flush(haenv_t *env, haenv_entry_t *e)
 {
-    mv_t foreach(h1_node_t *node)
-    {
-        haenv_cache_t *c = HAENV_CACHE(node);
-
-        h1_del(&env->table, node);
-
-        os_free(c);
-    }
+    os_clrflag(e->flag, HAENV_F_DIRTY);
     
-    int err = h1_foreach_safe(&env->table, foreach);
-    if (0==err) {
-        env->read_size = 0;
-        env->size = 0;
-    }
+    return hae_write(env, hae_offsetof(env, e), e, haee_size(e));
+}
+
+static inline int
+haee_check(haenv_entry_t *e)
+{
+    return 0;
+}
+
+#define HAENV_FOREACH(i)                    for (_i=0; _i<HAENV_COUNT; _i++)
+#define __haenv_foreach(_i, _env, _begin)   for (_i=_begin, _env = haenv_env(_i); _i<HAENV_COUNT; _i++, _env = haenv_env(_i))
+#define haenv_foreach(_i, _env)             __haenv_foreach(_i, _env, 0)
+
+static inline haenv_entry_t *
+hae_first(haenv_t *env)
+{
+    return (haenv_entry_t *)env->mirror;
+}
+
+static inline haenv_entry_t *
+hae_end(haenv_t *env)
+{
+    return (haenv_entry_t *)(env->mirror + HAENV_SIZE);
+}
+
+static inline haenv_entry_t *
+hae_next(haenv_t *env, haenv_entry_t *current)
+{
+    haenv_entry_t *e = haee_next(current);
+    
+    return is_good_haee(env, e)?e:NULL;
+}
+
+#define hae_foreach(_env, _e)       for (_e = hae_first(_env); _e; _e = hae_next(_env, _e))
+
+static inline haenv_entry_t *
+hae_empty(haenv_t *env)
+{
+    haenv_entry_t *e = (haenv_entry_t *)(env->mirror + env->unsaved);
+
+    return is_good_haee(env, e)?e:NULL;
+}
+
+static inline haenv_t *
+hae_clone(haenv_t *dst, haenv_t *src)
+{
+    os_memcpy(dst->mirror, src->mirror, sizeof(src->mirror));
+
+    dst->saved  = src->saved;
+    dst->unsaved= src->unsaved;
+    dst->damaged= src->damaged;
+
+    return dst;
+}
+
+static inline void
+hae_clean(haenv_t *env)
+{
+    os_memzero(env->mirror);
+
+    env->saved  = 0;
+    env->unsaved= 0;
+    env->damaged= false;
+}
+
+static inline bool
+hae_eq(haenv_t *a, haenv_t *b)
+{
+    return os_memcmp(a->mirror, b->mirror, sizeof(b->mirror))
+        && a->saved     == b->saved
+        && a->unsaved   == b->unsaved
+        && a->damaged   == a->damaged;
+}
+
+static inline int
+hae_load(haenv_t *env)
+{
+    return hae_read(env, 0, env->mirror, sizeof(env->mirror));
+}
+
+static inline int
+hae_save(haenv_t *env)
+{
+    int err = hae_write(env, 0, env->mirror, sizeof(env->mirror));
+
+    fflush(env->f);
 
     return err;
 }
 
 static inline int
-haenv_clone(haenv_t *dst, haenv_t *src)
+hae_check(haenv_t *env)
 {
-    mv_t foreach(h1_node_t *node)
-    {
-        haenv_cache_t *c = HAENV_CACHE(node);
-
-        
-    }
+    haenv_entry_t *e;
+    int err = 0;
     
-    return h1_foreach_safe(&src->table, foreach);
+    hae_foreach(env, e) {
+        if (false==is_good_haee_md5(env, e)) {
+            env->damaged = true;
+            
+            err = -EDAMAGED;
+        } else {
+            env->saved += haee_size(e);
+        }
+    }
+
+    env->unsaved = env->saved;
+    
+    return err;
 }
 
 static inline int
-__haenv_init(haenv_file_t *ha)
+hae_flush(haenv_t *env)
+{
+    haenv_entry_t *e;
+    int err, ret = 0;
+    
+    hae_foreach(env, e) {
+        if (is_haee_dirty(e)) {
+            err = haee_flush(env, e);
+            if (err<0) {
+                ret = err;
+                // todo: log
+            }
+        }
+    }
+    env->saved = env->unsaved;
+
+    fflush(env->f);
+    
+    return ret;
+}
+
+static inline haenv_entry_t *
+hae_find(haenv_t *env, char *k)
+{
+    haenv_entry_t *e, *found = NULL;
+    
+    hae_foreach(env, e) {
+        if (os_streq(haee_key(e), k)) {
+            found = e;
+        }
+    }
+
+    return found;
+}
+
+static inline haenv_entry_t *
+hae_append(haenv_t *env, char *k, char *v)
+{
+    haenv_entry_t *e = hae_empty(env);
+    if (NULL==e) {
+        return NULL;
+    }
+
+    int err = haee_set(e, k, v);
+    if (err) {
+        return NULL;
+    }
+    env->unsaved += haee_size(e);
+    
+    return e;
+}
+
+static inline jobj_t
+hae_export(haenv_t *env)
+{
+#ifdef __APP__
+    jobj_t obj = jobj_new_object();
+    if (NULL==obj) {
+        return NULL;
+    }
+    
+    haenv_entry_t *e;
+
+    hae_foreach(env, e) {
+        int err = jobj_add_string(obj, haee_key(e), haee_value(e));
+        if (err<0) {
+            goto error;
+        }
+    }
+
+    return obj;
+error:
+    jobj_put(obj);
+#endif
+
+    return NULL;
+}
+
+static inline int
+hae_gc(haenv_t *env, jobj_t obj)
+{
+    int err = 0;
+    
+#ifdef __APP__
+    char *k, *v;
+    
+    hae_clean(env);
+    
+    jobj_foreach(obj, k, v) {
+        hae_append(env, k, v);
+    }
+
+    err = hae_save(env);
+#endif
+
+    return err;
+}
+
+static inline haenv_t *
+__haenv_getby(bool damaged)
+{
+    int i;
+    haenv_t *env;
+    
+    haenv_foreach(i, env) {
+        if (damaged == env->damaged) {
+            return env;
+        }
+    }
+
+    return NULL;
+}
+
+static inline haenv_t *
+__haenv_get_normal(void)
+{
+    return __haenv_getby(false);
+}
+
+static inline haenv_t *
+__haenv_get_damaged(void)
+{
+    return __haenv_getby(true);
+}
+
+static inline void
+haenv_lock(void)
+{
+    os_sem_lock(haenv_sem());
+}
+
+static inline void
+haenv_unlock(void)
+{
+    os_sem_unlock(haenv_sem());
+}
+
+static inline int
+haenv_load(void)
+{
+    int i, err, ret = 0;
+    haenv_t *env;
+    
+    haenv_foreach(i, env) {
+        err = hae_load(env);
+        if (err<0) {
+           ret = err;
+           // todo: log
+        }
+    }
+
+    return ret;
+}
+
+static inline int
+haenv_check(void)
+{
+    int i, err, ret = 0;
+    haenv_t *env;
+    
+    haenv_foreach(i, env) {
+        hae_check(env);
+        if (err<0) {
+           ret = err;
+           // todo: log
+        }
+    }
+
+    return ret;
+}
+
+static inline int
+haenv_repaire(void)
+{
+    haenv_t *normal = __haenv_get_normal();
+    haenv_t *damaged;
+
+    while(normal && NULL!=(damaged = __haenv_get_damaged())) {
+        hae_clone(damaged, normal);
+        hae_save(damaged);
+    }
+
+    return 0;
+}
+
+static inline int
+haenv_flush(void)
+{
+    int i, err, ret = 0;
+    haenv_t *env;
+    
+    haenv_foreach(i, env) {
+        err = hae_flush(env);
+        if (err<0) {
+            ret = err;
+            // todo: log
+        }
+    }
+    
+    return ret;
+}
+
+static inline int
+haenv_append(char *k, char *v)
 {
     int i, err;
 
-    haenv_foreach(i) {
-        haenv_t *env = &ha->env[i];
-
-        err = h1_init(&env->table);
-        if (err<0) {
-            return err;
+    haenv_seq++;
+    
+    haenv_entry_t *e = hae_append(haenv_first(), k, v);
+    if (NULL==e) {
+        return -EFULL;
+    }
+    
+    haenv_t *env;
+    __haenv_foreach(i, env, 1) {
+        if (haee_clone(hae_empty(env), e)) {
+            env->unsaved += haee_size(e);
         }
     }
     
     return 0;
 }
 
-static inline uint32
-haenv_offset(uint32 id, uint32 begin)
+static inline haenv_entry_t *
+haenv_find(char *k)
 {
-    return id * HAENV_SIZE + begin;
-}
-
-#ifdef __BOOT__
-extern int 
-benv_emmc_read(uint32 begin, void *buf, int size);
-
-extern int 
-benv_emmc_write(uint32 begin, void *buf, int size);
-
-/*
-* begin: haenv file offset
-*/
-static inline int
-haenv_fread(STREAM f, uint32 begin, byte *buf, uint32 size)
-{    
-    return benv_emmc_read(begin + HAENV_START, buf, size);
-}
-
-/*
-* begin:  haenv file offset
-*/
-static inline int
-haenv_fwrite(STREAM f, uint32 begin, byte *buf, uint32 size)
-{
-    return benv_emmc_write(begin + HAENV_START, buf, size);
+    return hae_find(haenv_first(), k);
 }
 
 static inline int
-haenv_init(haenv_file_t *ha)
+haenv_export(void)
 {
-    return __haenv_init(ha);
-}
-
-static inline int
-haenv_fini(haenv_file_t *ha)
-{
-    return 0;
-}
-#else
-/*
-* begin: haenv file offset
-*/
-static inline int
-haenv_fread(STREAM f, uint32 begin, byte *buf, uint32 size)
-{
-    uint32 start = begin + HAENV_START;
-
-    int err = os_fseek(f, start, SEEK_SET);
-    if (err<0) {
-        return err;
-    }
+    int err = 0;
     
-    return os_fread(start, buf, size);
-}
-
-/*
-* begin:  haenv file offset
-*/
-static inline int
-haenv_fwrite(STREAM f, uint32 begin, byte *buf, uint32 size)
-{
-    uint32 start = begin + HAENV_START;
-
-    int err = os_fseek(f, start, SEEK_SET);
-    if (err<0) {
-        return err;
-    }
+#ifdef __APP__
+    STREAM f = NULL;
     
-    return benv_emmc_write(start, buf, size);
-}
+    jobj_t obj = hae_export(haenv_first());
+    if (NULL==obj) {
+        err = -ENOMEM; goto error;
+    }
 
-static inline int
-haenv_init(haenv_file_t *ha)
-{
-    STREAM f = os_fopen();
+    f = os_fopen(HAENV_TMPFILE, "w");
     if (NULL==f) {
-        return -EIO;
+        err = -EIO; goto error;
     }
 
-    ha->f = f;
+    char *json = jobj_string(obj);
 
-    return __haenv_init(ha);
-}
-
-static inline int
-haenv_fini(haenv_file_t *ha)
-{
-    os_fclose(ha->f);
-
-    return 0;
-}
+    err = os_fwrite(f, json, os_strlen(json));
+    if (err<0) {
+        goto error;
+    }
+    fflush(f);
+    os_fclose(f);
+    
+    err = rename(HAENV_TMPFILE, HAENV_EXPORT);
+    if (err<0) {
+        err = -errno; goto error;
+    }
+    
+error:
+    jobj_put(obj);
+    os_fclose(f);
 #endif
 
-/*
-* begin:  haenv offset
-*/
-static inline int
-haenv_read(STREAM f, uint32 id, uint32 begin, byte *buf, uint32 size)
-{
-    if (false==is_good_haenv_zone(begin, begin + size)) {
-        return -ERANGE;
-    }
-    
-    return haenv_fread(haenv_offset(id, begin), buf, size);
-}
-
-/*
-* begin:  haenv offset
-*/
-static inline int
-haenv_write(STREAM f, uint32 id, uint32 begin, byte *buf, uint32 size)
-{
-    if (false==is_good_haenv_zone(begin, begin + size)) {
-        return -ERANGE;
-    }
-    
-    return haenv_fwrite(haenv_offset(id, begin), buf, size);
+    return err;
 }
 
 static inline int
-haenv_load(haenv_file_t *ha)
+haenv_gc(void)
+{
+    int err = 0;
+    
+#ifdef __APP__
+    if (haenv_first()->saved > HAENV_GCSIZE) {
+        jobj_t obj = hae_export(haenv_first());
+        if (NULL==obj) {
+            err = -ENOMEM; goto error;
+        }
+
+        err = hae_gc(env, obj);
+        if (err<0) {
+            goto error;
+        }
+
+        int i;
+        haenv_t *env;
+        __haenv_foreach(i, env, 1) {
+            hae_clone(env, haenv_first());
+            hae_save(env);
+        }
+error:
+        jobj_put(obj);
+    }
+#endif
+
+    return err;
+}
+
+static inline int
+haenv_init(void)
 {
     int i, err;
     haenv_t *env;
-    
-    haenv_foreach(i) {
-        env = &ha->env[i];
-        
-        err = haenv_read(ha->f, i, 0, env->mirror, HAENV_SIZE);
-        if (err<0) {
-            return err;
-        }
+    STREAM f = NULL;
 
-
-        
+#ifdef __APP__
+    STREAM f = os_fopen(HAENV_FILE, "r+");
+    if (NULL==f) {
+        return -EIO;
     }
+#endif
 
+    err = os_sem_create(haenv_sem(), OS_HAENV_SEM_ID);
+    if (err<0) {
+        return err;
+    }
+    
+    haenv_foreach(i, env) {
+        env->f  = f;
+        env->start = HAENV_START + i*HAENV_SIZE;
+    }
+    
+    return 0;
+}
+
+static inline int
+haenv_fini(void)
+{
+#ifdef __APP__
+    os_fclose(haenv_first()->f);
+#endif
+
+    // os_sem_destroy(haenv_sem());
+    
     return 0;
 }
 

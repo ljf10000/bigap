@@ -11,7 +11,7 @@ include $(DIR_ROOT)/mk/define.mk
 #
 #changed me, append sub-system
 #
-SUB_SYSTEM=ak rt otp guard benv sys nglog2 fcookie umc umd tmc tmd smc smd jlogger jlogd duktape
+SUB_SYSTEM=ak rt otp guard benv haenv sys nglog2 fcookie umc umd tmc tmd smc smd jlogger jlogd duktape
 
 #
 #don't change it

@@ -115,6 +115,15 @@
 #define uintptr         uintptr_t
 #endif
 
+#ifndef pointer_offset
+#define pointer_offset(_a, _b)  ({  \
+    uintptr_t __a = (uintptr_t)_a;  \
+    uintptr_t __b = (uintptr_t)_b;  \
+                                    \
+    (__a > __b)?(__a - __b):(__b - __a); \
+})
+#endif
+
 #ifdef  bool
 #undef  bool
 #endif

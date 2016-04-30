@@ -51,11 +51,12 @@
 #define OS_USE_UTC_TIME         1
 #endif
 
-#ifndef OS_SHM_ID
-#define OS_SHM_ID               538050839
+#ifndef OS_IPC_ID
+#define OS_IPC_ID               538050839
 #endif
 
-#define OS_AK_SHM_ID            (OS_SHM_ID + 1)
+#define OS_AK_SHM_ID            (OS_IPC_ID + 1)
+#define OS_HAENV_SEM_ID         (OS_IPC_ID + 2)
 
 #define OS_INLINE               __attribute__((always_inline))
 /******************************************************************************/

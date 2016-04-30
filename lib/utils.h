@@ -187,6 +187,7 @@
 
 #define OS_INITER       \
     DECLARE_COMMAND;    \
+    DECLARE_HAENV;      \
     DECLARE_DEAMON;     \
     DECLARE_FLOCK;      \
     DECLARE_JLOG;       \
@@ -195,12 +196,14 @@
     DECLARE_TIMER;      \
     DECLARE_CLI_BUFFER; \
     DECLARE_DEBUGGER;   \
-    DECLARE_JDEBUGGER; \
+    DECLARE_JDEBUGGER;  \
+                        \
     OS_EXT_INITER /* last */ \
     /* end */
 
 #define OS_REAL_INITER          \
     DECLARE_REAL_COMMAND;       \
+    DECLARE_REAL_HAENV;         \
     DECLARE_REAL_DEAMON;        \
     DECLARE_REAL_FLOCK;         \
     DECLARE_REAL_JLOG;          \
@@ -210,6 +213,7 @@
     DECLARE_REAL_CLI_BUFFER;    \
     DECLARE_REAL_DEBUGGER;      \
     DECLARE_REAL_JDEBUGGER;     \
+                                \
     OS_EXT_REAL_INITER /* last */ \
     /* end */
 

@@ -60,11 +60,11 @@ typedef uint32 akid_t;
 #if defined(__BOOT__)
 #    define DECLARE_FAKE_DEBUGGER       extern akid_t *__THIS_DEBUG
 #    define DECLARE_REAL_DEBUGGER       akid_t *__THIS_DEBUG
-#    define DECLARE_DEBUGGER            DECLARE_REAL_DEBUGGER;
+#    define DECLARE_DEBUGGER            DECLARE_REAL_DEBUGGER
 
 #    define DECLARE_FAKE_JDEBUGGER      extern akid_t *__THIS_JDEBUG
 #    define DECLARE_REAL_JDEBUGGER      akid_t *__THIS_JDEBUG
-#    define DECLARE_JDEBUGGER           DECLARE_REAL_JDEBUGGER;
+#    define DECLARE_JDEBUGGER           DECLARE_REAL_JDEBUGGER
 #else
 #    define DECLARE_FAKE_DEBUGGER       extern akid_t __THIS_DEBUG
 #    define DECLARE_REAL_DEBUGGER       akid_t __THIS_DEBUG
