@@ -74,7 +74,12 @@ cmd_set(int argc, char *argv[])
     char *k = argv[1];
     char *v = argv[2];
     
-    return haenv_append(k, v);
+    int err = haenv_append(k, v);
+    if (err<0) {
+        return err;
+    }
+
+    return haenv_flush(void);
 }
 
 static cmd_table_t cmd[] = {
