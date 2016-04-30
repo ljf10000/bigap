@@ -456,7 +456,6 @@ static inline void
 __haee_md5(haenv_entry_t *e, byte md5[16])
 {
     md5_content_t ctx;
-    byte md5[16] = {0};
     
     md5_encode(&ctx, md5, __haee_md5_begin(e), __haee_md5_size(e));
 }
