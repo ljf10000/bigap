@@ -510,7 +510,7 @@ __haee_md5(haenv_t *env, haenv_entry_t *e, byte md5[16])
 static inline void
 haee_md5(haenv_t *env, haenv_entry_t *e)
 {
-    __haee_md5(e, e->md5);
+    __haee_md5(env, e, e->md5);
     
 #if HAENV_DPRINT
     haenv_debug("env[%d] offset:0x%x, key:%s value:%s md5", 
@@ -527,7 +527,7 @@ __is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 {
     byte md5[16] = {0};
 
-    __haee_md5(e, md5);
+    __haee_md5(env, e, md5);
     
 #if HAENV_DPRINT
     haenv_debug("env[%d] offset:0x%x, key:%s value:%s md5", 
