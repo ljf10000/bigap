@@ -507,7 +507,7 @@ __haee_md5(haenv_entry_t *e, byte md5[16])
     md5_encode(&ctx, md5, __haee_md5_begin(e), __haee_md5_size(e));
     
 #if HAENV_DPRINT
-    haenv_debug("check entry key:%s value:%s md5", haee_key(e), haee_value(e));
+    haenv_debug("entry key:%s value:%s md5", haee_key(e), haee_value(e));
     os_dump_line(0, md5, 16, NULL);
 #endif
 }
@@ -553,10 +553,6 @@ haee_set(haenv_entry_t *e, char *k, char *v)
         haee_pad_zero(e);
         haee_md5(e);
         
-#if HAENV_DPRINT
-        haenv_debug("create entry key:%s value:%s md5", haee_key(e), haee_value(e));
-        os_dump_line(0, e->md5, 16, NULL);
-#endif
         return 0;
     } else {
         return -EKEYNULL;
