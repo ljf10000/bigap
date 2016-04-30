@@ -506,16 +506,6 @@ __haee_md5(haenv_t *env, haenv_entry_t *e, byte md5[16])
     md5_content_t ctx;
     
     md5_encode(&ctx, md5, __haee_md5_begin(e), __haee_md5_size(e));
-    
-#if HAENV_DPRINT
-    haenv_debug("md5 result");
-    os_dump_line(0, md5, 16, NULL);
-    
-    haenv_debug("md5 input offset:0x%x size:0x%x", 
-        hae_offsetof(env, __haee_md5_begin(e)),
-        __haee_md5_size(e));
-    __os_dump_buffer(__haee_md5_begin(e), __haee_md5_size(e), NULL);
-#endif
 }
 
 static inline bool
@@ -523,13 +513,6 @@ __is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 {
     byte md5[16] = {0};
     
-    haenv_debug("env[%d] offset:0x%x size:0x%x key:%s value:%s", 
-        env->id,
-        hae_offsetof(env, e), 
-        haee_size(e),
-        haee_key(e), 
-        haee_value(e));
-
     __haee_md5(env, e, md5);
     
     return md5_eq(md5, e->md5);
@@ -538,13 +521,6 @@ __is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 static inline void
 haee_md5(haenv_t *env, haenv_entry_t *e)
 {
-    haenv_debug("env[%d] offset:0x%x size:0x%x key:%s value:%s", 
-        env->id,
-        hae_offsetof(env, e), 
-        haee_size(e),
-        haee_key(e), 
-        haee_value(e));
-
     __haee_md5(env, e, e->md5);
 }
 

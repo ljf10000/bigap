@@ -104,27 +104,6 @@ cmd_set(int argc, char *argv[])
     return err;
 }
 
-static int
-cmd_md5(int argc, char *argv[])
-{
-    byte input[] = {
-        0x00, 0x05, 0x06, 0x00,
-        0x01, 0x00, 0x00, 0x00,
-        0x6E, 0x61, 0x6D, 0x65,
-        0x31, 0x00, 0x00, 0x00,
-        0x76, 0x61, 0x6C, 0x75,
-        0x65, 0x31, 0x00, 0x00, 
-    };
-    byte md5[16];
-    
-    md5_content_t ctx;
-
-    md5_encode(&ctx, md5, input, sizeof(input));
-
-    os_dump_line(0, md5, 16, NULL);
-    __os_dump_buffer(input, sizeof(input), NULL);
-}
-
 static cmd_table_t cmd[] = {
     {
         .argc   = 3,
@@ -150,11 +129,6 @@ static cmd_table_t cmd[] = {
         .argc   = 1,
         .argv   = {"check"},
         .handle = cmd_check,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"md5"},
-        .handle = cmd_md5,
     },
 };
 
