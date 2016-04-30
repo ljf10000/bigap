@@ -519,6 +519,10 @@ haee_md5(haenv_t *env, haenv_entry_t *e)
         haee_key(e), 
         haee_value(e));
 #if HAENV_DPRINT
+    haenv_debug("new md5");
+    os_dump_line(0, e->md5, 16, NULL);
+    
+    haenv_debug("entry");
     __os_dump_buffer(e, haee_size(e), NULL);
 #endif
 }
