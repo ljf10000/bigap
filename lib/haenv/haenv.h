@@ -92,7 +92,7 @@
 #endif
 
 #if HAENV_DPRINT
-#define haenv_debug(_fmt, _args...)     os_println(__func__ ": " _fmt "\n", ##_args)
+#define haenv_debug(_fmt, _args...)     os_println("%s: " _fmt "\n", __func__, ##_args)
 #else
 #define haenv_debug(_fmt, _args...)     os_do_nothing()
 #endif
