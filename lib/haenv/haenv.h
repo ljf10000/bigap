@@ -87,6 +87,16 @@
 #   endif
 #endif
 
+#ifndef HAENV_DPRINT
+#define HAENV_DPRINT            0
+#endif
+
+#if HAENV_DPRINT
+#define haenv_println(_fmt, _args...)   os_println(_fmt "\n", ##_args)
+#else
+#define haenv_println(_fmt, _args...)   os_do_nothing()
+#endif
+
 
 #define CONFIG_BOOTARGS_HEAD    \
     "root=" HAENV_ROOT          \
@@ -917,16 +927,20 @@ haenv_init(void)
     if (NULL==f) {
         return -EIO;
     }
+
+    haenv_println("open " HAENV_FILE);
 #endif
 
     err = os_sem_create(haenv_sem(), OS_HAENV_SEM_ID);
     if (err<0) {
         return err;
     }
+    haenv_println("create sem");
     
     haenv_foreach(i, env) {
         env->f  = f;
         env->start = HAENV_START + i*HAENV_SIZE;
+        haenv_println("env[%d] start at 0x%x", i, env->start);
     }
     
     return 0;
