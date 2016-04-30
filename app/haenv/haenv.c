@@ -125,11 +125,20 @@ __init(void)
     setup_signal_exit(__exit);
     setup_signal_callstack(__exit);
 
-    err = haenv_init();
-    if (err<0) {
-        return err;
-    }
+    return haenv_init();
+}
 
+static inline int
+__fini(void)
+{
+    return haenv_fini();
+}
+
+static int
+__handle(int argc, char *argv[])
+{
+    int err;
+    
     err = haenv_load();
     if (err<0) {
         return err;
@@ -142,14 +151,8 @@ __init(void)
             return err;
         }
     }
-
-    return 0;
-}
-
-static inline int
-__fini(void)
-{
-    return haenv_fini();
+    
+    return cmd_handle(cmd, argc, argv, usage);
 }
 
 /*
@@ -158,7 +161,13 @@ __fini(void)
 static int
 __main(int argc, char *argv[])
 {
-    return cmd_handle(cmd, argc, argv, usage);
+    int err;
+    
+    haenv_lock();
+    err = __handle(argc, argv);
+    haenv_unlock();
+
+    return err;
 }
 
 #ifndef __BUSYBOX__
@@ -167,12 +176,6 @@ __main(int argc, char *argv[])
 
 int haenv_main(int argc, char *argv[])
 {
-    int err;
-    
-    haenv_lock();
-    err = os_call(__init, __fini, __main, argc, argv);
-    haenv_unlock();
-
-    return err;
+    return os_call(__init, __fini, __main, argc, argv);
 }
 /******************************************************************************/
