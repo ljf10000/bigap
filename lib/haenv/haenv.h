@@ -513,7 +513,7 @@ haee_md5(haenv_t *env, haenv_entry_t *e)
 {
     __haee_md5(env, e, e->md5);
     
-    haenv_debug("env[%d] offset:0x%x, key:%s value:%s md5", 
+    haenv_debug("env[%d] offset:0x%x, key:%s value:%s", 
         env->id,
         hae_offsetof(env, e), 
         haee_key(e), 
@@ -691,16 +691,24 @@ hae_check(haenv_t *env)
         else if (is_good_haee(env, e)) {
             env->saved += haee_size(e);
 
-            haenv_debug("env[%d] count==>%d, offset==>0x%x, saved==>0x%x", 
+            haenv_debug("env[%d] good count==>%d, offset==>0x%x, saved==>0x%x", 
                 env->id, 
                 env->count, 
                 hae_offsetof(env, e), 
                 env->saved);
+#if HAENV_DPRINT
+            __os_dump_buffer(e, haee_size(e), NULL);
+#endif
 
             env->count++;
         }
         else {
-            haenv_debug("env[%d] offset", env->id, hae_offsetof(env, e));
+            haenv_debug("env[%d] damaged offset==>0x%x", 
+                env->id, 
+                hae_offsetof(env, e));
+#if HAENV_DPRINT
+            __os_dump_buffer(e, haee_size(e), NULL);
+#endif
             
             env->damaged = true;
             
