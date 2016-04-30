@@ -236,7 +236,7 @@ benv_emmc_write(uint32 begin, void *buf, int size);
 * begin: haenv file offset
 */
 static inline int
-__hae_read(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+__hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     return benv_emmc_read(env->start + begin, buf, size);
 }
@@ -245,7 +245,7 @@ __hae_read(haenv_t *env, uint32 begin, byte *buf, uint32 size)
 * begin:  haenv file offset
 */
 static inline int
-__hae_write(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+__hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     return benv_emmc_write(env->start + begin, buf, size);
 }
@@ -254,7 +254,7 @@ __hae_write(haenv_t *env, uint32 begin, byte *buf, uint32 size)
 * begin: haenv file offset
 */
 static inline int
-__hae_read(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+__hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     int err = os_fseek(env->f, env->start + begin, SEEK_SET);
     if (err<0) {
@@ -268,7 +268,7 @@ __hae_read(haenv_t *env, uint32 begin, byte *buf, uint32 size)
 * begin:  haenv file offset
 */
 static inline int
-__hae_write(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+__hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     int err = os_fseek(env->f, env->start + begin, SEEK_SET);
     if (err<0) {
@@ -283,7 +283,7 @@ __hae_write(haenv_t *env, uint32 begin, byte *buf, uint32 size)
 * begin:  haenv offset
 */
 static inline int
-hae_read(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     if (false==is_good_haenv_zone(begin, begin + size)) {
         return -ERANGE;
@@ -296,7 +296,7 @@ hae_read(haenv_t *env, uint32 begin, byte *buf, uint32 size)
 * begin:  haenv offset
 */
 static inline int
-hae_write(haenv_t *env, uint32 begin, byte *buf, uint32 size)
+hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     if (false==is_good_haenv_zone(begin, begin + size)) {
         return -ERANGE;
