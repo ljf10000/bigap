@@ -273,7 +273,15 @@ __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
         return err;
     }
     
-    return os_fread(env->f, buf, size);
+    err = os_fread(env->f, buf, size);
+    if (err<0) {
+        haenv_debug("read error:%d", err);
+        
+        return err;
+    }
+    haenv_debug("ok");
+    
+    return 0;
 }
 
 /*
@@ -282,6 +290,7 @@ __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 static inline int
 __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
+    haenv_debug("...");
     int err = os_fseek(env->f, env->start + begin, SEEK_SET);
     if (err<0) {
         haenv_debug("seek error:%d", err);
@@ -289,7 +298,14 @@ __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
         return err;
     }
     
-    return os_fwrite(env->f, buf, size);
+    err = os_fwrite(env->f, buf, size);
+    if (err<0) {
+        haenv_debug("write error:%d", err);
+        
+        return err;
+    }
+    
+    haenv_debug("ok");
 }
 #endif
 
