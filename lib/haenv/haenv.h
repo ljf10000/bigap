@@ -526,7 +526,7 @@ hae_clone(haenv_t *dst, haenv_t *src)
 static inline void
 hae_clean(haenv_t *env)
 {
-    os_memzero(env->mirror);
+    os_memzero(env->mirror, sizeof(env->mirror));
 
     env->saved  = 0;
     env->unsaved= 0;
