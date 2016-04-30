@@ -177,6 +177,7 @@ typedef struct {
     
     STREAM f;       // set @init
     uint32  start;  // set @init
+    uint32  id;
     
     uint32  saved;  // size: have saved to flash
     uint32  unsaved;// size: not unsaved to flash
@@ -617,11 +618,13 @@ hae_check(haenv_t *env)
             err = -EDAMAGED;
         } else {
             env->saved += haee_size(e);
+
+            haenv_debug("env[%d] saved==>0x%x", env->id, env->saved);
         }
     }
 
     env->unsaved = env->saved;
-    haenv_debug("unsaved==>0x%x", env->unsaved);
+    haenv_debug("env[%d] unsaved==>0x%x", env->id, env->unsaved);
     
     return err;
 }
@@ -642,7 +645,8 @@ hae_flush(haenv_t *env)
         }
     }
     env->saved = env->unsaved;
-
+    haenv_debug("env[%d] saved==>0x%x", env->id, env->unsaved);
+    
     fflush(env->f);
     
     return ret;
@@ -949,8 +953,10 @@ haenv_init(void)
     haenv_debug("create sem");
     
     haenv_foreach(i, env) {
-        env->f  = f;
-        env->start = HAENV_START + i*HAENV_SIZE;
+        env->f      = f;
+        env->id     = (uint32)i;
+        env->start  = HAENV_START + i*HAENV_SIZE;
+        
         haenv_debug("env[%d] start at 0x%x", i, env->start);
     }
     
