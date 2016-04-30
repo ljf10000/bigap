@@ -649,7 +649,7 @@ static inline int
 hae_check(haenv_t *env)
 {
     haenv_entry_t *e;
-    int err = 0;
+    int err = 0, count = 0;
     
     hae_foreach(env, e) {
         if (false==is_good_haee(env, e)) {
@@ -659,7 +659,7 @@ hae_check(haenv_t *env)
         } else {
             env->saved += haee_size(e);
 
-            haenv_debug("env[%d] saved==>0x%x", env->id, env->saved);
+            haenv_debug("env[%d] count==>%d, saved==>0x%x", env->id, count, env->saved);
         }
     }
 
