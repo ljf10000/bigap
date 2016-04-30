@@ -92,7 +92,7 @@
 #endif
 
 #if HAENV_DPRINT
-#define haenv_debug(_fmt, _args...)     os_println(_fmt "\n", ##_args)
+#define haenv_debug(_fmt, _args...)     os_println(__func__ ": " _fmt "\n", ##_args)
 #else
 #define haenv_debug(_fmt, _args...)     os_do_nothing()
 #endif
@@ -266,6 +266,8 @@ __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     int err = os_fseek(env->f, env->start + begin, SEEK_SET);
     if (err<0) {
+        haenv_debug("seek error:%d", err);
+        
         return err;
     }
     
@@ -280,6 +282,8 @@ __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     int err = os_fseek(env->f, env->start + begin, SEEK_SET);
     if (err<0) {
+        haenv_debug("seek error:%d", err);
+        
         return err;
     }
     
@@ -294,7 +298,8 @@ static inline int
 hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     if (false==is_good_haenv_zone(begin, begin + size)) {
-        haenv_debug("hae_read error: bad zone[0x%x, 0x%x)", begin, begin+size);
+        haenv_debug("error: bad zone[0x%x, 0x%x)", begin, begin+size);
+        
         return -ERANGE;
     }
     
@@ -308,7 +313,8 @@ static inline int
 hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     if (false==is_good_haenv_zone(begin, begin + size)) {
-        haenv_debug("hae_write error: bad zone[0x%x, 0x%x)", begin, begin+size);
+        haenv_debug("error: bad zone[0x%x, 0x%x)", begin, begin+size);
+        
         return -ERANGE;
     }
     
@@ -546,6 +552,8 @@ hae_empty(haenv_t *env)
 {
     haenv_entry_t *e = (haenv_entry_t *)(env->mirror + env->unsaved);
 
+    haenv_debug("%p", e);
+    
     return is_good_haee(env, e)?e:NULL;
 }
 
@@ -613,6 +621,7 @@ hae_check(haenv_t *env)
     }
 
     env->unsaved = env->saved;
+    haenv_debug("unsaved==>0x%x", env->unsaved);
     
     return err;
 }
