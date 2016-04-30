@@ -11,17 +11,15 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 OS_INITER;
 
 static int
-common(bool check, bool gc)
+common(bool gc)
 {
     int err = 0;
     
-    if (check) {
-        err = haenv_check();
+    err = haenv_check();
+    if (err<0) {
+        err = haenv_repaire();
         if (err<0) {
-            err = haenv_repaire();
-            if (err<0) {
-                return err;
-            }
+            return err;
         }
     }
 
@@ -38,19 +36,19 @@ common(bool check, bool gc)
 static int
 cmd_init(int argc, char *argv[])
 {
-    return common(true, true);
+    return common(true);
 }
 
 static int
 cmd_gc(int argc, char *argv[])
 {
-    return common(false, true);
+    return common(true);
 }
 
 static int
 cmd_check(int argc, char *argv[])
 {
-    return common(true, false);
+    return common(false);
 }
 
 static int
@@ -59,7 +57,7 @@ cmd_get(int argc, char *argv[])
     char *k = argv[1];
     int err = 0;
 
-    err = common(true, false);
+    err = common(false);
     if (err<0) {
         return err;
     }
@@ -81,7 +79,7 @@ cmd_set(int argc, char *argv[])
     char *v = argv[2];
     int err = 0;
     
-    err = common(true, false);
+    err = common(false);
     if (err<0) {
         return err;
     }
