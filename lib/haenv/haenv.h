@@ -423,6 +423,18 @@ haee_next(haenv_entry_t *e)
     return (haenv_entry_t *)(e->data + haee_dsize(e));
 }
 
+static inline haenv_entry_t *
+hae_first(haenv_t *env)
+{
+    return (haenv_entry_t *)env->mirror;
+}
+
+static inline haenv_entry_t *
+hae_end(haenv_t *env)
+{
+    return (haenv_entry_t *)(env->mirror + HAENV_SIZE);
+}
+
 static inline bool
 is_good_haee(haenv_t *env, haenv_entry_t *e)
 {
@@ -479,18 +491,6 @@ haee_check(haenv_entry_t *e)
 #define HAENV_FOREACH(i)                    for (_i=0; _i<HAENV_COUNT; _i++)
 #define __haenv_foreach(_i, _env, _begin)   for (_i=_begin, _env = haenv_env(_i); _i<HAENV_COUNT; _i++, _env = haenv_env(_i))
 #define haenv_foreach(_i, _env)             __haenv_foreach(_i, _env, 0)
-
-static inline haenv_entry_t *
-hae_first(haenv_t *env)
-{
-    return (haenv_entry_t *)env->mirror;
-}
-
-static inline haenv_entry_t *
-hae_end(haenv_t *env)
-{
-    return (haenv_entry_t *)(env->mirror + HAENV_SIZE);
-}
 
 static inline haenv_entry_t *
 hae_next(haenv_t *env, haenv_entry_t *current)
@@ -861,7 +861,7 @@ haenv_gc(void)
             err = -ENOMEM; goto error;
         }
 
-        err = hae_gc(env, obj);
+        err = hae_gc(haenv_first(), obj);
         if (err<0) {
             goto error;
         }
