@@ -657,6 +657,8 @@ hae_check(haenv_t *env)
     int err = 0, count = 0;
     
     hae_foreach(env, e) {
+        haenv_debug("env[%d] offset", env->id, hae_offsetof(env, e));
+        
         if (is_good_haee(e)) {
             env->saved += haee_size(e);
 
