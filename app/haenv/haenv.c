@@ -57,8 +57,9 @@ static int
 cmd_get(int argc, char *argv[])
 {
     char *k = argv[1];
+    int err = 0;
 
-    int err = common(true, false);
+    err = common(true, false);
     if (err<0) {
         return err;
     }
@@ -78,13 +79,14 @@ cmd_set(int argc, char *argv[])
 {
     char *k = argv[1];
     char *v = argv[2];
-
+    int err = 0;
+    
     err = common(true, false);
     if (err<0) {
         return err;
     }
     
-    int err = haenv_append(k, v);
+    err = haenv_append(k, v);
     if (err<0) {        
         return err;
     }
