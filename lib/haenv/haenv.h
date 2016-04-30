@@ -505,6 +505,8 @@ __haee_md5(haenv_entry_t *e, byte md5[16])
     md5_content_t ctx;
     
     md5_encode(&ctx, md5, __haee_md5_begin(e), __haee_md5_size(e));
+
+    os_dump_line(0, md5, 16, NULL);
 }
 
 static inline void
@@ -652,14 +654,14 @@ hae_check(haenv_t *env)
     int err = 0, count = 0;
     
     hae_foreach(env, e) {
-        if (false==is_good_haee(env, e)) {
-            env->damaged = true;
-            
-            err = -EDAMAGED;
-        } else {
+        if (is_good_haee(env, e)) {
             env->saved += haee_size(e);
 
             haenv_debug("env[%d] count==>%d, saved==>0x%x", env->id, count, env->saved);
+        } else {
+            env->damaged = true;
+            
+            err = -EDAMAGED;
         }
     }
 
