@@ -546,10 +546,6 @@ haee_md5(haenv_t *env, haenv_entry_t *e)
         haee_value(e));
 
     __haee_md5(env, e, e->md5);
-
-    __is_good_haee_md5(env, e);
-    __is_good_haee_md5(env, e);
-    __is_good_haee_md5(env, e);
 }
 
 static inline bool
