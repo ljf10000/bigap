@@ -10,6 +10,12 @@ typedef struct {
 	byte buffer[64];	/* input buffer */
 } md5_content_t;
 
+#define MD5_CONTENT_INITER { \
+    .state  = {0},  \
+    .count  = {0},  \
+    .buffer = {0},  \
+}   /* end */
+
 /* Constants for __md5_transfrom routine.
  */
 #define MD5_S11 7
