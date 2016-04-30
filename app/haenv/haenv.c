@@ -58,6 +58,8 @@ cmd_get(int argc, char *argv[])
 {
     char *k = argv[1];
 
+    haenv_debug("k=%s", k);
+    
     haenv_entry_t *e = haenv_find(k);
     if (NULL==e) {
         return -ENOEXIST;
@@ -74,6 +76,8 @@ cmd_set(int argc, char *argv[])
     char *k = argv[1];
     char *v = argv[2];
 
+    haenv_debug("k=%s, v=%s", k, v);
+    
     return haenv_append(k, v);
 }
 

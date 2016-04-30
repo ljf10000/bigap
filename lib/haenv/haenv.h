@@ -92,7 +92,7 @@
 #endif
 
 #if HAENV_DPRINT
-#define haenv_debug(_fmt, _args...)     os_println("%s: " _fmt "\n", __func__, ##_args)
+#define haenv_debug(_fmt, _args...)     os_println("%s: " _fmt, __func__, ##_args)
 #else
 #define haenv_debug(_fmt, _args...)     os_do_nothing()
 #endif
@@ -265,7 +265,6 @@ __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 static inline int
 __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
-    haenv_debug("...");
     int err = os_fseek(env->f, env->start + begin, SEEK_SET);
     if (err<0) {
         haenv_debug("seek error:%d", err);
@@ -279,7 +278,6 @@ __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
         
         return err;
     }
-    haenv_debug("ok");
 
     return err;
 }
@@ -290,7 +288,6 @@ __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 static inline int
 __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
-    haenv_debug("...");
     int err = os_fseek(env->f, env->start + begin, SEEK_SET);
     if (err<0) {
         haenv_debug("seek error:%d", err);
@@ -305,8 +302,6 @@ __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
         return err;
     }
     
-    haenv_debug("ok");
-
     return err;
 }
 #endif
@@ -317,7 +312,6 @@ __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 static inline int
 hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
-    haenv_debug("...");
     if (false==is_good_haenv_zone(begin, begin + size)) {
         haenv_debug("error: bad zone[0x%x, 0x%x)", begin, begin+size);
         
@@ -330,7 +324,6 @@ hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
         
         return err;
     }
-    haenv_debug("ok");
 
     return err;
 }
@@ -353,7 +346,6 @@ hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
         
         return err;
     }
-    haenv_debug("ok");
 
     return err;
 }
@@ -628,7 +620,6 @@ hae_eq(haenv_t *a, haenv_t *b)
 static inline int
 hae_load(haenv_t *env)
 {
-    haenv_debug("...");
     return hae_read(env, 0, env->mirror, sizeof(env->mirror));
 }
 
