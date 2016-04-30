@@ -688,6 +688,8 @@ hae_check(haenv_t *env)
                 count, 
                 hae_offsetof(env, e), 
                 env->saved);
+
+            count++;
         }
         else {
             haenv_debug("env[%d] offset", env->id, hae_offsetof(env, e));
