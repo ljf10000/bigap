@@ -147,14 +147,12 @@
     CONFIG_BOOTARGS_BODY        \
     /* end */
 
-#define HAENV_MD5_SIZE          16
-
 #define HAENV_ALIGN(_len)       OS_ALIGN(_len, sizeof(uint32))
 
 #define HAENV_F_DIRTY           0x01
 
 typedef struct {
-    byte    md5[HAENV_MD5_SIZE];
+    byte    md5[16];
     byte    flag;
     byte    klen;
     uint16  vlen;
@@ -442,10 +440,40 @@ is_good_haee(haenv_t *env, haenv_entry_t *e)
     return e >= hae_first(env) && haee_next(e) <= hae_end(env);
 }
 
+static inline byte *
+__haee_md5_begin(haenv_entry_t *e)
+{
+    return ((byte *)e) + 16;
+}
+
+static inline uint32
+__haee_md5_size(haenv_entry_t *e)
+{
+    return haee_size(e) - 16;
+}
+
+static inline void
+__haee_md5(haenv_entry_t *e, byte md5[16])
+{
+    md5_content_t ctx;
+    byte md5[16] = {0};
+    
+    md5_encode(&ctx, md5, __haee_md5_begin(e), __haee_md5_size(e));
+}
+
+static inline void
+haee_md5(haenv_entry_t *e)
+{
+    __haee_md5(e, e->md5);
+}
+
 static inline bool
 is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 {
-    return true;
+    byte md5[16] = {0};
+    __haee_md5(e, md5);
+    
+    return md5_eq(md5, e->md5);
 }
 
 static inline int
@@ -460,8 +488,7 @@ haee_set(haenv_entry_t *e, char *k, char *v)
         os_strmcpy(haee_key(e), k, e->klen);
         os_strmcpy(haee_value(e), v, e->vlen);
         haee_pad_zero(e);
-
-        // todo: md5
+        haee_md5(e);
 
         return 0;
     } else {

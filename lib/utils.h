@@ -156,6 +156,7 @@
 #include "utils/slice.h"
 #include "utils/blob.h"
 #include "utils/dll.h"
+#include "utils/md5.h"
 
 #ifdef OS_EXTEND
 #include "utils/autoarray.h"
