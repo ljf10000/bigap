@@ -664,8 +664,6 @@ hae_gc(haenv_t *env, jobj_t obj)
     int err = 0;
     
 #ifdef __APP__
-    char *k, *v;
-    
     hae_clean(env);
     
     jobj_foreach(obj, k, v) {
