@@ -13,13 +13,13 @@ OS_INITER;
 static int
 cmd_init(int argc, char *argv[])
 {
-    return 0;
+    return haenv_gc(false);
 }
 
 static int
 cmd_gc(int argc, char *argv[])
 {
-    return haenv_gc();
+    return haenv_gc(true);
 }
 
 static int
@@ -91,7 +91,6 @@ usage(void)
 {
     os_eprintln(__THIS_APP_NAME " set {key}");
     os_eprintln(__THIS_APP_NAME " get {key} {value}");
-    os_eprintln(__THIS_APP_NAME " gc");
 
     return -EFORMAT;
 }

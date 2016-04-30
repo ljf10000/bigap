@@ -971,12 +971,12 @@ error:
 }
 
 static inline int
-haenv_gc(void)
+haenv_gc(bool force)
 {
     int err = 0;
     
 #ifdef __APP__
-    if (haenv_first()->saved > HAENV_GCSIZE) {
+    if (force || haenv_first()->saved > HAENV_GCSIZE) {
         jobj_t obj = hae_export(haenv_first());
         if (NULL==obj) {
             err = -ENOMEM; goto error;
