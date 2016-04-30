@@ -279,7 +279,7 @@ md5_encode(md5_content_t *ctx, byte digest[16], byte *input, uint32 inputLen)
 static inline bool
 md5_eq(byte a[16], byte b[16])
 {
-    return os_memcmp(a, b, 16);
+    return os_memeq(a, b, 16);
 }
 /******************************************************************************/
 #endif				/* __MD5_H_46af656ba80c4a0c9dc59106b11551a0__ */
