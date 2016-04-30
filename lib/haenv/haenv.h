@@ -519,7 +519,7 @@ haee_md5(haenv_entry_t *e)
 }
 
 static inline bool
-__is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
+__is_good_haee_md5(haenv_entry_t *e)
 {
     byte md5[16] = {0};
 
@@ -535,13 +535,12 @@ __is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_good_haee(haenv_t *env, haenv_entry_t *e)
 {
-    return e->klen && e->vlen &&__is_good_haee_md5(env, e);
+    return e->klen && e->vlen &&__is_good_haee_md5(e);
 }
 
 static inline int
 haee_set(haenv_entry_t *e, char *k, char *v)
 {
-    haenv_debug("...");
     if (e) {
         e->klen = os_strlen(k);
         e->vlen = os_strlen(v);
@@ -552,6 +551,7 @@ haee_set(haenv_entry_t *e, char *k, char *v)
         os_strmcpy(haee_value(e), v, e->vlen);
         haee_pad_zero(e);
         haee_md5(e);
+        __is_good_haee_md5(e);
         
         return 0;
     } else {
@@ -657,7 +657,7 @@ hae_check(haenv_t *env)
     int err = 0, count = 0;
     
     hae_foreach(env, e) {
-        if (is_good_haee(env, e)) {
+        if (is_good_haee(e)) {
             env->saved += haee_size(e);
 
             haenv_debug("env[%d] count==>%d, saved==>0x%x", env->id, count, env->saved);
