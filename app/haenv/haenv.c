@@ -79,7 +79,7 @@ cmd_set(int argc, char *argv[])
         return err;
     }
 
-    return haenv_flush(void);
+    return haenv_flush();
 }
 
 static cmd_table_t cmd[] = {
