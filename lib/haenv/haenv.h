@@ -488,24 +488,17 @@ __is_good_haee(haenv_t *env, haenv_entry_t *e)
     return e >= hae_first(env) && haee_next(e) <= hae_end(env);
 }
 
-static inline byte *
-__haee_md5_begin(haenv_entry_t *e)
-{
-    return ((byte *)e) + 16;
-}
-
-static inline uint32
-__haee_md5_size(haenv_entry_t *e)
-{
-    return haee_size(e) - 16;
-}
-
 static inline void
 __haee_md5(haenv_t *env, haenv_entry_t *e, byte md5[16])
 {
     md5_content_t ctx;
     
-    md5_encode(&ctx, md5, __haee_md5_begin(e), __haee_md5_size(e));
+    md5_encode(&ctx, md5, e->md5 + 16, haee_size(e) - 16);
+    
+#if HAENV_DPRINT
+    haenv_debug("md5 content");
+    __os_dump_buffer(e->md5 + 16, haee_size(e) - 16, NULL);
+#endif
 }
 
 static inline void
