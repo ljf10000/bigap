@@ -23,12 +23,6 @@ cmd_gc(int argc, char *argv[])
 }
 
 static int
-cmd_check(int argc, char *argv[])
-{
-    return common(false);
-}
-
-static int
 cmd_get(int argc, char *argv[])
 {
     char *k = argv[1];
@@ -90,11 +84,6 @@ static cmd_table_t cmd[] = {
         .argv   = {"gc"},
         .handle = cmd_gc,
     },
-    {
-        .argc   = 1,
-        .argv   = {"check"},
-        .handle = cmd_check,
-    },
 };
 
 static int
@@ -103,7 +92,6 @@ usage(void)
     os_eprintln(__THIS_APP_NAME " set {key}");
     os_eprintln(__THIS_APP_NAME " get {key} {value}");
     os_eprintln(__THIS_APP_NAME " gc");
-    os_eprintln(__THIS_APP_NAME " check");
 
     return -EFORMAT;
 }
