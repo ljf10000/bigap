@@ -827,8 +827,8 @@ haenv_check(void)
     haenv_foreach(i, env) {
         hae_check(env);
         if (err<0) {
-           ret = err;
-           // todo: log
+            ret = err;
+            // todo: log
         }
     }
 

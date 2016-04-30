@@ -73,6 +73,11 @@ cmd_set(int argc, char *argv[])
 {
     char *k = argv[1];
     char *v = argv[2];
+
+    err = common(argc, argv, true, false);
+    if (err<0) {
+        return err;
+    }
     
     int err = haenv_append(k, v);
     if (err<0) {        
