@@ -823,7 +823,7 @@ haenv_export(void)
         err = -ENOMEM; goto error;
     }
 
-    f = os_fopen(HAENV_TMPFILE, "w");
+    f = os_fopen(HAENV_TEMP, "w");
     if (NULL==f) {
         err = -EIO; goto error;
     }
@@ -837,7 +837,7 @@ haenv_export(void)
     fflush(f);
     os_fclose(f);
     
-    err = rename(HAENV_TMPFILE, HAENV_EXPORT);
+    err = rename(HAENV_TEMP, HAENV_EXPORT);
     if (err<0) {
         err = -errno; goto error;
     }
@@ -889,7 +889,7 @@ haenv_init(void)
     STREAM f = NULL;
 
 #ifdef __APP__
-    STREAM f = os_fopen(HAENV_FILE, "r+");
+    f = os_fopen(HAENV_FILE, "r+");
     if (NULL==f) {
         return -EIO;
     }
