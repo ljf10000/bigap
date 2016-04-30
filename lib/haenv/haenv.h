@@ -181,6 +181,7 @@ typedef struct {
     
     uint32  saved;  // size: have saved to flash
     uint32  unsaved;// size: not unsaved to flash
+    uint32  count;
     
     bool    damaged;
 } haenv_t;
@@ -628,6 +629,7 @@ hae_clone(haenv_t *dst, haenv_t *src)
 {
     os_memcpy(dst->mirror, src->mirror, sizeof(src->mirror));
 
+    dst->count  = src->count;
     dst->saved  = src->saved;
     dst->unsaved= src->unsaved;
     dst->damaged= src->damaged;
@@ -640,6 +642,7 @@ hae_clean(haenv_t *env)
 {
     os_memzero(env->mirror, sizeof(env->mirror));
 
+    env->count  = 0;
     env->saved  = 0;
     env->unsaved= 0;
     env->damaged= false;
@@ -649,6 +652,7 @@ static inline bool
 hae_eq(haenv_t *a, haenv_t *b)
 {
     return os_memcmp(a->mirror, b->mirror, sizeof(b->mirror))
+        && a->count     == b->count
         && a->saved     == b->saved
         && a->unsaved   == b->unsaved
         && a->damaged   == a->damaged;
@@ -674,7 +678,7 @@ static inline int
 hae_check(haenv_t *env)
 {
     haenv_entry_t *e;
-    int err = 0, count = 0;
+    int err = 0;
     
     hae_foreach(env, e) {
         if (is_empty_haee(e)) {
@@ -685,11 +689,11 @@ hae_check(haenv_t *env)
 
             haenv_debug("env[%d] count==>%d, offset==>0x%x, saved==>0x%x", 
                 env->id, 
-                count, 
+                env->count, 
                 hae_offsetof(env, e), 
                 env->saved);
 
-            count++;
+            env->count++;
         }
         else {
             haenv_debug("env[%d] offset", env->id, hae_offsetof(env, e));
