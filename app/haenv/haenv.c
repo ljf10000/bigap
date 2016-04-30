@@ -105,7 +105,7 @@ cmd_set(int argc, char *argv[])
 }
 
 static int
-cmd_set(int argc, char *argv[])
+cmd_md5(int argc, char *argv[])
 {
     byte input[] = {
         0x00, 0x05, 0x06, 0x00,
