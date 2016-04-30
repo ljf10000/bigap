@@ -166,7 +166,5 @@ __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line)
         __os_dump_buffer(_buffer, _len, _dump_line);            \
     }                                                           \
 }while(0)
-
-
 /******************************************************************************/
 #endif /* __DUMP_H_96bec2f065cb4415a8327409eae6d67c__ */
