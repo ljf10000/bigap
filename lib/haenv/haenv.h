@@ -519,7 +519,7 @@ haee_md5(haenv_t *env, haenv_entry_t *e)
         haee_key(e), 
         haee_value(e));
 #if HAENV_DPRINT
-    __os_dump_buffer(e, 16, NULL);
+    __os_dump_buffer(e, haee_size(e), NULL);
 #endif
 }
 
@@ -540,7 +540,7 @@ __is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
     os_dump_line(0, md5, 16, NULL);
     
     haenv_debug("entry");
-    __os_dump_buffer(e, 16, NULL);
+    __os_dump_buffer(e, haee_size(e), NULL);
 #endif
     
     return md5_eq(md5, e->md5);
