@@ -11,38 +11,15 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 OS_INITER;
 
 static int
-common(bool gc)
-{
-    int err = 0;
-    
-    err = haenv_check();
-    if (err<0) {
-        err = haenv_repaire();
-        if (err<0) {
-            return err;
-        }
-    }
-
-    if (gc) {
-        err = haenv_gc();
-        if (err<0) {
-            return err;
-        }
-    }
-    
-    return err;
-}
-
-static int
 cmd_init(int argc, char *argv[])
 {
-    return common(true);
+    return 0;
 }
 
 static int
 cmd_gc(int argc, char *argv[])
 {
-    return common(true);
+    return haenv_gc();
 }
 
 static int
@@ -57,11 +34,6 @@ cmd_get(int argc, char *argv[])
     char *k = argv[1];
     int err = 0;
 
-    err = common(false);
-    if (err<0) {
-        return err;
-    }
-    
     haenv_entry_t *e = haenv_find(k);
     if (NULL==e) {
         return -ENOEXIST;
@@ -78,11 +50,6 @@ cmd_set(int argc, char *argv[])
     char *k = argv[1];
     char *v = argv[2];
     int err = 0;
-    
-    err = common(false);
-    if (err<0) {
-        return err;
-    }
     
     err = haenv_append(k, v);
     if (err<0) {        
@@ -163,7 +130,20 @@ __init(void)
         return err;
     }
 
-    return haenv_load();
+    err = haenv_load();
+    if (err<0) {
+        return err;
+    }
+    
+    err = haenv_check();
+    if (err<0) {
+        err = haenv_repaire();
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
 }
 
 static inline int
