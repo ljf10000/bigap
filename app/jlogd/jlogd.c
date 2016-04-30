@@ -220,7 +220,7 @@ jadd(jlog_server_t *server)
         }
     }
 
-    char *json = jobj_string(obj);
+    char *json = jobj_json(obj);
     if (NULL==json) {
         __debug_error("obj==>json failed");
         

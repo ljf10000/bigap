@@ -148,7 +148,7 @@ int __main(int argc, char *argv[])
     
     slice_alloc(bs, BUFFER_SIZE);
     obj = array_btoj();
-    json = jobj_string(obj);
+    json = jobj_json(obj);
     os_println(__tab "%s", json);
 #if 1
     blob_jtob(bs, obj);
@@ -157,7 +157,7 @@ int __main(int argc, char *argv[])
     jobj_put(obj);
 
     obj = object_btoj();
-    json = jobj_string(obj);
+    json = jobj_json(obj);
     os_println(__tab "%s", json);
 #if 1
     blob_jtob(bs, obj);

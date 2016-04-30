@@ -667,7 +667,7 @@ hae_gc(haenv_t *env, jobj_t obj)
     hae_clean(env);
     
     jobj_foreach(obj, k, v) {
-        hae_append(env, k, v);
+        hae_append(env, k, jobj_get_string(v));
     }
 
     err = hae_save(env);
@@ -826,7 +826,7 @@ haenv_export(void)
         err = -EIO; goto error;
     }
 
-    char *json = jobj_string(obj);
+    char *json = jobj_json(obj);
 
     err = os_fwrite(f, json, os_strlen(json));
     if (err<0) {

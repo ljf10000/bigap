@@ -92,8 +92,8 @@ void update_limit_test(void)
     jobj_put(obj);
 
     obj = um_juser(&user);
-    os_println("%s", jobj_string(obj));
-    os_system("echo '%s' | jq .", jobj_string(obj));
+    os_println("%s", jobj_json(obj));
+    os_system("echo '%s' | jq .", jobj_json(obj));
     jobj_put(obj);
 #endif
 }
@@ -115,7 +115,7 @@ __cb(struct um_user *user, char *action, int (*cb)(jobj_t obj))
     os_v_pgetb(json, OS_FILE_LEN, 
         UMD_SCRIPT_EVENT " %s '%s'",
         action,
-        jobj_string(juser));
+        jobj_json(juser));
     jobj_put(juser);
     
     if (cb) {

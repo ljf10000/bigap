@@ -471,7 +471,7 @@ um_user_dump(char *tag, struct um_user *user)
 {
     jobj_t obj = um_juser(user);
 
-    os_println("\t%s:%s", tag, jobj_string(obj));
+    os_println("\t%s:%s", tag, jobj_json(obj));
 
     jobj_put(obj);
 }
@@ -482,7 +482,7 @@ um_user_debug(char *tag, struct um_user *user, bool debug)
     if (debug) {
         jobj_t obj = um_juser(user);
 
-        jdebug("%o", tag, jobj_string(obj));
+        jdebug("%o", tag, jobj_json(obj));
 
         jobj_put(obj);
     }

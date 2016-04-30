@@ -118,7 +118,7 @@ jobj_string_ex(jobj_t obj, int flag)
     }
 }
 
-#define jobj_string(_obj)           jobj_string_ex(_obj, JSON_C_TO_STRING_PLAIN)
+#define jobj_json(_obj)     jobj_string_ex(_obj, JSON_C_TO_STRING_PLAIN)
 
 static inline int
 jobj_string_len(jobj_t obj)
@@ -472,7 +472,7 @@ jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
                 if (NULL==var.a) {
                     var.a = empty;
                 }
-                japi_println("array=%s", jobj_string(var.a));
+                japi_println("array=%s", jobj_json(var.a));
                 jobj_add(obj, key, var.a);
 
                 break;
@@ -481,7 +481,7 @@ jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
                 if (NULL==var.o) {
                     var.o = empty;
                 }
-                japi_println("object=%s", jobj_string(var.o));
+                japi_println("object=%s", jobj_json(var.o));
                 jobj_add(obj, key, var.o);
 
                 break;

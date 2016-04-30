@@ -715,7 +715,7 @@ __jlog(jobj_t obj, char *app, char *sub, uint32 PRI)
         return -EINVAL0;
     }
 
-    json = jobj_string(obj);
+    json = jobj_json(obj);
     if (NULL==json) {
         __debug_error("__jlog obj==>json failed");
         

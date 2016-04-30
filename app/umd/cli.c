@@ -203,7 +203,7 @@ show_user(struct um_user *user)
     jobj_t obj = um_juser(user);
     
     if (obj) {
-        cli_sprintf(__tab "%s" __crlf, jobj_string(obj));
+        cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
 
         jobj_put(obj);
     }
@@ -239,7 +239,7 @@ show_user_byjson(char *json)
         return -ENOEXIST;
     }
     
-    cli_sprintf(__tab "%s" __crlf, jobj_string(juser));
+    cli_sprintf(__tab "%s" __crlf, jobj_json(juser));
     jobj_put(juser);
     jobj_put(obj);
     
@@ -258,7 +258,7 @@ show_stat(void)
     jobj_add_i32(obj, "user", h2_count(&umd.table));
     jobj_add(obj, "flow", um_jflow());
 
-    cli_sprintf(__tab "%s" __crlf, jobj_string(obj));
+    cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
     
     jobj_put(obj);
     

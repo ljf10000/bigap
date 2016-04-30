@@ -269,7 +269,7 @@ jcheck(jobj_t obj)
 {
     int code = -EFORMAT;
 
-    debug_test("jcheck %s", jobj_string(obj));
+    debug_test("jcheck %s", jobj_json(obj));
     
     /*
     * first try act
