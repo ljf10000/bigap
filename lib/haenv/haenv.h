@@ -652,9 +652,7 @@ hae_check(haenv_t *env)
     int err = 0;
     
     hae_foreach(env, e) {
-        __os_dump_buffer(e->md5, 16, NULL);
-        
-        if (false==__is_good_haee_md5(env, e)) {
+        if (false==is_good_haee(env, e)) {
             env->damaged = true;
             
             err = -EDAMAGED;
