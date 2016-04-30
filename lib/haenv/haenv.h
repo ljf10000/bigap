@@ -569,12 +569,13 @@ haee_set(haenv_t *env, haenv_entry_t *e, char *k, char *v)
         e->klen = os_strlen(k);
         e->vlen = os_strlen(v);
         e->seq  = haenv_seq;
-        e->flag = HAENV_F_DIRTY;
         
         os_strmcpy(haee_key(e), k, e->klen);
         os_strmcpy(haee_value(e), v, e->vlen);
         haee_pad_zero(e);
         haee_md5(env, e);
+        
+        e->flag = HAENV_F_DIRTY;
                 
         return 0;
     } else {
