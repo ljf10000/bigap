@@ -158,13 +158,7 @@ __fini(void)
 static int
 __main(int argc, char *argv[])
 {
-    int err = 0;
-
-    haenv_lock();
-    err = cmd_handle(cmd, argc, argv, usage);
-    haenv_unlock();
-
-    return err;
+    return cmd_handle(cmd, argc, argv, usage);
 }
 
 #ifndef __BUSYBOX__
@@ -173,6 +167,12 @@ __main(int argc, char *argv[])
 
 int haenv_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, __main, argc, argv);
+    int err;
+    
+    haenv_lock();
+    err = os_call(__init, __fini, __main, argc, argv);
+    haenv_unlock();
+
+    return err;
 }
 /******************************************************************************/
