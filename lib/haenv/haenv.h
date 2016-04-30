@@ -491,7 +491,7 @@ __is_good_haee(haenv_t *env, haenv_entry_t *e)
 static inline byte *
 __haee_md5_begin(haenv_entry_t *e)
 {
-    return e->md5 + 16;
+    return &e->md5[16];
 }
 
 static inline uint32
@@ -511,7 +511,7 @@ __haee_md5(haenv_t *env, haenv_entry_t *e, byte md5[16])
     haenv_debug("md5 result");
     os_dump_line(0, md5, 16, NULL);
     
-    haenv_debug("md5 content offset:0x%x size:0x%x", 
+    haenv_debug("md5 input offset:0x%x size:0x%x", 
         hae_offsetof(env, __haee_md5_begin(e)),
         __haee_md5_size(e));
     __os_dump_buffer(__haee_md5_begin(e), __haee_md5_size(e), NULL);
@@ -529,6 +529,10 @@ haee_md5(haenv_t *env, haenv_entry_t *e)
         haee_value(e));
 
     __haee_md5(env, e, e->md5);
+
+    __is_good_haee_md5(env, e);
+    __is_good_haee_md5(env, e);
+    __is_good_haee_md5(env, e);
 }
 
 static inline bool
@@ -557,9 +561,9 @@ is_good_haee(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_empty_haee(haenv_entry_t *e)
 {
-    byte md5[16] = {0};
+    byte zero[16] = {0};
     
-    return 0==e->klen && 0==e->vlen && md5_eq(md5, e->md5);
+    return 0==e->klen && 0==e->vlen && md5_eq(zero, e->md5);
 }
 
 static inline int
