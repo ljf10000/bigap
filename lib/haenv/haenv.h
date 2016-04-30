@@ -883,6 +883,7 @@ haenv_append(char *k, char *v)
     __haenv_foreach(i, env, 1) {
         if (haee_clone(hae_empty(env), e)) {
             env->unsaved += haee_size(e);
+            
             haenv_debug("env[%d] unsaved==>0x%x", env->id, env->unsaved);
         }
     }

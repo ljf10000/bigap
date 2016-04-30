@@ -75,11 +75,21 @@ cmd_set(int argc, char *argv[])
     char *v = argv[2];
     
     int err = haenv_append(k, v);
+    if (err<0) {        
+        return err;
+    }
+
+    err = haenv_flush();
     if (err<0) {
         return err;
     }
 
-    return haenv_flush();
+    err = haenv_export();
+    if (err<0) {
+        return err;
+    }
+
+    return err;
 }
 
 static cmd_table_t cmd[] = {
