@@ -512,12 +512,12 @@ haee_md5(haenv_t *env, haenv_entry_t *e)
 {
     __haee_md5(env, e, e->md5);
     
-#if HAENV_DPRINT
     haenv_debug("env[%d] offset:0x%x, key:%s value:%s md5", 
         env->id,
         hae_offsetof(env, e), 
         haee_key(e), 
         haee_value(e));
+#if HAENV_DPRINT
     os_dump_line(0, e->md5, 16, NULL);
 #endif
 }
@@ -529,13 +529,17 @@ __is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 
     __haee_md5(env, e, md5);
     
-#if HAENV_DPRINT
-    haenv_debug("env[%d] offset:0x%x, key:%s value:%s md5", 
+    haenv_debug("env[%d] offset:0x%x, key:%s value:%s", 
         env->id,
         hae_offsetof(env, e), 
         haee_key(e), 
         haee_value(e));
+#if HAENV_DPRINT
+    haenv_debug("new md5");
     os_dump_line(0, md5, 16, NULL);
+    
+    haenv_debug("old md5");
+    os_dump_line(0, e->md5, 16, NULL);
 #endif
     
     return md5_eq(md5, e->md5);
@@ -568,9 +572,7 @@ haee_set(haenv_t *env, haenv_entry_t *e, char *k, char *v)
         os_strmcpy(haee_value(e), v, e->vlen);
         haee_pad_zero(e);
         haee_md5(env, e);
-        
-        __is_good_haee_md5(env, e);
-        
+                
         return 0;
     } else {
         return -EKEYNULL;
