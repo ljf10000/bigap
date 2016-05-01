@@ -1,16 +1,9 @@
-#ifndef __OEM1_H_35447b03b4ea4e94bae2cefb91393cb7__
-#define __OEM1_H_35447b03b4ea4e94bae2cefb91393cb7__
+#ifndef __OEM_RAYTIGHT_H_35447b03b4ea4e94bae2cefb91393cb7__
+#define __OEM_RAYTIGHT_H_35447b03b4ea4e94bae2cefb91393cb7__
 /******************************************************************************/
 #define OEM1_NAME               "raytight"
 
-#define OEM1_BASE_INITER __OEM_BASE_INITER( \
-    OEM1_NAME,  \
-    OEM_MAC,    \
-    OEM_SN,     \
-    OEM_TYPE,   \
-    OEM_VERSION)
-
-#define OEM1_LSS_SERVER         "its.raytight.com"
+#define OEM1_LSS_SERVER         "its." OEM1_NAME" .com"
 
 #define OEM1_LSS_INITER __OEM_LSS_INITER( \
     OEM_LSS_USER,   \
@@ -18,7 +11,7 @@
     OEM1_LSS_SERVER,\
     OEM_LSS_PORT)
 
-#define OEM1_RSYNC_SERVER       "its.raytight.com"
+#define OEM1_RSYNC_SERVER       "its." OEM1_NAME ".com"
 
 #define OEM1_RSYNC_INITER  __OEM_RSYNC_INITER( \
     OEM_RSYNC_USER,     \
@@ -67,9 +60,8 @@
 }
 
 #define OEM1_INITER __OEM_INITER( \
-    OEM1_BASE_INITER,    \
     OEM1_RSYNC_INITER,   \
     OEM1_LSS_INITER,     \
     OEM1_CERT_INITER)
 /******************************************************************************/
-#endif /* __OEM1_H_35447b03b4ea4e94bae2cefb91393cb7__ */
+#endif /* __OEM_RAYTIGHT_H_35447b03b4ea4e94bae2cefb91393cb7__ */

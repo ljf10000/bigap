@@ -157,6 +157,7 @@
 #include "utils/blob.h"
 #include "utils/dll.h"
 #include "utils/md5.h"
+#include "utils/base64.h"
 
 #ifdef OS_EXTEND
 #include "utils/autoarray.h"
@@ -186,25 +187,25 @@
 #define OS_EXT_REAL_INITER  os_fake_declare
 #endif
 
-#define OS_INITER       \
-    DECLARE_COMMAND;    \
-    DECLARE_HAENV;      \
-    DECLARE_DEAMON;     \
-    DECLARE_FLOCK;      \
-    DECLARE_JLOG;       \
-    DECLARE_OEM;        \
-    DECLARE_AK;         \
-    DECLARE_TIMER;      \
-    DECLARE_CLI_BUFFER; \
-    DECLARE_DEBUGGER;   \
-    DECLARE_JDEBUGGER;  \
-                        \
-    OS_EXT_INITER /* last */ \
+#define OS_INITER           \
+    DECLARE_COMMAND;        \
+    /* DECLARE_HAENV; */    \
+    DECLARE_DEAMON;         \
+    DECLARE_FLOCK;          \
+    DECLARE_JLOG;           \
+    DECLARE_OEM;            \
+    DECLARE_AK;             \
+    DECLARE_TIMER;          \
+    DECLARE_CLI_BUFFER;     \
+    DECLARE_DEBUGGER;       \
+    DECLARE_JDEBUGGER;      \
+                            \
+    OS_EXT_INITER/* last */ \
     /* end */
 
 #define OS_REAL_INITER          \
     DECLARE_REAL_COMMAND;       \
-    DECLARE_REAL_HAENV;         \
+    /* DECLARE_REAL_HAENV; */   \
     DECLARE_REAL_DEAMON;        \
     DECLARE_REAL_FLOCK;         \
     DECLARE_REAL_JLOG;          \
@@ -215,7 +216,7 @@
     DECLARE_REAL_DEBUGGER;      \
     DECLARE_REAL_JDEBUGGER;     \
                                 \
-    OS_EXT_REAL_INITER /* last */ \
+    OS_EXT_REAL_INITER/* last */\
     /* end */
 
 static inline int

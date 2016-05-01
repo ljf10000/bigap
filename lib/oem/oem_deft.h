@@ -1,22 +1,11 @@
-#ifndef __DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__
-#define __DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__
+#ifndef __OEM_DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__
+#define __OEM_DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__
 /******************************************************************************/
-#define OEM_NAME    "default"
-#define OEM_MAC     ""
-#define OEM_SN      ""
-#define OEM_TYPE    ""
-#define OEM_VERSION ""
-
-#define OEM_BASE_INITER __OEM_BASE_INITER( \
-    OEM_NAME,   \
-    OEM_MAC,    \
-    OEM_SN,     \
-    OEM_TYPE,   \
-    OEM_VERSION)
+#define OEM_NAME    "superwali"
 
 #define OEM_LSS_USER            "LSS"
 #define OEM_LSS_PWD             "LTEFISecurityServer2012-2015"
-#define OEM_LSS_SERVER          "lms2.xxx.com"
+#define OEM_LSS_SERVER          "lms2." OEM_NAME ".com"
 #define OEM_LSS_PORT            "9999"
 
 #define OEM_LSS_INITER __OEM_LSS_INITER( \
@@ -28,7 +17,7 @@
 #define OEM_RSYNC_USER          "rsync"
 #define OEM_RSYNC_PWDFILE       "bHRlZmlWMnJzeW5jUFdECg=="
 #define OEM_RSYNC_PATH          "version/lte-fi2/mdboard"
-#define OEM_RSYNC_SERVER        "lms3.xxx.com"
+#define OEM_RSYNC_SERVER        "lms3." OEM_NAME ".com"
 #define OEM_RSYNC_PORT          "873"
 #define OEM_RSYNC_TIMEOUT       "300"
 
@@ -79,9 +68,8 @@
 }   /* end */
 
 #define OEM_INITER __OEM_INITER( \
-    OEM_BASE_INITER,    \
     OEM_RSYNC_INITER,   \
     OEM_LSS_INITER,     \
     OEM_CERT_INITER)
 /******************************************************************************/
-#endif /* __DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__ */
+#endif /* __OEM_DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__ */

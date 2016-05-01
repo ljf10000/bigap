@@ -114,14 +114,6 @@ __set_oem_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     idx = duk_normalize_index(ctx, idx);
     __set_obj_string(ctx, idx, "type",   oem_type_string(__oem_type()));
     
-    duk_push_object(ctx);
-    __set_obj_string(ctx, -1, "name",   oem_base_name);
-    __set_obj_string(ctx, -1, "mac",    oem_base_mac);
-    __set_obj_string(ctx, -1, "sn",     oem_base_sn);
-    __set_obj_string(ctx, -1, "type",   oem_base_type);
-    __set_obj_string(ctx, -1, "version",oem_base_version);
-    duk_put_prop_string(ctx, idx, "base");
-
 #if 0
     duk_push_object(ctx);
     __set_obj_string(ctx, -1, "user",       oem_rsync_user);

@@ -79,38 +79,6 @@ typedef struct {
 #define OEM_NAME_LEN    31
 #endif
 
-#ifndef OEM_MAC_LEN
-#define OEM_MAC_LEN     31
-#endif
-
-#ifndef OEM_SN_LEN
-#define OEM_SN_LEN      63
-#endif
-
-#ifndef OEM_TYPE_LEN
-#define OEM_TYPE_LEN    31
-#endif
-
-#ifndef OEM_VERSION_LEN
-#define OEM_VERSION_LEN 31
-#endif
-
-typedef struct {
-    char name[1+OEM_NAME_LEN];
-    char mac[1+OEM_MAC_LEN];
-    char sn[1+OEM_SN_LEN];
-    char type[1+OEM_TYPE_LEN];
-    char version[1+OEM_VERSION_LEN];
-} oem_base_t;
-
-#define __OEM_BASE_INITER(_name, _mac, _sn, _type, _version) { \
-    .name   = _name,    \
-    .mac    = _mac,     \
-    .sn     = _sn,      \
-    .type   = _type,    \
-    .version= _version, \
-}
-
 enum {
     OEM_CA_CERT,
     OEM_CLIENT_KEY,
@@ -141,21 +109,19 @@ typedef struct {
 } oem_cert_t;
 
 typedef struct {
-    oem_base_t  base;
     oem_rsync_t rsync;
     oem_lss_t   lss;
     oem_cert_t  cert;
 } oem_t;
 
-#define __OEM_INITER(_base, _rsync, _lss, _cert) { \
-    .base   = _base,    \
+#define __OEM_INITER(_rsync, _lss, _cert) { \
     .rsync  = _rsync,   \
     .lss    = _lss,     \
     .cert   = _cert,    \
 }
 /******************************************************************************/
-#include "deft.h"
-#include "oem1.h"
+#include "oem_deft.h"
+#include "oem_raytight.h"
 /******************************************************************************/
 #define __XLIST_OEM(_)              \
     _(OEM_T_DEFT, 0, OEM_NAME),     \
