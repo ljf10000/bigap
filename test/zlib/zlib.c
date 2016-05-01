@@ -44,7 +44,7 @@ __main(int argc, char *argv[])
             unsigned long output_len = sizeof(output);
             err = compress2(output, &output_len, pkt[i].pkt, pkt[i].len, level);
 
-            os_println("index:%d, input:%d, level:%d, output:%d",
+            os_println("index:%d, input:%d, level:%d, output:%lu",
                 i,
                 pkt[i].len,
                 level, 
