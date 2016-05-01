@@ -1160,7 +1160,7 @@ __jlog_env_init(void)
             sockaddr_in_t *iserver = __jlog_iserver();
             
             iserver->sin_port = env_geti(ENV_JLOG_PORT, JLOG_PORT);
-            __debug_ok("get port:%d", iserver->sin_port);
+            debug_ok("get port:%d", iserver->sin_port);
             
             err = env_copy(ENV_JLOG_IP, JLOG_IP, ipaddress);
             if (err<0) {
@@ -1168,7 +1168,7 @@ __jlog_env_init(void)
                 
                 return err;
             } else {
-                __debug_ok("get jlog ip:%s", ipaddress);
+                debug_ok("get jlog ip:%s", ipaddress);
             }
 
             ip = inet_addr(ipaddress);
