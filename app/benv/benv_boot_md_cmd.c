@@ -38,7 +38,7 @@ __at_version(int argc, char *argv[])
         os_objcpy(benv_kernel_version(i), &version);
     }
 
-    __benv_set_dirty(BENV_OS);
+    benv_dirty_byidx(BENV_OS);
 }
 
 static int 

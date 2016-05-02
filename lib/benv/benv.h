@@ -2298,17 +2298,17 @@ benv_emmc_read(uint32 begin, void *buf, int size);
 extern int 
 benv_emmc_write(uint32 begin, void *buf, int size);
 
-#define benv_open()           0
-#define benv_close()          0
+#define benv_open()         0
+#define benv_close()        0
 
 extern int __benv_load(int idx);    /* idx is benv's block */
 extern int __benv_save(int idx);    /* idx is benv's block */
 #elif defined(__APP__)
 #if IS_PRODUCT_LTEFI_MD1
-#define benv_open()             0
-#define benv_close()            0
-#define __benv_load(_idx)     0
-#define __benv_save(_idx)     0
+#define benv_open()         0
+#define benv_close()        0
+#define __benv_load(_idx)   0
+#define __benv_save(_idx)   0
 #elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC
 static inline int
 benv_open(void)
