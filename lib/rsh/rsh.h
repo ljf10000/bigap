@@ -497,14 +497,14 @@ rsh_slot_state(int slot, bool alive)
 static inline void
 rsh_slot_dump(int slot)
 {
-    debug_config("slot[%d]"                     __blank
-        "config:"                               __blank
-            "ip[%s] port[%d]"                   __blank
-            "times[%d] interval[%d]"            __blank
-        "echo:"                                 __blank
-            "times[%d] interval[%d] alive[%d]"  __blank
-            "connect[%llu] disconnect[%llu]"    __blank
-            "send-ok[%llu] send-fail[%llu]"     __blank
+    debug_config("slot[%d]"                     __space
+        "config:"                               __space
+            "ip[%s] port[%d]"                   __space
+            "times[%d] interval[%d]"            __space
+        "echo:"                                 __space
+            "times[%d] interval[%d] alive[%d]"  __space
+            "connect[%llu] disconnect[%llu]"    __space
+            "send-ok[%llu] send-fail[%llu]"     __space
             "recv-ok[%llu] recv-fail[%llu]",
         slot,
         os_ipstring(rsh_slot_ip(slot)), ntohs(rsh_slot_port(slot)),

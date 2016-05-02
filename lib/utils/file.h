@@ -757,7 +757,7 @@ os_file_exist(char *file)
     int __code = 0;         \
                             \
     if (os_file_exist(SCRIPT_SHELL_SYSTEM)) { \
-        __err = os_v_pgeti(&__code, SCRIPT_SHELL_SYSTEM " " _fmt, ##_args); \
+        __err = os_v_pgeti(&__code, SCRIPT_SHELL_SYSTEM __space _fmt, ##_args); \
         if (0==__err) {     \
             __err = __code; \
         }                   \

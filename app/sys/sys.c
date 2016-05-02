@@ -205,20 +205,34 @@ __dd(char *dst, char *src)
     return os_p_system("dd if=%s of=%s bs=4096", src, dst);
 }
 
+static char *
+__pwdfile(void)
+{
+    static char pwd[1+FCOOKIE_FILE_LEN];
+    
+    return  sys.env.pwdfile?
+            sys.env.pwdfile:
+            __fcookie_file(FCOOKIE_RSYNC_PWDFILE, pwd);
+}
+
+static void
+__pwdfile_clean(char *pwdfile)
+{
+    if (pwdfile && NULL==sys.env.pwdfile) {
+        unlink(pwdfile);
+    }
+}
+
 static int
 __rsync(int idx, benv_version_t *version)
 {
     int err;
     char new[1+BENV_VERSION_STRING_LEN];
     char old[1+BENV_VERSION_STRING_LEN];
-    char pwd[1+FCOOKIE_FILE_LEN] = {0};
-    char *pwdfile = sys.env.pwdfile;
     
-    if (NULL==sys.env.pwdfile) {
-        pwdfile = __fcookie_file(FCOOKIE_RSYNC_PWDFILE, pwd);
-        if (NULL==pwdfile) {
-            return -EIO;
-        }
+    char *pwdfile = __pwdfile();
+    if (NULL==pwdfile) {
+        return -EIO;
     }
 
     __benv_version_itoa(version, new);
@@ -240,10 +254,8 @@ __rsync(int idx, benv_version_t *version)
                 new,
             dir_rootfs(idx));
     set_obj(rootfs, idx, upgrade, efsm(err));
-    if (NULL==sys.env.pwdfile) {
-        unlink(pwdfile);
-    }
-    
+    __pwdfile_clean(pwdfile);
+
     jinfo("%o", 
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
                         "type", "cloud",
@@ -1157,8 +1169,7 @@ upgrade(int idx, int master)
     * 3. rootfsX/kernelX version == upgrade version
     */
     if (NULL==sys.env.force
-        && __benv_rootfs_is_good(idx)
-        && __benv_kernel_is_good(idx)
+        && __benv_firmware_is_good(idx)
         && benv_version_eq(&sys.version, benv_rootfs_version(idx))
         && benv_version_eq(&sys.version, benv_kernel_version(idx))) {
 

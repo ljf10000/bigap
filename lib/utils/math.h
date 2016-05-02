@@ -75,15 +75,15 @@ os_bintohex(char *hex, int space, byte *buf, int size)
 #define os_atol(_string)    simple_strtol(_string, NULL, 0)
 #define os_atoll(_string)   simple_strtoull(_string, NULL, 0)
 #elif defined(__APP__)
-#define __os_atox(_type, _func, _string)  ({  \
-    _type __x = 0;          \
-    char *__s = (_string);  \
-                            \
-    if (__s) {              \
-        __x = _func(__s);   \
-    }                       \
-                            \
-    __x;                    \
+#define __os_atox(_type, _func, _string)    ({  \
+    _type x_in___os_atox = 0;                   \
+    char *s_in___os_atox = (_string);           \
+                                                \
+    if (s_in___os_atox) {                       \
+        x_in___os_atox = _func(s_in___os_atox); \
+    }                                           \
+                                                \
+    x_in___os_atox;                             \
 })  /* end */
 
 #define os_atoi(_string)    __os_atox(int, atoi, _string)

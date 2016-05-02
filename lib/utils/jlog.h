@@ -836,40 +836,6 @@ error:
     return err;
 }
 
-/*
-* c: by command
-*/
-static inline int
-__jclogger(
-    char *app, 
-    char *sub, 
-    const char *file, 
-    const char *func, 
-    uint32 line, 
-    uint32 PRI, 
-    char *json
-)
-{
-    jobj_t obj = NULL;
-    int err;
-
-    obj = jobj(json);
-    if (NULL==obj) {
-        err = -EFORMAT; goto error;
-    }
-
-    obj = __jlog_obj_header(obj, app, sub, file, func, line, PRI);
-    if (NULL==obj) {
-        err = -EFORMAT; goto error;
-    }
-    
-    err = __jlog(obj, app, sub, PRI);
-error:
-    jobj_put(obj);
-
-    return err;
-}
-
 static inline int
 __jlogger(
     char *app, 
@@ -911,6 +877,40 @@ __dlogger(
     err = __dvlogger(app, sub, file, func, line, PRI, fmt, args);
     va_end(args);
     
+    return err;
+}
+
+/*
+* c: by command
+*/
+static inline int
+__clogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32 line,
+    uint32 PRI,
+    char *json
+)
+{
+    jobj_t obj = NULL;
+    int err;
+
+    obj = jobj(json);
+    if (NULL==obj) {
+        err = -EFORMAT; goto error;
+    }
+
+    obj = __jlog_obj_header(obj, app, sub, file, func, line, PRI);
+    if (NULL==obj) {
+        err = -EFORMAT; goto error;
+    }
+    
+    err = __jlog(obj, app, sub, PRI);
+error:
+    jobj_put(obj);
+
     return err;
 }
 

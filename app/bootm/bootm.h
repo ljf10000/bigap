@@ -112,18 +112,18 @@ enum {
 
 #define CONFIG_BOOTARGS_HEAD    \
     "root=/dev/mmcblk0p8"       \
-        " "                     \
+        __space                 \
     /* end */
 
 #define CONFIG_BOOTARGS_BODY    \
     "mem=2G"                    \
-        " "                     \
+        __space                 \
     "console=ttyAMA0,115200"    \
-        " "                     \
+        __space                 \
     "rootfstype=ext4"           \
-        " "                     \
+        __space                 \
     "rootwait"                  \
-        " "                     \
+        __space                 \
     "blkdevparts="              \
         "mmcblk0:"              \
         "512K(boot),"           \
@@ -137,7 +137,7 @@ enum {
         "200M(rootfs2),"        \
         "3000M(rootfs_data),"   \
         "-(others)"             \
-        " "                     \
+        __space                 \
     "mmz=ddr,0,0,300M"          \
     /* end */
 

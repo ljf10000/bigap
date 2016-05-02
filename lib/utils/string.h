@@ -37,10 +37,6 @@
 #define __space4        __space2 __space2
 #endif
 
-#ifndef __blank
-#define __blank         " "
-#endif
-
 #ifndef __blanks
 #define __blanks        "\t \r\n"
 #endif

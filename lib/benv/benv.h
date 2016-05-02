@@ -161,20 +161,20 @@ enum {
 
 #define CONFIG_BOOTARGS_HEAD    \
     "root=" OS_DEV_FLASH(14)    \
-        " "                     \
+        __space                 \
     /* end */
 
 #define CONFIG_BOOTARGS_BODY    \
     "mem=2G"                    \
-        " "                     \
+        __space                 \
     "console=ttyAMA0,115200"    \
-        " "                     \
+        __space                 \
     "rootfstype=ext4"           \
-        " "                     \
+        __space                 \
     "rootwait"                  \
-        " "                     \
+        __space                 \
     BENV_ROOTFS_MODE            \
-        " "                     \
+        __space                 \
     "blkdevparts="              \
         "mmcblk0:"              \
         "512K(fastboot),"/*01 */\
@@ -205,7 +205,7 @@ enum {
         "820M(data0),"  /* 22 */\
         "820M(data1),"  /* 23 */\
         "-(others)"             \
-        " "                     \
+        __space                 \
     "mmz=ddr,0,0,300M"          \
     /* end */
 

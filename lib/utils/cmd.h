@@ -6,6 +6,8 @@
 #define CMD_ARGV_COUNT  16
 #endif
 
+#define get_argv(_idx)  ((_idx<argc)?argv[_idx]:NULL)
+
 typedef struct {
     int (*handle)(int argc, char *argv[]);
     
@@ -24,9 +26,9 @@ cmd_argv(char *command)
     os_arrayzero(line);
     os_strdcpy(line, command);
 
-    for(p = os_strtok(line, " ");
+    for(p = os_strtok(line, __space);
         p;
-        p = os_strtok(NULL, " ")) {
+        p = os_strtok(NULL, __space)) {
         //debug_trace("cmd.argv[%d]=%s", cmd.argc, p);
         
         cmd.argv[cmd.argc++] = p;
