@@ -354,7 +354,7 @@ hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 static inline uint32
 hae_offsetof(haenv_t *env, haenv_entry_t *e)
 {
-    return (uint32)pointer_offset(e, env);
+    return (uint32)pointer_offsetof(e, env);
 }
 
 static inline bool

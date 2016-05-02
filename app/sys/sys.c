@@ -1307,16 +1307,6 @@ usbupgrade(void)
     return 0;
 }
 
-static int
-toolupgrade(void)
-{
-    if (0==sys.current) {
-        return -ENOSUPPORT;
-    }
-    
-    return 0;
-}
-
 /*
 * just repair one firmware with the best rootfs
 */
@@ -1516,13 +1506,13 @@ get_current(void)
         goto error;
     }
 
-    dev = os_strstr(line, "root=");
+    dev = os_strstr(line, OS_PROC_CMDLINE_ROOT);
     if (NULL==dev) {
         debug_error("no found rootfs in " OS_PROC_CMDLINE);
         
         goto error;
     }
-    dev++;
+    dev += sizeof(OS_PROC_CMDLINE_ROOT) - 1;
 
     p = os_strchr(dev, ' ');
     if (p) {
@@ -1701,12 +1691,6 @@ cmd_usbupgrade(int argc, char *argv[])
 }
 
 static int
-cmd_toolupgrade(int argc, char *argv[])
-{
-    return toolupgrade();
-}
-
-static int
 cmd_mount(int argc, char *argv[])
 {
     int i, err, errs = 0;
@@ -1756,11 +1740,6 @@ static cmd_table_t cmd[] = {
         .argc   = 1,
         .argv   = {"usbupgrade"},
         .handle = cmd_usbupgrade,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"toolupgrade"},
-        .handle = cmd_toolupgrade,
     },
     {
         .argc   = 1,
@@ -1824,11 +1803,6 @@ int sysupgrade_main(int argc, char *argv[])
 int sysusbupgrade_main(int argc, char *argv[])
 {
     return os_call(__init, __fini, cmd_usbupgrade, argc, argv);
-}
-
-int systoolupgrade_main(int argc, char *argv[])
-{
-    return os_call(__init, __fini, cmd_toolupgrade, argc, argv);
 }
 #endif
 /******************************************************************************/

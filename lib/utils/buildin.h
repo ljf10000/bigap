@@ -56,8 +56,15 @@
 #define os_count_of(_x)         (sizeof(_x)/sizeof((_x)[0]))
 #endif
 
-#ifndef os_pointer_offset
-#define os_pointer_offset(_base, _pointer)  ((char *)(_pointer) - (char *)(_base))
+#ifndef pointer_offsetof
+#define pointer_offsetof(_a, _b)                        ({  \
+    uintptr_t a_in_pointer_offsetof = (uintptr_t)(_a);      \
+    uintptr_t b_in_pointer_offsetof = (uintptr_t)(_b);      \
+                                                            \
+    (a_in_pointer_offsetof > b_in_pointer_offsetof)?        \
+        (a_in_pointer_offsetof - b_in_pointer_offsetof):    \
+        (b_in_pointer_offsetof - a_in_pointer_offsetof);    \
+})
 #endif
 
 #ifndef os_constructor
@@ -85,13 +92,13 @@
 #endif
 
 #ifndef os_wait_forever
-#define os_wait_forever()   do{sleep(60);}while(1)
+#define os_wait_forever()   do{ sleep(60); }while(1)
 #endif
 
 #define os_swap_value(_a, _b) do {  \
-    typeof(_a) __tmp_in_os_swap_value = (_a); \
+    typeof(_a) tmp_in_os_swap_value = (_a); \
     (_a) = (_b);                    \
-    (_b) = __tmp_in_os_swap_value;  \
+    (_b) = tmp_in_os_swap_value;    \
 }while(0)
 
 #define INVALID_VALUE       (-1)
@@ -110,21 +117,21 @@ static inline bool is_good_common_id(int id)
 
 #define __is_good_fd(_fd)       ((_fd) > 0)
 
-#define __os_close(_fd) ({  \
-    int __fd = (_fd);       \
-    int __err = 0;          \
-                            \
-    if (is_good_fd(__fd)) { \
-        __err = close(__fd);\
-    }                       \
-                            \
-    __err;                  \
+#define __os_close(_fd) ({              \
+    int fd_in___os_close = (_fd);       \
+    int err_in___os_close = 0;          \
+                                        \
+    if (is_good_fd(fd_in___os_close)) { \
+        err_in___os_close = close(fd_in___os_close); \
+    }                                   \
+                                        \
+    err_in___os_close;                  \
 })  /* end */
 
-#define os_close(_fd)   ({  \
-    int __err = __os_close(_fd); \
-    _fd = INVALID_FD;       \
-    __err;                  \
+#define os_close(_fd)   ({              \
+    int err_in_os_close = __os_close(_fd); \
+    _fd = INVALID_FD;                   \
+    err_in_os_close;                    \
 })  /* end */
 
 /*
@@ -132,9 +139,10 @@ static inline bool is_good_common_id(int id)
 */
 #define IS_GOOD_VALUE(_value, _begin, _end)     \
     (_value >= (_begin) && _value < (_end))
+
 #define is_good_value(_value, _begin, _end) ({  \
-    typeof(_value) __v_in_is_good_value = (_value);     \
-    IS_GOOD_VALUE(__v_in_is_good_value, _begin, _end);  \
+    typeof(_value) v_in_is_good_value = (_value);     \
+    IS_GOOD_VALUE(v_in_is_good_value, _begin, _end);  \
 })  /* end */
 
 /*
@@ -145,22 +153,22 @@ static inline bool is_good_common_id(int id)
 #define OS_SAFE_VALUE_DEFT(_value, _min, _max, _deft)   \
     (((_value)<(_min) || (_value)>(_max))?(_deft):(_value))
 
-#define os_safe_value_deft(_value, _min, _max, _deft) ({ \
-    typeof(_value)  __value_in_os_safe_value_deft   = _value;   \
-    typeof(_value)  __deft_in_os_safe_value_deft    = _deft;    \
-                                                                \
-    OS_SAFE_VALUE_DEFT(__value_in_os_safe_value_deft, _min, _max, __deft_in_os_safe_value_deft); \
+#define os_safe_value_deft(_value, _min, _max, _deft)   ({  \
+    typeof(_value)  value_in_os_safe_value_deft   = _value; \
+    typeof(_value)  deft_in_os_safe_value_deft    = _deft;  \
+                                                            \
+    OS_SAFE_VALUE_DEFT(value_in_os_safe_value_deft, _min, _max, deft_in_os_safe_value_deft); \
 })  /* end */
 
 #define OS_SAFE_VALUE(_value, _min, _max)   \
     ((_value)<(_min)?(_min):((_value)>(_max)?(_max):(_value)))
 
-#define os_safe_value(_value, _min, _max) ({ \
-    typeof(_value)  __value_in_os_safe_value= _value;   \
-    typeof(_value)  __min_in_os_safe_value  = _min      \
-    typeof(_value)  __max_in_os_safe_value  = _max;     \
-                                                        \
-    OS_SAFE_VALUE(__value_in_os_safe_value, __min_in_os_safe_value, __max_in_os_safe_value);   \
+#define os_safe_value(_value, _min, _max) ({        \
+    typeof(_value)  value_in_os_safe_value= _value; \
+    typeof(_value)  min_in_os_safe_value  = _min    \
+    typeof(_value)  max_in_os_safe_value  = _max;   \
+                                                    \
+    OS_SAFE_VALUE(value_in_os_safe_value, min_in_os_safe_value, max_in_os_safe_value); \
 })  /* end */
 
 /*
@@ -169,25 +177,25 @@ static inline bool is_good_common_id(int id)
 #if 1
 #define OS_MIN(_x, _y)  ((_x)<(_y)?(_x):(_y))
 #define os_min(_x,_y)   ({  \
-    typeof(_x) __x_in_os_min = (_x);  \
-    typeof(_y) __y_in_os_min = (_y);  \
-    (void) (&__x_in_os_min == &__y_in_os_min);  \
-    OS_MIN(__x_in_os_min, __y_in_os_min);       \
+    typeof(_x) x_in_os_min = (_x);  \
+    typeof(_y) y_in_os_min = (_y);  \
+    (void) (&x_in_os_min == &y_in_os_min);  \
+    OS_MIN(x_in_os_min, y_in_os_min);       \
 })  /* end */
 
 #define OS_MAX(_x, _y)  ((_x)>(_y)?(_x):(_y))
 #define os_max(_x,_y)   ({  \
-    typeof(_x) __x_in_os_max = (_x);  \
-    typeof(_y) __y_in_os_max = (_y);  \
-    (void) (&__x_in_os_max == &__y_in_os_max);  \
-    OS_MAX(__x_in_os_max, __y_in_os_max);       \
+    typeof(_x) x_in_os_max = (_x);  \
+    typeof(_y) y_in_os_max = (_y);  \
+    (void) (&x_in_os_max == &y_in_os_max);  \
+    OS_MAX(x_in_os_max, y_in_os_max);       \
 })  /* end */
 #endif
 
 #define OS_CMP_OPERATOR(_ret)   ((0==(_ret))?'=':((_ret)<0?'<':'>'))
 #define os_cmp_operator(_ret)   ({  \
-    int __ret = (int)(_ret);        \
-    OS_CMP_OPERATOR(__ret);         \
+    int ret_in_os_cmp_operator = (int)(_ret);   \
+    OS_CMP_OPERATOR(ret_in_os_cmp_operator);    \
 })  /* end */
 
 #define OS_IOVEC_INITER(_base, _len) { \
@@ -253,79 +261,79 @@ static inline bool os_seq_before(uint32 seq1, uint32 seq2)
 
 #define __ERRNO(_err)   ((_err)<0?-errno:(_err))
 #define __errno(_err)   ({  \
-    int __err = (_err);     \
-    __ERRNO(__err);         \
+    int err_in___errno = (_err);     \
+    __ERRNO(err_in___errno);         \
 })
 
-#define __os_call(_new, _free, _call, _args...) ({ \
-    int __err = 0;                      \
-    void *__obj = (void *)_new();       \
-    if (__obj) {                        \
-        __err = _call(__obj, ##_args);  \
-    }                                   \
-    _free(__obj);                       \
-                                        \
-    __err;                              \
+#define __os_call(_new, _free, _call, _args...) ({  \
+    int err_in___os_call = 0;                       \
+    void *obj_in___os_call = (void *)_new();        \
+    if (obj_in___os_call) {                         \
+        err_in___os_call = _call(obj_in___os_call, ##_args);  \
+    }                                               \
+    _free(obj_in___os_call);                        \
+                                                    \
+    err_in___os_call;                               \
 })  /* end */
 
 #define os_call(_begin, _end, _call, _arg1, _args...) ({ \
-    int __err = _begin();               \
-    if (0==__err) {                     \
-        __err = _call(_arg1, ##_args);  \
-    }                                   \
-    _end();                             \
-                                        \
-    shell_error(__err);                 \
+    int err_in_os_call = _begin();                  \
+    if (0==err_in_os_call) {                        \
+        err_in_os_call = _call(_arg1, ##_args);     \
+    }                                               \
+    _end();                                         \
+                                                    \
+    shell_error(err_in_os_call);                    \
 })  /* end */
 
 #define os_call_1(_begin, _end, _call, _arg1, _args...) ({ \
-    int __err = _begin(_arg1);          \
-    if (0==__err) {                     \
-        __err = _call(_arg1, ##_args);  \
-    }                                   \
-    _end(_arg1);                        \
-                                        \
-    shell_error(__err);                 \
+    int err_in_os_call_1 = _begin(_arg1);           \
+    if (0==err_in_os_call_1) {                      \
+        err_in_os_call_1 = _call(_arg1, ##_args);   \
+    }                                               \
+    _end(_arg1);                                    \
+                                                    \
+    shell_error(err_in_os_call_1);                  \
 })  /* end */
 
 #define os_call_2(_begin, _end, _call, _arg1, _arg2, _args...) ({ \
-    int __err = _begin(_arg1, _arg2);   \
-    if (0==__err) {                     \
-        __err = _call(_arg1, _arg2, ##_args); \
-    }                                   \
-    _end(_arg1, _arg2);                 \
-                                        \
-    shell_error(__err);                 \
+    int err_in_os_call_2 = _begin(_arg1, _arg2);    \
+    if (0==err_in_os_call_2) {                      \
+        err_in_os_call_2 = _call(_arg1, _arg2, ##_args); \
+    }                                               \
+    _end(_arg1, _arg2);                             \
+                                                    \
+    shell_error(err_in_os_call_2);                  \
 })  /* end */
 
 #define os_call_3(_begin, _end, _call, _arg1, _arg2, _arg3, _args...) ({ \
-    int __err = _begin(_arg1, _arg2, _arg3);    \
-    if (0==__err) {                             \
-        __err = _call(_arg1, _arg2, _arg3, ##_args); \
-    }                                           \
-    _end(_arg1, _arg2, _arg3);                  \
-                                                \
-    shell_error(__err);                         \
+    int err_in_os_call_3 = _begin(_arg1, _arg2, _arg3); \
+    if (0==err_in_os_call_3) {                      \
+        err_in_os_call_3 = _call(_arg1, _arg2, _arg3, ##_args); \
+    }                                               \
+    _end(_arg1, _arg2, _arg3);                      \
+                                                    \
+    shell_error(err_in_os_call_3);                  \
 })  /* end */
 
 #define os_call_4(_begin, _end, _call, _arg1, _arg2, _arg3, _arg4, _args...) ({ \
-    int __err = _begin(_arg1, _arg2, _arg3, _arg4); \
-    if (0==__err) {                                 \
-        __err = _call(_arg1, _arg2, _arg3, _arg4, ##_args); \
+    int err_in_os_call_4 = _begin(_arg1, _arg2, _arg3, _arg4); \
+    if (0==err_in_os_call_4) {                      \
+        err_in_os_call_4 = _call(_arg1, _arg2, _arg3, _arg4, ##_args); \
     }                                               \
     _end(_arg1, _arg2, _arg3, _arg4);               \
                                                     \
-    shell_error(__err);                             \
+    shell_error(err_in_os_call_4);                  \
 })  /* end */
 
 #define os_call_5(_begin, _end, _call, _arg1, _arg2, _arg3, _arg4, _arg5, _args...) ({ \
-    int __err = _begin(_arg1, _arg2, _arg3, _arg4, _arg5);  \
-    if (0==__err) {                                         \
-        __err = _call(_arg1, _arg2, _arg3, _arg4, _arg5, ##_args); \
-    }                                                       \
-    _end(_arg1, _arg2, _arg3, _arg4, _arg5);                \
-                                                            \
-    shell_error(__err);                                     \
+    int err_in_os_call_5 = _begin(_arg1, _arg2, _arg3, _arg4, _arg5);  \
+    if (0==err_in_os_call_5) {                      \
+        err_in_os_call_5 = _call(_arg1, _arg2, _arg3, _arg4, _arg5, ##_args); \
+    }                                               \
+    _end(_arg1, _arg2, _arg3, _arg4, _arg5);        \
+                                                    \
+    shell_error(err_in_os_call_5);                  \
 })  /* end */
 
 static inline void 

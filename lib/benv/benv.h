@@ -119,6 +119,7 @@ enum {
 #endif
 
 #define OS_PROC_CMDLINE         "/proc/cmdline"
+#define OS_PROC_CMDLINE_ROOT    "root="
 
 #define DEV_BOOT            OS_DEV_FLASH(1)
 #define DEV_BOOTENV         OS_DEV_BOOTENV
@@ -228,19 +229,19 @@ enum {
 #endif
 
 #ifndef BENV_VENDOR
-#define BENV_VENDOR                 "xxx"
+#define BENV_VENDOR                 "superwali"
 #endif
 
 #ifndef BENV_COMPANY
-#define BENV_COMPANY                "xxx Technology Co.,Ltd."
+#define BENV_COMPANY                "superwali Technology Co.,Ltd."
 #endif
 
 #ifndef BENV_PRODUCT_MODEL
-#define BENV_PRODUCT_MODEL          "xxx-LV1"
+#define BENV_PRODUCT_MODEL          "superwali-LV1"
 #endif
 
 #ifndef BENV_PCBA_MODEL
-#define BENV_PCBA_MODEL             "xxx"
+#define BENV_PCBA_MODEL             "superwali-pcba"
 #endif
 
 #ifndef BENV_INFO_SIZE
@@ -399,6 +400,7 @@ __benv_version_atoi(benv_version_t *version, char *string)
     
     os_strdcpy(line, string);
 
+    /* begin 1 */
     for (i = 1; i < 4; i++) {
         number[i] = os_strchr(number[i - 1], '.');
         if (NULL == number[i]) {
@@ -438,11 +440,7 @@ benv_version_atoi(char *string)
     static benv_version_t deft = BENV_DEFT_VERSION;
     static benv_version_t version = BENV_DEFT_VERSION;
 
-    if (__benv_version_atoi(&version, string)) {
-        return &deft;
-    } else {
-        return &version;
-    }
+    return 0==__benv_version_atoi(&version, string)?&version:&deft;
 }
 
 static inline int
@@ -450,7 +448,12 @@ benv_version_cmp(benv_version_t *a, benv_version_t *b)
 {
     return os_objcmp(a, b);
 }
-#define benv_version_eq(_a, _b)   (0==benv_version_cmp(_a, _b))
+
+static inline bool
+benv_version_eq(benv_version_t *a, benv_version_t *b)
+{
+    return os_objeq(a, b);
+}
 
 enum {
     BENV_VCS_COOKIE_SIZE = 15,
@@ -479,30 +482,28 @@ typedef struct {
 static inline void
 __benv_vcs_deft(benv_vcs_t *vcs)
 {
-    vcs->error      = 0;
+    os_objzero(vcs);
+    
     vcs->upgrade    = BENV_FSM_OK;
     vcs->other      = BENV_FSM_UNKNOW;
     vcs->self       = BENV_FSM_UNKNOW;
-
-    os_objzero(vcs->cookie);
 }
 
-#define BENV_DEFT_VCS \
-        __BENV_VCS(BENV_FSM_UNKNOW, BENV_FSM_UNKNOW, BENV_FSM_OK, 0, BENV_DEFT_VERSION)
-#define BENV_MIN_VCS \
-        __BENV_VCS(BENV_FSM_FAIL, BENV_FSM_FAIL, BENV_FSM_FAIL, BENV_TRYS, BENV_MIN_VERSION)
-#define BENV_MAX_VCS \
-        __BENV_VCS(BENV_FSM_OK, BENV_FSM_OK, BENV_FSM_OK, 0, BENV_MAX_VERSION)
+#define BENV_DEFT_VCS   \
+    __BENV_VCS(BENV_FSM_UNKNOW, BENV_FSM_UNKNOW, BENV_FSM_OK, 0, BENV_DEFT_VERSION)
+#define BENV_MIN_VCS    \
+    __BENV_VCS(BENV_FSM_FAIL, BENV_FSM_FAIL, BENV_FSM_FAIL, BENV_TRYS, BENV_MIN_VERSION)
+#define BENV_MAX_VCS    \
+    __BENV_VCS(BENV_FSM_OK, BENV_FSM_OK, BENV_FSM_OK, 0, BENV_MAX_VERSION)
 #define BENV_INVALID_VCS \
-        __BENV_VCS(BENV_FSM_INVALID, BENV_FSM_INVALID, BENV_FSM_INVALID, BENV_TRYS, BENV_INVALID_VERSION)
+    __BENV_VCS(BENV_FSM_INVALID, BENV_FSM_INVALID, BENV_FSM_INVALID, BENV_TRYS, BENV_INVALID_VERSION)
 
 #define is_benv_good(_error)        is_good_enum(_error, BENV_TRYS)
-#define is_benv_error(_error)       (false==is_benv_good(_error))
 
 static inline int
 benv_error_cmp(uint32 a, unsigned b)
 {
-    return __os_objcmp(a, b, is_benv_good, os_cmp_always_eq);
+    return os_cmp(a, b, is_benv_good, os_cmp_always_eq);
 }
 
 static inline bool

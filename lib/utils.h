@@ -230,7 +230,7 @@ os_init(void)
     if (err<0) {
         return err;
     }
-    
+
     err = jlog_init();
     if (err<0) {
         return err;

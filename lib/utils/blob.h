@@ -569,7 +569,7 @@ __blob_dump_slice(slice_t *slice, char *tag)
         __tab "root(offset=%u, key=%s, type=%s, vlen=%u)" __crlf, 
         tag,
         slice_size(slice),
-        (uint32)pointer_offset(slice_tail(slice), slice_data(slice)),
+        (uint32)pointer_offsetof(slice_tail(slice), slice_data(slice)),
         slice_remain(slice),
         slice_offset(slice),
         blob_key(blob_root(slice)),
@@ -807,7 +807,7 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
             __tab "slice(size=%u, used=%u, remain=%u)" __crlf
             __tab "blob(type=%s, name=%s, payload=%u, size=%u)" __crlf, 
             slice_size(slice),
-            (uint32)pointer_offset(slice_tail(slice), slice_data(slice)),
+            (uint32)pointer_offsetof(slice_tail(slice), slice_data(slice)),
             slice_remain(slice),
             blob_type_string(type), 
             name, 
@@ -899,7 +899,7 @@ __blob_nest_end(slice_t *slice, void *cookie)
             __tab "slice(size=%u, used=%u, remain=%u)" __crlf
             __tab "root(added=%u, vlen=%u)" __crlf, 
             slice_size(slice),
-            (uint32)pointer_offset(slice_tail(slice), slice_data(slice)),
+            (uint32)pointer_offsetof(slice_tail(slice), slice_data(slice)),
             slice_remain(slice),
             size,
             blob_vlen(root));

@@ -67,32 +67,31 @@ __os_deamon_exist(void)
     return os_pid_exist(os_get_pid());
 }
 
-#ifdef __DEAMON__
 static inline int
 os_deamon_check(void)
 {
+#ifdef __DEAMON__
     if (__os_deamon_exist()) {
         return -EDEAMON;
-    } else {
-        __this_deamon()->running = true;
-        
-        os_set_pid();
-        
-        return 0;
     }
+    
+    __this_deamon()->running = true;
+    
+    os_set_pid();
+#endif
+
+    return 0;
 }
 
 static inline void
 os_deamon_exit(void)
 {
+#ifdef __DEAMON__
     if (__this_deamon()->running) {
         unlink(__THIS_PIDFILE);
     }
-}
-#else
-#define os_deamon_check()   0
-#define os_deamon_exit()    os_do_nothing()
 #endif
+}
 
 #endif
 /******************************************************************************/

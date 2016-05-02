@@ -46,7 +46,7 @@
     {                               \
         char **array = __##_mod##_strings(); \
                                     \
-        return os_getstringarrayidx(array, s, 0, _end); \
+        return os_array_search_str(array, s, 0, _end); \
     }                               \
     os_fake_declare                 \
     /* end */

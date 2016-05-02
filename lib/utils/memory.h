@@ -5,6 +5,36 @@
 #define size_t uint32
 #endif
 
+#define os_cmp_always_eq(_a, _b)    0
+#define os_cmp_is_good_pointer(_a)  (_a)
+
+/*
+* bad < good
+* bad == bad
+* all is good, use _objcmp
+*/
+#define os_cmp(_a, _b, _is_good, _cmp) ({   \
+    typeof(_a)  a_in_os_cmp = (_a);         \
+    typeof(_b)  b_in_os_cmp = (_b);         \
+    int ret_in_os_cmp;                      \
+                                            \
+    if (_is_good(a_in_os_cmp)) {            \
+        if (_is_good(b_in_os_cmp)) {        \
+            ret_in_os_cmp = _cmp(a_in_os_cmp, b_in_os_cmp); \
+        } else {                            \
+            ret_in_os_cmp = os_assertV(1);  \
+        }                                   \
+    } else {                                \
+        if (_is_good(b_in_os_cmp)) {        \
+            ret_in_os_cmp = os_assertV(-1); \
+        } else {                            \
+            ret_in_os_cmp = os_assertV(0);  \
+        }                                   \
+    }                                       \
+                                            \
+    ret_in_os_cmp;                          \
+}) /* end */
+
 static inline void *
 os_memcpy(void *dst, const void *src, size_t n)
 {
@@ -36,7 +66,7 @@ os_memcmp(const void *a, const void *b, size_t n)
 {
     if (a) {
         if (b) {
-            return a==b || n?memcmp(a, b, n):0;
+            return a==b?0:(n?memcmp(a, b, n):0);
         } else {
             return os_assertV(1);
         }
@@ -240,74 +270,31 @@ os_memmem(const void *mem, size_t mem_size,
 #endif
 
 #define os_objdeft(_obj, _deft) do{ \
-    typeof(*_obj) __new_in_os_objdeft = _deft;      \
-    os_objcpy(_obj, &__new_in_os_objdeft);          \
+    typeof(*_obj) new_in_os_objdeft = _deft;    \
+    os_objcpy(_obj, &new_in_os_objdeft);        \
 }while(0)
 
-#define os_vcmp(_a, _b)     ({  \
-    typeof(_a)  __a_in_os_vcmp = (_a); \
-    typeof(_b)  __b_in_os_vcmp = (_b); \
-    int ret;                    \
-                                \
-    if (__a_in_os_vcmp > __b_in_os_vcmp) { \
-        ret = 1;                \
-    }                           \
-    else if (__a_in_os_vcmp==__b_in_os_vcmp) { \
-        ret = 0;                \
-    }                           \
-    else {                      \
-        ret = -1;               \
-    }                           \
-                                \
-    ret;                        \
-})
-
-#define os_cmp_always_eq(_a, _b)    0
-/*
-* bad < good
-* bad == bad
-* all is good, use _objcmp
-*/
-#define __os_objcmp(_a, _b, _is_good, _objcmp) ({ \
-    typeof(_a)  __a_in___os_objcmp = (_a);  \
-    typeof(_b)  __b_in___os_objcmp = (_b);  \
-    int ret;                                \
+#ifndef os_array_search
+#define os_array_search(_array, _obj, _cmp, _begin, _end) ({ \
+    int i_in_os_array_search;               \
+    int idx_in_os_array_search = (_end);    \
                                             \
-    if (_is_good(__a_in___os_objcmp)) {     \
-        if (_is_good(__b_in___os_objcmp)) { \
-            ret = _objcmp(__a_in___os_objcmp, __b_in___os_objcmp); \
-        } else {                            \
-            ret = 1;                        \
-        }                                   \
-    } else {                                \
-        if (_is_good(__b_in___os_objcmp)) { \
-            ret = -1;                       \
-        } else {                            \
-            ret = 0;                        \
-        }                                   \
-    }                                       \
-                                            \
-    ret;                                    \
-}) /* end */
-
-#ifndef __os_getobjarrayidx
-#define __os_getobjarrayidx(_array, _obj, _cmp, _begin, _end) ({ \
-    int __i, __idx = (_end);                \
-                                            \
-    for (__i=(_begin); __i<(_end); __i++) { \
-        if (0==_cmp((_array)[__i], _obj)) { \
-            __idx = __i;                    \
+    for (i_in_os_array_search=(_begin);     \
+         i_in_os_array_search<(_end);       \
+         i_in_os_array_search++) {          \
+        if (0==_cmp((_array)[i_in_os_array_search], _obj)) { \
+            idx_in_os_array_search = i_in_os_array_search; \
             break;                          \
         }                                   \
     }                                       \
                                             \
-    __idx;                                  \
+    idx_in_os_array_search;                 \
 })  /* end */
 #endif
 
-#ifndef os_getobjarrayidx
-#define os_getobjarrayidx(_array, _obj, _begin, _end) \
-        __os_getobjarrayidx(_array, _obj, os_objcmp, _begin, _end)
+#ifndef os_array_search_obj
+#define os_array_search_obj(_array, _obj, _begin, _end) \
+        os_array_search(_array, _obj, os_objcmp, _begin, _end)
 #endif
 
 #if defined(__BOOT__) || defined(__APP__)
@@ -322,20 +309,17 @@ os_memmem(const void *mem, size_t mem_size,
         do{ if (_ptr) { kfree(_ptr); (_ptr) = NULL; } }while(0)
 #endif
 
-#ifdef __APP__
-#define os_calloc(_count, _size)    calloc(_count, _size)
-#else
 static inline void *
 os_calloc(uint32 count, uint32 size)
 {
-    void *obj = os_malloc(count*size);
-    if (obj) {
-        os_memzero(obj, count*size);
-    }
+    uint32 n = count*size;
     
-    return obj;
-}
+#ifdef __APP__
+    return calloc(n);
+#else
+    return os_memzero(os_malloc(n), n);
 #endif
+}
 
 #define os_zalloc(_size)            os_calloc(1, _size)
 
