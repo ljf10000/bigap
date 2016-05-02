@@ -56,24 +56,24 @@ enum {
 #endif
 
 #if IS_PRODUCT_LTEFI_MD1
-#   define OS_COUNT             3
-#   define OS_CURRENT           1
+#   define OS_FIRMWARE_COUNT    3
+#   define OS_FIRMWARE_CURRENT  1
 #   define OS_DEV_PREFIX        "p"
 #   define OS_DEV_FLASH_MASTER  "dev/mmcblk0"
 #   define OS_DEV_SD_MASTER     "dev/mmcblk1"
 #   define OS_DEV_HD_MASTER     "dev/udisk"
 #   define OS_DEV_USB_MASTER    "dev/udisk1110"
 #elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC
-#   define OS_COUNT             7
-#   define OS_CURRENT           1
+#   define OS_FIRMWARE_COUNT    7
+#   define OS_FIRMWARE_CURRENT  1
 #   define OS_DEV_PREFIX        "p"
 #   define OS_DEV_FLASH_MASTER  "dev/mmcblk0"
 #   define OS_DEV_SD_MASTER     "dev/mmcblk1"
 #   define OS_DEV_HD_MASTER     "dev/udisk"
 #   define OS_DEV_USB_MASTER    "dev/udisk1110"
 #elif IS_PRODUCT_LTEFI_AP
-#   define OS_COUNT             1
-#   define OS_CURRENT           0
+#   define OS_FIRMWARE_COUNT    1
+#   define OS_FIRMWARE_CURRENT  0
 #   define OS_DEV_PREFIX        __empty
 #   define OS_DEV_FLASH_MASTER  "tmp/mtdblock"
 #   define OS_DEV_SD_MASTER     __empty
@@ -258,11 +258,11 @@ enum {
 
 #define benv_obj_size(_obj)         benv_##_obj##_size
 
-#define is_good_benv_idx(_idx)      is_good_enum(_idx, OS_COUNT)
-#define is_normal_benv_idx(_idx)    is_good_value(_idx, 1, OS_COUNT)
+#define is_good_benv_idx(_idx)      is_good_enum(_idx, OS_FIRMWARE_COUNT)
+#define is_normal_benv_idx(_idx)    is_good_value(_idx, 1, OS_FIRMWARE_COUNT)
 
-#define __benv_foreach(_i, _begin)  for (_i=_begin; _i<OS_COUNT; _i++)
-#define benv_foreach(_i)            __benv_foreach(_i, 1)
+#define os_firmware_foreach_all(_i) os_foreach(_i, OS_FIRMWARE_COUNT)
+#define os_firmware_foreach(_i)     __os_foreach(_i, 1, OS_FIRMWARE_COUNT) /* skip 0 */
 
 /*
 * ok > unknow > fail
@@ -537,21 +537,21 @@ __benv_firmware_deft(benv_firmware_t *firmware)
 }   /* end */
 
 enum {
-    BENV_OS_SIZE = (2*sizeof(uint32) + OS_COUNT*sizeof(benv_firmware_t)),
+    BENV_OS_SIZE = (2*sizeof(uint32) + OS_FIRMWARE_COUNT*sizeof(benv_firmware_t)),
 };
 
 typedef struct {
     uint32 current;
     uint32 reserved;
 
-    benv_firmware_t firmware[OS_COUNT];
+    benv_firmware_t firmware[OS_FIRMWARE_COUNT];
     char pad[BENV_BLOCK_SIZE - BENV_OS_SIZE];
 } benv_os_t; /* 512 */
 
 #define BENV_DEFT_OS  {   \
-    .current    = OS_CURRENT, \
+    .current    = OS_FIRMWARE_CURRENT, \
     .firmware   = {     \
-        [0 ... (OS_COUNT-1)] = BENV_DEFT_FIRMWARE, \
+        [0 ... (OS_FIRMWARE_COUNT-1)] = BENV_DEFT_FIRMWARE, \
     },                  \
 }   /* end */
 
@@ -581,11 +581,11 @@ rootfs* 1       0       fail    unknow  unknow
     
     os_println("        index   error   upgrade self    other   version         cookie");
     os_println("======================================================================");
-    for (i=0; i<OS_COUNT; i++) {
+    for (i=0; i<OS_FIRMWARE_COUNT; i++) {
         benv_os_show_obj(kernel, i);
         benv_os_show_obj(rootfs, i);
         
-        if (i<(OS_COUNT-1)) {
+        if (i<(OS_FIRMWARE_COUNT-1)) {
             os_println
               ("----------------------------------------------------------------------");
         }
@@ -757,7 +757,7 @@ benv_ops(int idx)
 static inline int
 benv_ops_idx(benv_ops_t *ops)
 {
-    return (benv_ops_t *) ops - __benv_ops;
+    return (benv_ops_t *)ops - __benv_ops;
 }
 
 static inline char *
@@ -769,7 +769,7 @@ __benv_ops_obj(benv_ops_t *ops)
 #define benv_ops_obj(_type, _ops) ((_type *)__benv_ops_obj(_ops))
 
 static inline void
-__benv_set_dirty(int idx)
+benv_dirty_byidx(int idx)
 {
     __benv_dirty[idx] = true;
     
@@ -777,36 +777,29 @@ __benv_set_dirty(int idx)
 }
 
 static inline void
-benv_set_dirty(benv_ops_t *ops)
+benv_dirty_byops(benv_ops_t *ops)
 {
     int offset = benv_ops_obj(char, ops) - (char *)__benv_env;
     int idx = offset / BENV_BLOCK_SIZE;
-    
-    __benv_dirty[idx] = true;
-    
-    debug_trace("set block[%d] dirty, offset=%d", idx, offset);
+
+    benv_dirty_byidx(idx);
 }
 
 static inline void
-benv_set_dirty_by(int begin, int end)
+benv_dirty_byzone(int begin, int end)
 {
     int i;
 
     for (i=begin; i<end; i++) {
-        __benv_set_dirty(i);
+        benv_dirty_byidx(i);
     }
 }
-
-static inline void
-benv_set_dirty_all(void)
-{
-    benv_set_dirty_by(0, BENV_BLOCK_COUNT);
-}
+#define benv_dirty_all()    benv_dirty_byzone(0, BENV_BLOCK_COUNT)
 
 static inline int
 benv_ops_check(benv_ops_t *ops, char *value)
 {
-    if (NULL == ops->write) {
+    if (NULL==ops->write) {
         debug_error("no support write %s", ops->path);
 
         return -ENOSUPPORT;
@@ -831,7 +824,7 @@ benv_ops_write(benv_ops_t *ops, char *value)
     if (ops->write) {
         (*ops->write)(ops, value);
 
-        benv_set_dirty(ops);
+        benv_dirty_byops(ops);
     }
 }
 
@@ -852,6 +845,18 @@ __benv_ops_dump(benv_ops_t *ops)
         ops->path,
         benv_cache_value(ops)?benv_cache_value(ops):"nothing",
         benv_cache_showit(ops)?"true":"false");
+}
+
+static inline void
+benv_ops_dump(char *name)
+{
+    int i;
+
+    debug_trace("[%s] ops count=%d", name, __benv_ops_count);
+    
+    for (i = 0; i < __benv_ops_count; i++) {
+        __benv_ops_dump(benv_ops(i));
+    }
 }
 
 static inline benv_firmware_t *
@@ -974,7 +979,7 @@ __benv_deft_cookie(void)
 {
     os_objdeft(__benv_cookie, BENV_DEFT_COOKIE);
 
-    __benv_set_dirty(BENV_COOKIE);
+    benv_dirty_byidx(BENV_COOKIE);
 }
 
 static inline void
@@ -982,12 +987,12 @@ __benv_deft_os(void)
 {
     int i;
 
-    for (i=0; i<OS_COUNT; i++) {
+    for (i=0; i<OS_FIRMWARE_COUNT; i++) {
         __benv_firmware_deft(benv_firmware(i));
     }
-    __benv_current = OS_CURRENT;
+    __benv_current = OS_FIRMWARE_CURRENT;
 
-    __benv_set_dirty(BENV_OS);
+    benv_dirty_byidx(BENV_OS);
 }
 
 static inline void
@@ -995,7 +1000,7 @@ __benv_deft(void)
 {
     os_objdeft(__benv_env, BENF_DEFT);
 
-    benv_set_dirty_all();
+    benv_dirty_all();
 }
 
 static inline void
@@ -1003,7 +1008,7 @@ __benv_clean_cookie(void)
 {
     os_objzero(__benv_cookie);
     
-    __benv_set_dirty(BENV_COOKIE);
+    benv_dirty_byidx(BENV_COOKIE);
     
     os_println("cookie clean");
 }
@@ -1054,7 +1059,7 @@ __benv_clean_mark(void)
     os_objzero(__benv_mark);
     __benv_mark_private_restore(backup);
     
-    __benv_set_dirty(BENV_MARK);
+    benv_dirty_byidx(BENV_MARK);
     
     os_println("mark clean");
 }
@@ -1064,7 +1069,7 @@ __benv_clean_info(void)
 {
     os_objzero(__benv_info);
     
-    benv_set_dirty_by(BENV_INFO, BENV_BLOCK_COUNT);
+    benv_dirty_byzone(BENV_INFO, BENV_BLOCK_COUNT);
     
     os_println("info clean");
 }
@@ -1078,7 +1083,7 @@ __benv_clean(void)
     os_objzero(__benv_env);
     __benv_mark_private_restore(backup);
     
-    benv_set_dirty_all();
+    benv_dirty_all();
     
     os_println("all clean, need reboot");
 }
@@ -1293,16 +1298,16 @@ __benv_sort(int sort[], int count, int (*maxmin)(int sort[], int count))
     __benv_sort(sort+1, count-1, maxmin);
 }
 
-#define __benv_skips(_idx)              (os_bit(0) | os_bit(__benv_current) | os_bit(_idx))
-#define is_benv_skip(_idx, _skips)      os_hasbit(_skips, _idx)
+#define benv_skips(_idx)                (os_bit(0) | os_bit(__benv_current) | os_bit(_idx))
+#define is_benv_skip(_skips, _idx)      os_hasbit(_skips, _idx)
 
 static inline int
 benv_first_idx(int current, int skips)
 {
     int i;
 
-    benv_foreach(i) {
-        if (false==is_benv_skip(i, skips)) {
+    os_firmware_foreach(i) {
+        if (false==is_benv_skip(skips, i)) {
             return i;
         }
     }
@@ -1318,7 +1323,7 @@ __benv_sort_count(int skips, int sort[], int size)
     int i, count = 0;
 
     for (i=0; i<size; i++) {
-        if (false==is_benv_skip(i, skips)) {
+        if (false==is_benv_skip(skips, i)) {
             sort[count++] = i;
         }
     }
@@ -1368,17 +1373,19 @@ __benv_sort_after(int sort[], int count)
 }
 
 #define __benv_upsort(_obj, _sort, _count)      do{ \
-    int __count = _count;                           \
-    __benv_sort_before("up", _sort, __count);       \
-    __benv_sort(_sort, __count, benv_obj_min(_obj));\
-    __benv_sort_after(_sort, __count);              \
+    int count_in___benv_upsort = _count;                            \
+                                                                    \
+    __benv_sort_before("up", _sort, count_in___benv_upsort);        \
+    __benv_sort(_sort, count_in___benv_upsort, benv_obj_min(_obj)); \
+    __benv_sort_after(_sort, count_in___benv_upsort);               \
 }while(0)
 
 #define __benv_downsort(_obj, _sort, _count)    do{ \
-    int __count = _count;                           \
-    __benv_sort_before("down", _sort, __count);     \
-    __benv_sort(_sort, __count, benv_obj_max(_obj));\
-    __benv_sort_after(_sort, __count);              \
+    int count_in___benv_downsort = _count;                              \
+                                                                        \
+    __benv_sort_before("down", _sort, count_in___benv_downsort);        \
+    __benv_sort(_sort, count_in___benv_downsort, benv_obj_max(_obj));   \
+    __benv_sort_after(_sort, count_in___benv_downsort);                 \
 }while(0)
 
 #define benv_upsort(_obj, _skips, _sort) \
@@ -1391,37 +1398,42 @@ __benv_sort_after(int sort[], int count)
 * skip 0 and current
 */
 #define __benv_find_xest(_obj, _skips, _sort_func, _is_func) ({ \
-    int sort[OS_COUNT] = {0};           \
-    int i, idx, xest = -ENOEXIST, count;\
+    int sort_in___benv_find_xest[OS_FIRMWARE_COUNT] = {0};           \
+    int i_in___benv_find_xest;          \
+    int idx_in___benv_find_xest;        \
+    int xest_in___benv_find_xest = -ENOEXIST; \
+    int count_in___benv_find_xest;      \
                                         \
-    count = benv_sort_count(_skips, sort);\
-    _sort_func(_obj, sort, count);      \
+    count_in___benv_find_xest = benv_sort_count(_skips, sort_in___benv_find_xest);\
+    _sort_func(_obj, sort_in___benv_find_xest, count_in___benv_find_xest);      \
                                         \
-    for (i=0; i<count; i++) {           \
-        idx = sort[i];                  \
+    for (i_in___benv_find_xest=0;       \
+         i_in___benv_find_xest<count_in___benv_find_xest; \
+         i_in___benv_find_xest++) {     \
+        idx_in___benv_find_xest = sort_in___benv_find_xest[i_in___benv_find_xest];                  \
                                         \
-        if (_is_func(_obj, idx)) {      \
-            xest = idx;                 \
+        if (_is_func(_obj, idx_in___benv_find_xest)) {      \
+            xest_in___benv_find_xest = idx_in___benv_find_xest;                 \
                                         \
             break;                      \
         }                               \
     }                                   \
                                         \
-    xest;                               \
+    xest_in___benv_find_xest;                               \
 }) /* end */
     
 #define __benv_obj_always_true(_obj, _idx)    true
 
 #define benv_find_best(_obj, _skips) ({ \
-    int __idx = __benv_find_xest(_obj, _skips, __benv_downsort, benv_obj_is_good); \
-    debug_trace("find best:%d", __idx); \
-    __idx;                              \
+    int idx_in_benv_find_best = __benv_find_xest(_obj, _skips, __benv_downsort, benv_obj_is_good); \
+    debug_trace("find best:%d", idx_in_benv_find_best); \
+    idx_in_benv_find_best;                              \
 })  /* end */
 
 #define benv_find_worst(_obj, _skips)   ({  \
-    int __idx = __benv_find_xest(_obj, _skips, __benv_upsort, __benv_obj_always_true); \
-    debug_trace("find worst:%d", __idx);    \
-    __idx;                                  \
+    int idx_in_benv_find_worst = __benv_find_xest(_obj, _skips, __benv_upsort, __benv_obj_always_true); \
+    debug_trace("find worst:%d", idx_in_benv_find_worst); \
+    idx_in_benv_find_worst; \
 })  /* end */
 
 
@@ -1430,18 +1442,20 @@ __benv_sort_after(int sort[], int count)
 * skip 0 and idx
 */
 #define __benv_find_first_buddy(_obj, _idx, _skips, _is_func) ({    \
-    int i, ret = -ENOEXIST;                 \
-    int skips = (_skips) | os_bit(_idx);    \
+    int i_in___benv_find_first_buddy;       \
+    int ret_in___benv_find_first_buddy = -ENOEXIST; \
+    int skips_in___benv_find_first_buddy = (_skips) | os_bit(_idx); \
                                             \
-    benv_foreach(i) {                       \
-        if (false==is_benv_skip(i, skips)   \
-            && benv_obj_version_eq(_obj, i, _idx) \
-            && benv_obj_is_good(_obj, i)) { \
-            ret = i; break;                 \
+    os_firmware_foreach(i_in___benv_find_first_buddy) {                \
+        if (false==is_benv_skip(skips_in___benv_find_first_buddy, i_in___benv_find_first_buddy) \
+            && benv_obj_version_eq(_obj, i_in___benv_find_first_buddy, _idx) \
+            && benv_obj_is_good(_obj, i_in___benv_find_first_buddy)) { \
+            ret_in___benv_find_first_buddy = i_in___benv_find_first_buddy; \
+            break;                          \
         }                                   \
     }                                       \
                                             \
-    ret;                                    \
+    ret_in___benv_find_first_buddy;         \
 })  /* end */
 
 #define benv_find_first_buddy(_obj, _idx, _skips) \
@@ -1459,8 +1473,8 @@ __benv_sort_after(int sort[], int count)
     int ____skips = _skips; \
     benv_version_t *__version = _version; \
                             \
-    benv_foreach(i) {       \
-        if (false==is_benv_skip(i, ____skips) \
+    os_firmware_foreach(i){ \
+        if (false==is_benv_skip(____skips, i) \
             && benv_version_eq(__version, benv_obj_version(_obj, i)) \
             && _is_func(_obj, i)) { \
             idx = i; break; \
@@ -1729,13 +1743,13 @@ __benv_check_string(benv_ops_t * ops, char *value)
         __benv_check_current, __benv_set_number, __benv_show_number) \
     /* end */
 
-#if 1==OS_COUNT
+#if 1==OS_FIRMWARE_COUNT
 #define BENV_OS_OPS         \
     BENV_OS_COMMON_OPS,     \
     BENV_FIRMWARE_OPS(0)    \
     /* end */
 
-#elif 7==OS_COUNT
+#elif 7==OS_FIRMWARE_COUNT
 #define BENV_OS_OPS         \
     BENV_OS_COMMON_OPS,     \
     BENV_FIRMWARE_OPS(0),   \
@@ -2256,18 +2270,6 @@ benv_analysis(int argc, char *argv[])
     return 0;
 }
 
-static inline void
-benv_ops_dump(char *name)
-{
-    int i;
-
-    debug_trace("[%s] ops count=%d", name, __benv_ops_count);
-    
-    for (i = 0; i < __benv_ops_count; i++) {
-        __benv_ops_dump(benv_ops(i));
-    }
-}
-
 static inline int
 benv_command(int argc, char *argv[])
 {
@@ -2303,8 +2305,8 @@ extern int __benv_load(int idx);    /* idx is benv's block */
 extern int __benv_save(int idx);    /* idx is benv's block */
 #elif defined(__APP__)
 #if IS_PRODUCT_LTEFI_MD1
-#define benv_open()           0
-#define benv_close()          0
+#define benv_open()             0
+#define benv_close()            0
 #define __benv_load(_idx)     0
 #define __benv_save(_idx)     0
 #elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC
@@ -2376,13 +2378,7 @@ __benv_save(int idx /* benv's block */ )
 #endif
 
 static inline int
-__benv_nothing(int idx /* benv's block */ )
-{
-    return 0;
-}
-
-static inline int
-__benv_load_by(int begin, int count)
+benv_loadby(int begin, int count)
 {
     int i, err = 0;
 
@@ -2396,41 +2392,13 @@ __benv_load_by(int begin, int count)
     return err;
 }
 
-static inline int
-benv_load_cookie(void)
-{
-    return __benv_load(BENV_COOKIE);
-}
-
-static inline int
-benv_load_os(void)
-{
-    return __benv_load(BENV_OS);
-}
-
-static inline int
-benv_load_mark(void)
-{
-    return __benv_load(BENV_MARK);
-}
-
-static inline int
-benv_load_info(void)
-{
-    return __benv_load_by(BENV_INFO, BENV_BLOCK_COUNT);
-}
-
-static inline int
-benv_load_info_named(void)
-{
-    return __benv_load_by(BENV_INFO, BENV_INFO + __benv_info_block_named_count);
-}
-
-static inline int
-benv_load(void)
-{
-    return __benv_load_by(0, BENV_BLOCK_COUNT);
-}
+#define benv_load_nothing(_idx) 0
+#define benv_load_cookie()      __benv_load(BENV_COOKIE)
+#define benv_load_os()          __benv_load(BENV_OS)
+#define benv_load_mark()        __benv_load(BENV_MARK)
+#define benv_load_info()        benv_loadby(BENV_INFO, BENV_BLOCK_COUNT)
+#define benv_load_info_named()  benv_loadby(BENV_INFO, BENV_INFO + __benv_info_block_named_count)
+#define benv_load()             benv_loadby(0, BENV_BLOCK_COUNT)
 
 static inline int
 benv_save(void)

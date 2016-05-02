@@ -33,7 +33,7 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
             CONFIG_BOOTCOMMAND_END      \
             /* end */
 #if 0
-static uint32 kernel_offset[OS_COUNT] = {
+static uint32 kernel_offset[OS_FIRMWARE_COUNT] = {
     [0] = 0x06000,
     [1] = 0x0E000,
     [2] = 0x16000,
@@ -54,7 +54,7 @@ static uint32 kernel_offset[OS_COUNT] = {
 *
 * rootfs  size (block count) = 256M/512 = 512K = 0x80000
 */
-static uint32 rootfs_offset[OS_COUNT] = {
+static uint32 rootfs_offset[OS_FIRMWARE_COUNT] = {
     [0] = 0x03E000,
     [1] = 0x0BE000,
     [2] = 0x13E000,
@@ -208,7 +208,7 @@ change_bootcmd(void)
 {
     int idx = __benv_current;
     
-    char *array[OS_COUNT] = {
+    char *array[OS_FIRMWARE_COUNT] = {
         [0] = CONFIG_BOOTCOMMAND_KERNEL0,
         [1] = CONFIG_BOOTCOMMAND_KERNEL1,
         [2] = CONFIG_BOOTCOMMAND_KERNEL2,
@@ -229,7 +229,7 @@ change_bootargs(void)
 {
     int idx = __benv_current;
     
-    char *array[OS_COUNT] = {
+    char *array[OS_FIRMWARE_COUNT] = {
         [0] = "13",
         [1] = "14",
         [2] = "15",
@@ -322,7 +322,7 @@ copy_emmc(
 static void
 benv_select(void)
 {
-    int skips  = __benv_skips(0);
+    int skips  = benv_skips(0);
     int current = __benv_current;
 
     __benv_show_os();

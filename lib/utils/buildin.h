@@ -101,6 +101,9 @@
     (_b) = tmp_in_os_swap_value;    \
 }while(0)
 
+#define __os_foreach(_i, _begin, _count)    for (_i=_begin; _i<_count; _i++)
+#define os_foreach(_i, _count)              __os_foreach(_i, 0, _count)
+
 #define INVALID_VALUE       (-1)
 #define INVALID_COMMON_ID   INVALID_VALUE
 #define INVALID_SEM_ID      INVALID_COMMON_ID

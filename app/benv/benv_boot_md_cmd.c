@@ -33,7 +33,7 @@ __at_version(int argc, char *argv[])
         return err;
     }
     
-    for (i=0; i<OS_COUNT; i++) {
+    for (i=0; i<OS_FIRMWARE_COUNT; i++) {
         os_objcpy(benv_rootfs_version(i), &version);
         os_objcpy(benv_kernel_version(i), &version);
     }

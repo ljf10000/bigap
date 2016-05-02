@@ -104,10 +104,10 @@ static struct {
     struct {
         char *dev;
         char *dir;
-    } kernel[OS_COUNT], rootfs[OS_COUNT], data[2], config[2];
+    } kernel[OS_FIRMWARE_COUNT], rootfs[OS_FIRMWARE_COUNT], data[2], config[2];
 } 
 sys = {
-    .current= OS_CURRENT,
+    .current= OS_FIRMWARE_CURRENT,
     .dirty  = false,
 
     .kernel = {
@@ -141,8 +141,7 @@ sys = {
     },
 };
 
-#define __skips(_idx)           (__benv_skips(sys.current) | os_bit(_idx))
-
+#define __skips(_idx)           (benv_skips(sys.current) | os_bit(_idx))
 #define __cslave                (!sys.cmaster)
 #define __dslave                (!sys.dmaster)
 #define __cmaster               (!__cslave)
@@ -467,7 +466,7 @@ mount_rootfs(void)
         readonly = false;
     }
     
-    for (i=0; i<OS_COUNT; i++) {
+    for (i=0; i<OS_FIRMWARE_COUNT; i++) {
         if (i!=sys.current) {
             err = do_mount(dev_rootfs(i), dir_rootfs(i), 
                     true,   /* check    */
@@ -555,7 +554,7 @@ umount_rootfs(void)
 {
     int i, err, errs = 0;
 
-    for (i=0; i<OS_COUNT; i++) {
+    for (i=0; i<OS_FIRMWARE_COUNT; i++) {
         if (i!=sys.current) {
             err = do_umount(dir_rootfs(i));
             if (err<0) {
@@ -1279,7 +1278,7 @@ usbupgrade(void)
         end     = begin + 1;
     } else {
         begin   = 0; 
-        end     = OS_COUNT;
+        end     = OS_FIRMWARE_COUNT;
     }
     
     if (0==access(USB_FILE_KERNEL, 0)) {
@@ -1371,28 +1370,28 @@ ok:
 #define __update_other_ok(_obj, _idx, _skips)  do{  \
     int i;                                          \
                                                     \
-    benv_foreach(i) {                                 \
-        if (false==is_benv_skip(i, _skips)            \
-            && benv_obj_is_good(_obj, i)              \
-            && benv_obj_version_eq(_obj, i, _idx)) {  \
+    os_firmware_foreach(i) {                        \
+        if (false==is_benv_skip(_skips, i)          \
+            && benv_obj_is_good(_obj, i)            \
+            && benv_obj_version_eq(_obj, i, _idx)){ \
             debug_ok("tagged " #_obj "%d's other is ok", i); \
-            benv_obj(_obj, i)->other = BENV_FSM_OK;     \
+            benv_obj(_obj, i)->other = BENV_FSM_OK; \
         }                                           \
     }                                               \
 }while(0)
 
 #define __normal_startup(_obj)                  do{ \
-    int current = sys.current;                    \
+    int current = sys.current;                      \
                                                     \
     if (BENV_FSM_UNKNOW==benv_obj(_obj, current)->self) { \
-        int skips = __benv_skips(current);            \
+        int skips = benv_skips(current);            \
         __update_other_ok(_obj, current, skips);    \
     }                                               \
                                                     \
-    benv_obj(_obj, current)->error    = 0;            \
-    benv_obj(_obj, current)->self     = BENV_FSM_OK;    \
+    benv_obj(_obj, current)->error  = 0;            \
+    benv_obj(_obj, current)->self   = BENV_FSM_OK;  \
                                                     \
-    sys.dirty = true;                             \
+    sys.dirty = true;                               \
 }while(0)
 
 static int
@@ -1519,7 +1518,7 @@ get_current(void)
         *p = 0;
     }
     
-    __benv_foreach(i, 0) {
+    os_firmware_foreach_all(i) {
         if (os_streq(dev, dev_rootfs(i))) {
             return i;
         }
@@ -1531,7 +1530,7 @@ error:
 #ifdef __PC__
     return __benv_current;
 #else
-    return OS_CURRENT;
+    return OS_FIRMWARE_CURRENT;
 #endif
 }
 
@@ -1618,8 +1617,8 @@ cmd_repair(int argc, char *argv[])
         return -ENOSUPPORT;
     }
     
-    benv_foreach(i) {
-        if (false==is_benv_skip(i, skips) && 0==repair_rootfs(i)) {
+    os_firmware_foreach(i) {
+        if (false==is_benv_skip(skips, i) && 0==repair_rootfs(i)) {
             repair_kernel(i);
         }
 	}
@@ -1659,7 +1658,7 @@ cmd_upgrade(int argc, char *argv[])
     }
 
     if (idx<0) {
-        for (i=1; i<OS_COUNT; i++) {
+        for (i=1; i<OS_FIRMWARE_COUNT; i++) {
             if (i!=sys.current) {
                 err = upgrade(i, i);
                 if (err<0) {
