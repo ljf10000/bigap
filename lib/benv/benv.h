@@ -761,40 +761,23 @@ benv_ops_idx(benv_ops_t *ops)
 }
 
 static inline char *
-__benv_ops_obj(benv_ops_t *ops)
+benv_ops_string(benv_ops_t *ops)
 {
     return (char *)__benv_env + ops->offset;
 }
 
-#define benv_ops_obj(_type, _ops) ((_type *)__benv_ops_obj(_ops))
-
-static inline void
-benv_dirty_byidx(int idx)
+static inline uint32 *
+benv_ops_number(benv_ops_t *ops)
 {
-    __benv_dirty[idx] = true;
-    
-    debug_trace("set block[%d] dirty", idx);
+    return (uint32 *)benv_ops_string(ops);
 }
+#define benv_ops_fsm(_ops)          benv_ops_number(_ops)
 
-static inline void
-benv_dirty_byops(benv_ops_t *ops)
+static inline benv_version_t *
+benv_ops_version(benv_ops_t *ops)
 {
-    int offset = benv_ops_obj(char, ops) - (char *)__benv_env;
-    int idx = offset / BENV_BLOCK_SIZE;
-
-    benv_dirty_byidx(idx);
+    return (benv_version_t *)benv_ops_string(ops);
 }
-
-static inline void
-benv_dirty_byzone(int begin, int end)
-{
-    int i;
-
-    for (i=begin; i<end; i++) {
-        benv_dirty_byidx(i);
-    }
-}
-#define benv_dirty_all()    benv_dirty_byzone(0, BENV_BLOCK_COUNT)
 
 static inline int
 benv_ops_check(benv_ops_t *ops, char *value)
@@ -827,6 +810,34 @@ benv_ops_write(benv_ops_t *ops, char *value)
         benv_dirty_byops(ops);
     }
 }
+
+static inline void
+benv_dirty_byidx(int idx)
+{
+    __benv_dirty[idx] = true;
+    
+    debug_trace("set block[%d] dirty", idx);
+}
+
+static inline void
+benv_dirty_byops(benv_ops_t *ops)
+{
+    int offset = benv_ops_string(ops) - (char *)__benv_env;
+    int idx = offset / BENV_BLOCK_SIZE;
+
+    benv_dirty_byidx(idx);
+}
+
+static inline void
+benv_dirty_byzone(int begin, int end)
+{
+    int i;
+
+    for (i=begin; i<end; i++) {
+        benv_dirty_byidx(i);
+    }
+}
+#define benv_dirty_all()    benv_dirty_byzone(0, BENV_BLOCK_COUNT)
 
 static inline benv_cache_t *
 benv_cache(benv_ops_t * ops)
@@ -1469,19 +1480,21 @@ __benv_sort_after(int sort[], int count)
 #endif /* BENV_UPGRADE */
 
 #define __benv_find_first_byversion(_obj, _version, _skips, _is_func) ({ \
-    int i, idx = -ENOEXIST; \
-    int ____skips = _skips; \
-    benv_version_t *__version = _version; \
-                            \
-    os_firmware_foreach(i){ \
-        if (false==is_benv_skip(____skips, i) \
-            && benv_version_eq(__version, benv_obj_version(_obj, i)) \
-            && _is_func(_obj, i)) { \
-            idx = i; break; \
-        }                   \
-    }                       \
-                            \
-    idx;                    \
+    int i_in___benv_find_first_byversion;               \
+    int idx_in___benv_find_first_byversion = -ENOEXIST; \
+    int skips_in___benv_find_first_byversion = _skips;  \
+    benv_version_t *version_in___benv_find_first_byversion = _version; \
+                                                        \
+    os_firmware_foreach(i_in___benv_find_first_byversion){ \
+        if (false==is_benv_skip(skips_in___benv_find_first_byversion, i_in___benv_find_first_byversion) \
+            && benv_version_eq(version_in___benv_find_first_byversion, benv_obj_version(_obj, i_in___benv_find_first_byversion)) \
+            && _is_func(_obj, i_in___benv_find_first_byversion)) { \
+            idx_in___benv_find_first_byversion = i_in___benv_find_first_byversion; \
+            break;                                      \
+        }                                               \
+    }                                                   \
+                                                        \
+    idx_in___benv_find_first_byversion;                 \
 })  /* end */
 
 #define benv_find_first_byversion(_obj, _version, _skips) \
@@ -1506,13 +1519,13 @@ __benv_show_number(benv_ops_t * ops)
 {
     __benv_show_header(ops);
 
-    os_println("%u", *benv_ops_obj(uint32, ops));
+    os_println("%u", *benv_ops_number(ops));
 }
 
 static inline void
 __benv_show_string(benv_ops_t * ops)
 {
-    char *string = benv_ops_obj(char, ops);
+    char *string = benv_ops_string(ops);
 
     if (string[0]) {
         __benv_show_header(ops);
@@ -1524,14 +1537,13 @@ __benv_show_string(benv_ops_t * ops)
 static inline void
 __benv_set_number(benv_ops_t * ops, char *value)
 {
-    *benv_ops_obj(uint32, ops) =
-        (uint32)(value[0] ? os_atoi(value) : 0);
+    *benv_ops_number(ops) = (uint32)(value[0] ? os_atoi(value) : 0);
 }
 
 static inline void
 __benv_set_string(benv_ops_t * ops, char *value)
 {
-    char *string = benv_ops_obj(char, ops);
+    char *string = benv_ops_string(ops);
 
     if (value[0]) {
         os_strcpy(string, value);
@@ -1560,13 +1572,13 @@ __benv_show_version(benv_ops_t * ops)
 {
     __benv_show_header(ops);
 
-    os_println("%s", benv_version_itoa(benv_ops_obj(benv_version_t, ops)));
+    os_println("%s", benv_version_itoa(benv_ops_version(ops)));
 }
 
 static inline void
 __benv_set_version(benv_ops_t * ops, char *value)
 {
-    benv_version_t *v = benv_ops_obj(benv_version_t, ops);
+    benv_version_t *v = benv_ops_version(ops);
 
     if (value[0]) {
         __benv_version_atoi(v, value);
@@ -1600,7 +1612,7 @@ __benv_check_fsm(benv_ops_t * ops, char *value)
 static inline void
 __benv_show_fsm(benv_ops_t * ops)
 {
-    int fsm = *benv_ops_obj(uint32, ops);
+    int fsm = *benv_ops_fsm(ops);
 
     __benv_show_header(ops);
 
@@ -1618,7 +1630,7 @@ __benv_set_fsm(benv_ops_t * ops, char *value)
         fsm = BENV_FSM_UNKNOW;
     }
 
-    *benv_ops_obj(uint32, ops) = fsm;
+    *benv_ops_fsm(ops) = fsm;
 }
 
 static inline int
@@ -2315,7 +2327,7 @@ benv_open(void)
 {
     __benv_fd = __os_file_lock(OS_DEV_BOOTENV, O_RDWR, 0, true);
 
-    return is_good_fd(__benv_fd) ? 0 : __benv_fd;
+    return is_good_fd(__benv_fd)?0:__benv_fd;
 }
 
 static inline int
@@ -2340,7 +2352,7 @@ __benv_load(int idx)
     if (err < 0) {        /* <0 is error */
         debug_error("seek benv error:%d", -errno);
 
-        return err;
+        return -errno;
     }
 
     if (BENV_BLOCK_SIZE != read(__benv_fd, obj, BENV_BLOCK_SIZE)) {
