@@ -760,24 +760,58 @@ benv_ops_idx(benv_ops_t *ops)
     return (benv_ops_t *)ops - __benv_ops;
 }
 
+static inline void *
+benv_ops_obj(benv_ops_t *ops)
+{
+    return (char *)__benv_env + ops->offset;
+}
+
 static inline char *
 benv_ops_string(benv_ops_t *ops)
 {
-    return (char *)__benv_env + ops->offset;
+    return (char *)benv_ops_obj(ops);
 }
 
 static inline uint32 *
 benv_ops_number(benv_ops_t *ops)
 {
-    return (uint32 *)benv_ops_string(ops);
+    return (uint32 *)benv_ops_obj(ops);
 }
 #define benv_ops_fsm(_ops)          benv_ops_number(_ops)
 
 static inline benv_version_t *
 benv_ops_version(benv_ops_t *ops)
 {
-    return (benv_version_t *)benv_ops_string(ops);
+    return (benv_version_t *)benv_ops_obj(ops);
 }
+
+static inline void
+benv_dirty_byidx(int idx)
+{
+    __benv_dirty[idx] = true;
+    
+    debug_trace("set block[%d] dirty", idx);
+}
+
+static inline void
+benv_dirty_byops(benv_ops_t *ops)
+{
+    int offset = benv_ops_string(ops) - (char *)__benv_env;
+    int idx = offset / BENV_BLOCK_SIZE;
+
+    benv_dirty_byidx(idx);
+}
+
+static inline void
+benv_dirty_byzone(int begin, int end)
+{
+    int i;
+
+    for (i=begin; i<end; i++) {
+        benv_dirty_byidx(i);
+    }
+}
+#define benv_dirty_all()    benv_dirty_byzone(0, BENV_BLOCK_COUNT)
 
 static inline int
 benv_ops_check(benv_ops_t *ops, char *value)
@@ -810,34 +844,6 @@ benv_ops_write(benv_ops_t *ops, char *value)
         benv_dirty_byops(ops);
     }
 }
-
-static inline void
-benv_dirty_byidx(int idx)
-{
-    __benv_dirty[idx] = true;
-    
-    debug_trace("set block[%d] dirty", idx);
-}
-
-static inline void
-benv_dirty_byops(benv_ops_t *ops)
-{
-    int offset = benv_ops_string(ops) - (char *)__benv_env;
-    int idx = offset / BENV_BLOCK_SIZE;
-
-    benv_dirty_byidx(idx);
-}
-
-static inline void
-benv_dirty_byzone(int begin, int end)
-{
-    int i;
-
-    for (i=begin; i<end; i++) {
-        benv_dirty_byidx(i);
-    }
-}
-#define benv_dirty_all()    benv_dirty_byzone(0, BENV_BLOCK_COUNT)
 
 static inline benv_cache_t *
 benv_cache(benv_ops_t * ops)
@@ -2563,7 +2569,7 @@ benv_get(char *path)
         benv_ops_t *ops = benv_ops(i);
 
         if (os_streq(path, ops->path)) {
-            return __benv_ops_obj(ops);
+            return benv_ops_obj(ops);
         }
     }
 
