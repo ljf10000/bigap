@@ -206,7 +206,7 @@ __dd(char *dst, char *src)
 }
 
 static char *
-__pwdfile(void)
+get_pwdfile(void)
 {
     static char pwd[1+FCOOKIE_FILE_LEN];
     
@@ -216,7 +216,7 @@ __pwdfile(void)
 }
 
 static void
-__pwdfile_clean(char *pwdfile)
+put_pwdfile(char *pwdfile)
 {
     if (pwdfile && NULL==sys.env.pwdfile) {
         unlink(pwdfile);
@@ -230,7 +230,7 @@ __rsync(int idx, benv_version_t *version)
     char new[1+BENV_VERSION_STRING_LEN];
     char old[1+BENV_VERSION_STRING_LEN];
     
-    char *pwdfile = __pwdfile();
+    char *pwdfile = get_pwdfile();
     if (NULL==pwdfile) {
         return -EIO;
     }
@@ -254,7 +254,7 @@ __rsync(int idx, benv_version_t *version)
                 new,
             dir_rootfs(idx));
     set_obj(rootfs, idx, upgrade, efsm(err));
-    __pwdfile_clean(pwdfile);
+    put_pwdfile(pwdfile);
 
     jinfo("%o", 
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",

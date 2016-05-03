@@ -1025,7 +1025,7 @@ __benv_clean_cookie(void)
 }
 
 enum {
-    __benvt_mark_ptest_control  = 0,
+    __benv_mark_ptest_control   = 0,
     __benv_mark_ptest_result    = 1,
 
     __benv_mark_private         = 2,
@@ -1808,7 +1808,7 @@ benv_mark_add(int idx, int value)
 }
 
 #define BENV_MARK_OPS_NAMES \
-    __BENV_MARK_OPS("ptest/control",__benvt_mark_ptest_control, NULL, __benv_set_number,__benv_show_number), \
+    __BENV_MARK_OPS("ptest/control",__benv_mark_ptest_control,  NULL, __benv_set_number,__benv_show_number), \
     __BENV_MARK_OPS("ptest/result", __benv_mark_ptest_result,   NULL, __benv_set_number,__benv_show_number), \
     __BENV_MARK_OPS("debug",        __benv_mark_debug,          NULL, __benv_set_number,__benv_show_number), \
     __BENV_MARK_OPS("ut",           __benv_mark_uptimes,        NULL, NULL,             __benv_show_number), \

@@ -748,6 +748,20 @@ os_file_exist(char *file)
     return fd<0?false:(close(fd), true);
 }
 
+static inline int
+os_fgeti_ex(char *file, int max, int min, int deft)
+{
+    if (os_file_exist(file)) {
+        int val = deft;
+        
+        os_fgeti(&val, file);
+
+        return OS_SAFE_VALUE_DEFT(val, min,  max, deft);
+    } else {
+        return deft;
+    }
+}
+
 #ifndef SCRIPT_SHELL_SYSTEM
 #define SCRIPT_SHELL_SYSTEM     "/etc/utils/system.sh"
 #endif

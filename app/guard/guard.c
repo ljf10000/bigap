@@ -212,6 +212,7 @@ get_oem(void)
 #define get_psn()   benv_mark_get(__benv_mark_cid_psn)
 #define get_rt()    benv_mark_get(__benv_mark_runtime)
 #define get_na()    benv_mark_get(__benv_mark_noauth)
+
 #define set_na(_na) benv_mark_set(__benv_mark_noauth, _na)
 
 static inline char *
@@ -245,22 +246,23 @@ prepare(void)
 {
     static bool ok = false;
     
-    while(false==ok) {
+    char *mac;
+    uint32 mid, psn;
+    
+    while(!ok) {
         __prepare();
         
-        char *mac = get_mac();
-        uint32 mid = get_mid();
-        uint32 psn = get_psn();
-        uint32 rt  = get_rt();
-        uint32 na  = get_na();
+        mac = get_mac();
+        mid = get_mid();
+        psn = get_psn();
         
         ok = is_good_macstring(mac) && mid && psn;
-        if (false==ok) {
+        if (!ok) {
             sleep(PPSLEEP);
         }
         
         debug_trace("load mac=%s, mid=%d, psn=%d, rt=%d, na=%d, ok=%d", 
-            mac, mid, psn, rt, na, ok);
+            mac, mid, psn, get_rt(), get_na(), ok);
     }
 }
 
@@ -333,25 +335,11 @@ jcheck(jobj_t obj)
 }
 
 static int
-get_val(char *file, int max, int min, int deft)
-{
-    int val = deft;
-    
-    if (os_file_exist(file)) {
-        os_pgeti(&val, file);
-
-        val = OS_SAFE_VALUE_DEFT(val, min,  max, deft);
-    }
-
-    return val;
-}
-
-static int
 failed(char *action)
 {
-    int na = get_val(FILE_NA, NAMAX, NAMIN, NADFT);
-    int rt = get_val(FILE_RT, RTMAX, RTMIN, RTDFT);
-    int rs = get_val(FILE_RS, RSMAX, RSMIN, RSDFT);
+    int na = os_fgeti_ex(FILE_NA, NAMAX, NAMIN, NADFT);
+    int rt = os_fgeti_ex(FILE_RT, RTMAX, RTMIN, RTDFT);
+    int rs = os_fgeti_ex(FILE_RS, RSMAX, RSMIN, RSDFT);
 
     rt = rt + rand() % rt;
     rs = rs + rand() % rs;
@@ -373,33 +361,26 @@ static void
 ok(char *action)
 {
     debug_ok("%s ok", action);
+    
     os_system("echo %s >> " FILE_ST, action);
 }
 
-static int
-get_cert(char cert[], char key[])
+static char *
+get_cert(int id)
 {
-    if (NULL==__fcookie_file(FCOOKIE_LSS_CERT, cert)) {
-        debug_error("no cert %d", FCOOKIE_LSS_CERT);
-        
-        return -ENOEXIST;
-    }
-    else if (NULL==__fcookie_file(FCOOKIE_LSS_KEY, key)) {
-        debug_error("no cert %d",  FCOOKIE_LSS_KEY);
-        
-        return -ENOEXIST;
+    static char cert[1+FCOOKIE_FILE_LEN];
+
+    char *s = __fcookie_file(id, cert);
+    if (NULL==s) {
+        debug_error("no cert %d", id);
     }
 
-    return 0;
+    return s;
 }
 
 static void
-put_cert(char cert[], char key[])
+put_cert(char *cert)
 {
-    if (key[0]) {
-        unlink(key);
-    }
-
     if (cert[0]) {
         unlink(cert);
     }
@@ -409,19 +390,14 @@ static int
 do_report(int hack)
 {
     char line[1+OS_LINE_LEN] = {0};
-    char cert[1+FCOOKIE_FILE_LEN] = {0};
-    char key[1+FCOOKIE_FILE_LEN] = {0};
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
-    err = get_cert(cert, key);
-    if (err<0) {
-        goto error;
+    char *cert  = get_cert(FCOOKIE_LSS_CERT);
+    char *key   = get_cert(FCOOKIE_LSS_KEY);
+    if (NULL==cert || NULL==key) {
+        err = -ENOEXIST; goto error;
     }
-
-#if 0
-curl -d '{"mac":"00:1f:64:01:01:01","mid":1,"psn":2,"error":1}' -k --cert ./client.crt --key ./client.key -u LSS:LTEFISecurityServer2012-2015 -v https://its.raytight.com:9999/service3
-#endif
 
     err = os_v_pgets(line, OS_LINE_LEN, 
             "curl"
@@ -480,7 +456,8 @@ error:
         failed("report");
     }
 
-    put_cert(cert, key);
+    put_cert(cert);
+    put_cert(key);
     
     return err;
 }
@@ -489,19 +466,14 @@ static int
 do_register(void)
 {
     char line[1+OS_LINE_LEN] = {0};
-    char cert[1+FCOOKIE_FILE_LEN] = {0};
-    char key[1+FCOOKIE_FILE_LEN] = {0};
     jobj_t obj = NULL;
     int err = 0, code = 0;
-    
-    err = get_cert(cert, key);
-    if (err<0) {
-        goto error;
+
+    char *cert  = get_cert(FCOOKIE_LSS_CERT);
+    char *key   = get_cert(FCOOKIE_LSS_KEY);
+    if (NULL==cert || NULL==key) {
+        err = -ENOEXIST; goto error;
     }
-    
-#if 0
-    curl -d '{"mac":"00:1f:64:01:01:01","mid":1,"psn":2}' -k --cert ./client.crt --key ./client.key -u LSS:LTEFISecurityServer2012-2015 -v https://its.raytight.com:9999/service1
-#endif
 
     err = os_v_pgets(line, OS_LINE_LEN, 
             "curl"
@@ -564,7 +536,8 @@ error:
         failed("register");
     }
 
-    put_cert(cert, key);
+    put_cert(cert);
+    put_cert(key);
     
     return err; 
 }
@@ -573,20 +546,15 @@ static int
 do_auth(void)
 {
     char line[1+OS_LINE_LEN] = {0};
-    char cert[1+FCOOKIE_FILE_LEN] = {0};
-    char key[1+FCOOKIE_FILE_LEN] = {0};
     byte guid[OTP_SIZE];
     jobj_t obj = NULL;
     int err = 0, code = 0;
-    
-    err = get_cert(cert, key);
-    if (err<0) {
-        goto error;
+
+    char *cert  = get_cert(FCOOKIE_LSS_CERT);
+    char *key   = get_cert(FCOOKIE_LSS_KEY);
+    if (NULL==cert || NULL==key) {
+        err = -ENOEXIST; goto error;
     }
-    
-#if 0
-    curl -d '{"mac":"00:1f:64:01:01:01","mid":1,"psn":2,"guid":"82b33d9c1acdd9626fe150273a800000"}' -k --cert ./client.crt --key ./client.key -u LSS:LTEFISecurityServer2012-2015 -v https://its.raytight.com:9999/service2
-#endif
     
     err = os_v_pgets(line, OS_LINE_LEN, 
             "curl"
@@ -654,7 +622,8 @@ error:
         failed("auth");
     }
 
-    put_cert(cert, key);
+    put_cert(cert);
+    put_cert(key);
     
     return err;
 }
@@ -725,14 +694,13 @@ static int
 do_cmd(void)
 {
     char line[1+OS_LINE_LEN] = {0};
-    char cert[1+FCOOKIE_FILE_LEN] = {0};
-    char key[1+FCOOKIE_FILE_LEN] = {0};
     jobj_t obj = NULL;
     int err = 0, code = 0;
-    
-    err = get_cert(cert, key);
-    if (err<0) {
-        goto error;
+
+    char *cert  = get_cert(FCOOKIE_LSS_CERT);
+    char *key   = get_cert(FCOOKIE_LSS_KEY);
+    if (NULL==cert || NULL==key) {
+        err = -ENOEXIST; goto error;
     }
     
     err = os_v_pgets(line, OS_LINE_LEN, 
@@ -785,7 +753,8 @@ do_cmd(void)
 error:
     jobj_put(obj);
 
-    put_cert(cert, key);
+    put_cert(cert);
+    put_cert(key);
 
     return err;
 }

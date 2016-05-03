@@ -309,17 +309,17 @@ os_memmem(const void *mem, size_t mem_size,
         do{ if (_ptr) { kfree(_ptr); (_ptr) = NULL; } }while(0)
 #endif
 
+#ifdef __APP__
+#define os_calloc(_count, _size)    calloc(_count, _size)
+#else
 static inline void *
 os_calloc(uint32 count, uint32 size)
 {
-    uint32 n = count*size;
+    uint32 n = count * size;
     
-#ifdef __APP__
-    return calloc(n);
-#else
     return os_memzero(os_malloc(n), n);
-#endif
 }
+#endif
 
 #define os_zalloc(_size)            os_calloc(1, _size)
 
