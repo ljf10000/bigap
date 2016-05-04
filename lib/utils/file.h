@@ -108,6 +108,8 @@ os_system(const char *fmt, ...)
 }
 
 #define os_fopen(_file, _mode)      fopen(_file, _mode)
+#define os_fsync(_file)             fsync(_file)
+#define os_fclean(_file)            __os_fclose(fopen(_file, "w"))
 
 static inline int
 __os_fclose(STREAM stream)
@@ -121,14 +123,14 @@ __os_fclose(STREAM stream)
     return err;
 }
 
-#define os_fclose(_stream)  ({  \
-    int __err = __os_fclose(_stream); \
-    _stream = NULL;             \
-    __err;                      \
+#define os_fclose(_stream)          ({  \
+    int __err = __os_fclose(_stream);   \
+    _stream = NULL;                     \
+    __err;                              \
 })  /* end */
 
-#define os_fclean(_file)            __os_fclose(fopen(_file, "w"))
 #define os_feof(_stream)            (_stream?!!feof(_stream):true)
+#define os_fflush(_stream)          fflush(_stream)
 
 static inline int 
 os_fseek(STREAM stream, int offset, int fromwhere)
@@ -143,7 +145,7 @@ os_fwrite(STREAM stream, const void *buf, int size)
 {
     int err = fwrite(buf, 1, size, stream);
     
-    fflush(stream);
+    os_fflush(stream);
     
     return (err<0)?-errno:err;
 }

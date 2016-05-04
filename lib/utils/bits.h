@@ -63,11 +63,11 @@
 })  /* end */
 
 #ifndef os_setflag
-#define os_setflag(_value, _flag)       do{(_value) |= (_flag);}while(0)
+#define os_setflag(_value, _flag)       ((_value) |= (_flag))
 #endif
 
 #ifndef os_clrflag
-#define os_clrflag(_value, _flag)       do{(_value) &= ~(_flag);}while(0)
+#define os_clrflag(_value, _flag)       ((_value) &= ~(_flag))
 #endif
 
 #ifndef os_hasflag

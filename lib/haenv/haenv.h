@@ -178,6 +178,7 @@ typedef struct {
     STREAM f;       // set @init
     uint32  start;  // set @init
     uint32  id;
+    uint32  seq;
     
     uint32  saved;  // size: have saved to flash
     uint32  unsaved;// size: not unsaved to flash
@@ -550,9 +551,9 @@ haee_set(haenv_t *env, haenv_entry_t *e, char *k, char *v)
         os_strmcpy(haee_value(e), v, e->vlen);
         haee_pad_zero(e);
         haee_md5(env, e);
-        
-        e->flag = HAENV_F_DIRTY;
-                
+
+        e->flag |= HAENV_F_DIRTY;
+
         return 0;
     } else {
         return -EKEYNULL;
@@ -568,12 +569,25 @@ haee_clone(haenv_entry_t *dst, haenv_entry_t *src)
 static inline int
 haee_flush(haenv_t *env, haenv_entry_t *e)
 {
-    os_clrflag(e->flag, HAENV_F_DIRTY);
-    
-    return hae_write(env, hae_offsetof(env, e), e, haee_size(e));
+    /*
+    * 1. set un-dirty
+    * 2. save flag
+    */
+    byte flag = os_clrflag(e->flag, HAENV_F_DIRTY); e->flag = 0;
+
+    /*
+    * 3. write env
+    */
+    int err = hae_write(env, hae_offsetof(env, e), e, haee_size(e));
+
+    /*
+    * 4. restore flag
+    */
+    e->flag = flag;
+
+    return err;
 }
 
-#define HAENV_FOREACH(i)                    for (_i=0; _i<HAENV_COUNT; _i++)
 #define __haenv_foreach(_i, _env, _begin)   for (_i=_begin, _env = haenv_env(_i); _i<HAENV_COUNT; _i++, _env = haenv_env(_i))
 #define haenv_foreach(_i, _env)             __haenv_foreach(_i, _env, 0)
 
@@ -602,11 +616,12 @@ hae_clone(haenv_t *dst, haenv_t *src)
 {
     os_memcpy(dst->mirror, src->mirror, sizeof(src->mirror));
 
+    dst->seq    = src->seq;
     dst->count  = src->count;
     dst->saved  = src->saved;
     dst->unsaved= src->unsaved;
     dst->damaged= src->damaged;
-
+    
     return dst;
 }
 
@@ -615,20 +630,14 @@ hae_clean(haenv_t *env)
 {
     os_memzero(env->mirror, sizeof(env->mirror));
 
+    /*
+    * id/start NOT clean
+    */
+    env->seq    = 0;
     env->count  = 0;
     env->saved  = 0;
     env->unsaved= 0;
     env->damaged= false;
-}
-
-static inline bool
-hae_eq(haenv_t *a, haenv_t *b)
-{
-    return os_memcmp(a->mirror, b->mirror, sizeof(b->mirror))
-        && a->count     == b->count
-        && a->saved     == b->saved
-        && a->unsaved   == b->unsaved
-        && a->damaged   == a->damaged;
 }
 
 static inline int
@@ -642,7 +651,7 @@ hae_save(haenv_t *env)
 {
     int err = hae_write(env, 0, env->mirror, sizeof(env->mirror));
 
-    fflush(env->f);
+    os_fflush(env->f);
 
     return err;
 }
@@ -670,6 +679,7 @@ hae_check(haenv_t *env)
 #endif
 
             env->count++;
+            env->seq = e->seq;
         }
         else {
             haenv_debug("env[%d] damaged offset==>0x%x", 
@@ -709,7 +719,7 @@ hae_flush(haenv_t *env)
     env->saved = env->unsaved;
     haenv_debug("env[%d] saved==>0x%x", env->id, env->unsaved);
     
-    fflush(env->f);
+    os_fflush(env->f);
     
     return ret;
 }
@@ -747,10 +757,10 @@ hae_append(haenv_t *env, char *k, char *v)
     return e;
 }
 
+#ifdef __APP__
 static inline jobj_t
 hae_export(haenv_t *env)
 {
-#ifdef __APP__
     jobj_t obj = jobj_new_object();
     if (NULL==obj) {
         return NULL;
@@ -768,7 +778,6 @@ hae_export(haenv_t *env)
     return obj;
 error:
     jobj_put(obj);
-#endif
 
     return NULL;
 }
@@ -778,7 +787,6 @@ hae_gc(haenv_t *env, jobj_t obj)
 {
     int err = 0;
     
-#ifdef __APP__
     hae_clean(env);
     
     jobj_foreach(obj, k, v) {
@@ -786,10 +794,10 @@ hae_gc(haenv_t *env, jobj_t obj)
     }
 
     err = hae_save(env);
-#endif
 
     return err;
 }
+#endif
 
 static inline haenv_t *
 __haenv_getby(bool damaged)
@@ -805,18 +813,8 @@ __haenv_getby(bool damaged)
 
     return NULL;
 }
-
-static inline haenv_t *
-__haenv_get_normal(void)
-{
-    return __haenv_getby(false);
-}
-
-static inline haenv_t *
-__haenv_get_damaged(void)
-{
-    return __haenv_getby(true);
-}
+#define __haenv_get_normal()    __haenv_getby(false)
+#define __haenv_get_damaged()   __haenv_getby(true)
 
 static inline void
 haenv_lock(void)
@@ -865,6 +863,8 @@ haenv_check(void)
         }
     }
 
+    haenv_seq = haenv_first()->seq;
+    
     return ret;
 }
 
@@ -872,9 +872,12 @@ static inline int
 haenv_repaire(void)
 {
     haenv_t *normal = __haenv_get_normal();
+    if (NULL==normal) {
+        return -EDAMAGED;
+    }
+    
     haenv_t *damaged;
-
-    while(normal && NULL!=(damaged = __haenv_get_damaged())) {
+    while(NULL!=(damaged = __haenv_get_damaged())) {
         hae_clone(damaged, normal);
         hae_save(damaged);
     }
@@ -930,15 +933,16 @@ haenv_find(char *k)
     return hae_find(haenv_first(), k);
 }
 
+#ifdef __APP__
 static inline int
 haenv_export(void)
 {
-    int err = 0;
+    int err     = 0;
+    STREAM f    = NULL;
+    jobj_t obj  = NULL;
+    char *json  = NULL;
     
-#ifdef __APP__
-    STREAM f = NULL;
-    
-    jobj_t obj = hae_export(haenv_first());
+    obj = hae_export(haenv_first());
     if (NULL==obj) {
         err = -ENOMEM; goto error;
     }
@@ -948,24 +952,22 @@ haenv_export(void)
         err = -EIO; goto error;
     }
 
-    char *json = jobj_json(obj);
-
+    json = jobj_json(obj);
     err = os_fwrite(f, json, os_strlen(json));
     if (err<0) {
         goto error;
     }
-    fflush(f);
     os_fclose(f);
+    os_fsync(HAENV_TEMP);
     
     err = rename(HAENV_TEMP, HAENV_EXPORT);
     if (err<0) {
         err = -errno; goto error;
     }
-    
+
 error:
     jobj_put(obj);
     os_fclose(f);
-#endif
 
     return err;
 }
@@ -974,32 +976,33 @@ static inline int
 haenv_gc(bool force)
 {
     int err = 0;
-    
-#ifdef __APP__
-    if (force || haenv_first()->saved > HAENV_GCSIZE) {
-        jobj_t obj = hae_export(haenv_first());
-        if (NULL==obj) {
-            err = -ENOMEM; goto error;
-        }
 
-        err = hae_gc(haenv_first(), obj);
-        if (err<0) {
-            goto error;
-        }
-
-        int i;
-        haenv_t *env;
-        __haenv_foreach(i, env, 1) {
-            hae_clone(env, haenv_first());
-            hae_save(env);
-        }
-error:
-        jobj_put(obj);
+    if (false==force && haenv_first()->saved < HAENV_GCSIZE) {
+        return 0;
     }
-#endif
+
+    jobj_t obj = hae_export(haenv_first());
+    if (NULL==obj) {
+        err = -ENOMEM; goto error;
+    }
+
+    err = hae_gc(haenv_first(), obj);
+    if (err<0) {
+        goto error;
+    }
+
+    int i;
+    haenv_t *env;
+    __haenv_foreach(i, env, 1) {
+        hae_clone(env, haenv_first());
+        hae_save(env);
+    }
+error:
+    jobj_put(obj);
 
     return err;
 }
+#endif
 
 static inline int
 haenv_init(void)

@@ -21,7 +21,7 @@ benv_boot_init(void)
     __benv_control->env = (benv_env_t *)(env_ptr->env);
     
     __THIS_DEBUG    = benv_mark_pointer(__benv_mark_debug);
-    __THIS_JDEBUG  = benv_mark_pointer(__benv_mark_jsdebug);
+    __THIS_JDEBUG   = benv_mark_pointer(__benv_mark_jsdebug);
 }
 
 /******************************************************************************/
