@@ -13,7 +13,23 @@ OS_INITER;
 static int
 cmd_init(int argc, char *argv[])
 {
-    return haenv_gc(false);
+    int err;
+
+    err = haenv_gc(false);
+    if (err<0) {
+        os_eprintln("gc error:%d", err);
+        
+        return err;
+    }
+
+    err = haenv_export();
+    if (err<0) {
+        os_eprintln("export error:%d", err);
+        
+        return err;
+    }
+
+    return 0;
 }
 
 static int
@@ -54,14 +70,14 @@ cmd_set(int argc, char *argv[])
 
     err = haenv_flush();
     if (err<0) {
-        os_eprintln("flush error:%d", k, v, err);
+        os_eprintln("flush error:%d", err);
         
         return err;
     }
 
     err = haenv_export();
     if (err<0) {
-        os_eprintln("export error:%d", k, v, err);
+        os_eprintln("export error:%d", err);
         
         return err;
     }
