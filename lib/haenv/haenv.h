@@ -189,9 +189,11 @@ typedef struct {
 
 typedef struct {
     haenv_t env[HAENV_COUNT];
-    
+
+#ifdef __APP__
     os_sem_t sem;
-    
+#endif
+
     uint32 seq;     // next seq
 } haenv_file_t;
 
@@ -819,17 +821,21 @@ __haenv_getby(bool damaged)
 static inline void
 haenv_lock(void)
 {
+#ifdef __APP__
     haenv_debug("...");
     os_sem_lock(haenv_sem());
     haenv_debug("ok");
+#endif
 }
 
 static inline void
 haenv_unlock(void)
 {
+#ifdef __APP__
     haenv_debug("...");
     os_sem_unlock(haenv_sem());
     haenv_debug("ok");
+#endif
 }
 
 static inline int
@@ -1018,14 +1024,14 @@ haenv_init(void)
     }
 
     haenv_debug("open " HAENV_FILE);
-#endif
 
     err = os_sem_create(haenv_sem(), OS_HAENV_SEM_ID);
     if (err<0) {
         return err;
     }
     haenv_debug("create sem");
-    
+#endif
+
     haenv_foreach(i, env) {
         env->f      = f;
         env->id     = (uint32)i;
@@ -1043,9 +1049,14 @@ haenv_fini(void)
 #ifdef __APP__
     os_fclose(haenv_first()->f);
     haenv_debug("close " HAENV_FILE);
+    
+    /*
+    * NEEDN't destroy
+    *
+    * os_sem_destroy(haenv_sem());
+    */
 #endif
 
-    // os_sem_destroy(haenv_sem());
     
     return 0;
 }

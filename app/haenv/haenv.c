@@ -46,17 +46,23 @@ cmd_set(int argc, char *argv[])
     int err = 0;
     
     err = haenv_append(k, v);
-    if (err<0) {        
+    if (err<0) {
+        os_eprintln("append error:%d", err);
+        
         return err;
     }
 
     err = haenv_flush();
     if (err<0) {
+        os_eprintln("flush error:%d", k, v, err);
+        
         return err;
     }
 
     err = haenv_export();
     if (err<0) {
+        os_eprintln("export error:%d", k, v, err);
+        
         return err;
     }
 

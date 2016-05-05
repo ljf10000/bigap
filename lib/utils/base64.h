@@ -20,7 +20,6 @@ b64_table(int v)
     return table[v];
 }
 
-
 /**
  * Encode `byte *' source with `size_t' size.
  * Returns a `char *' base64 encoded string.
