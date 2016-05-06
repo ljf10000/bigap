@@ -85,7 +85,10 @@
 #endif
 
 #if HAENV_DPRINT
-#define haenv_debug(_fmt, _args...)     os_println("%s: " _fmt, __func__, ##_args)
+#define haenv_debug(_fmt, _args...)     do{ \
+    os_printf("%s", __func__);              \
+    os_println(_fmt, ##_args);              \
+}while(0);
 #else
 #define haenv_debug(_fmt, _args...)     os_do_nothing()
 #endif
@@ -542,7 +545,7 @@ is_good_haee(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_empty_haee(haenv_entry_t *e)
 {
-    return md5_eq(HAENV_SZERO16, e->md5);
+    return md5_eq((byte *)HAENV_SZERO16, e->md5);
 }
 
 static inline int
