@@ -88,7 +88,16 @@ cmd_set(int argc, char *argv[])
 static int
 cmd_erase(int argc, char *argv[])
 {
-    return haenv_gc(true);
+    int err;
+
+    err = haenv_erase();
+    if (err<0) {
+        os_eprintln("erase error:%d", err);
+        
+        return err;
+    }
+
+    return 0;
 }
 
 static cmd_table_t cmd[] = {
