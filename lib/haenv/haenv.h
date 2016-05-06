@@ -583,7 +583,7 @@ haee_set(haenv_t *env, haenv_entry_t *e, char *k, char *v)
         haee_pad_zero(e);
         haee_md5(env, e);
 
-        e->flag |= HAENV_F_DIRTY;
+        e->flag = HAENV_F_DIRTY;
 
         return 0;
     } else {
