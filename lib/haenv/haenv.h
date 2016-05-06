@@ -25,10 +25,12 @@
 #endif
 #define HAENV_GCSIZE                (HAENV_SIZE*3/4)
 
+#if 0
 #ifndef HAENV_BLOCK_SIZE
 #define HAENV_BLOCK_SIZE            512
 #endif
 #define HAENV_BLOCK_COUNT           (HAENV_SIZE/HAENV_BLOCK_SIZE) // 128
+#endif
 
 #ifndef HAENV_BOOT_SIZE
 #define HAENV_BOOT_SIZE             (512*1024)
