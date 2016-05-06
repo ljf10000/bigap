@@ -108,7 +108,6 @@ os_system(const char *fmt, ...)
 }
 
 #define os_fopen(_file, _mode)      fopen(_file, _mode)
-#define os_fsync(_file)             fsync(_file)
 #define os_fclean(_file)            __os_fclose(fopen(_file, "w"))
 
 static inline int

@@ -971,7 +971,6 @@ haenv_export(void)
         goto error;
     }
     os_fclose(f);
-    os_fsync(HAENV_TEMP);
     
     err = rename(HAENV_TEMP, HAENV_EXPORT);
     if (err<0) {
