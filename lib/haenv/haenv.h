@@ -86,7 +86,7 @@
 
 #if HAENV_DPRINT
 #define haenv_debug(_fmt, _args...)     do{ \
-    os_printf("%s", __func__);              \
+    os_printf("%s ", __func__);             \
     os_println(_fmt, ##_args);              \
 }while(0);
 #else
@@ -175,6 +175,11 @@ typedef struct {
 #ifndef HAENV_SZERO
 #define HAENV_SZERO                 "\xff"
 #endif
+
+#define HAENV_ZERO16                ((HAENV_ZERO<<8) | HAENV_ZERO)
+#define HAENV_ZERO32                ((HAENV_ZERO16<<16) | HAENV_ZERO16)
+#define HAENV_KLEN_ZERO             HAENV_ZERO
+#define HAENV_VLEN_ZERO             HAENV_ZERO16
 
 #define HAENV_SZERO2                HAENV_SZERO     HAENV_SZERO
 #define HAENV_SZERO4                HAENV_SZERO2    HAENV_SZERO2
@@ -501,9 +506,19 @@ __is_good_haee(haenv_t *env, haenv_entry_t *e)
 }
 
 static inline bool
-__is_good_empty_haee(haenv_t *env, haenv_entry_t *e)
+is_empty_haee(haenv_entry_t *e)
 {
-    return e >= hae_first(env) && ((haenv_entry_t *)e->data) < hae_end(env);
+    return HAENV_KLEN_ZERO==e->klen
+        && HAENV_VLEN_ZERO==e->vlen
+        && md5_eq((byte *)HAENV_SZERO16, e->md5);
+}
+
+static inline bool
+is_good_empty_haee(haenv_t *env, haenv_entry_t *e)
+{
+    return is_empty_haee(e)
+        && e >= hae_first(env) 
+        && ((haenv_entry_t *)e->data) < hae_end(env);
 }
 
 static inline byte *
@@ -527,9 +542,9 @@ __haee_md5(haenv_t *env, haenv_entry_t *e, byte md5[16])
 }
 
 static inline bool
-__is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
+is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 {
-    byte md5[16] = {0};
+    byte md5[16];
     
     __haee_md5(env, e, md5);
     
@@ -545,13 +560,7 @@ haee_md5(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_good_haee(haenv_t *env, haenv_entry_t *e)
 {
-    return e->klen && e->vlen && __is_good_haee_md5(env, e);
-}
-
-static inline bool
-is_empty_haee(haenv_entry_t *e)
-{
-    return md5_eq((byte *)HAENV_SZERO16, e->md5);
+    return false==is_empty_haee(e) && is_good_haee_md5(env, e);
 }
 
 static inline int
@@ -625,7 +634,7 @@ hae_empty(haenv_t *env)
         env->id, 
         hae_offsetof(env, e));
 
-    return __is_good_empty_haee(env, e)?e:NULL;
+    return is_good_empty_haee(env, e)?e:NULL;
 }
 
 static inline haenv_t *
