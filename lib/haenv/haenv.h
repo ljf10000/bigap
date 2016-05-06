@@ -694,6 +694,12 @@ hae_check(haenv_t *env)
     
     hae_foreach(env, e) {
         if (is_empty_haee(e)) {
+            haenv_debug("env[%d] empty count==>%d, offset==>0x%x, saved==>0x%x", 
+                env->id, 
+                env->count, 
+                hae_offsetof(env, e), 
+                env->saved);
+                
             break;
         }
         else if (is_good_haee(env, e)) {

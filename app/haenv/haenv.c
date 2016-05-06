@@ -175,8 +175,12 @@ __handle(int argc, char *argv[])
     
     err = haenv_check();
     if (err<0) {
+        os_eprintln("check error:%d", err);
+        
         err = haenv_repaire();
         if (err<0) {
+            os_eprintln("repaire error:%d", err);
+            
             return err;
         }
     }
