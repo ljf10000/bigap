@@ -172,18 +172,6 @@ typedef struct {
 #define HAENV_ZERO                  0xff
 #endif
 
-#ifndef HAENV_SZERO
-#define HAENV_SZERO                 "\xff"
-#endif
-
-#define HAENV_ZERO16                ((HAENV_ZERO<<8) | HAENV_ZERO)
-#define HAENV_ZERO32                ((HAENV_ZERO16<<16) | HAENV_ZERO16)
-
-#define HAENV_SZERO2                HAENV_SZERO     HAENV_SZERO
-#define HAENV_SZERO4                HAENV_SZERO2    HAENV_SZERO2
-#define HAENV_SZERO8                HAENV_SZERO4    HAENV_SZERO4
-#define HAENV_SZERO16               HAENV_SZERO8    HAENV_SZERO8
-
 typedef struct {    
     char mirror[HAENV_SIZE];
     
@@ -206,6 +194,8 @@ typedef struct {
     os_sem_t sem;
 #endif
 
+    haenv_entry_t zero;
+    
     uint32 seq;     // next seq
 } haenv_file_t;
 
@@ -506,12 +496,7 @@ __is_good_haee(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_empty_haee(haenv_entry_t *e)
 {
-    
-    return HAENV_ZERO==e->flag
-        && HAENV_ZERO==e->klen
-        && HAENV_ZERO16==e->vlen
-        && HAENV_ZERO32==e->seq
-        && md5_eq((byte *)HAENV_SZERO16, e->md5);
+    return os_memeq(&haenv()->zero, e);
 }
 
 static inline bool
@@ -519,7 +504,7 @@ is_good_empty_haee(haenv_t *env, haenv_entry_t *e)
 {
     return is_empty_haee(e)
         && e >= hae_first(env) 
-        && ((haenv_entry_t *)e->data) < hae_end(env);
+        && ((haenv_entry_t *)(e->data + 2*sizeof(uint32))) < hae_end(env);
 }
 
 static inline byte *
@@ -1074,6 +1059,9 @@ haenv_init(void)
     }
 #endif
 
+    haenv_entry_t *zero = &haenv()->zero;
+    os_memset(zero, HAENV_ZERO, sizeof(*zero));
+    
     haenv_foreach(i, env) {
         os_memset(env->mirror, HAENV_ZERO, sizeof(env->mirror));
 
