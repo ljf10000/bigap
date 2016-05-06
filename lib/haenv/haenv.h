@@ -1015,6 +1015,21 @@ error:
 #endif
 
 static inline int
+haenv_erase(void)
+{
+    int i, err;
+    haenv_t *env;
+
+    haenv_foreach(i, env) {
+        os_memset(env->mirror, HAENV_ZERO, sizeof(env->mirror));
+        
+        hae_save(env);
+    }
+    
+    return 0;
+}
+
+static inline int
 haenv_init(void)
 {
     int i, err;

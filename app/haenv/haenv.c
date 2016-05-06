@@ -85,6 +85,12 @@ cmd_set(int argc, char *argv[])
     return err;
 }
 
+static int
+cmd_erase(int argc, char *argv[])
+{
+    return haenv_gc(true);
+}
+
 static cmd_table_t cmd[] = {
     {
         .argc   = 3,
@@ -105,6 +111,11 @@ static cmd_table_t cmd[] = {
         .argc   = 1,
         .argv   = {"gc"},
         .handle = cmd_gc,
+    },
+    {
+        .argc   = 1,
+        .argv   = {"erase"},
+        .handle = cmd_erase,
     },
 };
 
