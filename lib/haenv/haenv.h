@@ -567,21 +567,29 @@ is_good_haee(haenv_t *env, haenv_entry_t *e)
 }
 
 static inline int
-haee_set(haenv_t *env, haenv_entry_t *e, char *k, char *v)
+haee_set(haenv_t *env, haenv_entry_t *e, char *k, char *v, bool dirty)
 {
     if (e) {
         e->klen = os_strlen(k);
         e->vlen = os_strlen(v);
         e->seq  = haenv_seq;
-        e->flag = 0;
         
         os_strmcpy(haee_key(e), k, e->klen);
         os_strmcpy(haee_value(e), v, e->vlen);
         haee_pad_zero(e);
+        
+        /*
+        * set zero before make md5
+        */
+        e->flag = 0;
         haee_md5(env, e);
-
-        e->flag = HAENV_F_DIRTY;
-
+        /*
+        * set dirty after make md5
+        */
+        if (dirty) {
+            e->flag = HAENV_F_DIRTY;
+        }
+        
         return 0;
     } else {
         return -EKEYNULL;
@@ -775,14 +783,14 @@ hae_find(haenv_t *env, char *k)
 }
 
 static inline haenv_entry_t *
-hae_append(haenv_t *env, char *k, char *v)
+hae_append(haenv_t *env, char *k, char *v, bool dirty)
 {
     haenv_entry_t *e = hae_empty(env);
     if (NULL==e) {
         return NULL;
     }
 
-    int err = haee_set(env, e, k, v);
+    int err = haee_set(env, e, k, v, dirty);
     if (err) {
         return NULL;
     }
@@ -825,7 +833,12 @@ hae_gc(haenv_t *env, jobj_t obj)
     hae_clean(env);
     
     jobj_foreach(obj, k, v) {
-        hae_append(env, k, jobj_get_string(v));
+        haenv_entry_t *e = hae_append(env, k, jobj_get_string(v), false);
+
+        /*
+        * set zero before save
+        */
+        e->flag = 0;
     }
 
     err = hae_save(env);
@@ -948,7 +961,7 @@ haenv_append(char *k, char *v)
     
     haenv_seq++;
     
-    haenv_entry_t *e = hae_append(haenv_first(), k, v);
+    haenv_entry_t *e = hae_append(haenv_first(), k, v, true);
     if (NULL==e) {
         return -EFULL;
     }
