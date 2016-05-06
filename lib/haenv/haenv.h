@@ -168,8 +168,8 @@ typedef struct {
     char data[0];
 } haenv_entry_t;
 
-#ifndef HAENV_ZERO
-#define HAENV_ZERO                  0xff
+#ifndef HAENV_EMPTY
+#define HAENV_EMPTY     0xff
 #endif
 
 typedef struct {    
@@ -194,7 +194,7 @@ typedef struct {
     os_sem_t sem;
 #endif
 
-    haenv_entry_t zero;
+    haenv_entry_t empty;
     
     uint32 seq;     // next seq
 } haenv_file_t;
@@ -400,7 +400,7 @@ haee_kpad_zero(haenv_entry_t *e)
 {
     char *pad = haee_kpad(e);
     if (pad) {
-        os_memset(pad, HAENV_ZERO, haee_kpad_len(e));
+        os_memset(pad, HAENV_EMPTY, haee_kpad_len(e));
     }
 }
 
@@ -440,7 +440,7 @@ haee_vpad_zero(haenv_entry_t *e)
 {
     char *pad = haee_vpad(e);
     if (pad) {
-        os_memset(pad, HAENV_ZERO, haee_vpad_len(e));
+        os_memset(pad, HAENV_EMPTY, haee_vpad_len(e));
     }
 }
 
@@ -496,7 +496,7 @@ __is_good_haee(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_empty_haee(haenv_entry_t *e)
 {
-    return os_objeq(&haenv()->zero, e);
+    return os_objeq(&haenv()->empty, e);
 }
 
 static inline bool
@@ -546,7 +546,22 @@ haee_md5(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_good_haee(haenv_t *env, haenv_entry_t *e)
 {
-    return false==is_empty_haee(e) && is_good_haee_md5(env, e);
+    if (is_empty_haee(e)) {
+        haenv_debug("env[%d] offset==>0x%x is empty", 
+            env->id, 
+            hae_offsetof(env, e));
+        
+        return false;
+    } else if (false==is_good_haee_md5(env, e)) {
+        haenv_debug("env[%d] offset==>0x%x is bad md5", 
+            env->id, 
+            hae_offsetof(env, e));
+        return false;
+    } else {
+        return true;
+    }
+    
+    //return false==is_empty_haee(e) && is_good_haee_md5(env, e);
 }
 
 static inline int
@@ -766,6 +781,12 @@ hae_append(haenv_t *env, char *k, char *v)
     haenv_debug("env[%d] unsaved==>0x%x", env->id, env->unsaved);
     
     return e;
+}
+
+static inline void
+hae_erase(haenv_t *env)
+{
+    os_memset(env->mirror, HAENV_EMPTY, sizeof(env->mirror));
 }
 
 #ifdef __APP__
@@ -1024,8 +1045,7 @@ haenv_erase(void)
     haenv_t *env;
 
     haenv_foreach(i, env) {
-        os_memset(env->mirror, HAENV_ZERO, sizeof(env->mirror));
-        
+        hae_erase(env);
         hae_save(env);
     }
     
@@ -1059,12 +1079,10 @@ haenv_init(void)
     }
 #endif
 
-    haenv_entry_t *zero = &haenv()->zero;
-    os_memset(zero, HAENV_ZERO, sizeof(*zero));
+    haenv_entry_t *empty = &haenv()->empty;
+    os_memset(empty, HAENV_EMPTY, sizeof(*empty));
     
     haenv_foreach(i, env) {
-        os_memset(env->mirror, HAENV_ZERO, sizeof(env->mirror));
-
         env->f      = f;
         env->id     = (uint32)i;
         env->start  = HAENV_START + i*HAENV_SIZE;
