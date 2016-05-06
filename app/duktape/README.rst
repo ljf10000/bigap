@@ -85,7 +85,9 @@ This distributable contains:
 
 * ``debugger/``: a debugger with a web UI, see ``debugger/README.rst`` and
   https://github.com/svaarala/duktape/blob/master/doc/debugger.rst for
-  details on Duktape debugger support.
+  details on Duktape debugger support.  Also contains a JSON debug proxy
+  (one written in Node.js and another in DukLuv) to make talking to the
+  debug target easier.
 
 * ``licenses/``: licensing information.
 
@@ -93,8 +95,8 @@ You can find release notes at:
 
 * https://github.com/svaarala/duktape/blob/master/RELEASES.rst
 
-This distributable contains Duktape version 1.4.0, created from git
-commit cad6f595382a0cc1a7e4207794ade5be11b3e397 (v1.4.0).
+This distributable contains Duktape version 1.5.0, created from git
+commit 83d557704ee63f68ab40b6fcb00995c9b3d6777c (v1.5.0).
 
 Duktape is copyrighted by its authors (see ``AUTHORS.rst``) and licensed
 under the MIT license (see ``LICENSE.txt``).  String hashing algorithms are

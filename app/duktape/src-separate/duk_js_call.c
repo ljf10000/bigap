@@ -38,11 +38,8 @@ DUK_LOCAL void duk__handle_call_error(duk_hthread *thr,
                                       duk_hthread *entry_curr_thread,
                                       duk_uint_fast8_t entry_thread_state,
                                       duk_instr_t **entry_ptr_curr_pc,
-                                      duk_idx_t idx_func
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
-                                      , duk_jmpbuf *old_jmpbuf_ptr
-#endif
-                                      );
+                                      duk_idx_t idx_func,
+                                      duk_jmpbuf *old_jmpbuf_ptr);
 DUK_LOCAL void duk__handle_safe_call_inner(duk_hthread *thr,
                                            duk_safe_call_function func,
                                            duk_idx_t idx_retbase,
@@ -55,11 +52,8 @@ DUK_LOCAL void duk__handle_safe_call_error(duk_hthread *thr,
                                            duk_idx_t num_stack_rets,
                                            duk_size_t entry_valstack_bottom_index,
                                            duk_size_t entry_callstack_top,
-                                           duk_size_t entry_catchstack_top
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
-                                           , duk_jmpbuf *old_jmpbuf_ptr
-#endif
-                                           );
+                                           duk_size_t entry_catchstack_top,
+                                           duk_jmpbuf *old_jmpbuf_ptr);
 DUK_LOCAL void duk__handle_safe_call_shared(duk_hthread *thr,
                                             duk_idx_t idx_retbase,
                                             duk_idx_t num_stack_rets,
@@ -448,7 +442,7 @@ DUK_LOCAL void duk__handle_bound_chain_for_call(duk_hthread *thr,
 			/* Function.prototype.bind() should never let this happen,
 			 * ugly error message is enough.
 			 */
-			DUK_ERROR(thr, DUK_ERR_INTERNAL_ERROR, DUK_STR_INTERNAL_ERROR);
+			DUK_ERROR_INTERNAL_DEFMSG(thr);
 		}
 		DUK_ASSERT(DUK_TVAL_GET_OBJECT(tv_func) != NULL);
 
@@ -500,7 +494,7 @@ DUK_LOCAL void duk__handle_bound_chain_for_call(duk_hthread *thr,
 	} while (--sanity > 0);
 
 	if (sanity == 0) {
-		DUK_ERROR(thr, DUK_ERR_INTERNAL_ERROR, DUK_STR_BOUND_CHAIN_LIMIT);
+		DUK_ERROR_RANGE(thr, DUK_STR_BOUND_CHAIN_LIMIT);
 	}
 
 	DUK_DDD(DUK_DDDPRINT("final non-bound function is: %!T", duk_get_tval(ctx, idx_func)));
@@ -731,7 +725,7 @@ DUK_LOCAL duk_hobject *duk__nonbound_func_lookup(duk_context *ctx,
 
 	for (;;) {
 		/* Use loop to minimize code size of relookup after bound function case */
-		tv_func = duk_get_tval(ctx, idx_func);
+		tv_func = DUK_GET_TVAL_POSIDX(ctx, idx_func);
 		DUK_ASSERT(tv_func != NULL);
 
 		if (DUK_TVAL_IS_OBJECT(tv_func)) {
@@ -771,9 +765,9 @@ DUK_LOCAL duk_hobject *duk__nonbound_func_lookup(duk_context *ctx,
  not_callable_error:
 	DUK_ASSERT(tv_func != NULL);
 #if defined(DUK_USE_PARANOID_ERRORS)
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, DUK_STR_NOT_CALLABLE);
+	DUK_ERROR_TYPE(thr, DUK_STR_NOT_CALLABLE);
 #else
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "%s not callable", duk_push_string_tval_readable(ctx, tv_func));
+	DUK_ERROR_FMT1(thr, DUK_ERR_TYPE_ERROR, "%s not callable", duk_push_string_tval_readable(ctx, tv_func));
 #endif
 	DUK_UNREACHABLE();
 	return NULL;  /* never executed */
@@ -981,10 +975,8 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 	duk_hthread *entry_curr_thread;
 	duk_uint_fast8_t entry_thread_state;
 	duk_instr_t **entry_ptr_curr_pc;
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 	duk_jmpbuf *old_jmpbuf_ptr = NULL;
 	duk_jmpbuf our_jmpbuf;
-#endif
 	duk_idx_t idx_func;  /* valstack index of 'func' and retval (relative to entry valstack_bottom) */
 
 	/* XXX: Multiple tv_func lookups are now avoided by making a local
@@ -1046,15 +1038,14 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 	                   (void *) entry_curr_thread,
 	                   (long) entry_thread_state));
 
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 	old_jmpbuf_ptr = thr->heap->lj.jmpbuf_ptr;
 	thr->heap->lj.jmpbuf_ptr = &our_jmpbuf;
-#endif
 
 #if defined(DUK_USE_CPP_EXCEPTIONS)
 	try {
 #else
-	if (DUK_LIKELY(DUK_SETJMP(thr->heap->lj.jmpbuf_ptr->jb) == 0)) {
+	DUK_ASSERT(thr->heap->lj.jmpbuf_ptr == &our_jmpbuf);
+	if (DUK_SETJMP(our_jmpbuf.jb) == 0) {
 #endif
 		/* Call handling and success path.  Success path exit cleans
 		 * up almost all state.
@@ -1071,9 +1062,7 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 		DUK_ASSERT(DUK_TVAL_IS_UNDEFINED(&thr->heap->lj.value1));
 		DUK_ASSERT(DUK_TVAL_IS_UNDEFINED(&thr->heap->lj.value2));
 
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 		thr->heap->lj.jmpbuf_ptr = old_jmpbuf_ptr;
-#endif
 
 		return DUK_EXEC_SUCCESS;
 #if defined(DUK_USE_CPP_EXCEPTIONS)
@@ -1096,11 +1085,8 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 		                       entry_curr_thread,
 		                       entry_thread_state,
 		                       entry_ptr_curr_pc,
-		                       idx_func
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
-		                       , old_jmpbuf_ptr
-#endif
-                                       );
+		                       idx_func,
+		                       old_jmpbuf_ptr);
 
 		/* Longjmp state is cleaned up by error handling */
 		DUK_ASSERT(thr->heap->lj.type == DUK_LJ_TYPE_UNKNOWN);
@@ -1117,9 +1103,10 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 		}
 		DUK_D(DUK_DPRINT("unexpected c++ std::exception (perhaps thrown by user code)"));
 		try {
-			DUK_ERROR(thr, DUK_ERR_API_ERROR, "caught invalid c++ std::exception '%s' (perhaps thrown by user code)", what);
+			DUK_ERROR_FMT1(thr, DUK_ERR_API_ERROR, "caught invalid c++ std::exception '%s' (perhaps thrown by user code)", what);
 		} catch (duk_internal_exception exc) {
 			DUK_D(DUK_DPRINT("caught api error thrown from unexpected c++ std::exception"));
+			DUK_UNREF(exc);
 			duk__handle_call_error(thr,
 			                       entry_valstack_bottom_index,
 			                       entry_valstack_end,
@@ -1129,15 +1116,17 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 			                       entry_curr_thread,
 			                       entry_thread_state,
 			                       entry_ptr_curr_pc,
-			                       idx_func);
+			                       idx_func,
+			                       old_jmpbuf_ptr);
 			return DUK_EXEC_ERROR;
 		}
 	} catch (...) {
 		DUK_D(DUK_DPRINT("unexpected c++ exception (perhaps thrown by user code)"));
 		try {
-			DUK_ERROR(thr, DUK_ERR_API_ERROR, "caught invalid c++ exception (perhaps thrown by user code)");
+			DUK_ERROR_API(thr, "caught invalid c++ exception (perhaps thrown by user code)");
 		} catch (duk_internal_exception exc) {
 			DUK_D(DUK_DPRINT("caught api error thrown from unexpected c++ exception"));
+			DUK_UNREF(exc);
 			duk__handle_call_error(thr,
 			                       entry_valstack_bottom_index,
 			                       entry_valstack_end,
@@ -1147,7 +1136,8 @@ DUK_INTERNAL duk_int_t duk_handle_call_protected(duk_hthread *thr,
 			                       entry_curr_thread,
 			                       entry_thread_state,
 			                       entry_ptr_curr_pc,
-			                       idx_func);
+			                       idx_func,
+			                       old_jmpbuf_ptr);
 			return DUK_EXEC_ERROR;
 		}
 	}
@@ -1294,7 +1284,7 @@ DUK_LOCAL void duk__handle_call_inner(duk_hthread *thr,
 			 * limit which is also essentially the same as a C callstack limit
 			 * (except perhaps with some relaxed threading assumptions).
 			 */
-			DUK_ERROR(thr, DUK_ERR_RANGE_ERROR, DUK_STR_C_CALLSTACK_LIMIT);
+			DUK_ERROR_RANGE(thr, DUK_STR_C_CALLSTACK_LIMIT);
 		}
 		thr->heap->call_recursion_depth++;
 	}
@@ -1395,7 +1385,7 @@ DUK_LOCAL void duk__handle_call_inner(duk_hthread *thr,
 			nregs = nargs;
 		} else {
 			/* XXX: this should be an assert */
-			DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, DUK_STR_NOT_CALLABLE);
+			DUK_ERROR_TYPE(thr, DUK_STR_NOT_CALLABLE);
 		}
 	} else {
 		duk_small_uint_t lf_flags;
@@ -1641,7 +1631,7 @@ DUK_LOCAL void duk__handle_call_inner(duk_hthread *thr,
 			duk_error_throw_from_negative_rc(thr, rc);
 			DUK_UNREACHABLE();
 		} else if (rc > 1) {
-			DUK_ERROR(thr, DUK_ERR_API_ERROR, "c function returned invalid rc");
+			DUK_ERROR_API(thr, "c function returned invalid rc");
 		}
 		DUK_ASSERT(rc == 0 || rc == 1);
 
@@ -1735,7 +1725,7 @@ DUK_LOCAL void duk__handle_call_inner(duk_hthread *thr,
 	return;
 
  thread_state_error:
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "invalid thread state for call (%ld)", (long) thr->state);
+	DUK_ERROR_FMT1(thr, DUK_ERR_TYPE_ERROR, "invalid thread state for call (%ld)", (long) thr->state);
 	DUK_UNREACHABLE();
 	return;  /* never executed */
 }
@@ -1749,11 +1739,8 @@ DUK_LOCAL void duk__handle_call_error(duk_hthread *thr,
                                       duk_hthread *entry_curr_thread,
                                       duk_uint_fast8_t entry_thread_state,
                                       duk_instr_t **entry_ptr_curr_pc,
-                                      duk_idx_t idx_func
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
-                                      , duk_jmpbuf *old_jmpbuf_ptr
-#endif
-                                      ) {
+                                      duk_idx_t idx_func,
+                                      duk_jmpbuf *old_jmpbuf_ptr) {
 	duk_context *ctx;
 	duk_tval *tv_ret;
 
@@ -1775,7 +1762,6 @@ DUK_LOCAL void duk__handle_call_error(duk_hthread *thr,
 	 */
 	DUK_ASSERT(thr->ptr_curr_pc == NULL);
 
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 	/* Restore the previous setjmp catcher so that any error in
 	 * error handling will propagate outwards rather than re-enter
 	 * the same handler.  However, the error handling path must be
@@ -1783,7 +1769,6 @@ DUK_LOCAL void duk__handle_call_error(duk_hthread *thr,
 	 * reliable, see e.g. https://github.com/svaarala/duktape/issues/476.
 	 */
 	thr->heap->lj.jmpbuf_ptr = old_jmpbuf_ptr;
-#endif
 
 	/* XXX: callstack unwind may now throw an error when closing
 	 * scopes; this is a sandboxing issue, described in:
@@ -1896,10 +1881,8 @@ DUK_INTERNAL duk_int_t duk_handle_safe_call(duk_hthread *thr,
 	duk_hthread *entry_curr_thread;
 	duk_uint_fast8_t entry_thread_state;
 	duk_instr_t **entry_ptr_curr_pc;
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 	duk_jmpbuf *old_jmpbuf_ptr = NULL;
 	duk_jmpbuf our_jmpbuf;
-#endif
 	duk_idx_t idx_retbase;
 	duk_int_t retval;
 
@@ -1946,15 +1929,14 @@ DUK_INTERNAL duk_int_t duk_handle_safe_call(duk_hthread *thr,
 
 	/* setjmp catchpoint setup */
 
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 	old_jmpbuf_ptr = thr->heap->lj.jmpbuf_ptr;
 	thr->heap->lj.jmpbuf_ptr = &our_jmpbuf;
-#endif
 
 #if defined(DUK_USE_CPP_EXCEPTIONS)
 	try {
 #else
-	if (DUK_LIKELY(DUK_SETJMP(thr->heap->lj.jmpbuf_ptr->jb) == 0)) {
+	DUK_ASSERT(thr->heap->lj.jmpbuf_ptr == &our_jmpbuf);
+	if (DUK_SETJMP(our_jmpbuf.jb) == 0) {
 		/* Success path. */
 #endif
 		DUK_DDD(DUK_DDDPRINT("safe_call setjmp catchpoint setup complete"));
@@ -1973,33 +1955,24 @@ DUK_INTERNAL duk_int_t duk_handle_safe_call(duk_hthread *thr,
 		DUK_ASSERT(DUK_TVAL_IS_UNDEFINED(&thr->heap->lj.value1));
 		DUK_ASSERT(DUK_TVAL_IS_UNDEFINED(&thr->heap->lj.value2));
 
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 		/* Note: either pointer may be NULL (at entry), so don't assert */
 		thr->heap->lj.jmpbuf_ptr = old_jmpbuf_ptr;
-#endif
 
 		retval = DUK_EXEC_SUCCESS;
 #if defined(DUK_USE_CPP_EXCEPTIONS)
 	} catch (duk_internal_exception &exc) {
+		DUK_UNREF(exc);
 #else
 	} else {
 		/* Error path. */
 #endif
-
-#if defined(DUK_USE_CPP_EXCEPTIONS)
-		DUK_UNREF(exc);
-#endif
-
 		duk__handle_safe_call_error(thr,
 		                            idx_retbase,
 		                            num_stack_rets,
 		                            entry_valstack_bottom_index,
 		                            entry_callstack_top,
-		                            entry_catchstack_top
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
-		                            , old_jmpbuf_ptr
-#endif
-                                            );
+		                            entry_catchstack_top,
+		                            old_jmpbuf_ptr);
 
 		/* Longjmp state is cleaned up by error handling */
 		DUK_ASSERT(thr->heap->lj.type == DUK_LJ_TYPE_UNKNOWN);
@@ -2017,37 +1990,39 @@ DUK_INTERNAL duk_int_t duk_handle_safe_call(duk_hthread *thr,
 		}
 		DUK_D(DUK_DPRINT("unexpected c++ std::exception (perhaps thrown by user code)"));
 		try {
-			DUK_ERROR(thr, DUK_ERR_API_ERROR, "caught invalid c++ std::exception '%s' (perhaps thrown by user code)", what);
+			DUK_ERROR_FMT1(thr, DUK_ERR_API_ERROR, "caught invalid c++ std::exception '%s' (perhaps thrown by user code)", what);
 		} catch (duk_internal_exception exc) {
 			DUK_D(DUK_DPRINT("caught api error thrown from unexpected c++ std::exception"));
+			DUK_UNREF(exc);
 			duk__handle_safe_call_error(thr,
 			                            idx_retbase,
 			                            num_stack_rets,
 			                            entry_valstack_bottom_index,
 			                            entry_callstack_top,
-			                            entry_catchstack_top);
+			                            entry_catchstack_top,
+			                            old_jmpbuf_ptr);
 			retval = DUK_EXEC_ERROR;
 		}
 	} catch (...) {
 		DUK_D(DUK_DPRINT("unexpected c++ exception (perhaps thrown by user code)"));
 		try {
-			DUK_ERROR(thr, DUK_ERR_API_ERROR, "caught invalid c++ exception (perhaps thrown by user code)");
+			DUK_ERROR_API(thr, "caught invalid c++ exception (perhaps thrown by user code)");
 		} catch (duk_internal_exception exc) {
 			DUK_D(DUK_DPRINT("caught api error thrown from unexpected c++ exception"));
+			DUK_UNREF(exc);
 			duk__handle_safe_call_error(thr,
 			                            idx_retbase,
 			                            num_stack_rets,
 			                            entry_valstack_bottom_index,
 			                            entry_callstack_top,
-			                            entry_catchstack_top);
+			                            entry_catchstack_top,
+			                            old_jmpbuf_ptr);
 			retval = DUK_EXEC_ERROR;
 		}
 	}
 #endif
 
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 	DUK_ASSERT(thr->heap->lj.jmpbuf_ptr == old_jmpbuf_ptr);  /* success/error path both do this */
-#endif
 
 	duk__handle_safe_call_shared(thr,
 	                             idx_retbase,
@@ -2119,7 +2094,7 @@ DUK_LOCAL void duk__handle_safe_call_inner(duk_hthread *thr,
 		 * limit which is also essentially the same as a C callstack limit
 		 * (except perhaps with some relaxed threading assumptions).
 		 */
-		DUK_ERROR(thr, DUK_ERR_RANGE_ERROR, DUK_STR_C_CALLSTACK_LIMIT);
+		DUK_ERROR_RANGE(thr, DUK_STR_C_CALLSTACK_LIMIT);
 	}
 	thr->heap->call_recursion_depth++;
 
@@ -2165,7 +2140,7 @@ DUK_LOCAL void duk__handle_safe_call_inner(duk_hthread *thr,
 	return;
 
  thread_state_error:
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "invalid thread state for safe_call (%ld)", (long) thr->state);
+	DUK_ERROR_FMT1(thr, DUK_ERR_TYPE_ERROR, "invalid thread state for safe_call (%ld)", (long) thr->state);
 	DUK_UNREACHABLE();
 }
 
@@ -2174,11 +2149,8 @@ DUK_LOCAL void duk__handle_safe_call_error(duk_hthread *thr,
                                            duk_idx_t num_stack_rets,
                                            duk_size_t entry_valstack_bottom_index,
                                            duk_size_t entry_callstack_top,
-                                           duk_size_t entry_catchstack_top
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
-                                           , duk_jmpbuf *old_jmpbuf_ptr
-#endif
-                                           ) {
+                                           duk_size_t entry_catchstack_top,
+                                           duk_jmpbuf *old_jmpbuf_ptr) {
 	duk_context *ctx;
 
 	DUK_ASSERT(thr != NULL);
@@ -2203,9 +2175,7 @@ DUK_LOCAL void duk__handle_safe_call_error(duk_hthread *thr,
 	DUK_ASSERT(thr->catchstack_top >= entry_catchstack_top);
 
 	/* Note: either pointer may be NULL (at entry), so don't assert. */
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 	thr->heap->lj.jmpbuf_ptr = old_jmpbuf_ptr;
-#endif
 
 	DUK_ASSERT(thr->catchstack_top >= entry_catchstack_top);
 	DUK_ASSERT(thr->callstack_top >= entry_callstack_top);

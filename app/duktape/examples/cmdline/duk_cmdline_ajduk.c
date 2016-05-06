@@ -10,12 +10,42 @@
 #include <time.h>
 #include "ajs.h"
 #include "ajs_heap.h"
+#include "duktape.h"
 
 extern uint8_t dbgHEAPDUMP;
+
+#if defined(DUK_USE_ROM_OBJECTS) && defined(DUK_USE_HEAPPTR16)
+/* Pointer compression with ROM strings/objects:
+ *
+ * For now, use DUK_USE_ROM_OBJECTS to signal the need for compressed ROM
+ * pointers.  DUK_USE_ROM_PTRCOMP_FIRST is provided for the ROM pointer
+ * compression range minimum to avoid duplication in user code.
+ */
+#if 0  /* This extern declaration is provided by duktape.h, array provided by duktape.c. */
+extern const void * const duk_rom_compressed_pointers[];
+#endif
+static const void *duk__romptr_low = NULL;
+static const void *duk__romptr_high = NULL;
+#define DUK__ROMPTR_COMPRESSION
+#define DUK__ROMPTR_FIRST DUK_USE_ROM_PTRCOMP_FIRST
+#endif
 
 /*
  *  Helpers
  */
+
+static void *ajduk__lose_const(const void *ptr) {
+	/* Somewhat portable way of losing a const without warnings.
+	 * Another approach is to cast through intptr_t, but that
+	 * type is not always available.
+	 */
+	union {
+		const void *p;
+		void *q;
+	} u;
+	u.p = ptr;
+	return u.q;
+}
 
 static void safe_print_chars(const char *p, duk_size_t len, int until_nul) {
 	duk_size_t i;
@@ -53,13 +83,13 @@ static void safe_print_chars(const char *p, duk_size_t len, int until_nul) {
 
 static const AJS_HeapConfig ajsheap_config[] = {
 	{ 8,      10,   AJS_POOL_BORROW,  0 },
-	{ 12,     10,   AJS_POOL_BORROW,  0 },
-	{ 16,     200,  AJS_POOL_BORROW,  0 },
-	{ 20,     400,  AJS_POOL_BORROW,  0 },
-	{ 24,     400,  AJS_POOL_BORROW,  0 },
-	{ 28,     200,  AJS_POOL_BORROW,  0 },
-	{ 32,     200,  AJS_POOL_BORROW,  0 },
-	{ 40,     200,  AJS_POOL_BORROW,  0 },
+	{ 12,     600,  AJS_POOL_BORROW,  0 },
+	{ 16,     300,  AJS_POOL_BORROW,  0 },
+	{ 20,     300,  AJS_POOL_BORROW,  0 },
+	{ 24,     300,  AJS_POOL_BORROW,  0 },
+	{ 28,     150,  AJS_POOL_BORROW,  0 },
+	{ 32,     150,  AJS_POOL_BORROW,  0 },
+	{ 40,     150,  AJS_POOL_BORROW,  0 },
 	{ 48,     50,   AJS_POOL_BORROW,  0 },
 	{ 52,     50,   AJS_POOL_BORROW,  0 },
 	{ 56,     50,   AJS_POOL_BORROW,  0 },
@@ -67,9 +97,12 @@ static const AJS_HeapConfig ajsheap_config[] = {
 	{ 64,     50,   AJS_POOL_BORROW,  0 },
 	{ 128,    80,   AJS_POOL_BORROW,  0 },
 	{ 256,    16,   AJS_POOL_BORROW,  0 },
+	{ 320,    1,    AJS_POOL_BORROW,  0 },
+	{ 392,    1,    AJS_POOL_BORROW,  0 },  /* duk_hthread, with heap ptr compression, ROM strings+objects */
 	{ 512,    16,   AJS_POOL_BORROW,  0 },
+	{ 964,    1,    AJS_POOL_BORROW,  0 },  /* duk_heap, with heap ptr compression, ROM strings+objects */
 	{ 1024,   6,    AJS_POOL_BORROW,  0 },
-	{ 1360,   1,    AJS_POOL_BORROW,  0 },  /* duk_heap, with heap ptr compression */
+	{ 1344,   1,    AJS_POOL_BORROW,  0 },  /* duk_heap, with heap ptr compression, RAM strings+objects */
 	{ 2048,   5,    AJS_POOL_BORROW,  0 },
 	{ 4096,   3,    0,                0 },
 	{ 8192,   3,    0,                0 },
@@ -116,6 +149,35 @@ void ajsheap_init(void) {
 
 	/* Enable heap dumps */
 	dbgHEAPDUMP = 1;
+
+#if defined(DUK__ROMPTR_COMPRESSION)
+	/* Scan ROM pointer range for faster detection of "is 'p' a ROM pointer"
+	 * later on.
+	 */
+	if (1) {
+		const void * const * ptrs = (const void * const *) duk_rom_compressed_pointers;
+		duk__romptr_low = duk__romptr_high = (const void *) *ptrs;
+		while (*ptrs) {
+			if (*ptrs > duk__romptr_high) {
+				duk__romptr_high = (const void *) *ptrs;
+			}
+			if (*ptrs < duk__romptr_low) {
+				duk__romptr_low = (const void *) *ptrs;
+			}
+			ptrs++;
+		}
+		fprintf(stderr, "romptrs: low=%p high=%p\n",
+		        (const void *) duk__romptr_low, (const void *) duk__romptr_high);
+		fflush(stderr);
+	}
+#endif
+}
+
+void ajsheap_free(void) {
+	if (ajsheap_ram != NULL) {
+		free(ajsheap_ram);
+		ajsheap_ram = NULL;
+	}
 }
 
 /* AjsHeap.dump(), allows Ecmascript code to dump heap status at suitable
@@ -224,6 +286,37 @@ duk_uint16_t ajsheap_enc16(void *ud, void *p) {
 	duk_uint32_t ret;
 	char *base = (char *) ajsheap_ram - 4;
 
+#if defined(DUK__ROMPTR_COMPRESSION)
+	if (p >= duk__romptr_low && p <= duk__romptr_high) {
+		/* The if-condition should be the fastest possible check
+		 * for "is 'p' in ROM?".  If pointer is in ROM, we'd like
+		 * to compress it quickly.  Here we just scan a ~1K array
+		 * which is very bad for performance and for illustration
+		 * only.
+		 */
+		const void * const * ptrs = duk_rom_compressed_pointers;
+		while (*ptrs) {
+			if (*ptrs == p) {
+				ret = DUK__ROMPTR_FIRST + (ptrs - duk_rom_compressed_pointers);
+#if 0
+				fprintf(stderr, "ajsheap_enc16: rom pointer: %p -> 0x%04lx\n", (void *) p, (long) ret);
+				fflush(stderr);
+#endif
+				return (duk_uint16_t) ret;
+			}
+			ptrs++;
+		}
+
+		/* We should really never be here: Duktape should only be
+		 * compressing pointers which are in the ROM compressed
+		 * pointers list, which are known at 'make dist' time.
+		 * We go on, causing a pointer compression error.
+		 */
+		fprintf(stderr, "ajsheap_enc16: rom pointer: %p could not be compressed, should never happen\n", (void *) p);
+		fflush(stderr);
+	}
+#endif
+
 	/* Userdata is not needed in this case but would be useful if heap
 	 * pointer compression were used for multiple heaps.  The userdata
 	 * allows the callback to distinguish between heaps and their base
@@ -254,15 +347,38 @@ duk_uint16_t ajsheap_enc16(void *ud, void *p) {
 	printf("ajsheap_enc16: %p -> %u\n", p, (unsigned int) ret);
 #endif
 	if (ret > 0xffffUL) {
-		fprintf(stderr, "Failed to compress pointer\n");
+		fprintf(stderr, "Failed to compress pointer: %p (ret was %ld)\n", (void *) p, (long) ret);
 		fflush(stderr);
 		abort();
 	}
+#if defined(DUK__ROMPTR_COMPRESSION)
+	if (ret >= DUK__ROMPTR_FIRST) {
+		fprintf(stderr, "Failed to compress pointer, in 16-bit range but matches romptr range: %p (ret was %ld)\n", (void *) p, (long) ret);
+		fflush(stderr);
+		abort();
+	}
+#endif
 	return (duk_uint16_t) ret;
 }
+
 void *ajsheap_dec16(void *ud, duk_uint16_t x) {
 	void *ret;
 	char *base = (char *) ajsheap_ram - 4;
+
+#if defined(DUK__ROMPTR_COMPRESSION)
+	if (x >= DUK__ROMPTR_FIRST) {
+		/* This is a blind lookup, could check index validity.
+		 * Duktape should never decompress a pointer which would
+		 * be out-of-bounds here.
+		 */
+		ret = (void *) ajduk__lose_const(duk_rom_compressed_pointers[x - DUK__ROMPTR_FIRST]);
+#if 0
+		fprintf(stderr, "ajsheap_dec16: rom pointer: 0x%04lx -> %p\n", (long) x, ret);
+		fflush(stderr);
+#endif
+		return ret;
+	}
+#endif
 
 	/* See userdata discussion in ajsheap_enc16(). */
 	(void) ud;
@@ -777,7 +893,7 @@ const void *ajsheap_extstr_check_2(const void *ptr, duk_size_t len) {
 			safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
 			printf(" -> constant string index %ld\n", (long) i);
 #endif
-			return (void *) strdata_duk_builtin_strings[i];
+			return (void *) ajduk__lose_const(strdata_duk_builtin_strings[i]);
 		}
 	}
 
@@ -842,7 +958,7 @@ void ajsheap_extstr_free_3(const void *ptr) {
 	safe_print_chars((const char *) ptr, DUK_SIZE_MAX, 1 /*until_nul*/);
 	printf("\n");
 #endif
-	free((void *) ptr);
+	free((void *) ajduk__lose_const(ptr));
 }
 
 /*

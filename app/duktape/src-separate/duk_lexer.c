@@ -179,7 +179,7 @@ DUK_LOCAL void duk__fill_lexer_buffer(duk_lexer_ctx *lex_ctx, duk_small_uint_t s
 	duk_ucodepoint_t x;
 	duk_small_uint_t contlen;
 	const duk_uint8_t *p, *p_end;
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 	duk_ucodepoint_t mincp;
 #endif
 	duk_int_t input_line;
@@ -243,21 +243,21 @@ DUK_LOCAL void duk__fill_lexer_buffer(duk_lexer_ctx *lex_ctx, duk_small_uint_t s
 		} else if (x < 0xe0UL) {
 			/* 110x xxxx   10xx xxxx  */
 			contlen = 1;
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 			mincp = 0x80UL;
 #endif
 			x = x & 0x1fUL;
 		} else if (x < 0xf0UL) {
 			/* 1110 xxxx   10xx xxxx   10xx xxxx */
 			contlen = 2;
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 			mincp = 0x800UL;
 #endif
 			x = x & 0x0fUL;
 		} else if (x < 0xf8UL) {
 			/* 1111 0xxx   10xx xxxx   10xx xxxx   10xx xxxx */
 			contlen = 3;
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 			mincp = 0x10000UL;
 #endif
 			x = x & 0x07UL;
@@ -288,7 +288,7 @@ DUK_LOCAL void duk__fill_lexer_buffer(duk_lexer_ctx *lex_ctx, duk_small_uint_t s
 		if (x > 0x10ffffUL) {
 			goto error_encoding;
 		}
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 		if (x < mincp || (x >= 0xd800UL && x <= 0xdfffUL) || x == 0xfffeUL) {
 			goto error_encoding;
 		}
@@ -311,7 +311,7 @@ DUK_LOCAL void duk__fill_lexer_buffer(duk_lexer_ctx *lex_ctx, duk_small_uint_t s
 	lex_ctx->input_offset = (duk_size_t) (p - lex_ctx->input);
 	lex_ctx->input_line = input_line;
 
-	DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "utf8 decode failed");
+	DUK_ERROR_SYNTAX(lex_ctx->thr, "utf-8 decode failed");
 }
 
 DUK_LOCAL void duk__advance_bytes(duk_lexer_ctx *lex_ctx, duk_small_uint_t count_bytes) {
@@ -352,7 +352,7 @@ DUK_LOCAL duk_codepoint_t duk__read_char(duk_lexer_ctx *lex_ctx) {
 	duk_small_uint_t len;
 	duk_small_uint_t i;
 	const duk_uint8_t *p;
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 	duk_ucodepoint_t mincp;
 #endif
 	duk_size_t input_offset;
@@ -407,21 +407,21 @@ DUK_LOCAL duk_codepoint_t duk__read_char(duk_lexer_ctx *lex_ctx) {
 	} else if (x < 0xe0UL) {
 		/* 110x xxxx   10xx xxxx  */
 		len = 2;
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 		mincp = 0x80UL;
 #endif
 		x = x & 0x1fUL;
 	} else if (x < 0xf0UL) {
 		/* 1110 xxxx   10xx xxxx   10xx xxxx */
 		len = 3;
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 		mincp = 0x800UL;
 #endif
 		x = x & 0x0fUL;
 	} else if (x < 0xf8UL) {
 		/* 1111 0xxx   10xx xxxx   10xx xxxx   10xx xxxx */
 		len = 4;
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 		mincp = 0x10000UL;
 #endif
 		x = x & 0x07UL;
@@ -452,7 +452,7 @@ DUK_LOCAL duk_codepoint_t duk__read_char(duk_lexer_ctx *lex_ctx) {
 	if (x > 0x10ffffUL) {
 		goto error_encoding;
 	}
-#ifdef DUK_USE_STRICT_UTF8_SOURCE
+#if defined(DUK_USE_STRICT_UTF8_SOURCE)
 	if (x < mincp || (x >= 0xd800UL && x <= 0xdfffUL) || x == 0xfffeUL) {
 		goto error_encoding;
 	}
@@ -471,7 +471,7 @@ DUK_LOCAL duk_codepoint_t duk__read_char(duk_lexer_ctx *lex_ctx) {
 
  error_clipped:   /* clipped codepoint */
  error_encoding:  /* invalid codepoint encoding or codepoint */
-	DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "utf8 decode failed");
+	DUK_ERROR_SYNTAX(lex_ctx->thr, "utf-8 decode failed");
 	return 0;
 }
 
@@ -564,7 +564,7 @@ DUK_INTERNAL void duk_lexer_initctx(duk_lexer_ctx *lex_ctx) {
 	DUK_ASSERT(lex_ctx != NULL);
 
 	DUK_MEMZERO(lex_ctx, sizeof(*lex_ctx));
-#ifdef DUK_USE_EXPLICIT_NULL_INIT
+#if defined(DUK_USE_EXPLICIT_NULL_INIT)
 #if defined(DUK_USE_LEXER_SLIDING_WINDOW)
 	lex_ctx->window = NULL;
 #endif
@@ -607,7 +607,7 @@ DUK_LOCAL duk_codepoint_t duk__hexval(duk_lexer_ctx *lex_ctx, duk_codepoint_t x)
 	/* Throwing an error this deep makes the error rather vague, but
 	 * saves hundreds of bytes of code.
 	 */
-	DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "decode error");
+	DUK_ERROR_SYNTAX(lex_ctx->thr, "decode error");
 	return 0;
 }
 
@@ -709,7 +709,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 	duk_bool_t got_lineterm = 0;  /* got lineterm preceding non-whitespace, non-lineterm token */
 
 	if (++lex_ctx->token_count >= lex_ctx->token_limit) {
-		DUK_ERROR(lex_ctx->thr, DUK_ERR_RANGE_ERROR, "token limit");
+		DUK_ERROR_RANGE(lex_ctx->thr, "token limit");
 		return;  /* unreachable */
 	}
 
@@ -800,8 +800,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 			for (;;) {
 				x = DUK__L0();
 				if (x < 0) {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "eof while parsing multiline comment");
+					DUK_ERROR_SYNTAX(lex_ctx->thr, "eof in multiline comment");
 				}
 				DUK__ADVANCECHARS(lex_ctx, 1);
 				if (last_asterisk && x == '/') {
@@ -814,7 +813,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 			}
 			goto restart_lineupdate;
 		} else if (regexp_mode) {
-#ifdef DUK_USE_REGEXP_SUPPORT
+#if defined(DUK_USE_REGEXP_SUPPORT)
 			/*
 			 *  "/" followed by something in regexp mode.  See E5 Section 7.8.5.
 			 *
@@ -879,8 +878,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 				DUK__ADVANCECHARS(lex_ctx, 1);  /* skip opening slash on first loop */
 				x = DUK__L0();
 				if (x < 0 || duk_unicode_is_line_terminator(x)) {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "eof or line terminator while parsing regexp");
+					DUK_ERROR_SYNTAX(lex_ctx->thr, "eof or line terminator in regexp");
 				}
 				x = DUK__L0();  /* re-read to avoid spill / fetch */
 				if (state == 0) {
@@ -929,7 +927,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 
 			advtok = DUK__ADVTOK(0, DUK_TOK_REGEXP);
 #else
-			DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "regexp support disabled");
+			DUK_ERROR_SYNTAX(lex_ctx->thr, "regexp support disabled");
 #endif
 		} else if (DUK__L1() == '=') {
 			/* "/=" and not in regexp mode */
@@ -1094,8 +1092,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 			DUK__ADVANCECHARS(lex_ctx, 1);  /* eat opening quote on first loop */
 			x = DUK__L0();
 			if (x < 0 || duk_unicode_is_line_terminator(x)) {
-				DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-				          "eof or line terminator while parsing string literal");
+				DUK_ERROR_SYNTAX(lex_ctx->thr, "eof or line terminator in string literal");
 			}
 			if (x == quote) {
 				DUK__ADVANCECHARS(lex_ctx, 1);  /* eat closing quote */
@@ -1116,8 +1113,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 				adv = 2 - 1;  /* note: long live range */
 
 				if (x < 0) {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "eof while parsing string literal");
+					DUK_ERROR_SYNTAX(lex_ctx->thr, "eof or line terminator in string literal");
 				}
 				if (duk_unicode_is_line_terminator(x)) {
 					/* line continuation */
@@ -1169,11 +1165,10 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 						/* Zero escape (also allowed in non-strict mode) */
 						ch = 0;
 						/* adv = 2 - 1 default OK */
-#ifdef DUK_USE_OCTAL_SUPPORT
+#if defined(DUK_USE_OCTAL_SUPPORT)
 					} else if (strict_mode) {
 						/* No other escape beginning with a digit in strict mode */
-						DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-						          "invalid escape while parsing string literal");
+						DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid escape in string literal");
 					} else if (DUK__ISDIGIT03(x) && DUK__ISOCTDIGIT(DUK__L2()) && DUK__ISOCTDIGIT(DUK__L3())) {
 						/* Three digit octal escape, digits validated. */
 						adv = 4 - 1;
@@ -1200,8 +1195,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 					/* fall through to error */
 #endif
 					} else {
-						DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-						          "invalid escape while parsing string literal");
+						DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid escape in string literal");
 					}
 
 					DUK__APPENDBUFFER(lex_ctx, ch);
@@ -1292,8 +1286,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 			if (DUK__L0() == '\\') {
 				duk_codepoint_t ch;
 				if (DUK__L1() != 'u') {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "invalid unicode escape while parsing identifier");
+					DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid unicode escape in identifier");
 				}
 
 				ch = duk__decode_uniesc_from_window(lex_ctx, 2);
@@ -1302,8 +1295,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 				 * character is escaped, must have a stricter check here.
 				 */
 				if (!(first ? duk_unicode_is_identifier_start(ch) : duk_unicode_is_identifier_part(ch))) {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "invalid unicode escaped character while parsing identifier");
+					DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid unicode escape in identifier");
 				}
 				DUK__APPENDBUFFER(lex_ctx, ch);
 				DUK__ADVANCECHARS(lex_ctx, 6);
@@ -1337,7 +1329,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 
 		/*
 		 *  Interned identifier is compared against reserved words, which are
-		 *  currently interned into the heap context.  See genstrings.py.
+		 *  currently interned into the heap context.  See genbuiltins.py.
 		 *
 		 *  Note that an escape in the identifier disables recognition of
 		 *  keywords; e.g. "\u0069f = 1;" is a valid statement (assigns to
@@ -1411,7 +1403,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 			DUK__ADVANCECHARS(lex_ctx, 2);
 			int_only = 1;
 			allow_hex = 1;
-#ifdef DUK_USE_OCTAL_SUPPORT
+#if defined(DUK_USE_OCTAL_SUPPORT)
 		} else if (!strict_mode && x == '0' && DUK__ISDIGIT(y)) {
 			/* Note: if DecimalLiteral starts with a '0', it can only be
 			 * followed by a period or an exponent indicator which starts
@@ -1471,7 +1463,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 		            DUK_S2N_FLAG_ALLOW_FRAC |
 		            DUK_S2N_FLAG_ALLOW_NAKED_FRAC |
 		            DUK_S2N_FLAG_ALLOW_EMPTY_FRAC |
-#ifdef DUK_USE_OCTAL_SUPPORT
+#if defined(DUK_USE_OCTAL_SUPPORT)
 		            (strict_mode ? 0 : DUK_S2N_FLAG_ALLOW_AUTO_OCT_INT) |
 #endif
 		            DUK_S2N_FLAG_ALLOW_AUTO_HEX_INT;
@@ -1480,7 +1472,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 		duk_numconv_parse((duk_context *) lex_ctx->thr, 10 /*radix*/, s2n_flags);
 		val = duk_to_number((duk_context *) lex_ctx->thr, -1);
 		if (DUK_ISNAN(val)) {
-			DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "invalid numeric literal");
+			DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid numeric literal");
 		}
 		duk_replace((duk_context *) lex_ctx->thr, lex_ctx->slot1_idx);  /* could also just pop? */
 
@@ -1491,7 +1483,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 		 */
 
 		if (DUK__ISDIGIT(DUK__L0()) || duk_unicode_is_identifier_start(DUK__L0())) {
-			DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "invalid numeric literal");
+			DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid numeric literal");
 		}
 
 		out_token->num = val;
@@ -1502,7 +1494,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 	} else if (x < 0) {
 		advtok = DUK__ADVTOK(0, DUK_TOK_EOF);
 	} else {
-		DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR, "error parsing token");
+		DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid token");
 	}
  skip_slow_path:
 
@@ -1528,7 +1520,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 	}
 }
 
-#ifdef DUK_USE_REGEXP_SUPPORT
+#if defined(DUK_USE_REGEXP_SUPPORT)
 
 /*
  *  Parse a RegExp token.  The grammar is described in E5 Section 15.10.
@@ -1544,7 +1536,7 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 	duk_codepoint_t x, y;
 
 	if (++lex_ctx->token_count >= lex_ctx->token_limit) {
-		DUK_ERROR(lex_ctx->thr, DUK_ERR_RANGE_ERROR, "token limit");
+		DUK_ERROR_RANGE(lex_ctx->thr, "token limit");
 		return;  /* unreachable */
 	}
 
@@ -1609,26 +1601,32 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 		duk_uint_fast32_t val1 = 0;
 		duk_uint_fast32_t val2 = DUK_RE_QUANTIFIER_INFINITE;
 		duk_small_int_t digits = 0;
+#if defined(DUK_USE_ES6_REGEXP_BRACES)
+		duk_lexer_point lex_pt;
+#endif
+
+#if defined(DUK_USE_ES6_REGEXP_BRACES)
+		/* Store lexer position, restoring if quantifier is invalid. */
+		DUK_LEXER_GETPOINT(lex_ctx, &lex_pt);
+#endif
+
 		for (;;) {
 			DUK__ADVANCECHARS(lex_ctx, 1);  /* eat '{' on entry */
 			x = DUK__L0();
 			if (DUK__ISDIGIT(x)) {
-				if (digits >= DUK__MAX_RE_QUANT_DIGITS) {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "invalid regexp quantifier (too many digits)");
-				}
 				digits++;
 				val1 = val1 * 10 + (duk_uint_fast32_t) duk__hexval(lex_ctx, x);
 			} else if (x == ',') {
+				if (digits > DUK__MAX_RE_QUANT_DIGITS) {
+					goto invalid_quantifier;
+				}
 				if (val2 != DUK_RE_QUANTIFIER_INFINITE) {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "invalid regexp quantifier (double comma)");
+					goto invalid_quantifier;
 				}
 				if (DUK__L1() == '}') {
 					/* form: { DecimalDigits , }, val1 = min count */
 					if (digits == 0) {
-						DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-						          "invalid regexp quantifier (missing digits)");
+						goto invalid_quantifier;
 					}
 					out_token->qmin = val1;
 					out_token->qmax = DUK_RE_QUANTIFIER_INFINITE;
@@ -1639,9 +1637,11 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 				val1 = 0;
 				digits = 0;  /* not strictly necessary because of lookahead '}' above */
 			} else if (x == '}') {
+				if (digits > DUK__MAX_RE_QUANT_DIGITS) {
+					goto invalid_quantifier;
+				}
 				if (digits == 0) {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "invalid regexp quantifier (missing digits)");
+					goto invalid_quantifier;
 				}
 				if (val2 != DUK_RE_QUANTIFIER_INFINITE) {
 					/* val2 = min count, val1 = max count */
@@ -1655,8 +1655,7 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 				DUK__ADVANCECHARS(lex_ctx, 1);
 				break;
 			} else {
-				DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-				          "invalid regexp quantifier (unknown char)");
+				goto invalid_quantifier;
 			}
 		}
 		if (DUK__L0() == '?') {
@@ -1666,6 +1665,18 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 			out_token->greedy = 1;
 		}
 		advtok = DUK__ADVTOK(0, DUK_RETOK_QUANTIFIER);
+		break;
+ invalid_quantifier:
+#if defined(DUK_USE_ES6_REGEXP_BRACES)
+		/* Failed to match the quantifier, restore lexer and parse
+		 * opening brace as a literal.
+		 */
+		DUK_LEXER_SETPOINT(lex_ctx, &lex_pt);
+		advtok = DUK__ADVTOK(1, DUK_RETOK_ATOM_CHAR);
+		out_token->num = '{';
+#else
+		DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid regexp quantifier");
+#endif
 		break;
 	}
 	case '.': {
@@ -1703,8 +1714,7 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 				out_token->num = (x % 32);
 				advtok = DUK__ADVTOK(3, DUK_RETOK_ATOM_CHAR);
 			} else {
-				DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-				          "invalid regexp control escape");
+				DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid regexp escape");
 			}
 		} else if (y == 'x') {
 			out_token->num = duk__decode_hexesc_from_window(lex_ctx, 2);
@@ -1728,8 +1738,7 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 			/* E5 Section 15.10.2.11 */
 			if (y == '0') {
 				if (DUK__ISDIGIT(DUK__L2())) {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "invalid regexp escape");
+					DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid regexp escape");
 				}
 				out_token->num = 0x0000;
 				advtok = DUK__ADVTOK(2, DUK_RETOK_ATOM_CHAR);
@@ -1739,8 +1748,7 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 				duk_small_int_t i;
 				for (i = 0; ; i++) {
 					if (i >= DUK__MAX_RE_DECESC_DIGITS) {
-						DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-						          "invalid regexp escape (decimal escape too long)");
+						DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid regexp escape");
 					}
 					DUK__ADVANCECHARS(lex_ctx, 1);  /* eat backslash on entry */
 					x = DUK__L0();
@@ -1765,8 +1773,7 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 			 */
 			out_token->num = y;
 		} else {
-			DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-			          "invalid regexp escape");
+			DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid regexp escape");
 		}
 		break;
 	}
@@ -1806,13 +1813,14 @@ DUK_INTERNAL void duk_lexer_parse_re_token(duk_lexer_ctx *lex_ctx, duk_re_token 
 		}
 		break;
 	}
-	case ']':
-	case '}': {
+#if !defined(DUK_USE_ES6_REGEXP_BRACES)
+	case '}':
+#endif
+	case ']': {
 		/* Although these could be parsed as PatternCharacters unambiguously (here),
 		 * E5 Section 15.10.1 grammar explicitly forbids these as PatternCharacters.
 		 */
-		DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-		          "invalid regexp character");
+		DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid regexp character");
 		break;
 	}
 	case -1: {
@@ -1860,9 +1868,9 @@ DUK_LOCAL
 void duk__emit_u16_direct_ranges(duk_lexer_ctx *lex_ctx,
                                  duk_re_range_callback gen_range,
                                  void *userdata,
-                                 duk_uint16_t *ranges,
+                                 const duk_uint16_t *ranges,
                                  duk_small_int_t num) {
-	duk_uint16_t *ranges_end;
+	const duk_uint16_t *ranges_end;
 
 	DUK_UNREF(lex_ctx);
 
@@ -1890,8 +1898,7 @@ DUK_INTERNAL void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range
 		DUK_UNREF(ch);
 
 		if (x < 0) {
-			DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-			          "eof while parsing character class");
+			DUK_ERROR_SYNTAX(lex_ctx->thr, "eof in character class");
 		} else if (x == ']') {
 			DUK_ASSERT(!dash);  /* lookup should prevent this */
 			if (start >= 0) {
@@ -1942,8 +1949,7 @@ DUK_INTERNAL void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range
 				    (x >= 'A' && x <= 'Z')) {
 					ch = (x % 32);
 				} else {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "invalid regexp control escape");
+					DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid regexp escape");
 					return;  /* never reached, but avoids warnings of
 					          * potentially unused variables.
 					          */
@@ -2001,8 +2007,7 @@ DUK_INTERNAL void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range
 				if (x == '0' && !DUK__ISDIGIT(DUK__L0())) {
 					ch = 0x0000;
 				} else {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "invalid decimal escape");
+					DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid regexp escape");
 				}
 			} else if (!duk_unicode_is_identifier_part(x)
 #if defined(DUK_USE_NONSTD_REGEXP_DOLLAR_ESCAPE)
@@ -2012,8 +2017,7 @@ DUK_INTERNAL void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range
 				/* IdentityEscape */
 				ch = x;
 			} else {
-				DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-				          "invalid regexp escape");
+				DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid regexp escape");
 			}
 		} else {
 			/* character represents itself */
@@ -2030,8 +2034,7 @@ DUK_INTERNAL void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range
 			 */
 			if (start >= 0) {
 				if (dash) {
-					DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-					          "invalid range");
+					DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid range");
 				} else {
 					gen_range(userdata, start, start, 0);
 					start = -1;
@@ -2042,8 +2045,7 @@ DUK_INTERNAL void duk_lexer_parse_re_ranges(duk_lexer_ctx *lex_ctx, duk_re_range
 			if (start >= 0) {
 				if (dash) {
 					if (start > ch) {
-						DUK_ERROR(lex_ctx->thr, DUK_ERR_SYNTAX_ERROR,
-						          "invalid range");
+						DUK_ERROR_SYNTAX(lex_ctx->thr, "invalid range");
 					}
 					gen_range(userdata, start, ch, 0);
 					start = -1;

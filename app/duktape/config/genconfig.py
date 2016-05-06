@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 #
 #  Process Duktape option metadata and produce various useful outputs:
 #
@@ -60,6 +60,7 @@ allowed_use_meta_keys = [
 	'feature_enables',
 	'feature_disables',
 	'feature_snippet',
+	'feature_no_default',
 	'related_feature_defines',
 	'introduced',
 	'deprecated',
@@ -135,9 +136,10 @@ compiler_required_provides = [
 	# filled in with defaults (which are mostly compiler independent), so
 	# the requires define list is not very large.
 
-	'DUK_USE_COMPILER_STRING',  # must be #define'd
-	'DUK_USE_BRANCH_HINTS',     # may be #undef'd, as long as provided
-	'DUK_USE_VARIADIC_MACROS'   # may be #undef'd, as long as provided
+	'DUK_USE_COMPILER_STRING',    # must be #define'd
+	'DUK_USE_BRANCH_HINTS',       # may be #undef'd, as long as provided
+	'DUK_USE_VARIADIC_MACROS',    # may be #undef'd, as long as provided
+	'DUK_USE_UNION_INITIALIZERS'  # may be #undef'd, as long as provided
 ]
 
 #
@@ -616,7 +618,7 @@ def validate_platform_file(filename):
 		if req not in sn.provides:
 			raise Exception('Platform %s is missing %s' % (filename, req))
 
-	# DUK_USE_{SETJMP,UNDERSCORE_SETJMP,SIGSETJMP} are optional, fill-in
+	# DUK_SETJMP, DUK_LONGJMP, DUK_JMPBUF_TYPE are optional, fill-in
 	# provides if none defined.
 
 def validate_architecture_file(filename):
@@ -927,7 +929,7 @@ def add_override_defines_section(opts, ret):
 
 # Add automatic DUK_OPT_XXX and DUK_OPT_NO_XXX handling for backwards
 # compatibility with Duktape 1.2 and before.
-def add_feature_option_handling(opts, ret, forced_opts):
+def add_feature_option_handling(opts, ret, forced_opts, already_provided_keys):
 	ret.chdr_block_heading('Feature option handling')
 
 	for doc in get_use_defs(removed=False, deprecated=False, unused=False):
@@ -962,7 +964,18 @@ def add_feature_option_handling(opts, ret, forced_opts):
 				ret.line('#undef %s' % config_define)
 			ret.line('#else')
 			undef_done = False
-			emit_default_from_config_meta(ret, doc, forced_opts, undef_done)
+
+			# For some options like DUK_OPT_PACKED_TVAL the default comes
+			# from platform definition.
+			if doc.get('feature_no_default', False):
+				print('Skip default for option %s' % config_define)
+				ret.line('/* Already provided above */')
+			elif already_provided_keys.has_key(config_define):
+				# This is a fallback in case config option metadata is wrong.
+				print('Skip default for option %s (already provided but not flagged in metadata!)' % config_define)
+				ret.line('/* Already provided above */')
+			else:
+				emit_default_from_config_meta(ret, doc, forced_opts, undef_done)
 			ret.line('#endif')
 		elif doc.has_key('feature_snippet'):
 			ret.lines(doc['feature_snippet'])
@@ -1197,8 +1210,6 @@ def generate_duk_config_header(opts, meta_dir):
 		abs_fn = os.path.join(meta_dir, 'compilers', include)
 		validate_compiler_file(abs_fn)
 		sn = ret.snippet_absolute(abs_fn)
-		if sn.provides.get('DUK_USE_VARIADIC_MACROS', False):
-			ret.line('#define DUK_F_VARIADIC_MACROS_PROVIDED')  # signal to fillin
 	else:
 		ret.chdr_block_heading('Compiler autodetection')
 
@@ -1218,8 +1229,6 @@ def generate_duk_config_header(opts, meta_dir):
 					ret.line('#elif defined(%s)' % check)
 			ret.line('/* --- %s --- */' % comp.get('name', '???'))
 			sn = ret.snippet_absolute(abs_fn)
-			if sn.provides.get('DUK_USE_VARIADIC_MACROS', False):
-				ret.line('#define DUK_F_VARIADIC_MACROS_PROVIDED')  # signal to fillin
 		ret.line('#endif  /* autodetect compiler */')
 
 	ret.empty()
@@ -1294,7 +1303,8 @@ def generate_duk_config_header(opts, meta_dir):
 	# Automatic DUK_OPT_xxx feature option handling
 	if opts.support_feature_options:
 		print('Autogenerating feature option (DUK_OPT_xxx) support')
-		add_feature_option_handling(opts, ret, forced_opts)
+		tmp = Snippet(ret.join().split('\n'))
+		add_feature_option_handling(opts, ret, forced_opts, tmp.provides)
 
 	# Emit forced options.  If a corresponding option is already defined
 	# by a snippet above, #undef it first.

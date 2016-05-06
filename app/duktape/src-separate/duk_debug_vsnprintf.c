@@ -489,32 +489,32 @@ DUK_LOCAL void duk__print_hobject(duk__dprint_state *st, duk_hobject *h) {
 			;
 		}
 		if (DUK_HOBJECT_HAS_EXOTIC_ARRAY(h)) {
-			DUK__COMMA(); duk_fb_sprintf(fb, "__special_array:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__exotic_array:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_EXOTIC_STRINGOBJ(h)) {
-			DUK__COMMA(); duk_fb_sprintf(fb, "__special_stringobj:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__exotic_stringobj:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_EXOTIC_ARGUMENTS(h)) {
-			DUK__COMMA(); duk_fb_sprintf(fb, "__special_arguments:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__exotic_arguments:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_EXOTIC_DUKFUNC(h)) {
-			DUK__COMMA(); duk_fb_sprintf(fb, "__special_dukfunc:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__exotic_dukfunc:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_IS_BUFFEROBJECT(h)) {
-			DUK__COMMA(); duk_fb_sprintf(fb, "__special_bufferobj:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__exotic_bufferobj:true");
 		} else {
 			;
 		}
 		if (DUK_HOBJECT_HAS_EXOTIC_PROXYOBJ(h)) {
-			DUK__COMMA(); duk_fb_sprintf(fb, "__special_proxyobj:true");
+			DUK__COMMA(); duk_fb_sprintf(fb, "__exotic_proxyobj:true");
 		} else {
 			;
 		}
@@ -536,6 +536,7 @@ DUK_LOCAL void duk__print_hobject(duk__dprint_state *st, duk_hobject *h) {
 		DUK__COMMA(); duk_fb_sprintf(fb, "__func:");
 		duk_fb_put_funcptr(fb, (duk_uint8_t *) &f->func, sizeof(f->func));
 		DUK__COMMA(); duk_fb_sprintf(fb, "__nargs:%ld", (long) f->nargs);
+		DUK__COMMA(); duk_fb_sprintf(fb, "__magic:%ld", (long) f->magic);
 	} else if (st->internal && DUK_HOBJECT_IS_BUFFEROBJECT(h)) {
 		duk_hbufferobject *b = (duk_hbufferobject *) h;
 		DUK__COMMA(); duk_fb_sprintf(fb, "__buf:");
@@ -573,9 +574,15 @@ DUK_LOCAL void duk__print_hobject(duk__dprint_state *st, duk_hobject *h) {
 		DUK__COMMA(); duk_fb_sprintf(fb, "__class:%ld", (long) DUK_HOBJECT_GET_CLASS_NUMBER(h));
 	}
 
+	DUK__COMMA(); duk_fb_sprintf(fb, "__heapptr:%p", (void *) h);  /* own pointer */
+
 	/* prototype should be last, for readability */
-	if (st->follow_proto && DUK_HOBJECT_GET_PROTOTYPE(NULL, h)) {
-		DUK__COMMA(); duk_fb_put_cstring(fb, "__prototype:"); duk__print_hobject(st, DUK_HOBJECT_GET_PROTOTYPE(NULL, h));
+	if (DUK_HOBJECT_GET_PROTOTYPE(NULL, h)) {
+		if (st->follow_proto) {
+			DUK__COMMA(); duk_fb_put_cstring(fb, "__prototype:"); duk__print_hobject(st, DUK_HOBJECT_GET_PROTOTYPE(NULL, h));
+		} else {
+			DUK__COMMA(); duk_fb_sprintf(fb, "__prototype:%p", (void *) DUK_HOBJECT_GET_PROTOTYPE(NULL, h));
+		}
 	}
 
 	duk_fb_put_cstring(fb, brace2);

@@ -173,18 +173,16 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_context *ctx) {
 
 	thr->heap->lj.iserror = is_error;
 
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 	DUK_ASSERT(thr->heap->lj.jmpbuf_ptr != NULL);  /* call is from executor, so we know we have a jmpbuf */
-#endif
 	duk_err_longjmp(thr);  /* execution resumes in bytecode executor */
 	return 0;  /* never here */
 
  state_invalid_initial:
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "invalid initial thread state/stack");
+	DUK_ERROR_TYPE(thr, "invalid initial thread state/stack");
 	return 0;  /* never here */
 
  state_error:
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "invalid state for resume");
+	DUK_ERROR_TYPE(thr, "invalid state");
 	return 0;  /* never here */
 }
 
@@ -292,14 +290,12 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_yield(duk_context *ctx) {
 
 	thr->heap->lj.iserror = is_error;
 
-#if !defined(DUK_USE_CPP_EXCEPTIONS)
 	DUK_ASSERT(thr->heap->lj.jmpbuf_ptr != NULL);  /* call is from executor, so we know we have a jmpbuf */
-#endif
 	duk_err_longjmp(thr);  /* execution resumes in bytecode executor */
 	return 0;  /* never here */
 
  state_error:
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, "invalid state for yield");
+	DUK_ERROR_TYPE(thr, "invalid state");
 	return 0;  /* never here */
 }
 

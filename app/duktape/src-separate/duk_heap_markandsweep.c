@@ -143,7 +143,12 @@ DUK_LOCAL void duk__mark_heaphdr(duk_heap *heap, duk_heaphdr *h) {
 	if (!h) {
 		return;
 	}
-
+#if defined(DUK_USE_ROM_OBJECTS)
+	if (DUK_HEAPHDR_HAS_READONLY(h)) {
+		DUK_DDD(DUK_DDDPRINT("readonly object %p, skip", (void *) h));
+		return;
+	}
+#endif
 	if (DUK_HEAPHDR_HAS_REACHABLE(h)) {
 		DUK_DDD(DUK_DDDPRINT("already marked reachable, skip"));
 		return;
@@ -286,6 +291,7 @@ DUK_LOCAL void duk__mark_finalizable(duk_heap *heap) {
 			                   "finalized -> mark as finalizable "
 			                   "and treat as a reachability root: %p",
 			                   (void *) hdr));
+			DUK_ASSERT(!DUK_HEAPHDR_HAS_READONLY(hdr));
 			DUK_HEAPHDR_SET_FINALIZABLE(hdr);
 			count_finalizable ++;
 		}
@@ -721,8 +727,9 @@ DUK_LOCAL void duk__sweep_heap(duk_heap *heap, duk_int_t flags, duk_size_t *out_
 	curr = heap->heap_allocated;
 	heap->heap_allocated = NULL;
 	while (curr) {
-		/* strings are never placed on the heap allocated list */
+		/* Strings and ROM objects are never placed on the heap allocated list. */
 		DUK_ASSERT(DUK_HEAPHDR_GET_TYPE(curr) != DUK_HTYPE_STRING);
+		DUK_ASSERT(!DUK_HEAPHDR_HAS_READONLY(curr));
 
 		next = DUK_HEAPHDR_GET_NEXT(heap, curr);
 
@@ -752,6 +759,7 @@ DUK_LOCAL void duk__sweep_heap(duk_heap *heap, duk_int_t flags, duk_size_t *out_
 				DUK_HEAPHDR_SET_PREV(heap, curr, NULL);
 #endif
 				DUK_HEAPHDR_SET_NEXT(heap, curr, heap->finalize_list);
+				DUK_ASSERT_HEAPHDR_LINKS(heap, curr);
 				heap->finalize_list = curr;
 #ifdef DUK_USE_DEBUG
 				count_finalize++;
@@ -777,6 +785,7 @@ DUK_LOCAL void duk__sweep_heap(duk_heap *heap, duk_int_t flags, duk_size_t *out_
 					/*
 					 *  Plain, boring reachable object.
 					 */
+					DUK_DD(DUK_DDPRINT("keep object: %!iO", curr));
 					count_keep++;
 				}
 
@@ -789,6 +798,8 @@ DUK_LOCAL void duk__sweep_heap(duk_heap *heap, duk_int_t flags, duk_size_t *out_
 #ifdef DUK_USE_DOUBLE_LINKED_HEAP
 				DUK_HEAPHDR_SET_PREV(heap, curr, prev);
 #endif
+				DUK_ASSERT_HEAPHDR_LINKS(heap, prev);
+				DUK_ASSERT_HEAPHDR_LINKS(heap, curr);
 				prev = curr;
 			}
 
@@ -843,6 +854,7 @@ DUK_LOCAL void duk__sweep_heap(duk_heap *heap, duk_int_t flags, duk_size_t *out_
 	if (prev) {
 		DUK_HEAPHDR_SET_NEXT(heap, prev, NULL);
 	}
+	DUK_ASSERT_HEAPHDR_LINKS(heap, prev);
 
 #ifdef DUK_USE_DEBUG
 	DUK_D(DUK_DPRINT("mark-and-sweep sweep objects (non-string): %ld freed, %ld kept, %ld rescued, %ld queued for finalization",
@@ -877,6 +889,7 @@ DUK_LOCAL void duk__run_object_finalizers(duk_heap *heap, duk_small_uint_t flags
 		DUK_ASSERT(!DUK_HEAPHDR_HAS_TEMPROOT(curr));
 		DUK_ASSERT(!DUK_HEAPHDR_HAS_FINALIZABLE(curr));
 		DUK_ASSERT(!DUK_HEAPHDR_HAS_FINALIZED(curr));
+		DUK_ASSERT(!DUK_HEAPHDR_HAS_READONLY(curr));  /* No finalizers for ROM objects */
 
 		if (DUK_LIKELY((flags & DUK_MS_FLAG_SKIP_FINALIZERS) == 0)) {
 			/* Run the finalizer, duk_hobject_run_finalizer() sets FINALIZED.
@@ -1142,12 +1155,14 @@ DUK_INTERNAL duk_bool_t duk_heap_mark_and_sweep(duk_heap *heap, duk_small_uint_t
 	 * If we don't have a thread, the entire mark-and-sweep is now
 	 * skipped (although we could just skip finalizations).
 	 */
-	/* XXX: if thr != NULL, the thr may still be in the middle of
-	 * initialization; improve the thread viability test.
+
+	/* If thr != NULL, the thr may still be in the middle of
+	 * initialization.
+	 * XXX: Improve the thread viability test.
 	 */
 	thr = duk__get_temp_hthread(heap);
 	if (thr == NULL) {
-		DUK_D(DUK_DPRINT("temporary hack: gc skipped because we don't have a temp thread"));
+		DUK_D(DUK_DPRINT("gc skipped because we don't have a temp thread"));
 
 		/* reset voluntary gc trigger count */
 #ifdef DUK_USE_VOLUNTARY_GC
@@ -1155,6 +1170,22 @@ DUK_INTERNAL duk_bool_t duk_heap_mark_and_sweep(duk_heap *heap, duk_small_uint_t
 #endif
 		return 0;  /* OK */
 	}
+
+	/* If debugger is paused, garbage collection is disabled by default. */
+	/* XXX: will need a force flag if garbage collection is triggered
+	 * explicitly during paused state.
+	 */
+#if defined(DUK_USE_DEBUGGER_SUPPORT)
+	if (DUK_HEAP_IS_PAUSED(heap)) {
+		/* Checking this here rather that in memory alloc primitives
+		 * reduces checking code there but means a failed allocation
+		 * will go through a few retries before giving up.  That's
+		 * fine because this only happens during debugging.
+		 */
+		DUK_D(DUK_DPRINT("gc skipped because debugger is paused"));
+		return 0;
+	}
+#endif
 
 	DUK_D(DUK_DPRINT("garbage collect (mark-and-sweep) starting, requested flags: 0x%08lx, effective flags: 0x%08lx",
 	                 (unsigned long) flags, (unsigned long) (flags | heap->mark_and_sweep_base_flags)));

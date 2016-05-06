@@ -24,7 +24,8 @@ DUK_LOCAL void duk__init_object_parts(duk_heap *heap, duk_hobject *obj, duk_uint
 	DUK_HEAPHDR_SET_PREV(heap, &obj->hdr, NULL);
 #endif
 #endif
-        DUK_HEAP_INSERT_INTO_HEAP_ALLOCATED(heap, &obj->hdr);
+	DUK_ASSERT_HEAPHDR_LINKS(heap, &obj->hdr);
+	DUK_HEAP_INSERT_INTO_HEAP_ALLOCATED(heap, &obj->hdr);
 
 	/*
 	 *  obj->props is intentionally left as NULL, and duk_hobject_props.c must deal
@@ -184,7 +185,7 @@ DUK_INTERNAL duk_hthread *duk_hthread_alloc(duk_heap *heap, duk_uint_t hobject_f
 DUK_INTERNAL duk_hobject *duk_hobject_alloc_checked(duk_hthread *thr, duk_uint_t hobject_flags) {
 	duk_hobject *res = duk_hobject_alloc(thr->heap, hobject_flags);
 	if (!res) {
-		DUK_ERROR(thr, DUK_ERR_ALLOC_ERROR, "failed to allocate an object");
+		DUK_ERROR_ALLOC_DEFMSG(thr);
 	}
 	return res;
 }

@@ -22,7 +22,7 @@ DUK_INTERNAL duk_double_t duk_bi_date_get_now_gettimeofday(duk_context *ctx) {
 	duk_double_t d;
 
 	if (gettimeofday(&tv, NULL) != 0) {
-		DUK_ERROR(thr, DUK_ERR_INTERNAL_ERROR, "gettimeofday failed");
+		DUK_ERROR_INTERNAL_DEFMSG(thr);
 	}
 
 	d = ((duk_double_t) tv.tv_sec) * 1000.0 +
@@ -128,8 +128,6 @@ DUK_INTERNAL duk_int_t duk_bi_date_get_local_tzoffset_gmtime(duk_double_t d) {
 	DUK_ASSERT(d >= 0 && d < 2147483648.0 * 1000.0);  /* unsigned 31-bit range */
 	t = (time_t) (d / 1000.0);
 	DUK_DDD(DUK_DDDPRINT("timeval: %lf -> time_t %ld", (double) d, (long) t));
-
-	t1 = t;
 
 	DUK_MEMZERO((void *) tms, sizeof(struct tm) * 2);
 

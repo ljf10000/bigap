@@ -32,7 +32,9 @@
 #ifndef DUK_HOBJECT_H_INCLUDED
 #define DUK_HOBJECT_H_INCLUDED
 
-/* there are currently 26 flag bits available */
+/* Object flag.  There are currently 26 flag bits available.  Make sure
+ * this stays in sync with debugger object inspection code.
+ */
 #define DUK_HOBJECT_FLAG_EXTENSIBLE            DUK_HEAPHDR_USER_FLAG(0)   /* object is extensible */
 #define DUK_HOBJECT_FLAG_CONSTRUCTABLE         DUK_HEAPHDR_USER_FLAG(1)   /* object is constructable */
 #define DUK_HOBJECT_FLAG_BOUND                 DUK_HEAPHDR_USER_FLAG(2)   /* object established using Function.prototype.bind() */
@@ -53,7 +55,7 @@
 #define DUK_HOBJECT_FLAG_EXOTIC_DUKFUNC        DUK_HEAPHDR_USER_FLAG(18)  /* Duktape/C (nativefunction) object, exotic 'length' */
 #define DUK_HOBJECT_FLAG_EXOTIC_PROXYOBJ       DUK_HEAPHDR_USER_FLAG(19)  /* 'Proxy' object */
 
-#define DUK_HOBJECT_FLAG_CLASS_BASE            DUK_HEAPHDR_USER_FLAG_NUMBER(21)
+#define DUK_HOBJECT_FLAG_CLASS_BASE            DUK_HEAPHDR_USER_FLAG_NUMBER(20)
 #define DUK_HOBJECT_FLAG_CLASS_BITS            5
 
 #define DUK_HOBJECT_GET_CLASS_NUMBER(h)        \
@@ -274,6 +276,10 @@
                                                  DUK_PROPDESC_FLAG_ENUMERABLE | \
                                                  DUK_PROPDESC_FLAG_CONFIGURABLE)
 
+/* flags for duk_hobject_get_own_propdesc() and variants */
+#define DUK_GETDESC_FLAG_PUSH_VALUE          (1 << 0)  /* push value to stack */
+#define DUK_GETDESC_FLAG_IGNORE_PROTOLOOP    (1 << 1)  /* don't throw for prototype loop */
+
 /*
  *  Macro for object validity check
  *
@@ -456,7 +462,7 @@
 #error invalid hobject layout defines
 #endif  /* hobject property layout */
 
-#define DUK_HOBJECT_E_ALLOC_SIZE(h) \
+#define DUK_HOBJECT_P_ALLOC_SIZE(h) \
 	DUK_HOBJECT_P_COMPUTE_SIZE(DUK_HOBJECT_GET_ESIZE((h)), DUK_HOBJECT_GET_ASIZE((h)), DUK_HOBJECT_GET_HSIZE((h)))
 
 #define DUK_HOBJECT_E_GET_KEY(heap,h,i)              (DUK_HOBJECT_E_GET_KEY_BASE((heap), (h))[(i)])
@@ -835,6 +841,7 @@ DUK_INTERNAL_DECL void duk_hobject_find_existing_entry(duk_heap *heap, duk_hobje
 DUK_INTERNAL_DECL duk_tval *duk_hobject_find_existing_entry_tval_ptr(duk_heap *heap, duk_hobject *obj, duk_hstring *key);
 DUK_INTERNAL_DECL duk_tval *duk_hobject_find_existing_entry_tval_ptr_and_attrs(duk_heap *heap, duk_hobject *obj, duk_hstring *key, duk_int_t *out_attrs);
 DUK_INTERNAL_DECL duk_tval *duk_hobject_find_existing_array_entry_tval_ptr(duk_heap *heap, duk_hobject *obj, duk_uarridx_t i);
+DUK_INTERNAL_DECL duk_bool_t duk_hobject_get_own_propdesc(duk_hthread *thr, duk_hobject *obj, duk_hstring *key, duk_propdesc *out_desc, duk_small_uint_t flags);
 
 /* XXX: when optimizing for guaranteed property slots, use a guaranteed
  * slot for internal value; this call can then access it directly.

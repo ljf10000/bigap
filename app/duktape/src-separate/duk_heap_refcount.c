@@ -27,11 +27,14 @@ DUK_LOCAL void duk__queue_refzero(duk_heap *heap, duk_heaphdr *hdr) {
 		DUK_HEAPHDR_SET_NEXT(heap, hdr, NULL);
 		DUK_HEAPHDR_SET_PREV(heap, hdr, hdr_prev);
 		DUK_HEAPHDR_SET_NEXT(heap, hdr_prev, hdr);
+		DUK_ASSERT_HEAPHDR_LINKS(heap, hdr);
+		DUK_ASSERT_HEAPHDR_LINKS(heap, hdr_prev);
 		heap->refzero_list_tail = hdr;
 	} else {
 		DUK_ASSERT(heap->refzero_list_tail == NULL);
 		DUK_HEAPHDR_SET_NEXT(heap, hdr, NULL);
 		DUK_HEAPHDR_SET_PREV(heap, hdr, NULL);
+		DUK_ASSERT_HEAPHDR_LINKS(heap, hdr);
 		heap->refzero_list = hdr;
 		heap->refzero_list_tail = hdr;
 	}
@@ -350,8 +353,14 @@ DUK_LOCAL void duk__refzero_free_pending(duk_hthread *thr) {
 			DUK_ASSERT(!DUK_HEAPHDR_HAS_FINALIZABLE(h1));
 			DUK_ASSERT(DUK_HEAPHDR_HAS_FINALIZED(h1));
 			DUK_HEAPHDR_CLEAR_FINALIZED(h1);
+			h2 = heap->heap_allocated;
 			DUK_HEAPHDR_SET_PREV(heap, h1, NULL);
-			DUK_HEAPHDR_SET_NEXT(heap, h1, heap->heap_allocated);
+			if (h2) {
+				DUK_HEAPHDR_SET_PREV(heap, h2, h1);
+			}
+			DUK_HEAPHDR_SET_NEXT(heap, h1, h2);
+			DUK_ASSERT_HEAPHDR_LINKS(heap, h1);
+			DUK_ASSERT_HEAPHDR_LINKS(heap, h2);
 			heap->heap_allocated = h1;
 		} else {
 			/* no -> decref members, then free */
@@ -404,21 +413,33 @@ DUK_INTERNAL void duk_heaphdr_refzero(duk_hthread *thr, duk_heaphdr *h) {
 	DUK_DDD(DUK_DDDPRINT("refzero %p: %!O", (void *) h, (duk_heaphdr *) h));
 
 	/*
-	 *  If mark-and-sweep is running, don't process 'refzero' situations at all.
-	 *  They may happen because mark-and-sweep needs to finalize refcounts for
-	 *  each object it sweeps.  Otherwise the target objects of swept objects
-	 *  would have incorrect refcounts.
+	 *  Refzero handling is skipped entirely if (1) mark-and-sweep is
+	 *  running or (2) execution is paused in the debugger.  The objects
+	 *  are left in the heap, and will be freed by mark-and-sweep or
+	 *  eventual heap destruction.
+	 *
+	 *  This is necessary during mark-and-sweep because refcounts are also
+	 *  updated during the sweep phase (otherwise objects referenced by a
+	 *  swept object would have incorrect refcounts) which then calls here.
+	 *  This could be avoided by using separate decref macros in
+	 *  mark-and-sweep; however, mark-and-sweep also calls finalizers which
+	 *  would use the ordinary decref macros anyway and still call this
+	 *  function.
 	 *
 	 *  This check must be enabled also when mark-and-sweep support has been
 	 *  disabled: the flag is also used in heap destruction when running
 	 *  finalizers for remaining objects, and the flag prevents objects from
 	 *  being moved around in heap linked lists.
-	 *
-	 *  Note: mark-and-sweep could use a separate decref handler to avoid coming
-	 *  here at all.  However, mark-and-sweep may also call finalizers, which
-	 *  can do arbitrary operations and would use this decref variant anyway.
 	 */
+
+	/* XXX: ideally this would be just one flag (maybe a derived one) so
+	 * that a single bit test is sufficient to check the condition.
+	 */
+#if defined(DUK_USE_DEBUGGER_SUPPORT)
+	if (DUK_UNLIKELY(DUK_HEAP_HAS_MARKANDSWEEP_RUNNING(heap) || DUK_HEAP_IS_PAUSED(heap))) {
+#else
 	if (DUK_UNLIKELY(DUK_HEAP_HAS_MARKANDSWEEP_RUNNING(heap))) {
+#endif
 		DUK_DDD(DUK_DDDPRINT("refzero handling suppressed when mark-and-sweep running, object: %p", (void *) h));
 		return;
 	}
@@ -469,7 +490,7 @@ DUK_INTERNAL void duk_heaphdr_refzero(duk_hthread *thr, duk_heaphdr *h) {
 DUK_INTERNAL void duk_tval_incref(duk_tval *tv) {
 	DUK_ASSERT(tv != NULL);
 
-	if (DUK_TVAL_IS_HEAP_ALLOCATED(tv)) {
+	if (DUK_TVAL_NEEDS_REFCOUNT_UPDATE(tv)) {
 		duk_heaphdr *h = DUK_TVAL_GET_HEAPHDR(tv);
 		DUK_ASSERT(h != NULL);
 		DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(h));
@@ -484,7 +505,7 @@ DUK_INTERNAL void duk_tval_incref_allownull(duk_tval *tv) {
 	if (tv == NULL) {
 		return;
 	}
-	if (DUK_TVAL_IS_HEAP_ALLOCATED(tv)) {
+	if (DUK_TVAL_NEEDS_REFCOUNT_UPDATE(tv)) {
 		duk_heaphdr *h = DUK_TVAL_GET_HEAPHDR(tv);
 		DUK_ASSERT(h != NULL);
 		DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(h));
@@ -498,7 +519,7 @@ DUK_INTERNAL void duk_tval_decref(duk_hthread *thr, duk_tval *tv) {
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(tv != NULL);
 
-	if (DUK_TVAL_IS_HEAP_ALLOCATED(tv)) {
+	if (DUK_TVAL_NEEDS_REFCOUNT_UPDATE(tv)) {
 		duk_heaphdr *h = DUK_TVAL_GET_HEAPHDR(tv);
 		DUK_ASSERT(h != NULL);
 		DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(h));
@@ -513,7 +534,7 @@ DUK_INTERNAL void duk_tval_decref_allownull(duk_hthread *thr, duk_tval *tv) {
 	if (tv == NULL) {
 		return;
 	}
-	if (DUK_TVAL_IS_HEAP_ALLOCATED(tv)) {
+	if (DUK_TVAL_NEEDS_REFCOUNT_UPDATE(tv)) {
 		duk_heaphdr *h = DUK_TVAL_GET_HEAPHDR(tv);
 		DUK_ASSERT(h != NULL);
 		DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(h));
@@ -551,6 +572,11 @@ DUK_INTERNAL void duk_heaphdr_decref(duk_hthread *thr, duk_heaphdr *h) {
 	DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(h));
 	DUK_ASSERT(DUK_HEAPHDR_GET_REFCOUNT(h) >= 1);
 
+#if defined(DUK_USE_ROM_OBJECTS)
+	if (DUK_HEAPHDR_HAS_READONLY(h)) {
+		return;
+	}
+#endif
 	if (DUK_HEAPHDR_PREDEC_REFCOUNT(h) != 0) {
 		return;
 	}
@@ -564,10 +590,14 @@ DUK_INTERNAL void duk_heaphdr_decref_allownull(duk_hthread *thr, duk_heaphdr *h)
 	if (h == NULL) {
 		return;
 	}
-
 	DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(h));
-	DUK_ASSERT(DUK_HEAPHDR_GET_REFCOUNT(h) >= 1);
 
+#if defined(DUK_USE_ROM_OBJECTS)
+	if (DUK_HEAPHDR_HAS_READONLY(h)) {
+		return;
+	}
+#endif
+	DUK_ASSERT(DUK_HEAPHDR_GET_REFCOUNT(h) >= 1);
 	if (DUK_HEAPHDR_PREDEC_REFCOUNT(h) != 0) {
 		return;
 	}

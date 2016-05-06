@@ -403,7 +403,7 @@ DUK_EXTERNAL const char *duk_base64_encode(duk_context *ctx, duk_idx_t index) {
 	return ret;
 
  type_error:
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, DUK_STR_ENCODE_FAILED);
+	DUK_ERROR_TYPE(thr, DUK_STR_ENCODE_FAILED);
 	return NULL;  /* never here */
 }
 
@@ -448,7 +448,7 @@ DUK_EXTERNAL void duk_base64_decode(duk_context *ctx, duk_idx_t index) {
 	return;
 
  type_error:
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, DUK_STR_DECODE_FAILED);
+	DUK_ERROR_TYPE(thr, DUK_STR_DECODE_FAILED);
 }
 
 DUK_EXTERNAL const char *duk_hex_encode(duk_context *ctx, duk_idx_t index) {
@@ -473,7 +473,7 @@ DUK_EXTERNAL const char *duk_hex_encode(duk_context *ctx, duk_idx_t index) {
 	DUK_ASSERT(buf != NULL);
 
 #if defined(DUK_USE_HEX_FASTPATH)
-	DUK_ASSERT((((duk_uintptr_t) buf) & 0x01U) == 0);   /* pointer is aligned, guaranteed for fixed buffer */
+	DUK_ASSERT((((duk_size_t) buf) & 0x01U) == 0);   /* pointer is aligned, guaranteed for fixed buffer */
 	p16 = (duk_uint16_t *) (void *) buf;
 	len_safe = len & ~0x03U;
 	for (i = 0; i < len_safe; i += 4) {
@@ -588,7 +588,7 @@ DUK_EXTERNAL void duk_hex_decode(duk_context *ctx, duk_idx_t index) {
 	return;
 
  type_error:
-	DUK_ERROR(thr, DUK_ERR_TYPE_ERROR, DUK_STR_DECODE_FAILED);
+	DUK_ERROR_TYPE(thr, DUK_STR_DECODE_FAILED);
 }
 
 DUK_EXTERNAL const char *duk_json_encode(duk_context *ctx, duk_idx_t index) {

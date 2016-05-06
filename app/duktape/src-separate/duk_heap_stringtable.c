@@ -70,6 +70,7 @@ duk_hstring *duk__alloc_init_hstring(duk_heap *heap,
 		data[blen] = (duk_uint8_t) 0;
 	}
 
+	DUK_ASSERT(!DUK_HSTRING_HAS_ARRIDX(res));
 	if (duk_js_to_arrayindex_raw_string(str, blen, &dummy)) {
 		DUK_HSTRING_SET_ARRIDX(res);
 	}
@@ -81,22 +82,35 @@ duk_hstring *duk__alloc_init_hstring(duk_heap *heap,
 	 * (such as string has already been interned and has the 'internal'
 	 * flag set).
 	 */
+	DUK_ASSERT(!DUK_HSTRING_HAS_INTERNAL(res));
 	if (blen > 0 && str[0] == (duk_uint8_t) 0xff) {
 		DUK_HSTRING_SET_INTERNAL(res);
 	}
 
 	DUK_HSTRING_SET_HASH(res, strhash);
 	DUK_HSTRING_SET_BYTELEN(res, blen);
+
 	clen = (duk_uint32_t) duk_unicode_unvalidated_utf8_length(str, (duk_size_t) blen);
 	DUK_ASSERT(clen <= blen);
+#if defined(DUK_USE_HSTRING_CLEN)
 	DUK_HSTRING_SET_CHARLEN(res, clen);
+#endif
+
+	/* Using an explicit 'ASCII' flag has larger footprint (one call site
+	 * only) but is quite useful for the case when there's no explicit
+	 * 'clen' in duk_hstring.
+	 */
+	DUK_ASSERT(!DUK_HSTRING_HAS_ASCII(res));
+	if (clen == blen) {
+		DUK_HSTRING_SET_ASCII(res);
+	}
 
 	DUK_DDD(DUK_DDDPRINT("interned string, hash=0x%08lx, blen=%ld, clen=%ld, has_arridx=%ld, has_extdata=%ld",
 	                     (unsigned long) DUK_HSTRING_GET_HASH(res),
 	                     (long) DUK_HSTRING_GET_BYTELEN(res),
 	                     (long) DUK_HSTRING_GET_CHARLEN(res),
-	                     (long) DUK_HSTRING_HAS_ARRIDX(res) ? 1 : 0,
-	                     (long) DUK_HSTRING_HAS_EXTDATA(res) ? 1 : 0));
+	                     (long) (DUK_HSTRING_HAS_ARRIDX(res) ? 1 : 0),
+	                     (long) (DUK_HSTRING_HAS_EXTDATA(res) ? 1 : 0)));
 
 	return res;
 
@@ -847,7 +861,7 @@ DUK_LOCAL duk_hstring *duk__do_intern(duk_heap *heap, const duk_uint8_t *str, du
 #endif
 
 #if defined(DUK_USE_HSTRING_EXTDATA) && defined(DUK_USE_EXTSTR_INTERN_CHECK)
-	extdata = (const duk_uint8_t *) DUK_USE_EXTSTR_INTERN_CHECK(heap->heap_udata, (void *) str, (duk_size_t) blen);
+	extdata = (const duk_uint8_t *) DUK_USE_EXTSTR_INTERN_CHECK(heap->heap_udata, (void *) DUK_LOSE_CONST(str), (duk_size_t) blen);
 #else
 	extdata = (const duk_uint8_t *) NULL;
 #endif
@@ -891,6 +905,27 @@ DUK_LOCAL duk_hstring *duk__do_lookup(duk_heap *heap, const duk_uint8_t *str, du
 	DUK_ASSERT(out_strhash);
 
 	*out_strhash = duk_heap_hashstring(heap, str, (duk_size_t) blen);
+
+#if defined(DUK_USE_ROM_STRINGS)
+	{
+		duk_small_uint_t i;
+		/* XXX: This is VERY inefficient now, and should be e.g. a
+		 * binary search or perfect hash, to be fixed.
+		 */
+		for (i = 0; i < (duk_small_uint_t) (sizeof(duk_rom_strings) / sizeof(duk_hstring *)); i++) {
+			duk_hstring *romstr;
+			romstr = (duk_hstring *) DUK_LOSE_CONST(duk_rom_strings[i]);
+			if (blen == DUK_HSTRING_GET_BYTELEN(romstr) &&
+			    DUK_MEMCMP((const void *) str, (const void *) DUK_HSTRING_GET_DATA(romstr), blen) == 0) {
+				DUK_DD(DUK_DDPRINT("intern check: rom string: %!O, computed hash 0x%08lx, rom hash 0x%08lx",
+				                   romstr, (unsigned long) *out_strhash, (unsigned long) DUK_HSTRING_GET_HASH(romstr)));
+				DUK_ASSERT(*out_strhash == DUK_HSTRING_GET_HASH(romstr));
+				*out_strhash = DUK_HSTRING_GET_HASH(romstr);
+				return romstr;
+			}
+		}
+	}
+#endif  /* DUK_USE_ROM_STRINGS */
 
 #if defined(DUK_USE_STRTAB_CHAIN)
 	res = duk__find_matching_string_chain(heap, str, blen, *out_strhash);
@@ -942,7 +977,7 @@ DUK_INTERNAL duk_hstring *duk_heap_string_intern(duk_heap *heap, const duk_uint8
 DUK_INTERNAL duk_hstring *duk_heap_string_intern_checked(duk_hthread *thr, const duk_uint8_t *str, duk_uint32_t blen) {
 	duk_hstring *res = duk_heap_string_intern(thr->heap, str, blen);
 	if (!res) {
-		DUK_ERROR(thr, DUK_ERR_ALLOC_ERROR, "failed to intern string");
+		DUK_ERROR_ALLOC_DEFMSG(thr);
 	}
 	return res;
 }
@@ -968,7 +1003,7 @@ DUK_INTERNAL duk_hstring *duk_heap_string_intern_u32(duk_heap *heap, duk_uint32_
 DUK_INTERNAL duk_hstring *duk_heap_string_intern_u32_checked(duk_hthread *thr, duk_uint32_t val) {
 	duk_hstring *res = duk_heap_string_intern_u32(thr->heap, val);
 	if (!res) {
-		DUK_ERROR(thr, DUK_ERR_ALLOC_ERROR, "failed to intern string");
+		DUK_ERROR_ALLOC_DEFMSG(thr);
 	}
 	return res;
 }

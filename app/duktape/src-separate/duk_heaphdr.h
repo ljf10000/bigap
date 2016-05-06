@@ -76,6 +76,7 @@ struct duk_heaphdr_string {
 #if defined(DUK_USE_REFERENCE_COUNTING)
 #if defined(DUK_USE_REFCOUNT16)
 	duk_uint16_t h_refcount16;
+	duk_uint16_t h_strextra16;  /* round out to 8 bytes */
 #else
 	duk_size_t h_refcount;
 #endif
@@ -86,8 +87,8 @@ struct duk_heaphdr_string {
 #define DUK_HEAPHDR_FLAGS_FLAG_MASK      (~DUK_HEAPHDR_FLAGS_TYPE_MASK)
 
                                              /* 2 bits for heap type */
-#define DUK_HEAPHDR_FLAGS_HEAP_START     2   /* 4 heap flags */
-#define DUK_HEAPHDR_FLAGS_USER_START     6   /* 26 user flags */
+#define DUK_HEAPHDR_FLAGS_HEAP_START     2   /* 5 heap flags */
+#define DUK_HEAPHDR_FLAGS_USER_START     7   /* 25 user flags */
 
 #define DUK_HEAPHDR_HEAP_FLAG_NUMBER(n)  (DUK_HEAPHDR_FLAGS_HEAP_START + (n))
 #define DUK_HEAPHDR_USER_FLAG_NUMBER(n)  (DUK_HEAPHDR_FLAGS_USER_START + (n))
@@ -98,6 +99,7 @@ struct duk_heaphdr_string {
 #define DUK_HEAPHDR_FLAG_TEMPROOT        DUK_HEAPHDR_HEAP_FLAG(1)  /* mark-and-sweep: children not processed */
 #define DUK_HEAPHDR_FLAG_FINALIZABLE     DUK_HEAPHDR_HEAP_FLAG(2)  /* mark-and-sweep: finalizable (on current pass) */
 #define DUK_HEAPHDR_FLAG_FINALIZED       DUK_HEAPHDR_HEAP_FLAG(3)  /* mark-and-sweep: finalized (on previous pass) */
+#define DUK_HEAPHDR_FLAG_READONLY        DUK_HEAPHDR_HEAP_FLAG(4)  /* read-only object, in code section */
 
 #define DUK_HTYPE_MIN                    1
 #define DUK_HTYPE_STRING                 1
@@ -208,6 +210,10 @@ struct duk_heaphdr_string {
 #define DUK_HEAPHDR_CLEAR_FINALIZED(h)    DUK_HEAPHDR_CLEAR_FLAG_BITS((h),DUK_HEAPHDR_FLAG_FINALIZED)
 #define DUK_HEAPHDR_HAS_FINALIZED(h)      DUK_HEAPHDR_CHECK_FLAG_BITS((h),DUK_HEAPHDR_FLAG_FINALIZED)
 
+#define DUK_HEAPHDR_SET_READONLY(h)       DUK_HEAPHDR_SET_FLAG_BITS((h),DUK_HEAPHDR_FLAG_READONLY)
+#define DUK_HEAPHDR_CLEAR_READONLY(h)     DUK_HEAPHDR_CLEAR_FLAG_BITS((h),DUK_HEAPHDR_FLAG_READONLY)
+#define DUK_HEAPHDR_HAS_READONLY(h)       DUK_HEAPHDR_CHECK_FLAG_BITS((h),DUK_HEAPHDR_FLAG_READONLY)
+
 /* get or set a range of flags; m=first bit number, n=number of bits */
 #define DUK_HEAPHDR_GET_FLAG_RANGE(h,m,n)  (((h)->h_flags >> (m)) & ((1UL << (n)) - 1UL))
 
@@ -232,6 +238,27 @@ struct duk_heaphdr_string {
 #define DUK_HEAPHDR_STRING_INIT_NULLS(h)  /* currently nop */
 
 /*
+ *  Assert helpers
+ */
+
+/* Check that prev/next links are consistent: if e.g. h->prev is != NULL,
+ * h->prev->next should point back to h.
+ */
+#if defined(DUK_USE_DOUBLE_LINKED_HEAP) && defined(DUK_USE_ASSERTIONS)
+#define DUK_ASSERT_HEAPHDR_LINKS(heap,h) do { \
+		if ((h) != NULL) { \
+			duk_heaphdr *h__prev, *h__next; \
+			h__prev = DUK_HEAPHDR_GET_PREV((heap), (h)); \
+			h__next = DUK_HEAPHDR_GET_NEXT((heap), (h)); \
+			DUK_ASSERT(h__prev == NULL || (DUK_HEAPHDR_GET_NEXT((heap), h__prev) == (h))); \
+			DUK_ASSERT(h__next == NULL || (DUK_HEAPHDR_GET_PREV((heap), h__next) == (h))); \
+		} \
+	} while (0)
+#else
+#define DUK_ASSERT_HEAPHDR_LINKS(heap,h) do {} while (0)
+#endif
+
+/*
  *  Reference counting helper macros.  The macros take a thread argument
  *  and must thus always be executed in a specific thread context.  The
  *  thread argument is needed for features like finalization.  Currently
@@ -244,6 +271,20 @@ struct duk_heaphdr_string {
 
 #if defined(DUK_USE_REFERENCE_COUNTING)
 
+#if defined(DUK_USE_ROM_OBJECTS)
+/* With ROM objects "needs refcount update" is true when the value is
+ * heap allocated and is not a ROM object.
+ */
+/* XXX: double evaluation for 'tv' argument. */
+#define DUK_TVAL_NEEDS_REFCOUNT_UPDATE(tv) \
+	(DUK_TVAL_IS_HEAP_ALLOCATED((tv)) && !DUK_HEAPHDR_HAS_READONLY(DUK_TVAL_GET_HEAPHDR((tv))))
+#define DUK_HEAPHDR_NEEDS_REFCOUNT_UPDATE(h)  (!DUK_HEAPHDR_HAS_READONLY((h)))
+#else  /* DUK_USE_ROM_OBJECTS */
+/* Without ROM objects "needs refcount update" == is heap allocated. */
+#define DUK_TVAL_NEEDS_REFCOUNT_UPDATE(tv)    DUK_TVAL_IS_HEAP_ALLOCATED((tv))
+#define DUK_HEAPHDR_NEEDS_REFCOUNT_UPDATE(h)  1
+#endif  /* DUK_USE_ROM_OBJECTS */
+
 /* Fast variants, inline refcount operations except for refzero handling.
  * Can be used explicitly when speed is always more important than size.
  * For a good compiler and a single file build, these are basically the
@@ -252,7 +293,7 @@ struct duk_heaphdr_string {
 #define DUK_TVAL_INCREF_FAST(thr,tv) do { \
 		duk_tval *duk__tv = (tv); \
 		DUK_ASSERT(duk__tv != NULL); \
-		if (DUK_TVAL_IS_HEAP_ALLOCATED(duk__tv)) { \
+		if (DUK_TVAL_NEEDS_REFCOUNT_UPDATE(duk__tv)) { \
 			duk_heaphdr *duk__h = DUK_TVAL_GET_HEAPHDR(duk__tv); \
 			DUK_ASSERT(duk__h != NULL); \
 			DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(duk__h)); \
@@ -262,7 +303,7 @@ struct duk_heaphdr_string {
 #define DUK_TVAL_DECREF_FAST(thr,tv) do { \
 		duk_tval *duk__tv = (tv); \
 		DUK_ASSERT(duk__tv != NULL); \
-		if (DUK_TVAL_IS_HEAP_ALLOCATED(duk__tv)) { \
+		if (DUK_TVAL_NEEDS_REFCOUNT_UPDATE(duk__tv)) { \
 			duk_heaphdr *duk__h = DUK_TVAL_GET_HEAPHDR(duk__tv); \
 			DUK_ASSERT(duk__h != NULL); \
 			DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(duk__h)); \
@@ -276,15 +317,19 @@ struct duk_heaphdr_string {
 		duk_heaphdr *duk__h = (duk_heaphdr *) (h); \
 		DUK_ASSERT(duk__h != NULL); \
 		DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(duk__h)); \
-		DUK_HEAPHDR_PREINC_REFCOUNT(duk__h); \
+		if (DUK_HEAPHDR_NEEDS_REFCOUNT_UPDATE(duk__h)) { \
+			DUK_HEAPHDR_PREINC_REFCOUNT(duk__h); \
+		} \
 	} while (0)
 #define DUK_HEAPHDR_DECREF_FAST(thr,h) do { \
 		duk_heaphdr *duk__h = (duk_heaphdr *) (h); \
 		DUK_ASSERT(duk__h != NULL); \
 		DUK_ASSERT(DUK_HEAPHDR_HTYPE_VALID(duk__h)); \
 		DUK_ASSERT(DUK_HEAPHDR_GET_REFCOUNT(duk__h) > 0); \
-		if (DUK_HEAPHDR_PREDEC_REFCOUNT(duk__h) == 0) { \
-			duk_heaphdr_refzero((thr), duk__h); \
+		if (DUK_HEAPHDR_NEEDS_REFCOUNT_UPDATE(duk__h)) { \
+			if (DUK_HEAPHDR_PREDEC_REFCOUNT(duk__h) == 0) { \
+				duk_heaphdr_refzero((thr), duk__h); \
+			} \
 		} \
 	} while (0)
 
@@ -427,6 +472,9 @@ struct duk_heaphdr_string {
 		DUK_TVAL_SET_FASTINT_U32(tv__dst, (newval)); \
 		DUK_TVAL_DECREF((thr), &tv__tmp);  /* side effects */ \
 	} while (0)
+#else
+#define DUK_TVAL_SET_DOUBLE_CAST_UPDREF(thr,tvptr_dst,newval) \
+	DUK_TVAL_SET_DOUBLE_UPDREF((thr), (tvptr_dst), (duk_double_t) (newval))
 #endif  /* DUK_USE_FASTINT */
 
 #define DUK_TVAL_SET_LIGHTFUNC_UPDREF_ALT0(thr,tvptr_dst,lf_v,lf_fp,lf_flags) do { \
@@ -491,7 +539,7 @@ struct duk_heaphdr_string {
 		duk_tval *tv__dst, *tv__src; duk_heaphdr *h__obj; \
 		tv__dst = (tvptr_dst); tv__src = (tvptr_src); \
 		DUK_TVAL_INCREF_FAST((thr), tv__src); \
-		if (DUK_TVAL_IS_HEAP_ALLOCATED(tv__dst)) { \
+		if (DUK_TVAL_NEEDS_REFCOUNT_UPDATE(tv__dst)) { \
 			h__obj = DUK_TVAL_GET_HEAPHDR(tv__dst); \
 			DUK_ASSERT(h__obj != NULL); \
 			DUK_TVAL_SET_TVAL(tv__dst, tv__src); \
@@ -514,6 +562,10 @@ struct duk_heaphdr_string {
 #define DUK_TVAL_SET_FASTINT_UPDREF           DUK_TVAL_SET_FASTINT_UPDREF_ALT0
 #define DUK_TVAL_SET_FASTINT_I32_UPDREF       DUK_TVAL_SET_FASTINT_I32_UPDREF_ALT0
 #define DUK_TVAL_SET_FASTINT_U32_UPDREF       DUK_TVAL_SET_FASTINT_U32_UPDREF_ALT0
+#else
+#define DUK_TVAL_SET_FASTINT_UPDREF           DUK_TVAL_SET_DOUBLE_CAST_UPDREF  /* XXX: fast int-to-double */
+#define DUK_TVAL_SET_FASTINT_I32_UPDREF       DUK_TVAL_SET_DOUBLE_CAST_UPDREF
+#define DUK_TVAL_SET_FASTINT_U32_UPDREF       DUK_TVAL_SET_DOUBLE_CAST_UPDREF
 #endif  /* DUK_USE_FASTINT */
 #define DUK_TVAL_SET_LIGHTFUNC_UPDREF         DUK_TVAL_SET_LIGHTFUNC_UPDREF_ALT0
 #define DUK_TVAL_SET_STRING_UPDREF            DUK_TVAL_SET_STRING_UPDREF_ALT0
@@ -624,6 +676,9 @@ struct duk_heaphdr_string {
 		DUK_TVAL_SET_FASTINT_U32(tv__dst, (newval)); \
 		DUK_UNREF((thr)); \
 	} while (0)
+#else
+#define DUK_TVAL_SET_DOUBLE_CAST_UPDREF(thr,tvptr_dst,newval) \
+	DUK_TVAL_SET_DOUBLE_UPDREF((thr), (tvptr_dst), (duk_double_t) (newval))
 #endif  /* DUK_USE_FASTINT */
 
 #define DUK_TVAL_SET_LIGHTFUNC_UPDREF_ALT0(thr,tvptr_dst,lf_v,lf_fp,lf_flags) do { \
@@ -675,6 +730,10 @@ struct duk_heaphdr_string {
 #define DUK_TVAL_SET_FASTINT_UPDREF           DUK_TVAL_SET_FASTINT_UPDREF_ALT0
 #define DUK_TVAL_SET_FASTINT_I32_UPDREF       DUK_TVAL_SET_FASTINT_I32_UPDREF_ALT0
 #define DUK_TVAL_SET_FASTINT_U32_UPDREF       DUK_TVAL_SET_FASTINT_U32_UPDREF_ALT0
+#else
+#define DUK_TVAL_SET_FASTINT_UPDREF           DUK_TVAL_SET_DOUBLE_CAST_UPDREF  /* XXX: fast-int-to-double */
+#define DUK_TVAL_SET_FASTINT_I32_UPDREF       DUK_TVAL_SET_DOUBLE_CAST_UPDREF
+#define DUK_TVAL_SET_FASTINT_U32_UPDREF       DUK_TVAL_SET_DOUBLE_CAST_UPDREF
 #endif  /* DUK_USE_FASTINT */
 #define DUK_TVAL_SET_LIGHTFUNC_UPDREF         DUK_TVAL_SET_LIGHTFUNC_UPDREF_ALT0
 #define DUK_TVAL_SET_STRING_UPDREF            DUK_TVAL_SET_STRING_UPDREF_ALT0
