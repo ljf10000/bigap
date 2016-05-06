@@ -537,12 +537,6 @@ is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
     
     __haee_md5(env, e, md5);
 
-    haenv_debug("env[%d] offset==>0x%x md5", 
-        env->id, 
-        hae_offsetof(env, e));
-    os_dump_line(0, md5, 16, NULL);
-    os_dump_line(0, e->md5, 16, NULL);
-    
     return md5_eq(md5, e->md5);
 }
 
