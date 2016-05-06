@@ -11,10 +11,43 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 OS_INITER;
 
 static int
+__load(bool check)
+{
+    int err;
+    
+    err = haenv_load();
+    if (err<0) {
+        return err;
+    }
+
+    if (check) {
+        err = haenv_check();
+        if (err<0) {
+            os_eprintln("check error:%d", err);
+            
+            err = haenv_repaire();
+            if (err<0) {
+                os_eprintln("repaire error:%d", err);
+                
+                return err;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+
+static int
 cmd_init(int argc, char *argv[])
 {
     int err;
 
+    err = __load(true);
+    if (err<0) {
+        return err;
+    }
+    
     err = haenv_gc(false);
     if (err<0) {
         os_eprintln("gc error:%d", err);
@@ -35,6 +68,13 @@ cmd_init(int argc, char *argv[])
 static int
 cmd_gc(int argc, char *argv[])
 {
+    int err;
+    
+    err = __load(true);
+    if (err<0) {
+        return err;
+    }
+    
     return haenv_gc(true);
 }
 
@@ -43,6 +83,11 @@ cmd_get(int argc, char *argv[])
 {
     char *k = argv[1];
     int err = 0;
+    
+    err = __load(true);
+    if (err<0) {
+        return err;
+    }
 
     haenv_entry_t *e = haenv_find(k);
     if (NULL==e) {
@@ -60,6 +105,11 @@ cmd_set(int argc, char *argv[])
     char *k = argv[1];
     char *v = argv[2];
     int err = 0;
+    
+    err = __load(true);
+    if (err<0) {
+        return err;
+    }
     
     err = haenv_append(k, v);
     if (err<0) {
@@ -89,6 +139,11 @@ static int
 cmd_clean(int argc, char *argv[])
 {
     int err;
+    
+    err = __load(false);
+    if (err<0) {
+        return err;
+    }
 
     err = haenv_clean();
     if (err<0) {
@@ -163,31 +218,6 @@ __fini(void)
     return haenv_fini();
 }
 
-static int
-__handle(int argc, char *argv[])
-{
-    int err;
-    
-    err = haenv_load();
-    if (err<0) {
-        return err;
-    }
-    
-    err = haenv_check();
-    if (err<0) {
-        os_eprintln("check error:%d", err);
-        
-        err = haenv_repaire();
-        if (err<0) {
-            os_eprintln("repaire error:%d", err);
-            
-            return err;
-        }
-    }
-    
-    return cmd_handle(cmd, argc, argv, usage);
-}
-
 /*
 * cmd have enabled when boot
 */
@@ -197,7 +227,7 @@ __main(int argc, char *argv[])
     int err;
 
     haenv_lock();
-    err = __handle(argc, argv);
+    err = cmd_handle(cmd, argc, argv, usage);
     haenv_unlock();
 
     return err;
