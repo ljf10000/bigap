@@ -496,7 +496,7 @@ __is_good_haee(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_empty_haee(haenv_entry_t *e)
 {
-    return os_memeq(&haenv()->zero, e);
+    return os_objeq(&haenv()->zero, e);
 }
 
 static inline bool
