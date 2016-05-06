@@ -500,6 +500,12 @@ __is_good_haee(haenv_t *env, haenv_entry_t *e)
     return e >= hae_first(env) && haee_next(e) <= hae_end(env);
 }
 
+static inline bool
+__is_good_empty_haee(haenv_t *env, haenv_entry_t *e)
+{
+    return e >= hae_first(env) && ((haenv_entry_t *)e->data) < hae_end(env);
+}
+
 static inline byte *
 __haee_md5_begin(haenv_entry_t *e)
 {
@@ -614,10 +620,12 @@ static inline haenv_entry_t *
 hae_empty(haenv_t *env)
 {
     haenv_entry_t *e = (haenv_entry_t *)(env->mirror + env->unsaved);
-
-    haenv_debug("0x%x", hae_offsetof(env, e));
     
-    return __is_good_haee(env, e)?e:NULL;
+    haenv_debug("env[%d] empty offset==>0x%x", 
+        env->id, 
+        hae_offsetof(env, e));
+
+    return __is_good_empty_haee(env, e)?e:NULL;
 }
 
 static inline haenv_t *
@@ -750,7 +758,6 @@ hae_find(haenv_t *env, char *k)
 static inline haenv_entry_t *
 hae_append(haenv_t *env, char *k, char *v)
 {
-    haenv_debug("...");
     haenv_entry_t *e = hae_empty(env);
     if (NULL==e) {
         return NULL;
@@ -919,7 +926,6 @@ static inline int
 haenv_append(char *k, char *v)
 {
     int i, err;
-    haenv_debug("...");
     
     haenv_seq++;
     
