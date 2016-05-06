@@ -191,6 +191,10 @@ static int
 __main(int argc, char *argv[])
 {
     int err;
+
+    haenv_entry_t e = {{0xff}};
+
+    os_dump_line(0, &e, sizeof(e), NULL);
     
     haenv_lock();
     err = __handle(argc, argv);

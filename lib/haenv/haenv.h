@@ -178,8 +178,6 @@ typedef struct {
 
 #define HAENV_ZERO16                ((HAENV_ZERO<<8) | HAENV_ZERO)
 #define HAENV_ZERO32                ((HAENV_ZERO16<<16) | HAENV_ZERO16)
-#define HAENV_KLEN_ZERO             HAENV_ZERO
-#define HAENV_VLEN_ZERO             HAENV_ZERO16
 
 #define HAENV_SZERO2                HAENV_SZERO     HAENV_SZERO
 #define HAENV_SZERO4                HAENV_SZERO2    HAENV_SZERO2
@@ -508,8 +506,11 @@ __is_good_haee(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_empty_haee(haenv_entry_t *e)
 {
-    return HAENV_KLEN_ZERO==e->klen
-        && HAENV_VLEN_ZERO==e->vlen
+    
+    return HAENV_ZERO==e->flag
+        && HAENV_ZERO==e->klen
+        && HAENV_ZERO16==e->vlen
+        && HAENV_ZERO32==e->seq
         && md5_eq((byte *)HAENV_SZERO16, e->md5);
 }
 
