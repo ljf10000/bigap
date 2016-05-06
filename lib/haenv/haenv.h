@@ -487,6 +487,32 @@ hae_end(haenv_t *env)
     return (haenv_entry_t *)(env->mirror + HAENV_SIZE);
 }
 
+static inline byte *
+haee_md5_begin(haenv_entry_t *e)
+{
+    return &e->md5[16];
+}
+
+static inline uint32
+haee_md5_size(haenv_entry_t *e)
+{
+    return haee_size(e) - 16;
+}
+
+static inline void
+__haee_md5(haenv_t *env, haenv_entry_t *e, byte md5[16])
+{
+    md5_content_t ctx;
+    
+    md5_encode(&ctx, md5, haee_md5_begin(e), haee_md5_size(e));
+}
+
+static inline void
+haee_md5(haenv_t *env, haenv_entry_t *e)
+{
+    __haee_md5(env, e, e->md5);
+}
+
 static inline bool
 __is_good_haee(haenv_t *env, haenv_entry_t *e)
 {
@@ -507,26 +533,6 @@ is_good_empty_haee(haenv_t *env, haenv_entry_t *e)
         && ((haenv_entry_t *)(e->data + 2*sizeof(uint32))) < hae_end(env);
 }
 
-static inline byte *
-__haee_md5_begin(haenv_entry_t *e)
-{
-    return &e->md5[16];
-}
-
-static inline uint32
-__haee_md5_size(haenv_entry_t *e)
-{
-    return haee_size(e) - 16;
-}
-
-static inline void
-__haee_md5(haenv_t *env, haenv_entry_t *e, byte md5[16])
-{
-    md5_content_t ctx;
-    
-    md5_encode(&ctx, md5, __haee_md5_begin(e), __haee_md5_size(e));
-}
-
 static inline bool
 is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
 {
@@ -541,12 +547,6 @@ is_good_haee_md5(haenv_t *env, haenv_entry_t *e)
     os_dump_line(0, e->md5, 16, NULL);
     
     return md5_eq(md5, e->md5);
-}
-
-static inline void
-haee_md5(haenv_t *env, haenv_entry_t *e)
-{
-    __haee_md5(env, e, e->md5);
 }
 
 static inline bool
@@ -577,6 +577,7 @@ haee_set(haenv_t *env, haenv_entry_t *e, char *k, char *v)
         e->klen = os_strlen(k);
         e->vlen = os_strlen(v);
         e->seq  = haenv_seq;
+        e->flag = 0;
         
         os_strmcpy(haee_key(e), k, e->klen);
         os_strmcpy(haee_value(e), v, e->vlen);
