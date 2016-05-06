@@ -3,13 +3,6 @@
 #include "utils.h"
 #if defined(__BOOT__) || defined(__APP__)
 /******************************************************************************/
-#define HAENV_DEBUG_SORT            0x01
-#define HAENV_DEBUG_CMP             0x02
-
-#ifndef HAENV_DEBUG
-#define HAENV_DEBUG                 0 //(HAENV_DEBUG_SORT | HAENV_DEBUG_CMP)
-#endif
-
 #ifndef HAENV_COUNT
 #define HAENV_COUNT                 4
 #endif
@@ -171,6 +164,19 @@ typedef struct {
     
     char data[0];
 } haenv_entry_t;
+
+#ifndef HAENV_ZERO
+#define HAENV_ZERO                  0xff
+#endif
+
+#ifndef HAENV_SZERO
+#define HAENV_SZERO                 "\xff"
+#endif
+
+#define HAENV_SZERO2                HAENV_SZERO     HAENV_SZERO
+#define HAENV_SZERO4                HAENV_SZERO2    HAENV_SZERO2
+#define HAENV_SZERO8                HAENV_SZERO4    HAENV_SZERO4
+#define HAENV_SZERO16               HAENV_SZERO8    HAENV_SZERO8
 
 typedef struct {    
     char mirror[HAENV_SIZE];
@@ -398,7 +404,7 @@ haee_kpad_zero(haenv_entry_t *e)
 {
     char *pad = haee_kpad(e);
     if (pad) {
-        os_memzero(pad, haee_kpad_len(e));
+        os_memset(pad, HAENV_ZERO, haee_kpad_len(e));
     }
 }
 
@@ -438,7 +444,7 @@ haee_vpad_zero(haenv_entry_t *e)
 {
     char *pad = haee_vpad(e);
     if (pad) {
-        os_memzero(pad, haee_vpad_len(e));
+        os_memset(pad, HAENV_ZERO, haee_vpad_len(e));
     }
 }
 
@@ -536,9 +542,7 @@ is_good_haee(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_empty_haee(haenv_entry_t *e)
 {
-    byte zero[16] = {0};
-    
-    return 0==e->klen && 0==e->vlen && md5_eq(zero, e->md5);
+    return md5_eq(HAENV_SZERO16, e->md5);
 }
 
 static inline int
@@ -1030,9 +1034,16 @@ haenv_init(void)
         return err;
     }
     haenv_debug("create sem");
+#else /* __BOOT__ */
+    __THIS_HAENV = (haenv_file_t *)os_zalloc(haenv_file_t);
+    if (NULL==__THIS_HAENV) {
+        return -ENOMEM;
+    }
 #endif
 
     haenv_foreach(i, env) {
+        os_memset(env->mirror, HAENV_ZERO, sizeof(env->mirror));
+
         env->f      = f;
         env->id     = (uint32)i;
         env->start  = HAENV_START + i*HAENV_SIZE;
