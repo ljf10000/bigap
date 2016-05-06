@@ -111,6 +111,11 @@ cmd_set(int argc, char *argv[])
         return err;
     }
 
+    err = haenv_gc(false);
+    if (err<0) {
+        return err;
+    }
+    
     haenv_entry_t *e = haenv_find(k);
     if (e && os_streq(v, haee_value(e))) {
         return 0;
