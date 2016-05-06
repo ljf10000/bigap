@@ -86,13 +86,13 @@ cmd_set(int argc, char *argv[])
 }
 
 static int
-cmd_erase(int argc, char *argv[])
+cmd_clean(int argc, char *argv[])
 {
     int err;
 
-    err = haenv_erase();
+    err = haenv_clean();
     if (err<0) {
-        os_eprintln("erase error:%d", err);
+        os_eprintln("clean error:%d", err);
         
         return err;
     }
@@ -123,8 +123,8 @@ static cmd_table_t cmd[] = {
     },
     {
         .argc   = 1,
-        .argv   = {"erase"},
-        .handle = cmd_erase,
+        .argv   = {"clean"},
+        .handle = cmd_clean,
     },
 };
 

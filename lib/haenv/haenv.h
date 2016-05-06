@@ -168,10 +168,6 @@ typedef struct {
     char data[0];
 } haenv_entry_t;
 
-#ifndef HAENV_EMPTY
-#define HAENV_EMPTY     0xff
-#endif
-
 typedef struct {    
     char mirror[HAENV_SIZE];
     
@@ -193,8 +189,6 @@ typedef struct {
 #ifdef __APP__
     os_sem_t sem;
 #endif
-
-    haenv_entry_t empty;
     
     uint32 seq;     // next seq
 } haenv_file_t;
@@ -400,7 +394,7 @@ haee_kpad_zero(haenv_entry_t *e)
 {
     char *pad = haee_kpad(e);
     if (pad) {
-        os_memset(pad, HAENV_EMPTY, haee_kpad_len(e));
+        os_memzero(pad, haee_kpad_len(e));
     }
 }
 
@@ -440,7 +434,7 @@ haee_vpad_zero(haenv_entry_t *e)
 {
     char *pad = haee_vpad(e);
     if (pad) {
-        os_memset(pad, HAENV_EMPTY, haee_vpad_len(e));
+        os_memzero(pad, haee_vpad_len(e));
     }
 }
 
@@ -522,7 +516,9 @@ __is_good_haee(haenv_t *env, haenv_entry_t *e)
 static inline bool
 is_empty_haee(haenv_entry_t *e)
 {
-    return os_objeq(&haenv()->empty, e);
+    haenv_entry_t zero = {.flag = 0};
+    
+    return os_objeq(&zero, e);
 }
 
 static inline bool
@@ -790,12 +786,6 @@ hae_append(haenv_t *env, char *k, char *v)
     return e;
 }
 
-static inline void
-hae_erase(haenv_t *env)
-{
-    os_memset(env->mirror, HAENV_EMPTY, sizeof(env->mirror));
-}
-
 #ifdef __APP__
 static inline jobj_t
 hae_export(haenv_t *env)
@@ -1046,13 +1036,13 @@ error:
 #endif
 
 static inline int
-haenv_erase(void)
+haenv_clean(void)
 {
     int i, err;
     haenv_t *env;
 
     haenv_foreach(i, env) {
-        hae_erase(env);
+        hae_clean(env);
         hae_save(env);
     }
     
@@ -1086,9 +1076,6 @@ haenv_init(void)
     }
 #endif
 
-    haenv_entry_t *empty = &haenv()->empty;
-    os_memset(empty, HAENV_EMPTY, sizeof(*empty));
-    
     haenv_foreach(i, env) {
         env->f      = f;
         env->id     = (uint32)i;
