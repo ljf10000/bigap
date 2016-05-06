@@ -3,6 +3,19 @@
 #include "utils.h"
 #if defined(__BOOT__) || defined(__APP__)
 /******************************************************************************/
+#ifndef HAENV_DPRINT
+#define HAENV_DPRINT                0
+#endif
+
+#if HAENV_DPRINT
+#define haenv_debug(_fmt, _args...) do{ \
+    os_printf("%s ", __func__);         \
+    os_println(_fmt, ##_args);          \
+}while(0);
+#else
+#define haenv_debug(_fmt, _args...)     os_do_nothing()
+#endif
+/******************************************************************************/
 #ifndef HAENV_COUNT
 #define HAENV_COUNT                 4
 #endif
@@ -79,20 +92,6 @@
 #       error "invalid HAENV_ROOTFS_MODE_TYPE"
 #   endif
 #endif
-
-#ifndef HAENV_DPRINT
-#define HAENV_DPRINT            1
-#endif
-
-#if HAENV_DPRINT
-#define haenv_debug(_fmt, _args...)     do{ \
-    os_printf("%s ", __func__);             \
-    os_println(_fmt, ##_args);              \
-}while(0);
-#else
-#define haenv_debug(_fmt, _args...)     os_do_nothing()
-#endif
-
 
 #define CONFIG_BOOTARGS_HEAD    \
     "root=" HAENV_ROOT          \
