@@ -39,13 +39,17 @@ __os_do_sem(int semid, int op, int undo)
 static inline void 
 os_sem_lock(os_sem_t *sem)
 {
+    sem_println("sem(%d) lock...", sem->id);
     __os_do_sem(sem->id, -1, SEM_UNDO);
+    sem_println("sem(%d) lock ok", sem->id);
 }
 
 static inline void 
 os_sem_unlock(os_sem_t *sem)
 {
+    sem_println("sem(%d) unlock...", sem->id);
     __os_do_sem(sem->id, 1, 0);
+    sem_println("sem(%d) unlock ok", sem->id);
 }
 
 static inline void 
@@ -84,6 +88,7 @@ os_sem_create(os_sem_t *sem, int key)
             
             return INVALID_SEM_ID;
         }
+        sem_println("sem(%d) SETVAL ok", sem->id);
     }
     else if (EEXIST == errno) {
         flags = IPC_CREAT | 0x1FF;
