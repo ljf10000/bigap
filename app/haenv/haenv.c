@@ -239,7 +239,8 @@ __main(int argc, char *argv[])
     haenv_lock();
     err = cmd_handle(cmd, argc, argv, usage);
     //haenv_unlock();
-
+    os_wait_forever();
+    
     return err;
 }
 
