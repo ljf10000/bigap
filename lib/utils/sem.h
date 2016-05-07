@@ -19,7 +19,7 @@ typedef struct {
 #endif
 
 #if SEM_DPRINT
-#define sem_println(_fmt, _args...)     printf(_fmt "\n", ##_args)
+#define sem_println(_fmt, _args...)     os_println(_fmt, ##_args)
 #else
 #define sem_println(_fmt, _args...)     os_do_nothing()
 #endif
