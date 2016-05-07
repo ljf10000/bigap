@@ -40,7 +40,7 @@ static inline void
 os_sem_lock(os_sem_t *sem)
 {
     sem_println("sem(%d) lock...", sem->id);
-    __os_do_sem(sem->id, -1, SEM_UNDO);
+    __os_do_sem(sem->id, -1, 0/* SEM_UNDO */);
     sem_println("sem(%d) lock ok", sem->id);
 }
 
