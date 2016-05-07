@@ -36,12 +36,12 @@ __os_do_sem(int semid, int op, int undo)
     int val;
 
     val = semctl(semid, 0, GETVAL);
-    sem_println("sem(%d) getval:%d before op", sem->id, val);
+    os_println("sem(%d) getval:%d before op", sem->id, val);
     
     semop(semid, (struct sembuf *)&sem, 1);
 
     val = semctl(semid, 0, GETVAL);
-    sem_println("sem(%d) getval:%d after op", sem->id, val);
+    os_println("sem(%d) getval:%d after op", sem->id, val);
 }
 
 static inline void 
