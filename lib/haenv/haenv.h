@@ -189,6 +189,7 @@ typedef struct {
 
 #ifdef __APP__
     os_sem_t sem;
+    bool locked;
 #endif
     
     uint32 seq;     // next seq
@@ -223,7 +224,6 @@ haenv(void)
 #define haenv_seq       haenv()->seq
 #define haenv_env(_id)  (&haenv()->env[_id])
 #define haenv_first()   haenv_env(0)
-#define haenv_sem()     (&haenv()->sem)
 
 /*
 * zone as [begin, end)
@@ -863,9 +863,13 @@ static inline void
 haenv_lock(void)
 {
 #ifdef __APP__
-    haenv_debug("...");
-    os_sem_lock(haenv_sem());
-    haenv_debug("ok");
+    if (false==haenv()->locked) {
+        haenv_debug("...");
+        os_sem_lock(&haenv()->sem);
+        haenv_debug("ok");
+        
+        haenv()->locked = true;
+    }
 #endif
 }
 
@@ -873,9 +877,13 @@ static inline void
 haenv_unlock(void)
 {
 #ifdef __APP__
-    haenv_debug("...");
-    os_sem_unlock(haenv_sem());
-    haenv_debug("ok");
+    if (haenv()->locked) {
+        haenv_debug("...");
+        os_sem_unlock(&haenv()->sem);
+        haenv_debug("ok");
+
+        haenv()->locked = false;
+    }
 #endif
 }
 
@@ -1078,10 +1086,11 @@ haenv_init(void)
 
     haenv_debug("open " HAENV_FILE);
 
-    err = os_sem_create(haenv_sem(), OS_HAENV_SEM_ID);
+    err = os_sem_create(&haenv()->sem, OS_HAENV_SEM_ID);
     if (err<0) {
         return err;
     }
+    haenv()->locked = false;
     haenv_debug("create sem");
 #else /* __BOOT__ */
     __THIS_HAENV = (haenv_file_t *)os_zalloc(haenv_file_t);

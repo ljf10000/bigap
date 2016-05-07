@@ -205,7 +205,10 @@ usage(void)
 static void 
 __exit(int signo)
 {
-    int err = haenv_fini();
+    int err;
+
+    haenv_unlock();
+    err = haenv_fini();
     os_fini();
     
     exit(err);
