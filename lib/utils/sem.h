@@ -15,7 +15,7 @@ typedef struct {
 }
 
 #ifndef SEM_DPRINT
-#define SEM_DPRINT              1
+#define SEM_DPRINT              0
 #endif
 
 #if SEM_DPRINT
@@ -33,16 +33,14 @@ __os_do_sem(int semid, int op, int undo)
         int16 sem_flag;
     } sem = {0, op, undo};
 
-    sem_println("sem(%d) getval:%d before op", semid, semctl(semid, 0, GETVAL));
     semop(semid, (struct sembuf *)&sem, 1);
-    sem_println("sem(%d) getval:%d after op", semid, semctl(semid, 0, GETVAL));
 }
 
-static inline void 
+static inline void
 os_sem_lock(os_sem_t *sem)
 {
     sem_println("sem(%d) lock...", sem->id);
-    __os_do_sem(sem->id, -1, 0/* SEM_UNDO */);
+    __os_do_sem(sem->id, -1, SEM_UNDO);
     sem_println("sem(%d) lock ok", sem->id);
 }
 
