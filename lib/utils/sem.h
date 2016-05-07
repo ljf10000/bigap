@@ -39,7 +39,7 @@ __os_do_sem(int semid, int op, int undo)
 static inline void 
 os_sem_lock (os_sem_t *sem)
 {
-    __os_do_sem(sem->id, -1, SEM_UNDO);
+    __os_do_sem(sem->id, -1, 0);
 }
 
 static inline void 
