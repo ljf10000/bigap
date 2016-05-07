@@ -35,19 +35,14 @@ static int
 cmd_unlock(int argc, char *argv[])
 {
     char *key   = argv[1];
-    int err = 0;
+    int err;
     
-    err = __load(true);
+    err = os_sem_create(&sem, os_atoi(key));
     if (err<0) {
         return err;
     }
-
-    haenv_entry_t *e = haenv_find(k);
-    if (NULL==e) {
-        return -ENOEXIST;
-    }
     
-    os_println("%s", haee_value(e));
+    os_sem_unlock(&sem);
 
     return 0;
 }
