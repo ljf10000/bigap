@@ -221,8 +221,18 @@ __init(void)
     
     setup_signal_exit(__exit);
     setup_signal_callstack(__exit);
+    
+    err = os_init();
+    if (err<0) {
+        return err;
+    }
 
-    return haenv_init();
+    err = haenv_init();
+    if (err<0) {
+        return err;
+    }
+
+    return 0;
 }
 
 static inline int

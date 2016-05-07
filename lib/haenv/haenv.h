@@ -7,6 +7,11 @@
 #define HAENV_DPRINT                0
 #endif
 
+#define haenv_print(_fmt, _args...) do{ \
+    os_printf("%s ", __func__);         \
+    os_println(_fmt, ##_args);          \
+}while(0);
+
 #if HAENV_DPRINT
 #define haenv_debug(_fmt, _args...) do{ \
     os_printf("%s ", __func__);         \
@@ -864,9 +869,9 @@ haenv_lock(void)
 {
 #ifdef __APP__
     if (false==haenv()->locked) {
-        haenv_debug("...");
+        haenv_print("...");
         os_sem_lock(&haenv()->sem);
-        haenv_debug("ok");
+        haenv_print("ok");
         
         haenv()->locked = true;
     }
@@ -878,9 +883,9 @@ haenv_unlock(void)
 {
 #ifdef __APP__
     if (haenv()->locked) {
-        haenv_debug("...");
+        haenv_print("...");
         os_sem_unlock(&haenv()->sem);
-        haenv_debug("ok");
+        haenv_print("ok");
 
         haenv()->locked = false;
     }
