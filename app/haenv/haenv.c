@@ -238,7 +238,9 @@ __init(void)
 static inline int
 __fini(void)
 {
-    return haenv_fini();
+    haenv_fini();
+
+    return os_fini();
 }
 
 /*
@@ -251,8 +253,7 @@ __main(int argc, char *argv[])
 
     haenv_lock();
     err = cmd_handle(cmd, argc, argv, usage);
-    //haenv_unlock();
-    os_wait_forever();
+    haenv_unlock();
     
     return err;
 }

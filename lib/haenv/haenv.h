@@ -7,18 +7,13 @@
 #define HAENV_DPRINT                0
 #endif
 
-#define haenv_print(_fmt, _args...) do{ \
-    os_printf("%s ", __func__);         \
-    os_println(_fmt, ##_args);          \
-}while(0);
-
 #if HAENV_DPRINT
-#define haenv_debug(_fmt, _args...) do{ \
-    os_printf("%s ", __func__);         \
-    os_println(_fmt, ##_args);          \
+#define haenv_println(_fmt, _args...)   do{ \
+    os_printf("%s ", __func__);             \
+    os_println(_fmt, ##_args);              \
 }while(0);
 #else
-#define haenv_debug(_fmt, _args...)     os_do_nothing()
+#define haenv_println(_fmt, _args...)     os_do_nothing()
 #endif
 /******************************************************************************/
 #ifndef HAENV_COUNT
@@ -273,14 +268,14 @@ __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     int err = os_fseek(env->f, env->start + begin, SEEK_SET);
     if (err<0) {
-        haenv_debug("seek error:%d", err);
+        haenv_println("seek error:%d", err);
         
         return err;
     }
     
     err = os_fread(env->f, buf, size);
     if (err<0) {
-        haenv_debug("read error:%d", err);
+        haenv_println("read error:%d", err);
         
         return err;
     }
@@ -296,14 +291,14 @@ __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     int err = os_fseek(env->f, env->start + begin, SEEK_SET);
     if (err<0) {
-        haenv_debug("seek error:%d", err);
+        haenv_println("seek error:%d", err);
         
         return err;
     }
     
     err = os_fwrite(env->f, buf, size);
     if (err<0) {
-        haenv_debug("write error:%d", err);
+        haenv_println("write error:%d", err);
         
         return err;
     }
@@ -319,14 +314,14 @@ static inline int
 hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     if (false==is_good_haenv_zone(begin, begin + size)) {
-        haenv_debug("error: bad zone[0x%x, 0x%x)", begin, begin+size);
+        haenv_println("error: bad zone[0x%x, 0x%x)", begin, begin+size);
         
         return -ERANGE;
     }
     
     int err = __hae_read(env, begin, buf, size);
     if (err<0) {
-        haenv_debug("read error:%d", err);
+        haenv_println("read error:%d", err);
         
         return err;
     }
@@ -341,14 +336,14 @@ static inline int
 hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
     if (false==is_good_haenv_zone(begin, begin + size)) {
-        haenv_debug("error: bad zone[0x%x, 0x%x)", begin, begin+size);
+        haenv_println("error: bad zone[0x%x, 0x%x)", begin, begin+size);
         
         return -ERANGE;
     }
     
     int err = __hae_write(env, begin, buf, size);
     if (err<0) {
-        haenv_debug("read error:%d", err);
+        haenv_println("read error:%d", err);
         
         return err;
     }
@@ -549,13 +544,13 @@ static inline bool
 is_good_haee(haenv_t *env, haenv_entry_t *e)
 {
     if (is_empty_haee(e)) {
-        haenv_debug("env[%d] offset==>0x%x is empty", 
+        haenv_println("env[%d] offset==>0x%x is empty", 
             env->id, 
             hae_offsetof(env, e));
         
         return false;
     } else if (false==is_good_haee_md5(env, e)) {
-        haenv_debug("env[%d] offset==>0x%x is bad md5", 
+        haenv_println("env[%d] offset==>0x%x is bad md5", 
             env->id, 
             hae_offsetof(env, e));
         return false;
@@ -642,7 +637,7 @@ hae_empty(haenv_t *env)
 {
     haenv_entry_t *e = (haenv_entry_t *)(env->mirror + env->unsaved);
     
-    haenv_debug("env[%d] empty offset==>0x%x", 
+    haenv_println("env[%d] empty offset==>0x%x", 
         env->id, 
         hae_offsetof(env, e));
 
@@ -702,7 +697,7 @@ hae_check(haenv_t *env)
     
     hae_foreach(env, e) {
         if (is_empty_haee(e)) {
-            haenv_debug("env[%d] empty count==>%d, offset==>0x%x, saved==>0x%x", 
+            haenv_println("env[%d] empty count==>%d, offset==>0x%x, saved==>0x%x", 
                 env->id, 
                 env->count, 
                 hae_offsetof(env, e), 
@@ -713,7 +708,7 @@ hae_check(haenv_t *env)
         else if (is_good_haee(env, e)) {
             env->saved += haee_size(e);
 
-            haenv_debug("env[%d] good count==>%d, offset==>0x%x, saved==>0x%x", 
+            haenv_println("env[%d] good count==>%d, offset==>0x%x, saved==>0x%x", 
                 env->id, 
                 env->count, 
                 hae_offsetof(env, e), 
@@ -726,7 +721,7 @@ hae_check(haenv_t *env)
             env->seq = e->seq;
         }
         else {
-            haenv_debug("env[%d] damaged offset==>0x%x", 
+            haenv_println("env[%d] damaged offset==>0x%x", 
                 env->id, 
                 hae_offsetof(env, e));
 #if HAENV_DPRINT
@@ -740,7 +735,7 @@ hae_check(haenv_t *env)
     }
 
     env->unsaved = env->saved;
-    haenv_debug("env[%d] unsaved==>0x%x", env->id, env->unsaved);
+    haenv_println("env[%d] unsaved==>0x%x", env->id, env->unsaved);
     
     return err;
 }
@@ -761,7 +756,7 @@ hae_flush(haenv_t *env)
         }
     }
     env->saved = env->unsaved;
-    haenv_debug("env[%d] saved==>0x%x", env->id, env->unsaved);
+    haenv_println("env[%d] saved==>0x%x", env->id, env->unsaved);
     
     os_fflush(env->f);
     
@@ -795,7 +790,7 @@ hae_append(haenv_t *env, char *k, char *v, bool dirty)
         return NULL;
     }
     env->unsaved += haee_size(e);
-    haenv_debug("env[%d] unsaved==>0x%x", env->id, env->unsaved);
+    haenv_println("env[%d] unsaved==>0x%x", env->id, env->unsaved);
     
     return e;
 }
@@ -869,9 +864,9 @@ haenv_lock(void)
 {
 #ifdef __APP__
     if (false==haenv()->locked) {
-        haenv_print("...");
+        haenv_println("...");
         os_sem_lock(&haenv()->sem);
-        haenv_print("ok");
+        haenv_println("ok");
         
         haenv()->locked = true;
     }
@@ -883,9 +878,9 @@ haenv_unlock(void)
 {
 #ifdef __APP__
     if (haenv()->locked) {
-        haenv_print("...");
+        haenv_println("...");
         os_sem_unlock(&haenv()->sem);
-        haenv_print("ok");
+        haenv_println("ok");
 
         haenv()->locked = false;
     }
@@ -979,7 +974,7 @@ haenv_append(char *k, char *v)
         if (haee_clone(hae_empty(env), e)) {
             env->unsaved += haee_size(e);
             
-            haenv_debug("env[%d] unsaved==>0x%x", env->id, env->unsaved);
+            haenv_println("env[%d] unsaved==>0x%x", env->id, env->unsaved);
         }
     }
     
@@ -1089,14 +1084,14 @@ haenv_init(void)
         return -EIO;
     }
 
-    haenv_debug("open " HAENV_FILE);
+    haenv_println("open " HAENV_FILE);
 
     err = os_sem_create(&haenv()->sem, OS_HAENV_SEM_ID);
     if (err<0) {
         return err;
     }
     haenv()->locked = false;
-    haenv_debug("create sem");
+    haenv_println("create sem");
 #else /* __BOOT__ */
     __THIS_HAENV = (haenv_file_t *)os_zalloc(haenv_file_t);
     if (NULL==__THIS_HAENV) {
@@ -1109,7 +1104,7 @@ haenv_init(void)
         env->id     = (uint32)i;
         env->start  = HAENV_START + i*HAENV_SIZE;
         
-        haenv_debug("env[%d] start at 0x%x", i, env->start);
+        haenv_println("env[%d] start at 0x%x", i, env->start);
     }
     
     return 0;
@@ -1120,7 +1115,7 @@ haenv_fini(void)
 {
 #ifdef __APP__
     os_fclose(haenv_first()->f);
-    haenv_debug("close " HAENV_FILE);
+    haenv_println("close " HAENV_FILE);
     
     /*
     * NEEDN't destroy

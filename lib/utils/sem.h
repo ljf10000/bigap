@@ -15,7 +15,7 @@ typedef struct {
 }
 
 #ifndef SEM_DPRINT
-#define SEM_DPRINT              0
+#define SEM_DPRINT              1
 #endif
 
 #if SEM_DPRINT
@@ -28,9 +28,9 @@ static inline void
 __os_do_sem(int semid, int op, int undo)
 {
     struct {
-        unsigned short sem_num;
-        short sem_op;
-        short sem_flag;
+        uint16 sem_num;
+        int16 sem_op;
+        int16 sem_flag;
     } sem = {0, op, undo};
     
     semop(semid, (struct sembuf *)&sem, 1);
@@ -70,46 +70,41 @@ os_sem_create(os_sem_t *sem, int key)
 
     sem->key = key;
     sem->id = id = semget(sem->key, 1, flags);
-    if (false==is_good_semid(id)){
-        if (EEXIST == errno) {
-            flags = IPC_CREAT | 0x1FF;
-            sem->id = id = semget(sem->key, 1, flags);
-            if (false==is_good_semid(id)){ 
-                sem_println(
-                    "sem get(key:%#x, flags:%#x) error:%d", 
-                    sem->key,
-                    flags,
-                    -errno);
-                
-                return INVALID_SEM_ID;
-            }
-        } else {
+    if (is_good_semid(id)) {
+        sem->owner = true;
+
+        int err = semctl(id, 0, SETVAL, 1);
+        if (err<0) {
+            os_sem_destroy(sem);
+            
             sem_println(
-                "sem create (key:%#x, flags:%#x) error:%d.", 
+                "sem(%d) control(SETVAL, 1) error:%d", 
+                id,
+                err);
+            
+            return INVALID_SEM_ID;
+        }
+    }
+    else if (EEXIST == errno) {
+        flags = IPC_CREAT | 0x1FF;
+        sem->id = id = semget(sem->key, 1, flags);
+        if (false==is_good_semid(id)){ 
+            sem_println(
+                "sem get(key:%#x, flags:%#x) error:%d", 
                 sem->key,
                 flags,
                 -errno);
             
             return INVALID_SEM_ID;
         }
-    }
-    else {
-        sem->owner = true;
-    }
-    
-    if (true == sem->owner) {
-        int ret = semctl(id, 0, SETVAL, 1);
+    } else {
+        sem_println(
+            "sem create (key:%#x, flags:%#x) error:%d.", 
+            sem->key,
+            flags,
+            -errno);
         
-        if (ret<0) {
-            os_sem_destroy(sem);
-            
-            sem_println(
-                "sem(%d) control(SETVAL, 1) error:%d", 
-                id,
-                ret);
-            
-            return INVALID_SEM_ID;
-        }
+        return INVALID_SEM_ID;
     }
     
     sem_println("sem(%d) %s OK!", 
