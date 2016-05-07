@@ -88,10 +88,10 @@ __main(int argc, char *argv[])
 
 int sem_main(int argc, char *argv[])
 {
-    os_println("%d", ftok(argv[0], 1));
-    os_println("%d", ftok(argv[0], 1));
-    os_println("%d", ftok(argv[0], 1));
-    os_println("%d", ftok(argv[0], 1));
+    os_println("%s %d", argv[0], ftok(argv[0], 0));
+    os_println("%s %d", argv[0], ftok(argv[0], 1));
+    os_println("%s %d", argv[0], ftok(argv[0], 2));
+    os_println("%s %d", argv[0], ftok(argv[0], 3));
     return os_main(__main, argc, argv);
 }
 /******************************************************************************/
