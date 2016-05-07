@@ -18120,10 +18120,10 @@ DUK_EXTERNAL const char *duk_push_string_file_raw(duk_context *ctx, const char *
 		goto fail;
 	}
 #if 1 /* liujf, skip sha-bang line */
-        if ('#'==buf[0] && '!'==buf[1]) {
-            buf[0] = '/';
-            buf[1] = '/';
-        }
+    if ('#'==buf[0] && '!'==buf[1]) {
+        buf[0] = '/';
+        buf[1] = '/';
+    }
 #endif
 	(void) DUK_FCLOSE(f);  /* ignore fclose() error */
 	f = NULL;

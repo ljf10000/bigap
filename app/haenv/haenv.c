@@ -238,7 +238,7 @@ __main(int argc, char *argv[])
 
     haenv_lock();
     err = cmd_handle(cmd, argc, argv, usage);
-    haenv_unlock();
+    //haenv_unlock();
 
     return err;
 }
