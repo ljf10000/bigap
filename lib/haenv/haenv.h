@@ -17,7 +17,7 @@
 #endif
 /******************************************************************************/
 #ifndef HAENV_COUNT
-#define HAENV_COUNT                 4
+#define HAENV_COUNT                 3
 #endif
 
 #ifndef HAENV_SIZE
@@ -33,11 +33,19 @@
 #endif
 
 #ifndef HAENV_BOOT_SIZE
-#define HAENV_BOOT_SIZE             (512*1024)
+#   if IS_PRODUCT_LTEFI_AP
+#       define HAENV_BOOT_SIZE      (256*1024)
+#   else
+#       define HAENV_BOOT_SIZE      (512*1024)
+#   endif
 #endif
 
 #ifndef HAENV_BOOTENV_SIZE
-#define HAENV_BOOTENV_SIZE          (512*1024 - HAENV_SIZE*HAENV_COUNT)
+#   if IS_PRODUCT_LTEFI_AP
+#       define HAENV_BOOTENV_SIZE   (256*1024 - HAENV_SIZE*HAENV_COUNT) // 64K
+#   else
+#       define HAENV_BOOTENV_SIZE   (512*1024 - HAENV_SIZE*HAENV_COUNT) // 320K
+#   endif
 #endif
 
 #ifndef HAENV_START
@@ -83,6 +91,29 @@
 
 #ifndef HAENV_ROOTFS_MODE_TYPE
 #define HAENV_ROOTFS_MODE_TYPE       HAENV_ROOTFS_MODE_TYPE_RO
+#endif
+
+typedef struct {
+    char *k;
+    char *v;
+} haenv_deft_t;
+
+#define HAENV_DEFAULT(_k, _v) {.k = _k, .v = _v}
+
+#ifndef HAENV_DEFAULTS
+#   if IS_PRODUCT_LTEFI_AP
+#       define HAENV_DEFAULTS { \
+            HAENV_DEFAULT("image/kernel/md5",   MD5_SZERO), \
+            HAENV_DEFAULT("image/rootfs/md5",   MD5_SZERO), \
+            HAENV_DEFAULT("image/firmware/md5", MD5_SZERO), \
+}   /* end */
+#   else
+#       define HAENV_DEFAULTS { \
+            HAENV_DEFAULT("image/kernel/md5",   MD5_SZERO), \
+            HAENV_DEFAULT("image/rootfs/md5",   MD5_SZERO), \
+            HAENV_DEFAULT("image/firmware/md5", MD5_SZERO), \
+}   /* end */
+#   endif
 #endif
 
 #ifndef HAENV_ROOTFS_MODE
@@ -193,6 +224,9 @@ typedef struct {
 #endif
     
     uint32 seq;     // next seq
+
+    haenv_deft_t *deft;
+    int deft_count;
 } haenv_file_t;
 
 #if defined(__BOOT__)
@@ -234,13 +268,66 @@ is_good_haenv_zone(uint32 begin, uint32 end)
     return  begin < end && begin < HAENV_SIZE && end <= HAENV_SIZE;
 }
 
-
 #ifdef __BOOT__
-extern int 
-benv_emmc_read(uint32 begin, void *buf, int size);
+static inline int 
+__flash_read(uint32 begin, void *buf, int size)
+{
+    byte *flash = (byte *)buf;
+    byte *addr;
+    int i;
 
-extern int 
-benv_emmc_write(uint32 begin, void *buf, int size);
+    for (i=0, addr=(byte *)(void *)begin; i<size; i++, addr++) {
+        flash[i] = *addr;
+    }
+
+    return size;
+}
+
+static inline int 
+__flash_write(uint32 begin, void *buf, int size)
+{
+    extern int flash_write(char *, ulong, ulong);
+    extern int flash_sect_erase(ulong addr_first, ulong addr_last);
+    extern int flash_sect_protect(int flag, ulong addr_first, ulong addr_last);
+    
+    int err;
+    ulong end = (ulong)(begin + size);
+    
+    err = flash_sect_protect(0, begin, end);
+    if (err) {
+        haenv_println("flash un-protect(begin:0x%x end:0x%x size:0x%x) failed(%d)", 
+            begin, end, size, err);
+
+        return err;
+    }
+    
+    err = flash_sect_erase(begin, end);
+    if (err) {
+        haenv_println("flash erase(begin:0x%x end:0x%x size:0x%x) failed(%d)", 
+            begin, end, size, err);
+
+        return err;
+    }
+
+    err = flash_write(buf, begin, end);
+    if (err) {
+        haenv_println("flash write(begin:0x%x end:0x%x size:0x%x) failed(%d)", 
+            begin, end, size, err);
+        
+        return err;
+    }
+    
+    err = flash_sect_protect(1, begin, end);
+    if (err) {
+        haenv_println("flash protect(begin:0x%x end:0x%x size:0x%x) failed(%d)", 
+            begin, end, size, err);
+
+        return err;
+    }
+
+    return size;
+}
+
 
 /*
 * begin: haenv file offset
@@ -248,7 +335,7 @@ benv_emmc_write(uint32 begin, void *buf, int size);
 static inline int
 __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
-    return benv_emmc_read(env->start + begin, buf, size);
+    return __flash_read(env->start + begin, buf, size);
 }
 
 /*
@@ -257,7 +344,7 @@ __hae_read(haenv_t *env, uint32 begin, void *buf, uint32 size)
 static inline int
 __hae_write(haenv_t *env, uint32 begin, void *buf, uint32 size)
 {
-    return benv_emmc_write(env->start + begin, buf, size);
+    return __flash_write(env->start + begin, buf, size);
 }
 #else
 /*
@@ -843,7 +930,7 @@ hae_gc(haenv_t *env, jobj_t obj)
 #endif
 
 static inline haenv_t *
-__haenv_getby(bool damaged)
+__hae_getby(bool damaged)
 {
     int i;
     haenv_t *env;
@@ -856,8 +943,8 @@ __haenv_getby(bool damaged)
 
     return NULL;
 }
-#define __haenv_get_normal()    __haenv_getby(false)
-#define __haenv_get_damaged()   __haenv_getby(true)
+#define __hae_get_normal()      __hae_getby(false)
+#define __hae_get_damaged()     __hae_getby(true)
 
 static inline void
 haenv_lock(void)
@@ -924,37 +1011,17 @@ haenv_check(void)
 }
 
 static inline int
-haenv_repaire(void)
+haenv_clean(void)
 {
-    haenv_t *normal = __haenv_get_normal();
-    if (NULL==normal) {
-        return -EDAMAGED;
-    }
-    
-    haenv_t *damaged;
-    while(NULL!=(damaged = __haenv_get_damaged())) {
-        hae_clone(damaged, normal);
-        hae_save(damaged);
-    }
-
-    return 0;
-}
-
-static inline int
-haenv_flush(void)
-{
-    int i, err, ret = 0;
+    int i, err;
     haenv_t *env;
-    
+
     haenv_foreach(i, env) {
-        err = hae_flush(env);
-        if (err<0) {
-            ret = err;
-            // todo: log
-        }
+        hae_clean(env);
+        hae_save(env);
     }
     
-    return ret;
+    return 0;
 }
 
 static inline int
@@ -979,6 +1046,63 @@ haenv_append(char *k, char *v)
     }
     
     return 0;
+}
+
+static inline int
+haenv_deft(void)
+{
+    int i, err;
+    haenv_t *env;
+
+    haenv_foreach(i, env) {
+        hae_clean(env);
+    }
+    
+    for (i=0; i<haenv()->deft_count; i++) {
+        haenv_deft_t *deft = haenv()->deft;
+        
+        haenv_append(deft[i].k, deft[i].v);
+    }
+
+    haenv_foreach(i, env) {
+        hae_save(env);
+    }
+    
+    return 0;
+}
+
+static inline int
+haenv_repaire(void)
+{
+    haenv_t *normal = __hae_get_normal();
+    if (NULL==normal) {
+        return haenv_default();
+    }
+    
+    haenv_t *damaged;
+    while(NULL!=(damaged = __hae_get_damaged())) {
+        hae_clone(damaged, normal);
+        hae_save(damaged);
+    }
+
+    return 0;
+}
+
+static inline int
+haenv_flush(void)
+{
+    int i, err, ret = 0;
+    haenv_t *env;
+    
+    haenv_foreach(i, env) {
+        err = hae_flush(env);
+        if (err<0) {
+            ret = err;
+            // todo: log
+        }
+    }
+    
+    return ret;
 }
 
 static inline haenv_entry_t *
@@ -1058,25 +1182,13 @@ error:
 #endif
 
 static inline int
-haenv_clean(void)
-{
-    int i, err;
-    haenv_t *env;
-
-    haenv_foreach(i, env) {
-        hae_clean(env);
-        hae_save(env);
-    }
-    
-    return 0;
-}
-
-static inline int
 haenv_init(void)
 {
     int i, err;
     haenv_t *env;
     STREAM f = NULL;
+
+    static haenv_deft_t deft[] = HAENV_DEFAULTS;
 
 #ifdef __APP__
     f = os_fopen(HAENV_FILE, "r+");
@@ -1098,7 +1210,9 @@ haenv_init(void)
         return -ENOMEM;
     }
 #endif
-
+    haenv()->deft = deft;
+    haenv()->deft_count = os_count_of(deft);
+    
     haenv_foreach(i, env) {
         env->f      = f;
         env->id     = (uint32)i;

@@ -165,6 +165,26 @@ cmd_clean(int argc, char *argv[])
     return 0;
 }
 
+static int
+cmd_deft(int argc, char *argv[])
+{
+    int err;
+    
+    err = __load(false);
+    if (err<0) {
+        return err;
+    }
+
+    err = haenv_deft();
+    if (err<0) {
+        os_eprintln("deft error:%d", err);
+        
+        return err;
+    }
+
+    return 0;
+}
+
 static cmd_table_t cmd[] = {
     {
         .argc   = 3,
@@ -190,6 +210,11 @@ static cmd_table_t cmd[] = {
         .argc   = 1,
         .argv   = {"clean"},
         .handle = cmd_clean,
+    },
+    {
+        .argc   = 1,
+        .argv   = {"deft"},
+        .handle = cmd_deft,
     },
 };
 
