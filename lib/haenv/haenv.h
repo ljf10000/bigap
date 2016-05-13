@@ -1076,7 +1076,7 @@ haenv_repaire(void)
 {
     haenv_t *normal = __hae_get_normal();
     if (NULL==normal) {
-        return haenv_default();
+        return haenv_deft();
     }
     
     haenv_t *damaged;
