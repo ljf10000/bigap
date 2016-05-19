@@ -357,7 +357,7 @@ blob_getbyidx(const blob_t *root, uint32 idx)
     blob_t *blob;
 
 #if USE_BLOB_COUNT
-    if (false==is_good_enum(idx, blob_count(root))) {
+    if (false==IS_GOOD_ENUM(idx, blob_count(root))) {
         return NULL;
     }
 #endif
@@ -731,7 +731,7 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32 count
         }
 
         int idx = blob_rule_find_bytypename(type, name, rule, count);
-        if (false==is_good_enum(idx, count)) {
+        if (false==IS_GOOD_ENUM(idx, count)) {
             continue;
         }
 

@@ -293,7 +293,7 @@ enum {BENV_FSM_INVALID = BENV_FSM_END};
 static inline bool
 is_canused_benv_fsm(int fsm)
 {
-    return is_good_value(fsm, BENV_FSM_UNKNOW, BENV_FSM_END);
+    return IS_GOOD_VALUE(fsm, BENV_FSM_UNKNOW, BENV_FSM_END);
 }
 
 static inline int

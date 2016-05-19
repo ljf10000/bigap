@@ -185,7 +185,7 @@ jarray_get(jobj_t array, int idx)
 {
     jobj_t obj = NULL;
     
-    if (array && is_good_enum(idx, jarray_length(array))) {
+    if (array && IS_GOOD_ENUM(idx, jarray_length(array))) {
     	obj = json_object_array_get_idx(array, idx);
     }
 

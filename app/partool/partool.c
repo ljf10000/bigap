@@ -91,7 +91,7 @@ enum {
 static inline bool
 is_good_part_mode(int mode)
 {
-    return is_good_enum(mode, PART_MODE_END);
+    return IS_GOOD_ENUM(mode, PART_MODE_END);
 }
 
 static inline char *

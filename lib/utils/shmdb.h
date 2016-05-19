@@ -137,7 +137,7 @@ __sdb_ops_hash(void *data, int ii)
     if (NULL==data) {
         return os_assertV(0);
     }
-    else if (false==is_good_enum(ii, SDB_HASHCOUNT)) {
+    else if (false==IS_GOOD_ENUM(ii, SDB_HASHCOUNT)) {
         return os_assertV(0);
     }
     else if (NULL==__sdb_ops()->hash) {
@@ -145,7 +145,7 @@ __sdb_ops_hash(void *data, int ii)
     }
 
     idx = (*__sdb_ops()->hash)(data, ii);
-    if (false==is_good_enum(idx, SDB_HASHSIZE)) {
+    if (false==IS_GOOD_ENUM(idx, SDB_HASHSIZE)) {
         return os_assertV(0);
     }
 
@@ -201,7 +201,7 @@ __sdb_entry_is_using(sdb_entry_t *entry)
 static inline sdb_entry_t *
 __sdb_entry_safe(int id)
 {
-    if (is_good_enum(id, __sdb_limit)) {
+    if (IS_GOOD_ENUM(id, __sdb_limit)) {
         return __sdb_entry(id);
     } else {
         return NULL;

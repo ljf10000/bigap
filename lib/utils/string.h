@@ -122,6 +122,12 @@ os_strlen(const char *s)
 }
 
 static inline char *
+os_strdup(char *s)
+{
+    return s?strdup(s):NULL;
+}
+
+static inline char *
 os_strcpy(char *dst, const char *src)
 {
     return (dst && src)?strcpy(dst, src):dst;

@@ -214,13 +214,13 @@ __co_getbyid(co_id_t id)
 static inline bool
 __is_god_coev(int ev)
 {
-    return is_good_enum(ev, CO_EV_END);
+    return IS_GOOD_ENUM(ev, CO_EV_END);
 }
 
 static inline bool
 is_good_id(co_id_t id)
 {
-    return is_good_enum(id, __this_coroutine()->size);
+    return IS_GOOD_ENUM(id, __this_coroutine()->size);
 }
 
 static inline void
@@ -633,7 +633,7 @@ __co_create(
     
     co->main.func       = main;
     co->main.data       = data;
-    co->pri.now         = is_good_enum(pri, CO_PRI_END)?pri:CO_PRI_DEFAULT;
+    co->pri.now         = IS_GOOD_ENUM(pri, CO_PRI_END)?pri:CO_PRI_DEFAULT;
     co->fsm.state       = fsm;
     co->stack.size      = stack_size;
     co->stack.sp        = (char *)(co + 1);

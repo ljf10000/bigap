@@ -22,7 +22,7 @@
     static inline bool              \
     is_good_##_mod(int id)          \
     {                               \
-        return is_good_enum(id, _end); \
+        return IS_GOOD_ENUM(id, _end); \
     }                               \
                                     \
     static inline char **           \

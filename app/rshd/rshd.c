@@ -14,7 +14,6 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 
 OS_INITER;
 *******************************************************************************/
-rsh_single_msg_t rsh_single;
 rsh_config_t rsh_cfg = RSH_CONFIG_INITER;
 
 rsh_t rsh = {

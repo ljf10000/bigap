@@ -137,46 +137,72 @@ os_bmask_match(byte *a, byte *b, byte *mask, int len)
     return true;
 }
 
-#ifndef BITMAPBITS
-#define BITMAPBITS  1024
-#endif
-
 enum {
     BITMAPSLOT  = (sizeof(uint32)*8),
-    BITMAPSIZE  = (BITMAPBITS/BITMAPSLOT),
 };
 
 typedef struct {
-    uint32 map[BITMAPSIZE];
+    uint32 *maps;
+    uint32 count;
 } os_bitmap_t;
 
-static inline void
-os_bitmap_set(os_bitmap_t *bmp, int bit)
+static inline bool
+__is_good_bitmap_bit(os_bitmap_t *bp, uint32 bit)
 {
-    if (is_good_enum(bit, BITMAPBITS)) {
-        int __bit = bit%BITMAPSLOT;
+    return IS_GOOD_ENUM(bit, bp->count);
+}
+
+static inline int
+os_bitmap_init(os_bitmap_t *bp, uint32 bits)
+{
+    uint32 count = OS_ALIGN(bits, BITMAPSLOT)/BITMAPSLOT;
+    
+    bp->maps = (uint32 *)os_zalloc(count * sizeof(uint32));
+    if (NULL==bp->maps) {
+        return -ENOMEM;
+    }
+    bp->count = count;
+
+    return 0;
+}
+
+static inline int
+os_bitmap_fini(os_bitmap_t *bp)
+{
+    if (bp) {
+        bp->count = 0;
         
-        os_setbit(bmp->map[bit/BITMAPSLOT], __bit);
+        os_free(bp->maps);
     }
 }
 
 static inline void
-os_bitmap_clr(os_bitmap_t *bmp, int bit)
+os_bitmap_set(os_bitmap_t *bp, uint32 bit)
 {
-    if (is_good_enum(bit, BITMAPBITS)) {
-        int __bit = bit%BITMAPSLOT;
+    if (bp && __is_good_bitmap_bit(bp, bit)) {
+        uint32 __bit = bit%BITMAPSLOT;
         
-        os_clrbit(bmp->map[bit/BITMAPSLOT], __bit);
+        os_setbit(bp->maps[bit/BITMAPSLOT], __bit);
+    }
+}
+
+static inline void
+os_bitmap_clr(os_bitmap_t *bp, uint32 bit)
+{
+    if (bp && __is_good_bitmap_bit(bp, bit)) {
+        uint32 __bit = bit%BITMAPSLOT;
+        
+        os_clrbit(bp->maps[bit/BITMAPSLOT], __bit);
     }
 }
 
 static inline bool
-os_bitmap_isset(os_bitmap_t *bmp, int bit)
+os_bitmap_isset(os_bitmap_t *bp, uint32 bit)
 {
-    if (is_good_enum(bit, BITMAPBITS)) {
-        int __bit = bit%BITMAPSLOT;
+    if (bp && __is_good_bitmap_bit(bp, bit)) {
+        uint32 __bit = bit%BITMAPSLOT;
         
-        return os_hasbit(bmp->map[bit/BITMAPSLOT], __bit);
+        return os_hasbit(bp->maps[bit/BITMAPSLOT], __bit);
     } else {
         return false;
     }

@@ -267,7 +267,7 @@ __fd_loop_once(void)
         }
         
         fd = evs->data.fd;
-        if (false==is_good_enum(fd, ____fd_count)) {
+        if (false==IS_GOOD_ENUM(fd, ____fd_count)) {
             trace_assert(0, "bad fd(%d)", fd);
             
             continue;

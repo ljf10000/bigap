@@ -3,6 +3,10 @@
 /******************************************************************************/
 #include "utils.h"
 /******************************************************************************/
+#ifndef RSH_VERSION
+#define RSH_VERSION             1
+#endif
+
 #ifndef RSH_TICKS
 #define RSH_TICKS               1000 /* ms */
 #endif
@@ -62,7 +66,7 @@ is_good_rsh_local_slot(int slot)
 static inline bool
 is_good_rsh_slot(int slot)
 {
-    return is_good_enum(slot, RSH_SLOT_END);
+    return IS_GOOD_ENUM(slot, RSH_SLOT_END);
 }
 
 #ifndef RSH_TASK_COUNT
@@ -108,70 +112,91 @@ is_good_rsh_slot(int slot)
 #define RSH_ECHO_TIMES(_slot)       (RSH_SLOT_CLOUD==(_slot)?RSH_ECHO_CLOUD_TIMES:RSH_ECHO_LOCAL_TIMES)
 #define RSH_ECHO_INTERVAL(_slot)    (RSH_SLOT_CLOUD==(_slot)?RSH_ECHO_CLOUD_INTERVAL:RSH_ECHO_LOCAL_INTERVAL)
 /******************************************************************************/
-#ifndef RSH_COOKIE0
-#define RSH_COOKIE0             32
-#endif
-
-#ifndef RSH_COOKIE1
-#define RSH_COOKIE1             18
-#endif
-
-#ifndef RSH_COOKIE2
-#define RSH_COOKIE2             1
-#endif
-
-#ifndef RSH_COOKIE3
-#define RSH_COOKIE3             23
-#endif
-
-#ifndef RSH_VERSION
-#define RSH_VERSION             1
-#endif
-
-#ifndef RSH_ALIGN
-#define RSH_ALIGN               4
-#endif
 /*
-* rshd: 
-*   (1) 
-*
-*
-* cloud:
-*   client
-*   server(master/slave)
-*
-* dev:
-*   cmd
-*   agent(master/slave, current/target/source/other)
-*/
+cmd:command/echo
+mode:asyn/syn/ack/redirect
+url:
+    http(s)://domain:port/service
+    tcp://domain:port
 
-/*
-* RSH_CMD_SHELL
-*
-* client==>server(master)==>server(slave)==>agent(master)==>[agent(slave)==>]shell
-* cmd==>agent(current)==>agent(target)==>shell
-*/
-
-/*
-* RSH_CMD_ECHO
-* RSH_CMD_ACTIVE
-*
-* agent(master)==>server(slave)
-* agent(current)==>agent(other)
-*
-* zero body
-*/
-
-static inline int
-rsh_align(int size)
+request(echo):  agent==>cloud
+response(echo): agent<==cloud
 {
-    return OS_ALIGN(size, RSH_ALIGN);
+    "version": VERSION,
+    "mac":"MAC",
+    "cmd":"echo",
 }
 
+request(shell, asyn): agent<==cloud
+{
+    "version": VERSION,
+    "mac":"MAC",
+    "slot":SLOT,
+    "cmd":"command",
+    "mode":"asyn",
+    "seq":SEQ,
+    "stdin":"STDIN"
+}
+
+request(shell, syn): agent<==cloud
+{
+    "version": VERSION,
+    "mac":"MAC",
+    "slot":SLOT,
+    "cmd":"command",
+    "mode":"syn",
+    "seq":SEQ,
+    "stdin":"STDIN",
+    "redirect": {
+        "url":"URL"
+    }
+}
+
+response(shell, syn): agent==>cloud
+{
+    "version": VERSION,
+    "mac":"MAC",
+    "slot":SLOT,
+    "cmd":"command",
+    "mode":"syn",
+    "seq":SEQ,
+    "stdin":"STDIN",
+    "redirect": {
+        "url":"URL"
+    },
+    
+    "stdout":"STDOUT",
+    "stderr":"STDERR",
+    "errno":ERRNO
+}
+
+request(shell, ack): agent<==cloud
+{
+    "version": VERSION,
+    "mac":"MAC",
+    "slot":SLOT,
+    "cmd":"command",
+    "mode":"asyn",
+    "seq":SEQ,
+    "stdin":"STDIN"
+}
+
+response(shell, ack): agent==>cloud
+{
+    "version": VERSION,
+    "mac":"MAC",
+    "slot":SLOT,
+    "cmd":"command",
+    "mode":"ack",
+    "seq":SEQ,
+    "stdin":"STDIN"
+}
+
+*/
+
 #define __XLIST_RSH_CMD(_)              \
-    _(RSH_CMD_SHELL,    0, "shell"),    \
+    _(RSH_CMD_COMMAND,  0, "command"),  \
     _(RSH_CMD_ECHO,     1, "echo"),     \
-    _(RSH_CMD_ACTIVE,   2, "active"),   \
     /* end */
 
 static inline bool is_good_rsh_cmd(int cmd);
@@ -180,17 +205,10 @@ static inline int rsh_cmd_idx(char *cmd_string);
 DECLARE_ENUM(rsh_cmd, __XLIST_RSH_CMD, RSH_CMD_END);
 
 #if 1 /* just for sourceinsight */
-#define RSH_CMD_SHELL   RSH_CMD_SHELL
-#define RSH_CMD_ECHO    RSH_CMD_ECHO
-#define RSH_CMD_ACTIVE  RSH_CMD_ACTIVE
-#define RSH_CMD_END     RSH_CMD_END
+#define RSH_CMD_COMMAND     RSH_CMD_COMMAND
+#define RSH_CMD_ECHO        RSH_CMD_ECHO
+#define RSH_CMD_END         RSH_CMD_END
 #endif /* just for sourceinsight */
-
-static inline bool
-is_rsh_zero_cmd(int cmd)
-{
-    return RSH_CMD_ECHO==cmd;
-}
 
 #define __XLIST_RSH_CMD(_)          \
     _(RSH_MODE_SYN,     0, "syn"),  \
@@ -210,206 +228,10 @@ DECLARE_ENUM(rsh_mode, __XLIST_RSH_CMD, RSH_MODE_END);
 #define RSH_MODE_END    RSH_MODE_END
 #endif /* just for sourceinsight */
 
-enum {
-    RSH_F_ACK   = 0x01,
-    
-    RSH_F_XXX
-};
-
-typedef struct {
-    byte     mac[6];
-    byte  src;       /* src slot     */
-    byte  dst;       /* dst slot     */
-    
-    byte  cookie0;   /* RSH_COOKIE0  */
-    byte  mode;      /* RSH_F_XXX    */
-    byte  cookie1;   /* RSH_COOKIE1  */
-    byte  flag;      /* RSH_F_XXX    */
-    
-    byte  version;   /* RSH_VERSION  */
-    byte  cookie2;   /* RSH_COOKIE2  */
-    byte  cmd;       /* RSH_CMD_END  */
-    byte  cookie3;   /* RSH_COOKIE3  */
-
-    uint16 len;       /* msg length, NOT include header, NOT include '\0' */
-    union {
-        int16 maxrun;
-        int16 error;
-    } u;
-
-    uint32 id;        /* msg id       */
-
-    union {
-        char data[0];
-        char *buffer[0];
-    } body;
-} 
-rsh_msg_t;
-
-#define RSH_MSG_FLAG(_flag)     (((rand() & 0xff) & ~(_flag)) | (_flag))
-#define RSH_MSG_INITER(_src, _dst, _cmd, _mode, _flag, _maxrun, _id)  { \
-    .src        = _src,         \
-    .dst        = _dst,         \
-    .cookie0    = RSH_COOKIE0,  \
-    .cookie1    = RSH_COOKIE1,  \
-    .cookie2    = RSH_COOKIE2,  \
-    .cookie3    = RSH_COOKIE3,  \
-    .mode       = _mode,        \
-    .flag       = (_flag)?RSH_MSG_FLAG(_flag):0, \
-    .cmd        = _cmd,         \
-    .id         = _id,          \
-    .u          = {             \
-        .maxrun = _maxrun,      \
-    },                          \
-}
-
-#define RSH_PROTOCOL_UDP        1
-#define RSH_PROTOCOL_PRIVATE    2
-
-#ifndef RSH_PROTOCOL
-#define RSH_PROTOCOL            RSH_PROTOCOL_UDP
-#endif
-
-#if RSH_PROTOCOL_UDP==RSH_PROTOCOL
-#   ifndef RSH_MSG_SIZE_MAX
-#       define RSH_MSG_SIZE_MAX (64*1024)
-#   endif
-#   ifndef RSH_MSG_SIZE
-#       define RSH_MSG_SIZE     (RSH_MSG_SIZE_MAX - 14/*eth*/ - 4/*vlan*/ - 20/*ip*/ - 16/*udp*/ - 8/*pad*/)
-#   endif
-#else
-#   error "invalid rsh protocol"
-#endif
-
-#define RSH_MSG_DSIZE           (RSH_MSG_SIZE - sizeof(rsh_msg_t))
-
-typedef union {
-    byte buf[RSH_MSG_SIZE];
-    
-    rsh_msg_t msg;
-} rsh_single_msg_t;
-
-typedef struct {
-    rsh_msg_t msg;
-    
-    char *buffer;
-} rsh_multi_msg_t;
-
-static inline void rsh_cookie_set(rsh_msg_t *msg)
-{
-    msg->cookie0 = RSH_COOKIE0;
-    msg->cookie1 = RSH_COOKIE1;
-    msg->cookie2 = RSH_COOKIE2;
-    msg->cookie3 = RSH_COOKIE3;
-}
-
-static inline void is_good_rsh_cookie(rsh_msg_t *msg)
-{
-    return RSH_COOKIE0==msg->cookie0
-        && RSH_COOKIE1==msg->cookie1
-        && RSH_COOKIE2==msg->cookie2
-        && RSH_COOKIE3==msg->cookie3;
-}
-
-/*
-* network/host sort
-*/
-static inline bool
-__is_good_rsh_msg(rsh_msg_t *msg)
-{
-    if (RSH_VERSION!=msg->version) {
-        return false;
-    }
-    else if (false==is_good_rsh_cookie(msg)) {
-        return false;
-    }
-    else if (false==is_good_rsh_cmd(msg->cmd)) {
-        return false;
-    }
-    else if (false==is_good_rsh_mode(msg->mode)) {
-        return false;
-    }
-    else if (msg->src == msg->dst) {
-        return false;
-    }
-    else if (false==is_good_rsh_slot(msg->src)) {
-        return false;
-    }
-    else if (false==is_good_rsh_slot(msg->dst)) {
-        return false;
-    }
-    else if (false==is_good_mac(msg->mac)) {
-        return false;
-    }
-    else {
-        return true;
-    }
-}
-
-/*
-* host sort
-*/
-static inline bool
-is_good_rsh_msg(rsh_msg_t *msg)
-{
-    return __is_good_rsh_msg(msg) && msg->len <= RSH_MSG_DSIZE;
-}
-
-static inline bool
-is_rsh_ack(rsh_msg_t *msg)
-{
-    return os_hasflag(msg->flag, RSH_F_ACK);
-}
-
-static inline int
-rsh_msg_size(rsh_msg_t *msg)
-{
-    return sizeof(rsh_msg_t) + msg->len;
-}
-
-static inline void
-rsh_m_release(rsh_msg_t *msg)
-{
-    os_free(msg->body.buffer[0]);
-}
-
-static inline void
-rsh_msg_header_hton(rsh_msg_t *msg)
-{
-    msg->id     = htonl(msg->id);
-    
-    msg->len    = htons(msg->len);
-    msg->u.error= htons(msg->u.error);
-}
-#define rsh_msg_header_ntoh(_msg)   rsh_msg_header_hton(_msg)
-
-static inline int
-rsh_msg_hton(rsh_msg_t *msg)
-{
-    if (false==is_good_rsh_msg(msg)) {
-        return -EFORMAT;
-    }
-
-    rsh_msg_header_hton(msg);
-
-    return 0;
-}
-
-static inline int
-rsh_msg_ntoh(rsh_msg_t *msg)
-{
-    rsh_msg_header_ntoh(msg);
-    
-    if (false==is_good_rsh_msg(msg)) {
-        return -EFORMAT;
-    }
-
-    return 0;
-}
 /******************************************************************************/
 typedef struct {
-    uint32 ip;    /* network sort */
-    int port;       /* network sort */
+    uint32 ip;      /* network sort */
+    int port;
     
     int interval;   /* seconds */
     int times;
@@ -425,7 +247,6 @@ typedef struct {
     char *config;       /* config file */
     char *basemac;
     
-    byte mac[6], r[2];
     int current;        /* current slot */
     
     rsh_slot_t slot[RSH_SLOT_END];
@@ -439,7 +260,6 @@ typedef struct {
 }
 
 extern rsh_config_t rsh_cfg;
-#define rsh_mac                         rsh_cfg.mac
 #define rsh_slot(_slot)                 (&rsh_cfg.slot[_slot])
 #define rsh_slot_ip(_slot)              rsh_slot(_slot)->ip
 #define rsh_slot_port(_slot)            rsh_slot(_slot)->port
@@ -514,33 +334,6 @@ rsh_slot_dump(int slot)
         rshd_echo_recv(slot, 0), rshd_echo_recv(slot, 1));
 }
 /******************************************************************************/
-static inline void
-rsh_msg_init(
-    rsh_msg_t *msg, 
-    int src,
-    int dst,
-    int cmd, 
-    int mode,
-    int flag,
-    int maxrun, 
-    uint32 id
-)
-{
-    os_objzero(msg);
-
-    rsh_cookie_set(msg);
-    os_maccpy(msg->mac, rsh_mac);
-    msg->version= RSH_VERSION;
-
-    msg->src    = src;
-    msg->dst    = dst;
-    msg->cmd    = cmd;
-    msg->mode   = mode;
-    msg->flag   = flag?RSH_MSG_FLAG(flag):0;
-    msg->id     = id;
-    msg->u.maxrun = maxrun;
-}
-
 static inline int
 rsh_connect(int fd, int slot)
 {
@@ -671,8 +464,8 @@ rsh_load(void)
     * maybe not found basemac
     */
     os_pgets(basemac, OS_LINE_LEN, SCRIPT_PRODUCT_BASEMAC);
-    os_getmac_bystring(rsh_cfg.mac, basemac);
-
+    rsh_cfg.basemac = os_strdup(basemac);
+    
     rsh_cfg.config = env_gets(ENV_RSH_CONFIG, RSH_CONFIG_FILE);
     jcfg = jobj_file(rsh_cfg.config);
     if (NULL==jcfg) goto error;

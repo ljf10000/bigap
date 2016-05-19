@@ -151,6 +151,7 @@ static inline bool is_good_common_id(int id)
 /*
 * check id with [0, end)
 */
+#define IS_GOOD_ENUM(_id, _end)     IS_GOOD_VALUE(_id, 0, _end)
 #define is_good_enum(_id, _end)     is_good_value(_id, 0, _end)
 
 #define OS_SAFE_VALUE_DEFT(_value, _min, _max, _deft)   \

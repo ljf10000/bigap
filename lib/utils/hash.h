@@ -50,7 +50,7 @@ __in_hash(hash_node_t *node)
 static inline bool
 __is_good_hash_idx(hash_t *h, hash_idx_t idx)
 {
-    return is_good_enum(idx, h->size);
+    return IS_GOOD_ENUM(idx, h->size);
 }
 
 static inline hash_bucket_t *

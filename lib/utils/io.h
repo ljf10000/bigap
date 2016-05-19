@@ -51,8 +51,8 @@ __io_write_error(char *io, char *buf, int size, int error)
 #define __IO_READ(_action, _fd, _buf, _len, _timeout, _call)  ({ \
     fd_set rset;                                        \
     struct timeval tv = {                               \
-        .tv_sec     = os_second(_timeout),               \
-        .tv_usec    = os_usecond(_timeout),              \
+        .tv_sec     = os_second(_timeout),              \
+        .tv_usec    = os_usecond(_timeout),             \
     };                                                  \
     int err;                                            \
                                                         \
@@ -91,8 +91,12 @@ __io_write_error(char *io, char *buf, int size, int error)
 static inline int
 __io_read(int fd, char *buf, int size)
 {
-    int err = read(fd, buf, size);
+    int err = 0;
 
+    do { 
+        err = read(fd, buf, size);
+    } while(err<0 && EINTR==errno);
+    
     return __io_read_error("read", buf, size, err);
 }
 
