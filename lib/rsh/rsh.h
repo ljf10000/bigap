@@ -114,7 +114,7 @@ is_good_rsh_slot(int slot)
 /******************************************************************************/
 /*
 cmd:command/echo
-mode:asyn/syn/ack/redirect
+mode:asyn/syn/ack/reflect
 url:
     http(s)://domain:port/service
     tcp://domain:port
@@ -127,7 +127,9 @@ response(echo): agent<==cloud
     "cmd":"echo",
 }
 
-request(shell, asyn): agent<==cloud
+request(shell, asyn): 
+    agent<==cloud
+    rshc==>xinetd
 {
     "version": VERSION,
     "mac":"MAC",
@@ -138,7 +140,33 @@ request(shell, asyn): agent<==cloud
     "stdin":"STDIN"
 }
 
-request(shell, syn): agent<==cloud
+request(shell, ack): 
+    agent<==cloud
+    rshc==>xinetd
+{
+    "version": VERSION,
+    "mac":"MAC",
+    "slot":SLOT,
+    "cmd":"command",
+    "mode":"asyn",
+    "seq":SEQ,
+    "stdin":"STDIN"
+}
+
+response(shell, ack): 
+    agent==>cloud
+    rshc<==xinetd
+{
+    "version": VERSION,
+    "mac":"MAC",
+    "slot":SLOT,
+    "cmd":"command",
+    "mode":"ack",
+    "seq":SEQ,
+    "stdin":"STDIN"
+}
+
+request(shell, reflect): agent<==cloud
 {
     "version": VERSION,
     "mac":"MAC",
@@ -152,7 +180,7 @@ request(shell, syn): agent<==cloud
     }
 }
 
-response(shell, syn): agent==>cloud
+response(shell, reflect): xinetd==>cloud
 {
     "version": VERSION,
     "mac":"MAC",
@@ -170,28 +198,42 @@ response(shell, syn): agent==>cloud
     "errno":ERRNO
 }
 
-request(shell, ack): agent<==cloud
+request(shell, syn): rshc==>xinetd
 {
     "version": VERSION,
     "mac":"MAC",
     "slot":SLOT,
     "cmd":"command",
-    "mode":"asyn",
+    "mode":"syn",
     "seq":SEQ,
-    "stdin":"STDIN"
+    "stdin":"STDIN",
 }
 
-response(shell, ack): agent==>cloud
+response(shell, syn): rshc<==xinetd
 {
     "version": VERSION,
     "mac":"MAC",
     "slot":SLOT,
     "cmd":"command",
-    "mode":"ack",
+    "mode":"syn",
     "seq":SEQ,
-    "stdin":"STDIN"
+    "stdin":"STDIN",
+
+    "stdout":"STDOUT",
+    "stderr":"STDERR",
+    "errno":ERRNO
 }
 
+echo: cloud==(echo-request)==>agent==(echo-response)==>cloud
+asyn: cloud==(asyn-request)==>agent==(asyn-request)==>xinetd
+                                |
+                                |
+                                ==(asyn-request)==>fork
+reflect:cloud==(reflect-request)==>agent==(reflect-request)==>xinetd==(reflect-response)==>cloud
+                                |
+                                |
+                                ==(reflect-request)==>fork==(reflect-response)==>cloud
+syn: rshc==(syn-request)==>xinetd==(syn-response)==>rshc
 */
 
 #define __XLIST_RSH_CMD(_)              \
