@@ -57,10 +57,6 @@
 #define RSH_SLOT_FILE           "/tmp/.rsh.%d.slot"
 #endif
 
-#ifndef RSH_SLOT_SCRIPT
-#define RSH_SLOT_SCRIPT         "/usr/sbin/.rsh.slot.script"
-#endif
-
 #ifndef RSH_REQUEST_SCRIPT
 #define RSH_REQUEST_SCRIPT      "/usr/sbin/.rsh.request"
 #endif

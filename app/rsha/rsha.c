@@ -5,11 +5,13 @@ Copyright (c) 2015-2016, xxx Networks. All rights reserved.
 #define __THIS_APP      rsha
 #endif
 
+#define __DEAMON__
+
 #include "utils.h"
 #include "rsh/rsh.h"
 
 OS_INITER;
-
+*******************************************************************************/
 typedef struct {
     char *ipstring;
     uint32 ip;      /* network sort */
@@ -24,6 +26,7 @@ typedef struct {
 typedef struct {
     char *config;       /* local config file */
     char *cloud;        /* cloud config file */
+    
     char *basemac;
     char *request;
     char *response;
@@ -43,36 +46,48 @@ typedef struct {
 }
 
 typedef struct {
-    char *echo_request;
-    int echo_size;
-    
+    rsh_config_t cfg;
+
+    struct {
+        char *request;
+        int size;
+        
+        bool sig;
+    } echo;
+        
     int fd;
-    bool echo;
 } rsh_agent_t;
 
-static rsh_config_t rsh_cfg = RSH_CONFIG_INITER;
-static rsh_agent_t  rsh = {
-    .fd = INVALID_FD,
-    .usr= INVALID_VALUE,
+static rsh_agent_t rsh = {      \
+    .cfg= RSH_CONFIG_INITER,    \
+    .fd = INVALID_FD,           \
 };
 static char rsh_buffer[64*1024];
-static int rsh_size;
 
-#define rsh_keepalive_times         rsh_cfg.echo.times
-#define rsh_keepalive_interval      rsh_cfg.echo.interval
+#define rsh_config                  rsh.cfg.config
+#define rsh_cloud                   rsh.cfg.cloud
+#define rsh_request                 rsh.cfg.request
+#define rsh_response                rsh.cfg.response
+#define rsh_basemac                 rsh.cfg.basemac
 
-#define rsh_slot(_slot)                 (&rsh_cfg.slot[_slot])
-#define rsh_slot_ip(_slot)              rsh_slot(_slot)->ip
-#define rsh_slot_ipstring(_slot)        rsh_slot(_slot)->ipstring
-#define rsh_slot_port(_slot)            rsh_slot(_slot)->port
-#define RSH_SLOT_ADDR(_slot)            OS_SOCKADDR_INET(rsh_slot_ip(_slot), rsh_slot_port(_slot))
+#define rsh_echo_times              rsh.cfg.echo.times
+#define rsh_echo_interval           rsh.cfg.echo.interval
+#define rsh_echo_request            rsh.echo.request
+#define rsh_echo_size               rsh.echo.size
+#define rsh_echo_sig                rsh.echo.sig
 
-#define rsh_master                  rsh_cfg.master
+#define rsh_slot(_slot)             (&rsh.cfg.slot[_slot])
+#define rsh_slot_ip(_slot)          rsh_slot(_slot)->ip
+#define rsh_slot_ipstring(_slot)    rsh_slot(_slot)->ipstring
+#define rsh_slot_port(_slot)        rsh_slot(_slot)->port
+#define RSH_SLOT_ADDR(_slot)        OS_SOCKADDR_INET(rsh_slot_ip(_slot), rsh_slot_port(_slot))
+
+#define rsh_master                  rsh.cfg.master
 #define rsh_master_ip               rsh_slot_ip(rsh_master)
 #define rsh_master_ipstring         rsh_slot_ipstring(rsh_master)
 #define rsh_master_port             rsh_slot_port(rsh_master)
 
-#define rsh_current                 rsh_cfg.current
+#define rsh_current                 rsh.cfg.current
 #define rsh_current_ip              rsh_slot_ip(rsh_current)
 #define rsh_current_ipstring        rsh_slot_ipstring(rsh_current)
 #define rsh_current_port            rsh_slot_port(rsh_current)
@@ -82,157 +97,12 @@ static int rsh_size;
 #define rsh_cloud_port              rsh_slot_port(RSH_SLOT_CLOUD)
 #define RSH_CLOUD_ADDR              RSH_SLOT_ADDR(RSH_SLOT_CLOUD)
 
-#define rsh_request                 rsh_cfg.request
-#define rsh_response                rsh_cfg.response
-
 static inline bool
 is_cloud_ready(void)
 {
-    return rsh_cfg.cloud && rsh_cloud_ip && rsh_cloud_ipstring && rsh_cloud_port;
-}
-
-/*
-* all   := cloud + local
-* local := current + other
-* local := master  + slave
-*/
-#define rsh_is_cloud(_slot)         (RSH_SLOT_CLOUD==(_slot))
-#define rsh_is_local(_slot)         (false==rsh_is_cloud(_slot))
-#define rsh_is_current(_slot)       ((_slot)==rsh_current)
-#define rsh_is_other(_slot)         (rsh_is_local(_slot) && false==rsh_is_current(_slot))
-#define rsh_is_master(_slot)        (RSH_SLOT_MASTER==(_slot))
-#define rsh_is_slave(_slot)         (false==rsh_is_master(_slot))
-
-static inline void
-__rsh_slot_state(int slot, bool alive)
-{
-    rshd_slot_alive(slot) = alive;
-
-    os_v_fseti(alive, RSH_SLOT_FILE, slot);
-    os_system(RSH_SLOT_SCRIPT " %d %d &", slot, alive);
-}
-
-static inline void
-rsh_slot_state(int slot, bool alive)
-{
-    alive = !!alive;
-
-    if (false==alive && rshd_slot_alive(slot)) {
-        rshd_slot_disconnect(slot)++;
-
-        __rsh_slot_state(slot, alive);
-    }
-    else if (alive && false==rshd_slot_alive(slot)) {
-        rshd_slot_connect(slot)++;
-
-        __rsh_slot_state(slot, alive);
-    }
-}
-
-static inline void
-rsh_slot_dump(int slot)
-{
-    debug_config("slot[%d]"                     __space
-        "config:"                               __space
-            "ip[%s] port[%d]",
-        slot,
-        rsh_slot_ipstring(slot), ntohs(rsh_slot_port(slot)));
+    return rsh_cloud && rsh_cloud_ip && rsh_cloud_ipstring && rsh_cloud_port;
 }
 /******************************************************************************/
-static inline int
-rsh_connect(int fd, int slot)
-{
-    sockaddr_in_t server = OS_SOCKADDR_INET(rsh_slot_ip(slot), rsh_slot_port(slot));
-    
-    return connect(fd, &server, sizeof(server));
-}
-
-static inline int
-rsh_disconnect(int fd)
-{
-    sockaddr_t unspec = OS_SOCKADDR_UNSPEC();
-
-    return connect(fd, &unspec, sizeof(unspec));
-}
-
-static inline int
-rsh_recvfrom(int fd, rsh_single_msg_t *single, sockaddr_in_t *from, int *addrlen)
-{
-    int msglen = recvfrom(fd, single, sizeof(*single), 0, from, addrlen);
-    if (msglen<0) {
-        return -errno;
-    }
-    else if (msglen==sizeof(rsh_single)) {
-        return -ETOOBIG;
-    }
-
-    rsh_msg_t *msg = &single->msg;
-    int err = rsh_msg_ntoh(msg);
-    if (err<0) {
-        return err;
-    }
-    else if (msglen!=rsh_msg_size(msg)) {
-        return -ENOMATCH;
-    }
-    
-    return msglen;
-}
-
-static inline int
-rsh_m_sendto(int fd, rsh_msg_t *msg, int slot)
-{
-    int size = rsh_msg_size(msg);
-    struct iovec iov[] = {
-        OS_IOVEC_INITER(msg, sizeof(*msg)),
-        OS_IOVEC_INITER(msg->body.buffer, msg->len),
-    };
-    
-    rsh_msg_hton(msg);
-    rsh_connect(fd, slot);
-    int len = io_writev(fd, iov, os_count_of(iov));
-    rsh_disconnect(fd);
-
-    if (len<0) {
-        return len;
-    }
-    else if (len==size) {
-        /*
-        * send ok, clean cache
-        */
-    }
-    else if (len>0) {
-        /*
-        * send some data, reconnect
-        */
-    }
-    
-    return len;
-}
-
-static inline int
-rsh_s_sendto(int fd, rsh_msg_t *msg, int slot)
-{
-    sockaddr_in_t server = RSH_SLOT_ADDR(slot);
-    int size = rsh_msg_size(msg);
-
-    int len = io_sendto(fd, msg, size, &server, sizeof(server));
-    if (len<0) {
-        return len;
-    }
-    else if (len==size) {
-        /*
-        * send ok, clean cache
-        */
-    }
-    else if (len>0) {
-        /*
-        * send some data, reconnect
-        */
-    }
-    
-    return len;
-}
-
 /*
 {
     "slot": [
@@ -313,13 +183,13 @@ __load_config(jobj_t jcfg)
     if (NULL==jtimes) {
         return -ENOEXIST;
     }
-    rsh_keepalive_times = jobj_get_i32(jtimes);
+    rsh_echo_times = jobj_get_i32(jtimes);
     
     jobj_t jinterval = jobj_get(jecho, "interval");
     if (NULL==jinterval) {
         return -ENOEXIST;
     }
-    rsh_keepalive_interval = jobj_get_i32(jinterval);
+    rsh_echo_interval = jobj_get_i32(jinterval);
     
     return 0;
 }
@@ -328,17 +198,17 @@ static inline int
 load_config(void)
 {
     int err;
-    jobj_t jobj = NULL;
+    jobj_t jcfg = NULL;
     
-    rsh_cfg.config = env_gets(ENV_RSH_CONFIG, RSH_CONFIG_FILE);
-    jobj = jobj_file(rsh_cfg.config);
-    if (NULL==jobj) {
+    rsh_config = env_gets(ENV_RSH_CONFIG, RSH_CONFIG_FILE);
+    jcfg = jobj_file(rsh_config);
+    if (NULL==jcfg) {
         err = -EBADCFG; goto error;
     }
     
-    err = __load_config(jobj);
+    err = __load_config(jcfg);
 error:
-    jobj_put(jobj);
+    jobj_put(jcfg);
     
     return err;
 }
@@ -347,22 +217,22 @@ static inline int
 load_cloud(void)
 {
     int err = 0;
-    jobj_t jobj = NULL;
+    jobj_t jcfg = NULL;
 
-    if (NULL==rsh_cfg.cloud) {
-        rsh_cfg.cloud = env_gets(ENV_RSH_CLOUD_CONFIG, RSH_CLOUD_CONFIG_FILE);
+    if (NULL==rsh_cloud) {
+        rsh_cloud = env_gets(ENV_RSH_CLOUD_CONFIG, RSH_CLOUD_CONFIG_FILE);
     }
 
     if (false==is_cloud_ready()) {
-        jobj = jobj_file(rsh_cfg.cloud);
-        if (NULL==jobj) {
+        jcfg = jobj_file(rsh_cloud);
+        if (NULL==jcfg) {
             err = -EBADCFG; goto error;
         }
         
-        err = load_slot(jobj, RSH_SLOT_CLOUD);
+        err = load_slot(jcfg, RSH_SLOT_CLOUD);
     }
 error:
-    jobj_put(jobj);
+    jobj_put(jcfg);
     
     return err;
 }
@@ -372,7 +242,6 @@ init_cfg(void)
 {
     int err;
     jobj_t jcfg = NULL;
-    char basemac[1+OS_LINE_LEN] = {0};
     
 #if RSH_SLOT_MULTI
     rsh_current = env_geti(ENV_RSH_SLOT_LOCAL, RSH_SLOT_MASTER);
@@ -382,23 +251,26 @@ init_cfg(void)
     rsh_master  = RSH_SLOT_MASTER;
 #endif
 
+    rsh_request = env_gets(ENV_RSH_REQUEST_SCRIPT,  RSH_REQUEST_SCRIPT);
+    rsh_response= env_gets(ENV_RSH_RESPONSE_SCRIPT, RSH_RESPONSE_SCRIPT);
+
     /*
     * get basemac
     */
-    os_pgets(basemac, OS_LINE_LEN, SCRIPT_PRODUCT_BASEMAC);
-    if (false==is_good_macstring(basemac)) {
+    char *basemac = get_basemac();
+    if (NULL==basemac) {
         return -EBADMAC;
     }
-    rsh_cfg.basemac = os_strdup(basemac);
+    rsh_basemac = os_strdup(basemac);
     
     /*
     * init echo-request
     */
-    os_asprintf(&rsh.echo_request, RSH_ECHO_REQUEST, RSH_VERSION, basemac);
-    if (NULL==rsh.echo_request) {
+    os_asprintf(&rsh_echo_request, RSH_ECHO_REQUEST, RSH_VERSION, rsh_basemac);
+    if (NULL==rsh_echo_request) {
         return -EBADMAC;
     }
-    rsh.echo_size = 1 + os_strlen(rsh.echo_request);
+    rsh_echo_size = 1 + os_strlen(rsh_echo_request);
     
     err = load_config();
     if (err<0) {
@@ -455,7 +327,7 @@ __send(char *buf, int size)
 static int
 __echo(void)
 {
-    return __send(rsh.echo_request, rsh.echo_size);
+    return __send(rsh_echo_request, rsh_echo_size);
 }
 
 static int
@@ -542,7 +414,7 @@ __proto(jobj_t jrequest)
         return -EBADPROTO;
     }
     char *mac = jobj_get_string(jmac);
-    if (false==os_streq(mac, rsh_cfg.basemac)) {
+    if (false==os_streq(mac, rsh_basemac)) {
         return -ENOMATCH;
     }
 
@@ -629,7 +501,7 @@ __signal(int sig)
     switch(sig) {
         case SIGALRM: /* timer */
         case SIGUSR1: /* ipcp up */
-            rsh.echo = true;
+            rsh_echo_sig = true;
 
             break;
         default:
@@ -640,8 +512,8 @@ __signal(int sig)
 static int
 __signal_bottom(void)
 {
-    if (rsh.echo) {
-        rsh.echo = false;
+    if (rsh_echo_sig) {
+        rsh_echo_sig = false;
         
         __echo();
     }

@@ -32,10 +32,5 @@
 #define PRODUCT_VERSION         __PRODUCT_VERSION(__PRODUCT__)
 #define IS_PRODUCT_LTEFI_AP     __PRODUCT_LTEFI_AP(__PRODUCT__)
 #define IS_PRODUCT_LTEFI_MD     __PRODUCT_LTEFI_MD(__PRODUCT__)
-
-
-#ifndef SCRIPT_PRODUCT_BASEMAC
-#define SCRIPT_PRODUCT_BASEMAC  "/usr/sbin/basemac"
-#endif
 /******************************************************************************/
 #endif /* __PRODUCT_H_3aeec50c6570419493004695d20c38b5__ */

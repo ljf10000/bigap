@@ -470,9 +470,20 @@ os_macstring(byte mac[])
     return os_getmacstring(mac, MACSTRINGLEN_L, ':');
 }
 
-#ifndef ENV_BASEMAC
-#define ENV_BASEMAC         "__BASEMAC__"
+#ifndef SCRIPT_BASEMAC
+#define SCRIPT_BASEMAC  "/usr/sbin/basemac"
 #endif
+
+static inline char *
+get_basemac(void)
+{
+    static char line[1+OS_LINE_LEN];
+    
+    os_pgets(line, OS_LINE_LEN, SCRIPT_BASEMAC);
+
+    return is_good_macstring(line)?line:NULL;
+}
+
 /******************************************************************************/
 enum {
     OS_IPSTRINGLEN = sizeof("255.255.255.255") - 1,
