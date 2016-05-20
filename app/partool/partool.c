@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (c) 2012-2015, xxx Networks. All rights reserved.
+Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 *******************************************************************************/
 #ifndef __THIS_APP
 #define __THIS_APP      partool
