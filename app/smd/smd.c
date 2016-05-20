@@ -785,16 +785,7 @@ init_server(void)
 static int 
 init_timer(void)
 {
-    struct itimerval itimer = OS_ITIMEVAL_INITER(SM_TIMER, 0);
-    
-    int err = setitimer(ITIMER_REAL, &itimer, NULL);
-    if (err<0) {
-        debug_error("init timer error:%d", -errno);
-        
-        return -errno;
-    }
-    
-    return 0;
+    return setup_timer(SM_TIMER, 0);
 }
 
 static int

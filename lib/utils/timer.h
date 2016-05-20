@@ -619,6 +619,22 @@ tm_fd_trigger(int fd)
     return tm_trigger(tm_fd_read(fd));
 }
 
+static int 
+setup_timer(int sec, int usec)
+{
+    struct itimerval itimer = OS_ITIMEVAL_INITER(sec, usec);
+    
+    int err = setitimer(ITIMER_REAL, &itimer, NULL);
+    if (err<0) {
+        debug_error("init timer error:%d", -errno);
+        
+        return -errno;
+    }
+    
+    return 0;
+}
+
+
 #endif
 /******************************************************************************/
 #endif /* __TIMER_H_b00517b21c0f48b49c6d2c7b50c5ddb8__ */

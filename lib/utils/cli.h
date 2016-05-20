@@ -283,9 +283,7 @@ __cli_c_handle(
     int timeout
 )
 {
-    int fd;
-    int err;
-    int len;
+    int fd, err, len;
     
     fd = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (fd<0) {
