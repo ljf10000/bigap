@@ -771,15 +771,11 @@ static inline int
 ak_init(void) 
 {
     int err = 0;
-
-    ak_println("ak_init 1");
     
     err = os_shm_create(__this_ak(), appkey_shm_size, false);
     if (err<0) { /* >=0 is valid shm id */
         goto error;
     }
-
-    ak_println("ak_init 2");
     
     if (false==__ak_inited) {
         ak_println("ak first load");
@@ -791,11 +787,11 @@ ak_init(void)
         
         __ak_load();
     }
-
-    ak_println("ak_init 3");
     
     __ak_init();
     __ak_dump();
+
+    os_println("__ak_debug=%d", __ak_debug);
     
     ak_println("init OK!");
     
