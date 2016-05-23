@@ -169,6 +169,7 @@
 #endif /* OS_EXTEND */
 
 #include "oem/oem.h"
+#include "haenv/haenv.h"
 /******************************************************************************/
 #ifdef OS_EXTEND
 #define OS_EXT_INITER       \

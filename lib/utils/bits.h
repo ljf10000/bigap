@@ -174,6 +174,8 @@ os_bitmap_fini(os_bitmap_t *bp)
         
         os_free(bp->maps);
     }
+
+    return 0;
 }
 
 static inline void
