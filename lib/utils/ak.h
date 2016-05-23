@@ -673,6 +673,8 @@ __ak_load(void)
     } else {
         path = AK_PATH_DEFT;
     }
+
+    ak_println("AK_PATH=%s", path);
     
     ret = os_fscan_dir(path, false, __ak_file_filter, NULL, __ak_load_line);
     if (ret<0) {
