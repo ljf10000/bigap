@@ -11,7 +11,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #include "rsh/rsh.h"
 
 OS_INITER;
-*******************************************************************************/
+/******************************************************************************/
 typedef struct {
     char *ipstring;
     uint32 ip;      /* network sort */
