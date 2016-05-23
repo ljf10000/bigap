@@ -49,20 +49,20 @@
 #define RSH_CFG_PREFIX              ""
 #define RSH_BIN_PREFIX              ""
 #else
-#define RSH_CFG_PREFIX              "/tmp/."
-#define RSH_BIN_PREFIX              "/usr/sbin/."
+#define RSH_CFG_PREFIX              "/tmp/config/"
+#define RSH_BIN_PREFIX              "/usr/sbin/"
 #endif
 
 #ifndef RSH_CONFIG_FILE
-#define RSH_CONFIG_FILE             RSH_PREFIX "rsh.config"
+#define RSH_CONFIG_FILE             RSH_CFG_PREFIX "rsh.config"
 #endif
 
 #ifndef RSH_CLOUD_CONFIG_FILE
-#define RSH_CLOUD_CONFIG_FILE       RSH_PREFIX "rsh.cloud"
+#define RSH_CLOUD_CONFIG_FILE       RSH_CFG_PREFIX "rsh.cloud"
 #endif
 
 #ifndef RSH_SLOT_FILE
-#define RSH_SLOT_FILE               RSH_PREFIX "rsh.%d.slot"
+#define RSH_SLOT_FILE               RSH_CFG_PREFIX "rsh.%d.slot"
 #endif
 
 #ifndef RSH_REQUEST_SCRIPT
