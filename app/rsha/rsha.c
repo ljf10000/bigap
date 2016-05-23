@@ -128,27 +128,32 @@ static inline int
 load_slot(jobj_t jslot, int slot)
 {
     int err;
+    uint32 ip;
     
     jobj_t jip = jobj_get(jslot, "ip");
     if (NULL==jip) {
         return -ENOEXIST;
     }
     char *ipstring = jobj_get_string(jslot);
-    uint32 ip = inet_addr(ipstring);
-    if (INADDR_NONE==ip && is_local_rsh_slot(slot)) {
+    if (is_good_ipstring(ipstring)) {
+        ip = inet_addr(ipstring);
+    } else if (is_local_rsh_slot(slot)) {
         return -EBADCFG;
+    } else {
+        struct hostent *h = gethostbyname(ipstring);
+        if (NULL==h) {
+            return 0;
+        }
+
+        ip = ((struct in_addr *)h->h_addr)->s_addr;
     }
-    rsh_slot_ip(slot) = htonl(ip);
-    rsh_slot_ipstring(slot) = os_strdup(ipstring);
+    rsh_slot_ip(slot) = ip;
+    rsh_slot_ipstring(slot) = os_strdup(os_ipstring(ip));
 
     jobj_t jport = jobj_get(jslot, "port");
-    if (NULL==jport) {
-        rsh_slot_port(slot) = htons(RSH_PORT);
-    } else {
-        int port = jobj_get_i32(jport);
-        rsh_slot_port(slot) = htons(port);
-    }
-        
+    int port = jport?jobj_get_i32(jport):RSH_PORT;
+    rsh_slot_port(slot) = htons(port);
+    
     return 0;
 }
 
