@@ -334,9 +334,7 @@ DECLARE_FAKE_AK;
 
 static inline int 
 ak_init(void)
-{
-    ak_println("ak command/boot");
-    
+{    
     __ak_init();
 
     return 0;
@@ -758,8 +756,6 @@ static inline int
 ak_init(void) 
 {
     int err = 0;
-
-    ak_println("ak deamon");
     
     err = os_shm_create(__this_ak(), appkey_shm_size, false);
     if (err<0) { /* >=0 is valid shm id */
@@ -794,6 +790,8 @@ static inline void
 __ak_init_command() 
 {
     char *value;
+
+    ak_println("ak command");
     
     value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
     __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
@@ -809,6 +807,8 @@ __ak_init_command()
 static inline void 
 __ak_init_deamon() 
 {
+    ak_println("ak deamon");
+    
     __THIS_DEBUG    = ak_getbyname(AK_DEBUG_NAME);
     __THIS_JDEBUG   = ak_getbyname(JS_DEBUG_NAME);
 }
@@ -819,6 +819,8 @@ static inline void
 __ak_init_unknow() 
 {
     char *value = getenv(ENV_RUNAS_DEAMON);
+
+    ak_println("ak unknow");
     
     __THIS_COMMAND = (NULL==value);
     ak_println(ENV_RUNAS_DEAMON "=%s, __THIS_COMMAND=%d", value, __THIS_COMMAND);
