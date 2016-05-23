@@ -547,6 +547,8 @@ __service(void)
 
 int __main(int argc, char *argv[])
 {
+    __echo();
+    
     while(1) {
         __service();
         

@@ -470,15 +470,27 @@ os_macstring(byte mac[])
     return os_getmacstring(mac, MACSTRINGLEN_L, ':');
 }
 
+#ifndef SCRIPT_GETMAC
+#ifdef __PC__
+#   define SCRIPT_GETMAC    "ip link show eth0 | grep link | awk '{print $2}'"
+#else
+#   define SCRIPT_GETMAC    "ifconfig | grep 'eth0 ' | awk '{print $5}'"
+#endif
+#endif
+
 #ifndef SCRIPT_BASEMAC
-#define SCRIPT_BASEMAC  "/usr/sbin/basemac"
+#ifdef __PC__
+#   define SCRIPT_BASEMAC   SCRIPT_GETMAC
+#else
+#   define SCRIPT_BASEMAC   "/usr/sbin/basemac"
+#endif
 #endif
 
 static inline char *
 get_basemac(void)
 {
     static char line[1+OS_LINE_LEN];
-    
+
     os_pgets(line, OS_LINE_LEN, SCRIPT_BASEMAC);
 
     return is_good_macstring(line)?line:NULL;

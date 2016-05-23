@@ -15,11 +15,9 @@ OS_INITER;
 #ifdef __PC__
 #   define SCRIPT_CUT       "./jlogcut"
 #   define SCRIPT_PUSH      "./jlogpush"
-#   define SCRIPT_GETMAC    "ip link show eth0 | grep link | awk '{print $2}'"
 #else
 #   define SCRIPT_CUT       "jlogcut"
 #   define SCRIPT_PUSH      "jlogpush"
-#   define SCRIPT_GETMAC    "ifconfig | grep 'eth0 ' | awk '{print $5}'"
 #endif
 
 static char RX[1 + JLOG_BUFSIZE];
