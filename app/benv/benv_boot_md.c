@@ -1,7 +1,7 @@
 /*******************************************************************************
-Copyright (c) 2015-2016, xxx Networks. All rights reserved.
+Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 *******************************************************************************/
-#include "atenv_boot_common.c"
+#include "benv_boot_common.c"
 #include <mmc.h>
 
 #ifdef CONFIG_BOOTCOMMAND
@@ -91,7 +91,7 @@ __read_emmc(uint32 begin, void *buf, int count)
         debug_error("read emmc(block) error, begin:0x%x, count:0x%x", begin, count);
         return -EIO;
     }
-    
+
     return ret << 9;
 }
 
