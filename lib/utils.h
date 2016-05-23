@@ -225,6 +225,8 @@ os_init(void)
     int err;
 
     srand(time(NULL));
+
+    ak_println("os_init");
     
     err = ak_init();
     if (err<0) {
