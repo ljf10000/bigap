@@ -178,7 +178,7 @@ __main(int argc, char **argv)
 #define umd_main  main
 #endif
 
-int umd_main(int argc, char **argv)
+int umd_main(int argc, char *argv[])
 {
     setup_signal_exit(__exit);
     setup_signal_callstack(NULL);

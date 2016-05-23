@@ -532,10 +532,11 @@ __exit(int sig)
 static int
 __service(void)
 {
-    int len, addrlen;
+    int len;
+    socklen_t addrlen;
     struct sockaddr_in client;
     
-    len = io_recvfrom(rsh.fd, rsh_buffer, sizeof(rsh_buffer), RSH_TICKS, &client, &addrlen);
+    len = io_recvfrom(rsh.fd, rsh_buffer, sizeof(rsh_buffer), RSH_TICKS, (struct sockaddr *)&client, &addrlen);
     if (len<0) {
         return len;
     }
@@ -559,7 +560,7 @@ int __main(int argc, char *argv[])
 #define rsha_main  main
 #endif
 
-int rsha_main(int argc, char **argv)
+int rsha_main(int argc, char *argv[])
 {
     setup_signal_exit(__exit);
     setup_signal_timer(__signal);
