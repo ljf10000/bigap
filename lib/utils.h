@@ -255,7 +255,7 @@ os_fini(void)
 }
 
 static inline int
-os_main(int (*func)(int, char **), int argc, char **argv)
+os_main(int (*func)(int, char **), int argc, char *argv[])
 {
     return os_call(os_init, os_fini, func, argc, argv);
 }
