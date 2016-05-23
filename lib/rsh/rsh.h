@@ -4,65 +4,73 @@
 #include "utils.h"
 /******************************************************************************/
 #ifndef RSH_VERSION
-#define RSH_VERSION             1
+#define RSH_VERSION                 1
 #endif
 
 #ifndef RSH_TICKS
-#define RSH_TICKS               5000 /* ms */
+#define RSH_TICKS                   5000 /* ms */
 #endif
 
 #ifndef ENV_RSH_CONFIG
-#define ENV_RSH_CONFIG          "__RSH_CONFIG__"
+#define ENV_RSH_CONFIG              "__RSH_CONFIG__"
 #endif
 
 #ifndef ENV_RSH_CLOUD_CONFIG
-#define ENV_RSH_CLOUD_CONFIG    "__RSH_CLOUD_CONFIG__"
+#define ENV_RSH_CLOUD_CONFIG        "__RSH_CLOUD_CONFIG__"
 #endif
 
 #ifndef ENV_RSH_SLOT_LOCAL
-#define ENV_RSH_SLOT_LOCAL      "__RSH_SLOT_LOCAL__"
+#define ENV_RSH_SLOT_LOCAL          "__RSH_SLOT_LOCAL__"
 #endif
 
 #ifndef ENV_RSH_SLOT_MASTER
-#define ENV_RSH_SLOT_MASTER     "__RSH_SLOT_MASTER__"
+#define ENV_RSH_SLOT_MASTER         "__RSH_SLOT_MASTER__"
 #endif
 
 #ifndef ENV_RSH_REQUEST_SCRIPT
-#define ENV_RSH_REQUEST_SCRIPT  "__RSH_REQUEST__"
+#define ENV_RSH_REQUEST_SCRIPT      "__RSH_REQUEST__"
 #endif
 
 #ifndef ENV_RSH_RESPONSE_SCRIPT
-#define ENV_RSH_RESPONSE_SCRIPT "__RSH_RESPONSE__"
+#define ENV_RSH_RESPONSE_SCRIPT     "__RSH_RESPONSE__"
 #endif
 
 #ifndef RSH_SLOT_COUNT
-#define RSH_SLOT_COUNT          2
+#define RSH_SLOT_COUNT              2
 #endif
 
-#define RSH_SLOT_MULTI          (RSH_SLOT_COUNT>1)
+#define RSH_SLOT_MULTI              (RSH_SLOT_COUNT>1)
 
 #ifndef RSH_PORT
-#define RSH_PORT                8740
+#define RSH_PORT                    8740
+#endif
+
+#ifdef __PC__
+#define RSH_CFG_PREFIX              ""
+#define RSH_BIN_PREFIX              ""
+#else
+#define RSH_CFG_PREFIX              "/tmp/."
+#define RSH_BIN_PREFIX              "/usr/sbin/."
 #endif
 
 #ifndef RSH_CONFIG_FILE
-#define RSH_CONFIG_FILE         "/tmp/.rsh.config"
+#define RSH_CONFIG_FILE             RSH_PREFIX "rsh.config"
 #endif
 
 #ifndef RSH_CLOUD_CONFIG_FILE
-#define RSH_CLOUD_CONFIG_FILE   "/tmp/.rsh.cloud"
+#define RSH_CLOUD_CONFIG_FILE       RSH_PREFIX "rsh.cloud"
 #endif
 
 #ifndef RSH_SLOT_FILE
-#define RSH_SLOT_FILE           "/tmp/.rsh.%d.slot"
+#define RSH_SLOT_FILE               RSH_PREFIX "rsh.%d.slot"
 #endif
 
 #ifndef RSH_REQUEST_SCRIPT
-#define RSH_REQUEST_SCRIPT      "/usr/sbin/.rsh.request"
+#define RSH_REQUEST_SCRIPT          RSH_BIN_PREFIX "rsh.request"
 #endif
 
 #ifndef RSH_RESPONSE_SCRIPT
-#define RSH_RESPONSE_SCRIPT     "/usr/sbin/.rsh.response"
+#define RSH_RESPONSE_SCRIPT         RSH_BIN_PREFIX "rsh.response"
 #endif
 
 #define RSH_SLOT_MASTER         0
