@@ -132,12 +132,16 @@ load_slot(jobj_t jslot, int slot)
     
     jobj_t jip = jobj_get(jslot, "ip");
     if (NULL==jip) {
+        debug_error("invalid load slot[%d].ip", slot);
+        
         return -ENOEXIST;
     }
     char *ipstring = jobj_get_string(jslot);
     if (is_good_ipstring(ipstring)) {
         ip = inet_addr(ipstring);
     } else if (is_local_rsh_slot(slot)) {
+        debug_error("bad load slot[%d].ip", slot);
+        
         return -EBADCFG;
     } else {
         struct hostent *h = gethostbyname(ipstring);
@@ -503,30 +507,24 @@ __init(void)
     
     err = os_init();
     if (err<0) {
-        os_println("os_init error:%d", err);
-        
         return err;
     }
 
-    debug_error("__main");
-    debug_error("__ak_debug=0x%x", __ak_debug);
-    os_println("__ak_debug=0x%x", __ak_debug);
-
     err = init_cfg();
     if (err<0) {
-        os_println("init_cfg error:%d", err);
+        debug_error("init config error:%d", err);
         
         return err;
     }
 
     err = init_net();
     if (err<0) {
-        os_println("init_net error:%d", err);
+        debug_error("init net error:%d", err);
         
         return err;
     }
 
-    os_println("init ok");
+    debug_ok("init ok");
     
     return 0;
 }
