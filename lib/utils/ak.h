@@ -304,7 +304,7 @@ __ak_get_value(char *key, char *value)
 
 /******************************************************************************/
 #define DECLARE_FAKE_COMMAND  extern bool __THIS_COMMAND
-#define DECLARE_REAL_COMMAND  bool __THIS_COMMAND = true;
+#define DECLARE_REAL_COMMAND  bool __THIS_COMMAND;
 
 #ifdef __BUSYBOX__
 #   define DECLARE_COMMAND  DECLARE_FAKE_COMMAND
