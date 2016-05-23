@@ -46,7 +46,7 @@ enum {
 };
 
 #ifndef AK_DPRINT
-#define AK_DPRINT               1
+#define AK_DPRINT               0
 #endif
 
 #if AK_DPRINT
@@ -673,8 +673,6 @@ __ak_load(void)
     } else {
         path = AK_PATH_DEFT;
     }
-
-    ak_println("AK_PATH=%s", path);
     
     ret = os_fscan_dir(path, false, __ak_file_filter, NULL, __ak_load_line);
     if (ret<0) {
@@ -750,10 +748,7 @@ ak_set(akid_t akid, uint32 v)
 static inline int 
 ak_reload(void)
 {
-    ak_println("__ak_load");
     __ak_load();
-
-    ak_println("__ak_show");
     __ak_show();
     
     return 0;
@@ -813,8 +808,6 @@ static inline void
 __ak_init_command() 
 {
     char *value;
-
-    ak_println("ak command");
     
     value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
     __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
@@ -829,9 +822,7 @@ __ak_init_command()
 #if defined(__APP__) && (__RUNAS__ & RUN_AS_DEAMON)
 static inline void 
 __ak_init_deamon() 
-{
-    ak_println("ak deamon");
-    
+{    
     __THIS_DEBUG    = ak_getbyname(AK_DEBUG_NAME);
     __THIS_JDEBUG   = ak_getbyname(JS_DEBUG_NAME);
 }
@@ -842,8 +833,6 @@ static inline void
 __ak_init_unknow() 
 {
     char *value = getenv(ENV_RUNAS_DEAMON);
-
-    ak_println("ak unknow");
     
     __THIS_COMMAND = (NULL==value);
     ak_println(ENV_RUNAS_DEAMON "=%s, __THIS_COMMAND=%d", value, __THIS_COMMAND);
@@ -859,6 +848,8 @@ __ak_init_unknow()
 static inline int 
 __ak_init(void)
 {
+    ak_println("ak runas %d", __RUNAS__);
+    
 #ifdef __APP__
 #if __RUNAS__==RUN_AS_COMMAND
     __ak_init_command();
