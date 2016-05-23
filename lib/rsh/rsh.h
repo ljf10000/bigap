@@ -72,9 +72,9 @@
 #define rsh_foreach_slot(_slot) for(_slot=0; _slot<RSH_SLOT_END; _slot++)
 
 static inline bool
-is_good_rsh_slot(int slot)
+is_local_rsh_slot(int slot)
 {
-    return IS_GOOD_ENUM(slot, RSH_SLOT_COUNT);
+    return IS_GOOD_ENUM(slot, RSH_SLOT_CLOUD);
 }
 
 #ifndef RSH_ECHO_INTERVAL

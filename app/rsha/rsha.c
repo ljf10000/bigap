@@ -135,7 +135,7 @@ load_slot(jobj_t jslot, int slot)
     }
     char *ipstring = jobj_get_string(jslot);
     uint32 ip = inet_addr(ipstring);
-    if (INADDR_NONE==ip && rsh_is_local(slot)) {
+    if (INADDR_NONE==ip && is_local_rsh_slot(slot)) {
         return -EBADCFG;
     }
     rsh_slot_ip(slot) = htonl(ip);
@@ -357,7 +357,7 @@ __command(jobj_t jrequest, char *cmd)
         return -EBADPROTO;
     }
     int slot = jobj_get_i32(jslot);
-    if (false==is_good_rsh_slot(slot)) {
+    if (false==is_local_rsh_slot(slot)) {
         return -EBADSLOT;
     }
     
