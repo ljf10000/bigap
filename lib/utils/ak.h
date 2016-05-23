@@ -335,6 +335,7 @@ DECLARE_FAKE_AK;
 static inline int 
 ak_init(void)
 {
+    os_println("ak command/boot");
     __ak_init();
 
     return 0;
@@ -752,12 +753,12 @@ ak_fini(void)
     return 0;
 }
 
-
 static inline int 
 ak_init(void) 
 {
     int err = 0;
 
+    os_println("ak deamon");
     err = os_shm_create(__this_ak(), appkey_shm_size, false);
     if (err<0) { /* >=0 is valid shm id */
         goto error;
