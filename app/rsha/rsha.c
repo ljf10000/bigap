@@ -160,16 +160,21 @@ load_slot(jobj_t jslot, int slot)
 static inline int
 __load_config(jobj_t jcfg)
 {
-    int err, slot;
+    int err, slot, count;
     
     jobj_t jslot = jobj_get(jcfg, "slot");
-    if (RSH_SLOT_COUNT!=jarray_length(jslot)) {
+    count = jarray_length(jslot);
+    if (RSH_SLOT_COUNT != count) {
+        debug_error("rsh.config.slot.count(%d) != RSH_SLOT_COUNT", count);
+        
         return -EBADCFG;
     }
     
     for (slot=0; slot<RSH_SLOT_END; slot++) {
         jobj_t jobj = jarray_get(jslot, slot);
         if (NULL==jobj) {
+            debug_error("get rsh.config.slot[%d] error", slot);
+            
             return -ENOEXIST;
         }
 
@@ -181,17 +186,23 @@ __load_config(jobj_t jcfg)
     
     jobj_t jecho = jobj_get(jcfg, "echo");
     if (NULL==jecho) {
+        debug_error("get rsh.config.echo error");
+        
         return -ENOEXIST;
     }
     
     jobj_t jtimes = jobj_get(jecho, "times");
     if (NULL==jtimes) {
+        debug_error("get rsh.config.echo.times error");
+        
         return -ENOEXIST;
     }
     rsh_echo_times = jobj_get_i32(jtimes);
     
     jobj_t jinterval = jobj_get(jecho, "interval");
     if (NULL==jinterval) {
+        debug_error("get rsh.config.echo.interval error");
+        
         return -ENOEXIST;
     }
     rsh_echo_interval = jobj_get_i32(jinterval);
@@ -208,6 +219,8 @@ load_config(void)
     rsh_config = env_gets(ENV_RSH_CONFIG, RSH_CONFIG_FILE);
     jcfg = jobj_file(rsh_config);
     if (NULL==jcfg) {
+        debug_error("invalid rsh.config");
+        
         err = -EBADCFG; goto error;
     }
     
@@ -231,6 +244,8 @@ load_cloud(void)
     if (false==is_cloud_ready()) {
         jcfg = jobj_file(rsh_cloud);
         if (NULL==jcfg) {
+            debug_error("invalid rsh.cloud");
+            
             err = -EBADCFG; goto error;
         }
         
@@ -264,6 +279,8 @@ init_cfg(void)
     */
     char *basemac = get_basemac();
     if (NULL==basemac) {
+        debug_error("get basemac error");
+        
         return -EBADMAC;
     }
     rsh_basemac = os_strdup(basemac);
@@ -273,7 +290,9 @@ init_cfg(void)
     */
     os_asprintf(&rsh_echo_request, RSH_ECHO_REQUEST, RSH_VERSION, rsh_basemac);
     if (NULL==rsh_echo_request) {
-        return -EBADMAC;
+        debug_error("init echo request error");
+        
+        return -ENOMEM;
     }
     rsh_echo_size = 1 + os_strlen(rsh_echo_request);
     
