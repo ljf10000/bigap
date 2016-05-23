@@ -5,6 +5,11 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #define __THIS_APP      ak
 #endif
 
+/*
+* for reload
+*/
+#define __DEAMON__
+
 #include "utils.h"
 
 OS_REAL_INITER;
@@ -12,7 +17,6 @@ OS_REAL_INITER;
 static int 
 cmd_reload(int argc, char *argv[])
 {
-    os_println("__RUNAS__=%d", __RUNAS__);
     return ak_reload();
 }
 
