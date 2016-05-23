@@ -46,7 +46,7 @@ enum {
 };
 
 #ifndef AK_DPRINT
-#define AK_DPRINT               0
+#define AK_DPRINT               1
 #endif
 
 #if AK_DPRINT
@@ -335,7 +335,8 @@ DECLARE_FAKE_AK;
 static inline int 
 ak_init(void)
 {
-    os_println("ak command/boot");
+    ak_println("ak command/boot");
+    
     __ak_init();
 
     return 0;
@@ -758,7 +759,8 @@ ak_init(void)
 {
     int err = 0;
 
-    os_println("ak deamon");
+    ak_println("ak deamon");
+    
     err = os_shm_create(__this_ak(), appkey_shm_size, false);
     if (err<0) { /* >=0 is valid shm id */
         goto error;
