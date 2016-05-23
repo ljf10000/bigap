@@ -227,7 +227,7 @@ DECLARE_ENUM(rsh_cmd, __XLIST_RSH_CMD, RSH_CMD_END);
 #define RSH_CMD_END         RSH_CMD_END
 #endif /* just for sourceinsight */
 
-#define __XLIST_RSH_CMD(_)              \
+#define __XLIST_RSH_MODE(_)             \
     _(RSH_MODE_SYN,     0, "syn"),      \
     _(RSH_MODE_ACK,     1, "ack"),      \
     _(RSH_MODE_ASYN,    2, "asyn"),     \
@@ -237,7 +237,7 @@ DECLARE_ENUM(rsh_cmd, __XLIST_RSH_CMD, RSH_CMD_END);
 static inline bool is_good_rsh_mode(int mode);
 static inline char *rsh_mode_string(int mode);
 static inline int rsh_mode_idx(char *mode_string);
-DECLARE_ENUM(rsh_mode, __XLIST_RSH_CMD, RSH_MODE_END);
+DECLARE_ENUM(rsh_mode, __XLIST_RSH_MODE, RSH_MODE_END);
 
 #if 1 /* just for sourceinsight */
 #define RSH_MODE_SYN        RSH_MODE_SYN
