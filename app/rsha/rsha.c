@@ -136,7 +136,7 @@ load_slot(jobj_t jslot, int slot)
         
         return -ENOEXIST;
     }
-    char *ipstring = jobj_get_string(jslot);
+    char *ipstring = jobj_get_string(jip);
     if (is_good_ipstring(ipstring)) {
         ip = inet_addr(ipstring);
     } else if (is_local_rsh_slot(slot)) {
