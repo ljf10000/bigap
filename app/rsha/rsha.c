@@ -503,19 +503,27 @@ __init(void)
     
     err = os_init();
     if (err<0) {
+        os_println("os_init error:%d", err);
+        
         return err;
     }
 
     err = init_cfg();
     if (err<0) {
+        os_println("init_cfg error:%d", err);
+        
         return err;
     }
 
     err = init_net();
     if (err<0) {
+        os_println("init_net error:%d", err);
+        
         return err;
     }
 
+    os_println("init ok");
+    
     return 0;
 }
 
