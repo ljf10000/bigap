@@ -593,7 +593,7 @@ int rsha_main(int argc, char *argv[])
     setup_signal_user(__signal);
     setup_signal_callstack(NULL);
 
-    debug_error("rsha_main");
+    os_println("rsha_main __ak_debug=%d", __ak_debug);
     
     return os_call(__init, __fini, __main, argc, argv);
 }
