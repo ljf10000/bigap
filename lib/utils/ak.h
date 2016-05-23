@@ -750,7 +750,10 @@ ak_set(akid_t akid, uint32 v)
 static inline int 
 ak_reload(void)
 {
+    ak_println("__ak_load");
     __ak_load();
+
+    ak_println("__ak_show");
     __ak_show();
     
     return 0;

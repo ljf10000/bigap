@@ -12,8 +12,6 @@ OS_REAL_INITER;
 static int 
 cmd_reload(int argc, char *argv[])
 {
-    ak_println("cmd_reload");
-    
     return ak_reload();
 }
 
