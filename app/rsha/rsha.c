@@ -572,6 +572,10 @@ __service(void)
 int __main(int argc, char *argv[])
 {
     __echo();
+
+    debug_error("__main");
+    debug_error("__ak_debug=0x%x", __ak_debug);
+    os_println("__ak_debug=0x%x", __ak_debug);
     
     while(1) {
         __service();

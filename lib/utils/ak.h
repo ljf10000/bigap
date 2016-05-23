@@ -790,8 +790,6 @@ ak_init(void)
     
     __ak_init();
     __ak_dump();
-
-    os_println("__ak_debug=%d", __ak_debug);
     
     ak_println("init OK!");
     
