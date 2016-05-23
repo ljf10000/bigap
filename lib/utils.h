@@ -225,8 +225,6 @@ os_init(void)
     int err;
 
     srand(time(NULL));
-
-    ak_println("__RUNAS__=%d", __RUNAS__);
     
     err = ak_init();
     if (err<0) {
