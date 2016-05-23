@@ -86,7 +86,7 @@ is_local_rsh_slot(int slot)
 }
 
 #ifndef RSH_ECHO_INTERVAL
-#define RSH_ECHO_INTERVAL       (60*1000/RSH_TICKS)
+#define RSH_ECHO_INTERVAL       60 /* second */
 #endif
 
 #ifndef RSH_ECHO_TIMES

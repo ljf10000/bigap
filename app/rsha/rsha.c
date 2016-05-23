@@ -19,11 +19,6 @@ typedef struct {
 } rsh_slot_t;
 
 typedef struct {
-    int interval;   /* seconds */
-    int times;
-} rsh_echo_t;
-
-typedef struct {
     char *config;       /* local config file */
     char *cloud;        /* cloud config file */
     
@@ -34,8 +29,12 @@ typedef struct {
     int current;        /* current slot */
     int master;
     
+    struct {
+        int interval;   /* seconds */
+        int times;
+    } echo;
+    
     rsh_slot_t slot[RSH_SLOT_END];
-    rsh_echo_t echo;
 } rsh_config_t;
 
 #define RSH_CONFIG_INITER               {   \
@@ -192,15 +191,18 @@ __load_config(jobj_t jcfg)
         }
     }
 
-    jobj_t jtimes = NULL;
-    jobj_t jinterval = NULL;
     jobj_t jecho = jobj_get(jcfg, "echo");
     if (jecho) {
-        jtimes = jobj_get(jecho, "times");
-        jinterval = jobj_get(jecho, "interval");
+        jobj_t jtimes = jobj_get(jecho, "times");
+        if (jtimes) {
+            rsh_echo_times = jobj_get_i32(jtimes);
+        }
+        
+        jobj_t jinterval = jobj_get(jecho, "interval");
+        if (jinterval) {
+            rsh_echo_interval = jobj_get_i32(jinterval);
+        }
     }
-    rsh_echo_times = jtimes?jobj_get_i32(jtimes):RSH_ECHO_TIMES;
-    rsh_echo_interval = jinterval?jobj_get_i32(jinterval):RSH_ECHO_INTERVAL;
     
     debug_config("rsh.config.echo.times=%d", rsh_echo_times);
     debug_config("rsh.config.echo.interval=%d", rsh_echo_interval);
@@ -523,6 +525,13 @@ __init(void)
         return err;
     }
 
+    err = init_timer();
+    if (err<0) {
+        debug_error("init timer error:%d", err);
+        
+        return err;
+    }
+    
     debug_ok("init ok");
     
     return 0;
