@@ -12,6 +12,7 @@ OS_REAL_INITER;
 static int 
 cmd_reload(int argc, char *argv[])
 {
+    os_println("__RUNAS__=%d", __RUNAS__);
     return ak_reload();
 }
 
