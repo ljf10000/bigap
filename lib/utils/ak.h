@@ -763,6 +763,8 @@ ak_init(void)
     }
     
     if (false==__ak_inited) {
+        ak_println("ak first load");
+        
         __ak_inited     = true;
         __ak_limit      = AK_LIMIT;
         __ak_protect_0  = OS_PROTECTED;
