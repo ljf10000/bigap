@@ -157,6 +157,9 @@ load_slot(jobj_t jslot, int slot)
     jobj_t jport = jobj_get(jslot, "port");
     int port = jport?jobj_get_i32(jport):RSH_PORT;
     rsh_slot_port(slot) = htons(port);
+
+    debug_config("rsh.config.slot[%d].ip=%s", slot, ipstring);
+    debug_config("rsh.config.slot[%d].port=%d", slot, port);
     
     return 0;
 }
@@ -173,6 +176,7 @@ __load_config(jobj_t jcfg)
         
         return -EBADCFG;
     }
+    debug_config("rsh.config.slot.count=%d", count);
     
     for (slot=0; slot<RSH_SLOT_END; slot++) {
         jobj_t jobj = jarray_get(jslot, slot);
@@ -187,29 +191,19 @@ __load_config(jobj_t jcfg)
             return err;
         }
     }
-    
+
+    jobj_t jtimes = NULL;
+    jobj_t jinterval = NULL;
     jobj_t jecho = jobj_get(jcfg, "echo");
-    if (NULL==jecho) {
-        debug_error("get rsh.config.echo error");
-        
-        return -ENOEXIST;
+    if (jecho) {
+        jtimes = jobj_get(jecho, "times");
+        jinterval = jobj_get(jecho, "interval");
     }
+    rsh_echo_times = jtimes?jobj_get_i32(jtimes):RSH_ECHO_TIMES;
+    rsh_echo_interval = jinterval?jobj_get_i32(jinterval):RSH_ECHO_INTERVAL;
     
-    jobj_t jtimes = jobj_get(jecho, "times");
-    if (NULL==jtimes) {
-        debug_error("get rsh.config.echo.times error");
-        
-        return -ENOEXIST;
-    }
-    rsh_echo_times = jobj_get_i32(jtimes);
-    
-    jobj_t jinterval = jobj_get(jecho, "interval");
-    if (NULL==jinterval) {
-        debug_error("get rsh.config.echo.interval error");
-        
-        return -ENOEXIST;
-    }
-    rsh_echo_interval = jobj_get_i32(jinterval);
+    debug_config("rsh.config.echo.times=%d", rsh_echo_times);
+    debug_config("rsh.config.echo.interval=%d", rsh_echo_interval);
     
     return 0;
 }
@@ -221,6 +215,8 @@ load_config(void)
     jobj_t jcfg = NULL;
     
     rsh_config = env_gets(ENV_RSH_CONFIG, RSH_CONFIG_FILE);
+    debug_config("rsh.config=%s", rsh_config);
+    
     jcfg = jobj_file(rsh_config);
     if (NULL==jcfg) {
         debug_error("invalid rsh.config");
@@ -243,6 +239,7 @@ load_cloud(void)
 
     if (NULL==rsh_cloud) {
         rsh_cloud = env_gets(ENV_RSH_CLOUD_CONFIG, RSH_CLOUD_CONFIG_FILE);
+        debug_config("rsh.cloud=%s", rsh_cloud);
     }
 
     if (false==is_cloud_ready()) {
@@ -288,6 +285,7 @@ init_cfg(void)
         return -EBADMAC;
     }
     rsh_basemac = os_strdup(basemac);
+    debug_config("rsh.basemac=%s", rsh_basemac);
     
     /*
     * init echo-request
@@ -299,6 +297,7 @@ init_cfg(void)
         return -ENOMEM;
     }
     rsh_echo_size = 1 + os_strlen(rsh_echo_request);
+    debug_config("rsh.echo.request=%s", rsh_echo_request);
     
     err = load_config();
     if (err<0) {
