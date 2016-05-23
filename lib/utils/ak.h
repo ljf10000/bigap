@@ -440,6 +440,21 @@ __ak_hdr(void)
 #define __ak_protect_0      __ak_hdr()->protect
 #define __ak_protect_1      (*(uint32 *)__ak_END)
 
+static inline void
+__ak_dump(void)
+{
+    ak_t *ak = NULL;
+
+    ak_println("ak dump:");
+    ak_println(__tab "inited:%d", __ak_inited);
+    ak_println(__tab "count:%d", __ak_count);
+    ak_println(__tab "limit:%d", __ak_limit);
+    
+    __ak_foreach(ak) {
+        ak_println(__tab "app:%s, k:%s, v:0x%x", ak->app, ak->k, ak->v);
+    }
+}
+
 static inline int 
 __ak_getidx(ak_t *ak)
 {
@@ -774,7 +789,8 @@ ak_init(void)
     }
 
     __ak_init();
-
+    __ak_dump();
+    
     ak_println("init OK!");
     
     return 0;
