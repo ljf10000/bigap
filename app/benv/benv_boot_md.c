@@ -63,7 +63,6 @@ static uint32 rootfs_offset[OS_FIRMWARE_COUNT] = {
     [5] = 0x2BE000,
     [6] = 0x33E000,
 };
-#define at_obj_offset(_obj)     _obj##_offset
 #endif
 
 /*

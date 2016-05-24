@@ -23,7 +23,7 @@ U_BOOT_CMD(
 );
 
 static inline int
-__at_version(int argc, char *argv[])
+__bversion(int argc, char *argv[])
 {
     int i, err;
     benv_version_t version;
@@ -44,7 +44,7 @@ __at_version(int argc, char *argv[])
 static int 
 do_bversion (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-    return os_call(__benv_init, __benv_fini, __at_version, argc, argv);
+    return os_call(__benv_init, __benv_fini, __bversion, argc, argv);
 }
 
 U_BOOT_CMD(
