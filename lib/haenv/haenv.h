@@ -3,11 +3,11 @@
 #include "utils.h"
 #if defined(__BOOT__) || defined(__APP__)
 /******************************************************************************/
-#ifndef HAENV_DPRINT
-#define HAENV_DPRINT                0
+#ifndef HAENV_PRINT
+#define HAENV_PRINT                 0
 #endif
 
-#if HAENV_DPRINT
+#if HAENV_PRINT
 #define haenv_println(_fmt, _args...)   do{ \
     os_printf("%s ", __func__);             \
     os_println(_fmt, ##_args);              \
@@ -800,7 +800,7 @@ hae_check(haenv_t *env)
                 env->count, 
                 hae_offsetof(env, e), 
                 env->saved);
-#if HAENV_DPRINT
+#if HAENV_PRINT
             __os_dump_buffer(e, haee_size(e), NULL);
 #endif
 
@@ -811,7 +811,7 @@ hae_check(haenv_t *env)
             haenv_println("env[%d] damaged offset==>0x%x", 
                 env->id, 
                 hae_offsetof(env, e));
-#if HAENV_DPRINT
+#if HAENV_PRINT
             __os_dump_buffer(e, haee_size(e), NULL);
 #endif
             

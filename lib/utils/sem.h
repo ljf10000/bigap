@@ -14,11 +14,11 @@ typedef struct {
     .owner  = false,            \
 }
 
-#ifndef SEM_DPRINT
-#define SEM_DPRINT              0
+#ifndef SEM_PRINT
+#define SEM_PRINT               0
 #endif
 
-#if SEM_DPRINT
+#if SEM_PRINT
 #define sem_println(_fmt, _args...)     os_println(_fmt, ##_args)
 #else
 #define sem_println(_fmt, _args...)     os_do_nothing()

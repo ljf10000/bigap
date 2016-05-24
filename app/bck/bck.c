@@ -21,11 +21,12 @@ static int fd_boot      = INVALID_FD;
 static int fd_bootenv   = INVALID_FD;
 static int fd_cmdline   = INVALID_FD;
 
-#define AT_CHECK_DEBUG  0
-#if AT_CHECK_DEBUG
-#define at_check_println(_fmt, _args...)    os_println(_fmt, ##_args)
+#define BCK_PRINT       0
+
+#if BCK_PRINT
+#define bck_println(_fmt, _args...)    os_println(_fmt, ##_args)
 #else
-#define at_check_println(_fmt, _args...)    os_do_nothing()
+#define bck_println(_fmt, _args...)    os_do_nothing()
 #endif
 
 static int
@@ -112,7 +113,7 @@ check_boot(void)
         },
     };
 
-    at_check_println("before check boot");
+    bck_println("before check boot");
     
     static char boot[BENV_BOOT_SIZE];
     if (BENV_BOOT_SIZE != read(fd_boot, boot, BENV_BOOT_SIZE)) {
@@ -131,7 +132,7 @@ check_boot(void)
             return hacked(1, i);
         }
     }
-    at_check_println("after  check boot");
+    bck_println("after  check boot");
     
     return 0;
 }
@@ -152,7 +153,7 @@ check_bootenv(void)
     benv_cookie_t cookie;
 #endif
 
-    at_check_println("before check bootenv");
+    bck_println("before check bootenv");
     
     if (sizeof(cookie) != read(fd_bootenv, &cookie, sizeof(cookie))) {
         trace_error(-errno, "read benv cookie");
@@ -164,7 +165,7 @@ check_bootenv(void)
         return hacked(2, 0);
     }
 
-    at_check_println("after  check bootenv");
+    bck_println("after  check bootenv");
 
     return 0;
 }
@@ -175,7 +176,7 @@ check_partition(void)
 {
     char line[1+OS_LINE_LEN] = {0};
     
-    at_check_println("before check partition");
+    bck_println("before check partition");
     
     read(fd_cmdline, line, OS_LINE_LEN);
     
@@ -183,7 +184,7 @@ check_partition(void)
         return hacked(3, 0);
     }
 
-    at_check_println("after  check partition");
+    bck_println("after  check partition");
 
     return 0;
 }
