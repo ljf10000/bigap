@@ -238,7 +238,7 @@ __init(void)
 }
 
 #ifndef __BUSYBOX__
-#define atdog_main  main
+#define dog_main  main
 #endif
 
 static int
@@ -250,7 +250,7 @@ __main(int argc, char *argv[])
 /*
 * dog have enabled when boot
 */
-int atdog_main(int argc, char *argv[])
+int dog_main(int argc, char *argv[])
 {
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
