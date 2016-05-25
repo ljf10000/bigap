@@ -1883,7 +1883,22 @@ __benv_check_string(benv_ops_t * ops, char *value)
     BENV_OS_COMMON_OPS,     \
     BENV_FIRMWARE_OPS(0)    \
     /* end */
-
+#elif 3==OS_FIRMWARE_COUNT
+#define BENV_OS_OPS         \
+    BENV_OS_COMMON_OPS,     \
+    BENV_FIRMWARE_OPS(0),   \
+    BENV_FIRMWARE_OPS(1),   \
+    BENV_FIRMWARE_OPS(2),   \
+    /* end */
+#elif 5==OS_FIRMWARE_COUNT
+#define BENV_OS_OPS         \
+    BENV_OS_COMMON_OPS,     \
+    BENV_FIRMWARE_OPS(0),   \
+    BENV_FIRMWARE_OPS(1),   \
+    BENV_FIRMWARE_OPS(2),   \
+    BENV_FIRMWARE_OPS(3),   \
+    BENV_FIRMWARE_OPS(4),   \
+    /* end */
 #elif 7==OS_FIRMWARE_COUNT
 #define BENV_OS_OPS         \
     BENV_OS_COMMON_OPS,     \
