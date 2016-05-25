@@ -224,8 +224,10 @@ os_init(void)
 {
     int err;
 
+#ifndef __BOOT__
     srand(time(NULL));
-    
+#endif
+
     err = ak_init();
     if (err<0) {
         return err;
@@ -236,11 +238,13 @@ os_init(void)
         return err;
     }
 
+#ifndef __BOOT__
     err = os_deamon_check();
     if (err<0) {
         return err;
     }
-    
+#endif
+
     return 0;
 }
 
