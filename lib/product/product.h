@@ -13,7 +13,7 @@
 #ifdef  __PC__
 #   define __PRODUCT__          PRODUCT_PC
 #else
-#   define __PRODUCT__          PRODUCT_LTEFI_MD2
+#   define __PRODUCT__          PRODUCT_LTEFI_MD3
 #endif
 #endif
 
@@ -32,5 +32,18 @@
 #define PRODUCT_VERSION         __PRODUCT_VERSION(__PRODUCT__)
 #define IS_PRODUCT_LTEFI_AP     __PRODUCT_LTEFI_AP(__PRODUCT__)
 #define IS_PRODUCT_LTEFI_MD     __PRODUCT_LTEFI_MD(__PRODUCT__)
+/******************************************************************************/
+#include "product/pc.h"
+#include "product/ap1.h"
+#include "product/ap2.h"
+#include "product/ap3.h"
+#include "product/md1.h"
+#include "product/md2.h"
+#include "product/md3.h"
+/******************************************************************************/
+#ifndef OS_DOG_COUNT
+#define OS_DOG_COUNT    1
+#endif
+
 /******************************************************************************/
 #endif /* __PRODUCT_H_3aeec50c6570419493004695d20c38b5__ */

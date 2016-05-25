@@ -9,8 +9,8 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #include "benv/benv.h"
 #include "fcookie/fcookie.h"
 
-#if !(IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC)
-#error "just support ltefi(v2) md/pc board"
+#if !(IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_PC)
+#error "just support ltefi(v2/v3) md/pc board"
 #endif
 
 OS_INITER;

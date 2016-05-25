@@ -100,13 +100,11 @@ enum {
     /* end */
 
 #if IS_PRODUCT_LTEFI_MD1 || IS_PRODUCT_LTEFI_MD2
-#define DOG_COUNT   2
 #define OS_DOG_ENABLE { \
     __OS_DOG_ENABLE(0), \
     __OS_DOG_ENABLE(1), \
 }   /* end */
 #elif IS_PRODUCT_LTEFI_MD3
-#define DOG_COUNT   4
 #define OS_DOG_ENABLE { \
     __OS_DOG_ENABLE(0), \
     __OS_DOG_ENABLE(1), \

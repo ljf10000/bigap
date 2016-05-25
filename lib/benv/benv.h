@@ -63,7 +63,7 @@ enum {
 #   define OS_DEV_SD_MASTER     "dev/mmcblk1"
 #   define OS_DEV_HD_MASTER     "dev/udisk"
 #   define OS_DEV_USB_MASTER    "dev/udisk1110"
-#elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC
+#elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_PC
 #   define OS_FIRMWARE_COUNT    7
 #   define OS_FIRMWARE_CURRENT  1
 #   define OS_DEV_PREFIX        "p"
@@ -124,7 +124,7 @@ enum {
 #define DEV_BOOT            OS_DEV_FLASH(1)
 #define DEV_BOOTENV         OS_DEV_BOOTENV
 
-#if IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC
+#if IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_PC
 #define __DEV_KERNEL0       OS_DEV_FLASH(6)
 #define __DEV_KERNEL1       OS_DEV_FLASH(7)
 #define __DEV_KERNEL2       OS_DEV_FLASH(8)
@@ -2327,7 +2327,7 @@ extern int __benv_save(int idx);    /* idx is benv's block */
 #define benv_close()        0
 #define __benv_load(_idx)   0
 #define __benv_save(_idx)   0
-#elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_PC
+#elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_PC
 static inline int
 benv_open(void)
 {
