@@ -211,10 +211,14 @@ change_bootcmd(void)
         [0] = CONFIG_BOOTCOMMAND_KERNEL0,
         [1] = CONFIG_BOOTCOMMAND_KERNEL1,
         [2] = CONFIG_BOOTCOMMAND_KERNEL2,
+#if OS_FIRMWARE_COUNT > 3
         [3] = CONFIG_BOOTCOMMAND_KERNEL3,
         [4] = CONFIG_BOOTCOMMAND_KERNEL4,
+#if OS_FIRMWARE_COUNT > 5
         [5] = CONFIG_BOOTCOMMAND_KERNEL5,
         [6] = CONFIG_BOOTCOMMAND_KERNEL6,
+#endif
+#endif
     };
     
     return __change_bootenv(
@@ -229,6 +233,17 @@ change_bootargs(void)
     int idx = __benv_current;
     
     char *array[OS_FIRMWARE_COUNT] = {
+#if 3==OS_FIRMWARE_COUNT
+        [0] = "10",
+        [1] = "11",
+        [2] = "12",
+#elif 5==OS_FIRMWARE_COUNT
+        [0] = "11",
+        [1] = "12",
+        [2] = "13",
+        [3] = "14",
+        [4] = "15",
+#elif 7==OS_FIRMWARE_COUNT
         [0] = "13",
         [1] = "14",
         [2] = "15",
@@ -236,6 +251,7 @@ change_bootargs(void)
         [4] = "17",
         [5] = "18",
         [6] = "19",
+#endif
     };
 
     __change_bootenv(

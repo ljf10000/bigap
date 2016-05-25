@@ -64,7 +64,18 @@ enum {
 #   define OS_DEV_HD_MASTER     "dev/udisk"
 #   define OS_DEV_USB_MASTER    "dev/udisk1110"
 #elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_PC
+#ifndef PRODUCT_FLASH_SIZE
+#   define PRODUCT_FLASH_SIZE   4 /* 4G */
+#endif
+#if 1==PRODUCT_FLASH_SIZE   /* 1G */
+#   define OS_FIRMWARE_COUNT    3
+#elif 2==PRODUCT_FLASH_SIZE /* 2G */
+#   define OS_FIRMWARE_COUNT    5
+#elif 4==PRODUCT_FLASH_SIZE /* 4G */
 #   define OS_FIRMWARE_COUNT    7
+#else
+#error "invalid PRODUCT_FLASH_SIZE"
+#endif
 #   define OS_FIRMWARE_CURRENT  1
 #   define OS_DEV_PREFIX        "p"
 #   define OS_DEV_FLASH_MASTER  "dev/mmcblk0"
@@ -125,6 +136,44 @@ enum {
 #define DEV_BOOTENV         OS_DEV_BOOTENV
 
 #if IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_PC
+#if 3==OS_FIRMWARE_COUNT
+#define __DEV_KERNEL0       OS_DEV_FLASH(6)
+#define __DEV_KERNEL1       OS_DEV_FLASH(7)
+#define __DEV_KERNEL2       OS_DEV_FLASH(8)
+
+/* 9 is unused */
+#define __DEV_ROOTFS0       OS_DEV_FLASH(10)
+#define __DEV_ROOTFS1       OS_DEV_FLASH(11)
+#define __DEV_ROOTFS2       OS_DEV_FLASH(12)
+
+#define __DEV_CONFIG0       OS_DEV_FLASH(13)
+#define __DEV_CONFIG1       OS_DEV_FLASH(14)
+
+#define __DEV_DATA0         OS_DEV_FLASH(15)
+#define __DEV_DATA1         OS_DEV_FLASH(16)
+
+#define __DEV_OTHER         OS_DEV_FLASH(17)
+#elif 5==OS_FIRMWARE_COUNT
+#define __DEV_KERNEL0       OS_DEV_FLASH(6)
+#define __DEV_KERNEL1       OS_DEV_FLASH(7)
+#define __DEV_KERNEL2       OS_DEV_FLASH(8)
+#define __DEV_KERNEL3       OS_DEV_FLASH(9)
+#define __DEV_KERNEL4       OS_DEV_FLASH(10)
+
+#define __DEV_ROOTFS0       OS_DEV_FLASH(11)
+#define __DEV_ROOTFS1       OS_DEV_FLASH(12)
+#define __DEV_ROOTFS2       OS_DEV_FLASH(13)
+#define __DEV_ROOTFS3       OS_DEV_FLASH(14)
+#define __DEV_ROOTFS4       OS_DEV_FLASH(15)
+
+#define __DEV_CONFIG0       OS_DEV_FLASH(16)
+#define __DEV_CONFIG1       OS_DEV_FLASH(17)
+
+#define __DEV_DATA0         OS_DEV_FLASH(18)
+#define __DEV_DATA1         OS_DEV_FLASH(19)
+
+#define __DEV_OTHER         OS_DEV_FLASH(20)
+#elif 7==OS_FIRMWARE_COUNT
 #define __DEV_KERNEL0       OS_DEV_FLASH(6)
 #define __DEV_KERNEL1       OS_DEV_FLASH(7)
 #define __DEV_KERNEL2       OS_DEV_FLASH(8)
@@ -148,6 +197,9 @@ enum {
 #define __DEV_DATA1         OS_DEV_FLASH(23)
 
 #define __DEV_OTHER         OS_DEV_FLASH(24)
+#else
+#error "invalid OS_FIRMWARE_COUNT"
+#endif
 
 #define DEV_HD              OS_DEV_HD(1)
 #define DEV_SD              OS_DEV_SD(1)
@@ -159,24 +211,75 @@ enum {
 #define DEV_DATA(_idx)      __DEV_DATA##_idx
 #define DEV_OTHER           __DEV_OTHER
 
+#if 3==OS_FIRMWARE_COUNT
+#define CONFIG_BOOTARGS_HEAD    \
+    "root=" OS_DEV_FLASH(11)    \
+        __space                 \
+    /* end */
+
+#define CONFIG_BOOTARGS_MMCBLK0 \
+        "512K(fastboot),"/*01 */\
+        "512K(bootenv),"/* 02 */\
+        "4M(baseparam),"/* 03 */\
+        "4M(pqparam),"  /* 04 */\
+        "3M(logo),"     /* 05 */\
+                                \
+        "16M(kernel0)," /* 06 */\
+        "16M(kernel1)," /* 07 */\
+        "16M(kernel2)," /* 08 */\
+                                \
+        "4M(unused),"   /* 09 */\
+                                \
+        "128M(rootfs0),"/* 10 */\
+        "128M(rootfs1),"/* 11 */\
+        "128M(rootfs2),"/* 12 */\
+                                \
+        "16M(config0)," /* 13 */\
+        "16M(config1)," /* 14 */\
+                                \
+        "256M(data0),"  /* 15 */\
+        "256M(data1),"  /* 16 */\
+        "-(others)"     /* 17 */\
+        /* end */
+#elif 5==OS_FIRMWARE_COUNT
+#define CONFIG_BOOTARGS_HEAD    \
+    "root=" OS_DEV_FLASH(12)    \
+        __space                 \
+    /* end */
+
+#define CONFIG_BOOTARGS_MMCBLK0 \
+        "512K(fastboot),"/*01 */\
+        "512K(bootenv),"/* 02 */\
+        "4M(baseparam),"/* 03 */\
+        "4M(pqparam),"  /* 04 */\
+        "3M(logo),"     /* 05 */\
+                                \
+        "16M(kernel0)," /* 06 */\
+        "16M(kernel1)," /* 07 */\
+        "16M(kernel2)," /* 08 */\
+        "16M(kernel3)," /* 09 */\
+        "16M(kernel4)," /* 10 */\
+                                \
+        "256M(rootfs0),"/* 11 */\
+        "256M(rootfs1),"/* 12 */\
+        "256M(rootfs2),"/* 13 */\
+        "256M(rootfs3),"/* 14 */\
+        "256M(rootfs4),"/* 15 */\
+                                \
+        "32M(config0)," /* 16 */\
+        "32M(config1)," /* 17 */\
+                                \
+        "300M(data0),"  /* 18 */\
+        "300M(data1),"  /* 19 */\
+        "-(others)"     /* 20 */\
+        /* end */
+#elif 7==OS_FIRMWARE_COUNT
 #define CONFIG_BOOTARGS_HEAD    \
     "root=" OS_DEV_FLASH(14)    \
         __space                 \
     /* end */
 
-#define CONFIG_BOOTARGS_BODY    \
-    "mem=2G"                    \
-        __space                 \
-    "console=ttyAMA0,115200"    \
-        __space                 \
-    "rootfstype=ext4"           \
-        __space                 \
-    "rootwait"                  \
-        __space                 \
-    BENV_ROOTFS_MODE            \
-        __space                 \
-    "blkdevparts="              \
-        "mmcblk0:"              \
+#define CONFIG_BOOTARGS_MMCBLK0 \
         "512K(fastboot),"/*01 */\
         "512K(bootenv),"/* 02 */\
         "4M(baseparam),"/* 03 */\
@@ -204,7 +307,24 @@ enum {
                                 \
         "820M(data0),"  /* 22 */\
         "820M(data1),"  /* 23 */\
-        "-(others)"             \
+        "-(others)"     /* 24 */\
+        /* end */
+#endif
+
+#define CONFIG_BOOTARGS_BODY    \
+    "mem=2G"                    \
+        __space                 \
+    "console=ttyAMA0,115200"    \
+        __space                 \
+    "rootfstype=ext4"           \
+        __space                 \
+    "rootwait"                  \
+        __space                 \
+    BENV_ROOTFS_MODE            \
+        __space                 \
+    "blkdevparts="              \
+        "mmcblk0:"              \
+        CONFIG_BOOTARGS_MMCBLK0 \
         __space                 \
     "mmz=ddr,0,0,300M"          \
     /* end */
