@@ -224,7 +224,7 @@ os_init(void)
 {
     int err;
 
-#ifndef __BOOT__
+#ifdef __APP__
     srand(time(NULL));
 #endif
 
@@ -238,7 +238,7 @@ os_init(void)
         return err;
     }
 
-#ifndef __BOOT__
+#ifdef __APP__
     err = os_deamon_check();
     if (err<0) {
         return err;
