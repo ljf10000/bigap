@@ -64,9 +64,6 @@ enum {
 #   define OS_DEV_HD_MASTER     "dev/udisk"
 #   define OS_DEV_USB_MASTER    "dev/udisk1110"
 #elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_PC
-#ifndef PRODUCT_FLASH_SIZE
-#   define PRODUCT_FLASH_SIZE   4 /* 4G */
-#endif
 #if 1==PRODUCT_FLASH_SIZE   /* 1G */
 #   define OS_FIRMWARE_COUNT    3
 #elif 2==PRODUCT_FLASH_SIZE /* 2G */
