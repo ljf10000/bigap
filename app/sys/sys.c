@@ -114,20 +114,28 @@ sys = {
         OBJ_KERNEL(0),
         OBJ_KERNEL(1),
         OBJ_KERNEL(2),
+#if OS_FIRMWARE_COUNT > 3
         OBJ_KERNEL(3),
         OBJ_KERNEL(4),
+#if OS_FIRMWARE_COUNT > 5
         OBJ_KERNEL(5),
         OBJ_KERNEL(6),
+#endif
+#endif
     },
     
     .rootfs = {
         OBJ_ROOTFS(0),
         OBJ_ROOTFS(1),
         OBJ_ROOTFS(2),
+#if OS_FIRMWARE_COUNT > 3
         OBJ_ROOTFS(3),
         OBJ_ROOTFS(4),
+#if OS_FIRMWARE_COUNT > 5
         OBJ_ROOTFS(5),
         OBJ_ROOTFS(6),
+#endif
+#endif
     },
 
     .config = {
