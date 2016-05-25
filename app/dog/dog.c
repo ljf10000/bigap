@@ -10,8 +10,6 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 
 OS_INITER;
 
-enum { DOG_COUNT = 2 };
-
 #if 0
 HI_S32 HI_UNF_WDG_Init(HI_VOID);
 HI_S32 HI_UNF_WDG_DeInit(HI_VOID);

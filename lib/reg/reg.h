@@ -1,5 +1,6 @@
 #ifndef __REG_H_39a60c01c27c42d5aa2f5334d87d22fd__
 #define __REG_H_39a60c01c27c42d5aa2f5334d87d22fd__
+#if IS_PRODUCT_LTEFI_MD
 /******************************************************************************/
 #define REG_DEBUG    0
 
@@ -98,9 +99,23 @@ enum {
     OS_REG("dog lock",      __dog_reg(_dog, __DOG_LOCK),     __DOG_LOCK_CLOSE) \
     /* end */
 
+#if IS_PRODUCT_LTEFI_MD1 || IS_PRODUCT_LTEFI_MD2
+#define DOG_COUNT   2
 #define OS_DOG_ENABLE { \
     __OS_DOG_ENABLE(0), \
     __OS_DOG_ENABLE(1), \
 }   /* end */
+#elif IS_PRODUCT_LTEFI_MD3
+#define DOG_COUNT   4
+#define OS_DOG_ENABLE { \
+    __OS_DOG_ENABLE(0), \
+    __OS_DOG_ENABLE(1), \
+    __OS_DOG_ENABLE(2), \
+    __OS_DOG_ENABLE(3), \
+}   /* end */
+#else
+#error "invalid __PRODUCT__"
+#endif
 /******************************************************************************/
+#endif
 #endif /* __REG_H_39a60c01c27c42d5aa2f5334d87d22fd__ */

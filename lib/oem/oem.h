@@ -1,8 +1,6 @@
 #ifndef __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 #define __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 /******************************************************************************/
-#include "product/product.h"
-
 #ifndef OEM_RSYNC_USER_LEN
 #define OEM_RSYNC_USER_LEN      31
 #endif
