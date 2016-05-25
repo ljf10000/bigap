@@ -72,7 +72,7 @@ set_timeout(int dog, int timeout)
     for (__i=0; __i<DOG_COUNT; __i++) { \
         __err = _method(__i, ##_args);  \
         if (__err) {                    \
-            return __err;               \
+            debug_error(#_method "dog:%d error:%d", __i, __err); \
         }                               \
     }                                   \
                                         \
