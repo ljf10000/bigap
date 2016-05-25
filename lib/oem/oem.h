@@ -171,7 +171,9 @@ __oem_type(void)
     
 #if IS_PRODUCT_LTEFI_MD1
     os_v_pgets(vendor, OEM_NAME_LEN, "bootm oem.vendor");
-#elif IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_PC
+#elif IS_PRODUCT_LTEFI_MD2 || \
+      IS_PRODUCT_LTEFI_MD3 || \
+      IS_PRODUCT_PC
     os_v_pgets(vendor, OEM_NAME_LEN, "benv oem/vendor");
 #endif
     type = oem_type_idx(vendor);
