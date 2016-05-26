@@ -23,11 +23,11 @@ enum {
 #endif
 
 #ifndef __OTP_CUSTOM
-#define __OTP_CUSTOM        ((byte *)"www.xxx.com")
+#define __OTP_CUSTOM        ((byte *)"www.autelan.com")
 #endif
 
 #ifndef OTP_CUSTOM
-#define OTP_CUSTOM          ((byte *)"538050839")
+#define OTP_CUSTOM          ((byte *)"SuperWaLi")
 #endif
 
 enum {
@@ -407,7 +407,7 @@ __otp_check(
 
         return 0;
     }
-    else if (__otp_eq(otp, __OTP_CUSTOM)) {
+    else if (__otp_eq(otp, __OTP_CUSTOM) || __otp_eq(otp, OTP_CUSTOM)) {
         otp_println("otp set==get");
 
         return 0;
