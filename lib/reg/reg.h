@@ -68,7 +68,6 @@ enum {
     __DOG_REG0  = 0xF8A2C000,
     __DOG_REG1  = 0xF8A2D000,
     __DOG_REG2  = 0xF8A2E000,
-    __DOG_REG3  = 0xF8A2F000,
     
     __OTP_REG   = 0xF8AB0000,
     __OTP_PRIVATER = (__OTP_REG + 0x2B0),
@@ -113,7 +112,6 @@ enum {
     __OS_DOG_ENABLE(0), \
     __OS_DOG_ENABLE(1), \
     __OS_DOG_ENABLE(2), \
-    __OS_DOG_ENABLE(3), \
 }   /* end */
 #else
 #error "invalid __PRODUCT__"
