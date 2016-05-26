@@ -338,5 +338,9 @@ int udhcpd_main(int argc UNUSED_PARAM, char **argv)
  ret:
 	/*if (server_config.pidfile) - server_config.pidfile is never NULL */
 		remove_pidfile(server_config.pidfile);
+#ifdef BIGAP
+    os_fini();
+#endif
+
 	return retval;
 }
