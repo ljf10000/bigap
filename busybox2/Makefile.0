@@ -34,7 +34,7 @@ MKFLAGS += CONFIG_CA_RELEASE=$(CFG_ADVCA_FUNCTION)
 endif
 endif
 ################################################################################
-#AUTELAN
+#BIGAP
 all: clean
 	@test -d $(BUSYBOX_VERSION)
 	@cd $(BUSYBOX_VERSION) && \

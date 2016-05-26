@@ -93,6 +93,7 @@ $(BUILD_DIR)/%/tar:
 	test -d $(@D) || mkdir -p $(@D)
 	tar -xjf $(notdir $(@:/tar=)).tar.bz2 -C $(BUILD_DIR)
 	@touch $@
+	#BIGAP
 	if [ -f "${PUB_DIR}/include/hi_unf_wdg.h" ]; then \
 		$(hisitopdir)/autelan_scripts/autelan.private busybox; \
 	fi

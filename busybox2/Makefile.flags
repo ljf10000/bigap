@@ -26,7 +26,7 @@ CFLAGS += $(call cc-option,-Wunused -Wunused-parameter,)
 CFLAGS += $(call cc-option,-Wunused-function -Wunused-value,)
 CFLAGS += $(call cc-option,-Wmissing-prototypes -Wmissing-declarations,)
 # warn about C99 declaration after statement
-#AUTELAN
+#BIGAP
 CFLAGS += $(call cc-option,-Wno-declaration-after-statement,)
 CFLAGS += -Wno-unused
 
