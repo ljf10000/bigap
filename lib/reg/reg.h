@@ -1,5 +1,7 @@
 #ifndef __REG_H_39a60c01c27c42d5aa2f5334d87d22fd__
 #define __REG_H_39a60c01c27c42d5aa2f5334d87d22fd__
+/******************************************************************************/
+#include "product/product.h"
 #if IS_PRODUCT_LTEFI_MD
 /******************************************************************************/
 #define REG_DEBUG    0
@@ -65,6 +67,8 @@ __os_reg_write(os_reg_t reg[], int count)
 enum {
     __DOG_REG0  = 0xF8A2C000,
     __DOG_REG1  = 0xF8A2D000,
+    __DOG_REG2  = 0xF8A2E000,
+    __DOG_REG3  = 0xF8A2F000,
     
     __OTP_REG   = 0xF8AB0000,
     __OTP_PRIVATER = (__OTP_REG + 0x2B0),
@@ -115,5 +119,5 @@ enum {
 #error "invalid __PRODUCT__"
 #endif
 /******************************************************************************/
-#endif
+#endif /* IS_PRODUCT_LTEFI_MD */
 #endif /* __REG_H_39a60c01c27c42d5aa2f5334d87d22fd__ */
