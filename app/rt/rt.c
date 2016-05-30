@@ -24,7 +24,7 @@ enum {
 
 static int runtime;
 
-#if IS_PRODUCT_SERIES_A
+#if IS_PRODUCT_LTEFI_A
 static int
 __rt_load(int idx)
 {
@@ -44,7 +44,7 @@ __rt_save(int idx)
 
     return 0;
 }
-#elif IS_PRODUCT_SERIES_PC || IS_PRODUCT_SERIES_B
+#elif IS_PRODUCT_PC || IS_PRODUCT_LTEFI_B
 static int
 __rt_load(int idx)
 {

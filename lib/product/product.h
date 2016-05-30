@@ -25,17 +25,15 @@
 #define IS_PRODUCT_LTEFI_MD3    (__PRODUCT__==PRODUCT_LTEFI_MD3)
 #define IS_PRODUCT_LTEFI_AP3    (__PRODUCT__==PRODUCT_LTEFI_AP3)
 
-#define __PRODUCT_VERSION(_product)     (((_product)+1)/2)
-#define __PRODUCT_LTEFI_AP(_product)    ((_product) && 0==((_product)%2))
-#define __PRODUCT_LTEFI_MD(_product)    ((_product) && 1==((_product)%2))
+#define IS_PRODUCT_LTEFI_AP     (IS_PRODUCT_LTEFI_AP1 || IS_PRODUCT_LTEFI_AP2 || IS_PRODUCT_LTEFI_AP3)
+#define IS_PRODUCT_LTEFI_MD     (IS_PRODUCT_LTEFI_MD1 || IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3)
 
-#define PRODUCT_VERSION         __PRODUCT_VERSION(__PRODUCT__)
-#define IS_PRODUCT_LTEFI_AP     __PRODUCT_LTEFI_AP(__PRODUCT__)
-#define IS_PRODUCT_LTEFI_MD     __PRODUCT_LTEFI_MD(__PRODUCT__)
+#define IS_PRODUCT_LTEFI_V1     (IS_PRODUCT_LTEFI_MD1 || IS_PRODUCT_LTEFI_AP1)
+#define IS_PRODUCT_LTEFI_V2     (IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_AP2)
+#define IS_PRODUCT_LTEFI_V3     (IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_LTEFI_AP3)
 
-#define IS_PRODUCT_SERIES_PC    IS_PRODUCT_PC
-#define IS_PRODUCT_SERIES_A     (1==PRODUCT_VERSION)
-#define IS_PRODUCT_SERIES_B     (2==PRODUCT_VERSION || 3==PRODUCT_VERSION)
+#define IS_PRODUCT_LTEFI_A      (IS_PRODUCT_LTEFI_V1)
+#define IS_PRODUCT_LTEFI_B      (IS_PRODUCT_LTEFI_V2 || IS_PRODUCT_LTEFI_V3)
 /******************************************************************************/
 #include "product/pc.h"
 #include "product/ap1.h"

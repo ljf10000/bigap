@@ -8,7 +8,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #include "utils.h"
 #include "benv/benv.h"
 #include "reg/reg.h"
-#if 1==PRODUCT_VERSION
+#if IS_PRODUCT_LTEFI_A
 #include "../bootm/bootm.h"
 #endif
 #if !(IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
@@ -94,14 +94,14 @@ hacked(int obj, int reason)
 static int
 check_boot(void)
 {
-#if IS_PRODUCT_SERIES_B
+#if IS_PRODUCT_LTEFI_B
     static os_reg_t dog_enable[] = OS_DOG_ENABLE;
 #endif
     static struct {
         char *addr;
         int size;
     } cookie[] = {
-#if IS_PRODUCT_SERIES_B
+#if IS_PRODUCT_LTEFI_B
         {
             .addr = (char *)dog_enable,
             .size = sizeof(dog_enable),
@@ -140,7 +140,7 @@ check_boot(void)
 static int
 check_bootenv(void)
 {
-#if IS_PRODUCT_SERIES_A
+#if IS_PRODUCT_LTEFI_A
     struct {
         char init[sizeof(AT_DEFT_INIT)-1];
     } cookie = {
@@ -148,7 +148,7 @@ check_bootenv(void)
     }, deft = {
         AT_DEFT_INIT,
     };
-#elif IS_PRODUCT_SERIES_PC || IS_PRODUCT_SERIES_B
+#elif IS_PRODUCT_PC || IS_PRODUCT_LTEFI_B
     benv_cookie_t deft = BENV_DEFT_COOKIE;
     benv_cookie_t cookie;
 #endif
