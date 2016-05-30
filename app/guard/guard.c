@@ -206,7 +206,7 @@ get_oem(void)
 }
 
 #define __prepare() os_do_nothing()
-#elif 2==PRODUCT_VERSION
+#elif 2==PRODUCT_VERSION || 3==PRODUCT_VERSION
 #define get_mac()   benv_info_get(__benv_info_product_mac)
 #define get_mid()   benv_mark_get(__benv_mark_cid_mid)
 #define get_psn()   benv_mark_get(__benv_mark_cid_psn)

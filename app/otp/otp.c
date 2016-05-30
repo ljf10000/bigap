@@ -56,7 +56,7 @@ cmd_private_write(int argc, char *argv[])
     return otp_private_write(otp);
 }
 
-#if 2==PRODUCT_VERSION || 0==PRODUCT_VERSION
+#if 0==PRODUCT_VERSION || 2==PRODUCT_VERSION || 3==PRODUCT_VERSION
 static int
 cmd_bcookie_show(int argc, char *argv[])
 {
@@ -115,7 +115,7 @@ static cmd_table_t cmd[] = {
         .argv   = {"private", "write", NULL},
         .handle = cmd_private_write,
     },
-#if 2==PRODUCT_VERSION || 0==PRODUCT_VERSION
+#if 0==PRODUCT_VERSION || 2==PRODUCT_VERSION || 3==PRODUCT_VERSION
     {
         .argc   = 2,
         .argv   = {"cookie", "show"},

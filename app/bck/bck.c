@@ -94,14 +94,14 @@ hacked(int obj, int reason)
 static int
 check_boot(void)
 {
-#if 2==PRODUCT_VERSION
+#if 2==PRODUCT_VERSION || 3==PRODUCT_VERSION
     static os_reg_t dog_enable[] = AT_REG_DOG_ENABLE;
 #endif
     static struct {
         char *addr;
         int size;
     } cookie[] = {
-#if 2==PRODUCT_VERSION
+#if 2==PRODUCT_VERSION || 3==PRODUCT_VERSION
         {
             .addr = (char *)dog_enable,
             .size = sizeof(dog_enable),
@@ -148,7 +148,7 @@ check_bootenv(void)
     }, deft = {
         AT_DEFT_INIT,
     };
-#elif 2==PRODUCT_VERSION
+#elif 2==PRODUCT_VERSION || 3==PRODUCT_VERSION
     benv_cookie_t deft = BENV_DEFT_COOKIE;
     benv_cookie_t cookie;
 #endif

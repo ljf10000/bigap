@@ -44,7 +44,7 @@ __rt_save(int idx)
 
     return 0;
 }
-#elif 2==PRODUCT_VERSION || 0==PRODUCT_VERSION
+#elif 0==PRODUCT_VERSION || 2==PRODUCT_VERSION || 3==PRODUCT_VERSION
 static int
 __rt_load(int idx)
 {

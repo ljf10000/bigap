@@ -839,7 +839,7 @@ typedef struct {
 }   /* end */
 
 
-#if !defined(__BUSYBOX__) && (0==PRODUCT_VERSION || 2==PRODUCT_VERSION)
+#if !defined(__BUSYBOX__) && (0==PRODUCT_VERSION || 2==PRODUCT_VERSION || 3==PRODUCT_VERSION)
 #   define BENV_INITER \
         static benv_env_t __benv; \
         benv_control_t benv_control = BENV_CONTROL_DEFT(&__benv, NULL, NULL); \
