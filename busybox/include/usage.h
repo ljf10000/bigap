@@ -113,7 +113,7 @@
      "\n	-s SRC_IP	Sender IP address" \
      "\n	DST_IP		Target IP address" \
  
-#ifdef BIGAP
+#if 1 /* BIGAP */
 #define ak_trivial_usage    "\n\n"
 #define ak_full_usage       "\n\n"
 

@@ -10,12 +10,6 @@
  * Licensed under GPLv2 or later, see file LICENSE in this tarball for details.
  */
 
-#include <syslog.h>
-#include "common.h"
-#include "dhcpc.h"
-#include "dhcpd.h"
-#include "options.h"
-
 #ifdef BIGAP
 #ifndef __THIS_APP
 #define __THIS_APP      udhcpd
@@ -32,6 +26,12 @@
 #include "utils.h"
 OS_INITER;
 #endif
+
+#include <syslog.h>
+#include "common.h"
+#include "dhcpc.h"
+#include "dhcpd.h"
+#include "options.h"
 
 /* globals */
 struct dyn_lease *g_leases;

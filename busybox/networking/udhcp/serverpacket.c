@@ -20,11 +20,6 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "common.h"
-#include "dhcpc.h"
-#include "dhcpd.h"
-#include "options.h"
-
 #ifdef BIGAP
 #ifndef __THIS_APP
 #define __THIS_APP      udhcpd
@@ -40,6 +35,11 @@
 
 #include "utils.h"
 #endif
+
+#include "common.h"
+#include "dhcpc.h"
+#include "dhcpd.h"
+#include "options.h"
 
 /* send a packet to gateway_nip using the kernel ip stack */
 static int send_packet_to_relay(struct dhcp_packet *dhcp_pkt)
