@@ -148,7 +148,7 @@ check_bootenv(void)
     }, deft = {
         AT_DEFT_INIT,
     };
-#elif IS_PRODUCT_PC || IS_PRODUCT_SERIES_B
+#elif IS_PRODUCT_SERIES_PC || IS_PRODUCT_SERIES_B
     benv_cookie_t deft = BENV_DEFT_COOKIE;
     benv_cookie_t cookie;
 #endif

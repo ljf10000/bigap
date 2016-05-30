@@ -44,7 +44,7 @@ __rt_save(int idx)
 
     return 0;
 }
-#elif IS_PRODUCT_PC || IS_PRODUCT_SERIES_B
+#elif IS_PRODUCT_SERIES_PC || IS_PRODUCT_SERIES_B
 static int
 __rt_load(int idx)
 {

@@ -8,7 +8,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #include "benv/benv.h"
 #include "benv/bcookie.h"
 
-#if !(IS_PRODUCT_PC || IS_PRODUCT_SERIES_B)
+#if !(IS_PRODUCT_SERIES_PC || IS_PRODUCT_SERIES_B)
 #error "just support ltefi(v2/v3/pc)"
 #endif
 

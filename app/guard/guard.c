@@ -85,7 +85,7 @@ static int cmdsleep = CMDSLEEP;
 static byte custom[OTP_SIZE];
 static byte private[OTP_SIZE];
 
-#if IS_PRODUCT_PC
+#if IS_PRODUCT_SERIES_PC
 #define get_mac()       "12:34:56:78:9a:bc"
 #define get_mid()       1
 #define get_psn()       2
