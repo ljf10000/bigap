@@ -95,7 +95,7 @@ static int
 check_boot(void)
 {
 #if 2==PRODUCT_VERSION || 3==PRODUCT_VERSION
-    static os_reg_t dog_enable[] = AT_REG_DOG_ENABLE;
+    static os_reg_t dog_enable[] = OS_DOG_ENABLE;
 #endif
     static struct {
         char *addr;
