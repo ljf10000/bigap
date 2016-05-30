@@ -24,7 +24,7 @@ enum {
 
 static int runtime;
 
-#if 1==PRODUCT_VERSION
+#if IS_PRODUCT_SERIES_1
 static int
 __rt_load(int idx)
 {
@@ -44,7 +44,7 @@ __rt_save(int idx)
 
     return 0;
 }
-#elif 0==PRODUCT_VERSION || 2==PRODUCT_VERSION || 3==PRODUCT_VERSION
+#elif IS_PRODUCT_PC || IS_PRODUCT_SERIES_2
 static int
 __rt_load(int idx)
 {

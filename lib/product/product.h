@@ -32,6 +32,9 @@
 #define PRODUCT_VERSION         __PRODUCT_VERSION(__PRODUCT__)
 #define IS_PRODUCT_LTEFI_AP     __PRODUCT_LTEFI_AP(__PRODUCT__)
 #define IS_PRODUCT_LTEFI_MD     __PRODUCT_LTEFI_MD(__PRODUCT__)
+
+#define IS_PRODUCT_SERIES_1     (1==PRODUCT_VERSION)
+#define IS_PRODUCT_SERIES_2     (2==PRODUCT_VERSION || 3==PRODUCT_VERSION)
 /******************************************************************************/
 #include "product/pc.h"
 #include "product/ap1.h"
