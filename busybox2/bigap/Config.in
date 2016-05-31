@@ -159,7 +159,7 @@ config TTYUSB3
 	bool "ttyUSB3"
 	default y
 	help
-	  at_ttyUSB3
+	  ttyUSB3
 
 config UMC
 	bool "umc"

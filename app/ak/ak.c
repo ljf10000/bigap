@@ -43,10 +43,10 @@ __main(int argc, char *argv[])
 }
 
 #ifndef __BUSYBOX__
-#define appkey_main  main
+#define ak_main  main
 #endif
 
-int appkey_main(int argc, char *argv[])
+int ak_main(int argc, char *argv[])
 {
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);

@@ -120,11 +120,11 @@ static int set_register_operator(HI_3G_CARD_MODE_E search_mode,
 	int sleep_time = 1;
 	do {
 		ret = HI_3G_GetCurrentOperator(card, currentoperator);
-		if (ret == 0 || ret == HI_3G_CARD_ERR_UNSUPPORT)
+		if (ret == 0 || ret == HI_3G_CARD_ERR_NOINIT)
 			break;
 		sleep(sleep_time++);
 	} while (++ix < MAX_CMD_RETRIES);
-	if (ix >= MAX_CMD_RETRIES || ret == HI_3G_CARD_ERR_UNSUPPORT) {
+	if (ix >= MAX_CMD_RETRIES || ret == HI_3G_CARD_ERR_NOINIT) {
 		printf("get card operator failed(%d)!\n", ret);
 		return ret;
 	}
@@ -463,7 +463,7 @@ TEST4_EXIT:
 
 	do {
 		ret = HI_3G_GetCurrentOperator(card, currentoperator);
-		if (ret == 0 || ret == HI_3G_CARD_ERR_UNSUPPORT)
+		if (ret == 0 || ret == HI_3G_CARD_ERR_NOINIT)
 			break;
 		sleep(sleep_time++);
 	} while (++ix < MAX_CMD_RETRIES);
