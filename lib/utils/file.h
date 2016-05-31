@@ -742,7 +742,7 @@ __os_file_unlock(char *file, int fd)
 })
 
 static inline bool
-os_file_exist(char *file)
+os_file_exist(const char *file)
 {
     int fd = open(file, O_RDONLY, S_IRUSR | S_IRGRP);
 

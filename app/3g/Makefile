@@ -2,8 +2,7 @@
 #LIB = -Wl,--start-group -lpthread -lm   -Wl,--end-group
 ################################################################################
 ifeq ($(CFG_HI_EXPORT_FLAG),)
-#SDK_DIR       := $(shell pwd)/../../../../../../../../..
-SDK_DIR       := $(shell pwd)/../../../histb
+SDK_DIR       := $(shell pwd)/../../../../../../../..
 LIB_DIR       := $(SDK_DIR)/pub/lib
 SHARED_LIB_DIR:= $(LIB_DIR)/share
 STATIC_LIB_DIR:= $(LIB_DIR)/static
@@ -41,10 +40,10 @@ ppp_dial: ppp_dial.c
 	@$(STRIP) $@
 
 #add by autelan
-	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB0 at_ttyUSB0.c -lpthread
-	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB1 at_ttyUSB1.c -lpthread
-	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB2 at_ttyUSB2.c -lpthread
-	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB3 at_ttyUSB3.c -lpthread
+	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB0 ttyUSB0.c -lpthread
+	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB1 ttyUSB1.c -lpthread
+	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB2 ttyUSB2.c -lpthread
+	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB3 ttyUSB3.c -lpthread
 #add end by autelan
 
 clean:
