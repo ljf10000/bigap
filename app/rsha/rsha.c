@@ -216,9 +216,6 @@ load_config(void)
     int err;
     jobj_t jcfg = NULL;
     
-    rsh_config = env_gets(ENV_RSH_CONFIG, RSH_CONFIG_FILE);
-    debug_config("rsh.config=%s", rsh_config);
-    
     jcfg = jobj_file(rsh_config);
     if (NULL==jcfg) {
         debug_error("invalid rsh.config");
@@ -239,21 +236,18 @@ load_cloud(void)
     int err = 0;
     jobj_t jcfg = NULL;
 
-    if (NULL==rsh_cloud) {
-        rsh_cloud = env_gets(ENV_RSH_CLOUD_CONFIG, RSH_CLOUD_CONFIG_FILE);
-        debug_config("rsh.cloud=%s", rsh_cloud);
+    if (is_cloud_ready()) {
+        return 0;
     }
-
-    if (false==is_cloud_ready()) {
-        jcfg = jobj_file(rsh_cloud);
-        if (NULL==jcfg) {
-            debug_error("invalid rsh.cloud");
-            
-            err = -EBADCFG; goto error;
-        }
+    
+    jcfg = jobj_file(rsh_cloud);
+    if (NULL==jcfg) {
+        debug_error("invalid rsh.cloud");
         
-        err = load_slot(jcfg, RSH_SLOT_CLOUD);
+        err = -EBADCFG; goto error;
     }
+    
+    err = load_slot(jcfg, RSH_SLOT_CLOUD);
 error:
     jobj_put(jcfg);
     
@@ -273,9 +267,20 @@ init_cfg(void)
     rsh_current = RSH_SLOT_MASTER;
     rsh_master  = RSH_SLOT_MASTER;
 #endif
-
+    debug_config("rsh.current=%d", rsh_current);
+    debug_config("rsh.master=%d", rsh_master);
+    
     rsh_request = env_gets(ENV_RSH_REQUEST_SCRIPT,  RSH_REQUEST_SCRIPT);
+    debug_config("rsh.request=%s", rsh_request);
+    
     rsh_response= env_gets(ENV_RSH_RESPONSE_SCRIPT, RSH_RESPONSE_SCRIPT);
+    debug_config("rsh.response=%s", rsh_response);
+    
+    rsh_config  = env_gets(ENV_RSH_CONFIG, RSH_CONFIG_FILE);
+    debug_config("rsh.config=%s", rsh_config);
+    
+    rsh_cloud   = env_gets(ENV_RSH_CLOUD_CONFIG, RSH_CLOUD_CONFIG_FILE);
+    debug_config("rsh.cloud=%s", rsh_cloud);
 
     /*
     * get basemac
@@ -307,7 +312,7 @@ init_cfg(void)
     }
 
     /*
-    * maybe cloud-config NOT exist
+    * maybe failed(cloud-config NOT exist)
     */
     load_cloud();
 
@@ -365,8 +370,10 @@ __exec(jobj_t jrequest, int slot)
     int err = 0;
     
     if (slot==rsh_current) {
+            debug_proto("%s '%s' &", rsh_response, rsh_buffer);
         err = os_system("%s '%s' &", rsh_response, rsh_buffer);
     } else {
+            debug_proto("%s '%s' &", rsh_request, rsh_buffer);
         err = os_system("%s '%s' &", rsh_request, rsh_buffer);
     }
 
@@ -378,33 +385,47 @@ __command(jobj_t jrequest, char *cmd)
 {
     jobj_t jseq = jobj_get(jrequest, "seq");
     if (NULL==jseq) {
+        debug_proto("no-found request.seq");
+        
         return -EBADPROTO;
     }
     
     jobj_t jslot = jobj_get(jrequest, "slot");
     if (NULL==jslot) {
+        debug_proto("no-found request.slot");
+        
         return -EBADPROTO;
     }
     int slot = jobj_get_i32(jslot);
     if (false==is_local_rsh_slot(slot)) {
+        debug_proto("invalid request.slot:%d", slot);
+        
         return -EBADSLOT;
     }
     
     jobj_t jstdin = jobj_get(jrequest, "stdin");
     if (NULL==jstdin) {
+        debug_proto("no-found request.stdin");
+        
         return -EBADPROTO;
     }
     char *stdin = jobj_get_string(jstdin);
     if (NULL==stdin) {
+        debug_proto("invalid request.stdin");
+        
         return -EBADPROTO;
     }
     
     jobj_t jmode = jobj_get(jrequest, "mode");
     if (NULL==jmode) {
+        debug_proto("no-found request.mode");
+        
         return -EBADPROTO;
     }
     char *modestring = jobj_get_string(jmode);
     if (NULL==modestring) {
+        debug_proto("invalid request.mode");
+        
         return -EBADPROTO;
     }
     
@@ -416,6 +437,8 @@ __command(jobj_t jrequest, char *cmd)
         case RSH_MODE_ACK: /* down */
         case RSH_MODE_SYN: /* down */
         default:
+            debug_proto("no-support request.mode:%s", modestring);
+            
             return -ENOSUPPORT;
     }
 }
@@ -428,10 +451,14 @@ __proto(jobj_t jrequest)
     */
     jobj_t jversion = jobj_get(jrequest, "version");
     if (NULL==jversion) {
+        debug_proto("no-found request.version");
+        
         return -EBADPROTO;
     }
     int version = jobj_get_i32(jversion);
     if (version!=RSH_VERSION) {
+        debug_proto("invalid request.version:%d, proto.version=%d", version, RSH_VERSION);
+        
         return -EBADVERSION;
     }
 
@@ -440,10 +467,14 @@ __proto(jobj_t jrequest)
     */
     jobj_t jmac = jobj_get(jrequest, "mac");
     if (NULL==jmac) {
+        debug_proto("no-found request.mac");
+        
         return -EBADPROTO;
     }
     char *mac = jobj_get_string(jmac);
     if (false==os_streq(mac, rsh_basemac)) {
+        debug_proto("invalid request.mac:%s, basemac=%s", mac, rsh_basemac);
+        
         return -ENOMATCH;
     }
 
@@ -452,6 +483,8 @@ __proto(jobj_t jrequest)
     */
     jobj_t jcmd = jobj_get(jrequest, "cmd");
     if (NULL==jcmd) {
+        debug_proto("no-found request.cmd");
+        
         return -EBADPROTO;
     }
     char *cmd = jobj_get_string(jcmd);
@@ -459,12 +492,16 @@ __proto(jobj_t jrequest)
         /*
         * now, NOT handle echo-response
         */
+        debug_proto("no-support request.cmd:echo from cloud");
+        
         return -ENOSUPPORT;
     }
     else if (os_streq(cmd, "command")) {
         return __command(jrequest, cmd);
     }
     else {
+        debug_proto("invalid request.cmd:%s", cmd);
+        
         return -EBADPROTO;
     }
 }
@@ -476,11 +513,15 @@ __handle(struct sockaddr_in *client)
     struct sockaddr_in cloud = RSH_CLOUD_ADDR;
     
     if (false==os_objeq(client, &cloud)) {
+        debug_proto("invalid request.source(not cloud), drop it");
+        
         return -ENOMATCH;
     }
     
     jobj_t jrequest = jobj(rsh_buffer);
     if (NULL==jrequest) {
+        debug_proto("invalid request");
+        
         return -EBADJSON;
     }
 
