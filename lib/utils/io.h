@@ -6,7 +6,7 @@
 #ifdef __APP__
 
 static inline int
-__io_error(char *io, char *buf, int size, int error)
+__io_error(char *method, char *buf, int size, int error)
 {
     int err = error;
     
@@ -14,7 +14,7 @@ __io_error(char *io, char *buf, int size, int error)
         os_dump_buffer(__is_ak_debug_packet, buf, err, NULL);
     }
     else if (err<0) { /* yes, <0 */
-        debug_io("%s error:%d", io, -errno);
+        debug_io("%s error:%d", method, -errno);
 
         return -errno;
     }
@@ -23,11 +23,11 @@ __io_error(char *io, char *buf, int size, int error)
 }
 
 static inline int
-__io_read_error(char *io, char *buf, int size, int error)
+__io_read_error(char *method, char *buf, int size, int error)
 {
-    int err = __io_error(io, buf, size, error);
+    int err = __io_error(method, buf, size, error);
     if (0==err) {
-        debug_io("%s nothing", io);
+        debug_io("%s nothing", method);
 
         return -EIO;
     }
@@ -36,11 +36,11 @@ __io_read_error(char *io, char *buf, int size, int error)
 }
 
 static inline int
-__io_write_error(char *io, char *buf, int size, int error)
+__io_write_error(char *method, char *buf, int size, int error)
 {
-    int err = __io_error(io, buf, size, error);
+    int err = __io_error(method, buf, size, error);
     if (err != size) {
-        debug_io("%s count(%d) < length(%d)", io, err, size);
+        debug_io("%s count(%d) < length(%d)", method, err, size);
 
         return -EIO;
     }

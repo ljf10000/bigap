@@ -303,7 +303,7 @@ init_cfg(void)
         
         return -ENOMEM;
     }
-    rsh_echo_size = 1 + os_strlen(rsh_echo_request);
+    rsh_echo_size = os_strlen(rsh_echo_request);
     debug_config("rsh.echo.request=%s, size=%d", rsh_echo_request, rsh_echo_size);
     
     err = load_config();
@@ -351,6 +351,8 @@ __send(char *buf, int size)
     
     if (is_cloud_ready()) {
         struct sockaddr_in cloud = RSH_CLOUD_ADDR;
+
+        debug_trace("rsh send request=%s, size=%d", buf, size);
         
         err = io_sendto(rsh.fd, buf, size, (struct sockaddr *)&cloud, sizeof(cloud));
     }
