@@ -177,7 +177,7 @@ __load_config(jobj_t jcfg)
     }
     debug_config("rsh.config.slot.count=%d", count);
     
-    for (slot=0; slot<RSH_SLOT_END; slot++) {
+    for (slot=0; slot<RSH_SLOT_CLOUD; slot++) {
         jobj_t jobj = jarray_get(jslot, slot);
         if (NULL==jobj) {
             debug_error("get rsh.config.slot[%d] error", slot);

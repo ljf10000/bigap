@@ -74,10 +74,8 @@
 #endif
 
 #define RSH_SLOT_MASTER         0
-#define RSH_SLOT_END            RSH_SLOT_COUNT
 #define RSH_SLOT_CLOUD          RSH_SLOT_COUNT
-
-#define rsh_foreach_slot(_slot) for(_slot=0; _slot<RSH_SLOT_END; _slot++)
+#define RSH_SLOT_END            (1+RSH_SLOT_COUNT)
 
 static inline bool
 is_local_rsh_slot(int slot)
