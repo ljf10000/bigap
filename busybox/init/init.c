@@ -101,6 +101,8 @@ struct init_action {
     .action_type= _action_type, \
 }
 
+#define count_of    (sizeof(_x)/sizeof((_x)[0]))
+
 static struct init_action actions[] = {
     action_entry("/etc/init.d/rc.last", ONCE | STATICACT),
     action_entry("/bin/busybox jlogd",  RESPAWN | STATICACT),
@@ -120,7 +122,7 @@ action_init(void)
 {
     int i;
 
-    for (i=0; i<(sizeof(actions)/sizeof(actions[0])) - 1; i++) {
+    for (i=0; i<count_of(actions) - 1; i++) {
         actions[i].next = &actions[i+1];
     }
 }
