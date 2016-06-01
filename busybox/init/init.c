@@ -102,16 +102,15 @@ struct init_action {
 }
 
 static struct init_action actions[] = {
+    action_entry("/etc/init.d/rc.last", ONCE | STATICACT),
     action_entry("/bin/busybox jlogd",  RESPAWN | STATICACT),
-    action_entry("/bin/busybox rt",     RESPAWN | STATICACT),
-    action_entry("/bin/busybox guard",  RESPAWN | STATICACT),
-    action_entry("/bin/busybox smd",    RESPAWN | STATICACT),
-    action_entry("/bin/busybox tmd",    RESPAWN | STATICACT),
 #ifndef NO_UM
     action_entry("/bin/busybox umd",    RESPAWN | STATICACT),
 #endif
-    
-    action_entry("/etc/init.d/rc.last", ONCE | STATICACT),
+    action_entry("/bin/busybox tmd",    RESPAWN | STATICACT),
+    action_entry("/bin/busybox smd",    RESPAWN | STATICACT),
+    action_entry("/bin/busybox guard",  RESPAWN | STATICACT),
+    action_entry("/bin/busybox rt",     RESPAWN | STATICACT),
 };
 
 static struct init_action *init_action_list = &actions[0];
@@ -121,7 +120,7 @@ action_init(void)
 {
     int i;
 
-    for (i=0; i<sizeof(actions)/sizeof(actions[0]) - 1; i++) {
+    for (i=0; i<(sizeof(actions)/sizeof(actions[0])) - 1; i++) {
         actions[i].next = &actions[i+1];
     }
 }
@@ -899,6 +898,10 @@ int init_main(int argc UNUSED_PARAM, char **argv)
 {
 	die_sleep = 30 * 24*60*60; /* if xmalloc would ever die... */
 
+#ifdef BIGAP
+    action_init();
+#endif
+
 	if (argv[1] && strcmp(argv[1], "-q") == 0) {
 		return kill(1, SIGHUP);
 	}
@@ -914,10 +917,6 @@ int init_main(int argc UNUSED_PARAM, char **argv)
 		 * SIGINT on CAD so we can shut things down gracefully... */
 		reboot(RB_DISABLE_CAD); /* misnomer */
 	}
-
-#ifdef BIGAP
-    action_init();
-#endif
 
 	/* Figure out where the default console should be */
 	console_init();
