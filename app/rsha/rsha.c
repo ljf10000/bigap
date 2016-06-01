@@ -310,12 +310,12 @@ init_cfg(void)
     if (err<0) {
         return err;
     }
-
+    debug_config("1.rsh.echo.request=%s, size=%d", rsh_echo_request, rsh_echo_size);
     /*
     * maybe failed(cloud-config NOT exist)
     */
     load_cloud();
-
+    debug_config("2.rsh.echo.request=%s, size=%d", rsh_echo_request, rsh_echo_size);
     return 0;
 }
 
@@ -352,8 +352,6 @@ __send(char *buf, int size)
     if (is_cloud_ready()) {
         struct sockaddr_in cloud = RSH_CLOUD_ADDR;
 
-        debug_trace("rsh send request=%s, size=%d", buf, size);
-        
         err = io_sendto(rsh.fd, buf, size, (struct sockaddr *)&cloud, sizeof(cloud));
     }
 
@@ -363,6 +361,8 @@ __send(char *buf, int size)
 static int
 __echo(void)
 {
+    debug_config("6.rsh.echo.request=%s, size=%d", rsh_echo_request, rsh_echo_size);
+    
     return __send(rsh_echo_request, rsh_echo_size);
 }
 
@@ -561,6 +561,8 @@ __init(void)
         return err;
     }
 
+    debug_config("3.rsh.echo.request=%s, size=%d", rsh_echo_request, rsh_echo_size);
+    
     err = init_net();
     if (err<0) {
         debug_error("init net error:%d", err);
@@ -568,12 +570,16 @@ __init(void)
         return err;
     }
 
+    debug_config("4.rsh.echo.request=%s, size=%d", rsh_echo_request, rsh_echo_size);
+    
     err = init_timer();
     if (err<0) {
         debug_error("init timer error:%d", err);
         
         return err;
     }
+
+    debug_config("5.rsh.echo.request=%s, size=%d", rsh_echo_request, rsh_echo_size);
     
     debug_ok("init ok");
     
