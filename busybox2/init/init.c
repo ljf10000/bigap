@@ -100,7 +100,7 @@ struct init_action {
     .action_type= _action_type, \
 }
 
-#define count_of    (sizeof(_x)/sizeof((_x)[0]))
+#define count_of(_x)        (sizeof(_x)/sizeof((_x)[0]))
 
 static struct init_action actions[] = {
     action_entry("/bin/busybox sysstartup",     ONCE | STATICACT),
