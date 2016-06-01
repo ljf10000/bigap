@@ -304,7 +304,7 @@ init_cfg(void)
         return -ENOMEM;
     }
     rsh_echo_size = 1 + os_strlen(rsh_echo_request);
-    debug_config("rsh.echo.request=%s", rsh_echo_request);
+    debug_config("rsh.echo.request=%s, size=%d", rsh_echo_request, rsh_echo_size);
     
     err = load_config();
     if (err<0) {
