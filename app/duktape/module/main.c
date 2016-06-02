@@ -126,10 +126,10 @@ error:
 }
 
 #ifndef __BUSYBOX__
-#define duk_main  main
+#define js_main  main
 #endif
 
-int duk_main(int argc, char *argv[])
+int js_main(int argc, char *argv[])
 {
     return os_main(__main, argc, argv);
 }
