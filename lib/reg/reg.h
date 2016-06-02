@@ -68,10 +68,9 @@ enum {
     __DOG_REG0  = 0xF8A2C000,
     __DOG_REG1  = 0xF8A2D000,
     __DOG_REG2  = 0xF8A2E000,
-    
-    __OTP_REG   = 0xF8AB0000,
-    __OTP_PRIVATER = (__OTP_REG + 0x2B0),
-    __OTP_CUSTOMER = (__OTP_REG + 0x2C0),
+
+    __OTP_PRIVATER  = 0xF8AB02B0,
+    __OTP_CUSTOMER  = 0xF8AB02C0,
 };
 #define __DOG_REGn(_dog)    __DOG_REG##_dog
 

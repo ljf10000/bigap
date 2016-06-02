@@ -74,7 +74,7 @@ enum {
 #   ifndef OS_FIRMWARE_COUNT
 #       define OS_FIRMWARE_COUNT    5
 #   endif
-#elif 4==PRODUCT_FLASH_SIZE /* 4G */ \
+#elif 4==PRODUCT_FLASH_SIZE || /* 4G */ \
       8==PRODUCT_FLASH_SIZE /* 8G */
 #   ifndef OS_FIRMWARE_COUNT
 #       define OS_FIRMWARE_COUNT    7
