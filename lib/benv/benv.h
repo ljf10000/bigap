@@ -46,13 +46,13 @@ enum {
 #endif
 
 #ifndef BENV_ROOTFS_MODE
-#   if BENV_ROOTFS_MODE_TYPE==BENV_ROOTFS_MODE_TYPE_RW
-#       define BENV_ROOTFS_MODE          "rw"
-#   elif BENV_ROOTFS_MODE_TYPE==BENV_ROOTFS_MODE_TYPE_RO
-#       define BENV_ROOTFS_MODE          "ro"
-#   else
-#       error "bad BENV_ROOTFS_MODE_TYPE"
-#   endif
+#if BENV_ROOTFS_MODE_TYPE==BENV_ROOTFS_MODE_TYPE_RW
+#    define BENV_ROOTFS_MODE        "rw"
+#elif BENV_ROOTFS_MODE_TYPE==BENV_ROOTFS_MODE_TYPE_RO
+#    define BENV_ROOTFS_MODE        "ro"
+#else
+#    error "bad BENV_ROOTFS_MODE_TYPE"
+#endif
 #endif
 
 #if IS_PRODUCT_LTEFI_MD1
@@ -67,11 +67,18 @@ enum {
       IS_PRODUCT_LTEFI_MD3 || \
       IS_PRODUCT_PC
 #if 1==PRODUCT_FLASH_SIZE   /* 1G */
-#   define OS_FIRMWARE_COUNT    3
+#   ifndef OS_FIRMWARE_COUNT
+#       define OS_FIRMWARE_COUNT    3
+#   endif
 #elif 2==PRODUCT_FLASH_SIZE /* 2G */
-#   define OS_FIRMWARE_COUNT    5
-#elif 4==PRODUCT_FLASH_SIZE /* 4G */
-#   define OS_FIRMWARE_COUNT    7
+#   ifndef OS_FIRMWARE_COUNT
+#       define OS_FIRMWARE_COUNT    5
+#   endif
+#elif 4==PRODUCT_FLASH_SIZE /* 4G */ \
+      8==PRODUCT_FLASH_SIZE /* 8G */
+#   ifndef OS_FIRMWARE_COUNT
+#       define OS_FIRMWARE_COUNT    7
+#   endif
 #else
 #error "invalid PRODUCT_FLASH_SIZE"
 #endif
@@ -131,8 +138,18 @@ enum {
 #define OS_PROC_CMDLINE         "/proc/cmdline"
 #define OS_PROC_CMDLINE_ROOT    "root="
 
-#define DEV_BOOT            OS_DEV_FLASH(1)
-#define DEV_BOOTENV         OS_DEV_BOOTENV
+#define DEV_BOOT                OS_DEV_FLASH(1)
+#define DEV_BOOTENV             OS_DEV_BOOTENV
+
+#define DEV_HD                  OS_DEV_HD(1)
+#define DEV_SD                  OS_DEV_SD(1)
+#define DEV_USB                 OS_DEV_USB(1)
+
+#define DEV_KERNEL(_idx)        __DEV_KERNEL##_idx
+#define DEV_ROOTFS(_idx)        __DEV_ROOTFS##_idx
+#define DEV_CONFIG(_idx)        __DEV_CONFIG##_idx
+#define DEV_DATA(_idx)          __DEV_DATA##_idx
+#define DEV_OTHER               __DEV_OTHER
 
 #if IS_PRODUCT_LTEFI_MD2 || \
     IS_PRODUCT_LTEFI_MD3 || \
@@ -154,69 +171,8 @@ enum {
 #define __DEV_DATA1         OS_DEV_FLASH(16)
 
 #define __DEV_OTHER         OS_DEV_FLASH(17)
-#elif 5==OS_FIRMWARE_COUNT
-#define __DEV_KERNEL0       OS_DEV_FLASH(6)
-#define __DEV_KERNEL1       OS_DEV_FLASH(7)
-#define __DEV_KERNEL2       OS_DEV_FLASH(8)
-#define __DEV_KERNEL3       OS_DEV_FLASH(9)
-#define __DEV_KERNEL4       OS_DEV_FLASH(10)
 
-#define __DEV_ROOTFS0       OS_DEV_FLASH(11)
-#define __DEV_ROOTFS1       OS_DEV_FLASH(12)
-#define __DEV_ROOTFS2       OS_DEV_FLASH(13)
-#define __DEV_ROOTFS3       OS_DEV_FLASH(14)
-#define __DEV_ROOTFS4       OS_DEV_FLASH(15)
-
-#define __DEV_CONFIG0       OS_DEV_FLASH(16)
-#define __DEV_CONFIG1       OS_DEV_FLASH(17)
-
-#define __DEV_DATA0         OS_DEV_FLASH(18)
-#define __DEV_DATA1         OS_DEV_FLASH(19)
-
-#define __DEV_OTHER         OS_DEV_FLASH(20)
-#elif 7==OS_FIRMWARE_COUNT
-#define __DEV_KERNEL0       OS_DEV_FLASH(6)
-#define __DEV_KERNEL1       OS_DEV_FLASH(7)
-#define __DEV_KERNEL2       OS_DEV_FLASH(8)
-#define __DEV_KERNEL3       OS_DEV_FLASH(9)
-#define __DEV_KERNEL4       OS_DEV_FLASH(10)
-#define __DEV_KERNEL5       OS_DEV_FLASH(11)
-#define __DEV_KERNEL6       OS_DEV_FLASH(12)
-
-#define __DEV_ROOTFS0       OS_DEV_FLASH(13)
-#define __DEV_ROOTFS1       OS_DEV_FLASH(14)
-#define __DEV_ROOTFS2       OS_DEV_FLASH(15)
-#define __DEV_ROOTFS3       OS_DEV_FLASH(16)
-#define __DEV_ROOTFS4       OS_DEV_FLASH(17)
-#define __DEV_ROOTFS5       OS_DEV_FLASH(18)
-#define __DEV_ROOTFS6       OS_DEV_FLASH(19)
-
-#define __DEV_CONFIG0       OS_DEV_FLASH(20)
-#define __DEV_CONFIG1       OS_DEV_FLASH(21)
-
-#define __DEV_DATA0         OS_DEV_FLASH(22)
-#define __DEV_DATA1         OS_DEV_FLASH(23)
-
-#define __DEV_OTHER         OS_DEV_FLASH(24)
-#else
-#error "invalid OS_FIRMWARE_COUNT"
-#endif
-
-#define DEV_HD              OS_DEV_HD(1)
-#define DEV_SD              OS_DEV_SD(1)
-#define DEV_USB             OS_DEV_USB(1)
-
-#define DEV_KERNEL(_idx)    __DEV_KERNEL##_idx
-#define DEV_ROOTFS(_idx)    __DEV_ROOTFS##_idx
-#define DEV_CONFIG(_idx)    __DEV_CONFIG##_idx
-#define DEV_DATA(_idx)      __DEV_DATA##_idx
-#define DEV_OTHER           __DEV_OTHER
-
-#if 3==OS_FIRMWARE_COUNT
-#define CONFIG_BOOTARGS_HEAD    \
-    "root=" OS_DEV_FLASH(11)    \
-        __space                 \
-    /* end */
+#define __IDX_ROOT          11
 
 #define CONFIG_BOOTARGS_MMCBLK0 \
         "512K(fastboot),"/*01 */\
@@ -243,10 +199,27 @@ enum {
         "-(others)"     /* 17 */\
         /* end */
 #elif 5==OS_FIRMWARE_COUNT
-#define CONFIG_BOOTARGS_HEAD    \
-    "root=" OS_DEV_FLASH(12)    \
-        __space                 \
-    /* end */
+#define __DEV_KERNEL0       OS_DEV_FLASH(6)
+#define __DEV_KERNEL1       OS_DEV_FLASH(7)
+#define __DEV_KERNEL2       OS_DEV_FLASH(8)
+#define __DEV_KERNEL3       OS_DEV_FLASH(9)
+#define __DEV_KERNEL4       OS_DEV_FLASH(10)
+
+#define __DEV_ROOTFS0       OS_DEV_FLASH(11)
+#define __DEV_ROOTFS1       OS_DEV_FLASH(12)
+#define __DEV_ROOTFS2       OS_DEV_FLASH(13)
+#define __DEV_ROOTFS3       OS_DEV_FLASH(14)
+#define __DEV_ROOTFS4       OS_DEV_FLASH(15)
+
+#define __DEV_CONFIG0       OS_DEV_FLASH(16)
+#define __DEV_CONFIG1       OS_DEV_FLASH(17)
+
+#define __DEV_DATA0         OS_DEV_FLASH(18)
+#define __DEV_DATA1         OS_DEV_FLASH(19)
+
+#define __DEV_OTHER         OS_DEV_FLASH(20)
+
+#define __IDX_ROOT          12
 
 #define CONFIG_BOOTARGS_MMCBLK0 \
         "512K(fastboot),"/*01 */\
@@ -275,11 +248,33 @@ enum {
         "-(others)"     /* 20 */\
         /* end */
 #elif 7==OS_FIRMWARE_COUNT
-#define CONFIG_BOOTARGS_HEAD    \
-    "root=" OS_DEV_FLASH(14)    \
-        __space                 \
-    /* end */
+#define __DEV_KERNEL0       OS_DEV_FLASH(6)
+#define __DEV_KERNEL1       OS_DEV_FLASH(7)
+#define __DEV_KERNEL2       OS_DEV_FLASH(8)
+#define __DEV_KERNEL3       OS_DEV_FLASH(9)
+#define __DEV_KERNEL4       OS_DEV_FLASH(10)
+#define __DEV_KERNEL5       OS_DEV_FLASH(11)
+#define __DEV_KERNEL6       OS_DEV_FLASH(12)
 
+#define __DEV_ROOTFS0       OS_DEV_FLASH(13)
+#define __DEV_ROOTFS1       OS_DEV_FLASH(14)
+#define __DEV_ROOTFS2       OS_DEV_FLASH(15)
+#define __DEV_ROOTFS3       OS_DEV_FLASH(16)
+#define __DEV_ROOTFS4       OS_DEV_FLASH(17)
+#define __DEV_ROOTFS5       OS_DEV_FLASH(18)
+#define __DEV_ROOTFS6       OS_DEV_FLASH(19)
+
+#define __DEV_CONFIG0       OS_DEV_FLASH(20)
+#define __DEV_CONFIG1       OS_DEV_FLASH(21)
+
+#define __DEV_DATA0         OS_DEV_FLASH(22)
+#define __DEV_DATA1         OS_DEV_FLASH(23)
+
+#define __DEV_OTHER         OS_DEV_FLASH(24)
+
+#define __IDX_ROOT          14
+
+#if 4==PRODUCT_FLASH_SIZE
 #define CONFIG_BOOTARGS_MMCBLK0 \
         "512K(fastboot),"/*01 */\
         "512K(bootenv),"/* 02 */\
@@ -310,7 +305,46 @@ enum {
         "820M(data1),"  /* 23 */\
         "-(others)"     /* 24 */\
         /* end */
-#endif
+#elif 8==PRODUCT_FLASH_SIZE
+#define CONFIG_BOOTARGS_MMCBLK0 \
+        "512K(fastboot),"/*01 */\
+        "512K(bootenv),"/* 02 */\
+        "4M(baseparam),"/* 03 */\
+        "4M(pqparam),"  /* 04 */\
+        "3M(logo),"     /* 05 */\
+                                \
+        "16M(kernel0)," /* 06 */\
+        "16M(kernel1)," /* 07 */\
+        "16M(kernel2)," /* 08 */\
+        "16M(kernel3)," /* 09 */\
+        "16M(kernel4)," /* 10 */\
+        "16M(kernel5)," /* 11 */\
+        "16M(kernel6)," /* 12 */\
+                                \
+        "768M(rootfs0),"/* 13 */\
+        "768M(rootfs1),"/* 14 */\
+        "768M(rootfs2),"/* 15 */\
+        "768M(rootfs3),"/* 16 */\
+        "768M(rootfs4),"/* 17 */\
+        "768M(rootfs5),"/* 18 */\
+        "768M(rootfs6),"/* 19 */\
+                                \
+        "32M(config0)," /* 20 */\
+        "32M(config1)," /* 21 */\
+                                \
+        "1076M(data0)," /* 22 */\
+        "1076M(data1)," /* 23 */\
+        "-(others)"     /* 24 */\
+        /* end */
+#endif /* PRODUCT_FLASH_SIZE */
+#else
+#error "invalid OS_FIRMWARE_COUNT"
+#endif /* OS_FIRMWARE_COUNT */
+
+#define CONFIG_BOOTARGS_HEAD        \
+    "root=" OS_DEV_FLASH(__IDX_ROOT)\
+        __space                     \
+    /* end */
 
 #define CONFIG_BOOTARGS_BODY    \
     "mem=2G"                    \

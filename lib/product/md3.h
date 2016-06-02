@@ -5,7 +5,7 @@
 #define OS_DOG_COUNT            3
 
 #ifndef PRODUCT_FLASH_SIZE
-#define PRODUCT_FLASH_SIZE      4 /* 4G */
+#define PRODUCT_FLASH_SIZE      8 /* 8G */
 #endif
 /******************************************************************************/
 #endif
