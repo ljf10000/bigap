@@ -100,9 +100,10 @@ enum {
 
 #define OS_FILE(_file)          OS_DIR_ROOT _file
 #define OS_DIR(_dir)            OS_DIR_ROOT _dir
+#define OS_DIR_IDX(_dir, _idx)  _dir #_idx
 
 #define OS_MASTER(_master)      OS_FILE(_master OS_DEV_PREFIX)
-#define OS_DEV(_master, _idx)   OS_MASTER(_master) #_idx
+#define OS_DEV(_master, _idx)   OS_DIR_IDX(OS_MASTER(_master), _idx)
 #define OS_DEV_FLASH(_idx)      OS_DEV(OS_DEV_FLASH_MASTER, _idx)
 #define OS_DEV_SD(_idx)         OS_DEV(OS_DEV_SD_MASTER, _idx)
 #define OS_DEV_HD(_idx)         OS_DEV(OS_DEV_HD_MASTER, _idx)
@@ -119,10 +120,10 @@ enum {
 #define __OS_DIR_DATA           OS_DIR_FLASH "/data"
 #define __OS_DIR_OTHER          OS_DIR_FLASH "/other"
 
-#define OS_DIR_KERNEL(_idx)     __OS_DIR_KERNEL #_idx
-#define OS_DIR_ROOTFS(_idx)     __OS_DIR_ROOTFS #_idx
-#define OS_DIR_CONFIG(_idx)     __OS_DIR_CONFIG #_idx
-#define OS_DIR_DATA(_idx)       __OS_DIR_DATA   #_idx
+#define OS_DIR_KERNEL(_idx)     OS_DIR_IDX(__OS_DIR_KERNEL, _idx)
+#define OS_DIR_ROOTFS(_idx)     OS_DIR_IDX(__OS_DIR_ROOTFS, _idx)
+#define OS_DIR_CONFIG(_idx)     OS_DIR_IDX(__OS_DIR_CONFIG, _idx)
+#define OS_DIR_DATA(_idx)       OS_DIR_IDX(__OS_DIR_DATA,   _idx)
 #define OS_DIR_OTHER            __OS_DIR_OTHER
 
 #ifndef OS_DEV_BOOTENV
@@ -144,12 +145,6 @@ enum {
 #define DEV_HD                  OS_DEV_HD(1)
 #define DEV_SD                  OS_DEV_SD(1)
 #define DEV_USB                 OS_DEV_USB(1)
-
-#define DEV_KERNEL(_idx)        __DEV_KERNEL##_idx
-#define DEV_ROOTFS(_idx)        __DEV_ROOTFS##_idx
-#define DEV_CONFIG(_idx)        __DEV_CONFIG##_idx
-#define DEV_DATA(_idx)          __DEV_DATA##_idx
-#define DEV_OTHER               __DEV_OTHER
 
 #if IS_PRODUCT_LTEFI_MD2 || \
     IS_PRODUCT_LTEFI_MD3 || \
@@ -340,6 +335,12 @@ enum {
 #else
 #error "invalid OS_FIRMWARE_COUNT"
 #endif /* OS_FIRMWARE_COUNT */
+
+#define DEV_KERNEL(_idx)        __DEV_KERNEL##_idx
+#define DEV_ROOTFS(_idx)        __DEV_ROOTFS##_idx
+#define DEV_CONFIG(_idx)        __DEV_CONFIG##_idx
+#define DEV_DATA(_idx)          __DEV_DATA##_idx
+#define DEV_OTHER               __DEV_OTHER
 
 #define CONFIG_BOOTARGS_HEAD        \
     "root=" OS_DEV_FLASH(__IDX_ROOT)\
