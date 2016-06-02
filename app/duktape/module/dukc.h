@@ -60,8 +60,12 @@
 #define duk_LIBC_FDSET      0
 #endif
 
-#ifndef duk_LIBC_GROUP
-#define duk_LIBC_GROUP      0
+#ifndef duk_LIBC_PWENT
+#define duk_LIBC_PWENT      0
+#endif
+
+#ifndef duk_LIBC_GWENT
+#define duk_LIBC_GWENT      0
 #endif
 
 #ifndef duk_MOD_LIBC

@@ -556,12 +556,14 @@ static const dukc_func_entry_t libc_func[] = {
 #endif
     LIB_FUNC(getpwuid),
     LIB_FUNC(getpwnam),
+#if duk_LIBC_PWENT
     LIB_FUNC(fgetpwent),
     LIB_FUNC(setpwent),
     LIB_FUNC(getpwent),
     LIB_FUNC(endpwent),
     LIB_FUNC(putpwent),
-#if duk_LIBC_GROUP
+#endif
+#if duk_LIBC_GWENT
     LIB_FUNC(getgrgid),
     LIB_FUNC(getgrnam),
     LIB_FUNC(fgetgrent),

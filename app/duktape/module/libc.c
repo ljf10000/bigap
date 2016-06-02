@@ -5314,6 +5314,7 @@ duke_getpwnam(duk_context *ctx)
     return __obj_push(ctx, __set_passwd, p), 1;
 }
 
+#if duk_LIBC_PASSWORD
 // 29.13.3 Scanning the List of All Users
 LIB_PARAM(fgetpwent, 1);
 static duk_ret_t
@@ -5363,6 +5364,7 @@ duke_putpwent(duk_context *ctx)
 
     return __push_error(ctx, err), 1;
 }
+#endif
 
 // 29.14 Group Database
 #if duk_LIBC_GROUP
