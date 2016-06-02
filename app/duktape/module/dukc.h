@@ -60,6 +60,10 @@
 #define duk_LIBC_FDSET      0
 #endif
 
+#ifndef duk_LIBC_GROUP
+#define duk_LIBC_GROUP      0
+#endif
+
 #ifndef duk_MOD_LIBC
 #define duk_MOD_LIBC        "__libc__"
 #endif

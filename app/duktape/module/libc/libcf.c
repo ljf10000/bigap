@@ -561,12 +561,14 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(getpwent),
     LIB_FUNC(endpwent),
     LIB_FUNC(putpwent),
+#if duk_LIBC_GROUP
     LIB_FUNC(getgrgid),
     LIB_FUNC(getgrnam),
     LIB_FUNC(fgetgrent),
     LIB_FUNC(setgrent),
     LIB_FUNC(getgrent),
     LIB_FUNC(endgrent),
+#endif
 
     // 30 System Management
     LIB_FUNC(gethostname),

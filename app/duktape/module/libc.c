@@ -5365,6 +5365,7 @@ duke_putpwent(duk_context *ctx)
 }
 
 // 29.14 Group Database
+#if duk_LIBC_GROUP
 LIB_PARAM(getgrgid, 1);
 static duk_ret_t
 duke_getgrgid(duk_context *ctx)
@@ -5420,7 +5421,7 @@ duke_endgrent(duk_context *ctx)
 {
     return endgrent(), 0;
 }
-
+#endif
 
 // 30 System Management
 LIB_PARAM(gethostname, 0);
