@@ -231,15 +231,15 @@ enum {
                                 \
         "4M(unused),"   /* 09 */\
                                 \
-        "128M(rootfs0),"/* 10 */\
-        "128M(rootfs1),"/* 11 */\
-        "128M(rootfs2),"/* 12 */\
+        "200M(rootfs0),"/* 10 */\
+        "200M(rootfs1),"/* 11 */\
+        "200M(rootfs2),"/* 12 */\
                                 \
         "16M(config0)," /* 13 */\
         "16M(config1)," /* 14 */\
                                 \
-        "256M(data0),"  /* 15 */\
-        "256M(data1),"  /* 16 */\
+        "148M(data0),"  /* 15 */\
+        "148M(data1),"  /* 16 */\
         "-(others)"     /* 17 */\
         /* end */
 #elif 5==OS_FIRMWARE_COUNT
