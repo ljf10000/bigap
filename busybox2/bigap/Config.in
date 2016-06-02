@@ -53,6 +53,12 @@ config JLOGD
 	help
 	  jlogd
 
+config JS
+	bool "js"
+	default y
+	help
+	  js
+
 config OTP
 	bool "otp"
 	default y

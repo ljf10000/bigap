@@ -138,6 +138,9 @@
 #define jlogd_trivial_usage     "\n\n"
 #define jlogd_full_usage        "\n\n"
 
+#define js_trivial_usage        "\n\n"
+#define js_full_usage           "\n\n"
+
 #define otp_trivial_usage       "\n\n"
 #define otp_full_usage          "\n\n"
 
