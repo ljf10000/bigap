@@ -162,23 +162,23 @@ __jlog_header(char *app, char *sub, const char *file, const char *func, uint32 l
 {
     int level = LOG_LEVEL(PRI);
     
-    os_printf("[app:%s", app);
+    os_eprintf("[app:%s", app);
     if (sub) {
-        os_printf(",sub:%s", sub);
+        os_eprintf(",sub:%s", sub);
     }
     if (file) {
-        os_printf(",file:%s", file);
+        os_eprintf(",file:%s", file);
     }
     if (func) {
-        os_printf(",func:%s", func);
+        os_eprintf(",func:%s", func);
     }
     if (line) {
-        os_printf(",line:%d", line);
+        os_eprintf(",line:%d", line);
     }
     if (level) {
-        os_printf(",level:%s", __ak_debug_getname(level));
+        os_eprintf(",level:%s", __ak_debug_getname(level));
     }
-    os_printf("] ");
+    os_eprintf("] ");
 }
 
 #define __jlog_vprintf(_app, _sub, _file, _func, _line, _PRI, _fmt, _args) ({ \
