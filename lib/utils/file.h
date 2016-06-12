@@ -3,7 +3,7 @@
 #ifdef __APP__
 /******************************************************************************/
 #ifndef FILE_DPRINT
-#define FILE_DPRINT             1
+#define FILE_DPRINT             0
 #endif
 
 #if FILE_DPRINT
