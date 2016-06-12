@@ -28,7 +28,7 @@ buildin_register(duk_context *ctx)
     
     err = __load_code(ctx, "buildin", duk_global_CODE);
 
-    debug_ok("register buildin ok.");
+    debug_ok_error(err, "register buildin");
 
     return err;
 }
@@ -72,7 +72,7 @@ auto_register(duk_context *ctx)
 
     err = os_fscan_dir(path, false, __filter, __handler, NULL);
 
-    debug_ok("register auto ok.");
+    debug_ok_error(err, "register auto");
     
     return err;
 }
