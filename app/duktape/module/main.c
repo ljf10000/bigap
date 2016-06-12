@@ -24,7 +24,13 @@ char **__argv;
 static int
 buildin_register(duk_context *ctx)
 {
-    return __load_code(ctx, "buildin", duk_global_CODE);
+    int err = 0;
+    
+    err = __load_code(ctx, "buildin", duk_global_CODE);
+
+    debug_ok("register buildin ok.");
+
+    return err;
 }
 
 static bool 
@@ -40,6 +46,7 @@ static int
 auto_register(duk_context *ctx)
 {
     char path[1+OS_LINE_LEN] = {0};
+    int err = 0;
     
     /*
     * try eval duk_PATH/auto/xxx.js
@@ -63,7 +70,11 @@ auto_register(duk_context *ctx)
         return mv2_ok;
     }
 
-    return os_fscan_dir(path, false, __filter, __handler, NULL);
+    err = os_fscan_dir(path, false, __filter, __handler, NULL);
+
+    debug_ok("register auto ok.");
+    
+    return err;
 }
 
 static inline int

@@ -873,6 +873,8 @@ int my_register(duk_context *ctx)
             arg_register(ctx);
         duk_put_prop_string(ctx, -2, duk_MOD_MY);
     duk_pop(ctx);
+
+    debug_ok("register my ok.");
     
     return 0;
 }

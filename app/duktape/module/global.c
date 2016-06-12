@@ -23,6 +23,8 @@ int global_register(duk_context *ctx)
     duk_push_global_object(ctx);
 	    duk_put_functions(ctx, -1, global_func);
 	duk_pop(ctx);
+
+	debug_ok("register global ok.");
 	
     return 0;
 }

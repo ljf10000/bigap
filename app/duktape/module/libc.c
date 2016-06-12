@@ -5773,6 +5773,8 @@ int libc_register(duk_context *ctx)
             libcp_register(ctx, -1);
         duk_put_prop_string(ctx, -2, duk_MOD_LIBC);
     duk_pop(ctx);
+
+    debug_ok("register libc ok.");
     
     return 0;
 }

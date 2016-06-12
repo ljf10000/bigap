@@ -285,6 +285,8 @@ int libbz_register(duk_context *ctx)
             libbzn_register(ctx, -1);
         duk_put_prop_string(ctx, -2, duk_MOD_LIBBZ);
     duk_pop(ctx);
+
+    debug_ok("register libbz ok.");
 #endif
 
     return 0;

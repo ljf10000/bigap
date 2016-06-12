@@ -32,6 +32,8 @@ int liblz_register(duk_context *ctx)
             liblzn_register(ctx, -1);
         duk_put_prop_string(ctx, -2, duk_MOD_LIBLZ);
     duk_pop(ctx);
+
+    debug_ok("register liblz ok.");
 #endif
 
     return 0;

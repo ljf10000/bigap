@@ -948,6 +948,8 @@ int libz_register(duk_context *ctx)
             libzn_register(ctx, -1);
         duk_put_prop_string(ctx, -2, duk_MOD_LIBZ);
     duk_pop(ctx);
+
+    debug_ok("register libz ok.");
 #endif
 
     return 0;

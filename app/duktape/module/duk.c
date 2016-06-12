@@ -79,6 +79,8 @@ int duktape_register(duk_context *ctx)
     	    duk_put_functions(ctx, -1, duktape_func);
     	duk_pop(ctx);
 	duk_pop(ctx);
+
+	debug_ok("register mod ok.");
 	
     return 0;
 }
