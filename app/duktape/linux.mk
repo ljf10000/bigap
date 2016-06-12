@@ -32,7 +32,7 @@ OBJS=$(DIR_SELF)/src/duktape.o \
 TARGET_NAME=js
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c m json-c curl
+LIB_DEPEND=c m json-c
 CFLAGS+= -std=gnu99 \
 	-Os -fomit-frame-pointer \
 	-fstrict-aliasing \
