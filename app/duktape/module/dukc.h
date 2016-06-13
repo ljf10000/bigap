@@ -523,7 +523,7 @@ __get_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *pl
 }
 
 static inline char *
-__copy_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t buffer, int size)
+__copy_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t buffer, duk_size_t size)
 {
     duk_size_t len = 0;
     duk_buffer_t v = __get_obj_buffer(ctx, idx, k, &len);
@@ -538,7 +538,7 @@ __copy_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t 
 }
 
 static inline void
-__set_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t v, int size)
+__set_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t v, duk_size_t size)
 {
     idx = duk_normalize_index(ctx, idx);
     

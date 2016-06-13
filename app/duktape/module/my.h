@@ -42,10 +42,10 @@ __get_libval_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
             p->u.u8 = (uint64)__get_obj_number(ctx, idx, "u8");
             break;
         case LIBVAL_BUF:
-            p->u.b = __get_obj_buffer(ctx, idx, "b", &p->len);
+            p->u.b = __get_obj_buffer(ctx, idx, "b", (duk_size_t *)&p->len);
             break;
         case LIBVAL_STR:
-            p->u.s = __get_obj_string(ctx, idx, "s", &p->len);
+            p->u.s = __get_obj_string(ctx, idx, "s", (duk_size_t *)&p->len);
             break;
         case LIBVAL_PTR:
             p->u.p = __get_obj_pointer(ctx, idx, "p");
