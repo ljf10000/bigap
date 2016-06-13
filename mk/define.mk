@@ -17,7 +17,16 @@ ifndef MK_DEFINE
 	
 	#export INCS=-I$(DIR_ROOT)/lib -I/usr/src/linux-headers-$(shell uname -r)/include
 	export INCS+=-I$(DIR_ROOT)/lib -I$(DIR_ROOT)/lib/json-c
-	export CFLAGS+=-D_GNU_SOURCE -D__PC__ -std=gnu99 -DLINUX -D__TAB_AS_SPACE=4 -Wno-unused -fmerge-all-constants -Wenum-compare
+	export CFLAGS+=-D_GNU_SOURCE \
+		-D$(shell $(SCRIPT_PATH)/64) \
+		-D__PC__ \
+		-DLINUX \
+		-D__TAB_AS_SPACE=4 \
+		-std=gnu99 \
+		-Wno-unused \
+		-fmerge-all-constants \
+		-Wenum-compare \
+		#end
 	#export __LDFLAGS+=-L/lib -L/usr/lib -L/usr/local/lib
 	
 	export EXTRA_CFLAGS+=
