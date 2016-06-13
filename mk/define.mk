@@ -25,7 +25,6 @@ ifndef MK_DEFINE
 		-std=gnu99 \
 		-Wno-unused \
 		-fmerge-all-constants \
-		-Wenum-compare \
 		#end
 	#export __LDFLAGS+=-L/lib -L/usr/lib -L/usr/local/lib
 	
