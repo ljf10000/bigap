@@ -17,7 +17,7 @@
     _type __v = (_type)0;                   \
                                             \
     if (os_asprintf(&__line, _fmt, ##_args) > 0 && __line) { \
-        file_println("__v_xopen %s", __line); \
+        debug_file("__v_xopen %s", __line); \
         __v = _func(__line, _mod);          \
         free(__line);                       \
     }                                       \

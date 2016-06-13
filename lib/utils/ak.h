@@ -99,14 +99,15 @@ DECLARE_FAKE_JDEBUGGER;
     _(____ak_debug_packet,  13,"packet"),   \
     _(____ak_debug_proto,   14,"proto"),    \
     _(____ak_debug_flow,    15,"flow"),     \
-    _(____ak_debug_signal,  16,"signal"),   \
-    _(____ak_debug_shell,   17,"shell"),    \
-    _(____ak_debug_st,      18,"st"),       \
-    _(____ak_debug_gc,      19,"gc"),       \
-    _(____ak_debug_js,      20,"js"),       \
-    _(____ak_debug_blob,    21,"blob"),     \
-    _(____ak_debug_json,    22,"json"),     \
-    _(____ak_debug_test,    23,"test"),     \
+    _(____ak_debug_file,    16,"file"),     \
+    _(____ak_debug_signal,  17,"signal"),   \
+    _(____ak_debug_shell,   18,"shell"),    \
+    _(____ak_debug_st,      19,"st"),       \
+    _(____ak_debug_gc,      20,"gc"),       \
+    _(____ak_debug_js,      21,"js"),       \
+    _(____ak_debug_blob,    22,"blob"),     \
+    _(____ak_debug_json,    23,"json"),     \
+    _(____ak_debug_test,    24,"test"),     \
     /* end */
 
 static inline bool is_good_ak_DEBUG(int id);
@@ -131,6 +132,7 @@ enum {
     __ak_debug_packet   = os_bit(____ak_debug_packet),
     __ak_debug_proto    = os_bit(____ak_debug_proto),
     __ak_debug_flow     = os_bit(____ak_debug_flow),
+    __ak_debug_file     = os_bit(____ak_debug_file),
     __ak_debug_signal   = os_bit(____ak_debug_signal),
     __ak_debug_shell    = os_bit(____ak_debug_shell),
     __ak_debug_st       = os_bit(____ak_debug_st),
@@ -213,6 +215,7 @@ __ak_debug_getname(uint32 level)
 #define __is_ak_debug_packet    __is_ak_debug(__ak_debug_packet)
 #define __is_ak_debug_proto     __is_ak_debug(__ak_debug_proto)
 #define __is_ak_debug_flow      __is_ak_debug(__ak_debug_flow)
+#define __is_ak_debug_file      __is_ak_debug(__ak_debug_file)
 #define __is_ak_debug_signal    __is_ak_debug(__ak_debug_signal)
 #define __is_ak_debug_shell     __is_ak_debug(__ak_debug_shell)
 #define __is_ak_debug_st        __is_ak_debug(__ak_debug_st)
