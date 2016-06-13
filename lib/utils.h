@@ -91,7 +91,7 @@
 #   include <sys/vtimes.h>
 #   include <sys/resource.h>
 #   include <sys/vlimit.h>
-//#   include <sys/sysinfo.h>
+#   include <sys/sysinfo.h>
 #   include <sys/utsname.h>
 #   include <sys/mount.h>
 #   include <sys/epoll.h>
