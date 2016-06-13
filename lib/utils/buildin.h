@@ -4,18 +4,18 @@
 #if defined(__BOOT__) || defined(__APP__)
 /* Force a compilation error if condition is true */
 #ifndef BUILD_BUG_ON
-#define BUILD_BUG_ON(_condition)    ((void)BUILD_BUG_ON_ZERO(_condition))
+#define BUILD_BUG_ON(_condition)            ((void)BUILD_BUG_ON_ZERO(_condition))
 #endif
 /* Force a compilation error if condition is true, but also produce a
    result (of value 0 and type size_t), so the expression can be used
    e.g. in a structure initializer (or where-ever else comma expressions
    aren't permitted). */
 #ifndef BUILD_BUG_ON_ZERO
-#define BUILD_BUG_ON_ZERO(_e)       (sizeof(struct { int:-!!(_e); }))
+#define BUILD_BUG_ON_ZERO(_condition)       (sizeof(struct { int:-!!(_condition); }))
 #endif
 
 #ifndef BUILD_BUG_ON_NULL
-#define BUILD_BUG_ON_NULL(_e)       ((void *)sizeof(struct { int:-!!(_e); }))
+#define BUILD_BUG_ON_NULL(_condition)       ((void *)sizeof(struct { int:-!!(_condition); }))
 #endif
 
 #ifndef BUILD_BUG_NOT_ARRAY
