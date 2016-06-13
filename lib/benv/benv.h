@@ -375,8 +375,10 @@ enum {
     /* end */
 #endif
 
-#define BENV_BLOCK_SIZE     BENV_DEV_BLOCK_SIZE
-#define BENV_BLOCK_COUNT    (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
+enum {
+    BENV_BLOCK_SIZE     = BENV_DEV_BLOCK_SIZE,
+    BENV_BLOCK_COUNT    = (BENV_SIZE/BENV_BLOCK_SIZE), /* 8 */
+};
 
 #ifndef BENV_TRYS
 #define BENV_TRYS                   3
@@ -690,7 +692,9 @@ __benv_firmware_deft(benv_firmware_t *firmware)
     .rootfs = BENV_INVALID_VCS,   \
 }   /* end */
 
-#define BENV_OS_SIZE    (2*sizeof(uint32) + OS_FIRMWARE_COUNT*sizeof(benv_firmware_t))
+enum {
+    BENV_OS_SIZE = (2*sizeof(uint32) + OS_FIRMWARE_COUNT*sizeof(benv_firmware_t)),
+};
 
 typedef struct {
     uint32 current;
