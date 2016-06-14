@@ -336,10 +336,11 @@ enum {
 #error "invalid OS_FIRMWARE_COUNT"
 #endif /* OS_FIRMWARE_COUNT */
 
-#define DEV_KERNEL(_idx)        __DEV_KERNEL##_idx
-#define DEV_ROOTFS(_idx)        __DEV_ROOTFS##_idx
-#define DEV_CONFIG(_idx)        __DEV_CONFIG##_idx
-#define DEV_DATA(_idx)          __DEV_DATA##_idx
+#define DEV_OBJ(_obj, _idx)     __DEV_##_obj##_idx
+#define DEV_KERNEL(_idx)        DEV_OBJ(KERNEL, _idx)
+#define DEV_ROOTFS(_idx)        DEV_OBJ(ROOTFS, _idx)
+#define DEV_CONFIG(_idx)        DEV_OBJ(CONFIG, _idx)
+#define DEV_DATA(_idx)          DEV_OBJ(DATA, _idx)
 #define DEV_OTHER               __DEV_OTHER
 
 #define CONFIG_BOOTARGS_HEAD        \
