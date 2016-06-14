@@ -116,6 +116,8 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 	}
+	
+	printf("UNKNOW64\n");
 
 	return 0;
 }

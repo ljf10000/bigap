@@ -39,3 +39,6 @@
 #bin
 app/duktape/module/.idea
 app/duktape/module/js/.idea
+script/64
+script/64.o
+
