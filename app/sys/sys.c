@@ -67,12 +67,13 @@ BENV_INITER;
 #define ENV_TIMEOUT         "__ENV_TIMEOUT__"
 #define ENV_PWDFILE         "__ENV_PWDFILE__"
 #define ENV_VERSION         "__ENV_VERSION__"
+#define ENV_UPGRADE         "__ENV_UPGRADE__"
+#define ENV_ROOTFS          "__ENV_ROOTFS__"
 #define ENV_SERVER          "__ENV_SERVER__"
+#define ENV_FORCE           "__ENV_FORCE__"
 #define ENV_PORT            "__ENV_PORT__"
 #define ENV_USER            "__ENV_USER__"
 #define ENV_PATH            "__ENV_PATH__"
-#define ENV_ROOTFS          "__ENV_ROOTFS__"
-#define ENV_FORCE           "__ENV_FORCE__"
 
 #define __OBJ(_idx, _dev, _dir)     [_idx] = {.dev = _dev, .dir = _dir}
 #define OBJ_KERNEL(_idx)            __OBJ(_idx, DEV_KERNEL(_idx), DIR_KERNEL(_idx))
@@ -84,6 +85,7 @@ static struct {
     int current;
     int cmaster;
     int dmaster;
+    int upgrade;
     
     bool dirty;
     benv_version_t version;
@@ -108,7 +110,7 @@ static struct {
 } 
 sys = {
     .current= OS_FIRMWARE_CURRENT,
-    .dirty  = false,
+    .upgrade= BENV_UPGRADE_COUNT,
 
     .kernel = {
         OBJ_KERNEL(0),
@@ -1007,16 +1009,14 @@ debug_rootfs_upgrade(int idx, char *master, char *rootfs)
 }
 
 static int
-get_upgrade_master(void)
+get_upgrade_byversion(benv_version_t *version, int skips)
 {
-    int skips = __skips(0);
     int idx;
-
-#if BENV_UPGRADE_TWO==BENV_UPGRADE
+    
     /*
-    * try get good by version
+    * try get bad by version
     */
-    idx = benv_find_first_good_byversion(rootfs, &sys.version, skips);
+    idx = benv_find_first_bad_byversion(rootfs, version, skips);
     if (__benv_rootfs_is_good(idx)) {
         debug_rootfs_upgrade(idx, "master", "good");
 
@@ -1024,75 +1024,47 @@ get_upgrade_master(void)
     }
 
     /*
-    * try get any by version
+    * try get good(maybe fake) by version
     */
-    idx = benv_find_first_byversion(rootfs, &sys.version, skips);
-    if (is_good_benv_idx(idx)) {
+    idx = benv_find_first_good_byversion(rootfs, version, skips);
+    if (__benv_rootfs_is_good(idx)) {
         debug_rootfs_upgrade(idx, "master", "bad");
 
         return idx;
     }
-#endif
 
+    /*
+    * try get first by version
+    */
+    idx = benv_find_first_byversion(rootfs, version, skips);
+    if (is_good_benv_idx(idx)) {
+        debug_rootfs_upgrade(idx, "master", "first");
+
+        return idx;
+    }
+
+    return -ENOEXIST;
+}
+
+static int
+get_upgrade(int skips)
+{
+    int idx = get_upgrade_byversion(&sys.version, skips);
+    if (is_good_benv_idx(idx)) {
+        return idx;
+    }
+    
     idx = benv_find_worst(rootfs, skips);
     if (is_good_benv_idx(idx)) {
         debug_rootfs_upgrade(idx, "master", "worst");
-
-        return idx;
+    } else {
+        trace_assert(0, "no found worst slave");
+        idx = benv_first_idx(sys.current, skips);
+        debug_rootfs_upgrade(idx, "slave", "force");
     }
-
-    trace_assert(0, "no found worst master");
-    idx = 1==sys.current?2:1;
-
-    debug_rootfs_upgrade(idx, "master", "force");
 
     return idx;
 }
-
-#if BENV_UPGRADE_TWO==BENV_UPGRADE
-static int
-get_upgrade_slave(int master)
-{
-    int skips = __skips(master);
-    int idx;
-
-    /*
-    * try get good buddy
-    */
-    idx = benv_find_first_good_buddy(rootfs, master, skips);
-    if (__benv_rootfs_is_good(idx)) {
-        debug_rootfs_upgrade(idx, "slave", "good");
-        
-        return idx;
-    }
-
-    /*
-    * try get bad buddy
-    */
-    idx = benv_find_first_bad_buddy(rootfs, master, skips);
-    if (is_good_benv_idx(idx)) {
-        debug_rootfs_upgrade(idx, "slave", "bad");
-        
-        return idx;
-    }
-
-    /*
-    * try get worst rootfs
-    */
-    idx = benv_find_worst(rootfs, skips);
-    if (is_good_benv_idx(idx)) {
-        debug_rootfs_upgrade(idx, "slave", "worst");
-        
-        return idx;
-    }
-
-    trace_assert(0, "no found worst slave");
-    idx = benv_first_idx(sys.current, skips);
-    debug_rootfs_upgrade(idx, "slave", "force");
-    
-    return idx;
-}
-#endif
 
 static int
 repair_kernel(int idx)
@@ -1164,13 +1136,14 @@ repair_rootfs(int idx)
 
 /*
 * idx: the rootfs will rsync by cloud
-* master: the master upgrade rootfs
+* src: the source rootfs
 */
 static int
-upgrade(int idx, int master)
+upgrade(int idx, int src)
 {
     int err = 0;
-
+    benv_version_t *version = &sys.version;
+    
     /*
     * 1. not force mode
     * 2. rootfsX/kernelX is good
@@ -1178,8 +1151,8 @@ upgrade(int idx, int master)
     */
     if (NULL==sys.env.force
         && __benv_firmware_is_good(idx)
-        && benv_version_eq(&sys.version, benv_rootfs_version(idx))
-        && benv_version_eq(&sys.version, benv_kernel_version(idx))) {
+        && benv_version_eq(version, benv_rootfs_version(idx))
+        && benv_version_eq(version, benv_kernel_version(idx))) {
 
         jinfo("%d%o",
             "rootfs", idx,
@@ -1195,9 +1168,13 @@ upgrade(int idx, int master)
         return 0;
     }
 
-    upgrade_init(idx, &sys.version);
+    upgrade_init(idx, version);
 
-    err = rsync(idx, &sys.version);
+    if (OS_FIRMWARE_CLOUD==src) {
+        err = rsync(idx, version);
+    } else {
+        err = rcopy(idx, dir_rootfs(src), version);
+    }
     if (err<0) {
         return err;
     }
@@ -1212,26 +1189,6 @@ upgrade(int idx, int master)
         return err;
     }
     
-#if BENV_UPGRADE_TWO==BENV_UPGRADE
-    if (NULL==sys.env.rootfs) {
-        /*
-        * now, idx is slave
-        *
-        * all is good, just return ok
-        */
-        if (idx!=master) {
-            return 0;
-        }
-        
-        /*
-        * now, idx is master
-        *
-        * upgrade slave and switch firmware
-        */
-        err = upgrade(get_upgrade_slave(idx), master);
-    }
-#endif
-
     switch_to(idx);
 
     return err;
@@ -1457,6 +1414,17 @@ init_env(void)
             return -EFORMAT;
         }
     }
+
+    env = env_gets(ENV_UPGRADE, NULL);
+    if (env) {
+        if (0==os_atoi(env)) {
+            debug_error("bad upgrade:%s", env);
+            
+            return -EFORMAT;
+        }
+        
+        sys.upgrade = os_atoi(env);
+    }
     
     env = env_gets(ENV_ROOTFS, NULL);
     if (env) {
@@ -1649,7 +1617,7 @@ cmd_repair(int argc, char *argv[])
 static int
 cmd_upgrade(int argc, char *argv[])
 {
-    int i, idx, err;
+    int i, idx = -ENOEXIST, err = 0;
     
     if (0==sys.current) {
         jinfo("%o",
@@ -1665,31 +1633,49 @@ cmd_upgrade(int argc, char *argv[])
 
         return -EFORMAT;
     }
-
+        
     if (sys.env.rootfs) {
+        /*
+        * force upgrade rootfs idx
+        */
         idx = os_atoi(sys.env.rootfs);
-
         debug_trace("upgrade rootfs%d by env select", idx);
-    } else {
-        idx = get_upgrade_master();
 
-        debug_trace("upgrade rootfs%d by auto select", idx);
-    }
-
-    if (idx<0) {
-        for (i=1; i<OS_FIRMWARE_COUNT; i++) {
-            if (i!=sys.current) {
-                err = upgrade(i, i);
-                if (err<0) {
-                    return err;
+        if (idx<0) {
+            /*
+            * force upgrade all
+            */
+            for (i=1; i<OS_FIRMWARE_COUNT; i++) {
+                if (i!=sys.current) {
+                    err = upgrade(i, i);
+                    if (err<0) {
+                        return err;
+                    }
                 }
             }
+        } else {
+            err = upgrade(idx, idx);
         }
-
-        return 0;
-    } else {
-        return upgrade(idx, idx);
     }
+    else {
+        /*
+        * NOT force rootfs idx, auto select
+        */
+        int skips = __skips(0);
+        for (i=0; i<sys.upgrade; i++) {
+            idx = get_upgrade(skips);
+            debug_trace("upgrade rootfs%d by auto select", idx);
+
+            err = upgrade(idx, idx);
+            if (err<0) {
+                return err;
+            }
+
+            skips |= os_bit(idx);
+        }
+    }
+    
+    return err;
 }
 
 static int

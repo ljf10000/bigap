@@ -354,7 +354,6 @@ benv_select(void)
         os_println("current firmware%d is bad", current);
     }
 
-#if BENV_UPGRADE_TWO==BENV_UPGRADE
     /*
     * try buddy
     */
@@ -369,7 +368,6 @@ benv_select(void)
     else {
         os_println("NO found good buddy firmware");
     }
-#endif
 
     /*
     * try best

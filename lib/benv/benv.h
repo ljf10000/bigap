@@ -9,11 +9,8 @@
 #define BENV_DEBUG                  0 //(BENV_DEBUG_SORT | BENV_DEBUG_CMP)
 #endif
 
-#define BENV_UPGRADE_ONE            1
-#define BENV_UPGRADE_TWO            2
-
-#ifndef BENV_UPGRADE
-#define BENV_UPGRADE                BENV_UPGRADE_ONE
+#ifndef BENV_UPGRADE_COUNT
+#define BENV_UPGRADE_COUNT          1
 #endif
 
 #ifndef BENV_DEV_BLOCK_SIZE
@@ -97,6 +94,8 @@ enum {
 #   define OS_DEV_HD_MASTER     __empty
 #   define OS_DEV_USB_MASTER    __empty
 #endif
+
+#define OS_FIRMWARE_CLOUD       OS_FIRMWARE_COUNT
 
 #define OS_FILE(_file)          OS_DIR_ROOT _file
 #define OS_DIR(_dir)            OS_DIR_ROOT _dir
@@ -386,19 +385,19 @@ enum {
 #endif
 
 #ifndef BENV_VENDOR
-#define BENV_VENDOR                 "superwali"
+#define BENV_VENDOR                 "super-walle"
 #endif
 
 #ifndef BENV_COMPANY
-#define BENV_COMPANY                "superwali Technology Co.,Ltd."
+#define BENV_COMPANY                "super-walle Technology Co.,Ltd."
 #endif
 
 #ifndef BENV_PRODUCT_MODEL
-#define BENV_PRODUCT_MODEL          "superwali-LV1"
+#define BENV_PRODUCT_MODEL          "super-walle-LV1"
 #endif
 
 #ifndef BENV_PCBA_MODEL
-#define BENV_PCBA_MODEL             "superwali-pcba"
+#define BENV_PCBA_MODEL             "super-walle-pcba"
 #endif
 
 #ifndef BENV_INFO_SIZE
@@ -1279,9 +1278,15 @@ benv_vcs_cmp(char *obj, benv_vcs_t * a, benv_vcs_t * b)
     int ret;
 
     if (benv_vcs_is_good(a) && false==benv_vcs_is_good(b)) {
+        /*
+        * a is good, b is bad
+        */
         return 1;
     }
     else if (false==benv_vcs_is_good(a) && benv_vcs_is_good(b)) {
+        /*
+        * a is bad, b is good
+        */
         return -1;
     }
     
@@ -1610,8 +1615,6 @@ __benv_sort_after(int sort[], int count)
     idx_in_benv_find_worst; \
 })  /* end */
 
-
-#if BENV_UPGRADE_TWO==BENV_UPGRADE
 /*
 * skip 0 and idx
 */
@@ -1640,7 +1643,6 @@ __benv_sort_after(int sort[], int count)
 
 #define benv_find_first_bad_buddy(_obj, _idx, _skips) \
         __benv_find_first_buddy(_obj, _idx, _skips, benv_obj_is_bad)
-#endif /* BENV_UPGRADE */
 
 #define __benv_find_first_byversion(_obj, _version, _skips, _is_func) ({ \
     int i_in___benv_find_first_byversion;               \
