@@ -274,11 +274,9 @@ duke_bzerror(duk_context *ctx)
 
 #include "libbz/libbzf.c"
 #include "libbz/libbzn.c"
-#endif /* duk_LIBBZ */
 
 int libbz_register(duk_context *ctx)
 {
-#if duk_LIBBZ
     duk_push_global_object(ctx);
         duk_push_object(ctx);
             libbzf_register(ctx, -1);
@@ -287,8 +285,8 @@ int libbz_register(duk_context *ctx)
     duk_pop(ctx);
 
     debug_ok("register libbz ok.");
-#endif
 
     return 0;
 }
+#endif /* duk_LIBBZ */
 

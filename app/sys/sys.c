@@ -537,17 +537,17 @@ umount_double(char *dir_master, char *dir0, char *dir1)
 
     err = do_umount(dir_master);
     if (err<0) {
-
+        /* log */
     }
 
     err = do_umount(dir0);
     if (err<0) {
-
+        /* log */
     }
 
     err = do_umount(dir1);
     if (err<0) {
-
+        /* log */
     }
 
     return err;
@@ -1698,7 +1698,7 @@ static int
 cmd_mount(int argc, char *argv[])
 {
     int i, err, errs = 0;
-        
+    
     for (i=0; i<os_count_of(mounts); i++) {
         err = (*mounts[i].mount)();
         if (err<0) {

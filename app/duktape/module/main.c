@@ -85,11 +85,18 @@ __register(duk_context *ctx)
         duktape_register,
         my_register,
         libc_register,
+#if duk_LIBZ
         libz_register,
+#endif
+#if duk_LIBBZ
         libbz_register,
+#endif
+#if duk_LIBLZ
         liblz_register,
+#endif
+#if duk_LIBCURL
         libcurl_register,
-
+#endif
         /*keep below last*/
         buildin_register,
         auto_register,

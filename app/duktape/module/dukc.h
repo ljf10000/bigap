@@ -843,11 +843,19 @@ extern int global_register(duk_context *ctx);
 extern int duktape_register(duk_context *ctx);
 extern int my_register(duk_context *ctx);
 extern int libc_register(duk_context *ctx);
+#if duk_LIBZ
 extern int libz_register(duk_context *ctx);
+#endif
+#if duk_LIBBZ
 extern int libbz_register(duk_context *ctx);
+#endif
+#if duk_LIBLZ
 extern int liblz_register(duk_context *ctx);
+#endif
+#if duk_LIBCURL
 extern int libcurl_register(duk_context *ctx);
+#endif
 
-#include "libc.h"   /* mast end */
+#include "libc.h"   /* must end */
 /******************************************************************************/
 #endif /* __DUKC_H_fe1a608115554746877494835643599f__ */

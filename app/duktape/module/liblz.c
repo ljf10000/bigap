@@ -21,11 +21,9 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 
 #include "liblz/liblzf.c"
 #include "liblz/liblzn.c"
-#endif /* duk_LIBLZ */
 
 int liblz_register(duk_context *ctx)
 {
-#if duk_LIBLZ
     duk_push_global_object(ctx);
         duk_push_object(ctx);
             liblzf_register(ctx, -1);
@@ -34,8 +32,8 @@ int liblz_register(duk_context *ctx)
     duk_pop(ctx);
 
     debug_ok("register liblz ok.");
-#endif
 
     return 0;
 }
+#endif /* duk_LIBLZ */
 

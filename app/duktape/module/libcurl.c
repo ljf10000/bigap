@@ -807,11 +807,9 @@ duke_curl_slist_free_all(duk_context *ctx)
 
 #include "libcurl/libcurlf.c"
 #include "libcurl/libcurln.c"
-#endif /* duk_LIBCURL */
 
 int libcurl_register(duk_context *ctx)
 {
-#if duk_LIBCURL
     duk_push_global_object(ctx);
         duk_push_object(ctx);
             libcurlf_register(ctx, -1);
@@ -820,8 +818,8 @@ int libcurl_register(duk_context *ctx)
     duk_pop(ctx);
 
     debug_ok("register libcurl ok.");
-#endif
 
     return 0;
 }
+#endif /* duk_LIBCURL */
 

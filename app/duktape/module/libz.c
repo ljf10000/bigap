@@ -937,11 +937,9 @@ error:
 
 #include "libz/libzf.c"
 #include "libz/libzn.c"
-#endif /* duk_LIBZ */
 
 int libz_register(duk_context *ctx)
 {
-#if duk_LIBZ
     duk_push_global_object(ctx);
         duk_push_object(ctx);
             libzf_register(ctx, -1);
@@ -954,4 +952,5 @@ int libz_register(duk_context *ctx)
 
     return 0;
 }
+#endif /* duk_LIBZ */
 
