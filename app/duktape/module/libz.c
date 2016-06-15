@@ -948,7 +948,6 @@ int libz_register(duk_context *ctx)
     duk_pop(ctx);
 
     debug_ok("register libz ok.");
-#endif
 
     return 0;
 }
