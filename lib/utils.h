@@ -91,7 +91,9 @@
 #   include <sys/vtimes.h>
 #   include <sys/resource.h>
 #   include <sys/vlimit.h>
+#ifndef __BUSYBOX__
 #   include <sys/sysinfo.h>
+#endif
 #   include <sys/utsname.h>
 #   include <sys/mount.h>
 #   include <sys/epoll.h>
