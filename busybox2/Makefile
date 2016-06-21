@@ -326,7 +326,7 @@ BIGAP_CFLAGS	:= -DBIGAP \
 			-I$(srctree)/bigap/app \
 			-I$(HISITOOLS)/usr/include \
 			-I${PUB_DIR}/include \
-			#-D NO_3G \
+			-D NO_3G \
 			# end
 BIGAP_LDFLAGS := -L${PUB_DIR}/lib/share \
 			-L${hisitopdir}/release/lib \
