@@ -322,7 +322,7 @@ error:
 static inline int
 bcookie_load(struct bcookie *obj, int size)
 {
-    return __bcookie_load(DEV_BOOT, BENV_BOOT_SIZE, obj, size);
+    return __bcookie_load(PRODUCT_DEV_BOOT, BENV_BOOT_SIZE, obj, size);
 }
 
 static inline int
