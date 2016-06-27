@@ -18,6 +18,10 @@
 #define PRODUCT_ROOTFS_MODE         PRODUCT_ROOTFS_MODE_RW
 #endif
 
+#ifndef PRODUCT_DEV_USB_MASTER
+#define PRODUCT_DEV_USB_MASTER      "dev/udisk1110"
+#endif
+
 #ifndef PRODUCT_DIR_ROOT
 #define PRODUCT_DIR_ROOT            __empty
 #endif

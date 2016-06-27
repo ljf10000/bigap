@@ -58,6 +58,10 @@
 #error "must define PRODUCT_FIRMWARE_COUNT!"
 #endif
 
+#ifndef PRODUCT_DEV_USB_MASTER
+#error "must define PRODUCT_DEV_USB_MASTER!"
+#endif
+
 #if 1!=PRODUCT_FLASH_SIZE && \
     2!=PRODUCT_FLASH_SIZE && \
     4!=PRODUCT_FLASH_SIZE && \
