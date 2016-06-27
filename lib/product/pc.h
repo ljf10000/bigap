@@ -14,6 +14,10 @@
 #define PRODUCT_MEMORY_SIZE         2 /* 2G */
 #endif
 
+#ifndef PRODUCT_ROOTFS_MODE
+#define PRODUCT_ROOTFS_MODE         PRODUCT_ROOTFS_MODE_RW
+#endif
+
 #ifndef PRODUCT_DIR_ROOT
 #define PRODUCT_DIR_ROOT            __empty
 #endif
