@@ -33,7 +33,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
             CONFIG_BOOTCOMMAND_END      \
             /* end */
 #if 0
-static uint32 kernel_offset[OS_FIRMWARE_COUNT] = {
+static uint32 kernel_offset[PRODUCT_FIRMWARE_COUNT] = {
     [0] = 0x06000,
     [1] = 0x0E000,
     [2] = 0x16000,
@@ -54,7 +54,7 @@ static uint32 kernel_offset[OS_FIRMWARE_COUNT] = {
 *
 * rootfs  size (block count) = 256M/512 = 512K = 0x80000
 */
-static uint32 rootfs_offset[OS_FIRMWARE_COUNT] = {
+static uint32 rootfs_offset[PRODUCT_FIRMWARE_COUNT] = {
     [0] = 0x03E000,
     [1] = 0x0BE000,
     [2] = 0x13E000,
@@ -207,14 +207,14 @@ change_bootcmd(void)
 {
     int idx = __benv_current;
     
-    char *array[OS_FIRMWARE_COUNT] = {
+    char *array[PRODUCT_FIRMWARE_COUNT] = {
         [0] = CONFIG_BOOTCOMMAND_KERNEL0,
         [1] = CONFIG_BOOTCOMMAND_KERNEL1,
         [2] = CONFIG_BOOTCOMMAND_KERNEL2,
-#if OS_FIRMWARE_COUNT > 3
+#if PRODUCT_FIRMWARE_COUNT > 3
         [3] = CONFIG_BOOTCOMMAND_KERNEL3,
         [4] = CONFIG_BOOTCOMMAND_KERNEL4,
-#if OS_FIRMWARE_COUNT > 5
+#if PRODUCT_FIRMWARE_COUNT > 5
         [5] = CONFIG_BOOTCOMMAND_KERNEL5,
         [6] = CONFIG_BOOTCOMMAND_KERNEL6,
 #endif
@@ -232,18 +232,18 @@ change_bootargs(void)
 {
     int idx = __benv_current;
     
-    char *array[OS_FIRMWARE_COUNT] = {
-#if 3==OS_FIRMWARE_COUNT
+    char *array[PRODUCT_FIRMWARE_COUNT] = {
+#if 3==PRODUCT_FIRMWARE_COUNT
         [0] = "10",
         [1] = "11",
         [2] = "12",
-#elif 5==OS_FIRMWARE_COUNT
+#elif 5==PRODUCT_FIRMWARE_COUNT
         [0] = "11",
         [1] = "12",
         [2] = "13",
         [3] = "14",
         [4] = "15",
-#elif 7==OS_FIRMWARE_COUNT
+#elif 7==PRODUCT_FIRMWARE_COUNT
         [0] = "13",
         [1] = "14",
         [2] = "15",
@@ -267,7 +267,7 @@ change_bootargs(void)
 
     return __change_bootenv(
                 "bootargs", 
-                "root=" OS_MASTER(OS_DEV_FLASH_MASTER), 
+                "root=" PRODUCT_MASTER(PRODUCT_DEV_FLASH_MASTER), 
                 array[idx]);
 }
 

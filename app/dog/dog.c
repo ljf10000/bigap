@@ -69,7 +69,7 @@ set_timeout(int dog, int timeout)
 #define foreach(_method, _args...)   ({ \
     int __i, __err;                     \
                                         \
-    for (__i=0; __i<OS_DOG_COUNT; __i++) { \
+    for (__i=0; __i<PRODUCT_DOG_COUNT; __i++) { \
         __err = _method(__i, ##_args);  \
         if (__err) {                    \
             debug_error(#_method "dog:%d error:%d", __i, __err); \
@@ -108,16 +108,16 @@ cmd_reset(int argc, char *argv[])
 static int
 cmd_get_timeout(int argc, char *argv[])
 {
-    int i, err, timeout[OS_DOG_COUNT];
+    int i, err, timeout[PRODUCT_DOG_COUNT];
 
-    for (i=0; i<OS_DOG_COUNT; i++) {
+    for (i=0; i<PRODUCT_DOG_COUNT; i++) {
         err = get_timeout(i, &timeout[i]);
         if (err<0) {
             return err;
         }
     }
     
-    for (i=1; i<OS_DOG_COUNT; i++) {
+    for (i=1; i<PRODUCT_DOG_COUNT; i++) {
         if (timeout[i-1] != timeout[i]) {
             debug_error("dog%d's timeout(%d) != dog%d's timeout(%d)",
                 i-1,

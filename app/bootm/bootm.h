@@ -110,12 +110,12 @@ enum {
 #define countof_array(x)        (sizeof(x)/sizeof((x)[0]))
 
 
-#define CONFIG_BOOTARGS_HEAD    \
+#define PRODUCT_BOOTARGS_HEAD   \
     "root=/dev/mmcblk0p8"       \
         __space                 \
     /* end */
 
-#define CONFIG_BOOTARGS_BODY    \
+#define PRODUCT_BOOTARGS_BODY   \
     "mem=2G"                    \
         __space                 \
     "console=ttyAMA0,115200"    \
@@ -146,8 +146,8 @@ enum {
 #endif
 
 #define CONFIG_BOOTARGS         \
-    CONFIG_BOOTARGS_HEAD        \
-    CONFIG_BOOTARGS_BODY        \
+    PRODUCT_BOOTARGS_HEAD       \
+    PRODUCT_BOOTARGS_BODY       \
     /* end */
 
 #ifdef CONFIG_BOOTCOMMAND

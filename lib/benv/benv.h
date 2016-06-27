@@ -29,335 +29,6 @@ enum {
     BENV_START = BENV_BOOT_SIZE,
 };
 
-#ifdef __PC__
-#   define OS_DIR_ROOT              __empty
-#else
-#   define OS_DIR_ROOT              "/"
-#endif
-
-#if IS_PRODUCT_LTEFI_MD1
-#   define OS_FIRMWARE_COUNT    3
-#   define OS_FIRMWARE_CURRENT  1
-#   define OS_DEV_PREFIX        "p"
-#   define OS_DEV_FLASH_MASTER  "dev/mmcblk0"
-#   define OS_DEV_SD_MASTER     "dev/mmcblk1"
-#   define OS_DEV_HD_MASTER     "dev/udisk"
-#   define OS_DEV_USB_MASTER    "dev/udisk1110"
-#elif IS_PRODUCT_LTEFI_MD2 || \
-      IS_PRODUCT_LTEFI_MD3 || \
-      IS_PRODUCT_PC
-#if 1==PRODUCT_FLASH_SIZE   /* 1G */
-#   ifndef OS_FIRMWARE_COUNT
-#       define OS_FIRMWARE_COUNT    3
-#   endif
-#elif 2==PRODUCT_FLASH_SIZE /* 2G */
-#   ifndef OS_FIRMWARE_COUNT
-#       define OS_FIRMWARE_COUNT    5
-#   endif
-#elif 4==PRODUCT_FLASH_SIZE || /* 4G */ \
-      8==PRODUCT_FLASH_SIZE /* 8G */
-#   ifndef OS_FIRMWARE_COUNT
-#       define OS_FIRMWARE_COUNT    7
-#   endif
-#else
-#error "invalid PRODUCT_FLASH_SIZE"
-#endif
-#   define OS_FIRMWARE_CURRENT  1
-#   define OS_DEV_PREFIX        "p"
-#   define OS_DEV_FLASH_MASTER  "dev/mmcblk0"
-#   define OS_DEV_SD_MASTER     "dev/mmcblk1"
-#   define OS_DEV_HD_MASTER     "dev/udisk"
-#   define OS_DEV_USB_MASTER    "dev/udisk1110"
-#elif IS_PRODUCT_LTEFI_AP
-#   define OS_FIRMWARE_COUNT    1
-#   define OS_FIRMWARE_CURRENT  0
-#   define OS_DEV_PREFIX        __empty
-#   define OS_DEV_FLASH_MASTER  "tmp/mtdblock"
-#   define OS_DEV_SD_MASTER     __empty
-#   define OS_DEV_HD_MASTER     __empty
-#   define OS_DEV_USB_MASTER    __empty
-#endif
-
-#define OS_FIRMWARE_CLOUD       OS_FIRMWARE_COUNT
-
-#define OS_FILE(_file)          OS_DIR_ROOT _file
-#define OS_DIR(_dir)            OS_DIR_ROOT _dir
-#define OS_DIR_IDX(_dir, _idx)  _dir #_idx
-
-#define OS_MASTER(_master)      OS_FILE(_master OS_DEV_PREFIX)
-#define OS_DEV(_master, _idx)   OS_DIR_IDX(OS_MASTER(_master), _idx)
-#define OS_DEV_FLASH(_idx)      OS_DEV(OS_DEV_FLASH_MASTER, _idx)
-#define OS_DEV_SD(_idx)         OS_DEV(OS_DEV_SD_MASTER, _idx)
-#define OS_DEV_HD(_idx)         OS_DEV(OS_DEV_HD_MASTER, _idx)
-#define OS_DEV_USB(_idx)        OS_DEV(OS_DEV_USB_MASTER, _idx)
-
-#define OS_DIR_FLASH            OS_DIR("mnt/flash")
-#define OS_DIR_SD               OS_DIR("mnt/sd")
-#define OS_DIR_HD               OS_DIR("mnt/hd")
-#define OS_DIR_USB              OS_DIR("mnt/usb")
-
-#define __OS_DIR_KERNEL         OS_DIR_FLASH "/kernel"
-#define __OS_DIR_ROOTFS         OS_DIR_FLASH "/rootfs"
-#define __OS_DIR_CONFIG         OS_DIR_FLASH "/config"
-#define __OS_DIR_DATA           OS_DIR_FLASH "/data"
-#define __OS_DIR_OTHER          OS_DIR_FLASH "/other"
-
-#define OS_DIR_KERNEL(_idx)     OS_DIR_IDX(__OS_DIR_KERNEL, _idx)
-#define OS_DIR_ROOTFS(_idx)     OS_DIR_IDX(__OS_DIR_ROOTFS, _idx)
-#define OS_DIR_CONFIG(_idx)     OS_DIR_IDX(__OS_DIR_CONFIG, _idx)
-#define OS_DIR_DATA(_idx)       OS_DIR_IDX(__OS_DIR_DATA,   _idx)
-#define OS_DIR_OTHER            __OS_DIR_OTHER
-
-#ifndef OS_DEV_BOOTENV
-#ifdef __PC__
-#   define OS_DEV_BOOT          "boot"
-#   define OS_DEV_BOOTENV       "bootenv"
-#else
-#   define OS_DEV_BOOT          OS_DEV_FLASH(1) /* boot */
-#   define OS_DEV_BOOTENV       OS_DEV_FLASH(2) /* boot env */
-#endif
-#endif
-
-#define OS_PROC_CMDLINE         "/proc/cmdline"
-#define OS_PROC_CMDLINE_ROOT    "root="
-
-#define DEV_BOOT                OS_DEV_FLASH(1)
-#define DEV_BOOTENV             OS_DEV_BOOTENV
-
-#define DEV_HD                  OS_DEV_HD(1)
-#define DEV_SD                  OS_DEV_SD(1)
-#define DEV_USB                 OS_DEV_USB(1)
-
-#if IS_PRODUCT_LTEFI_MD2 || \
-    IS_PRODUCT_LTEFI_MD3 || \
-    IS_PRODUCT_PC
-#if 3==OS_FIRMWARE_COUNT
-#define __DEV_KERNEL0       OS_DEV_FLASH(6)
-#define __DEV_KERNEL1       OS_DEV_FLASH(7)
-#define __DEV_KERNEL2       OS_DEV_FLASH(8)
-
-/* 9 is unused */
-#define __DEV_ROOTFS0       OS_DEV_FLASH(10)
-#define __DEV_ROOTFS1       OS_DEV_FLASH(11)
-#define __DEV_ROOTFS2       OS_DEV_FLASH(12)
-
-#define __DEV_CONFIG0       OS_DEV_FLASH(13)
-#define __DEV_CONFIG1       OS_DEV_FLASH(14)
-
-#define __DEV_DATA0         OS_DEV_FLASH(15)
-#define __DEV_DATA1         OS_DEV_FLASH(16)
-
-#define __DEV_OTHER         OS_DEV_FLASH(17)
-
-#define __IDX_ROOT          11
-
-#define CONFIG_BOOTARGS_MMCBLK0 \
-        "512K(fastboot),"/*01 */\
-        "512K(bootenv),"/* 02 */\
-        "4M(baseparam),"/* 03 */\
-        "4M(pqparam),"  /* 04 */\
-        "3M(logo),"     /* 05 */\
-                                \
-        "16M(kernel0)," /* 06 */\
-        "16M(kernel1)," /* 07 */\
-        "16M(kernel2)," /* 08 */\
-                                \
-        "4M(unused),"   /* 09 */\
-                                \
-        "200M(rootfs0),"/* 10 */\
-        "200M(rootfs1),"/* 11 */\
-        "200M(rootfs2),"/* 12 */\
-                                \
-        "16M(config0)," /* 13 */\
-        "16M(config1)," /* 14 */\
-                                \
-        "148M(data0),"  /* 15 */\
-        "148M(data1),"  /* 16 */\
-        "-(others)"     /* 17 */\
-        /* end */
-#elif 5==OS_FIRMWARE_COUNT
-#define __DEV_KERNEL0       OS_DEV_FLASH(6)
-#define __DEV_KERNEL1       OS_DEV_FLASH(7)
-#define __DEV_KERNEL2       OS_DEV_FLASH(8)
-#define __DEV_KERNEL3       OS_DEV_FLASH(9)
-#define __DEV_KERNEL4       OS_DEV_FLASH(10)
-
-#define __DEV_ROOTFS0       OS_DEV_FLASH(11)
-#define __DEV_ROOTFS1       OS_DEV_FLASH(12)
-#define __DEV_ROOTFS2       OS_DEV_FLASH(13)
-#define __DEV_ROOTFS3       OS_DEV_FLASH(14)
-#define __DEV_ROOTFS4       OS_DEV_FLASH(15)
-
-#define __DEV_CONFIG0       OS_DEV_FLASH(16)
-#define __DEV_CONFIG1       OS_DEV_FLASH(17)
-
-#define __DEV_DATA0         OS_DEV_FLASH(18)
-#define __DEV_DATA1         OS_DEV_FLASH(19)
-
-#define __DEV_OTHER         OS_DEV_FLASH(20)
-
-#define __IDX_ROOT          12
-
-#define CONFIG_BOOTARGS_MMCBLK0 \
-        "512K(fastboot),"/*01 */\
-        "512K(bootenv),"/* 02 */\
-        "4M(baseparam),"/* 03 */\
-        "4M(pqparam),"  /* 04 */\
-        "3M(logo),"     /* 05 */\
-                                \
-        "16M(kernel0)," /* 06 */\
-        "16M(kernel1)," /* 07 */\
-        "16M(kernel2)," /* 08 */\
-        "16M(kernel3)," /* 09 */\
-        "16M(kernel4)," /* 10 */\
-                                \
-        "256M(rootfs0),"/* 11 */\
-        "256M(rootfs1),"/* 12 */\
-        "256M(rootfs2),"/* 13 */\
-        "256M(rootfs3),"/* 14 */\
-        "256M(rootfs4),"/* 15 */\
-                                \
-        "32M(config0)," /* 16 */\
-        "32M(config1)," /* 17 */\
-                                \
-        "300M(data0),"  /* 18 */\
-        "300M(data1),"  /* 19 */\
-        "-(others)"     /* 20 */\
-        /* end */
-#elif 7==OS_FIRMWARE_COUNT
-#define __DEV_KERNEL0       OS_DEV_FLASH(6)
-#define __DEV_KERNEL1       OS_DEV_FLASH(7)
-#define __DEV_KERNEL2       OS_DEV_FLASH(8)
-#define __DEV_KERNEL3       OS_DEV_FLASH(9)
-#define __DEV_KERNEL4       OS_DEV_FLASH(10)
-#define __DEV_KERNEL5       OS_DEV_FLASH(11)
-#define __DEV_KERNEL6       OS_DEV_FLASH(12)
-
-#define __DEV_ROOTFS0       OS_DEV_FLASH(13)
-#define __DEV_ROOTFS1       OS_DEV_FLASH(14)
-#define __DEV_ROOTFS2       OS_DEV_FLASH(15)
-#define __DEV_ROOTFS3       OS_DEV_FLASH(16)
-#define __DEV_ROOTFS4       OS_DEV_FLASH(17)
-#define __DEV_ROOTFS5       OS_DEV_FLASH(18)
-#define __DEV_ROOTFS6       OS_DEV_FLASH(19)
-
-#define __DEV_CONFIG0       OS_DEV_FLASH(20)
-#define __DEV_CONFIG1       OS_DEV_FLASH(21)
-
-#define __DEV_DATA0         OS_DEV_FLASH(22)
-#define __DEV_DATA1         OS_DEV_FLASH(23)
-
-#define __DEV_OTHER         OS_DEV_FLASH(24)
-
-#define __IDX_ROOT          14
-
-#if 4==PRODUCT_FLASH_SIZE
-#define CONFIG_BOOTARGS_MMCBLK0 \
-        "512K(fastboot),"/*01 */\
-        "512K(bootenv),"/* 02 */\
-        "4M(baseparam),"/* 03 */\
-        "4M(pqparam),"  /* 04 */\
-        "3M(logo),"     /* 05 */\
-                                \
-        "16M(kernel0)," /* 06 */\
-        "16M(kernel1)," /* 07 */\
-        "16M(kernel2)," /* 08 */\
-        "16M(kernel3)," /* 09 */\
-        "16M(kernel4)," /* 10 */\
-        "16M(kernel5)," /* 11 */\
-        "16M(kernel6)," /* 12 */\
-                                \
-        "256M(rootfs0),"/* 13 */\
-        "256M(rootfs1),"/* 14 */\
-        "256M(rootfs2),"/* 15 */\
-        "256M(rootfs3),"/* 16 */\
-        "256M(rootfs4),"/* 17 */\
-        "256M(rootfs5),"/* 18 */\
-        "256M(rootfs6),"/* 19 */\
-                                \
-        "32M(config0)," /* 20 */\
-        "32M(config1)," /* 21 */\
-                                \
-        "820M(data0),"  /* 22 */\
-        "820M(data1),"  /* 23 */\
-        "-(others)"     /* 24 */\
-        /* end */
-#elif 8==PRODUCT_FLASH_SIZE
-#define CONFIG_BOOTARGS_MMCBLK0 \
-        "512K(fastboot),"/*01 */\
-        "512K(bootenv),"/* 02 */\
-        "4M(baseparam),"/* 03 */\
-        "4M(pqparam),"  /* 04 */\
-        "3M(logo),"     /* 05 */\
-                                \
-        "16M(kernel0)," /* 06 */\
-        "16M(kernel1)," /* 07 */\
-        "16M(kernel2)," /* 08 */\
-        "16M(kernel3)," /* 09 */\
-        "16M(kernel4)," /* 10 */\
-        "16M(kernel5)," /* 11 */\
-        "16M(kernel6)," /* 12 */\
-                                \
-        "768M(rootfs0),"/* 13 */\
-        "768M(rootfs1),"/* 14 */\
-        "768M(rootfs2),"/* 15 */\
-        "768M(rootfs3),"/* 16 */\
-        "768M(rootfs4),"/* 17 */\
-        "768M(rootfs5),"/* 18 */\
-        "768M(rootfs6),"/* 19 */\
-                                \
-        "32M(config0)," /* 20 */\
-        "32M(config1)," /* 21 */\
-                                \
-        "1076M(data0)," /* 22 */\
-        "1076M(data1)," /* 23 */\
-        "-(others)"     /* 24 */\
-        /* end */
-#endif /* PRODUCT_FLASH_SIZE */
-#else
-#error "invalid OS_FIRMWARE_COUNT"
-#endif /* OS_FIRMWARE_COUNT */
-
-#define DEV_OBJ(_obj, _idx)     __DEV_##_obj##_idx
-#define DEV_KERNEL(_idx)        DEV_OBJ(KERNEL, _idx)
-#define DEV_ROOTFS(_idx)        DEV_OBJ(ROOTFS, _idx)
-#define DEV_CONFIG(_idx)        DEV_OBJ(CONFIG, _idx)
-#define DEV_DATA(_idx)          DEV_OBJ(DATA, _idx)
-#define DEV_OTHER               __DEV_OTHER
-
-#define CONFIG_BOOTARGS_HEAD    \
-    "root=" OS_DEV_FLASH(__IDX_ROOT) \
-        __space                 \
-    "rootfstype=ext4"           \
-        __space                 \
-    "rootwait"                  \
-        __space                 \
-    PRODUCT_ROOTFS_MODE         \
-        __space                 \
-    /* end */
-
-#define CONFIG_BOOTARGS_BODY    \
-    "mem=" PRODUCT_MEMORY_SIZE_STRING \
-        __space                 \
-    "mmz=ddr,0,0," PRODUCT_MEMORY_FREQ_STRING \
-        __space                 \
-    "console=ttyAMA0,115200"    \
-        __space                 \
-    "blkdevparts="              \
-        "mmcblk0:"              \
-        CONFIG_BOOTARGS_MMCBLK0 \
-    /* end */
-
-#ifdef CONFIG_BOOTARGS
-#undef CONFIG_BOOTARGS
-#endif
-
-#define CONFIG_BOOTARGS         \
-    CONFIG_BOOTARGS_HEAD        \
-    CONFIG_BOOTARGS_BODY        \
-    /* end */
-#endif
-
 #define BENV_BLOCK_SIZE     BENV_DEV_BLOCK_SIZE
 #define BENV_BLOCK_COUNT    (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
 
@@ -395,11 +66,11 @@ enum {
 
 #define benv_obj_size(_obj)         benv_##_obj##_size
 
-#define is_good_benv_idx(_idx)      is_good_enum(_idx, OS_FIRMWARE_COUNT)
-#define is_normal_benv_idx(_idx)    is_good_value(_idx, 1, OS_FIRMWARE_COUNT)
+#define is_good_benv_idx(_idx)      is_good_enum(_idx, PRODUCT_FIRMWARE_COUNT)
+#define is_normal_benv_idx(_idx)    is_good_value(_idx, 1, PRODUCT_FIRMWARE_COUNT)
 
-#define os_firmware_foreach_all(_i) os_foreach(_i, OS_FIRMWARE_COUNT)
-#define os_firmware_foreach(_i)     __os_foreach(_i, 1, OS_FIRMWARE_COUNT) /* skip 0 */
+#define os_firmware_foreach_all(_i) os_foreach(_i, PRODUCT_FIRMWARE_COUNT)
+#define os_firmware_foreach(_i)     __os_foreach(_i, 1, PRODUCT_FIRMWARE_COUNT) /* skip 0 */
 
 /*
 * ok > unknow > fail
@@ -674,21 +345,21 @@ __benv_firmware_deft(benv_firmware_t *firmware)
 }   /* end */
 
 enum {
-    BENV_OS_SIZE = (2*sizeof(uint32) + OS_FIRMWARE_COUNT*sizeof(benv_firmware_t)),
+    BENV_OS_SIZE = (2*sizeof(uint32) + PRODUCT_FIRMWARE_COUNT*sizeof(benv_firmware_t)),
 };
 
 typedef struct {
     uint32 current;
     uint32 reserved;
 
-    benv_firmware_t firmware[OS_FIRMWARE_COUNT];
+    benv_firmware_t firmware[PRODUCT_FIRMWARE_COUNT];
     char pad[BENV_BLOCK_SIZE - BENV_OS_SIZE];
 } benv_os_t; /* 512 */
 
 #define BENV_DEFT_OS  {   \
-    .current    = OS_FIRMWARE_CURRENT, \
+    .current    = PRODUCT_FIRMWARE_CURRENT, \
     .firmware   = {     \
-        [0 ... (OS_FIRMWARE_COUNT-1)] = BENV_DEFT_FIRMWARE, \
+        [0 ... (PRODUCT_FIRMWARE_COUNT-1)] = BENV_DEFT_FIRMWARE, \
     },                  \
 }   /* end */
 
@@ -718,11 +389,11 @@ rootfs* 1       0       fail    unknow  unknow
     
     os_println("        index   error   upgrade self    other   version         cookie");
     os_println("======================================================================");
-    for (i=0; i<OS_FIRMWARE_COUNT; i++) {
+    for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
         benv_os_show_obj(kernel, i);
         benv_os_show_obj(rootfs, i);
         
-        if (i<(OS_FIRMWARE_COUNT-1)) {
+        if (i<(PRODUCT_FIRMWARE_COUNT-1)) {
             os_println
               ("----------------------------------------------------------------------");
         }
@@ -1141,10 +812,10 @@ __benv_deft_os(void)
 {
     int i;
 
-    for (i=0; i<OS_FIRMWARE_COUNT; i++) {
+    for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
         __benv_firmware_deft(benv_firmware(i));
     }
-    __benv_current = OS_FIRMWARE_CURRENT;
+    __benv_current = PRODUCT_FIRMWARE_CURRENT;
 
     benv_dirty_byidx(BENV_OS);
 }
@@ -1558,7 +1229,7 @@ __benv_sort_after(int sort[], int count)
 * skip 0 and current
 */
 #define __benv_find_xest(_obj, _skips, _sort_func, _is_func) ({ \
-    int sort_in___benv_find_xest[OS_FIRMWARE_COUNT] = {0};           \
+    int sort_in___benv_find_xest[PRODUCT_FIRMWARE_COUNT] = {0};           \
     int i_in___benv_find_xest;          \
     int idx_in___benv_find_xest;        \
     int xest_in___benv_find_xest = -ENOEXIST; \
@@ -1901,19 +1572,19 @@ __benv_check_string(benv_ops_t * ops, char *value)
         __benv_check_current, __benv_set_number, __benv_show_number) \
     /* end */
 
-#if 1==OS_FIRMWARE_COUNT
+#if 1==PRODUCT_FIRMWARE_COUNT
 #define BENV_OS_OPS         \
     BENV_OS_COMMON_OPS,     \
     BENV_FIRMWARE_OPS(0)    \
     /* end */
-#elif 3==OS_FIRMWARE_COUNT
+#elif 3==PRODUCT_FIRMWARE_COUNT
 #define BENV_OS_OPS         \
     BENV_OS_COMMON_OPS,     \
     BENV_FIRMWARE_OPS(0),   \
     BENV_FIRMWARE_OPS(1),   \
     BENV_FIRMWARE_OPS(2)    \
     /* end */
-#elif 5==OS_FIRMWARE_COUNT
+#elif 5==PRODUCT_FIRMWARE_COUNT
 #define BENV_OS_OPS         \
     BENV_OS_COMMON_OPS,     \
     BENV_FIRMWARE_OPS(0),   \
@@ -1922,7 +1593,7 @@ __benv_check_string(benv_ops_t * ops, char *value)
     BENV_FIRMWARE_OPS(3),   \
     BENV_FIRMWARE_OPS(4)    \
     /* end */
-#elif 7==OS_FIRMWARE_COUNT
+#elif 7==PRODUCT_FIRMWARE_COUNT
 #define BENV_OS_OPS         \
     BENV_OS_COMMON_OPS,     \
     BENV_FIRMWARE_OPS(0),   \
@@ -2490,7 +2161,7 @@ extern int __benv_save(int idx);    /* idx is benv's block */
 static inline int
 benv_open(void)
 {
-    __benv_fd = __os_file_lock(OS_DEV_BOOTENV, O_RDWR, 0, true);
+    __benv_fd = __os_file_lock(PRODUCT_DEV_BOOTENV, O_RDWR, 0, true);
 
     return is_good_fd(__benv_fd)?0:__benv_fd;
 }
@@ -2498,7 +2169,7 @@ benv_open(void)
 static inline int
 benv_close(void)
 {
-    __os_file_unlock(OS_DEV_BOOTENV, __benv_fd);
+    __os_file_unlock(PRODUCT_DEV_BOOTENV, __benv_fd);
 
     __benv_fd = INVALID_FD;
 

@@ -53,26 +53,26 @@ __init(void)
     }
 
     do {
-        fd = open(DEV_BOOT, O_RDONLY, permit);
+        fd = open(PRODUCT_DEV_BOOT, O_RDONLY, permit);
         if (false==is_good_fd(fd)) {
-            trace_error(-errno, "open " DEV_BOOT);
+            trace_error(-errno, "open " PRODUCT_DEV_BOOT);
             
             sleep(1);
         }
     }while(false==is_good_fd(fd));
     fd_boot = fd;
 
-    fd = open(DEV_BOOTENV, O_RDONLY, permit);
+    fd = open(PRODUCT_DEV_BOOTENV, O_RDONLY, permit);
     if (false==is_good_fd(fd)) {
-        trace_error(-errno, "open " OS_DEV_BOOTENV);
+        trace_error(-errno, "open " PRODUCT_DEV_BOOTENV);
         
         return -errno;
     }
     fd_bootenv = fd;
 
-    fd = open(OS_PROC_CMDLINE, O_RDONLY, permit);
+    fd = open(PRODUCT_PROC_CMDLINE, O_RDONLY, permit);
     if (false==is_good_fd(fd)) {
-        trace_error(-errno, "open " OS_PROC_CMDLINE);
+        trace_error(-errno, "open " PRODUCT_PROC_CMDLINE);
         
         return -errno;
     }
@@ -180,7 +180,7 @@ check_partition(void)
     
     read(fd_cmdline, line, OS_LINE_LEN);
     
-    if (NULL==os_strstr(line, CONFIG_BOOTARGS_BODY)) {
+    if (NULL==os_strstr(line, PRODUCT_BOOTARGS_BODY)) {
         return hacked(3, 0);
     }
 

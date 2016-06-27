@@ -16,30 +16,17 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 OS_INITER;
 BENV_INITER;
 
-#define DIR_KERNEL(_idx)    OS_DIR_KERNEL(_idx)
-#define DIR_ROOTFS(_idx)    OS_DIR_ROOTFS(_idx)
-#define DIR_CONFIG(_idx)    OS_DIR_CONFIG(_idx)
-#define DIR_DATA(_idx)      OS_DIR_DATA(_idx)
-#define DIR_OTHER           OS_DIR_OTHER
+#define DIR_USB_UPGRADE             PRODUCT_DIR_USB "/upgrade"
+#define DIR_USB_ROOTFS              DIR_USB_UPGRADE "/rootfs"
+#define DIR_USB_CONFIG              DIR_USB_UPGRADE "/config"
+#define DIR_USB_DATA                DIR_USB_UPGRADE "/data"
+#define DIR_USB_OTHER               DIR_USB_UPGRADE "/other"
 
-#define DIR_CONFIG_MASTER   __OS_DIR_CONFIG
-#define DIR_DATA_MASTER     __OS_DIR_DATA
+#define USB_FILE(_file)             DIR_USB_ROOTFS "/" _file
 
-#define DIR_HD              OS_DIR_HD
-#define DIR_SD              OS_DIR_SD
-#define DIR_USB             OS_DIR_USB
-
-#define DIR_USB_UPGRADE     DIR_USB "/upgrade"
-#define DIR_USB_ROOTFS      DIR_USB_UPGRADE "/rootfs"
-#define DIR_USB_CONFIG      DIR_USB_UPGRADE "/config"
-#define DIR_USB_DATA        DIR_USB_UPGRADE "/data"
-#define DIR_USB_OTHER       DIR_USB_UPGRADE "/other"
-
-#define USB_FILE(_file)     DIR_USB_ROOTFS "/" _file
-
-#define SCRIPT_MOUNT            OS_FILE("etc/mount/mount.sh")
-#define SCRIPT_XCOPY            OS_FILE("usr/sbin/xcopy")
-#define SCRIPT_CURRENT          OS_FILE("usr/sbin/syscurrent")
+#define SCRIPT_MOUNT                PRODUCT_FILE("etc/mount/mount.sh")
+#define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
+#define SCRIPT_CURRENT              PRODUCT_FILE("usr/sbin/syscurrent")
 
 #define __FILE_VERSION              "etc/.version"
 #define __FILE_ROOTFS_VERSION       __FILE_VERSION
@@ -49,13 +36,13 @@ BENV_INITER;
 #define __FILE_BOOTENV              "image/bootenv.bin"
 #define __FILE_AP_BOOT              "image/u-boot.bin"
 #define __FILE_AP_BOOTENV           "image/u-bootenv"
-#define FILE_ROOTFS_VERSION         OS_FILE(__FILE_ROOTFS_VERSION)
-#define FILE_KERNEL_VERSION         OS_FILE(__FILE_KERNEL_VERSION)
-#define FILE_KERNEL                 OS_FILE(__FILE_KERNEL)
-#define FILE_BOOT                   OS_FILE(__FILE_BOOT)
-#define FILE_BOOTENV                OS_FILE(__FILE_BOOTENV)
-#define FILE_AP_BOOT                OS_FILE(__FILE_AP_BOOT)
-#define FILE_AP_BOOTENV             OS_FILE(__FILE_AP_BOOTENV)
+#define FILE_ROOTFS_VERSION         PRODUCT_FILE(__FILE_ROOTFS_VERSION)
+#define FILE_KERNEL_VERSION         PRODUCT_FILE(__FILE_KERNEL_VERSION)
+#define FILE_KERNEL                 PRODUCT_FILE(__FILE_KERNEL)
+#define FILE_BOOT                   PRODUCT_FILE(__FILE_BOOT)
+#define FILE_BOOTENV                PRODUCT_FILE(__FILE_BOOTENV)
+#define FILE_AP_BOOT                PRODUCT_FILE(__FILE_AP_BOOT)
+#define FILE_AP_BOOTENV             PRODUCT_FILE(__FILE_AP_BOOTENV)
 #define USB_FILE_ROOTFS_VERSION     USB_FILE(__FILE_ROOTFS_VERSION)
 #define USB_FILE_KERNEL_VERSION     USB_FILE(__FILE_KERNEL_VERSION)
 #define USB_FILE_KERNEL             USB_FILE(__FILE_KERNEL)
@@ -64,22 +51,22 @@ BENV_INITER;
 #define USB_FILE_AP_BOOT            USB_FILE(__FILE_AP_BOOT)
 #define USB_FILE_AP_BOOTENV         USB_FILE(__FILE_AP_BOOTENV)
 
-#define ENV_TIMEOUT         "__ENV_TIMEOUT__"
-#define ENV_PWDFILE         "__ENV_PWDFILE__"
-#define ENV_VERSION         "__ENV_VERSION__"
-#define ENV_UPGRADE         "__ENV_UPGRADE__"
-#define ENV_ROOTFS          "__ENV_ROOTFS__"
-#define ENV_SERVER          "__ENV_SERVER__"
-#define ENV_FORCE           "__ENV_FORCE__"
-#define ENV_PORT            "__ENV_PORT__"
-#define ENV_USER            "__ENV_USER__"
-#define ENV_PATH            "__ENV_PATH__"
+#define ENV_TIMEOUT                 "__ENV_TIMEOUT__"
+#define ENV_PWDFILE                 "__ENV_PWDFILE__"
+#define ENV_VERSION                 "__ENV_VERSION__"
+#define ENV_UPGRADE                 "__ENV_UPGRADE__"
+#define ENV_ROOTFS                  "__ENV_ROOTFS__"
+#define ENV_SERVER                  "__ENV_SERVER__"
+#define ENV_FORCE                   "__ENV_FORCE__"
+#define ENV_PORT                    "__ENV_PORT__"
+#define ENV_USER                    "__ENV_USER__"
+#define ENV_PATH                    "__ENV_PATH__"
 
 #define __OBJ(_idx, _dev, _dir)     [_idx] = {.dev = _dev, .dir = _dir}
-#define OBJ_KERNEL(_idx)            __OBJ(_idx, DEV_KERNEL(_idx), DIR_KERNEL(_idx))
-#define OBJ_ROOTFS(_idx)            __OBJ(_idx, DEV_ROOTFS(_idx), DIR_ROOTFS(_idx))
-#define OBJ_CONFIG(_idx)            __OBJ(_idx, DEV_CONFIG(_idx), DIR_CONFIG(_idx))
-#define OBJ_DATA(_idx)              __OBJ(_idx, DEV_DATA(_idx),   DIR_DATA(_idx))
+#define OBJ_KERNEL(_idx)            __OBJ(_idx, PRODUCT_IDEV_KERNEL(_idx), PRODUCT_IDIR_KERNEL(_idx))
+#define OBJ_ROOTFS(_idx)            __OBJ(_idx, PRODUCT_IDEV_ROOTFS(_idx), PRODUCT_IDIR_ROOTFS(_idx))
+#define OBJ_CONFIG(_idx)            __OBJ(_idx, PRODUCT_IDEV_CONFIG(_idx), PRODUCT_IDIR_CONFIG(_idx))
+#define OBJ_DATA(_idx)              __OBJ(_idx, PRODUCT_IDEV_DATA(_idx),   PRODUCT_IDIR_DATA(_idx))
 
 static struct {
     int current;
@@ -106,20 +93,20 @@ static struct {
     struct {
         char *dev;
         char *dir;
-    } kernel[OS_FIRMWARE_COUNT], rootfs[OS_FIRMWARE_COUNT], data[2], config[2];
+    } kernel[PRODUCT_FIRMWARE_COUNT], rootfs[PRODUCT_FIRMWARE_COUNT], data[2], config[2];
 } 
 sys = {
-    .current= OS_FIRMWARE_CURRENT,
+    .current= PRODUCT_FIRMWARE_CURRENT,
     .upgrade= BENV_UPGRADE_COUNT,
 
     .kernel = {
         OBJ_KERNEL(0),
         OBJ_KERNEL(1),
         OBJ_KERNEL(2),
-#if OS_FIRMWARE_COUNT > 3
+#if PRODUCT_FIRMWARE_COUNT > 3
         OBJ_KERNEL(3),
         OBJ_KERNEL(4),
-#if OS_FIRMWARE_COUNT > 5
+#if PRODUCT_FIRMWARE_COUNT > 5
         OBJ_KERNEL(5),
         OBJ_KERNEL(6),
 #endif
@@ -130,10 +117,10 @@ sys = {
         OBJ_ROOTFS(0),
         OBJ_ROOTFS(1),
         OBJ_ROOTFS(2),
-#if OS_FIRMWARE_COUNT > 3
+#if PRODUCT_FIRMWARE_COUNT > 3
         OBJ_ROOTFS(3),
         OBJ_ROOTFS(4),
-#if OS_FIRMWARE_COUNT > 5
+#if PRODUCT_FIRMWARE_COUNT > 5
         OBJ_ROOTFS(5),
         OBJ_ROOTFS(6),
 #endif
@@ -454,7 +441,7 @@ mount_double(
 static int
 mount_config(void)
 {
-    return mount_double("config", DIR_CONFIG_MASTER,
+    return mount_double("config", PRODUCT_DIR_CONFIG,
                 dev_config(0), dir_config(0), 
                 dev_config(1), dir_config(1),
                 &sys.cmaster);
@@ -463,7 +450,7 @@ mount_config(void)
 static int
 mount_data(void)
 {
-    return mount_double("data", DIR_DATA_MASTER,
+    return mount_double("data", PRODUCT_DIR_DATA,
                 dev_data(0), dir_data(0), 
                 dev_data(1), dir_data(1),
                 &sys.dmaster);
@@ -472,7 +459,7 @@ mount_data(void)
 static int
 mount_other(void)
 {
-    return do_mount(DEV_OTHER, DIR_OTHER, 
+    return do_mount(PRODUCT_DEV_OTHER, PRODUCT_IDIR_OTHER, 
                 true,   /* check    */
                 false,  /* readonly */
                 true);  /* repair   */
@@ -484,7 +471,7 @@ mount_rootfs(void)
     int i, err, errs = 0;
     bool readonly = os_streq(PRODUCT_ROOTFS_MODE_RO, benv_info_get(__benv_info_pcba_rootrw));
 
-    for (i=0; i<OS_FIRMWARE_COUNT; i++) {
+    for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
         if (i!=sys.current) {
             err = do_mount(dev_rootfs(i), dir_rootfs(i), 
                     true,   /* check    */
@@ -502,7 +489,7 @@ mount_rootfs(void)
 static int
 mount_hd(void)
 {
-    return do_mount_wait(3, DEV_HD, DIR_HD, 
+    return do_mount_wait(3, PRODUCT_DEV_HD, PRODUCT_DIR_HD, 
             true,   /* check    */
             false,  /* readonly */
             false); /* repair   */
@@ -511,7 +498,7 @@ mount_hd(void)
 static int
 mount_sd(void)
 {
-    return do_mount_wait(2, DEV_SD, DIR_SD, 
+    return do_mount_wait(2, PRODUCT_DEV_SD, PRODUCT_DIR_SD, 
             true,   /* check    */
             false,  /* readonly */
             false); /* repair   */
@@ -520,7 +507,7 @@ mount_sd(void)
 static int
 mount_usb(void)
 {
-    return do_mount_wait(2, DEV_USB, DIR_USB, 
+    return do_mount_wait(2, PRODUCT_DEV_USB, PRODUCT_DIR_USB, 
             true,   /* check    */
             false,  /* readonly */
             false); /* repair   */
@@ -552,19 +539,19 @@ umount_double(char *dir_master, char *dir0, char *dir1)
 static int
 umount_config(void)
 {
-    return umount_double(DIR_CONFIG_MASTER, dir_config(0), dir_config(1));
+    return umount_double(PRODUCT_DIR_CONFIG, dir_config(0), dir_config(1));
 }
 
 static int
 umount_data(void)
 {
-    return umount_double(DIR_DATA_MASTER, dir_data(0), dir_data(1));
+    return umount_double(PRODUCT_DIR_DATA, dir_data(0), dir_data(1));
 }
 
 static int
 umount_other(void)
 {
-    return do_umount(DIR_OTHER);
+    return do_umount(PRODUCT_IDIR_OTHER);
 }
 
 static int
@@ -572,7 +559,7 @@ umount_rootfs(void)
 {
     int i, err, errs = 0;
 
-    for (i=0; i<OS_FIRMWARE_COUNT; i++) {
+    for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
         if (i!=sys.current) {
             err = do_umount(dir_rootfs(i));
             if (err<0) {
@@ -587,19 +574,19 @@ umount_rootfs(void)
 static int
 umount_hd(void)
 {
-    return do_umount(DIR_HD);
+    return do_umount(PRODUCT_DIR_HD);
 }
 
 static int
 umount_sd(void)
 {
-    return do_umount(DIR_SD);
+    return do_umount(PRODUCT_DIR_SD);
 }
 
 static int
 umount_usb(void)
 {
-    return do_umount(DIR_USB);
+    return do_umount(PRODUCT_DIR_USB);
 }
 
 static struct {
@@ -1166,7 +1153,7 @@ upgrade(int idx, int src)
 
     upgrade_init(idx, version);
 
-    if (OS_FIRMWARE_CLOUD==src) {
+    if (PRODUCT_FIRMWARE_CLOUD==src) {
         err = rsync(idx, version);
     } else {
         err = rcopy(idx, dir_rootfs(src), version);
@@ -1238,11 +1225,11 @@ usbupgrade(void)
     }
     
     if (0==access(USB_FILE_BOOT, 0)) {
-        bdd("boot", DEV_BOOT, USB_FILE_BOOT);
+        bdd("boot", PRODUCT_DEV_BOOT, USB_FILE_BOOT);
     }
 
     if (0==access(USB_FILE_BOOTENV, 0)) {
-        bdd("bootenv", DEV_BOOTENV, USB_FILE_BOOTENV);
+        bdd("bootenv", PRODUCT_DEV_BOOTENV, USB_FILE_BOOTENV);
     }
 
     if (sys.env.rootfs) {
@@ -1250,7 +1237,7 @@ usbupgrade(void)
         end     = begin + 1;
     } else {
         begin   = 0; 
-        end     = OS_FIRMWARE_COUNT;
+        end     = PRODUCT_FIRMWARE_COUNT;
     }
     
     if (0==access(USB_FILE_KERNEL, 0)) {
@@ -1481,20 +1468,20 @@ get_current(void)
     char line[1+OS_LINE_LEN] = {0};
     char *dev, *p;
     
-    err = os_pgets(line, OS_LINE_LEN, "cat " OS_PROC_CMDLINE);
+    err = os_pgets(line, OS_LINE_LEN, "cat " PRODUCT_PROC_CMDLINE);
     if (err<0) {
-        debug_error("read " OS_PROC_CMDLINE " error:%d", err);
+        debug_error("read " PRODUCT_PROC_CMDLINE " error:%d", err);
         
         goto error;
     }
 
-    dev = os_strstr(line, OS_PROC_CMDLINE_ROOT);
+    dev = os_strstr(line, PRODUCT_PROC_CMDLINE_ROOT);
     if (NULL==dev) {
-        debug_error("no found rootfs in " OS_PROC_CMDLINE);
+        debug_error("no found rootfs in " PRODUCT_PROC_CMDLINE);
         
         goto error;
     }
-    dev += sizeof(OS_PROC_CMDLINE_ROOT) - 1;
+    dev += sizeof(PRODUCT_PROC_CMDLINE_ROOT) - 1;
 
     p = os_strchr(dev, ' ');
     if (p) {
@@ -1508,12 +1495,12 @@ get_current(void)
     }
 
 error:
-    error_assert(0, "no found good rootfs in " OS_PROC_CMDLINE);
+    error_assert(0, "no found good rootfs in " PRODUCT_PROC_CMDLINE);
     
 #ifdef __PC__
     return __benv_current;
 #else
-    return OS_FIRMWARE_CURRENT;
+    return PRODUCT_FIRMWARE_CURRENT;
 #endif
 }
 
@@ -1641,7 +1628,7 @@ cmd_upgrade(int argc, char *argv[])
             /*
             * force upgrade all
             */
-            for (i=1; i<OS_FIRMWARE_COUNT; i++) {
+            for (i=1; i<PRODUCT_FIRMWARE_COUNT; i++) {
                 if (i!=sys.current) {
                     err = upgrade(i, i);
                     if (err<0) {
