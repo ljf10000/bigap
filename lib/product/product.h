@@ -41,6 +41,8 @@
 #define PRODUCT_UNIT_K          "K"
 #define PRODUCT_UNIT_M          "M"
 #define PRODUCT_UNIT_G          "G"
+
+#define PRODUCT_VENDOR          "superwalle"
 /******************************************************************************/
 #include "product/pc.h"
 #include "product/ap.h"
