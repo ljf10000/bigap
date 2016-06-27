@@ -306,6 +306,17 @@ __dlogger(
     const char *fmt, 
     ...
 );
+
+static inline int
+__clogger(
+    char *app, 
+    char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32 line,
+    uint32 PRI,
+    char *json
+);
 #else
 #define DECLARE_JLOG        os_fake_declare
 
@@ -320,6 +331,9 @@ __dlogger(
 
 #define __dlogger(_app, _sub, _file, _func, _line, _PRI, _fmt, _args...) \
         __jlog_printf(_app, _sub, _file, _func, _line, _PRI, _fmt, ##_args)
+
+#define __clogger(_app, _sub, _file, _func, _line, _PRI, _json) \
+        __jlog_printf(_app, _sub, _file, _func, _line, _PRI, "%s", _json)
 #endif
 
 #define jvlogger(_sub, _PRI, _fmt, _args)     \
@@ -333,6 +347,9 @@ __dlogger(
 
 #define dlogger(_sub, _PRI, _fmt, _args...)   \
     __dlogger(__THIS_APP_NAME, _sub, __THIS_FILE_NAME, __func__, __LINE__, _PRI, _fmt, ##_args)
+
+#define clogger(_sub, _PRI, _json)   \
+    __clogger(__THIS_APP_NAME, _sub, __THIS_FILE_NAME, __func__, __LINE__, _PRI, _json)
 
 #define __jvemerg(_sub, _fmt, _args)        jvlogger(_sub, LOG_EMERG, _fmt, _args)
 #define __jvalert(_sub, _fmt, _args)        jvlogger(_sub, LOG_ALERT, _fmt, _args)

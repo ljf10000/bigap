@@ -375,10 +375,8 @@ enum {
     /* end */
 #endif
 
-enum {
-    BENV_BLOCK_SIZE     = BENV_DEV_BLOCK_SIZE,
-    BENV_BLOCK_COUNT    = (BENV_SIZE/BENV_BLOCK_SIZE), /* 8 */
-};
+#define BENV_BLOCK_SIZE     BENV_DEV_BLOCK_SIZE
+#define BENV_BLOCK_COUNT    (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
 
 #ifndef BENV_TRYS
 #define BENV_TRYS                   3

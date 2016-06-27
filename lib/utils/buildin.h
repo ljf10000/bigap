@@ -175,6 +175,7 @@ static inline bool is_good_common_id(int id)
     OS_SAFE_VALUE(value_in_os_safe_value, min_in_os_safe_value, max_in_os_safe_value); \
 })  /* end */
 
+#define os_safe_pointer(_pointer, _safe_pointer)    (_pointer)?(_pointer):(_safe_pointer)
 /*
 * 忘了min/max在哪个头文件定义了，先放这里
 */

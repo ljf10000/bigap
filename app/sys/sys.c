@@ -194,9 +194,9 @@ rootfs_file(int idx, char *file)
 #define dir_obj(_obj, _idx)     dir_##_obj(_idx)
 
 #define set_obj(_obj, _idx, _field, _value) do{ \
-    benv_obj(_obj, _idx)->_field = _value;        \
+    benv_obj(_obj, _idx)->_field = _value;      \
                                                 \
-    sys.dirty = true;                         \
+    sys.dirty = true;                           \
 }while(0)
 
 #define efsm(_err)  ((_err)?BENV_FSM_FAIL:BENV_FSM_OK)
