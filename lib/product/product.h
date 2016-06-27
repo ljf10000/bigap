@@ -43,6 +43,28 @@
 #include "product/md2.h"
 #include "product/md3.h"
 /******************************************************************************/
+#ifndef PRODUCT_MEMORY_SIZE_MAX
+#define PRODUCT_MEMORY_SIZE_MAX     8 /* G */
+#endif
 
+#ifndef PRODUCT_MEMORY_SIZE
+#error "invalid PRODUCT_MEMORY_SIZE!"
+#elif PRODUCT_MEMORY_SIZE > PRODUCT_MEMORY_SIZE_MAX
+#define PRODUCT_MEMORY_SIZE_UNIT    "M"
+#else
+#define PRODUCT_MEMORY_SIZE_UNIT    "G"
+#endif
+
+#define PRODUCT_MEMORY_SIZE_STRING  __SYMBOL_TO_STRING(PRODUCT_MEMORY_SIZE) PRODUCT_MEMORY_SIZE_UNIT
+/******************************************************************************/
+#ifndef PRODUCT_MEMORY_FREQ
+#define PRODUCT_MEMORY_FREQ         300
+#endif
+
+#ifndef PRODUCT_MEMORY_FREQ_UNIT
+#define PRODUCT_MEMORY_FREQ_UNIT    "M"
+#endif
+
+#define PRODUCT_MEMORY_FREQ_STRING  __SYMBOL_TO_STRING(PRODUCT_MEMORY_FREQ) PRODUCT_MEMORY_FREQ_UNIT
 /******************************************************************************/
 #endif /* __PRODUCT_H_3aeec50c6570419493004695d20c38b5__ */

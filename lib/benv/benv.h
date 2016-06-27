@@ -345,24 +345,24 @@ enum {
 #define CONFIG_BOOTARGS_HEAD        \
     "root=" OS_DEV_FLASH(__IDX_ROOT)\
         __space                     \
+    "rootfstype=ext4"               \
+        __space                     \
+    "rootwait"                      \
+        __space                     \
+    BENV_ROOTFS_MODE                \
+        __space                     \
     /* end */
 
 #define CONFIG_BOOTARGS_BODY    \
-    "mem=2G"                    \
+    "mem=" PRODUCT_MEMORY_SIZE_STRING \
+        __space                 \
+    "mmz=ddr,0,0," PRODUCT_MEMORY_FREQ_STRING \
         __space                 \
     "console=ttyAMA0,115200"    \
-        __space                 \
-    "rootfstype=ext4"           \
-        __space                 \
-    "rootwait"                  \
-        __space                 \
-    BENV_ROOTFS_MODE            \
         __space                 \
     "blkdevparts="              \
         "mmcblk0:"              \
         CONFIG_BOOTARGS_MMCBLK0 \
-        __space                 \
-    "mmz=ddr,0,0,300M"          \
     /* end */
 
 #ifdef CONFIG_BOOTARGS
@@ -383,19 +383,19 @@ enum {
 #endif
 
 #ifndef BENV_VENDOR
-#define BENV_VENDOR                 "super-walle"
+#define BENV_VENDOR                 "superwalle"
 #endif
 
 #ifndef BENV_COMPANY
-#define BENV_COMPANY                "super-walle Technology Co.,Ltd."
+#define BENV_COMPANY                "superwalle Technology Co.,Ltd."
 #endif
 
 #ifndef BENV_PRODUCT_MODEL
-#define BENV_PRODUCT_MODEL          "super-walle-LV1"
+#define BENV_PRODUCT_MODEL          "superwalle-LV1"
 #endif
 
 #ifndef BENV_PCBA_MODEL
-#define BENV_PCBA_MODEL             "super-walle-pcba"
+#define BENV_PCBA_MODEL             "superwalle-pcba"
 #endif
 
 #ifndef BENV_INFO_SIZE
@@ -2172,6 +2172,8 @@ enum {
     __benv_info_oem_manager     = 18,
     __benv_info_oem_version     = 19,
 
+    __benv_info_pcba_rootrw     = 20,
+    
     ____benv_info_idx_max,
     __benv_info_idx_max             = ____benv_info_idx_max - 1,
     __benv_info_block_named_count   = (1 + __benv_info_idx_max/BENV_INFO_COUNT_PER_BLOCK),
@@ -2190,6 +2192,7 @@ benv_info_get(int idx)
     __BENV_INFO_OPS("pcba/mac",         __benv_info_pcba_mac),          \
     __BENV_INFO_OPS("pcba/sn",          __benv_info_pcba_sn),           \
     __BENV_INFO_OPS("pcba/version",     __benv_info_pcba_version),      \
+    __BENV_INFO_OPS("pcba/rootrw",      __benv_info_pcba_rootrw),       \
                                                                         \
     __BENV_INFO_OPS("product/vendor",   __benv_info_product_vendor),    \
     __BENV_INFO_OPS("product/company",  __benv_info_product_company),   \
@@ -2227,7 +2230,6 @@ benv_info_get(int idx)
     /* end */
 
 #define BENV_INFO_OPS_IDX       \
-    __BENV_INFO_OPS_IDX(20),    \
     __BENV_INFO_OPS_IDX(21),    \
     __BENV_INFO_OPS_IDX(22),    \
     __BENV_INFO_OPS_IDX(23),    \

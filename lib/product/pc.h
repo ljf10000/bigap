@@ -7,6 +7,10 @@
 #ifndef PRODUCT_FLASH_SIZE
 #define PRODUCT_FLASH_SIZE      2 /* 2G */
 #endif
+
+#ifndef PRODUCT_MEMORY_SIZE
+#define PRODUCT_MEMORY_SIZE     2 /* 2G */
+#endif
 /******************************************************************************/
 #endif
 #endif /* __PC_H_37e332f8b6b0423d87dadd8a98dec31e__ */

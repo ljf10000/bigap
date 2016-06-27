@@ -254,10 +254,15 @@ change_bootargs(void)
 #endif
     };
 
+    char *rootrw = benv_info_get(__benv_info_pcba_rootrw);
+    if (false==os_streq(rootrw, "rw") && false==os_streq(rootrw, "ro")) {
+        rootrw = BENV_ROOTFS_MODE;
+    }
+
     __change_bootenv(
             "bootargs", 
             "rootwait ", 
-            BENV_ROOTFS_MODE);
+            rootrw);
 
     return __change_bootenv(
                 "bootargs", 

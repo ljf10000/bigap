@@ -7,6 +7,10 @@
 #ifndef PRODUCT_FLASH_SIZE
 #define PRODUCT_FLASH_SIZE      4 /* 4G */
 #endif
+
+#ifndef PRODUCT_MEMORY_SIZE
+#define PRODUCT_MEMORY_SIZE     2 /* 2G */
+#endif
 /******************************************************************************/
 #endif
 #endif /* __MD2_H_68c306e9e7ce4cc2b95c6fc7fd632357__ */
