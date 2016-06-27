@@ -364,7 +364,7 @@ __remount(char *dir, bool readonly)
 {
     int err = 0;
 
-#if BENV_ROOTFS_MODE_TYPE==BENV_ROOTFS_MODE_TYPE_RO
+#if PRODUCT_ROOTFS_MODE_TYPE==PRODUCT_ROOTFS_MODE_TYPE_RO
     err = os_p_system("mount -o remount,%s %s",
                 readonly?"ro":"rw" ROOTFS_MOUNT_MODE,
                 dir);
@@ -482,12 +482,8 @@ static int
 mount_rootfs(void)
 {
     int i, err, errs = 0;
-    bool readonly = true;
+    bool readonly = os_streq(PRODUCT_ROOTFS_MODE_RO, benv_info_get(__benv_info_pcba_rootrw));
 
-    if (os_streq("rw", BENV_ROOTFS_MODE)) {
-        readonly = false;
-    }
-    
     for (i=0; i<OS_FIRMWARE_COUNT; i++) {
         if (i!=sys.current) {
             err = do_mount(dev_rootfs(i), dir_rootfs(i), 

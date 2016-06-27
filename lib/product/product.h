@@ -34,6 +34,9 @@
 
 #define IS_PRODUCT_LTEFI_A      (IS_PRODUCT_LTEFI_V1)
 #define IS_PRODUCT_LTEFI_B      (IS_PRODUCT_LTEFI_V2 || IS_PRODUCT_LTEFI_V3)
+
+#define PRODUCT_ROOTFS_MODE_RW  "rw"
+#define PRODUCT_ROOTFS_MODE_RO  "ro"
 /******************************************************************************/
 #include "product/pc.h"
 #include "product/ap1.h"
@@ -66,5 +69,9 @@
 #endif
 
 #define PRODUCT_MEMORY_FREQ_STRING  __SYMBOL_TO_STRING(PRODUCT_MEMORY_FREQ) PRODUCT_MEMORY_FREQ_UNIT
+/******************************************************************************/
+#ifndef PRODUCT_ROOTFS_MODE
+#error "invalid PRODUCT_ROOTFS_MODE!"
+#endif
 /******************************************************************************/
 #endif /* __PRODUCT_H_3aeec50c6570419493004695d20c38b5__ */

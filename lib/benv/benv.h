@@ -35,23 +35,6 @@ enum {
 #   define OS_DIR_ROOT              "/"
 #endif
 
-#define BENV_ROOTFS_MODE_TYPE_RW    1
-#define BENV_ROOTFS_MODE_TYPE_RO    2
-
-#ifndef BENV_ROOTFS_MODE_TYPE
-#define BENV_ROOTFS_MODE_TYPE       BENV_ROOTFS_MODE_TYPE_RW
-#endif
-
-#ifndef BENV_ROOTFS_MODE
-#if BENV_ROOTFS_MODE_TYPE==BENV_ROOTFS_MODE_TYPE_RW
-#    define BENV_ROOTFS_MODE        "rw"
-#elif BENV_ROOTFS_MODE_TYPE==BENV_ROOTFS_MODE_TYPE_RO
-#    define BENV_ROOTFS_MODE        "ro"
-#else
-#    error "bad BENV_ROOTFS_MODE_TYPE"
-#endif
-#endif
-
 #if IS_PRODUCT_LTEFI_MD1
 #   define OS_FIRMWARE_COUNT    3
 #   define OS_FIRMWARE_CURRENT  1
@@ -342,15 +325,15 @@ enum {
 #define DEV_DATA(_idx)          DEV_OBJ(DATA, _idx)
 #define DEV_OTHER               __DEV_OTHER
 
-#define CONFIG_BOOTARGS_HEAD        \
-    "root=" OS_DEV_FLASH(__IDX_ROOT)\
-        __space                     \
-    "rootfstype=ext4"               \
-        __space                     \
-    "rootwait"                      \
-        __space                     \
-    BENV_ROOTFS_MODE                \
-        __space                     \
+#define CONFIG_BOOTARGS_HEAD    \
+    "root=" OS_DEV_FLASH(__IDX_ROOT) \
+        __space                 \
+    "rootfstype=ext4"           \
+        __space                 \
+    "rootwait"                  \
+        __space                 \
+    PRODUCT_ROOTFS_MODE         \
+        __space                 \
     /* end */
 
 #define CONFIG_BOOTARGS_BODY    \
