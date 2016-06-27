@@ -16,6 +16,10 @@
 #ifndef PRODUCT_FIRMWARE_CURRENT
 #define PRODUCT_FIRMWARE_CURRENT        0
 #endif
+
+#ifndef PRODUCT_DEV_USB_MASTER
+#define PRODUCT_DEV_USB_MASTER          "dev/udisk1110"
+#endif
 /******************************************************************************/
 #endif
 #endif /* __AP_H_8c9f0b2a88fc4a58b2c85e5e7a4a730c__ */

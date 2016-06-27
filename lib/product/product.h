@@ -37,6 +37,10 @@
 
 #define PRODUCT_ROOTFS_MODE_RW  "rw"
 #define PRODUCT_ROOTFS_MODE_RO  "ro"
+
+#define PRODUCT_UNIT_K          "K"
+#define PRODUCT_UNIT_M          "M"
+#define PRODUCT_UNIT_G          "G"
 /******************************************************************************/
 #include "product/pc.h"
 #include "product/ap.h"
@@ -58,9 +62,19 @@
 #error "must define PRODUCT_FIRMWARE_COUNT!"
 #endif
 
+#ifndef PRODUCT_DIR_ROOT
+#error "must define PRODUCT_DIR_ROOT!"
+#endif
+
+#ifndef PRODUCT_DEV_PREFIX
+#error "must define PRODUCT_DEV_PREFIX!"
+#endif
+
+
 #ifndef PRODUCT_DEV_USB_MASTER
 #error "must define PRODUCT_DEV_USB_MASTER!"
 #endif
+
 
 #if 1!=PRODUCT_FLASH_SIZE && \
     2!=PRODUCT_FLASH_SIZE && \
@@ -166,9 +180,9 @@
 #endif
 
 #if PRODUCT_MEMORY_SIZE > PRODUCT_MEMORY_SIZE_MAX
-#   define PRODUCT_MEMORY_SIZE_UNIT     "M"
+#   define PRODUCT_MEMORY_SIZE_UNIT     PRODUCT_UNIT_M
 #else
-#   define PRODUCT_MEMORY_SIZE_UNIT     "G"
+#   define PRODUCT_MEMORY_SIZE_UNIT     PRODUCT_UNIT_G
 #endif
 #define PRODUCT_MEMORY_SIZE_STRING      __SYMBOL_TO_STRING(PRODUCT_MEMORY_SIZE) PRODUCT_MEMORY_SIZE_UNIT
 
@@ -177,7 +191,7 @@
 #endif
 
 #ifndef PRODUCT_MEMORY_FREQ_UNIT
-#define PRODUCT_MEMORY_FREQ_UNIT        "M"
+#define PRODUCT_MEMORY_FREQ_UNIT        PRODUCT_UNIT_M
 #endif
 #define PRODUCT_MEMORY_FREQ_STRING      __SYMBOL_TO_STRING(PRODUCT_MEMORY_FREQ) PRODUCT_MEMORY_FREQ_UNIT
 
@@ -376,27 +390,39 @@
 #define PRODUCT_IDEV_DATA(_idx)         PRODUCT_IDEV_OBJ(DATA, _idx)
 
 #ifndef PRODUCT_DEV_ROOT
-#define PRODUCT_DEV_ROOT        PRODUCT_IDEV_FLASH(PRODUCT_DEV_ROOT_IDX)
+#define PRODUCT_DEV_ROOT                PRODUCT_IDEV_FLASH(PRODUCT_DEV_ROOT_IDX)
+#endif
+
+#ifndef PRODUCT_BOOTARGS_ROOTFSTYPE
+#define PRODUCT_BOOTARGS_ROOTFSTYPE     "ext4"
+#endif
+
+#ifndef PRODUCT_BOOTARGS_CONSOLE
+#define PRODUCT_BOOTARGS_CONSOLE        "ttyAMA0"
+#endif
+
+#ifndef PRODUCT_BOOTARGS_CONSOLE_BAUD
+#define PRODUCT_BOOTARGS_CONSOLE_BAUD   115200
 #endif
 
 #define PRODUCT_BOOTARGS_HEAD   \
     "root=" PRODUCT_DEV_ROOT    \
-        __space                 \
-    "rootfstype=ext4"           \
-        __space                 \
+        " "                     \
+    "rootfstype=" PRODUCT_BOOTARGS_ROOTFSTYPE \
+        " "                     \
     "rootwait"                  \
-        __space                 \
+        " "                     \
     PRODUCT_ROOTFS_MODE         \
-        __space                 \
+        " "                     \
     /* end */
 
 #define PRODUCT_BOOTARGS_BODY   \
     "mem=" PRODUCT_MEMORY_SIZE_STRING \
-        __space                 \
+        " "                     \
     "mmz=ddr,0,0," PRODUCT_MEMORY_FREQ_STRING \
-        __space                 \
-    "console=ttyAMA0,115200"    \
-        __space                 \
+        " "                     \
+    "console=" PRODUCT_BOOTARGS_CONSOLE "," __SYMBOL_TO_STRING(PRODUCT_BOOTARGS_CONSOLE_BAUD) \
+        " "                     \
     "blkdevparts="              \
         PRODUCT_BOOTARGS_BLOCK0_NAME ":" PRODUCT_BOOTARGS_BLOCK0 \
     /* end */
