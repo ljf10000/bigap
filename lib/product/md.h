@@ -5,6 +5,10 @@
 #include "product/md/md3.h"
 #if IS_PRODUCT_LTEFI_MD
 /******************************************************************************/
+#ifndef PRODUCT_DIR_ROOT
+#define PRODUCT_DIR_ROOT                "/"
+#endif
+
 #ifndef PRODUCT_FIRMWARE_COUNT
 #if 1==PRODUCT_FLASH_SIZE   /* 1G */
 #   define PRODUCT_FIRMWARE_COUNT       3
@@ -19,6 +23,26 @@
 
 #ifndef PRODUCT_BOOTARGS_BLOCK0_NAME
 #define PRODUCT_BOOTARGS_BLOCK0_NAME    "mmcblk0"
+#endif
+
+#ifndef PRODUCT_FIRMWARE_CURRENT
+#define PRODUCT_FIRMWARE_CURRENT        1
+#endif
+
+#ifndef PRODUCT_DEV_PREFIX
+#define PRODUCT_DEV_PREFIX              "p"
+#endif
+
+#ifndef PRODUCT_DEV_FLASH_MASTER
+#define PRODUCT_DEV_FLASH_MASTER        "dev/mmcblk0"
+#endif
+
+#ifndef PRODUCT_DEV_SD_MASTER
+#define PRODUCT_DEV_SD_MASTER           "dev/mmcblk1"
+#endif
+
+#ifndef PRODUCT_DEV_HD_MASTER
+#define PRODUCT_DEV_HD_MASTER           "dev/udisk"
 #endif
 /******************************************************************************/
 #endif

@@ -5,6 +5,10 @@
 #include "product/ap/ap3.h"
 #if IS_PRODUCT_LTEFI_AP
 /******************************************************************************/
+#ifndef PRODUCT_DIR_ROOT
+#define PRODUCT_DIR_ROOT                "/"
+#endif
+
 #ifndef PRODUCT_FIRMWARE_COUNT
 #define PRODUCT_FIRMWARE_COUNT          1
 #endif

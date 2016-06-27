@@ -76,32 +76,8 @@
 #error "invalid PRODUCT_FIRMWARE_COUNT!"
 #endif
 /******************************************************************************/
-#ifndef PRODUCT_DIR_ROOT
-#define PRODUCT_DIR_ROOT                "/"
-#endif
-
 #ifndef PRODUCT_FIRMWARE_CLOUD
 #define PRODUCT_FIRMWARE_CLOUD          PRODUCT_FIRMWARE_COUNT
-#endif
-
-#ifndef PRODUCT_FIRMWARE_CURRENT
-#define PRODUCT_FIRMWARE_CURRENT        1
-#endif
-
-#ifndef PRODUCT_DEV_PREFIX
-#define PRODUCT_DEV_PREFIX              "p"
-#endif
-
-#ifndef PRODUCT_DEV_FLASH_MASTER
-#define PRODUCT_DEV_FLASH_MASTER        "dev/mmcblk0"
-#endif
-
-#ifndef PRODUCT_DEV_SD_MASTER
-#define PRODUCT_DEV_SD_MASTER           "dev/mmcblk1"
-#endif
-
-#ifndef PRODUCT_DEV_HD_MASTER
-#define PRODUCT_DEV_HD_MASTER           "dev/udisk"
 #endif
 
 #define PRODUCT_FILE(_file)             PRODUCT_DIR_ROOT _file
