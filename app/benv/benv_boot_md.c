@@ -255,8 +255,8 @@ change_bootargs(void)
     };
 
     char *rootrw = benv_info_get(__benv_info_pcba_rootrw);
-    if (false==os_streq(rootrw, PRODUCT_ROOTFS_MODE_RW) && 
-        false==os_streq(rootrw, PRODUCT_ROOTFS_MODE_RO)) {
+    if (false==os_streq(rootrw, PRODUCT_ROOTFS_RW) && 
+        false==os_streq(rootrw, PRODUCT_ROOTFS_RO)) {
         rootrw = PRODUCT_ROOTFS_MODE;
     }
 

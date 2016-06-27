@@ -459,7 +459,7 @@ mount_data(void)
 static int
 mount_other(void)
 {
-    return do_mount(PRODUCT_DEV_OTHER, PRODUCT_IDIR_OTHER, 
+    return do_mount(PRODUCT_DEV_OTHER, PRODUCT_DIR_OTHER, 
                 true,   /* check    */
                 false,  /* readonly */
                 true);  /* repair   */
@@ -469,7 +469,7 @@ static int
 mount_rootfs(void)
 {
     int i, err, errs = 0;
-    bool readonly = os_streq(PRODUCT_ROOTFS_MODE_RO, benv_info_get(__benv_info_pcba_rootrw));
+    bool readonly = os_streq(PRODUCT_ROOTFS_RO, benv_info_get(__benv_info_pcba_rootrw));
 
     for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
         if (i!=sys.current) {
@@ -551,7 +551,7 @@ umount_data(void)
 static int
 umount_other(void)
 {
-    return do_umount(PRODUCT_IDIR_OTHER);
+    return do_umount(PRODUCT_DIR_OTHER);
 }
 
 static int

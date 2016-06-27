@@ -35,8 +35,8 @@
 #define IS_PRODUCT_LTEFI_A      (IS_PRODUCT_LTEFI_V1)
 #define IS_PRODUCT_LTEFI_B      (IS_PRODUCT_LTEFI_V2 || IS_PRODUCT_LTEFI_V3)
 
-#define PRODUCT_ROOTFS_MODE_RW  "rw"
-#define PRODUCT_ROOTFS_MODE_RO  "ro"
+#define PRODUCT_ROOTFS_RW       "rw"
+#define PRODUCT_ROOTFS_RO       "ro"
 
 #define PRODUCT_UNIT_K          "K"
 #define PRODUCT_UNIT_M          "M"
@@ -76,7 +76,6 @@
 #ifndef PRODUCT_DEV_USB_MASTER
 #error "must define PRODUCT_DEV_USB_MASTER!"
 #endif
-
 
 #if 1!=PRODUCT_FLASH_SIZE && \
     2!=PRODUCT_FLASH_SIZE && \
@@ -147,7 +146,6 @@
 #define PRODUCT_IDIR_ROOTFS(_idx)       PRODUCT_IDIR(PRODUCT_DIR_ROOTFS, _idx)
 #define PRODUCT_IDIR_CONFIG(_idx)       PRODUCT_IDIR(PRODUCT_DIR_CONFIG, _idx)
 #define PRODUCT_IDIR_DATA(_idx)         PRODUCT_IDIR(PRODUCT_DIR_DATA,   _idx)
-#define PRODUCT_IDIR_OTHER              PRODUCT_DIR_OTHER
 
 #ifndef PRODUCT_DEV_BOOT
 #define PRODUCT_DEV_BOOT                PRODUCT_IDEV_FLASH(1) /* boot */
