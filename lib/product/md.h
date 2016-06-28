@@ -2,10 +2,6 @@
 #define __MD_H_1cd88dc0a9124864acf00c06ad1ac3de__
 #if IS_PRODUCT_LTEFI_MD
 /******************************************************************************/
-#ifndef PRODUCT_DIR_ROOT
-#define PRODUCT_DIR_ROOT                "/"
-#endif
-
 #ifndef PRODUCT_BLOCK_SIZE
 #define PRODUCT_BLOCK_SIZE              512
 #endif
@@ -32,6 +28,10 @@
 
 #ifndef PRODUCT_FIRMWARE_CURRENT
 #define PRODUCT_FIRMWARE_CURRENT        1
+#endif
+
+#ifndef PRODUCT_DIR_ROOT
+#define PRODUCT_DIR_ROOT                "/"
 #endif
 
 #ifndef PRODUCT_DEV_PREFIX

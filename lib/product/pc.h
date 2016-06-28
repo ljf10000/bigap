@@ -6,6 +6,14 @@
 #define PRODUCT_DOG_COUNT               2
 #endif
 
+#ifndef PRODUCT_BLOCK_SIZE
+#define PRODUCT_BLOCK_SIZE              512
+#endif
+
+#ifndef PRODUCT_BOOT_SIZE
+#define PRODUCT_BOOT_SIZE               (512*1024)
+#endif
+
 #ifndef PRODUCT_FLASH_SIZE
 #define PRODUCT_FLASH_SIZE              2 /* 2G */
 #endif

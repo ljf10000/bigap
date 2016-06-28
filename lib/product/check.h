@@ -1,20 +1,28 @@
 #ifndef __CHECK_H_5b9ab40ec4e840a9b5403ab1c8e22def__
 #define __CHECK_H_5b9ab40ec4e840a9b5403ab1c8e22def__
 /******************************************************************************/
-#ifndef PRODUCT_ROOTFS_MODE
-#error "must define PRODUCT_ROOTFS_MODE!"
+#ifndef PRODUCT_BLOCK_SIZE
+#error "must define PRODUCT_BLOCK_SIZE!"
 #endif
 
-#ifndef PRODUCT_MEMORY_SIZE
-#error "must define PRODUCT_MEMORY_SIZE!"
+#ifndef PRODUCT_BOOT_SIZE
+#error "must define PRODUCT_BOOT_SIZE!"
 #endif
 
 #ifndef PRODUCT_FLASH_SIZE
 #error "must define PRODUCT_FLASH_SIZE!"
 #endif
 
+#ifndef PRODUCT_MEMORY_SIZE
+#error "must define PRODUCT_MEMORY_SIZE!"
+#endif
+
 #ifndef PRODUCT_FIRMWARE_COUNT
 #error "must define PRODUCT_FIRMWARE_COUNT!"
+#endif
+
+#ifndef PRODUCT_FIRMWARE_CURRENT
+#error "must define PRODUCT_FIRMWARE_CURRENT!"
 #endif
 
 #ifndef PRODUCT_DIR_ROOT
@@ -39,6 +47,10 @@
 
 #ifndef PRODUCT_DEV_USB_MASTER
 #error "must define PRODUCT_DEV_USB_MASTER!"
+#endif
+
+#ifndef PRODUCT_ROOTFS_MODE
+#error "must define PRODUCT_ROOTFS_MODE!"
 #endif
 
 #if 1!=PRODUCT_FLASH_SIZE && \

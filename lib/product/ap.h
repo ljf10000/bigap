@@ -2,10 +2,6 @@
 #define __AP_H_b76f05a2ba014f61aed631e24b41d156__
 #if IS_PRODUCT_LTEFI_AP
 /******************************************************************************/
-#ifndef PRODUCT_DIR_ROOT
-#define PRODUCT_DIR_ROOT                "/"
-#endif
-
 #ifndef PRODUCT_BLOCK_SIZE
 #define PRODUCT_BLOCK_SIZE              512
 #endif
@@ -14,12 +10,24 @@
 #define PRODUCT_BOOT_SIZE               (512*1024)
 #endif
 
+#ifndef PRODUCT_FLASH_SIZE
+#define PRODUCT_FLASH_SIZE              2 /* 2G */
+#endif
+
+#ifndef PRODUCT_MEMORY_SIZE
+#define PRODUCT_MEMORY_SIZE             2 /* 2G */
+#endif
+
 #ifndef PRODUCT_FIRMWARE_COUNT
 #define PRODUCT_FIRMWARE_COUNT          1
 #endif
 
 #ifndef PRODUCT_FIRMWARE_CURRENT
 #define PRODUCT_FIRMWARE_CURRENT        0
+#endif
+
+#ifndef PRODUCT_DIR_ROOT
+#define PRODUCT_DIR_ROOT                "/"
 #endif
 
 #ifndef PRODUCT_DEV_PREFIX
