@@ -1,5 +1,5 @@
-#ifndef __MUST_H_3aeec50c6570419493004695d20c38b5__
-#define __MUST_H_3aeec50c6570419493004695d20c38b5__
+#ifndef __CHECK_H_5b9ab40ec4e840a9b5403ab1c8e22def__
+#define __CHECK_H_5b9ab40ec4e840a9b5403ab1c8e22def__
 /******************************************************************************/
 #ifndef PRODUCT_ROOTFS_MODE
 #error "must define PRODUCT_ROOTFS_MODE!"
@@ -55,4 +55,4 @@
 #error "invalid PRODUCT_FIRMWARE_COUNT!"
 #endif
 /******************************************************************************/
-#endif /* __PRODUCT_H_3aeec50c6570419493004695d20c38b5__ */
+#endif /* __CHECK_H_5b9ab40ec4e840a9b5403ab1c8e22def__ */

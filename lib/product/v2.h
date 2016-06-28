@@ -1,5 +1,5 @@
-#ifndef __V2_H_71ebedc0794f4ed2b314a5c97c2be077__
-#define __V2_H_71ebedc0794f4ed2b314a5c97c2be077__
+#ifndef __V2_H_54c6df0a11ed4862a119911bfb286dd2__
+#define __V2_H_54c6df0a11ed4862a119911bfb286dd2__
 #if IS_PRODUCT_LTEFI_V2
 /******************************************************************************/
 #ifndef PRODUCT_MODEL
@@ -7,4 +7,4 @@
 #endif
 /******************************************************************************/
 #endif
-#endif /* __V2_H_71ebedc0794f4ed2b314a5c97c2be077__ */
+#endif /* __V2_H_54c6df0a11ed4862a119911bfb286dd2__ */

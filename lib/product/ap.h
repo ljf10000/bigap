@@ -1,5 +1,5 @@
-#ifndef __AP_H_71ebedc0794f4ed2b314a5c97c2be077__
-#define __AP_H_8c9f0b2a88fc4a58b2c85e5e7a4a730c__
+#ifndef __AP_H_b76f05a2ba014f61aed631e24b41d156__
+#define __AP_H_b76f05a2ba014f61aed631e24b41d156__
 #if IS_PRODUCT_LTEFI_AP
 /******************************************************************************/
 #ifndef PRODUCT_DIR_ROOT
@@ -43,4 +43,4 @@
 #endif
 /******************************************************************************/
 #endif
-#endif /* __AP_H_8c9f0b2a88fc4a58b2c85e5e7a4a730c__ */
+#endif /* __AP_H_b76f05a2ba014f61aed631e24b41d156__ */
