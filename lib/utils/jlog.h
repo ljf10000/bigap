@@ -18,7 +18,7 @@
 #endif
 
 #ifndef JLOG_CUTCOUNT
-#ifdef __PC__
+#if IS_PRODUCT_PC
 #   define JLOG_CUTCOUNT        10
 #else
 #   define JLOG_CUTCOUNT        1000
@@ -26,7 +26,7 @@
 #endif
 
 #ifndef JLOG_PATH
-#ifdef __PC__
+#if IS_PRODUCT_PC
 #   define JLOG_PATH            "/tmp/jlog"
 #else
 #   define JLOG_PATH            "/tmp/log"
@@ -50,7 +50,7 @@
 #endif
 
 #ifndef JLOG_IP
-#ifdef __PC__
+#if IS_PRODUCT_PC
 #   define JLOG_IP              "0.0.0.0"
 #else
 #   define JLOG_IP              "1.0.0.6"

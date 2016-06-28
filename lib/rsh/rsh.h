@@ -45,12 +45,12 @@
 #define RSH_PORT                    8740
 #endif
 
-#ifdef __PC__
-#define RSH_CFG_PREFIX              ""
-#define RSH_BIN_PREFIX              ""
+#if IS_PRODUCT_PC
+#   define RSH_CFG_PREFIX           __empty
+#   define RSH_BIN_PREFIX           __empty
 #else
-#define RSH_CFG_PREFIX              "/tmp/config/"
-#define RSH_BIN_PREFIX              "/usr/sbin/"
+#   define RSH_CFG_PREFIX           "/tmp/config/"
+#   define RSH_BIN_PREFIX           "/usr/sbin/"
 #endif
 
 #ifndef RSH_CONFIG_FILE

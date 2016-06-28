@@ -9,12 +9,12 @@
 #define PRODUCT_LTEFI_MD3       5   // lte-fi v3 md board
 #define PRODUCT_LTEFI_AP3       6   // lte-fi v3 ap board
 
-#ifndef __PRODUCT__
-#ifdef  __PC__
-#   define __PRODUCT__          PRODUCT_PC
-#else
-#   define __PRODUCT__          PRODUCT_LTEFI_MD3
+#ifdef __PC__
+#define __PRODUCT__             PRODUCT_PC
 #endif
+
+#ifndef __PRODUCT__
+#error "must define __PRODUCT__=???"
 #endif
 
 #define IS_PRODUCT_PC           (__PRODUCT__==PRODUCT_PC)
@@ -43,71 +43,26 @@
 #define PRODUCT_UNIT_G          "G"
 
 #ifndef PRODUCT_VENDOR
-#define PRODUCT_VENDOR          "superwalle"
+#define PRODUCT_VENDOR          "SuperWalle"
 #endif
 
 #ifndef PRODUCT_COMPANY
 #define PRODUCT_COMPANY         PRODUCT_VENDOR " Technology Co.,Ltd." /* fixme */
 #endif
-
 /******************************************************************************/
-#include "product/pc.h"
+#include "product/ap/ap1.h"
+#include "product/ap/ap2.h"
+#include "product/ap/ap3.h"
+#include "product/md/md1.h"
+#include "product/md/md2.h"
+#include "product/md/md3.h"
+#include "product/v1.h"
+#include "product/v2.h"
+#include "product/v3.h"
 #include "product/ap.h"
 #include "product/md.h"
-/******************************************************************************/
-#ifndef PRODUCT_ROOTFS_MODE
-#error "must define PRODUCT_ROOTFS_MODE!"
-#endif
-
-#ifndef PRODUCT_MEMORY_SIZE
-#error "must define PRODUCT_MEMORY_SIZE!"
-#endif
-
-#ifndef PRODUCT_FLASH_SIZE
-#error "must define PRODUCT_FLASH_SIZE!"
-#endif
-
-#ifndef PRODUCT_FIRMWARE_COUNT
-#error "must define PRODUCT_FIRMWARE_COUNT!"
-#endif
-
-#ifndef PRODUCT_DIR_ROOT
-#error "must define PRODUCT_DIR_ROOT!"
-#endif
-
-#ifndef PRODUCT_DEV_PREFIX
-#error "must define PRODUCT_DEV_PREFIX!"
-#endif
-
-#ifndef PRODUCT_DEV_FLASH_MASTER
-#error "must define PRODUCT_DEV_FLASH_MASTER!"
-#endif
-
-#ifndef PRODUCT_DEV_SD_MASTER
-#error "must define PRODUCT_DEV_SD_MASTER!"
-#endif
-
-#ifndef PRODUCT_DEV_HD_MASTER
-#error "must define PRODUCT_DEV_HD_MASTER!"
-#endif
-
-#ifndef PRODUCT_DEV_USB_MASTER
-#error "must define PRODUCT_DEV_USB_MASTER!"
-#endif
-
-#if 1!=PRODUCT_FLASH_SIZE && \
-    2!=PRODUCT_FLASH_SIZE && \
-    4!=PRODUCT_FLASH_SIZE && \
-    8!=PRODUCT_FLASH_SIZE
-#error "invalid PRODUCT_FLASH_SIZE!"
-#endif
-
-#if 1!=PRODUCT_FIRMWARE_COUNT && \
-    3!=PRODUCT_FIRMWARE_COUNT && \
-    5!=PRODUCT_FIRMWARE_COUNT && \
-    7!=PRODUCT_FIRMWARE_COUNT
-#error "invalid PRODUCT_FIRMWARE_COUNT!"
-#endif
+#include "product/pc.h"
+#include "product/check.h"
 /******************************************************************************/
 #define PRODUCT_FILE(_file)             PRODUCT_DIR_ROOT _file
 #define PRODUCT_DIR(_dir)               PRODUCT_DIR_ROOT _dir

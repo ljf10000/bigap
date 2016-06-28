@@ -2,10 +2,6 @@
 #define __MD1_H_a2a2800b607e4f778a7661bbb363b5fb__
 #if IS_PRODUCT_LTEFI_MD1
 /******************************************************************************/
-#ifndef PRODUCT_MODEL
-#define PRODUCT_MODEL               PRODUCT_VENDOR "-LV1" /* fixme */
-#endif
-
 #ifndef PRODUCT_PCBA_MODEL
 #define PRODUCT_PCBA_MODEL          PRODUCT_VENDOR "-pcba" /* fixme */
 #endif

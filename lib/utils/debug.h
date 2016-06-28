@@ -61,7 +61,7 @@
 }while(0)
 
 #ifndef BACKTRACE_PATH
-#ifdef __PC__
+#if IS_PRODUCT_PC
 #   define BACKTRACE_PATH       "."
 #else
 #   define BACKTRACE_PATH       "/tmp/.backtrace"

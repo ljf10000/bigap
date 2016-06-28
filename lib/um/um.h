@@ -36,7 +36,7 @@
 #endif
 
 #ifndef UMD_GC
-#ifdef __PC__
+#if IS_PRODUCT_PC
 #   define UMD_GC               60  /* second */
 #else
 #   define UMD_GC               600 /* second */

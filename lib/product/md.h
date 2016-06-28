@@ -1,8 +1,5 @@
 #ifndef __MD_H_1cd88dc0a9124864acf00c06ad1ac3de__
 #define __MD_H_1cd88dc0a9124864acf00c06ad1ac3de__
-#include "product/md/md1.h"
-#include "product/md/md2.h"
-#include "product/md/md3.h"
 #if IS_PRODUCT_LTEFI_MD
 /******************************************************************************/
 #ifndef PRODUCT_DIR_ROOT
