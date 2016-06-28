@@ -11,16 +11,15 @@
 #endif
 
 #ifndef PRODUCT_FIRMWARE_COUNT
-#if 1==PRODUCT_FLASH_SIZE   /* 1G */
+#if 1==PRODUCT_FLASH_SIZE       /* 1G */
 #   define PRODUCT_FIRMWARE_COUNT       3
-#elif 2==PRODUCT_FLASH_SIZE /* 2G */
+#elif 2==PRODUCT_FLASH_SIZE     /* 2G */
 #   define PRODUCT_FIRMWARE_COUNT       5
-#elif 4==PRODUCT_FLASH_SIZE || /* 4G */ \
-      8==PRODUCT_FLASH_SIZE /* 8G */
+#elif 4==PRODUCT_FLASH_SIZE ||  /* 4G */ \
+      8==PRODUCT_FLASH_SIZE     /* 8G */
 #   define PRODUCT_FIRMWARE_COUNT       7
 #endif /* PRODUCT_FLASH_SIZE */
 #endif /* PRODUCT_FIRMWARE_COUNT */
-
 
 #ifndef PRODUCT_BOOTARGS_BLOCK0_NAME
 #define PRODUCT_BOOTARGS_BLOCK0_NAME    "mmcblk0"
