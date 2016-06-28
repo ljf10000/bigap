@@ -54,8 +54,8 @@ BENV_INITER;
 #define ENV_TIMEOUT                 "__ENV_TIMEOUT__"
 #define ENV_PWDFILE                 "__ENV_PWDFILE__"
 #define ENV_VERSION                 "__ENV_VERSION__"
-#define ENV_UPGRADE                 "__ENV_UPGRADE__"
-#define ENV_ROOTFS                  "__ENV_ROOTFS__"
+#define ENV_UPGRADE                 "__ENV_UPGRADE__"   /* upgrade count */
+#define ENV_ROOTFS                  "__ENV_ROOTFS__"    /* upgrade rootfs idx */
 #define ENV_SERVER                  "__ENV_SERVER__"
 #define ENV_FORCE                   "__ENV_FORCE__"
 #define ENV_PORT                    "__ENV_PORT__"
@@ -1153,7 +1153,7 @@ upgrade(int idx, int src)
 
     upgrade_init(idx, version);
 
-    if (PRODUCT_FIRMWARE_CLOUD==src) {
+    if (idx==src) {
         err = rsync(idx, version);
     } else {
         err = rcopy(idx, dir_rootfs(src), version);
@@ -1619,7 +1619,7 @@ cmd_upgrade(int argc, char *argv[])
         
     if (sys.env.rootfs) {
         /*
-        * force upgrade rootfs idx
+        * select upgrade rootfs idx
         */
         idx = os_atoi(sys.env.rootfs);
         debug_trace("upgrade rootfs%d by env select", idx);
@@ -1642,7 +1642,7 @@ cmd_upgrade(int argc, char *argv[])
     }
     else {
         /*
-        * NOT force rootfs idx, auto select
+        * NOT select rootfs idx, auto select
         */
         int skips = __skips(0);
         for (i=0; i<sys.upgrade; i++) {

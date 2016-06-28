@@ -13,58 +13,21 @@
 #define BENV_UPGRADE_COUNT          1
 #endif
 
-#ifndef BENV_DEV_BLOCK_SIZE
-#define BENV_DEV_BLOCK_SIZE         512
-#endif
-
 #ifndef BENV_SIZE
 #define BENV_SIZE                   4096
 #endif
 
-#ifndef BENV_BOOT_SIZE
-#define BENV_BOOT_SIZE              (512*1024)
-#endif
-
-enum {
-    BENV_START = BENV_BOOT_SIZE,
-};
-
-#define BENV_BLOCK_SIZE     BENV_DEV_BLOCK_SIZE
-#define BENV_BLOCK_COUNT    (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
+#define BENV_START                  PRODUCT_BOOT_SIZE
+#define BENV_BLOCK_SIZE             PRODUCT_BLOCK_SIZE
+#define BENV_BLOCK_COUNT            (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
 
 #ifndef BENV_TRYS
 #define BENV_TRYS                   3
 #endif
 
-#ifndef BENV_VENDOR
-#define BENV_VENDOR                 "superwalle"
-#endif
-
-#ifndef BENV_COMPANY
-#define BENV_COMPANY                "superwalle Technology Co.,Ltd."
-#endif
-
-#ifndef BENV_PRODUCT_MODEL
-#define BENV_PRODUCT_MODEL          "superwalle-LV1"
-#endif
-
-#ifndef BENV_PCBA_MODEL
-#define BENV_PCBA_MODEL             "superwalle-pcba"
-#endif
-
 #ifndef BENV_INFO_SIZE
 #define BENV_INFO_SIZE              64
 #endif
-
-#ifndef benv_kernel_size
-#define benv_kernel_size            0x8000  /* block count */
-#endif
-
-#ifndef benv_rootfs_size
-#define benv_rootfs_size            0x80000 /* block count */
-#endif
-
-#define benv_obj_size(_obj)         benv_##_obj##_size
 
 #define is_good_benv_idx(_idx)      is_good_enum(_idx, PRODUCT_FIRMWARE_COUNT)
 #define is_normal_benv_idx(_idx)    is_good_value(_idx, 1, PRODUCT_FIRMWARE_COUNT)
@@ -110,20 +73,20 @@ benv_fsm_cmp(int a, int b)
     return a - b;
 }
 
-#define BENV_COOKIE_SIZE      (0  \
-    + sizeof(BENV_VENDOR)         \
-    + sizeof(BENV_COMPANY)        \
-    + sizeof(BENV_PCBA_MODEL)     \
+#define BENV_COOKIE_SIZE        (0  \
+    + sizeof(PRODUCT_VENDOR)        \
+    + sizeof(PRODUCT_COMPANY)       \
+    + sizeof(PRODUCT_PCBA_MODEL)    \
 )   /* end */
 
 typedef struct {
     struct {
-        char vendor[sizeof(BENV_VENDOR)];
-        char company[sizeof(BENV_COMPANY)];
+        char vendor[sizeof(PRODUCT_VENDOR)];
+        char company[sizeof(PRODUCT_COMPANY)];
     } product;
 
     struct {
-        char model[sizeof(BENV_PCBA_MODEL)];
+        char model[sizeof(PRODUCT_PCBA_MODEL)];
     } pcba;
 
     char pad[BENV_BLOCK_SIZE - BENV_COOKIE_SIZE];
@@ -139,11 +102,11 @@ __benv_cookie_show(benv_cookie_t *cookie)
 
 #define BENV_DEFT_COOKIE              { \
     .product        = {                 \
-        .vendor     = BENV_VENDOR,      \
-        .company    = BENV_COMPANY,     \
+        .vendor     = PRODUCT_VENDOR,   \
+        .company    = PRODUCT_COMPANY,  \
     },                                  \
     .pcba           = {                 \
-        .model      = BENV_PCBA_MODEL,  \
+        .model      = PRODUCT_PCBA_MODEL, \
     },                                  \
 }   /* end */
 

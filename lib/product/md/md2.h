@@ -2,6 +2,14 @@
 #define __MD2_H_68c306e9e7ce4cc2b95c6fc7fd632357__
 #if IS_PRODUCT_LTEFI_MD2
 /******************************************************************************/
+#ifndef PRODUCT_MODEL
+#define PRODUCT_MODEL               PRODUCT_VENDOR "-LV2" /* fixme */
+#endif
+
+#ifndef PRODUCT_PCBA_MODEL
+#define PRODUCT_PCBA_MODEL          PRODUCT_VENDOR "-pcba" /* fixme */
+#endif
+
 #ifndef PRODUCT_DOG_COUNT
 #define PRODUCT_DOG_COUNT           2
 #endif

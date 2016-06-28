@@ -2,6 +2,14 @@
 #define __MD1_H_a2a2800b607e4f778a7661bbb363b5fb__
 #if IS_PRODUCT_LTEFI_MD1
 /******************************************************************************/
+#ifndef PRODUCT_MODEL
+#define PRODUCT_MODEL               PRODUCT_VENDOR "-LV1" /* fixme */
+#endif
+
+#ifndef PRODUCT_PCBA_MODEL
+#define PRODUCT_PCBA_MODEL          PRODUCT_VENDOR "-pcba" /* fixme */
+#endif
+
 #ifndef PRODUCT_DOG_COUNT
 #define PRODUCT_DOG_COUNT           2
 #endif
@@ -19,7 +27,7 @@
 #endif
 
 #ifndef PRODUCT_DEV_USB_MASTER
-#define PRODUCT_DEV_USB_MASTER      "dev/udisk1110"
+#define PRODUCT_DEV_USB_MASTER      "dev/udisk1310"
 #endif
 
 /******************************************************************************/

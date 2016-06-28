@@ -9,6 +9,14 @@
 #define PRODUCT_DIR_ROOT                "/"
 #endif
 
+#ifndef PRODUCT_BLOCK_SIZE
+#define PRODUCT_BLOCK_SIZE              512
+#endif
+
+#ifndef PRODUCT_BOOT_SIZE
+#define PRODUCT_BOOT_SIZE               (512*1024)
+#endif
+
 #ifndef PRODUCT_FIRMWARE_COUNT
 #if 1==PRODUCT_FLASH_SIZE   /* 1G */
 #   define PRODUCT_FIRMWARE_COUNT       3

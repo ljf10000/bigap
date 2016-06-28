@@ -42,7 +42,14 @@
 #define PRODUCT_UNIT_M          "M"
 #define PRODUCT_UNIT_G          "G"
 
+#ifndef PRODUCT_VENDOR
 #define PRODUCT_VENDOR          "superwalle"
+#endif
+
+#ifndef PRODUCT_COMPANY
+#define PRODUCT_COMPANY         PRODUCT_VENDOR " Technology Co.,Ltd." /* fixme */
+#endif
+
 /******************************************************************************/
 #include "product/pc.h"
 #include "product/ap.h"
@@ -72,6 +79,17 @@
 #error "must define PRODUCT_DEV_PREFIX!"
 #endif
 
+#ifndef PRODUCT_DEV_FLASH_MASTER
+#error "must define PRODUCT_DEV_FLASH_MASTER!"
+#endif
+
+#ifndef PRODUCT_DEV_SD_MASTER
+#error "must define PRODUCT_DEV_SD_MASTER!"
+#endif
+
+#ifndef PRODUCT_DEV_HD_MASTER
+#error "must define PRODUCT_DEV_HD_MASTER!"
+#endif
 
 #ifndef PRODUCT_DEV_USB_MASTER
 #error "must define PRODUCT_DEV_USB_MASTER!"
@@ -91,10 +109,6 @@
 #error "invalid PRODUCT_FIRMWARE_COUNT!"
 #endif
 /******************************************************************************/
-#ifndef PRODUCT_FIRMWARE_CLOUD
-#define PRODUCT_FIRMWARE_CLOUD          PRODUCT_FIRMWARE_COUNT
-#endif
-
 #define PRODUCT_FILE(_file)             PRODUCT_DIR_ROOT _file
 #define PRODUCT_DIR(_dir)               PRODUCT_DIR_ROOT _dir
 #define PRODUCT_IDIR(_dir, _idx)        _dir #_idx
@@ -153,6 +167,18 @@
 
 #ifndef PRODUCT_DEV_BOOTENV
 #define PRODUCT_DEV_BOOTENV             PRODUCT_IDEV_FLASH(2) /* boot env */
+#endif
+
+#ifndef PRODUCT_DEV_BASEPARAM
+#define PRODUCT_DEV_BASEPARAM           PRODUCT_IDEV_FLASH(3) /* baseparam */
+#endif
+
+#ifndef PRODUCT_DEV_PQPARAM
+#define PRODUCT_DEV_PQPARAM             PRODUCT_IDEV_FLASH(4) /* pqparam */
+#endif
+
+#ifndef PRODUCT_DEV_LOGO
+#define PRODUCT_DEV_LOGO                PRODUCT_IDEV_FLASH(5) /* logo */
 #endif
 
 #ifndef PRODUCT_DEV_HD
@@ -215,8 +241,7 @@
 #define PRODUCT_DEV_DATA1       PRODUCT_IDEV_FLASH(16)
 
 #define PRODUCT_DEV_OTHER       PRODUCT_IDEV_FLASH(17)
-
-#define PRODUCT_DEV_ROOT_IDX    11
+#define PRODUCT_DEV_ROOT        PRODUCT_IDEV_FLASH(11) /* rootfs1 */
 
 #define PRODUCT_BOOTARGS_BLOCK0 \
         "512K(fastboot),"/*01 */\
@@ -262,8 +287,7 @@
 #define PRODUCT_DEV_DATA1       PRODUCT_IDEV_FLASH(19)
 
 #define PRODUCT_DEV_OTHER       PRODUCT_IDEV_FLASH(20)
-
-#define PRODUCT_DEV_ROOT_IDX    12
+#define PRODUCT_DEV_ROOT        PRODUCT_IDEV_FLASH(12) /* rootfs1 */
 
 #define PRODUCT_BOOTARGS_BLOCK0 \
         "512K(fastboot),"/*01 */\
@@ -315,8 +339,7 @@
 #define PRODUCT_DEV_DATA1       PRODUCT_IDEV_FLASH(23)
 
 #define PRODUCT_DEV_OTHER       PRODUCT_IDEV_FLASH(24)
-
-#define PRODUCT_DEV_ROOT_IDX    14
+#define PRODUCT_DEV_ROOT        PRODUCT_IDEV_FLASH(14) /* rootfs1 */
 
 #if 4==PRODUCT_FLASH_SIZE
 #define PRODUCT_BOOTARGS_BLOCK0 \
@@ -388,10 +411,6 @@
 #define PRODUCT_IDEV_ROOTFS(_idx)       PRODUCT_IDEV_OBJ(ROOTFS, _idx)
 #define PRODUCT_IDEV_CONFIG(_idx)       PRODUCT_IDEV_OBJ(CONFIG, _idx)
 #define PRODUCT_IDEV_DATA(_idx)         PRODUCT_IDEV_OBJ(DATA, _idx)
-
-#ifndef PRODUCT_DEV_ROOT
-#define PRODUCT_DEV_ROOT                PRODUCT_IDEV_FLASH(PRODUCT_DEV_ROOT_IDX)
-#endif
 
 #ifndef PRODUCT_BOOTARGS_ROOTFSTYPE
 #define PRODUCT_BOOTARGS_ROOTFSTYPE     "ext4"

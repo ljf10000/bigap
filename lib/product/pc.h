@@ -23,7 +23,7 @@
 #endif
 
 #ifndef PRODUCT_DIR_ROOT
-#define PRODUCT_DIR_ROOT                __empty
+#define PRODUCT_DIR_ROOT                /* empty */
 #endif
 
 #ifndef PRODUCT_DEV_BOOT

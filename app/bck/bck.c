@@ -115,15 +115,15 @@ check_boot(void)
 
     bck_println("before check boot");
     
-    static char boot[BENV_BOOT_SIZE];
-    if (BENV_BOOT_SIZE != read(fd_boot, boot, BENV_BOOT_SIZE)) {
+    static char boot[PRODUCT_BOOT_SIZE];
+    if (PRODUCT_BOOT_SIZE != read(fd_boot, boot, PRODUCT_BOOT_SIZE)) {
         trace_error(-errno, "read boot");
 
         return -errno;
     }
     
     char *p     = boot;
-    char *end   = boot + BENV_BOOT_SIZE;
+    char *end   = boot + PRODUCT_BOOT_SIZE;
     int i;
     
     for (i=0; i<os_count_of(cookie); i++) {
