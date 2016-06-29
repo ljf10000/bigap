@@ -12,7 +12,7 @@ include $(INCLUDE_DIR)/package.mk
 TARGET_CFLAGS += -Wall \
 		-fexceptions -fno-omit-frame-pointer \
 		-I$(STAGING_DIR)/usr/include \
-		-I$(BUILD_DIR)/bigap/lib \
+		-I$(PKG_LIB_BUILD_DIR) \
 		-D__OPENWRT__ \
 		-DLINUX \
 		-D__TAB_AS_SPACE=4 \
