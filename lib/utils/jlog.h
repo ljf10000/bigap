@@ -194,10 +194,10 @@ __jlog_header(char *app, char *sub, const char *file, const char *func, uint32 l
 })  /* end */
 
 #define jlog_vprintf(_sub, _PRI, _fmt, _args)     \
-    __jlog_vprintf(__THIS_APP_NAME, _sub, __THIS_FILE_NAME, __func__, __LINE__, _PRI, _fmt, ##_args)
+    __jlog_vprintf(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #define jlog_printf(_sub, _PRI, _fmt, _args...)   \
-    __jlog_printf(__THIS_APP_NAME, _sub, __THIS_FILE_NAME, __func__, __LINE__, _PRI, _fmt, ##_args)
+    __jlog_printf(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #ifdef __APP__
 typedef struct {
@@ -337,19 +337,19 @@ __clogger(
 #endif
 
 #define jvlogger(_sub, _PRI, _fmt, _args)     \
-    __jvlogger(__THIS_APP_NAME, _sub, __THIS_FILE_NAME, __func__, __LINE__, _PRI, _fmt, ##_args)
+    __jvlogger(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #define dvlogger(_sub, _PRI, _fmt, _args)     \
-    __dvlogger(__THIS_APP_NAME, _sub, __THIS_FILE_NAME, __func__, __LINE__, _PRI, _fmt, ##_args)
+    __dvlogger(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #define jlogger(_sub, _PRI, _fmt, _args...)   \
-    __jlogger(__THIS_APP_NAME, _sub, __THIS_FILE_NAME, __func__, __LINE__, _PRI, _fmt, ##_args)
+    __jlogger(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #define dlogger(_sub, _PRI, _fmt, _args...)   \
-    __dlogger(__THIS_APP_NAME, _sub, __THIS_FILE_NAME, __func__, __LINE__, _PRI, _fmt, ##_args)
+    __dlogger(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #define clogger(_sub, _PRI, _json)   \
-    __clogger(__THIS_APP_NAME, _sub, __THIS_FILE_NAME, __func__, __LINE__, _PRI, _json)
+    __clogger(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _json)
 
 #define __jvemerg(_sub, _fmt, _args)        jvlogger(_sub, LOG_EMERG, _fmt, _args)
 #define __jvalert(_sub, _fmt, _args)        jvlogger(_sub, LOG_ALERT, _fmt, _args)
