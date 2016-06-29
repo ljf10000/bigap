@@ -40,7 +40,7 @@ define Package/ak
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=Autelan Basic App
-  DEPENDS:=+libjson-c
+  DEPENDS:=+libjson-c +libubox
 endef
 
 define Package/ak/install
@@ -65,7 +65,7 @@ define Package/jlogd
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=Autelan Basic App
-  DEPENDS:=+libjson-c
+  DEPENDS:=+libjson-c +libubox
 endef
 
 define Package/jlogd/install
@@ -167,7 +167,7 @@ define Package/duktape
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=Autelan Basic App
-  DEPENDS:=+libjson-c
+  DEPENDS:=+libjson-c +libubox
 endef
 
 define Package/duktape/install
