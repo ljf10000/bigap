@@ -6,7 +6,9 @@
 #endif
 
 #ifdef __OPENWRT__
-#define LINUX
+#   ifndef LINUX
+#       define LINUX
+#   endif
 #endif
 
 #ifdef __BOOT__
