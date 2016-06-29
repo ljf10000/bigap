@@ -69,7 +69,9 @@
 #   include <ulimit.h>
 #   include <utmp.h>
 #   include <sched.h>
+#ifndef __OPENWRT__
 #   include <fstab.h>
+#endif
 #   include <mntent.h>
 #   include <limits.h>
 #   include <dlfcn.h>
