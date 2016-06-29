@@ -14,7 +14,9 @@ TARGET_CFLAGS += -Wall \
 		-I$(STAGING_DIR)/usr/include \
 		-I$(BUILD_DIR)/bigap/lib \
 		-D__OPENWRT__ \
+		-DLINUX \
 		-D__TAB_AS_SPACE=4 \
+		-D__PRODUCT__=6 \
 		-std=gnu99 \
 		-Wno-unused \
 		-fmerge-all-constants \
@@ -45,7 +47,6 @@ define Package/ak/install
 	$(Package/bigap/install/common)
 	
 	$(INSTALL_BIN) $(PKG_APP_BUILD_DIR)/ak/ak $(1)/usr/bin
-	$(INSTALL_DATA) $(PKG_APP_BUILD_DIR)/ak/ak.key $(1)/$(AK_PATH)/
 endef
 
 define Package/ak/compile
@@ -97,7 +98,6 @@ define Package/jlogger/install
 	$(Package/bigap/install/common)
 	
 	$(INSTALL_BIN) $(PKG_APP_BUILD_DIR)/jlogger/jlogger $(1)/usr/bin
-	$(INSTALL_DATA) $(PKG_APP_BUILD_DIR)/jlogger/jlogger.key $(1)/$(AK_PATH)/
 endef
 
 define Package/jlogger/compile
@@ -149,7 +149,6 @@ define Package/smc/install
 	$(Package/bigap/install/common)
 
 	$(INSTALL_BIN) $(PKG_APP_BUILD_DIR)/smc/smc $(1)/usr/bin
-	$(INSTALL_DATA) $(PKG_APP_BUILD_DIR)/smc/smc.key $(1)/$(AK_PATH)/
 endef
 
 define Package/smc/compile
@@ -158,6 +157,34 @@ define Package/smc/compile
 		CFLAGS=" \
 			$(TARGET_CFLAGS) \
 			$(TARGET_CPPFLAGS) \
+			" \
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		OS_TYPE=openwrt \
+		#end
+endef
+####################################################################
+define Package/duktape
+  SECTION:=apps
+  CATEGORY:=bigap
+  TITLE:=Autelan Basic App
+  DEPENDS:=+libjson-c
+endef
+
+define Package/duktape/install
+	$(Package/bigap/install/common)
+
+	$(INSTALL_BIN) $(PKG_APP_BUILD_DIR)/duktape/js $(1)/usr/bin
+endef
+
+define Package/duktape/compile
+	$(MAKE) -C $(PKG_APP_BUILD_DIR)/duktape \
+		CC="$(TARGET_CC)" \
+		CFLAGS=" \
+			$(TARGET_CFLAGS) \
+			$(TARGET_CPPFLAGS) \
+			-DDUK_OPT_FORCE_ALIGN \
+			-Os -fomit-frame-pointer \
+			-fstrict-aliasing \
 			" \
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		OS_TYPE=openwrt \
@@ -178,6 +205,7 @@ define Build/Compile
 	$(Package/jlogger/compile)
 	$(Package/smd/compile)
 	$(Package/smc/compile)
+	$(Package/duktape/compile)
 endef
 ####################################################################
 $(eval $(call BuildPackage,ak))
@@ -185,3 +213,4 @@ $(eval $(call BuildPackage,jlogd))
 $(eval $(call BuildPackage,jlogger))
 $(eval $(call BuildPackage,smd))
 $(eval $(call BuildPackage,smc))
+$(eval $(call BuildPackage,duktape))
