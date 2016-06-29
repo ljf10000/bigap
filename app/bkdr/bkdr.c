@@ -58,8 +58,8 @@ static cmd_table_t cmd[] = {
 static int
 usage(void)
 {
-    os_eprintln(__THIS_APP_NAME " hex {hex} {MOD}");
-    os_eprintln(__THIS_APP_NAME " str {str} {MOD}");
+    os_eprintln(__THIS_APPNAME " hex {hex} {MOD}");
+    os_eprintln(__THIS_APPNAME " str {str} {MOD}");
 
     return -EFORMAT;
 }

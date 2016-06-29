@@ -717,7 +717,7 @@ ak_getbyname(char *k)
     if (__THIS_COMMAND) {
         return 0;
     } else {
-        return __ak_getbyname(__THIS_APP_NAME, k);
+        return __ak_getbyname(__THIS_APPNAME, k);
     }
 }
 

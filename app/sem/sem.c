@@ -63,8 +63,8 @@ static cmd_table_t cmd[] = {
 static int
 usage(void)
 {
-    os_eprintln(__THIS_APP_NAME " lock {key} {wait}");
-    os_eprintln(__THIS_APP_NAME " unlock {key}");
+    os_eprintln(__THIS_APPNAME " lock {key} {wait}");
+    os_eprintln(__THIS_APPNAME " unlock {key}");
 
     return -EFORMAT;
 }

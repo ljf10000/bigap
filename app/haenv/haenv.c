@@ -221,8 +221,8 @@ static cmd_table_t cmd[] = {
 static int
 usage(void)
 {
-    os_eprintln(__THIS_APP_NAME " set {key}");
-    os_eprintln(__THIS_APP_NAME " get {key} {value}");
+    os_eprintln(__THIS_APPNAME " set {key}");
+    os_eprintln(__THIS_APPNAME " get {key} {value}");
 
     return -EFORMAT;
 }

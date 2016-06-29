@@ -358,8 +358,8 @@ error:
 static int
 usage(int argc, char *argv[])
 {
-    os_eprintln(__THIS_APP_NAME);
-    os_eprintln(__tab __THIS_APP_NAME " ip port script");
+    os_eprintln(__THIS_APPNAME);
+    os_eprintln(__tab __THIS_APPNAME " ip port script");
 
     return -EINVAL;
 }

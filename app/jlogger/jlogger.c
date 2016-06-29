@@ -14,7 +14,7 @@ OS_INITER;
 static int
 usage(int error)
 {
-    os_eprintln(__THIS_APP_NAME " {pri} {app} {json} [sub] [file] [func] [line]");
+    os_eprintln(__THIS_APPNAME " {pri} {app} {json} [sub] [file] [func] [line]");
 
     return error;
 }
