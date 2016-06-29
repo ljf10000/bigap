@@ -73,6 +73,7 @@ static struct {
     int cmaster;
     int dmaster;
     int upgrade;
+    int idx; /* rootfs idx */
     
     bool dirty;
     benv_version_t version;
@@ -166,6 +167,16 @@ sys = {
 
 #define is_current_rootfs_dev(_dev) os_streq(dev_rootfs_current, _dev)
 #define is_current_rootfs_dir(_dir) os_streq(dir_rootfs_current, _dir)
+
+#define get_rootfs_zone(_begin, _end) do{   \
+    if (is_normal_benv_idx(sys.idx)) {      \
+        _begin   = sys.idx;                 \
+        _end     = _begin + 1;              \
+    } else {                                \
+        _begin   = 0;                       \
+        _end     = PRODUCT_FIRMWARE_COUNT;  \
+    }                                       \
+}while(0)
 
 static char *
 rootfs_file(int idx, char *file)
@@ -1060,13 +1071,8 @@ repair_kernel(int idx)
     */
     os_objcpy(&version, benv_kernel_version(idx));
 
-    if (NULL==fversion) {
-        debug_bug("cannot get rootfs%d's kernel version", idx);
-
-        return -EBUG;
-    }
-    else if (__benv_kernel_is_good(idx)
-        && benv_version_eq(fversion, &version)) {
+    if (__benv_kernel_is_good(idx)
+        && fversion && benv_version_eq(fversion, &version)) {
 
         debug_ok("kernel%d needn't repair", idx);
 
@@ -1091,9 +1097,14 @@ repair_rootfs(int idx)
     int err = 0, buddy;
 
     if (NULL==fversion) {
-        debug_bug("cannot get rootfs%d's rootfs version", idx);
+        debug_bug("cannot get rootfs%d's rootfs version, try auto repair", idx);
 
-        return -EBUG;
+        /*
+        * find a best rootfs
+        */
+        buddy = benv_find_best(rootfs, __skips(idx));
+
+        os_objcpy(&version, benv_rootfs_version(buddy));
     }
     else if (__benv_rootfs_is_good(idx)
         && benv_version_eq(fversion, &version)) {
@@ -1102,13 +1113,14 @@ repair_rootfs(int idx)
 
         return 0;
     }
-
-    buddy = benv_find_first_good_byversion(rootfs, &version, __skips(idx));
-    if (__benv_rootfs_is_good(buddy)) {
+    else {
         /*
         * find a good rootfs with same version
-        *   use rcopy
         */
+        buddy = benv_find_first_good_byversion(rootfs, &version, __skips(idx));
+    }
+
+    if (__benv_rootfs_is_good(buddy)) {
         err = rcopy(idx, dir_rootfs(buddy), &version);
     } else {
         err = rsync(idx, &version);
@@ -1156,6 +1168,9 @@ upgrade(int idx, int src)
     if (idx==src) {
         err = rsync(idx, version);
     } else {
+        /*
+        * NOW, NOT goto here
+        */
         err = rcopy(idx, dir_rootfs(src), version);
     }
     if (err<0) {
@@ -1232,17 +1247,11 @@ usbupgrade(void)
         bdd("bootenv", PRODUCT_DEV_BOOTENV, USB_FILE_BOOTENV);
     }
 
-    if (sys.env.rootfs) {
-        begin   = os_atoi(sys.env.rootfs);
-        end     = begin + 1;
-    } else {
-        begin   = 0; 
-        end     = PRODUCT_FIRMWARE_COUNT;
-    }
-    
     if (0==access(USB_FILE_KERNEL, 0)) {
         kernel_exist = true;
     }
+    
+    get_rootfs_zone(begin, end);
     
     for (i=begin; i<end; i++) {
         if (i!=sys.current) {
@@ -1425,6 +1434,7 @@ init_env(void)
         }
         
         sys.env.rootfs = env;
+        sys.idx = idx;
     }
     
     env = env_gets(ENV_FORCE, NULL);
@@ -1581,18 +1591,23 @@ static int
 cmd_repair(int argc, char *argv[])
 {
     int skips = __skips(0);
-    int i, err;
-    
+    int i, err, begin, end;
+
     if (0==sys.current) {
         return -ENOSUPPORT;
     }
-    
-    os_firmware_foreach(i) {
-        if (false==is_benv_skip(skips, i) && 0==repair_rootfs(i)) {
-            repair_kernel(i);
+
+    get_rootfs_zone(begin, end);
+
+    for (i=begin; i<end; i++) {
+        if (false==is_benv_skip(skips, i)) {
+            err = repair_rootfs(i);
+            if (0==err) {
+                repair_kernel(i);
+            }
         }
 	}
-    
+
 	return 0;
 }
 
@@ -1616,12 +1631,12 @@ cmd_upgrade(int argc, char *argv[])
 
         return -EFORMAT;
     }
-        
+    
     if (sys.env.rootfs) {
         /*
         * select upgrade rootfs idx
         */
-        idx = os_atoi(sys.env.rootfs);
+        idx = sys.idx;
         debug_trace("upgrade rootfs%d by env select", idx);
 
         if (idx<0) {
