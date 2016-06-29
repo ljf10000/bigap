@@ -32,6 +32,16 @@
 #define IS_PRODUCT_LTEFI_V2     (IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_AP2)
 #define IS_PRODUCT_LTEFI_V3     (IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_LTEFI_AP3)
 
+#if IS_PRODUCT_LTEFI_V1
+#   define PRODUCT_LTEFI_VERSION    1
+#elif IS_PRODUCT_LTEFI_V2
+#   define PRODUCT_LTEFI_VERSION    2
+#elif IS_PRODUCT_LTEFI_V3
+#   define PRODUCT_LTEFI_VERSION    3
+#else
+#   define PRODUCT_LTEFI_VERSION    1
+#endif
+
 #define IS_PRODUCT_LTEFI_A      (IS_PRODUCT_LTEFI_V1)
 #define IS_PRODUCT_LTEFI_B      (IS_PRODUCT_LTEFI_V2 || IS_PRODUCT_LTEFI_V3)
 
@@ -43,7 +53,7 @@
 #define PRODUCT_UNIT_G          "G"
 
 #ifndef PRODUCT_VENDOR
-#define PRODUCT_VENDOR          "SuperWalle"
+#define PRODUCT_VENDOR          "superwalle"
 #endif
 
 #ifndef PRODUCT_COMPANY
