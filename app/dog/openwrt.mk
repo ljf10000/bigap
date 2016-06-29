@@ -2,7 +2,11 @@
 OBJS=dog.o
 __TARGET=dog
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lubacktrace -ljson-c
+LIBS_DEPEND=-ljson-c
+
+ifdef UBACKTRACE
+LIBS_DEPEND+=-lubacktrace
+endif
 
 .PHONY:all
 all:$(TARGET)

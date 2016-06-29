@@ -2,7 +2,11 @@
 OBJS=partool.o
 __TARGET=partool
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lubacktrace -lappkey -ljson-c
+LIBS_DEPEND=-ljson-c
+
+ifdef UBACKTRACE
+LIBS_DEPEND+=-lubacktrace
+endif
 
 .PHONY:all
 all:$(TARGET)

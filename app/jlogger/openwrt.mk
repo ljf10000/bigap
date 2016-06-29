@@ -2,7 +2,11 @@
 OBJS=jlogger.o
 __TARGET=jlogger
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lubacktrace -lappkey -ljson-c
+LIBS_DEPEND=-ljson-c
+
+ifdef UBACKTRACE
+LIBS_DEPEND+=-lubacktrace
+endif
 CFLAGS+=
 
 .PHONY:all

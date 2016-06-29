@@ -15,6 +15,10 @@ OBJS=src/duktape.o 	\
 __TARGET=js
 TARGET=$(__TARGET)
 LIBS_DEPEND=
+
+ifdef UBACKTRACE
+LIBS_DEPEND+=-lubacktrace
+endif
 CFLAGS+=
 
 .PHONY:all

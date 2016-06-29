@@ -2,7 +2,11 @@
 OBJS=smc.o
 __TARGET=smc
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lubacktrace -ljson-c
+LIBS_DEPEND=-ljson-c
+
+ifdef UBACKTRACE
+LIBS_DEPEND+=-lubacktrace
+endif
 CFLAGS+=
 
 .PHONY:all

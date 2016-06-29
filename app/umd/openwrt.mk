@@ -2,7 +2,12 @@
 OBJS=umd.o user.o cli.o flow.o timer.o
 __TARGET=umd
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lubacktrace -lappkey -ljson-c
+LIBS_DEPEND=-ljson-c
+
+ifdef UBACKTRACE
+LIBS_DEPEND+=-lubacktrace
+endif
+
 CFLAGS+=
 
 .PHONY:all

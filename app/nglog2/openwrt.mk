@@ -4,6 +4,10 @@ __TARGET=nglog2
 TARGET=$(__TARGET)
 LIBS_DEPEND=
 
+ifdef UBACKTRACE
+LIBS_DEPEND+=-lubacktrace
+endif
+
 .PHONY:all
 all:$(TARGET)
 

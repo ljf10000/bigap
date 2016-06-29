@@ -2,7 +2,11 @@
 OBJS=nglog.o
 __TARGET=nglog
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lubacktrace -lappkey -ljson-c
+LIBS_DEPEND=-ljson-c
+
+ifdef UBACKTRACE
+LIBS_DEPEND+=-lubacktrace
+endif
 
 .PHONY:all
 all:$(TARGET)
