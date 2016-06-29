@@ -92,9 +92,9 @@
 #   include <sys/timex.h>
 #ifndef __OPENWRT__
 #   include <sys/vtimes.h>
+#   include <sys/vlimit.h>
 #endif
 #   include <sys/resource.h>
-#   include <sys/vlimit.h>
 #ifndef __BUSYBOX__
 #   include <sys/sysinfo.h>
 #endif
