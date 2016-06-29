@@ -16,7 +16,7 @@
 
 #define OEM_RSYNC_USER          "rsync"
 #define OEM_RSYNC_PWDFILE       "bHRlZmlWMnJzeW5jUFdECg=="
-#define OEM_RSYNC_PATH          "version/lte-fi2/mdboard"
+#define OEM_RSYNC_PATH          "version/lte-fi" __SYMBOL_TO_STRING(PRODUCT_LTEFI_VERSION) "/mdboard"
 #define OEM_RSYNC_SERVER        "lms3." OEM_NAME ".com"
 #define OEM_RSYNC_PORT          "873"
 #define OEM_RSYNC_TIMEOUT       "300"
