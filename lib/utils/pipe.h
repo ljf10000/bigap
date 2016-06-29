@@ -78,9 +78,9 @@ __pipe_std_init(pipe_std_t *std, char *buf, int grow)
 
 #define PIPE_INFO_INITER(_input, _align_out, _align_err, _timeout) {  \
     .std = {                                                \
-        [__stdin]   = PIPE_STD_INITER(_input, 0),           \
-        [__stdout]  = PIPE_STD_INITER(NULL, _align_out),    \
-        [__stderr]  = PIPE_STD_INITER(NULL, _align_err),    \
+        [__fd_stdin]   = PIPE_STD_INITER(_input, 0),        \
+        [__fd_stdout]  = PIPE_STD_INITER(NULL, _align_out), \
+        [__fd_stderr]  = PIPE_STD_INITER(NULL, _align_err), \
     },                                                      \
     .timeout = PIPE_TIMEOUT(_timeout),                      \
 }
@@ -141,16 +141,16 @@ __pipe_info_init(pipe_info_t *info, char *input, int align_out, int align_err, i
     os_objzero(info);
     info->timeout = PIPE_TIMEOUT(timeout);
 
-    __pipe_std_init(&info->std[__stdin], input, 0);
-    __pipe_std_init(&info->std[__stdout], NULL, align_out);
-    __pipe_std_init(&info->std[__stderr], NULL, align_err);
+    __pipe_std_init(&info->std[__fd_stdin], input, 0);
+    __pipe_std_init(&info->std[__fd_stdout], NULL, align_out);
+    __pipe_std_init(&info->std[__fd_stderr], NULL, align_err);
 
-    err = pipe(info->std[__stdout].fd);
+    err = pipe(info->std[__fd_stdout].fd);
     if (err<0) {
         return -errno;
     }
     
-    err = pipe(info->std[__stderr].fd);
+    err = pipe(info->std[__fd_stderr].fd);
     if (err<0) {
         return -errno;
     }
@@ -163,14 +163,14 @@ __pipe_info_release(pipe_info_t *info)
 {
     if (info) {
 #if 0
-        os_close(info->std[__stdout].fd[__pipe_father]);
-        os_close(info->std[__stderr].fd[__pipe_father]);
+        os_close(info->std[__fd_stdout].fd[__pipe_father]);
+        os_close(info->std[__fd_stderr].fd[__pipe_father]);
         
-        os_close(info->std[__stdout].fd[__pipe_son]);
-        os_close(info->std[__stderr].fd[__pipe_son]);
+        os_close(info->std[__fd_stdout].fd[__pipe_son]);
+        os_close(info->std[__fd_stderr].fd[__pipe_son]);
 #endif
-        os_free(info->std[__stderr].buf);
-        os_free(info->std[__stdout].buf);
+        os_free(info->std[__fd_stderr].buf);
+        os_free(info->std[__fd_stdout].buf);
     }
 }
 
@@ -183,11 +183,11 @@ __pipe_father_wait(pipe_info_t *info, int son)
     if (pid==son) {
         err = info->err = __os_wait_error(status);
         
-        os_noblock(info->std[__stdout].fd[__pipe_father]);
-        __pipe_std_read(&info->std[__stdout]);
+        os_noblock(info->std[__fd_stdout].fd[__pipe_father]);
+        __pipe_std_read(&info->std[__fd_stdout]);
 
-        os_noblock(info->std[__stderr].fd[__pipe_father]);
-        __pipe_std_read(&info->std[__stderr]);
+        os_noblock(info->std[__fd_stderr].fd[__pipe_father]);
+        __pipe_std_read(&info->std[__fd_stderr]);
 
         return true;
     }
@@ -205,15 +205,15 @@ __pipe_father_handle(pipe_info_t *info, int son)
     };
     fd_set rset;
     int err = 0;
-    int max = OS_MAX(info->std[__stdout].fd[__pipe_father], info->std[__stderr].fd[__pipe_father]);
+    int max = OS_MAX(info->std[__fd_stdout].fd[__pipe_father], info->std[__fd_stderr].fd[__pipe_father]);
 
-    os_close(info->std[__stdout].fd[__pipe_son]);
-    os_close(info->std[__stderr].fd[__pipe_son]);
+    os_close(info->std[__fd_stdout].fd[__pipe_son]);
+    os_close(info->std[__fd_stderr].fd[__pipe_son]);
     
     while(1) {        
         FD_ZERO(&rset);
-        FD_SET(info->std[__stdout].fd[__pipe_father], &rset);
-        FD_SET(info->std[__stderr].fd[__pipe_father], &rset);
+        FD_SET(info->std[__fd_stdout].fd[__pipe_father], &rset);
+        FD_SET(info->std[__fd_stderr].fd[__pipe_father], &rset);
 
         int err = select(1+max, &rset, NULL, NULL, &tv);
         switch(err) {
@@ -229,15 +229,15 @@ __pipe_father_handle(pipe_info_t *info, int son)
                 break;
         }
 
-        if (FD_ISSET(info->std[__stdout].fd[__pipe_father], &rset)) {
-            err = __pipe_std_read(&info->std[__stdout]);
+        if (FD_ISSET(info->std[__fd_stdout].fd[__pipe_father], &rset)) {
+            err = __pipe_std_read(&info->std[__fd_stdout]);
             if (err<0) {
                 goto error;
             }
         }
         
-        if (FD_ISSET(info->std[__stderr].fd[__pipe_father], &rset)) {
-            err = __pipe_std_read(&info->std[__stderr]);
+        if (FD_ISSET(info->std[__fd_stderr].fd[__pipe_father], &rset)) {
+            err = __pipe_std_read(&info->std[__fd_stderr]);
             if (err<0) {
                 goto error;
             }
@@ -249,8 +249,8 @@ __pipe_father_handle(pipe_info_t *info, int son)
     }
 
 error:
-    os_close(info->std[__stdout].fd[__pipe_father]);
-    os_close(info->std[__stderr].fd[__pipe_father]);
+    os_close(info->std[__fd_stdout].fd[__pipe_father]);
+    os_close(info->std[__fd_stderr].fd[__pipe_father]);
 
     return err;
 }
@@ -258,18 +258,18 @@ error:
 static inline int
 __pipe_son_handle(pipe_info_t *info)
 {   
-    // re-link __stdout/__stderr
-    close(__stdout);
-    close(__stderr);
-    dup2(info->std[__stdout].fd[__pipe_son], __stdout);
-    dup2(info->std[__stderr].fd[__pipe_son], __stderr);
+    // re-link __fd_stdout/__fd_stderr
+    close(__fd_stdout);
+    close(__fd_stderr);
+    dup2(info->std[__fd_stdout].fd[__pipe_son], __fd_stdout);
+    dup2(info->std[__fd_stderr].fd[__pipe_son], __fd_stderr);
     
-    os_close(info->std[__stdout].fd[__pipe_father]);
-    os_close(info->std[__stderr].fd[__pipe_father]);
-    os_close(info->std[__stdout].fd[__pipe_son]);
-    os_close(info->std[__stderr].fd[__pipe_son]);
+    os_close(info->std[__fd_stdout].fd[__pipe_father]);
+    os_close(info->std[__fd_stderr].fd[__pipe_father]);
+    os_close(info->std[__fd_stdout].fd[__pipe_son]);
+    os_close(info->std[__fd_stderr].fd[__pipe_son]);
 
-    execl("/bin/sh", "sh", "-c", info->std[__stdin].buf, NULL);
+    execl("/bin/sh", "sh", "-c", info->std[__fd_stdin].buf, NULL);
 
     // go here is error
     return -errno;

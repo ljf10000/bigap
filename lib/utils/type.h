@@ -157,9 +157,9 @@ enum {
 };
 
 enum {
-    __stdin             = 0,
-    __stdout            = 1,
-    __stderr            = 2,
+    __fd_stdin          = 0,
+    __fd_stdout         = 1,
+    __fd_stderr         = 2,
 };
 
 enum {
