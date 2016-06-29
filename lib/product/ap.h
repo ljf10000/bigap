@@ -18,6 +18,10 @@
 #define PRODUCT_MEMORY_SIZE             2 /* 2G */
 #endif
 
+#ifndef PRODUCT_ROOTFS_MODE
+#define PRODUCT_ROOTFS_MODE             PRODUCT_ROOTFS_RW
+#endif
+
 #ifndef PRODUCT_FIRMWARE_COUNT
 #define PRODUCT_FIRMWARE_COUNT          1
 #endif

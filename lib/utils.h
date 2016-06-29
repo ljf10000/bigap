@@ -5,6 +5,10 @@
 #define __BOOT__
 #endif
 
+#ifdef __OPENWRT__
+#define LINUX
+#endif
+
 #ifdef __BOOT__
 #   include <malloc.h>
 #   include <command.h>

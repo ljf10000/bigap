@@ -14,7 +14,7 @@ TARGET_CFLAGS += -Wall \
 		-I$(STAGING_DIR)/usr/include \
 		-I$(PKG_LIB_BUILD_DIR) \
 		-D__OPENWRT__ \
-		-DLINUX \
+		-DBACKTRACE_TYPE=0 \
 		-D__TAB_AS_SPACE=4 \
 		-D__PRODUCT__=6 \
 		-std=gnu99 \
