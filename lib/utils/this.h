@@ -31,7 +31,7 @@
 #define __SYMBOL_TO_VAR2(_prefix, _name)        __THIS_##_prefix##_name
 #define __SYMBOL_TO_VAR(_prefix, _name)         __SYMBOL_TO_VAR2(_prefix, _name)
 
-#ifdef __BUSYBOX__
+#if defined(__BUSYBOX__) || defined(__BOOT__)
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(_, _name)
 #else
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)
