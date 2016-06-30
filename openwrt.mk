@@ -67,7 +67,7 @@ define Package/jlogd
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=SuperWalle Basic App
-  DEPENDS:=+json-c +libubox
+  DEPENDS:=+ak
 endef
 
 define Package/jlogd/install
