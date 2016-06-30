@@ -1,11 +1,7 @@
 #ifndef __JAPI_H_82b58c7daf6248b381aac0f6971b0d3d__
 #define __JAPI_H_82b58c7daf6248b381aac0f6971b0d3d__
 #ifdef __APP__
-#ifdef __OPENWRT__
-#include "json/json.h"
-#else
 #include "json-c/json.h"
-#endif
 #endif
 /******************************************************************************/
 #ifndef JAPI_PRINT
