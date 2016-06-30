@@ -735,12 +735,14 @@ static const dukc_number_entry_t libc_number[] = {
     LIB_VALUE(RLIMIT_AS),
     LIB_VALUE(RLIM_NLIMITS),
     LIB_VALUE(RLIM_INFINITY),
+#ifndef __OPENWRT__
     LIB_VALUE(LIM_CPU),
     LIB_VALUE(LIM_FSIZE),
     LIB_VALUE(LIM_DATA),
     LIB_VALUE(LIM_STACK),
     LIB_VALUE(LIM_CORE),
     LIB_VALUE(LIM_MAXRSS),
+#endif
     LIB_VALUE(UL_GETFSIZE),
     LIB_VALUE(UL_SETFSIZE),
     
@@ -864,7 +866,9 @@ static const dukc_number_entry_t libc_number[] = {
     LIB_VALUE(_POSIX_JOB_CONTROL),
     LIB_VALUE(_POSIX_SAVED_IDS),
     LIB_VALUE(_POSIX2_C_DEV),
+#ifndef __OPENWRT__
     LIB_VALUE(_POSIX2_LOCALEDEF),
+#endif
     LIB_VALUE(_POSIX2_SW_DEV),
 
     // 31.3 Which Version of POSIX is Supported
@@ -1066,6 +1070,7 @@ static const dukc_number_entry_t libc_number[] = {
 
     // 31.12 String-Valued Parameters
     LIB_VALUE(_CS_PATH),
+#ifndef __OPENWRT__
     LIB_VALUE(_CS_LFS_CFLAGS),
     LIB_VALUE(_CS_LFS_LDFLAGS),
     LIB_VALUE(_CS_LFS_LIBS),
@@ -1074,7 +1079,8 @@ static const dukc_number_entry_t libc_number[] = {
     LIB_VALUE(_CS_LFS64_LDFLAGS),
     LIB_VALUE(_CS_LFS64_LIBS),
     LIB_VALUE(_CS_LFS64_LINTFLAGS),
-    
+#endif
+
     LIB_VALUE_END
 };
 
