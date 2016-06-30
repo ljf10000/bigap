@@ -19,7 +19,7 @@ LIBS_DEPEND=-lm -ljson-c
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace
 endif
-CFLAGS += -DDUK_OPT_FORCE_ALIGN=4
+CFLAGS+=
 
 .PHONY:all
 all:$(TARGET)
