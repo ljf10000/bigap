@@ -59,6 +59,22 @@
 #ifndef PRODUCT_COMPANY
 #define PRODUCT_COMPANY         PRODUCT_VENDOR " Technology Co.,Ltd." /* fixme */
 #endif
+
+#ifndef PRODUCT_MIN_VERSION_STRING
+#define PRODUCT_MIN_VERSION_STRING      "0.0.0.0"
+#endif
+
+#ifndef PRODUCT_MAX_VERSION_STRING
+#define PRODUCT_MAX_VERSION_STRING      "255.255.255.255"
+#endif
+
+#ifndef PRODUCT_INVALID_VERSION
+#define PRODUCT_INVALID_VERSION         PRODUCT_MIN_VERSION_STRING
+#endif
+
+#ifndef PRODUCT_DEFT_VERSION
+#define PRODUCT_DEFT_VERSION            PRODUCT_DEFT_VERSION
+#endif
 /******************************************************************************/
 #include "product/ap/ap1.h"
 #include "product/ap/ap2.h"

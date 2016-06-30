@@ -119,8 +119,8 @@ enum {
     BENV_MAX_VERSION_NUMBER = 255,
 };
 
-#define BENV_MIN_VERSION_STRING   "0.0.0.0"
-#define BENV_MAX_VERSION_STRING   "255.255.255.255"
+#define BENV_MIN_VERSION_STRING   PRODUCT_MIN_VERSION_STRING
+#define BENV_MAX_VERSION_STRING   PRODUCT_MAX_VERSION_STRING
 #define BENV_MIN_VERSION          { \
     .number = {                     \
         BENV_MIN_VERSION_NUMBER,    \
@@ -139,8 +139,8 @@ enum {
     },                              \
 }   /* end */
 
-#define BENV_INVALID_VERSION    BENV_MIN_VERSION
-#define BENV_DEFT_VERSION       BENV_MIN_VERSION
+#define BENV_INVALID_VERSION    PRODUCT_INVALID_VERSION
+#define BENV_DEFT_VERSION       PRODUCT_DEFT_VERSION
 
 enum {
     BENV_VERSION_STRING_LEN = sizeof(BENV_MAX_VERSION_STRING) - 1,  /* 15 */
