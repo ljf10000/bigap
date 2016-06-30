@@ -5547,6 +5547,7 @@ duke_uname(duk_context *ctx)
     return 1;
 }
 
+#if duk_LIBC_MOUNT
 // 30.3.1 Mount Information
 LIB_PARAM(setfsent, 0);
 static duk_ret_t
@@ -5592,6 +5593,7 @@ duke_getfsfile(duk_context *ctx)
 
     return __obj_push(ctx, __set_fstab, p), 1;
 }
+#endif
 
 LIB_PARAM(setmntent, 2);
 static duk_ret_t

@@ -582,11 +582,13 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(gethostid),
     LIB_FUNC(sethostid),
     LIB_FUNC(uname),
+#if duk_LIBC_MOUNT
     LIB_FUNC(setfsent),
     LIB_FUNC(endfsent),
     LIB_FUNC(getfsent),
     LIB_FUNC(getfsspec),
     LIB_FUNC(getfsfile),
+#endif
     LIB_FUNC(setmntent),
     LIB_FUNC(endmntent),
     LIB_FUNC(getmntent),

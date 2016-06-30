@@ -1108,6 +1108,7 @@ __set_utsname(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
+#if duk_LIBC_MOUNT
 static inline int
 __get_fstab(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
@@ -1139,6 +1140,7 @@ __set_fstab(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 
     return 0;
 }
+#endif
 
 static inline int
 __get_mntent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)

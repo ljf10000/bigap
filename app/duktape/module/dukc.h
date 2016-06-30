@@ -42,9 +42,9 @@
 
 #ifndef duk_LIBC_VTIME
 #ifdef __OPENWRT__
-#define duk_LIBC_VTIME      0
+#   define duk_LIBC_VTIME   0
 #else
-#define duk_LIBC_VTIME      1
+#   define duk_LIBC_VTIME   1
 #endif
 #endif
 
@@ -54,6 +54,14 @@
 
 #ifndef duk_LIBC_LOG
 #define duk_LIBC_LOG        1
+#endif
+
+#ifndef duk_LIBC_MOUNT
+#ifdef __OPENWRT__
+#   define duk_LIBC_MOUNT   0
+#else
+#   define duk_LIBC_MOUNT   1
+#endif
 #endif
 
 #ifndef duk_LIBC_LINUX
