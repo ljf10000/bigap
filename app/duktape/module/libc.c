@@ -3463,6 +3463,7 @@ duke_nextafter(duk_context *ctx)
     return duk_push_number(ctx, nextafter(x, y)), 1;
 }
 
+#ifndef __OPENWRT__
 LIB_PARAM(nexttoward, 2);
 static duk_ret_t
 duke_nexttoward(duk_context *ctx)
@@ -3472,6 +3473,7 @@ duke_nexttoward(duk_context *ctx)
     
     return duk_push_number(ctx, nexttoward(x, y)), 1;
 }
+#endif
 
 LIB_PARAM(nan, 1);
 static duk_ret_t
@@ -3734,6 +3736,7 @@ duke_timegm(duk_context *ctx)
 }
 
 // 21.4.4 High Accuracy Clock
+#ifndef __OPENWRT__
 LIB_PARAM(ntp_gettime, 1);
 static duk_ret_t
 duke_ntp_gettime(duk_context *ctx)
@@ -3759,6 +3762,7 @@ duke_ntp_adjtime(duk_context *ctx)
 
     return __push_error(ctx, err), 1;
 }
+#endif
 
 // 21.4.5 Formatting Calendar Time
 LIB_PARAM(asctime, 1);
@@ -3970,6 +3974,7 @@ duke_ulimit(duk_context *ctx)
     return __push_error(ctx, err), 1;
 }
 
+#ifndef __OPENWRT__
 LIB_PARAM(vlimit, 2);
 static duk_ret_t
 duke_vlimit(duk_context *ctx)
@@ -3981,6 +3986,7 @@ duke_vlimit(duk_context *ctx)
     
     return __push_error(ctx, err), 1;
 }
+#endif
 
 // 22.3 Process CPU Priority And Scheduling
 LIB_PARAM(sched_setscheduler, 3);
@@ -4253,6 +4259,7 @@ duke_getpagesize(duk_context *ctx)
     return duk_push_int(ctx, getpagesize()), 1;
 }
 
+#ifndef __OPENWRT__
 LIB_PARAM(get_phys_pages, 0);
 static duk_ret_t
 duke_get_phys_pages(duk_context *ctx)
@@ -4266,6 +4273,7 @@ duke_get_avphys_pages(duk_context *ctx)
 {
     return duk_push_int(ctx, get_avphys_pages()), 1;
 }
+#endif
 
 // 22.5 Learn about the processors available
 LIB_PARAM(get_nprocs_conf, 0);
@@ -4282,6 +4290,7 @@ duke_get_nprocs(duk_context *ctx)
     return duk_push_int(ctx, get_nprocs()), 1;
 }
 
+#ifndef __OPENWRT__
 LIB_PARAM(getloadavg, 1);
 static duk_ret_t
 duke_getloadavg(duk_context *ctx)
@@ -4299,6 +4308,7 @@ duke_getloadavg(duk_context *ctx)
     
     return __push_error(ctx, err), 1;
 }
+#endif
 
 // 23 Non-Local Exits
 // jmp_buf/setjmp/longjmp

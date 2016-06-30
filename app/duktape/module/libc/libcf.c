@@ -389,7 +389,9 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(copysign),
     LIB_FUNC(signbit),
     LIB_FUNC(nextafter),
+#ifndef __OPENWRT__
     LIB_FUNC(nexttoward),
+#endif
     LIB_FUNC(nan),
     LIB_FUNC(isgreater),
     LIB_FUNC(isgreaterequal),
@@ -417,8 +419,10 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(mktime),
     LIB_FUNC(timelocal),
     LIB_FUNC(timegm),
+#ifndef __OPENWRT__
     LIB_FUNC(ntp_gettime),
     LIB_FUNC(ntp_adjtime),
+#endif
     LIB_FUNC(asctime),
     LIB_FUNC(ctime),
     LIB_FUNC(strftime),
@@ -437,7 +441,9 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(getrlimit),
     LIB_FUNC(setrlimit),
     LIB_FUNC(ulimit),
+#ifndef __OPENWRT__
     LIB_FUNC(vlimit),
+#endif
     LIB_FUNC(sched_setscheduler),
     LIB_FUNC(sched_getscheduler),
     LIB_FUNC(sched_setparam),
@@ -459,11 +465,15 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(sched_setaffinity),
 #endif
     LIB_FUNC(getpagesize),
+#ifndef __OPENWRT__
     LIB_FUNC(get_phys_pages),
     LIB_FUNC(get_avphys_pages),
+#endif
     LIB_FUNC(get_nprocs_conf),
     LIB_FUNC(get_nprocs),
+#ifndef __OPENWRT__
     LIB_FUNC(getloadavg),
+#endif
 
 #if duk_LIBC_SIG
     // 24 Signal Handling
