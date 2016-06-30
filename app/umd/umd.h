@@ -22,14 +22,14 @@
 #define UMD_HASHMASK            (UMD_HASHSIZE-1)
 
 #ifndef UMD_CONFIG_FILE
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define UMD_CONFIG_FILE      "./umd.conf"
 #else
 #   define UMD_CONFIG_FILE      "/tmp/config/umd.conf"
 #endif
 #endif
 
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define UMD_SCRIPT_PREFIX    "./"
 #else
 #   define UMD_SCRIPT_PREFIX    "/etc/um/"
@@ -52,7 +52,7 @@
 #endif
 
 #ifndef UMD_IDLE
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define UMD_IDLE             60  /* second */
 #else
 #   define UMD_IDLE             300 /* second */
@@ -71,7 +71,7 @@
 #define UMD_INTF_FLOW_ETHERTYPE ETHERTYPE_IP
 #endif
 
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   ifndef UMD_INTF_TC_DEFT
 #       define UMD_INTF_TC_DEFT         UMD_INTF_FLOW_DEFT
 #   endif
@@ -386,7 +386,7 @@ struct um_intf {
 
 enum {
     UM_INTF_FLOW    = 0,
-#if IS_PRODUCT_PC
+#ifdef __PC__
     UM_INTF_TC      = 0,
 #else
     UM_INTF_TC      = 1,
@@ -559,7 +559,7 @@ um_user_delby(struct um_user_filter *filter);
 #define UM_TEST_JSON    0x01
 
 #ifndef UM_TEST
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define UM_TEST      UM_TEST_JSON
 #else
 #   define UM_TEST      0

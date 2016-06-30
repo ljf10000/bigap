@@ -7,8 +7,8 @@
 #define BACKTRACE_by_libc_backtrace     1
 #define BACKTRACE_by_libunwind          2
 
-#ifndef BACKTRACE_TYPE
-#define BACKTRACE_TYPE      BACKTRACE_by_libc_backtrace
+#ifndef __BACKTRACE__
+#define __BACKTRACE__       BACKTRACE_by_libc_backtrace
 #endif
 
 #define BACKTRACE_DESTROY_STACK_FOREVER(_up) do{   \
@@ -61,7 +61,7 @@
 }while(0)
 
 #ifndef BACKTRACE_PATH
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define BACKTRACE_PATH       "."
 #else
 #   define BACKTRACE_PATH       "/tmp/.backtrace"
@@ -77,7 +77,7 @@
 #define BACKTRACE_ASIZE         256
 #endif
 
-#if BACKTRACE_TYPE==BACKTRACE_by_libunwind
+#if __BACKTRACE__==BACKTRACE_by_libunwind
 #include <libunwind.h>
 
 static inline void 
@@ -104,7 +104,7 @@ __sighandle_callstack(int signo)
     exit(signo);
 }
 
-#elif BACKTRACE_TYPE==BACKTRACE_by_libc_backtrace
+#elif __BACKTRACE__==BACKTRACE_by_libc_backtrace
 #include <execinfo.h>
 
 static inline void 

@@ -44,7 +44,7 @@
 #endif
 
 #ifndef SCRIPT_SM_GETPID
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define SCRIPT_SM_GETPID         "./.sm.getpid"
 #else
 #   define SCRIPT_SM_GETPID         "/usr/sbin/.sm.getpid"
@@ -52,7 +52,7 @@
 #endif
 
 #ifndef SCRIPT_SM_INIT
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define SCRIPT_SM_INIT           "./.sm.init"
 #else
 #   define SCRIPT_SM_INIT           "/tmp/.sm.init"

@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 
 OS_INITER;
 
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define SCRIPT_CUT       "./jlogcut"
 #   define SCRIPT_PUSH      "./jlogpush"
 #else

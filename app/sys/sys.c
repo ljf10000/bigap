@@ -1507,7 +1507,7 @@ get_current(void)
 error:
     error_assert(0, "no found good rootfs in " PRODUCT_PROC_CMDLINE);
     
-#if IS_PRODUCT_PC
+#ifdef __PC__
     return __benv_current;
 #else
     return PRODUCT_FIRMWARE_CURRENT;

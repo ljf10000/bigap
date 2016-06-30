@@ -45,7 +45,7 @@
 #define RSH_PORT                    8740
 #endif
 
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define RSH_CFG_PREFIX           __empty
 #   define RSH_BIN_PREFIX           __empty
 #else

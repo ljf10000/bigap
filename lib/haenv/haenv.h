@@ -52,7 +52,7 @@
 #ifdef __BOOT__ /* offset of flash(global) */
 #   define HAENV_START              (HAENV_BOOT_SIZE + HAENV_BOOTENV_SIZE)
 #else /* offset of HAENV_FILE */
-#   if IS_PRODUCT_PC
+#   ifdef __PC__
 #       define HAENV_START          0
 #   else
 #       define HAENV_START          HAENV_BOOTENV_SIZE
@@ -61,7 +61,7 @@
 #endif
 
 #ifndef HAENV_FILE
-#   if IS_PRODUCT_PC
+#   ifdef __PC__
 #       define HAENV_FILE           "bootenv"
 #   else
 #       define HAENV_FILE           "/dev/mmcblk0p02"

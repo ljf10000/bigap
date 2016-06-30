@@ -471,7 +471,7 @@ os_macstring(byte mac[])
 }
 
 #ifndef SCRIPT_GETMAC
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define SCRIPT_GETMAC    "ip link show eth0 | grep link | awk '{print $2}'"
 #else
 #   define SCRIPT_GETMAC    "ifconfig | grep 'eth0 ' | awk '{print $5}'"
@@ -479,7 +479,7 @@ os_macstring(byte mac[])
 #endif
 
 #ifndef SCRIPT_BASEMAC
-#if IS_PRODUCT_PC
+#ifdef __PC__
 #   define SCRIPT_BASEMAC   SCRIPT_GETMAC
 #else
 #   define SCRIPT_BASEMAC   "/usr/sbin/basemac"
