@@ -184,27 +184,6 @@ static inline int list_empty(const struct list_head *head)
 	return head->next == head;
 }
 
-#if 1 /* liujf */
-static inline int 
-is_list_last(const struct list_head *list, const struct list_head *head)
-{
-	return list->next == head;
-}
-
-static inline int 
-is_list_first(const struct list_head *list, const struct list_head *head)
-{
-	return list->prev == head;
-}
-
-static inline bool
-is_in_list(struct list_head *node)
-{
-    return (node->next && node->prev) && false==list_empty(node);
-}
-#define list_first(ptr)     (ptr)->next
-#endif
-
 /**
  * list_empty_careful - tests whether a list is empty and not being modified
  * @head: the list to test
@@ -601,6 +580,27 @@ static inline void list_splice_tail_init(struct list_head *list,
 #define list_safe_reset_next(pos, n, member)				\
 	n = list_next_entry(pos, member)
 
+#endif
+
+#if 1 /* liujf */
+static inline int 
+is_list_last(const struct list_head *list, const struct list_head *head)
+{
+	return list->next == head;
+}
+
+static inline int 
+is_list_first(const struct list_head *list, const struct list_head *head)
+{
+	return list->prev == head;
+}
+
+static inline bool
+is_in_list(struct list_head *node)
+{
+    return (node->next && node->prev) && false==list_empty(node);
+}
+#define list_first(ptr)     (ptr)->next
 #endif
 
 struct hlist_head {
