@@ -11,11 +11,11 @@
    e.g. in a structure initializer (or where-ever else comma expressions
    aren't permitted). */
 #ifndef BUILD_BUG_ON_ZERO
-#define BUILD_BUG_ON_ZERO(_condition)       (sizeof(struct { int:-!!(_condition); }))
+#define BUILD_BUG_ON_ZERO(_condition)       (sizeof(struct __buildin_bug_on_zero { int _:-!!(_condition); }))
 #endif
 
 #ifndef BUILD_BUG_ON_NULL
-#define BUILD_BUG_ON_NULL(_condition)       ((void *)sizeof(struct { int:-!!(_condition); }))
+#define BUILD_BUG_ON_NULL(_condition)       ((void *)sizeof(struct __buildin_bug_on_null { int _:-!!(_condition); }))
 #endif
 
 #ifndef BUILD_BUG_NOT_ARRAY
