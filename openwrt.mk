@@ -19,7 +19,6 @@ TARGET_CFLAGS += -Wall \
 		-D__BACKTRACE__=0 \
 		-D__TAB_AS_SPACE=4 \
 		-D__PRODUCT__=6 \
-		-DDUK_OPT_FORCE_ALIGN=4 \
 		-std=gnu99 \
 		-Wno-unused \
 		-fmerge-all-constants \
@@ -185,7 +184,7 @@ define Package/duktape/compile
 		CFLAGS=" \
 			$(TARGET_CFLAGS) \
 			$(TARGET_CPPFLAGS) \
-			-DDUK_OPT_FORCE_ALIGN \
+			-DDUK_OPT_FORCE_ALIGN=4 \
 			-Os -fomit-frame-pointer \
 			-fstrict-aliasing \
 			" \
