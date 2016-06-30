@@ -6,6 +6,10 @@
 #define PRODUCT_DOG_COUNT               2
 #endif
 
+#ifndef PRODUCT_PCBA_MODEL
+#define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-pcba" /* fixme */
+#endif
+
 #ifndef PRODUCT_BLOCK_SIZE
 #define PRODUCT_BLOCK_SIZE              512
 #endif
