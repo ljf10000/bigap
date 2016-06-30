@@ -2952,6 +2952,7 @@ duke_exp2(duk_context *ctx)
     return duk_push_number(ctx, exp2(x)), 1;
 }
 
+#ifndef __OPENWRT__
 LIB_PARAM(exp10, 1);
 static duk_ret_t
 duke_exp10(duk_context *ctx)
@@ -2960,6 +2961,7 @@ duke_exp10(duk_context *ctx)
 
     return duk_push_number(ctx, exp10(x)), 1;
 }
+#endif
 
 LIB_PARAM(log, 1);
 static duk_ret_t
@@ -3163,6 +3165,7 @@ duke_tgamma(duk_context *ctx)
     return duk_push_number(ctx, tgamma(x)), 1;
 }
 
+#ifndef __OPENWRT__
 LIB_PARAM(j0, 1);
 static duk_ret_t
 duke_j0(duk_context *ctx)
@@ -3218,6 +3221,7 @@ duke_yn(duk_context *ctx)
 
     return duk_push_number(ctx, yn(n, x)), 1;
 }
+#endif
 
 // 19.8 Pseudo-Random Numbers
 // 19.8.1 ISO C Random Number Functions

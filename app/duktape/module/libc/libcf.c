@@ -335,7 +335,9 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(atan2),
     LIB_FUNC(exp),
     LIB_FUNC(exp2),
+#ifndef __OPENWRT__
     LIB_FUNC(exp10),
+#endif
     LIB_FUNC(log),
     LIB_FUNC(log2),
     LIB_FUNC(log10),
@@ -358,12 +360,14 @@ static const dukc_func_entry_t libc_func[] = {
     LIB_FUNC(lgamma),
     LIB_FUNC(gamma),
     LIB_FUNC(tgamma),
+#ifndef __OPENWRT__
     LIB_FUNC(j0),
     LIB_FUNC(j1),
     LIB_FUNC(jn),
     LIB_FUNC(y0),
     LIB_FUNC(y1),
     LIB_FUNC(yn),
+#endif
     LIB_FUNC(rand),
     LIB_FUNC(srand),
     LIB_FUNC(div),
