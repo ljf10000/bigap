@@ -2,7 +2,7 @@
 OBJS=umd.o user.o cli.o flow.o timer.o
 __TARGET=umd
 TARGET=$(__TARGET)
-LIBS_DEPEND=-ljson-c
+LIBS_DEPEND=-lm -ljson-c
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace

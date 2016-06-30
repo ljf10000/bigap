@@ -2,7 +2,7 @@
 OBJS=sem.o
 __TARGET=sem
 TARGET=$(__TARGET)
-LIBS_DEPEND=-ljson-c
+LIBS_DEPEND=-lm -ljson-c
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace
