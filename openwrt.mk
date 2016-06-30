@@ -42,7 +42,7 @@ define Package/ak
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=SuperWalle Basic App
-  DEPENDS:=+libjson +libubox
+  DEPENDS:=+json-c +libubox
 endef
 
 define Package/ak/install
@@ -169,7 +169,7 @@ define Package/duktape
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=SuperWalle Basic App
-  DEPENDS:=+libjson +libubox
+  DEPENDS:=+json-c +libubox
 endef
 
 define Package/duktape/install
