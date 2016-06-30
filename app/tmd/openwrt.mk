@@ -2,7 +2,7 @@
 OBJS=tmd.o
 __TARGET=tmd
 TARGET=$(__TARGET)
-LIBS_DEPEND=-ljson
+LIBS_DEPEND=-ljson-c
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace

@@ -2,7 +2,7 @@
 OBJS=ngfilter.o
 __TARGET=ngfilter
 TARGET=$(__TARGET)
-LIBS_DEPEND=-ljson
+LIBS_DEPEND=-ljson-c
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace
