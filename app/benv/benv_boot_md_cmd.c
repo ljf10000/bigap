@@ -39,6 +39,8 @@ __bversion(int argc, char *argv[])
     }
 
     benv_dirty_byidx(BENV_OS);
+
+    return 0;
 }
 
 static int 
