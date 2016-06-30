@@ -720,6 +720,7 @@ __set_rusage(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
+#if duk_LIBC_VTIME
 static inline int
 __get_vtimes(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
@@ -758,6 +759,7 @@ __set_vtimes(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 
     return 0;
 }
+#endif
 
 static inline int
 __get_flock(duk_context *ctx, duk_idx_t idx, duk_object_t obj)

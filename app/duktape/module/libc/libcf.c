@@ -431,7 +431,9 @@ static const dukc_func_entry_t libc_func[] = {
 
     // 22 Resource Usage And Limitation
     LIB_FUNC(getrusage),
+#if duk_LIBC_VTIME
     LIB_FUNC(vtimes),
+#endif
     LIB_FUNC(getrlimit),
     LIB_FUNC(setrlimit),
     LIB_FUNC(ulimit),

@@ -40,6 +40,14 @@
 #define duk_LIBC_TIME       1
 #endif
 
+#ifndef duk_LIBC_VTIME
+#ifdef __OPENWRT__
+#define duk_LIBC_VTIME      0
+#else
+#define duk_LIBC_VTIME      1
+#endif
+#endif
+
 #ifndef duk_LIBC_SIG
 #define duk_LIBC_SIG        1
 #endif

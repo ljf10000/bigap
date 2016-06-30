@@ -6,8 +6,7 @@
 */
 #if defined(__BOOT__) || defined(__APP__)
 
-//#ifdef __OPENWRT__
-#if 0
+#if defined(__OPENWRT__) && 0
 #include <libubox/list.h>
 #else
 

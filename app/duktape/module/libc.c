@@ -3899,6 +3899,7 @@ duke_getrusage(duk_context *ctx)
     return __push_error(ctx, err), 1;
 }
 
+#if duk_LIBC_VTIME
 LIB_PARAM(vtimes, 2);
 static duk_ret_t
 duke_vtimes(duk_context *ctx)
@@ -3913,6 +3914,7 @@ duke_vtimes(duk_context *ctx)
     
     return __push_error(ctx, err), 1;
 }
+#endif
 
 // 22.2 Limiting Resource Usage
 LIB_PARAM(getrlimit, 2);
