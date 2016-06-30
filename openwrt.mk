@@ -39,8 +39,8 @@ endef
 define Package/ak
   SECTION:=apps
   CATEGORY:=bigap
-  TITLE:=Autelan Basic App
-  DEPENDS:=+libjson-c +libubox
+  TITLE:=SuperWalle Basic App
+  DEPENDS:=+json-c +libubox
 endef
 
 define Package/ak/install
@@ -64,8 +64,8 @@ endef
 define Package/jlogd
   SECTION:=apps
   CATEGORY:=bigap
-  TITLE:=Autelan Basic App
-  DEPENDS:=+libjson-c +libubox
+  TITLE:=SuperWalle Basic App
+  DEPENDS:=+json-c +libubox
 endef
 
 define Package/jlogd/install
@@ -90,7 +90,7 @@ endef
 define Package/jlogger
   SECTION:=apps
   CATEGORY:=bigap
-  TITLE:=Autelan Basic App
+  TITLE:=SuperWalle Basic App
   DEPENDS:=+jlogd
 endef
 
@@ -115,7 +115,7 @@ endef
 define Package/smd
   SECTION:=apps
   CATEGORY:=bigap
-  TITLE:=Autelan Basic App
+  TITLE:=SuperWalle Basic App
   DEPENDS:=+jlogger
 endef
 
@@ -141,7 +141,7 @@ endef
 define Package/smc
   SECTION:=apps
   CATEGORY:=bigap
-  TITLE:=Autelan Basic App
+  TITLE:=SuperWalle Basic App
   DEPENDS:=+smd
 endef
 
@@ -166,8 +166,8 @@ endef
 define Package/duktape
   SECTION:=apps
   CATEGORY:=bigap
-  TITLE:=Autelan Basic App
-  DEPENDS:=+libjson-c +libubox
+  TITLE:=SuperWalle Basic App
+  DEPENDS:=+json-c +libubox
 endef
 
 define Package/duktape/install
