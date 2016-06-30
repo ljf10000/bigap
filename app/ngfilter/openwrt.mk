@@ -4,8 +4,12 @@ __TARGET=ngfilter
 TARGET=$(__TARGET)
 LIBS_DEPEND=-ljson-c
 
-ifdef UBACKTRACE
+ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace
+endif
+
+ifeq (2,$(UBACKTRACE))
+LIBS_DEPEND+=-lunwind
 endif
 
 .PHONY:all

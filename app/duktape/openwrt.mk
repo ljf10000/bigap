@@ -16,7 +16,7 @@ __TARGET=js
 TARGET=$(__TARGET)
 LIBS_DEPEND=
 
-ifdef UBACKTRACE
+ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace
 endif
 CFLAGS+=

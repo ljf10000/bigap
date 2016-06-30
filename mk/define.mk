@@ -17,10 +17,12 @@ ifndef MK_DEFINE
 	
 	#export INCS=-I$(DIR_ROOT)/lib -I/usr/src/linux-headers-$(shell uname -r)/include
 	export INCS+=-I$(DIR_ROOT)/lib -I$(DIR_ROOT)/lib/json-c
+	export UBACKTRACE=1
 	export CFLAGS+=-D_GNU_SOURCE \
 		-D$(shell $(SCRIPT_PATH)/64) \
 		-D__PC__ \
 		-DLINUX \
+		-D__BACKTRACE__=$(UBACKTRACE) \
 		-D__TAB_AS_SPACE=4 \
 		-std=gnu99 \
 		-Wno-unused \
