@@ -2,7 +2,7 @@
 OBJS=nglog.o
 __TARGET=nglog
 TARGET=$(__TARGET)
-LIBS_DEPEND=-ljson-c
+LIBS_DEPEND=-ljson
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace

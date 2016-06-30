@@ -2,7 +2,7 @@
 OBJS=guard.o
 __TARGET=guard
 TARGET=$(__TARGET)
-LIBS_DEPEND=-ljson-c
+LIBS_DEPEND=-ljson
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace
