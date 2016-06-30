@@ -9,12 +9,14 @@ PKG_APP_BUILD_DIR := $(PKG_BUILD_DIR)/app
 
 include $(INCLUDE_DIR)/package.mk
 
+# MAKE_FLAGS += "UBACKTRACE=???"
+
 TARGET_CFLAGS += -Wall \
 		-fexceptions -fno-omit-frame-pointer \
 		-I$(STAGING_DIR)/usr/include \
 		-I$(PKG_LIB_BUILD_DIR) \
 		-D__OPENWRT__ \
-		-DBACKTRACE_TYPE=1 -DBACKTRACE \
+		-D__BACKTRACE__=0 \
 		-D__TAB_AS_SPACE=4 \
 		-D__PRODUCT__=6 \
 		-std=gnu99 \
