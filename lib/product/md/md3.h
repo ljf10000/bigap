@@ -23,7 +23,11 @@
 #endif
 
 #ifndef PRODUCT_DEV_USB_MASTER
-#define PRODUCT_DEV_USB_MASTER      "dev/udisk1110" /* fixme */
+#define PRODUCT_DEV_USB_MASTER      "dev/udisk51210"
+#endif
+
+#ifndef PRODUCT_DEV_HD_MASTER
+#define PRODUCT_DEV_HD_MASTER       "dev/udisk61110"
 #endif
 /******************************************************************************/
 #endif

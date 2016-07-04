@@ -44,10 +44,6 @@
 #ifndef PRODUCT_DEV_SD_MASTER
 #define PRODUCT_DEV_SD_MASTER           "dev/mmcblk1"
 #endif
-
-#ifndef PRODUCT_DEV_HD_MASTER
-#define PRODUCT_DEV_HD_MASTER           "dev/udisk"
-#endif
 /******************************************************************************/
 #endif
 #endif /* __MD_H_1cd88dc0a9124864acf00c06ad1ac3de__ */

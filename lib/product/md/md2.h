@@ -25,6 +25,10 @@
 #ifndef PRODUCT_DEV_USB_MASTER
 #define PRODUCT_DEV_USB_MASTER      "dev/udisk1110"
 #endif
+
+#ifndef PRODUCT_DEV_HD_MASTER
+#define PRODUCT_DEV_HD_MASTER       "dev/udisk"
+#endif
 /******************************************************************************/
 #endif
 #endif /* __MD2_H_68c306e9e7ce4cc2b95c6fc7fd632357__ */
