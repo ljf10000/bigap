@@ -61,7 +61,7 @@
 #endif
 
 typedef struct {
-    byte number[4];
+    unsigned char number[4];
 } product_version_t;
 
 #define PRODUCT_VERSION(a, b, c, d)     {.number = {a,b,c,d}}
