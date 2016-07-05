@@ -124,8 +124,8 @@
 #endif /* !__APP__ */
 
 #include "config.h"
-#include "product/product.h"
 #include "utils/this.h"
+#include "product/product.h"
 #include "utils/type.h"
 #include "utils/errno.h"
 #include "utils/lanmbda.h"

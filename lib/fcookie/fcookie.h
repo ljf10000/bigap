@@ -185,10 +185,10 @@ __fcookie_domain_get(char *domain)
     static char *domains[] = {
         "http://update1.9797168.com:821/wifibox",
         
-        "https://atbus.xxx.com:8443/LMS/lte/lte",
+        "https://atbus.superwalle.com:8443/LMS/lte/lte",
         ".xxx.com",
         ".pepfi.com",
-        "ftp://lms2.xxx.com",
+        "ftp://lms2.superwalle.com",
         
     };
 
