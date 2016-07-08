@@ -143,29 +143,11 @@ config TMD
 	help
 	  tmd
 
-config TTYUSB0
-	bool "ttyUSB0"
+config TTYUSB
+	bool "ttyUSB"
 	default y
 	help
-	  ttyUSB0
-
-config TTYUSB1
-	bool "ttyUSB1"
-	default y
-	help
-	  ttyUSB1
-
-config TTYUSB2
-	bool "ttyUSB2"
-	default y
-	help
-	  ttyUSB2
-
-config TTYUSB3
-	bool "ttyUSB3"
-	default y
-	help
-	  ttyUSB3
+	  ttyUSB
 
 config UMC
 	bool "umc"
