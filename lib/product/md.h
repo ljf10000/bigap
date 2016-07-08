@@ -1,32 +1,29 @@
-#ifndef __MD_H_1cd88dc0a9124864acf00c06ad1ac3de__
-#define __MD_H_1cd88dc0a9124864acf00c06ad1ac3de__
+#ifndef __MD_PRE_H_1cd88dc0a9124864acf00c06ad1ac3de__
+#define __MD_PRE_H_1cd88dc0a9124864acf00c06ad1ac3de__
 #if IS_PRODUCT_LTEFI_MD
 /******************************************************************************/
-#ifndef PRODUCT_BLOCK_SIZE
 #define PRODUCT_BLOCK_SIZE              512
-#endif
-
-#ifndef PRODUCT_BOOT_SIZE
 #define PRODUCT_BOOT_SIZE               (512*1024)
-#endif
+#define PRODUCT_BOOTM_START             0x1000000
+#define PRODUCT_BOOTCMD_BOOTM           "bootm " __SYMBOL_TO_STRING(PRODUCT_BOOTM_START)
+#define PRODUCT_BOOTCMD_LOADK_BEGIN     "mmc read 0 " __SYMBOL_TO_STRING(PRODUCT_BOOTM_START) " "
 
-#ifndef PRODUCT_FIRMWARE_COUNT
-#if 1==PRODUCT_FLASH_SIZE       /* 1G */
-#   define PRODUCT_FIRMWARE_COUNT       3
-#elif 2==PRODUCT_FLASH_SIZE     /* 2G */
-#   define PRODUCT_FIRMWARE_COUNT       5
-#elif 4==PRODUCT_FLASH_SIZE ||  /* 4G */ \
-      8==PRODUCT_FLASH_SIZE     /* 8G */
-#   define PRODUCT_FIRMWARE_COUNT       7
-#endif /* PRODUCT_FLASH_SIZE */
-#endif /* PRODUCT_FIRMWARE_COUNT */
+#define PRODUCT_FILE_VERSION            ".version"
+#define PRODUCT_FILE_KERNEL             "hi_kernel.bin"
+#define PRODUCT_FILE_BASEPARAM          "base_param.bin"
+#define PRODUCT_FILE_BOOT               "fastboot-burn.bin"
+#define PRODUCT_FILE_BOOTENV            "bootenv.bin"
+#define PRODUCT_FILE_AP_BOOT            "u-boot.bin"
+#define PRODUCT_FILE_AP_BOOTENV         "u-bootenv.bin"
+#define PRODUCT_FILE_AP_FIRMWARE        "openwrt.bin"
+
+#define PRODUCT_BIN_TOOL                "tool.bin"
+#define PRODUCT_BIN_DATA                "data.bin"
+#define PRODUCT_BIN_CONFIG              "config.bin"
+#define PRODUCT_BIN_ROOTFS              "rootfs.bin"
 
 #ifndef PRODUCT_BOOTARGS_BLOCK0_NAME
 #define PRODUCT_BOOTARGS_BLOCK0_NAME    "mmcblk0"
-#endif
-
-#ifndef PRODUCT_FIRMWARE_CURRENT
-#define PRODUCT_FIRMWARE_CURRENT        1
 #endif
 
 #ifndef PRODUCT_DIR_ROOT
@@ -45,5 +42,21 @@
 #define PRODUCT_DEV_SD_MASTER           "dev/mmcblk1"
 #endif
 /******************************************************************************/
+#include "product/md/md1.h"
+#include "product/md/md2.h"
+#include "product/md/md3.h"
+#include "product/md/md4.h"
+/******************************************************************************/
+#define PRODUCT_BOOTCMD_LOADK_END       " " __SYMBOL_TO_STRING(PRODUCT_KERNEL_BLKCOUNT)
+#define PRODUCT_BOOTCMD_LOADK           \
+        PRODUCT_BOOTCMD_LOADK_BEGIN     \
+        __SYMBOL_TO_STRING(PRODUCT_KERNEL_BLKSTART_DEFT) \
+        PRODUCT_BOOTCMD_LOADK_END       \
+        /* end */
+#define PRODUCT_BOOTCOMMAND             \
+        PRODUCT_BOOTCMD_LOADK       ";" \
+        PRODUCT_BOOTCMD_BOOTM       ";" \
+        /* end */
+/******************************************************************************/
 #endif
-#endif /* __MD_H_1cd88dc0a9124864acf00c06ad1ac3de__ */
+#endif /* __MD_PRE_H_1cd88dc0a9124864acf00c06ad1ac3de__ */

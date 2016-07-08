@@ -466,7 +466,7 @@ typedef struct {
 }   /* end */
 
 
-#if !defined(__BUSYBOX__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_B)
+#if !defined(__BUSYBOX__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
 #   define BENV_INITER \
         static benv_env_t __benv; \
         benv_control_t benv_control = BENV_CONTROL_DEFT(&__benv, NULL, NULL); \
@@ -1512,28 +1512,6 @@ __benv_check_string(benv_ops_t * ops, char *value)
         __benv_check_current, __benv_set_number, __benv_show_number) \
     /* end */
 
-#if 1==PRODUCT_FIRMWARE_COUNT
-#define BENV_OS_OPS         \
-    BENV_OS_COMMON_OPS,     \
-    BENV_FIRMWARE_OPS(0)    \
-    /* end */
-#elif 3==PRODUCT_FIRMWARE_COUNT
-#define BENV_OS_OPS         \
-    BENV_OS_COMMON_OPS,     \
-    BENV_FIRMWARE_OPS(0),   \
-    BENV_FIRMWARE_OPS(1),   \
-    BENV_FIRMWARE_OPS(2)    \
-    /* end */
-#elif 5==PRODUCT_FIRMWARE_COUNT
-#define BENV_OS_OPS         \
-    BENV_OS_COMMON_OPS,     \
-    BENV_FIRMWARE_OPS(0),   \
-    BENV_FIRMWARE_OPS(1),   \
-    BENV_FIRMWARE_OPS(2),   \
-    BENV_FIRMWARE_OPS(3),   \
-    BENV_FIRMWARE_OPS(4)    \
-    /* end */
-#elif 7==PRODUCT_FIRMWARE_COUNT
 #define BENV_OS_OPS         \
     BENV_OS_COMMON_OPS,     \
     BENV_FIRMWARE_OPS(0),   \
@@ -1544,7 +1522,6 @@ __benv_check_string(benv_ops_t * ops, char *value)
     BENV_FIRMWARE_OPS(5),   \
     BENV_FIRMWARE_OPS(6)    \
     /* end */
-#endif
 
 #define __BENV_MARK_OPS(_path, _idx, _check, _set, _show) \
     BENV_OPS("marks/" _path, mark.key[_idx], _check, __benv_set_number, __benv_show_number)
@@ -2095,9 +2072,7 @@ extern int __benv_save(int idx);    /* idx is benv's block */
 #define benv_close()        0
 #define __benv_load(_idx)   0
 #define __benv_save(_idx)   0
-#elif IS_PRODUCT_LTEFI_MD2 || \
-      IS_PRODUCT_LTEFI_MD3 || \
-      IS_PRODUCT_PC
+#elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
 static inline int
 benv_open(void)
 {

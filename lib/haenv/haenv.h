@@ -144,7 +144,7 @@ typedef struct {
         __space                 \
     "blkdevparts="              \
         "mmcblk0:"              \
-        "512K(fastboot),"/*01 */\
+        "512K(boot),"   /* 01 */\
         "512K(bootenv),"/* 02 */\
         "4M(baseparam),"/* 03 */\
         "4M(pqparam),"  /* 04 */\

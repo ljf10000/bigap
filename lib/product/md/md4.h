@@ -1,6 +1,6 @@
-#ifndef __MD2_H_68c306e9e7ce4cc2b95c6fc7fd632357__
-#define __MD2_H_68c306e9e7ce4cc2b95c6fc7fd632357__
-#if IS_PRODUCT_LTEFI_MD2
+#ifndef __MD4_H_4d0850893f534b88986a3b39cb513eaf__
+#define __MD4_H_4d0850893f534b88986a3b39cb513eaf__
+#if IS_PRODUCT_LTEFI_MD4
 /******************************************************************************/
 #ifndef PRODUCT_PCBA_MODEL
 #define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-pcba" /* fixme */
@@ -8,12 +8,12 @@
 
 #define PRODUCT_FILE_PQPARAM            "pq_param_hi3718cv100.bin"
 
-#define PRODUCT_DOG_COUNT               2
-#define PRODUCT_FLASH_SIZE              4 /* 4G */
+#define PRODUCT_DOG_COUNT               3
+#define PRODUCT_FLASH_SIZE              8 /* 8G */
 #define PRODUCT_MEMORY_SIZE             2 /* 2G */
 #define PRODUCT_FIRMWARE_COUNT          7
-#define PRODUCT_FIRMWARE_CURRENT        1
-#define PRODUCT_KERNEL_SIZE             16 /* 16M */
+#define PRODUCT_FIRMWARE_CURRENT        3   /* rootfs3 */
+#define PRODUCT_KERNEL_SIZE             16  /* 16M */
 /*
 * kernel0 begin(block count) =  12M/512 =  24K = 0x06000
 * kernel1 begin(block count) =  28M/512 =  56K = 0x0E000
@@ -40,11 +40,11 @@
 #endif
 
 #ifndef PRODUCT_DEV_USB_MASTER
-#define PRODUCT_DEV_USB_MASTER          "dev/udisk1110"
+#define PRODUCT_DEV_USB_MASTER          "dev/udisk51210"
 #endif
 
 #ifndef PRODUCT_DEV_HD_MASTER
-#define PRODUCT_DEV_HD_MASTER           "dev/udisk"
+#define PRODUCT_DEV_HD_MASTER           "dev/udisk61110"
 #endif
 
 #define PRODUCT_DEV_KERNEL0     PRODUCT_IDEV_FLASH(6)
@@ -66,14 +66,14 @@
 #define PRODUCT_DEV_CONFIG0     PRODUCT_IDEV_FLASH(20)
 #define PRODUCT_DEV_CONFIG1     PRODUCT_IDEV_FLASH(21)
 
-#define PRODUCT_DEV_TOOL0       PRODUCT_IDEV_FLASH(22) /* same to data0 */
-#define PRODUCT_DEV_TOOL1       PRODUCT_IDEV_FLASH(23) /* same to data1 */
+#define PRODUCT_DEV_TOOL0       PRODUCT_IDEV_FLASH(22)
+#define PRODUCT_DEV_TOOL1       PRODUCT_IDEV_FLASH(23)
 
-#define PRODUCT_DEV_DATA0       PRODUCT_IDEV_FLASH(22)
-#define PRODUCT_DEV_DATA1       PRODUCT_IDEV_FLASH(23)
+#define PRODUCT_DEV_DATA0       PRODUCT_IDEV_FLASH(24)
+#define PRODUCT_DEV_DATA1       PRODUCT_IDEV_FLASH(25)
 
-#define PRODUCT_DEV_OTHER       PRODUCT_IDEV_FLASH(24)
-#define PRODUCT_DEV_ROOT        PRODUCT_IDEV_FLASH(14) /* rootfs1 */
+#define PRODUCT_DEV_OTHER       PRODUCT_IDEV_FLASH(26)
+#define PRODUCT_DEV_ROOT        PRODUCT_IDEV_FLASH(16) /* rootfs3 */
 
 #define PRODUCT_BOOTARGS_BLOCK0 \
         "512K(fastboot),"/*01 */\
@@ -90,21 +90,24 @@
         "16M(kernel5)," /* 11 */\
         "16M(kernel6)," /* 12 */\
                                 \
-        "256M(rootfs0),"/* 13 */\
-        "256M(rootfs1),"/* 14 */\
-        "256M(rootfs2),"/* 15 */\
-        "256M(rootfs3),"/* 16 */\
-        "256M(rootfs4),"/* 17 */\
-        "256M(rootfs5),"/* 18 */\
-        "256M(rootfs6),"/* 19 */\
+        "200M(rootfs0),"/* 13 */\
+        "200M(rootfs1),"/* 14 */\
+        "200M(rootfs2),"/* 15 */\
+        "200M(rootfs3),"/* 16 */\
+        "200M(rootfs4),"/* 17 */\
+        "200M(rootfs5),"/* 18 */\
+        "200M(rootfs6),"/* 19 */\
                                 \
         "32M(config0)," /* 20 */\
         "32M(config1)," /* 21 */\
                                 \
-        "820M(data0),"  /* 22 */\
-        "820M(data1),"  /* 23 */\
-        "-(others)"     /* 24 */\
+        "512M(tool0),"  /* 22 */\
+        "512M(tool1),"  /* 23 */\
+                                \
+        "512M(data0),"  /* 24 */\
+        "512M(data1),"  /* 25 */\
+        "-(others)"     /* 26 */\
         /* end */
 /******************************************************************************/
 #endif
-#endif /* __MD2_H_68c306e9e7ce4cc2b95c6fc7fd632357__ */
+#endif /* __MD4_H_4d0850893f534b88986a3b39cb513eaf__ */

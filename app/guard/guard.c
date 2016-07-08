@@ -95,7 +95,7 @@ static byte private[OTP_SIZE];
 #define get_version()   "0.0.0.1"
 #define get_oem()       "none"
 #define __prepare() os_do_nothing()
-#elif IS_PRODUCT_LTEFI_A
+#elif IS_PRODUCT_LTEFI_MD_PARTITION_A
 static char *
 get_mac(void)
 {
@@ -206,7 +206,7 @@ get_oem(void)
 }
 
 #define __prepare() os_do_nothing()
-#elif IS_PRODUCT_LTEFI_B
+#elif IS_PRODUCT_LTEFI_MD_PARTITION_B
 #define get_mac()   benv_info_get(__benv_info_product_mac)
 #define get_mid()   benv_mark_get(__benv_mark_cid_mid)
 #define get_psn()   benv_mark_get(__benv_mark_cid_psn)

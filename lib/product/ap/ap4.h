@@ -1,11 +1,12 @@
-#ifndef __AP1_H_8c9f0b2a88fc4a58b2c85e5e7a4a730c__
-#define __AP1_H_8c9f0b2a88fc4a58b2c85e5e7a4a730c__
-#if IS_PRODUCT_LTEFI_AP1
+#ifndef __AP4_H_611eae9f1d6647b3916daca4050b7e08__
+#define __AP4_H_611eae9f1d6647b3916daca4050b7e08__
+#if IS_PRODUCT_LTEFI_AP4
 /******************************************************************************/
+
 #ifndef PRODUCT_PCBA_MODEL
 #define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-pcba" /* fixme */
 #endif
 
 /******************************************************************************/
 #endif
-#endif /* __AP1_H_8c9f0b2a88fc4a58b2c85e5e7a4a730c__ */
+#endif /* __AP4_H_611eae9f1d6647b3916daca4050b7e08__ */

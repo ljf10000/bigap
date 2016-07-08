@@ -7,63 +7,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #ifdef CONFIG_BOOTCOMMAND
 #undef CONFIG_BOOTCOMMAND
 #endif
-/*
-* kernel0 begin(block count) =  12M/512 =  24K = 0x06000
-* kernel1 begin(block count) =  28M/512 =  56K = 0x0E000
-* kernel2 begin(block count) =  44M/512 =  88K = 0x16000
-* kernel3 begin(block count) =  60M/512 = 120K = 0x1E000
-* kernel4 begin(block count) =  76M/512 = 152K = 0x26000
-* kernel5 begin(block count) =  92M/512 = 184K = 0x2E000
-* kernel6 begin(block count) = 108M/512 = 216K = 0x36000
-*
-* kernel  size (block count) = 16M/512 =  32K = 0x8000
-*/
-#define CONFIG_BOOTCOMMAND_BEGIN        "mmc read 0 0x1000000 "
-#define CONFIG_BOOTCOMMAND_KERNEL0      "0x06000"
-#define CONFIG_BOOTCOMMAND_KERNEL1      "0x0E000"
-#define CONFIG_BOOTCOMMAND_KERNEL2      "0x16000"
-#define CONFIG_BOOTCOMMAND_KERNEL3      "0x1E000"
-#define CONFIG_BOOTCOMMAND_KERNEL4      "0x26000"
-#define CONFIG_BOOTCOMMAND_KERNEL5      "0x2E000"
-#define CONFIG_BOOTCOMMAND_KERNEL6      "0x36000"
-#define CONFIG_BOOTCOMMAND_END          " 0x8000;bootm 0x1000000"
-#define CONFIG_BOOTCOMMAND              \
-            CONFIG_BOOTCOMMAND_BEGIN    \
-            CONFIG_BOOTCOMMAND_KERNEL1  \
-            CONFIG_BOOTCOMMAND_END      \
-            /* end */
-#if 0
-static uint32 kernel_offset[PRODUCT_FIRMWARE_COUNT] = {
-    [0] = 0x06000,
-    [1] = 0x0E000,
-    [2] = 0x16000,
-    [3] = 0x1E000,
-    [4] = 0x26000,
-    [5] = 0x2E000,
-    [6] = 0x36000,
-};
-
-/*
-* rootfs0 begin(block count) =  124M/512 =  248K = 0x03E000
-* rootfs1 begin(block count) =  380M/512 =  760K = 0x0BE000
-* rootfs2 begin(block count) =  636M/512 = 1272K = 0x13E000
-* rootfs3 begin(block count) =  892M/512 = 1784K = 0x1BE000
-* rootfs4 begin(block count) = 1148M/512 = 2298K = 0x23E800
-* rootfs5 begin(block count) = 1404M/512 = 2808K = 0x2BE000
-* rootfs6 begin(block count) = 1660M/512 = 3320K = 0x33E000
-*
-* rootfs  size (block count) = 256M/512 = 512K = 0x80000
-*/
-static uint32 rootfs_offset[PRODUCT_FIRMWARE_COUNT] = {
-    [0] = 0x03E000,
-    [1] = 0x0BE000,
-    [2] = 0x13E000,
-    [3] = 0x1BE000,
-    [4] = 0x23E800,
-    [5] = 0x2BE000,
-    [6] = 0x33E000,
-};
-#endif
+#define CONFIG_BOOTCOMMAND              PRODUCT_BOOTCOMMAND
 
 /*
 * bootargs/bootcmd is dirty???
@@ -208,22 +152,18 @@ change_bootcmd(void)
     int idx = __benv_current;
     
     char *array[PRODUCT_FIRMWARE_COUNT] = {
-        [0] = CONFIG_BOOTCOMMAND_KERNEL0,
-        [1] = CONFIG_BOOTCOMMAND_KERNEL1,
-        [2] = CONFIG_BOOTCOMMAND_KERNEL2,
-#if PRODUCT_FIRMWARE_COUNT > 3
-        [3] = CONFIG_BOOTCOMMAND_KERNEL3,
-        [4] = CONFIG_BOOTCOMMAND_KERNEL4,
-#if PRODUCT_FIRMWARE_COUNT > 5
-        [5] = CONFIG_BOOTCOMMAND_KERNEL5,
-        [6] = CONFIG_BOOTCOMMAND_KERNEL6,
-#endif
-#endif
+        [0] = __SYMBOL_TO_STRING(PRODUCT_KERNEL_BLKSTART0),
+        [1] = __SYMBOL_TO_STRING(PRODUCT_KERNEL_BLKSTART1),
+        [2] = __SYMBOL_TO_STRING(PRODUCT_KERNEL_BLKSTART2),
+        [3] = __SYMBOL_TO_STRING(PRODUCT_KERNEL_BLKSTART3),
+        [4] = __SYMBOL_TO_STRING(PRODUCT_KERNEL_BLKSTART4),
+        [5] = __SYMBOL_TO_STRING(PRODUCT_KERNEL_BLKSTART5),
+        [6] = __SYMBOL_TO_STRING(PRODUCT_KERNEL_BLKSTART6),
     };
     
     return __change_bootenv(
                 "bootcmd", 
-                CONFIG_BOOTCOMMAND_BEGIN, 
+                PRODUCT_BOOTCMD_LOADK_BEGIN, 
                 array[idx]);
 }
 
@@ -233,17 +173,6 @@ change_bootargs(void)
     int idx = __benv_current;
     
     char *array[PRODUCT_FIRMWARE_COUNT] = {
-#if 3==PRODUCT_FIRMWARE_COUNT
-        [0] = "10",
-        [1] = "11",
-        [2] = "12",
-#elif 5==PRODUCT_FIRMWARE_COUNT
-        [0] = "11",
-        [1] = "12",
-        [2] = "13",
-        [3] = "14",
-        [4] = "15",
-#elif 7==PRODUCT_FIRMWARE_COUNT
         [0] = "13",
         [1] = "14",
         [2] = "15",
@@ -251,7 +180,6 @@ change_bootargs(void)
         [4] = "17",
         [5] = "18",
         [6] = "19",
-#endif
     };
 
     char *rootrw = benv_info_get(__benv_info_pcba_rootrw);

@@ -20,36 +20,51 @@ BENV_INITER;
 #define DIR_USB_ROOTFS              DIR_USB_UPGRADE "/rootfs"
 #define DIR_USB_CONFIG              DIR_USB_UPGRADE "/config"
 #define DIR_USB_DATA                DIR_USB_UPGRADE "/data"
+#define DIR_USB_TOOL                DIR_USB_UPGRADE "/tool"
 #define DIR_USB_OTHER               DIR_USB_UPGRADE "/other"
 
-#define USB_FILE(_file)             DIR_USB_ROOTFS "/" _file
+#define USB_FILE(_file)             DIR_USB_ROOTFS  "/" _file
+#define USB_TOOL_FILE(_file)        DIR_USB_TOOL    "/" _file
 
 #define SCRIPT_MOUNT                PRODUCT_FILE("etc/mount/mount.sh")
 #define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
 #define SCRIPT_CURRENT              PRODUCT_FILE("usr/sbin/syscurrent")
 
-#define __FILE_VERSION              "etc/.version"
+#define __FILE_VERSION              "etc/" PRODUCT_FILE_VERSION
 #define __FILE_ROOTFS_VERSION       __FILE_VERSION
 #define __FILE_KERNEL_VERSION       __FILE_VERSION
-#define __FILE_KERNEL               "image/hi_kernel.bin"
-#define __FILE_BOOT                 "image/fastboot-burn.bin"
-#define __FILE_BOOTENV              "image/bootenv.bin"
-#define __FILE_AP_BOOT              "image/u-boot.bin"
-#define __FILE_AP_BOOTENV           "image/u-bootenv"
+#define __FILE_TOOL_VERSION         __FILE_VERSION
+#define __FILE_PQPARAM              "image/" PRODUCT_FILE_PQPARAM
+#define __FILE_BASEPARAM            "image/" PRODUCT_FILE_BASEPARAM
+#define __FILE_KERNEL               "image/" PRODUCT_FILE_KERNEL
+#define __FILE_BOOT                 "image/" PRODUCT_FILE_BOOT
+#define __FILE_BOOTENV              "image/" PRODUCT_FILE_BOOTENV
+#define __FILE_AP_BOOT              "image/" PRODUCT_FILE_AP_BOOT
+#define __FILE_AP_BOOTENV           "image/" PRODUCT_FILE_AP_BOOTENV
+#define __FILE_AP_FIRMWARE          "image/" PRODUCT_FILE_AP_FIRMWARE
+
 #define FILE_ROOTFS_VERSION         PRODUCT_FILE(__FILE_ROOTFS_VERSION)
 #define FILE_KERNEL_VERSION         PRODUCT_FILE(__FILE_KERNEL_VERSION)
+#define FILE_PQPARAM                PRODUCT_FILE(__FILE_PQPARAM)
+#define FILE_BASEPARAM              PRODUCT_FILE(__FILE_BASEPARAM)
 #define FILE_KERNEL                 PRODUCT_FILE(__FILE_KERNEL)
 #define FILE_BOOT                   PRODUCT_FILE(__FILE_BOOT)
 #define FILE_BOOTENV                PRODUCT_FILE(__FILE_BOOTENV)
 #define FILE_AP_BOOT                PRODUCT_FILE(__FILE_AP_BOOT)
 #define FILE_AP_BOOTENV             PRODUCT_FILE(__FILE_AP_BOOTENV)
+#define FILE_AP_FIRMWARE            PRODUCT_FILE(__FILE_AP_FIRMWARE)
+
 #define USB_FILE_ROOTFS_VERSION     USB_FILE(__FILE_ROOTFS_VERSION)
 #define USB_FILE_KERNEL_VERSION     USB_FILE(__FILE_KERNEL_VERSION)
+#define USB_FILE_TOOL_VERSION       USB_TOOL_FILE(__FILE_TOOL_VERSION)
+#define USB_FILE_PQPARAM            USB_FILE(__FILE_PQPARAM)
+#define USB_FILE_BASEPARAM          USB_FILE(__FILE_BASEPARAM)
 #define USB_FILE_KERNEL             USB_FILE(__FILE_KERNEL)
 #define USB_FILE_BOOT               USB_FILE(__FILE_BOOT)
 #define USB_FILE_BOOTENV            USB_FILE(__FILE_BOOTENV)
 #define USB_FILE_AP_BOOT            USB_FILE(__FILE_AP_BOOT)
 #define USB_FILE_AP_BOOTENV         USB_FILE(__FILE_AP_BOOTENV)
+#define USB_FILE_AP_FIRMWARE        USB_FILE(__FILE_AP_FIRMWARE)
 
 #define ENV_TIMEOUT                 "__ENV_TIMEOUT__"
 #define ENV_PWDFILE                 "__ENV_PWDFILE__"
@@ -63,14 +78,16 @@ BENV_INITER;
 #define ENV_PATH                    "__ENV_PATH__"
 
 #define __OBJ(_idx, _dev, _dir)     [_idx] = {.dev = _dev, .dir = _dir}
-#define OBJ_KERNEL(_idx)            __OBJ(_idx, PRODUCT_IDEV_KERNEL(_idx), PRODUCT_IDIR_KERNEL(_idx))
-#define OBJ_ROOTFS(_idx)            __OBJ(_idx, PRODUCT_IDEV_ROOTFS(_idx), PRODUCT_IDIR_ROOTFS(_idx))
-#define OBJ_CONFIG(_idx)            __OBJ(_idx, PRODUCT_IDEV_CONFIG(_idx), PRODUCT_IDIR_CONFIG(_idx))
-#define OBJ_DATA(_idx)              __OBJ(_idx, PRODUCT_IDEV_DATA(_idx),   PRODUCT_IDIR_DATA(_idx))
+#define OBJ_KERNEL(_idx)            __OBJ(_idx, PRODUCT_IDEV_KERNEL(_idx),  PRODUCT_IDIR_KERNEL(_idx))
+#define OBJ_ROOTFS(_idx)            __OBJ(_idx, PRODUCT_IDEV_ROOTFS(_idx),  PRODUCT_IDIR_ROOTFS(_idx))
+#define OBJ_CONFIG(_idx)            __OBJ(_idx, PRODUCT_IDEV_CONFIG(_idx),  PRODUCT_IDIR_CONFIG(_idx))
+#define OBJ_TOOL(_idx)              __OBJ(_idx, PRODUCT_IDEV_TOOL(_idx),    PRODUCT_IDIR_TOOL(_idx))
+#define OBJ_DATA(_idx)              __OBJ(_idx, PRODUCT_IDEV_DATA(_idx),    PRODUCT_IDIR_DATA(_idx))
 
 static struct {
     int current;
     int cmaster;
+    int tmaster;
     int dmaster;
     int upgrade;
     int idx; /* rootfs idx */
@@ -94,7 +111,7 @@ static struct {
     struct {
         char *dev;
         char *dir;
-    } kernel[PRODUCT_FIRMWARE_COUNT], rootfs[PRODUCT_FIRMWARE_COUNT], data[2], config[2];
+    } kernel[PRODUCT_FIRMWARE_COUNT], rootfs[PRODUCT_FIRMWARE_COUNT], tool[2], data[2], config[2];
 } 
 sys = {
     .current= PRODUCT_FIRMWARE_CURRENT,
@@ -104,33 +121,30 @@ sys = {
         OBJ_KERNEL(0),
         OBJ_KERNEL(1),
         OBJ_KERNEL(2),
-#if PRODUCT_FIRMWARE_COUNT > 3
         OBJ_KERNEL(3),
         OBJ_KERNEL(4),
-#if PRODUCT_FIRMWARE_COUNT > 5
         OBJ_KERNEL(5),
         OBJ_KERNEL(6),
-#endif
-#endif
     },
     
     .rootfs = {
         OBJ_ROOTFS(0),
         OBJ_ROOTFS(1),
         OBJ_ROOTFS(2),
-#if PRODUCT_FIRMWARE_COUNT > 3
         OBJ_ROOTFS(3),
         OBJ_ROOTFS(4),
-#if PRODUCT_FIRMWARE_COUNT > 5
         OBJ_ROOTFS(5),
         OBJ_ROOTFS(6),
-#endif
-#endif
     },
 
     .config = {
         OBJ_CONFIG(0),
         OBJ_CONFIG(1),
+    },
+
+    .tool = {
+        OBJ_TOOL(0),
+        OBJ_TOOL(1),
     },
 
     .data = {
@@ -141,28 +155,34 @@ sys = {
 
 #define __skips(_idx)           (benv_skips(sys.current) | os_bit(_idx))
 #define __cslave                (!sys.cmaster)
+#define __tslave                (!sys.tmaster)
 #define __dslave                (!sys.dmaster)
 #define __cmaster               (!__cslave)
+#define __tmaster               (!__tslave)
 #define __dmaster               (!__dslave)
 
 #define dev_kernel(_idx)        sys.kernel[_idx].dev
 #define dev_rootfs(_idx)        sys.rootfs[_idx].dev
 #define dev_config(_idx)        sys.config[_idx].dev
+#define dev_tool(_idx)          sys.tool[_idx].dev
 #define dev_data(_idx)          sys.data[_idx].dev
 
 #define dev_kernel_current      dev_kernel(sys.current)
 #define dev_rootfs_current      dev_rootfs(sys.current)
 #define dev_config_master       dev_config(__cmaster)
+#define dev_tool_master         dev_tool(__tmaster)
 #define dev_data_master         dev_data(__dmaster)
 
 #define dir_kernel(_idx)        sys.kernel[_idx].dir
 #define dir_rootfs(_idx)        sys.rootfs[_idx].dir
 #define dir_config(_idx)        sys.config[_idx].dir
+#define dir_tool(_idx)          sys.tool[_idx].dir
 #define dir_data(_idx)          sys.data[_idx].dir
 
 #define dir_kernel_current      dir_kernel(sys.current)
 #define dir_rootfs_current      dir_rootfs(sys.current)
 #define dir_config_master       dir_config(__cmaster)
+#define dir_tool_master         dir_data(__tmaster)
 #define dir_data_master         dir_data(__dmaster)
 
 #define is_current_rootfs_dev(_dev) os_streq(dev_rootfs_current, _dev)
@@ -459,6 +479,15 @@ mount_config(void)
 }
 
 static int
+mount_tool(void)
+{
+    return mount_double("tool", PRODUCT_DIR_TOOL,
+                dev_tool(0), dir_tool(0), 
+                dev_tool(1), dir_tool(1),
+                &sys.tmaster);
+}
+
+static int
 mount_data(void)
 {
     return mount_double("data", PRODUCT_DIR_DATA,
@@ -554,6 +583,12 @@ umount_config(void)
 }
 
 static int
+umount_tool(void)
+{
+    return umount_double(PRODUCT_DIR_TOOL, dir_tool(0), dir_tool(1));
+}
+
+static int
 umount_data(void)
 {
     return umount_double(PRODUCT_DIR_DATA, dir_data(0), dir_data(1));
@@ -611,6 +646,10 @@ static struct {
     {
          .mount =  mount_config,
         .umount = umount_config,
+    },
+    {
+         .mount =  mount_tool,
+        .umount = umount_tool,
     },
     {
          .mount =  mount_data,
@@ -697,16 +736,16 @@ load(void)
 *   set obj fsm failed
 *   save obj version
 */
-#define __upgrade_init(_obj, _idx, _version)    do{ \
+#define __upgrade_init(_obj, _idx, _version)    do{     \
     benv_obj(_obj, _idx)->upgrade = BENV_FSM_UNKNOW;    \
     benv_obj(_obj, _idx)->other   = BENV_FSM_UNKNOW;    \
     benv_obj(_obj, _idx)->self    = BENV_FSM_UNKNOW;    \
-    benv_obj(_obj, _idx)->error   = 0;                \
-                                                    \
-    os_objcpy(benv_obj_version(_obj, _idx), _version);\
-                                                    \
+    benv_obj(_obj, _idx)->error   = 0;                  \
+                                                        \
+    os_objcpy(benv_obj_version(_obj, _idx), _version);  \
+                                                        \
     os_objcpy(&sys.old_version, benv_obj_version(_obj, _idx)); \
-    sys.dirty = true;                             \
+    sys.dirty = true;                                   \
 }while(0)
 
 /*
@@ -1192,6 +1231,18 @@ upgrade(int idx, int src)
     return err;
 }
 
+#define USB_FILE_ROOTFS_VERSION     USB_FILE(__FILE_ROOTFS_VERSION)
+#define USB_FILE_KERNEL_VERSION     USB_FILE(__FILE_KERNEL_VERSION)
+#define USB_FILE_TOOL_VERSION       USB_TOOL_FILE(__FILE_TOOL_VERSION)
+#define USB_FILE_PQPARAM            USB_FILE(__FILE_PQPARAM)
+#define USB_FILE_BASEPARAM          USB_FILE(__FILE_BASEPARAM)
+#define USB_FILE_KERNEL             USB_FILE(__FILE_KERNEL)
+#define USB_FILE_BOOT               USB_FILE(__FILE_BOOT)
+#define USB_FILE_BOOTENV            USB_FILE(__FILE_BOOTENV)
+#define USB_FILE_AP_BOOT            USB_FILE(__FILE_AP_BOOT)
+#define USB_FILE_AP_BOOTENV         USB_FILE(__FILE_AP_BOOTENV)
+#define USB_FILE_AP_FIRMWARE        USB_FILE(__FILE_AP_FIRMWARE)
+
 static int
 usbupgrade(void)
 {
@@ -1246,11 +1297,11 @@ usbupgrade(void)
     if (0==access(USB_FILE_BOOTENV, 0)) {
         bdd("bootenv", PRODUCT_DEV_BOOTENV, USB_FILE_BOOTENV);
     }
-
+    
     if (0==access(USB_FILE_KERNEL, 0)) {
         kernel_exist = true;
     }
-    
+        
     get_rootfs_zone(begin, end);
     
     for (i=begin; i<end; i++) {
@@ -1270,7 +1321,30 @@ usbupgrade(void)
             }
         }
     }
-
+    
+    for (i=0; i<2; i++) {
+        if (0==access(DIR_USB_CONFIG, 0)) {
+            err = __xcopy(dir_tool(i), DIR_USB_CONFIG);
+            if (err<0) {
+                return err;
+            }
+        }
+        
+        if (0==access(DIR_USB_TOOL, 0)) {
+            err = __xcopy(dir_tool(i), DIR_USB_TOOL);
+            if (err<0) {
+                return err;
+            }
+        }
+        
+        if (0==access(DIR_USB_DATA, 0)) {
+            err = __xcopy(dir_tool(i), DIR_USB_DATA);
+            if (err<0) {
+                return err;
+            }
+        }
+    }
+    
     return 0;
 }
 

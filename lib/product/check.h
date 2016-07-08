@@ -53,16 +53,13 @@
 #error "must define PRODUCT_ROOTFS_MODE!"
 #endif
 
-#if 1!=PRODUCT_FLASH_SIZE && \
-    2!=PRODUCT_FLASH_SIZE && \
-    4!=PRODUCT_FLASH_SIZE && \
+#if 4!=PRODUCT_FLASH_SIZE && \
     8!=PRODUCT_FLASH_SIZE
 #error "invalid PRODUCT_FLASH_SIZE!"
 #endif
 
 #if 1!=PRODUCT_FIRMWARE_COUNT && \
     3!=PRODUCT_FIRMWARE_COUNT && \
-    5!=PRODUCT_FIRMWARE_COUNT && \
     7!=PRODUCT_FIRMWARE_COUNT
 #error "invalid PRODUCT_FIRMWARE_COUNT!"
 #endif

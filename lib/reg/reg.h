@@ -101,12 +101,12 @@ enum {
     OS_REG("dog lock",      __dog_reg(_dog, __DOG_LOCK),     __DOG_LOCK_CLOSE) \
     /* end */
 
-#if IS_PRODUCT_LTEFI_MD1 || IS_PRODUCT_LTEFI_MD2
+#if IS_PRODUCT_LTEFI_MD_CPU_A
 #define OS_DOG_ENABLE { \
     __OS_DOG_ENABLE(0), \
     __OS_DOG_ENABLE(1), \
 }   /* end */
-#elif IS_PRODUCT_LTEFI_MD3
+#elif IS_PRODUCT_LTEFI_MD_CPU_B
 #define OS_DOG_ENABLE { \
     __OS_DOG_ENABLE(0), \
     __OS_DOG_ENABLE(1), \

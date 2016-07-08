@@ -1,5 +1,5 @@
-#ifndef __AP_H_b76f05a2ba014f61aed631e24b41d156__
-#define __AP_H_b76f05a2ba014f61aed631e24b41d156__
+#ifndef __AP_PRE_H_b76f05a2ba014f61aed631e24b41d156__
+#define __AP_PRE_H_b76f05a2ba014f61aed631e24b41d156__
 #if IS_PRODUCT_LTEFI_AP
 /******************************************************************************/
 #ifndef PRODUCT_BLOCK_SIZE
@@ -54,5 +54,10 @@
 #define PRODUCT_DEV_USB_MASTER          "dev/fixme"
 #endif
 /******************************************************************************/
+#include "product/ap/ap1.h"
+#include "product/ap/ap2.h"
+#include "product/ap/ap3.h"
+#include "product/ap/ap4.h"
+/******************************************************************************/
 #endif
-#endif /* __AP_H_b76f05a2ba014f61aed631e24b41d156__ */
+#endif /* __AP_PRE_H_b76f05a2ba014f61aed631e24b41d156__ */
