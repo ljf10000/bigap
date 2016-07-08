@@ -13,7 +13,7 @@ include $(SDK_DIR)/base.mak
 endif
 
 #add  by autelan
-TARGET=at_ttyUSB0 at_ttyUSB1 at_ttyUSB2 at_ttyUSB3
+TARGET=ttyUSB
 CROSS_COMPILE=arm-hisiv200-linux-
 CC:=$(CROSS_COMPILE)gcc
 RM:=rm -rf
@@ -38,13 +38,7 @@ all:$(image) install
 ppp_dial: ppp_dial.c
 	@$(CC) -static -o $@ $^ -I$(INCLUDE_DIR) -L$(STATIC_LIB_DIR) -lhi_3g -lhi_common $(LIB) -lpthread
 	@$(STRIP) $@
-
-#add by autelan
-	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB0 ttyUSB0.c -lpthread
-	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB1 ttyUSB1.c -lpthread
-	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB2 ttyUSB2.c -lpthread
-	$(CC) $(AUTE_CFLAGS) -o at_ttyUSB3 ttyUSB3.c -lpthread
-#add end by autelan
+	$(CC) $(AUTE_CFLAGS) -o $(TARGET) ttyUSB.c -lpthread
 
 clean:
 	-@rm -f $(image)
@@ -55,10 +49,7 @@ clean:
 install:
 	cp ppp_dial $(ROOTBOX_DIR)/usr/sbin
 #add by autelan
-	cp at_ttyUSB0 $(ROOTBOX_DIR)/usr/sbin
-	cp at_ttyUSB1 $(ROOTBOX_DIR)/usr/sbin
-	cp at_ttyUSB2 $(ROOTBOX_DIR)/usr/sbin
-	cp at_ttyUSB3 $(ROOTBOX_DIR)/usr/sbin
+	cp ttyUSB $(ROOTBOX_DIR)/usr/sbin
 #add end by autelan
 
 uninstall:

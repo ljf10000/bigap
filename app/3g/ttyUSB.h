@@ -52,12 +52,22 @@ static inline int send(int fd, char *cmdbuf)
 	return 0;
 }
 
-static inline int ttyUSB_main(int argc, char *argv[])
+static inline int ttyUSB_H_main(int argc, char *argv[])
 {
 	int fd;
 	char cmdbuf[128];
+	int no;
+	char dev[128] = {0};
 
-	fd = open( TTYUSB, O_RDWR|O_NOCTTY|O_NDELAY);
+	if (argv[1] == NULL) {
+		printf("Error: ttyUSB [number]\n");
+		exit(1);
+	}
+	
+	no = strtoul(argv[1], NULL, 10);
+	sprintf(dev, "%s%d", TTYUSB, no);
+
+	fd = open(dev, O_RDWR|O_NOCTTY|O_NDELAY);
 	if (-1 != fd)
 	{
 		if (argv[1] == NULL)

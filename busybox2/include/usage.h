@@ -183,14 +183,8 @@
 #define tmd_trivial_usage       "\n\n"
 #define tmd_full_usage          "\n\n"
 
-#define ttyUSB0_trivial_usage	"\n\n"
-#define ttyUSB0_full_usage		"\n\n"
-#define ttyUSB1_trivial_usage	"\n\n"
-#define ttyUSB1_full_usage		"\n\n"
-#define ttyUSB2_trivial_usage	"\n\n"
-#define ttyUSB2_full_usage		"\n\n"
-#define ttyUSB3_trivial_usage	"\n\n"
-#define ttyUSB3_full_usage		"\n\n"
+#define ttyUSB_trivial_usage	"\n\n"
+#define ttyUSB_full_usage		"\n\n"
 
 #define umc_trivial_usage       "\n\n"
 #define umc_full_usage          "\n\n"
