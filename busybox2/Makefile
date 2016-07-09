@@ -320,7 +320,7 @@ HISITOOLS 	:= /opt/hisi-linux/x86-arm/arm-hisiv200-linux/target
 BIGAP_CFLAGS	:= -DBIGAP \
 			-D__TAB_AS_SPACE=4 \
 			-D__BUSYBOX__ \
-			-D__PRODUCT__=3 \
+			-D__PRODUCT__=5 \
 			-I$(srctree)/bigap/lib/json-c \
 			-I$(srctree)/bigap/lib \
 			-I$(srctree)/bigap/app \
