@@ -6,7 +6,7 @@
 #define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-pcba" /* fixme */
 #endif
 
-#define PRODUCT_FILE_PQPARAM            "pq_param_hi3718cv100.bin"
+#define PRODUCT_BIN_MD_PQPARAM          "pq_param_hi3718cv100.bin"
 
 #define PRODUCT_DOG_COUNT               2
 #define PRODUCT_FLASH_SIZE              4 /* 4G */

@@ -76,19 +76,53 @@
 #include "product/pc.h"
 #include "product/check.h"
 /******************************************************************************/
+#ifndef PRODUCT_FILE_VERSION
 #define PRODUCT_FILE_VERSION            ".version"
-#define PRODUCT_FILE_KERNEL             "hi_kernel.bin"
-#define PRODUCT_FILE_BASEPARAM          "base_param.bin"
-#define PRODUCT_FILE_BOOT               "fastboot-burn.bin"
-#define PRODUCT_FILE_BOOTENV            "bootenv.bin"
-#define PRODUCT_FILE_AP_BOOT            "u-boot.bin"
-#define PRODUCT_FILE_AP_BOOTENV         "u-bootenv.bin"
-#define PRODUCT_FILE_AP_FIRMWARE        "openwrt.bin"
+#endif
 
+#ifndef PRODUCT_BIN_MD_KERNEL
+#define PRODUCT_BIN_MD_KERNEL           "hi_kernel.bin"
+#endif
+
+#ifndef PRODUCT_BIN_MD_BASEPARAM
+#define PRODUCT_BIN_MD_BASEPARAM        "base_param.bin"
+#endif
+
+#ifndef PRODUCT_BIN_MD_BOOT
+#define PRODUCT_BIN_MD_BOOT             "fastboot-burn.bin"
+#endif
+
+#ifndef PRODUCT_BIN_MD_BOOTENV
+#define PRODUCT_BIN_MD_BOOTENV          "bootenv.bin"
+#endif
+
+#ifndef PRODUCT_BIN_AP_BOOT
+#define PRODUCT_BIN_AP_BOOT             "u-boot.bin"
+#endif
+
+#ifndef PRODUCT_BIN_AP_BOOTENV
+#define PRODUCT_BIN_AP_BOOTENV          "u-bootenv.bin"
+#endif
+
+#ifndef PRODUCT_BIN_AP_FIRMWARE
+#define PRODUCT_BIN_AP_FIRMWARE         "openwrt.bin"
+#endif
+
+#ifndef PRODUCT_BIN_TOOL
 #define PRODUCT_BIN_TOOL                "tool.bin"
+#endif
+
+#ifndef PRODUCT_BIN_DATA
 #define PRODUCT_BIN_DATA                "data.bin"
+#endif
+
+#ifndef PRODUCT_BIN_CONFIG
 #define PRODUCT_BIN_CONFIG              "config.bin"
+#endif
+
+#ifndef PRODUCT_BIN_ROOTFS
 #define PRODUCT_BIN_ROOTFS              "rootfs.bin"
+#endif
 
 #ifndef PRODUCT_DIR_FLASH
 #define PRODUCT_DIR_FLASH               PRODUCT_DIR("mnt/flash")

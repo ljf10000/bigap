@@ -33,38 +33,36 @@ BENV_INITER;
 #define __FILE_VERSION              "etc/" PRODUCT_FILE_VERSION
 #define __FILE_ROOTFS_VERSION       __FILE_VERSION
 #define __FILE_KERNEL_VERSION       __FILE_VERSION
-#define __FILE_TOOL_VERSION         __FILE_VERSION
-#define __FILE_PQPARAM              "image/" PRODUCT_FILE_PQPARAM
-#define __FILE_BASEPARAM            "image/" PRODUCT_FILE_BASEPARAM
-#define __FILE_KERNEL               "image/" PRODUCT_FILE_KERNEL
-#define __FILE_BOOT                 "image/" PRODUCT_FILE_BOOT
-#define __FILE_BOOTENV              "image/" PRODUCT_FILE_BOOTENV
-#define __FILE_AP_BOOT              "image/" PRODUCT_FILE_AP_BOOT
-#define __FILE_AP_BOOTENV           "image/" PRODUCT_FILE_AP_BOOTENV
-#define __FILE_AP_FIRMWARE          "image/" PRODUCT_FILE_AP_FIRMWARE
+#define __BIN_MD_PQPARAM            "image/" PRODUCT_BIN_MD_PQPARAM
+#define __BIN_MD_BASEPARAM          "image/" PRODUCT_BIN_MD_BASEPARAM
+#define __BIN_MD_KERNEL             "image/" PRODUCT_BIN_MD_KERNEL
+#define __BIN_MD_BOOT               "image/" PRODUCT_BIN_MD_BOOT
+#define __BIN_MD_BOOTENV            "image/" PRODUCT_BIN_MD_BOOTENV
+#define __BIN_AP_BOOT               "image/" PRODUCT_BIN_AP_BOOT
+#define __BIN_AP_BOOTENV            "image/" PRODUCT_BIN_AP_BOOTENV
+#define __BIN_AP_FIRMWARE           "image/" PRODUCT_BIN_AP_FIRMWARE
 
 #define FILE_ROOTFS_VERSION         PRODUCT_FILE(__FILE_ROOTFS_VERSION)
 #define FILE_KERNEL_VERSION         PRODUCT_FILE(__FILE_KERNEL_VERSION)
-#define FILE_PQPARAM                PRODUCT_FILE(__FILE_PQPARAM)
-#define FILE_BASEPARAM              PRODUCT_FILE(__FILE_BASEPARAM)
-#define FILE_KERNEL                 PRODUCT_FILE(__FILE_KERNEL)
-#define FILE_BOOT                   PRODUCT_FILE(__FILE_BOOT)
-#define FILE_BOOTENV                PRODUCT_FILE(__FILE_BOOTENV)
-#define FILE_AP_BOOT                PRODUCT_FILE(__FILE_AP_BOOT)
-#define FILE_AP_BOOTENV             PRODUCT_FILE(__FILE_AP_BOOTENV)
-#define FILE_AP_FIRMWARE            PRODUCT_FILE(__FILE_AP_FIRMWARE)
+#define BIN_MD_PQPARAM              PRODUCT_FILE(__BIN_MD_PQPARAM)
+#define BIN_MD_BASEPARAM            PRODUCT_FILE(__BIN_MD_BASEPARAM)
+#define BIN_MD_KERNEL               PRODUCT_FILE(__BIN_MD_KERNEL)
+#define BIN_MD_BOOT                 PRODUCT_FILE(__BIN_MD_BOOT)
+#define BIN_MD_BOOTENV              PRODUCT_FILE(__BIN_MD_BOOTENV)
+#define BIN_AP_BOOT                 PRODUCT_FILE(__BIN_AP_BOOT)
+#define BIN_AP_BOOTENV              PRODUCT_FILE(__BIN_AP_BOOTENV)
+#define BIN_AP_FIRMWARE             PRODUCT_FILE(__BIN_AP_FIRMWARE)
 
 #define USB_FILE_ROOTFS_VERSION     USB_FILE(__FILE_ROOTFS_VERSION)
 #define USB_FILE_KERNEL_VERSION     USB_FILE(__FILE_KERNEL_VERSION)
-#define USB_FILE_TOOL_VERSION       USB_TOOL_FILE(__FILE_TOOL_VERSION)
-#define USB_FILE_PQPARAM            USB_FILE(__FILE_PQPARAM)
-#define USB_FILE_BASEPARAM          USB_FILE(__FILE_BASEPARAM)
-#define USB_FILE_KERNEL             USB_FILE(__FILE_KERNEL)
-#define USB_FILE_BOOT               USB_FILE(__FILE_BOOT)
-#define USB_FILE_BOOTENV            USB_FILE(__FILE_BOOTENV)
-#define USB_FILE_AP_BOOT            USB_FILE(__FILE_AP_BOOT)
-#define USB_FILE_AP_BOOTENV         USB_FILE(__FILE_AP_BOOTENV)
-#define USB_FILE_AP_FIRMWARE        USB_FILE(__FILE_AP_FIRMWARE)
+#define USB_BIN_MD_PQPARAM          USB_FILE(__BIN_MD_PQPARAM)
+#define USB_BIN_MD_BASEPARAM        USB_FILE(__BIN_MD_BASEPARAM)
+#define USB_BIN_MD_KERNEL           USB_FILE(__BIN_MD_KERNEL)
+#define USB_BIN_MD_BOOT             USB_FILE(__BIN_MD_BOOT)
+#define USB_BIN_MD_BOOTENV          USB_FILE(__BIN_MD_BOOTENV)
+#define USB_BIN_AP_BOOT             USB_FILE(__BIN_AP_BOOT)
+#define USB_BIN_AP_BOOTENV          USB_FILE(__BIN_AP_BOOTENV)
+#define USB_BIN_AP_FIRMWARE         USB_FILE(__BIN_AP_FIRMWARE)
 
 #define ENV_TIMEOUT                 "__ENV_TIMEOUT__"
 #define ENV_PWDFILE                 "__ENV_PWDFILE__"
@@ -1118,7 +1116,7 @@ repair_kernel(int idx)
         return 0;
     }
     else {
-        return kdd_byfile(idx, rootfs_file(idx, __FILE_KERNEL), &version);
+        return kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), &version);
     }
 }
 
@@ -1234,14 +1232,14 @@ upgrade(int idx, int src)
 #define USB_FILE_ROOTFS_VERSION     USB_FILE(__FILE_ROOTFS_VERSION)
 #define USB_FILE_KERNEL_VERSION     USB_FILE(__FILE_KERNEL_VERSION)
 #define USB_FILE_TOOL_VERSION       USB_TOOL_FILE(__FILE_TOOL_VERSION)
-#define USB_FILE_PQPARAM            USB_FILE(__FILE_PQPARAM)
-#define USB_FILE_BASEPARAM          USB_FILE(__FILE_BASEPARAM)
-#define USB_FILE_KERNEL             USB_FILE(__FILE_KERNEL)
-#define USB_FILE_BOOT               USB_FILE(__FILE_BOOT)
-#define USB_FILE_BOOTENV            USB_FILE(__FILE_BOOTENV)
-#define USB_FILE_AP_BOOT            USB_FILE(__FILE_AP_BOOT)
-#define USB_FILE_AP_BOOTENV         USB_FILE(__FILE_AP_BOOTENV)
-#define USB_FILE_AP_FIRMWARE        USB_FILE(__FILE_AP_FIRMWARE)
+#define USB_BIN_MD_PQPARAM            USB_FILE(__BIN_MD_PQPARAM)
+#define USB_BIN_MD_BASEPARAM          USB_FILE(__BIN_MD_BASEPARAM)
+#define USB_BIN_MD_KERNEL             USB_FILE(__BIN_MD_KERNEL)
+#define USB_BIN_MD_BOOT               USB_FILE(__BIN_MD_BOOT)
+#define USB_BIN_MD_BOOTENV            USB_FILE(__BIN_MD_BOOTENV)
+#define USB_BIN_AP_BOOT            USB_FILE(__BIN_AP_BOOT)
+#define USB_BIN_AP_BOOTENV         USB_FILE(__BIN_AP_BOOTENV)
+#define USB_BIN_AP_FIRMWARE        USB_FILE(__BIN_AP_FIRMWARE)
 
 static int
 usbupgrade(void)
@@ -1290,15 +1288,15 @@ usbupgrade(void)
         return 0;
     }
     
-    if (0==access(USB_FILE_BOOT, 0)) {
-        bdd("boot", PRODUCT_DEV_BOOT, USB_FILE_BOOT);
+    if (0==access(USB_BIN_MD_BOOT, 0)) {
+        bdd("boot", PRODUCT_DEV_BOOT, USB_BIN_MD_BOOT);
     }
 
-    if (0==access(USB_FILE_BOOTENV, 0)) {
-        bdd("bootenv", PRODUCT_DEV_BOOTENV, USB_FILE_BOOTENV);
+    if (0==access(USB_BIN_MD_BOOTENV, 0)) {
+        bdd("bootenv", PRODUCT_DEV_BOOTENV, USB_BIN_MD_BOOTENV);
     }
     
-    if (0==access(USB_FILE_KERNEL, 0)) {
+    if (0==access(USB_BIN_MD_KERNEL, 0)) {
         kernel_exist = true;
     }
         
@@ -1308,7 +1306,7 @@ usbupgrade(void)
         if (i!=sys.current) {
             if (kernel_exist) {
                 __benv_version_atoi(&version, kernel_version);
-                err = kdd_byfile(i, USB_FILE_KERNEL, &version);
+                err = kdd_byfile(i, USB_BIN_MD_KERNEL, &version);
                 if (err<0) {
                     return err;
                 }
