@@ -70,15 +70,15 @@ static inline int ttyUSB_H_main(int argc, char *argv[])
 	fd = open(dev, O_RDWR|O_NOCTTY|O_NDELAY);
 	if (-1 != fd)
 	{
-		if (argv[1] == NULL)
+		if (argv[2] == NULL)
 		{
-			printf("Usage: ctrl_lte [AT command]\n");
+			printf("Usage: ttyUSB [AT command]\n");
 		}
 		else
 		{	
 			serial_init(fd);
-			printf("Please input AT command cmd=");
-			send(fd, argv[1]);
+			printf("Input %s=", argv[2]);
+			send(fd, argv[2]);
 		}
 		close(fd);
 	}
