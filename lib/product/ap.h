@@ -11,7 +11,7 @@
 #endif
 
 #ifndef PRODUCT_FLASH_SIZE
-#define PRODUCT_FLASH_SIZE              2 /* 2G */
+#define PRODUCT_FLASH_SIZE              4 /* 2G */
 #endif
 
 #ifndef PRODUCT_MEMORY_SIZE
