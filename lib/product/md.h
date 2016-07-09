@@ -8,20 +8,6 @@
 #define PRODUCT_BOOTCMD_BOOTM           "bootm " __SYMBOL_TO_STRING(PRODUCT_BOOTM_START)
 #define PRODUCT_BOOTCMD_LOADK_BEGIN     "mmc read 0 " __SYMBOL_TO_STRING(PRODUCT_BOOTM_START) " "
 
-#define PRODUCT_FILE_VERSION            ".version"
-#define PRODUCT_FILE_KERNEL             "hi_kernel.bin"
-#define PRODUCT_FILE_BASEPARAM          "base_param.bin"
-#define PRODUCT_FILE_BOOT               "fastboot-burn.bin"
-#define PRODUCT_FILE_BOOTENV            "bootenv.bin"
-#define PRODUCT_FILE_AP_BOOT            "u-boot.bin"
-#define PRODUCT_FILE_AP_BOOTENV         "u-bootenv.bin"
-#define PRODUCT_FILE_AP_FIRMWARE        "openwrt.bin"
-
-#define PRODUCT_BIN_TOOL                "tool.bin"
-#define PRODUCT_BIN_DATA                "data.bin"
-#define PRODUCT_BIN_CONFIG              "config.bin"
-#define PRODUCT_BIN_ROOTFS              "rootfs.bin"
-
 #ifndef PRODUCT_BOOTARGS_BLOCK0_NAME
 #define PRODUCT_BOOTARGS_BLOCK0_NAME    "mmcblk0"
 #endif

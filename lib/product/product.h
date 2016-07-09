@@ -76,6 +76,20 @@
 #include "product/pc.h"
 #include "product/check.h"
 /******************************************************************************/
+#define PRODUCT_FILE_VERSION            ".version"
+#define PRODUCT_FILE_KERNEL             "hi_kernel.bin"
+#define PRODUCT_FILE_BASEPARAM          "base_param.bin"
+#define PRODUCT_FILE_BOOT               "fastboot-burn.bin"
+#define PRODUCT_FILE_BOOTENV            "bootenv.bin"
+#define PRODUCT_FILE_AP_BOOT            "u-boot.bin"
+#define PRODUCT_FILE_AP_BOOTENV         "u-bootenv.bin"
+#define PRODUCT_FILE_AP_FIRMWARE        "openwrt.bin"
+
+#define PRODUCT_BIN_TOOL                "tool.bin"
+#define PRODUCT_BIN_DATA                "data.bin"
+#define PRODUCT_BIN_CONFIG              "config.bin"
+#define PRODUCT_BIN_ROOTFS              "rootfs.bin"
+
 #ifndef PRODUCT_DIR_FLASH
 #define PRODUCT_DIR_FLASH               PRODUCT_DIR("mnt/flash")
 #endif
