@@ -264,52 +264,52 @@ typedef uint64 func_8_8(uint64, ...);
 #define LIBPARAMx(_proto, _COUNT)   LIBPARAM##_COUNT(_proto)
 
 #define __LIBCALL0(_f, _proto, _COUNT)  ({  \
-    int __err = 0;                          \
+    int __LIBCALL0_err = 0;                 \
                                             \
     switch(LIBPARAM(_proto, 0)->size) {     \
         case 4: LIBFUN(func_0_4, _f)(LIBPARAMx(_proto, _COUNT)); break; \
         case 8: LIBFUN(func_0_8, _f)(LIBPARAMx(_proto, _COUNT)); break; \
-        default: __err = -EDLLPARAMSIZE; break; \
+        default: __LIBCALL0_err = -EDLLPARAMSIZE; break; \
     }                                       \
                                             \
-    __err;                                  \
+    __LIBCALL0_err;                         \
 })
 
 #define __LIBCALL4(_f, _proto, _COUNT)  ({  \
-    int __err = 0;                          \
+    int __LIBCALL4_err = 0;                 \
                                             \
     switch(LIBPARAM(_proto, 0)->size) {     \
         case 4: (_proto)->result.u.u4 = LIBFUN(func_4_4, _f)(LIBPARAMx(_proto, _COUNT)); break; \
         case 8: (_proto)->result.u.u4 = LIBFUN(func_4_8, _f)(LIBPARAMx(_proto, _COUNT)); break; \
-        default: __err = -EDLLPARAMSIZE; break; \
+        default: __LIBCALL4_err = -EDLLPARAMSIZE; break; \
     }                                       \
                                             \
-    __err;                                  \
+    __LIBCALL4_err;                         \
 })
 
 #define __LIBCALL8(_f, _proto, _COUNT)  ({  \
-    int __err = 0;                          \
+    int __LIBCALL8_err = 0;                 \
                                             \
     switch(LIBPARAM(_proto, 0)->size) {     \
         case 4: (_proto)->result.u.u8 = LIBFUN(func_8_4, _f)(LIBPARAMx(_proto, _COUNT)); break; \
         case 8: (_proto)->result.u.u8 = LIBFUN(func_8_8, _f)(LIBPARAMx(_proto, _COUNT)); break; \
-        default: __err = -EDLLPARAMSIZE; break; \
+        default: __LIBCALL8_err = -EDLLPARAMSIZE; break; \
     }                                       \
                                             \
-    __err;                                  \
+    __LIBCALL8_err;                         \
 })
 
 #define LIBCALLx(_f, _proto, _COUNT)    ({  \
-    int __err = 0;                          \
+    int __LIBCALLx_err = 0;                 \
                                             \
     switch((_proto)->result.size) {         \
-        case 0: __err = __LIBCALL0(_f,_proto,_COUNT); break; \
-        case 4: __err = __LIBCALL4(_f,_proto,_COUNT); break; \
-        case 8: __err = __LIBCALL8(_f,_proto,_COUNT); break; \
-        default:__err = -EDLLRESULTSIZE; break; \
+        case 0: __LIBCALLx_err = __LIBCALL0(_f,_proto,_COUNT); break; \
+        case 4: __LIBCALLx_err = __LIBCALL4(_f,_proto,_COUNT); break; \
+        case 8: __LIBCALLx_err = __LIBCALL8(_f,_proto,_COUNT); break; \
+        default:__LIBCALLx_err = -EDLLRESULTSIZE; break; \
     }                                       \
                                             \
-    __err;                                  \
+    __LIBCALLx_err;                         \
 }) /* end */
 
 static inline int
