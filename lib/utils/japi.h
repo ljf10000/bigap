@@ -413,16 +413,10 @@ jobj_add_json(jobj_t obj, char *key, char *value)
 static inline int
 jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
 {
-    static jobj_t empty = NULL;
-    
     char *key, *p;
     jvar_t var;
     int err = 0;
 
-    if (NULL==empty) {
-        empty = jobj_new_object();
-    }
-    
     p = (char *)fmt;
     while(*p) {
         if ('%' == *p++) {
@@ -470,7 +464,7 @@ jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
             case jfmt_array:
                 var.a = va_arg(args, jobj_t);
                 if (NULL==var.a) {
-                    var.a = empty;
+                    var.a = jobj_new_object();
                 }
                 japi_println("array=%s", jobj_json(var.a));
                 jobj_add(obj, key, var.a);
@@ -479,7 +473,7 @@ jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
             case jfmt_object:
                 var.o = va_arg(args, jobj_t);
                 if (NULL==var.o) {
-                    var.o = empty;
+                    var.o = jobj_new_object();
                 }
                 japi_println("object=%s", jobj_json(var.o));
                 jobj_add(obj, key, var.o);

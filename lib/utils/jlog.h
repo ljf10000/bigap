@@ -109,14 +109,15 @@
 #define ENV_JLOG_CACHE_REMOTE   "__JLOG_CACHE_REMOTE__"
 #endif
 
-#define JLOG_KEY_APP        "appname"
-#define JLOG_KEY_SUB        "appsubname"
-#define JLOG_KEY_FILE       "appfile"
-#define JLOG_KEY_FUNC       "appfunc"
-#define JLOG_KEY_LINE       "appline"
-#define JLOG_KEY_LEVEL      "applevel"
-#define JLOG_KEY_INFO       "appinfo"
-#define JLOG_KEY_PRI        "apppri"
+#define JLOG_KEY_HEADER     "__header__"
+#define JLOG_KEY_DEBUGGER   "__debugger__"
+#define JLOG_KEY_APP        "app"
+#define JLOG_KEY_SUB        "sub"
+#define JLOG_KEY_FILE       "file"
+#define JLOG_KEY_FUNC       "func"
+#define JLOG_KEY_LINE       "line"
+#define JLOG_KEY_LEVEL      "level"
+#define JLOG_KEY_PRI        "pri"
 #define JLOG_KEY_TIME       "time"
 #define JLOG_KEY_MAC        "mac"
 #define JLOG_KEY_SEQ        "seq"
@@ -571,7 +572,7 @@ __clogger(
 
 #ifdef __APP__
 static inline jobj_t
-__jlog_obj_header(
+__jlog_add_header(
     jobj_t obj, 
     char *app, 
     char *sub, 
@@ -581,6 +582,7 @@ __jlog_obj_header(
     uint32 PRI
 )
 {
+    jobj_t header = NULL;
     int pri     = LOG_PRI(PRI);
     int level   = LOG_LEVEL(PRI);
     int err;
@@ -593,29 +595,43 @@ __jlog_obj_header(
             goto error;
         }
     }
+
+    header = jobj_new_object();
+    if (NULL==header) {
+        __debug_error("create obj header error");
+            
+        goto error;
+    }
     
-    err = jobj_add_string(obj, JLOG_KEY_APP, app);
+    err = jobj_add(obj, JLOG_KEY_HEADER, header);
+    if (err<0) {
+        __debug_error("add header error");
+        
+        goto error;
+    }
+    
+    err = jobj_add_string(header, JLOG_KEY_APP, app);
     if (err<0) {
         __debug_error("add app %s error", app);
         
         goto error;
     }
     
-    err = jobj_add_string(obj, JLOG_KEY_SUB, sub);
+    err = jobj_add_string(header, JLOG_KEY_SUB, sub);
     if (err<0) {
         __debug_error("add sub %s error", sub);
         
         goto error;
     }
     
-    err = jobj_add_string(obj, JLOG_KEY_FILE, file);
+    err = jobj_add_string(header, JLOG_KEY_FILE, file);
     if (err<0) {
         __debug_error("add file %s error", file);
         
         goto error;
     }
     
-    err = jobj_add_string(obj, JLOG_KEY_FUNC, func);
+    err = jobj_add_string(header, JLOG_KEY_FUNC, func);
     if (err<0) {
         __debug_error("add func %s error", func);
         
@@ -623,7 +639,7 @@ __jlog_obj_header(
     }
     
     if (line) {
-        err = jobj_add_u32(obj, JLOG_KEY_LINE, line);
+        err = jobj_add_u32(header, JLOG_KEY_LINE, line);
         if (err<0) {
             __debug_error("add line %d error", line);
             
@@ -634,7 +650,7 @@ __jlog_obj_header(
     if (level) {
         char *name = __ak_debug_getname(level);
         
-        err = jobj_add_string(obj, JLOG_KEY_LEVEL, name);
+        err = jobj_add_string(header, JLOG_KEY_LEVEL, name);
         if (err<0) {
             __debug_error("add level %s error", name);
             
@@ -642,13 +658,20 @@ __jlog_obj_header(
         }
     }
     
-    err = jobj_add_u32(obj, JLOG_KEY_PRI, pri);
+    err = jobj_add_u32(header, JLOG_KEY_PRI, pri);
     if (err<0) {
         __debug_error("add pri %d error", pri);
         
         goto error;
     }
     
+    err = jobj_add_string(header, JLOG_KEY_TIME, os_fulltime_string(NULL));
+    if (err<0) {
+        __debug_error("add time error");
+        
+        goto error;
+    }
+        
     return obj;
 error:
     jobj_put(obj);
@@ -807,7 +830,7 @@ __jvlogger(
     jobj_t obj = NULL;
     int err;
     
-    obj = __jlog_obj_header(NULL, app, sub, file, func, line, PRI);
+    obj = __jlog_add_header(NULL, app, sub, file, func, line, PRI);
     if (NULL==obj) {
         err = -ENOMEM; goto error;
     }
@@ -843,12 +866,12 @@ __dvlogger(
     jobj_t obj = NULL;
     int err;
     
-    obj = __jlog_obj_header(NULL, app, sub, file, func, line, PRI);
+    obj = __jlog_add_header(NULL, app, sub, file, func, line, PRI);
     if (NULL==obj) {
         err = -ENOMEM; goto error;
     }
 
-    err = jobj_vsprintf(obj, (char *)JLOG_KEY_INFO, fmt, args);
+    err = jobj_vsprintf(obj, (char *)JLOG_KEY_DEBUGGER, fmt, args);
     if (err<0) {
         goto error;
     }
@@ -927,7 +950,7 @@ __clogger(
         err = -EFORMAT; goto error;
     }
 
-    obj = __jlog_obj_header(obj, app, sub, file, func, line, PRI);
+    obj = __jlog_add_header(obj, app, sub, file, func, line, PRI);
     if (NULL==obj) {
         err = -EFORMAT; goto error;
     }

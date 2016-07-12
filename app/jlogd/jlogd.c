@@ -71,7 +71,7 @@ typedef struct {
     int pri;
     int timeout;
     int cut;
-    uint32 seq;
+    uint64 seq;
     uint32 event;
     char mac[1+MACSTRINGLEN_L];
 
@@ -180,14 +180,21 @@ static int
 jadd(jlog_server_t *server)
 {
     int len = 0, pri, err;
-    jobj_t obj, opri;
+    jobj_t obj, header, opri;
     
     obj = jobj(RX);
     if (NULL==obj) {
         len = -EFORMAT; goto error;
     }
 
-    opri = jobj_get(obj, JLOG_KEY_PRI);
+    header = jobj_get(obj, JLOG_KEY_HEADER);
+    if (NULL==header) {
+        __debug_error("no-found header");
+        
+        len = -EFORMAT; goto error;
+    }
+    
+    opri = jobj_get(header, JLOG_KEY_PRI);
     if (NULL==opri) {
         __debug_error("no-found pri");
         
@@ -195,14 +202,7 @@ jadd(jlog_server_t *server)
     }
     pri = LOG_PRI(jobj_get_i32(opri));
     
-    err = jobj_add_string(obj, JLOG_KEY_TIME, os_fulltime_string(NULL));
-    if (err<0) {
-        __debug_error("add time error");
-        
-        len = err; goto error;
-    }
-    
-    err = jobj_add_i32(obj, JLOG_KEY_SEQ, ++jlogd.seq);
+    err = jobj_add_u64(header, JLOG_KEY_SEQ, ++jlogd.seq);
     if (err<0) {
         __debug_error("add seq error");
         
@@ -210,7 +210,7 @@ jadd(jlog_server_t *server)
     }
 
     if (0==jmac()) {
-        err = jobj_add_string(obj, JLOG_KEY_MAC, jlogd.mac);
+        err = jobj_add_string(header, JLOG_KEY_MAC, jlogd.mac);
         if (err<0) {
             __debug_error("add mac error");
             

@@ -88,6 +88,10 @@
 #define PRODUCT_BIN_MD_BASEPARAM        "base_param.bin"
 #endif
 
+#ifndef PRODUCT_BIN_MD_PQPARAM
+#define PRODUCT_BIN_MD_PQPARAM          "pq_param.bin"
+#endif
+
 #ifndef PRODUCT_BIN_MD_BOOT
 #define PRODUCT_BIN_MD_BOOT             "fastboot-burn.bin"
 #endif

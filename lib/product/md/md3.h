@@ -6,8 +6,6 @@
 #define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-pcba" /* fixme */
 #endif
 
-#define PRODUCT_BIN_MD_PQPARAM          "pq_param_hi3798mv100.bin"
-
 #define PRODUCT_DOG_COUNT               3
 #define PRODUCT_FLASH_SIZE              8 /* 8G */
 #define PRODUCT_MEMORY_SIZE             2 /* 2G */
