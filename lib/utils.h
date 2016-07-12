@@ -144,6 +144,7 @@
 #include "utils/db.h"
 #include "utils/symbol.h"
 #include "utils/file.h"
+#include "utils/time.h"
 #include "utils/env.h"
 #include "utils/sem.h"
 #include "utils/shm.h"
@@ -155,7 +156,6 @@
 /* here, support debug_xxx */
 #include "utils/debug.h"
 #include "utils/dump.h"
-#include "utils/time.h"
 #include "utils/crc32.h"
 #include "utils/pipe.h"
 #include "utils/pid.h"
