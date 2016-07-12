@@ -602,14 +602,8 @@ __jlog_add_header(
             
         goto error;
     }
-    
-    err = jobj_add(obj, JLOG_KEY_HEADER, header);
-    if (err<0) {
-        __debug_error("add header error");
-        
-        goto error;
-    }
-    
+    jobj_add(obj, JLOG_KEY_HEADER, header);
+
     err = jobj_add_string(header, JLOG_KEY_APP, app);
     if (err<0) {
         __debug_error("add app %s error", app);
