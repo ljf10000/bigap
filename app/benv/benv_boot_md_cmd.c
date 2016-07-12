@@ -7,6 +7,26 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #endif
 
 #include "benv/benv.h"
+#include "utils.h"
+#include "reg/reg.h"
+
+static int 
+do_dog_enable (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+    static os_reg_t dog_enable[] = OS_DOG_ENABLE;
+
+    os_reg_write(dog_enable);
+    printf("dog enable!\n");
+
+    return 0;
+}
+
+U_BOOT_CMD(
+    dog_enable,  CONFIG_SYS_MAXARGS, 0,  do_dog_enable,
+    "\n",
+    "\n"
+    "\n"
+);
 
 static int 
 do_benv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
