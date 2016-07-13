@@ -24,8 +24,8 @@ do_dog_enable(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
     dog_enable,  CONFIG_SYS_MAXARGS, 0,  do_dog_enable,
     "\n",
-    "enable dog\n"
-    "enable dog\n"
+    "   enable dog\n"
+    "   enable dog\n"
 );
 
 static int 
@@ -42,8 +42,8 @@ do_dog_disable(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
     dog_disable,  CONFIG_SYS_MAXARGS, 0,  do_dog_disable,
     "\n",
-    "disable dog\n"
-    "disable dog\n"
+    "   disable dog\n"
+    "   disable dog\n"
 );
 
 static int 

@@ -1878,5 +1878,6 @@ int sysusbupgrade_main(int argc, char *argv[])
 {
     return os_call(__init, __fini, cmd_usbupgrade, argc, argv);
 }
+
 #endif
 /******************************************************************************/

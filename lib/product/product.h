@@ -284,7 +284,6 @@
     PRODUCT_BOOTARGS_HEAD       \
     PRODUCT_BOOTARGS_BODY       \
     /* end */
-
 #endif
 /******************************************************************************/
 #endif /* __PRODUCT_H_3aeec50c6570419493004695d20c38b5__ */
