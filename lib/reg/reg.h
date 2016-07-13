@@ -101,16 +101,34 @@ enum {
     OS_REG("dog lock",      __dog_reg(_dog, __DOG_LOCK),     __DOG_LOCK_CLOSE) \
     /* end */
 
+#define __OS_DOG_DISABLE(_dog)  \
+    OS_REG("dog lock",      __dog_reg(_dog, __DOG_LOCK),     __DOG_LOCK_OPEN), \
+    OS_REG("dog load",      __dog_reg(_dog, __DOG_LOAD),     __DOG_LOAD_DEFAULT), \
+    OS_REG("dog control",   __dog_reg(_dog, __DOG_CONTROL),  __DOG_CONTROL_DISABLE), \
+    OS_REG("dog lock",      __dog_reg(_dog, __DOG_LOCK),     __DOG_LOCK_CLOSE) \
+    /* end */
+
 #if IS_PRODUCT_LTEFI_MD_CPU_A
 #define OS_DOG_ENABLE { \
     __OS_DOG_ENABLE(0), \
     __OS_DOG_ENABLE(1), \
+}   /* end */
+
+#define OS_DOG_DISABLE {\
+    __OS_DOG_DISABLE(0),\
+    __OS_DOG_DISABLE(1),\
 }   /* end */
 #elif IS_PRODUCT_LTEFI_MD_CPU_B
 #define OS_DOG_ENABLE { \
     __OS_DOG_ENABLE(0), \
     __OS_DOG_ENABLE(1), \
     __OS_DOG_ENABLE(2), \
+}   /* end */
+
+#define OS_DOG_DISABLE {\
+    __OS_DOG_DISABLE(0),\
+    __OS_DOG_DISABLE(1),\
+    __OS_DOG_DISABLE(2),\
 }   /* end */
 #else
 #error "invalid __PRODUCT__"

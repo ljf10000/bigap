@@ -11,7 +11,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #include "reg/reg.h"
 
 static int 
-do_dog_enable (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_dog_enable(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
     static os_reg_t dog_enable[] = OS_DOG_ENABLE;
 
@@ -24,8 +24,26 @@ do_dog_enable (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
     dog_enable,  CONFIG_SYS_MAXARGS, 0,  do_dog_enable,
     "\n",
-    "\n"
-    "\n"
+    "enable dog\n"
+    "enable dog\n"
+);
+
+static int 
+do_dog_disable(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+    static os_reg_t dog_enable[] = OS_DOG_ENABLE;
+
+    os_reg_write(dog_enable);
+    printf("dog disable!\n");
+
+    return 0;
+}
+
+U_BOOT_CMD(
+    dog_disable,  CONFIG_SYS_MAXARGS, 0,  do_dog_disable,
+    "\n",
+    "disable dog\n"
+    "disable dog\n"
 );
 
 static int 
