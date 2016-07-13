@@ -3,7 +3,7 @@
 #if IS_PRODUCT_LTEFI_AP1
 /******************************************************************************/
 #ifndef PRODUCT_PCBA_MODEL
-#define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-pcba" /* fixme */
+#define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-ap1" /* fixme */
 #endif
 
 /******************************************************************************/

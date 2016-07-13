@@ -4,7 +4,7 @@
 /******************************************************************************/
 
 #ifndef PRODUCT_PCBA_MODEL
-#define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-pcba" /* fixme */
+#define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-ap4" /* fixme */
 #endif
 
 /******************************************************************************/

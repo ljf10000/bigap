@@ -11,7 +11,7 @@
 #endif
 
 #ifndef PRODUCT_PCBA_MODEL
-#define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-pcba" /* fixme */
+#define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-pc" /* fixme */
 #endif
 
 #ifndef PRODUCT_BLOCK_SIZE
