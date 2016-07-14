@@ -48,4 +48,24 @@ int jlogger_main(int argc, char *argv[])
     
     return os_main(__main, argc, argv);
 }
+
+#if 0
+#ifdef __BUSYBOX__
+int jclogger_main(int argc, char *argv[])
+{
+    setup_signal_exit(NULL);
+    setup_signal_callstack(NULL);
+    
+    return os_main(__jlogger_main, argc, argv);
+}
+
+int jdlogger_main(int argc, char *argv[])
+{
+    setup_signal_exit(NULL);
+    setup_signal_callstack(NULL);
+    
+    return os_main(__jdlogger_main, argc, argv);
+}
+#endif
+#endif
 /******************************************************************************/
