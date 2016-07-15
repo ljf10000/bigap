@@ -58,7 +58,6 @@
 #define PRODUCT_COMPANY         PRODUCT_VENDOR " Technology Co.,Ltd." /* fixme */
 #endif
 
-
 #define PRODUCT_FILE(_file)             PRODUCT_DIR_ROOT _file
 #define PRODUCT_DIR(_dir)               PRODUCT_DIR_ROOT _dir
 #define PRODUCT_IDIR(_dir, _idx)        _dir #_idx
