@@ -38,11 +38,11 @@
 #endif
 
 #ifndef PRODUCT_DEV_USB_MASTER
-#define PRODUCT_DEV_USB_MASTER          "dev/udisk1110"
+#define PRODUCT_DEV_USB_MASTER          "dev/udisk1110" // fixme
 #endif
 
 #ifndef PRODUCT_DEV_HD_MASTER
-#define PRODUCT_DEV_HD_MASTER           "dev/udisk"
+#define PRODUCT_DEV_HD_MASTER           "dev/udisk"     // fixme
 #endif
 
 #define PRODUCT_DEV_KERNEL0     PRODUCT_IDEV_FLASH(6)
@@ -64,13 +64,13 @@
 #define PRODUCT_DEV_CONFIG0     PRODUCT_IDEV_FLASH(20)
 #define PRODUCT_DEV_CONFIG1     PRODUCT_IDEV_FLASH(21)
 
-#define PRODUCT_DEV_TOOL0       PRODUCT_IDEV_FLASH(22) /* same to data0 */
-#define PRODUCT_DEV_TOOL1       PRODUCT_IDEV_FLASH(23) /* same to data1 */
+#define PRODUCT_DEV_TOOL0       PRODUCT_IDEV_FLASH(22)
+#define PRODUCT_DEV_TOOL1       PRODUCT_IDEV_FLASH(23)
 
-#define PRODUCT_DEV_DATA0       PRODUCT_IDEV_FLASH(22)
-#define PRODUCT_DEV_DATA1       PRODUCT_IDEV_FLASH(23)
+#define PRODUCT_DEV_DATA0       PRODUCT_IDEV_FLASH(24)
+#define PRODUCT_DEV_DATA1       PRODUCT_IDEV_FLASH(25)
 
-#define PRODUCT_DEV_OTHER       PRODUCT_IDEV_FLASH(24)
+#define PRODUCT_DEV_OTHER       PRODUCT_IDEV_FLASH(26)
 #define PRODUCT_DEV_ROOT        PRODUCT_IDEV_FLASH(14) /* rootfs1 */
 
 #define PRODUCT_BOOTARGS_BLOCK0 \
@@ -88,20 +88,23 @@
         "16M(kernel5)," /* 11 */\
         "16M(kernel6)," /* 12 */\
                                 \
-        "256M(rootfs0),"/* 13 */\
-        "256M(rootfs1),"/* 14 */\
-        "256M(rootfs2),"/* 15 */\
-        "256M(rootfs3),"/* 16 */\
-        "256M(rootfs4),"/* 17 */\
-        "256M(rootfs5),"/* 18 */\
-        "256M(rootfs6),"/* 19 */\
+        "200M(rootfs0),"/* 13 */\
+        "200M(rootfs1),"/* 14 */\
+        "200M(rootfs2),"/* 15 */\
+        "200M(rootfs3),"/* 16 */\
+        "200M(rootfs4),"/* 17 */\
+        "200M(rootfs5),"/* 18 */\
+        "200M(rootfs6),"/* 19 */\
                                 \
         "32M(config0)," /* 20 */\
         "32M(config1)," /* 21 */\
                                 \
-        "820M(data0),"  /* 22 */\
-        "820M(data1),"  /* 23 */\
-        "-(others)"     /* 24 */\
+        "512M(tool0),"  /* 22 */\
+        "512M(tool1),"  /* 23 */\
+                                \
+        "512M(data0),"  /* 24 */\
+        "512M(data1),"  /* 25 */\
+        "-(others)"     /* 26 */\
         /* end */
 /******************************************************************************/
 #endif

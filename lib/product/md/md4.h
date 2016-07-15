@@ -7,7 +7,7 @@
 #endif
 
 #define PRODUCT_DOG_COUNT               3
-#define PRODUCT_FLASH_SIZE              8 /* 8G */
+#define PRODUCT_FLASH_SIZE              4 /* 4G */
 #define PRODUCT_MEMORY_SIZE             2 /* 2G */
 #define PRODUCT_FIRMWARE_COUNT          7
 #define PRODUCT_FIRMWARE_CURRENT        3   /* rootfs3 */
@@ -38,11 +38,11 @@
 #endif
 
 #ifndef PRODUCT_DEV_USB_MASTER
-#define PRODUCT_DEV_USB_MASTER          "dev/udisk51210"
+#define PRODUCT_DEV_USB_MASTER          "dev/udisk51210" // fixme
 #endif
 
 #ifndef PRODUCT_DEV_HD_MASTER
-#define PRODUCT_DEV_HD_MASTER           "dev/udisk61110"
+#define PRODUCT_DEV_HD_MASTER           "dev/udisk61110" // fixme
 #endif
 
 #define PRODUCT_DEV_KERNEL0     PRODUCT_IDEV_FLASH(6)
