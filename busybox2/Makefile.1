@@ -95,7 +95,7 @@ $(BUILD_DIR)/%/tar:
 	@touch $@
 	#BIGAP
 	if [ -f "${PUB_DIR}/include/hi_unf_wdg.h" ]; then \
-		$(hisitopdir)/autelan_scripts/autelan.private busybox; \
+		$(hisitopdir)/scripts/makemd patch busybox; \
 	fi
 ################################################################################
 
