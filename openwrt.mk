@@ -9,8 +9,8 @@ PKG_APP_BUILD_DIR := $(PKG_BUILD_DIR)/app
 
 include $(INCLUDE_DIR)/package.mk
 
-UBACKTRACE := 0
-MAKE_FLAGS += "UBACKTRACE=$(UBACKTRACE)"
+UBACKTRACE=0
+MAKE_FLAGS+="UBACKTRACE=$(UBACKTRACE)"
 
 TARGET_CFLAGS += -Wall \
 		-fexceptions -fno-omit-frame-pointer \
