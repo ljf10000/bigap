@@ -17,8 +17,8 @@ HI_S32 HI_UNF_WDG_Clear(HI_U32 u32WdgNum);
 HI_S32 HI_UNF_WDG_Reset(HI_U32 u32WdgNum);
 #endif
 
-#define hisi_dog_init()     hisi_unf_method_0(WDG, Init)
-#define hisi_dog_fini()     hisi_unf_method_0(WDG, DeInit)
+static inline int hisi_dog_init(void)   { return hisi_unf_method_0(WDG, Init); }
+static inline int hisi_dog_fini(void)   { return hisi_unf_method_0(WDG, DeInit); }
 
 #define hisi_dog_enable(dog_number)     hisi_unf_method_1(WDG, Enable, dog_number)
 #define hisi_dog_disable(dog_number)    hisi_unf_method_1(WDG, Disable, dog_number)
