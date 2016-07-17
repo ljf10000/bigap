@@ -3,20 +3,78 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 *******************************************************************************/
 #if IS_PRODUCT_LTEFI_MD
 
-#define CLOCK_DATASIZE  7
 #define CLOCK_I2CNUM    1
 #define CLOCK_DEVADDR   0xd0
 #define CLOCK_REGADDR   0x00
 
+enum {
+    CLOCK_SEC   = 0,
+    CLOCK_MIN   = 1,
+    CLOCK_HOUR  = 2,
+    CLOCK_DAY   = 3,
+    CLOCK_DATE  = 4,
+    CLOCK_MONTH = 5,
+    CLOCK_YEAR  = 6,
+
+    CLOCK_END
+};
+
+#define GET_CLOCK_SEC(_clock)       (((_clock[CLOCK_SEC] >> 4) & 0x7) * 10 + (_clock[CLOCK_SEC] & 0xf))
+#define GET_CLOCK_MIN(_clock)       (((_clock[CLOCK_MIN] >> 4) & 0x7) * 10 + (_clock[CLOCK_MIN] & 0xf))
+#define GET_CLOCK_HOUR(_clock)      (((_clock[CLOCK_HOUR] >> 4) & 0x03) * 10 + (_clock[CLOCK_HOUR] & 0xf))
+#define GET_CLOCK_DAY(_clock)       (_clock[CLOCK_DAY])
+#define GET_CLOCK_DATE(_clock)      (((_clock[CLOCK_DATE] >> 4) & 0x3) * 10 + (_clock[CLOCK_DATE] & 0xf))
+#define GET_CLOCK_MONTH(_clock)     (((_clock[CLOCK_MONTH] >> 4) & 0x01) * 10 + (_clock[CLOCK_MONTH] & 0xf))
+#define GET_CLOCK_YEAR(_clock)      (((_clock[CLOCK_YEAR] >> 4) & 0xf) * 10 + (_clock[CLOCK_YEAR] & 0xf))
+
+#define GET_CLOCK_MODE(_clock)      ((_clock[CLOCK_HOUR] >> 6) & 0x01)
+#define GET_CLOCK_MODE12(_clock)    GET_CLOCK_MODE(_clock)
+#define GET_CLOCK_MODE24(_clock)    (!(GET_CLOCK_MODE12(_clock)))
+
+#define GET_CLOCK_AM(_clock)        ((_clock[CLOCK_HOUR] >> 5) & 0x01)
+#define GET_CLOCK_HOUR12(_clock)    (((_clock[CLOCK_HOUR] >> 4) & 0x01) * 10 + (_clock[CLOCK_HOUR] & 0xf))
+#define GET_CLOCK_HOUR24(_clock)    GET_CLOCK_HOUR(_clock)
+
+
+#define SET_CLOCK_SEC(_clock, _sec)     do{ \
+    _clock[CLOCK_SEC] = (((_sec / 10) & 0x07) << 4) | (_sec - (_sec / 10) * 10); \
+}while(0)
+
+#define SET_CLOCK_MIN(_clock, _min)     do{ \
+    _clock[CLOCK_MIN] = (((_min / 10) & 0x07) << 4) | (_min - (_min / 10) * 10); \
+}while(0)
+
+#define SET_CLOCK_HOUR(_clock, _hour)   do{ \
+    if ((_hour/10) >= 2) {                                  \
+        _clock[CLOCK_HOUR] = 0x20 | ((_hour - 20) & 0x0f);  \
+    } else if ((_hour/10) >= 1) {                           \
+        _clock[CLOCK_HOUR] = 0x10 | ((_hour - 10) & 0x0f);  \
+    } else {                                                \
+        _clock[CLOCK_HOUR] = 0x00 | ((_hour) & 0x0f);       \
+    }                                                       \
+                                                            \
+    _clock[CLOCK_HOUR] = _clock[CLOCK_HOUR] & 0xBF;         \
+}while(0)
+
+#define SET_CLOCK_DAY(_clock, _day)     do{ \
+    _clock[CLOCK_DAY] = _day;               \
+}while(0)
+
+#define SET_CLOCK_DATE(_clock, _date)   do{ \
+    _clock[CLOCK_DATE] = (((_date / 10) & 0x03) << 4) | (_date - (_date / 10) * 10); \
+}while(0)
+
+#define SET_CLOCK_MONTH(_clock, _month) do{ \
+    _clock[CLOCK_MONTH] = (((_month / 10) & 0x01) << 4) | (_month - (_month / 10) * 10); \
+}while(0)
+
+#define SET_CLOCK_YEAR(_clock, _year)   do{ \
+    _clock[CLOCK_YEAR] = _year - (2000-1900); \
+    _clock[CLOCK_YEAR] = (((_clock[CLOCK_YEAR] / 10) & 0x0F) << 4) | (_clock[CLOCK_YEAR] - (_clock[CLOCK_YEAR] / 10) * 10);
+}while(0)
+
 static void
-get_clock_auto(
-    byte *pyear, 
-    byte *pmonth, 
-    byte *pdate, 
-    byte *pday, 
-    byte *phour, 
-    byte *pminute, 
-    byte *psecond)
+get_clock_auto(byte clock[])
 {
 	time_t timep = 0;    
 	struct tm *p;
@@ -25,44 +83,28 @@ get_clock_auto(
 	p = localtime(&timep);
 
 	p->tm_mon += 1;
-	*psecond= (((p->tm_sec / 10) & 0x07) << 4) | (p->tm_sec - (p->tm_sec / 10) * 10); 
-
-	*pminute= (((p->tm_min / 10) & 0x07) << 4) | (p->tm_min - (p->tm_min / 10) * 10);  
-	if ((p->tm_hour/10) >= 2) {        
-		*phour = 0x20 | ((p->tm_hour - 20) & 0x0f);
-	} else if ((p->tm_hour/10) >= 1) {        
-		*phour = 0x10 | ((p->tm_hour - 10) & 0x0f);
-	} else    {       
-		*phour = 0x00 | ((p->tm_hour) & 0x0f);
-	}    
-	*phour = *phour & 0xBF;  
-	*pday = p->tm_wday;    
-	*pdate = (((p->tm_mday / 10) & 0x03) << 4) | (p->tm_mday - (p->tm_mday / 10) * 10);   
-	*pmonth= (((p->tm_mon / 10) & 0x01) << 4) | (p->tm_mon - (p->tm_mon / 10) * 10);    
-	*pyear= p->tm_year - (2000-1900);
-	*pyear = (((*pyear / 10) & 0x0F) << 4) | (*pyear - (*pyear / 10) * 10);
+	
+	SET_CLOCK_SEC(clock, p->tm_sec);
+	SET_CLOCK_MIN(clock, p->tm_min);
+	SET_CLOCK_HOUR(clock, p->tm_hour);
+	SET_CLOCK_DAY(clock, p->tm_wday);
+	SET_CLOCK_DATE(clock, p->tm_mday);
+	SET_CLOCK_MONTH(clock, p->tm_mon);
+	SET_CLOCK_YEAR(clock, p->tm_year);
 }
 
 static void
-get_clock_manual(
-    byte *pyear, 
-    byte *pmonth, 
-    byte *pdate, 
-    byte *pday, 
-    byte *phour, 
-    byte *pminute, 
-    byte *psecond)
+get_clock_manual(byte clock[])
 {
-
-	HI_S16	year = 0;
-	HI_S8 	month = 0,date = 0, mode = 0, am_pm = 0,
+	int	year = 0;
+	byte 	month = 0, date = 0, mode = 0, pm = 0,
 			hour = 0,  minute = 0, second = 0;
 
 	int err;
 
 	while (1) {
 		os_printf("Please input mode(12/24):");
-		scanf("%hhd", &mode);
+		scanf("%c", &mode);
 		
 		if (12 != mode && 24 != mode) {
 			os_println("Wrong mode!");
@@ -86,9 +128,9 @@ get_clock_manual(
 
 	while(1) {
 		os_printf("Please input day(1-7):");
-		scanf("%hhd", pday);
+		scanf("%c", &clock[CLOCK_DAY]);
 
-		if (*pday < 1 || *pday > 7) {
+		if (clock[CLOCK_DAY] < 1 || clock[CLOCK_DAY] > 7) {
 			os_println("Wrong format");
 			continue;
 		}
@@ -124,8 +166,8 @@ get_clock_manual(
 	if (12 == mode) {
 		while (1) {
 			os_printf("Choose 0(AM)/1(PM)):");
-			scanf("%hhd", &am_pm);
-			if (0 != am_pm && 1 != am_pm) {
+			scanf("%hhd", &pm);
+			if (0 != pm && 1 != pm) {
 				os_println("Wrong format");
 				continue;
 			}
@@ -134,162 +176,123 @@ get_clock_manual(
 		}
 	}
 
-	*pyear = (year % 10) + ((year % 100) / 10 ) * 0x10; 
-	*pmonth = (month % 10) + (month / 10) * 0x10;
-	*pdate = (date % 10) + (date / 10) * 0x10;
-	*phour = (hour % 10) + (hour / 10) * 0x10;
+	clock[CLOCK_YEAR] = (year % 10) + ((year % 100) / 10 ) * 0x10;
+	clock[CLOCK_MONTH] = (month % 10) + (month / 10) * 0x10;
+	clock[CLOCK_DATE] = (date % 10) + (date / 10) * 0x10;
+	clock[CLOCK_HOUR] = (hour % 10) + (hour / 10) * 0x10;
 	if (12 == mode)
-		*phour = *phour | (1 << 6) | (am_pm << 5);
-	*pminute = (minute % 10) + (minute / 10) * 0x10;
-	*psecond = (second % 10) + (second / 10) * 0x10;
+		clock[CLOCK_HOUR] = clock[CLOCK_HOUR] | (1 << 6) | (pm << 5);
+	clock[CLOCK_MIN] = (minute % 10) + (minute / 10) * 0x10;
+	clock[CLOCK_SEC] = (second % 10) + (second / 10) * 0x10;
 }
 
 static void 
-sync_clock(byte data[CLOCK_DATASIZE])
-{   
-	byte sec_data = 0, sec = 0, min_data = 0, min = 0, hour_data = 0, hour = 0;
-	byte day = 0, date_data = 0, date = 0, month_data = 0, month = 0, year_data = 0, year = 0;
-	
-	sec_data = data[0];
-	min_data = data[1];
-	hour_data = data[2];
-	day = data[3];
-	date_data = data[4];
-	month_data = data[5];
-	year_data = data[6];
-
-	sec = ((sec_data >> 4) & 0x7) * 10 + (sec_data & 0xf);
-	min = ((min_data >> 4) & 0x7) * 10 + (min_data & 0xf);
-	hour = ((hour_data >> 4) & 0x03) * 10 + (hour_data & 0xf); 
-	date = ((date_data >> 4) & 0x3) * 10 + (date_data & 0xf);
-	month = ((month_data >> 4) & 0x01) * 10 + (month_data & 0xf);
-	year = ((year_data >> 4) & 0xf) * 10 + (year_data & 0xf);
-
+clock2date(byte clock[CLOCK_END])
+{
     return os_p_system("date -s '%04d-%02d-%02d %02d:%02d:%02d'", 
-            year+2000, month, date,
-        	hour, min, sec);
+            GET_CLOCK_YEAR(clock) + 2000,
+            GET_CLOCK_MONTH(clock), 
+            GET_CLOCK_DATE(clock),
+        	GET_CLOCK_HOUR(clock), 
+        	GET_CLOCK_MIN(clock), 
+        	GET_CLOCK_SEC(clock));
+}
+
+static int
+clock_save(void (*get)(byte *))
+{
+    byte clock[CLOCK_END];
+    int err;
+    
+    (*get)(clock);
+
+    return hisi_i2c_write(CLOCK_I2CNUM, 
+                CLOCK_DEVADDR,
+	            CLOCK_REGADDR, 
+	            CLOCK_I2CNUM, 
+	            clock, 
+	            os_count_of(clock));
 }
 
 static int
 cmd_clock_save_auto(int argc, char *argv[])
 {
-    byte data[CLOCK_DATASIZE];
-    int err;
+    (void)argc;
+    (void)argv;
     
-    get_clock_auto(&data[6],    // year
-    		    &data[5],       // month
-    		    &data[4],       // date
-    		    &data[3],       // day
-    		    &data[2],       // hour
-    		    &data[1],       // minute
-    		    &data[0]);      // second
-
-    return hisi_i2c_write(CLOCK_I2CNUM, 
-                CLOCK_DEVADDR,
-	            CLOCK_REGADDR, 
-	            CLOCK_I2CNUM, 
-	            data, 
-	            CLOCK_DATASIZE);
+    return clock_save(get_clock_auto);
 }
 
 static int
 cmd_clock_save_manual(int argc, char *argv[])
 {
-
-    byte data[CLOCK_DATASIZE];
-    int err;
+    (void)argc;
+    (void)argv;
     
-    get_clock_manual(&data[6],  // year
-    		    &data[5],       // month
-    		    &data[4],       // date
-    		    &data[3],       // day
-    		    &data[2],       // hour
-    		    &data[1],       // minute
-    		    &data[0]);      // second
-
-    return hisi_i2c_write(CLOCK_I2CNUM, 
-                CLOCK_DEVADDR,
-	            CLOCK_REGADDR, 
-	            CLOCK_I2CNUM, 
-	            data, 
-	            CLOCK_DATASIZE);
+    return clock_save(get_clock_manual);
 }
 
 static int
 cmd_clock_sync(int argc, char *argv[])
 {
-    byte data[CLOCK_DATASIZE];
+    byte clock[CLOCK_END];
     int err;
+    
+    (void)argc;
+    (void)argv;
     
     err = hisi_i2c_read(CLOCK_I2CNUM, 
                 CLOCK_DEVADDR,
 	            CLOCK_REGADDR, 
 	            CLOCK_I2CNUM, 
-	            data, 
-	            CLOCK_DATASIZE);
+	            clock, 
+	            os_count_of(clock));
     if (err<0) {
         return err;
     }
 
-    return sync_clock(data);
+    return clock2date(clock);
 }
 
 static int
 cmd_clock_show(int argc, char *argv[])
 {
+    char *week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    byte clock[CLOCK_END];
     int err;
 
-    byte sec = 0, sec_data = 0;
-    byte min = 0, min_data = 0;
-    byte hour = 0, hour_data = 0;
-    byte day = 0, day_data = 0;
-    byte date = 0, date_data = 0;
-    byte month = 0, month_data = 0;
-    byte year = 0, year_data = 0;
-    byte mode, am_pm = 0;
-    
-    byte *week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-    byte data[CLOCK_DATASIZE];
+    (void)argc;
+    (void)argv;
 
-    err = hisi_i2c_read(CLOCK_I2CNUM, CLOCK_DEVADDR, CLOCK_REGADDR, 1, data, CLOCK_DATASIZE);
+    err = hisi_i2c_read(CLOCK_I2CNUM, CLOCK_DEVADDR, CLOCK_REGADDR, 1, clock, os_count_of(clock));
     if (err<0) {
         return err;
     }
 
-    sec_data = data[0];
-    min_data = data[1];
-    hour_data = data[2];
-    day = data[3];
-    date_data = data[4];
-    month_data = data[5];
-    year_data = data[6];
-
-    sec = ((sec_data >> 4) & 0x7) * 10 + (sec_data & 0xf);
-    min = ((min_data >> 4) & 0x7) * 10 + (min_data & 0xf);
-    
-    mode = (hour_data >> 6) & 0x1;
-    
-    if (mode) {//12-hour mode 
-        hour = ((hour_data >> 4) & 0x01) * 10 + (hour_data & 0xf); 
-        am_pm = (hour_data >> 5) & 0x1;
-    }
-    else {//24-hour mode
-        hour = ((hour_data >> 4) & 0x03) * 10 + (hour_data & 0xf); 
-    }
-    date = ((date_data >> 4) & 0x3) * 10 + (date_data & 0xf);
-    month = ((month_data >> 4) & 0x01) * 10 + (month_data & 0xf);
-    year = ((year_data >> 4) & 0xf) * 10 + (year_data & 0xf);
-
-    if (mode) 
+    if (GET_CLOCK_MODE12(clock)) {
+        byte hour = GET_CLOCK_HOUR12(clock);
+        byte am = GET_CLOCK_AM(clock);
+        
         os_println("%04d-%02d-%02d %s, %02d:%02d:%02d %s",
-                    2000+year, month, date, week[day%7], 
-                    ((0 == am_pm) && (12 == hour) ? 0 : hour), 
-                    min, sec, 
-                    (am_pm == 1) ? "PM" : "AM");
-    else 
+                    2000+GET_CLOCK_YEAR(clock), 
+                    GET_CLOCK_MONTH(clock), 
+                    GET_CLOCK_DATE(clock), 
+                    week[GET_CLOCK_DAY(clock)%7], 
+                    (am && 12 == hour) ? 0 : hour, 
+                    GET_CLOCK_MIN(clock), 
+                    GET_CLOCK_SEC(clock),
+                    am?"AM":"PM");
+    } else {
         os_println("%04d-%02d-%02d %s, %02d:%02d:%02d",
-                    2000+year, month, date, week[day%7], hour, min, sec);
-
+                    2000+GET_CLOCK_YEAR(clock),
+                    GET_CLOCK_MONTH(clock), 
+                    GET_CLOCK_DATE(clock), 
+                    week[GET_CLOCK_DAY(clock)%7], 
+                    GET_CLOCK_HOUR24(clock), 
+                    GET_CLOCK_MIN(clock), 
+                    GET_CLOCK_SEC(clock));
+    }
+    
     return 0;
 }
 
