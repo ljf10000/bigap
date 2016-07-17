@@ -301,6 +301,9 @@ clock_usage(void)
 {
 #define USAGE_MODULE    __THIS_APPNAME " clock"
     os_eprintln(USAGE_MODULE "show");
+    os_eprintln(USAGE_MODULE "save auto");
+    os_eprintln(USAGE_MODULE "save");
+    os_eprintln(USAGE_MODULE "sync");
 #undef USAGE_MODULE
 
     return -EFORMAT;
