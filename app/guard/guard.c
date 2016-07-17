@@ -9,7 +9,6 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 
 #include "utils.h"
 #include "hisi/hisi.h"
-#include "benv/bcookie.h"
 #include "fcookie/fcookie.h"
 
 #if !(IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)

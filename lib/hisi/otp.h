@@ -7,6 +7,7 @@
 #include "hi_unf_otp.h"
 #include "hi_unf_advca.h"
 #endif
+#include "benv/bcookie.h"
 
 enum {
     OTP_SIZE = 16,
