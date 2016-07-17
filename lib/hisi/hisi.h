@@ -14,18 +14,18 @@
 })
 
 #define __hisi_method_0(_mod, _obj, _method)    ({  \
-    int __err = __hisi_method_func(_mod, _obj, _method)(); \
-    __hisi_method_err(_mod, _obj, _method, __err); \
+    int __hisi_method_0_err = __hisi_method_func(_mod, _obj, _method)(); \
+    __hisi_method_err(_mod, _obj, _method, __hisi_method_0_err); \
 })  /* end */
 
 #define __hisi_method_1(_mod, _obj, _method, _arg1) ({  \
-    int __err = __hisi_method_func(_mod, _obj, _method)(_arg1); \
-    __hisi_method_err(_mod, _obj, _method, __err); \
+    int __hisi_method_1_err = __hisi_method_func(_mod, _obj, _method)(_arg1); \
+    __hisi_method_err(_mod, _obj, _method, __hisi_method_1_err); \
 })  /* end */
 
 #define __hisi_method_x(_mod, _obj, _method, _arg1, _args...) ({  \
-    int __err = __hisi_method_func(_mod, _obj, _method)(_arg1, ##_args); \
-    __hisi_method_err(_mod, _obj, _method, __err); \
+    int __hisi_method_x_err = __hisi_method_func(_mod, _obj, _method)(_arg1, ##_args); \
+    __hisi_method_err(_mod, _obj, _method, __hisi_method_x_err); \
 })  /* end */
 
 #define hisi_unf_method_0(_obj, _method) \

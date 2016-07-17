@@ -31,17 +31,17 @@ HI_S32 HI_UNF_WDG_Reset(HI_U32 u32WdgNum);
 #define hisi_dog_set_timeout(dog_number, dog_value) \
     hisi_unf_method_x(WDG, SetTimeout, dog_number, dog_value)
 
-#define hisi_dog_foreach(_method, _args...)  ({ \
-    int __i, __err = 0;                 \
-                                        \
-    for (__i=0; __i<PRODUCT_DOG_COUNT; __i++) { \
-        __err = _method(__i, ##_args);  \
-        if (__err) {                    \
-            break;                      \
-        }                               \
-    }                                   \
-                                        \
-    __err;                              \
+#define hisi_dog_foreach(_method, _args...)  ({         \
+    int hisi_dog_foreach_i, hisi_dog_foreach_err = 0;   \
+                                                        \
+    for (hisi_dog_foreach_i=0; hisi_dog_foreach_i<PRODUCT_DOG_COUNT; hisi_dog_foreach_i++) { \
+        hisi_dog_foreach_err = _method(hisi_dog_foreach_i, ##_args);  \
+        if (hisi_dog_foreach_err) {                     \
+            break;                                      \
+        }                                               \
+    }                                                   \
+                                                        \
+    hisi_dog_foreach_err;                               \
 })
 #endif
 /******************************************************************************/

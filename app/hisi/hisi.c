@@ -13,12 +13,18 @@ OS_INITER;
 static int
 cmd_dog_enable(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     return hisi_dog_foreach(hisi_dog_enable);
 }
 
 static int
 cmd_dog_disable(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     hisi_dog_foreach(hisi_dog_clear);
     
     return hisi_dog_foreach(hisi_dog_disable);
@@ -27,12 +33,18 @@ cmd_dog_disable(int argc, char *argv[])
 static int
 cmd_dog_clear(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     return hisi_dog_foreach(hisi_dog_clear);
 }
 
 static int
 cmd_dog_reset(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     return hisi_dog_foreach(hisi_dog_reset);
 }
 
@@ -40,6 +52,9 @@ static int
 cmd_dog_get_timeout(int argc, char *argv[])
 {
     int i, err, timeout[PRODUCT_DOG_COUNT];
+
+    (void)argc;
+    (void)argv;
 
     for (i=0; i<PRODUCT_DOG_COUNT; i++) {
         err = hisi_dog_get_timeout(i, &timeout[i]);
@@ -134,6 +149,9 @@ static cmd_table_t cmd_dog[] = {
 static int
 cmd_otp_custom_show(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     return otp_custom_show();
 }
 
@@ -146,6 +164,9 @@ cmd_otp_custom_write(int argc, char *argv[])
 static int
 cmd_otp_private_show(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     return otp_private_show();
 }
 
@@ -169,6 +190,9 @@ cmd_otp_bcookie_show(int argc, char *argv[])
 {
     int err;
     struct bcookie_otp botp = BCOOKIE_OBJ(BCOOKIE_OTP);
+    
+    (void)argc;
+    (void)argv;
     
     err = bcookie_load((struct bcookie *)&botp, sizeof(botp));
     if (err<0) {
