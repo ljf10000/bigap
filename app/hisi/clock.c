@@ -70,7 +70,7 @@ enum {
 
 #define SET_CLOCK_YEAR(_clock, _year)   do{ \
     _clock[CLOCK_YEAR] = _year - (2000-1900); \
-    _clock[CLOCK_YEAR] = (((_clock[CLOCK_YEAR] / 10) & 0x0F) << 4) | (_clock[CLOCK_YEAR] - (_clock[CLOCK_YEAR] / 10) * 10);
+    _clock[CLOCK_YEAR] = (((_clock[CLOCK_YEAR] / 10) & 0x0F) << 4) | (_clock[CLOCK_YEAR] - (_clock[CLOCK_YEAR] / 10) * 10); \
 }while(0)
 
 static void
