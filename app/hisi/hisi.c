@@ -143,6 +143,7 @@ static cmd_table_t cmd_dog[] = {
         .handle = cmd_dog_set_timeout,
     },
 };
+
 #endif /* IS_PRODUCT_LTEFI_MD */
 /******************************************************************************/
 #if (IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
@@ -290,8 +291,8 @@ static cmd_multi_table_t multi[] = {
         .table  = cmd_otp,
         .count  = os_count_of(cmd_otp),
         .usage  = otp_usage,
-        .init   = NULL,
-        .fini   = NULL,
+        .init   = os_call_nothing,
+        .fini   = os_call_nothing,
     },
 
 #endif

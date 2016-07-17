@@ -281,92 +281,63 @@ static inline bool os_seq_before(uint32 seq1, uint32 seq2)
     err_in___os_call;                               \
 })  /* end */
 
+static int os_call_nothing(void) { return 0; }
 #define os_call(_begin, _end, _call, _arg1, _args...) ({ \
-    int err_in_os_call = 0;                         \
-    if (_begin) {                                   \
-        err_in_os_call = _begin();                  \
-    }                                               \
+    int err_in_os_call = _begin();                  \
     if (0==err_in_os_call) {                        \
         err_in_os_call = _call(_arg1, ##_args);     \
     }                                               \
-    if (_end) {                                     \
-        _end();                                     \
-    }                                               \
+    _end();                                         \
                                                     \
     shell_error(err_in_os_call);                    \
 })  /* end */
 
 #define os_call_1(_begin, _end, _call, _arg1, _args...) ({ \
-    int err_in_os_call_1 = 0;                       \
-    if (_begin) {                                   \
-        err_in_os_call_1 = _begin(_arg1);           \
-    }                                               \
+    int err_in_os_call_1 = _begin(_arg1);           \
     if (0==err_in_os_call_1) {                      \
         err_in_os_call_1 = _call(_arg1, ##_args);   \
     }                                               \
-    if (_end) {                                     \
-        _end(_arg1);                                \
-    }                                               \
+    _end(_arg1);                                    \
                                                     \
     shell_error(err_in_os_call_1);                  \
 })  /* end */
 
 #define os_call_2(_begin, _end, _call, _arg1, _arg2, _args...) ({ \
-    int err_in_os_call_2 = 0;                       \
-    if (_begin) {                                   \
-        err_in_os_call_2 = _begin(_arg1, _arg2);    \
-    }                                               \
+    int err_in_os_call_2 = _begin(_arg1, _arg2);    \
     if (0==err_in_os_call_2) {                      \
         err_in_os_call_2 = _call(_arg1, _arg2, ##_args); \
     }                                               \
-    if (_end) {                                     \
-        _end(_arg1, _arg2);                         \
-    }                                               \
+    _end(_arg1, _arg2);                             \
                                                     \
     shell_error(err_in_os_call_2);                  \
 })  /* end */
 
 #define os_call_3(_begin, _end, _call, _arg1, _arg2, _arg3, _args...) ({ \
-    int err_in_os_call_3 = 0;                       \
-    if (_begin) {                                   \
-        err_in_os_call_3 = _begin(_arg1, _arg2, _arg3);    \
-    }                                               \
+    int err_in_os_call_3 = _begin(_arg1, _arg2, _arg3);    \
     if (0==err_in_os_call_3) {                      \
         err_in_os_call_3 = _call(_arg1, _arg2, _arg3, ##_args); \
     }                                               \
-    if (_end) {                                     \
-        _end(_arg1, _arg2, _arg3);                  \
-    }                                               \
+    _end(_arg1, _arg2, _arg3);                      \
                                                     \
     shell_error(err_in_os_call_3);                  \
 })  /* end */
 
 #define os_call_4(_begin, _end, _call, _arg1, _arg2, _arg3, _arg4, _args...) ({ \
-    int err_in_os_call_4 = 0;                       \
-    if (_begin) {                                   \
-        err_in_os_call_4 = _begin(_arg1, _arg2, _arg3, _arg4);    \
-    }                                               \
+    int err_in_os_call_4 = _begin(_arg1, _arg2, _arg3, _arg4);    \
     if (0==err_in_os_call_4) {                      \
         err_in_os_call_4 = _call(_arg1, _arg2, _arg3, _arg4, ##_args); \
     }                                               \
-    if (_end) {                                     \
-        _end(_arg1, _arg2, _arg3, _arg4);           \
-    }                                               \
+    _end(_arg1, _arg2, _arg3, _arg4);               \
                                                     \
     shell_error(err_in_os_call_4);                  \
 })  /* end */
 
 #define os_call_5(_begin, _end, _call, _arg1, _arg2, _arg3, _arg4, _arg5, _args...) ({ \
-    int err_in_os_call_5 = 0;                       \
-    if (_begin) {                                   \
-        err_in_os_call_5 = _begin(_arg1, _arg2, _arg3, _arg4, _arg5);    \
-    }                                               \
+    int err_in_os_call_5 = _begin(_arg1, _arg2, _arg3, _arg4, _arg5);    \
     if (0==err_in_os_call_5) {                      \
         err_in_os_call_5 = _call(_arg1, _arg2, _arg3, _arg4, _arg5, ##_args); \
     }                                               \
-    if (_end) {                                     \
-        _end(_arg1, _arg2, _arg3, _arg4, _arg5);    \
-    }                                               \
+    _end(_arg1, _arg2, _arg3, _arg4, _arg5);        \
                                                     \
     shell_error(err_in_os_call_5);                  \
 })  /* end */
