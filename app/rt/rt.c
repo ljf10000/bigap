@@ -122,6 +122,9 @@ static int
 __main(int argc, char *argv[])
 {
     int i, err;
+
+    (void)argc;
+    (void)argv;
     
     os_call(benv_open, benv_close, rt_load, 0);
 
