@@ -5,11 +5,10 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #define __THIS_APP      hisi
 #endif
 
-#include "utils.h"
 #include "hisi/hisi.h"
 
 OS_INITER;
-*******************************************************************************/
+/******************************************************************************/
 #if IS_PRODUCT_LTEFI_MD
 static int
 cmd_dog_enable(int argc, char *argv[])
@@ -130,7 +129,7 @@ static cmd_table_t cmd_dog[] = {
     },
 };
 #endif /* IS_PRODUCT_LTEFI_MD */
-
+/******************************************************************************/
 #if (IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
 static int
 cmd_otp_custom_show(int argc, char *argv[])
@@ -248,7 +247,7 @@ static cmd_table_t cmd_otp[] = {
 #endif
 };
 #endif /* (IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC) */
-
+/******************************************************************************/
 static cmd_multi_table_t multi[] = {
 #if IS_PRODUCT_LTEFI_MD
     {

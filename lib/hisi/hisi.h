@@ -1,7 +1,6 @@
 #ifndef __HISI_H_d8e4e7ba4ad94d61945610b31afade5d__
 #define __HISI_H_d8e4e7ba4ad94d61945610b31afade5d__
 /******************************************************************************/
-#include "utils.h"
 #include "benv/benv.h"
 /******************************************************************************/
 #define __hisi_method_name(_mod, _obj, _method) "hisi " #_mod " " #_obj" " #_method
