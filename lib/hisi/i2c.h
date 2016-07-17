@@ -7,8 +7,8 @@
 #include "hi_unf_i2c.h"
 #endif
 
-#define hisi_i2c_init()     hisi_unf_method_0(I2C, Init)
-#define hisi_i2c_fini()     hisi_unf_method_0(I2C, Deinit)
+static inline int hisi_i2c_init(void)   { return hisi_unf_method_0(I2C, Init); }
+static inline int hisi_i2c_fini(void)   { return hisi_unf_method_0(I2C, Deinit); }
 
 #if 0
 #define hisi_i2c_set_rate(i2c_number, i2c_rate) \

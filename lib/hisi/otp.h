@@ -13,8 +13,8 @@ enum {
     OTP_SIZE = 16,
 };
 
-static inline int hisi_otp_init()   { return hisi_unf_method_0(OTP, Init); }
-static inline int hisi_otp_fini()   { return hisi_unf_method_0(OTP, DeInit); }
+static inline int hisi_otp_init(void)   { return hisi_unf_method_0(OTP, Init); }
+static inline int hisi_otp_fini(void)   { return hisi_unf_method_0(OTP, DeInit); }
 
 #define hisi_otp_get_customer_key(_otp)         hisi_unf_method_x(OTP, GetCustomerKey, _otp, OTP_SIZE)
 #define hisi_otp_set_customer_key(_otp)         hisi_unf_method_x(OTP, SetCustomerKey, _otp, OTP_SIZE)

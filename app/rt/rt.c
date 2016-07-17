@@ -73,7 +73,7 @@ rt_load(int noused)
     
     (void)noused;
     
-    err = os_call_1(__benv_load, benv_do_nothing, __rt_load, BENV_MARK);
+    err = os_call_1(__benv_load, __benv_save_nothing, __rt_load, BENV_MARK);
         debug_trace_error(err, "rt load");
 
     return err;

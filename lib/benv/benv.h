@@ -2154,8 +2154,7 @@ benv_loadby(int begin, int count)
     
     return err;
 }
-
-#define benv_do_nothing()       0
+#define __benv_save_nothing(_idx)   0
 #define benv_load_cookie()      __benv_load(BENV_COOKIE)
 #define benv_load_os()          __benv_load(BENV_OS)
 #define benv_load_mark()        __benv_load(BENV_MARK)
