@@ -7,7 +7,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 
 #include "utils.h"
 #include "benv/benv.h"
-#include "reg/reg.h"
+#include "hisi/hisi.h"
 #if IS_PRODUCT_LTEFI_MD_PARTITION_A
 #include "../bootm/bootm.h"
 #endif

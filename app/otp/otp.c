@@ -6,7 +6,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 #endif
 
 #include "utils.h"
-#include "otp/otp.h"
+#include "hisi/hisi.h"
 #include "benv/bcookie.h"
 
 #if !(IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)

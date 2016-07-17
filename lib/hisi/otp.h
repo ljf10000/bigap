@@ -1,8 +1,6 @@
 #ifndef __OTP_H_ee6f799d4c104240a8e7800f797e0c04__
 #define __OTP_H_ee6f799d4c104240a8e7800f797e0c04__
 /******************************************************************************/
-#include "utils.h"
-#include "benv/benv.h"
 #ifdef __APP__
 /******************************************************************************/
 #if IS_PRODUCT_LTEFI_MD
@@ -23,11 +21,11 @@ enum {
 #endif
 
 #ifndef __OTP_CUSTOM
-#define __OTP_CUSTOM        ((byte *)"www.autelan.com")
+#define __OTP_CUSTOM        ((byte *)PRODUCT_VENDOR_DOMAIN)
 #endif
 
 #ifndef OTP_CUSTOM
-#define OTP_CUSTOM          ((byte *)"SuperWaLi")
+#define OTP_CUSTOM          ((byte *)PRODUCT_VENDOR)
 #endif
 
 enum {

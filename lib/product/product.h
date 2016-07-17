@@ -54,6 +54,14 @@
 #define PRODUCT_VENDOR          "superwalle"
 #endif
 
+#ifndef PRODUCT_VENDOR_DOMAIN
+#define PRODUCT_VENDOR_DOMAIN   PRODUCT_VENDOR ".com"
+#endif
+
+#ifndef PRODUCT_VENDOR_URL
+#define PRODUCT_VENDOR_URL      "www." PRODUCT_VENDOR_DOMAIN
+#endif
+
 #ifndef PRODUCT_COMPANY
 #define PRODUCT_COMPANY         PRODUCT_VENDOR " Technology Co.,Ltd." /* fixme */
 #endif

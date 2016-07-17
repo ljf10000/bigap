@@ -8,7 +8,7 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 
 #include "benv/benv.h"
 #include "utils.h"
-#include "reg/reg.h"
+#include "hisi/hisi.h"
 
 static int 
 do_dog_enable(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
