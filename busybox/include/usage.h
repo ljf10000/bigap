@@ -120,23 +120,20 @@
 #define bck_trivial_usage       "\n\n"
 #define bck_full_usage          "\n\n"
 
-#define dog_trivial_usage       "\n\n"
-#define dog_full_usage          "\n\n"
-
 #define fcookie_trivial_usage   "\n\n"
 #define fcookie_full_usage      "\n\n"
 
 #define guard_trivial_usage     "\n\n"
 #define guard_full_usage        "\n\n"
 
+#define hisi_trivial_usage     	"\n\n"
+#define hisi_full_usage        	"\n\n"
+
 #define jlogger_trivial_usage   "\n\n"
 #define jlogger_full_usage      "\n\n"
 
 #define jlogd_trivial_usage     "\n\n"
 #define jlogd_full_usage        "\n\n"
-
-#define otp_trivial_usage       "\n\n"
-#define otp_full_usage          "\n\n"
 
 #define rt_trivial_usage        "\n\n"
 #define rt_full_usage           "\n\n"

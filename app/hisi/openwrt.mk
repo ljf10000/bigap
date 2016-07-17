@@ -1,6 +1,6 @@
 
-OBJS=dog.o
-__TARGET=dog
+OBJS=hisi.o
+__TARGET=hisi
 TARGET=$(__TARGET)
 LIBS_DEPEND=-lm -ljson-c
 

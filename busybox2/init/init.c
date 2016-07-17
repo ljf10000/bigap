@@ -103,8 +103,8 @@ struct init_action {
 #define count_of(_x)        (sizeof(_x)/sizeof((_x)[0]))
 
 static struct init_action actions[] = {
-    action_entry("/bin/busybox sysstartup",     ONCE | STATICACT),
-    action_entry("/bin/busybox dog disable",    ONCE | STATICACT),
+    action_entry("/bin/busybox sysstartup",         ONCE | STATICACT),
+    action_entry("/bin/busybox hisi dog disable",   ONCE | STATICACT),
     action_entry("/etc/init.d/rc.last",         ONCE | STATICACT),
     action_entry("/bin/busybox bck",            ONCE | STATICACT),
     action_entry("/bin/busybox jlogd",  RESPAWN | STATICACT),

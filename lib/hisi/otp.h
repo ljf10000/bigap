@@ -12,6 +12,14 @@ enum {
     OTP_SIZE = 16,
 };
 
+#define hisi_otp_init()             hisi_unf_method_0(OTP, Init)
+#define hisi_otp_fini()             hisi_unf_method_0(OTP, DeInit)
+
+#define hisi_otp_get_customer_key(_otp)         hisi_unf_method_x(OTP, GetCustomerKey, _otp, OTP_SIZE)
+#define hisi_otp_set_customer_key(_otp)         hisi_unf_method_x(OTP, SetCustomerKey, _otp, OTP_SIZE)
+#define hisi_otp_get_private_key(_otp, _idx)    hisi_unf_method_x(OTP, GetStbPrivData, _idx, &_otp[_idx])
+#define hisi_otp_set_private_key(_otp, _idx)    hisi_unf_method_x(OTP, SetStbPrivData, _idx, &_otp[_idx])
+
 #ifndef OTP_ZERO
 #define OTP_ZERO            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 #endif
@@ -245,8 +253,7 @@ __otp_init(void)
     int err;
 
     do{
-        err = HI_UNF_OTP_Init();
-            debug_trace_error(err, "otp init");
+        err = hisi_otp_init();
         if (err<0) {
             
             sleep(1);
@@ -261,8 +268,7 @@ __otp_fini(void)
 {
     int err;
     
-    err = HI_UNF_OTP_DeInit();
-        debug_trace_error(err, "otp fini");
+    err = hisi_otp_fini();
     if (err<0) {
     }
 
@@ -274,8 +280,7 @@ __otp_custom_read(byte otp[OTP_SIZE])
 {
     int err;
 
-    err = HI_UNF_OTP_GetCustomerKey(otp, OTP_SIZE);
-        debug_trace_error(err, "read custom");
+    err = hisi_otp_get_customer_key(otp);
     if (err<0) {
         err = OTP_ERR_READ;
     }
@@ -288,8 +293,7 @@ __otp_custom_write(byte otp[OTP_SIZE])
 {
     int err;
 
-    err = HI_UNF_OTP_SetCustomerKey(otp, OTP_SIZE);
-        debug_trace_error(err, "write custom");
+    err = hisi_otp_set_customer_key(otp);
     if (err<0) {
         err = OTP_ERR_WRITE;
     } else {
@@ -305,7 +309,7 @@ __otp_private_read(byte otp[OTP_SIZE])
     int i, err, errs = 0;
 
     for (i=0; i<OTP_SIZE; i++) {
-        err = HI_UNF_OTP_GetStbPrivData(i, &otp[i]);
+        err = hisi_otp_get_private_key(otp, i);
         if (err<0) {
             errs = err;
         }
@@ -326,7 +330,7 @@ __otp_private_write(byte otp[OTP_SIZE])
     int i, err, errs = 0;
 
     for (i=0; i<OTP_SIZE; i++) {
-        err = HI_UNF_OTP_SetStbPrivData(i, otp[i]);
+        err = hisi_otp_set_private_key(otp, i);
         if (err<0) {
             errs = err;
         }

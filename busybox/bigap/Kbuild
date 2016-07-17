@@ -7,12 +7,11 @@
 lib-y:=
 lib-$(CONFIG_AK)	+= app/ak/ak.o
 lib-$(CONFIG_BOOTM)  	+= app/bootm/bootm.o
-lib-$(CONFIG_DOG)  	+= app/dog/dog.o
 lib-$(CONFIG_FCOOKIE)  	+= app/fcookie/fcookie.o
 lib-$(CONFIG_GUARD)  	+= app/guard/guard.o
+lib-$(CONFIG_HISI)  	+= app/hisi/hisi.o
 lib-$(CONFIG_JLOGGER)	+= app/jlogger/jlogger.o
 lib-$(CONFIG_JLOGD)    	+= app/jlogd/jlogd.o
-lib-$(CONFIG_OTP)  	+= app/otp/otp.o
 lib-$(CONFIG_RT)  	+= app/rt/rt.o
 lib-$(CONFIG_SMC)	+= app/smc/smc.o
 lib-$(CONFIG_SMD)	+= app/smd/smd.o

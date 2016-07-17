@@ -123,14 +123,14 @@
 #define benv_trivial_usage      "\n\n"
 #define benv_full_usage         "\n\n"
 
-#define dog_trivial_usage       "\n\n"
-#define dog_full_usage          "\n\n"
-
 #define fcookie_trivial_usage   "\n\n"
 #define fcookie_full_usage      "\n\n"
 
 #define guard_trivial_usage     "\n\n"
 #define guard_full_usage        "\n\n"
+
+#define hisi_trivial_usage    	"\n\n"
+#define hisi_full_usage       	"\n\n"
 
 #define jlogger_trivial_usage   "\n\n"
 #define jlogger_full_usage      "\n\n"
@@ -140,9 +140,6 @@
 
 #define js_trivial_usage        "\n\n"
 #define js_full_usage           "\n\n"
-
-#define otp_trivial_usage       "\n\n"
-#define otp_full_usage          "\n\n"
 
 #define ppp_dial_trivial_usage	"\n\n"
 #define ppp_dial_full_usage		"\n\n"

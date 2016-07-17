@@ -16,8 +16,8 @@ include $(DIR_ROOT)/mk/define.mk
 #
 #changed me, append obj
 #
-OBJS=$(DIR_SELF)/dog.o
-TARGET_NAME=dog
+OBJS=$(DIR_SELF)/hisi.o
+TARGET_NAME=hisi
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
 LIB_DEPEND=c json-c

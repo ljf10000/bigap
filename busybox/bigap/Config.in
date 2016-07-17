@@ -17,12 +17,6 @@ config BOOTM
 	help
 	  bootm
 
-config DOG
-	bool "dog"
-	default y
-	help
-	  dog
-
 config FCOOKIE
 	bool "fcookie"
 	default y
@@ -35,6 +29,12 @@ config GUARD
 	help
 	  guard
 
+config HISI
+	bool "hisi"
+	default y
+	help
+	  hisi
+
 config JLOGGER
 	bool "jlogger"
 	default y
@@ -46,12 +46,6 @@ config JLOGD
 	default y
 	help
 	  jlogd
-
-config OTP
-	bool "otp"
-	default y
-	help
-	  otp
 
 config RT
 	bool "rt"

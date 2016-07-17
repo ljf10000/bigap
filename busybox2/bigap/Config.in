@@ -23,12 +23,6 @@ config BENV
 	help
 	  benv
 
-config DOG
-	bool "dog"
-	default y
-	help
-	  dog
-
 config FCOOKIE
 	bool "fcookie"
 	default y
@@ -40,6 +34,12 @@ config GUARD
 	default y
 	help
 	  guard
+
+config HISI
+	bool "hisi"
+	default y
+	help
+	  hisi
 
 config JLOGGER
 	bool "jlogger"
@@ -58,12 +58,6 @@ config JS
 	default y
 	help
 	  js
-
-config OTP
-	bool "otp"
-	default y
-	help
-	  otp
 
 config PPP_DIAL
 	bool "ppp_dial"
