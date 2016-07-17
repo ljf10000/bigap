@@ -186,7 +186,7 @@ get_clock_manual(byte clock[])
 	clock[CLOCK_SEC] = (second % 10) + (second / 10) * 0x10;
 }
 
-static void 
+static int 
 clock2date(byte clock[CLOCK_END])
 {
     return os_p_system("date -s '%04d-%02d-%02d %02d:%02d:%02d'", 
