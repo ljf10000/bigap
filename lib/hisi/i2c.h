@@ -8,7 +8,7 @@
 #endif
 
 static inline int hisi_i2c_init(void)   { return hisi_unf_method_0(I2C, Init); }
-static inline int hisi_i2c_fini(void)   { return hisi_unf_method_0(I2C, Deinit); }
+static inline int hisi_i2c_fini(void)   { return hisi_unf_method_0(I2C, DeInit); }
 
 #if 0
 #define hisi_i2c_set_rate(i2c_number, i2c_rate) \

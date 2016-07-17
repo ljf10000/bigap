@@ -340,6 +340,7 @@ BIGAP_LDLIBS :=	z \
 			hi_3g \
 			hi_common \
 			hi_msp \
+			jpeg \
 			# end
 CFLAGS		:= $(CFLAGS) $(BIGAP_CFLAGS)
 
