@@ -32,21 +32,107 @@ static inline int hisi_gpio_fini(void)   { return hisi_unf_call_0(GPIO, DeInit);
 #define hisi_gpio_set_int_enable(gpio_number, enable) \
     hisi_unf_call_x(GPIO, SetIntEnable, gpio_number, enable)
 /******************************************************************************/
-#define HI_UNF_GPIO                 1
+#define HI_UNF_GPIO         1
 
-#define GPIO_INPUT                  1
-#define GPIO_OUTPUT                 0
+#define GPIO_INPUT          1
+#define GPIO_OUTPUT         0
 
-#define GPIO_R                      0x01
-#define GPIO_W                      0x02
-#define GPIO_RW                     (GPIO_R | GPIO_W)
+#define GPIO_R              0x01
+#define GPIO_W              0x02
+#define GPIO_RW             (GPIO_R | GPIO_W)
 
-#define GPIO_NAME_LEN               OS_IFNAME_LEN
-#define GPIO_LINE_LEN               OS_LINE_LEN
+#define GPIO_NAME_LEN       OS_IFNAME_LEN
+#define GPIO_LINE_LEN       OS_LINE_LEN
 
-#define GPIO_GROUP_MAX              7
-#define GPIO_PIN_MAX                8
-#define GPIO_MAX		            (GPIO_GROUP_MAX*GPIO_PIN_MAX)   //Hi3798MV  GPIOn<7
+#define GPIO_GROUP_MAX      7
+#define GPIO_PIN_MAX        8
+#define GPIO_MAX		    (GPIO_GROUP_MAX*GPIO_PIN_MAX)   //Hi3798MV  GPIOn<7
+
+#define GPIO_NUMBER(group_number, pin_number)    (GPIO_PIN_MAX*(group_number) + (pin_number))
+#define GPIO_NUMBER_MON_VCC         GPIO_NUMBER(0, 3)
+#define GPIO_NUMBER_SHUT_FORCE		GPIO_NUMBER(5, 2)
+#define GPIO_NUMBER_SHUT_DELAY		GPIO_NUMBER(5, 6)
+#define GPIO_NUMBER_MON_ACC			GPIO_NUMBER(5, 5)
+#define GPIO_NUMBER_RST_LTE1		GPIO_NUMBER(6, 1)
+#define GPIO_NUMBER_RST_LTE2		GPIO_NUMBER(6, 2)
+#define GPIO_NUMBER_RST_AP			GPIO_NUMBER(6, 3)
+#define GPIO_NUMBER_MON_RST			GPIO_NUMBER(6, 4)
+#define GPIO_NUMBER_PWR_LTE2		GPIO_NUMBER(6, 5)
+#define GPIO_NUMBER_PWR_AP			GPIO_NUMBER(6, 6)
+#define GPIO_NUMBER_PWR_LTE1		GPIO_NUMBER(6, 7)
+
+#define GPIO_NAME_PWR_LTE1		    "pwr_lte1"
+#define GPIO_NAME_PWR_LTE2		    "pwr_lte2"
+#define GPIO_NAME_RST_LTE1		    "rst_lte1"
+#define GPIO_NAME_RST_LTE2		    "rst_lte2"
+#define GPIO_NAME_SHUT_DELAY	    "offdelay"
+#define GPIO_NAME_SHUT_FORCE	    "forceshut"
+#define GPIO_NAME_PWR_AP		    "apshut"
+#define GPIO_NAME_RST_AP		    "rst_per"
+#define GPIO_NAME_MON_RST		    "reset"
+#define GPIO_NAME_MON_ACC		    "acc_mon"
+#define GPIO_NAME_MON_VCC		    "vcc_mon"
+
+#define I2C_GPIO_BASE				GPIO_MAX
+#define I2C_GPIO_NUMBER_LED_SIM1	(I2C_GPIO_BASE + 4)
+#define I2C_GPIO_NUMBER_LED_STAT1	(I2C_GPIO_BASE + 5)
+#define I2C_GPIO_NUMBER_LED_STAT2	(I2C_GPIO_BASE + 6)
+#define I2C_GPIO_NUMBER_LED_SIM2	(I2C_GPIO_BASE + 7)
+#define I2C_GPIO_NUMBER_LED_LTE2	(I2C_GPIO_BASE + 10)
+#define I2C_GPIO_NUMBER_LED_LTE1	(I2C_GPIO_BASE + 11)
+#define I2C_GPIO_NUMBER_LED_GPS		(I2C_GPIO_BASE + 12)
+#define I2C_GPIO_NUMBER_LED_SATA	(I2C_GPIO_BASE + 13)
+#define I2C_GPIO_NUMBER_LED_SYS		(I2C_GPIO_BASE + 14)
+#define I2C_GPIO_NUMBER_LED_PWR		(I2C_GPIO_BASE + 15)
+#define I2C_GPIO_NUMBER_LED_CTRL	(I2C_GPIO_BASE + 17)
+
+#define GPIO_NAME_LED_STAT1		    "stat1"
+#define GPIO_NAME_LED_STAT2		    "stat2"
+#define GPIO_NAME_LED_SIM1		    "sim1"
+#define GPIO_NAME_LED_SIM2		    "sim2"
+#define GPIO_NAME_LED_LTE1		    "lte1"
+#define GPIO_NAME_LED_LTE2		    "lte2"
+#define GPIO_NAME_LED_GPS		    "gps"
+#define GPIO_NAME_LED_SATA		    "hdd"
+#define GPIO_NAME_LED_SYS		    "sys"
+#define GPIO_NAME_LED_PWR		    "pwr"
+#define GPIO_NAME_LED_CTRL		    "ctrl"
+
+typedef struct gpio {
+	char name[1 + GPIO_NAME_LEN];
+	int number;
+	int flag;
+} hisi_gpio_t;
+
+#define GPIO_INIT(_name, _number, _flag)  {.name=_name, .number=_number, .flag=_flag}
+#define GPIO_INITER { \
+	/* input */                                                             \
+	GPIO_INIT(GPIO_NAME_MON_VCC,    GPIO_NUMBER_MON_VCC,    GPIO_R),        \
+	GPIO_INIT(GPIO_NAME_MON_ACC,    GPIO_NUMBER_MON_ACC,    GPIO_R),        \
+	GPIO_INIT(GPIO_NAME_MON_RST,    GPIO_NUMBER_MON_RST,    GPIO_R),        \
+	/* output */                                                            \
+	GPIO_INIT(GPIO_NAME_SHUT_FORCE, GPIO_NUMBER_SHUT_FORCE, GPIO_W),        \
+	GPIO_INIT(GPIO_NAME_SHUT_DELAY, GPIO_NUMBER_SHUT_DELAY, GPIO_W),        \
+	GPIO_INIT(GPIO_NAME_RST_LTE1,   GPIO_NUMBER_RST_LTE1,   GPIO_W),        \
+	GPIO_INIT(GPIO_NAME_RST_LTE2,   GPIO_NUMBER_RST_LTE2,   GPIO_W),        \
+	GPIO_INIT(GPIO_NAME_PWR_LTE1,   GPIO_NUMBER_PWR_LTE1,   GPIO_W),        \
+	GPIO_INIT(GPIO_NAME_PWR_LTE2,   GPIO_NUMBER_PWR_LTE2,   GPIO_W),        \
+	GPIO_INIT(GPIO_NAME_RST_AP,     GPIO_NUMBER_RST_AP,     GPIO_W),        \
+	GPIO_INIT(GPIO_NAME_PWR_AP,     GPIO_NUMBER_PWR_AP,     GPIO_W),        \
+	/* i2c-gpio */                                                          \
+	GPIO_INIT(GPIO_NAME_LED_SIM1,   I2C_GPIO_NUMBER_LED_SIM1,   GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_SIM2,   I2C_GPIO_NUMBER_LED_SIM2,   GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_STAT1,  I2C_GPIO_NUMBER_LED_STAT1,  GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_STAT2,  I2C_GPIO_NUMBER_LED_STAT2,  GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_LTE1,   I2C_GPIO_NUMBER_LED_LTE1,   GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_LTE2,   I2C_GPIO_NUMBER_LED_LTE2,   GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_GPS,    I2C_GPIO_NUMBER_LED_GPS,    GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_SATA,   I2C_GPIO_NUMBER_LED_SATA,   GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_SYS,    I2C_GPIO_NUMBER_LED_SYS,    GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_PWR,    I2C_GPIO_NUMBER_LED_PWR,    GPIO_W),    \
+	GPIO_INIT(GPIO_NAME_LED_CTRL,   I2C_GPIO_NUMBER_LED_CTRL,   GPIO_W),    \
+}   /* end */
+
 /******************************************************************************/
 #define GPIO_DIR_REG(num)           (((num >= 0)&&(num <= 7))? 6:7)
 #define GPIO_VAL_REG(num)           (((num >= 0)&&(num <= 7))? 2:3)
@@ -254,91 +340,6 @@ gpio_write(struct gpio *gpio, int value)
     return 0;
 }
 /******************************************************************************/
-#define GPIO_NUMBER(group_number, pin_number)    (GPIO_PIN_MAX*(group_number) + (pin_number))
-#define GPIO_NUMBER_MON_VCC         GPIO_NUMBER(0, 3)
-#define GPIO_NUMBER_SHUT_FORCE		GPIO_NUMBER(5, 2)
-#define GPIO_NUMBER_SHUT_DELAY		GPIO_NUMBER(5, 6)
-#define GPIO_NUMBER_MON_ACC			GPIO_NUMBER(5, 5)
-#define GPIO_NUMBER_RST_LTE1		GPIO_NUMBER(6, 1)
-#define GPIO_NUMBER_RST_LTE2		GPIO_NUMBER(6, 2)
-#define GPIO_NUMBER_RST_AP			GPIO_NUMBER(6, 3)
-#define GPIO_NUMBER_MON_RST			GPIO_NUMBER(6, 4)
-#define GPIO_NUMBER_PWR_LTE2		GPIO_NUMBER(6, 5)
-#define GPIO_NUMBER_PWR_AP			GPIO_NUMBER(6, 6)
-#define GPIO_NUMBER_PWR_LTE1		GPIO_NUMBER(6, 7)
-
-#define GPIO_NAME_PWR_LTE1		    "pwr_lte1"
-#define GPIO_NAME_PWR_LTE2		    "pwr_lte2"
-#define GPIO_NAME_RST_LTE1		    "rst_lte1"
-#define GPIO_NAME_RST_LTE2		    "rst_lte2"
-#define GPIO_NAME_SHUT_DELAY	    "offdelay"
-#define GPIO_NAME_SHUT_FORCE	    "forceshut"
-#define GPIO_NAME_PWR_AP		    "apshut"
-#define GPIO_NAME_RST_AP		    "rst_per"
-#define GPIO_NAME_MON_RST		    "reset"
-#define GPIO_NAME_MON_ACC		    "acc_mon"
-#define GPIO_NAME_MON_VCC		    "vcc_mon"
-
-#define I2C_GPIO_BASE				GPIO_MAX
-#define I2C_GPIO_NUMBER_LED_SIM1	(I2C_GPIO_BASE + 4)
-#define I2C_GPIO_NUMBER_LED_STAT1	(I2C_GPIO_BASE + 5)
-#define I2C_GPIO_NUMBER_LED_STAT2	(I2C_GPIO_BASE + 6)
-#define I2C_GPIO_NUMBER_LED_SIM2	(I2C_GPIO_BASE + 7)
-#define I2C_GPIO_NUMBER_LED_LTE2	(I2C_GPIO_BASE + 10)
-#define I2C_GPIO_NUMBER_LED_LTE1	(I2C_GPIO_BASE + 11)
-#define I2C_GPIO_NUMBER_LED_GPS		(I2C_GPIO_BASE + 12)
-#define I2C_GPIO_NUMBER_LED_SATA	(I2C_GPIO_BASE + 13)
-#define I2C_GPIO_NUMBER_LED_SYS		(I2C_GPIO_BASE + 14)
-#define I2C_GPIO_NUMBER_LED_PWR		(I2C_GPIO_BASE + 15)
-#define I2C_GPIO_NUMBER_LED_CTRL	(I2C_GPIO_BASE + 17)
-
-#define GPIO_NAME_LED_STAT1		    "stat1"
-#define GPIO_NAME_LED_STAT2		    "stat2"
-#define GPIO_NAME_LED_SIM1		    "sim1"
-#define GPIO_NAME_LED_SIM2		    "sim2"
-#define GPIO_NAME_LED_LTE1		    "lte1"
-#define GPIO_NAME_LED_LTE2		    "lte2"
-#define GPIO_NAME_LED_GPS		    "gps"
-#define GPIO_NAME_LED_SATA		    "hdd"
-#define GPIO_NAME_LED_SYS		    "sys"
-#define GPIO_NAME_LED_PWR		    "pwr"
-#define GPIO_NAME_LED_CTRL		    "ctrl"
-
-typedef struct gpio {
-	char name[1 + GPIO_NAME_LEN];
-	int number;
-	int flag;
-} hisi_gpio_t;
-
-#define GPIO_INIT(_name, _number, _flag)  {.name=_name, .number=_number, .flag=_flag}
-#define GPIO_INITER { \
-	/* input */                                                             \
-	GPIO_INIT(GPIO_NAME_MON_VCC,    GPIO_NUMBER_MON_VCC,    GPIO_R),        \
-	GPIO_INIT(GPIO_NAME_MON_ACC,    GPIO_NUMBER_MON_ACC,    GPIO_R),        \
-	GPIO_INIT(GPIO_NAME_MON_RST,    GPIO_NUMBER_MON_RST,    GPIO_R),        \
-	/* output */                                                            \
-	GPIO_INIT(GPIO_NAME_SHUT_FORCE, GPIO_NUMBER_SHUT_FORCE, GPIO_W),        \
-	GPIO_INIT(GPIO_NAME_SHUT_DELAY, GPIO_NUMBER_SHUT_DELAY, GPIO_W),        \
-	GPIO_INIT(GPIO_NAME_RST_LTE1,   GPIO_NUMBER_RST_LTE1,   GPIO_W),        \
-	GPIO_INIT(GPIO_NAME_RST_LTE2,   GPIO_NUMBER_RST_LTE2,   GPIO_W),        \
-	GPIO_INIT(GPIO_NAME_PWR_LTE1,   GPIO_NUMBER_PWR_LTE1,   GPIO_W),        \
-	GPIO_INIT(GPIO_NAME_PWR_LTE2,   GPIO_NUMBER_PWR_LTE2,   GPIO_W),        \
-	GPIO_INIT(GPIO_NAME_RST_AP,     GPIO_NUMBER_RST_AP,     GPIO_W),        \
-	GPIO_INIT(GPIO_NAME_PWR_AP,     GPIO_NUMBER_PWR_AP,     GPIO_W),        \
-	/* i2c-gpio */                                                          \
-	GPIO_INIT(GPIO_NAME_LED_SIM1,   I2C_GPIO_NUMBER_LED_SIM1,   GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_SIM2,   I2C_GPIO_NUMBER_LED_SIM2,   GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_STAT1,  I2C_GPIO_NUMBER_LED_STAT1,  GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_STAT2,  I2C_GPIO_NUMBER_LED_STAT2,  GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_LTE1,   I2C_GPIO_NUMBER_LED_LTE1,   GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_LTE2,   I2C_GPIO_NUMBER_LED_LTE2,   GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_GPS,    I2C_GPIO_NUMBER_LED_GPS,    GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_SATA,   I2C_GPIO_NUMBER_LED_SATA,   GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_SYS,    I2C_GPIO_NUMBER_LED_SYS,    GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_PWR,    I2C_GPIO_NUMBER_LED_PWR,    GPIO_W),    \
-	GPIO_INIT(GPIO_NAME_LED_CTRL,   I2C_GPIO_NUMBER_LED_CTRL,   GPIO_W),    \
-}   /* end */
-
 static inline hisi_gpio_t *
 gpio_GPIO(int *count)
 {
