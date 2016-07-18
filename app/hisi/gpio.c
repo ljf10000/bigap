@@ -105,9 +105,36 @@ gpio_handle(int argc, char *argv[])
 }
 
 static int
+gpio_init(void)
+{
+    int err;
+    
+    err = hisi_i2c_init();
+    if (err<0) {
+        return err;
+    }
+    
+    err = hisi_gpio_init();
+    if (err<0) {
+        return err;
+    }
+
+    return 0;
+}
+
+static int
+gpio_fini(void)
+{
+    hisi_gpio_fini();
+    hisi_i2c_fini();
+    
+    return 0;
+}
+
+static int
 gpio_main(int argc, char *argv[])
 {
-    return os_call(hisi_gpio_init, hisi_gpio_fini, gpio_handle, argc, argv);
+    return os_call(gpio_init, gpio_fini, gpio_handle, argc, argv);
 }
 
 #endif /* IS_PRODUCT_LTEFI_MD */
