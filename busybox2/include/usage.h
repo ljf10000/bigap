@@ -162,6 +162,9 @@
 #define sysrepair_trivial_usage     "\n\n"
 #define sysrepair_full_usage        "\n\n"
 
+#define sysreset_trivial_usage     	"\n\n"
+#define sysreset_full_usage        	"\n\n"
+
 #define sysstartup_trivial_usage    "\n\n"
 #define sysstartup_full_usage       "\n\n"
 

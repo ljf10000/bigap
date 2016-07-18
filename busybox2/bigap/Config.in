@@ -101,6 +101,12 @@ config SYSREPAIR
 	help
 	  sysrepair
 
+config SYSRESET
+	bool "sysreset"
+	default y
+	help
+	  sysreset
+
 config SYSSTARTUP
 	bool "sysstartup"
 	default y
