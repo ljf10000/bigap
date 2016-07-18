@@ -163,7 +163,7 @@ cmd_getsetter(int argc, char *argv[], cmd_op_t *op)
         * check input length
         */
         if (len > OS_LINE_LEN) {
-            println("argv[%d](%s) too long", i, argv[i]);
+            os_println("argv[%d](%s) too long", i, argv[i]);
 
             return -1;
         }
@@ -176,7 +176,7 @@ cmd_getsetter(int argc, char *argv[], cmd_op_t *op)
         name = line;
         value = strchr(line, '=');
         if (NULL==value) {
-            println("argv[%d](%s) should as xxx=xxxx", i, argv[i]);
+            os_println("argv[%d](%s) should as xxx=xxxx", i, argv[i]);
 
             return -1;
         }

@@ -132,6 +132,165 @@ typedef struct gpio {
 	GPIO_INIT(GPIO_NAME_LED_CTRL, I2C_GPIO_NUMBER_LED_CTRL, GPIO_W),    \
 }   /* end */
 /******************************************************************************/
+#define GET_DIR_REG(num) (((num >= 0)&&(num <= 7))? 6:7)
+#define GET_VAL_REG(num) (((num >= 0)&&(num <= 7))? 2:3)
+
+HI_U32 u32DeviceAddress = 0xe8;
+HI_U32 u32I2cNum  = 1;
+HI_U32 u32RegAddrCount = 1;
+HI_U32 u32ReadNumber = 1;
+
+/*
+* i2c-gpio extander using tca1116pwr, compatible pca953x tca6416 16bit
+*/
+static inline int
+tca1116_read_register(HI_U32 u32RegAddr, HI_U8 *pData)
+{
+	HI_S32 s32Ret = HI_FAILURE;
+
+	s32Ret = HI_UNF_I2C_Read(u32I2cNum, u32DeviceAddress,
+							 u32RegAddr, u32RegAddrCount, pData, u32ReadNumber);
+    return s32Ret;
+}
+
+static inline int
+tca1116_write_register(HI_U32 u32RegAddr, HI_U8 *pData)
+{
+	HI_S32 s32Ret = HI_FAILURE;
+
+	s32Ret = HI_UNF_I2C_Write(u32I2cNum, u32DeviceAddress,
+							 u32RegAddr, u32RegAddrCount, pData, u32ReadNumber);
+    return s32Ret;
+}
+
+static inline int
+tca1116_set_gpio(HI_U32 u32RegAddr, unsigned int gpio_num, int val)
+{
+	HI_S32 s32Ret = HI_FAILURE;
+	HI_U8 pData = 0;
+	HI_S8 data = 0;
+	HI_S8 temp = 0;
+
+	s32Ret = tca1116_read_register(u32RegAddr, &pData);
+//	HI_INFO_I2C("read val: u32RegAddr:%d, pData:0x%x\n", u32RegAddr, pData);
+	if (HI_SUCCESS != s32Ret)
+	{
+		HI_INFO_I2C("i2c read failed!\n");
+		return s32Ret;
+	}
+
+	data = pData;
+	if (0 == val) {
+		temp = data & (~(0x1 << (gpio_num%10)));
+	} else if (1 == val) {
+		temp = data | (0x1 << (gpio_num%10));
+	} else {
+		return HI_FAILURE;
+	}
+	pData = temp;
+	
+	s32Ret = tca1116_write_register(u32RegAddr, &pData);
+
+    return s32Ret;
+}
+
+static inline int
+tca1116_get_gpio(HI_U32 u32RegAddr, unsigned int gpio_num, int *val)
+{
+	HI_S32 s32Ret = HI_FAILURE;
+	HI_U8 pData = 0;
+	HI_S8 data = 0;
+	HI_S8 temp = 0;
+
+	s32Ret = tca1116_read_register(u32RegAddr, &pData);
+	if (s32Ret != HI_SUCCESS)
+	{
+		HI_INFO_I2C("i2c write failed!\n");
+		HI_UNF_I2C_DeInit();
+		return s32Ret;
+	}
+	data = pData;
+	temp = data & (0x1 << (gpio_num%8));
+	*val = temp;
+
+    return s32Ret;
+}
+
+static inline int
+read_i2c_gpio(unsigned int gpio_num, int *value)
+{
+	HI_S32 s32Ret = HI_FAILURE;
+	HI_U32 u32RegAddr = GET_DIR_REG(gpio_num);
+	int val = 0;
+
+    s32Ret = HI_UNF_I2C_Init();
+    if (HI_SUCCESS != s32Ret)
+    {
+        HI_INFO_I2C("%s: %d ErrorCode=0x%x\n", __FILE__, __LINE__, s32Ret);
+        return s32Ret;
+    }
+
+	/* SET Direction */
+	u32RegAddr = GET_DIR_REG(gpio_num);
+	s32Ret = tca1116_set_gpio(u32RegAddr, gpio_num, INPUT);
+	if (s32Ret != HI_SUCCESS)
+	{
+		HI_INFO_I2C("i2c write failed!\n");
+		HI_UNF_I2C_DeInit();
+		return s32Ret;
+	}
+
+	/* GET Value */
+	u32RegAddr = GET_VAL_REG(gpio_num);
+	s32Ret = tca1116_get_gpio(u32RegAddr, gpio_num, &val);
+	if (s32Ret != HI_SUCCESS)
+	{
+		HI_INFO_I2C("i2c write failed!\n");
+		HI_UNF_I2C_DeInit();
+		return s32Ret;
+	}
+	*value = val;
+	
+    return s32Ret;
+}
+
+static inline int
+write_i2c_gpio(unsigned int gpio_num, int value)
+{
+	HI_S32 s32Ret = HI_FAILURE;
+	HI_U32 u32RegAddr = 0;
+
+    s32Ret = HI_UNF_I2C_Init();
+    if (HI_SUCCESS != s32Ret)
+    {
+        HI_INFO_I2C("%s: %d ErrorCode=0x%x\n", __FILE__, __LINE__, s32Ret);
+        return s32Ret;
+    }
+		
+	/* SET Direction */
+	u32RegAddr = GET_DIR_REG(gpio_num);
+	s32Ret = tca1116_set_gpio(u32RegAddr, gpio_num, OUTPUT);
+	if (s32Ret != HI_SUCCESS)
+	{
+		HI_INFO_I2C("i2c write failed!\n");
+		HI_UNF_I2C_DeInit();
+		return s32Ret;
+	}
+
+	/* GET & SET Value */
+	u32RegAddr = GET_VAL_REG(gpio_num);
+	s32Ret = tca1116_set_gpio(u32RegAddr, gpio_num, value);
+	if (s32Ret != HI_SUCCESS)
+	{
+		HI_INFO_I2C("i2c read failed!\n");
+		HI_UNF_I2C_DeInit();
+		return s32Ret;
+	}
+
+    return s32Ret;
+}
+
+
 static inline int 
 __gpio_read(uint32 gpio_num, int *pvalue)
 {
@@ -184,14 +343,14 @@ gpio_read(struct gpio *gpio)
     int value = 0;
     
     if (GPIO_R != (GPIO_R & gpio->flag)) {
-        println("no support read gpio %s", gpio->name);
+        os_println("no support read gpio %s", gpio->name);
 
         return -1;
     }
     
     err = __gpio_read(gpio->number, &value);
     if (err) {
-        println("read gpio %s error(%d)", gpio->name, err);
+        os_println("read gpio %s error(%d)", gpio->name, err);
 
         return -1;
     }
@@ -205,14 +364,14 @@ gpio_write(struct gpio *gpio, int value)
     int err = 0;
 
     if (GPIO_W != (GPIO_W & gpio->flag)) {
-        println("no support write gpio %s", gpio->name);
+        os_println("no support write gpio %s", gpio->name);
 
         return -1;
     }
 
     err = __gpio_write(gpio->number, !!value);
     if (err) {
-        println("write gpio %s error(%d)", gpio->name, err);
+        os_println("write gpio %s error(%d)", gpio->name, err);
 
         return -1;
     }

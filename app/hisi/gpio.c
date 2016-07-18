@@ -63,7 +63,7 @@ gpio_getter(char *name)
 {
     hisi_gpio_t *gpio = gpio_getbyname(name);
     if (NULL==gpio) {
-        println("bad gpio name:%s", name);
+        os_println("bad gpio name:%s", name);
 
         return -1;
     }
@@ -73,7 +73,7 @@ gpio_getter(char *name)
         return var;
     }
 
-    println("%d", var);
+    os_println("%d", var);
 
     return 0;
 }
@@ -83,7 +83,7 @@ gpio_setter(char *name, char *value)
 {
     hisi_gpio_t *gpio = gpio_getbyname(name);
     if (NULL==gpio) {
-        println("bad gpio name:%s", name);
+        os_println("bad gpio name:%s", name);
 
         return -1;
     }

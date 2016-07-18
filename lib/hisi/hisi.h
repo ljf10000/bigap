@@ -53,6 +53,7 @@
 #define hisi_module_call_x(_module, _method, _arg1, _args...) \
      __hisi_module_call_x(_module, _method, _arg1, ##_args)
 /******************************************************************************/
+#include "hisi/sys.h"
 #include "hisi/reg.h"
 #include "hisi/dog.h"
 #include "hisi/otp.h"
