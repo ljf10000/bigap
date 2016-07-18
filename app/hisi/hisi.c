@@ -15,34 +15,12 @@ OS_INITER;
 /******************************************************************************/
 static cmd_multi_table_t multi[] = {
 #if IS_PRODUCT_LTEFI_MD
-    {
-        .module = "dog",
-        .table  = cmd_dog,
-        .count  = os_count_of(cmd_dog),
-        .usage  = dog_usage,
-        .init   = hisi_dog_init,
-        .fini   = hisi_dog_fini,
-    },
-    {
-        .module = "clock",
-        .table  = cmd_clock,
-        .count  = os_count_of(cmd_clock),
-        .usage  = clock_usage,
-        .init   = hisi_i2c_init,
-        .fini   = hisi_i2c_fini,
-    },
+    CMD_MULTI_INITER("dog",     dog_main),
+    CMD_MULTI_INITER("clock",   clock_main),
 #endif
 
 #if (IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
-    {
-        .module = "otp",
-        .table  = cmd_otp,
-        .count  = os_count_of(cmd_otp),
-        .usage  = otp_usage,
-        .init   = os_call_nothing,
-        .fini   = os_call_nothing,
-    },
-
+    CMD_MULTI_INITER("otp",     otp_main),
 #endif
 };
 

@@ -331,5 +331,11 @@ static cmd_table_t cmd_clock[] = {
         .handle = cmd_clock_sync,
     },
 };
+
+static int
+clock_main(int argc, char *argv[])
+{
+    return os_call(hisi_i2c_init, hisi_i2c_fini, cmd_handle, cmd_clock, argc, argv, clock_usage);
+}
 #endif /* IS_PRODUCT_LTEFI_MD */
 

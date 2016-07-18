@@ -126,5 +126,11 @@ static cmd_table_t cmd_otp[] = {
     },
 #endif
 };
+
+static int
+otp_main(int argc, char *argv[])
+{
+    return os_main(cmd_handle, cmd_otp, argc, argv, otp_usage);
+}
 #endif /* (IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC) */
 

@@ -135,5 +135,12 @@ static cmd_table_t cmd_dog[] = {
         .handle = cmd_dog_set_timeout,
     },
 };
+
+static int
+dog_main(int argc, char *argv[])
+{
+    return os_call(hisi_dog_init, hisi_dog_fini, cmd_handle, cmd_dog, argc, argv, dog_usage);
+}
+
 #endif /* IS_PRODUCT_LTEFI_MD */
 

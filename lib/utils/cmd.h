@@ -78,12 +78,11 @@ __cmd_handle(int count, cmd_table_t cmd[], int argc, char *argv[], int (*usage)(
 
 typedef struct {
     char *module;
-    cmd_table_t *table;
-    int count;
-    int (*usage)(void);
-    int (*init)(void);
-    int (*fini)(void);
+    
+    int (*main)(int argc, char *argv[]);
 } cmd_multi_table_t;
+
+#define CMD_MULTI_INITER(_name, _main)  { .module = _name, .main = _main }
 
 static inline int
 __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])
@@ -97,14 +96,7 @@ __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])
         char *module = argv[0];
         
         if (os_streq(module, multi[i].module)) {
-            return os_call(multi[i].init,
-                    multi[i].fini,
-                    __cmd_handle,
-                    multi[i].count, 
-                    multi[i].table, 
-                    argc,
-                    argv,
-                    multi[i].usage);
+            return (*main)(argc, argv);
         }
     }
 
