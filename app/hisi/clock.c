@@ -74,7 +74,7 @@ enum {
 }while(0)
 
 static void
-get_clock_auto(byte clock[])
+get_clock_auto(byte data[])
 {
 	time_t timep = 0;    
 	struct tm *p;
@@ -84,17 +84,17 @@ get_clock_auto(byte clock[])
 
 	p->tm_mon += 1;
 	
-	SET_CLOCK_SEC(clock, p->tm_sec);
-	SET_CLOCK_MIN(clock, p->tm_min);
-	SET_CLOCK_HOUR(clock, p->tm_hour);
-	SET_CLOCK_DAY(clock, p->tm_wday);
-	SET_CLOCK_DATE(clock, p->tm_mday);
-	SET_CLOCK_MONTH(clock, p->tm_mon);
-	SET_CLOCK_YEAR(clock, p->tm_year);
+	SET_CLOCK_SEC(data, p->tm_sec);
+	SET_CLOCK_MIN(data, p->tm_min);
+	SET_CLOCK_HOUR(data, p->tm_hour);
+	SET_CLOCK_DAY(data, p->tm_wday);
+	SET_CLOCK_DATE(data, p->tm_mday);
+	SET_CLOCK_MONTH(data, p->tm_mon);
+	SET_CLOCK_YEAR(data, p->tm_year);
 }
 
 static void
-get_clock_manual(byte clock[])
+get_clock_manual(byte data[])
 {
 	int	year = 0;
 	byte 	month = 0, date = 0, mode = 0, pm = 0,
@@ -128,9 +128,9 @@ get_clock_manual(byte clock[])
 
 	while(1) {
 		os_printf("Please input day(1-7):");
-		scanf("%c", &clock[CLOCK_DAY]);
+		scanf("%c", &data[CLOCK_DAY]);
 
-		if (clock[CLOCK_DAY] < 1 || clock[CLOCK_DAY] > 7) {
+		if (data[CLOCK_DAY] < 1 || data[CLOCK_DAY] > 7) {
 			os_println("Wrong format");
 			continue;
 		}
@@ -176,42 +176,42 @@ get_clock_manual(byte clock[])
 		}
 	}
 
-	clock[CLOCK_YEAR] = (year % 10) + ((year % 100) / 10 ) * 0x10;
-	clock[CLOCK_MONTH] = (month % 10) + (month / 10) * 0x10;
-	clock[CLOCK_DATE] = (date % 10) + (date / 10) * 0x10;
-	clock[CLOCK_HOUR] = (hour % 10) + (hour / 10) * 0x10;
+	data[CLOCK_YEAR] = (year % 10) + ((year % 100) / 10 ) * 0x10;
+	data[CLOCK_MONTH] = (month % 10) + (month / 10) * 0x10;
+	data[CLOCK_DATE] = (date % 10) + (date / 10) * 0x10;
+	data[CLOCK_HOUR] = (hour % 10) + (hour / 10) * 0x10;
 	if (12 == mode)
-		clock[CLOCK_HOUR] = clock[CLOCK_HOUR] | (1 << 6) | (pm << 5);
-	clock[CLOCK_MIN] = (minute % 10) + (minute / 10) * 0x10;
-	clock[CLOCK_SEC] = (second % 10) + (second / 10) * 0x10;
+		data[CLOCK_HOUR] = data[CLOCK_HOUR] | (1 << 6) | (pm << 5);
+	data[CLOCK_MIN] = (minute % 10) + (minute / 10) * 0x10;
+	data[CLOCK_SEC] = (second % 10) + (second / 10) * 0x10;
 }
 
 static int 
-clock2date(byte clock[CLOCK_END])
+clock2date(byte data[CLOCK_END])
 {
     return os_p_system("date -s '%04d-%02d-%02d %02d:%02d:%02d'", 
-            GET_CLOCK_YEAR(clock) + 2000,
-            GET_CLOCK_MONTH(clock), 
-            GET_CLOCK_DATE(clock),
-        	GET_CLOCK_HOUR(clock), 
-        	GET_CLOCK_MIN(clock), 
-        	GET_CLOCK_SEC(clock));
+            GET_CLOCK_YEAR(data) + 2000,
+            GET_CLOCK_MONTH(data), 
+            GET_CLOCK_DATE(data),
+        	GET_CLOCK_HOUR(data), 
+        	GET_CLOCK_MIN(data), 
+        	GET_CLOCK_SEC(data));
 }
 
 static int
 clock_save(void (*get)(byte *))
 {
-    byte clock[CLOCK_END];
+    byte data[CLOCK_END];
     int err;
     
-    (*get)(clock);
+    (*get)(data);
 
     return hisi_i2c_write(CLOCK_I2CNUM, 
                 CLOCK_DEVADDR,
 	            CLOCK_REGADDR, 
 	            CLOCK_I2CNUM, 
-	            clock, 
-	            os_count_of(clock));
+	            data, 
+	            os_count_of(data));
 }
 
 static int
@@ -235,7 +235,7 @@ cmd_clock_save_manual(int argc, char *argv[])
 static int
 cmd_clock_sync(int argc, char *argv[])
 {
-    byte clock[CLOCK_END];
+    byte data[CLOCK_END];
     int err;
     
     (void)argc;
@@ -245,52 +245,52 @@ cmd_clock_sync(int argc, char *argv[])
                 CLOCK_DEVADDR,
 	            CLOCK_REGADDR, 
 	            CLOCK_I2CNUM, 
-	            clock, 
-	            os_count_of(clock));
+	            data, 
+	            os_count_of(data));
     if (err<0) {
         return err;
     }
 
-    return clock2date(clock);
+    return clock2date(data);
 }
 
 static int
 cmd_clock_show(int argc, char *argv[])
 {
     char *week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-    byte clock[CLOCK_END];
+    byte data[CLOCK_END];
     int err;
 
     (void)argc;
     (void)argv;
 
-    err = hisi_i2c_read(CLOCK_I2CNUM, CLOCK_DEVADDR, CLOCK_REGADDR, 1, clock, os_count_of(clock));
+    err = hisi_i2c_read(CLOCK_I2CNUM, CLOCK_DEVADDR, CLOCK_REGADDR, 1, data, os_count_of(data));
     if (err<0) {
         return err;
     }
 
-    if (GET_CLOCK_MODE12(clock)) {
-        byte hour = GET_CLOCK_HOUR12(clock);
-        byte am = GET_CLOCK_AM(clock);
+    if (GET_CLOCK_MODE12(data)) {
+        byte hour = GET_CLOCK_HOUR12(data);
+        byte am = GET_CLOCK_AM(data);
         
         os_println("%04d-%02d-%02d %s, %02d:%02d:%02d %s",
-                    2000+GET_CLOCK_YEAR(clock), 
-                    GET_CLOCK_MONTH(clock), 
-                    GET_CLOCK_DATE(clock), 
-                    week[GET_CLOCK_DAY(clock)%7], 
+                    2000+GET_CLOCK_YEAR(data), 
+                    GET_CLOCK_MONTH(data), 
+                    GET_CLOCK_DATE(data), 
+                    week[GET_CLOCK_DAY(data)%7], 
                     (am && 12 == hour) ? 0 : hour, 
-                    GET_CLOCK_MIN(clock), 
-                    GET_CLOCK_SEC(clock),
+                    GET_CLOCK_MIN(data), 
+                    GET_CLOCK_SEC(data),
                     am?"AM":"PM");
     } else {
         os_println("%04d-%02d-%02d %s, %02d:%02d:%02d",
-                    2000+GET_CLOCK_YEAR(clock),
-                    GET_CLOCK_MONTH(clock), 
-                    GET_CLOCK_DATE(clock), 
-                    week[GET_CLOCK_DAY(clock)%7], 
-                    GET_CLOCK_HOUR24(clock), 
-                    GET_CLOCK_MIN(clock), 
-                    GET_CLOCK_SEC(clock));
+                    2000+GET_CLOCK_YEAR(data),
+                    GET_CLOCK_MONTH(data), 
+                    GET_CLOCK_DATE(data), 
+                    week[GET_CLOCK_DAY(data)%7], 
+                    GET_CLOCK_HOUR24(data), 
+                    GET_CLOCK_MIN(data), 
+                    GET_CLOCK_SEC(data));
     }
     
     return 0;
