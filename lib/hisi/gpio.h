@@ -47,14 +47,14 @@ static inline int hisi_gpio_fini(void)   { return hisi_unf_call_0(GPIO, DeInit);
 #define GPIO_GROUP_MAX              7
 #define GPIO_PIN_MAX                8
 #define GPIO_MAX		            (GPIO_GROUP_MAX*GPIO_PIN_MAX)   //Hi3798MV  GPIOn<7
-
+/******************************************************************************/
 #define GPIO_DIR_REG(num)           (((num >= 0)&&(num <= 7))? 6:7)
 #define GPIO_VAL_REG(num)           (((num >= 0)&&(num <= 7))? 2:3)
 
 #define GPIO_I2C_NUM                1
 #define GPIO_I2C_DEVADDR            0xe8
 #define GPIO_I2C_REGADDR_COUNT      1
-/******************************************************************************/
+
 /*
 * i2c-gpio extander using tca1116pwr, compatible pca953x tca6416 16bit
 */
