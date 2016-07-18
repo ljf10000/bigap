@@ -789,6 +789,9 @@ __init(void)
 static int
 __main(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     prepare();
     
     while(do_check()) {
