@@ -89,19 +89,21 @@ __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])
 {
     int i;
 
+    char *app = argv[0];
+    
     argc += 1;
     argv -= 1;
     
+    char *module = argv[0];
+    
     for (i=0; i<count; i++) {
-        char *module = argv[0];
-        
         if (os_streq(module, multi[i].module)) {
             return (*main)(argc, argv);
         }
     }
 
     for (i=0; i<count; i++) {
-        (*multi[i].usage)();
+        os_println("%s %s xxx", app, module);
     }
 
     return -EFORMAT;
