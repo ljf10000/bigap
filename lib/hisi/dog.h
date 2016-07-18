@@ -6,17 +6,6 @@
 #if IS_PRODUCT_LTEFI_MD
 #include "hi_unf_wdg.h"
 
-#if 0
-HI_S32 HI_UNF_WDG_Init(HI_VOID);
-HI_S32 HI_UNF_WDG_DeInit(HI_VOID);
-HI_S32 HI_UNF_WDG_Enable(HI_U32 u32WdgNum);
-HI_S32 HI_UNF_WDG_Disable(HI_U32 u32WdgNum);
-HI_S32 HI_UNF_WDG_GetTimeout(HI_U32 u32WdgNum, HI_U32 *pu32Value);
-HI_S32 HI_UNF_WDG_SetTimeout(HI_U32 u32WdgNum, HI_U32 u32Value);
-HI_S32 HI_UNF_WDG_Clear(HI_U32 u32WdgNum);
-HI_S32 HI_UNF_WDG_Reset(HI_U32 u32WdgNum);
-#endif
-
 static inline int hisi_dog_init(void)   { return hisi_unf_call_0(WDG, Init); }
 static inline int hisi_dog_fini(void)   { return hisi_unf_call_0(WDG, DeInit); }
 
@@ -30,6 +19,9 @@ static inline int hisi_dog_fini(void)   { return hisi_unf_call_0(WDG, DeInit); }
     hisi_unf_call_x(WDG, GetTimeout, dog_number, dog_value_pointer)
 #define hisi_dog_set_timeout(dog_number, dog_value) \
     hisi_unf_call_x(WDG, SetTimeout, dog_number, dog_value)
+
+#define hisi_dog_get_capability(dog_number_pointer) \
+    hisi_unf_call_x(WDG, GetCapability, dog_number_pointer)
 
 #define hisi_dog_foreach(_method, _args...)  ({         \
     int hisi_dog_foreach_i, hisi_dog_foreach_err = 0;   \
