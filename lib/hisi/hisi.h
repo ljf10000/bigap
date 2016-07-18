@@ -58,7 +58,7 @@
 #include "hisi/dog.h"
 #include "hisi/otp.h"
 #include "hisi/i2c.h"
-#include "hisi/gpio.h"
+#include "hisi/gpio.h" // must after i2c.h
 #include "hisi/3g.h"
 /******************************************************************************/
 static inline int
