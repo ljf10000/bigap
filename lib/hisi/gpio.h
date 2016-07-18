@@ -32,101 +32,17 @@ static inline int hisi_gpio_fini(void)   { return hisi_unf_call_0(GPIO, DeInit);
 #define hisi_gpio_set_int_enable(gpio_number, enable) \
     hisi_unf_call_x(GPIO, SetIntEnable, gpio_number, enable)
 /******************************************************************************/
-#define GPIO_INPUT      1
-#define GPIO_OUTPUT     0
+#define HI_UNF_GPIO         1
 
-static inline int 
-__gpio_read(uint32 gpio_num, int *pvalue)
-{
-    bool val;
-    int err;
-    
-    //设置成输入
-    err = hisi_gpio_set_dir_bit(gpio_num, GPIO_INPUT);
-    if (err<0) {
-        return err;
-    }
-
-    err = hisi_gpio_read_bit(gpio_num, &val);
-    if (err<0) {
-        return err;
-    }
-    
-    *pvalue = val;
-
-    return 0;
-}
-
-static inline int
-__gpio_write(uint32 gpio_num, int value)
-{
-    int err;
-
-    //设置成输出
-    err = hisi_gpio_set_dir_bit(gpio_num, GPIO_OUTPUT);
-    if (err<0) {
-        return err;
-    }
-
-    err = hisi_gpio_write_bit(gpio_num, !!value);
-    if (err<0) {
-        return err;
-    }
-
-    return 0;
-}
-
-static inline int
-gpio_read(struct gpio *gpio)
-{
-    int err = 0;
-    int value = 0;
-    
-    if (GPIO_R != (GPIO_R & gpio->flag)) {
-        println("no support read gpio %s", gpio->name);
-
-        return -1;
-    }
-    
-    err = __gpio_read(gpio->number, &value);
-    if (err) {
-        println("read gpio %s error(%d)", gpio->name, err);
-
-        return -1;
-    }
-    
-    return !!value;
-}
-
-static inline int
-gpio_write(struct gpio *gpio, int value)
-{
-    int err = 0;
-
-    if (GPIO_W != (GPIO_W & gpio->flag)) {
-        println("no support write gpio %s", gpio->name);
-
-        return -1;
-    }
-
-    err = __gpio_write(gpio->number, !!value);
-    if (err) {
-        println("write gpio %s error(%d)", gpio->name, err);
-
-        return -1;
-    }
-
-    return 0;
-}
-/******************************************************************************/
-#define HI_UNF_GPIO 1
+#define GPIO_INPUT          1
+#define GPIO_OUTPUT         0
 
 #define GPIO_NAME_LEN       OS_IFNAME_LEN
 #define GPIO_LINE_LEN       OS_LINE_LEN
 
-#define GPIO_GROUP_MAX              7
-#define GPIO_PIN_MAX                8
-#define GPIO_MAX					(GPIO_GROUP_MAX*GPIO_PIN_MAX)   //Hi3798MV  GPIOn<7
+#define GPIO_GROUP_MAX      7
+#define GPIO_PIN_MAX        8
+#define GPIO_MAX		    (GPIO_GROUP_MAX*GPIO_PIN_MAX)   //Hi3798MV  GPIOn<7
 
 #define GPIO_NUMBER(group_number, pin_number)    (GPIO_PIN_MAX*(group_number) + (pin_number))
 #define GPIO_NUMBER_MON_VCC         GPIO_NUMBER(0, 3)
@@ -215,7 +131,95 @@ typedef struct gpio {
 	GPIO_INIT(GPIO_NAME_LED_PWR, I2C_GPIO_NUMBER_LED_PWR, GPIO_W),      \
 	GPIO_INIT(GPIO_NAME_LED_CTRL, I2C_GPIO_NUMBER_LED_CTRL, GPIO_W),    \
 }   /* end */
+/******************************************************************************/
+static inline int 
+__gpio_read(uint32 gpio_num, int *pvalue)
+{
+    bool val;
+    int err;
 
+    // todo: read i2c gpio
+    
+    //设置成输入
+    err = hisi_gpio_set_dir_bit(gpio_num, GPIO_INPUT);
+    if (err<0) {
+        return err;
+    }
+
+    err = hisi_gpio_read_bit(gpio_num, &val);
+    if (err<0) {
+        return err;
+    }
+    
+    *pvalue = val;
+
+    return 0;
+}
+
+static inline int
+__gpio_write(uint32 gpio_num, int value)
+{
+    int err;
+
+    // todo: write i2c gpio
+
+    //设置成输出
+    err = hisi_gpio_set_dir_bit(gpio_num, GPIO_OUTPUT);
+    if (err<0) {
+        return err;
+    }
+
+    err = hisi_gpio_write_bit(gpio_num, !!value);
+    if (err<0) {
+        return err;
+    }
+
+    return 0;
+}
+
+static inline int
+gpio_read(struct gpio *gpio)
+{
+    int err = 0;
+    int value = 0;
+    
+    if (GPIO_R != (GPIO_R & gpio->flag)) {
+        println("no support read gpio %s", gpio->name);
+
+        return -1;
+    }
+    
+    err = __gpio_read(gpio->number, &value);
+    if (err) {
+        println("read gpio %s error(%d)", gpio->name, err);
+
+        return -1;
+    }
+    
+    return !!value;
+}
+
+static inline int
+gpio_write(struct gpio *gpio, int value)
+{
+    int err = 0;
+
+    if (GPIO_W != (GPIO_W & gpio->flag)) {
+        println("no support write gpio %s", gpio->name);
+
+        return -1;
+    }
+
+    err = __gpio_write(gpio->number, !!value);
+    if (err) {
+        println("write gpio %s error(%d)", gpio->name, err);
+
+        return -1;
+    }
+
+    return 0;
+}
+/******************************************************************************/
 static inline hisi_gpio_t *
 get_GPIO(int *count)
 {
