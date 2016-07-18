@@ -74,6 +74,7 @@ BENV_INITER;
 #define ENV_PORT                    "__ENV_PORT__"
 #define ENV_USER                    "__ENV_USER__"
 #define ENV_PATH                    "__ENV_PATH__"
+#define ENV_RESETBY                 "__ENV_RESETBY__"
 
 #define __OBJ(_idx, _dev, _dir)     [_idx] = {.dev = _dev, .dir = _dir}
 #define OBJ_KERNEL(_idx)            __OBJ(_idx, PRODUCT_IDEV_KERNEL(_idx),  PRODUCT_IDIR_KERNEL(_idx))
@@ -89,6 +90,7 @@ static struct {
     int dmaster;    // data
     int upgrade;
     int idx; /* rootfs idx */
+    int resetby;
     
     bool dirty;
     benv_version_t version;
@@ -1166,6 +1168,18 @@ repair_rootfs(int idx)
     return err;
 }
 
+static int
+reset_kernel(int idx)
+{
+    return kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), benv_kernel_version(idx));
+}
+
+static int
+reset_rootfs(int idx, int resetby)
+{
+    return rcopy(idx, dir_rootfs(resetby), benv_rootfs_version(resetby));
+}
+
 /*
 * idx: the rootfs will rsync by cloud
 * src: the source rootfs
@@ -1508,6 +1522,24 @@ init_env(void)
         sys.env.rootfs = env;
         sys.idx = idx;
     }
+
+    env = env_gets(ENV_RESETBY, NULL);
+    if (env) {
+        int idx = os_atoi(env);
+        
+        if (idx>=0 && false==is_normal_benv_idx(idx)) {
+            debug_error("bad resetby idx:%s", env);
+            
+            return -EFORMAT;
+        }
+        else if (idx==sys.current) {
+            debug_error("can not resetby current rootfs%s", env);
+            
+            return -EFORMAT;
+        }
+        
+        sys.resetby = idx;
+    }
     
     env = env_gets(ENV_FORCE, NULL);
     if (env) {
@@ -1657,6 +1689,40 @@ usage(void)
     os_eprintln(__THIS_APPNAME " startup");
 
     return -EFORMAT;
+}
+
+static int
+cmd_reset(int argc, char *argv[])
+{
+    int skips = __skips(sys.resetby);
+    int i, err, first=0;
+
+    if (0==sys.current) {
+        return -ENOSUPPORT;
+    }
+
+    for (i=1; i<PRODUCT_FIRMWARE_COUNT; i++) {
+        if (false==is_benv_skip(skips, i)) {
+            err = reset_rootfs(i, sys.resetby);
+            if (0==err) {
+                reset_kernel(i);
+            }
+
+            if (!first) {
+                first = i;
+            }
+        }
+	}
+
+    if (first) {
+        switch_to(first);
+
+        upgrade_init(sys.current, get_rootfs_version(sys.resetby));
+
+        return os_p_system("sysreboot &");
+    }
+    
+	return 0;
 }
 
 static int
@@ -1852,6 +1918,11 @@ int sys_main(int argc, char *argv[])
 int sysmount_main(int argc, char *argv[])
 {
     return os_call(__init, __fini, cmd_mount, argc, argv);
+}
+
+int sysreset_main(int argc, char *argv[])
+{
+    return os_call(__init, __fini, cmd_reset, argc, argv);
 }
 
 int sysrepair_main(int argc, char *argv[])

@@ -59,4 +59,17 @@
 #include "hisi/i2c.h"
 #include "hisi/3g.h"
 /******************************************************************************/
+static inline int
+hisi_init(void)
+{
+    int err;
+    
+    err = os_init();
+    if (err<0) {
+        return err;
+    }
+
+    err = 
+}
+/******************************************************************************/
 #endif /* __HISI_H_d8e4e7ba4ad94d61945610b31afade5d__ */
