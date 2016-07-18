@@ -7,9 +7,8 @@ Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 
 #define __DEAMON__
 
-#include "utils.h"
-#include "fcookie/fcookie.h"
 #include "hisi/hisi.h"
+#include "fcookie/fcookie.h"
 
 #if !(IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
 #error "just support ltefi md/pc board"
