@@ -235,14 +235,16 @@ gpio_GET(int *count)
 static inline struct gpio *
 gpio_getbyname(char *name)
 {
-    int count = 0, idx = 0;
+    int i, count = 0, idx = 0;
     hisi_gpio_t *GPIO = gpio_GET(&count);
-
-#define gpio_cmp(_gpio, _name)    os_strcmp(_gpio.name, _name)
-    idx = os_array_search(GPIO, name, gpio_cmp, 0, count);
-#undef gpio_cmp
-    if (is_good_enum(idx, count)) {
-        return &GPIO[idx];
+    struct gpio *gpio;
+    
+    for (i=0; i<count; i++) {
+        gpio = &GPIO[i];
+        
+        if (os_streq(gpio->name, name)) {
+            return gpio;
+        }
     }
 
     return NULL;
