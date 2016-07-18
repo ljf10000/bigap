@@ -98,7 +98,7 @@ __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])
     
     for (i=0; i<count; i++) {
         if (os_streq(module, multi[i].module)) {
-            return (*main)(argc, argv);
+            return (*multi[i].main)(argc, argv);
         }
     }
 
