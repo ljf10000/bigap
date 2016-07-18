@@ -7,7 +7,7 @@ static void
 gpio_showname(int type)
 {
     int i, count = 0;
-    hisi_gpio_t *GPIO = get_GPIO(&count);
+    hisi_gpio_t *GPIO = gpio_GET(&count);
     struct gpio *gpio;
 
     for (i=0; i<count; i++) {
@@ -39,7 +39,7 @@ static int
 gpio_showall(void)
 {
     int i, count = 0, var;
-    hisi_gpio_t *GPIO = get_GPIO(&count);
+    hisi_gpio_t *GPIO = gpio_GET(&count);
     hisi_gpio_t *gpio;
     
     for (i=0; i<count; i++) {
@@ -61,7 +61,7 @@ gpio_showall(void)
 static int
 gpio_getter(char *name)
 {
-    hisi_gpio_t *gpio = get_gpio_byname(name);
+    hisi_gpio_t *gpio = gpio_getbyname(name);
     if (NULL==gpio) {
         println("bad gpio name:%s", name);
 
@@ -81,7 +81,7 @@ gpio_getter(char *name)
 static int
 gpio_setter(char *name, char *value)
 {
-    hisi_gpio_t *gpio = get_gpio_byname(name);
+    hisi_gpio_t *gpio = gpio_getbyname(name);
     if (NULL==gpio) {
         println("bad gpio name:%s", name);
 

@@ -221,7 +221,7 @@ gpio_write(struct gpio *gpio, int value)
 }
 /******************************************************************************/
 static inline hisi_gpio_t *
-get_GPIO(int *count)
+gpio_GET(int *count)
 {
     static hisi_gpio_t array[] = GPIO_INITER;
 
@@ -233,10 +233,10 @@ get_GPIO(int *count)
 }
 
 static inline struct gpio *
-get_gpio_byname(char *name)
+gpio_getbyname(char *name)
 {
     int count = 0, idx = 0;
-    hisi_gpio_t *GPIO = get_GPIO(&count);
+    hisi_gpio_t *GPIO = gpio_GET(&count);
 
 #define gpio_cmp(_gpio, _name)    os_strcmp(_gpio.name, _name)
     idx = os_array_search(GPIO, name, gpio_cmp, 0, count);
