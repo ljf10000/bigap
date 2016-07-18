@@ -3,37 +3,30 @@
 /******************************************************************************/
 #include "benv/benv.h"
 /******************************************************************************/
-#define __hisi_method_name(_mod, _obj, _method) "hisi " #_mod " " #_obj" " #_method
-#define __hisi_method_func(_mod, _obj, _method) HI_##_mod##_##_obj##_##_method
-#define __hisi_method_err(_mod, _obj, _method, _err)    ({ \
+#define __hisi_method_name(_class, _module, _method) "HI_" #_class "_" #_module"_" #_method
+#define __hisi_method_func(_class, _module, _method) HI_##_class##_##_module##_##_method
+#define __hisi_method_debug(_class, _module, _method, _err)    do{ \
     if (_err) {                        \
-        debug_error(__hisi_method_name(_mod, _obj, _method) " error:%d", _err); \
+        debug_error(__hisi_method_name(_class, _module, _method) " error:%d", _err); \
     }                                   \
-                                        \
-    _err;                               \
-})
+}while(0)
 
-#define __hisi_method_0(_mod, _obj, _method)    ({  \
-    int __hisi_method_0_err = __hisi_method_func(_mod, _obj, _method)(); \
-    __hisi_method_err(_mod, _obj, _method, __hisi_method_0_err); \
+#define __hisi_call_0(_class, _module, _method)    ({  \
+    int __hisi_call_0_err = __hisi_method_func(_class, _module, _method)(); \
+    __hisi_method_debug(_class, _module, _method, __hisi_call_0_err); \
+    __hisi_call_0_err;                            \
 })  /* end */
 
-#define __hisi_method_1(_mod, _obj, _method, _arg1) ({  \
-    int __hisi_method_1_err = __hisi_method_func(_mod, _obj, _method)(_arg1); \
-    __hisi_method_err(_mod, _obj, _method, __hisi_method_1_err); \
+#define __hisi_call_x(_class, _module, _method, _arg1, _args...) ({  \
+    int __hisi_call_x_err = __hisi_method_func(_class, _module, _method)(_arg1, ##_args); \
+    __hisi_method_debug(_class, _module, _method, __hisi_call_x_err); \
+    __hisi_call_x_err;                                        \
 })  /* end */
 
-#define __hisi_method_x(_mod, _obj, _method, _arg1, _args...) ({  \
-    int __hisi_method_x_err = __hisi_method_func(_mod, _obj, _method)(_arg1, ##_args); \
-    __hisi_method_err(_mod, _obj, _method, __hisi_method_x_err); \
-})  /* end */
-
-#define hisi_unf_method_0(_obj, _method) \
-     __hisi_method_0(UNF, _obj, _method)
-#define hisi_unf_method_1(_obj, _method, _arg1) \
-     __hisi_method_1(UNF, _obj, _method, _arg1)
-#define hisi_unf_method_x(_obj, _method, _arg1, _args...) \
-     __hisi_method_x(UNF, _obj, _method, _arg1, ##_args)
+#define hisi_unf_call_0(_module, _method) \
+     __hisi_call_0(UNF, _module, _method)
+#define hisi_unf_call_x(_module, _method, _arg1, _args...) \
+     __hisi_call_x(UNF, _module, _method, _arg1, ##_args)
 /******************************************************************************/
 #include "hisi/reg.h"
 #include "hisi/dog.h"

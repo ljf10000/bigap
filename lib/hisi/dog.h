@@ -17,19 +17,19 @@ HI_S32 HI_UNF_WDG_Clear(HI_U32 u32WdgNum);
 HI_S32 HI_UNF_WDG_Reset(HI_U32 u32WdgNum);
 #endif
 
-static inline int hisi_dog_init(void)   { return hisi_unf_method_0(WDG, Init); }
-static inline int hisi_dog_fini(void)   { return hisi_unf_method_0(WDG, DeInit); }
+static inline int hisi_dog_init(void)   { return hisi_unf_call_0(WDG, Init); }
+static inline int hisi_dog_fini(void)   { return hisi_unf_call_0(WDG, DeInit); }
 
-#define hisi_dog_enable(dog_number)     hisi_unf_method_1(WDG, Enable, dog_number)
-#define hisi_dog_disable(dog_number)    hisi_unf_method_1(WDG, Disable, dog_number)
+#define hisi_dog_enable(dog_number)     hisi_unf_call_x(WDG, Enable, dog_number)
+#define hisi_dog_disable(dog_number)    hisi_unf_call_x(WDG, Disable, dog_number)
 
-#define hisi_dog_clear(dog_number)      hisi_unf_method_1(WDG, Clear, dog_number)
-#define hisi_dog_reset(dog_number)      hisi_unf_method_1(WDG, Reset, dog_number)
+#define hisi_dog_clear(dog_number)      hisi_unf_call_x(WDG, Clear, dog_number)
+#define hisi_dog_reset(dog_number)      hisi_unf_call_x(WDG, Reset, dog_number)
 
 #define hisi_dog_get_timeout(dog_number, dog_value_pointer) \
-    hisi_unf_method_x(WDG, GetTimeout, dog_number, dog_value_pointer)
+    hisi_unf_call_x(WDG, GetTimeout, dog_number, dog_value_pointer)
 #define hisi_dog_set_timeout(dog_number, dog_value) \
-    hisi_unf_method_x(WDG, SetTimeout, dog_number, dog_value)
+    hisi_unf_call_x(WDG, SetTimeout, dog_number, dog_value)
 
 #define hisi_dog_foreach(_method, _args...)  ({         \
     int hisi_dog_foreach_i, hisi_dog_foreach_err = 0;   \

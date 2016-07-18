@@ -13,13 +13,13 @@ enum {
     OTP_SIZE = 16,
 };
 
-static inline int hisi_otp_init(void)   { return hisi_unf_method_0(OTP, Init); }
-static inline int hisi_otp_fini(void)   { return hisi_unf_method_0(OTP, DeInit); }
+static inline int hisi_otp_init(void)   { return hisi_unf_call_0(OTP, Init); }
+static inline int hisi_otp_fini(void)   { return hisi_unf_call_0(OTP, DeInit); }
 
-#define hisi_otp_get_customer_key(_otp)         hisi_unf_method_x(OTP, GetCustomerKey, _otp, OTP_SIZE)
-#define hisi_otp_set_customer_key(_otp)         hisi_unf_method_x(OTP, SetCustomerKey, _otp, OTP_SIZE)
-#define hisi_otp_get_private_key(_otp, _idx)    hisi_unf_method_x(OTP, GetStbPrivData, _idx, &_otp[_idx])
-#define hisi_otp_set_private_key(_otp, _idx)    hisi_unf_method_x(OTP, SetStbPrivData, _idx, &_otp[_idx])
+#define hisi_otp_get_customer_key(_otp)         hisi_unf_call_x(OTP, GetCustomerKey, _otp, OTP_SIZE)
+#define hisi_otp_set_customer_key(_otp)         hisi_unf_call_x(OTP, SetCustomerKey, _otp, OTP_SIZE)
+#define hisi_otp_get_private_key(_otp, _idx)    hisi_unf_call_x(OTP, GetStbPrivData, _idx, &_otp[_idx])
+#define hisi_otp_set_private_key(_otp, _idx)    hisi_unf_call_x(OTP, SetStbPrivData, _idx, &_otp[_idx])
 
 #ifndef OTP_ZERO
 #define OTP_ZERO            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
