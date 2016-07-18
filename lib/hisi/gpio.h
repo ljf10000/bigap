@@ -32,98 +32,48 @@ static inline int hisi_gpio_fini(void)   { return hisi_unf_call_0(GPIO, DeInit);
 #define hisi_gpio_set_int_enable(gpio_number, enable) \
     hisi_unf_call_x(GPIO, SetIntEnable, gpio_number, enable)
 /******************************************************************************/
+#define GPIO_INPUT      1
+#define GPIO_OUTPUT     0
+
 static inline int 
-gpio_read_status(uint32 gpio_num, int *pvalue)
+__gpio_read(uint32 gpio_num, int *pvalue)
 {
-    int ret = HI_FAILURE;
-    HI_BOOL bBitVal;
-
-    HI_SYS_Init();
-
-    ret = HI_UNF_GPIO_Init();
-    if (HI_SUCCESS != ret)
-    {
-        printf("gpio init failure\n");
-        goto err0;
-    }
-
+    bool val;
+    int err;
+    
     //设置成输入
-    ret = HI_UNF_GPIO_SetDirBit(gpio_num, HI_TRUE);
-    if (HI_SUCCESS != ret)
-    {
-        printf("set dir bit failure\n");
-        goto err1;
+    err = hisi_gpio_set_dir_bit(gpio_num, GPIO_INPUT);
+    if (err<0) {
+        return err;
     }
 
-    ret = HI_UNF_GPIO_ReadBit(gpio_num, &bBitVal);
-    if (HI_SUCCESS != ret)
-    {
-        printf("read bit failure\n");
-        goto err1;
+    err = hisi_gpio_read_bit(gpio_num, &val);
+    if (err<0) {
+        return err;
     }
+    
+    *pvalue = val;
 
-    *pvalue = bBitVal;
-
-    //ret = 1;
-
-err1:
-    ret = HI_UNF_GPIO_DeInit();
-
-err0:
-    HI_SYS_DeInit();
-
-    return ret;
+    return 0;
 }
 
-int write_gpio_status(unsigned int gpio_num, int value)
+static inline int
+__gpio_write(uint32 gpio_num, int value)
 {
-    int ret = HI_FAILURE;
-
-	if (gpio_num > GPIO_MAX) {
-		ret = write_i2c_gpio((unsigned int)(gpio_num - GPIO_MAX), value);
-		return ret;
-	}
-
-    HI_SYS_Init();
-
-    ret = HI_UNF_GPIO_Init();
-    if (HI_SUCCESS != ret)
-    {
-        printf("gpio init failure\n");
-        goto err_0;
-    }
+    int err;
 
     //设置成输出
-    ret = HI_UNF_GPIO_SetDirBit(gpio_num, HI_FALSE);
-    if (HI_SUCCESS != ret)
-    {
-        printf("set dir bit failure\n");
-        goto err_1;
+    err = hisi_gpio_set_dir_bit(gpio_num, GPIO_OUTPUT);
+    if (err<0) {
+        return err;
     }
 
-    if (value == 0)
-    {
-        ret = HI_UNF_GPIO_WriteBit(gpio_num, HI_FALSE);
-    }
-    else
-    {
-        ret = HI_UNF_GPIO_WriteBit(gpio_num, HI_TRUE);
+    err = hisi_gpio_write_bit(gpio_num, !!value);
+    if (err<0) {
+        return err;
     }
 
-    if (HI_SUCCESS != ret)
-    {
-        printf("write bit failure\n");
-        goto err_1;
-    }
-    //ret = 1;
-
-err_1:
-    ret = HI_UNF_GPIO_DeInit();
-err_0:
-    HI_SYS_DeInit();
-
-    return ret;
-
+    return 0;
 }
 
 static inline int
@@ -138,7 +88,7 @@ gpio_read(struct gpio *gpio)
         return -1;
     }
     
-    err = read_gpio_status(gpio->number, &value);
+    err = __gpio_read(gpio->number, &value);
     if (err) {
         println("read gpio %s error(%d)", gpio->name, err);
 
@@ -159,7 +109,7 @@ gpio_write(struct gpio *gpio, int value)
         return -1;
     }
 
-    err = write_gpio_status(gpio->number, !!value);
+    err = __gpio_write(gpio->number, !!value);
     if (err) {
         println("write gpio %s error(%d)", gpio->name, err);
 

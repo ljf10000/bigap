@@ -7,8 +7,8 @@
 #include "hi_common.h"
 #endif
 
-static inline int hisi_init(void)   { return hisi_module_call_0(SYS, Init); }
-static inline int hisi_fini(void)   { return hisi_module_call_0(SYS, DeInit); }
+static inline int hisi_sys_init(void)   { return hisi_module_call_0(SYS, Init); }
+static inline int hisi_sys_fini(void)   { return hisi_module_call_0(SYS, DeInit); }
 
 #define hisi_sys_get_build_time(tm_pointer) \
     hisi_module_call_x(SYS, GetBuildTime, tm_pointer)

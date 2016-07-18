@@ -12,10 +12,12 @@ OS_INITER;
 #include "clock.c"
 #include "otp.c"
 #include "dog.c"
+#include "gpio.c"
 /******************************************************************************/
 static cmd_multi_table_t multi[] = {
 #if IS_PRODUCT_LTEFI_MD
     CMD_MULTI_INITER("dog",     dog_main),
+    CMD_MULTI_INITER("gpio",    gpio_main),
     CMD_MULTI_INITER("clock",   clock_main),
 #endif
 
@@ -42,6 +44,6 @@ int hisi_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_call(hisi_init, hisi_fini, __main, argc, argv);
 }
 /******************************************************************************/
