@@ -340,7 +340,7 @@ typedef struct gpio {
 }   /* end */
 
 static inline hisi_gpio_t *
-gpio_GET(int *count)
+gpio_GPIO(int *count)
 {
     static hisi_gpio_t array[] = GPIO_INITER;
 
@@ -355,7 +355,7 @@ static inline struct gpio *
 gpio_getbyname(char *name)
 {
     int i, count = 0, idx = 0;
-    hisi_gpio_t *GPIO = gpio_GET(&count);
+    hisi_gpio_t *GPIO = gpio_GPIO(&count);
     struct gpio *gpio;
     
     for (i=0; i<count; i++) {

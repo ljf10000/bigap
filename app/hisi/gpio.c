@@ -7,7 +7,7 @@ static void
 gpio_showname(int type)
 {
     int i, count = 0;
-    hisi_gpio_t *GPIO = gpio_GET(&count);
+    hisi_gpio_t *GPIO = gpio_GPIO(&count);
     struct gpio *gpio;
 
     for (i=0; i<count; i++) {
@@ -39,7 +39,7 @@ static int
 gpio_showall(void)
 {
     int i, count = 0, var;
-    hisi_gpio_t *GPIO = gpio_GET(&count);
+    hisi_gpio_t *GPIO = gpio_GPIO(&count);
     hisi_gpio_t *gpio;
     
     for (i=0; i<count; i++) {
