@@ -84,9 +84,9 @@ BENV_INITER;
 
 static struct {
     int current;
-    int cmaster;
-    int tmaster;
-    int dmaster;
+    int cmaster;    // config
+    int tmaster;    // tool
+    int dmaster;    // data
     int upgrade;
     int idx; /* rootfs idx */
     
@@ -155,9 +155,9 @@ sys = {
 #define __cslave                (!sys.cmaster)
 #define __tslave                (!sys.tmaster)
 #define __dslave                (!sys.dmaster)
-#define __cmaster               (!__cslave)
-#define __tmaster               (!__tslave)
-#define __dmaster               (!__dslave)
+#define __cmaster               (!__cslave) // config
+#define __tmaster               (!__tslave) // tool
+#define __dmaster               (!__dslave) // data
 
 #define dev_kernel(_idx)        sys.kernel[_idx].dev
 #define dev_rootfs(_idx)        sys.rootfs[_idx].dev
@@ -1282,7 +1282,7 @@ usbupgrade(void)
         return err;
     }
     
-    if (benv_version_eq(benv_rootfs_version(0), &version)) {
+    if (benv_version_eq(benv_rootfs_version(0), &version) && NULL==sys.env.force) {
         debug_trace("usb(%s)==rootfs0, needn't ubsupgrade", rootfs_version);
         
         return 0;
@@ -1295,11 +1295,11 @@ usbupgrade(void)
     if (0==access(USB_BIN_MD_BOOTENV, 0)) {
         bdd("bootenv", PRODUCT_DEV_BOOTENV, USB_BIN_MD_BOOTENV);
     }
-    
+
     if (0==access(USB_BIN_MD_KERNEL, 0)) {
         kernel_exist = true;
     }
-        
+
     get_rootfs_zone(begin, end);
     
     for (i=begin; i<end; i++) {
