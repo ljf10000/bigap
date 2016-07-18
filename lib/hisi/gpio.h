@@ -142,7 +142,7 @@ typedef struct gpio {
 * i2c-gpio extander using tca1116pwr, compatible pca953x tca6416 16bit
 */
 static inline int
-tca1116_read(uint32 reg_addr, byte *data)
+__tca1116_read(uint32 reg_addr, byte *data)
 {
 	return hisi_i2c_read(GPIO_I2C_NUM, 
 	            GPIO_I2C_DEVADDR,
@@ -153,7 +153,7 @@ tca1116_read(uint32 reg_addr, byte *data)
 }
 
 static inline int
-tca1116_write(uint32 reg_addr, byte *data)
+__tca1116_write(uint32 reg_addr, byte *data)
 {
 	return hisi_i2c_write(GPIO_I2C_NUM, 
 	            GPIO_I2C_DEVADDR,
@@ -164,12 +164,28 @@ tca1116_write(uint32 reg_addr, byte *data)
 }
 
 static inline int
-tca1116_set_gpio(uint32 reg_addr, uint32 gpio_num, int val)
+tca1116_read(uint32 reg_addr, uint32 gpio_num, int *val)
 {
     int err;
 	byte b = 0;
     
-	err = tca1116_read(reg_addr, &b);
+	err = __tca1116_read(reg_addr, &b);
+	if (err<0) {
+        return err;
+	}
+	
+	*val = ((int)b) & (0x1 << (gpio_num%8));
+
+    return 0;
+}
+
+static inline int
+tca1116_write(uint32 reg_addr, uint32 gpio_num, int val)
+{
+    int err;
+	byte b = 0;
+    
+	err = __tca1116_read(reg_addr, &b);
 	if (err<0) {
         return err;
 	}
@@ -183,38 +199,22 @@ tca1116_set_gpio(uint32 reg_addr, uint32 gpio_num, int val)
 		return -1;
 	}
 	
-	return tca1116_write(reg_addr, &b);
+	return __tca1116_write(reg_addr, &b);
 }
 
 static inline int
-tca1116_get_gpio(uint32 reg_addr, uint32 gpio_num, int *val)
-{
-    int err;
-	byte b = 0;
-    
-	err = tca1116_read(reg_addr, &b);
-	if (err<0) {
-        return err;
-	}
-	
-	*val = ((int)b) & (0x1 << (gpio_num%8));
-
-    return 0;
-}
-
-static inline int
-gpio_i2c_read(unsigned int gpio_num, int *value)
+gpio_tca1116_read(unsigned int gpio_num, int *value)
 {
 	int err, val = 0;
 
 	/* SET Direction */
-	err = tca1116_set_gpio(GET_DIR_REG(gpio_num), gpio_num, GPIO_INPUT);
+	err = tca1116_write(GET_DIR_REG(gpio_num), gpio_num, GPIO_INPUT);
 	if (err<0) {
         return 0;
 	}
 
 	/* GET Value */
-	err = tca1116_get_gpio(GET_VAL_REG(gpio_num), gpio_num, &val);
+	err = tca1116_read(GET_VAL_REG(gpio_num), gpio_num, &val);
 	if (err<0) {
         return 0;
 	}
@@ -225,18 +225,18 @@ gpio_i2c_read(unsigned int gpio_num, int *value)
 }
 
 static inline int
-gpio_i2c_write(unsigned int gpio_num, int value)
+gpio_tca1116_write(unsigned int gpio_num, int value)
 {
     int err;
     
 	/* SET Direction */
-	err = tca1116_set_gpio(GET_DIR_REG(gpio_num), gpio_num, GPIO_OUTPUT);
+	err = tca1116_write(GET_DIR_REG(gpio_num), gpio_num, GPIO_OUTPUT);
 	if (err<0) {
         return 0;
 	}
 
 	/* GET & SET Value */
-	err = tca1116_set_gpio(GET_VAL_REG(gpio_num), gpio_num, value);
+	err = tca1116_write(GET_VAL_REG(gpio_num), gpio_num, value);
 	if (err<0) {
         return 0;
 	}
@@ -252,7 +252,7 @@ __gpio_read(uint32 gpio_num, int *pvalue)
     int err;
 
 	if (gpio_num > GPIO_MAX) {
-		return gpio_i2c_read(gpio_num - GPIO_MAX, pvalue);
+		return gpio_tca1116_read(gpio_num - GPIO_MAX, pvalue);
 	}
 
     //设置成输入
@@ -277,7 +277,7 @@ __gpio_write(uint32 gpio_num, int value)
     int err;
     
 	if (gpio_num > GPIO_MAX) {
-		return gpio_i2c_write(gpio_num - GPIO_MAX, value);
+		return gpio_tca1116_write(gpio_num - GPIO_MAX, value);
 	}
 
     //设置成输出
