@@ -180,7 +180,6 @@ enum {
     DIAL_CMD_GETCUROP,
     DIAL_CMD_GETAPN,
     DIAL_CMD_GETQUA,
-    DIAL_CMD_AUTO,
 
     DIAL_CMD_END
 };
@@ -189,8 +188,6 @@ struct dial_table {
     char *name;
     int (*handle)(void);
 }
-
-extern int dial_auto(void);
 
 static struct dial_table CMD[DIAL_CMD_END] = {
     [DIAL_CMD_SCAN]         = {.name = "scan",      dial_scan},
@@ -203,7 +200,6 @@ static struct dial_table CMD[DIAL_CMD_END] = {
     [DIAL_CMD_GETCUROP]     = {.name = "getcurop",  dial_getcurop},
     [DIAL_CMD_GETAPN]       = {.name = "getapn",    dial_getapn},
     [DIAL_CMD_GETQUA]       = {.name = "getqua",    dial_getqua},
-    [DIAL_CMD_AUTO]         = {.name = "auto",      dial_auto},
 };
 
 static struct dial_table *
@@ -220,10 +216,13 @@ get_dial_table(char *name)
     return NULL;
 }
 
-int
-dial_auto(void)
+static int
+cmd_dial_auto(int argc, char *argv[])
 {
     int i, err;
+    
+    (void)argc;
+    (void)argv;
 
     for (i=DIAL_CMD_AUTO_BEGIN; i<DIAL_CMD_AUTO_END; i++) {
         err = (*CMD[i].handle)();
@@ -233,15 +232,6 @@ dial_auto(void)
     }
 
     return 0;
-}
-
-static int
-cmd_dial_auto(int argc, char *argv[])
-{
-    (void)argc;
-    (void)argv;
-    
-    return dial_auto();
 }
 
 static int
@@ -276,7 +266,7 @@ dial_usage(void)
 {
 #define USAGE_MODULE    __THIS_APPNAME " dial"
     os_eprintln(__THIS_APPNAME " test [test-command-list]");
-    os_eprintln(__tab " test-command:scan,init,getstatus,judgestatus,setapn,connect,getallop,getcurop,getapn,getqua,auto");
+    os_eprintln(__tab " test-command:scan,init,getstatus,judgestatus,setapn,connect,getallop,getcurop,getapn,getqua");
 
     os_eprintln(__THIS_APPNAME " auto");
     os_eprintln(__tab " auto==test-command: scan,init,getstatus,judgestatus,setapn,connect");
