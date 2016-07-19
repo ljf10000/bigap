@@ -22,15 +22,19 @@ gpio_showname(int type)
 static int
 gpio_help(int argc, char *argv[])
 {
-    os_println("%s ==> get all input gpio", argv[0]);
-	
-    os_println("\n%s name ==> get input gpio by name", argv[0]);
+#define USAGE_MODULE    __THIS_APPNAME " gpio"
+    os_println(USAGE_MODULE " ==> get all input gpio");
+    
+	os_println("");
+    os_println(USAGE_MODULE " name ==> get input gpio by name");
 	os_println("\t[input gpio name]");
 	gpio_showname(GPIO_R);
-	
-    os_println("\n%s name1=value1 name2=value2 ... ==> set output gpio by name and value", argv[0]);
+
+	os_println("");
+    os_println(USAGE_MODULE " name1=value1 name2=value2 ... ==> set output gpio by name and value");
 	os_println("\t[output gpio name]");
 	gpio_showname(GPIO_W);
+#undef USAGE_MODULE
 
 	return -EFORMAT;
 }
