@@ -281,7 +281,6 @@ static inline bool os_seq_before(uint32 seq1, uint32 seq2)
     err_in___os_call;                               \
 })  /* end */
 
-static int os_call_nothing(void) { return 0; }
 #define os_call(_begin, _end, _call, _arg1, _args...) ({ \
     int err_in_os_call = _begin();                  \
     if (0==err_in_os_call) {                        \

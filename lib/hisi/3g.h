@@ -9,6 +9,9 @@
 
 #define hisi_3g_init(card_pointer) \
     hisi_module_call_x(3G, InitCard, card_pointer)
+/*
+* SB interface, not used it
+*/
 #define hisi_3g_fini(card_pointer) \
     hisi_module_call_x(3G, DeInitCard, card_pointer)
 
@@ -43,6 +46,18 @@
     hisi_module_call_x(3G, ScanCard, card_pointer, max_card_number, card_number_pointer)
 #define hisi_3g_send_cmd(card_pointer, cmd_string, buf_string, buf_len) \
     hisi_module_call_x(3G, SendCmd, card_pointer, cmd_string, buf_string, buf_len)
+
+#define hisi_3g_status_list = { \
+    "unavailable",              \
+    "pin",                      \
+    "puk",                      \
+    "pin1",                     \
+    "puk2",                     \
+    "disconnected",             \
+    "connected",                \
+}
+#define is_good_hisi_3g_status(_status)     is_good_enum(0, HI_3G_CARD_STATUS_BOTT)
+
 /******************************************************************************/
 #endif /* __APP__ */
 #endif /* __3G_H_e8a1bc902ff14781a9446f382cf15382__ */

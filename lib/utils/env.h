@@ -104,4 +104,36 @@ env_number_init(env_number_t *env)
     env->value = env_geti(env->name, env->deft);
 }
 /******************************************************************************/
+#define ENV_TIMEOUT                 "__ENV_TIMEOUT__"
+#define ENV_PWDFILE                 "__ENV_PWDFILE__"
+#define ENV_VERSION                 "__ENV_VERSION__"
+#define ENV_UPGRADE                 "__ENV_UPGRADE__"   /* upgrade count */
+#define ENV_ROOTFS                  "__ENV_ROOTFS__"    /* upgrade rootfs idx */
+#define ENV_SERVER                  "__ENV_SERVER__"
+#define ENV_FORCE                   "__ENV_FORCE__"
+#define ENV_PORT                    "__ENV_PORT__"
+#define ENV_USER                    "__ENV_USER__"
+#define ENV_PATH                    "__ENV_PATH__"
+#define ENV_RESETBY                 "__ENV_RESETBY__"
+#define ENV_PASSWORD                "__ENV_PASSWORD__"
+#define ENV_TELEPHONE               "__ENV_TELEPHONE__"
+#define ENV_APN                     "__ENV_APN__"
+
+typedef struct {
+    char *timeout;
+    char *pwdfile;
+    char *version;
+    char *upgrade;
+    char *rootfs;
+    char *server;
+    char *force;
+    char *port;
+    char *user;
+    char *path;
+    char *resetby;
+    char *password;
+    char *telephone;
+    char *apn;
+} env_cache_t;
+/******************************************************************************/
 #endif /* __ENV_H_9f26434e76294326b152b1e81f17fb31__ */

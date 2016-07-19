@@ -64,18 +64,6 @@ BENV_INITER;
 #define USB_BIN_AP_BOOTENV          USB_FILE(__BIN_AP_BOOTENV)
 #define USB_BIN_AP_FIRMWARE         USB_FILE(__BIN_AP_FIRMWARE)
 
-#define ENV_TIMEOUT                 "__ENV_TIMEOUT__"
-#define ENV_PWDFILE                 "__ENV_PWDFILE__"
-#define ENV_VERSION                 "__ENV_VERSION__"
-#define ENV_UPGRADE                 "__ENV_UPGRADE__"   /* upgrade count */
-#define ENV_ROOTFS                  "__ENV_ROOTFS__"    /* upgrade rootfs idx */
-#define ENV_SERVER                  "__ENV_SERVER__"
-#define ENV_FORCE                   "__ENV_FORCE__"
-#define ENV_PORT                    "__ENV_PORT__"
-#define ENV_USER                    "__ENV_USER__"
-#define ENV_PATH                    "__ENV_PATH__"
-#define ENV_RESETBY                 "__ENV_RESETBY__"
-
 #define __OBJ(_idx, _dev, _dir)     [_idx] = {.dev = _dev, .dir = _dir}
 #define OBJ_KERNEL(_idx)            __OBJ(_idx, PRODUCT_IDEV_KERNEL(_idx),  PRODUCT_IDIR_KERNEL(_idx))
 #define OBJ_ROOTFS(_idx)            __OBJ(_idx, PRODUCT_IDEV_ROOTFS(_idx),  PRODUCT_IDIR_ROOTFS(_idx))
@@ -96,17 +84,7 @@ static struct {
     benv_version_t version;
     benv_version_t old_version;
     
-    struct {
-        char *timeout;
-        char *pwdfile;
-        char *version;
-        char *server;
-        char *port;
-        char *user;
-        char *path;
-        char *rootfs;
-        char *force;
-    } env;
+    env_cache_t env;
 
     struct {
         char *dev;

@@ -2,445 +2,322 @@
 Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 *******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      btt
+#define __THIS_APP      dial
 #endif
 
 #include "utils.h"
 
 OS_INITER;
 
-#define MAX_CMD_RETRIES        5
-/* Macro */
-#define MAX_ARGC       10
-#define MAX_PAMRM_SIZE 30
+static char* STATUSLIST[] = hisi_3g_status_list;
+static int STATUS = -1;
+static HI_3G_CARD_S CARD;
+static env_cache_t ENV;
 
-/* Variable */
-static HI_U8 args[MAX_ARGC][MAX_PAMRM_SIZE];
-
-static HI_3G_CARD_S *card = NULL;
-static HI_3G_OPERATOR_S operator[MAX_OPERATOR_NUM];
-static HI_3G_OPERATOR_S *operatororg;
-static HI_3G_CARD_OPERATOR_S currentoperator;
-static char *card_status[] = 
-{	
-	"HI_3G_CARD_STATUS_UNAVAILABLE",
-	"HI_3G_CARD_STATUS_SIM_PIN",
-	"HI_3G_CARD_STATUS_SIM_PUK",
-	"HI_3G_CARD_STATUS_SIM_PIN2",
-	"HI_3G_CARD_STATUS_SIM_PUK2",
-	"HI_3G_CARD_STATUS_DISCONNECTED",
-	"HI_3G_CARD_STATUS_CONNECTED",
-};
-
-static HI_U32 g3_parse_arg(HI_U32 argc)
+static int
+showop(HI_3G_OPERATOR_S *op, int count)
 {
-    HI_U32 i;
-	int ret = 0xab;
-	int card_num = 0;
-	int operator_num = 0;
-	char *argoption[] = {NULL};
-	int ix = 0;
-	int issr;
-	int ber;
-	HI_3G_CARD_COPS_MODE_E register_mode;
-	HI_3G_CARD_COPS_OP_FORMAT_E register_format = 
-					HI_3G_CARD_COPS_OP_FORMAT_LONG_STRING;
-	HI_3G_CARD_STATE_E status = HI_3G_CARD_STATUS_UNAVAILABLE;
-	HI_3G_PDP_S pdp;
+    int i;
+    
+	for (i = 0; i < count; i++)
+	{
+	    os_println("operator[%d]:", i);
+	    os_println(__tab "netmode:%s", op[i].anetmode);
+	    os_println(__tab "long:%s", op[i].alongoperator);
+	    os_println(__tab "short:%s", op[i].ashortoperator);
+	    os_println(__tab "numeric:%s", op[i].anumericoperator);
+	    os_println(__tab "rat:%s", op[i].arat);
+	}
+	
+    return 0;
+}
 
-    printf("input parameter Num:%d ", argc);
-    for (i = 0 ; i < argc; i++)
-    {
-        printf("argv[%d]:%s, ", i, args[i]);
-    }
-    printf("\n");
-
-    /* Parse 3g input command */
-    if ( (0 == strcmp("help", (char *)args[0])) || (0 == strcmp("h", (char *)args[0])) )
-    {
-        printf("List all testtool command\n");
-        printf("help          list all command we provide\n");
-        printf("q             quit sample test\n");
-        printf("scan          scan card\n");
-        printf("init          init card\n");
-        printf("deinit        deinit card\n");
-        printf("getcard       get card status\n");
-        printf("getallop      get all operators\n");
-        printf("getcurop      get current operator\n");
-        printf("regop         register operator\n");
-        printf("getapn        get apn\n");
-        printf("setapn        set apn\n");
-        printf("connect       connect\n");
-        printf("disconnect    disconnect\n");
-        printf("getqua        get quality\n");
-        printf("auto          auto connect\n");
+static int __scan(void)
+{
+    int card_num_allways_1;
         
-        return 0;
+    return hisi_3g_scan(&CARD, 1, &card_num_allways_1);
+}
+
+static int __init(void)
+{
+    return hisi_3g_init(&CARD);
+}
+
+static int __getstatus(void)
+{
+    int err;
+
+    err = hisi_3g_get_status(&CARD, &STATUS);
+    if (is_good_hisi_3g_status(STATUS)) {
+        os_println("%s", STATUSLIST[STATUS]);
+    } else {
+        os_println(__unknow);
     }
     
-	if (0 == strcmp("scan", (char *)args[0]))
-	{
-		ret = HI_3G_ScanCard(card, 1, &card_num);
-	}
-	else if (0 == strcmp("init", (char *)args[0]))
-	{
-		ret = HI_3G_InitCard(card);
-	}
-	else if (0 == strcmp("deinit", (char *)args[0]))
-	{
-		ret = HI_3G_DeInitCard(card);
-	}
-	else if (0 == strcmp("getcard", (char *)args[0]))
-	{
-		ret = HI_3G_GetCardStatus(card, &status);
-		if (0 == ret)
-		{
-			printf("card status:%d, %s.\n", status, card_status[status]);
-		}
-	}
-	else if (0 == strcmp("getallop", (char *)args[0]))
-	{
-		ret = HI_3G_GetAllOperators (card, 
-					     operator, 
-					     MAX_OPERATOR_NUM, 
-					     &operator_num);
-		
-		if (ret == 0)
-		{		
-			printf("get %d operators successfully:\n", operator_num);
-			for (ix = 0; ix < operator_num; ix++)
-			{
-				printf("operator[%d]:\n"
-					"	netmode=%s\n"
-					"	long string=%s\n"
-					"	short string=%s\n"
-					"	numeric string=%s\n"
-					"	rat=%s\n",
-					ix, 
-					operator[ix].anetmode,
-					operator[ix].alongoperator,
-					operator[ix].ashortoperator,
-					operator[ix].anumericoperator,
-					operator[ix].arat);
-			}
-		}
-	}
-	else if (0 == strcmp("getcurop", (char *)args[0]))
-	{
-		ret = HI_3G_GetCurrentOperator(card, &currentoperator);
-		if (0 == ret)
-		{		
-			printf("current operator:\n"
-				"	netmode :%s\n"
-				"	operformat: %s\n"
-				"	operator: %s\n"
-				"	rat: %s\n",
-				currentoperator.anetmode,
-				currentoperator.aformatoperator,
-				currentoperator.aoperatorinfo,
-				currentoperator.arat);
-		}
-	}
-	else if (0 == strcmp("regop", (char *)args[0]))
-	{
-		if ((argc < 2) || (argc > 4))
-		{
-			printf("Usage: regop mode format op_name\n" 
-				"    mode:\n"
-				"        0 - auto\n"
-				"        1 - manual\n"
-				"        2 - de-register\n"
-				"        3 - set operator format\n"
-				"        4 - if manual fail, change to auto\n");
-			printf("    format:\n"
-				"        0 - long string\n"
-				"        1 - short string\n"
-				"        2 - numeric string\n");
-			return 0;
-		}
-		register_mode = atoi(args[1]);
-		register_format = atoi(args[2]);
-		printf("reg mode: %d; format: %d; name: [%s].\n", register_mode,
-			register_format, args[3]);
-		ret = HI_3G_RegisterOperator(card, 
-					     register_mode, 
-					     register_format, 
-					     args[3]);
-	}
-	else if (0 == strcmp("getapn", (char *)args[0]))
-	{
-		ret = HI_3G_GetApn(card, &pdp);
-		if (ret == 0)
-			printf("get current pdp successfully:\n"
-				 "	cid:             %s\n"
-				 "	pdp_type:        %s\n"
-				 "	apn:             %s\n"
-				 "	pdp_ipaddr:      %s\n"
-				 "	d_comp:          %s\n"
-				 "	h_comp:          %s\n",
-				 pdp.acid, 
-				 pdp.apdptype, 
-				 pdp.aapn, 
-				 pdp.apdpipaddr, 
-				 pdp.adcomp, 
-				 pdp.ahcomp);
-	}
-	else if (0 == strcmp("setapn", (char *)args[0]))
-	{
-		if (argc != 2)
-		{
-			printf("Usage: setapn apn\n");
-			return 0;
-		}
-		printf("apn: [%s]\n", args[1]);
-		ret = HI_3G_SetApn(card, args[1]);
-	}
-	else if (0 == strcmp("connect", (char *)args[0]))
-	{
-		if (argc != 4)
-		{
-			printf("Usage: connect username password telephone\n");
-			return 0;
-		}
-		printf("username: [%s]; pass: [%s]; tele: [%s].\n", args[1], args[2], args[3]);
-		ret = HI_3G_ConnectCard(card, args[1], args[2], args[3], 0, argoption);
-	}
-	else if (0 == strcmp("disconnect", (char *)args[0]))
-	{
-		ret = HI_3G_DisConnectCard(card);
-	}
-	else if (0 == strcmp("getqua", (char *)args[0]))
-	{
-		ret = HI_3G_GetQuality(card, &issr, &ber);
-		if (ret == 0)
-			printf("get card quality successfully\n"
-				"	issr: %d,"
-				"	ber: %d\n",
-				issr, ber);
-	}
-	else if (0 == strcmp("auto", (char *)args[0]))
-	{
-		if (argc != 5)
-		{
-			printf("Usage: auto username password telephone apn\n");
-			printf("   eg: auto '' '' *99# 3gnet\n");
-			return 0;
-		}
-		printf("username: [%s]; pass: [%s]; tele: [%s]; apn [%s].\n", args[1], 
-			args[2], args[3], args[4]);
+    return err;
+}
 
-		/* scan card */
-		ret = HI_3G_ScanCard(card, 1, &card_num);
-		if(0 != ret)
-		{
-			printf("auto scan card fail.\n");
-			goto OUT;
-		}
+static int __judgestatus(void)
+{
+    if (HI_3G_CARD_STATUS_DISCONNECTED!=STATUS) {
+        return -ENOREADY;
+    }
+    
+    return 0;
+}
 
-		/* init card */
-		ret = HI_3G_InitCard(card);
-		if(0 != ret)
-		{
-			printf("auto init card fail.\n");
-			goto OUT;
-		}
+static int
+__getallop(void)
+{
+    HI_3G_OPERATOR_S op[MAX_OPERATOR_NUM];
+    int op_num = 0;
+        
+    int err = hisi_3g_get_all_operators(&CARD, op, MAX_OPERATOR_NUM, &op_num);
+    if (err<0) {
+        return 0;
+    }
 
-		/* get card status */
-		ret = HI_3G_GetCardStatus(card, &status);
-		if(0 != ret)
-		{
-			printf("auto get card status fail.\n");
-			goto OUT;
-		}
-		if (status != HI_3G_CARD_STATUS_DISCONNECTED)
-		{
-			printf("auto get card status [%d][%s] is not ready.\n",
-				status, card_status[status]);
-			goto OUT;
-		}
-
-		/* set apn */
-		ret = HI_3G_SetApn(card, args[4]);
-		if(0 != ret)
-		{
-			printf("auto set apn fail.\n");
-			goto OUT;
-		}
-		
-		/* connect card */
-		ix = 0;
-		do {
-			printf("auto connect times: %d.\n", ix);
-			ret = HI_3G_ConnectCard(card, args[1], args[2], args[3], 0, argoption);
-			if (ret == 0)
-				break;
-			sleep(1);
-		} while (++ix < MAX_CMD_RETRIES);
-		
-		if(0 != ret)
-		{
-			printf("auto connect card fail.\n");
-		}
-	}
-
-OUT:
-	if (ret == 0xab) return 0;
+	showop(op, op_num);
 	
-	if (ret == 0)
-		printf(" Ok %s Success.\n", args[0]);
-	else
-		printf("***ERR %s fail.\n", args[0]);
-
-	return ret;
+    return 0;
 }
 
-
-/*adjust input parameter*/
-static HI_U8 g3_adjust_string(HI_CHAR *ptr)
+static int
+__getcurop(void)
 {
-	HI_U32 i;
-
-	/* Search the first charater char */
-	while(*ptr==' ' && *ptr++ != '\0')
-	{
-		;
-	}
-
-	/* change to little case charater */
-	for(i=strlen((char *)ptr); i>0; i--)
-	{
-		if ((*(ptr+i-1) >= 'A') && (*(ptr+i-1) <= 'Z'))
-		{
-			*(ptr+i-1) = (*(ptr+i-1) - 'A') + 'a';
-		}
-	}
-
-	for(i=strlen((char *)ptr);i>0;i--)
-	{
-		if (*(ptr+i-1) == 0x0a || *(ptr+i-1) == ' ')
-		{
-			*(ptr+i-1) = '\0';
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	for(i=0; i<MAX_ARGC; i++)
-	{
-		memset(args[i], 0, MAX_PAMRM_SIZE);
-	}
-	/* fill args[][] with input string */
-	for(i=0; i<MAX_ARGC; i++)
-	{
-		HI_U8 j = 0;
-		while(*ptr==' ' && *ptr++ != '\0')
-		;
-
-		while((*ptr !=' ') && (*ptr!='\0'))
-		{
-			args[i][j++] = *ptr++;
-		}
-
-		args[i][j] = '\0';
-		if ('\0' == *ptr)
-		{
-			i++;
-			break;
-		}
-		args[i][j] = '\0';
-	}
-
-	return i;
+    HI_3G_OPERATOR_S op;
+        
+    int err = hisi_3g_get_current_operator(&CARD, op);
+    if (err<0) {
+        return 0;
+    }
+	
+	showop(&op, 1);
+	
+    return 0;
 }
 
-HI_U32 g3_test_cmd(HI_CHAR * u8String)
+static int
+__setapn(void)
 {
-    HI_U8 argc = 0;
-
-    if (NULL == u8String)
-    {
-        return HI_FAILURE;
+    if (NULL==ENV.apn) {
+        return -EFORMAT;
     }
-    memset(args, 0, sizeof(args));
-    argc = g3_adjust_string(u8String);
+    
+    return hisi_3g_set_apn(&CARD, ENV.apn);
+}
 
-    if ( (0 == strcmp("q", (char *)args[0])) || (0 == strcmp("Q", (char *)args[0]))
-      || (0 == strcmp("quit", (char *)args[0])) || (0 == strcmp("QUIT", (char *)args[0])) )
-    {
-        printf("quit the program, use extran interface to quit\n");
-        return HI_FAILURE;
+static int
+__getapn(void)
+{
+    HI_3G_PDP_S pdp;
+    int err;
+        
+    err = hisi_3g_get_apn(&CARD, &pdp);
+    if (err<0) {
+        return err;
     }
-    g3_parse_arg(argc);
 
-    return HI_SUCCESS;
+    os_println("cid:    %s", pdp.acid);
+    os_println("type:   %s", pdp.apdptype);
+    os_println("apn:    %s", pdp.aapn);
+    os_println("ipaddr: %s", pdp.apdpipaddr);
+    os_println("d_comp: %s", pdp.adcomp);
+    os_println("h_comp: %s", pdp.ahcomp);
+
+    return 0;
+}
+
+static int
+__getqua(void)
+{
+    int err, rssi = -1, ber = -1;
+    
+    err = hisi_3g_get_quality(&CARD, &rssi, &ber);
+    if (err<0) {
+        return err;
+    }
+
+    os_println("rssi:%d", rssi);
+    os_println("ber :%d", ber);
+
+    return 0;
+}
+
+static int
+__connect(void)
+{
+    int err;
+    
+    if (NULL==ENV.username ||
+        NULL==ENV.password ||
+        NULL==ENV.telephone ||
+        NULL==ENV.apn) {
+        return -EFORMAT;
+    }
+    
+    err = hisi_3g_connect(&CARD, ENV.username, ENV.password, ENV.telephone, 0, NULL);
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
+}
+
+enum {
+    DIAL_CMD_AUTO_BEGIN = 0,
+    DIAL_CMD_SCAN = DIAL_CMD_AUTO_BEGIN,
+    DIAL_CMD_INIT,
+    DIAL_CMD_GETSTATUS,
+    DIAL_CMD_JUDGESTATUS,
+    DIAL_CMD_SETAPN,
+    DIAL_CMD_CONNECT,
+    DIAL_CMD_AUTO_END,
+    
+    DIAL_CMD_GETALLOP = DIAL_CMD_AUTO_END,
+    DIAL_CMD_GETCUROP,
+    DIAL_CMD_GETAPN,
+    DIAL_CMD_GETQUA,
+    DIAL_CMD_AUTO,
+
+    DIAL_CMD_END
+};
+
+struct dial_table {
+    char *name;
+    int (*handle)(void);
+}
+
+static int __auto(void);
+
+static struct dial_table CMD[DIAL_CMD_END] = {
+    [DIAL_CMD_SCAN]         = {.name = "scan",      __scan},
+    [DIAL_CMD_INIT]         = {.name = "init",      __init},
+    [DIAL_CMD_GETSTATUS]    = {.name = "getstatus", __getstatus},
+    [DIAL_CMD_JUDGESTATUS]  = {.name = "judgestatus",   __judgestatus},
+    [DIAL_CMD_SETAPN]       = {.name = "setapn",    __setapn},
+    [DIAL_CMD_CONNECT]      = {.name = "connect",   __connect},
+    [DIAL_CMD_GETALLOP]     = {.name = "getallop",  __getallop},
+    [DIAL_CMD_GETCUROP]     = {.name = "getcurop",  __getcurop},
+    [DIAL_CMD_GETAPN]       = {.name = "getapn",    __getapn},
+    [DIAL_CMD_GETQUA]       = {.name = "getqua",    __getqua},
+    [DIAL_CMD_AUTO]         = {.name = "auto",      __auto},
+};
+
+static struct dial_table *
+__get_table(char *name)
+{
+    int i;
+
+    for (i=0; i<os_count_of(CMD); i++) {
+        if (os_streq(name, CMD[i].name)) {
+            return &CMD[i];
+        }
+    }
+
+    return NULL;
+}
+
+static int
+__auto(void)
+{
+    int i, err;
+
+    for (i=DIAL_CMD_AUTO_BEGIN; i<DIAL_CMD_AUTO_END; i++) {
+        err = (*CMD[i].handle)();
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
+}
+
+static int
+cmd_auto(int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+    
+    return __auto();
+}
+
+static int
+cmd_test(int argc, char *argv[])
+{
+    char *list = os_strdup(argv[1]);
+    char *name;
+    struct dial_table *table;
+    int err;
+    
+    (void)argc;
+    
+    os_strtok_foreach(name, list, ",") {
+        table = __get_table(name);
+        if (NULL==table) {
+            os_println("unknow command:%s", name);
+
+            return -EFORMAT;
+        }
+
+        err = (*table->handle)();
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
 }
 
 static int
 usage(void)
 {
-    os_eprintln(__THIS_APPNAME " scan");
-    os_eprintln(__THIS_APPNAME " init");
-    os_eprintln(__THIS_APPNAME " fini");
-    os_eprintln(__THIS_APPNAME " getcard");
-    os_eprintln(__THIS_APPNAME " getallop");
-    os_eprintln(__THIS_APPNAME " getcurop");
-    os_eprintln(__THIS_APPNAME " regop [mode] [format]");
-    os_eprintln(__THIS_APPNAME " getapn");
-    os_eprintln(__THIS_APPNAME " setapn [apn]");
-    os_eprintln(__THIS_APPNAME " connect [username] [password] [telephone]");
-    os_eprintln(__THIS_APPNAME " disconnect");
-    os_eprintln(__THIS_APPNAME " getqua");
+    os_eprintln(__THIS_APPNAME " test [test-command-list]");
+    os_eprintln(__tab " test-command:scan,init,getstatus,judgestatus,setapn,connect,getallop,getcurop,getapn,getqua,auto");
+
     os_eprintln(__THIS_APPNAME " auto");
+    os_eprintln(__tab " auto==test-command: scan,init,getstatus,judgestatus,setapn,connect");
 
     return -EFORMAT;
 }
 
 static cmd_table_t cmd[] = {
-    CMD_TABLE_ENTRY(cmd_scan, 1, "scan"),
-    CMD_TABLE_ENTRY(cmd_init, 1, "init"),
-    CMD_TABLE_ENTRY(cmd_fini, 1, "fini"),
-    CMD_TABLE_ENTRY(cmd_getcard, 1, "getcard"),
-    CMD_TABLE_ENTRY(cmd_getallop, 1, "getallop"),
-    CMD_TABLE_ENTRY(cmd_getcurop, 1, "getcurop"),
-    CMD_TABLE_ENTRY(cmd_regop, 3, "regop", NULL, NULL),
-    CMD_TABLE_ENTRY(cmd_getapn, 1, "getapn"),
-    CMD_TABLE_ENTRY(cmd_setapn, 2, "setapn", NULL),
-    CMD_TABLE_ENTRY(cmd_connect, 4, "connect", NULL, NULL, NULL, NULL),
-    CMD_TABLE_ENTRY(cmd_disconnect, 1, "disconnect"),
-    CMD_TABLE_ENTRY(cmd_getqua, 1, "getqua"),
+    CMD_TABLE_ENTRY(cmd_test, 2, "test", NULL),
     CMD_TABLE_ENTRY(cmd_auto, 1, "auto"),
 };
 
-int main(void)
+static int
+init_env(void)
 {
-	int ret;
-	HI_CHAR                     InputCmd[32];
+    ENV.user = env_gets(ENV_USER, NULL);
+    ENV.password = env_gets(ENV_PASSWORD, NULL);
+    ENV.telephone = env_gets(ENV_TELEPHONE, NULL);
+    ENV.apn = env_gets(ENV_APN, NULL);
 
-	card = (HI_3G_CARD_S *)malloc(sizeof(HI_3G_CARD_S));
-	if (card == NULL) {
-		perror("malloc memory for cards failed!\n");
-		return -1;
-	}
-	
-	printf("please input 'h' to get help or 'q' to quit!\n");
-
-	while (1) {
-		printf("3g >");
-		memset(InputCmd, 0, 30);
-		fgets((char *)InputCmd, 30, stdin);
-		if ('q' == InputCmd[0])
-		{   
-			printf("to quit!\n");
-			break;
-		}
-
-		g3_test_cmd(InputCmd);
-	}
-
-	free(card);
-	return 0;
+    return 0;
 }
 
+/*
+* otp have enabled when boot
+*/
+static int
+__main(int argc, char *argv[])
+{
+    init_env();
+    
+    return cmd_handle(cmd, argc, argv, usage);
+}
+
+#ifndef __BUSYBOX__
+#define dial_main  main
+#endif
+
+/*
+* otp have enabled when boot
+*/
+int dial_main(int argc, char *argv[])
+{
+    return os_call(hisi_init, hisi_fini, __main, argc, argv);
+}
 /******************************************************************************/
