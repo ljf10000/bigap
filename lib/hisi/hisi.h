@@ -2,7 +2,9 @@
 #define __HISI_H_d8e4e7ba4ad94d61945610b31afade5d__
 /******************************************************************************/
 #include "benv/benv.h"
+#include "hisi/reg.h"
 /******************************************************************************/
+#if IS_PRODUCT_LTEFI_MD
 #define __hisi_class_module_method_name(_class, _module, _method) "HI_" #_class "_" #_module"_" #_method
 #define __hisi_class_module_method_func(_class, _module, _method) HI_##_class##_##_module##_##_method
 #define __hisi_class_module_method_error(_class, _module, _method, _err)    ({ \
@@ -54,7 +56,6 @@
      __hisi_module_call_x(_module, _method, _arg1, ##_args)
 /******************************************************************************/
 #include "hisi/sys.h"
-#include "hisi/reg.h"
 #include "hisi/dog.h"
 #include "hisi/otp.h"
 #include "hisi/i2c.h"
@@ -86,5 +87,6 @@ hisi_fini(void)
     
     os_fini();
 }
+#endif
 /******************************************************************************/
 #endif /* __HISI_H_d8e4e7ba4ad94d61945610b31afade5d__ */
