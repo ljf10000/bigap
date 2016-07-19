@@ -47,7 +47,7 @@
 #define hisi_3g_send_cmd(card_pointer, cmd_string, buf_string, buf_len) \
     hisi_module_call_x(3G, SendCmd, card_pointer, cmd_string, buf_string, buf_len)
 
-#define hisi_3g_status_list = { \
+#define hisi_3g_status_list {   \
     "unavailable",              \
     "pin",                      \
     "puk",                      \
