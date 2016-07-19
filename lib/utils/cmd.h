@@ -15,6 +15,12 @@ typedef struct {
     char *argv[CMD_ARGV_COUNT];
 } cmd_table_t;
 
+#define CMD_TABLE_ENTRY(_handle, _argc, _arg, _args...)  { \
+    .handle = _handle,              \
+    .argc   = _argc,                \
+    .argv   = { _arg, ##_args },    \
+}   /* end */
+
 static inline cmd_table_t *
 cmd_argv(char *command)
 {
@@ -82,7 +88,7 @@ typedef struct {
     int (*main)(int argc, char *argv[]);
 } cmd_multi_table_t;
 
-#define CMD_MULTI_INITER(_name, _main)  { .module = _name, .main = _main }
+#define CMD_MULTI_ENTRY(_name, _main)  { .module = _name, .main = _main }
 
 static inline int
 __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])

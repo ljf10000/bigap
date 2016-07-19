@@ -1861,11 +1861,15 @@ cmd_umount(int argc, char *argv[])
 }
 
 static cmd_table_t cmd[] = {
+#if 0
     {
         .argc   = 1,
         .argv   = {"mount"},
         .handle = cmd_mount,
     },
+#else
+    CMD_TABLE_ENTRY(cmd_mount, 1, "mount"),
+#endif
     {
         .argc   = 1,
         .argv   = {"umount"},
