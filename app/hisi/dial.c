@@ -81,7 +81,7 @@ dial_getcurop(void)
 {
     HI_3G_OPERATOR_S op;
         
-    int err = hisi_3g_get_current_operator(&dial_CARD, op);
+    int err = hisi_3g_get_current_operator(&dial_CARD, &op);
     if (err<0) {
         return 0;
     }
@@ -212,8 +212,7 @@ get_dial_table(char *name)
     return NULL;
 }
 
-static int
-dial_auto(void)
+static int dial_auto(void)
 {
     int i, err;
 
