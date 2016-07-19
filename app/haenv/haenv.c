@@ -186,36 +186,12 @@ cmd_deft(int argc, char *argv[])
 }
 
 static cmd_table_t cmd[] = {
-    {
-        .argc   = 3,
-        .argv   = {"set", NULL, NULL},
-        .handle = cmd_set,
-    },
-    {
-        .argc   = 2,
-        .argv   = {"get", NULL},
-        .handle = cmd_get,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"init"},
-        .handle = cmd_init,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"gc"},
-        .handle = cmd_gc,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"clean"},
-        .handle = cmd_clean,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"deft"},
-        .handle = cmd_deft,
-    },
+    CMD_TABLE_ENTRY(cmd_set, 3, "set", NULL, NULL),
+    CMD_TABLE_ENTRY(cmd_get, 2, "get", NULL),
+    CMD_TABLE_ENTRY(cmd_init, 1, "init"),
+    CMD_TABLE_ENTRY(cmd_gc, 1, "gc"),
+    CMD_TABLE_ENTRY(cmd_clean, 1, "clean"),
+    CMD_TABLE_ENTRY(cmd_deft, 1, "deft"),
 };
 
 static int

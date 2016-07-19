@@ -104,36 +104,13 @@ dog_usage(void)
 }
 
 static cmd_table_t cmd_dog[] = {
-    {
-        .argc   = 1,
-        .argv   = {"enable"},
-        .handle = cmd_dog_enable,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"disable"},
-        .handle = cmd_dog_disable,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"clear"},
-        .handle = cmd_dog_clear,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"reset"},
-        .handle = cmd_dog_reset,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"timeout"},
-        .handle = cmd_dog_get_timeout,
-    },
-    {
-        .argc   = 2,
-        .argv   = {"timeout", NULL},
-        .handle = cmd_dog_set_timeout,
-    },
+    CMD_TABLE_ENTRY(cmd_dog_enable, 1, "enable"),
+    CMD_TABLE_ENTRY(cmd_dog_disable, 1, "disable"),
+    CMD_TABLE_ENTRY(cmd_dog_clear, 1, "clear"),
+    CMD_TABLE_ENTRY(cmd_dog_reset, 1, "reset"),
+    CMD_TABLE_ENTRY(cmd_dog_get_timeout, 1, "timeout"),
+    CMD_TABLE_ENTRY(cmd_dog_set_timeout, 2, "timeout", NULL),
+    CMD_TABLE_ENTRY(cmd_dog_disable, 1, "disable"),
 };
 
 static int

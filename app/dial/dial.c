@@ -398,71 +398,19 @@ usage(void)
 }
 
 static cmd_table_t cmd[] = {
-    {
-        .argc   = 1,
-        .argv   = {"scan"},
-        .handle = cmd_scan,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"init"},
-        .handle = cmd_init,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"fini"},
-        .handle = cmd_fini,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"getcard"},
-        .handle = cmd_getcard,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"getallop"},
-        .handle = cmd_getallop,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"xxx"},
-        .handle = cmd_xxx,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"xxx"},
-        .handle = cmd_xxx,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"xxx"},
-        .handle = cmd_xxx,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"xxx"},
-        .handle = cmd_xxx,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"xxx"},
-        .handle = cmd_xxx,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"xxx"},
-        .handle = cmd_xxx,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"xxx"},
-        .handle = cmd_xxx,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"xxx"},
-        .handle = cmd_xxx,
-    },
+    CMD_TABLE_ENTRY(cmd_scan, 1, "scan"),
+    CMD_TABLE_ENTRY(cmd_init, 1, "init"),
+    CMD_TABLE_ENTRY(cmd_fini, 1, "fini"),
+    CMD_TABLE_ENTRY(cmd_getcard, 1, "getcard"),
+    CMD_TABLE_ENTRY(cmd_getallop, 1, "getallop"),
+    CMD_TABLE_ENTRY(cmd_getcurop, 1, "getcurop"),
+    CMD_TABLE_ENTRY(cmd_regop, 3, "regop", NULL, NULL),
+    CMD_TABLE_ENTRY(cmd_getapn, 1, "getapn"),
+    CMD_TABLE_ENTRY(cmd_setapn, 2, "setapn", NULL),
+    CMD_TABLE_ENTRY(cmd_connect, 4, "connect", NULL, NULL, NULL, NULL),
+    CMD_TABLE_ENTRY(cmd_disconnect, 1, "disconnect"),
+    CMD_TABLE_ENTRY(cmd_getqua, 1, "getqua"),
+    CMD_TABLE_ENTRY(cmd_auto, 1, "auto"),
 };
 
 int main(void)

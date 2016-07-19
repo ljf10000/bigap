@@ -310,26 +310,10 @@ clock_usage(void)
 }
 
 static cmd_table_t cmd_clock[] = {
-    {
-        .argc   = 1,
-        .argv   = {"show"},
-        .handle = cmd_clock_show,
-    },
-    {
-        .argc   = 2,
-        .argv   = {"save", "auto"},
-        .handle = cmd_clock_save_auto,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"save"},
-        .handle = cmd_clock_save_manual,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"sync"},
-        .handle = cmd_clock_sync,
-    },
+    CMD_TABLE_ENTRY(cmd_clock_show, 1, "show"),
+    CMD_TABLE_ENTRY(cmd_clock_save_auto, 2, "save", "auto"),
+    CMD_TABLE_ENTRY(cmd_clock_save_manual, 1, "save"),
+    CMD_TABLE_ENTRY(cmd_clock_sync, 1, "sync"),
 };
 
 static int

@@ -48,16 +48,8 @@ cmd_unlock(int argc, char *argv[])
 }
 
 static cmd_table_t cmd[] = {
-    {
-        .argc   = 3,
-        .argv   = {"lock", NULL, NULL},
-        .handle = cmd_lock,
-    },
-    {
-        .argc   = 2,
-        .argv   = {"unlock", NULL},
-        .handle = cmd_unlock,
-    },
+    CMD_TABLE_ENTRY(cmd_lock, 3, "lock", NULL, NULL),
+    CMD_TABLE_ENTRY(cmd_unlock, 2, "unlock", NULL),
 };
 
 static int

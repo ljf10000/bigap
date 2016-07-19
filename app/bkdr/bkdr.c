@@ -43,16 +43,8 @@ cmd_str(int argc, char *argv[])
 }
 
 static cmd_table_t cmd[] = {
-    {
-        .argc   = 3,
-        .argv   = {"hex", NULL, NULL},
-        .handle = cmd_hex,
-    },
-    {
-        .argc   = 3,
-        .argv   = {"str", NULL, NULL},
-        .handle = cmd_str,
-    },
+    CMD_TABLE_ENTRY(cmd_hex, 3, "hex", NULL, NULL),
+    CMD_TABLE_ENTRY(cmd_str, 3, "str", NULL, NULL),
 };
 
 static int

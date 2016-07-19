@@ -93,37 +93,14 @@ otp_usage(void)
 }
 
 static cmd_table_t cmd_otp[] = {
-    {
-        .argc   = 2,
-        .argv   = {"custom", "show"},
-        .handle = cmd_otp_custom_show,
-    },
-    {
-        .argc   = 3,
-        .argv   = {"custom", "write", NULL},
-        .handle = cmd_otp_custom_write,
-    },
-    {
-        .argc   = 2,
-        .argv   = {"private", "show"},
-        .handle = cmd_otp_private_show,
-    },
-    {
-        .argc   = 3,
-        .argv   = {"private", "write", NULL},
-        .handle = cmd_otp_private_write,
-    },
+    CMD_TABLE_ENTRY(cmd_otp_custom_show, 2, "custom", "show"),
+    CMD_TABLE_ENTRY(cmd_otp_custom_write, 3, "custom", "write", NULL),
+    CMD_TABLE_ENTRY(cmd_otp_private_show, 2, "private", "show"),
+    CMD_TABLE_ENTRY(cmd_otp_private_write, 3, "private", "write", NULL),
+
 #if IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B
-    {
-        .argc   = 2,
-        .argv   = {"cookie", "show"},
-        .handle = cmd_otp_bcookie_show,
-    },
-    {
-        .argc   = 4,
-        .argv   = {"cookie", "write", NULL, NULL},
-        .handle = cmd_otp_bcookie_write,
-    },
+    CMD_TABLE_ENTRY(cmd_otp_bcookie_show, 2, "cookie", "show"),
+    CMD_TABLE_ENTRY(cmd_otp_bcookie_write, 4, "cookie", "write", NULL, NULL),
 #endif
 };
 

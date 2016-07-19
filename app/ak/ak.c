@@ -29,11 +29,7 @@ usage(void)
 }
 
 static cmd_table_t cmd[] = {
-    {
-        .argc   = 1,
-        .argv   = {"reload"},
-        .handle = cmd_reload,
-    },
+    CMD_TABLE_ENTRY(cmd_reload, 1, "reload"),
 };
 
 static int
