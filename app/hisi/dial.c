@@ -182,7 +182,7 @@ struct dial_table {
     int (*handle)(void);
 }
 
-static int dial_auto(void);
+extern int dial_auto(void);
 
 static struct dial_table CMD[DIAL_CMD_END] = {
     [DIAL_CMD_SCAN]         = {.name = "scan",      dial_scan},
@@ -212,7 +212,7 @@ get_dial_table(char *name)
     return NULL;
 }
 
-static int
+int
 dial_auto(void)
 {
     int i, err;
