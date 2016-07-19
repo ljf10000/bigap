@@ -180,6 +180,7 @@ enum {
     DIAL_CMD_GETCUROP,
     DIAL_CMD_GETAPN,
     DIAL_CMD_GETQUA,
+    DIAL_CMD_AUTO,
 
     DIAL_CMD_END
 };
@@ -187,9 +188,11 @@ enum {
 struct dial_table {
     char *name;
     int (*handle)(void);
-}
+};
 
-static struct dial_table CMD[DIAL_CMD_END] = {
+static int dial_auto(void);
+
+static struct dial_table dial_CMD[DIAL_CMD_END] = {
     [DIAL_CMD_SCAN]         = {.name = "scan",      dial_scan},
     [DIAL_CMD_INIT]         = {.name = "init",      dial_init},
     [DIAL_CMD_GETSTATUS]    = {.name = "getstatus", dial_getstatus},
@@ -200,6 +203,7 @@ static struct dial_table CMD[DIAL_CMD_END] = {
     [DIAL_CMD_GETCUROP]     = {.name = "getcurop",  dial_getcurop},
     [DIAL_CMD_GETAPN]       = {.name = "getapn",    dial_getapn},
     [DIAL_CMD_GETQUA]       = {.name = "getqua",    dial_getqua},
+    [DIAL_CMD_AUTO]         = {.name = "auto",      dial_auto},
 };
 
 static struct dial_table *
@@ -207,9 +211,9 @@ get_dial_table(char *name)
 {
     int i;
 
-    for (i=0; i<os_count_of(CMD); i++) {
-        if (os_streq(name, CMD[i].name)) {
-            return &CMD[i];
+    for (i=0; i<os_count_of(dial_CMD); i++) {
+        if (os_streq(name, dial_CMD[i].name)) {
+            return &dial_CMD[i];
         }
     }
 
@@ -217,21 +221,27 @@ get_dial_table(char *name)
 }
 
 static int
-cmd_dial_auto(int argc, char *argv[])
+dial_auto(void)
 {
     int i, err;
-    
-    (void)argc;
-    (void)argv;
 
     for (i=DIAL_CMD_AUTO_BEGIN; i<DIAL_CMD_AUTO_END; i++) {
-        err = (*CMD[i].handle)();
+        err = (*dial_CMD[i].handle)();
         if (err<0) {
             return err;
         }
     }
 
     return 0;
+}
+
+static int
+cmd_dial_auto(int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+    
+    return dial_auto();
 }
 
 static int
@@ -266,7 +276,7 @@ dial_usage(void)
 {
 #define USAGE_MODULE    __THIS_APPNAME " dial"
     os_eprintln(__THIS_APPNAME " test [test-command-list]");
-    os_eprintln(__tab " test-command:scan,init,getstatus,judgestatus,setapn,connect,getallop,getcurop,getapn,getqua");
+    os_eprintln(__tab " test-command:scan,init,getstatus,judgestatus,setapn,connect,getallop,getcurop,getapn,getqua,auto");
 
     os_eprintln(__THIS_APPNAME " auto");
     os_eprintln(__tab " auto==test-command: scan,init,getstatus,judgestatus,setapn,connect");
