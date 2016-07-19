@@ -2,7 +2,15 @@
 Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
 *******************************************************************************/
 #if IS_PRODUCT_LTEFI_MD
-static char* dial_STATUSLIST[] = hisi_3g_status_list;
+static char* dial_STATUSLIST[] = { \
+    "unavailable",              \
+    "pin",                      \
+    "puk",                      \
+    "pin1",                     \
+    "puk2",                     \
+    "disconnected",             \
+    "connected"                 \
+};
 static int dial_STATUS = -1;
 static HI_3G_CARD_S dial_CARD;
 static env_cache_t dial_ENV;
