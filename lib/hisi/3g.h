@@ -55,7 +55,7 @@
     "puk2",                     \
     "disconnected",             \
     "connected"                 \
-}
+}   /* end */
 #define is_good_hisi_3g_status(_status)     is_good_enum(0, HI_3G_CARD_STATUS_BOTT)
 
 /******************************************************************************/
