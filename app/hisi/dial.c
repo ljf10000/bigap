@@ -15,11 +15,11 @@ dial_showop(HI_3G_OPERATOR_S *op, int count)
 	for (i = 0; i < count; i++)
 	{
 	    os_println("operator[%d]:", i);
-	    os_println(__tab "netmode:%s", op[i].anetmode);
-	    os_println(__tab "long:%s", op[i].alongoperator);
-	    os_println(__tab "short:%s", op[i].ashortoperator);
-	    os_println(__tab "numeric:%s", op[i].anumericoperator);
-	    os_println(__tab "rat:%s", op[i].arat);
+	    os_println(__tab "netmode:%s",  op[i].anetmode);
+	    os_println(__tab "long   :%s",  op[i].alongoperator);
+	    os_println(__tab "short  :%s",  op[i].ashortoperator);
+	    os_println(__tab "numeric:%s",  op[i].anumericoperator);
+	    os_println(__tab "rat    :%s",  op[i].arat);
 	}
 	
     return 0;
@@ -112,9 +112,9 @@ dial_getapn(void)
         return err;
     }
 
-    os_println("cid:    %s", pdp.acid);
-    os_println("type:   %s", pdp.apdptype);
-    os_println("apn:    %s", pdp.aapn);
+    os_println("cid   : %s", pdp.acid);
+    os_println("type  : %s", pdp.apdptype);
+    os_println("apn   : %s", pdp.aapn);
     os_println("ipaddr: %s", pdp.apdpipaddr);
     os_println("d_comp: %s", pdp.adcomp);
     os_println("h_comp: %s", pdp.ahcomp);
