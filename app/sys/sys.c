@@ -1861,40 +1861,13 @@ cmd_umount(int argc, char *argv[])
 }
 
 static cmd_table_t cmd[] = {
-#if 0
-    {
-        .argc   = 1,
-        .argv   = {"mount"},
-        .handle = cmd_mount,
-    },
-#else
-    CMD_TABLE_ENTRY(cmd_mount, 1, "mount"),
-#endif
-    {
-        .argc   = 1,
-        .argv   = {"umount"},
-        .handle = cmd_umount,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"startup"},
-        .handle = cmd_startup,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"usbupgrade"},
-        .handle = cmd_usbupgrade,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"upgrade"},
-        .handle = cmd_upgrade,
-    },
-    {
-        .argc   = 1,
-        .argv   = {"repair"},
-        .handle = cmd_repair,
-    },
+    CMD_TABLE_ENTRY(cmd_mount,      1, "mount"),
+    CMD_TABLE_ENTRY(cmd_umount,     1, "umount"),
+    CMD_TABLE_ENTRY(cmd_startup,    1, "startup"),
+    CMD_TABLE_ENTRY(cmd_usbupgrade, 1, "usbupgrade"),
+    CMD_TABLE_ENTRY(cmd_upgrade,    1, "upgrade"),
+    CMD_TABLE_ENTRY(cmd_repair,     1, "repair"),
+    CMD_TABLE_ENTRY(cmd_reset,      1, "reset"),
 };
 
 /*
