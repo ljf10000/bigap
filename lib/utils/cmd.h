@@ -109,7 +109,7 @@ __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])
     }
 
     for (i=0; i<count; i++) {
-        os_println("%s %s xxx", app, module);
+        os_println("%s %s [COMMAND]", app, module);
     }
 
     return -EFORMAT;

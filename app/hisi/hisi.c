@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
+Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifndef __THIS_APP
 #define __THIS_APP      hisi
@@ -24,7 +24,7 @@ static cmd_multi_table_t multi[] = {
 #endif
 
 #if (IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
-    CMD_MULTI_ENTRY("otp",     otp_main),
+    CMD_MULTI_ENTRY("otp",      otp_main),
 #endif
 };
 

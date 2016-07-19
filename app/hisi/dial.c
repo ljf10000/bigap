@@ -1,14 +1,54 @@
 /*******************************************************************************
-Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
+Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #if IS_PRODUCT_LTEFI_MD
-static char* dial_STATUSLIST[] = hisi_3g_status_list;
+
+enum {
+    DIAL_CMD_AUTO_BEGIN = 0,
+    DIAL_CMD_SCAN = DIAL_CMD_AUTO_BEGIN,
+    DIAL_CMD_INIT,
+    DIAL_CMD_GETSTATUS,
+    DIAL_CMD_JUDGESTATUS,
+    DIAL_CMD_SETAPN,
+    DIAL_CMD_CONNECT,
+    DIAL_CMD_AUTO_END,
+    
+    DIAL_CMD_GETALLOP = DIAL_CMD_AUTO_END,
+    DIAL_CMD_GETCUROP,
+    DIAL_CMD_GETAPN,
+    DIAL_CMD_GETQUA,
+    DIAL_CMD_AUTO,
+
+    DIAL_CMD_END
+};
+
+struct dial_table {
+    char *name;
+    int (*handle)(void);
+};
+
+static int dial_auto(void);
+
 static int dial_STATUS = -1;
 static HI_3G_CARD_S dial_CARD;
 static env_cache_t dial_ENV;
 
 static int
-dial_showop(HI_3G_OPERATOR_S *op, int count)
+__dial_showstatus(int status)
+{
+    static char* list[] = hisi_3g_status_list;
+
+    if (is_good_hisi_3g_status(status)) {
+        os_println("%s", list[status]);
+    } else {
+        os_println(__unknow);
+    }
+	
+    return 0;
+}
+
+static int
+__dial_showop(HI_3G_OPERATOR_S *op, int count)
 {
     int i;
     
@@ -42,12 +82,8 @@ static int dial_getstatus(void)
     int err;
 
     err = hisi_3g_get_status(&dial_CARD, &dial_STATUS);
-    if (is_good_hisi_3g_status(dial_STATUS)) {
-        os_println("%s", dial_STATUSLIST[dial_STATUS]);
-    } else {
-        os_println(__unknow);
-    }
-    
+    __dial_showstatus(dial_STATUS);
+
     return err;
 }
 
@@ -71,7 +107,7 @@ dial_getallop(void)
         return 0;
     }
 
-	dial_showop(op, op_num);
+	__dial_showop(op, op_num);
 	
     return 0;
 }
@@ -86,7 +122,7 @@ dial_getcurop(void)
         return 0;
     }
 	
-	dial_showop(&op, 1);
+	__dial_showop(&op, 1);
 	
     return 0;
 }
@@ -158,32 +194,6 @@ dial_connect(void)
     return 0;
 }
 
-enum {
-    DIAL_CMD_AUTO_BEGIN = 0,
-    DIAL_CMD_SCAN = DIAL_CMD_AUTO_BEGIN,
-    DIAL_CMD_INIT,
-    DIAL_CMD_GETSTATUS,
-    DIAL_CMD_JUDGESTATUS,
-    DIAL_CMD_SETAPN,
-    DIAL_CMD_CONNECT,
-    DIAL_CMD_AUTO_END,
-    
-    DIAL_CMD_GETALLOP = DIAL_CMD_AUTO_END,
-    DIAL_CMD_GETCUROP,
-    DIAL_CMD_GETAPN,
-    DIAL_CMD_GETQUA,
-    DIAL_CMD_AUTO,
-
-    DIAL_CMD_END
-};
-
-struct dial_table {
-    char *name;
-    int (*handle)(void);
-};
-
-static int dial_auto(void);
-
 static struct dial_table dial_CMD[DIAL_CMD_END] = {
     [DIAL_CMD_SCAN]         = {.name = "scan",      dial_scan},
     [DIAL_CMD_INIT]         = {.name = "init",      dial_init},
@@ -199,7 +209,7 @@ static struct dial_table dial_CMD[DIAL_CMD_END] = {
 };
 
 static struct dial_table *
-get_dial_table(char *name)
+__dial_table(char *name)
 {
     int i;
 
@@ -247,7 +257,7 @@ cmd_dial_test(int argc, char *argv[])
     (void)argc;
     
     os_strtok_foreach(name, list, ",") {
-        table = get_dial_table(name);
+        table = __dial_table(name);
         if (NULL==table) {
             os_println("unknow command:%s", name);
 

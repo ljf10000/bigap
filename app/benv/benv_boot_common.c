@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
+Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #define _LINUX_LIST_H
 #include <environment.h>

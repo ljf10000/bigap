@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (c) 2016-2018, Supper Wali Technology. All rights reserved.
+Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #if IS_PRODUCT_LTEFI_MD
 static int
