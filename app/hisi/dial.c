@@ -143,14 +143,14 @@ dial_connect(void)
 {
     int err;
     
-    if (NULL==dial_ENV.username ||
+    if (NULL==dial_ENV.user     ||
         NULL==dial_ENV.password ||
-        NULL==dial_ENV.telephone ||
+        NULL==dial_ENV.telephone||
         NULL==dial_ENV.apn) {
         return -EFORMAT;
     }
     
-    err = hisi_3g_connect(&dial_CARD, dial_ENV.username, dial_ENV.password, dial_ENV.telephone, 0, NULL);
+    err = hisi_3g_connect(&dial_CARD, dial_ENV.user, dial_ENV.password, dial_ENV.telephone, 0, NULL);
     if (err<0) {
         return err;
     }
