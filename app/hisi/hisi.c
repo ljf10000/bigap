@@ -32,12 +32,6 @@ static cmd_multi_table_t multi[] = {
 #define hisi_main  main
 #endif
 
-static int
-__main(int argc, char *argv[])
-{
-    return cmd_multi_handle(multi, argc, argv);
-}
-
 /*
 * dog have enabled when boot
 */
@@ -46,6 +40,6 @@ int hisi_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_call(hisi_init, hisi_fini, __main, argc, argv);
+    return os_call(hisi_init, hisi_fini, cmd_multi_handle, multi, argc, argv);
 }
 /******************************************************************************/

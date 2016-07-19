@@ -212,7 +212,8 @@ get_dial_table(char *name)
     return NULL;
 }
 
-static int dial_auto(void)
+static int
+dial_auto(void)
 {
     int i, err;
 
@@ -292,7 +293,8 @@ init_dial_env(void)
     return 0;
 }
 
-int dial_main(int argc, char *argv[])
+static int
+dial_main(int argc, char *argv[])
 {
     init_dial_env();
     
