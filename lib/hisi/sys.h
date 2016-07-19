@@ -53,5 +53,5 @@ static inline int hisi_sys_fini(void)   { return hisi_module_call_0(SYS, DeInit)
     hisi_module_call_x(SYS, SetStorePath, path_string)
     
 /******************************************************************************/
-#endif /* __APP__ */
+#endif
 #endif /* __SYS_H_1f53644f3fdc49a6a811fa6a0c591b1f__ */
