@@ -6,11 +6,12 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #include "utils.h"
-#include "benv/benv.h"
-#include "hisi/hisi.h"
 #if IS_PRODUCT_LTEFI_MD_PARTITION_A
 #include "../bootm/bootm.h"
+#elif IS_PRODUCT_LTEFI_MD_PARTITION_B
+#include "benv/benv.h"
 #endif
+#include "hisi/hisi.h"
 #if !(IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
 #error "just support ltefi md/pc board"
 #endif
@@ -169,7 +170,6 @@ check_bootenv(void)
 
     return 0;
 }
-
 
 static int
 check_partition(void)
