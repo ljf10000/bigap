@@ -23,8 +23,8 @@
     __hisi_class_module_method_error(_class, _module, _method, __hisi_class_module_call_x_err); \
 })  /* end */
 /******************************************************************************/
-#define __hisi_module_method_name(_module, _method) "HI_" #_module"_" #_method
-#define __hisi_module_method_func(_module, _method) HI_##_module##_##_method
+#define __hisi_module_method_name(_module, _method)     "HI_" #_module"_" #_method
+#define __hisi_module_method_func(_module, _method)     HI_##_module##_##_method
 #define __hisi_module_method_error(_module, _method, _err)      ({ \
     if (_err) {                        \
         debug_error(__hisi_module_method_name(_module, _method) " error:%d", _err); \

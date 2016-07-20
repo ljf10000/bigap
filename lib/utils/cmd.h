@@ -79,8 +79,7 @@ __cmd_handle(int count, cmd_table_t cmd[], int argc, char *argv[], int (*usage)(
 
 #define cmd_handle(_cmd, _argc, _argv, _usage)  \
     __cmd_handle(os_count_of(_cmd), _cmd, _argc, _argv, _usage)
-
-
+/******************************************************************************/
 typedef struct {
     char *module;
     

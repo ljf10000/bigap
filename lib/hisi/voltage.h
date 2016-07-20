@@ -28,7 +28,7 @@ __get_voltage(float *voltage)
     }
 
 	itmp = buf[0];
-	itmp = (itmp << 8) + itmp[1];
+	itmp = (itmp << 8) + buf[1];
 	itmp = (itmp >> 4);
 
 	ftmp = itmp*13*3.3/256;
