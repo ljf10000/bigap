@@ -193,7 +193,6 @@ enum {
     EBADPROTO   = ERRNO(30),
     EBADVERSION = ERRNO(31),
     EBADSLOT    = ERRNO(32),
-    EBADENV     = ERRNO(33),
     
     ETOOBIG     = ERRNO(40),
     ETOOSMALL   = ERRNO(41),
