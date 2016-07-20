@@ -59,6 +59,7 @@
 #include "hisi/otp.h"
 #include "hisi/i2c.h"
 #include "hisi/gpio.h" // must after i2c.h
+#include "hisi/voltage.h"
 #include "hisi/3g.h"
 #include "hisi/xcc.h"
 #include "hisi/led.h"
