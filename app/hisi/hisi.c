@@ -25,6 +25,7 @@ static cmd_multi_table_t multi[] = {
     CMD_MULTI_ENTRY("clock",    clock_main),
     CMD_MULTI_ENTRY("dial",     dial_main),
     CMD_MULTI_ENTRY("vcc",      vcc_main),
+    CMD_MULTI_ENTRY("acc",      acc_main),
 #endif
 
 #if (IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
