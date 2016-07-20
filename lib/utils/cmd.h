@@ -93,20 +93,24 @@ __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])
 {
     int i;
 
-    char *app = argv[0];
-    
+    if (argc<2) {
+        goto help;
+    }
+
+    char *app       = argv[0];
+    char *module    = argv[1];
+
     argc -= 1; argv += 1;
-    
-    char *module = argv[0];
-    
+
     for (i=0; i<count; i++) {
         if (os_streq(module, multi[i].module)) {
             return (*multi[i].main)(argc, argv);
         }
     }
 
+help:
     for (i=0; i<count; i++) {
-        os_println("%s %s [COMMAND]", app, module);
+        os_println("%s %s [COMMAND]", app, multi[i].module);
     }
 
     return -EFORMAT;
