@@ -159,7 +159,7 @@
 #define LOG_DEBUGLEVELPRI(_level)   LOG_LEVELPRI(_level, LOG_DEBUG)
 
 static inline void
-__jlog_header(char *app, char *sub, const char *file, const char *func, uint32 line, uint32 PRI)
+__jlog_header(char *app, char *sub, char *file, char *func, uint32 line, uint32 PRI)
 {
     int level = LOG_LEVEL(PRI);
     
@@ -264,11 +264,11 @@ static inline int
 __jvlogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line, 
     uint32 PRI, 
-    const char *fmt, 
+    char *fmt, 
     va_list args
 );
 
@@ -276,11 +276,11 @@ static inline int
 __dvlogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line, 
     uint32 PRI, 
-    const char *fmt, 
+    char *fmt, 
     va_list args
 );
 
@@ -288,11 +288,11 @@ static inline int
 __jlogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line, 
     uint32 PRI, 
-    const char *fmt, 
+    char *fmt, 
     ...
 );
 
@@ -300,11 +300,11 @@ static inline int
 __dlogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line, 
     uint32 PRI, 
-    const char *fmt, 
+    char *fmt, 
     ...
 );
 
@@ -312,8 +312,8 @@ static inline int
 __clogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line,
     uint32 PRI,
     char *json
@@ -576,8 +576,8 @@ __jlog_add_header(
     jobj_t obj, 
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line, 
     uint32 PRI
 )
@@ -813,11 +813,11 @@ static inline int
 __jvlogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line, 
     uint32 PRI, 
-    const char *fmt, 
+    char *fmt, 
     va_list args
 )
 {
@@ -849,11 +849,11 @@ static inline int
 __dvlogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line, 
     uint32 PRI, 
-    const char *fmt, 
+    char *fmt, 
     va_list args
 )
 {
@@ -882,11 +882,11 @@ static inline int
 __jlogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line, 
     uint32 PRI, 
-    const char *fmt, 
+    char *fmt, 
     ...
 )
 {
@@ -904,11 +904,11 @@ static inline int
 __dlogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line, 
     uint32 PRI, 
-    const char *fmt, 
+    char *fmt, 
     ...
 )
 {
@@ -929,8 +929,8 @@ static inline int
 __clogger(
     char *app, 
     char *sub, 
-    const char *file, 
-    const char *func, 
+    char *file, 
+    char *func, 
     uint32 line,
     uint32 PRI,
     char *json
