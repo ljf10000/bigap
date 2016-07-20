@@ -181,8 +181,7 @@ dial_connect(void)
     
     if (NULL==dial_ENV.user     ||
         NULL==dial_ENV.password ||
-        NULL==dial_ENV.telephone||
-        NULL==dial_ENV.apn) {
+        NULL==dial_ENV.telephone) {
         return -EFORMAT;
     }
     
