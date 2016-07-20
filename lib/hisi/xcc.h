@@ -55,13 +55,13 @@ __xcc_monitor(xcc_t *xcc)
     int value = gpio_read(xcc->map[0].gpio);
     if (XCC_OPEN==value) {
         if (xcc->times) {
-            xcc_script("open");
+            xcc_script(xcc, "open");
         }
         
         xcc->times = 0;
     } else {
         if (0==xcc->times) {
-            xcc_script("close");
+            xcc_script(xcc, "close");
         }
         
         xcc->times++;
@@ -71,7 +71,7 @@ __xcc_monitor(xcc_t *xcc)
     if (duration > 1000* xcc->timeout) {
         int i;
         
-        xcc_script("shutdown");
+        xcc_script(xcc, "shutdown");
 
         for (i=0; i<xcc->count; i++) {
             gpio_write(xcc->map[i].gpio, xcc->map[i].value);
@@ -80,7 +80,7 @@ __xcc_monitor(xcc_t *xcc)
         }
     }
 
-    xcc_report(value, duration);
+    xcc_report(xcc, value, duration);
 }
 
 static inline int
@@ -142,7 +142,7 @@ init_xcc_gpio(xcc_t *xcc)
     for (i=0; i<xcc->count; i++) {
         hisi_gpio_t *gpio = gpio_getbyname(xcc->map[i].name);
         if (NULL==gpio) {
-            debug_error("no found gpio %s" xcc->map[i].name);
+            debug_error("no found gpio %s", xcc->map[i].name);
 
             return -ENOEXIST;
         }
