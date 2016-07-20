@@ -1462,13 +1462,13 @@ init_env(void)
 
     env = env_gets(ENV_VERSION, NULL);
     if (env) {
-        sys.env.version = env;
-        
         if (__benv_version_atoi(&sys.version, env)) {
             debug_error("bad version:%s", env);
             
             return -EFORMAT;
         }
+        
+        sys.env.version = env;
     }
 
     env = env_gets(ENV_UPGRADE, NULL);
@@ -1478,7 +1478,8 @@ init_env(void)
             
             return -EFORMAT;
         }
-        
+
+        sys.env.upgrade = env;
         sys.upgrade = os_atoi(env);
     }
     
@@ -1515,7 +1516,8 @@ init_env(void)
             
             return -EFORMAT;
         }
-        
+
+        sys.env.resetby = env;
         sys.resetby = idx;
     }
     

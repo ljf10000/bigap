@@ -14,6 +14,9 @@ OS_INITER;
 #include "dog.c"
 #include "gpio.c"
 #include "dial.c"
+#include "vcc.c"
+#include "acc.c"
+#include "led.c"
 /******************************************************************************/
 static cmd_multi_table_t multi[] = {
 #if IS_PRODUCT_LTEFI_MD
@@ -21,6 +24,7 @@ static cmd_multi_table_t multi[] = {
     CMD_MULTI_ENTRY("gpio",     gpio_main),
     CMD_MULTI_ENTRY("clock",    clock_main),
     CMD_MULTI_ENTRY("dial",     dial_main),
+    CMD_MULTI_ENTRY("vcc",      vcc_main),
 #endif
 
 #if (IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)

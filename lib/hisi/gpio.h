@@ -32,7 +32,9 @@ static inline int hisi_gpio_fini(void)   { return hisi_unf_call_0(GPIO, DeInit);
 #define hisi_gpio_set_int_enable(gpio_number, enable) \
     hisi_unf_call_x(GPIO, SetIntEnable, gpio_number, enable)
 /******************************************************************************/
+#ifndef HI_UNF_GPIO
 #define HI_UNF_GPIO         1
+#endif
 
 #define GPIO_INPUT          1
 #define GPIO_OUTPUT         0
@@ -60,6 +62,8 @@ static inline int hisi_gpio_fini(void)   { return hisi_unf_call_0(GPIO, DeInit);
 #define GPIO_NUMBER_PWR_LTE2		GPIO_NUMBER(6, 5)
 #define GPIO_NUMBER_PWR_AP			GPIO_NUMBER(6, 6)
 #define GPIO_NUMBER_PWR_LTE1		GPIO_NUMBER(6, 7)
+
+#define GPIO_NAME(_obj, _action)    #_obj "." #_action
 
 #define GPIO_NAME_PWR_LTE1		    "pwr_lte1"
 #define GPIO_NAME_PWR_LTE2		    "pwr_lte2"
@@ -98,39 +102,70 @@ static inline int hisi_gpio_fini(void)   { return hisi_unf_call_0(GPIO, DeInit);
 #define GPIO_NAME_LED_PWR		    "pwr"
 #define GPIO_NAME_LED_CTRL		    "ctrl"
 
+enum {
+    GPIO_IDX_PWR_LTE1,
+    GPIO_IDX_PWR_LTE2,
+    GPIO_IDX_RST_LTE1,
+    GPIO_IDX_RST_LTE2,
+    GPIO_IDX_SHUT_DELAY,
+    GPIO_IDX_SHUT_FORCE,
+    GPIO_IDX_PWR_AP,
+    GPIO_IDX_RST_AP,
+    GPIO_IDX_MON_RST,
+    GPIO_IDX_MON_ACC,
+    GPIO_IDX_MON_VCC,
+
+    GPIO_IDX_LED_STAT1,
+    GPIO_IDX_LED_STAT2,
+    GPIO_IDX_LED_SIM1,
+    GPIO_IDX_LED_SIM2,
+    GPIO_IDX_LED_LTE1,
+    GPIO_IDX_LED_LTE2,
+    GPIO_IDX_LED_GPS,
+    GPIO_IDX_LED_SATA,
+    GPIO_IDX_LED_SYS,
+    GPIO_IDX_LED_PWR,
+    GPIO_IDX_LED_CTRL,
+    
+    GPIO_IDX_END
+};
+
+#define is_good_gpio_idx(_idx)  is_good_enum(_idx, GPIO_IDX_END)
+
 typedef struct gpio {
 	char name[1 + GPIO_NAME_LEN];
 	int number;
 	int flag;
 } hisi_gpio_t;
 
-#define GPIO_ENTRY(_name, _number, _flag)  {.name=_name, .number=_number, .flag=_flag}
+#define GPIO_ENTRY(_idx, _name, _number, _flag)  \
+    [_idx] = { .name=_name, .number=_number, .flag=_flag }
 #define GPIO_INITER { \
 	/* input */                                                             \
-	GPIO_ENTRY(GPIO_NAME_MON_VCC,   GPIO_NUMBER_MON_VCC,    GPIO_R),        \
-	GPIO_ENTRY(GPIO_NAME_MON_ACC,   GPIO_NUMBER_MON_ACC,    GPIO_R),        \
-	GPIO_ENTRY(GPIO_NAME_MON_RST,   GPIO_NUMBER_MON_RST,    GPIO_R),        \
+	GPIO_ENTRY(GPIO_IDX_MON_VCC,    GPIO_NAME_MON_VCC,  GPIO_NUMBER_MON_VCC,    GPIO_R),        \
+	GPIO_ENTRY(GPIO_IDX_MON_ACC,    GPIO_NAME_MON_ACC,  GPIO_NUMBER_MON_ACC,    GPIO_R),        \
+	GPIO_ENTRY(GPIO_IDX_MON_RST,    GPIO_NAME_MON_RST,  GPIO_NUMBER_MON_RST,    GPIO_R),        \
 	/* output */                                                            \
-	GPIO_ENTRY(GPIO_NAME_SHUT_FORCE,GPIO_NUMBER_SHUT_FORCE, GPIO_W),        \
-	GPIO_ENTRY(GPIO_NAME_SHUT_DELAY,GPIO_NUMBER_SHUT_DELAY, GPIO_W),        \
-	GPIO_ENTRY(GPIO_NAME_RST_LTE1,  GPIO_NUMBER_RST_LTE1,   GPIO_W),        \
-	GPIO_ENTRY(GPIO_NAME_RST_LTE2,  GPIO_NUMBER_RST_LTE2,   GPIO_W),        \
-	GPIO_ENTRY(GPIO_NAME_PWR_LTE1,  GPIO_NUMBER_PWR_LTE1,   GPIO_W),        \
-	GPIO_ENTRY(GPIO_NAME_PWR_LTE2,  GPIO_NUMBER_PWR_LTE2,   GPIO_W),        \
-	GPIO_ENTRY(GPIO_NAME_RST_AP,    GPIO_NUMBER_RST_AP,     GPIO_W),        \
-	GPIO_ENTRY(GPIO_NAME_PWR_AP,    GPIO_NUMBER_PWR_AP,     GPIO_W),        \
+	GPIO_ENTRY(GPIO_IDX_SHUT_FORCE, GPIO_NAME_SHUT_FORCE,   GPIO_NUMBER_SHUT_FORCE, GPIO_W),        \
+	GPIO_ENTRY(GPIO_IDX_SHUT_DELAY, GPIO_NAME_SHUT_DELAY,   GPIO_NUMBER_SHUT_DELAY, GPIO_W),        \
+	GPIO_ENTRY(GPIO_IDX_RST_LTE1,   GPIO_NAME_RST_LTE1,     GPIO_NUMBER_RST_LTE1,   GPIO_W),        \
+	GPIO_ENTRY(GPIO_IDX_RST_LTE2,   GPIO_NAME_RST_LTE2,     GPIO_NUMBER_RST_LTE2,   GPIO_W),        \
+	GPIO_ENTRY(GPIO_IDX_PWR_LTE1,   GPIO_NAME_PWR_LTE1,     GPIO_NUMBER_PWR_LTE1,   GPIO_W),        \
+	GPIO_ENTRY(GPIO_IDX_PWR_LTE2,   GPIO_NAME_PWR_LTE2,     GPIO_NUMBER_PWR_LTE2,   GPIO_W),        \
+	GPIO_ENTRY(GPIO_IDX_RST_AP,     GPIO_NAME_RST_AP,       GPIO_NUMBER_RST_AP,     GPIO_W),        \
+	GPIO_ENTRY(GPIO_IDX_PWR_AP,     GPIO_NAME_PWR_AP,       GPIO_NUMBER_PWR_AP,     GPIO_W),        \
 	/* i2c-gpio */                                                          \
-	GPIO_ENTRY(GPIO_NAME_LED_SIM1,  I2C_GPIO_NUMBER_LED_SIM1,   GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_SIM2,  I2C_GPIO_NUMBER_LED_SIM2,   GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_STAT1, I2C_GPIO_NUMBER_LED_STAT1,  GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_STAT2, I2C_GPIO_NUMBER_LED_STAT2,  GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_LTE1,  I2C_GPIO_NUMBER_LED_LTE1,   GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_LTE2,  I2C_GPIO_NUMBER_LED_LTE2,   GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_GPS,   I2C_GPIO_NUMBER_LED_GPS,    GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_SATA,  I2C_GPIO_NUMBER_LED_SATA,   GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_SYS,   I2C_GPIO_NUMBER_LED_SYS,    GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_PWR,   I2C_GPIO_NUMBER_LED_PWR,    GPIO_W),    \
-	GPIO_ENTRY(GPIO_NAME_LED_CTRL,  I2C_GPIO_NUMBER_LED_CTRL,   GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_SIM1,   GPIO_NAME_LED_SIM1,     I2C_GPIO_NUMBER_LED_SIM1,   GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_SIM2,   GPIO_NAME_LED_SIM2,     I2C_GPIO_NUMBER_LED_SIM2,   GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_STAT1,  GPIO_NAME_LED_STAT1,    I2C_GPIO_NUMBER_LED_STAT1,  GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_STAT2,  GPIO_NAME_LED_STAT2,    I2C_GPIO_NUMBER_LED_STAT2,  GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_LTE1,   GPIO_NAME_LED_LTE1,     I2C_GPIO_NUMBER_LED_LTE1,   GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_LTE2,   GPIO_NAME_LED_LTE2,     I2C_GPIO_NUMBER_LED_LTE2,   GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_GPS,    GPIO_NAME_LED_GPS,      I2C_GPIO_NUMBER_LED_GPS,    GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_SATA,   GPIO_NAME_LED_SATA,     I2C_GPIO_NUMBER_LED_SATA,   GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_SYS,    GPIO_NAME_LED_SYS,      I2C_GPIO_NUMBER_LED_SYS,    GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_PWR,    GPIO_NAME_LED_PWR,      I2C_GPIO_NUMBER_LED_PWR,    GPIO_W),    \
+	GPIO_ENTRY(GPIO_IDX_LED_CTRL,   GPIO_NAME_LED_CTRL,     I2C_GPIO_NUMBER_LED_CTRL,   GPIO_W),    \
 }   /* end */
 
 /******************************************************************************/
@@ -368,6 +403,18 @@ gpio_getbyname(char *name)
     }
 
     return NULL;
+}
+
+static inline struct gpio *
+gpio_getbyindex(int idx)
+{
+    if (is_good_gpio_idx(idx)) {
+        hisi_gpio_t *GPIO = gpio_GPIO(NULL);
+        
+        return &GPIO[idx];
+    } else {
+        return NULL;
+    }
 }
 /******************************************************************************/
 #endif /* __APP__ */
