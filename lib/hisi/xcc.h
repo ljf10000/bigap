@@ -20,7 +20,7 @@ typedef struct {
 
     /*
     * 0: acc/vcc gpio
-    * [1,count) set gpio
+    * [1,count): when acc/vcc shutdown, set it
     */
     struct {
         hisi_gpio_t *gpio;
@@ -50,6 +50,20 @@ xcc_report(xcc_t *xcc, int value, int duration)
 }
 
 static inline void
+xcc_shutdown(xcc_t *xcc)
+{
+    int i;
+        
+    xcc_script(xcc, "shutdown");
+
+    for (i=0; i<xcc->count; i++) {
+        gpio_write(xcc->map[i].gpio, xcc->map[i].value);
+
+        usleep(os_usecond(xcc->interval));
+    }
+}
+
+static inline void
 __xcc_monitor(xcc_t *xcc)
 {
     int value = gpio_read(xcc->map[0].gpio);
@@ -69,15 +83,7 @@ __xcc_monitor(xcc_t *xcc)
 
     int duration = xcc->interval * xcc->times;
     if (duration > 1000* xcc->timeout) {
-        int i;
-        
-        xcc_script(xcc, "shutdown");
-
-        for (i=0; i<xcc->count; i++) {
-            gpio_write(xcc->map[i].gpio, xcc->map[i].value);
-
-            usleep(os_usecond(xcc->interval));
-        }
+        xcc_shutdown(xcc);
     }
 
     xcc_report(xcc, value, duration);
