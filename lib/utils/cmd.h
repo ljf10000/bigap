@@ -93,6 +93,7 @@ __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])
 {
     int i;
 
+    os_println("count=%d", count);
     __cli_argv_dump(os_println, argc, argv);
     
     if (argc<2) {
