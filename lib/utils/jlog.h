@@ -743,7 +743,7 @@ error:
 }
 
 static inline int
-__jlog(jobj_t obj, char *app, char *sub, uint32 PRI)
+__jlog(jobj_t obj, const char *app, const char *sub, uint32 PRI)
 {
     int fd, len, err;
     
@@ -817,8 +817,8 @@ try_again:
 */
 static inline int
 __jvlogger(
-    char *app, 
-    char *sub, 
+    const char *app, 
+    const char *sub, 
     const char *file, 
     const char *func, 
     uint32 line, 
