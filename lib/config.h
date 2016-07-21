@@ -48,7 +48,7 @@
 #endif
 
 #ifndef OS_USE_UTC_TIME
-#define OS_USE_UTC_TIME         1
+#define OS_USE_UTC_TIME         0
 #endif
 
 #ifndef OS_IPC_ID

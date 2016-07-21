@@ -12,6 +12,7 @@
 #define __os_time_format        "00:00:00"
 #define __os_fulltime_format    __os_date_format __space __os_time_format
 #define __os_fulltime_ifs       "- :"
+#define __os_fulltime_ifs_link  "--:"
 
 static inline struct tm *
 os_localtime(time_t *c)
@@ -95,6 +96,13 @@ os_fulltime_string(time_t *t)
 {
     return __fulltime_string(os_gettm(t), __os_fulltime_ifs);
 }
+
+static inline char *
+os_fulltime_string_link(time_t *t)
+{
+    return __fulltime_string(os_gettm(t), __os_fulltime_ifs_link);
+}
+
 #endif /* __APP__ */
 /******************************************************************************/
 #endif /* __TIME_H_9ed57e652d154962bbebe5adf9a06c11__ */

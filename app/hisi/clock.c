@@ -299,7 +299,7 @@ cmd_clock_show(int argc, char *argv[])
 static int
 clock_usage(void)
 {
-#define USAGE_MODULE    __THIS_APPNAME " clock"
+#define USAGE_MODULE    __THIS_APPNAME " clock "
     os_eprintln(USAGE_MODULE "show");
     os_eprintln(USAGE_MODULE "save auto");
     os_eprintln(USAGE_MODULE "save");

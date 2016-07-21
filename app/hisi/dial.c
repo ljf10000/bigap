@@ -22,6 +22,10 @@ enum {
     DIAL_CMD_END
 };
 
+#ifndef DIAL_TRYS
+#define DIAL_TRYS   3
+#endif
+
 struct dial_table {
     char *name;
     int (*handle)(void);
@@ -29,9 +33,18 @@ struct dial_table {
 
 static int dial_auto(void);
 
-static int dial_STATUS = -1;
-static HI_3G_CARD_S dial_CARD;
-static env_cache_t dial_ENV;
+static struct {
+    int interval;   // second
+    int trys;
+    int status;
+    bool showstatus;
+    HI_3G_CARD_S card;
+    env_cache_t  env;
+} dial = {
+    .trys       = DIAL_TRYS,
+    .status     = -1,
+    .showstatus = true,
+};
 
 static int
 __dial_showstatus(int status)
@@ -68,28 +81,45 @@ __dial_showop(HI_3G_OPERATOR_S *op, int count)
 static int dial_scan(void)
 {
     int card_num_allways_1;
-        
-    return hisi_3g_scan(&dial_CARD, 1, &card_num_allways_1);
+    int err;
+    
+    err = hisi_3g_scan(&dial.card, 1, &card_num_allways_1);
+        debug_ok_error(err, "3g scan");
+    
+    return err;
 }
 
 static int dial_init(void)
 {
-    return hisi_3g_init(&dial_CARD);
+    int err;
+    
+    err = hisi_3g_init(&dial.card);
+        debug_ok_error(err, "3g init");
+
+    return err;
 }
 
 static int dial_getstatus(void)
 {
     int err;
 
-    err = hisi_3g_get_status(&dial_CARD, &dial_STATUS);
-    __dial_showstatus(dial_STATUS);
+    err = hisi_3g_get_status(&dial.card, &dial.status);
+    if (err<0) {
+        debug_error("3g get status error:%d", err);
+    }
 
+    if (dial.showstatus) {
+        __dial_showstatus(dial.status);
+    }
+    
     return err;
 }
 
 static int dial_judgestatus(void)
 {
-    if (HI_3G_CARD_STATUS_DISCONNECTED!=dial_STATUS) {
+    if (HI_3G_CARD_STATUS_DISCONNECTED!=dial.status) {
+        debug_error("3g status[%d] not ready", dial.status);
+        
         return -ENOREADY;
     }
     
@@ -102,13 +132,15 @@ dial_getallop(void)
     HI_3G_OPERATOR_S op[MAX_OPERATOR_NUM];
     int op_num = 0;
         
-    int err = hisi_3g_get_all_operators(&dial_CARD, op, MAX_OPERATOR_NUM, &op_num);
+    int err = hisi_3g_get_all_operators(&dial.card, op, MAX_OPERATOR_NUM, &op_num);
     if (err<0) {
+        debug_error("3g get all operators error:%d", err);
+        
         return 0;
     }
 
 	__dial_showop(op, op_num);
-	
+
     return 0;
 }
 
@@ -117,8 +149,10 @@ dial_getcurop(void)
 {
     HI_3G_OPERATOR_S op;
         
-    int err = hisi_3g_get_current_operator(&dial_CARD, &op);
+    int err = hisi_3g_get_current_operator(&dial.card, &op);
     if (err<0) {
+        debug_error("3g get current operators error:%d", err);
+        
         return 0;
     }
 	
@@ -130,11 +164,16 @@ dial_getcurop(void)
 static int
 dial_setapn(void)
 {
-    if (NULL==dial_ENV.apn) {
+    int err;
+    
+    if (NULL==dial.env.apn) {
         return -EFORMAT;
     }
     
-    return hisi_3g_set_apn(&dial_CARD, dial_ENV.apn);
+    err = hisi_3g_set_apn(&dial.card, dial.env.apn);
+        debug_ok_error(err, "3g setapn");
+
+    return err;
 }
 
 static int
@@ -143,8 +182,10 @@ dial_getapn(void)
     HI_3G_PDP_S pdp;
     int err;
         
-    err = hisi_3g_get_apn(&dial_CARD, &pdp);
+    err = hisi_3g_get_apn(&dial.card, &pdp);
     if (err<0) {
+        debug_error("3g get apn error:%d", err);
+        
         return err;
     }
 
@@ -163,8 +204,10 @@ dial_getqua(void)
 {
     int err, rssi = -1, ber = -1;
     
-    err = hisi_3g_get_quality(&dial_CARD, &rssi, &ber);
+    err = hisi_3g_get_quality(&dial.card, &rssi, &ber);
     if (err<0) {
+        debug_error("3g get qua error:%d", err);
+        
         return err;
     }
 
@@ -177,20 +220,23 @@ dial_getqua(void)
 static int
 dial_connect(void)
 {
-    int err;
+    int i, err = 0;
     
-    if (NULL==dial_ENV.user     ||
-        NULL==dial_ENV.password ||
-        NULL==dial_ENV.telephone) {
+    if (NULL==dial.env.user     ||
+        NULL==dial.env.password ||
+        NULL==dial.env.telephone) {
         return -EFORMAT;
     }
-    
-    err = hisi_3g_connect(&dial_CARD, dial_ENV.user, dial_ENV.password, dial_ENV.telephone, 0, NULL);
-    if (err<0) {
-        return err;
+
+    for (i=0; i<dial.trys; i++) {
+        err = hisi_3g_connect(&dial.card, dial.env.user, dial.env.password, dial.env.telephone, 0, NULL);
+            debug_ok_error(err, "3g connect");
+        if (0==err) {
+            return 0;
+        }
     }
     
-    return 0;
+    return err;
 }
 
 static struct dial_table dial_CMD[DIAL_CMD_END] = {
@@ -226,6 +272,8 @@ dial_auto(void)
 {
     int i, err;
 
+    dial.showstatus = false;
+    
     for (i=DIAL_CMD_AUTO_BEGIN; i<DIAL_CMD_AUTO_END; i++) {
         err = (*dial_CMD[i].handle)();
         if (err<0) {
@@ -275,11 +323,11 @@ cmd_dial_test(int argc, char *argv[])
 static int
 dial_usage(void)
 {
-#define USAGE_MODULE    __THIS_APPNAME " dial"
-    os_eprintln(__THIS_APPNAME " test [test-command-list]");
+#define USAGE_MODULE    __THIS_APPNAME " dial "
+    os_eprintln(__THIS_APPNAME "test [test-command-list]");
     os_eprintln(__tab " test-command:scan,init,getstatus,judgestatus,setapn,connect,getallop,getcurop,getapn,getqua,auto");
 
-    os_eprintln(__THIS_APPNAME " auto");
+    os_eprintln(__THIS_APPNAME "auto");
     os_eprintln(__tab " auto==test-command: scan,init,getstatus,judgestatus,setapn,connect");
 #undef USAGE_MODULE
 
@@ -294,10 +342,26 @@ static cmd_table_t cmd_dial[] = {
 static int
 init_dial_env(void)
 {
-    dial_ENV.user = env_gets(ENV_USER, NULL);
-    dial_ENV.password = env_gets(ENV_PASSWORD, NULL);
-    dial_ENV.telephone = env_gets(ENV_TELEPHONE, NULL);
-    dial_ENV.apn = env_gets(ENV_APN, NULL);
+    dial.env.user = env_gets(ENV_USER, NULL);
+    dial.env.password = env_gets(ENV_PASSWORD, NULL);
+    dial.env.telephone = env_gets(ENV_TELEPHONE, NULL);
+    dial.env.apn = env_gets(ENV_APN, NULL);
+    
+    dial.env.try = env_gets(ENV_TRY, NULL);
+    if (dial.env.try) {
+        int trys = os_atoi(dial.env.try);
+        if (trys > 0) {
+            dial.trys = trys;
+        }
+    }
+
+    dial.env.interval = env_gets(ENV_INTERVAL, NULL);
+    if (dial.env.interval) {
+        int interval = os_atoi(dial.env.interval);
+        if (interval > 0) {
+            dial.interval = interval;
+        }
+    }
 
     return 0;
 }
@@ -306,7 +370,7 @@ static int
 dial_main(int argc, char *argv[])
 {
     init_dial_env();
-    
+
     return cmd_handle(cmd_dial, argc, argv, dial_usage);
 }
 #endif

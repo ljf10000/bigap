@@ -92,7 +92,7 @@ cmd_dog_set_timeout(int argc, char *argv[])
 static int
 dog_usage(void)
 {
-#define USAGE_MODULE    __THIS_APPNAME " dog"
+#define USAGE_MODULE    __THIS_APPNAME " dog "
     os_eprintln(USAGE_MODULE "enable");
     os_eprintln(USAGE_MODULE "disable");
     os_eprintln(USAGE_MODULE "clear");

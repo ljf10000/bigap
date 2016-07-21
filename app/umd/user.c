@@ -1081,7 +1081,7 @@ juser_online(struct um_user *user, int type)
     
     time = __online_uptime(user, type);
     if (time) {
-        jobj_add_string(obj, "uptime", os_fulltime_string(&time));
+        jobj_add_string(obj, "uptime", os_fulltime_string(true, &time));
     }
 
     time = __online_downtime(user, type);

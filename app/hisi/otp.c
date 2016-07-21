@@ -84,9 +84,9 @@ cmd_otp_bcookie_write(int argc, char *argv[])
 static int
 otp_usage(void)
 {
-#define USAGE_MODULE    __THIS_APPNAME " otp"
-    os_eprintln(__THIS_APPNAME " custom  show");
-    os_eprintln(__THIS_APPNAME " private show");
+#define USAGE_MODULE    __THIS_APPNAME " otp "
+    os_eprintln(__THIS_APPNAME "custom  show");
+    os_eprintln(__THIS_APPNAME "private show");
 #undef USAGE_MODULE
 
     return -EFORMAT;

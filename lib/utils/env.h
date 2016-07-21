@@ -125,7 +125,11 @@ env_number_init(env_number_t *env)
 #define ENV_PASSWORD    "__ENV_PASSWORD__"  // dial
 #define ENV_TELEPHONE   "__ENV_TELEPHONE__" // dial
 #define ENV_APN         "__ENV_APN__"       // dial
+#define ENV_TRY         "__ENV_TRY__"       // dial
 #define ENV_SCRIPT      "__ENV_SCRIPT__"
+#define ENV_STANTARD    "__ENV_STANTARD__"  // voltage
+#define ENV_LOW         "__ENV_LOW__"       // voltage
+#define ENV_HIGH        "__ENV_HIGH__"      // voltage
 
 typedef struct {
     char *timeout;
@@ -143,7 +147,11 @@ typedef struct {
     char *password;
     char *telephone;
     char *apn;
+    char *try;
     char *script;
+    char *stantard;
+    char *low;
+    char *high;
 } env_cache_t;
 /******************************************************************************/
 #endif /* __ENV_H_9f26434e76294326b152b1e81f17fb31__ */
