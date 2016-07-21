@@ -262,58 +262,58 @@ __jlog_server(void)
 
 static inline int
 __jvlogger(
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line, 
     uint32 PRI, 
-    char *fmt, 
+    const char *fmt, 
     va_list args
 );
 
 static inline int
 __dvlogger(
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line, 
     uint32 PRI, 
-    char *fmt, 
+    const char *fmt, 
     va_list args
 );
 
 static inline int
 __jlogger(
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line, 
     uint32 PRI, 
-    char *fmt, 
+    const char *fmt, 
     ...
 );
 
 static inline int
 __dlogger(
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line, 
     uint32 PRI, 
-    char *fmt, 
+    const char *fmt, 
     ...
 );
 
 static inline int
 __clogger(
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line,
     uint32 PRI,
     char *json
@@ -574,10 +574,10 @@ __clogger(
 static inline jobj_t
 __jlog_add_header(
     jobj_t obj, 
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line, 
     uint32 PRI
 )
@@ -813,11 +813,11 @@ static inline int
 __jvlogger(
     char *app, 
     char *sub, 
-    char *file, 
-    char *func, 
+    const char *file, 
+    const char *func, 
     uint32 line, 
     uint32 PRI, 
-    char *fmt, 
+    const char *fmt, 
     va_list args
 )
 {
@@ -847,13 +847,13 @@ error:
 */
 static inline int
 __dvlogger(
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line, 
     uint32 PRI, 
-    char *fmt, 
+    const char *fmt, 
     va_list args
 )
 {
@@ -880,13 +880,13 @@ error:
 
 static inline int
 __jlogger(
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line, 
     uint32 PRI, 
-    char *fmt, 
+    const char *fmt, 
     ...
 )
 {
@@ -902,13 +902,13 @@ __jlogger(
 
 static inline int
 __dlogger(
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line, 
     uint32 PRI, 
-    char *fmt, 
+    const char *fmt, 
     ...
 )
 {
@@ -927,10 +927,10 @@ __dlogger(
 */
 static inline int
 __clogger(
-    char *app, 
-    char *sub, 
-    char *file, 
-    char *func, 
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
     uint32 line,
     uint32 PRI,
     char *json
