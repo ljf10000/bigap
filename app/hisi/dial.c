@@ -221,10 +221,11 @@ static int
 dial_connect(void)
 {
     int i, err = 0;
-    
-    if (NULL==dial.env.user     ||
-        NULL==dial.env.password ||
-        NULL==dial.env.telephone) {
+
+    /*
+    * user & password CAN empty
+    */
+    if (NULL==dial.env.telephone) {
         return -EFORMAT;
     }
 
