@@ -1,7 +1,7 @@
 .PHONY: all
 all:$(TARGET) install
 
-$(TARGET):gen $(OBJS)
+$(TARGET):endian gen $(OBJS)
 	$(dump_common_vars)
 	${CC} ${CFLAGS} ${__CFLAGS} ${LDFLAGS} ${__LDFLAGS} -o $(TARGET) $(OBJS) $(lib_depend)
 	@if [ -f "$(FILENO_NAME).key" ]; then \
@@ -19,8 +19,14 @@ pre:$(DEPS) $(PRES)
 	${CC} -E $(<) ${CFLAGS} ${__CFLAGS} $(INCS) >>$(@)
 
 gen:
-	@if [ -x $(GEN_SH) ]; then \
+	@if [[ -x $(GEN_SH) ]]; then \
 		./$(GEN_SH); \
+	fi
+endian:
+	@if [[ -x $(SCRIPT_PATH)/64 ]]; then \
+		pushd $(SCRIPT_PATH); \
+			./64.sh; \
+		popd; \
 	fi
 
 .PHONY: check
