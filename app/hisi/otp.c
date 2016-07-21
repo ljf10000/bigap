@@ -85,8 +85,8 @@ static int
 otp_usage(void)
 {
 #define USAGE_MODULE    __THIS_APPNAME " otp "
-    os_eprintln(__THIS_APPNAME "custom  show");
-    os_eprintln(__THIS_APPNAME "private show");
+    os_eprintln(USAGE_MODULE "custom  show");
+    os_eprintln(USAGE_MODULE "private show");
 #undef USAGE_MODULE
 
     return -EFORMAT;

@@ -324,10 +324,10 @@ static int
 dial_usage(void)
 {
 #define USAGE_MODULE    __THIS_APPNAME " dial "
-    os_eprintln(__THIS_APPNAME "test [test-command-list]");
+    os_eprintln(USAGE_MODULE "test [test-command-list]");
     os_eprintln(__tab " test-command:scan,init,getstatus,judgestatus,setapn,connect,getallop,getcurop,getapn,getqua,auto");
 
-    os_eprintln(__THIS_APPNAME "auto");
+    os_eprintln(USAGE_MODULE "auto");
     os_eprintln(__tab " auto==test-command: scan,init,getstatus,judgestatus,setapn,connect");
 #undef USAGE_MODULE
 

@@ -229,7 +229,7 @@ static int
 voltage_usage(void)
 {
 #define USAGE_MODULE    __THIS_APPNAME " voltage "
-    os_eprintln(__THIS_APPNAME "monitor");
+    os_eprintln(USAGE_MODULE "monitor");
 #undef USAGE_MODULE
 
     return -EFORMAT;
