@@ -1,12 +1,9 @@
 #ifndef __3G_H_e8a1bc902ff14781a9446f382cf15382__
 #define __3G_H_e8a1bc902ff14781a9446f382cf15382__
 /******************************************************************************/
-#ifdef __APP__
-/******************************************************************************/
-#if IS_PRODUCT_LTEFI_MD
+#if defined(__APP__) && IS_PRODUCT_LTEFI_MD
 #include "hi_3g_intf.h"
-#endif
-
+/******************************************************************************/
 #define hisi_3g_init(card_pointer) \
     hisi_module_call_x(3G, InitCard, card_pointer)
 /*

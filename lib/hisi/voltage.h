@@ -1,7 +1,7 @@
 #ifndef __VOLTAGE_H_6f0fb08e77004591a90671891af4fc22__
 #define __VOLTAGE_H_6f0fb08e77004591a90671891af4fc22__
 /******************************************************************************/
-#ifdef __APP__
+#if defined(__APP__) && IS_PRODUCT_LTEFI_MD
 /******************************************************************************/
 #define VOLTAGE_DEV_ADDRESS         0xa4
 #define VOLTAGE_I2C_NUMBER          1

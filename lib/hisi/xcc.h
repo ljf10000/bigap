@@ -1,9 +1,9 @@
 #ifndef __XCC_H_072856b21d1641b4a926c32254d350d1__
 #define __XCC_H_072856b21d1641b4a926c32254d350d1__
 /******************************************************************************/
+#if defined(__APP__) && IS_PRODUCT_LTEFI_MD
 #include "hisi/acc.h"
 #include "hisi/vcc.h"
-#ifdef __APP__
 /******************************************************************************/
 #define XCC_OPEN            1
 #define XCC_CLOSE           0

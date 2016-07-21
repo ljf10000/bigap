@@ -1,12 +1,9 @@
 #ifndef __I2C_H_3cdd1f6874ff48afb679ccdf4053853f__
 #define __I2C_H_3cdd1f6874ff48afb679ccdf4053853f__
 /******************************************************************************/
-#ifdef __APP__
-/******************************************************************************/
-#if IS_PRODUCT_LTEFI_MD
+#if defined(__APP__) && IS_PRODUCT_LTEFI_MD
 #include "hi_unf_i2c.h"
-#endif
-
+/******************************************************************************/
 static inline int hisi_i2c_init(void)   { return hisi_unf_call_0(I2C, Init); }
 static inline int hisi_i2c_fini(void)   { return hisi_unf_call_0(I2C, DeInit); }
 

@@ -1,12 +1,9 @@
 #ifndef __GPIO_H_4b6ed674420e47bd924bf348f1c637ba__
 #define __GPIO_H_4b6ed674420e47bd924bf348f1c637ba__
 /******************************************************************************/
-#ifdef __APP__
-/******************************************************************************/
-#if IS_PRODUCT_LTEFI_MD
+#if defined(__APP__) && IS_PRODUCT_LTEFI_MD
 #include "hi_unf_gpio.h"
-#endif
-
+/******************************************************************************/
 static inline int hisi_gpio_init(void)   { return hisi_unf_call_0(GPIO, Init); }
 static inline int hisi_gpio_fini(void)   { return hisi_unf_call_0(GPIO, DeInit); }
 

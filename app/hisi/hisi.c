@@ -17,6 +17,7 @@ OS_INITER;
 #include "vcc.c"
 #include "acc.c"
 #include "led.c"
+#include "voltage.c"
 /******************************************************************************/
 static cmd_multi_table_t multi[] = {
 #if IS_PRODUCT_LTEFI_MD
@@ -26,6 +27,7 @@ static cmd_multi_table_t multi[] = {
     CMD_MULTI_ENTRY("dial",     dial_main),
     CMD_MULTI_ENTRY("vcc",      vcc_main),
     CMD_MULTI_ENTRY("acc",      acc_main),
+    CMD_MULTI_ENTRY("voltage",  voltage_main),
 #endif
 
 #if (IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)

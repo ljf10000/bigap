@@ -1,11 +1,9 @@
 #ifndef __SYS_H_1f53644f3fdc49a6a811fa6a0c591b1f__
 #define __SYS_H_1f53644f3fdc49a6a811fa6a0c591b1f__
 /******************************************************************************/
-#ifdef __APP__
+#if defined(__APP__) && IS_PRODUCT_LTEFI_MD
 /******************************************************************************/
-#if IS_PRODUCT_LTEFI_MD
 #include "hi_common.h"
-#endif
 
 static inline int hisi_sys_init(void)   { return hisi_module_call_0(SYS, Init); }
 static inline int hisi_sys_fini(void)   { return hisi_module_call_0(SYS, DeInit); }

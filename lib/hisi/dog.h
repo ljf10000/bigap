@@ -1,11 +1,9 @@
 #ifndef __DOG_H_e9817fb191904b3d906b62af9232e8e3__
 #define __DOG_H_e9817fb191904b3d906b62af9232e8e3__
 /******************************************************************************/
-#ifdef __APP__
-/******************************************************************************/
-#if IS_PRODUCT_LTEFI_MD
+#if defined(__APP__) && IS_PRODUCT_LTEFI_MD
 #include "hi_unf_wdg.h"
-#endif
+/******************************************************************************/
 
 static inline int hisi_dog_init(void)   { return hisi_unf_call_0(WDG, Init); }
 static inline int hisi_dog_fini(void)   { return hisi_unf_call_0(WDG, DeInit); }

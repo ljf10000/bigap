@@ -59,10 +59,10 @@
 #include "hisi/otp.h"
 #include "hisi/i2c.h"
 #include "hisi/gpio.h" // must after i2c.h
-#include "hisi/voltage.h"
 #include "hisi/3g.h"
 #include "hisi/xcc.h"
 #include "hisi/led.h"
+#include "hisi/voltage.h"
 /******************************************************************************/
 static inline int
 hisi_init(void)
@@ -74,10 +74,12 @@ hisi_init(void)
         return err;
     }
 
+#if IS_PRODUCT_LTEFI_MD
     err = hisi_sys_init();
     if (err<0) {
         return err;
     }
+#endif
 
     return 0;
 }
@@ -85,8 +87,10 @@ hisi_init(void)
 static inline int
 hisi_fini(void)
 {
+#if IS_PRODUCT_LTEFI_MD
     hisi_sys_fini();
-    
+#endif
+
     os_fini();
 
     return 0;
