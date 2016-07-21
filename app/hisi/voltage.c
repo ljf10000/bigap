@@ -3,29 +3,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #if IS_PRODUCT_LTEFI_MD
 
-#ifndef VOLTAGE_LOW
-#define VOLTAGE_LOW             2   // low offset
-#endif
-
-#ifndef VOLTAGE_HIGH
-#define VOLTAGE_HIGH            2   // high offset
-#endif
-
-#ifndef VOLTAGE_STANTARD
-#define VOLTAGE_STANTARD        24
-#endif
-
-#ifndef VOLTAGE_INTERVAL
-#define VOLTAGE_INTERVAL        5 // second
-#endif
-
-#ifndef VOLTAGE_SCRIPT
-#define VOLTAGE_SCRIPT          "/tmp/.script/voltage"
-#endif
-
-#ifndef VOLTAGE_FORMAT
-#define VOLTAGE_FORMAT          "%3.4f"
-#endif
 
 static struct {
     int times;
@@ -122,43 +99,19 @@ voltage_monitor(void)
 }
 
 static int
-cmd_voltage_monitor(int argc, char *argv[])
-{
-    (void)argc;
-    (void)argv;
-    
-    while(1) {
-        voltage_monitor();
-
-        sleep(voltage.interval);
-    }
-}
-
-static int
-cmd_voltage_show(int argc, char *argv[])
-{
-    float voltage = 0;
-    int err;
-    
-    (void)argc;
-    (void)argv;
-    
-    err = __get_voltage(&voltage);
-    if (err<0) {
-        return err;
-    }
-
-    os_println(VOLTAGE_FORMAT, voltage);
-
-    return 0;
-}
-
-static int
 init_voltage_env(void)
 {
     char *env;
     int val;
-    
+
+    hisi_gpio_t *gpio = gpio_getbyname(GPIO_IDX_SHUT_DELAY);
+    if (NULL==gpio) {
+        debug_error("no found gpio %s", GPIO_IDX_SHUT_DELAY);
+
+        return -ENOEXIST;
+    }
+    voltage.gpio = gpio;
+        
     env = env_gets(ENV_STANTARD, NULL);
     if (env) {
         val = os_atoi(env);
@@ -206,6 +159,70 @@ init_voltage_env(void)
     
         voltage.high = voltage.stantard + val;
     }
+
+    return 0;
+}
+
+static int
+init_voltage(void)
+{
+    int err;
+
+    hisi_gpio_t *gpio = gpio_getbyname(GPIO_IDX_SHUT_DELAY);
+    if (NULL==gpio) {
+        debug_error("no found gpio %s", GPIO_IDX_SHUT_DELAY);
+
+        return -ENOEXIST;
+    }
+    voltage.gpio = gpio;
+
+    err = init_voltage_env();
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
+}
+
+static int
+cmd_voltage_monitor(int argc, char *argv[])
+{
+    int err;
+    
+    (void)argc;
+    (void)argv;
+
+    err = init_voltage();
+    if (err<0) {
+        return err;
+    }
+    
+    while(1) {
+        voltage_monitor();
+
+        sleep(voltage.interval);
+    }
+
+    return 0;
+}
+
+static int
+cmd_voltage_show(int argc, char *argv[])
+{
+    float voltage = 0;
+    int err;
+    
+    (void)argc;
+    (void)argv;
+    
+    err = __get_voltage(&voltage);
+    if (err<0) {
+        return err;
+    }
+
+    os_println(VOLTAGE_FORMAT, voltage);
+
+    return 0;
 }
 
 static int

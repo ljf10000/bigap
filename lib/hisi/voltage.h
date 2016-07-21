@@ -3,7 +3,6 @@
 /******************************************************************************/
 #ifdef __APP__
 /******************************************************************************/
-
 #define VOLTAGE_DEV_ADDRESS         0xa4
 #define VOLTAGE_I2C_NUMBER          1
 #define VOLTAGE_REG_ADDRESS         0
@@ -45,6 +44,30 @@ get_voltage(float *voltage)
 {
     return os_call(hisi_i2c_init, hisi_i2c_fini, __get_voltage, voltage);
 }
+/******************************************************************************/
+#ifndef VOLTAGE_LOW
+#define VOLTAGE_LOW             2   // low offset
+#endif
+
+#ifndef VOLTAGE_HIGH
+#define VOLTAGE_HIGH            2   // high offset
+#endif
+
+#ifndef VOLTAGE_STANTARD
+#define VOLTAGE_STANTARD        24
+#endif
+
+#ifndef VOLTAGE_INTERVAL
+#define VOLTAGE_INTERVAL        5 // second
+#endif
+
+#ifndef VOLTAGE_SCRIPT
+#define VOLTAGE_SCRIPT          "/tmp/.script/voltage"
+#endif
+
+#ifndef VOLTAGE_FORMAT
+#define VOLTAGE_FORMAT          "%3.4f"
+#endif
 /******************************************************************************/
 #endif
 #endif /* __VOLTAGE_H_6f0fb08e77004591a90671891af4fc22__ */
