@@ -93,6 +93,8 @@ __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])
 {
     int i;
 
+    __cli_argv_dump(os_println, argc, argv);
+    
     if (argc<2) {
         goto help;
     }
