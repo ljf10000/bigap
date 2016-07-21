@@ -194,6 +194,18 @@ init_voltage_env(void)
     
         voltage.high = voltage.stantard + val;
     }
+    
+    env = env_gets(ENV_LOG, NULL);
+    if (env) {
+        val = os_atoi(env);
+        if (val <= 0) {
+            debug_error("invalid " ENV_HIGH ":%s", env);
+    
+            return -EBADENV;
+        }
+    
+        voltage.high = voltage.stantard + val;
+    }
 }
 
 static int

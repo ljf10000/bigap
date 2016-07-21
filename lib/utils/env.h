@@ -130,6 +130,7 @@ env_number_init(env_number_t *env)
 #define ENV_STANTARD    "__ENV_STANTARD__"  // voltage
 #define ENV_LOW         "__ENV_LOW__"       // voltage
 #define ENV_HIGH        "__ENV_HIGH__"      // voltage
+#define ENV_LOG         "__ENV_LOG__"       // dial
 
 typedef struct {
     char *timeout;
