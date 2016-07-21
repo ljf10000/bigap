@@ -683,7 +683,7 @@ error:
 #define use_jlog_bind       0
 
 static inline int
-__jlog_socket(char *app, char *sub, int family)
+__jlog_socket(const char *app, const char *sub, int family)
 {
     int fd, err, addrlen;
     
