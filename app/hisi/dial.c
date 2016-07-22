@@ -235,6 +235,10 @@ dial_connect(void)
         if (0==err) {
             return 0;
         }
+
+        if (dial.interval) {
+            sleep(dial.interval);
+        }
     }
     
     return err;

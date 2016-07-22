@@ -153,6 +153,7 @@ typedef struct {
     char *stantard;
     char *low;
     char *high;
-} env_cache_t;
+} 
+env_cache_t;
 /******************************************************************************/
 #endif /* __ENV_H_9f26434e76294326b152b1e81f17fb31__ */

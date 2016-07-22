@@ -16,7 +16,7 @@
 #endif
 
 #ifndef ACC_SCRIPT
-#define ACC_SCRIPT          "/tmp/.script/acc"
+#define ACC_SCRIPT          "/tmp/.script/acc.cb"
 #endif
 
 #ifndef ACC_FILE_STATUS

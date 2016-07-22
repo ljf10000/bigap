@@ -43,14 +43,6 @@
 #define SM_TIMER                    1 /* second */
 #endif
 
-#ifndef SCRIPT_SM_GETPID
-#ifdef __PC__
-#   define SCRIPT_SM_GETPID         "./.sm.getpid"
-#else
-#   define SCRIPT_SM_GETPID         "/usr/sbin/.sm.getpid"
-#endif
-#endif
-
 #ifndef SCRIPT_SM_INIT
 #ifdef __PC__
 #   define SCRIPT_SM_INIT           "./.sm.init"
