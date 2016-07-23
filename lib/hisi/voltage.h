@@ -62,7 +62,7 @@ get_voltage(float *voltage)
 #endif
 
 #ifndef VOLTAGE_SCRIPT
-#define VOLTAGE_SCRIPT          "/tmp/cb/voltage.cb"
+#define VOLTAGE_SCRIPT          "/etc/voltage/voltage.cb"
 #endif
 
 #ifndef VOLTAGE_FORMAT

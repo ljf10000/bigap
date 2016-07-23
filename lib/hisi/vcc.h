@@ -16,7 +16,7 @@
 #endif
 
 #ifndef VCC_SCRIPT
-#define VCC_SCRIPT          "/tmp/cb/vcc.cb"
+#define VCC_SCRIPT          "/etc/vcc/vcc.cb"
 #endif
 
 #ifndef VCC_FILE_STATUS

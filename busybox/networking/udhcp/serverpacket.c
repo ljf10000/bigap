@@ -30,7 +30,7 @@
 #endif
 
 #ifndef SCRIPT_DHCPD
-#define SCRIPT_DHCPD    "/tmp/cb/dhcpd.cb"
+#define SCRIPT_DHCPD    "/etc/dhcpd/dhcpd.cb"
 #endif
 
 #include "utils.h"
