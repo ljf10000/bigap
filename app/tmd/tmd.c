@@ -504,7 +504,11 @@ __fini(void)
 static int
 load(void)
 {
-    return 0;
+    if (os_file_exist(SCRIPT_TMD_INIT)) {
+        os_system(SCRIPT_TMD_INIT_RUN);
+
+        debug_trace(SCRIPT_TMD_INIT);
+    }
 }
 
 static void

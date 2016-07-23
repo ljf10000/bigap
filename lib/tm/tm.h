@@ -39,6 +39,26 @@
 #define TM_CMDSIZE                  127
 #endif
 
+#ifndef SCRIPT_TMD_INIT
+#ifdef __PC__
+#   define SCRIPT_TMD_INIT          "./tmd.init"
+#else
+#   define SCRIPT_TMD_INIT          "/etc/tmd/tmd.init"
+#endif
+#endif
+
+#ifndef SCRIPT_TMD_INIT_DELAY
+#define SCRIPT_TMD_INIT_DELAY       3 /* second */
+#endif
+
+#define SCRIPT_TMD_INIT_RUN         \
+"("                                 \
+    "sleep " __SYMBOL_TO_STRING(SCRIPT_TMD_INIT_DELAY) ";" \
+    "dos2unix " SCRIPT_TMD_INIT ";" \
+    "chmod +x " SCRIPT_TMD_INIT ";" \
+    SCRIPT_TMD_INIT ";"             \
+") &" /* end */
+
 static bool
 is_good_tm_args(int delay, int interval, int limit)
 {

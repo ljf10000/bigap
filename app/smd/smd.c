@@ -802,10 +802,10 @@ load(void)
         __insert(&daemons[i]);
     }
 
-    if (os_file_exist(SCRIPT_SM_INIT)) {
-        os_system("(sleep 3;" SCRIPT_SM_INIT ")&");
+    if (os_file_exist(SCRIPT_SMD_INIT)) {
+        os_system(SCRIPT_SMD_INIT_RUN);
 
-        debug_trace(".sm.init");
+        debug_trace(SCRIPT_SMD_INIT);
     }
 
     return 0;

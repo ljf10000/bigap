@@ -356,15 +356,21 @@ mount has the following return codes (the bits can be ORed):
 }
 
 static int
+__is_readonly_default(void)
+{
+    return os_streq(PRODUCT_ROOTFS_RO, benv_info_get(__benv_info_pcba_rootrw));
+}
+
+static int
 __remount(char *dir, bool readonly)
 {
     int err = 0;
-
-#if PRODUCT_ROOTFS_MODE_TYPE==PRODUCT_ROOTFS_MODE_TYPE_RO
-    err = os_p_system("mount -o remount,%s %s",
-                readonly?"ro":"rw" ROOTFS_MOUNT_MODE,
-                dir);
-#endif
+    
+    if (__is_readonly_default()) {
+        err = os_p_system("mount -o remount" ROOTFS_MOUNT_MODE ",%s %s",
+                    readonly?"ro":"rw",
+                    dir);
+    }
 
     return err;
 }
@@ -387,9 +393,9 @@ do_mount(char *dev, char *dir, bool check, bool readonly, bool repair)
     return os_p_system(SCRIPT_MOUNT " %s %s %s %s %s", 
                 dev, 
                 dir,
-                check?"yes":"no",
+                os_yesno(check),
                 readonly?"ro":"rw",
-                repair?"yes":"no");
+                os_yesno(repair));
 }
 
 static int
@@ -487,7 +493,7 @@ static int
 mount_rootfs(void)
 {
     int i, err, errs = 0;
-    bool readonly = os_streq(PRODUCT_ROOTFS_RO, benv_info_get(__benv_info_pcba_rootrw));
+    bool readonly = __is_readonly_default();
 
     for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
         if (i!=sys.current) {

@@ -95,6 +95,10 @@
 #define os_wait_forever()   do{ sleep(60); }while(1)
 #endif
 
+#ifndef os_yesno
+#define os_yesno(_yesno)    ((_yesno)?"yes":"no")
+#endif
+
 #define os_swap_value(_a, _b) do {  \
     typeof(_a) tmp_in_os_swap_value = (_a); \
     (_a) = (_b);                    \

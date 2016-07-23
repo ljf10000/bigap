@@ -43,13 +43,25 @@
 #define SM_TIMER                    1 /* second */
 #endif
 
-#ifndef SCRIPT_SM_INIT
+#ifndef SCRIPT_SMD_INIT
 #ifdef __PC__
-#   define SCRIPT_SM_INIT           "./.sm.init"
+#   define SCRIPT_SMD_INIT          "./smd.init"
 #else
-#   define SCRIPT_SM_INIT           "/tmp/.sm.init"
+#   define SCRIPT_SMD_INIT          "/etc/smd/smd.init"
 #endif
 #endif
+
+#ifndef SCRIPT_SMD_INIT_DELAY
+#define SCRIPT_SMD_INIT_DELAY       3 /* second */
+#endif
+
+#define SCRIPT_SMD_INIT_RUN         \
+"("                                 \
+    "sleep " __SYMBOL_TO_STRING(SCRIPT_SMD_INIT_DELAY) ";" \
+    "dos2unix " SCRIPT_SMD_INIT ";" \
+    "chmod +x " SCRIPT_SMD_INIT ";" \
+    SCRIPT_SMD_INIT ";"             \
+") &" /* end */
 
 #define __XLIST_SM(_)               \
     _(SM_STATE_INIT,  0, "init"),   \
