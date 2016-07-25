@@ -174,7 +174,7 @@ init_voltage(void)
 
         return -ENOEXIST;
     }
-    voltage.gpio = gpio;
+    voltage.gpio_delay = gpio;
 
     err = init_voltage_env();
     if (err<0) {
