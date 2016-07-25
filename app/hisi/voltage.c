@@ -104,14 +104,6 @@ init_voltage_env(void)
     char *env;
     int val;
 
-    hisi_gpio_t *gpio = gpio_getbyname(GPIO_IDX_SHUT_DELAY);
-    if (NULL==gpio) {
-        debug_error("no found gpio %s", GPIO_IDX_SHUT_DELAY);
-
-        return -ENOEXIST;
-    }
-    voltage.gpio = gpio;
-        
     env = env_gets(ENV_STANTARD, NULL);
     if (env) {
         val = os_atoi(env);
