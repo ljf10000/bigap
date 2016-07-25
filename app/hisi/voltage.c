@@ -42,7 +42,7 @@ voltage_script(char *action, char *time)
             voltage.time,
             time,
             voltage.current,
-            voltage.low
+            voltage.low,
             voltage.high);
     }
 }
