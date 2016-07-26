@@ -108,7 +108,7 @@ static struct init_action actions[] = {
     action_entry("/bin/busybox bck",            ONCE | STATICACT),
     action_entry("/bin/busybox jlogd",  RESPAWN | STATICACT),
     action_entry("/etc/rtsync/rtsyncd",         RESPAWN | STATICACT),
-#ifndef NO_3G
+#if 0
     action_entry("/usr/sbin/get_3g_state.sh",   RESPAWN | STATICACT),
     action_entry("/usr/sbin/3g_connect.sh",     RESPAWN | STATICACT),
 #endif
