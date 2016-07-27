@@ -933,11 +933,14 @@ int init_main(int argc UNUSED_PARAM, char **argv)
 
 	/* Make sure environs is set to something sane */
 	putenv((char *) "HOME=/");
-#ifdef BIGAP
+#if 0
     putenv("PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin");
-#else
-	putenv((char *) bb_PATH_root_path);
 #endif
+	putenv((char *) bb_PATH_root_path);
+	printf(bb_PATH_root_path "\n");
+	printf(bb_PATH_root_path "\n");
+	printf(bb_PATH_root_path "\n");
+	
 	putenv((char *) "SHELL=/bin/sh");
 	putenv((char *) "USER=root"); /* needed? why? */
 #ifdef BIGAP
