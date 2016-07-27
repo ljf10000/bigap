@@ -166,6 +166,57 @@ define Package/smc/compile
 		#end
 endef
 ####################################################################
+define Package/tmd
+  SECTION:=apps
+  CATEGORY:=bigap
+  TITLE:=SuperWalle Basic App
+  DEPENDS:=+jlogger
+endef
+
+define Package/tmd/install
+	$(Package/bigap/install/common)
+
+	$(INSTALL_BIN) $(PKG_APP_BUILD_DIR)/tmd/tmd $(1)/usr/bin
+	$(INSTALL_DATA) $(PKG_APP_BUILD_DIR)/tmd/tmd.key $(1)/$(AK_PATH)/
+endef
+
+define Package/tmd/compile
+	$(MAKE) -C $(PKG_APP_BUILD_DIR)/tmd \
+		CC="$(TARGET_CC)" \
+		CFLAGS=" \
+			$(TARGET_CFLAGS) \
+			$(TARGET_CPPFLAGS) \
+			" \
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		OS_TYPE=openwrt \
+		#end
+endef
+####################################################################
+define Package/tmc
+  SECTION:=apps
+  CATEGORY:=bigap
+  TITLE:=SuperWalle Basic App
+  DEPENDS:=+smd
+endef
+
+define Package/tmc/install
+	$(Package/bigap/install/common)
+
+	$(INSTALL_BIN) $(PKG_APP_BUILD_DIR)/tmc/tmc $(1)/usr/bin
+endef
+
+define Package/tmc/compile
+	$(MAKE) -C $(PKG_APP_BUILD_DIR)/tmc \
+		CC="$(TARGET_CC)" \
+		CFLAGS=" \
+			$(TARGET_CFLAGS) \
+			$(TARGET_CPPFLAGS) \
+			" \
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		OS_TYPE=openwrt \
+		#end
+endef
+####################################################################
 define Package/duktape
   SECTION:=apps
   CATEGORY:=bigap
@@ -216,4 +267,6 @@ $(eval $(call BuildPackage,jlogd))
 $(eval $(call BuildPackage,jlogger))
 $(eval $(call BuildPackage,smd))
 $(eval $(call BuildPackage,smc))
+$(eval $(call BuildPackage,tmd))
+$(eval $(call BuildPackage,tmc))
 $(eval $(call BuildPackage,duktape))
