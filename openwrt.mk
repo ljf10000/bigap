@@ -196,7 +196,7 @@ define Package/tmc
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=SuperWalle Basic App
-  DEPENDS:=+smd
+  DEPENDS:=+tmd
 endef
 
 define Package/tmc/install
@@ -259,6 +259,8 @@ define Build/Compile
 	$(Package/jlogger/compile)
 	$(Package/smd/compile)
 	$(Package/smc/compile)
+	$(Package/tmd/compile)
+	$(Package/tmc/compile)
 	$(Package/duktape/compile)
 endef
 ####################################################################
