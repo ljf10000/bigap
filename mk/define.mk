@@ -29,7 +29,7 @@ ifndef MK_DEFINE
 		-Wno-unused \
 		-fmerge-all-constants \
 		#end
-	export __LDFLAGS+=-L$(TOOL_PATH)/lib
+#	export __LDFLAGS+=-L$(TOOL_PATH)/lib
 	
 	export EXTRA_CFLAGS+=
 	export CC=gcc -Wall -rdynamic
