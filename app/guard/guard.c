@@ -231,6 +231,9 @@ static void
 __prepare(void)
 {
     benv_open();
+    /*
+    * just load mark/info(named)
+    */
     benv_load_mark();
     benv_load_info_named();
     benv_close();

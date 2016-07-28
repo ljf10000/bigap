@@ -1444,7 +1444,7 @@ __benv_check_string(benv_ops_t * ops, char *value)
         if (os_strlen(value) < size) {
             return 0;
         } else {
-            debug_error("max string length %d", size);
+            debug_error("max string length %d", size-1);
             
             return -EFORMAT;
         }
@@ -1744,7 +1744,7 @@ enum {
     __benv_info_oem_version     = 19,
 
     __benv_info_pcba_rootrw     = 20,
-    
+
     ____benv_info_idx_max,
     __benv_info_idx_max             = ____benv_info_idx_max - 1,
     __benv_info_block_named_count   = (1 + __benv_info_idx_max/BENV_INFO_COUNT_PER_BLOCK),

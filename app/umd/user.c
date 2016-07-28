@@ -108,7 +108,7 @@ __cb(struct um_user *user, char *action, int (*cb)(jobj_t obj))
 {
     static char json[1+OS_FILE_LEN];
     int err = 0;
-    
+
     jobj_t juser = um_juser(user);
     if (NULL==juser) {
         return -ENOEXIST;
