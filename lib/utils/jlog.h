@@ -137,16 +137,10 @@
 #define	LOG_MAKEPRI(fac, pri)	    (((fac) << 3) | (pri))
 #endif
 
-
-#define LOG_LEVELMASK               __ak_debug_all
-/*
-* get private from PRI
-*/
-#define LOG_FAC(_PRI)               ((_PRI) >> 3)
 /*
 * get level from PRI
 */
-#define LOG_LEVEL(_PRI)             (LOG_FAC(_PRI) & LOG_LEVELMASK)
+#define LOG_LEVEL(_PRI)             (((_PRI) >> 3) & __ak_debug_all)
 /*
 * make PRI by level & pri
 */
