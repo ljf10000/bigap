@@ -174,8 +174,6 @@ __ak_debug_getname(uint32 level)
 {
     int idx = os_bitshift(level);
     os_println("level=0x%x idx=%d", level, idx);
-
-    
     return ak_DEBUG_string(idx);
 }
 

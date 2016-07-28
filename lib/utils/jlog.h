@@ -178,6 +178,7 @@ __jlog_header(
     }
     if (level) {
         os_eprintf(",level:%s", __ak_debug_getname(level));
+        os_println("PRI=0x%x", PRI);
     }
     os_eprintf("] ");
 }
@@ -191,7 +192,6 @@ __jlog_header(
 #define __jlog_printf(_app, _sub, _file, _func, _line, _PRI, _fmt, _args...) ({ \
     __jlog_header(_app, _sub, _file, _func, _line, _PRI); \
     os_eprintln(__tab _fmt, ##_args); \
-    os_println("_PRI=0x%x", _PRI); \
     0;                          \
 })  /* end */
 
@@ -643,6 +643,7 @@ __jlog_add_header(
     }
 
     if (level) {
+        os_println("PRI=0x%x", PRI);
         char *name = __ak_debug_getname(level);
         
         err = jobj_add_string(header, JLOG_KEY_LEVEL, name);
