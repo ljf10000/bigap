@@ -50,7 +50,7 @@ handle_enter(char *args)
     if (NULL==obj) {
         debug_trace("bad json %s", json);
 
-        return -EFORMAT;
+        return -EBADJSON;
     }
 
     struct um_user *user = um_user_enter(os_mac(mac), obj);
@@ -149,7 +149,7 @@ handle_auth(char *args)
     if (NULL==obj) {
         debug_trace("bad json %s", json);
 
-        return -EFORMAT;
+        return -EBADJSON;
     }
 
     struct um_user *user = um_user_auth(os_mac(mac), groupid, obj);

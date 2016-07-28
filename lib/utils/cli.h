@@ -258,12 +258,15 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     if (is_abstract_sockaddr(pclient)) {
         set_abstract_sockaddr_len(pclient, addrlen);
 
-        debug_trace("recv from:%s", get_abstract_path(pclient));
+        debug_cli("recv request from:%s", get_abstract_path(pclient));
     }
+    debug_cli("recv request[%d]:%s", err, buf);
     
     int reply(int err)
     {
         cli_buffer_err = err;
+
+        debug_cli("send reply[%d]:%s", cli_buffer_size, (char *)__this_cli_buffer());
         
         return cli_sendto(fd, (sockaddr_t *)pclient, addrlen);
     }
@@ -308,13 +311,14 @@ __cli_c_handle(
     if (err<0) { /* yes, <0 */
         goto error;
     }
-
+    debug_cli("send repuest[%d]:%s", len, buf);
+    
     if (syn) {
         err = cli_recv(fd, timeout);
         if (err<0) { /* yes, <0 */
             goto error;
         }
-
+        
         if (0==cli_buffer_err && cli_buffer_len && is_good_str(cli_buffer_buf)) {
             os_printf("%s", cli_buffer_buf);
         }

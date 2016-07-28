@@ -184,7 +184,7 @@ jadd(jlog_server_t *server)
     
     obj = jobj(RX);
     if (NULL==obj) {
-        len = -EFORMAT; goto error;
+        len = -EBADJSON; goto error;
     }
 
     header = jobj_get(obj, JLOG_KEY_HEADER);

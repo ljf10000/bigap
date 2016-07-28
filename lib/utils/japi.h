@@ -398,7 +398,7 @@ jobj_add_json(jobj_t obj, char *key, char *value)
 
     new = jobj(value);
     if (NULL==new) {
-        return -EFORMAT;
+        return -EBADJSON;
     }
 
     /*
