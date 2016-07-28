@@ -1,13 +1,11 @@
 #!/bin/bash
 
 main() {
-	local flag="$1"; flag=${flag:-error}
+	local app="$1"
+	local flag="$2"; flag=${flag:-error}
 	local path="/tmp/$(whoami)/ak"
-
-	echo "debug ${flag}" > ${path}/jlogd.key
-	echo "debug ${flag}" > ${path}/tmd.key
-	echo "debug ${flag}" > ${path}/smd.key
-	echo "debug ${flag}" > ${path}/umd.key
+	
+	echo "debug ${flag}" > ${path}/${app}.key
 
 	pushd app/ak &> /dev/null
 	./ak reload
