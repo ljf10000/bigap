@@ -25,28 +25,28 @@
 #endif
 #endif
 
-#ifndef JLOG_PATH
-#ifdef __PC__
-#   define JLOG_PATH            "/tmp/jlog"
-#else
-#   define JLOG_PATH            "/tmp/log"
+#ifndef JLOG_LOCAL_PATH
+#define JLOG_LOCAL_PATH         "/tmp/log/jlog"
 #endif
+
+#ifndef JLOG_REMOTE_PATH
+#define JLOG_REMOTE_PATH        "/tmp/tftp/log/jlog"
 #endif
 
 #ifndef JLOG_FILE_LOCAL
-#define JLOG_FILE_LOCAL         JLOG_PATH "/md.log"
+#define JLOG_FILE_LOCAL         JLOG_LOCAL_PATH "/md.log"
 #endif
 
 #ifndef JLOG_CACHE_LOCAL
-#define JLOG_CACHE_LOCAL        JLOG_PATH "/.md.log"
+#define JLOG_CACHE_LOCAL        JLOG_LOCAL_PATH "/.md.log"
 #endif
 
 #ifndef JLOG_FILE_REMOTE
-#define JLOG_FILE_REMOTE        JLOG_PATH "/ap.log"
+#define JLOG_FILE_REMOTE        JLOG_REMOTE_PATH "/ap.log"
 #endif
 
 #ifndef JLOG_CACHE_REMOTE
-#define JLOG_CACHE_REMOTE       JLOG_PATH "/.ap.log"
+#define JLOG_CACHE_REMOTE       JLOG_REMOTE_PATH "/.ap.log"
 #endif
 
 #ifndef JLOG_IP

@@ -16,8 +16,8 @@ OS_INITER;
 #   define SCRIPT_CUT       "./jlogcut"
 #   define SCRIPT_PUSH      "./jlogpush"
 #else
-#   define SCRIPT_CUT       "jlogcut"
-#   define SCRIPT_PUSH      "jlogpush"
+#   define SCRIPT_CUT       "/etc/jlog/jlogcut"
+#   define SCRIPT_PUSH      "/etc/jlog/jlogpush"
 #endif
 
 static char RX[1 + JLOG_BUFSIZE];
@@ -476,7 +476,7 @@ __main(int argc, char *argv[])
 {
     int err;
 
-    __os_system("mkdir -p " JLOG_PATH);
+    __os_system("mkdir -p " JLOG_LOCAL_PATH " " JLOG_REMOTE_PATH);
     
     err = init_env();
         debug_trace_error(err, "init env");
