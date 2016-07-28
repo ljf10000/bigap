@@ -1,9 +1,8 @@
 #!/bin/bash
 
 main() {
-	local flag="error"
+	local flag="$1"; flag=${flag:-error}
 	local path="/tmp/$(whoami)/ak"
-#	local flag="*"
 
 	echo "debug ${flag}" > ${path}/jlogd.key
 	echo "debug ${flag}" > ${path}/tmd.key

@@ -1,5 +1,5 @@
 #!/bin/bash
 
 pushd ../../ &> /dev/null
-./.reload
+./.reload "$@"
 popd &> /dev/null
