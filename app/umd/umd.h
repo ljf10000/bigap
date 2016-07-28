@@ -480,11 +480,18 @@ static inline void
 um_user_debug(char *tag, struct um_user *user, bool debug)
 {
     if (debug) {
+        os_println("before um_user_debug um_juser");
         jobj_t obj = um_juser(user);
-
+        os_println("after um_user_debug um_juser");
+        
+        os_println("before um_user_debug jdebug");
         jdebug("%o", tag, jobj_json(obj));
+        os_println("after um_user_debug jdebug");
 
+        os_println("before um_user_debug jobj_put");
         jobj_put(obj);
+        os_println("after um_user_debug jobj_put");
+        
     }
 }
 
