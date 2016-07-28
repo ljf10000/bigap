@@ -609,6 +609,7 @@ tm_fd_read(int fd)
     uint32 times = (err<0)?1:(uint32)timeout;
 
     debug_timeout("read timerfd %d times", times);
+    os_println("__ak_debug_timeout=0x%x", __ak_debug_timeout);
     
     return times;
 }
