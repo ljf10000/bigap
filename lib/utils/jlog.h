@@ -134,17 +134,18 @@
 #define	LOG_PRIMASK	0x07	/* mask to extract priority part (internal) */
 				/* extract priority */
 #define	LOG_PRI(p)	((p) & LOG_PRIMASK)
-#define	LOG_MAKEPRI(fac, pri)	    (((fac) << 3) | (pri))
 #endif
+
+#define	JLOG_MAKEPRI(fac, pri)	    (((fac) << 3) | (pri))
 
 /*
 * get level from PRI
 */
-#define LOG_LEVEL(_PRI)             (((_PRI) >> 3) & __ak_debug_all)
+#define JLOG_LEVEL(_PRI)            (((_PRI) >> 3) & __ak_debug_all)
 /*
 * make PRI by level & pri
 */
-#define LOG_DEBUGLEVEL(_level)      LOG_MAKEPRI(_level, LOG_DEBUG)
+#define JLOG_DEBUGLEVEL(_level)     JLOG_MAKEPRI(_level, LOG_DEBUG)
 
 static inline void
 __jlog_header(
@@ -155,7 +156,7 @@ __jlog_header(
     uint32 line,
     uint32 PRI)
 {
-    int level = LOG_LEVEL(PRI);
+    int level = JLOG_LEVEL(PRI);
     
     os_eprintf("[app:%s", app);
     if (sub) {
@@ -384,13 +385,13 @@ __clogger(
 
 #define jvdlogger(_logger, _level, _fmt, _args)  do{ \
     if (__is_ak_debug(_level)) {                    \
-        _logger(NULL, LOG_DEBUGLEVEL(_level), _fmt, _args);  \
+        _logger(NULL, JLOG_DEBUGLEVEL(_level), _fmt, _args);  \
     }                                               \
 }while(0)
 
 #define jdlogger(_logger, _level, _fmt, _args...)  do{ \
     if (__is_ak_debug(_level)) {                  \
-        _logger(NULL, LOG_DEBUGLEVEL(_level), _fmt, ##_args); \
+        _logger(NULL, JLOG_DEBUGLEVEL(_level), _fmt, ##_args); \
     }                                               \
 }while(0)
 
@@ -578,7 +579,7 @@ __jlog_add_header(
 {
     jobj_t header = NULL;
     int pri     = LOG_PRI(PRI);
-    int level   = LOG_LEVEL(PRI);
+    int level   = JLOG_LEVEL(PRI);
     int err;
 
     if (NULL==obj) {
@@ -751,7 +752,7 @@ __jlog(jobj_t obj, const char *app, const char *sub, uint32 PRI)
         return -ENOMEM;
     }
     
-    if (LOG_DEBUG==LOG_PRI(PRI) && __is_ak_debug(LOG_LEVEL(PRI))) {
+    if (LOG_DEBUG==LOG_PRI(PRI) && __is_ak_debug(JLOG_LEVEL(PRI))) {
         os_eprintln(__tab "%s", json);
     }
     
