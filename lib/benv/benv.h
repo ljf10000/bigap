@@ -77,7 +77,7 @@ benv_fsm_cmp(int a, int b)
     + sizeof(PRODUCT_VENDOR)        \
     + sizeof(PRODUCT_COMPANY)       \
     + sizeof(PRODUCT_PCBA_MODEL)    \
-    + sizeof(PRODUCT_MAX_VERSION_STRING) \
+    + 1+PRODUCT_VERSION_STRING_LEN  \
     + sizeof(__os_fulltime_format)  \
 )   /* end */
 
@@ -85,7 +85,7 @@ typedef struct {
     char vendor[sizeof(PRODUCT_VENDOR)];
     char company[sizeof(PRODUCT_COMPANY)];
     char model[sizeof(PRODUCT_PCBA_MODEL)];
-    char version[sizeof(PRODUCT_MAX_VERSION_STRING)];
+    char version[1+PRODUCT_VERSION_STRING_LEN];
     char compile[sizeof(__os_fulltime_format)];
     char pad[BENV_BLOCK_SIZE - BENV_COOKIE_SIZE];
 } benv_cookie_t; /* 512 */
@@ -104,6 +104,7 @@ __benv_cookie_show(benv_cookie_t *cookie)
     .vendor     = PRODUCT_VENDOR,       \
     .company    = PRODUCT_COMPANY,      \
     .model      = PRODUCT_PCBA_MODEL,   \
+    .version    = PRODUCT_MIN_VERSION_STRING, \
     .compile    = __os_fulltime_format, \
 }   /* end */
 
