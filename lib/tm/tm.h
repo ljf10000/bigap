@@ -54,7 +54,7 @@
 #define SCRIPT_TMD_INIT_RUN         \
 "("                                 \
     "sleep " __SYMBOL_TO_STRING(SCRIPT_TMD_INIT_DELAY) ";" \
-    "dos2unix " SCRIPT_TMD_INIT ";" \
+    "dos2unix " SCRIPT_TMD_INIT " &> /dev/null;" \
     "chmod +x " SCRIPT_TMD_INIT ";" \
     SCRIPT_TMD_INIT ";"             \
 ") &" /* end */

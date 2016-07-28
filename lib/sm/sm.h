@@ -58,7 +58,7 @@
 #define SCRIPT_SMD_INIT_RUN         \
 "("                                 \
     "sleep " __SYMBOL_TO_STRING(SCRIPT_SMD_INIT_DELAY) ";" \
-    "dos2unix " SCRIPT_SMD_INIT ";" \
+    "dos2unix " SCRIPT_SMD_INIT " &> /dev/null;" \
     "chmod +x " SCRIPT_SMD_INIT ";" \
     SCRIPT_SMD_INIT ";"             \
 ") &" /* end */
