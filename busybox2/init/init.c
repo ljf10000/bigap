@@ -946,6 +946,7 @@ int init_main(int argc UNUSED_PARAM, char **argv)
 #ifdef BIGAP
 	putenv((char *) "TZ=UTC-8");    /* timezone */
 	putenv((char *) "PEER=1.0.0.5");/* PEER is ap-board */
+	putenv((char *) "JPATH=/lib/js");
 #endif
 
 	if (argv[1])
