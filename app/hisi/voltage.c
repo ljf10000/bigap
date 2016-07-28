@@ -14,7 +14,7 @@ static struct {
     int high;       // high value
 
     char *script;
-    char time[sizeof(__os_fulltime_format)];
+    char time[1+FULLTIME_STRING_LEN];
     hisi_gpio_t *gpio_delay;
 } voltage = {
     .low        = VOLTAGE_STANTARD - VOLTAGE_LOW,
@@ -56,7 +56,7 @@ voltage_report(void)
 static void
 voltage_high(void)
 {
-    static char time[sizeof(__os_fulltime_format)];
+    static char time[1+FULLTIME_STRING_LEN];
 
     if (0==time[0]) {
         os_strcpy(time, os_fulltime_string_link(NULL));
@@ -68,7 +68,7 @@ voltage_high(void)
 static void
 voltage_low(void)
 {
-    static char time[sizeof(__os_fulltime_format)];
+    static char time[1+FULLTIME_STRING_LEN];
 
     gpio_write(voltage.gpio_delay, 0);
 

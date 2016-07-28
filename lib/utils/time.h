@@ -13,6 +13,8 @@
 #define __os_fulltime_ifs       "- :"
 #define __os_fulltime_ifs_link  "--:"
 
+enum { FULLTIME_STRING_LEN = sizeof(__os_fulltime_format) - 1 };
+
 #ifdef __APP__
 static inline struct tm *
 os_localtime(time_t *c)
@@ -47,7 +49,7 @@ os_gmtime(time_t *c)
 static inline char *
 __date_string(struct tm *tm, int ifs)
 {
-    static char current[sizeof(__os_fulltime_format)];
+    static char current[1+FULLTIME_STRING_LEN];
     
     os_saprintf(current, "%04d%c%02d%c%02d",
                 1900 + tm->tm_year, ifs, 1 + tm->tm_mon, ifs, tm->tm_mday);
@@ -64,7 +66,7 @@ os_date_string(time_t *t)
 static inline char *
 __time_string(struct tm *tm, int ifs)
 {
-    static char current[sizeof(__os_fulltime_format)];
+    static char current[1+FULLTIME_STRING_LEN];
     
     os_saprintf(current, "%02d%c%02d%c%02d",
                 tm->tm_hour, ifs, tm->tm_min, ifs, (61==tm->tm_sec)?59:tm->tm_sec);
@@ -81,7 +83,7 @@ os_time_string(time_t *t)
 static inline char *
 __fulltime_string(struct tm *tm, char ifs[3])
 {
-    static char current[sizeof(__os_fulltime_format)];
+    static char current[1+FULLTIME_STRING_LEN];
 
     os_saprintf(current, "%s%c%s",
                 __date_string(tm, ifs[0]),

@@ -78,7 +78,7 @@ benv_fsm_cmp(int a, int b)
     + sizeof(PRODUCT_COMPANY)       \
     + sizeof(PRODUCT_PCBA_MODEL)    \
     + 1+PRODUCT_VERSION_STRING_LEN  \
-    + sizeof(__os_fulltime_format)  \
+    + 1+FULLTIME_STRING_LEN         \
 )   /* end */
 
 typedef struct {
@@ -86,7 +86,7 @@ typedef struct {
     char company[sizeof(PRODUCT_COMPANY)];
     char model[sizeof(PRODUCT_PCBA_MODEL)];
     char version[1+PRODUCT_VERSION_STRING_LEN];
-    char compile[sizeof(__os_fulltime_format)];
+    char compile[1+FULLTIME_STRING_LEN];
     char pad[BENV_BLOCK_SIZE - BENV_COOKIE_SIZE];
 } benv_cookie_t; /* 512 */
 
