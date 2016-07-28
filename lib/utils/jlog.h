@@ -637,7 +637,7 @@ __jlog_add_header(
     }
 
     if (level) {
-        os_println("PRI=0x%x", PRI);
+        os_println("*PRI*=0x%x", PRI);
         char *name = __ak_debug_getname(level);
         
         err = jobj_add_string(header, JLOG_KEY_LEVEL, name);
