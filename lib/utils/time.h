@@ -7,13 +7,13 @@
 
 #define os_ms2tick(_ms, _tick)  (__os_align(_ms, _tick)/_tick)
 
-#ifdef __APP__
 #define __os_date_format        "1900-01-01"
 #define __os_time_format        "00:00:00"
 #define __os_fulltime_format    __os_date_format __space __os_time_format
 #define __os_fulltime_ifs       "- :"
 #define __os_fulltime_ifs_link  "--:"
 
+#ifdef __APP__
 static inline struct tm *
 os_localtime(time_t *c)
 {

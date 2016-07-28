@@ -77,37 +77,34 @@ benv_fsm_cmp(int a, int b)
     + sizeof(PRODUCT_VENDOR)        \
     + sizeof(PRODUCT_COMPANY)       \
     + sizeof(PRODUCT_PCBA_MODEL)    \
+    + sizeof(PRODUCT_MAX_VERSION_STRING) \
+    + sizeof(__os_fulltime_format)  \
 )   /* end */
 
 typedef struct {
-    struct {
-        char vendor[sizeof(PRODUCT_VENDOR)];
-        char company[sizeof(PRODUCT_COMPANY)];
-    } product;
-
-    struct {
-        char model[sizeof(PRODUCT_PCBA_MODEL)];
-    } pcba;
-
+    char vendor[sizeof(PRODUCT_VENDOR)];
+    char company[sizeof(PRODUCT_COMPANY)];
+    char model[sizeof(PRODUCT_PCBA_MODEL)];
+    char version[sizeof(PRODUCT_MAX_VERSION_STRING)];
+    char compile[sizeof(__os_fulltime_format)];
     char pad[BENV_BLOCK_SIZE - BENV_COOKIE_SIZE];
 } benv_cookie_t; /* 512 */
 
 static inline void
 __benv_cookie_show(benv_cookie_t *cookie)
 {
-    os_println("vendor :%s", cookie->product.vendor);
-    os_println("company:%s", cookie->product.company);
-    os_println("model  :%s", cookie->pcba.model);
+    os_println("vendor :%s", cookie->vendor);
+    os_println("company:%s", cookie->company);
+    os_println("model  :%s", cookie->model);
+    os_println("version:%s", cookie->version);
+    os_println("compile:%s", cookie->compile);
 }
 
 #define BENV_DEFT_COOKIE              { \
-    .product        = {                 \
-        .vendor     = PRODUCT_VENDOR,   \
-        .company    = PRODUCT_COMPANY,  \
-    },                                  \
-    .pcba           = {                 \
-        .model      = PRODUCT_PCBA_MODEL, \
-    },                                  \
+    .vendor     = PRODUCT_VENDOR,       \
+    .company    = PRODUCT_COMPANY,      \
+    .model      = PRODUCT_PCBA_MODEL,   \
+    .compile    = __os_fulltime_format, \
 }   /* end */
 
 typedef product_version_t benv_version_t;
@@ -1464,17 +1461,16 @@ __benv_check_string(benv_ops_t * ops, char *value)
     .show   = _show,    \
 }   /* end */
 
-#define __BENV_COOKIE_OPS(_path, _member, _show) \
-    BENV_OPS("cookies/" _path, cookie._member, NULL, NULL, _show) \
+#define __BENV_COOKIE_OPS(_member, _show) \
+    BENV_OPS("cookies/" #_member, cookie._member, NULL, NULL, _show) \
     /* end */
 
 #define BENV_COOKIE_OPS \
-    __BENV_COOKIE_OPS("product/vendor",         \
-        product.vendor,  __benv_show_string),   \
-    __BENV_COOKIE_OPS("product/company",        \
-        product.company, __benv_show_string),   \
-    __BENV_COOKIE_OPS("pcba/model",             \
-        pcba.model,      __benv_show_string)    \
+    __BENV_COOKIE_OPS(vendor,   __benv_show_string),    \
+    __BENV_COOKIE_OPS(company,  __benv_show_string),    \
+    __BENV_COOKIE_OPS(model,    __benv_show_string),    \
+    __BENV_COOKIE_OPS(version,  __benv_show_string),    \
+    __BENV_COOKIE_OPS(compile,  __benv_show_string)     \
     /* end */
 
 #define __BENV_OS_OPS(_path, _member, _check, _write, _show) \
