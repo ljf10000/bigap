@@ -107,7 +107,7 @@ DECLARE_FAKE_JDEBUGGER;
     _(____ak_debug_js,      21,"js"),       \
     _(____ak_debug_blob,    22,"blob"),     \
     _(____ak_debug_json,    23,"json"),     \
-    _(____ak_debug_json,    24,"cli"),      \
+    _(____ak_debug_cli,     24,"cli"),      \
     _(____ak_debug_test,    25,"test"),     \
     /* end */
 
