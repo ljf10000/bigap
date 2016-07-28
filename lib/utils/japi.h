@@ -112,11 +112,7 @@ static inline char *
 jobj_string_ex(jobj_t obj, int flag)
 {
     if (obj) {
-        os_println("before json_object_to_json_string_ext");
-        char *s = (char *)json_object_to_json_string_ext(obj, flag);
-        os_println("after json_object_to_json_string_ext");
-        
-        return s;
+        return (char *)json_object_to_json_string_ext(obj, flag);
     } else {
         return NULL;
     }

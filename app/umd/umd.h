@@ -482,9 +482,7 @@ um_user_debug(char *tag, struct um_user *user, bool debug)
     if (debug) {
         jobj_t obj = um_juser(user);
         
-        os_println("before um_user_debug jdebug");
         jdebug("%o", tag, obj);
-        os_println("after um_user_debug jdebug");
 
         jobj_put(obj);
     }

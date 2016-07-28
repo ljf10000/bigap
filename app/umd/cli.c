@@ -217,36 +217,42 @@ show_user(struct um_user *user)
 static int
 show_user_byjson(char *json)
 {
-    jobj_t obj = jobj(json);
+    jobj_t obj      = NULL;
+    jobj_t jmac     = NULL;
+    jobj_t juser    = NULL;
+    int err = 0;
+    
+    obj = jobj(json);
     if (NULL==obj) {
-        return -EFILTER;
+        err = -EFILTER; goto error;
     }
     
-    jobj_t jmac = jobj_get(obj, "mac");
+    jmac = jobj_get(obj, "mac");
     if (NULL==obj) {
-        return -EFILTER;
+        err = -EFILTER; goto error;
     }
     
     char *macstring = jobj_get_string(jmac);
     if (false==is_good_macstring(macstring)) {
-        return -EBADMAC;
+        err = -EBADMAC; goto error;
     }
 
     struct um_user *user = um_user_get(os_mac(macstring));
     if (NULL==user) {
-        return -ENOEXIST;
+        err = -ENOEXIST; goto error;
     }
 
-    jobj_t juser = um_juser(user);
+    juser = um_juser(user);
     if (NULL==juser) {
-        return -ENOEXIST;
+        err = -ENOEXIST; goto error;
     }
     
     cli_sprintf(__tab "%s" __crlf, jobj_json(juser));
+error:
     jobj_put(juser);
     jobj_put(obj);
     
-    return 0;
+    return err;
 }
 
 static int
