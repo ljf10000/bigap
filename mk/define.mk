@@ -14,7 +14,8 @@ ifndef MK_DEFINE
 	export AK_PATH=/tmp/$(shell whoami)/ak
 	export GEN_SH=gen.sh
 	export OS_TYPE=linux
-	
+	export TOOL_PATH=/home/liujingfei/tool
+
 	#export INCS=-I$(DIR_ROOT)/lib -I/usr/src/linux-headers-$(shell uname -r)/include
 	export INCS+=-I$(DIR_ROOT)/lib -I$(DIR_ROOT)/lib/json-c
 	export UBACKTRACE=1
@@ -28,7 +29,7 @@ ifndef MK_DEFINE
 		-Wno-unused \
 		-fmerge-all-constants \
 		#end
-	#export __LDFLAGS+=-L/lib -L/usr/lib -L/usr/local/lib
+	export __LDFLAGS+=-L$(TOOL_PATH)/lib
 	
 	export EXTRA_CFLAGS+=
 	export CC=gcc -Wall -rdynamic

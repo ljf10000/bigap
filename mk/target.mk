@@ -3,7 +3,7 @@ all:$(TARGET) install
 
 $(TARGET):endian gen $(OBJS)
 	$(dump_common_vars)
-	${CC} ${CFLAGS} ${__CFLAGS} ${LDFLAGS} ${__LDFLAGS} -o $(TARGET) $(OBJS) $(lib_depend)
+	${CC} ${CFLAGS} ${__CFLAGS} ${__LDFLAGS} ${LDFLAGS} -o $(TARGET) $(OBJS) $(lib_depend)
 	@if [ -f "$(FILENO_NAME).key" ]; then \
 		mkdir -p $(AK_PATH); \
 		cp -f $(FILENO_NAME).key $(AK_PATH); \
