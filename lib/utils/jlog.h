@@ -172,7 +172,6 @@ __jlog_header(
     }
     if (level) {
         os_eprintf(",level:%s", __ak_debug_getname(level));
-        os_println("PRI=0x%x", PRI);
     }
     os_eprintf("] ");
 }
