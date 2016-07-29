@@ -1432,6 +1432,15 @@ ok:
     sys.dirty = true;                               \
 }while(0)
 
+#define __fail_startup(_obj)                    do{ \
+    int current = sys.current;                      \
+                                                    \
+    benv_obj(_obj, current)->error  = 3;            \
+    benv_obj(_obj, current)->self   = BENV_FSM_UNKNOW; \
+                                                    \
+    sys.dirty = true;                               \
+}while(0)
+
 static int
 normal_startup(void)
 {
@@ -1439,6 +1448,19 @@ normal_startup(void)
     
     __normal_startup(rootfs);
     __normal_startup(kernel);
+
+    save();
+    
+    return 0;
+}
+
+static int
+fail_startup(void)
+{
+    os_println("fail startup");
+    
+    __fail_startup(rootfs);
+    __fail_startup(kernel);
 
     save();
     
@@ -1811,6 +1833,16 @@ cmd_startup(int argc, char *argv[])
 }
 
 static int
+cmd_startfail(int argc, char *argv[])
+{
+    if (0==sys.current) {
+        return super_startup();
+    } else {
+        return fail_startup();
+    }
+}
+
+static int
 cmd_usbupgrade(int argc, char *argv[])
 {
     return usbupgrade();
@@ -1850,6 +1882,7 @@ static cmd_table_t cmd[] = {
     CMD_TABLE_ENTRY(cmd_mount,      1, "mount"),
     CMD_TABLE_ENTRY(cmd_umount,     1, "umount"),
     CMD_TABLE_ENTRY(cmd_startup,    1, "startup"),
+    CMD_TABLE_ENTRY(cmd_startfail,  1, "startfail"),
     CMD_TABLE_ENTRY(cmd_usbupgrade, 1, "usbupgrade"),
     CMD_TABLE_ENTRY(cmd_upgrade,    1, "upgrade"),
     CMD_TABLE_ENTRY(cmd_repair,     1, "repair"),

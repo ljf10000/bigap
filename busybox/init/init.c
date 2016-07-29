@@ -87,8 +87,6 @@ struct init_action {
 };
 
 #ifdef BIGAP
-#define __THIS_APP  init
-#include "utils.h"
 
 #define hello_string \
     "--------------------------------------------------"    "\n" \
@@ -133,6 +131,16 @@ static char *deamons[] = {
 #endif
 };
 
+#define os_count_of(x)          (sizeof(x)/sizeof(x[0]))
+
+static inline int
+os_file_exist(const char *file)
+{
+    int fd = open(file, O_RDONLY, S_IRUSR | S_IRGRP);
+
+    return fd<0?0:(close(fd), 1);
+}
+
 static int check_deamons(void)
 {
     int i;
@@ -140,10 +148,10 @@ static int check_deamons(void)
     for (i=0; i<os_count_of(deamons); i++) {
         char *app = deamons[i];
         
-        if (false==os_file_exist(app)) {
-            os_println("%s is not exist, system will reboot after 5 minute.", app);
+        if (!os_file_exist(app)) {
+            printf("%s is not exist, system will reboot after 5 minute.\n", app);
 
-            os_system("(sleep %d; reboot) &", 5*60);
+            system("(sleep 300; sys startfail; reboot) &");
         }
     }
 }
