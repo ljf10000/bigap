@@ -2203,14 +2203,18 @@ benv_save(void)
 }
 
 static inline int
-__benv_init(void)
+benv_init(void)
 {
     int err;
 
     BUILD_BUG_ON(BENV_COOKIE_SIZE     > BENV_BLOCK_SIZE);
     BUILD_BUG_ON(BENV_OS_SIZE         > BENV_BLOCK_SIZE);
     BUILD_BUG_ON(__benv_info_idx_max  >= BENV_INFO_COUNT);
-    
+
+#ifdef __BOOT__
+    __benv_control->env = (benv_env_t *)(env_ptr->env);
+#endif
+
     err = os_init();
     if (err<0) {
         return err;
@@ -2235,11 +2239,18 @@ __benv_init(void)
         return err;
     }
 
+#ifdef __BOOT__
+    __THIS_DEBUG    = benv_mark_pointer(__benv_mark_debug);
+    __THIS_JDEBUG   = benv_mark_pointer(__benv_mark_jsdebug);
+
+    os_println("boot debug:%d jsdebug:%d", *__THIS_DEBUG, *__THIS_JDEBUG);
+#endif
+
     return 0;
 }
 
 static inline int
-__benv_fini(void)
+benv_fini(void)
 {
     int err;
     
@@ -2253,19 +2264,19 @@ __benv_fini(void)
 }
 
 static inline void
-__benv_show_cookie(void)
+benv_show_cookie(void)
 {
     __benv_cookie_show(__benv_cookie);
 }
 
 static inline void
-__benv_show_os(void)
+benv_show_os(void)
 {
     __benv_os_show(__benv_os);
 }
 
 static inline bool
-__benv_cmd(int argc, char *argv[])
+benv_cmd_hiden(int argc, char *argv[])
 {
 #define __benv_cmd_item(_action, _obj, _handle) {.action = _action, .obj = _obj, .handle = _handle}
     static struct {
@@ -2273,8 +2284,8 @@ __benv_cmd(int argc, char *argv[])
         char *obj;
         void (*handle)(void);
     } cmd[] = {
-        __benv_cmd_item("show",   "cookie",   __benv_show_cookie),
-        __benv_cmd_item("show",   "os",       __benv_show_os),
+        __benv_cmd_item("show",   "cookie",   benv_show_cookie),
+        __benv_cmd_item("show",   "os",       benv_show_os),
         
         __benv_cmd_item("reset",  "os",       __benv_deft_os),
         __benv_cmd_item("reset",  "all",      __benv_deft),
@@ -2307,7 +2318,7 @@ benv_cmd(int argc, char *argv[])
 {
     __benv_self = cli_argv_dump(argc, argv);
     
-    if (true==__benv_cmd(argc, argv)) {
+    if (true==benv_cmd_hiden(argc, argv)) {
         return 0;
     }
 
@@ -2317,7 +2328,7 @@ benv_cmd(int argc, char *argv[])
 static inline int
 __benv_main(int argc, char *argv[])
 {
-    return os_call(__benv_init, __benv_fini, benv_cmd, argc, argv);
+    return os_call(benv_init, benv_fini, benv_cmd, argc, argv);
 }
 
 static inline void *

@@ -1,8 +1,8 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#include "benv_boot_common.c"
 #include <mmc.h>
+#include "benv_boot_common.c"
 
 #ifdef CONFIG_BOOTCOMMAND
 #undef CONFIG_BOOTCOMMAND
@@ -209,7 +209,7 @@ change_bootenv(void)
 static void 
 benv_boot_check(void) 
 {
-    __benv_show_cookie();
+    benv_show_cookie();
     
     if (false==is_benv_cookie_deft()) {
         if (is_benv_cookie_fixed()) {
@@ -233,7 +233,7 @@ benv_boot_check(void)
         
         benv_save();
         
-        __benv_show_cookie();
+        benv_show_cookie();
     }
 }
 
@@ -288,7 +288,7 @@ benv_select(void)
     int skips  = benv_skips(0);
     int current = __benv_current;
 
-    __benv_show_os();
+    benv_show_os();
     
     /*
     * try current
@@ -416,9 +416,7 @@ md_boot_init(void)
 static void
 benv_boot(void)
 {
-    benv_boot_init();
-    
-    __benv_init();
+    benv_init();
     
     md_boot_init();
     

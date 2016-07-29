@@ -330,7 +330,7 @@ bcookie_save(struct bcookie *obj, int size)
     return __bcookie_save(PRODUCT_DEV_BOOT, PRODUCT_BOOT_SIZE, obj, size);
 }
 #endif
-#endif
+#endif /* PRODUCT_BCOOKIE_ENABLE */
 
 /******************************************************************************/
 #endif /* __BCOOKIE_H_c0ee689aca594ee09d9e8f2223369c41__ */
