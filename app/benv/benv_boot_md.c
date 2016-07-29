@@ -1,8 +1,8 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#include <mmc.h>
 #include "benv_boot_common.c"
+#include <mmc.h>
 
 #ifdef CONFIG_BOOTCOMMAND
 #undef CONFIG_BOOTCOMMAND
