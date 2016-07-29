@@ -87,10 +87,11 @@ struct init_action {
 };
 
 #ifdef BIGAP
+#include "utils.h"
 
 #define hello_string \
     "--------------------------------------------------"    "\n" \
-    "                   T H E  B E S T  W I R E L E S S"    "\n" \
+    " S U P E R W A L L E T H E B E S T W I R E L E S S"    "\n" \
     "--------------------------------------------------"    "\n" \
     /* end */
 
@@ -100,24 +101,64 @@ struct init_action {
     .action_type= _action_type, \
 }
 
-#define count_of(_x)        (sizeof(_x)/sizeof((_x)[0]))
-
 static struct init_action actions[] = {
-    action_entry("/bin/busybox sysstartup",         ONCE | STATICACT),
+    action_entry("sysstartup",         ONCE | STATICACT),
     action_entry("/etc/init.d/rc.last",         ONCE | STATICACT),
-    action_entry("/bin/busybox bck",            ONCE | STATICACT),
-    action_entry("/bin/busybox jlogd",  RESPAWN | STATICACT),
+    action_entry("bck",            ONCE | STATICACT),
+    action_entry("jlogd",  RESPAWN | STATICACT),
     action_entry("/etc/rtsync/rtsyncd",         RESPAWN | STATICACT),
 #if 0
     action_entry("/usr/sbin/get_3g_state.sh",   RESPAWN | STATICACT),
     action_entry("/usr/sbin/3g_connect.sh",     RESPAWN | STATICACT),
 #endif
-    action_entry("/bin/busybox umd",    RESPAWN | STATICACT),
-    action_entry("/bin/busybox tmd",    RESPAWN | STATICACT),
-    action_entry("/bin/busybox smd",    RESPAWN | STATICACT),
-    action_entry("/bin/busybox guard",  RESPAWN | STATICACT),
-    action_entry("/bin/busybox rt",     RESPAWN | STATICACT),
+    action_entry("umd",    RESPAWN | STATICACT),
+    action_entry("tmd",    RESPAWN | STATICACT),
+    action_entry("smd",    RESPAWN | STATICACT),
+    action_entry("guard",  RESPAWN | STATICACT),
+    action_entry("rt",     RESPAWN | STATICACT),
 };
+
+static char *deamons[] = {
+    "/bin/ak",
+    "/bin/bck",
+    "/bin/benv",
+    "/bin/fcookie",
+    "/bin/guard",
+    "/bin/hisi",
+    "/bin/jlogger",
+    "/bin/jlogd",
+    "/bin/js",
+    "/bin/rt",
+    "/bin/smc",
+    "/bin/smd",
+    "/bin/sys",
+    "/bin/sysmount",
+    "/bin/sysrepair",
+    "/bin/sysreset",
+    "/bin/sysstartup",
+    "/bin/sysumount",
+    "/bin/sysupgrade",
+    "/bin/sysusbupgrade",
+    "/bin/tmc",
+    "/bin/tmd",
+    "/bin/umc",
+    "/bin/umd",
+};
+
+static int check_deamons(void)
+{
+    int i;
+
+    for (i=0; i<os_count_of(deamons); i++) {
+        char *app = deamons[i];
+        
+        if (false==os_file_exist(app)) {
+            os_println("%s is not exist, system will reboot after 5 minute.");
+
+            os_system("(sleep %d; reboot) &", 5*60);
+        }
+    }
+}
 
 static struct init_action *init_action_list = &actions[0];
 
@@ -126,7 +167,7 @@ action_init(void)
 {
     int i;
 
-    for (i=0; i<count_of(actions) - 1; i++) {
+    for (i=0; i<os_count_of(actions) - 1; i++) {
         actions[i].next = &actions[i+1];
     }
 }
@@ -1051,6 +1092,8 @@ int init_main(int argc UNUSED_PARAM, char **argv)
 
 #ifdef BIGAP
     printf(hello_string);
+
+    check_deamons();
 #endif
 	/* Now run everything that needs to be run */
 	/* First run the sysinit command */

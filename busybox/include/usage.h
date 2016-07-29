@@ -150,11 +150,13 @@
 #define tmd_trivial_usage       "\n\n"
 #define tmd_full_usage          "\n\n"
 
+#ifndef NO_UM
 #define umc_trivial_usage       "\n\n"
 #define umc_full_usage          "\n\n"
 
 #define umd_trivial_usage       "\n\n"
 #define umd_full_usage          "\n\n"
+#endif
 #endif
 
 #define sh_trivial_usage NOUSAGE_STR
