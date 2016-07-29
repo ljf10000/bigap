@@ -31,7 +31,7 @@ struct bcookie {
 #define BCOOKIE_OBJ(_id)    { .header = BCOOKIE(_id) }
 
 static inline void
-bcookie_add_ref(struct bcookie *bc)
+bcookie_fake(struct bcookie *bc)
 {
     bc->id[BCOOKIE_COUNT/2]++;
     bc->id[BCOOKIE_COUNT/2]--;
@@ -52,18 +52,16 @@ struct bcookie_cid {
 #define bcookie_cid_mid(_cid)   (_cid[0] >> 24)
 
 static inline void
-bcookie_cid_dump(struct bcookie_cid *bcid)
+bcookie_cid_dump(uint32 cid[4])
 {
-#if 1
     int i;
 
     for (i=0; i<4; i++) {
-        os_println("CID:%d", bcid->cid[i]);
+        os_println("CID[%d]:%d", i, cid[i]);
     }
 
-    os_println("MID:%d", bcookie_cid_mid(bcid->cid));
-    os_println("PSN:%d", bcookie_cid_psn(bcid->cid));
-#endif
+    os_println("MID:%d", bcookie_cid_mid(cid));
+    os_println("PSN:%d", bcookie_cid_psn(cid));
 }
 
 static inline int
@@ -84,6 +82,7 @@ bcookie_find(byte *mem, int size, int id)
     return p - mem;
 }
 
+#if PRODUCT_BCOOKIE_ENABLE
 #ifdef __BOOT__
 static inline int
 __bcookie_check(uint32 begin, uint32 size, struct bcookie *obj, uint32 osize)
@@ -155,7 +154,7 @@ __bcookie_save(int begin, int size, struct bcookie *obj, int osize)
     }
     
     if (size != benv_emmc_read(begin, mem, size)) {
-        debug_error("read emmc error:%d", -errno);
+        os_println("read emmc error:%d", -errno);
         
         err = -errno; goto error;
     }
@@ -173,7 +172,7 @@ __bcookie_save(int begin, int size, struct bcookie *obj, int osize)
     if (block_count * BENV_BLOCK_SIZE != benv_emmc_write(begin + block_begin * BENV_BLOCK_SIZE, 
                     mem + block_begin * BENV_BLOCK_SIZE, 
                     block_count * BENV_BLOCK_SIZE)) {
-        debug_error("write emmc error:%d", -errno);
+        os_println("write emmc error:%d", -errno);
 
         err = -errno; goto error;
     }
@@ -330,6 +329,7 @@ bcookie_save(struct bcookie *obj, int size)
 {
     return __bcookie_save(PRODUCT_DEV_BOOT, PRODUCT_BOOT_SIZE, obj, size);
 }
+#endif
 #endif
 
 /******************************************************************************/

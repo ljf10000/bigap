@@ -40,7 +40,7 @@ cmd_otp_private_write(int argc, char *argv[])
     return otp_private_write(otp);
 }
 
-#if IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B
+#if PRODUCT_BCOOKIE_ENABLE
 static int
 cmd_otp_bcookie_show(int argc, char *argv[])
 {
@@ -98,7 +98,7 @@ static cmd_table_t cmd_otp[] = {
     CMD_TABLE_ENTRY(cmd_otp_private_show, 2, "private", "show"),
     CMD_TABLE_ENTRY(cmd_otp_private_write, 3, "private", "write", NULL),
 
-#if IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B
+#if PRODUCT_BCOOKIE_ENABLE
     CMD_TABLE_ENTRY(cmd_otp_bcookie_show, 2, "cookie", "show"),
     CMD_TABLE_ENTRY(cmd_otp_bcookie_write, 4, "cookie", "write", NULL, NULL),
 #endif

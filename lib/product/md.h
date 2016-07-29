@@ -43,6 +43,13 @@
         PRODUCT_BOOTCMD_LOADK       ";" \
         PRODUCT_BOOTCMD_BOOTM       ";" \
         /* end */
+
+/*
+* md used emmc(with mid/psn), so not use boot cookie
+*/
+#ifndef PRODUCT_BCOOKIE_ENABLE
+#define PRODUCT_BCOOKIE_ENABLE          0
+#endif
 /******************************************************************************/
 #endif
 #endif /* __MD_PRE_H_1cd88dc0a9124864acf00c06ad1ac3de__ */

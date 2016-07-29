@@ -212,10 +212,24 @@ benv_boot_check(void)
     __benv_show_cookie();
     
     if (false==is_benv_cookie_deft()) {
-        os_println("benv first init...");
-        
+        if (is_benv_cookie_fixed()) {
+            /*
+            * boot cookie(fixed) == benv cookie(fixed)
+            *   so, boot maybe have upgraded
+            *       benv cookie need recover
+            */
+            os_println("benv cookie update...");
+        } else {
+            /*
+            * boot cookie(fixed) != benv cookie(fixed)
+            *   so, benv maybe destroy
+            *       benv cookie/os need recover
+            */
+            os_println("benv cookie/os recover...");
+            
+            __benv_deft_os();
+        }
         __benv_deft_cookie();
-        __benv_deft_os();
         
         benv_save();
         
@@ -354,24 +368,46 @@ benv_boot_save(void)
 
 void
 md_boot_init(void)
-{
-    uint32 zero[4] = {0};
-    
-    bcookie_add_ref(&botp.header);
-    bcookie_add_ref(&bcid.header);
+{    
+    bcookie_fake(&botp.header);
+    bcookie_fake(&bcid.header);
 
-    bcookie_cid_dump(&bcid);
-    
-    if (os_arrayeq(bcid.cid, zero)) {
+#if PRODUCT_BCOOKIE_ENABLE
+    /*
+    * load boot cid
+    */
+    bcookie_load((struct bcookie *)&bcid, sizeof(bcid));
+    /*
+    * if boot cid != emmc cid
+    *   update boot cid
+    */
+    if (false==os_arrayeq(bcid.cid, emmc_cid)) {
         os_arraydcpy(bcid.cid, emmc_cid);
-
         bcookie_save((struct bcookie *)&bcid, sizeof(bcid));
-        
-        benv_mark_set(__benv_mark_cid_mid, bcookie_cid_mid(bcid.cid));
-        benv_mark_set(__benv_mark_cid_psn, bcookie_cid_psn(bcid.cid));
-        
+    }
+#endif
+
+    /*
+    * try save benv mid
+    */
+    uint32 mid = bcookie_cid_mid(emmc_cid);
+    if (mid != benv_mark_get(__benv_mark_cid_mid)) {
+        benv_mark_set(__benv_mark_cid_mid, mid);
+
         bootenv_dirty = true;
     }
+
+    /*
+    * try save benv psn
+    */
+    uint32 psn = bcookie_cid_psn(emmc_cid);
+    if (psn != benv_mark_get(__benv_mark_cid_psn)) {
+        benv_mark_set(__benv_mark_cid_psn, psn);
+
+        bootenv_dirty = true;
+    }
+    
+    bcookie_cid_dump(emmc_cid);
 }
 
 /*

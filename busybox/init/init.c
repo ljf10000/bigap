@@ -114,7 +114,6 @@ static struct init_action actions[] = {
 
 static char *deamons[] = {
     "/bin/ak",
-    "/bin/bck",
     "/bin/fcookie",
     "/bin/guard",
     "/bin/hisi",

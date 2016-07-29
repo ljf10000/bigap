@@ -22,6 +22,8 @@ benv_boot_init(void)
     
     __THIS_DEBUG    = benv_mark_pointer(__benv_mark_debug);
     __THIS_JDEBUG   = benv_mark_pointer(__benv_mark_jsdebug);
+
+    os_println("boot debug:%d jsdebug:%d", *__THIS_DEBUG, *__THIS_JDEBUG);
 }
 
 /******************************************************************************/

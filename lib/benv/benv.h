@@ -73,10 +73,14 @@ benv_fsm_cmp(int a, int b)
     return a - b;
 }
 
-#define BENV_COOKIE_SIZE        (0  \
+#define BENV_COOKIE_FIXED       (0  \
     + sizeof(PRODUCT_VENDOR)        \
     + sizeof(PRODUCT_COMPANY)       \
     + sizeof(PRODUCT_PCBA_MODEL)    \
+)   /* end */
+
+#define BENV_COOKIE_SIZE        (0  \
+    + BENV_COOKIE_FIXED             \
     + 1+PRODUCT_VERSION_STRING_LEN  \
     + 1+FULLTIME_STRING_LEN         \
 )   /* end */
@@ -729,19 +733,34 @@ __benv_firmware_version_cmp(int a, int b)
 #define benv_obj_version_cmp(_obj, _a, _b)  __benv_##_obj##_version_cmp(_a, _b)
 #define benv_obj_version_eq(_obj, _a, _b)   (0==benv_obj_version_cmp(_obj, _a, _b))
 
+static inline benv_cookie_t *
+benv_cookie_deft(void)
+{
+    static benv_cookie_t deft = BENV_DEFT_COOKIE;
+
+    return &deft;
+}
+
+static inline bool
+is_benv_cookie_fixed(void)
+{
+    /*
+    * just cmp FIXED
+    */
+    return os_memeq(benv_cookie_deft(), __benv_cookie, BENV_COOKIE_FIXED);
+}
+
 static inline bool
 is_benv_cookie_deft(void)
 {
-    benv_cookie_t deft = BENV_DEFT_COOKIE;
-    
-    return os_objeq(&deft, __benv_cookie);
+    return os_objeq(benv_cookie_deft(), __benv_cookie);
 }
 
 static inline void
 __benv_deft_cookie(void)
 {
-    os_objdeft(__benv_cookie, BENV_DEFT_COOKIE);
-
+    os_objcpy(__benv_cookie, benv_cookie_deft());
+    
     benv_dirty_byidx(BENV_COOKIE);
 }
 

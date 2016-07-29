@@ -59,5 +59,13 @@
 #include "product/ap/ap3.h"
 #include "product/ap/ap4.h"
 /******************************************************************************/
+
+/*
+* ap not use emmc(with mid/psn), so use boot cookie
+*/
+#ifndef PRODUCT_BCOOKIE_ENABLE
+#define PRODUCT_BCOOKIE_ENABLE          1
+#endif
+
 #endif
 #endif /* __AP_PRE_H_b76f05a2ba014f61aed631e24b41d156__ */

@@ -96,9 +96,9 @@ static int
 check_boot(void)
 {
 #if IS_PRODUCT_LTEFI_MD_PARTITION_B
-    static os_reg_t dog_enable[] = OS_DOG_ENABLE;
+    os_reg_t dog_enable[] = OS_DOG_ENABLE;
 #endif
-    static struct {
+    struct {
         char *addr;
         int size;
     } cookie[] = {
@@ -112,6 +112,13 @@ check_boot(void)
             .addr = CONFIG_BOOTARGS,
             .size = sizeof(CONFIG_BOOTARGS),
         },
+        /*
+        * just find FIXED in boot
+        */
+        {
+            .addr = benv_cookie_deft(),
+            .size = BENV_COOKIE_FIXED,
+        }
     };
 
     bck_println("before check boot");
@@ -150,19 +157,18 @@ check_bootenv(void)
         AT_DEFT_INIT,
     };
 #elif IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B
-    benv_cookie_t deft = BENV_DEFT_COOKIE;
     benv_cookie_t cookie;
 #endif
 
     bck_println("before check bootenv");
     
-    if (sizeof(cookie) != read(fd_bootenv, &cookie, sizeof(cookie))) {
+    if (sizeof(cookie) != read(fd_bootenv, &cookie, BENV_COOKIE_FIXED)) {
         trace_error(-errno, "read benv cookie");
 
         return -errno;
     }
-
-    if (false==os_objeq(&cookie, &deft)) {
+    
+    if (false==os_memeq(&cookie, benv_cookie_deft(), BENV_COOKIE_FIXED)) {
         return hacked(2, 0);
     }
 

@@ -6,6 +6,10 @@
 #define PRODUCT_LTEFI_VERSION           3
 #endif
 
+#ifndef PRODUCT_BCOOKIE_ENABLE
+#define PRODUCT_BCOOKIE_ENABLE          1
+#endif
+
 #ifndef PRODUCT_DOG_COUNT
 #define PRODUCT_DOG_COUNT               2
 #endif
@@ -105,7 +109,6 @@
 
 #define PRODUCT_DEV_OTHER       PRODUCT_IDEV_FLASH(26)
 #define PRODUCT_DEV_ROOT        PRODUCT_IDEV_FLASH(14) /* rootfs1 */
-
 /******************************************************************************/
 #endif
 #endif /* __PC_H_37e332f8b6b0423d87dadd8a98dec31e__ */
