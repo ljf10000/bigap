@@ -2211,10 +2211,6 @@ benv_init(void)
     BUILD_BUG_ON(BENV_OS_SIZE         > BENV_BLOCK_SIZE);
     BUILD_BUG_ON(__benv_info_idx_max  >= BENV_INFO_COUNT);
 
-#ifdef __BOOT__
-    __benv_control->env = (benv_env_t *)(env_ptr->env);
-#endif
-
     err = os_init();
     if (err<0) {
         return err;

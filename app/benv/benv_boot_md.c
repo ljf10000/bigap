@@ -416,8 +416,8 @@ md_boot_init(void)
 static void
 benv_boot(void)
 {
+    benv_boot_init();
     benv_init();
-    
     md_boot_init();
     
     benv_boot_check();
