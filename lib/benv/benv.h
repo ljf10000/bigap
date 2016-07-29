@@ -104,7 +104,7 @@ __benv_cookie_show(benv_cookie_t *cookie)
     .vendor     = PRODUCT_VENDOR,       \
     .company    = PRODUCT_COMPANY,      \
     .model      = PRODUCT_PCBA_MODEL,   \
-    .version    = PRODUCT_MIN_VERSION_STRING, \
+    .version    = PRODUCT_DEFT_VERSION_STRING, \
     .compile    = PRODUCT_BUILD_TIME,   \
 }   /* end */
 
