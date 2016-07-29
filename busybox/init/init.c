@@ -87,6 +87,8 @@ struct init_action {
 };
 
 #ifdef BIGAP
+#define __THIS_APP  init
+#include "utils.h"
 
 #define hello_string \
     "--------------------------------------------------"    "\n" \
@@ -139,7 +141,7 @@ static int check_deamons(void)
         char *app = deamons[i];
         
         if (false==os_file_exist(app)) {
-            os_println("%s is not exist, system will reboot after 5 minute.");
+            os_println("%s is not exist, system will reboot after 5 minute.", app);
 
             os_system("(sleep %d; reboot) &", 5*60);
         }

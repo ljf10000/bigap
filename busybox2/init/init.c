@@ -87,6 +87,7 @@ struct init_action {
 };
 
 #ifdef BIGAP
+#define __THIS_APP  init
 #include "utils.h"
 
 #define hello_string \
@@ -102,20 +103,23 @@ struct init_action {
 }
 
 static struct init_action actions[] = {
-    action_entry("sysstartup",         ONCE | STATICACT),
-    action_entry("/etc/init.d/rc.last",         ONCE | STATICACT),
-    action_entry("bck",            ONCE | STATICACT),
+    action_entry("sysstartup",          ONCE | STATICACT),
+    action_entry("/etc/init.d/rc.last", ONCE | STATICACT),
+    action_entry("bck",                 ONCE | STATICACT),
+
     action_entry("jlogd",  RESPAWN | STATICACT),
-    action_entry("/etc/rtsync/rtsyncd",         RESPAWN | STATICACT),
-#if 0
-    action_entry("/usr/sbin/get_3g_state.sh",   RESPAWN | STATICACT),
-    action_entry("/usr/sbin/3g_connect.sh",     RESPAWN | STATICACT),
-#endif
     action_entry("umd",    RESPAWN | STATICACT),
     action_entry("tmd",    RESPAWN | STATICACT),
     action_entry("smd",    RESPAWN | STATICACT),
     action_entry("guard",  RESPAWN | STATICACT),
     action_entry("rt",     RESPAWN | STATICACT),
+#if 0
+    action_entry("/etc/rtsync/rtsyncd",         RESPAWN | STATICACT),
+#endif
+#if 0
+    action_entry("/usr/sbin/get_3g_state.sh",   RESPAWN | STATICACT),
+    action_entry("/usr/sbin/3g_connect.sh",     RESPAWN | STATICACT),
+#endif
 };
 
 static char *deamons[] = {
@@ -153,7 +157,7 @@ static int check_deamons(void)
         char *app = deamons[i];
         
         if (false==os_file_exist(app)) {
-            os_println("%s is not exist, system will reboot after 5 minute.");
+            os_println("%s is not exist, system will reboot after 5 minute.", app);
 
             os_system("(sleep %d; reboot) &", 5*60);
         }
