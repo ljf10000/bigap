@@ -105,7 +105,7 @@ __benv_cookie_show(benv_cookie_t *cookie)
     .company    = PRODUCT_COMPANY,      \
     .model      = PRODUCT_PCBA_MODEL,   \
     .version    = PRODUCT_MIN_VERSION_STRING, \
-    .compile    = __os_fulltime_format, \
+    .compile    = PRODUCT_BUILD_TIME,   \
 }   /* end */
 
 typedef product_version_t benv_version_t;

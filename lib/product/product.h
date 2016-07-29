@@ -50,6 +50,10 @@
 #define PRODUCT_UNIT_M          "M"
 #define PRODUCT_UNIT_G          "G"
 
+#ifndef PRODUCT_BUILD_TIME
+#define PRODUCT_BUILD_TIME      "2016-07-01-00:00:00"
+#endif
+
 #ifndef PRODUCT_VENDOR
 #define PRODUCT_VENDOR          "superwalle"
 #endif
