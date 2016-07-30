@@ -16,6 +16,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 OS_INITER;
 BENV_INITER;
 
+#define DIR_UPGRADE                 "/etc/upgrade"
+
 #define DIR_USB_UPGRADE             PRODUCT_DIR_USB "/upgrade"
 #define DIR_USB_ROOTFS              DIR_USB_UPGRADE "/rootfs"
 #define DIR_USB_CONFIG              DIR_USB_UPGRADE "/config"
@@ -29,6 +31,14 @@ BENV_INITER;
 #define SCRIPT_MOUNT                PRODUCT_FILE("etc/mount/mount.sh")
 #define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
 #define SCRIPT_CURRENT              PRODUCT_FILE("usr/sbin/syscurrent")
+
+#define FILE_USBUPGRADE_INIT        "usbupgrade_init.sh"
+#define FILE_USBUPGRADE_OK          "usbupgrade_ok.sh"
+#define FILE_USBUPGRADE_FAIL        "usbupgrade_fail.sh"
+
+#define SCRIPT_USBUPGRADE_INIT      DIR_USB_ROOTFS DIR_UPGRADE FILE_USBUPGRADE_INIT
+#define SCRIPT_USBUPGRADE_OK        DIR_USB_ROOTFS DIR_UPGRADE FILE_USBUPGRADE_OK
+#define SCRIPT_USBUPGRADE_FAIL      DIR_USB_ROOTFS DIR_UPGRADE FILE_USBUPGRADE_FAIL
 
 #define __FILE_VERSION              "etc/" PRODUCT_FILE_VERSION
 #define __FILE_ROOTFS_VERSION       __FILE_VERSION
@@ -1845,7 +1855,17 @@ cmd_startfail(int argc, char *argv[])
 static int
 cmd_usbupgrade(int argc, char *argv[])
 {
-    return usbupgrade();
+    int err;
+
+    __os_system(SCRIPT_USBUPGRADE_INIT "&");
+    err = usbupgrade();
+    if (0==err) {
+        __os_system(SCRIPT_USBUPGRADE_OK "&");
+    } else {
+        __os_system(SCRIPT_USBUPGRADE_FAIL "&");
+    }
+
+    return err;
 }
 
 static int
