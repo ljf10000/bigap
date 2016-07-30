@@ -32,9 +32,9 @@ BENV_INITER;
 #define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
 #define SCRIPT_CURRENT              PRODUCT_FILE("usr/sbin/syscurrent")
 
-#define FILE_USBUPGRADE_INIT        "usbupgrade_init.sh"
-#define FILE_USBUPGRADE_OK          "usbupgrade_ok.sh"
-#define FILE_USBUPGRADE_FAIL        "usbupgrade_fail.sh"
+#define FILE_USBUPGRADE_INIT        "usbupgrade_init.cb"
+#define FILE_USBUPGRADE_OK          "usbupgrade_ok.cb"
+#define FILE_USBUPGRADE_FAIL        "usbupgrade_fail.cb"
 
 #define SCRIPT_USBUPGRADE_INIT      DIR_USB_ROOTFS DIR_UPGRADE FILE_USBUPGRADE_INIT
 #define SCRIPT_USBUPGRADE_OK        DIR_USB_ROOTFS DIR_UPGRADE FILE_USBUPGRADE_OK
