@@ -132,6 +132,7 @@ env_number_init(env_number_t *env)
 #define ENV_HIGH        "__ENV_HIGH__"      // voltage
 #define ENV_LOG         "__ENV_LOG__"       // dial
 
+#define ENV_JAPP        "__ENV_JAPP__"      // jprintf
 #define ENV_JSUB        "__ENV_JSUB__"      // jprintf
 #define ENV_JFILE       "__ENV_JFILE__"     // jprintf
 #define ENV_JFUNC       "__ENV_JFUNC__"     // jprintf
@@ -159,6 +160,7 @@ typedef struct {
     char *low;
     char *high;
 
+    char *japp;
     char *jsub;
     char *jfile;
     char *jfunc;

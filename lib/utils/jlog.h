@@ -113,6 +113,7 @@
 #define JLOG_KEY_DEBUGGER   "__debugger__"
 #define JLOG_KEY_APP        "app"
 #define JLOG_KEY_SUB        "sub"
+#define JLOG_KEY_TYPE       "type"
 #define JLOG_KEY_FILE       "file"
 #define JLOG_KEY_FUNC       "func"
 #define JLOG_KEY_LINE       "line"
@@ -121,6 +122,9 @@
 #define JLOG_KEY_TIME       "time"
 #define JLOG_KEY_MAC        "mac"
 #define JLOG_KEY_SEQ        "seq"
+
+#define JLOG_KEY_TYPE_C     "c"
+#define JLOG_KEY_TYPE_SH    "shell"
 
 #ifdef __BOOT__
 #define	LOG_EMERG	0	/* system is unusable */
@@ -575,6 +579,7 @@ __jlog_add_header(
     jobj_t obj, 
     const char *app, 
     const char *sub, 
+    const char *type,
     const char *file, 
     const char *func, 
     uint32 line, 
@@ -613,6 +618,13 @@ __jlog_add_header(
     err = jobj_add_string(header, JLOG_KEY_SUB, sub);
     if (err<0) {
         __debug_error("add sub %s error", sub);
+        
+        goto error;
+    }
+    
+    err = jobj_add_string(header, JLOG_KEY_TYPE, type);
+    if (err<0) {
+        __debug_error("add type %s error", type);
         
         goto error;
     }
@@ -823,7 +835,7 @@ __jvlogger(
     jobj_t obj = NULL;
     int err;
     
-    obj = __jlog_add_header(NULL, app, sub, file, func, line, PRI);
+    obj = __jlog_add_header(NULL, app, sub, JLOG_KEY_TYPE_C, file, func, line, PRI);
     if (NULL==obj) {
         err = -ENOMEM; goto error;
     }
@@ -859,7 +871,7 @@ __dvlogger(
     jobj_t obj = NULL;
     int err;
     
-    obj = __jlog_add_header(NULL, app, sub, file, func, line, PRI);
+    obj = __jlog_add_header(NULL, app, sub, JLOG_KEY_TYPE_C, file, func, line, PRI);
     if (NULL==obj) {
         err = -ENOMEM; goto error;
     }
@@ -943,7 +955,7 @@ __clogger(
         err = -EBADJSON; goto error;
     }
 
-    obj = __jlog_add_header(obj, app, sub, file, func, line, PRI);
+    obj = __jlog_add_header(obj, app, sub, JLOG_KEY_TYPE_SH, file, func, line, PRI);
     if (NULL==obj) {
         err = -EFORMAT; goto error;
     }
@@ -973,7 +985,7 @@ __jprintf(
 {
     int err = 0;
     
-    jobj_t obj = __jlog_add_header(NULL, app, sub, file, func, line, PRI);
+    jobj_t obj = __jlog_add_header(NULL, app, sub, JLOG_KEY_TYPE_SH, file, func, line, PRI);
     if (NULL==obj) {
         err = -ENOMEM; goto error;
     }
