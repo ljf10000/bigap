@@ -425,52 +425,17 @@ jobj_format_is_valid(int c, int valid[], int count)
 }
 
 static inline int
-jobj_format_check(const char *fmt, int valid[], int count)
-{
-    char *p = fmt;
-    int number = 0;
-    
-    if (os_strlen(fmt) % 2) {
-        return -EFORMAT;
-    }
-
-    while(*p) {
-        if ('%' != *p++) {
-            return -EFORMAT;
-        }
-
-        if (false==jobj_format_is_valid(*p++, valid, count)) {
-            return -ENOSUPPORT;
-        }
-
-        number++;
-    }
-
-    return number;
-}
-
-static inline int
 jobj_exec(jobj_t obj, const char *fmt, int argc, char *argv[])
 {
-    static int valid[] = {
-        jfmt_bool,
-        jfmt_int,
-        jfmt_long,
-        jfmt_double,
-        jfmt_string,
-        jfmt_json,
-    };
-    int number = jobj_format_check(fmt, valid, os_count_of(valid));
-    if (number<0) {
-        return number;
-    }
-    else if (2*number != argc) {
-        return -EFORMAT;
-    }
-    
     char *key;
     jvar_t var;
-    int err = 0, idx = 0;
+    int err = 0, idx = 0, count = 0;
+
+    if (os_strlen(fmt)%2) {
+        japi_println("bad format:%s", fmt);
+        
+        return -EFORMAT;
+    }
     
     char *p = (char *)fmt;
     while(*p) {
@@ -534,37 +499,32 @@ jobj_exec(jobj_t obj, const char *fmt, int argc, char *argv[])
         if (err<0) {
             return err;
         }
+
+        count++;
     }
 
+    if (2*count != argc) {
+        japi_println("bad format:%s", fmt);
+        
+        return -EFORMAT;
+    }
+    
     return 0;
 }
 
 static inline int
 jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
 {
-    static int valid[] = {
-        jfmt_bool,
-        jfmt_int,
-        jfmt_long,
-        jfmt_double,
-        jfmt_string,
-        jfmt_json,
-        jfmt_array,
-        jfmt_object,
-    };
-    int number = jobj_format_check(fmt, valid, os_count_of(valid));
-    if (number<0) {
-        return number;
-    }
-    else if (2*number != argc) {
-        return -EFORMAT;
-    }
-    
-
     char *key, *p;
     jvar_t var;
     int err = 0;
 
+    if (os_strlen(fmt)%2) {
+        japi_println("bad format:%s", fmt);
+        
+        return -EFORMAT;
+    }
+    
     p = (char *)fmt;
     while(*p) {
         if ('%' == *p++) {

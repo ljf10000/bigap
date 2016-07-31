@@ -17,6 +17,9 @@ OS_REAL_INITER;
 static int 
 cmd_reload(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     return ak_reload();
 }
 
