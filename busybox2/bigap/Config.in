@@ -41,6 +41,12 @@ config HISI
 	help
 	  hisi
 
+config JPRINTF
+	bool "jprintf"
+	default y
+	help
+	  jprintf
+
 config JLOGGER
 	bool "jlogger"
 	default y

@@ -89,6 +89,7 @@ os_bintohex(char *hex, int space, byte *buf, int size)
 #define os_atoi(_string)    __os_atox(int, atoi, _string)
 #define os_atol(_string)    __os_atox(long, atol, _string)
 #define os_atoll(_string)   __os_atox(long long, atoll, _string)
+#define os_atof(_string)    __os_atox(double, atof, _string)
 #else
 #error "need to define atoi/atol/atoll"
 #endif

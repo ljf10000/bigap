@@ -116,6 +116,31 @@ define Package/jlogger/compile
 		#end
 endef
 ####################################################################
+define Package/jprintf
+  SECTION:=apps
+  CATEGORY:=bigap
+  TITLE:=SuperWalle Basic App
+  DEPENDS:=+jlogd
+endef
+
+define Package/jprintf/install
+	$(Package/bigap/install/common)
+	
+	$(INSTALL_BIN) $(PKG_APP_BUILD_DIR)/jprintf/jprintf $(1)/usr/bin
+endef
+
+define Package/jprintf/compile
+	$(MAKE) -C $(PKG_APP_BUILD_DIR)/jprintf \
+		CC="$(TARGET_CC)" \
+		CFLAGS=" \
+			$(TARGET_CFLAGS) \
+			$(TARGET_CPPFLAGS) \
+			" \
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		OS_TYPE=openwrt \
+		#end
+endef
+####################################################################
 define Package/smd
   SECTION:=apps
   CATEGORY:=bigap
@@ -268,6 +293,7 @@ endef
 $(eval $(call BuildPackage,ak))
 $(eval $(call BuildPackage,jlogd))
 $(eval $(call BuildPackage,jlogger))
+$(eval $(call BuildPackage,jprintf))
 $(eval $(call BuildPackage,smd))
 $(eval $(call BuildPackage,smc))
 $(eval $(call BuildPackage,tmd))

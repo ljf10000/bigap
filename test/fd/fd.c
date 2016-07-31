@@ -74,8 +74,7 @@ __main(int argc, char *argv[])
         return help();
     }
     
-    argc--;
-    argv++;
+    argc--; argv++;
     
     if (0==os_strcmp(SERVER, argv[0])) {
         err = as_server(argc, argv);

@@ -128,6 +128,7 @@ static char *deamons[] = {
     "/bin/hisi",
     "/bin/jlogger",
     "/bin/jlogd",
+    "/bin/jprintf",
     "/bin/js",
     "/bin/rt",
     "/bin/smc",
@@ -989,16 +990,18 @@ int init_main(int argc UNUSED_PARAM, char **argv)
     putenv("PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin");
 #endif
 	putenv((char *) bb_PATH_root_path);
-	printf("%s\n", bb_PATH_root_path);
-	printf("%s\n", bb_PATH_root_path);
-	printf("%s\n", bb_PATH_root_path);
 	
 	putenv((char *) "SHELL=/bin/sh");
 	putenv((char *) "USER=root"); /* needed? why? */
 #ifdef BIGAP
+    putenv((char *) "__ROOTFS__=");
 	putenv((char *) "TZ=UTC-8");    /* timezone */
 	putenv((char *) "PEER=1.0.0.5");/* PEER is ap-board */
 	putenv((char *) "JPATH=/lib/js");
+	
+	printf("%s\n", bb_PATH_root_path);
+	printf("%s\n", bb_PATH_root_path);
+	printf("%s\n", bb_PATH_root_path);
 #endif
 
 	if (argv[1])

@@ -11,6 +11,7 @@ lib-$(CONFIG_BENV)    	+= app/benv/benv.o
 lib-$(CONFIG_FCOOKIE)  	+= app/fcookie/fcookie.o
 lib-$(CONFIG_GUARD)    	+= app/guard/guard.o
 lib-$(CONFIG_HISI)    	+= app/hisi/hisi.o
+lib-$(CONFIG_JPRINTF)	+= app/jprintf/jprintf.o
 lib-$(CONFIG_JLOGGER)	+= app/jlogger/jlogger.o
 lib-$(CONFIG_JLOGD)    	+= app/jlogd/jlogd.o
 lib-$(CONFIG_JS)    	+= app/duktape/src/duktape.o

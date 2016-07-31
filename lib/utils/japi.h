@@ -410,9 +410,157 @@ jobj_add_json(jobj_t obj, char *key, char *value)
     return 0;
 }
 
+static inline bool
+jobj_format_is_valid(int c, int valid[], int count)
+{
+    int i;
+
+    for (i=0; i<count; i++) {
+        if (c!=valid[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static inline int
+jobj_format_check(const char *fmt, int valid[], int count)
+{
+    char *p = fmt;
+    int number = 0;
+    
+    if (os_strlen(fmt) % 2) {
+        return -EFORMAT;
+    }
+
+    while(*p) {
+        if ('%' != *p++) {
+            return -EFORMAT;
+        }
+
+        if (false==jobj_format_is_valid(*p++, valid, count)) {
+            return -ENOSUPPORT;
+        }
+
+        number++;
+    }
+
+    return number;
+}
+
+static inline int
+jobj_exec(jobj_t obj, const char *fmt, int argc, char *argv[])
+{
+    static int valid[] = {
+        jfmt_bool,
+        jfmt_int,
+        jfmt_long,
+        jfmt_double,
+        jfmt_string,
+        jfmt_json,
+    };
+    int number = jobj_format_check(fmt, valid, os_count_of(valid));
+    if (number<0) {
+        return number;
+    }
+    else if (2*number != argc) {
+        return -EFORMAT;
+    }
+    
+    char *key;
+    jvar_t var;
+    int err = 0, idx = 0;
+    
+    char *p = (char *)fmt;
+    while(*p) {
+        if ('%' == *p++) {
+            key = argv[idx++];
+        } else {
+            japi_println("bad format:%s", fmt);
+            
+            return -EFORMAT;
+        }
+
+        switch(*p++) {
+            case jfmt_bool:
+                var.b = os_atoi(argv[idx++]);
+                japi_println("bool=%d", var.d);
+                err = jobj_add_bool(obj, key, var.b);
+                
+                break;
+            case jfmt_int:
+                var.d = os_atoi(argv[idx++]);
+                japi_println("int=%d", var.d);
+                err = jobj_add_i32(obj, key, var.d);
+
+                break;
+            case jfmt_long:
+                var.l = os_atoll(argv[idx++]);
+                japi_println("int64=%lld", var.l);
+                err = jobj_add_i64(obj, key, var.l);
+                
+                break;
+            case jfmt_double:
+                var.f = os_atof(argv[idx++]);
+                japi_println("float64=%lf", var.f);
+                err = jobj_add_f64(obj, key, var.f);
+                
+                break;
+            case jfmt_string:
+                var.s = argv[idx++];
+                if (NULL==var.s) {
+                    var.s = __empty;
+                }
+                japi_println("string=%s", var.s);
+                err = jobj_add_string(obj, key, var.s);
+                
+                break;
+            case jfmt_json:
+                var.j = argv[idx++];
+                if (NULL==var.j) {
+                    var.j = "{}";
+                }
+                japi_println("json=%s", var.j);
+                jobj_add_json(obj, key, var.j);
+
+                break;
+            default:
+                japi_println("no support format:%s", fmt);
+                
+                return -ENOSUPPORT;
+        }
+
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
+}
+
 static inline int
 jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
 {
+    static int valid[] = {
+        jfmt_bool,
+        jfmt_int,
+        jfmt_long,
+        jfmt_double,
+        jfmt_string,
+        jfmt_json,
+        jfmt_array,
+        jfmt_object,
+    };
+    int number = jobj_format_check(fmt, valid, os_count_of(valid));
+    if (number<0) {
+        return number;
+    }
+    else if (2*number != argc) {
+        return -EFORMAT;
+    }
+    
+
     char *key, *p;
     jvar_t var;
     int err = 0;
@@ -489,9 +637,9 @@ jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
 
                 break;
             default:
-                japi_println("bad format:%s", fmt);
+                japi_println("no support format:%s", fmt);
                 
-                return -EFORMAT;
+                return -ENOSUPPORT;
         }
 
         if (err<0) {

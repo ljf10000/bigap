@@ -955,6 +955,44 @@ error:
     return err;
 }
 
+/*
+* by command
+*/
+static inline int
+__jprintf(
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32 line, 
+    uint32 PRI, 
+    const char *fmt, 
+    int argc,
+    char *argv[]
+)
+{
+    int err = 0;
+    
+    jobj_t obj = __jlog_add_header(NULL, app, sub, file, func, line, PRI);
+    if (NULL==obj) {
+        err = -ENOMEM; goto error;
+    }
+    
+    err = jobj_exec(obj, fmt, argc, argv);
+    if (err<0) {
+        goto error;
+    }
+    
+    err = __jlog(obj, app, sub, PRI);
+
+error:
+    jobj_put(obj);
+
+    return err;
+    
+    return err;
+}
+
 static inline int
 __jlog_env_init(void)
 {
