@@ -110,7 +110,6 @@
 #endif
 
 #define JLOG_KEY_HEADER     "__header__"
-#define JLOG_KEY_DEBUGGER   "__debugger__"
 #define JLOG_KEY_APP        "app"
 #define JLOG_KEY_SUB        "sub"
 #define JLOG_KEY_TYPE       "type"
@@ -766,7 +765,7 @@ __jlog(jobj_t obj, const char *app, const char *sub, uint32 PRI)
         
         return -ENOMEM;
     }
-    
+
     if (LOG_DEBUG==LOG_PRI(PRI) && __is_ak_debug(JLOG_LEVEL(PRI))) {
         os_eprintln(__tab "%s", json);
     }
@@ -876,7 +875,7 @@ __dvlogger(
         err = -ENOMEM; goto error;
     }
 
-    err = jobj_vsprintf(obj, (char *)JLOG_KEY_DEBUGGER, fmt, args);
+    err = jobj_vsprintf(obj, "debug", fmt, args);
     if (err<0) {
         goto error;
     }

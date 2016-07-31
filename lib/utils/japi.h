@@ -292,7 +292,7 @@ __jobj_add_string(jobj_t obj, char *key, char *value)
 #define jobj_add_binary(_obj, _key, _value) __jobj_add_string(_obj, (char *)_key, (char *)_value)
 
 static inline int
-jobj_vsprintf(jobj_t obj, char *key, const char *fmt, va_list args)
+jobj_vsprintf(jobj_t obj, const char *key, const char *fmt, va_list args)
 {
     int len, err = 0;
     char *line = (char *)os_zalloc(1+OS_BIG_LEN);
@@ -316,7 +316,7 @@ error:
 }
 
 static inline int
-jobj_sprintf(jobj_t obj, char *key, const char *fmt, ...)
+jobj_sprintf(jobj_t obj, const char *key, const char *fmt, ...)
 {
     va_list args;
     int err;
