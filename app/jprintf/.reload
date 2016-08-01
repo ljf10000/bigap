@@ -1,5 +1,0 @@
-#!/bin/bash
-
-pushd ../../ &> /dev/null
-./.reload "$@"
-popd &> /dev/null
