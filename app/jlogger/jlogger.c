@@ -42,10 +42,10 @@ __main(int argc, char *argv[])
     switch(json[0]) {
         case '{':
             return __clogger(app, 
-                NULL, 
+                NULL,   // sub
                 file, 
                 func, 
-                0, 
+                0,      // line
                 os_atoi(pri), 
                 json);
         case '%':
@@ -54,10 +54,10 @@ __main(int argc, char *argv[])
             }
             
             return __jformat(app,
-                NULL, 
+                NULL,   // sub
                 file, 
                 func, 
-                0, 
+                0,      // line
                 os_atoi(pri), 
                 format,
                 argc-2,
