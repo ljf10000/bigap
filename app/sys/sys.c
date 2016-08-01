@@ -1160,13 +1160,29 @@ repair_rootfs(int idx)
 static int
 reset_kernel(int idx)
 {
-    return kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), benv_kernel_version(idx));
+    int err = kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), benv_kernel_version(idx));
+
+    jinfo("%s%d%d%d",
+        "reset", "kernel",
+        "index", idx,
+        "by", sys.resetby,
+        "error", err);
+
+    return err;
 }
 
 static int
 reset_rootfs(int idx, int resetby)
 {
-    return rcopy(idx, dir_rootfs(resetby), benv_rootfs_version(resetby));
+    int err = rcopy(idx, dir_rootfs(resetby), benv_rootfs_version(resetby));
+    
+    jinfo("%s%d%d%d",
+        "reset", "rootfs",
+        "index", idx,
+        "by", sys.resetby,
+        "error", err);
+
+    return err;
 }
 
 /*
@@ -1293,10 +1309,16 @@ usbupgrade(void)
     
     if (0==access(USB_BIN_MD_BOOT, 0)) {
         bdd("boot", PRODUCT_DEV_BOOT, USB_BIN_MD_BOOT);
+
+        jinfo("%s",
+            "usbupgrade", "boot");
     }
 
     if (0==access(USB_BIN_MD_BOOTENV, 0)) {
         bdd("bootenv", PRODUCT_DEV_BOOTENV, USB_BIN_MD_BOOTENV);
+
+        jinfo("%s",
+            "usbupgrade", "bootenv");
     }
 
     if (0==access(USB_BIN_MD_KERNEL, 0)) {
@@ -1310,6 +1332,13 @@ usbupgrade(void)
             if (kernel_exist) {
                 __benv_version_atoi(&version, kernel_version);
                 err = kdd_byfile(i, USB_BIN_MD_KERNEL, &version);
+                
+                jinfo("%s%d%s%d",
+                    "usbupgrade", "kernel",
+                    "index", i,
+                    "version", kernel_version,
+                    "error", err);
+                
                 if (err<0) {
                     return err;
                 }
@@ -1317,6 +1346,13 @@ usbupgrade(void)
             
             __benv_version_atoi(&version, rootfs_version);
             err = rcopy(i, DIR_USB_ROOTFS, &version);
+            
+            jinfo("%s%d%s%d",
+                "usbupgrade", "rootfs",
+                "index", i,
+                "version", rootfs_version,
+                "error", err);
+                    
             if (err<0) {
                 return err;
             }
@@ -1326,6 +1362,12 @@ usbupgrade(void)
     for (i=0; i<2; i++) {
         if (0==access(DIR_USB_CONFIG, 0)) {
             err = __xcopy(dir_tool(i), DIR_USB_CONFIG);
+
+            jinfo("%s%d%d",
+                "usbupgrade", "config",
+                "index", i,
+                "error", err);
+            
             if (err<0) {
                 return err;
             }
@@ -1333,6 +1375,12 @@ usbupgrade(void)
         
         if (0==access(DIR_USB_TOOL, 0)) {
             err = __xcopy(dir_tool(i), DIR_USB_TOOL);
+            
+            jinfo("%s%d%d",
+                "usbupgrade", "tool",
+                "index", i,
+                "error", err);
+                
             if (err<0) {
                 return err;
             }
@@ -1340,6 +1388,12 @@ usbupgrade(void)
         
         if (0==access(DIR_USB_DATA, 0)) {
             err = __xcopy(dir_tool(i), DIR_USB_DATA);
+            
+            jinfo("%s%d%d",
+                "usbupgrade", "data",
+                "index", i,
+                "error", err);
+                
             if (err<0) {
                 return err;
             }
@@ -1359,6 +1413,7 @@ super_startup(void)
     int best, idx;
     
     os_println("super startup");
+    jcrit("%s", "superstartup", "begin");
 
     /*
     * 1. find best rootfs
@@ -1372,7 +1427,10 @@ super_startup(void)
         *   force rootfs1 as best
         */
         best = 1;
-        debug_error("no found good rootfs, force use rootfs1 and use rootfs0 repair rootfs1");
+
+        jcrit("%s%s",
+            "superstartup", "no found good rootfs",
+            "force", "use rootfs0 repair rootfs1");
 
         rdd(1, 0);
     }
@@ -1382,7 +1440,10 @@ super_startup(void)
     * 2. check kernel
     */
     if (__benv_kernel_is_good(idx)) {
-        debug_error("firmware%d is good, why in super ???", idx);
+        jwarning("%s%d%s",
+            "superstartup", "firmware is good",
+            "firmware", idx,
+            "question", "why in super ???");
 
         goto ok;
     }
@@ -1392,10 +1453,19 @@ super_startup(void)
     */
     best = benv_find_best(kernel, skips);
     if (__benv_kernel_is_bad(best)) {
-        debug_error("no found good kernel, use kernel0 repair kernel%d", idx);
+        jcrit("%s%s%d",
+            "superstartup", "no found good kernel",
+            "force", "use kernel0 repair",
+            "kernel", idx);
+            
         best = 0;
     }
     kdd_bydev(idx, best);
+    
+    jcrit("%s%s%d",
+        "superstartup", "no found good kernel",
+        "force", "use kernel0 repair",
+        "kernel", idx);
 
     /*
     * switch and reboot
@@ -1403,7 +1473,11 @@ super_startup(void)
 ok:
     switch_to(idx);
     
-    return os_p_system("sysreboot &");
+    jcrit("%s%d",
+        "superstartup", "end",
+        "switchto", idx);
+    
+    return os_p_system("(sleep 5; sysreboot) &");
 }
 
 /*
