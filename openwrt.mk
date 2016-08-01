@@ -44,7 +44,7 @@ define Package/ak
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=SuperWalle Basic App
-  DEPENDS:=+json-c
+  DEPENDS:=+netifd +json-c
 endef
 
 define Package/ak/install
@@ -222,7 +222,7 @@ define Package/duktape
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=SuperWalle Basic App
-  DEPENDS:=+json-c
+  DEPENDS:=+netifd +json-c
 endef
 
 define Package/duktape/install
