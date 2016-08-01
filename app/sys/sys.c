@@ -1093,7 +1093,8 @@ repair_kernel(int idx)
 {
     benv_version_t version;
     benv_version_t *fversion = get_kernel_version(idx);
-
+    int err = 0;
+    
     /*
     * save kernel idx's version
     */
@@ -1107,7 +1108,14 @@ repair_kernel(int idx)
         return 0;
     }
     else {
-        return kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), &version);
+        err = kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), &version);
+
+        jinfo("%s%d%d", 
+            "repair", "kernel",
+            "index", idx,
+            "error", err);
+                        
+        return err;
     }
 }
 
@@ -1148,12 +1156,23 @@ repair_rootfs(int idx)
         buddy = benv_find_first_good_byversion(rootfs, &version, __skips(idx));
     }
 
+    char *version_string = benv_version_itoa(&version);
     if (__benv_rootfs_is_good(buddy)) {
         err = rcopy(idx, dir_rootfs(buddy), &version);
+        jinfo("%s%d%d%d",
+            "repair", "rootfs",
+            "index", idx,
+            "buddy", buddy,
+            "error", err);
     } else {
         err = rsync(idx, &version);
+        jinfo("%s%d%d",
+            "repair", "rootfs",
+            "index", idx,
+            "error", err);
     }
-
+    
+            
     return err;
 }
 
@@ -1306,19 +1325,17 @@ usbupgrade(void)
         
         return 0;
     }
-    
+
     if (0==access(USB_BIN_MD_BOOT, 0)) {
         bdd("boot", PRODUCT_DEV_BOOT, USB_BIN_MD_BOOT);
 
-        jinfo("%s",
-            "usbupgrade", "boot");
+        jinfo("%s", "usbupgrade", "boot");
     }
 
     if (0==access(USB_BIN_MD_BOOTENV, 0)) {
         bdd("bootenv", PRODUCT_DEV_BOOTENV, USB_BIN_MD_BOOTENV);
 
-        jinfo("%s",
-            "usbupgrade", "bootenv");
+        jinfo("%s", "usbupgrade", "bootenv");
     }
 
     if (0==access(USB_BIN_MD_KERNEL, 0)) {
@@ -1333,10 +1350,9 @@ usbupgrade(void)
                 __benv_version_atoi(&version, kernel_version);
                 err = kdd_byfile(i, USB_BIN_MD_KERNEL, &version);
                 
-                jinfo("%s%d%s%d",
+                jinfo("%s%d%d",
                     "usbupgrade", "kernel",
                     "index", i,
-                    "version", kernel_version,
                     "error", err);
                 
                 if (err<0) {
@@ -1347,10 +1363,9 @@ usbupgrade(void)
             __benv_version_atoi(&version, rootfs_version);
             err = rcopy(i, DIR_USB_ROOTFS, &version);
             
-            jinfo("%s%d%s%d",
+            jinfo("%s%d%d",
                 "usbupgrade", "rootfs",
                 "index", i,
-                "version", rootfs_version,
                 "error", err);
                     
             if (err<0) {
@@ -1413,8 +1428,8 @@ super_startup(void)
     int best, idx;
     
     os_println("super startup");
-    jcrit("%s", "superstartup", "begin");
-
+    jcrit("%s%d", "superstartup", "begin");
+        
     /*
     * 1. find best rootfs
     */
@@ -1428,9 +1443,8 @@ super_startup(void)
         */
         best = 1;
 
-        jcrit("%s%s",
-            "superstartup", "no found good rootfs",
-            "force", "use rootfs0 repair rootfs1");
+        jcrit("%s",
+            "superstartup", "no found good rootfs, use rootfs0 repair rootfs1");
 
         rdd(1, 0);
     }
@@ -1440,10 +1454,9 @@ super_startup(void)
     * 2. check kernel
     */
     if (__benv_kernel_is_good(idx)) {
-        jwarning("%s%d%s",
-            "superstartup", "firmware is good",
-            "firmware", idx,
-            "question", "why in super ???");
+        jwarning("%s%d",
+            "superstartup", "firmware is good, why in super ???",
+            "firmware", idx);
 
         goto ok;
     }
@@ -1453,29 +1466,21 @@ super_startup(void)
     */
     best = benv_find_best(kernel, skips);
     if (__benv_kernel_is_bad(best)) {
-        jcrit("%s%s%d",
-            "superstartup", "no found good kernel",
-            "force", "use kernel0 repair",
+        jcrit("%s%d",
+            "superstartup", "no found good kernel, use kernel0 repair",
             "kernel", idx);
             
         best = 0;
     }
     kdd_bydev(idx, best);
     
-    jcrit("%s%s%d",
-        "superstartup", "no found good kernel",
-        "force", "use kernel0 repair",
-        "kernel", idx);
+    jcrit("%s", "superstartup", "end");
 
     /*
     * switch and reboot
     */
 ok:
     switch_to(idx);
-    
-    jcrit("%s%d",
-        "superstartup", "end",
-        "switchto", idx);
     
     return os_p_system("(sleep 5; sysreboot) &");
 }
@@ -1523,12 +1528,13 @@ ok:
 static int
 normal_startup(void)
 {
-    os_println("normal startup");
-    
     __normal_startup(rootfs);
     __normal_startup(kernel);
 
     save();
+    
+    os_println("normal startup");
+    jinfo("%s", "startup", "normal");
     
     return 0;
 }
@@ -1536,12 +1542,13 @@ normal_startup(void)
 static int
 fail_startup(void)
 {
-    os_println("fail startup");
-    
     __fail_startup(rootfs);
     __fail_startup(kernel);
 
     save();
+    
+    os_println("fail startup");
+    jalert("%s", "startup", "fail");
     
     return 0;
 }
@@ -1697,6 +1704,7 @@ get_current(void)
 
 error:
     error_assert(0, "no found good rootfs in " PRODUCT_PROC_CMDLINE);
+    jalert("%s", "getcurrent", "no found good rootfs in " PRODUCT_PROC_CMDLINE);
     
 #ifdef __PC__
     return __benv_current;
@@ -1804,6 +1812,9 @@ cmd_reset(int argc, char *argv[])
     if (first) {
         switch_to(first);
 
+        /*
+        * set current failed, wait to repair by other
+        */
         upgrade_init(sys.current, get_rootfs_version(sys.resetby));
 
         return os_p_system("sysreboot &");
@@ -1844,15 +1855,15 @@ cmd_upgrade(int argc, char *argv[])
     
     if (0==sys.current) {
         jinfo("%o",
-        "upgrade", jobj_oprintf("%s", 
-                        "info", "rootfs0 not support upgrade"));
+            "upgrade", jobj_oprintf("%s", 
+                            "info", "rootfs0 not support upgrade"));
 
         return -ENOSUPPORT;
     }
     else if (NULL==sys.env.version) {
         jinfo("%o",
-        "upgrade", jobj_oprintf("%s", 
-                        "info", "not input upgrade version"));
+            "upgrade", jobj_oprintf("%s", 
+                            "info", "not input upgrade version"));
 
         return -EFORMAT;
     }
