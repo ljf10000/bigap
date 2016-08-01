@@ -486,6 +486,9 @@ os_macstring(byte mac[])
 #endif
 #endif
 
+/*
+* todo: md1 or md3 handle
+*/
 static inline char *
 get_basemac(void)
 {
