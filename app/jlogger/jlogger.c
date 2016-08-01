@@ -14,12 +14,8 @@ OS_INITER;
 static int
 usage(int error)
 {
-    os_eprintln(__THIS_APPNAME " {pri} {app} {json}");
-    os_eprintln(__THIS_APPNAME " {pri} {app} {format} {values...}");
-    os_eprintln(__tab "set env " ENV_JSUB  " to submodule");
-    os_eprintln(__tab "set env " ENV_JFILE " to filename");
-    os_eprintln(__tab "set env " ENV_JFUNC " to funcname");
-    os_eprintln(__tab "set env " ENV_JLINE " to logline");
+    os_eprintln(__THIS_APPNAME " {app} {file} {func} {pri} {json}");
+    os_eprintln(__THIS_APPNAME " {app} {file} {func} {pri} {format} {values...}");
 
     return error;
 }
@@ -27,17 +23,16 @@ usage(int error)
 static int 
 __main(int argc, char *argv[])
 {
-    char *pri   = get_argv(1);
-    char *app   = get_argv(2);
-    char *json  = get_argv(3);
+    char *app   = get_argv(1);
+    char *file  = get_argv(2);
+    char *func  = get_argv(3);
+    char *pri   = get_argv(4);
+    char *json  = get_argv(5);
     char *format= json;
     
-    if (argc < 4) {
+    if (argc < 6) {
         return usage(-EHELP);
     }
-    
-    char *file  = env_gets(ENV_JFILE, NULL);
-    char *func  = env_gets(ENV_JFUNC, NULL);
 
     switch(json[0]) {
         case '{':
@@ -49,7 +44,7 @@ __main(int argc, char *argv[])
                 os_atoi(pri), 
                 json);
         case '%':
-            if (argc < 5) {
+            if (argc < 7) {
                 return usage(-EHELP);
             }
             
@@ -60,8 +55,8 @@ __main(int argc, char *argv[])
                 0,      // line
                 os_atoi(pri), 
                 format,
-                argc-2,
-                argv+2);
+                argc-6,
+                argv+6);
         default:
             return -EFORMAT;
     }
