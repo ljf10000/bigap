@@ -36,18 +36,16 @@ __main(int argc, char *argv[])
         return usage(-EHELP);
     }
     
-    char *sub   = env_gets(ENV_JSUB, NULL);
     char *file  = env_gets(ENV_JFILE, NULL);
     char *func  = env_gets(ENV_JFUNC, NULL);
-    char *line  = env_gets(ENV_JLINE, NULL);
 
     switch(json[0]) {
         case '{':
             return __clogger(app, 
-                sub, 
+                NULL, 
                 file, 
                 func, 
-                os_atoi(line), 
+                0, 
                 os_atoi(pri), 
                 json);
         case '%':
@@ -56,10 +54,10 @@ __main(int argc, char *argv[])
             }
             
             return __jformat(app,
-                sub, 
+                NULL, 
                 file, 
                 func, 
-                os_atoi(line), 
+                0, 
                 os_atoi(pri), 
                 format,
                 argc-2,
