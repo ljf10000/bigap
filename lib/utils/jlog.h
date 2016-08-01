@@ -875,7 +875,7 @@ __dvlogger(
         err = -ENOMEM; goto error;
     }
 
-    err = jobj_vsprintf(obj, "debug", fmt, args);
+    err = jobj_vsprintf(obj, "__debugger__", fmt, args);
     if (err<0) {
         goto error;
     }
@@ -970,7 +970,7 @@ error:
 * by command
 */
 static inline int
-__jprintf(
+__jformat(
     const char *app, 
     const char *sub, 
     const char *file, 
@@ -999,8 +999,6 @@ __jprintf(
 error:
     jobj_put(obj);
 
-    return err;
-    
     return err;
 }
 

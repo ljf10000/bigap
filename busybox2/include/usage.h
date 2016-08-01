@@ -138,9 +138,6 @@
 #define jlogd_trivial_usage     "\n\n"
 #define jlogd_full_usage        "\n\n"
 
-#define jprintf_trivial_usage   "\n\n"
-#define jprintf_full_usage      "\n\n"
-
 #define js_trivial_usage        "\n\n"
 #define js_full_usage           "\n\n"
 

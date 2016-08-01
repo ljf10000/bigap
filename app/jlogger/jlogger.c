@@ -15,6 +15,8 @@ static int
 usage(int error)
 {
     os_eprintln(__THIS_APPNAME " {pri} {app} {json}");
+    os_eprintln(__THIS_APPNAME " {pri} {app} {kvs...}");
+    os_eprintln(__THIS_APPNAME " {pri} {app} {format} {values...}");
     os_eprintln(__tab "set env " ENV_JSUB  " to submodule");
     os_eprintln(__tab "set env " ENV_JFILE " to filename");
     os_eprintln(__tab "set env " ENV_JFUNC " to funcname");
@@ -29,18 +31,40 @@ __main(int argc, char *argv[])
     char *pri   = get_argv(1);
     char *app   = get_argv(2);
     char *json  = get_argv(3);
+    char *format;
     
     if (argc < 4) {
         return usage(-EHELP);
     }
     
-    return __clogger(app, 
-        env_gets(ENV_JSUB, NULL), 
-        env_gets(ENV_JFILE, NULL), 
-        env_gets(ENV_JFUNC, NULL), 
-        os_atoi(env_gets(ENV_JLINE, NULL)), 
-        os_atoi(pri), 
-        json);
+    char *sub   = env_gets(ENV_JSUB, NULL), 
+    char *file  = env_gets(ENV_JFILE, NULL), 
+    char *func  = env_gets(ENV_JFUNC, NULL), 
+    char *line  = env_gets(ENV_JLINE, NULL), 
+
+    switch(json[0]) {
+        case '{':
+            return __clogger(app, 
+                sub, 
+                file, 
+                func, 
+                os_atoi(line), 
+                os_atoi(pri), 
+                json);
+        case '%':
+            format = json;
+            return __jformat(app,
+                sub, 
+                file, 
+                func, 
+                os_atoi(line), 
+                os_atoi(pri), 
+                format,
+                argc-2,
+                argv+2);
+        default:
+            return -EFORMAT;
+    }
 }
 
 #ifndef __BUSYBOX__

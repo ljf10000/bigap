@@ -119,7 +119,6 @@ static char *deamons[] = {
     "/bin/hisi",
     "/bin/jlogger",
     "/bin/jlogd",
-    "/bin/jprintf",
     "/bin/rt",
     "/bin/smc",
     "/bin/smd",

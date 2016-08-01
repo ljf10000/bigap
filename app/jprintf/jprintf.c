@@ -34,7 +34,7 @@ __main(int argc, char *argv[])
         return usage(-EHELP);
     }
 
-    return __jprintf(app, 
+    return __jformat(app, 
         env_gets(ENV_JSUB, NULL), 
         env_gets(ENV_JFILE, NULL), 
         env_gets(ENV_JFUNC, NULL), 
