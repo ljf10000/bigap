@@ -15,7 +15,6 @@ static int
 usage(int error)
 {
     os_eprintln(__THIS_APPNAME " {pri} {app} {json}");
-    os_eprintln(__THIS_APPNAME " {pri} {app} {kvs...}");
     os_eprintln(__THIS_APPNAME " {pri} {app} {format} {values...}");
     os_eprintln(__tab "set env " ENV_JSUB  " to submodule");
     os_eprintln(__tab "set env " ENV_JFILE " to filename");
@@ -31,16 +30,16 @@ __main(int argc, char *argv[])
     char *pri   = get_argv(1);
     char *app   = get_argv(2);
     char *json  = get_argv(3);
-    char *format;
+    char *format= json;
     
     if (argc < 4) {
         return usage(-EHELP);
     }
     
-    char *sub   = env_gets(ENV_JSUB, NULL), 
-    char *file  = env_gets(ENV_JFILE, NULL), 
-    char *func  = env_gets(ENV_JFUNC, NULL), 
-    char *line  = env_gets(ENV_JLINE, NULL), 
+    char *sub   = env_gets(ENV_JSUB, NULL);
+    char *file  = env_gets(ENV_JFILE, NULL);
+    char *func  = env_gets(ENV_JFUNC, NULL);
+    char *line  = env_gets(ENV_JLINE, NULL);
 
     switch(json[0]) {
         case '{':
@@ -52,7 +51,10 @@ __main(int argc, char *argv[])
                 os_atoi(pri), 
                 json);
         case '%':
-            format = json;
+            if (argc < 5) {
+                return usage(-EHELP);
+            }
+            
             return __jformat(app,
                 sub, 
                 file, 
