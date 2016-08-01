@@ -227,8 +227,10 @@ endef
 
 define Package/duktape/install
 	$(Package/bigap/install/common)
-
+	$(INSTALL_DIR) $(1)/lib/js/
+	
 	$(INSTALL_BIN) $(PKG_APP_BUILD_DIR)/duktape/js $(1)/usr/bin
+	$(INSTALL_DATA) $(PKG_APP_BUILD_DIR)/duktape/module/js/* $(1)/lib/js/
 endef
 
 define Package/duktape/compile
