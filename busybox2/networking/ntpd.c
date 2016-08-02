@@ -3,7 +3,7 @@
  *
  * Author: Adam Tkac <vonsch@gmail.com>
  *
- * Licensed under GPLv2, see file LICENSE in this tarball for details.
+ * Licensed under GPLv2, see file LICENSE in this source tree.
  *
  * Parts of OpenNTPD clock syncronization code is replaced by
  * code which is based on ntp-4.2.6, whuch carries the following
@@ -27,6 +27,22 @@
  *                                                                     *
  ***********************************************************************
  */
+
+//usage:#define ntpd_trivial_usage
+//usage:	"[-dnqNw"IF_FEATURE_NTPD_SERVER("l")"] [-S PROG] [-p PEER]..."
+//usage:#define ntpd_full_usage "\n\n"
+//usage:       "NTP client/server\n"
+//usage:     "\n	-d	Verbose"
+//usage:     "\n	-n	Do not daemonize"
+//usage:     "\n	-q	Quit after clock is set"
+//usage:     "\n	-N	Run at high priority"
+//usage:     "\n	-w	Do not set time (only query peers), implies -n"
+//usage:	IF_FEATURE_NTPD_SERVER(
+//usage:     "\n	-l	Run as server on port 123"
+//usage:	)
+//usage:     "\n	-S PROG	Run PROG after stepping time, stratum change, and every 11 mins"
+//usage:     "\n	-p PEER	Obtain time from PEER (may be repeated)"
+
 #include "libbb.h"
 #include <math.h>
 #include <netinet/ip.h> /* For IPTOS_LOWDELAY definition */
@@ -49,7 +65,7 @@
 /* High-level description of the algorithm:
  *
  * We start running with very small poll_exp, BURSTPOLL,
- * in order to quickly accumulate INITIAL_SAMLPES datapoints
+ * in order to quickly accumulate INITIAL_SAMPLES datapoints
  * for each peer. Then, time is stepped if the offset is larger
  * than STEP_THRESHOLD, otherwise it isn't; anyway, we enlarge
  * poll_exp to MINPOLL and enter frequency measurement step:
@@ -77,7 +93,7 @@
 
 #define RETRY_INTERVAL  5       /* on error, retry in N secs */
 #define RESPONSE_INTERVAL 15    /* wait for reply up to N secs */
-#define INITIAL_SAMLPES 4       /* how many samples do we want for init */
+#define INITIAL_SAMPLES 4       /* how many samples do we want for init */
 
 /* Clock discipline parameters and constants */
 
@@ -89,7 +105,7 @@
 //UNUSED: #define PANIC_THRESHOLD 1000    /* panic threshold (sec) */
 
 #define FREQ_TOLERANCE  0.000015 /* frequency tolerance (15 PPM) */
-#define BURSTPOLL       0	/* initial poll */
+#define BURSTPOLL       0       /* initial poll */
 #define MINPOLL         5       /* minimum poll interval. std ntpd uses 6 (6: 64 sec) */
 #define BIGPOLL         10      /* drop to lower poll at any trouble (10: 17 min) */
 #define MAXPOLL         12      /* maximum poll interval (12: 1.1h, 17: 36.4h). std ntpd uses 17 */
@@ -200,6 +216,7 @@ typedef struct {
 typedef struct {
 	len_and_sockaddr *p_lsa;
 	char             *p_dotted;
+	char             *p_hostname;
 	/* when to send new query (if p_fd == -1)
 	 * or when receive times out (if p_fd >= 0): */
 	int              p_fd;
@@ -238,6 +255,8 @@ enum {
 	OPT_p = (1 << 5),
 	OPT_S = (1 << 6),
 	OPT_l = (1 << 7) * ENABLE_FEATURE_NTPD_SERVER,
+	/* We hijack some bits for other purposes */
+	OPT_qq = (1 << 8),
 };
 
 struct globals {
@@ -592,7 +611,6 @@ filter_datapoints(peer_t *p)
 			p->filter_offset, x,
 			p->filter_dispersion,
 			p->filter_jitter);
-
 }
 
 static void
@@ -603,9 +621,9 @@ reset_peer_stats(peer_t *p, double offset)
 
 	for (i = 0; i < NUM_DATAPOINTS; i++) {
 		if (small_ofs) {
-			p->filter_datapoint[i].d_recv_time -= offset;
+			p->filter_datapoint[i].d_recv_time += offset;
 			if (p->filter_datapoint[i].d_offset != 0) {
-				p->filter_datapoint[i].d_offset -= offset;
+				p->filter_datapoint[i].d_offset += offset;
 			}
 		} else {
 			p->filter_datapoint[i].d_recv_time  = G.cur_time;
@@ -614,13 +632,12 @@ reset_peer_stats(peer_t *p, double offset)
 		}
 	}
 	if (small_ofs) {
-		p->lastpkt_recv_time -= offset;
+		p->lastpkt_recv_time += offset;
 	} else {
 		p->reachable_bits = 0;
 		p->lastpkt_recv_time = G.cur_time;
 	}
 	filter_datapoints(p); /* recalc p->filter_xxx */
-	p->next_action_time -= offset;
 	VERB5 bb_error_msg("%s->lastpkt_recv_time=%f", p->p_dotted, p->lastpkt_recv_time);
 }
 
@@ -630,8 +647,9 @@ add_peers(char *s)
 	peer_t *p;
 
 	p = xzalloc(sizeof(*p));
-	p->p_lsa = xhost2sockaddr(s, 123);
-	p->p_dotted = xmalloc_sockaddr2dotted_noport(&p->p_lsa->u.sa);
+	p->p_hostname = s;
+	p->p_lsa = NULL;
+	p->p_dotted = NULL;
 	p->p_fd = -1;
 	p->p_xmt_msg.m_status = MODE_CLIENT | (NTP_VERSION << 3);
 	p->next_action_time = G.cur_time; /* = set_next(p, 0); */
@@ -680,6 +698,25 @@ send_query_to_peer(peer_t *p)
 	 *
 	 * Uncomment this and use strace to see it in action:
 	 */
+
+	/* See if the peer hostname already resolved yet, if not, retry to resolv and return on failure */
+	if (!p->p_lsa)
+	{
+		p->p_lsa = host2sockaddr(p->p_hostname, 123);
+
+		if (p->p_lsa)
+		{
+			p->p_dotted = xmalloc_sockaddr2dotted_noport(&p->p_lsa->u.sa);
+			VERB1 bb_error_msg("resolved peer %s to %s", p->p_hostname, p->p_dotted);
+		}
+		else
+		{
+			set_next(p, RETRY_INTERVAL);
+			VERB1 bb_error_msg("could not resolve peer %s, skipping", p->p_hostname);
+			return;
+		}
+	}
+
 #define PROBE_LOCAL_ADDR /* { len_and_sockaddr lsa; lsa.len = LSA_SIZEOF_SA; getsockname(p->query.fd, &lsa.u.sa, &lsa.len); } */
 
 	if (p->p_fd == -1) {
@@ -772,7 +809,7 @@ static void run_script(const char *action, double offset)
 
 	/* Don't want to wait: it may run hwclock --systohc, and that
 	 * may take some time (seconds): */
-	/*wait4pid(spawn(argv));*/
+	/*spawn_and_wait(argv);*/
 	spawn(argv);
 
 	unsetenv("stratum");
@@ -815,11 +852,14 @@ step_time(double offset)
 	for (item = G.ntp_peers; item != NULL; item = item->link) {
 		peer_t *pp = (peer_t *) item->data;
 		reset_peer_stats(pp, offset);
+		//bb_error_msg("offset:%f pp->next_action_time:%f -> %f",
+		//	offset, pp->next_action_time, pp->next_action_time + offset);
+		pp->next_action_time += offset;
 	}
 	/* Globals: */
-	G.cur_time -= offset;
-	G.last_update_recv_time -= offset;
-	G.last_script_run -= offset;
+	G.cur_time += offset;
+	G.last_update_recv_time += offset;
+	G.last_script_run += offset;
 }
 
 
@@ -864,7 +904,7 @@ fit(peer_t *p, double rd)
 		VERB3 bb_error_msg("peer %s unfit for selection: unreachable", p->p_dotted);
 		return 0;
 	}
-#if 0	/* we filter out such packets earlier */
+#if 0 /* we filter out such packets earlier */
 	if ((p->lastpkt_status & LI_ALARM) == LI_ALARM
 	 || p->lastpkt_stratum >= MAXSTRAT
 	) {
@@ -881,7 +921,7 @@ fit(peer_t *p, double rd)
 //	/* Do we have a loop? */
 //	if (p->refid == p->dstaddr || p->refid == s.refid)
 //		return 0;
-        return 1;
+	return 1;
 }
 static peer_t*
 select_and_cluster(void)
@@ -1732,7 +1772,7 @@ static NOINLINE void
 recv_and_process_client_pkt(void /*int fd*/)
 {
 	ssize_t          size;
-	uint8_t          version;
+	//uint8_t          version;
 	len_and_sockaddr *to;
 	struct sockaddr  *from;
 	msg_t            msg;
@@ -1761,7 +1801,7 @@ recv_and_process_client_pkt(void /*int fd*/)
 
 	/* Build a reply packet */
 	memset(&msg, 0, sizeof(msg));
-	msg.m_status = G.stratum < MAXSTRAT ? G.ntp_status : LI_ALARM;
+	msg.m_status = G.stratum < MAXSTRAT ? (G.ntp_status & LI_MASK) : LI_ALARM;
 	msg.m_status |= (query_status & VERSION_MASK);
 	msg.m_status |= ((query_status & MODE_MASK) == MODE_CLIENT) ?
 			 MODE_SERVER : MODE_SYM_PAS;
@@ -1771,12 +1811,16 @@ recv_and_process_client_pkt(void /*int fd*/)
 	/* this time was obtained between poll() and recv() */
 	msg.m_rectime = d_to_lfp(G.cur_time);
 	msg.m_xmttime = d_to_lfp(gettime1900d()); /* this instant */
+	if (G.peer_cnt == 0) {
+		/* we have no peers: "stratum 1 server" mode. reftime = our own time */
+		G.reftime = G.cur_time;
+	}
 	msg.m_reftime = d_to_lfp(G.reftime);
 	msg.m_orgtime = query_xmttime;
 	msg.m_rootdelay = d_to_sfp(G.rootdelay);
 //simple code does not do this, fix simple code!
 	msg.m_rootdisp = d_to_sfp(G.rootdisp);
-	version = (query_status & VERSION_MASK); /* ... >> VERSION_SHIFT - done below instead */
+	//version = (query_status & VERSION_MASK); /* ... >> VERSION_SHIFT - done below instead */
 	msg.m_refid = G.refid; // (version > (3 << VERSION_SHIFT)) ? G.refid : G.refid3;
 
 	/* We reply from the local address packet was sent to,
@@ -1908,8 +1952,13 @@ static NOINLINE void ntp_init(char **argv)
 		bb_show_usage();
 //	if (opts & OPT_x) /* disable stepping, only slew is allowed */
 //		G.time_was_stepped = 1;
-	while (peers)
-		add_peers(llist_pop(&peers));
+	if (peers) {
+		while (peers)
+			add_peers(llist_pop(&peers));
+	} else {
+		/* -l but no peers: "stratum 1 server" mode */
+		G.stratum = 1;
+	}
 	if (!(opts & OPT_n)) {
 		bb_daemonize_or_rexec(DAEMON_DEVNULL_STDIO, argv);
 		logmode = LOGMODE_NONE;
@@ -1926,9 +1975,31 @@ static NOINLINE void ntp_init(char **argv)
 	if (opts & OPT_N)
 		setpriority(PRIO_PROCESS, 0, -15);
 
-	bb_signals((1 << SIGTERM) | (1 << SIGINT), record_signo);
-	/* Removed SIGHUP here: */
-	bb_signals((1 << SIGPIPE) | (1 << SIGCHLD), SIG_IGN);
+	/* If network is up, syncronization occurs in ~10 seconds.
+	 * We give "ntpd -q" 10 seconds to get first reply,
+	 * then another 50 seconds to finish syncing.
+	 *
+	 * I tested ntpd 4.2.6p1 and apparently it never exits
+	 * (will try forever), but it does not feel right.
+	 * The goal of -q is to act like ntpdate: set time
+	 * after a reasonably small period of polling, or fail.
+	 */
+	if (opts & OPT_q) {
+		option_mask32 |= OPT_qq;
+		alarm(10);
+	}
+
+	bb_signals(0
+		| (1 << SIGTERM)
+		| (1 << SIGINT)
+		| (1 << SIGALRM)
+		, record_signo
+	);
+	bb_signals(0
+		| (1 << SIGPIPE)
+		| (1 << SIGCHLD)
+		, SIG_IGN
+	);
 }
 
 int ntpd_main(int argc UNUSED_PARAM, char **argv) MAIN_EXTERNALLY_VISIBLE;
@@ -1950,14 +2021,14 @@ int ntpd_main(int argc UNUSED_PARAM, char **argv)
 	idx2peer = xzalloc(sizeof(idx2peer[0]) * cnt);
 	pfd = xzalloc(sizeof(pfd[0]) * cnt);
 
-	/* Countdown: we never sync before we sent INITIAL_SAMLPES+1
+	/* Countdown: we never sync before we sent INITIAL_SAMPLES+1
 	 * packets to each peer.
 	 * NB: if some peer is not responding, we may end up sending
 	 * fewer packets to it and more to other peers.
-	 * NB2: sync usually happens using INITIAL_SAMLPES packets,
+	 * NB2: sync usually happens using INITIAL_SAMPLES packets,
 	 * since last reply does not come back instantaneously.
 	 */
-	cnt = G.peer_cnt * (INITIAL_SAMLPES + 1);
+	cnt = G.peer_cnt * (INITIAL_SAMPLES + 1);
 
 	while (!bb_got_signal) {
 		llist_t *item;
@@ -2043,6 +2114,15 @@ int ntpd_main(int argc UNUSED_PARAM, char **argv)
 #endif
 		for (; nfds != 0 && j < i; j++) {
 			if (pfd[j].revents /* & (POLLIN|POLLERR)*/) {
+				/*
+				 * At init, alarm was set to 10 sec.
+				 * Now we did get a reply.
+				 * Increase timeout to 50 seconds to finish syncing.
+				 */
+				if (option_mask32 & OPT_qq) {
+					option_mask32 &= ~OPT_qq;
+					alarm(50);
+				}
 				nfds--;
 				recv_and_process_peer_pkt(idx2peer[j]);
 				gettime1900d(); /* sets G.cur_time */
@@ -2066,7 +2146,6 @@ int ntpd_main(int argc UNUSED_PARAM, char **argv)
 static double
 direct_freq(double fp_offset)
 {
-
 #ifdef KERNEL_PLL
 	/*
 	 * If the kernel is enabled, we need the residual offset to
@@ -2089,7 +2168,7 @@ direct_freq(double fp_offset)
 }
 
 static void
-set_freq(double	freq) /* frequency update */
+set_freq(double freq) /* frequency update */
 {
 	char tbuf[80];
 
