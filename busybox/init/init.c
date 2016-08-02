@@ -972,6 +972,7 @@ int init_main(int argc UNUSED_PARAM, char **argv)
 	putenv((char *) "SHELL=/bin/sh");
 	putenv((char *) "USER=root"); /* needed? why? */
 #ifdef BIGAP
+	putenv((char *) "__ROOTFS__=");
 	putenv((char *) "TZ=UTC-8");    /* timezone */
 	putenv((char *) "PEER=1.0.0.5");/* PEER is ap-board */
 	putenv((char *) "BOARDTYPE=md");/* PEER is ap-board */
