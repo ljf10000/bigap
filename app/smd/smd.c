@@ -803,7 +803,7 @@ load(void)
     }
 
     if (os_file_exist(SCRIPT_SMD_INIT)) {
-        os_system(SCRIPT_SMD_INIT_RUN);
+        __os_system(SCRIPT_SMD_INIT_RUN);
 
         debug_trace(SCRIPT_SMD_INIT);
     }

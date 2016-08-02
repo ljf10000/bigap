@@ -47,7 +47,7 @@
 #ifdef __PC__
 #   define SCRIPT_SMD_INIT          "./smd.init"
 #else
-#   define SCRIPT_SMD_INIT          "/etc/smd/smd.init"
+#   define SCRIPT_SMD_INIT          SCRIPT_FILE("smd.init")
 #endif
 #endif
 
@@ -56,12 +56,7 @@
 #endif
 
 #define SCRIPT_SMD_INIT_RUN         \
-"("                                 \
-    "sleep " __SYMBOL_TO_STRING(SCRIPT_SMD_INIT_DELAY) ";" \
-    "dos2unix " SCRIPT_SMD_INIT " &> /dev/null;" \
-    "chmod +x " SCRIPT_SMD_INIT ";" \
-    SCRIPT_SMD_INIT ";"             \
-") &" /* end */
+"(sleep " __SYMBOL_TO_STRING(SCRIPT_SMD_INIT_DELAY) ";" SCRIPT_SMD_INIT ";) &"
 
 #define __XLIST_SM(_)               \
     _(SM_STATE_INIT,  0, "init"),   \

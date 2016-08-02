@@ -37,6 +37,8 @@ define Package/bigap/install/common
 	$(INSTALL_DIR) $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/etc/config/
 	$(INSTALL_DIR) $(1)/etc/init.d/
+	$(INSTALL_DIR) $(1)/lib/script/
+	$(INSTALL_DIR) $(1)/lib/functions/
 	$(INSTALL_DIR) $(1)/$(AK_PATH)/
 endef
 ####################################################################
