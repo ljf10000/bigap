@@ -26,8 +26,8 @@ BENV_INITER;
 #define USB_FILE(_file)             DIR_USB_ROOTFS  "/" _file
 #define USB_TOOL_FILE(_file)        DIR_USB_TOOL    "/" _file
 
-#define SCRIPT_MOUNT                PRODUCT_FILE("etc/mount/mount.sh")
-#define SCRIPT_HOTPLUG              PRODUCT_FILE("etc/mount/hotplug.cb")
+#define SCRIPT_MOUNT                PRODUCT_FILE("lib/script/mount.script")
+#define SCRIPT_HOTPLUG              PRODUCT_FILE("lib/script/disk-hotplug.cb")
 #define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
 #define SCRIPT_CURRENT              PRODUCT_FILE("usr/sbin/syscurrent")
 
