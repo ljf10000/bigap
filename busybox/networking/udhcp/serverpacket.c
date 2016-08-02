@@ -29,8 +29,8 @@
 #define __THIS_FILE     "server"
 #endif
 
-#ifndef SCRIPT_DHCPD
-#define SCRIPT_DHCPD    "/lib/script/udhcpd.cb"
+#ifndef SCRIPT_UDHCPD
+#define SCRIPT_UDHCPD   SCRIPT_FILE("udhcpd.cb")
 #endif
 
 #include "utils.h"
@@ -229,8 +229,8 @@ int FAST_FUNC send_NAK(struct dhcp_packet *oldpacket)
 	init_packet(&packet, oldpacket, DHCPNAK);
 
 #if defined(BIGAP) && !defined(NO_UM)
-    if (os_file_exist(SCRIPT_DHCPD)) {
-        os_system(SCRIPT_DHCPD " nak %s %s &",
+    if (os_file_exist(SCRIPT_UDHCPD)) {
+        os_system(SCRIPT_UDHCPD " nak %s %s &",
             os_macstring(packet.chaddr),
             os_ipstring(packet.yiaddr));
     } else {
@@ -286,8 +286,8 @@ int FAST_FUNC send_ACK(struct dhcp_packet *oldpacket, uint32_t yiaddr)
 	}
 
 #if defined(BIGAP) && !defined(NO_UM)
-    if (os_file_exist(SCRIPT_DHCPD)) {
-        os_system(SCRIPT_DHCPD " ack %s %s &",
+    if (os_file_exist(SCRIPT_UDHCPD)) {
+        os_system(SCRIPT_UDHCPD " ack %s %s &",
             os_macstring(packet.chaddr),
             os_ipstring(packet.yiaddr));
     } else {

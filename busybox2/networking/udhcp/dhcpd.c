@@ -19,8 +19,8 @@
 #define __THIS_FILE     "udhcpd"
 #endif
 
-#ifndef SCRIPT_DHCPD
-#define SCRIPT_DHCPD    "/lib/script/udhcpd.cb"
+#ifndef SCRIPT_UDHCPD
+#define SCRIPT_UDHCPD   SCRIPT_FILE("udhcpd.cb")
 #endif
 
 #include "utils.h"
@@ -292,8 +292,8 @@ int udhcpd_main(int argc UNUSED_PARAM, char **argv)
 
 #ifdef BIGAP
 			if (lease) {
-			    if (os_file_exist(SCRIPT_DHCPD)) {
-                    os_system(SCRIPT_DHCPD " decline %s %s &",
+			    if (os_file_exist(SCRIPT_UDHCPD)) {
+                    os_system(SCRIPT_UDHCPD " decline %s %s &",
                         os_macstring(lease->lease_mac),
                         os_ipstring(lease->lease_nip));
 			    } else {
@@ -312,8 +312,8 @@ int udhcpd_main(int argc UNUSED_PARAM, char **argv)
 
 #ifdef BIGAP
 			if (lease) {
-			    if (os_file_exist(SCRIPT_DHCPD)) {
-                    os_system(SCRIPT_DHCPD " decline %s %s &",
+			    if (os_file_exist(SCRIPT_UDHCPD)) {
+                    os_system(SCRIPT_UDHCPD " decline %s %s &",
                         os_macstring(lease->lease_mac),
                         os_ipstring(lease->lease_nip));
 			    } else {

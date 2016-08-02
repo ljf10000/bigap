@@ -74,6 +74,9 @@
 #define PRODUCT_DIR(_dir)               PRODUCT_DIR_ROOT _dir
 #define PRODUCT_IDIR(_dir, _idx)        _dir #_idx
 
+#define DIR_SCRIPT                      "lib/script"
+#define SCRIPT_FILE(_file)              PRODUCT_FILE(DIR_SCRIPT "/" _file)
+
 #define PRODUCT_MASTER(_master)         PRODUCT_FILE(_master PRODUCT_DEV_PREFIX)
 #define PRODUCT_IDEV(_master, _idx)     PRODUCT_IDIR(PRODUCT_MASTER(_master), _idx)
 #define PRODUCT_IDEV_FLASH(_idx)        PRODUCT_IDEV(PRODUCT_DEV_FLASH_MASTER, _idx)

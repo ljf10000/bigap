@@ -764,7 +764,7 @@ os_fgeti_ex(char *file, int max, int min, int deft)
 }
 
 #ifndef SCRIPT_SHELL_SYSTEM
-#define SCRIPT_SHELL_SYSTEM     "/lib/script/system.script"
+#define SCRIPT_SHELL_SYSTEM     SCRIPT_FILE("system.script")
 #endif
 
 #define os_p_system(_fmt, _args...) ({  \

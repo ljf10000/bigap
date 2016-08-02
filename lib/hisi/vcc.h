@@ -16,7 +16,7 @@
 #endif
 
 #ifndef VCC_SCRIPT
-#define VCC_SCRIPT          "/lib/script/vcc.cb"
+#define VCC_SCRIPT          SCRIPT_FILE("vcc.cb")
 #endif
 
 #ifndef VCC_FILE_STATUS
