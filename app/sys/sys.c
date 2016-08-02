@@ -26,15 +26,16 @@ BENV_INITER;
 #define USB_FILE(_file)             DIR_USB_ROOTFS  "/" _file
 #define USB_TOOL_FILE(_file)        DIR_USB_TOOL    "/" _file
 
-#define SCRIPT_MOUNT                PRODUCT_FILE("lib/script/mount.script")
-#define SCRIPT_HOTPLUG              PRODUCT_FILE("lib/script/disk-hotplug.cb")
+#define DIR_SCRIPT                  "lib/script"
+
+#define SCRIPT_MOUNT                PRODUCT_FILE(DIR_SCRIPT "/mount.script")
+#define SCRIPT_HOTPLUG              PRODUCT_FILE(DIR_SCRIPT "/disk-hotplug.cb")
 #define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
 #define SCRIPT_CURRENT              PRODUCT_FILE("usr/sbin/syscurrent")
 
-#define DIR_UPGRADE                 "/etc/upgrade"
-#define SCRIPT_USBUPGRADE_INIT      DIR_USB_ROOTFS DIR_UPGRADE "/usbupgrade_init.cb"
-#define SCRIPT_USBUPGRADE_OK        DIR_USB_ROOTFS DIR_UPGRADE "/usbupgrade_ok.cb"
-#define SCRIPT_USBUPGRADE_FAIL      DIR_USB_ROOTFS DIR_UPGRADE "/usbupgrade_fail.cb"
+#define SCRIPT_USBUPGRADE_INIT      DIR_USB_ROOTFS "/" DIR_SCRIPT "/usbupgrade_init.cb"
+#define SCRIPT_USBUPGRADE_OK        DIR_USB_ROOTFS "/" DIR_SCRIPT "/usbupgrade_ok.cb"
+#define SCRIPT_USBUPGRADE_FAIL      DIR_USB_ROOTFS "/" DIR_SCRIPT "/usbupgrade_fail.cb"
 
 #define __FILE_VERSION              "etc/" PRODUCT_FILE_VERSION
 #define __FILE_ROOTFS_VERSION       __FILE_VERSION
