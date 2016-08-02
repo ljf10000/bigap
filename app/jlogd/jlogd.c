@@ -16,8 +16,8 @@ OS_INITER;
 #   define SCRIPT_CUT       "./jlogcut"
 #   define SCRIPT_PUSH      "./jlogpush"
 #else
-#   define SCRIPT_CUT       SCRIPT_FILE("jlogcut.cb")
-#   define SCRIPT_PUSH      SCRIPT_FILE("jlogpush.cb")
+#   define SCRIPT_CUT       SCRIPT_FILE("jlog/cut.cb")
+#   define SCRIPT_PUSH      SCRIPT_FILE("jlog/push.cb")
 #endif
 
 static char RX[1 + JLOG_BUFSIZE];
