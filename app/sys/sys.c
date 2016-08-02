@@ -27,6 +27,7 @@ BENV_INITER;
 #define USB_TOOL_FILE(_file)        DIR_USB_TOOL    "/" _file
 
 #define SCRIPT_MOUNT                PRODUCT_FILE("etc/mount/mount.sh")
+#define SCRIPT_HOTPLUG              PRODUCT_FILE("etc/mount/hotplug.cb")
 #define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
 #define SCRIPT_CURRENT              PRODUCT_FILE("usr/sbin/syscurrent")
 
@@ -536,10 +537,14 @@ mount_sd(void)
 static int
 mount_usb(void)
 {
-    return do_mount_wait(2, PRODUCT_DEV_USB, PRODUCT_DIR_USB, 
-            true,   /* check    */
-            false,  /* readonly */
-            false); /* repair   */
+    if (false==os_file_exist(SCRIPT_HOTPLUG)) {
+        return do_mount_wait(2, PRODUCT_DEV_USB, PRODUCT_DIR_USB, 
+                true,   /* check    */
+                false,  /* readonly */
+                false); /* repair   */
+    } else {
+        return 0;
+    }
 }
 
 static int
@@ -621,7 +626,11 @@ umount_sd(void)
 static int
 umount_usb(void)
 {
-    return do_umount(PRODUCT_DIR_USB);
+    if (false==os_file_exist(SCRIPT_HOTPLUG)) {
+        return do_umount(PRODUCT_DIR_USB);
+    } else {
+        return 0;
+    }
 }
 
 static struct {
