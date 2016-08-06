@@ -121,7 +121,7 @@ IF_CRONTAB(APPLET(crontab, _BB_DIR_USR_BIN, _BB_SUID_REQUIRE))
 IF_CRYPTPW(APPLET(cryptpw, _BB_DIR_USR_BIN, _BB_SUID_DROP))
 IF_CTTYHACK(APPLET(cttyhack, _BB_DIR_BIN, _BB_SUID_DROP))
 IF_CUT(APPLET_NOEXEC(cut, cut, _BB_DIR_USR_BIN, _BB_SUID_DROP, cut))
-#if 0 /* BIGAP, not use busybox date */
+#if 0 /* BIGAP, not setup softlink date */
 IF_DATE(APPLET(date, _BB_DIR_BIN, _BB_SUID_DROP))
 #endif
 IF_DC(APPLET(dc, _BB_DIR_USR_BIN, _BB_SUID_DROP))
@@ -143,7 +143,7 @@ IF_HOSTNAME(APPLET_ODDNAME(dnsdomainname, hostname, _BB_DIR_BIN, _BB_SUID_DROP, 
 IF_DOS2UNIX(APPLET(dos2unix, _BB_DIR_USR_BIN, _BB_SUID_DROP))
 IF_DPKG(APPLET(dpkg, _BB_DIR_USR_BIN, _BB_SUID_DROP))
 IF_DPKG_DEB(APPLET_ODDNAME(dpkg-deb, dpkg_deb, _BB_DIR_USR_BIN, _BB_SUID_DROP, dpkg_deb))
-#if 0 /* BIGAP, not use busybox du */
+#if 0 /* BIGAP, not setup softlink date */
 IF_DU(APPLET(du, _BB_DIR_USR_BIN, _BB_SUID_DROP))
 #endif
 IF_DUMPKMAP(APPLET(dumpkmap, _BB_DIR_BIN, _BB_SUID_DROP))
@@ -225,7 +225,7 @@ IF_INSMOD(APPLET(insmod, _BB_DIR_SBIN, _BB_SUID_DROP))
 IF_MODPROBE_SMALL(APPLET_ODDNAME(insmod, modprobe, _BB_DIR_SBIN, _BB_SUID_DROP, modprobe))
 IF_INSTALL(APPLET(install, _BB_DIR_USR_BIN, _BB_SUID_DROP))
 IF_IONICE(APPLET(ionice, _BB_DIR_BIN, _BB_SUID_DROP))
-#if 0 /* BIGAP, not use busybox ip */
+#if 0 /* BIGAP, not setup softlink date */
 #if ENABLE_FEATURE_IP_ADDRESS \
  || ENABLE_FEATURE_IP_ROUTE \
  || ENABLE_FEATURE_IP_LINK \
