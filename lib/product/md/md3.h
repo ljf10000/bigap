@@ -2,8 +2,20 @@
 #define __MD3_H_a6505c1ba56b48df9e21eb182d06c773__
 #if IS_PRODUCT_LTEFI_MD3
 /******************************************************************************/
+#ifndef PRODUCT_MODEL
+#define PRODUCT_MODEL                   "WeJan1"
+#endif
+
+#ifndef PRODUCT_VERSION
+#define PRODUCT_VERSION                 "H1"
+#endif
+
 #ifndef PRODUCT_PCBA_MODEL
-#define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-md3" /* fixme */
+#define PRODUCT_PCBA_MODEL              "HI3798M_V1.1"
+#endif
+
+#ifndef PRODUCT_PCBA_VERSION
+#define PRODUCT_PCBA_VERSION            "1.1.1.2"
 #endif
 
 #define PRODUCT_DOG_COUNT               3

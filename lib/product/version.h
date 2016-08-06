@@ -5,22 +5,32 @@ typedef struct {
     unsigned char number[4];
 } product_version_t;
 
-#define PRODUCT_VERSION(a, b, c, d)     {.number = {a,b,c,d}}
+#define MAKE_PRODUCT_VERSION(a, b, c, d)    {.number = {a,b,c,d}}
+
+#define MAKE_PRODUCT_VERSION_STRING(a, b, c, d) \
+    __SYMBOL_TO_STRING(a)   \
+    "."                     \
+    __SYMBOL_TO_STRING(b)   \
+    "."                     \
+    __SYMBOL_TO_STRING(c)   \
+    "."                     \
+    __SYMBOL_TO_STRING(d)   \
+    /* end */
 
 #ifndef PRODUCT_MIN_VERSION_STRING
-#define PRODUCT_MIN_VERSION_STRING      "0.0.0.0"
+#define PRODUCT_MIN_VERSION_STRING      MAKE_PRODUCT_VERSION_STRING(0, 0, 0, 0)
 #endif
 
 #ifndef PRODUCT_MIN_VERSION
-#define PRODUCT_MIN_VERSION             PRODUCT_VERSION(0, 0, 0, 0)
+#define PRODUCT_MIN_VERSION             MAKE_PRODUCT_VERSION(0, 0, 0, 0)
 #endif
 
 #ifndef PRODUCT_MAX_VERSION_STRING
-#define PRODUCT_MAX_VERSION_STRING      "255.255.255.255"
+#define PRODUCT_MAX_VERSION_STRING      MAKE_PRODUCT_VERSION_STRING(255, 255, 255, 255)
 #endif
 
 #ifndef PRODUCT_MAX_VERSION
-#define PRODUCT_MAX_VERSION             PRODUCT_VERSION(255, 255, 255, 255)
+#define PRODUCT_MAX_VERSION             MAKE_PRODUCT_VERSION(255, 255, 255, 255)
 #endif
 
 #ifndef PRODUCT_INVALID_VERSION_STRING
@@ -51,16 +61,10 @@ enum {
 #define PRODUCT_DEFT_VERSION_D          1
 #endif
 
-#define PRODUCT_DEFT_VERSION            PRODUCT_VERSION(PRODUCT_DEFT_VERSION_A, PRODUCT_DEFT_VERSION_B, PRODUCT_DEFT_VERSION_C, PRODUCT_DEFT_VERSION_D)
-#define PRODUCT_DEFT_VERSION_STRING             \
-    __SYMBOL_TO_STRING(PRODUCT_DEFT_VERSION_A)  \
-    "."                                         \
-    __SYMBOL_TO_STRING(PRODUCT_DEFT_VERSION_B)  \
-    "."                                         \
-    __SYMBOL_TO_STRING(PRODUCT_DEFT_VERSION_C)  \
-    "."                                         \
-    __SYMBOL_TO_STRING(PRODUCT_DEFT_VERSION_D)  \
-    /* end */
+#define PRODUCT_DEFT_VERSION            \
+    MAKE_PRODUCT_VERSION(PRODUCT_DEFT_VERSION_A, PRODUCT_DEFT_VERSION_B, PRODUCT_DEFT_VERSION_C, PRODUCT_DEFT_VERSION_D)
+#define PRODUCT_DEFT_VERSION_STRING     \
+    MAKE_PRODUCT_VERSION_STRING(PRODUCT_DEFT_VERSION_A, PRODUCT_DEFT_VERSION_B, PRODUCT_DEFT_VERSION_C, PRODUCT_DEFT_VERSION_D)
 /******************************************************************************/
 /* must last */
 #include "product/v1.h"

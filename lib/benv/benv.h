@@ -104,14 +104,6 @@ __benv_cookie_show(benv_cookie_t *cookie)
     os_println("compile:%s", cookie->compile);
 }
 
-#define BENV_DEFT_COOKIE              { \
-    .vendor     = PRODUCT_VENDOR,       \
-    .company    = PRODUCT_COMPANY,      \
-    .model      = PRODUCT_PCBA_MODEL,   \
-    .version    = PRODUCT_DEFT_VERSION_STRING, \
-    .compile    = PRODUCT_BUILD_TIME,   \
-}   /* end */
-
 typedef product_version_t benv_version_t;
 
 #define BENV_MIN_VERSION_STRING     PRODUCT_MIN_VERSION_STRING
@@ -298,13 +290,6 @@ typedef struct {
     char pad[BENV_BLOCK_SIZE - BENV_OS_SIZE];
 } benv_os_t; /* 512 */
 
-#define BENV_DEFT_OS  {   \
-    .current    = PRODUCT_FIRMWARE_CURRENT, \
-    .firmware   = {     \
-        [0 ... (PRODUCT_FIRMWARE_COUNT-1)] = BENV_DEFT_FIRMWARE, \
-    },                  \
-}   /* end */
-
 static inline void
 __benv_os_show(benv_os_t *os)
 {
@@ -352,8 +337,6 @@ typedef struct {
     uint32 key[BENV_MARK_COUNT];
 } benv_mark_t; /* 512 */
 
-#define BENV_DEFT_MARK { .key = {0} }
-
 enum {
     BENV_INFO_COUNT_PER_BLOCK   = (BENV_BLOCK_SIZE/BENV_INFO_SIZE),                 /* 512/64=8 */
     BENV_INFO_COUNT             = ((BENV_BLOCK_COUNT-3)*BENV_INFO_COUNT_PER_BLOCK), /* 5*8=40 */
@@ -362,8 +345,6 @@ enum {
 typedef struct {
     char var[BENV_INFO_COUNT][BENV_INFO_SIZE];
 } benv_info_t;
-
-#define BENV_DEFT_INFO { .var = {{0}} }
 
 enum {
     BENV_COOKIE = 0,
@@ -400,13 +381,6 @@ __benv_ops_is(uint32 offset)
         return BENV_COOKIE;
     }
 }
-
-#define BENF_DEFT           {   \
-    .cookie = BENV_DEFT_COOKIE, \
-    .os     = BENV_DEFT_OS,     \
-    .mark   = BENV_DEFT_MARK,   \
-    .info   = BENV_DEFT_INFO,   \
-}   /* end */
 
 typedef struct struct_benv_ops benv_ops_t;
 struct struct_benv_ops {
@@ -732,68 +706,6 @@ __benv_firmware_version_cmp(int a, int b)
 
 #define benv_obj_version_cmp(_obj, _a, _b)  __benv_##_obj##_version_cmp(_a, _b)
 #define benv_obj_version_eq(_obj, _a, _b)   (0==benv_obj_version_cmp(_obj, _a, _b))
-
-static inline benv_cookie_t *
-benv_cookie_deft(void)
-{
-    static benv_cookie_t deft = BENV_DEFT_COOKIE;
-
-    return &deft;
-}
-
-static inline bool
-is_benv_cookie_fixed(void)
-{
-    /*
-    * just cmp FIXED
-    */
-    return os_memeq(benv_cookie_deft(), __benv_cookie, BENV_COOKIE_FIXED);
-}
-
-static inline bool
-is_benv_cookie_deft(void)
-{
-    return os_objeq(benv_cookie_deft(), __benv_cookie);
-}
-
-static inline void
-__benv_deft_cookie(void)
-{
-    os_objcpy(__benv_cookie, benv_cookie_deft());
-    
-    benv_dirty_byidx(BENV_COOKIE);
-}
-
-static inline void
-__benv_deft_os(void)
-{
-    int i;
-
-    for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
-        __benv_firmware_deft(benv_firmware(i));
-    }
-    __benv_current = PRODUCT_FIRMWARE_CURRENT;
-
-    benv_dirty_byidx(BENV_OS);
-}
-
-static inline void
-__benv_deft(void)
-{
-    os_objdeft(__benv_env, BENF_DEFT);
-
-    benv_dirty_all();
-}
-
-static inline void
-__benv_clean_cookie(void)
-{
-    os_objzero(__benv_cookie);
-    
-    benv_dirty_byidx(BENV_COOKIE);
-    
-    os_println("cookie clean");
-}
 
 enum {
     __benv_mark_ptest_control   = 0,
@@ -1584,13 +1496,6 @@ benv_mark_add(int idx, int value)
     __BENV_MARK_OPS("js",           __benv_mark_jsdebug,        NULL, NULL,             __benv_show_number)  \
     /* end */
 
-#ifdef __BOOT__
-#define BENV_MARK_OPS_IDX       \
-    __BENV_MARK_OPS_IDX(9)      \
-    /* end */
-
-#elif defined(__APP__)
-
 #define BENV_MARK_OPS_IDX       \
     __BENV_MARK_OPS_IDX(9),     \
                                 \
@@ -1724,20 +1629,24 @@ benv_mark_add(int idx, int value)
     __BENV_MARK_OPS_IDX(126),   \
     __BENV_MARK_OPS_IDX(127)    \
     /* end */
-#endif
 
 #define BENV_MARK_OPS       \
     BENV_MARK_OPS_NAMES,    \
     BENV_MARK_OPS_IDX       \
     /* end */
 
-#define __BENV_INFO_OPS(_path, _idx) \
+#define __BENV_INFO_OPS_RO(_path, _idx) \
+    BENV_OPS("infos/" _path, info.var[_idx], NULL, NULL, __benv_show_string) \
+    /* end */
+
+#define __BENV_INFO_OPS_RW(_path, _idx) \
     BENV_OPS("infos/" _path, info.var[_idx], __benv_check_string, __benv_set_string, __benv_show_string) \
     /* end */
 
 enum {
-    __benv_info_pcba_vendor     = 0,
-    __benv_info_pcba_company    = 1,
+    /*
+    * 0 and 1 deleted, resverd
+    */
     __benv_info_pcba_model      = 2,
     __benv_info_pcba_mac        = 3,
     __benv_info_pcba_sn         = 4,
@@ -1772,50 +1681,31 @@ benv_info_get(int idx)
     return benv_info(idx);
 }
 
-#define BENV_INFO_OPS_NAMES_COMMON  \
-    __BENV_INFO_OPS("pcba/vendor",      __benv_info_pcba_vendor),       \
-    __BENV_INFO_OPS("pcba/company",     __benv_info_pcba_company),      \
-    __BENV_INFO_OPS("pcba/model",       __benv_info_pcba_model),        \
-    __BENV_INFO_OPS("pcba/mac",         __benv_info_pcba_mac),          \
-    __BENV_INFO_OPS("pcba/sn",          __benv_info_pcba_sn),           \
-    __BENV_INFO_OPS("pcba/version",     __benv_info_pcba_version),      \
-    __BENV_INFO_OPS("pcba/rootrw",      __benv_info_pcba_rootrw),       \
+#define BENV_INFO_OPS_NAMES  \
+    __BENV_INFO_OPS_RO("pcba/model",    __benv_info_pcba_model),        \
+    __BENV_INFO_OPS_RW("pcba/mac",      __benv_info_pcba_mac),          \
+    __BENV_INFO_OPS_RW("pcba/sn",       __benv_info_pcba_sn),           \
+    __BENV_INFO_OPS_RO("pcba/version",  __benv_info_pcba_version),      \
+    __BENV_INFO_OPS_RW("pcba/rootrw",   __benv_info_pcba_rootrw),       \
                                                                         \
-    __BENV_INFO_OPS("product/vendor",   __benv_info_product_vendor),    \
-    __BENV_INFO_OPS("product/company",  __benv_info_product_company),   \
-    __BENV_INFO_OPS("product/model",    __benv_info_product_model),     \
-    __BENV_INFO_OPS("product/mac",      __benv_info_product_mac),       \
-    __BENV_INFO_OPS("product/sn",       __benv_info_product_sn),        \
-    __BENV_INFO_OPS("product/manager",  __benv_info_product_manager),   \
-    __BENV_INFO_OPS("product/version",  __benv_info_product_version),   \
+    __BENV_INFO_OPS_RO("product/vendor",    __benv_info_product_vendor),    \
+    __BENV_INFO_OPS_RO("product/company",   __benv_info_product_company),   \
+    __BENV_INFO_OPS_RO("product/model",     __benv_info_product_model),     \
+    __BENV_INFO_OPS_RW("product/mac",       __benv_info_product_mac),       \
+    __BENV_INFO_OPS_RW("product/sn",        __benv_info_product_sn),        \
+    __BENV_INFO_OPS_RO("product/manager",   __benv_info_product_manager),   \
+    __BENV_INFO_OPS_RO("product/version",   __benv_info_product_version),   \
                                                                         \
-    __BENV_INFO_OPS("oem/vendor",       __benv_info_oem_vendor),        \
-    __BENV_INFO_OPS("oem/company",      __benv_info_oem_company),       \
-    __BENV_INFO_OPS("oem/model",        __benv_info_oem_model),         \
-    __BENV_INFO_OPS("oem/mac",          __benv_info_oem_mac),           \
-    __BENV_INFO_OPS("oem/sn",           __benv_info_oem_sn),            \
-    __BENV_INFO_OPS("oem/manager",      __benv_info_oem_manager),       \
-    __BENV_INFO_OPS("oem/version",      __benv_info_oem_version)        \
+    __BENV_INFO_OPS_RW("oem/vendor",    __benv_info_oem_vendor),        \
+    __BENV_INFO_OPS_RW("oem/company",   __benv_info_oem_company),       \
+    __BENV_INFO_OPS_RW("oem/model",     __benv_info_oem_model),         \
+    __BENV_INFO_OPS_RW("oem/mac",       __benv_info_oem_mac),           \
+    __BENV_INFO_OPS_RW("oem/sn",        __benv_info_oem_sn),            \
+    __BENV_INFO_OPS_RW("oem/manager",   __benv_info_oem_manager),       \
+    __BENV_INFO_OPS_RW("oem/version",   __benv_info_oem_version)        \
     /* end */
 
-#ifdef __BOOT__
-#define BENV_INFO_OPS_NAMES     \
-    BENV_INFO_OPS_NAMES_COMMON  \
-    /* end */
-
-#define BENV_INFO_OPS   \
-    BENV_INFO_OPS_NAMES \
-    /* end */
-
-#elif defined(__APP__)
-#define BENV_INFO_OPS_NAMES     \
-    BENV_INFO_OPS_NAMES_COMMON  \
-    /* end */
-
-#define __BENV_INFO_OPS_IDX(_idx)   \
-    __BENV_INFO_OPS(#_idx, _idx)    \
-    /* end */
-
+#define __BENV_INFO_OPS_IDX(_idx)   __BENV_INFO_OPS_RW(#_idx, _idx)
 #define BENV_INFO_OPS_IDX       \
     __BENV_INFO_OPS_IDX(21),    \
     __BENV_INFO_OPS_IDX(22),    \
@@ -1843,7 +1733,6 @@ benv_info_get(int idx)
     BENV_INFO_OPS_NAMES,    \
     BENV_INFO_OPS_IDX       \
     /* end */
-#endif
 
 #define BENV_DEFT_OPS { \
     BENV_COOKIE_OPS,    \
@@ -2269,6 +2158,117 @@ static inline void
 benv_show_os(void)
 {
     __benv_os_show(__benv_os);
+}
+
+#define BENV_DEFT_COOKIE              { \
+    .vendor     = PRODUCT_VENDOR,       \
+    .company    = PRODUCT_COMPANY,      \
+    .model      = PRODUCT_PCBA_MODEL,   \
+    .version    = PRODUCT_DEFT_VERSION_STRING, \
+    .compile    = PRODUCT_BUILD_TIME,   \
+}   /* end */
+
+#define BENV_DEFT_OS  {   \
+    .current    = PRODUCT_FIRMWARE_CURRENT, \
+    .firmware   = {     \
+        [0 ... (PRODUCT_FIRMWARE_COUNT-1)] = BENV_DEFT_FIRMWARE, \
+    },                  \
+}   /* end */
+
+#define BENV_DEFT_MARK  {.key = {0}}
+#define BENV_DEFT_INFO  {                                           \
+    .var = {                                                        \
+        [__benv_info_pcba_model]        = PRODUCT_PCBA_MODEL,       \
+        [__benv_info_pcba_mac]          = __empty,                  \
+        [__benv_info_pcba_sn]           = __empty,                  \
+        [__benv_info_pcba_version]      = PRODUCT_PCBA_VERSION,     \
+        [__benv_info_pcba_rootrw]       = PRODUCT_ROOTFS_RO,        \
+                                                                    \
+        [__benv_info_product_vendor]    = PRODUCT_VENDOR,           \
+        [__benv_info_product_company]   = PRODUCT_COMPANY,          \
+        [__benv_info_product_model]     = PRODUCT_MODEL,            \
+        [__benv_info_product_mac]       = __empty,                  \
+        [__benv_info_product_sn]        = __empty,                  \
+        [__benv_info_product_manager]   = PRODUCT_VENDOR_MANAGER,   \
+        [__benv_info_product_version]   = PRODUCT_VERSION,          \
+                                                                    \
+        [__benv_info_oem_vendor]        = PRODUCT_VENDOR,           \
+        [__benv_info_oem_company]       = PRODUCT_COMPANY,          \
+        [__benv_info_oem_model]         = PRODUCT_MODEL,            \
+        [__benv_info_oem_mac]           = __empty,                  \
+        [__benv_info_oem_sn]            = __empty,                  \
+        [__benv_info_oem_manager]       = PRODUCT_VENDOR_MANAGER,   \
+        [__benv_info_oem_version]       = PRODUCT_VERSION,          \
+    }                                                               \
+}   /* end */
+
+#define BENF_DEFT           {   \
+    .cookie = BENV_DEFT_COOKIE, \
+    .os     = BENV_DEFT_OS,     \
+    .mark   = BENV_DEFT_MARK,   \
+    .info   = BENV_DEFT_INFO,   \
+}   /* end */
+
+static inline benv_cookie_t *
+benv_cookie_deft(void)
+{
+    static benv_cookie_t deft = BENV_DEFT_COOKIE;
+
+    return &deft;
+}
+
+static inline bool
+is_benv_cookie_fixed(void)
+{
+    /*
+    * just cmp FIXED
+    */
+    return os_memeq(benv_cookie_deft(), __benv_cookie, BENV_COOKIE_FIXED);
+}
+
+static inline bool
+is_benv_cookie_deft(void)
+{
+    return os_objeq(benv_cookie_deft(), __benv_cookie);
+}
+
+static inline void
+__benv_deft_cookie(void)
+{
+    os_objcpy(__benv_cookie, benv_cookie_deft());
+    
+    benv_dirty_byidx(BENV_COOKIE);
+}
+
+static inline void
+__benv_deft_os(void)
+{
+    int i;
+
+    for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
+        __benv_firmware_deft(benv_firmware(i));
+    }
+    __benv_current = PRODUCT_FIRMWARE_CURRENT;
+
+    benv_dirty_byidx(BENV_OS);
+}
+
+static inline void
+__benv_deft(void)
+{
+    os_objdeft(__benv_env, BENF_DEFT);
+
+    benv_dirty_all();
+}
+
+static inline void
+__benv_clean_cookie(void)
+{
+    os_objzero(__benv_cookie);
+    
+    benv_dirty_byidx(BENV_COOKIE);
+    
+    os_println("cookie clean");
 }
 
 static inline bool

@@ -55,19 +55,23 @@
 #endif
 
 #ifndef PRODUCT_VENDOR
-#define PRODUCT_VENDOR          "superwalle"
+#define PRODUCT_VENDOR          "Superwalle"
 #endif
 
 #ifndef PRODUCT_VENDOR_DOMAIN
-#define PRODUCT_VENDOR_DOMAIN   PRODUCT_VENDOR ".com"
+#define PRODUCT_VENDOR_DOMAIN   "superwalle.com"
 #endif
 
 #ifndef PRODUCT_VENDOR_URL
 #define PRODUCT_VENDOR_URL      "www." PRODUCT_VENDOR_DOMAIN
 #endif
 
+#ifndef PRODUCT_VENDOR_MANAGER
+#define PRODUCT_VENDOR_MANAGER  "lms1." PRODUCT_VENDOR_DOMAIN
+#endif
+
 #ifndef PRODUCT_COMPANY
-#define PRODUCT_COMPANY         PRODUCT_VENDOR " Technology Co.,Ltd." /* fixme */
+#define PRODUCT_COMPANY         "Beijing " PRODUCT_VENDOR " Technology Co.,Ltd."
 #endif
 
 #define PRODUCT_FILE(_file)             PRODUCT_DIR_ROOT _file
