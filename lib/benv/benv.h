@@ -723,65 +723,6 @@ enum {
     __benv_mark_end
 };
 
-static inline void
-__benv_mark_private_save(uint32 backup[])
-{
-    int i;
-    
-    for (i=__benv_mark_private; i<__benv_mark_end; i++) {
-        backup[i] = benv_mark(i);
-    }
-}
-
-static inline void
-__benv_mark_private_restore(uint32 backup[])
-{
-    int i;
-    
-    for (i=__benv_mark_private; i<__benv_mark_end; i++) {
-        benv_mark(i) = backup[i];
-    }
-}
-
-
-static inline void
-__benv_clean_mark(void)
-{
-    uint32 backup[__benv_mark_end] = {0};
-    
-    __benv_mark_private_save(backup);
-    os_objzero(__benv_mark);
-    __benv_mark_private_restore(backup);
-    
-    benv_dirty_byidx(BENV_MARK);
-    
-    os_println("mark clean");
-}
-
-static inline void
-__benv_clean_info(void)
-{
-    os_objzero(__benv_info);
-    
-    benv_dirty_byzone(BENV_INFO, BENV_BLOCK_COUNT);
-    
-    os_println("info clean");
-}
-
-static inline void
-__benv_clean(void)
-{
-    uint32 backup[__benv_mark_end] = {0};
-    
-    __benv_mark_private_save(backup);
-    os_objzero(__benv_env);
-    __benv_mark_private_restore(backup);
-    
-    benv_dirty_all();
-    
-    os_println("all clean, need reboot");
-}
-
 /*
 * step 1:normal
 * 1. firmware, bad < good
@@ -1681,6 +1622,16 @@ benv_info_get(int idx)
     return benv_info(idx);
 }
 
+#define BENV_INFO_RO_LIST       {   \
+    __benv_info_pcba_model,         \
+    __benv_info_pcba_version,       \
+    __benv_info_product_vendor,     \
+    __benv_info_product_company,    \
+    __benv_info_product_model,      \
+    __benv_info_product_manager,    \
+    __benv_info_product_version,    \
+}   /* end */
+
 #define BENV_INFO_OPS_NAMES  \
     __BENV_INFO_OPS_RO("pcba/model",    __benv_info_pcba_model),        \
     __BENV_INFO_OPS_RW("pcba/mac",      __benv_info_pcba_mac),          \
@@ -2256,23 +2207,15 @@ __benv_deft_os(void)
 static inline void
 __benv_deft_info(void)
 {
-    benv_env_t benv = BENF_DEFT;
-    int ro[] = {
-        __benv_info_pcba_model,
-        __benv_info_pcba_version,
-        __benv_info_product_vendor,
-        __benv_info_product_company,
-        __benv_info_product_model,
-        __benv_info_product_manager,
-        __benv_info_product_version,
-    };
+    benv_info_t info = BENV_DEFT_INFO;
+    int ro[] = BENV_INFO_RO_LIST;
     int i;
 
     for (i=0; i<os_count_of(ro); i++) {
-        os_strcpy(benv.info.var[ro[i]], benv_info_get(ro[i]));
+        os_strcpy(info.var[ro[i]], benv_info_get(ro[i]));
     }
     
-    benv_dirty_byidx(BENV_INFO);
+    benv_dirty_byzone(BENV_INFO, BENV_BLOCK_COUNT);
 }
 
 static inline void
@@ -2293,6 +2236,65 @@ __benv_clean_cookie(void)
     os_println("cookie clean");
 }
 
+static inline void
+__benv_mark_private_save(uint32 backup[])
+{
+    int i;
+    
+    for (i=__benv_mark_private; i<__benv_mark_end; i++) {
+        backup[i] = benv_mark(i);
+    }
+}
+
+static inline void
+__benv_mark_private_restore(uint32 backup[])
+{
+    int i;
+    
+    for (i=__benv_mark_private; i<__benv_mark_end; i++) {
+        benv_mark(i) = backup[i];
+    }
+}
+
+static inline void
+__benv_clean_mark(void)
+{
+    uint32 backup[__benv_mark_end] = {0};
+    
+    __benv_mark_private_save(backup);
+    os_objzero(__benv_mark);
+    __benv_mark_private_restore(backup);
+    
+    benv_dirty_byidx(BENV_MARK);
+    
+    os_println("mark clean");
+}
+
+static inline void
+__benv_clean_info(void)
+{
+    os_objzero(__benv_info);
+    __benv_deft_info();
+    
+    benv_dirty_byzone(BENV_INFO, BENV_BLOCK_COUNT);
+    
+    os_println("info clean");
+}
+
+static inline void
+__benv_clean(void)
+{
+    uint32 backup[__benv_mark_end] = {0};
+    
+    __benv_mark_private_save(backup);
+    os_objzero(__benv_env);
+    __benv_mark_private_restore(backup);
+    
+    benv_dirty_all();
+    
+    os_println("all clean, need reboot");
+}
+
 static inline bool
 benv_cmd_hiden(int argc, char *argv[])
 {
@@ -2302,16 +2304,17 @@ benv_cmd_hiden(int argc, char *argv[])
         char *obj;
         void (*handle)(void);
     } cmd[] = {
-        __benv_cmd_item("show",   "cookie",   benv_show_cookie),
-        __benv_cmd_item("show",   "os",       benv_show_os),
+        __benv_cmd_item("show",   "cookie", benv_show_cookie),
+        __benv_cmd_item("show",   "os",     benv_show_os),
         
-        __benv_cmd_item("reset",  "os",       __benv_deft_os),
-        __benv_cmd_item("reset",  "all",      __benv_deft),
+        __benv_cmd_item("reset",  "os",     __benv_deft_os),
+        __benv_cmd_item("reset",  "info",   __benv_deft_info),
+        __benv_cmd_item("reset",  "all",    __benv_deft),
         
-        __benv_cmd_item("clean",  "cookie",   __benv_clean_cookie),
-        __benv_cmd_item("clean",  "mark",     __benv_clean_mark),
-        __benv_cmd_item("clean",  "info",     __benv_clean_info),
-        __benv_cmd_item("clean",  "all",      __benv_clean),
+        __benv_cmd_item("clean",  "cookie", __benv_clean_cookie),
+        __benv_cmd_item("clean",  "mark",   __benv_clean_mark),
+        __benv_cmd_item("clean",  "info",   __benv_clean_info),
+        __benv_cmd_item("clean",  "all",    __benv_clean),
     };
 #undef __benv_cmd_item
     char *action    = argv[1];
