@@ -268,6 +268,19 @@ static inline bool os_seq_before(uint32 seq1, uint32 seq2)
 */
 #define os_seq_after(_seq1, _seq2)  os_seq_before(_seq2, _seq1)
 
+static inline uint32 os_seq_offset(uint32 seq1, uint32 seq2)
+{
+    uint32 offset;
+
+    if (os_seq_before(seq1, seq2)) {
+        offset = (uint32)((int)seq2 - (int)seq1);
+    } else {
+        offset = (uint32)((int)seq1 - (int)seq2);
+    }
+
+    return offset;
+}
+
 #define __ERRNO(_err)   ((_err)<0?-errno:(_err))
 #define __errno(_err)   ({  \
     int err_in___errno = (_err);     \
