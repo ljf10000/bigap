@@ -2254,6 +2254,28 @@ __benv_deft_os(void)
 }
 
 static inline void
+__benv_deft_info(void)
+{
+    benv_env_t benv = BENF_DEFT;
+    int ro[] = {
+        __benv_info_pcba_model,
+        __benv_info_pcba_version,
+        __benv_info_product_vendor,
+        __benv_info_product_company,
+        __benv_info_product_model,
+        __benv_info_product_manager,
+        __benv_info_product_version,
+    };
+    int i;
+
+    for (i=0; i<os_count_of(ro); i++) {
+        os_strcpy(benv.info.var[ro[i]], benv_info_get(ro[i]));
+    }
+    
+    benv_dirty_byidx(BENV_INFO);
+}
+
+static inline void
 __benv_deft(void)
 {
     os_objdeft(__benv_env, BENF_DEFT);

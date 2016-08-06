@@ -226,11 +226,12 @@ benv_boot_check(void)
             /*
             * boot cookie(fixed) != benv cookie(fixed)
             *   so, benv maybe destroy
-            *       benv cookie/os need recover
+            *       benv cookie/os/info need recover
             */
             os_println("benv cookie/os recover...");
             
             __benv_deft_os();
+            __benv_deft_info();
         }
         __benv_deft_cookie();
         
