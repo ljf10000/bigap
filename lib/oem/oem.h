@@ -197,12 +197,6 @@ __this_oem(void)
     return &__THIS_OEM[type];
 }
 
-#define oem_base_name       __this_oem()->base.name
-#define oem_base_mac        __this_oem()->base.mac
-#define oem_base_sn         __this_oem()->base.sn
-#define oem_base_type       __this_oem()->base.type
-#define oem_base_version    __this_oem()->base.version
-
 #define oem_rsync_user      __this_oem()->rsync.user
 #define oem_rsync_pwdfile   __this_oem()->rsync.pwdfile
 #define oem_rsync_path      __this_oem()->rsync.path
