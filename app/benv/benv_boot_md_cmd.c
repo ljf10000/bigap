@@ -7,7 +7,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #include "benv/benv.h"
-#include "utils.h"
 #include "hisi/hisi.h"
 
 static int 
