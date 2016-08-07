@@ -1,11 +1,11 @@
 #ifndef __OEM_DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__
 #define __OEM_DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__
 /******************************************************************************/
-#define OEM_NAME                PRODUCT_Vendor
+#define OEM_NAME                PRODUCT_VENDOR
 
 #define OEM_LSS_USER            "LSS"
 #define OEM_LSS_PWD             "LTEFISecurityServer2012-2015"
-#define OEM_LSS_SERVER          "lms2." OEM_NAME ".com"
+#define OEM_LSS_SERVER          "lms4." OEM_NAME ".com"
 #define OEM_LSS_PORT            "9999"
 
 #define OEM_LSS_INITER __OEM_LSS_INITER( \

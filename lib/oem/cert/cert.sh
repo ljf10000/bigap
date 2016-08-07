@@ -21,8 +21,11 @@ get_domain() {
 	raytight)
 		domain="raytight.com"
 		;;
-	deft|*)
+	autelan)
 		domain="autelan.com"
+		;;
+	deft|*)
+		domain="superwalle.com"
 		;;
 	esac
 

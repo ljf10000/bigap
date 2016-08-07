@@ -19,7 +19,7 @@ c() {
 }
 
 do_help() {
-        echo "$0 oem dir"
+        echo "$0 oem service"
 }
 
 main() {

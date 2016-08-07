@@ -124,6 +124,7 @@ typedef struct {
 #define __XLIST_OEM(_)              \
     _(OEM_T_DEFT, 0, OEM_NAME),     \
     _(OEM_T_1,    1, OEM1_NAME),    \
+    _(OEM_T_2,    2, OEM2_NAME),    \
     /* end */
 
 static inline bool is_good_oem_type(int id);
@@ -134,6 +135,7 @@ DECLARE_ENUM(oem_type, __XLIST_OEM, OEM_T_END);
 #if 1 /* just for sourceinsight */
 #define OEM_T_DEFT  OEM_T_DEFT
 #define OEM_T_1     OEM_T_1
+#define OEM_T_2     OEM_T_2
 #define OEM_T_END   OEM_T_END
 #endif /* just for sourceinsight */
 
@@ -141,6 +143,7 @@ DECLARE_ENUM(oem_type, __XLIST_OEM, OEM_T_END);
 #define DECLARE_REAL_OEM    oem_t __THIS_OEM[OEM_T_END] = { \
     [OEM_T_DEFT]  = OEM_INITER,   \
     [OEM_T_1]     = OEM1_INITER,  \
+    [OEM_T_2]     = OEM2_INITER,  \
 }   /* end */
 
 #ifdef __BUSYBOX__
@@ -172,7 +175,7 @@ __oem_type(void)
 #if IS_PRODUCT_LTEFI_MD1
     os_v_pgets(vendor, OEM_NAME_LEN, "bootm oem.vendor");
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
-    os_v_pgets(vendor, OEM_NAME_LEN, "benv oem/vendor");
+    os_v_pgets(vendor, OEM_NAME_LEN, "benv infos/oem/vendor");
 #endif
     type = oem_type_idx(vendor);
     if (is_good_oem_type(type)) {

@@ -7,12 +7,12 @@ b64() {
 }
 
 do_help() {
-        echo "$0 oem dir"
+        echo "$0 oem service"
 }
 
 main() {
 	local oem="$1"
-	local obj="$2"
+	local service="$2"
 
         if ((2!=$#)); then
 		do_help
