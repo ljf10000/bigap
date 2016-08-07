@@ -34,7 +34,7 @@ static inline int hisi_otp_fini(void)   { return hisi_unf_call_0(OTP, DeInit); }
 #endif
 
 #ifndef OTP_CUSTOM
-#define OTP_CUSTOM          ((byte *)PRODUCT_VENDOR)
+#define OTP_CUSTOM          ((byte *)PRODUCT_Vendor)
 #endif
 
 enum {

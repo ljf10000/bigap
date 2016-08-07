@@ -74,7 +74,7 @@ benv_fsm_cmp(int a, int b)
 }
 
 #define BENV_COOKIE_FIXED       (0  \
-    + sizeof(PRODUCT_VENDOR)        \
+    + sizeof(PRODUCT_Vendor)        \
     + sizeof(PRODUCT_COMPANY)       \
     + sizeof(PRODUCT_PCBA_MODEL)    \
 )   /* end */
@@ -86,7 +86,7 @@ benv_fsm_cmp(int a, int b)
 )   /* end */
 
 typedef struct {
-    char vendor[sizeof(PRODUCT_VENDOR)];
+    char vendor[sizeof(PRODUCT_Vendor)];
     char company[sizeof(PRODUCT_COMPANY)];
     char model[sizeof(PRODUCT_PCBA_MODEL)];
     char version[1+PRODUCT_VERSION_STRING_LEN];
@@ -2112,7 +2112,7 @@ benv_show_os(void)
 }
 
 #define BENV_DEFT_COOKIE              { \
-    .vendor     = PRODUCT_VENDOR,       \
+    .vendor     = PRODUCT_Vendor,       \
     .company    = PRODUCT_COMPANY,      \
     .model      = PRODUCT_PCBA_MODEL,   \
     .version    = PRODUCT_DEFT_VERSION_STRING, \
@@ -2135,7 +2135,7 @@ benv_show_os(void)
         [__benv_info_pcba_version]      = PRODUCT_PCBA_VERSION,     \
         [__benv_info_pcba_rootrw]       = PRODUCT_ROOTFS_RO,        \
                                                                     \
-        [__benv_info_product_vendor]    = PRODUCT_VENDOR,           \
+        [__benv_info_product_vendor]    = PRODUCT_Vendor,           \
         [__benv_info_product_company]   = PRODUCT_COMPANY,          \
         [__benv_info_product_model]     = PRODUCT_MODEL,            \
         [__benv_info_product_mac]       = __empty,                  \
@@ -2143,7 +2143,7 @@ benv_show_os(void)
         [__benv_info_product_manager]   = PRODUCT_VENDOR_MANAGER,   \
         [__benv_info_product_version]   = PRODUCT_VERSION,          \
                                                                     \
-        [__benv_info_oem_vendor]        = PRODUCT_VENDOR,           \
+        [__benv_info_oem_vendor]        = PRODUCT_Vendor,           \
         [__benv_info_oem_company]       = PRODUCT_COMPANY,          \
         [__benv_info_oem_model]         = PRODUCT_MODEL,            \
         [__benv_info_oem_mac]           = __empty,                  \

@@ -5,7 +5,7 @@
 #define PRODUCT_LTEFI_VERSION           4
 
 #ifndef PRODUCT_MODEL
-#define PRODUCT_MODEL                   PRODUCT_VENDOR "-LV4" /* fixme */
+#define PRODUCT_MODEL                   PRODUCT_Vendor "-LV4" /* fixme */
 #endif
 
 /******************************************************************************/

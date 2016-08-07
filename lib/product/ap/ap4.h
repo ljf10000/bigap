@@ -3,19 +3,19 @@
 #if IS_PRODUCT_LTEFI_AP4
 /******************************************************************************/
 #ifndef PRODUCT_MODEL
-#define PRODUCT_MODEL                   PRODUCT_VENDOR "-ap4" /* fixme */
+#define PRODUCT_MODEL                   PRODUCT_Vendor "-ap4" /* fixme */
 #endif
 
 #ifndef PRODUCT_VERSION
-#define PRODUCT_VERSION                 PRODUCT_VENDOR "-ap4" /* fixme */
+#define PRODUCT_VERSION                 PRODUCT_Vendor "-ap4" /* fixme */
 #endif
 
 #ifndef PRODUCT_PCBA_MODEL
-#define PRODUCT_PCBA_MODEL              PRODUCT_VENDOR "-ap4" /* fixme */
+#define PRODUCT_PCBA_MODEL              PRODUCT_Vendor "-ap4" /* fixme */
 #endif
 
 #ifndef PRODUCT_PCBA_VERSION
-#define PRODUCT_PCBA_VERSION            PRODUCT_VENDOR "-ap4" /* fixme */
+#define PRODUCT_PCBA_VERSION            PRODUCT_Vendor "-ap4" /* fixme */
 #endif
 /******************************************************************************/
 #endif
