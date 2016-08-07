@@ -120,6 +120,7 @@ typedef struct {
 /******************************************************************************/
 #include "oem_deft.h"
 #include "oem_raytight.h"
+#include "oem_autelan.h"
 /******************************************************************************/
 #define __XLIST_OEM(_)              \
     _(OEM_T_DEFT, 0, OEM_NAME),     \
@@ -173,9 +174,9 @@ __oem_type(void)
     }
     
 #if IS_PRODUCT_LTEFI_MD1
-    os_v_pgets(vendor, OEM_NAME_LEN, "bootm oem.vendor");
+    os_v_pgets(vendor, OEM_NAME_LEN, "bootm product.vendor");
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
-    os_v_pgets(vendor, OEM_NAME_LEN, "benv infos/oem/vendor");
+    os_v_pgets(vendor, OEM_NAME_LEN, "benv infos/product/vendor");
 #endif
     type = oem_type_idx(vendor);
     if (is_good_oem_type(type)) {
