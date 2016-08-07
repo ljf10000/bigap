@@ -118,9 +118,9 @@ typedef struct {
     .cert   = _cert,    \
 }
 /******************************************************************************/
-#include "oem_deft.h"
-#include "oem_raytight.h"
-#include "oem_autelan.h"
+#include "oem0.h"
+#include "oem1.h"
+#include "oem2.h"
 /******************************************************************************/
 #define __XLIST_OEM(_)              \
     _(OEM_T_DEFT, 0, OEM_NAME),     \

@@ -1,5 +1,5 @@
-#ifndef __OEM_DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__
-#define __OEM_DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__
+#ifndef __OEM0_H_1ff3b93b24154b88bca8102eee0e5eb7__
+#define __OEM0_H_1ff3b93b24154b88bca8102eee0e5eb7__
 /******************************************************************************/
 #define OEM_NAME                PRODUCT_VENDOR
 
@@ -72,4 +72,4 @@
     OEM_LSS_INITER,     \
     OEM_CERT_INITER)
 /******************************************************************************/
-#endif /* __OEM_DEFT_H_1ff3b93b24154b88bca8102eee0e5eb7__ */
+#endif /* __OEM0_H_1ff3b93b24154b88bca8102eee0e5eb7__ */

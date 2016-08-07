@@ -1,5 +1,5 @@
-#ifndef __OEM_RAYTIGHT_H_35447b03b4ea4e94bae2cefb91393cb7__
-#define __OEM_RAYTIGHT_H_35447b03b4ea4e94bae2cefb91393cb7__
+#ifndef __OEM1_H_35447b03b4ea4e94bae2cefb91393cb7__
+#define __OEM1_H_35447b03b4ea4e94bae2cefb91393cb7__
 /******************************************************************************/
 #define OEM1_NAME               "raytight"
 
@@ -64,4 +64,4 @@
     OEM1_LSS_INITER,     \
     OEM1_CERT_INITER)
 /******************************************************************************/
-#endif /* __OEM_RAYTIGHT_H_35447b03b4ea4e94bae2cefb91393cb7__ */
+#endif /* __OEM1_H_35447b03b4ea4e94bae2cefb91393cb7__ */

@@ -1,5 +1,5 @@
-#ifndef __OEM_AUTELAN_H_4b5158900bc642f682fa6a2bab7b7452__
-#define __OEM_AUTELAN_H_4b5158900bc642f682fa6a2bab7b7452__
+#ifndef __OEM2_H_4b5158900bc642f682fa6a2bab7b7452__
+#define __OEM2_H_4b5158900bc642f682fa6a2bab7b7452__
 /******************************************************************************/
 #define OEM2_NAME               "autelan"
 
@@ -64,4 +64,4 @@
     OEM2_LSS_INITER,    \
     OEM2_CERT_INITER)
 /******************************************************************************/
-#endif /* __OEM_AUTELAN_H_4b5158900bc642f682fa6a2bab7b7452__ */
+#endif /* __OEM2_H_4b5158900bc642f682fa6a2bab7b7452__ */
