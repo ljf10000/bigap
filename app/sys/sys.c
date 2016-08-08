@@ -672,10 +672,8 @@ static struct {
 };
 
 static benv_version_t *
-__get_version(int idx, char *file)
+__get_fversion(int idx, char *file, benv_version_t *version)
 {
-    static benv_version_t version;
-    
     char string[1+OS_LINE_LEN] = {0};
     int err;
     
@@ -685,26 +683,30 @@ __get_version(int idx, char *file)
         
         return NULL;
     }
-    else if (__benv_version_atoi(&version, string)) {
+
+    if (__benv_version_atoi(version, string)) {
         debug_error("bad version file %s/%s", dir_rootfs(idx), file);
         
         return NULL;
     }
-    else {
-        return &version;
-    }
+
+    return version;
 }
 
 static benv_version_t *
-get_rootfs_version(int idx)
+rootfs_fversion(int idx)
 {
-    return __get_version(idx, __FILE_ROOTFS_VERSION);
+    static benv_version_t version;
+    
+    return __get_fversion(idx, __FILE_ROOTFS_VERSION, &version);
 }
 
 static benv_version_t *
-get_kernel_version(int idx)
+kernel_fversion(int idx)
 {
-    return __get_version(idx, __FILE_KERNEL_VERSION);
+    static benv_version_t version;
+    
+    return __get_fversion(idx, __FILE_KERNEL_VERSION, &version);
 }
 
 static int
@@ -1098,72 +1100,39 @@ get_upgrade(int skips)
 }
 
 static int
-repair_kernel(int idx)
+repair_kernel(int idx, benv_version_t *version)
 {
-    benv_version_t version;
-    benv_version_t *fversion = get_kernel_version(idx);
-    int err = 0;
-    
-    /*
-    * save kernel idx's version
-    */
-    os_objcpy(&version, benv_kernel_version(idx));
+    int err = kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), version);
 
-    if (__benv_kernel_is_good(idx)
-        && fversion && benv_version_eq(fversion, &version)) {
-
-        debug_ok("kernel%d needn't repair", idx);
-
-        return 0;
-    }
-    else {
-        err = kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), &version);
-
-        jinfo("%s%d%d", 
-            "repair", "kernel",
-            "index", idx,
-            "error", err);
-                        
-        return err;
-    }
+    jinfo("%s%d%d", 
+        "repair", "kernel",
+        "index", idx,
+        "error", err);
+                    
+    return err;
 }
 
 static int
 repair_rootfs(int idx)
 {
     benv_version_t version;
-    benv_version_t *fversion = get_rootfs_version(idx);
-
-    /*
-    * save rootfs idx's version
-    */
-    os_objcpy(&version, benv_rootfs_version(idx));
     
-    int err = 0, buddy;
-
-    if (NULL==fversion) {
-        debug_bug("cannot get rootfs%d's rootfs version, try auto repair", idx);
-
-        /*
-        * find a best rootfs
-        */
-        buddy = benv_find_best(rootfs, __skips(idx));
-
-        os_objcpy(&version, benv_rootfs_version(buddy));
-    }
-    else if (__benv_rootfs_is_good(idx)
-        && benv_version_eq(fversion, &version)) {
+    if (__benv_rootfs_is_good(idx)) {
 
         debug_ok("rootfs%d needn't repair", idx);
 
         return 0;
     }
-    else {
-        /*
-        * find a good rootfs with same version
-        */
-        buddy = benv_find_first_good_byversion(rootfs, &version, __skips(idx));
-    }
+
+    /*
+    * get rootfs idx's version
+    */
+    os_objcpy(&version, benv_rootfs_version(idx));
+    /*
+    * find a good rootfs with same version
+    */
+    int buddy = benv_find_first_good_byversion(rootfs, &version, __skips(idx));
+    int err = 0;
 
     char *version_string = benv_version_itoa(&version);
     if (__benv_rootfs_is_good(buddy)) {
@@ -1180,8 +1149,11 @@ repair_rootfs(int idx)
             "index", idx,
             "error", err);
     }
+    if (err<0) {
+        return 0;
+    }
     
-    return err;
+    return repair_kernel(idx, &version);
 }
 
 static int
@@ -1265,7 +1237,7 @@ upgrade(int idx, int src)
     *
     * repair kernel
     */
-    err = repair_kernel(idx);
+    err = repair_kernel(idx, version);
     if (err<0) {
         return err;
     }
@@ -1823,7 +1795,7 @@ cmd_reset(int argc, char *argv[])
         /*
         * set current failed, wait to repair by other
         */
-        upgrade_init(sys.current, get_rootfs_version(sys.resetby));
+        upgrade_init(sys.current, rootfs_fversion(sys.resetby));
 
         return os_p_system("sysreboot &");
     }
@@ -1845,10 +1817,7 @@ cmd_repair(int argc, char *argv[])
 
     for (i=begin; i<end; i++) {
         if (false==is_benv_skip(skips, i)) {
-            err = repair_rootfs(i);
-            if (0==err) {
-                repair_kernel(i);
-            }
+            repair_rootfs(i);
         }
 	}
 
