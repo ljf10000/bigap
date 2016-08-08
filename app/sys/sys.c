@@ -26,6 +26,7 @@ BENV_INITER;
 #define USB_FILE(_file)             DIR_USB_ROOTFS  "/" _file
 #define USB_TOOL_FILE(_file)        DIR_USB_TOOL    "/" _file
 
+#define SCRIPT_FIRMWARE             SCRIPT_FILE("formware_check.sh")
 #define SCRIPT_MOUNT                SCRIPT_FILE("mount.script")
 #define SCRIPT_HOTPLUG              SCRIPT_FILE("hotplug/disk.cb")
 
@@ -1117,8 +1118,7 @@ repair_rootfs(int idx)
 {
     benv_version_t version;
     
-    if (__benv_rootfs_is_good(idx)) {
-
+    if (__benv_rootfs_is_good(idx) && 0==os_p_system(SCRIPT_FIRMWARE " %d", idx)) {
         debug_ok("rootfs%d needn't repair", idx);
 
         return 0;
