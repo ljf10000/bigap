@@ -1118,7 +1118,7 @@ repair_rootfs(int idx)
 {
     benv_version_t version;
     
-    if (__benv_rootfs_is_good(idx) && 0==os_p_system(SCRIPT_FIRMWARE " %d", idx)) {
+    if (__benv_rootfs_is_good(idx) /* && 0==os_p_system(SCRIPT_FIRMWARE " %d", idx) */) {
         debug_ok("rootfs%d needn't repair", idx);
 
         return 0;
