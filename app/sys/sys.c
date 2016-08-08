@@ -373,7 +373,7 @@ __remount(char *dir, bool readonly)
     int err = 0;
     
     if (__is_readonly_default()) {
-        err = os_p_system("mount -o remount" ROOTFS_MOUNT_MODE ",%s %s",
+        err = os_p_system("mount -o remount" ROOTFS_MOUNT_MODE ",%s %s &> /dev/null",
                     readonly?"ro":"rw",
                     dir);
     }
@@ -1181,7 +1181,6 @@ repair_rootfs(int idx)
             "error", err);
     }
     
-            
     return err;
 }
 
