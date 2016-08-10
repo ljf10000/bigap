@@ -1955,9 +1955,6 @@ cmd_umount(int argc, char *argv[])
     return errs;
 }
 
-/*
-* find 
-*/
 static int
 cmd_find(int argc, char *argv[])
 {
