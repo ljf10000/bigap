@@ -2294,6 +2294,147 @@ __benv_clean(void)
     os_println("all clean, need reboot");
 }
 
+static int
+benv_cmd_find(int argc, char *argv[])
+{
+    char *obj = argv[1];
+    char *ext = argv[2];
+
+    benv_version_t *version = NULL;
+    int skips = benv_skips(0);
+    int idx[3] = {-1, -1, -1};
+    int by = -1;
+    
+    if (os_streq("best", obj)) {
+        idx[0] = benv_find_best(rootfs, skips);
+        idx[1] = benv_find_best(kernel, skips);
+        idx[2] = benv_find_best(firmware, skips);
+
+        os_println("find best rootfs:%d", idx[0]);
+        os_println("find best kernel:%d", idx[1]);
+        os_println("find best firmware:%d", idx[2]);
+    }
+    else if (os_streq("worst", obj)) {
+        idx[0] = benv_find_worst(rootfs, skips);
+        idx[1] = benv_find_worst(kernel, skips);
+        idx[2] = benv_find_worst(firmware, skips);
+
+        os_println("find worst rootfs:%d", idx[0]);
+        os_println("find worst kernel:%d", idx[1]);
+        os_println("find worst firmware:%d", idx[2]);
+    }
+    else if (os_streq("first.buddy", obj)) {
+        by = os_atoi(ext);
+        if (0==by) {
+            os_println(__THIS_APPNAME " find first.buddy {idx}");
+
+            return -EFORMAT;
+        }
+        
+        idx[0] = benv_find_first_buddy(rootfs, by, skips);
+        idx[1] = benv_find_first_buddy(kernel, by, skips);
+        idx[2] = benv_find_first_buddy(firmware, by, skips);
+
+        os_println("find rootfs[%d]'s first buddy:%d", by, idx[0]);
+        os_println("find kernel[%d]'s first buddy:%d", by, idx[1]);
+        os_println("find firmware[%d]'s first buddy:%d", by, idx[2]);
+    }
+    else if (os_streq("first.good.buddy", obj)) {
+        by = os_atoi(ext);
+        if (0==by) {
+            os_println(__THIS_APPNAME " find first.good.buddy {idx}");
+
+            return -EFORMAT;
+        }
+        
+        idx[0] = benv_find_first_good_buddy(rootfs, by, skips);
+        idx[1] = benv_find_first_good_buddy(kernel, by, skips);
+        idx[2] = benv_find_first_good_buddy(firmware, by, skips);
+
+        os_println("find rootfs[%d]'s first good buddy:%d", by, idx[0]);
+        os_println("find kernel[%d]'s first good buddy:%d", by, idx[1]);
+        os_println("find firmware[%d]'s first good buddy:%d", by, idx[2]);
+    }
+    else if (os_streq("first.bad.buddy", obj)) {
+        by = os_atoi(ext);
+        if (0==by) {
+            os_println(__THIS_APPNAME " find first.bad.buddy {idx}");
+
+            return -EFORMAT;
+        }
+        
+        idx[0] = benv_find_first_bad_buddy(rootfs, by, skips);
+        idx[1] = benv_find_first_bad_buddy(kernel, by, skips);
+        idx[2] = benv_find_first_bad_buddy(firmware, by, skips);
+        
+        os_println("find rootfs[%d]'s first bad buddy:%d", by, idx[0]);
+        os_println("find kernel[%d]'s first bad buddy:%d", by, idx[1]);
+        os_println("find firmware[%d]'s first bad buddy:%d", by, idx[2]);
+    }
+    else if (os_streq("first.version", obj)) {
+        version = benv_version_atoi(ext);
+        if (NULL==version) {
+            os_println(__THIS_APPNAME " find first.version {version}");
+
+            return -EFORMAT;
+        }
+        
+        idx[0] = benv_find_first_byversion(rootfs, version, skips);
+        idx[1] = benv_find_first_byversion(kernel, version, skips);
+        idx[2] = benv_find_first_byversion(firmware, version, skips);
+        
+        os_println("find first rootfs(%s):%d", ext, idx[0]);
+        os_println("find first kernel(%s):%d", ext, idx[1]);
+        os_println("find first firmware(%s):%d", ext, idx[2]);
+    }
+    else if (os_streq("first.good.version", obj)) {
+        version = benv_version_atoi(ext);
+        if (NULL==version) {
+            os_println(__THIS_APPNAME " find first.good.version {version}");
+
+            return -EFORMAT;
+        }
+        
+        idx[0] = benv_find_first_good_byversion(rootfs, version, skips);
+        idx[1] = benv_find_first_good_byversion(kernel, version, skips);
+        idx[2] = benv_find_first_good_byversion(firmware, version, skips);
+        
+        os_println("find first good rootfs(%s):%d", ext, idx[0]);
+        os_println("find first good kernel(%s):%d", ext, idx[1]);
+        os_println("find first good firmware(%s):%d", ext, idx[2]);
+    }
+    else if (os_streq("first.bad.version", obj)) {
+        version = benv_version_atoi(ext);
+        if (NULL==version) {
+            os_println(__THIS_APPNAME " find first.bad.version {version}");
+
+            return -EFORMAT;
+        }
+        
+        idx[0] = benv_find_first_bad_byversion(rootfs, version, skips);
+        idx[1] = benv_find_first_bad_byversion(kernel, version, skips);
+        idx[2] = benv_find_first_bad_byversion(firmware, version, skips);
+        
+        os_println("find first bad rootfs(%s):%d", ext, idx[0]);
+        os_println("find first bad kernel(%s):%d", ext, idx[1]);
+        os_println("find first bad firmware(%s):%d", ext, idx[2]);
+    }
+    else {
+        os_println(__THIS_APPNAME " find best");
+        os_println(__THIS_APPNAME " find worst");
+        os_println(__THIS_APPNAME " find first.buddy {idx}");
+        os_println(__THIS_APPNAME " find first.good.buddy {idx}");
+        os_println(__THIS_APPNAME " find first.bad.buddy {idx}");
+        os_println(__THIS_APPNAME " find first.version {version}");
+        os_println(__THIS_APPNAME " find first.good.version {version}");
+        os_println(__THIS_APPNAME " find first.bad.version {version}");
+
+        return -EFORMAT;
+    }
+    
+    return 0;
+}
+
 static inline bool
 benv_cmd_hiden(int argc, char *argv[])
 {
@@ -2320,7 +2461,12 @@ benv_cmd_hiden(int argc, char *argv[])
     char *obj       = argv[2];
     int i;
 
-    if (3==argc) {
+    if (os_streq("find", action)) {
+        benv_cmd_find(argc-1, argv+1);
+
+        return true;
+    }
+    else if (3==argc) {
         for (i=0; i<os_count_of(cmd); i++) {
             if (os_streq(action, cmd[i].action) && os_streq(obj, cmd[i].obj)) {
                 (*cmd[i].handle)();
