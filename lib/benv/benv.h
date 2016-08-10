@@ -179,10 +179,9 @@ benv_version_itoa(benv_version_t *version)
 static inline benv_version_t *
 benv_version_atoi(char *string)
 {
-    static benv_version_t deft = BENV_DEFT_VERSION;
-    static benv_version_t version = BENV_DEFT_VERSION;
+    static benv_version_t version;
 
-    return 0==__benv_version_atoi(&version, string)?&version:&deft;
+    return (0==__benv_version_atoi(&version, string))?&version:NULL;
 }
 
 static inline int
