@@ -89,9 +89,9 @@ struct init_action {
 #ifdef BIGAP
 
 #define hello_string \
-    "--------------------------------------------------"    "\n" \
-    " S U P E R W A L L E T H E B E S T W I R E L E S S"    "\n" \
-    "--------------------------------------------------"    "\n" \
+    "---------------------------------------------------------"     "\n" \
+    " S U P E R W A L L E   T H E   B E S T   W I R E L E S S "     "\n" \
+    "---------------------------------------------------------"     "\n" \
     /* end */
 
 #define action_entry(_command, _action_type) { \
