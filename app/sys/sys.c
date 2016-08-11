@@ -1118,6 +1118,7 @@ repair_rootfs(int idx)
 {
     benv_version_t version;
     bool repair = false;
+    int err = 0;
     
     if (false==__benv_rootfs_is_good(idx)) {
         jcrit("%d%s%s",
@@ -1150,7 +1151,12 @@ repair_rootfs(int idx)
     * find a good rootfs with same version
     */
     int buddy = benv_find_first_good_byversion(rootfs, &version, __skips(idx));
-    int err = 0;
+    jcrit("%s%d%s%s%d",
+        "repair", "rootfs",
+        "index", idx,
+        "version", benv_version_itoa(&version),
+        "find", "buddy",
+        "index", idx);
 
     if (__benv_rootfs_is_good(buddy)) {
         err = rcopy(idx, dir_rootfs(buddy), &version);
