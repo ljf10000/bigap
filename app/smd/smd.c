@@ -682,9 +682,11 @@ handle_show(char *args)
     cli_sprintf("#name pid/dpid forks state command" __crlf);
 
     list_for_each_entry(entry, &smd.list, node) {
-        show(entry);
+        if (NULL==name || os_streq(entry->name, name)) {
+            show(entry);
 
-        empty = false;
+            empty = false;
+        }
     }
 
     if (empty) {

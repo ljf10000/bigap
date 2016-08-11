@@ -15,14 +15,14 @@ static cli_client_t tmc = CLI_CLIENT_INITER(TM_TIMEOUT, TMD_UNIX);
 static int
 usage(int error)
 {
-    os_eprintln(__THIS_APPNAME " insert name delay(second) interval(second) limit command");
-    os_eprintln(__THIS_APPNAME " remove name");
+    os_eprintln(__THIS_APPNAME " insert {name} delay(second) interval(second) limit command");
+    os_eprintln(__THIS_APPNAME " remove {name}");
     os_eprintln(__THIS_APPNAME " show [name]");
 
     return error;
 }
 
-#define stimerc_handle(_action, _argc, _argv) \
+#define tmc_handle(_action, _argc, _argv) \
     cli_c_handle(_action, true, _argc, _argv, &tmc.server, &tmc.client, tmc.timeout)
 
 static int
@@ -52,7 +52,7 @@ cmd_insert(int argc, char *argv[])
         return usage(-EINVAL);
     }
     
-    return stimerc_handle("insert", argc, argv);
+    return tmc_handle("insert", argc, argv);
 }
 
 static int
@@ -67,7 +67,7 @@ cmd_remove(int argc, char *argv[])
         return usage(-ETOOBIG);
     }
     else {
-        return stimerc_handle("remove", argc, argv);
+        return tmc_handle("remove", argc, argv);
     }
 }
 
@@ -78,7 +78,7 @@ cmd_clean(int argc, char *argv[])
         return usage(-EINVAL1);
     }
     else {
-        return stimerc_handle("clean", argc, argv);
+        return tmc_handle("clean", argc, argv);
     }
 }
 
@@ -94,7 +94,7 @@ cmd_show(int argc, char *argv[])
         return usage(-ETOOBIG);
     }
     else {
-        return stimerc_handle("show", argc, argv);
+        return tmc_handle("show", argc, argv);
     }
 }
 

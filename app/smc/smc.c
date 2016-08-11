@@ -18,8 +18,7 @@ usage(int error)
     os_eprintln(__THIS_APPNAME " insert deamon {name} {pidfile} {command}");
     os_eprintln(__THIS_APPNAME " insert normal {name} {command}");
     os_eprintln(__THIS_APPNAME " remove {name}");
-    os_eprintln(__THIS_APPNAME " clean");
-    os_eprintln(__THIS_APPNAME " show");
+    os_eprintln(__THIS_APPNAME " show [name]");
 
     return error;
 }
@@ -79,7 +78,7 @@ static int
 cmd_clean(int argc, char *argv[])
 {
     if (0!=argc) {
-        return usage(-EINVAL3);
+        return usage(-EINVAL2);
     }
     else {
         return smc_handle("clean", argc, argv);
@@ -89,8 +88,13 @@ cmd_clean(int argc, char *argv[])
 static int
 cmd_show(int argc, char *argv[])
 {
-    if (0!=argc) {
+    char *name = argv[0];
+    
+    if (0!=argc && 1!=argc) {
         return usage(-EINVAL3);
+    }
+    else if (name && os_strlen(name) > SM_NAMESIZE) {
+        return usage(-ETOOBIG);
     }
     else {
         return smc_handle("show", argc, argv);
