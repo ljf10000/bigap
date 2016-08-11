@@ -12,7 +12,7 @@
 #endif
 
 #ifndef VCC_PATH
-#define VCC_PATH            "/tmp/proc/vcc"
+#define VCC_PATH            "/wefs/vcc"
 #endif
 
 #ifndef VCC_SCRIPT

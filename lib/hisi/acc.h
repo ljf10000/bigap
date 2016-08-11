@@ -12,7 +12,7 @@
 #endif
 
 #ifndef ACC_PATH
-#define ACC_PATH            "/tmp/proc/acc"
+#define ACC_PATH            "/wefs/acc"
 #endif
 
 #ifndef ACC_SCRIPT
