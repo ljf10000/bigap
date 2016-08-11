@@ -1105,7 +1105,7 @@ repair_kernel(int idx, benv_version_t *version)
 {
     int err = kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), version);
 
-    jinfo("%s%d%d", 
+    jcrit("%s%d%d", 
         "repair", "kernel",
         "index", idx,
         "error", err);
@@ -1117,13 +1117,31 @@ static int
 repair_rootfs(int idx)
 {
     benv_version_t version;
+    bool repair = false;
     
-    if (__benv_rootfs_is_good(idx)  && 0==os_p_system(SCRIPT_FIRMWARE " %d", idx)) {
-        debug_ok("rootfs%d needn't repair", idx);
+    if (false==__benv_rootfs_is_good(idx)) {
+        jcrit("%d%s%s",
+            "rootfs", idx,
+            "fsm", "bad",
+            "todo", "repair");
 
-        return 0;
+        repair = true;
+    }
+    else if (os_p_system(SCRIPT_FIRMWARE " %d", idx)) {
+        jcrit("%d%s%s",
+            "rootfs", idx,
+            "check", "failed",
+            "todo", "repair");
+
+        repair = true;
     }
 
+    if (false==repair) {
+        debug_ok("rootfs%d needn't repair", idx);
+        
+        return 0;
+    }
+    
     /*
     * get rootfs idx's version
     */
@@ -1134,21 +1152,21 @@ repair_rootfs(int idx)
     int buddy = benv_find_first_good_byversion(rootfs, &version, __skips(idx));
     int err = 0;
 
-    char *version_string = benv_version_itoa(&version);
     if (__benv_rootfs_is_good(buddy)) {
         err = rcopy(idx, dir_rootfs(buddy), &version);
-        jinfo("%s%d%d%d",
+        jcrit("%s%d%d%d",
             "repair", "rootfs",
             "index", idx,
             "buddy", buddy,
             "error", err);
     } else {
         err = rsync(idx, &version);
-        jinfo("%s%d%d",
+        jcrit("%s%d%d",
             "repair", "rootfs",
             "index", idx,
             "error", err);
     }
+    
     if (err<0) {
         return 0;
     }
@@ -1161,7 +1179,7 @@ reset_kernel(int idx)
 {
     int err = kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), benv_kernel_version(idx));
 
-    jinfo("%s%d%d%d",
+    jcrit("%s%d%d%d",
         "reset", "kernel",
         "index", idx,
         "by", sys.resetby,
@@ -1175,7 +1193,7 @@ reset_rootfs(int idx, int resetby)
 {
     int err = rcopy(idx, dir_rootfs(resetby), benv_rootfs_version(resetby));
     
-    jinfo("%s%d%d%d",
+    jcrit("%s%d%d%d",
         "reset", "rootfs",
         "index", idx,
         "by", sys.resetby,
@@ -1246,18 +1264,6 @@ upgrade(int idx, int src)
 
     return err;
 }
-
-#define USB_FILE_ROOTFS_VERSION     USB_FILE(__FILE_ROOTFS_VERSION)
-#define USB_FILE_KERNEL_VERSION     USB_FILE(__FILE_KERNEL_VERSION)
-#define USB_FILE_TOOL_VERSION       USB_TOOL_FILE(__FILE_TOOL_VERSION)
-#define USB_BIN_MD_PQPARAM            USB_FILE(__BIN_MD_PQPARAM)
-#define USB_BIN_MD_BASEPARAM          USB_FILE(__BIN_MD_BASEPARAM)
-#define USB_BIN_MD_KERNEL             USB_FILE(__BIN_MD_KERNEL)
-#define USB_BIN_MD_BOOT               USB_FILE(__BIN_MD_BOOT)
-#define USB_BIN_MD_BOOTENV            USB_FILE(__BIN_MD_BOOTENV)
-#define USB_BIN_AP_BOOT            USB_FILE(__BIN_AP_BOOT)
-#define USB_BIN_AP_BOOTENV         USB_FILE(__BIN_AP_BOOTENV)
-#define USB_BIN_AP_FIRMWARE        USB_FILE(__BIN_AP_FIRMWARE)
 
 static int
 usbupgrade(void)
