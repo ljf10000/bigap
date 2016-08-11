@@ -130,7 +130,7 @@ __get(char *name)
 }
 
 static int
-__foreach(mv_t (*cb)(struct xtimer *entry))
+__foreach(mv_t (*cb)(struct xtimer *entry), bool safe)
 {
     mv_t foreach(h1_node_t *node)
     {
@@ -138,21 +138,12 @@ __foreach(mv_t (*cb)(struct xtimer *entry))
 
         return (*cb)(entry);
     }
-    
-    return h1_foreach(&tmd.table, foreach);
-}
 
-static int
-__foreach_safe(mv_t (*cb)(struct xtimer *entry))
-{
-    mv_t foreach(h1_node_t *node)
-    {
-        struct xtimer *entry = __get_entry_byh1(node);
-
-        return (*cb)(entry);
+    if (safe) {
+        return h1_foreach(&tmd.table, foreach);
+    } else {
+        return h1_foreach_safe(&tmd.table, foreach);
     }
-    
-    return h1_foreach_safe(&tmd.table, foreach);
 }
 
 static struct xtimer *
@@ -355,7 +346,7 @@ handle_clean(char *args)
         return mv2_ok;
     }
     
-    __foreach_safe(cb);
+    __foreach(cb, true);
     
     return 0;
 }
@@ -392,7 +383,7 @@ handle_show(char *args)
         return mv2_ok;
     }
     
-    __foreach(cb);
+    __foreach(cb, false);
     
     if (empty) {
         /*
