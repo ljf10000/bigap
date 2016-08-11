@@ -72,6 +72,17 @@ cmd_remove(int argc, char *argv[])
 }
 
 static int
+cmd_clean(int argc, char *argv[])
+{
+    if (0!=argc) {
+        return usage(-EINVAL1);
+    }
+    else {
+        return stimerc_handle("clean", argc, argv);
+    }
+}
+
+static int
 cmd_show(int argc, char *argv[])
 {
     char *name = argv[0];
@@ -91,9 +102,10 @@ static int
 command(int argc, char *argv[])
 {
     static cli_table_t table[] = {
-        CLI_ENTRY("insert",  cmd_insert),
-        CLI_ENTRY("remove",  cmd_remove),
-        CLI_ENTRY("show",    cmd_show),
+        CLI_ENTRY("insert", cmd_insert),
+        CLI_ENTRY("remove", cmd_remove),
+        CLI_ENTRY("clean",  cmd_clean),
+        CLI_ENTRY("show",   cmd_show),
     };
     int err;
 

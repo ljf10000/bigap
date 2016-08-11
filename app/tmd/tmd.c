@@ -142,6 +142,19 @@ __foreach(mv_t (*cb)(struct xtimer *entry))
     return h1_foreach(&tmd.table, foreach);
 }
 
+static int
+__foreach_safe(mv_t (*cb)(struct xtimer *entry))
+{
+    mv_t foreach(h1_node_t *node)
+    {
+        struct xtimer *entry = __get_entry_byh1(node);
+
+        return (*cb)(entry);
+    }
+    
+    return h1_foreach_safe(&tmd.table, foreach);
+}
+
 static struct xtimer *
 __create(char *name, char *command, int delay, int interval, int limit)
 {
@@ -332,6 +345,21 @@ handle_remove(char *args)
     return 0;
 }
 
+static int
+handle_clean(char *args)
+{
+    mv_t cb(struct xtimer *entry)
+    {
+        __remove(entry);
+
+        return mv2_ok;
+    }
+    
+    __foreach_safe(cb);
+    
+    return 0;
+}
+
 static void
 show(struct xtimer *entry)
 {
@@ -382,9 +410,10 @@ static int
 __server_handle(fd_set *r)
 {
     static cli_table_t table[] = {
-        CLI_ENTRY("insert",  handle_insert),
-        CLI_ENTRY("remove",  handle_remove),
-        CLI_ENTRY("show",    handle_show),
+        CLI_ENTRY("insert", handle_insert),
+        CLI_ENTRY("remove", handle_remove),
+        CLI_ENTRY("clean",  handle_clean),
+        CLI_ENTRY("show",   handle_show),
     };
     int err = 0;
     

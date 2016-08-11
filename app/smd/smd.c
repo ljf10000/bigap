@@ -650,9 +650,9 @@ handle_remove(char *args)
 static int
 handle_clean(char *args)
 {
-    struct sm *entry;
+    struct sm *entry, *tmp;
 
-    list_for_each_entry(entry, &smd.list, node) {
+    list_for_each_entry_safe(entry, tmp, &smd.list, node) {
         __remove(entry);
     }
 
