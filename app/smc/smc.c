@@ -15,9 +15,10 @@ static cli_client_t smc = CLI_CLIENT_INITER(SM_TIMEOUT, SMD_UNIX);
 static int
 usage(int error)
 {
-    os_eprintln(__THIS_APPNAME " insert deamon name pidfile command");
-    os_eprintln(__THIS_APPNAME " insert normal name command");
-    os_eprintln(__THIS_APPNAME " remove name");
+    os_eprintln(__THIS_APPNAME " insert deamon {name} {pidfile} {command}");
+    os_eprintln(__THIS_APPNAME " insert normal {name} {command}");
+    os_eprintln(__THIS_APPNAME " remove {name}");
+    os_eprintln(__THIS_APPNAME " clean");
     os_eprintln(__THIS_APPNAME " show");
 
     return error;
@@ -75,6 +76,17 @@ cmd_remove(int argc, char *argv[])
 }
 
 static int
+cmd_clean(int argc, char *argv[])
+{
+    if (0!=argc) {
+        return usage(-EINVAL3);
+    }
+    else {
+        return smc_handle("clean", argc, argv);
+    }
+}
+
+static int
 cmd_show(int argc, char *argv[])
 {
     if (0!=argc) {
@@ -89,9 +101,10 @@ static int
 command(int argc, char *argv[])
 {
     static cli_table_t table[] = {
-        CLI_ENTRY("insert",  cmd_insert),
-        CLI_ENTRY("remove",  cmd_remove),
-        CLI_ENTRY("show",    cmd_show),
+        CLI_ENTRY("insert", cmd_insert),
+        CLI_ENTRY("remove", cmd_remove),
+        CLI_ENTRY("clean",  cmd_clean),
+        CLI_ENTRY("show",   cmd_show),
     };
     int err;
         

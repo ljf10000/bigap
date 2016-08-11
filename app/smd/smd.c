@@ -647,6 +647,18 @@ handle_remove(char *args)
     return __remove(entry);
 }
 
+static int
+handle_clean(char *args)
+{
+    struct sm *entry;
+
+    list_for_each_entry(entry, &smd.list, node) {
+        __remove(entry);
+    }
+
+    return 0;
+}
+
 static void
 show(struct sm *entry)
 {
@@ -691,9 +703,10 @@ static int
 __server_handle(fd_set *r)
 {
     static cli_table_t table[] = {
-        CLI_ENTRY("insert",  handle_insert),
-        CLI_ENTRY("remove",  handle_remove),
-        CLI_ENTRY("show",    handle_show),
+        CLI_ENTRY("insert", handle_insert),
+        CLI_ENTRY("remove", handle_remove),
+        CLI_ENTRY("clean",  handle_clean),
+        CLI_ENTRY("show",   handle_show),
     };
     int err = 0;
 
