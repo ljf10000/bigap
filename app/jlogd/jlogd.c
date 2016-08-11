@@ -351,7 +351,8 @@ init_env(void)
 {
     jlog_server_t *server;
     int err;
-    
+
+    // todo: use ak
     jlogd.pri       = env_geti(ENV_JLOG_PRI,     JLOG_PRI);
     jlogd.timeout   = env_geti(ENV_JLOG_TIMEOUT, JLOG_TIMEOUT);
     jlogd.cut       = env_geti(ENV_JLOG_CUTCOUNT,  JLOG_CUTCOUNT);

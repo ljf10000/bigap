@@ -1123,7 +1123,15 @@ repair_rootfs(int idx)
     if (false==__benv_rootfs_is_good(idx)) {
         jcrit("%d%s%s",
             "rootfs", idx,
-            "fsm", "bad",
+            "state", "bad",
+            "todo", "repair");
+
+        repair = true;
+    }
+    else if (false==os_file_exist(SCRIPT_FIRMWARE)) {
+        jcrit("%d%s%s",
+            "rootfs", idx,
+            "nofound", SCRIPT_FIRMWARE,
             "todo", "repair");
 
         repair = true;
