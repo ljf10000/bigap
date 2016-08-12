@@ -381,11 +381,19 @@ __benv_ops_is(uint32 offset)
     }
 }
 
+enum {
+    BENV_OPS_NUMBER, 
+    BENV_OPS_STRING,
+    BENV_OPS_VERSION,
+
+    BENV_OPS_END
+};
+
 typedef struct struct_benv_ops benv_ops_t;
 struct struct_benv_ops {
     char *path;
     uint32 offset;
-    uint32 flag;
+    uint32 type;
 
     int  (*check)(benv_ops_t* ops, char *value);
     void (*write)(benv_ops_t* ops, char *value);
@@ -578,24 +586,20 @@ benv_cache(benv_ops_t * ops)
 #define benv_cache_showit(_ops)     benv_cache(_ops)->showit
 
 static inline void
-__benv_ops_dump(benv_ops_t *ops)
-{
-    os_println("ops idx=%d, path=%s, value=%s, showit=%s",
-        benv_ops_idx(ops),
-        ops->path,
-        benv_cache_value(ops)?benv_cache_value(ops):"nothing",
-        benv_cache_showit(ops)?"true":"false");
-}
-
-static inline void
-benv_ops_dump(void)
+benv_cache_dump(void)
 {
     int i;
 
-    os_println("ops count=%d", __benv_ops_count);
+    debug_trace("ops count=%d", __benv_ops_count);
     
     for (i = 0; i < __benv_ops_count; i++) {
-        __benv_ops_dump(benv_ops(i));
+        benv_ops_t *ops = benv_ops(i);
+
+        debug_trace("ops idx=%d, path=%s, value=%s, showit=%s",
+            benv_ops_idx(ops),
+            ops->path,
+            benv_cache_value(ops)?benv_cache_value(ops):"nothing",
+            benv_cache_showit(ops)?"true":"false");
     }
 }
 
@@ -1325,8 +1329,9 @@ __benv_check_string(benv_ops_t * ops, char *value)
     }
 }
 
-#define BENV_OPS(_path, _member, _check, _write, _show) { \
+#define BENV_OPS(_path, _type, _member, _check, _write, _show) { \
     .path   = _path,    \
+    .type   = _type,    \
     .offset = offsetof(benv_env_t, _member), \
     .check  = _check,   \
     .write  = _write,   \
@@ -1334,7 +1339,7 @@ __benv_check_string(benv_ops_t * ops, char *value)
 }   /* end */
 
 #define __BENV_COOKIE_OPS(_member, _show) \
-    BENV_OPS("cookies/" #_member, cookie._member, NULL, NULL, _show) \
+    BENV_OPS("cookies/" #_member, BENV_OPS_STRING, cookie._member, NULL, NULL, _show) \
     /* end */
 
 #define BENV_COOKIE_OPS \
@@ -1345,27 +1350,33 @@ __benv_check_string(benv_ops_t * ops, char *value)
     __BENV_COOKIE_OPS(compile,  __benv_show_string)     \
     /* end */
 
-#define __BENV_OS_OPS(_path, _member, _check, _write, _show) \
-    BENV_OPS("os/" _path, os._member, _check, _write, _show) \
+#define __BENV_OS_OPS(_path, _type, _member, _check, _write, _show) \
+    BENV_OPS("os/" _path, _type, os._member, _check, _write, _show) \
     /* end */
 
 #define __BENV_FIRMWARE_OPS(_obj, _idx)         \
     __BENV_OS_OPS(#_obj "/" #_idx "/self",      \
+        BENV_OPS_NUMBER,                        \
         firmware[_idx]._obj.self,               \
         __benv_check_fsm, __benv_set_fsm, __benv_show_fsm), \
     __BENV_OS_OPS(#_obj "/" #_idx "/other",     \
+        BENV_OPS_NUMBER,                        \
         firmware[_idx]._obj.other,              \
         __benv_check_fsm, __benv_set_fsm, __benv_show_fsm), \
     __BENV_OS_OPS(#_obj "/" #_idx "/upgrade",   \
+        BENV_OPS_NUMBER,                        \
         firmware[_idx]._obj.upgrade,            \
         __benv_check_fsm, __benv_set_fsm, __benv_show_fsm), \
     __BENV_OS_OPS(#_obj "/" #_idx "/error",     \
+        BENV_OPS_NUMBER,                        \
         firmware[_idx]._obj.error,              \
         NULL, __benv_set_number, __benv_show_number), \
     __BENV_OS_OPS(#_obj "/" #_idx "/version",   \
+        BENV_OPS_VERSION,                        \
         firmware[_idx]._obj.version,            \
         __benv_check_version, __benv_set_version, __benv_show_version), \
     __BENV_OS_OPS(#_obj "/" #_idx "/cookie",    \
+        BENV_OPS_STRING,                        \
         firmware[_idx]._obj.cookie,             \
         __benv_check_string, __benv_set_string, __benv_show_string) \
     /* end */
@@ -1377,6 +1388,7 @@ __benv_check_string(benv_ops_t * ops, char *value)
 
 #define BENV_OS_COMMON_OPS              \
     __BENV_OS_OPS("current", current,   \
+        BENV_OPS_NUMBER,                \
         __benv_check_current, __benv_set_number, __benv_show_number) \
     /* end */
 
@@ -1392,7 +1404,7 @@ __benv_check_string(benv_ops_t * ops, char *value)
     /* end */
 
 #define __BENV_MARK_OPS(_path, _idx, _check, _set, _show) \
-    BENV_OPS("marks/" _path, mark.key[_idx], _check, __benv_set_number, __benv_show_number)
+    BENV_OPS("marks/" _path, BENV_OPS_NUMBER, mark.key[_idx], _check, __benv_set_number, __benv_show_number)
 
 #define __BENV_MARK_OPS_IDX(_idx) \
     __BENV_MARK_OPS(#_idx, _idx, NULL, __benv_set_number, __benv_show_number)
@@ -1576,11 +1588,11 @@ benv_mark_add(int idx, int value)
     /* end */
 
 #define __BENV_INFO_OPS_RO(_path, _idx) \
-    BENV_OPS("infos/" _path, info.var[_idx], NULL, NULL, __benv_show_string) \
+    BENV_OPS("infos/" _path, BENV_OPS_STRING, info.var[_idx], NULL, NULL, __benv_show_string) \
     /* end */
 
 #define __BENV_INFO_OPS_RW(_path, _idx) \
-    BENV_OPS("infos/" _path, info.var[_idx], __benv_check_string, __benv_set_string, __benv_show_string) \
+    BENV_OPS("infos/" _path, BENV_OPS_STRING, info.var[_idx], __benv_check_string, __benv_set_string, __benv_show_string) \
     /* end */
 
 enum {
@@ -1904,6 +1916,8 @@ benv_command(int argc, char *argv[])
         return err;
     }
 
+    benv_cache_dump();
+    
     benv_handle(argc, argv);
 
     return 0;
@@ -2116,6 +2130,27 @@ benv_show_path(void)
     void show(benv_ops_t* ops)
     {
         os_println("%s", ops->path);
+    }
+    
+    __benv_show_byprefix(show, NULL);
+}
+
+static inline void
+benv_show_all(void)
+{
+    void show(benv_ops_t* ops)
+    {
+        switch(ops->type) {
+            case BENV_OPS_NUMBER:
+                __benv_show_number(ops);
+                break;
+            case BENV_OPS_STRING:
+                __benv_show_string(ops);
+                break;
+            case BENV_OPS_VERSION:
+                __benv_show_version(ops);
+                break;
+        }
     }
     
     __benv_show_byprefix(show, NULL);
@@ -2455,20 +2490,19 @@ benv_cmd_hiden(int argc, char *argv[])
         char *obj;
         void (*handle)(void);
     } cmd[] = {
-        __benv_cmd_item("dump",     "ops",    benv_ops_dump),
+        __benv_cmd_item("show",     "cookie",   benv_show_cookie),
+        __benv_cmd_item("show",     "os",       benv_show_os),
+        __benv_cmd_item("show",     "path",     benv_show_path),
+        __benv_cmd_item("show",     "all",      benv_show_all),
         
-        __benv_cmd_item("show",     "cookie", benv_show_cookie),
-        __benv_cmd_item("show",     "os",     benv_show_os),
-        __benv_cmd_item("show",     "path",   benv_show_path),
+        __benv_cmd_item("reset",    "os",       __benv_deft_os),
+        __benv_cmd_item("reset",    "info",     __benv_deft_info),
+        __benv_cmd_item("reset",    "all",      __benv_deft),
         
-        __benv_cmd_item("reset",    "os",     __benv_deft_os),
-        __benv_cmd_item("reset",    "info",   __benv_deft_info),
-        __benv_cmd_item("reset",    "all",    __benv_deft),
-        
-        __benv_cmd_item("clean",    "cookie", __benv_clean_cookie),
-        __benv_cmd_item("clean",    "mark",   __benv_clean_mark),
-        __benv_cmd_item("clean",    "info",   __benv_clean_info),
-        __benv_cmd_item("clean",    "all",    __benv_clean),
+        __benv_cmd_item("clean",    "cookie",   __benv_clean_cookie),
+        __benv_cmd_item("clean",    "mark",     __benv_clean_mark),
+        __benv_cmd_item("clean",    "info",     __benv_clean_info),
+        __benv_cmd_item("clean",    "all",      __benv_clean),
     };
 #undef __benv_cmd_item
     char *action    = argv[1];
