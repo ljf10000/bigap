@@ -699,7 +699,7 @@ __get_fversion(int idx, char *file, benv_version_t *version)
 }
 
 static benv_version_t *
-rootfs_version(int idx, benv_version_t *version)
+rootfs_version(int idx)
 {
     static benv_version_t version;
     
@@ -707,7 +707,7 @@ rootfs_version(int idx, benv_version_t *version)
 }
 
 static benv_version_t *
-kernel_version(int idx, benv_version_t *version)
+kernel_version(int idx)
 {
     static benv_version_t version;
     
