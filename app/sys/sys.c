@@ -250,7 +250,8 @@ __rsync(int idx, benv_version_t *version)
 
     __benv_version_itoa(version, new);
     __benv_version_itoa(&sys.old_version, old);
-    
+
+    set_obj(rootfs, idx, upgrade, BENV_FSM_FAIL);
     err = os_p_system("rsync"
             " -acz --delete --force --stats --partial"
             " --exclude=/dev/*"
@@ -304,7 +305,8 @@ __rcopy(int idx, char *dir, benv_version_t *version)
     
     __benv_version_itoa(version, new);
     __benv_version_itoa(&sys.old_version, old);
-    
+
+    set_obj(rootfs, idx, upgrade, BENV_FSM_FAIL);
     err = __xcopy(dir_rootfs(idx), dir);
     set_obj(rootfs, idx, upgrade, efsm(err));
     
@@ -1158,10 +1160,6 @@ repair_rootfs(int idx)
         return 0;
     }
 
-    if (false==os_objeq(rootfs_version(idx), benv_rootfs_version(idx))) {
-
-    }
-    
     /*
     * get rootfs idx's version
     */
@@ -1850,7 +1848,7 @@ cmd_repair(int argc, char *argv[])
 
         return 0;
     }
-    
+
     get_rootfs_zone(begin, end);
 
     for (i=begin; i<end; i++) {
