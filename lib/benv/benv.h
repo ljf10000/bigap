@@ -2139,7 +2139,7 @@ benv_show_path(void)
 static inline void
 benv_show_all(void)
 {
-    int count = __benv_show_count++;
+    int count = __benv_show_count; __benv_show_count = 2;
     
     void show(benv_ops_t* ops)
     {
