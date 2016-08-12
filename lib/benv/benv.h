@@ -1171,7 +1171,7 @@ __benv_show_string_all(benv_ops_t * ops)
 
     __benv_show_header(ops);
 
-    os_println("%s", string[0]?string:"nothing");
+    os_println("%s", string[0]?string:__empty);
 }
 
 static inline void
