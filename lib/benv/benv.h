@@ -1692,26 +1692,28 @@ benv_info_get(int idx)
 }   /* end */
 
 static inline void
-__benv_show_byprefix(char *prefix)
+__benv_show_byprefix(void (*show) (benv_ops_t* ops), char *prefix)
 {
     int i;
     int len = prefix ? os_strlen(prefix) : 0;
 
+    show = show?show:benv_ops_show;
+    
     for (i = 0; i < __benv_ops_count; i++) {
         benv_ops_t *ops = benv_ops(i);
 
         if (benv_ops_match_wildcard(ops, prefix, len)) {
-            benv_ops_show(ops);
+            (*show)(ops);
         }
     }
 }
 
-#define benv_show_byprefix(_fmt, _args...) do{\
+#define benv_show_byprefix(_show, _fmt, _args...) do{\
     char prefix[1+OS_LINE_LEN];             \
                                             \
     os_saprintf(prefix, _fmt, ##_args);     \
                                             \
-    __benv_show_byprefix(prefix);             \
+    __benv_show_byprefix(_show, prefix);    \
 }while(0)
 
 static inline void
@@ -2110,6 +2112,17 @@ benv_show_os(void)
     __benv_os_show(__benv_os);
 }
 
+static inline void
+benv_show_keys(void)
+{
+    void show_keys(benv_ops_t* ops)
+    {
+        os_println("%s", ops->path);
+    }
+    
+    __benv_show_byprefix(show_keys);
+}
+
 #define BENV_DEFT_COOKIE              { \
     .vendor     = PRODUCT_Vendor,       \
     .company    = PRODUCT_COMPANY,      \
@@ -2446,6 +2459,7 @@ benv_cmd_hiden(int argc, char *argv[])
     } cmd[] = {
         __benv_cmd_item("show",   "cookie", benv_show_cookie),
         __benv_cmd_item("show",   "os",     benv_show_os),
+        __benv_cmd_item("show",   "keys",   __benv_show_byprefix),
         
         __benv_cmd_item("reset",  "os",     __benv_deft_os),
         __benv_cmd_item("reset",  "info",   __benv_deft_info),

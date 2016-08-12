@@ -1858,7 +1858,6 @@ cmd_repair(int argc, char *argv[])
 	return 0;
 }
 
-
 static int
 cmd_upgrade(int argc, char *argv[])
 {
