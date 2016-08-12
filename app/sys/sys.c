@@ -1787,10 +1787,9 @@ __init(void)
 static int
 usage(void)
 {
-    os_eprintln(__THIS_APPNAME " usb");
-    os_eprintln(__THIS_APPNAME " repair");
-    os_eprintln(__THIS_APPNAME " upgrade");
     os_eprintln(__THIS_APPNAME " startup");
+    os_eprintln(__THIS_APPNAME " upgrade");
+    os_eprintln(__THIS_APPNAME " usbupgrade");
 
     return -EFORMAT;
 }
