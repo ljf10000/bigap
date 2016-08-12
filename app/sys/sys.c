@@ -1154,7 +1154,7 @@ repair_rootfs(int idx)
     benv_version_t version;
     int err = 0;
     
-    if (false==is_rootfs_need_repair()) {
+    if (false==is_rootfs_need_repair(idx)) {
         debug_ok("rootfs%d needn't repair", idx);
         
         return 0;
