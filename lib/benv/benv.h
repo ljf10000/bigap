@@ -1165,6 +1165,16 @@ __benv_show_string(benv_ops_t * ops)
 }
 
 static inline void
+__benv_show_string_all(benv_ops_t * ops)
+{
+    char *string = benv_ops_string(ops);
+
+    __benv_show_header(ops);
+
+    os_println("%s", string[0]?string:"nothing");
+}
+
+static inline void
 __benv_set_number(benv_ops_t * ops, char *value)
 {
     *benv_ops_number(ops) = (uint32)(value[0] ? os_atoi(value) : 0);
@@ -2137,7 +2147,7 @@ benv_show_path(void)
 }
 
 static inline void
-benv_show_all(void)
+__benv_show_all(bool show_empty)
 {
     int count = __benv_show_count; __benv_show_count = 2;
     
@@ -2148,7 +2158,12 @@ benv_show_all(void)
                 __benv_show_number(ops);
                 break;
             case BENV_OPS_STRING:
-                __benv_show_string(ops);
+                if (show_empty) {
+                    __benv_show_string_all(ops);
+                } else {
+                    __benv_show_string(ops);
+                }
+                
                 break;
             case BENV_OPS_VERSION:
                 __benv_show_version(ops);
@@ -2158,6 +2173,18 @@ benv_show_all(void)
     
     __benv_show_byprefix(show, NULL);
     __benv_show_count = count;
+}
+
+static inline void
+benv_show_all(void)
+{
+    __benv_show_all(false);
+}
+
+static inline void
+benv_show_hide(void)
+{
+    __benv_show_all(true);
 }
 
 #define BENV_DEFT_COOKIE              { \
@@ -2497,6 +2524,7 @@ benv_cmd_hiden(int argc, char *argv[])
         __benv_cmd_item("show",     "cookie",   benv_show_cookie),
         __benv_cmd_item("show",     "os",       benv_show_os),
         __benv_cmd_item("show",     "path",     benv_show_path),
+        __benv_cmd_item("show",     "hide",     benv_show_hide),
         __benv_cmd_item("show",     "all",      benv_show_all),
         
         __benv_cmd_item("reset",    "os",       __benv_deft_os),
