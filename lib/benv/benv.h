@@ -1695,7 +1695,7 @@ static inline void
 __benv_show_byprefix(void (*show) (benv_ops_t* ops), char *prefix)
 {
     int i;
-    int len = prefix ? os_strlen(prefix) : 0;
+    int len = prefix?os_strlen(prefix):0;
 
     show = show?show:benv_ops_show;
     
@@ -2113,14 +2113,14 @@ benv_show_os(void)
 }
 
 static inline void
-benv_show_keys(void)
+benv_show_path(void)
 {
-    void show_keys(benv_ops_t* ops)
+    void show(benv_ops_t* ops)
     {
         os_println("%s", ops->path);
     }
     
-    __benv_show_byprefix(show_keys);
+    __benv_show_byprefix(show, NULL);
 }
 
 #define BENV_DEFT_COOKIE              { \
@@ -2459,7 +2459,7 @@ benv_cmd_hiden(int argc, char *argv[])
     } cmd[] = {
         __benv_cmd_item("show",   "cookie", benv_show_cookie),
         __benv_cmd_item("show",   "os",     benv_show_os),
-        __benv_cmd_item("show",   "keys",   __benv_show_byprefix),
+        __benv_cmd_item("show",   "path",   benv_show_path),
         
         __benv_cmd_item("reset",  "os",     __benv_deft_os),
         __benv_cmd_item("reset",  "info",   __benv_deft_info),
