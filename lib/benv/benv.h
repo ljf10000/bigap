@@ -2139,6 +2139,8 @@ benv_show_path(void)
 static inline void
 benv_show_all(void)
 {
+    int count = __benv_show_count++;
+    
     void show(benv_ops_t* ops)
     {
         switch(ops->type) {
@@ -2155,6 +2157,7 @@ benv_show_all(void)
     }
     
     __benv_show_byprefix(show, NULL);
+    __benv_show_count = count;
 }
 
 #define BENV_DEFT_COOKIE              { \
