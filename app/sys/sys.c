@@ -334,6 +334,7 @@ __umount(char *dir)
 #define ROOTFS_MOUNT_MODE   __empty
 #endif
 
+#if 0
 static int
 __mount(char *dev, char *dir, bool readonly)
 {
@@ -361,6 +362,7 @@ mount has the following return codes (the bits can be ORed):
 
     return err;
 }
+#endif
 
 static int
 __is_readonly_default(void)
@@ -1136,7 +1138,7 @@ repair_rootfs(int idx)
 
         repair = true;
     }
-    else if (os_p_system(SCRIPT_FIRMWARE " %d", idx)) {
+    else if (0!=os_p_system(SCRIPT_FIRMWARE " %d", idx)) {
         jcrit("%d%s%s",
             "rootfs", idx,
             "check", "failed",
@@ -1832,7 +1834,14 @@ cmd_repair(int argc, char *argv[])
     if (0==sys.current) {
         return -ENOSUPPORT;
     }
+    else if (false==__is_readonly_default()) {
+        jinfo("%s%s%s",
+            "rootfs", "writable",
+            "repair", "false");
 
+        return 0;
+    }
+    
     get_rootfs_zone(begin, end);
 
     for (i=begin; i<end; i++) {
