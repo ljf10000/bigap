@@ -1846,13 +1846,6 @@ cmd_repair(int argc, char *argv[])
     if (0==sys.current) {
         return -ENOSUPPORT;
     }
-    else if (false==__is_readonly_default()) {
-        jinfo("%s%s%s",
-            "rootfs", "writable",
-            "repair", "false");
-
-        return 0;
-    }
 
     get_rootfs_zone(begin, end);
 
