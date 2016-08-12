@@ -1800,6 +1800,9 @@ cmd_reset(int argc, char *argv[])
 {
     int skips = __skips(sys.resetby);
     int i, err, first=0;
+
+    (void)argc;
+    (void)argv;
     
     if (0==sys.current) {
         return -ENOSUPPORT;
@@ -1838,6 +1841,9 @@ cmd_repair(int argc, char *argv[])
     int skips = __skips(0);
     int i, err, begin, end;
 
+    (void)argc;
+    (void)argv;
+
     if (0==sys.current) {
         return -ENOSUPPORT;
     }
@@ -1865,6 +1871,9 @@ static int
 cmd_upgrade(int argc, char *argv[])
 {
     int i, idx = -ENOEXIST, err = 0;
+
+    (void)argc;
+    (void)argv;
     
     if (0==sys.current) {
         jinfo("%o",
@@ -1928,6 +1937,9 @@ cmd_upgrade(int argc, char *argv[])
 static int
 cmd_startup(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     if (0==sys.current) {
         return super_startup();
     } else {
@@ -1938,6 +1950,9 @@ cmd_startup(int argc, char *argv[])
 static int
 cmd_startfail(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+    
     if (0==sys.current) {
         return super_startup();
     } else {
@@ -1949,6 +1964,9 @@ static int
 cmd_usbupgrade(int argc, char *argv[])
 {
     int err;
+
+    (void)argc;
+    (void)argv;
 
     __os_system(DIR_USB_ROOTFS SCRIPT_USBUPGRADE_INIT "&");
     err = usbupgrade();
@@ -1965,6 +1983,9 @@ static int
 cmd_mount(int argc, char *argv[])
 {
     int i, err, errs = 0;
+
+    (void)argc;
+    (void)argv;
     
     for (i=0; i<os_count_of(mounts); i++) {
         err = (*mounts[i].mount)();
@@ -1980,6 +2001,9 @@ static int
 cmd_umount(int argc, char *argv[])
 {
     int i, err, errs = 0;
+
+    (void)argc;
+    (void)argv;
     
     for (i=os_count_of(mounts) - 1; i>=0; i--) {
         err = (*mounts[i].umount)();
