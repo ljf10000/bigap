@@ -697,7 +697,7 @@ __get_fversion(int idx, char *file, benv_version_t *version)
 }
 
 static benv_version_t *
-rootfs_fversion(int idx)
+rootfs_version(int idx, benv_version_t *version)
 {
     static benv_version_t version;
     
@@ -705,7 +705,7 @@ rootfs_fversion(int idx)
 }
 
 static benv_version_t *
-kernel_fversion(int idx)
+kernel_version(int idx, benv_version_t *version)
 {
     static benv_version_t version;
     
@@ -1053,7 +1053,7 @@ get_upgrade_byversion(benv_version_t *version, int skips)
     * try get bad by version
     */
     idx = benv_find_first_bad_byversion(rootfs, version, skips);
-    if (__benv_rootfs_is_good(idx)) {
+    if (is_benv_good_rootfs(idx)) {
         debug_rootfs_upgrade(idx, "master", "good");
 
         return idx;
@@ -1063,7 +1063,7 @@ get_upgrade_byversion(benv_version_t *version, int skips)
     * try get good(maybe fake) by version
     */
     idx = benv_find_first_good_byversion(rootfs, version, skips);
-    if (__benv_rootfs_is_good(idx)) {
+    if (is_benv_good_rootfs(idx)) {
         debug_rootfs_upgrade(idx, "master", "bad");
 
         return idx;
@@ -1115,20 +1115,16 @@ repair_kernel(int idx, benv_version_t *version)
     return err;
 }
 
-static int
-repair_rootfs(int idx)
+static bool
+is_rootfs_need_repair(int idx)
 {
-    benv_version_t version;
-    bool repair = false;
-    int err = 0;
-    
-    if (false==__benv_rootfs_is_good(idx)) {
+    if (false==is_benv_good_rootfs(idx)) {
         jcrit("%d%s%s",
             "rootfs", idx,
             "state", "bad",
             "todo", "repair");
 
-        repair = true;
+        return true;
     }
     else if (false==os_file_exist(SCRIPT_FIRMWARE)) {
         jcrit("%d%s%s",
@@ -1136,7 +1132,7 @@ repair_rootfs(int idx)
             "nofound", SCRIPT_FIRMWARE,
             "todo", "repair");
 
-        repair = true;
+        return true;
     }
     else if (0!=os_p_system(SCRIPT_FIRMWARE " %d", idx)) {
         jcrit("%d%s%s",
@@ -1144,13 +1140,26 @@ repair_rootfs(int idx)
             "check", "failed",
             "todo", "repair");
 
-        repair = true;
+        return true;
     }
 
-    if (false==repair) {
+    return false;
+}
+
+static int
+repair_rootfs(int idx)
+{
+    benv_version_t version;
+    int err = 0;
+    
+    if (false==is_rootfs_need_repair()) {
         debug_ok("rootfs%d needn't repair", idx);
         
         return 0;
+    }
+
+    if (false==os_objeq(rootfs_version(idx), benv_rootfs_version(idx))) {
+
     }
     
     /*
@@ -1168,7 +1177,7 @@ repair_rootfs(int idx)
         "find", "buddy",
         "index", idx);
 
-    if (__benv_rootfs_is_good(buddy)) {
+    if (is_benv_good_rootfs(buddy)) {
         err = rcopy(idx, dir_rootfs(buddy), &version);
         jcrit("%s%d%d%d",
             "repair", "rootfs",
@@ -1234,7 +1243,7 @@ upgrade(int idx, int src)
     * 3. rootfsX/kernelX version == upgrade version
     */
     if (NULL==sys.env.force
-        && __benv_firmware_is_good(idx)
+        && is_benv_good_firmware(idx)
         && benv_version_eq(version, benv_rootfs_version(idx))
         && benv_version_eq(version, benv_kernel_version(idx))) {
 
@@ -1437,7 +1446,7 @@ super_startup(void)
     */
     best = benv_find_best(rootfs, skips);
     
-    if (__benv_rootfs_is_bad(best)) {
+    if (is_benv_bad_rootfs(best)) {
         /*
         * no found good rootfs, 
         *   use rootfs0 repair rootfs1
@@ -1455,7 +1464,7 @@ super_startup(void)
     /*
     * 2. check kernel
     */
-    if (__benv_kernel_is_good(idx)) {
+    if (is_benv_good_kernel(idx)) {
         jwarning("%s%d",
             "superstartup", "firmware is good, why in super ???",
             "firmware", idx);
@@ -1467,7 +1476,7 @@ super_startup(void)
     * 3. repair kernel
     */
     best = benv_find_best(kernel, skips);
-    if (__benv_kernel_is_bad(best)) {
+    if (is_benv_bad_kernel(best)) {
         jcrit("%s%d",
             "superstartup", "no found good kernel, use kernel0 repair",
             "kernel", idx);
@@ -1496,7 +1505,7 @@ ok:
                                                     \
     os_firmware_foreach(i) {                        \
         if (false==is_benv_skip(_skips, i)          \
-            && benv_obj_is_good(_obj, i)            \
+            && is_benv_good_obj(_obj, i)            \
             && benv_obj_version_eq(_obj, i, _idx)){ \
             debug_ok("tagged " #_obj "%d's other is ok", i); \
             benv_obj(_obj, i)->other = BENV_FSM_OK; \
@@ -1793,7 +1802,7 @@ cmd_reset(int argc, char *argv[])
 {
     int skips = __skips(sys.resetby);
     int i, err, first=0;
-
+    
     if (0==sys.current) {
         return -ENOSUPPORT;
     }
@@ -1817,7 +1826,7 @@ cmd_reset(int argc, char *argv[])
         /*
         * set current failed, wait to repair by other
         */
-        upgrade_init(sys.current, rootfs_fversion(sys.resetby));
+        upgrade_init(sys.current, benv_rootfs_version(sys.resetby));
 
         return os_p_system("sysreboot &");
     }

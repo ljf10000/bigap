@@ -248,7 +248,7 @@ benv_error_cmp(uint32 a, unsigned b)
 }
 
 static inline bool
-benv_vcs_is_good(benv_vcs_t *vcs)
+is_benv_good_vcs(benv_vcs_t *vcs)
 {
     return is_benv_good(vcs->error)           /* no error */
         && BENV_FSM_OK == vcs->upgrade        /* upgrade ok */
@@ -619,31 +619,31 @@ benv_rootfs(int idx)
 #define benv_obj(_obj, _idx)  benv_##_obj(_idx)
 
 static inline bool
-__benv_kernel_is_good(int idx)
+is_benv_good_kernel(int idx)
 {
     return is_good_benv_idx(idx)
-        && benv_vcs_is_good(benv_kernel(idx));
+        && is_benv_good_vcs(benv_kernel(idx));
 }
 
 static inline bool
-__benv_rootfs_is_good(int idx)
+is_benv_good_rootfs(int idx)
 {
     return is_good_benv_idx(idx)
-        && benv_vcs_is_good(benv_rootfs(idx));
+        && is_benv_good_vcs(benv_rootfs(idx));
 }
 
 static inline bool
-__benv_firmware_is_good(int idx)
+is_benv_good_firmware(int idx)
 {
-    return __benv_rootfs_is_good(idx)
-        && __benv_kernel_is_good(idx);
+    return is_benv_good_rootfs(idx)
+        && is_benv_good_kernel(idx);
 }
-#define benv_obj_is_good(_obj, _idx)    __benv_##_obj##_is_good(_idx)
+#define is_benv_good_obj(_obj, _idx)    is_benv_good_##_obj(_idx)
 
-#define __benv_kernel_is_bad(_idx)      (false==__benv_kernel_is_good(_idx))
-#define __benv_rootfs_is_bad(_idx)      (false==__benv_rootfs_is_good(_idx))
-#define __benv_firmware_is_bad(_idx)    (false==__benv_firmware_is_good(_idx))
-#define benv_obj_is_bad(_obj, _idx)     (false==benv_obj_is_good(_obj, _idx))
+#define is_benv_bad_kernel(_idx)        (false==is_benv_good_kernel(_idx))
+#define is_benv_bad_rootfs(_idx)        (false==is_benv_good_rootfs(_idx))
+#define is_benv_bad_firmware(_idx)      (false==is_benv_good_firmware(_idx))
+#define is_benv_bad_obj(_obj, _idx)     (false==is_benv_good_obj(_obj, _idx))
 
 static inline benv_version_t *
 benv_kernel_version(int idx)
@@ -674,28 +674,28 @@ benv_rootfs_version_string(int idx)
 #define benv_obj_version_string(_obj, _idx)     benv_##_obj##_version_string(_idx)
 
 static inline int
-__benv_kernel_version_cmp(int a, int b)
+benv_kernel_version_cmp(int a, int b)
 {
     return benv_version_cmp(benv_kernel_version(a), benv_kernel_version(b));
 }
 
 static inline int
-__benv_rootfs_version_cmp(int a, int b)
+benv_rootfs_version_cmp(int a, int b)
 {
     return benv_version_cmp(benv_rootfs_version(a), benv_rootfs_version(b));
 }
 
 static inline int
-__benv_firmware_version_cmp(int a, int b)
+benv_firmware_version_cmp(int a, int b)
 {
     int ret;
 
-    ret = __benv_rootfs_version_cmp(a, b);
+    ret = benv_rootfs_version_cmp(a, b);
     if (ret) {
         return ret;
     }
 
-    ret = __benv_kernel_version_cmp(a, b);
+    ret = benv_kernel_version_cmp(a, b);
     if (ret) {
         return ret;
     }
@@ -703,7 +703,7 @@ __benv_firmware_version_cmp(int a, int b)
     return 0;
 }
 
-#define benv_obj_version_cmp(_obj, _a, _b)  __benv_##_obj##_version_cmp(_a, _b)
+#define benv_obj_version_cmp(_obj, _a, _b)  benv_##_obj##_version_cmp(_a, _b)
 #define benv_obj_version_eq(_obj, _a, _b)   (0==benv_obj_version_cmp(_obj, _a, _b))
 
 enum {
@@ -738,13 +738,13 @@ benv_vcs_cmp(char *obj, benv_vcs_t * a, benv_vcs_t * b)
 {
     int ret;
 
-    if (benv_vcs_is_good(a) && false==benv_vcs_is_good(b)) {
+    if (is_benv_good_vcs(a) && false==is_benv_good_vcs(b)) {
         /*
         * a is good, b is bad
         */
         return 1;
     }
-    else if (false==benv_vcs_is_good(a) && benv_vcs_is_good(b)) {
+    else if (false==is_benv_good_vcs(a) && is_benv_good_vcs(b)) {
         /*
         * a is bad, b is good
         */
@@ -1065,7 +1065,7 @@ __benv_sort_after(int sort[], int count)
 #define __benv_obj_always_true(_obj, _idx)    true
 
 #define benv_find_best(_obj, _skips) ({ \
-    int idx_in_benv_find_best = __benv_find_xest(_obj, _skips, __benv_downsort, benv_obj_is_good); \
+    int idx_in_benv_find_best = __benv_find_xest(_obj, _skips, __benv_downsort, is_benv_good_obj); \
     debug_trace("find best:%d", idx_in_benv_find_best); \
     idx_in_benv_find_best;                              \
 })  /* end */
@@ -1087,7 +1087,7 @@ __benv_sort_after(int sort[], int count)
     os_firmware_foreach(i_in___benv_find_first_buddy) {                \
         if (false==is_benv_skip(skips_in___benv_find_first_buddy, i_in___benv_find_first_buddy) \
             && benv_obj_version_eq(_obj, i_in___benv_find_first_buddy, _idx) \
-            && benv_obj_is_good(_obj, i_in___benv_find_first_buddy)) { \
+            && is_benv_good_obj(_obj, i_in___benv_find_first_buddy)) { \
             ret_in___benv_find_first_buddy = i_in___benv_find_first_buddy; \
             break;                          \
         }                                   \
@@ -1100,10 +1100,10 @@ __benv_sort_after(int sort[], int count)
         __benv_find_first_buddy(_obj, _idx, _skips, __benv_obj_always_true)
 
 #define benv_find_first_good_buddy(_obj, _idx, _skips) \
-        __benv_find_first_buddy(_obj, _idx, _skips, benv_obj_is_good)
+        __benv_find_first_buddy(_obj, _idx, _skips, is_benv_good_obj)
 
 #define benv_find_first_bad_buddy(_obj, _idx, _skips) \
-        __benv_find_first_buddy(_obj, _idx, _skips, benv_obj_is_bad)
+        __benv_find_first_buddy(_obj, _idx, _skips, is_benv_bad_obj)
 
 #define __benv_find_first_byversion(_obj, _version, _skips, _is_func) ({ \
     int i_in___benv_find_first_byversion;               \
@@ -1127,10 +1127,10 @@ __benv_sort_after(int sort[], int count)
         __benv_find_first_byversion(_obj, _version, _skips, __benv_obj_always_true)
 
 #define benv_find_first_good_byversion(_obj, _version, _skips) \
-        __benv_find_first_byversion(_obj, _version, _skips, benv_obj_is_good)
+        __benv_find_first_byversion(_obj, _version, _skips, is_benv_good_obj)
 
 #define benv_find_first_bad_byversion(_obj, _version, _skips) \
-        __benv_find_first_byversion(_obj, _version, _skips, benv_obj_is_bad)
+        __benv_find_first_byversion(_obj, _version, _skips, is_benv_bad_obj)
 
 static inline void
 __benv_show_header(benv_ops_t * ops)

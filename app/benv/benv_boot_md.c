@@ -296,7 +296,7 @@ benv_select(void)
     /*
     * try current
     */
-    if (__benv_firmware_is_good(current)) {
+    if (is_benv_good_firmware(current)) {
         os_println("current firmware%d is good", current);
 
         goto selected;
@@ -309,7 +309,7 @@ benv_select(void)
     * try buddy
     */
     int buddy = benv_find_first_good_buddy(firmware, current, skips);
-    if (__benv_firmware_is_good(buddy)) {
+    if (is_benv_good_firmware(buddy)) {
         os_println("buddy firmware%d is good", buddy);
 
         __benv_current = buddy;
@@ -324,7 +324,7 @@ benv_select(void)
     * try best
     */
     int best = benv_find_best(firmware, skips);
-    if (__benv_firmware_is_good(best)) {
+    if (is_benv_good_firmware(best)) {
         os_println("the best firmware%d is good", best);
 
         __benv_current = best;
