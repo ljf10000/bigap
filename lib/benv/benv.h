@@ -580,7 +580,7 @@ benv_cache(benv_ops_t * ops)
 static inline void
 __benv_ops_dump(benv_ops_t *ops)
 {
-    debug_trace("ops idx=%d, path=%s, value=%s, showit=%s",
+    os_println("ops idx=%d, path=%s, value=%s, showit=%s",
         benv_ops_idx(ops),
         ops->path,
         benv_cache_value(ops)?benv_cache_value(ops):"nothing",
@@ -588,11 +588,11 @@ __benv_ops_dump(benv_ops_t *ops)
 }
 
 static inline void
-benv_ops_dump(char *name)
+benv_ops_dump(void)
 {
     int i;
 
-    debug_trace("[%s] ops count=%d", name, __benv_ops_count);
+    os_println("ops count=%d", __benv_ops_count);
     
     for (i = 0; i < __benv_ops_count; i++) {
         __benv_ops_dump(benv_ops(i));
@@ -1904,8 +1904,6 @@ benv_command(int argc, char *argv[])
         return err;
     }
 
-    benv_ops_dump("command");
-
     benv_handle(argc, argv);
 
     return 0;
@@ -2457,18 +2455,20 @@ benv_cmd_hiden(int argc, char *argv[])
         char *obj;
         void (*handle)(void);
     } cmd[] = {
-        __benv_cmd_item("show",   "cookie", benv_show_cookie),
-        __benv_cmd_item("show",   "os",     benv_show_os),
-        __benv_cmd_item("show",   "path",   benv_show_path),
+        __benv_cmd_item("dump",     "ops",    benv_ops_dump),
         
-        __benv_cmd_item("reset",  "os",     __benv_deft_os),
-        __benv_cmd_item("reset",  "info",   __benv_deft_info),
-        __benv_cmd_item("reset",  "all",    __benv_deft),
+        __benv_cmd_item("show",     "cookie", benv_show_cookie),
+        __benv_cmd_item("show",     "os",     benv_show_os),
+        __benv_cmd_item("show",     "path",   benv_show_path),
         
-        __benv_cmd_item("clean",  "cookie", __benv_clean_cookie),
-        __benv_cmd_item("clean",  "mark",   __benv_clean_mark),
-        __benv_cmd_item("clean",  "info",   __benv_clean_info),
-        __benv_cmd_item("clean",  "all",    __benv_clean),
+        __benv_cmd_item("reset",    "os",     __benv_deft_os),
+        __benv_cmd_item("reset",    "info",   __benv_deft_info),
+        __benv_cmd_item("reset",    "all",    __benv_deft),
+        
+        __benv_cmd_item("clean",    "cookie", __benv_clean_cookie),
+        __benv_cmd_item("clean",    "mark",   __benv_clean_mark),
+        __benv_cmd_item("clean",    "info",   __benv_clean_info),
+        __benv_cmd_item("clean",    "all",    __benv_clean),
     };
 #undef __benv_cmd_item
     char *action    = argv[1];
