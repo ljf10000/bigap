@@ -382,7 +382,7 @@ __benv_ops_is(uint32 offset)
 }
 
 enum {
-    BENV_OPS_NUMBER, 
+    BENV_OPS_NUMBER,
     BENV_OPS_STRING,
     BENV_OPS_VERSION,
 
@@ -1387,8 +1387,9 @@ __benv_check_string(benv_ops_t * ops, char *value)
     /* end */
 
 #define BENV_OS_COMMON_OPS              \
-    __BENV_OS_OPS("current", current,   \
+    __BENV_OS_OPS("current",            \
         BENV_OPS_NUMBER,                \
+        current,                        \
         __benv_check_current, __benv_set_number, __benv_show_number) \
     /* end */
 
