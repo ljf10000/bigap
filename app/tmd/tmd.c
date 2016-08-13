@@ -140,9 +140,9 @@ __foreach(mv_t (*cb)(struct xtimer *entry), bool safe)
     }
 
     if (safe) {
-        return h1_foreach(&tmd.table, foreach);
-    } else {
         return h1_foreach_safe(&tmd.table, foreach);
+    } else {
+        return h1_foreach(&tmd.table, foreach);
     }
 }
 
@@ -346,7 +346,7 @@ handle_clean(char *args)
         return mv2_ok;
     }
     
-    __foreach(cb, false);
+    __foreach(cb, true);
     
     return 0;
 }
