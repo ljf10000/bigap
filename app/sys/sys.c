@@ -26,7 +26,7 @@ BENV_INITER;
 #define USB_FILE(_file)             DIR_USB_ROOTFS  "/" _file
 #define USB_TOOL_FILE(_file)        DIR_USB_TOOL    "/" _file
 
-#define SCRIPT_FIRMWARE             SCRIPT_FILE("formware_check.sh")
+#define SCRIPT_FIRMWARE             SCRIPT_FILE("firmware_check.sh")
 #define SCRIPT_MOUNT                SCRIPT_FILE("mount.script")
 #define SCRIPT_HOTPLUG              SCRIPT_FILE("hotplug/disk.cb")
 
