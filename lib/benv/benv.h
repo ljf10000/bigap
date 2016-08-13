@@ -250,9 +250,21 @@ benv_error_cmp(uint32 a, unsigned b)
 static inline bool
 is_benv_good_vcs(benv_vcs_t *vcs)
 {
-    return is_benv_good(vcs->error)           /* no error */
-        && BENV_FSM_OK == vcs->upgrade        /* upgrade ok */
-        && is_canused_benv_fsm(vcs->self);    /* self startup ok, or have not startup */
+    if (false==is_benv_good(vcs->error)) {
+        debug_trace("bad vcs error");
+        
+        return false;
+    }
+    else if (BENV_FSM_OK != vcs->upgrade) {
+        debug_trace("vcs upgrade not ok");
+        
+        return false;
+    }
+    else if (false==is_canused_benv_fsm(vcs->self)) {
+        debug_trace("vcs self failed");
+    }
+
+    return true;
 }
 
 typedef struct {
@@ -625,15 +637,35 @@ benv_rootfs(int idx)
 static inline bool
 is_benv_good_kernel(int idx)
 {
-    return is_good_benv_idx(idx)
-        && is_benv_good_vcs(benv_kernel(idx));
+    if (false==is_good_benv_idx(idx)) {
+        debug_trace("bad kernel index:%d", idx);
+        
+        return false;
+    }
+    else if (false==is_benv_good_vcs(benv_kernel(idx))) {
+        debug_trace("bad kernel%d's vcs");
+        
+        return false;
+    }
+
+    return true;
 }
 
 static inline bool
 is_benv_good_rootfs(int idx)
 {
-    return is_good_benv_idx(idx)
-        && is_benv_good_vcs(benv_rootfs(idx));
+    if (false==is_good_benv_idx(idx)) {
+        debug_trace("bad rootfs index:%d", idx);
+        
+        return false;
+    }
+    else if (false==is_benv_good_vcs(benv_rootfs(idx))) {
+        debug_trace("bad rootfs%d's vcs");
+        
+        return false;
+    }
+
+    return true;
 }
 
 static inline bool
@@ -2187,6 +2219,22 @@ benv_show_hide(void)
     __benv_show_all(true);
 }
 
+static inline void
+benv_check_os(void)
+{
+    int i;
+
+    os_firmware_foreach_all(i) {
+        if (false==is_benv_good_rootfs(i)) {
+            os_println("bad rootfs%d");
+        }
+        
+        if (false==is_benv_good_kernel(i)) {
+            os_println("bad kernel%d");
+        }
+    }
+}
+
 #define BENV_DEFT_COOKIE              { \
     .vendor     = PRODUCT_Vendor,       \
     .company    = PRODUCT_COMPANY,      \
@@ -2526,6 +2574,8 @@ benv_cmd_hiden(int argc, char *argv[])
         __benv_cmd_item("show",     "path",     benv_show_path),
         __benv_cmd_item("show",     "hide",     benv_show_hide),
         __benv_cmd_item("show",     "all",      benv_show_all),
+        
+        __benv_cmd_item("check",    "os",       benv_check_os),
         
         __benv_cmd_item("reset",    "os",       __benv_deft_os),
         __benv_cmd_item("reset",    "info",     __benv_deft_info),
