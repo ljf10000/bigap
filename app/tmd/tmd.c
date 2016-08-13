@@ -346,7 +346,7 @@ handle_clean(char *args)
         return mv2_ok;
     }
     
-    __foreach(cb, true);
+    __foreach(cb, false);
     
     return 0;
 }
