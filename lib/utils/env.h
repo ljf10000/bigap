@@ -75,7 +75,8 @@ env_geti(char *envname, int deft)
     }
 }
 /******************************************************************************/
-#if 0
+#define use_THIS_ENV    0
+
 #define OS_ENVLIST(_)   \
     _(ENV_TIMEOUT,  0,  "timeout"),     \
     _(ENV_INTERVAL, 1,  "interval"),    \
@@ -137,7 +138,11 @@ typedef struct {
 } os_env_cache_t;
 
 #define DECLARE_FAKE_ENV    extern os_env_cache_t __THIS_ENV
+#if use_THIS_ENV
 #define DECLARE_REAL_ENV    os_env_cache_t __THIS_ENV
+#else
+#define DECLARE_REAL_ENV    DECLARE_FAKE_ENV
+#endif
 
 #ifdef __BUSYBOX__
 #   define DECLARE_ENV      DECLARE_FAKE_ENV
@@ -150,6 +155,7 @@ DECLARE_FAKE_ENV;
 static inline void
 os_env_init(void)
 {
+#if use_THIS_ENV
     int i;
     
 #define OS_ENV_GET(_key, _value, _name) \
@@ -157,6 +163,7 @@ os_env_init(void)
 
     OS_ENVLIST(OS_ENV_GET) i=0;
 #undef OS_ENV_GET
+#endif
 }
 
 static inline char *
@@ -198,7 +205,6 @@ os_env_deft(int idx, char *deft)
         return NULL;
     }
 }
-#endif
 /******************************************************************************/
 typedef struct {
     char *name;
