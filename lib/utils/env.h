@@ -129,7 +129,7 @@ typedef struct {
     char *stantard; // voltage
     char *low;      // voltage
     char *high;     // voltage
-    char *unix;     // jlogd/jlogger
+//    char *unix;     // jlogd/jlogger
     char *family;   // jlogger
 } 
 env_cache_t;
