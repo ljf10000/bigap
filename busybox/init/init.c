@@ -112,7 +112,7 @@ static struct init_action actions[] = {
     action_entry("rt",     RESPAWN | STATICACT),
 };
 
-static char *deamons[] = {
+static char *busyboxs[] = {
     "/bin/ak",
     "/bin/fcookie",
     "/bin/guard",
@@ -131,28 +131,29 @@ static char *deamons[] = {
 };
 
 #define os_count_of(x)          (sizeof(x)/sizeof(x[0]))
+#define BUSYBOXNAME             "busybox"
+#define BUSYBOXNAMELEN          (sizeof(BUSYBOXNAME) - 1)
 
-static inline int
-os_file_exist(const char *file)
+static void check_busybox(void)
 {
-    int fd = open(file, O_RDONLY, S_IRUSR | S_IRGRP);
-
-    return fd<0?0:(close(fd), 1);
-}
-
-static int check_deamons(void)
-{
-    int i;
-
-    for (i=0; i<os_count_of(deamons); i++) {
-        char *app = deamons[i];
+    int i, len;
+    char line[1024];
+    
+    for (i=0; i<os_count_of(busyboxs); i++) {
+        char *app = busyboxs[i];
         
-        if (!os_file_exist(app)) {
-            printf("%s is not exist, system will reboot after 5 minute.\n", app);
+        len = readlink(app, line, sizeof(line)-1);
+        if (len != BUSYBOXNAMELEN || memcmp(BUSYBOXNAME, line, BUSYBOXNAMELEN)) {
+            printf("%s is bad", app);
 
-            system("(sleep 300; sys startfail; reboot) &");
+            goto hacked;
         }
     }
+
+    return;
+hacked:
+    printf(", system will reboot after 5 minute.\n");
+    system("(sleep 300; sys startfail; reboot) &");
 }
 
 static struct init_action *init_action_list = &actions[0];
@@ -1083,7 +1084,7 @@ int init_main(int argc UNUSED_PARAM, char **argv)
 #ifdef BIGAP
     printf(hello_string);
 
-    check_deamons();
+    check_busybox();
 #endif
 	/* Now run everything that needs to be run */
 	/* First run the sysinit command */
