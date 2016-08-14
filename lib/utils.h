@@ -212,7 +212,7 @@
     DECLARE_CLI_BUFFER;     \
     DECLARE_DEBUGGER;       \
     DECLARE_JDEBUGGER;      \
-    DECLARE_ENV;            \
+    /* DECLARE_ENV; */      \
                             \
     OS_EXT_INITER/* last */ \
     /* end */
@@ -229,7 +229,7 @@
     DECLARE_REAL_CLI_BUFFER;    \
     DECLARE_REAL_DEBUGGER;      \
     DECLARE_REAL_JDEBUGGER;     \
-    DECLARE_REAL_ENV;           \
+    /* DECLARE_REAL_ENV; */     \
                                 \
     OS_EXT_REAL_INITER/* last */\
     /* end */

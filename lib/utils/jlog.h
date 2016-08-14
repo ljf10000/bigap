@@ -925,11 +925,11 @@ __jlog_env_init(void)
     
     family  = __jlog_server()->sa_family
             = __this_jlogger()->family
-            = env_geti(OS_ENVNAME(FAMILY), JLOG_FAMILY);
+            = env_geti(OS_ENV(FAMILY), JLOG_FAMILY);
 
     switch(family) {
         case AF_UNIX: {
-            err = __env_copy(OS_ENVNAME(UNIX), JLOG_UNIX, 
+            err = __env_copy(OS_ENV(UNIX), JLOG_UNIX, 
                     get_abstract_path(__jlog_userver()),
                     abstract_path_size);
             if (err<0) {
@@ -942,10 +942,10 @@ __jlog_env_init(void)
             char ipaddress[32] = {0};
             sockaddr_in_t *iserver = __jlog_iserver();
             
-            iserver->sin_port = env_geti(OS_ENVNAME(PORT), JLOG_PORT);
+            iserver->sin_port = env_geti(OS_ENV(PORT), JLOG_PORT);
             __debug_ok("get port:%d", iserver->sin_port);
             
-            err = env_copy(OS_ENVNAME(SERVER), JLOG_SERVER, ipaddress);
+            err = env_copy(OS_ENV(SERVER), JLOG_SERVER, ipaddress);
             if (err<0) {
                 __debug_error("get jlog ip error:%d", -errno);
                 

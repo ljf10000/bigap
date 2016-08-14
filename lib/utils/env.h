@@ -75,8 +75,7 @@ env_geti(char *envname, int deft)
     }
 }
 /******************************************************************************/
-#define OS_ENVNAME(_name)       "__ENV_" #_name "__"
-
+#if 0
 #define OS_ENVLIST(_)   \
     _(ENV_TIMEOUT,  0,  "timeout"),     \
     _(ENV_INTERVAL, 1,  "interval"),    \
@@ -199,31 +198,7 @@ os_env_deft(int idx, char *deft)
         return NULL;
     }
 }
-
-typedef struct {
-    char *timeout;  // sysupgrade/sysrepair/hisi vcc
-    char *interval; // hisi vcc
-    char *pwdfile;  // sysupgrade/sysrepair
-    char *version;  // sysupgrade/sysrepair
-    char *upgrade;  // sysupgrade
-    char *rootfs;   // sysupgrade
-    char *server;   // sysupgrade/sysrepair/jlogd/jlogger
-    char *force;    // sysupgrade/sysusbupgrade
-    char *port;     // sysupgrade/sysrepair
-    char *user;     // sysupgrade/sysrepair/hisi dial
-    char *path;     // sysupgrade/sysrepair/hisi vcc
-    char *resetby;  // sysreset
-    char *password; // hisi dial
-    char *telephone;// hisi dial
-    char *apn;      // hisi dial
-    char *try;      // hisi dial
-    char *script;   // hisi acc/vcc
-    char *stantard; // hisi voltage
-    char *low;      // hisi voltage
-    char *high;     // hisi voltage
-    char *family;   // jlogger
-} 
-env_cache_t;
+#endif
 /******************************************************************************/
 typedef struct {
     char *name;
@@ -254,6 +229,33 @@ env_number_init(env_number_t *env)
 {
     env->value = env_geti(env->name, env->deft);
 }
+/******************************************************************************/
+#define OS_ENV(_name)       "__ENV_" #_name "__"
+
+typedef struct {
+    char *timeout;  // sysupgrade/sysrepair/hisi vcc
+    char *interval; // hisi vcc
+    char *pwdfile;  // sysupgrade/sysrepair
+    char *version;  // sysupgrade/sysrepair
+    char *upgrade;  // sysupgrade
+    char *rootfs;   // sysupgrade
+    char *server;   // sysupgrade/sysrepair/jlogd/jlogger
+    char *force;    // sysupgrade/sysusbupgrade
+    char *port;     // sysupgrade/sysrepair
+    char *user;     // sysupgrade/sysrepair/hisi dial
+    char *path;     // sysupgrade/sysrepair/hisi vcc
+    char *resetby;  // sysreset
+    char *password; // hisi dial
+    char *telephone;// hisi dial
+    char *apn;      // hisi dial
+    char *try;      // hisi dial
+    char *script;   // hisi acc/vcc
+    char *stantard; // hisi voltage
+    char *low;      // hisi voltage
+    char *high;     // hisi voltage
+    char *family;   // jlogger
+} 
+env_cache_t;
 /******************************************************************************/
 #endif
 #endif /* __ENV_H_9f26434e76294326b152b1e81f17fb31__ */
