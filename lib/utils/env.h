@@ -86,11 +86,13 @@ typedef struct {
     int value;
 } env_number_t;
 
-#define ENV_VAR_INITER(_name, _deft) { \
+#define __ENV_VAR_INITER(_name, _deft) { \
     .name = _name, \
     .deft = _deft, \
     .value= _deft, \
 }   /* end */
+
+#define ENV_VAR_INITER(_var)   __ENV_VAR_INITER("__" #_var "__", _var)
 
 static inline int
 env_string_init(env_string_t *env)
@@ -116,7 +118,7 @@ env_number_init(env_number_t *env)
 * upgrade rootfs idx
 */
 #define ENV_ROOTFS      "__ENV_ROOTFS__"    // sysupgrade
-#define ENV_SERVER      "__ENV_SERVER__"    // sysupgrade/sysrepair
+#define ENV_SERVER      "__ENV_SERVER__"    // sysupgrade/sysrepair/jlogd/jlogger
 #define ENV_FORCE       "__ENV_FORCE__"     // sysupgrade/sysusbupgrade
 #define ENV_PORT        "__ENV_PORT__"      // sysupgrade/sysrepair
 #define ENV_USER        "__ENV_USER__"      // sysupgrade/sysrepair/dial
@@ -131,6 +133,8 @@ env_number_init(env_number_t *env)
 #define ENV_LOW         "__ENV_LOW__"       // voltage
 #define ENV_HIGH        "__ENV_HIGH__"      // voltage
 #define ENV_LOG         "__ENV_LOG__"       // dial
+#define ENV_UNIX        "__ENV_UNIX__"      // jlogd/jlogger
+#define ENV_FAMILY      "__ENV_FAMILY__"    // jlogger
 
 typedef struct {
     char *timeout;
@@ -153,6 +157,8 @@ typedef struct {
     char *stantard;
     char *low;
     char *high;
+    char *unix;
+    char *family;
 } 
 env_cache_t;
 /******************************************************************************/

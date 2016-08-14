@@ -20,7 +20,7 @@ TARGET_CFLAGS += -Wall \
 		-D__BACKTRACE__=$(UBACKTRACE) \
 		-D__TAB_AS_SPACE=4 \
 		-D__PRODUCT__=6 \
-		-DJLOG_IP=\\\"1.0.0.5\\\" \
+		-DJLOG_SERVER=\\\"1.0.0.5\\\" \
 		-std=gnu99 \
 		-Wno-unused \
 		-fmerge-all-constants \

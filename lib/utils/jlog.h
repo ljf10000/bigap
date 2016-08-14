@@ -2,111 +2,27 @@
 #define __JLOG_H_c174923fabe845e980f9379209210cc3__
 /******************************************************************************/
 #ifndef JLOG_UNIX
-#define JLOG_UNIX               "/tmp/.jlog.unix"
+#define JLOG_UNIX           "/tmp/.jlog.unix"
 #endif
 
-#ifndef JLOG_BUFSIZE
-#define JLOG_BUFSIZE            (1*1024*1024-1)
+/*
+* 2: AF_INET
+* 1: AF_UNIX
+*/
+#ifndef JLOG_FAMILY
+#define JLOG_FAMILY         AF_UNIX
 #endif
 
-#ifndef JLOG_PRI
-#define JLOG_PRI                LOG_CRIT
-#endif
-
-#ifndef JLOG_TIMEOUT
-#define JLOG_TIMEOUT            500
-#endif
-
-#ifndef JLOG_CUTCOUNT
+#ifndef JLOG_SERVER
 #ifdef __PC__
-#   define JLOG_CUTCOUNT        10
+#   define JLOG_SERVER      "0.0.0.0"
 #else
-#   define JLOG_CUTCOUNT        1000
-#endif
-#endif
-
-#ifndef JLOG_LOCAL_PATH
-#define JLOG_LOCAL_PATH         "/tmp/log/jlog"
-#endif
-
-#ifndef JLOG_REMOTE_PATH
-#define JLOG_REMOTE_PATH        "/tmp/tftp/log/jlog"
-#endif
-
-#ifndef JLOG_FILE_LOCAL
-#define JLOG_FILE_LOCAL         JLOG_LOCAL_PATH "/md.log"
-#endif
-
-#ifndef JLOG_CACHE_LOCAL
-#define JLOG_CACHE_LOCAL        JLOG_LOCAL_PATH "/.md.log"
-#endif
-
-#ifndef JLOG_FILE_REMOTE
-#define JLOG_FILE_REMOTE        JLOG_REMOTE_PATH "/ap.log"
-#endif
-
-#ifndef JLOG_CACHE_REMOTE
-#define JLOG_CACHE_REMOTE       JLOG_REMOTE_PATH "/.ap.log"
-#endif
-
-#ifndef JLOG_IP
-#ifdef __PC__
-#   define JLOG_IP              "0.0.0.0"
-#else
-#   define JLOG_IP              "1.0.0.6"
+#   define JLOG_SERVER      "1.0.0.6"
 #endif
 #endif
 
 #ifndef JLOG_PORT
-#define JLOG_PORT               4110
-#endif
-
-#ifndef JLOG_FAMILY
-#define JLOG_FAMILY             AF_UNIX
-#endif
-
-#ifndef ENV_JLOG_UNIX
-#define ENV_JLOG_UNIX           "__JLOG_UNIX__"
-#endif
-
-#ifndef ENV_JLOG_IP
-#define ENV_JLOG_IP             "__JLOG_IP__"
-#endif
-
-#ifndef ENV_JLOG_PORT
-#define ENV_JLOG_PORT           "__JLOG_PORT__"
-#endif
-
-#ifndef ENV_JLOG_FAMILY
-#define ENV_JLOG_FAMILY         "__JLOG_FAMILY__"
-#endif
-
-#ifndef ENV_JLOG_PRI
-#define ENV_JLOG_PRI            "__JLOG_PRI__"
-#endif
-
-#ifndef ENV_JLOG_CUTCOUNT
-#define ENV_JLOG_CUTCOUNT       "__JLOG_CUTCOUNT__"
-#endif
-
-#ifndef ENV_JLOG_TIMEOUT
-#define ENV_JLOG_TIMEOUT        "__JLOG_TIMEOUT__"
-#endif
-
-#ifndef ENV_JLOG_FILE_LOCAL
-#define ENV_JLOG_FILE_LOCAL     "__JLOG_FILE_LOCAL__"
-#endif
-
-#ifndef ENV_JLOG_CACHE_LOCAL
-#define ENV_JLOG_CACHE_LOCAL    "__JLOG_CACHE_LOCAL__"
-#endif
-
-#ifndef ENV_JLOG_FILE_REMOTE
-#define ENV_JLOG_FILE_REMOTE    "__JLOG_FILE_REMOTE__"
-#endif
-
-#ifndef ENV_JLOG_CACHE_REMOTE
-#define ENV_JLOG_CACHE_REMOTE   "__JLOG_CACHE_REMOTE__"
+#define JLOG_PORT           4110
 #endif
 
 #define JLOG_KEY_HEADER     "__header__"
@@ -126,16 +42,16 @@
 #define JLOG_KEY_TYPE_SH    "shell"
 
 #ifdef __BOOT__
-#define	LOG_EMERG	0	/* system is unusable */
-#define	LOG_ALERT	1	/* action must be taken immediately */
-#define	LOG_CRIT	2	/* critical conditions */
-#define	LOG_ERR		3	/* error conditions */
-#define	LOG_WARNING	4	/* warning conditions */
-#define	LOG_NOTICE	5	/* normal but significant condition */
-#define	LOG_INFO	6	/* informational */
-#define	LOG_DEBUG	7	/* debug-level messages */
-#define	LOG_PRIMASK	0x07	/* mask to extract priority part (internal) */
-				/* extract priority */
+#define	LOG_EMERG	        0	/* system is unusable */
+#define	LOG_ALERT	        1	/* action must be taken immediately */
+#define	LOG_CRIT	        2	/* critical conditions */
+#define	LOG_ERR		        3	/* error conditions */
+#define	LOG_WARNING	        4	/* warning conditions */
+#define	LOG_NOTICE	        5	/* normal but significant condition */
+#define	LOG_INFO	        6	/* informational */
+#define	LOG_DEBUG	        7	/* debug-level messages */
+#define	LOG_PRIMASK	        0x07	/* mask to extract priority part (internal) */
+				            /* extract priority */
 #define	LOG_PRI(p)	((p) & LOG_PRIMASK)
 #endif
 
@@ -1006,14 +922,14 @@ static inline int
 __jlog_env_init(void)
 {
     int family, err;
-
+    
     family  = __jlog_server()->sa_family
             = __this_jlogger()->family
-            = env_geti(ENV_JLOG_FAMILY, AF_UNIX);
+            = env_geti(ENV_FAMILY, JLOG_FAMILY);
 
     switch(family) {
         case AF_UNIX: {
-            err = __env_copy(ENV_JLOG_UNIX, JLOG_UNIX, 
+            err = __env_copy(ENV_UNIX, JLOG_UNIX, 
                     get_abstract_path(__jlog_userver()),
                     abstract_path_size);
             if (err<0) {
@@ -1026,10 +942,10 @@ __jlog_env_init(void)
             char ipaddress[32] = {0};
             sockaddr_in_t *iserver = __jlog_iserver();
             
-            iserver->sin_port = env_geti(ENV_JLOG_PORT, JLOG_PORT);
+            iserver->sin_port = env_geti(ENV_PORT, JLOG_PORT);
             __debug_ok("get port:%d", iserver->sin_port);
             
-            err = env_copy(ENV_JLOG_IP, JLOG_IP, ipaddress);
+            err = env_copy(ENV_SERVER, JLOG_SERVER, ipaddress);
             if (err<0) {
                 __debug_error("get jlog ip error:%d", -errno);
                 

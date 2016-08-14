@@ -12,6 +12,50 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
+#ifndef JLOGD_BUFSIZE
+#define JLOGD_BUFSIZE       (1*1024*1024-1)
+#endif
+
+#ifndef JLOGD_PRI
+#define JLOGD_PRI           LOG_CRIT
+#endif
+
+#ifndef JLOGD_TIMEOUT
+#define JLOGD_TIMEOUT       500
+#endif
+
+#ifndef JLOGD_CUTCOUNT
+#ifdef __PC__
+#   define JLOGD_CUTCOUNT   10
+#else
+#   define JLOGD_CUTCOUNT   1000
+#endif
+#endif
+
+#ifndef JLOG_LPATH
+#define JLOG_LPATH          "/tmp/log/jlog"
+#endif
+
+#ifndef JLOG_RPATH
+#define JLOG_RPATH          "/tmp/tftp/log/jlog"
+#endif
+
+#ifndef JLOG_LFILE
+#define JLOG_LFILE          JLOG_LPATH "/md.log"
+#endif
+
+#ifndef JLOG_LCACHE
+#define JLOG_LCACHE         JLOG_LPATH "/.md.log"
+#endif
+
+#ifndef JLOG_RFILE
+#define JLOG_RFILE          JLOG_RPATH "/ap.log"
+#endif
+
+#ifndef JLOG_RCACHE
+#define JLOG_RCACHE         JLOG_RPATH "/.ap.log"
+#endif
+
 #ifdef __PC__
 #   define SCRIPT_CUT       "./jlogcut"
 #   define SCRIPT_PUSH      "./jlogpush"
@@ -20,7 +64,7 @@ OS_INITER;
 #   define SCRIPT_PUSH      SCRIPT_FILE("jlog/push.cb")
 #endif
 
-static char RX[1 + JLOG_BUFSIZE];
+static char RX[1 + JLOGD_BUFSIZE];
 
 typedef struct {
     char *name;
@@ -37,7 +81,7 @@ typedef struct {
     } log, cache;
 } jlog_server_t;
 
-#define JLOG_SERVER(_name, _family, _var_log, _var_cache) { \
+#define JLOGD_SERVER(_name, _family, _var_log, _var_cache) { \
     .name       = _name,        \
     .family     = _family,      \
     .fd         = INVALID_FD,   \
@@ -54,38 +98,40 @@ typedef struct {
     },                          \
 }   /* end */
 
-static env_string_t envar_ulog  = ENV_VAR_INITER(ENV_JLOG_FILE_LOCAL, JLOG_FILE_LOCAL);
-static env_string_t envar_ucache= ENV_VAR_INITER(ENV_JLOG_CACHE_LOCAL, JLOG_CACHE_LOCAL);
+static env_string_t envar_ulog  = ENV_VAR_INITER(JLOG_LFILE);
+static env_string_t envar_ucache= ENV_VAR_INITER(JLOG_LCACHE);
 
-static env_string_t envar_ilog  = ENV_VAR_INITER(ENV_JLOG_FILE_REMOTE, JLOG_FILE_REMOTE);
-static env_string_t envar_icache= ENV_VAR_INITER(ENV_JLOG_CACHE_REMOTE, JLOG_CACHE_REMOTE);
+static env_string_t envar_ilog  = ENV_VAR_INITER(JLOG_RFILE);
+static env_string_t envar_icache= ENV_VAR_INITER(JLOG_RCACHE);
 
 enum {
-    JLOG_USERVER,
-    JLOG_ISERVER,
+    JLOGD_USERVER,
+    JLOGD_ISERVER,
     
-    JLOG_END_SERVER
+    JLOGD_END_SERVER
 };
 
 typedef struct {
-    int pri;
-    int timeout;
-    int cut;
+    ak_var_t pri;
+    ak_var_t timeout;
+    ak_var_t cut;
+    
     uint64 seq;
     uint32 event;
     char mac[1+MACSTRINGLEN_L];
 
-    jlog_server_t server[JLOG_END_SERVER];
+    jlog_server_t server[JLOGD_END_SERVER];
 } jlogd_t;
 
 static jlogd_t jlogd = {
-    .pri    = JLOG_PRI,
-    .timeout= JLOG_TIMEOUT,
-    .cut    = JLOG_CUTCOUNT,
+    .pri    = AK_VAR_INITER("pri", JLOGD_PRI),
+    .timeout= AK_VAR_INITER("timeout", JLOGD_TIMEOUT),
+    .cut    = AK_VAR_INITER("cut", JLOGD_CUTCOUNT),
+    
     .mac    = {0},
     .server = {
-        [JLOG_USERVER] = JLOG_SERVER("userver", AF_UNIX, &envar_ulog, &envar_ucache),
-        [JLOG_ISERVER] = JLOG_SERVER("iserver", AF_INET, &envar_ilog, &envar_icache),
+        [JLOGD_USERVER] = JLOGD_SERVER("userver", AF_UNIX, &envar_ulog, &envar_ucache),
+        [JLOGD_ISERVER] = JLOGD_SERVER("iserver", AF_INET, &envar_ilog, &envar_icache),
     },
 };
 
@@ -228,7 +274,7 @@ jadd(jlog_server_t *server)
     
     os_strmcpy(RX, json, len);
     
-    if (pri <= jlogd.pri) {
+    if (pri <= ak_var_get(&jlogd.pri)) {
         os_system(SCRIPT_PUSH " '%s' &", RX);
     }
     
@@ -278,8 +324,9 @@ jhandle(jlog_server_t *server)
     server->log.count++;
     server->cache.count++;
 
-    if (server->log.count >= jlogd.cut) {
-        return jcut(server, jlogd.cut);
+    int cut = (int)ak_var_get(&jlogd.cut);
+    if (server->log.count >= cut) {
+        return jcut(server, cut);
     } else {
         return 0;
     }
@@ -306,9 +353,10 @@ static int
 server_handle(void)
 {
     fd_set rset;
+    uint32 timeout = ak_var_get(&jlogd.timeout);
     struct timeval tv = {
-        .tv_sec     = os_second(jlogd.timeout),
-        .tv_usec    = os_usecond(jlogd.timeout),
+        .tv_sec     = os_second(timeout),
+        .tv_usec    = os_usecond(timeout),
     };
     jlog_server_t *server;
     int err, fdmax = 0;
@@ -352,11 +400,10 @@ init_env(void)
     jlog_server_t *server;
     int err;
 
-    // todo: use ak
-    jlogd.pri       = env_geti(ENV_JLOG_PRI,     JLOG_PRI);
-    jlogd.timeout   = env_geti(ENV_JLOG_TIMEOUT, JLOG_TIMEOUT);
-    jlogd.cut       = env_geti(ENV_JLOG_CUTCOUNT,  JLOG_CUTCOUNT);
-
+    ak_var_init(&jlogd.pri);
+    ak_var_init(&jlogd.timeout);
+    ak_var_init(&jlogd.cut);
+    
     foreach_server(server) {
         err = env_string_init(server->log.envar);
         if (err<0) {
@@ -369,19 +416,19 @@ init_env(void)
         }
     }
 
-    err = __env_copy(ENV_JLOG_UNIX, JLOG_UNIX, 
-            get_abstract_path(&jlogd.server[JLOG_USERVER].addr.un), 
+    err = __env_copy(ENV_UNIX, JLOG_UNIX, 
+            get_abstract_path(&jlogd.server[JLOGD_USERVER].addr.un), 
             abstract_path_size);
     if (err<0) {
         return err;
     }
 
-    jlogd.server[JLOG_ISERVER].addr.in.sin_port = env_geti(ENV_JLOG_PORT, JLOG_PORT);
+    jlogd.server[JLOGD_ISERVER].addr.in.sin_port = env_geti(ENV_PORT, JLOG_PORT);
     {
         uint32 ip;
         char ipaddress[32] = {0};
 
-        err = env_copy(ENV_JLOG_IP, JLOG_IP, ipaddress);
+        err = env_copy(ENV_SERVER, JLOG_SERVER, ipaddress);
         if (err<0) {
             return err;
         }
@@ -391,7 +438,7 @@ init_env(void)
             return -EFORMAT;
         }
         
-        jlogd.server[JLOG_ISERVER].addr.in.sin_addr.s_addr = ip;
+        jlogd.server[JLOGD_ISERVER].addr.in.sin_addr.s_addr = ip;
     }
     
     return 0;
@@ -400,9 +447,9 @@ init_env(void)
 static int
 init_server(jlog_server_t *server)
 {
-    int fd, err, protocol, addrlen;
+    int fd, err, protocol, addrlen, cut = (int)ak_var_get(&jlogd.cut);
 
-    err = jcut(server, jlogd.cut);
+    err = jcut(server, cut);
     if (err<0) {
         return err;
     }
@@ -477,8 +524,8 @@ __main(int argc, char *argv[])
 {
     int err;
 
-    __os_system("mkdir -p " JLOG_LOCAL_PATH " " JLOG_REMOTE_PATH);
-    
+    __os_system("mkdir -p " JLOG_LPATH " " JLOG_RPATH);
+
     err = init_env();
         debug_trace_error(err, "init env");
     if (err<0) {
