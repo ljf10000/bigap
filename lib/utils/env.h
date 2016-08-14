@@ -137,7 +137,7 @@ typedef struct {
 } os_env_cache_t;
 
 #define DECLARE_FAKE_ENV    extern os_env_cache_t __THIS_ENV
-#define DECLARE_REAL_ENV    oem_t __THIS_ENV
+#define DECLARE_REAL_ENV    os_env_cache_t __THIS_ENV
 
 #ifdef __BUSYBOX__
 #   define DECLARE_ENV      DECLARE_FAKE_ENV
