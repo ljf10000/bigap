@@ -180,7 +180,6 @@ typedef struct {
     char *stantard; // hisi voltage
     char *low;      // hisi voltage
     char *high;     // hisi voltage
-    char *unix;     // jlogd/jlogger
     char *family;   // jlogger
 } 
 env_cache_t;
