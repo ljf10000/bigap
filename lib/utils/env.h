@@ -118,18 +118,18 @@ typedef struct {
     char *server;   // sysupgrade/sysrepair/jlogd/jlogger
     char *force;    // sysupgrade/sysusbupgrade
     char *port;     // sysupgrade/sysrepair
-    char *user;     // sysupgrade/sysrepair/dial
+    char *user;     // sysupgrade/sysrepair/hisi dial
     char *path;     // sysupgrade/sysrepair/hisi vcc
     char *resetby;  // sysreset
-    char *password; // dial
-    char *telephone;// dial
-    char *apn;      // dial
-    char *try;      // dial
-    char *script;   // acc/vcc
-    char *stantard; // voltage
-    char *low;      // voltage
-    char *high;     // voltage
-//    char *unix;     // jlogd/jlogger
+    char *password; // hisi dial
+    char *telephone;// hisi dial
+    char *apn;      // hisi dial
+    char *try;      // hisi dial
+    char *script;   // hisi acc/vcc
+    char *stantard; // hisi voltage
+    char *low;      // hisi voltage
+    char *high;     // hisi voltage
+    char *unix;     // jlogd/jlogger
     char *family;   // jlogger
 } 
 env_cache_t;
