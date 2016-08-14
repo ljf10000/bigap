@@ -128,11 +128,10 @@ env_number_init(env_number_t *env)
 #define ENV_TELEPHONE   "__ENV_TELEPHONE__" // dial
 #define ENV_APN         "__ENV_APN__"       // dial
 #define ENV_TRY         "__ENV_TRY__"       // dial
-#define ENV_SCRIPT      "__ENV_SCRIPT__"
+#define ENV_SCRIPT      "__ENV_SCRIPT__"    // acc/vcc
 #define ENV_STANTARD    "__ENV_STANTARD__"  // voltage
 #define ENV_LOW         "__ENV_LOW__"       // voltage
 #define ENV_HIGH        "__ENV_HIGH__"      // voltage
-#define ENV_LOG         "__ENV_LOG__"       // dial
 #define ENV_UNIX        "__ENV_UNIX__"      // jlogd/jlogger
 #define ENV_FAMILY      "__ENV_FAMILY__"    // jlogger
 
