@@ -1566,7 +1566,7 @@ static int
 init_env(void)
 {
     char *env;
-    
+
     env = env_gets(OS_ENVNAME(TIMEOUT), oem_rsync_timeout);
     if (env) {
         if (0==os_atoi(env)) {

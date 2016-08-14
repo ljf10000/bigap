@@ -23,7 +23,7 @@ env_gets(char *envname, char *deft)
     
     char *env = getenv(envname);
     if (false==is_good_env(env)) {
-        env_println("no-found env:%s", envname);
+        env_println("no-found env:%s, use default:%s", envname, deft);
         
         return deft;
     } else {
@@ -105,7 +105,7 @@ env_geti(char *envname, int deft)
 static inline bool is_good_os_env(int type);
 static inline char *os_env_string(int type);
 static inline int os_env_idx(char *type_string);
-DECLARE_ENUM(os_env, OS_ENVLIST, OS_ENV_END);
+DECLARE_ENUM(os_env_get, OS_ENVLIST, OS_ENV_END);
 
 #if 1 /* just for sourceinsight */
 #define ENV_TIMEOUT     ENV_TIMEOUT
@@ -130,6 +130,7 @@ DECLARE_ENUM(os_env, OS_ENVLIST, OS_ENV_END);
 #define ENV_HIGH        ENV_HIGH
 #define ENV_UNIX        ENV_UNIX
 #define ENV_FAMILY      ENV_FAMILY
+#define OS_ENV_END      OS_ENV_END
 #endif /* just for sourceinsight */
 
 typedef struct {
@@ -157,6 +158,46 @@ os_env_init(void)
 
     OS_ENVLIST(OS_ENV_GET) i=0;
 #undef OS_ENV_GET
+}
+
+static inline char *
+os_env_get(int idx)
+{
+    if (is_good_os_env(idx)) {
+        return __THIS_ENV.env[idx];
+    } else {
+        return NULL;
+    }
+}
+
+static inline char *
+os_env_set(int idx, char *env)
+{
+    if (is_good_os_env(idx)) {
+        return (__THIS_ENV.env[idx] = env);
+    } else {
+        return NULL;
+    }
+}
+
+static inline char *
+os_env_deft(int idx, char *deft)
+{
+    if (is_good_os_env(idx)) {
+        char *env = os_env_get(idx);
+        
+        if (false==is_good_env(env)) {
+            env_println("no-found env:%s, use default:%s", env, deft);
+            
+            return os_env_set(idx, deft);
+        } else {
+            env_println("get env:%s=%s", env, env);
+            
+            return env;
+        }
+    } else {
+        return NULL;
+    }
 }
 
 typedef struct {
