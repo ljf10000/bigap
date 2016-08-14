@@ -98,11 +98,11 @@ typedef struct {
     },                          \
 }   /* end */
 
-static env_string_t envar_ulog  = ENV_VAR_INITER(JLOG_LFILE);
-static env_string_t envar_ucache= ENV_VAR_INITER(JLOG_LCACHE);
+static env_string_t envar_ulog  = ENV_VAR_INITER("__JLOG_LFILE__",  JLOG_LFILE);
+static env_string_t envar_ucache= ENV_VAR_INITER("__JLOG_LCACHE__", JLOG_LCACHE);
 
-static env_string_t envar_ilog  = ENV_VAR_INITER(JLOG_RFILE);
-static env_string_t envar_icache= ENV_VAR_INITER(JLOG_RCACHE);
+static env_string_t envar_ilog  = ENV_VAR_INITER("__JLOG_RFILE__",  JLOG_RFILE);
+static env_string_t envar_icache= ENV_VAR_INITER("__JLOG_RCACHE__", JLOG_RCACHE);
 
 enum {
     JLOGD_USERVER,
@@ -416,19 +416,19 @@ init_env(void)
         }
     }
 
-    err = __env_copy(OS_ENV(UNIX), JLOG_UNIX, 
+    err = __env_copy(OS_ENVNAME(UNIX), JLOG_UNIX, 
             get_abstract_path(&jlogd.server[JLOGD_USERVER].addr.un), 
             abstract_path_size);
     if (err<0) {
         return err;
     }
 
-    jlogd.server[JLOGD_ISERVER].addr.in.sin_port = env_geti(OS_ENV(PORT), JLOG_PORT);
+    jlogd.server[JLOGD_ISERVER].addr.in.sin_port = env_geti(OS_ENVNAME(PORT), JLOG_PORT);
     {
         uint32 ip;
         char ipaddress[32] = {0};
 
-        err = env_copy(OS_ENV(SERVER), JLOG_SERVER, ipaddress);
+        err = env_copy(OS_ENVNAME(SERVER), JLOG_SERVER, ipaddress);
         if (err<0) {
             return err;
         }

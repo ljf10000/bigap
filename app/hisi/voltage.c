@@ -104,11 +104,11 @@ init_voltage_env(void)
     char *env;
     int val;
 
-    env = env_gets(OS_ENV(STANTARD), NULL);
+    env = env_gets(OS_ENVNAME(STANTARD), NULL);
     if (env) {
         val = os_atoi(env);
         if (val <= 0) {
-            debug_error("invalid " OS_ENV(STANTARD) ":%s", env);
+            debug_error("invalid " OS_ENVNAME(STANTARD) ":%s", env);
     
             return -EBADENV;
         }
@@ -116,11 +116,11 @@ init_voltage_env(void)
         voltage.stantard = val;
     }
     
-    env = env_gets(OS_ENV(LOW), NULL);
+    env = env_gets(OS_ENVNAME(LOW), NULL);
     if (env) {
         val = os_atoi(env);
         if (val <= 0) {
-            debug_error("invalid " OS_ENV(LOW) ":%s", env);
+            debug_error("invalid " OS_ENVNAME(LOW) ":%s", env);
     
             return -EBADENV;
         }
@@ -128,11 +128,11 @@ init_voltage_env(void)
         voltage.low = voltage.stantard - val;
     }
     
-    env = env_gets(OS_ENV(HIGH), NULL);
+    env = env_gets(OS_ENVNAME(HIGH), NULL);
     if (env) {
         val = os_atoi(env);
         if (val <= 0) {
-            debug_error("invalid " OS_ENV(HIGH) ":%s", env);
+            debug_error("invalid " OS_ENVNAME(HIGH) ":%s", env);
     
             return -EBADENV;
         }
