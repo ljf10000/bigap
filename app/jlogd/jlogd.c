@@ -416,19 +416,19 @@ init_env(void)
         }
     }
 
-    err = __env_copy(ENV_UNIX, JLOG_UNIX, 
+    err = __env_copy(OS_ENV(UNIX), JLOG_UNIX, 
             get_abstract_path(&jlogd.server[JLOGD_USERVER].addr.un), 
             abstract_path_size);
     if (err<0) {
         return err;
     }
 
-    jlogd.server[JLOGD_ISERVER].addr.in.sin_port = env_geti(ENV_PORT, JLOG_PORT);
+    jlogd.server[JLOGD_ISERVER].addr.in.sin_port = env_geti(OS_ENV(PORT), JLOG_PORT);
     {
         uint32 ip;
         char ipaddress[32] = {0};
 
-        err = env_copy(ENV_SERVER, JLOG_SERVER, ipaddress);
+        err = env_copy(OS_ENV(SERVER), JLOG_SERVER, ipaddress);
         if (err<0) {
             return err;
         }

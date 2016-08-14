@@ -106,58 +106,31 @@ env_number_init(env_number_t *env)
     env->value = env_geti(env->name, env->deft);
 }
 /******************************************************************************/
-#define ENV_TIMEOUT     "__ENV_TIMEOUT__"   // sysupgrade/sysrepair/hisi vcc
-#define ENV_INTERVAL    "__ENV_INTERVAL__"  // hisi vcc
-#define ENV_PWDFILE     "__ENV_PWDFILE__"   // sysupgrade/sysrepair
-#define ENV_VERSION     "__ENV_VERSION__"   // sysupgrade/sysrepair
-/*
-* upgrade count
-*/
-#define ENV_UPGRADE     "__ENV_UPGRADE__"   // sysupgrade
-/*
-* upgrade rootfs idx
-*/
-#define ENV_ROOTFS      "__ENV_ROOTFS__"    // sysupgrade
-#define ENV_SERVER      "__ENV_SERVER__"    // sysupgrade/sysrepair/jlogd/jlogger
-#define ENV_FORCE       "__ENV_FORCE__"     // sysupgrade/sysusbupgrade
-#define ENV_PORT        "__ENV_PORT__"      // sysupgrade/sysrepair
-#define ENV_USER        "__ENV_USER__"      // sysupgrade/sysrepair/dial
-#define ENV_PATH        "__ENV_PATH__"      // sysupgrade/sysrepair/hisi vcc
-#define ENV_RESETBY     "__ENV_RESETBY__"   // sysreset
-#define ENV_PASSWORD    "__ENV_PASSWORD__"  // dial
-#define ENV_TELEPHONE   "__ENV_TELEPHONE__" // dial
-#define ENV_APN         "__ENV_APN__"       // dial
-#define ENV_TRY         "__ENV_TRY__"       // dial
-#define ENV_SCRIPT      "__ENV_SCRIPT__"    // acc/vcc
-#define ENV_STANTARD    "__ENV_STANTARD__"  // voltage
-#define ENV_LOW         "__ENV_LOW__"       // voltage
-#define ENV_HIGH        "__ENV_HIGH__"      // voltage
-#define ENV_UNIX        "__ENV_UNIX__"      // jlogd/jlogger
-#define ENV_FAMILY      "__ENV_FAMILY__"    // jlogger
+#define OS_ENV(_name)   "__ENV_" #_name "__"
 
 typedef struct {
-    char *timeout;
-    char *interval;
-    char *pwdfile;
-    char *version;
-    char *upgrade;
-    char *rootfs;
-    char *server;
-    char *force;
-    char *port;
-    char *user;
-    char *path;
-    char *resetby;
-    char *password;
-    char *telephone;
-    char *apn;
-    char *try;
-    char *script;
-    char *stantard;
-    char *low;
-    char *high;
-    char *unix;
-    char *family;
+    char *timeout;  // sysupgrade/sysrepair/hisi vcc
+    char *interval; // hisi vcc
+    char *pwdfile;  // sysupgrade/sysrepair
+    char *version;  // sysupgrade/sysrepair
+    char *upgrade;  // sysupgrade
+    char *rootfs;   // sysupgrade
+    char *server;   // sysupgrade/sysrepair/jlogd/jlogger
+    char *force;    // sysupgrade/sysusbupgrade
+    char *port;     // sysupgrade/sysrepair
+    char *user;     // sysupgrade/sysrepair/dial
+    char *path;     // sysupgrade/sysrepair/hisi vcc
+    char *resetby;  // sysreset
+    char *password; // dial
+    char *telephone;// dial
+    char *apn;      // dial
+    char *try;      // dial
+    char *script;   // acc/vcc
+    char *stantard; // voltage
+    char *low;      // voltage
+    char *high;     // voltage
+    char *unix;     // jlogd/jlogger
+    char *family;   // jlogger
 } 
 env_cache_t;
 /******************************************************************************/

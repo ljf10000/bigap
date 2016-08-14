@@ -347,12 +347,12 @@ static cmd_table_t cmd_dial[] = {
 static int
 init_dial_env(void)
 {
-    dial.env.user = env_gets(ENV_USER, NULL);
-    dial.env.password = env_gets(ENV_PASSWORD, NULL);
-    dial.env.telephone = env_gets(ENV_TELEPHONE, NULL);
-    dial.env.apn = env_gets(ENV_APN, NULL);
+    dial.env.user = env_gets(OS_ENV(USER), NULL);
+    dial.env.password = env_gets(OS_ENV(PASSWORD), NULL);
+    dial.env.telephone = env_gets(OS_ENV(TELEPHONE), NULL);
+    dial.env.apn = env_gets(OS_ENV(APN), NULL);
     
-    dial.env.try = env_gets(ENV_TRY, NULL);
+    dial.env.try = env_gets(OS_ENV(TRY), NULL);
     if (dial.env.try) {
         int trys = os_atoi(dial.env.try);
         if (trys > 0) {
@@ -360,7 +360,7 @@ init_dial_env(void)
         }
     }
 
-    dial.env.interval = env_gets(ENV_INTERVAL, NULL);
+    dial.env.interval = env_gets(OS_ENV(INTERVAL), NULL);
     if (dial.env.interval) {
         int interval = os_atoi(dial.env.interval);
         if (interval > 0) {

@@ -95,11 +95,11 @@ init_xcc_env(xcc_t *xcc)
     char *env;
     int val;
     
-    env = env_gets(ENV_TIMEOUT, NULL);
+    env = env_gets(OS_ENV(TIMEOUT), NULL);
     if (env) {
         val = os_atoi(env);
         if (val <= 0) {
-            debug_error("invalid " ENV_TIMEOUT ":%s", env);
+            debug_error("invalid " OS_ENV(TIMEOUT) ":%s", env);
 
             return -EBADENV;
         }
@@ -107,11 +107,11 @@ init_xcc_env(xcc_t *xcc)
         xcc->timeout = val;
     }
 
-    env = env_gets(ENV_INTERVAL, NULL);
+    env = env_gets(OS_ENV(INTERVAL), NULL);
     if (env) {
         val = os_atoi(env);
         if (val <= 0) {
-            debug_error("invalid " ENV_INTERVAL ":%s", env);
+            debug_error("invalid " OS_ENV(INTERVAL) ":%s", env);
 
             return -EBADENV;
         }
@@ -119,7 +119,7 @@ init_xcc_env(xcc_t *xcc)
         xcc->interval = val;
     }
 
-    env = env_gets(ENV_PATH, NULL);
+    env = env_gets(OS_ENV(PATH), NULL);
     if (env) {
         xcc->path = env;
     }
@@ -127,7 +127,7 @@ init_xcc_env(xcc_t *xcc)
         os_p_system("mkdir -p %s", xcc->path);
     }
 
-    env = env_gets(ENV_SCRIPT, NULL);
+    env = env_gets(OS_ENV(SCRIPT), NULL);
     if (env) {        
         xcc->script = env;
     }

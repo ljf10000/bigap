@@ -1567,7 +1567,7 @@ init_env(void)
 {
     char *env;
     
-    env = env_gets(ENV_TIMEOUT, oem_rsync_timeout);
+    env = env_gets(OS_ENV(TIMEOUT), oem_rsync_timeout);
     if (env) {
         if (0==os_atoi(env)) {
             debug_error("bad timeout:%s", env);
@@ -1578,12 +1578,12 @@ init_env(void)
         sys.env.timeout = env;
     }
     
-    env = env_gets(ENV_PWDFILE, NULL);
+    env = env_gets(OS_ENV(PWDFILE), NULL);
     if (env) {
         sys.env.pwdfile = env;
     }
 
-    env = env_gets(ENV_VERSION, NULL);
+    env = env_gets(OS_ENV(VERSION), NULL);
     if (env) {
         if (__benv_version_atoi(&sys.version, env)) {
             debug_error("bad version:%s", env);
@@ -1594,7 +1594,7 @@ init_env(void)
         sys.env.version = env;
     }
 
-    env = env_gets(ENV_UPGRADE, NULL);
+    env = env_gets(OS_ENV(UPGRADE), NULL);
     if (env) {
         if (0==os_atoi(env)) {
             debug_error("bad upgrade:%s", env);
@@ -1606,7 +1606,7 @@ init_env(void)
         sys.upgrade = os_atoi(env);
     }
     
-    env = env_gets(ENV_ROOTFS, NULL);
+    env = env_gets(OS_ENV(ROOTFS), NULL);
     if (env) {
         int idx = os_atoi(env);
         
@@ -1625,7 +1625,7 @@ init_env(void)
         sys.idx = idx;
     }
 
-    env = env_gets(ENV_RESETBY, NULL);
+    env = env_gets(OS_ENV(RESETBY), NULL);
     if (env) {
         int idx = os_atoi(env);
         
@@ -1644,17 +1644,17 @@ init_env(void)
         sys.resetby = idx;
     }
     
-    env = env_gets(ENV_FORCE, NULL);
+    env = env_gets(OS_ENV(FORCE), NULL);
     if (env) {
         sys.env.force = env;
     }
     
-    env = env_gets(ENV_SERVER, oem_rsync_server);
+    env = env_gets(OS_ENV(SERVER), oem_rsync_server);
     if (env) {
         sys.env.server = env;
     }
 
-    env = env_gets(ENV_PORT, oem_rsync_port);
+    env = env_gets(OS_ENV(PORT), oem_rsync_port);
     if (env) {
         if (0==os_atoi(env)) {
             debug_error("bad port:%s", env);
@@ -1665,12 +1665,12 @@ init_env(void)
         sys.env.port = env;
     }
 
-    env = env_gets(ENV_USER, oem_rsync_user);
+    env = env_gets(OS_ENV(USER), oem_rsync_user);
     if (env) {
         sys.env.user = env;
     }
 
-    env = env_gets(ENV_PATH, oem_rsync_path);
+    env = env_gets(OS_ENV(PATH), oem_rsync_path);
     if (env) {
         sys.env.path = env;
     }

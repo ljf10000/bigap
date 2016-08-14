@@ -73,9 +73,9 @@ env_bootver_check(char *value)
 }
 
 enum {
-    ENV_CHANGED     = 0x01,
-    ENV_HIDDEN      = 0x02,
-    ENV_READONLY    = 0x04,
+    ENV_F_CHANGED     = 0x01,
+    ENV_F_HIDDEN      = 0x02,
+    ENV_F_READONLY    = 0x04,
 };
 
 #define ENV_INITER(_name, _flag, _check) { \
@@ -88,46 +88,46 @@ enum {
     [_idx] = ENV_INITER(_name, _flag, _check)
 
 #define ENV_PRIVATE(_idx) \
-    ENV(_idx, AT_NAME_PRIVATE(_idx), ENV_HIDDEN, NULL)
+    ENV(_idx, AT_NAME_PRIVATE(_idx), ENV_F_HIDDEN, NULL)
 
 static struct {
     char **name;
     int flag;
     int (*check)(char *value);
 } envctl[AT_ENV_COUNT] = {
-    [0 ... (AT_ENV_COUNT-1)] = ENV_INITER("", ENV_HIDDEN, NULL),
+    [0 ... (AT_ENV_COUNT-1)] = ENV_INITER("", ENV_F_HIDDEN, NULL),
     
-    ENV(AT_ENV_INIT,    AT_NAME_INIT,       ENV_HIDDEN | ENV_READONLY,  NULL),
-    ENV(AT_ENV_BOOTVER, AT_NAME_BOOTVER,    ENV_HIDDEN | ENV_READONLY,  NULL),
-    ENV(AT_ENV_PSN,     AT_NAME_PSN,        ENV_HIDDEN | ENV_READONLY,  NULL),
-    ENV(AT_ENV_MID,     AT_NAME_MID,        ENV_HIDDEN | ENV_READONLY,  NULL),
+    ENV(AT_ENV_INIT,    AT_NAME_INIT,       ENV_F_HIDDEN | ENV_F_READONLY,  NULL),
+    ENV(AT_ENV_BOOTVER, AT_NAME_BOOTVER,    ENV_F_HIDDEN | ENV_F_READONLY,  NULL),
+    ENV(AT_ENV_PSN,     AT_NAME_PSN,        ENV_F_HIDDEN | ENV_F_READONLY,  NULL),
+    ENV(AT_ENV_MID,     AT_NAME_MID,        ENV_F_HIDDEN | ENV_F_READONLY,  NULL),
 
-    ENV(AT_ENV_RT,              AT_NAME_RT,                 ENV_HIDDEN, NULL),
-    ENV(AT_ENV_UT,              AT_NAME_UT,                 ENV_HIDDEN, NULL),
-    ENV(AT_ENV_NA,              AT_NAME_NA,                 ENV_HIDDEN, NULL),
+    ENV(AT_ENV_RT,              AT_NAME_RT,                 ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_UT,              AT_NAME_UT,                 ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_NA,              AT_NAME_NA,                 ENV_F_HIDDEN, NULL),
     
-    ENV(AT_ENV_PCBA_VENDOR,     AT_NAME_PCBA_VENDOR,        ENV_HIDDEN, NULL),
-    ENV(AT_ENV_PCBA_COMPANY,    AT_NAME_PCBA_COMPANY,       ENV_HIDDEN, NULL),
-    ENV(AT_ENV_PCBA_MODEL,      AT_NAME_PCBA_MODEL,         ENV_HIDDEN, NULL),
+    ENV(AT_ENV_PCBA_VENDOR,     AT_NAME_PCBA_VENDOR,        ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_PCBA_COMPANY,    AT_NAME_PCBA_COMPANY,       ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_PCBA_MODEL,      AT_NAME_PCBA_MODEL,         ENV_F_HIDDEN, NULL),
     ENV(AT_ENV_PCBA_MAC,        AT_NAME_PCBA_MAC,           0, NULL),
     ENV(AT_ENV_PCBA_SN,         AT_NAME_PCBA_SN,            0, NULL),
-    ENV(AT_ENV_PCBA_VERSION,    AT_NAME_PCBA_VERSION,       ENV_HIDDEN, NULL),
+    ENV(AT_ENV_PCBA_VERSION,    AT_NAME_PCBA_VERSION,       ENV_F_HIDDEN, NULL),
     
-    ENV(AT_ENV_PRODUCT_VENDOR,  AT_NAME_PRODUCT_VENDOR,     ENV_HIDDEN, NULL),
-    ENV(AT_ENV_PRODUCT_COMPANY, AT_NAME_PRODUCT_COMPANY,    ENV_HIDDEN, NULL),
-    ENV(AT_ENV_PRODUCT_MODEL,   AT_NAME_PRODUCT_MODEL,      ENV_HIDDEN, NULL),
-    ENV(AT_ENV_PRODUCT_MAC,     AT_NAME_PRODUCT_MAC,        ENV_HIDDEN, NULL),
-    ENV(AT_ENV_PRODUCT_SN,      AT_NAME_PRODUCT_SN,         ENV_HIDDEN, NULL),
-    ENV(AT_ENV_PRODUCT_VERSION, AT_NAME_PRODUCT_VERSION,    ENV_HIDDEN, NULL),
-    ENV(AT_ENV_PRODUCT_MANAGER, AT_NAME_PRODUCT_MANAGER,    ENV_HIDDEN, NULL),
+    ENV(AT_ENV_PRODUCT_VENDOR,  AT_NAME_PRODUCT_VENDOR,     ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_PRODUCT_COMPANY, AT_NAME_PRODUCT_COMPANY,    ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_PRODUCT_MODEL,   AT_NAME_PRODUCT_MODEL,      ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_PRODUCT_MAC,     AT_NAME_PRODUCT_MAC,        ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_PRODUCT_SN,      AT_NAME_PRODUCT_SN,         ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_PRODUCT_VERSION, AT_NAME_PRODUCT_VERSION,    ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_PRODUCT_MANAGER, AT_NAME_PRODUCT_MANAGER,    ENV_F_HIDDEN, NULL),
     
-    ENV(AT_ENV_OEM_VENDOR,      AT_NAME_OEM_VENDOR,         ENV_HIDDEN, NULL),
-    ENV(AT_ENV_OEM_COMPANY,     AT_NAME_OEM_COMPANY,        ENV_HIDDEN, NULL),
-    ENV(AT_ENV_OEM_MODEL,       AT_NAME_OEM_MODEL,          ENV_HIDDEN, NULL),
-    ENV(AT_ENV_OEM_MAC,         AT_NAME_OEM_MAC,            ENV_HIDDEN, NULL),
-    ENV(AT_ENV_OEM_SN,          AT_NAME_OEM_SN,             ENV_HIDDEN, NULL),
-    ENV(AT_ENV_OEM_VERSION,     AT_NAME_OEM_VERSION,        ENV_HIDDEN, NULL),
-    ENV(AT_ENV_OEM_MANAGER,     AT_NAME_OEM_MANAGER,        ENV_HIDDEN, NULL),
+    ENV(AT_ENV_OEM_VENDOR,      AT_NAME_OEM_VENDOR,         ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_OEM_COMPANY,     AT_NAME_OEM_COMPANY,        ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_OEM_MODEL,       AT_NAME_OEM_MODEL,          ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_OEM_MAC,         AT_NAME_OEM_MAC,            ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_OEM_SN,          AT_NAME_OEM_SN,             ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_OEM_VERSION,     AT_NAME_OEM_VERSION,        ENV_F_HIDDEN, NULL),
+    ENV(AT_ENV_OEM_MANAGER,     AT_NAME_OEM_MANAGER,        ENV_F_HIDDEN, NULL),
     
     ENV(AT_ENV_ROOTFS,      AT_NAME_ROOTFS,     0,  env_rootfs_check),
     ENV(AT_ENV_ROOTFS1,     AT_NAME_ROOTFS1,    0,  env_rootfsx_check),
@@ -225,7 +225,7 @@ env_write(STREAM f)
     int i, k, idx, ret = 0;
 
     for (i=0; i<AT_ENV_COUNT; i++) {
-        if (ENV_CHANGED & envctl[i].flag) {
+        if (ENV_F_CHANGED & envctl[i].flag) {
             int err = fseek(f, AT_ENV_LINE_SIZE*i, SEEK_SET);
             if (err<0) {
                 println("seek %s error(%d), skip it", envctl[i].name, -errno);
@@ -328,7 +328,7 @@ int bootm_main(int argc, char *argv[])
     */
     if (1==argc) {
         for (i=1; i<AT_ENV_COUNT; i++) {
-            if (bootenv[i][0] && !(ENV_HIDDEN & envctl[i].flag)) {
+            if (bootenv[i][0] && !(ENV_F_HIDDEN & envctl[i].flag)) {
                 println("%s=%s", envctl[i].name, bootenv[i]);
             }
         }
@@ -424,7 +424,7 @@ int bootm_main(int argc, char *argv[])
 
             err = -1; goto exit;
         }
-        else if (ENV_READONLY & envctl[idx].flag) {
+        else if (ENV_F_READONLY & envctl[idx].flag) {
             println("argv[%d](%s) is readonly", i, argv[i]);
 
             err = -1; goto exit;
@@ -432,7 +432,7 @@ int bootm_main(int argc, char *argv[])
         else {
             strcpy(bootenv[idx], value);
             
-            envctl[idx].flag |= ENV_CHANGED;
+            envctl[idx].flag |= ENV_F_CHANGED;
         }
     }
     
