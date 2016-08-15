@@ -100,6 +100,7 @@ env_geti(char *envname, int deft)
     _(ENV_HIGH,     20, "high"),        \
     _(ENV_UNIX,     21, "unix"),        \
     _(ENV_FAMILY,   22, "family"),      \
+    _(ENV_GC,       23, "gc"),          \
     /* end */
 
 static inline bool is_good_os_env(int type);
@@ -130,6 +131,7 @@ DECLARE_ENUM(os_env_get, OS_ENVLIST, OS_ENV_END);
 #define ENV_HIGH        ENV_HIGH
 #define ENV_UNIX        ENV_UNIX
 #define ENV_FAMILY      ENV_FAMILY
+#define ENV_GC          ENV_GC
 #define OS_ENV_END      OS_ENV_END
 #endif /* just for sourceinsight */
 
@@ -260,6 +262,7 @@ typedef struct {
     char *low;      // hisi voltage
     char *high;     // hisi voltage
     char *family;   // jlogger
+    char *gc;       // umd
 } 
 env_cache_t;
 /******************************************************************************/

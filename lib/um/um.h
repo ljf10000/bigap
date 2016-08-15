@@ -7,22 +7,6 @@
 #define UM_USE_MONITOR          0
 #endif
 
-#ifndef ENV_UMD_UNIX
-#define ENV_UMD_UNIX            "__UMD_UNIX__"
-#endif
-
-#ifndef ENV_UMC_UNIX
-#define ENV_UMC_UNIX            "__UMC_UNIX__"
-#endif
-
-#ifndef ENV_UMD_GC
-#define ENV_UMD_GC              "__UMD_GC__"    /* second */
-#endif
-
-#ifndef ENV_UM_TIMEOUT
-#define ENV_UM_TIMEOUT          "__UM_TIMEOUT__" /* ms */
-#endif
-
 #ifndef UMD_UNIX
 #define UMD_UNIX                "/tmp/.umd.unix"
 #endif
@@ -46,7 +30,7 @@
 static inline int
 get_umd_path_env(sockaddr_un_t *addr) 
 {
-    return __env_copy(ENV_UMD_UNIX, UMD_UNIX, 
+    return __env_copy(OS_ENV(UMD_UNIX), UMD_UNIX, 
                 get_abstract_path(addr),
                 abstract_path_size);
 }
@@ -58,7 +42,7 @@ get_umc_path_env(sockaddr_un_t *addr)
 
     os_saprintf(path, UMC_UNIX, getpid());
     
-    return __env_copy(ENV_UMC_UNIX, path, 
+    return __env_copy(OS_ENV(UMC_UNIX), path, 
                 get_abstract_path(addr),
                 abstract_path_size);
 }
@@ -66,13 +50,13 @@ get_umc_path_env(sockaddr_un_t *addr)
 static inline int
 get_um_timeout_env(void) 
 {
-    return env_geti(ENV_UM_TIMEOUT, UM_TIMEOUT);
+    return env_geti(OS_ENV(TIMEOUT), UM_TIMEOUT);
 }
 
 static inline int
 get_umd_gc_env(void) 
 {
-    return env_geti(ENV_UMD_GC, 0 /* UMD_GC */);
+    return env_geti(OS_ENV(GC), 0 /* UMD_GC */);
 }
 /******************************************************************************/
 #endif /* __UM_H_cdb651156406414c97daca3b0f7527a6__ */

@@ -17,18 +17,6 @@
 })
 #endif
 
-#ifndef __OS_ALIGN_DOWN
-#define __OS_ALIGN_DOWN(_x, _align)     ((((_x)+(_align)-1)/(_align) - 1)*(_align))
-#endif
-
-#ifndef __os_align_down
-#define __os_align_down(_x, _align) ({  \
-    typeof(_align) __align_in___os_align_down = _align; \
-                                        \
-    __OS_ALIGN_DOWN(_x, __align_in___os_align_down); \
-})
-#endif
-
 #ifndef OS_ALIGN
 #define OS_ALIGN(_x, _align)            (((_x)+(_align)-1) & ~((_align)-1))
 #endif
