@@ -30,21 +30,21 @@
 #endif
 
 #ifdef __PC__
-#   define UMD_SCRIPT_PREFIX    "./"
+#   define UMD_SCRIPT_PATH      "."
 #else
-#   define UMD_SCRIPT_PREFIX    "/etc/um/"
+#   define UMD_SCRIPT_PATH      "/etc/um"
 #endif
 
 #ifndef UMD_SCRIPT_EVENT
-#define UMD_SCRIPT_EVENT        UMD_SCRIPT_PREFIX "umevent"
+#define UMD_SCRIPT_EVENT        UMD_SCRIPT_PATH "/umevent"
 #endif
 
 #ifndef UMD_SCRIPT_IP
-#define UMD_SCRIPT_IP           UMD_SCRIPT_PREFIX "umip"
+#define UMD_SCRIPT_IP           UMD_SCRIPT_PATH "/umip"
 #endif
 
 #ifndef UMD_SCRIPT_MAC
-#define UMD_SCRIPT_MAC          UMD_SCRIPT_PREFIX "ummac"
+#define UMD_SCRIPT_MAC          UMD_SCRIPT_PATH "/ummac"
 #endif
 
 #ifndef UMD_TICKS
