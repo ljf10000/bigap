@@ -29,24 +29,28 @@
 #endif
 #endif
 
-#ifdef __PC__
-#   define UMD_SCRIPT_PATH      "."
-#   define UMD_USR_SBIN_PATH    "."
-#else
-#   define UMD_SCRIPT_PATH      "/etc/um/script"
-#   define UMD_USR_SBIN_PATH    "/usr/sbin"
-#endif
-
 #ifndef UMD_SCRIPT_EVENT
-#define UMD_SCRIPT_EVENT        UMD_SCRIPT_PATH "/umevent"
+#ifdef __PC__
+#   define UMD_SCRIPT_EVENT     "./event"
+#else
+#   define UMD_SCRIPT_EVENT     "/etc/um/bin/event"
+#endif
 #endif
 
 #ifndef UMD_SCRIPT_IP
-#define UMD_SCRIPT_IP           UMD_USR_SBIN_PATH "/umip"
+#ifdef __PC__
+#   define UMD_SCRIPT_IP        "./getipbymac"
+#else
+#   define UMD_SCRIPT_IP        "/usr/sbin/getipbymac"
+#endif
 #endif
 
 #ifndef UMD_SCRIPT_MAC
-#define UMD_SCRIPT_MAC          UMD_USR_SBIN_PATH "/ummac"
+#ifdef __PC__
+#   define UMD_SCRIPT_MAC       "./getmacbyip"
+#else
+#   define UMD_SCRIPT_MAC       "/usr/sbin/getmacbyip"
+#endif
 #endif
 
 #ifndef UMD_TICKS
@@ -82,7 +86,7 @@
 #   endif
 #else
 #   ifndef UMD_INTF_TC_DEFT
-#       define UMD_INTF_TC_DEFT         "eth0.1"
+#       define UMD_INTF_TC_DEFT         "lan0"
 #   endif
 #   ifndef UMD_INTF_TC_ETHERTYPE
 #       define UMD_INTF_TC_ETHERTYPE    ETHERTYPE_VLAN
