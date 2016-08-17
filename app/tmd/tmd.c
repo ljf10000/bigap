@@ -282,7 +282,7 @@ handle_insert(char *args)
         return -ENOMEM;
     }
 
-    int after = i_delay + i_interval;
+    int after = i_delay?i_delay:1;
     
     debug_trace("insert timer:%s"
                 ", command:%s"

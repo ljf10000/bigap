@@ -80,7 +80,7 @@
 #   endif
 #else
 #   ifndef UMD_INTF_TC_DEFT
-#       define UMD_INTF_TC_DEFT         "lan0"
+#       define UMD_INTF_TC_DEFT         "eth0.1"
 #   endif
 #   ifndef UMD_INTF_TC_ETHERTYPE
 #       define UMD_INTF_TC_ETHERTYPE    ETHERTYPE_VLAN
