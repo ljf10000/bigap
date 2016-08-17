@@ -1190,7 +1190,7 @@ repair_rootfs(int idx)
             "error", err);
     }
     
-    if (err) {
+    if (err<0) {
         return err;
     }
     
@@ -1434,7 +1434,6 @@ static int
 super_startup(void)
 {
     int skips = os_bit(0);
-    int best, idx;
     
     os_println("super startup");
     jcrit("%s%d", "superstartup", "begin");
@@ -1442,7 +1441,7 @@ super_startup(void)
     /*
     * 1. find best rootfs
     */
-    best = benv_find_best(rootfs, skips);
+    int best = benv_find_best(rootfs, skips);
     
     if (is_benv_bad_rootfs(best)) {
         /*
@@ -1457,39 +1456,13 @@ super_startup(void)
 
         rdd(1, 0);
     }
-    idx = best;
-
-    /*
-    * 2. check kernel
-    */
-    if (is_benv_good_kernel(idx)) {
-        jwarning("%s%d",
-            "superstartup", "firmware is good, why in super ???",
-            "firmware", idx);
-
-        goto ok;
-    }
-
     /*
     * 3. repair kernel
     */
-    best = benv_find_best(kernel, skips);
-    if (is_benv_bad_kernel(best)) {
-        jcrit("%s%d",
-            "superstartup", "no found good kernel, use kernel0 repair",
-            "kernel", idx);
-            
-        best = 0;
-    }
-    kdd_bydev(idx, best);
+    repair_kernel(best, benv_rootfs_version(best));
     
     jcrit("%s", "superstartup", "end");
-
-    /*
-    * switch and reboot
-    */
-ok:
-    switch_to(idx);
+    switch_to(best);
     
     return os_p_system("(sleep 5; sysreboot) &");
 }
