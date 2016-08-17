@@ -1190,7 +1190,7 @@ repair_rootfs(int idx)
             "error", err);
     }
     
-    if (err<0) {
+    if (err) {
         return 0;
     }
     
