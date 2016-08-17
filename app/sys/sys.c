@@ -287,7 +287,7 @@ __rsync(int idx, benv_version_t *version)
 static int
 __xcopy(char *dst, char *src)
 {
-    int err;
+    int err = 0;
     
     sys_println("before sync %s==>%s", src, dst);
     err = os_p_system(SCRIPT_XCOPY " %s %s", src, dst);
@@ -309,7 +309,7 @@ __rcopy(int idx, char *dir, benv_version_t *version)
     set_obj(rootfs, idx, upgrade, BENV_FSM_FAIL);
     err = __xcopy(dir_rootfs(idx), dir);
     set_obj(rootfs, idx, upgrade, efsm(err));
-    
+
     jinfo("%o",
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
                         "type", "local",
@@ -1191,7 +1191,7 @@ repair_rootfs(int idx)
     }
     
     if (err) {
-        return 0;
+        return err;
     }
     
     return repair_kernel(idx, &version);

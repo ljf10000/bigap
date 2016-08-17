@@ -394,7 +394,7 @@ __os_wait_error(int status)
     }
 #endif
 
-    return err;
+    return native_error(err);
 }
 
 typedef struct {

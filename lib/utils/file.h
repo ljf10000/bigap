@@ -91,7 +91,7 @@ os_vsystem(const char *fmt, va_list args)
     }
     os_free(cmd);
 
-    return err;
+    return native_error(err);
 }
 
 static inline int
@@ -780,7 +780,7 @@ os_fgeti_ex(char *file, int max, int min, int deft)
         __err = os_system(_fmt, ##_args); \
     }                       \
                             \
-    __err;                  \
+    native_error(__err);    \
 })  /* end */
 
 /******************************************************************************/
