@@ -31,8 +31,10 @@
 
 #ifdef __PC__
 #   define UMD_SCRIPT_PATH      "."
+#   define UMD_USR_SBIN_PATH    "."
 #else
-#   define UMD_SCRIPT_PATH      "/etc/um"
+#   define UMD_SCRIPT_PATH      "/etc/um/script"
+#   define UMD_USR_SBIN_PATH    "/usr/sbin"
 #endif
 
 #ifndef UMD_SCRIPT_EVENT
@@ -40,11 +42,11 @@
 #endif
 
 #ifndef UMD_SCRIPT_IP
-#define UMD_SCRIPT_IP           UMD_SCRIPT_PATH "/umip"
+#define UMD_SCRIPT_IP           UMD_USR_SBIN_PATH "/umip"
 #endif
 
 #ifndef UMD_SCRIPT_MAC
-#define UMD_SCRIPT_MAC          UMD_SCRIPT_PATH "/ummac"
+#define UMD_SCRIPT_MAC          UMD_USR_SBIN_PATH "/ummac"
 #endif
 
 #ifndef UMD_TICKS
