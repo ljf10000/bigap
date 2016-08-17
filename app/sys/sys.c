@@ -253,7 +253,7 @@ __rsync(int idx, benv_version_t *version)
 
     set_obj(rootfs, idx, upgrade, BENV_FSM_FAIL);
     err = os_p_system("rsync"
-            " -acz --delete --force --stats --partial"
+            " -acz --delete-after --stats --partial"
             " --exclude=/dev/*"
             " --timeout=%s"
             " --password-file=%s"
@@ -1170,23 +1170,23 @@ repair_rootfs(int idx)
     int buddy = benv_find_first_good_byversion(rootfs, &version, __skips(idx));
     jcrit("%s%d%s%s%d",
         "repair", "rootfs",
-        "index", idx,
+        "rootfs", idx,
         "version", benv_version_itoa(&version),
         "find", "buddy",
-        "index", idx);
+        "buddy", buddy);
 
     if (is_benv_good_rootfs(buddy)) {
         err = rcopy(idx, dir_rootfs(buddy), &version);
         jcrit("%s%d%d%d",
             "repair", "rootfs",
-            "index", idx,
+            "rootfs", idx,
             "buddy", buddy,
             "error", err);
     } else {
         err = rsync(idx, &version);
         jcrit("%s%d%d",
             "repair", "rootfs",
-            "index", idx,
+            "rootfs", idx,
             "error", err);
     }
     
