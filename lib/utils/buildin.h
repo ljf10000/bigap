@@ -287,7 +287,7 @@ static inline uint32 os_seq_offset(uint32 seq1, uint32 seq2)
     __ERRNO(err_in___errno);         \
 })
 
-#define __os_call(_new, _free, _call, _args...) ({  \
+#define os_callv(_new, _free, _call, _args...)  ({  \
     int err_in___os_call = 0;                       \
     void *obj_in___os_call = (void *)_new();        \
     if (obj_in___os_call) {                         \
