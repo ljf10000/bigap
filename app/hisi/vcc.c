@@ -49,7 +49,9 @@ static cmd_table_t cmd_vcc[] = {
 static int
 vcc_main(int argc, char *argv[])
 {
-    return os_call(hisi_gpio_init, hisi_gpio_fini, cmd_handle, cmd_vcc, argc, argv, vcc_usage);
+    int err = os_call(hisi_gpio_init, hisi_gpio_fini, cmd_handle, cmd_vcc, argc, argv, vcc_usage);
+
+    return shell_error(err);
 }
 
 #endif /* IS_PRODUCT_LTEFI_MD */

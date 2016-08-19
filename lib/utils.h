@@ -278,7 +278,9 @@ os_fini(void)
 static inline int
 os_main(int (*func)(int, char **), int argc, char *argv[])
 {
-    return os_call(os_init, os_fini, func, argc, argv);
+    int err = os_call(os_init, os_fini, func, argc, argv);
+
+    return shell_error(err);
 }
 /******************************************************************************/
 #endif /* __UTILS_H_6bb0dde2b3424f97a297b2b0e37d90aa__ */

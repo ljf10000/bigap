@@ -265,6 +265,8 @@ __main(int argc, char *argv[])
 
 int haenv_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(__init, __fini, __main, argc, argv);
+
+    return shell_error(err);
 }
 /******************************************************************************/

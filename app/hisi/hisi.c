@@ -48,6 +48,8 @@ int hisi_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_call(hisi_init, hisi_fini, cmd_multi_handle, multi, argc, argv);
+    int err = os_call(hisi_init, hisi_fini, cmd_multi_handle, multi, argc, argv);
+
+    return shell_error(err);
 }
 /******************************************************************************/

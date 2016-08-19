@@ -138,7 +138,9 @@ gpio_fini(void)
 static int
 gpio_main(int argc, char *argv[])
 {
-    return os_call(gpio_init, gpio_fini, gpio_handle, argc, argv);
+    int err = os_call(gpio_init, gpio_fini, gpio_handle, argc, argv);
+
+    return shell_error(err);
 }
 
 #endif /* IS_PRODUCT_LTEFI_MD */

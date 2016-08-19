@@ -328,7 +328,7 @@ __cli_c_handle(
             cli_buffer_err,
             cli_buffer_len,
             cli_buffer_buf);
-        err = shell_error(cli_buffer_err);
+        err = cli_buffer_err;
     }
     
 error:

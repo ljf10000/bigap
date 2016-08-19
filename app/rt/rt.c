@@ -107,15 +107,13 @@ __user(int signo)
 static void 
 __exit(int signo)
 {
-    int err;
-
     debug_trace("recive signo:%d", signo);
     
-    err = os_call(benv_open, benv_close, rt_save, 0);
+    int err = os_call(benv_open, benv_close, rt_save, 0);
 
     os_fini();
     
-    exit(err);
+    exit(shell_error(err));
 }
 
 static int

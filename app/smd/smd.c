@@ -899,6 +899,8 @@ int smd_main(int argc, char *argv[])
     setup_signal_timer(__timer);
     setup_signal_callstack(NULL);
     
-    return os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(__init, __fini, __main, argc, argv);
+
+    return shell_error(err);
 }
 /******************************************************************************/

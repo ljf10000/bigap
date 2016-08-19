@@ -307,7 +307,7 @@ static inline int os_call_nothing(void) { return 0; }
     }                                               \
     _end();                                         \
                                                     \
-    shell_error(err_in_os_call);                    \
+    err_in_os_call;                                 \
 })  /* end */
 
 #define os_call_1(_begin, _end, _call, _arg1, _args...) ({ \
@@ -317,7 +317,7 @@ static inline int os_call_nothing(void) { return 0; }
     }                                               \
     _end(_arg1);                                    \
                                                     \
-    shell_error(err_in_os_call_1);                  \
+    err_in_os_call_1;                               \
 })  /* end */
 
 #define os_call_2(_begin, _end, _call, _arg1, _arg2, _args...) ({ \
@@ -327,7 +327,7 @@ static inline int os_call_nothing(void) { return 0; }
     }                                               \
     _end(_arg1, _arg2);                             \
                                                     \
-    shell_error(err_in_os_call_2);                  \
+    err_in_os_call_2;                               \
 })  /* end */
 
 #define os_call_3(_begin, _end, _call, _arg1, _arg2, _arg3, _args...) ({ \
@@ -337,7 +337,7 @@ static inline int os_call_nothing(void) { return 0; }
     }                                               \
     _end(_arg1, _arg2, _arg3);                      \
                                                     \
-    shell_error(err_in_os_call_3);                  \
+    err_in_os_call_3;                               \
 })  /* end */
 
 #define os_call_4(_begin, _end, _call, _arg1, _arg2, _arg3, _arg4, _args...) ({ \
@@ -347,7 +347,7 @@ static inline int os_call_nothing(void) { return 0; }
     }                                               \
     _end(_arg1, _arg2, _arg3, _arg4);               \
                                                     \
-    shell_error(err_in_os_call_4);                  \
+    err_in_os_call_4;                               \
 })  /* end */
 
 #define os_call_5(_begin, _end, _call, _arg1, _arg2, _arg3, _arg4, _arg5, _args...) ({ \
@@ -357,7 +357,7 @@ static inline int os_call_nothing(void) { return 0; }
     }                                               \
     _end(_arg1, _arg2, _arg3, _arg4, _arg5);        \
                                                     \
-    shell_error(err_in_os_call_5);                  \
+    err_in_os_call_5;                               \
 })  /* end */
 
 static inline void 

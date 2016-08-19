@@ -116,7 +116,9 @@ static cmd_table_t cmd_dog[] = {
 static int
 dog_main(int argc, char *argv[])
 {
-    return os_call(hisi_dog_init, hisi_dog_fini, cmd_handle, cmd_dog, argc, argv, dog_usage);
+    int err = os_call(hisi_dog_init, hisi_dog_fini, cmd_handle, cmd_dog, argc, argv, dog_usage);
+
+    return shell_error(err);
 }
 
 #endif /* IS_PRODUCT_LTEFI_MD */

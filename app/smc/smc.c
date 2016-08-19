@@ -111,7 +111,7 @@ command(int argc, char *argv[])
         CLI_ENTRY("show",   cmd_show),
     };
     int err;
-        
+
     err = cli_argv_handle(table, os_count_of(table), argc, argv);
     if (err<0) {
         debug_error("%s error:%d", argv[0], err);

@@ -44,7 +44,9 @@ static cmd_table_t cmd_acc[] = {
 static int
 acc_main(int argc, char *argv[])
 {
-    return os_call(hisi_gpio_init, hisi_gpio_fini, cmd_handle, cmd_acc, argc, argv, acc_usage);
+    int err = os_call(hisi_gpio_init, hisi_gpio_fini, cmd_handle, cmd_acc, argc, argv, acc_usage);
+
+    return shell_error(err);
 }
 #endif /* IS_PRODUCT_LTEFI_MD */
 

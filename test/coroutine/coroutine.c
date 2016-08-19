@@ -66,7 +66,9 @@ int main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_call(init, fini, __main, argc, argv);
+    int err = os_call(init, fini, __main, argc, argv);
+
+    return shell_error(err);
 }
 
 /******************************************************************************/

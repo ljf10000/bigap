@@ -2624,7 +2624,9 @@ benv_cmd(int argc, char *argv[])
 static inline int
 __benv_main(int argc, char *argv[])
 {
-    return os_call(benv_init, benv_fini, benv_cmd, argc, argv);
+    int err = os_call(benv_init, benv_fini, benv_cmd, argc, argv);
+
+    return shell_error(err);
 }
 
 static inline void *

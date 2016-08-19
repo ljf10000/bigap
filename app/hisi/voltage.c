@@ -223,7 +223,9 @@ static cmd_table_t cmd_voltage[] = {
 static int
 voltage_main(int argc, char *argv[])
 {
-    return os_call(hisi_i2c_init, hisi_i2c_fini, cmd_handle, cmd_voltage, argc, argv, voltage_usage);
+    int err = os_call(hisi_i2c_init, hisi_i2c_fini, cmd_handle, cmd_voltage, argc, argv, voltage_usage);
+
+    return shell_error(err);
 }
 
 #endif /* IS_PRODUCT_LTEFI_MD */

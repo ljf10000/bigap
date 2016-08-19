@@ -251,7 +251,6 @@ __rsync(int idx, benv_version_t *version)
     __benv_version_itoa(version, new);
     __benv_version_itoa(&sys.old_version, old);
 
-    set_obj(rootfs, idx, upgrade, BENV_FSM_FAIL);
     err = os_p_system("rsync"
             " -acz --delete-after --stats --partial"
             " --exclude=/dev/*"
@@ -306,7 +305,6 @@ __rcopy(int idx, char *dir, benv_version_t *version)
     __benv_version_itoa(version, new);
     __benv_version_itoa(&sys.old_version, old);
 
-    set_obj(rootfs, idx, upgrade, BENV_FSM_FAIL);
     err = __xcopy(dir_rootfs(idx), dir);
     set_obj(rootfs, idx, upgrade, efsm(err));
 
@@ -910,7 +908,7 @@ __kdd_bydev(int dst, int src)
     
     os_strcpy(new, benv_kernel_version_string(src));
     __benv_version_itoa(&sys.old_version, old);
-    
+
     err = __dd(dev_kernel(dst), dev_kernel(src));
     set_obj(kernel, dst, upgrade, efsm(err));
 
@@ -966,7 +964,7 @@ __kdd_byfile(int idx, char *file, benv_version_t *version)
     
     __benv_version_itoa(version, new);
     __benv_version_itoa(&sys.old_version, old);
-    
+
     err = __dd(dev_kernel(idx), file);
     set_obj(kernel, idx, upgrade, efsm(err));
 
@@ -1174,6 +1172,8 @@ repair_rootfs(int idx)
         "version", benv_version_itoa(&version),
         "find", "buddy",
         "buddy", buddy);
+
+    upgrade_init(idx, &version);
 
     if (is_benv_good_rootfs(buddy)) {
         err = rcopy(idx, dir_rootfs(buddy), &version);
@@ -1794,13 +1794,13 @@ cmd_reset(int argc, char *argv[])
 	}
 
     if (first) {
-        switch_to(first);
-
         /*
-        * set current failed, wait to repair by other
+        * wait to repair by other
         */
         upgrade_init(sys.current, benv_rootfs_version(sys.resetby));
-
+        
+        switch_to(first);
+        
         return os_p_system("sysreboot &");
     }
     
@@ -2008,43 +2008,59 @@ __main(int argc, char *argv[])
 */
 int sys_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(__init, __fini, __main, argc, argv);
+
+    return shell_error(err);
 }
 
 #ifdef __BUSYBOX__
 int sysmount_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, cmd_mount, argc, argv);
+    int err = os_call(__init, __fini, cmd_mount, argc, argv);
+
+    return shell_error(err);
 }
 
 int sysreset_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, cmd_reset, argc, argv);
+    int err = os_call(__init, __fini, cmd_reset, argc, argv);
+
+    return shell_error(err);
 }
 
 int sysrepair_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, cmd_repair, argc, argv);
+    int err = os_call(__init, __fini, cmd_repair, argc, argv);
+
+    return shell_error(err);
 }
 
 int sysstartup_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, cmd_startup, argc, argv);
+    int err = os_call(__init, __fini, cmd_startup, argc, argv);
+
+    return shell_error(err);
 }
 
 int sysumount_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, cmd_umount, argc, argv);
+    int err = os_call(__init, __fini, cmd_umount, argc, argv);
+
+    return shell_error(err);
 }
 
 int sysupgrade_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, cmd_upgrade, argc, argv);
+    int err = os_call(__init, __fini, cmd_upgrade, argc, argv);
+
+    return shell_error(err);
 }
 
 int sysusbupgrade_main(int argc, char *argv[])
 {
-    return os_call(__init, __fini, cmd_usbupgrade, argc, argv);
+    int err = os_call(__init, __fini, cmd_usbupgrade, argc, argv);
+
+    return shell_error(err);
 }
 
 #endif
