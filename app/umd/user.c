@@ -14,9 +14,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __update_online(_user, _obj, _TYPE, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "online", #_field, NULL); \
-    if (o) {                                                    \
-        limit_online(_user, _TYPE)->_field = jobj_get_i32(o);   \
-    }                                                           \
+                                                                \
+    limit_online(_user, _TYPE)->_field = o?jobj_get_i32(o):0;   \
 }while(0)
 
 #define update_online(_user, _obj, _field)  do{ \
@@ -26,9 +25,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __update_flow(_user, _obj, _TYPE, _DIR, _field) do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "flow", #_DIR, #_field, NULL); \
-    if (o) {                                                        \
-        limit_flow(_user, _TYPE, _DIR)->_field = jobj_get_i64(o); \
-    }                                                               \
+                                                            \
+    limit_flow(_user, _TYPE, _DIR)->_field = o?jobj_get_i64(o):0; \
 }while(0)
 
 #define updata_flow(_user, _obj, _field)        do{ \
@@ -42,9 +40,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __update_rate(_user, _obj, _TYPE, _DIR, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "rate", #_DIR, #_field, NULL); \
-    if (o) {                                                        \
-        limit_rate(_user, _TYPE, _DIR)->_field = jobj_get_i32(o);   \
-    }                                                               \
+                                                                    \
+    limit_rate(_user, _TYPE, _DIR)->_field = o?jobj_get_i32(o):0;   \
 }while(0)
 
 #define updata_rate(_user, _obj, _field)        do{ \
@@ -239,7 +236,7 @@ nodehaship(hash_node_t *node)
 }
 
 static inline void
-__tag_free(struct um_tag *tag)
+tag_free(struct um_tag *tag)
 {
     if (tag) {
         os_free(tag->k);
@@ -249,7 +246,7 @@ __tag_free(struct um_tag *tag)
 }
 
 static inline struct um_tag *
-__tag_new(char *k, char *v)
+tag_new(char *k, char *v)
 {
     struct um_tag *tag = (struct um_tag *)os_malloc(sizeof(*tag));
     if (NULL==tag) {
@@ -261,7 +258,7 @@ __tag_new(char *k, char *v)
     tag->v = strdup(v);
 
     if (NULL==tag->k || NULL==tag->v) {
-        __tag_free(tag); 
+        tag_free(tag); 
 
         return NULL;
     }
@@ -270,7 +267,7 @@ __tag_new(char *k, char *v)
 }
 
 static inline struct um_tag *
-__tag_get(struct um_user *user, char *k)
+tag_get(struct um_user *user, char *k)
 {
     struct um_tag *tag;
 
@@ -288,7 +285,7 @@ __tag_get(struct um_user *user, char *k)
 }
 
 static inline struct um_tag *
-__tag_insert(struct um_user *user, char *k, char *v, bool update_if_exist)
+tag_insert(struct um_user *user, char *k, char *v, bool update_if_exist)
 {
     struct um_tag *tag = NULL;
 
@@ -296,9 +293,9 @@ __tag_insert(struct um_user *user, char *k, char *v, bool update_if_exist)
         return NULL;
     }
 
-    tag = __tag_get(user, k);
+    tag = tag_get(user, k);
     if (NULL==tag) {
-        tag = __tag_new(k, v);
+        tag = tag_new(k, v);
         if (NULL==tag) {
             return NULL;
         }
@@ -319,18 +316,18 @@ __tag_insert(struct um_user *user, char *k, char *v, bool update_if_exist)
 }
 
 static inline struct um_tag *
-__tag_set(struct um_user *user, char *k, char *v)
+tag_set(struct um_user *user, char *k, char *v)
 {
-    return __tag_insert(user, k, v, true);
+    return tag_insert(user, k, v, true);
 }
 
 static inline void
-__user_tag_clear(struct um_user *user)
+tag_clear(struct um_user *user)
 {
     struct um_tag *p, *n;
     
     list_for_each_entry_safe(p, n, &user->head.tag, tag) {
-        __tag_free(p);
+        tag_free(p);
     }
 }
 
@@ -368,7 +365,7 @@ lan_online(struct um_user *user)
     flow_reset(user, um_flow_type_lan);
     flow_reset(user, um_flow_type_wan);
 
-    __user_tag_clear(user);
+    tag_clear(user);
     
     debug_event("user %s lan online", os_macstring(user->mac));
 }
@@ -390,7 +387,7 @@ wan_online(struct um_user *user)
 
     flow_reset(user, um_flow_type_wan);
 
-    __user_tag_clear(user);
+    tag_clear(user);
     
     debug_event("user %s wan online", os_macstring(user->mac));
 }
@@ -564,7 +561,7 @@ __user_delete(struct um_user *user, event_cb_t *cb)
         (*cb)(user);
     }
     
-    __user_tag_clear(user);
+    tag_clear(user);
     __user_remove(user);
     os_free(user);
     
@@ -966,13 +963,13 @@ user_foreach(um_foreach_f *foreach, bool safe)
 struct um_tag *
 um_tag_get(byte mac[], char *k)
 {
-    return __tag_get(__user_get(mac), k);
+    return tag_get(__user_get(mac), k);
 }
 
 struct um_tag *
 um_tag_set(byte mac[], char *k, char *v)
 {
-    return __tag_set(__user_get(mac), k, v);
+    return tag_set(__user_get(mac), k, v);
 }
 
 int um_user_delete(byte mac[])
