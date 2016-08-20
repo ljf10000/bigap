@@ -31,9 +31,9 @@
 
 #ifndef UMD_SCRIPT_EVENT
 #ifdef __PC__
-#   define UMD_SCRIPT_EVENT     "./event"
+#   define UMD_SCRIPT_EVENT     "./umevent"
 #else
-#   define UMD_SCRIPT_EVENT     "/etc/um/bin/event"
+#   define UMD_SCRIPT_EVENT     "/etc/um/umevent"
 #endif
 #endif
 
