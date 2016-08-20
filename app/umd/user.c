@@ -14,9 +14,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __update_online(_user, _obj, _TYPE, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "online", #_field, NULL); \
-    if (o) {                                                    \
-        limit_online(_user, _TYPE)->_field = jobj_get_i32(o);   \
-    }                                                           \
+                                                                \
+    limit_online(_user, _TYPE)->_field = o?jobj_get_i32(o):0;   \
 }while(0)
 
 #define update_online(_user, _obj, _field)  do{ \
@@ -26,9 +25,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __update_flow(_user, _obj, _TYPE, _DIR, _field) do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "flow", #_DIR, #_field, NULL); \
-    if (o) {                                                        \
-        limit_flow(_user, _TYPE, _DIR)->_field = jobj_get_i64(o); \
-    }                                                               \
+                                                            \
+    limit_flow(_user, _TYPE, _DIR)->_field = o?jobj_get_i64(o):0; \
 }while(0)
 
 #define updata_flow(_user, _obj, _field)        do{ \
@@ -42,9 +40,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __update_rate(_user, _obj, _TYPE, _DIR, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "rate", #_DIR, #_field, NULL); \
-    if (o) {                                                        \
-        limit_rate(_user, _TYPE, _DIR)->_field = jobj_get_i32(o);   \
-    }                                                               \
+                                                                    \
+    limit_rate(_user, _TYPE, _DIR)->_field = o?jobj_get_i32(o):0;   \
 }while(0)
 
 #define updata_rate(_user, _obj, _field)        do{ \

@@ -323,7 +323,11 @@ __limit_rate(struct um_user *user, int type, int dir)
     typeof(_numerator) _n_in___limit_reauth = (_numerator);       \
     typeof(_denominator) _d_in___limit_reauth = (_denominator);   \
                                                 \
-    (_m_in___limit_reauth && _n_in___limit_reauth)?(_d_in___limit_reauth?(_m_in___limit_reauth/_d_in___limit_reauth)*_n_in___limit_reauth:_n_in___limit_reauth):0; \
+    (_m_in___limit_reauth && _n_in___limit_reauth)? \
+        (_d_in___limit_reauth ? \
+            _m_in___limit_reauth*_n_in___limit_reauth/_d_in___limit_reauth: \
+            _n_in___limit_reauth ): \
+        0; \
 })
 
 #define __online_max(_user, _type)          __limit_online(_user, _type)->max
