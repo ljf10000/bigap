@@ -106,7 +106,7 @@ env_geti(char *envname, int deft)
 static inline bool is_good_os_env(int type);
 static inline char *os_env_string(int type);
 static inline int os_env_idx(char *type_string);
-DECLARE_ENUM(os_env_get, OS_ENVLIST, OS_ENV_END);
+DECLARE_ENUM(os_env, OS_ENVLIST, OS_ENV_END);
 
 #if 1 /* just for sourceinsight */
 #define ENV_TIMEOUT     ENV_TIMEOUT
