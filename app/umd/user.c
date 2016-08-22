@@ -113,11 +113,11 @@ __cb(struct um_user *user, char *action, int (*cb)(jobj_t obj))
 
     os_arrayzero(json);
     os_v_pgetb(json, OS_FILE_LEN, 
-        UMD_SCRIPT_EVENT " %s '%s'",
+        UMD_SCRIPT_EVENT " %s '%s' &",
         action,
         jobj_json(juser));
     jobj_put(juser);
-    
+
     if (cb) {
         jobj_t obj = jobj(json);
         if (NULL==obj) {
