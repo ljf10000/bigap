@@ -98,12 +98,11 @@ void update_limit_test(void)
 #endif
 }
 
-typedef int event_cb_t(struct um_user *user);
+typedef int event_cb_t(struct um_user *user, char *action);
 
 static int
-__cb(struct um_user *user, char *action, int (*cb)(jobj_t obj))
+__ev(struct um_user *user, char *action)
 {
-    static char json[1+OS_FILE_LEN];
     int err = 0;
 
     jobj_t juser = um_juser(user);
@@ -111,88 +110,19 @@ __cb(struct um_user *user, char *action, int (*cb)(jobj_t obj))
         return -ENOEXIST;
     }
 
-    os_arrayzero(json);
-    os_v_pgetb(json, OS_FILE_LEN, 
-        UMD_SCRIPT_EVENT " %s '%s'",
-        action,
+    err = os_system(UMD_SCRIPT_EVENT " %s '%s'", 
+        action, 
         jobj_json(juser));
-    jobj_put(juser);
-
-    if (cb) {
-        jobj_t obj = jobj(json);
-        if (NULL==obj) {
-            return -EBADJSON;
-        }
-        
-        err = (*cb)(obj);
-
-        jobj_put(obj);
+    if (err<0) {
+        debug_event("event error:%d action:%s json:%s",
+            err,
+            action, 
+            jobj_json(juser));
     }
     
+    jobj_put(juser)
+
     return err;
-}
-
-static int
-delete_cb(struct um_user *user)
-{
-    return __cb(user, "delete", NULL);
-}
-
-static int
-create_cb(struct um_user *user)
-{
-    return __cb(user, "create", NULL);
-}
-
-#if UM_USE_MONITOR
-static int
-enter_cb(struct um_user *user)
-{
-    return __cb(user, "enter", NULL);
-}
-
-static int
-leave_cb(struct um_user *user)
-{
-    return __cb(user, "leave", NULL);
-}
-#endif
-
-static int
-bind_cb(struct um_user *user)
-{
-    return __cb(user, "bind", NULL);
-}
-
-static int
-unbind_cb(struct um_user *user)
-{
-    return __cb(user, "unbind", NULL);
-}
-
-static int
-auth_cb(struct um_user *user)
-{
-    return __cb(user, "auth", NULL);
-}
-
-static int
-reauth_cb(struct um_user *user)
-{
-    int cb(jobj_t obj)
-    {
-        update_limit(user, obj);
-
-        return 0;
-    }
-    
-    return __cb(user, "reauth", cb);
-}
-
-static int
-deauth_cb(struct um_user *user)
-{
-    return __cb(user, "deauth", NULL);
 }
 
 static inline hash_idx_t
@@ -549,7 +479,7 @@ __user_debug(char *tag, struct um_user *user)
 }
 
 static int
-__user_delete(struct um_user *user, event_cb_t *cb)
+__user_delete(struct um_user *user, event_cb_t *ev)
 {
     if (NULL==user) {
         return -ENOEXIST;
@@ -557,8 +487,8 @@ __user_delete(struct um_user *user, event_cb_t *cb)
 
     __user_debug("before-user-delete", user);
     
-    if (cb) {
-        (*cb)(user);
+    if (ev) {
+        (*ev)(user, "delete");
     }
     
     tag_clear(user);
@@ -569,7 +499,7 @@ __user_delete(struct um_user *user, event_cb_t *cb)
 }
 
 static struct um_user *
-__user_create(byte mac[], event_cb_t *cb)
+__user_create(byte mac[], event_cb_t *ev)
 {
     struct um_user *user;
 
@@ -587,8 +517,8 @@ __user_create(byte mac[], event_cb_t *cb)
     
     __user_insert(user);
 
-    if (cb) {
-        (*cb)(user);
+    if (ev) {
+        (*ev)(user, "create");
     }
 
     __user_debug("after-user-create", user);
@@ -597,7 +527,7 @@ __user_create(byte mac[], event_cb_t *cb)
 }
 
 static int
-__user_deauth(struct um_user *user, int reason, event_cb_t *cb)
+__user_deauth(struct um_user *user, int reason, event_cb_t *ev)
 {
     if (NULL==user) {
         return -ENOEXIST;
@@ -614,8 +544,8 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *cb)
     */
     __set_reason(user, reason);
 
-    if (cb) {
-        (*cb)(user);
+    if (ev) {
+        (*ev)(user, "deauth");
     }
     
     /*
@@ -632,11 +562,11 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *cb)
 }
 
 static int
-__user_unbind(struct um_user *user, int reason, event_cb_t *cb)
+__user_unbind(struct um_user *user, int reason, event_cb_t *ev)
 {
     int err = 0;
 
-    err = __user_deauth(user, reason, deauth_cb);
+    err = __user_deauth(user, reason, __ev);
     if (err<0) {
         return err;
     }
@@ -654,8 +584,8 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *cb)
     */
     __set_reason(user, reason);
 
-    if (cb) {
-        (*cb)(user);
+    if (ev) {
+        (*ev)(user, "unbind");
     }
 
     __set_ip(user, 0);
@@ -673,7 +603,7 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *cb)
 
 #if UM_USE_MONITOR
 static int
-__user_leave(struct um_user *user, event_cb_t *cb)
+__user_leave(struct um_user *user, event_cb_t *ev)
 {
     if (NULL==user) {
         return -ENOEXIST;
@@ -686,15 +616,15 @@ __user_leave(struct um_user *user, event_cb_t *cb)
         user->noused = time(NULL);
     }
 
-    if (cb) {
-        (*cb)(user);
+    if (ev) {
+        (*ev)(user, "leave");
     }
 
     return 0;
 }
 
 static struct um_user *
-__user_enter(struct um_user *user, jobj_t obj, event_cb_t *cb)
+__user_enter(struct um_user *user, jobj_t obj, event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
@@ -703,8 +633,8 @@ __user_enter(struct um_user *user, jobj_t obj, event_cb_t *cb)
     // do enter
     user->flags |= UM_F_MONITOR;
     
-    if (cb) {
-        (*cb)(user);
+    if (ev) {
+        (*ev)(user, "enter");
     }
 
     return user;
@@ -712,7 +642,7 @@ __user_enter(struct um_user *user, jobj_t obj, event_cb_t *cb)
 #endif
 
 static struct um_user *
-__user_bind(struct um_user *user, uint32 ip, event_cb_t *cb)
+__user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
@@ -722,7 +652,7 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *cb)
         if (ip==user->ip) {
             return user;
         } else {
-            __user_unbind(user, UM_DEAUTH_AUTO, unbind_cb);
+            __user_unbind(user, UM_DEAUTH_AUTO, __ev);
         }
     }
 
@@ -737,8 +667,8 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *cb)
     lan_online(user);
     update_aging(user, true);
 
-    if (cb) {
-        (*cb)(user);
+    if (ev) {
+        (*ev)(user, "bind");
     }
 
     __user_debug("after-user-bind", user);
@@ -747,7 +677,7 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *cb)
 }
 
 static int
-__user_reauth(struct um_user *user, event_cb_t *cb)
+__user_reauth(struct um_user *user, event_cb_t *ev)
 {
     if (NULL==user) {
         return -ENOEXIST;
@@ -758,11 +688,8 @@ __user_reauth(struct um_user *user, event_cb_t *cb)
 
     __user_debug("before-user-reauth", user);
 
-    /*
-    * 1. callback
-    */
-    if (cb) {
-        (*cb)(user);
+    if (ev) {
+        (*ev)(user, "reauth");
     }
 
     __user_debug("after-user-reauth", user);
@@ -791,7 +718,7 @@ __user_rollback(struct um_user *dst, struct um_user *src)
 }
 
 static struct um_user *
-__user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *cb)
+__user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
 {
     int err;
     
@@ -810,19 +737,11 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *cb)
             return NULL;
         }
         else {
-            __user_bind(user, inet_addr(ipaddress), bind_cb);
+            __user_bind(user, inet_addr(ipaddress), __ev);
         }
     }
 
     __user_debug("before-user-auth", user);
-
-    /*
-    * 1. clone
-    * 2. auth by clone
-    * 3. callback
-    * 4. rollback if cb failed
-    */
-    struct um_user backup = *user;
 
     /*
     * bind==>auth
@@ -835,18 +754,8 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *cb)
     wan_online(user);
     update_aging(user, true);
     
-    if (cb) {
-        err = (*cb)(user);
-        if (err<0) {
-            /*
-            * rollback
-            */
-            *user = backup;
-
-            debug_trace("user auth-cb err(%d), rollback", err);
-
-            return NULL;
-        }
+    if (ev) {
+        (*ev)(user, "auth");
     }
 
     __user_debug("after-user-auth", user);
@@ -893,33 +802,33 @@ user_create(byte mac[])
 
 int user_delete(struct um_user *user)
 {
-    return __user_delete(user, delete_cb);
+    return __user_delete(user, __ev);
 }
 
 #if UM_USE_MONITOR
 static struct um_user *
 user_enter(struct um_user *user, jobj_t obj)
 {
-    return __user_enter(user, obj, enter_cb);
+    return __user_enter(user, obj, __ev);
 }
 
 static int
 user_leave(struct um_user *user)
 {
-    return __user_leave(user, leave_cb);
+    return __user_leave(user, __ev);
 }
 #endif
 
 static struct um_user *
 user_bind(struct um_user *user, uint32 ip)
 {
-    return __user_bind(user, ip, bind_cb);
+    return __user_bind(user, ip, __ev);
 }
 
 int user_unbind(struct um_user *user, int reason)
 {
     if (is_valid_deauth_reason(reason)) {
-        return __user_unbind(user, reason, unbind_cb);
+        return __user_unbind(user, reason, __ev);
     } else {
         return -EBADREASON;
     }
@@ -928,18 +837,18 @@ int user_unbind(struct um_user *user, int reason)
 static struct um_user *
 user_auth(struct um_user *user, int group, jobj_t obj)
 {
-    return __user_auth(user, group, obj, auth_cb);
+    return __user_auth(user, group, obj, __ev);
 }
 
 int user_reauth(struct um_user *user)
 {
-    return __user_reauth(user, reauth_cb);
+    return __user_reauth(user, __ev);
 }
 
 int user_deauth(struct um_user *user, int reason)
 {
     if (is_valid_deauth_reason(reason)) {
-        return __user_deauth(user, reason, deauth_cb);
+        return __user_deauth(user, reason, __ev);
     } else {
         return -EBADREASON;
     }
