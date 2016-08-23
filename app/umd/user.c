@@ -110,8 +110,8 @@ __ev(struct um_user *user, char *action)
         return -ENOEXIST;
     }
 
-    err = os_system(UMD_SCRIPT_EVENT " %s '%s'", 
-        action, 
+    err = os_p_system(UMD_SCRIPT_EVENT " %s '%s'", 
+        action,
         jobj_json(juser));
     if (err<0) {
         debug_event("event error:%d action:%s json:%s",
@@ -120,7 +120,7 @@ __ev(struct um_user *user, char *action)
             jobj_json(juser));
     }
     
-    jobj_put(juser)
+    jobj_put(juser);
 
     return err;
 }
