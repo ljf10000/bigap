@@ -1078,12 +1078,12 @@ juser_online(struct um_user *user, int type)
     
     time = __online_uptime(user, type);
     if (time) {
-        jobj_add_string(obj, "uptime", os_fulltime_string_link(&time));
+        jobj_add_string(obj, "uptime", os_fulltime_string(&time));
     }
 
     time = __online_downtime(user, type);
     if (time) {
-        jobj_add_string(obj, "downtime", os_fulltime_string_link(&time));
+        jobj_add_string(obj, "downtime", os_fulltime_string(&time));
     }
     
     return obj;
@@ -1184,8 +1184,8 @@ jobj_t um_juser(struct um_user *user)
     jobj_add_string(obj, "state",   user_state_string(user->state));
     jobj_add_string(obj, "reason",  deauth_reason_string(user->reason));
     
-    jobj_add_string(obj, "create",  os_fulltime_string_link(&user->create));
-    jobj_add_string(obj, "noused",  os_fulltime_string_link(&user->noused));
+    jobj_add_string(obj, "create",  os_fulltime_string(&user->create));
+    jobj_add_string(obj, "noused",  os_fulltime_string(&user->noused));
     
     jobj_add_i32(obj,   "group",    user->group);
     jobj_add_bool(obj,  "monitor",  is_monitor(user));

@@ -36,7 +36,7 @@ voltage_script(char *action, char *time)
         * $5: low
         * $6: high
         */
-        os_p_system("%s %s %s %s " VOLTAGE_FORMAT " %d %d &", 
+        os_p_system("%s %s '%s' '%s' " VOLTAGE_FORMAT " %d %d &", 
             voltage.script, 
             action,
             voltage.time,
@@ -59,7 +59,7 @@ voltage_high(void)
     static char time[1+FULLTIME_STRING_LEN];
 
     if (0==time[0]) {
-        os_strcpy(time, os_fulltime_string_link(NULL));
+        os_strcpy(time, os_fulltime_string(NULL));
     }
     
     voltage_script("high", time);
@@ -73,7 +73,7 @@ voltage_low(void)
     gpio_write(voltage.gpio_delay, 0);
 
     if (0==time[0]) {
-        os_strcpy(time, os_fulltime_string_link(NULL));
+        os_strcpy(time, os_fulltime_string(NULL));
     }
 
     voltage_script("low", time);
@@ -87,7 +87,7 @@ voltage_monitor(void)
         debug_error("get voltage error:%d", err);
     }
     
-    os_strcpy(voltage.time, os_fulltime_string_link(NULL));
+    os_strcpy(voltage.time, os_fulltime_string(NULL));
     
     voltage_report();
     
