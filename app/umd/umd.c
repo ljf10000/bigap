@@ -104,7 +104,7 @@ __umevent_fini(void)
     if (false==umd.deinit) {
         umd.deinit = true;
         
-        os_system(UMD_SCRIPT_EVENT " fini");
+        os_system(UMD_SCRIPT_EVENT " fini &");
     }
 }
 
@@ -155,7 +155,7 @@ __init(void)
         return err;
     }
 
-    os_system(UMD_SCRIPT_EVENT " init");
+    os_system(UMD_SCRIPT_EVENT " init &");
 
     return 0;
 }
