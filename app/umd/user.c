@@ -103,26 +103,17 @@ typedef int event_cb_t(struct um_user *user, char *action);
 static int
 __ev(struct um_user *user, char *action)
 {
-    int err = 0;
-
     jobj_t juser = um_juser(user);
     if (NULL==juser) {
         return -ENOEXIST;
     }
 
-    err = os_p_system(UMD_SCRIPT_EVENT " %s '%s' &", 
+    os_p_system(UMD_SCRIPT_EVENT " %s '%s' &", 
         action,
         jobj_json(juser));
-    if (err<0) {
-        debug_event("event error:%d action:%s json:%s",
-            err,
-            action, 
-            jobj_json(juser));
-    }
-    
     jobj_put(juser);
 
-    return err;
+    return 0;
 }
 
 static inline hash_idx_t
