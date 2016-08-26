@@ -59,6 +59,7 @@ __write_emmc(uint32 begin, void *buf, int count)
     }
 
     debug_ok("write emmc(block) ok, begin:0x%x, count:0x%x", begin, count);
+    benv_println("write emmc(block) ok, begin:0x%x, count:0x%x", begin, count);
     
     return ret << 9;
 }
@@ -108,10 +109,15 @@ __benv_save(int idx /* benv's block */)
 {
     int offset  = BENV_BLOCK_SIZE * idx;
     void *obj   = (char *)__benv_env + offset;
-    
+
+    benv_println("benv save block:%d ...", idx);
     if (BENV_BLOCK_SIZE==benv_emmc_write(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
+        benv_println("benv save block:%d ok", idx);
+        
         return 0;
     } else {
+        benv_println("benv save block:%d error");
+        
         return -EIO;
     }
 }
