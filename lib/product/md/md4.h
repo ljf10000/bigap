@@ -24,6 +24,7 @@
 #define PRODUCT_FIRMWARE_COUNT          7
 #define PRODUCT_FIRMWARE_CURRENT        3   /* rootfs3 */
 #define PRODUCT_KERNEL_SIZE             16  /* 16M */
+#define PRODUCT_UPGRADE_COUNT           1
 /*
 * kernel0 begin(block count) =  12M/512 =  24K = 0x06000
 * kernel1 begin(block count) =  28M/512 =  56K = 0x0E000

@@ -16,10 +16,6 @@
 #define benv_println(_fmt, _args...)    os_do_nothing()
 #endif
 
-#ifndef BENV_UPGRADE_COUNT
-#define BENV_UPGRADE_COUNT          1
-#endif
-
 #ifndef BENV_SIZE
 #define BENV_SIZE                   4096
 #endif

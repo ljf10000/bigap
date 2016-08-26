@@ -90,6 +90,10 @@
 #define PRODUCT_FIRMWARE_CURRENT        1
 #endif
 
+#ifndef PRODUCT_UPGRADE_COUNT
+#define PRODUCT_UPGRADE_COUNT           1
+#endif
+
 #ifndef PRODUCT_BOOTARGS_BLOCK0_NAME
 #define PRODUCT_BOOTARGS_BLOCK0_NAME    "mmcblk0"
 #endif

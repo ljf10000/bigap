@@ -24,6 +24,7 @@
 #define PRODUCT_FIRMWARE_COUNT          3
 #define PRODUCT_FIRMWARE_CURRENT        1
 #define PRODUCT_KERNEL_SIZE             8 /* 8M */
+#define PRODUCT_UPGRADE_COUNT           1
 /*
 * kernel0 begin(block count) =  13M/512 =  26K = 0x06800
 *

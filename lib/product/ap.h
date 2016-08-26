@@ -30,6 +30,10 @@
 #define PRODUCT_FIRMWARE_CURRENT        0
 #endif
 
+#ifndef PRODUCT_UPGRADE_COUNT
+#define PRODUCT_UPGRADE_COUNT           1
+#endif
+
 #ifndef PRODUCT_DIR_ROOT
 #define PRODUCT_DIR_ROOT                "/"
 #endif

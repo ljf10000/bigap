@@ -100,7 +100,7 @@ static struct {
 } 
 sys = {
     .current= PRODUCT_FIRMWARE_CURRENT,
-    .upgrade= BENV_UPGRADE_COUNT,
+    .upgrade= PRODUCT_UPGRADE_COUNT,
 
     .kernel = {
         OBJ_KERNEL(0),
