@@ -558,6 +558,10 @@ benv_dirty_byzone(int begin, int end)
     }
 }
 #define benv_dirty_all()    benv_dirty_byzone(0, BENV_BLOCK_COUNT)
+#define benv_dirty_os()     benv_dirty_byidx(BENV_OS)
+#define benv_dirty_cookie() benv_dirty_byidx(BENV_COOKIE)
+#define benv_dirty_info()   benv_dirty_byidx(BENV_INFO)
+#define benv_dirty_mark()   benv_dirty_byidx(BENV_MARK)
 
 static inline int
 benv_ops_check(benv_ops_t *ops, char *value)
@@ -1473,12 +1477,16 @@ benv_mark_get(int idx)
 static inline uint32
 benv_mark_set(int idx, uint32 value)
 {
+    benv_dirty_mark();
+    
     return (benv_mark(idx) = value);
 }
 
 static inline uint32
 benv_mark_add(int idx, int value)
 {
+    benv_dirty_mark();
+    
     return (benv_mark(idx) += value);
 }
 
@@ -2323,7 +2331,7 @@ __benv_deft_cookie(void)
     os_objcpy(__benv_cookie, benv_cookie_deft());
     os_println("benv cookie restore ok");
     
-    benv_dirty_byidx(BENV_COOKIE);
+    benv_dirty_cookie();
 }
 
 static inline void
@@ -2338,7 +2346,7 @@ __benv_deft_os(void)
     __benv_current = PRODUCT_FIRMWARE_CURRENT;
     os_println("benv os restore ok.");
     
-    benv_dirty_byidx(BENV_OS);
+    benv_dirty_os();
 }
 
 static inline void
@@ -2346,12 +2354,14 @@ __benv_deft_info(void)
 {
     benv_info_t info = BENV_DEFT_INFO;
     int ro[] = BENV_INFO_RO_LIST;
-    int i;
+    int i, idx;
 
     os_println("benv info restore ...");
 
     for (i=0; i<os_count_of(ro); i++) {
-        os_strcpy(info.var[ro[i]], benv_info_get(ro[i]));
+        idx = ro[i];
+
+        os_strcpy(benv_info_get(idx), info.var[idx]);
     }
 
     os_println("benv info restore ok.");
@@ -2375,7 +2385,7 @@ __benv_clean_cookie(void)
     os_println("benv cookie clean ...");
     os_objzero(__benv_cookie);
     
-    benv_dirty_byidx(BENV_COOKIE);
+    benv_dirty_cookie();
     
     os_println("benv cookie clean ok.");
 }
@@ -2410,7 +2420,7 @@ __benv_clean_mark(void)
     os_objzero(__benv_mark);
     __benv_mark_private_restore(backup);
     
-    benv_dirty_byidx(BENV_MARK);
+    benv_dirty_mark();
     
     os_println("benv marks clean ok");
 }

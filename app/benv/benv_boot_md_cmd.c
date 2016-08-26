@@ -75,7 +75,7 @@ __bversion(int argc, char *argv[])
         os_objcpy(benv_kernel_version(i), &version);
     }
 
-    benv_dirty_byidx(BENV_OS);
+    benv_dirty_os();
 
     return 0;
 }

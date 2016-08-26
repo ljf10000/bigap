@@ -350,6 +350,7 @@ benv_select(void)
 selected:
     benv_rootfs(__benv_current)->error++;
     benv_kernel(__benv_current)->error++;
+    benv_dirty_os();
     
     benv_mark_add(__benv_mark_uptimes, 1);
     
@@ -367,6 +368,8 @@ benv_boot_select(void)
 static void
 benv_boot_save(void)
 {
+    benv_save();
+    
     if (bootenv_dirty) {
         env_crc_update();
         saveenv();
@@ -402,8 +405,6 @@ md_boot_init(void)
     uint32 mid = bcookie_cid_mid(emmc_cid);
     if (mid != benv_mark_get(__benv_mark_cid_mid)) {
         benv_mark_set(__benv_mark_cid_mid, mid);
-
-        bootenv_dirty = true;
     }
 
     /*
@@ -412,8 +413,6 @@ md_boot_init(void)
     uint32 psn = bcookie_cid_psn(emmc_cid);
     if (psn != benv_mark_get(__benv_mark_cid_psn)) {
         benv_mark_set(__benv_mark_cid_psn, psn);
-
-        bootenv_dirty = true;
     }
     
     bcookie_cid_dump(emmc_cid);
