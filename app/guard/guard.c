@@ -211,7 +211,10 @@ get_oem(void)
 #define get_rt()    benv_mark_get(__benv_mark_runtime)
 #define get_na()    benv_mark_get(__benv_mark_noauth)
 
-#define set_na(_na) benv_mark_set(__benv_mark_noauth, _na)
+#define set_na(_na) do{ \
+    benv_mark_set(__benv_mark_noauth, _na); \
+    benv_dirty_mark(); \
+}while(0)
 
 static inline char *
 get_version(void)

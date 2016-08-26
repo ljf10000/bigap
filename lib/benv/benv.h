@@ -560,8 +560,8 @@ benv_dirty_byzone(int begin, int end)
 #define benv_dirty_all()    benv_dirty_byzone(0, BENV_BLOCK_COUNT)
 #define benv_dirty_os()     benv_dirty_byidx(BENV_OS)
 #define benv_dirty_cookie() benv_dirty_byidx(BENV_COOKIE)
-#define benv_dirty_info()   benv_dirty_byidx(BENV_INFO)
 #define benv_dirty_mark()   benv_dirty_byidx(BENV_MARK)
+#define benv_dirty_info()   benv_dirty_byzone(BENV_INFO, BENV_BLOCK_COUNT)
 
 static inline int
 benv_ops_check(benv_ops_t *ops, char *value)
@@ -2366,7 +2366,7 @@ __benv_deft_info(void)
 
     os_println("benv info restore ok.");
     
-    benv_dirty_byzone(BENV_INFO, BENV_BLOCK_COUNT);
+    benv_dirty_info();
 }
 
 static inline void
@@ -2432,9 +2432,7 @@ __benv_clean_info(void)
     
     os_objzero(__benv_info);
     __benv_deft_info();
-    
-    benv_dirty_byzone(BENV_INFO, BENV_BLOCK_COUNT);
-    
+        
     os_println("benv infos clean ok.");
 }
 
