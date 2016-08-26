@@ -6,6 +6,15 @@ scp liujingfei@192.168.15.110:/home/liujingfei/v1/release/bin/busybox /mnt/flash
 
 151225
 
-curl -d '{"mac":"00:1f:64:01:01:01","mid":69,"psn":29899348}' -k --cert client.crt --key client.key -u LSS:LTEFISecurityServer2012-2015 -v https://its.raytight.com:9999/service1
+#raytight register
+curl -d '{"mac":"00:1f:64:01:01:01","mid":69,"psn":29899348}' -k --cert client.crt --key client.key -u LSS:LTEFISecurityServer2012-2015 -s https://its.raytight.com:9999/service1
 
-curl -d '{"mac":"00:1f:64:01:01:01","mid":69,"psn":29899348}' -k --cert client.crt --key client.key -u LSS:LTEFISecurityServer2012-2015 -v https://lms2.autelan.com:9998/service1
+
+#autelan register
+curl -d '{"mac":"00:1f:64:01:01:03","mid":69,"psn":29899303}' -k --cert client.crt --key client.key -u LSS:LTEFISecurityServer2012-2015 -s https://lms4.autelan.com:9999/service1
+
+#autelan auth
+curl -d '{"guid":"0acc98402ec726e5822a30dd7a24fde8","mac":"00:1f:64:01:01:03","mid":69,"psn":29899303}' -k --cert client.crt --key client.key -u LSS:LTEFISecurityServer2012-2015 -s https://lms4.autelan.com:9999/service2
+
+#superwalle register
+curl -d '{"mac":"00:1f:64:01:01:02","mid":69,"psn":29899302}' -k --cert client.crt --key client.key -u LSS:LTEFISecurityServer2012-2015 -s https://lms4.superwalle.com:9999/service1

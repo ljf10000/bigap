@@ -10,11 +10,11 @@
 #endif
 
 #ifndef AK_PATH
-#define AK_PATH                 "/tmp/appkey"
+#define AK_PATH                 "/tmp/ak"
 #endif
 
 #ifndef AK_PATH_DEFT
-#define AK_PATH_DEFT            "/etc/appkey"
+#define AK_PATH_DEFT            "/etc/ak"
 #endif
 
 #ifndef AK_LIMIT
