@@ -7,7 +7,7 @@
 #define BENV_DEBUG_TRACE            0x04
 
 #ifndef BENV_DEBUG
-#define BENV_DEBUG                  BENV_DEBUG_TRACE //(BENV_DEBUG_SORT | BENV_DEBUG_CMP)
+#define BENV_DEBUG                  0 //(BENV_DEBUG_SORT | BENV_DEBUG_CMP)
 #endif
 
 #if (BENV_DEBUG & BENV_DEBUG_TRACE)
