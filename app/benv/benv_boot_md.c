@@ -353,8 +353,6 @@ selected:
     benv_dirty_os();
     
     benv_mark_add(__benv_mark_uptimes, 1);
-    
-    bootenv_dirty = true;
 }
 
 static void 
