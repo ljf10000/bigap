@@ -768,19 +768,19 @@ os_fgeti_ex(char *file, int max, int min, int deft)
 #endif
 
 #define os_p_system(_fmt, _args...) ({  \
-    int __err = 0;          \
-    int __code = 0;         \
-                            \
+    int __os_p_system_err = 0;          \
+    int __os_p_system_code = 0;         \
+                                        \
     if (os_file_exist(SCRIPT_SHELL_SYSTEM)) { \
-        __err = os_v_pgeti(&__code, SCRIPT_SHELL_SYSTEM __space _fmt, ##_args); \
-        if (0==__err) {     \
-            __err = __code; \
-        }                   \
-    } else {                \
-        __err = os_system(_fmt, ##_args); \
-    }                       \
-                            \
-    native_error(__err);    \
+        __os_p_system_err = os_v_pgeti(&__os_p_system_code, SCRIPT_SHELL_SYSTEM __space _fmt, ##_args); \
+        if (0==__os_p_system_err) {     \
+            __os_p_system_err = __os_p_system_code; \
+        }                               \
+    } else {                            \
+        __os_p_system_err = os_system(_fmt, ##_args); \
+    }                                   \
+                                        \
+    native_error(__os_p_system_err);    \
 })  /* end */
 
 /******************************************************************************/
