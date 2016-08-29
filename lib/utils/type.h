@@ -135,10 +135,10 @@
 #define byte            uint8_t
 #endif
 
-#ifdef __BOOL__
-typedef FILE* STREAM;
-#elif defined(__APP__)
+#ifdef __BOOT__
 typedef void* STREAM;
+#elif defined(__APP__)
+typedef FILE* STREAM;
 #endif
 
 enum {

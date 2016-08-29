@@ -64,7 +64,7 @@ OS_INITER;
 #   define SCRIPT_PUSH      SCRIPT_FILE("jlog/push.cb")
 #endif
 
-static char RX[1 + JLOGD_BUFSIZE];
+static char jlogb[1 + JLOGD_BUFSIZE];
 
 typedef struct {
     char *name;
@@ -228,7 +228,7 @@ jadd(jlog_server_t *server)
     int len = 0, pri, err;
     jobj_t obj, header, opri;
     
-    obj = jobj(RX);
+    obj = jobj(jlogb);
     if (NULL==obj) {
         len = -EBADJSON; goto error;
     }
@@ -272,10 +272,10 @@ jadd(jlog_server_t *server)
     }
     len = os_strlen(json);
     
-    os_strmcpy(RX, json, len);
+    os_strmcpy(jlogb, json, len);
     
     if (pri <= ak_var_get(&jlogd.pri)) {
-        os_system(SCRIPT_PUSH " '%s' &", RX);
+        os_system(SCRIPT_PUSH " '%s' &", jlogb);
     }
     
 error:
@@ -291,7 +291,7 @@ jhandle(jlog_server_t *server)
     os_sockaddr_t client = OS_SOCKADDR_INITER(server->family);
     socklen_t addrlen = os_sockaddr_len(&client.c);
     
-    len = __io_recvfrom(server->fd, RX, sizeof(RX), 0, &client.c, &addrlen);
+    len = __io_recvfrom(server->fd, jlogb, sizeof(jlogb), 0, &client.c, &addrlen);
     if (len<0) {
         debug_error("read error:%d", len);
         return len;
@@ -303,8 +303,8 @@ jhandle(jlog_server_t *server)
         debug_trace("recv from:%s", get_abstract_path(&client.un));
     }
     
-    RX[len] = 0;
-    debug_trace("read:%s, len:%d", RX, len);
+    jlogb[len] = 0;
+    debug_trace("read:%s, len:%d", jlogb, len);
 
     err = jadd(server);
     if (err<0) { /* yes, <0 */
@@ -313,12 +313,12 @@ jhandle(jlog_server_t *server)
         len = err;
     }
 
-    RX[len++] = '\n';
-    RX[len] = 0;
+    jlogb[len++] = '\n';
+    jlogb[len] = 0;
 
-    err = os_fwrite(server->log.stream, RX, len);
+    err = os_fwrite(server->log.stream, jlogb, len);
         debug_trace_error(err, "write %s", server->log.envar->value);
-    err = os_fwrite(server->cache.stream, RX, len);
+    err = os_fwrite(server->cache.stream, jlogb, len);
         debug_trace_error(err, "write %s", server->cache.envar->value);
 
     server->log.count++;
