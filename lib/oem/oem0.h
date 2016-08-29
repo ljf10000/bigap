@@ -1,11 +1,11 @@
 #ifndef __OEM0_H_1ff3b93b24154b88bca8102eee0e5eb7__
 #define __OEM0_H_1ff3b93b24154b88bca8102eee0e5eb7__
 /******************************************************************************/
-#define OEM_NAME                PRODUCT_VENDOR
+#define OEM_NAME                PRODUCT_Vendor
 
 #define OEM_LSS_USER            "LSS"
 #define OEM_LSS_PWD             "LTEFISecurityServer2012-2015"
-#define OEM_LSS_SERVER          "lms4." OEM_NAME ".com"
+#define OEM_LSS_SERVER          "lms4." PRODUCT_VENDOR ".com"
 #define OEM_LSS_PORT            "9999"
 
 #define OEM_LSS_INITER __OEM_LSS_INITER( \
@@ -17,7 +17,7 @@
 #define OEM_RSYNC_USER          "rsync"
 #define OEM_RSYNC_PWDFILE       "bHRlZmlWMnJzeW5jUFdECg=="
 #define OEM_RSYNC_PATH          "version/lte-fi" __SYMBOL_TO_STRING(PRODUCT_LTEFI_VERSION) "/mdboard"
-#define OEM_RSYNC_SERVER        "lms3." OEM_NAME ".com"
+#define OEM_RSYNC_SERVER        "lms3." PRODUCT_VENDOR ".com"
 #define OEM_RSYNC_PORT          "873"
 #define OEM_RSYNC_TIMEOUT       "300"
 
