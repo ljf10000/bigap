@@ -138,7 +138,7 @@ __fcookie_file_create(fcookie_file_t *cert, char *tmp_file)
 }
 #endif
 
-static char *
+static inline char *
 __fcookie_file(int id, char *tmp_file)
 {
     /*
@@ -163,7 +163,7 @@ __fcookie_file(int id, char *tmp_file)
     return __fcookie_file_create(cert, tmp_file);
 }
 
-static char *
+static inline char *
 fcookie_file(int id)
 {
     static char tmp_file[1+FCOOKIE_FILE_LEN];
@@ -179,7 +179,7 @@ typedef struct {
     int count;
 } fcookie_domain_t;
 
-static char *
+static inline char *
 __fcookie_domain_get(char *domain)
 {
     static char *domains[] = {

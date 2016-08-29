@@ -370,10 +370,8 @@ ok(char *action)
 }
 
 static char *
-get_cert(int id)
+get_cert(int id, char cert[])
 {
-    static char cert[1+FCOOKIE_FILE_LEN];
-
     char *s = __fcookie_file(id, cert);
     if (NULL==s) {
         debug_error("no cert %d", id);
@@ -387,6 +385,7 @@ put_cert(char *cert)
 {
     if (cert[0]) {
         unlink(cert);
+        // os_system("rm -f %s &", cert);
     }
 }
 
@@ -397,9 +396,11 @@ do_report(int hack)
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
-    char *cert  = get_cert(FCOOKIE_LSS_CERT);
-    char *key   = get_cert(FCOOKIE_LSS_KEY);
-    if (NULL==cert || NULL==key) {
+    char cert[1+FCOOKIE_FILE_LEN] = {0};
+    char  key[1+FCOOKIE_FILE_LEN] = {0};
+    
+    if (NULL==get_cert(FCOOKIE_LSS_CERT, cert) || 
+        NULL==get_cert(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
 
@@ -473,9 +474,11 @@ do_register(void)
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
-    char *cert  = get_cert(FCOOKIE_LSS_CERT);
-    char *key   = get_cert(FCOOKIE_LSS_KEY);
-    if (NULL==cert || NULL==key) {
+    char cert[1+FCOOKIE_FILE_LEN] = {0};
+    char  key[1+FCOOKIE_FILE_LEN] = {0};
+    
+    if (NULL==get_cert(FCOOKIE_LSS_CERT, cert) || 
+        NULL==get_cert(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
 
@@ -554,9 +557,11 @@ do_auth(void)
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
-    char *cert  = get_cert(FCOOKIE_LSS_CERT);
-    char *key   = get_cert(FCOOKIE_LSS_KEY);
-    if (NULL==cert || NULL==key) {
+    char cert[1+FCOOKIE_FILE_LEN] = {0};
+    char  key[1+FCOOKIE_FILE_LEN] = {0};
+    
+    if (NULL==get_cert(FCOOKIE_LSS_CERT, cert) || 
+        NULL==get_cert(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
     
@@ -701,9 +706,11 @@ do_cmd(void)
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
-    char *cert  = get_cert(FCOOKIE_LSS_CERT);
-    char *key   = get_cert(FCOOKIE_LSS_KEY);
-    if (NULL==cert || NULL==key) {
+    char cert[1+FCOOKIE_FILE_LEN] = {0};
+    char  key[1+FCOOKIE_FILE_LEN] = {0};
+    
+    if (NULL==get_cert(FCOOKIE_LSS_CERT, cert) || 
+        NULL==get_cert(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
     
@@ -717,8 +724,6 @@ do_cmd(void)
             cert, key,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
-    unlink(cert);
-    unlink(key);
     if (err<0) {
         debug_error("curl err(%d)", err);
         err = -ECURLFAIL; goto error;
