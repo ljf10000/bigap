@@ -108,7 +108,7 @@ __ev(struct um_user *user, char *action)
         return -ENOEXIST;
     }
 
-    os_p_system(UMD_SCRIPT_EVENT " %s '%s' &", 
+    os_system(UMD_SCRIPT_EVENT " %s '%s' &", 
         action,
         jobj_json(juser));
     jobj_put(juser);
