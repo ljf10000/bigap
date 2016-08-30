@@ -716,7 +716,12 @@ do_cmd(void)
     
     err = os_v_pgets(line, OS_LINE_LEN, 
             "curl"
-                " -d '{\"mac\":\"%s\",\"mid\":%d,\"psn\":%d,\"guid\":\"%s\"}'"
+                " -d '{"
+                    "\"mac\":\"%s\","
+                    "\"mid\":%d,"
+                    "\"psn\":%d,"
+                    "\"guid\":\"%s\""
+                "}'"
                 " -k --cert %s --key %s"
                 " -u %s:%s"
                 " -s https://%s:%s/" SERVICE_COMMAND,
