@@ -257,9 +257,8 @@ benv_boot_check(void)
             __benv_deft_info();
         }
         __benv_deft_cookie();
-        
+
         benv_save();
-        
         benv_show_cookie();
     }
 }
@@ -397,7 +396,7 @@ benv_boot_save(void)
     }
 }
 
-void
+static void
 md_boot_init(void)
 {    
     bcookie_fake(&botp.header);
