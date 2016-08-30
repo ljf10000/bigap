@@ -535,6 +535,11 @@ static inline void
 benv_dirty_byidx(int idx)
 {
     __benv_dirty[idx] = true;
+#ifdef __BOOT__
+    extern bool bootenv_dirty;
+
+    bootenv_dirty = true;
+#endif
     
     debug_trace("set block[%d] dirty", idx);
 }
