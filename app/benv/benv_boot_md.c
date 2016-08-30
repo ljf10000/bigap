@@ -24,37 +24,52 @@ static struct bcookie_cid bcid = BCOOKIE_OBJ(BCOOKIE_CID);
 static int 
 __read_emmc(uint32 begin, void *buf, int count)
 {
+    int err, ret;
+    
     struct mmc *mmc = find_mmc_device(0);
-    int ret;
-
     if (!mmc) {
-        debug_error("init mmc error");
+        os_println("find mmc error");
+        
         return -EINVAL;
     }
 
-    mmc_init(mmc);
+    err = mmc_init(mmc);
+    if (err) {
+        os_println("init mmc error");
 
+        return native_error(err);
+    }
+    
     ret = mmc->block_dev.block_read(0, begin, count, buf);
     if (ret != count){
-        debug_error("read emmc(block) error, begin:0x%x, count:0x%x", begin, count);
+        os_println("read emmc(block) error, begin:0x%x, count:0x%x", begin, count);
+        
         return -EIO;
     }
 
+    debug_ok("read emmc(block) ok, begin:0x%x, count:0x%x", begin, count);
+    
     return ret << 9;
 }
 
 static int 
 __write_emmc(uint32 begin, void *buf, int count)
 {
+    int err, ret;
     struct mmc *mmc = find_mmc_device(0);
-    int ret;
 
     if (!mmc) {
-        os_println("init mmc error");
+        os_println("find mmc error");
+        
         return -EINVAL;
     }
 
-    mmc_init(mmc);
+    err = mmc_init(mmc);
+    if (err) {
+        os_println("init mmc error");
+
+        return native_error(err);
+    }
     
     ret = mmc->block_dev.block_write(0, begin, count, buf);
     if (ret != count) {
@@ -63,7 +78,6 @@ __write_emmc(uint32 begin, void *buf, int count)
     }
 
     debug_ok("write emmc(block) ok, begin:0x%x, count:0x%x", begin, count);
-    benv_println("write emmc(block) ok, begin:0x%x, count:0x%x", begin, count);
     
     return ret << 9;
 }
@@ -370,14 +384,17 @@ benv_boot_select(void)
 static void
 benv_boot_save(void)
 {
-    benv_save();
-    
     if (bootenv_dirty) {
+        os_println("bootenv update ...");
+        
         env_crc_update();
         saveenv();
 
         bootenv_dirty = false;
+        os_println("bootenv update ok.");
     }
+    
+    benv_save();
 }
 
 void
