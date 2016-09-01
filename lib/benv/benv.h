@@ -2446,12 +2446,12 @@ benv_check_os(void)
     os_firmware_foreach_all(i) {
         if (false==is_benv_good_rootfs(i)) {
             __benv_errno = -1;
-            os_println("bad rootfs%d");
+            os_println("bad rootfs%d", i);
         }
         
         if (false==is_benv_good_kernel(i)) {
             __benv_errno = -1;
-            os_println("bad kernel%d");
+            os_println("bad kernel%d", i);
         }
     }
 }
