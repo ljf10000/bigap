@@ -2110,6 +2110,8 @@ benv_check_crc(void)
 
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         crc32 = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
+        debug_trace("calc block[%d] crc[0x%x]", i, crc32);
+        
         if (crc[i] != crc32) {
             __benv_errno = -1;
 
