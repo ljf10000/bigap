@@ -108,7 +108,7 @@ DECLARE_FAKE_JDEBUGGER;
     _(____ak_debug_blob,    22,"blob"),     \
     _(____ak_debug_json,    23,"json"),     \
     _(____ak_debug_cli,     24,"cli"),      \
-    _(____ak_debug_r1,      25,"crc"),      \
+    _(____ak_debug_crc,     25,"crc"),      \
     _(____ak_debug_r2,      26,"r2"),       \
     _(____ak_debug_r3,      27,"r3"),       \
     _(____ak_debug_test,    28,"test"),     \
