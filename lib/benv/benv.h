@@ -2278,13 +2278,13 @@ benv_load_info(void)
 static inline int
 __benv_saveby(int begin, int end)
 {
-    int i, err;
+    int i, err = 0;
 
     for (i=begin; i<end; i++) {
         err = __benv_save(i);
     }
 
-    err = __benv_save(BENV_MARK);
+    return err;
 }
 
 static inline int
@@ -2309,6 +2309,18 @@ benv_saveone(int idx)
 static inline int benv_save_nothing(void) {return 0;}
 
 static inline int
+benv_save_info(void)
+{
+    int err = 0;
+
+    __benv_saveby(BENV_INFO, BENV_BLOCK_COUNT);
+
+    err = benv_save_mark();
+
+    return err;
+}
+
+static inline int
 benv_save(void)
 {
     int i, err = 0;
@@ -2320,7 +2332,7 @@ benv_save(void)
     */
     __benv_saveby(0, BENV_MARK);
     __benv_saveby(1+BENV_MARK, BENV_BLOCK_COUNT);
-    err = benv_saveone(BENV_MARK);
+    err = benv_save_mark();
 
     return err;
 }
