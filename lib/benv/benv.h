@@ -2126,14 +2126,13 @@ benv_check_crc(void)
 static inline void
 benv_test_crc(void)
 {
-    uint32 crc[BENV_BLOCK_COUNT] = {0};
-    uint32 crc32;
+    uint32 crc;
     int i, j;
 
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         for (j=0; j<3; j++) {
-            crc32 = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
-            os_println("calc block[%d] crc[0x%x]", i, crc32);
+            crc = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
+            os_println("calc block[%d] crc[0x%x]", i, crc);
         }
     }
 }
