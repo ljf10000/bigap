@@ -502,7 +502,7 @@ extern benv_control_t benv_control;
 /*
 * idx is block index
 */
-#define benv_block(_idx)    ((char *)(&__benv_env) + (_idx)*BENV_BLOCK_SIZE)
+#define benv_block(_idx)    ((char *)(__benv_env) + (_idx)*BENV_BLOCK_SIZE)
 
 #define benv_mark(_idx)     __benv_mark->var[_idx]
 #define benv_info(_idx)     __benv_info->var[_idx]
@@ -2154,13 +2154,16 @@ benv_calc_crc(void)
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         crc = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
         os_println("calc block[%d] crc[0x%x]", i, crc);
-
+#if 0
         for (j=0; j<BENV_BLOCK_SIZE; j++) {
             os_printf("%.2x", (byte)benv_block(i)[j]);
         }
         os_printf(__crlf);
+#else
+        __os_dump_buffer(benv_block(i), BENV_BLOCK_SIZE, NULL);
+#endif
     }
-
+#if 0
     char buf[] =    "0000"
                     "1111"
                     "2222"
@@ -2198,6 +2201,7 @@ benv_calc_crc(void)
                     "yyyy"
                     "zzzz";
     __os_dump_buffer(buf, sizeof(buf), NULL);
+#endif
 }
 
 static inline void
