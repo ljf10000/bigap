@@ -2154,6 +2154,7 @@ benv_calc_crc(void)
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         crc = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
         os_println("calc block[%d] crc[0x%x]", i, crc);
+        __os_dump_buffer(benv_block(i), BENV_BLOCK_SIZE, NULL);
     }
 }
 
