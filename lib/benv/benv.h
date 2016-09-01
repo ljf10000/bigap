@@ -2163,7 +2163,7 @@ benv_update_crc(void)
     uint32 crc[BENV_BLOCK_COUNT] = {0};
     int i;
 
-    benv_crc_clean(crc);
+    benv_crc_clean();
 
     for (i=0; i<BENV_MARK; i++) {
         crc[i] = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
