@@ -453,7 +453,7 @@ typedef struct {
     bool dirty[BENV_BLOCK_COUNT];
     char *self;
     int fd;
-    int errno;
+    int error;
 } benv_control_t;
 
 #define __BENV_CONTROL_INITER(_env, _ops, _cache) {   \
@@ -483,7 +483,7 @@ typedef struct {
 extern benv_control_t benv_control;
 #define __benv_control    (&benv_control)
 
-#define __benv_errno        __benv_control->errno
+#define __benv_errno        __benv_control->error
 #define __benv_fd           __benv_control->fd
 #define __benv_env          __benv_control->env
 #define __benv_ops          __benv_control->ops
@@ -2042,7 +2042,7 @@ benv_command(int argc, char *argv[])
 }
 
 static inline void
-benv_crc_save(int crc[])
+benv_crc_save(uint32 crc[])
 {
     int i;
     
@@ -2053,7 +2053,7 @@ benv_crc_save(int crc[])
 }
 
 static inline void
-benv_crc_restore(int crc[], int begin, int end)
+benv_crc_restore(uint32 crc[], int begin, int end)
 {
     int i;
     
