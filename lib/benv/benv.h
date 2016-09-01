@@ -2154,54 +2154,9 @@ benv_calc_crc(void)
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         crc = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
         os_println("calc block[%d] crc[0x%x]", i, crc);
-#if 0
-        for (j=0; j<BENV_BLOCK_SIZE; j++) {
-            os_printf("%.2x", (byte)benv_block(i)[j]);
-        }
-        os_printf(__crlf);
-#else
+
         __os_dump_buffer(benv_block(i), BENV_BLOCK_SIZE, NULL);
-#endif
     }
-#if 0
-    char buf[] =    "0000"
-                    "1111"
-                    "2222"
-                    "3333"
-                    "4444"
-                    "5555"
-                    "6666"
-                    "7777"
-                    "8888"
-                    "9999"
-                    "aaaa"
-                    "bbbb"
-                    "cccc"
-                    "dddd"
-                    "eeee"
-                    "ffff"
-                    "gggg"
-                    "hhhh"
-                    "iiii"
-                    "jjjj"
-                    "kkkk"
-                    "llll"
-                    "mmmm"
-                    "nnnn"
-                    "oooo"
-                    "pppp"
-                    "qqqq"
-                    "rrrr"
-                    "ssss"
-                    "tttt"
-                    "uuuu"
-                    "vvvv"
-                    "wwww"
-                    "xxxx"
-                    "yyyy"
-                    "zzzz";
-    __os_dump_buffer(buf, sizeof(buf), NULL);
-#endif
 }
 
 static inline void
