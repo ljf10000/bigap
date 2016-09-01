@@ -38,6 +38,7 @@ BENV_INITER;
 #define SCRIPT_USBUPGRADE_FAIL      SCRIPT_FILE("usbupgrade/fail.cb")
 
 #define __FILE_VERSION              "etc/" PRODUCT_FILE_VERSION
+#define __FILE_BOOTENV              "data/.backup/bootenv"
 #define __FILE_ROOTFS_VERSION       __FILE_VERSION
 #define __FILE_KERNEL_VERSION       __FILE_VERSION
 #define __BIN_MD_PQPARAM            "image/" PRODUCT_BIN_MD_PQPARAM
@@ -49,6 +50,7 @@ BENV_INITER;
 #define __BIN_AP_BOOTENV            "image/" PRODUCT_BIN_AP_BOOTENV
 #define __BIN_AP_FIRMWARE           "image/" PRODUCT_BIN_AP_FIRMWARE
 
+#define FILE_BOOTENV                PRODUCT_FILE(__FILE_BOOTENV)
 #define FILE_ROOTFS_VERSION         PRODUCT_FILE(__FILE_ROOTFS_VERSION)
 #define FILE_KERNEL_VERSION         PRODUCT_FILE(__FILE_KERNEL_VERSION)
 #define BIN_MD_PQPARAM              PRODUCT_FILE(__BIN_MD_PQPARAM)
@@ -204,6 +206,25 @@ rootfs_file(int idx, char *file)
 #else
 #define sys_println(_fmt, _args...)     os_do_nothing()
 #endif
+
+static int
+__crc(void)
+{
+    benv_check_crc();
+    if (__benv_errno<0) {
+        jcrit("%s%s", 
+            "crc-check", "failed",
+            "todo", "crc-restore");
+
+        bdd("restore", "bootenv", PRODUCT_DEV_BOOTENV, FILE_BOOTENV);
+
+        os_p_system("(sleep 5; sysreboot) &");
+
+        return -EBADCRC;
+    }
+
+    return 0;
+}
 
 static int
 __dd(char *dst, char *src)
@@ -416,12 +437,14 @@ do_mount_wait(int wait, char *dev, char *dir, bool check, bool readonly, bool re
     return -ENOEXIST;
 }
 
+#define MOUNT0 0
+
 static int
 mount_double(
     char *name, char *dir_master,
     char *dev0, char *dir0,
     char *dev1, char *dir1,
-    int *master
+    int *imaster
 )
 {
     int err;
@@ -436,6 +459,12 @@ mount_double(
             true,   /* check    */
             false,  /* readonly */
             true);  /* repair   */
+#if MOUNT0
+    do_mount(dev0, dir0, 
+            false,  /* check    */
+            false,  /* readonly */
+            false); /* repair   */
+#endif
 
     if (err0 || err1) {
         trace_assert(0, "mount %s error:%d and %s error:%d", dev0, err0, dev1, err1);
@@ -445,12 +474,11 @@ mount_double(
     else if (err0) {
         __xcopy(dir0, dir1);
     }
-    
     else if (err1) {
         __xcopy(dir1, dir0);
     }
     
-    *master = 0;
+    *imaster = 0;
     
     return 0;
 }
@@ -553,15 +581,14 @@ umount_double(char *dir_master, char *dir0, char *dir1)
         /* log */
     }
 
-    err = do_umount(dir0);
-    if (err<0) {
-        /* log */
-    }
-
     err = do_umount(dir1);
     if (err<0) {
         /* log */
     }
+
+#if MOUNT0
+    do_umount(dir0);
+#endif
 
     return err;
 }
@@ -720,7 +747,7 @@ save(void)
 static int
 load(void)
 {
-    return os_callv(benv_open, benv_close, benv_load_os);
+    return os_callv(benv_open, benv_close, benv_load);
 }
 
 /*
@@ -980,14 +1007,14 @@ kdd_byfile(int idx, char *file, benv_version_t *version)
 }
 
 static int
-bdd(char *obj, char *dev, char *file)
+bdd(char *action, char *obj, char *dev, char *file)
 {
     int err;
 
     err = __dd(dev, file);
     
     jinfo("%o",
-        "upgrade", jobj_oprintf("%s%s%s%s%d",
+        action, jobj_oprintf("%s%s%s%s%d",
                         "type", "local",
                         "obj", obj,
                         "src", file,
@@ -1323,13 +1350,13 @@ usbupgrade(void)
     }
 
     if (0==access(USB_BIN_MD_BOOT, 0)) {
-        bdd("boot", PRODUCT_DEV_BOOT, USB_BIN_MD_BOOT);
+        bdd("upgrade", "boot", PRODUCT_DEV_BOOT, USB_BIN_MD_BOOT);
 
         jinfo("%s", "usbupgrade", "boot");
     }
 
     if (0==access(USB_BIN_MD_BOOTENV, 0)) {
-        bdd("bootenv", PRODUCT_DEV_BOOTENV, USB_BIN_MD_BOOTENV);
+        bdd("upgrade", "bootenv", PRODUCT_DEV_BOOTENV, USB_BIN_MD_BOOTENV);
 
         jinfo("%s", "usbupgrade", "bootenv");
     }
@@ -1424,7 +1451,11 @@ super_startup(void)
     
     os_println("super startup");
     jcrit("%s%d", "superstartup", "begin");
-        
+
+    if (__crc()<0) {
+        return 0;
+    }
+    
     /*
     * 1. find best rootfs
     */
@@ -1450,7 +1481,8 @@ super_startup(void)
     
     jcrit("%s", "superstartup", "end");
     switch_to(best);
-    
+
+reboot:
     return os_p_system("(sleep 5; sysreboot) &");
 }
 
@@ -1493,13 +1525,17 @@ super_startup(void)
 static int
 normal_startup(void)
 {
+    os_println("normal startup");
+    jinfo("%s", "startup", "normal");
+    
+    if (__crc()<0) {
+        return 0;
+    }
+    
     __normal_startup(rootfs);
     __normal_startup(kernel);
 
     save();
-    
-    os_println("normal startup");
-    jinfo("%s", "startup", "normal");
     
     return 0;
 }
