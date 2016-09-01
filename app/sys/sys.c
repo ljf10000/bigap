@@ -208,25 +208,6 @@ rootfs_file(int idx, char *file)
 #endif
 
 static int
-__crc(void)
-{
-    benv_check_crc();
-    if (__benv_errno<0) {
-        jcrit("%s%s", 
-            "crc-check", "failed",
-            "todo", "crc-restore");
-
-        bdd("restore", "bootenv", PRODUCT_DEV_BOOTENV, FILE_BOOTENV);
-
-        os_p_system("(sleep 5; sysreboot) &");
-
-        return -EBADCRC;
-    }
-
-    return 0;
-}
-
-static int
 __dd(char *dst, char *src)
 {
     return os_p_system("dd if=%s of=%s bs=4096", src, dst);
@@ -1007,18 +988,18 @@ kdd_byfile(int idx, char *file, benv_version_t *version)
 }
 
 static int
-bdd(char *action, char *obj, char *dev, char *file)
+bdd(char *action, char *obj, char *dst, char *src)
 {
     int err;
 
-    err = __dd(dev, file);
+    err = __dd(dst, src);
     
     jinfo("%o",
         action, jobj_oprintf("%s%s%s%s%d",
                         "type", "local",
                         "obj", obj,
-                        "src", file,
-                        "dst", dev,
+                        "src", src,
+                        "dst", dst,
                         "error", err));
 
     return err;
@@ -1441,6 +1422,25 @@ usbupgrade(void)
     return 0;
 }
 
+static int
+__crc(void)
+{
+    benv_check_crc();
+    if (__benv_errno<0) {
+        jcrit("%s%s", 
+            "crc-check", "failed",
+            "todo", "crc-restore");
+
+        bdd("restore", "bootenv", PRODUCT_DEV_BOOTENV, FILE_BOOTENV);
+
+        os_p_system("(sleep 5; sysreboot) &");
+
+        return -EBADCRC;
+    }
+
+    return 0;
+}
+
 /*
 * just repair one firmware with the best rootfs
 */
@@ -1536,6 +1536,11 @@ normal_startup(void)
     __normal_startup(kernel);
 
     save();
+
+    /*
+    * benv is ok, backup it
+    */
+    bdd("restore", "bootenv", FILE_BOOTENV, PRODUCT_DEV_BOOTENV);
     
     return 0;
 }
