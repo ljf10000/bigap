@@ -108,7 +108,7 @@ DECLARE_FAKE_JDEBUGGER;
     _(____ak_debug_blob,    22,"blob"),     \
     _(____ak_debug_json,    23,"json"),     \
     _(____ak_debug_cli,     24,"cli"),      \
-    _(____ak_debug_r1,      25,"r1"),       \
+    _(____ak_debug_r1,      25,"crc"),      \
     _(____ak_debug_r2,      26,"r2"),       \
     _(____ak_debug_r3,      27,"r3"),       \
     _(____ak_debug_test,    28,"test"),     \
@@ -145,6 +145,7 @@ enum {
     __ak_debug_blob     = os_bit(____ak_debug_blob),
     __ak_debug_json     = os_bit(____ak_debug_json),
     __ak_debug_cli      = os_bit(____ak_debug_cli),
+    __ak_debug_crc      = os_bit(____ak_debug_crc),
     __ak_debug_test     = os_bit(____ak_debug_test),
 
     __ak_debug_all      = os_mask(____ak_debug_end),
@@ -229,6 +230,7 @@ __ak_debug_getname(uint32 level)
 #define __is_ak_debug_blob      __is_ak_debug(__ak_debug_blob)
 #define __is_ak_debug_json      __is_ak_debug(__ak_debug_json)
 #define __is_ak_debug_cli       __is_ak_debug(__ak_debug_cli)
+#define __is_ak_debug_crc       __is_ak_debug(__ak_debug_crc)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
 #define __XLIST_AK_SYS(_) \
