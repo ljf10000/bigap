@@ -2124,16 +2124,59 @@ benv_check_crc(void)
 }
 
 static inline void
-benv_test_crc(void)
+benv_show_crc(void)
+{
+    int i;
+
+    for (i=0; i<BENV_MARK; i++) {
+        os_println("block[%d] crc[0x%x]", i, benv_mark_get(__benv_mark_crc+i));
+    }
+}
+
+static inline void
+benv_crc_clean(void)
+{
+    int i;
+    
+    for (i=0; i<BENV_BLOCK_COUNT; i++) {
+        benv_mark(__benv_mark_crc+i) = 0;
+    }
+}
+
+static inline void
+benv_calc_crc(void)
 {
     uint32 crc;
-    int i, j;
+    int i;
+
+    benv_crc_clean();
 
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
-        for (j=0; j<3; j++) {
-            crc = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
-            os_println("calc block[%d] crc[0x%x]", i, crc);
-        }
+        crc = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
+        os_println("calc block[%d] crc[0x%x]", i, crc);
+    }
+}
+
+static inline void
+benv_update_crc(void)
+{
+    uint32 crc[BENV_BLOCK_COUNT] = {0};
+    int i;
+
+    benv_crc_clean(crc);
+
+    for (i=0; i<BENV_MARK; i++) {
+        crc[i] = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
+    }
+
+    for (i=1+BENV_MARK; i<BENV_BLOCK_COUNT; i++) {
+        crc[i] = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
+    }
+    crc[BENV_MARK] = os_crc32(benv_block(BENV_MARK), BENV_BLOCK_SIZE);
+
+    for (i=0; i<BENV_BLOCK_COUNT; i++) {
+        benv_mark_set(__benv_mark_crc+i, crc[i]);
+        os_println("update block[%d] crc[0x%x]", i, crc[i]);
     }
 }
 
@@ -2853,6 +2896,7 @@ benv_cmd_hiden(int argc, char *argv[])
         __benv_cmd_item("show",     "path",     benv_show_path),
         __benv_cmd_item("show",     "hide",     benv_show_hide),
         __benv_cmd_item("show",     "all",      benv_show_all),
+        __benv_cmd_item("show",     "crc",      benv_show_crc),
         
         __benv_cmd_item("check",    "os",       benv_check_os),
         __benv_cmd_item("check",    "crc",      benv_check_crc),
@@ -2866,7 +2910,8 @@ benv_cmd_hiden(int argc, char *argv[])
         __benv_cmd_item("clean",    "info",     __benv_clean_info),
         __benv_cmd_item("clean",    "all",      __benv_clean),
 
-        __benv_cmd_item("test",     "crc",      benv_test_crc),
+        __benv_cmd_item("calc",     "crc",      benv_calc_crc),
+        __benv_cmd_item("update",   "crc",      benv_update_crc),
     };
 #undef __benv_cmd_item
     char *action    = argv[1];

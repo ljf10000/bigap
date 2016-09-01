@@ -113,6 +113,7 @@ DECLARE_FAKE_JDEBUGGER;
     _(____ak_debug_r3,      27,"r3"),       \
     _(____ak_debug_test,    28,"test"),     \
     /* end */
+    /* 29/30/31 reserved for log pri */
 
 static inline bool is_good_ak_DEBUG(int id);
 static inline char *ak_DEBUG_string(int id);
