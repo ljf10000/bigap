@@ -127,8 +127,8 @@ __benv_load(int idx /* benv's block */)
 int
 __benv_save(int idx /* benv's block */)
 {
-    void *obj   = (char *)__benv_env + offset;
     int offset  = BENV_BLOCK_SIZE * idx;
+    void *obj   = (char *)__benv_env + offset;
     
     if (false==__benv_dirty[idx]) {
         return 0;
