@@ -2,20 +2,21 @@
 #define __BUILDIN_H_1e8d76851e034897b63a0defba950e58__
 /******************************************************************************/
 #if defined(__BOOT__) || defined(__APP__)
-/* Force a compilation error if condition is true */
-#ifndef BUILD_BUG_ON
-#define BUILD_BUG_ON(_condition)            ((void)BUILD_BUG_ON_ZERO(_condition))
-#endif
 /* Force a compilation error if condition is true, but also produce a
    result (of value 0 and type size_t), so the expression can be used
    e.g. in a structure initializer (or where-ever else comma expressions
    aren't permitted). */
 #ifndef BUILD_BUG_ON_ZERO
-#define BUILD_BUG_ON_ZERO(_condition)       (sizeof(struct { int:-!!(_condition); }))
+#define BUILD_BUG_ON_ZERO(_condition)       sizeof(struct { int:-!!(_condition); })
 #endif
 
 #ifndef BUILD_BUG_ON_NULL
-#define BUILD_BUG_ON_NULL(_condition)       ((void *)sizeof(struct { int:-!!(_condition); }))
+#define BUILD_BUG_ON_NULL(_condition)       ((void *)BUILD_BUG_ON_ZERO(_condition))
+#endif
+
+/* Force a compilation error if condition is true */
+#ifndef BUILD_BUG_ON
+#define BUILD_BUG_ON(_condition)            ((void)BUILD_BUG_ON_ZERO(_condition))
 #endif
 
 #ifndef BUILD_BUG_NOT_ARRAY
@@ -68,7 +69,7 @@
 #endif
 
 #ifndef os_constructor
-#   ifdef __BUSYBOX__
+#   ifdef __ALLINONE__
 #       define os_constructor
 #   else
 #       define os_constructor   __attribute__((constructor))
@@ -76,7 +77,7 @@
 #endif
 
 #ifndef os_destructor
-#   ifdef __BUSYBOX__
+#   ifdef __ALLINONE__
 #       define os_destructor
 #   else
 #       define os_destructor    __attribute__((destructor))
@@ -281,13 +282,7 @@ static inline uint32 os_seq_offset(uint32 seq1, uint32 seq2)
     return offset;
 }
 
-#define __ERRNO(_err)   ((_err)<0?-errno:(_err))
-#define __errno(_err)   ({  \
-    int err_in___errno = (_err);     \
-    __ERRNO(err_in___errno);         \
-})
-
-#define os_callv(_new, _free, _call, _args...)  ({  \
+#define os_calln(_new, _free, _call, _args...)  ({  \
     int err_in___os_call = 0;                       \
     void *obj_in___os_call = (void *)_new();        \
     if (obj_in___os_call) {                         \
@@ -299,6 +294,16 @@ static inline uint32 os_seq_offset(uint32 seq1, uint32 seq2)
 })  /* end */
 
 static inline int os_call_nothing(void) { return 0; }
+
+#define os_callv(_begin, _end, _call)           ({ \
+    int err_in_os_callv = _begin();                 \
+    if (0==err_in_os_callv) {                       \
+        err_in_os_callv = _call();                  \
+    }                                               \
+    _end();                                         \
+                                                    \
+    err_in_os_callv;                                \
+})  /* end */
 
 #define os_call(_begin, _end, _call, _arg1, _args...) ({ \
     int err_in_os_call = _begin();                  \

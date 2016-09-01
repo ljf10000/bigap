@@ -203,7 +203,7 @@ typedef struct {
 typedef struct {    
     char mirror[HAENV_SIZE];
     
-    STREAM f;       // set @init
+    STREAM  f;      // set @init
     uint32  start;  // set @init
     uint32  id;
     uint32  seq;
@@ -236,7 +236,7 @@ typedef struct {
 #else
 #   define DECLARE_REAL_HAENV       haenv_file_t __THIS_HAENV
 #   define DECLARE_FAKE_HAENV       extern haenv_file_t __THIS_HAENV
-#   ifdef __BUSYBOX__
+#   ifdef __ALLINONE__
 #       define DECLARE_HAENV        DECLARE_FAKE_HAENV
 #   else
 #       define DECLARE_HAENV        DECLARE_REAL_HAENV
@@ -648,6 +648,14 @@ is_good_haee(haenv_t *env, haenv_entry_t *e)
     //return false==is_empty_haee(e) && is_good_haee_md5(env, e);
 }
 
+static inline void
+haee_dump(haenv_entry_t *e)
+{
+#if HAENV_PRINT
+    __os_dump_buffer(e, haee_size(e), NULL);
+#endif
+}
+
 static inline int
 haee_set(haenv_t *env, haenv_entry_t *e, char *k, char *v, bool dirty)
 {
@@ -800,9 +808,7 @@ hae_check(haenv_t *env)
                 env->count, 
                 hae_offsetof(env, e), 
                 env->saved);
-#if HAENV_PRINT
-            __os_dump_buffer(e, haee_size(e), NULL);
-#endif
+            haee_dump(e);
 
             env->count++;
             env->seq = e->seq;
@@ -811,9 +817,7 @@ hae_check(haenv_t *env)
             haenv_println("env[%d] damaged offset==>0x%x", 
                 env->id, 
                 hae_offsetof(env, e));
-#if HAENV_PRINT
-            __os_dump_buffer(e, haee_size(e), NULL);
-#endif
+            haee_dump(e);
             
             env->damaged = true;
             

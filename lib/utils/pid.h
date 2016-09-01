@@ -9,7 +9,7 @@ typedef struct {
 #define DECLARE_REAL_DEAMON         deamon_t __THIS_DEAMON
 #define DECLARE_FAKE_DEAMON         extern deamon_t __THIS_DEAMON
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_DEAMON           DECLARE_FAKE_DEAMON
 #else
 #   define DECLARE_DEAMON           DECLARE_REAL_DEAMON

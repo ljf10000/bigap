@@ -371,11 +371,7 @@ write_file(struct ntlg_info *info, FILE *fd)
 	return 0;
 }
 
-#ifndef __BUSYBOX__
-#define natlog_main  main
-#endif
-
-int natlog_main(int  argc, char **argv)
+int allinone_main(int argc, char *argv[])
 {
 	char *file1, *file2, *outpath;
 	FILE *fd;

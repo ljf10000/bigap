@@ -116,6 +116,8 @@ __benv_load(int idx /* benv's block */)
     void *obj   = (char *)__benv_env + offset;
     
     if (BENV_BLOCK_SIZE==benv_emmc_read(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
+        __benv_dirty[idx] = false;
+        
         return 0;
     } else {
         return -EIO;
@@ -125,19 +127,29 @@ __benv_load(int idx /* benv's block */)
 int
 __benv_save(int idx /* benv's block */)
 {
-    int offset  = BENV_BLOCK_SIZE * idx;
     void *obj   = (char *)__benv_env + offset;
+    int offset  = BENV_BLOCK_SIZE * idx;
+    
+    if (false==__benv_dirty[idx]) {
+        return 0;
+    }
+
+    benv_crc(idx);
 
     benv_println("benv save block:%d ...", idx);
-    if (BENV_BLOCK_SIZE==benv_emmc_write(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
-        benv_println("benv save block:%d ok", idx);
-        
-        return 0;
-    } else {
-        benv_println("benv save block:%d error");
-        
+    if (BENV_BLOCK_SIZE!=benv_emmc_write(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
+        benv_println("benv save block:%d error", idx);
+        debug_error("benv save block:%d error", idx);
+
         return -EIO;
     }
+    
+    benv_println("benv save block:%d ok", idx);
+    debug_ok("benv save block:%d ok", idx);
+
+    __benv_dirty[idx] = false;
+    
+    return 0;
 }
 
 static bool
@@ -209,7 +221,7 @@ change_bootargs(void)
         [6] = "19",
     };
 
-    char *rootrw = benv_info_get(__benv_info_pcba_rootrw);
+    char *rootrw = benv_info(__benv_info_pcba_rootrw);
     if (false==os_streq(rootrw, PRODUCT_ROOTFS_RW) && 
         false==os_streq(rootrw, PRODUCT_ROOTFS_RO)) {
         rootrw = PRODUCT_ROOTFS_MODE;
@@ -335,7 +347,7 @@ benv_select(void)
     if (is_benv_good_firmware(buddy)) {
         os_println("buddy firmware%d is good", buddy);
 
-        __benv_current = buddy;
+        benv_current_set(buddy);
         
         goto selected;
     }
@@ -350,7 +362,7 @@ benv_select(void)
     if (is_benv_good_firmware(best)) {
         os_println("the best firmware%d is good", best);
 
-        __benv_current = best;
+        benv_current_set(best);
         
         goto selected;
     }
@@ -362,11 +374,10 @@ benv_select(void)
     * force 0
     */
     os_println("force firmware0");
-    __benv_current = 0;
+    benv_current_set(0);
 
 selected:
-    benv_rootfs(__benv_current)->error++;
-    benv_kernel(__benv_current)->error++;
+    benv_firmware_select(__benv_current);
     
     benv_mark_add(__benv_mark_uptimes, 1);
 }

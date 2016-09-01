@@ -348,7 +348,7 @@ enum {
 };
 
 typedef struct {
-    uint32 key[BENV_MARK_COUNT];
+    uint32 var[BENV_MARK_COUNT];
 } benv_mark_t; /* 512 */
 
 enum {
@@ -406,7 +406,7 @@ enum {
 
 typedef struct struct_benv_ops benv_ops_t;
 struct struct_benv_ops {
-    char *path;
+    char  *path;
     uint32 offset;
     uint32 type;
 
@@ -453,9 +453,10 @@ typedef struct {
     bool dirty[BENV_BLOCK_COUNT];
     char *self;
     int fd;
+    int errno;
 } benv_control_t;
 
-#define BENV_CONTROL_DEFT(_env, _ops, _cache) {   \
+#define __BENV_CONTROL_INITER(_env, _ops, _cache) {   \
     .env        = _env,                         \
     .ops        = _ops,                         \
     .cache      = _cache,                       \
@@ -464,35 +465,102 @@ typedef struct {
 }   /* end */
 
 
-#if !defined(__BUSYBOX__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
+#if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
 #   define BENV_INITER \
         static benv_env_t __benv; \
-        benv_control_t benv_control = BENV_CONTROL_DEFT(&__benv, NULL, NULL); \
+        benv_control_t benv_control = __BENV_CONTROL_INITER(&__benv, NULL, NULL); \
         os_fake_declare /* end */
 #else
 #   define BENV_INITER    os_fake_declare
 #endif
 
+#define BENV_CONTROL_INITER(_benv) \
+    static benv_ops_t __ops[]       = BENV_DEFT_OPS; \
+    static benv_cache_t __cache[os_count_of(__ops)]; \
+    benv_control_t benv_control     = __BENV_CONTROL_INITER(_benv, __ops, __cache); \
+    os_fake_declare /* end */
+
 extern benv_control_t benv_control;
 #define __benv_control    (&benv_control)
 
-#define __benv_fd         __benv_control->fd
-#define __benv_env        __benv_control->env
-#define __benv_ops        __benv_control->ops
-#define __benv_ops_count  __benv_control->ops_count
-#define __benv_show_count __benv_control->show_count
-#define __benv_self       __benv_control->self
-#define __benv_dirty      __benv_control->dirty
-#define __benv_cache      __benv_control->cache
-#define __benv_cookie     (&__benv_env->cookie)
-#define __benv_os         (&__benv_env->os)
-#define __benv_current    __benv_os->current
-#define __benv_firmware   __benv_os->firmware
-#define __benv_mark       (&__benv_env->mark)
-#define __benv_info       (&__benv_env->info)
+#define __benv_errno        __benv_control->errno
+#define __benv_fd           __benv_control->fd
+#define __benv_env          __benv_control->env
+#define __benv_ops          __benv_control->ops
+#define __benv_ops_count    __benv_control->ops_count
+#define __benv_show_count   __benv_control->show_count
+#define __benv_self         __benv_control->self
+#define __benv_dirty        __benv_control->dirty
+#define __benv_cache        __benv_control->cache
+#define __benv_cookie       (&__benv_env->cookie)
+#define __benv_os           (&__benv_env->os)
+#define __benv_current      __benv_os->current
+#define __benv_firmware     __benv_os->firmware
+#define __benv_mark         (&__benv_env->mark)
+#define __benv_info         (&__benv_env->info)
 
-#define benv_mark(_idx)   __benv_mark->key[_idx]
-#define benv_info(_idx)   __benv_info->var[_idx]
+/*
+* idx is block index
+*/
+#define benv_block(_idx)    ((char *)(&__benv_env) + (_idx)*BENV_BLOCK_SIZE)
+
+#define benv_mark(_idx)     __benv_mark->var[_idx]
+#define benv_info(_idx)     __benv_info->var[_idx]
+
+static inline void
+benv_dirty_byidx(int idx)
+{
+    __benv_dirty[idx] = true;
+#ifdef __BOOT__
+    extern bool bootenv_dirty;
+
+    bootenv_dirty = true;
+#endif
+    
+    debug_trace("set block[%d] dirty", idx);
+}
+
+static inline void
+benv_dirty_byzone(int begin, int end)
+{
+    int i;
+
+    for (i=begin; i<end; i++) {
+        benv_dirty_byidx(i);
+    }
+}
+#define benv_dirty_all()    benv_dirty_byzone(0, BENV_BLOCK_COUNT)
+#define benv_dirty_os()     benv_dirty_byidx(BENV_OS)
+#define benv_dirty_cookie() benv_dirty_byidx(BENV_COOKIE)
+#define benv_dirty_mark()   benv_dirty_byidx(BENV_MARK)
+#define benv_dirty_info()   benv_dirty_byzone(BENV_INFO, BENV_BLOCK_COUNT)
+
+static inline bool
+__is_benv_dirty(int begin, int end)
+{
+    int i;
+    
+    for (i = begin; i < end; i++) {
+        if (__benv_dirty[i]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+#define is_benv_dirty()         __is_benv_dirty(0, BENV_BLOCK_COUNT)
+#define is_benv_dirty_os()      __benv_dirty[BENV_OS]
+#define is_benv_dirty_cookie()  __benv_dirty[BENV_COOKIE]
+#define is_benv_dirty_mark()    __benv_dirty[BENV_MARK]
+#define is_benv_dirty_info()    __is_benv_dirty(BENV_INFO, BENV_BLOCK_COUNT)
+
+static inline void
+benv_current_set(int current)
+{
+    __benv_current = current;
+
+    benv_dirty_os();
+}
 
 static inline benv_ops_t *
 benv_ops(int idx)
@@ -532,19 +600,6 @@ benv_ops_version(benv_ops_t *ops)
 }
 
 static inline void
-benv_dirty_byidx(int idx)
-{
-    __benv_dirty[idx] = true;
-#ifdef __BOOT__
-    extern bool bootenv_dirty;
-
-    bootenv_dirty = true;
-#endif
-    
-    debug_trace("set block[%d] dirty", idx);
-}
-
-static inline void
 benv_dirty_byops(benv_ops_t *ops)
 {
     int offset = benv_ops_string(ops) - (char *)__benv_env;
@@ -552,21 +607,6 @@ benv_dirty_byops(benv_ops_t *ops)
 
     benv_dirty_byidx(idx);
 }
-
-static inline void
-benv_dirty_byzone(int begin, int end)
-{
-    int i;
-
-    for (i=begin; i<end; i++) {
-        benv_dirty_byidx(i);
-    }
-}
-#define benv_dirty_all()    benv_dirty_byzone(0, BENV_BLOCK_COUNT)
-#define benv_dirty_os()     benv_dirty_byidx(BENV_OS)
-#define benv_dirty_cookie() benv_dirty_byidx(BENV_COOKIE)
-#define benv_dirty_mark()   benv_dirty_byidx(BENV_MARK)
-#define benv_dirty_info()   benv_dirty_byzone(BENV_INFO, BENV_BLOCK_COUNT)
 
 static inline int
 benv_ops_check(benv_ops_t *ops, char *value)
@@ -646,6 +686,21 @@ benv_rootfs(int idx)
 }
 #define benv_obj(_obj, _idx)  benv_##_obj(_idx)
 
+#define benv_obj_set(_obj, _idx, _field, _value) do{ \
+    benv_obj(_obj, _idx)->_field = _value;  \
+                                            \
+    benv_dirty_os();                        \
+}while(0)
+
+static inline void
+benv_firmware_select(int current)
+{
+    benv_rootfs(current)->error++;
+    benv_kernel(current)->error++;
+
+    benv_dirty_os();
+}
+
 static inline bool
 is_benv_good_kernel(int idx)
 {
@@ -706,6 +761,11 @@ benv_rootfs_version(int idx)
 }
 #define benv_firmware_version(_idx)     benv_rootfs_version(_idx)
 #define benv_obj_version(_obj, _idx)    benv_##_obj##_version(_idx)
+#define benv_obj_version_save(_obj, _idx, _version) do{ \
+    os_objcpy(benv_obj_version(_obj, _idx), _version);  \
+                                                        \
+    benv_dirty_os();                                    \
+}while(0)
 
 static inline char *
 benv_kernel_version_string(int idx)
@@ -757,16 +817,27 @@ benv_firmware_version_cmp(int a, int b)
 enum {
     __benv_mark_ptest_control   = 0,
     __benv_mark_ptest_result    = 1,
-
-    __benv_mark_private         = 2,
-    __benv_mark_debug           = __benv_mark_private,
-    __benv_mark_uptimes         = 3,
+    __benv_mark_debug           = 2,
+    
+    __benv_mark_protect_begin   = 3,
+    __benv_mark_uptimes         = __benv_mark_protect_begin,
     __benv_mark_runtime         = 4,
     __benv_mark_cid_mid         = 5,
     __benv_mark_cid_psn         = 6,
     __benv_mark_noauth          = 7,
-    __benv_mark_jsdebug         = 8,
+    __benv_mark_protect_end     = 8,
+    __benv_mark_jdebug          = __benv_mark_protect_end,
 
+    __benv_mark_crc             = 10,
+    __benv_mark_crc0            = __benv_mark_crc,
+    __benv_mark_crc1            = 11,
+    __benv_mark_crc2            = 12,
+    __benv_mark_crc3            = 13,
+    __benv_mark_crc4            = 14,
+    __benv_mark_crc5            = 15,
+    __benv_mark_crc6            = 16,
+    __benv_mark_crc7            = 17,
+    
     __benv_mark_end
 };
 
@@ -1459,19 +1530,13 @@ __benv_check_string(benv_ops_t * ops, char *value)
     /* end */
 
 #define __BENV_MARK_OPS(_path, _idx, _check, _set, _show) \
-    BENV_OPS("marks/" _path, BENV_OPS_NUMBER, mark.key[_idx], _check, __benv_set_number, __benv_show_number)
+    BENV_OPS("marks/" _path, BENV_OPS_NUMBER, mark.var[_idx], _check, __benv_set_number, __benv_show_number)
 
 #define __BENV_MARK_OPS_IDX(_idx) \
     __BENV_MARK_OPS(#_idx, _idx, NULL, __benv_set_number, __benv_show_number)
 
 #define __BENV_MARK_OPS_IDX_RO(_idx) \
     __BENV_MARK_OPS(#_idx, _idx, NULL, NULL, __benv_show_number)
-
-static inline uint32 *
-benv_mark_pointer(int idx)
-{
-    return &benv_mark(idx);
-}
 
 static inline uint32
 benv_mark_get(int idx)
@@ -1504,20 +1569,20 @@ benv_mark_add(int idx, int value)
     __BENV_MARK_OPS("mid",          __benv_mark_cid_mid,        NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("psn",          __benv_mark_cid_psn,        NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("na",           __benv_mark_noauth,         NULL, NULL,             __benv_show_number), \
-    __BENV_MARK_OPS("js",           __benv_mark_jsdebug,        NULL, NULL,             __benv_show_number)  \
+    __BENV_MARK_OPS("jdebug",       __benv_mark_jdebug,         NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("crc/0",        __benv_mark_crc0,           NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("crc/1",        __benv_mark_crc1,           NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("crc/2",        __benv_mark_crc2,           NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("crc/3",        __benv_mark_crc3,           NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("crc/4",        __benv_mark_crc4,           NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("crc/5",        __benv_mark_crc5,           NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("crc/6",        __benv_mark_crc6,           NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("crc/7",        __benv_mark_crc7,           NULL, NULL,             __benv_show_number), \
     /* end */
 
 #define BENV_MARK_OPS_IDX       \
     __BENV_MARK_OPS_IDX(9),     \
                                 \
-    __BENV_MARK_OPS_IDX(10),    \
-    __BENV_MARK_OPS_IDX(11),    \
-    __BENV_MARK_OPS_IDX(12),    \
-    __BENV_MARK_OPS_IDX(13),    \
-    __BENV_MARK_OPS_IDX(14),    \
-    __BENV_MARK_OPS_IDX(15),    \
-    __BENV_MARK_OPS_IDX(16),    \
-    __BENV_MARK_OPS_IDX(17),    \
     __BENV_MARK_OPS_IDX(18),    \
     __BENV_MARK_OPS_IDX(19),    \
                                 \
@@ -1685,12 +1750,6 @@ enum {
     __benv_info_idx_max             = ____benv_info_idx_max - 1,
     __benv_info_block_named_count   = (1 + __benv_info_idx_max/BENV_INFO_COUNT_PER_BLOCK),
 };
-
-static inline char *
-benv_info_get(int idx)
-{
-    return benv_info(idx);
-}
 
 #define BENV_INFO_RO_LIST       {   \
     __benv_info_pcba_model,         \
@@ -1982,6 +2041,79 @@ benv_command(int argc, char *argv[])
     return 0;
 }
 
+static inline void
+benv_crc_save(int crc[])
+{
+    int i;
+    
+    for (i=0; i<BENV_BLOCK_COUNT; i++) {
+        crc[i] = benv_mark_get(__benv_mark_crc+i);
+        benv_mark(__benv_mark_crc+i) = 0;
+    }
+}
+
+static inline void
+benv_crc_restore(int crc[], int begin, int end)
+{
+    int i;
+    
+    for (i=begin; i<end; i++) {
+        benv_mark(__benv_mark_crc+i) = crc[i];
+    }
+}
+
+static inline void
+benv_crc(int idx)
+{
+    uint32 crc[BENV_BLOCK_COUNT] = {0};
+    int i;
+
+    if (false==__benv_dirty[idx]) {
+        return;
+    }
+    
+    /*
+    * save crc
+    */
+    if (idx==BENV_MARK) {
+        benv_crc_save(crc);
+    }
+    
+    benv_mark(__benv_mark_crc+idx) = 0;
+    benv_mark(__benv_mark_crc+idx) = os_crc32(benv_block(idx), BENV_BLOCK_SIZE);
+    benv_dirty_mark();
+    
+    /*
+    * restore crc, not include MARK
+    */
+    if (idx==BENV_MARK) {
+        benv_crc_restore(crc, 0, BENV_MARK);
+        benv_crc_restore(crc, 1+BENV_MARK, BENV_BLOCK_COUNT);
+    }
+}
+
+static inline void
+benv_check_crc(void)
+{
+    uint32 crc[BENV_BLOCK_COUNT] = {0};
+    uint32 crc32;
+    int i;
+
+    benv_crc_save(crc);
+
+    for (i=0; i<BENV_BLOCK_COUNT; i++) {
+        crc32 = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
+        if (crc[i] != crc32) {
+            __benv_errno = -1;
+
+            os_eprintln("block[%d].crc[0x%x] != mark.crc[0x%x]",
+                i, crc32, crc[i]);
+        }
+    }
+
+    benv_crc_restore(crc, 0, BENV_BLOCK_COUNT);
+}
+
 #ifdef __BOOT__
 extern int 
 benv_emmc_read(uint32 begin, void *buf, int size);
@@ -2040,42 +2172,53 @@ __benv_load(int idx)
         return -errno;
     }
 
+    __benv_dirty[idx] = false;
+    
     return 0;
 }
 
 static inline int
 __benv_save(int idx /* benv's block */ )
 {
-    int offset = BENV_BLOCK_SIZE * idx;
-    void *obj = (char *)__benv_env + offset;
-    int err;
+    void *obj   = (char *)__benv_env + offset;
+    int offset  = BENV_BLOCK_SIZE * idx;
+    int err     = 0;
 
+    if (false==__benv_dirty[idx]) {
+        return 0;
+    }
+
+    benv_crc(idx);
+    
     benv_println("benv save block:%d ...", idx);
     
     err = lseek(__benv_fd, offset, SEEK_SET);
     if (err < 0) {        /* <0 is error */
-        debug_error("benv seek block:%d error;%d", idx, -errno);
         benv_println("benv seek block:%d error;%d", idx, -errno);
+        debug_error("benv seek block:%d error;%d", idx, -errno);
         
         return -errno;
     }
 
     if (BENV_BLOCK_SIZE != write(__benv_fd, obj, BENV_BLOCK_SIZE)) {
-        debug_error("benv write block:%d error;%d", idx, -errno);
         benv_println("benv write block:%d error;%d", idx, -errno);
+        debug_error("benv write block:%d error;%d", idx, -errno);
         
         return -errno;
     }
 
     benv_println("benv save block:%d ok.", idx);
+    debug_ok("benv save block:%d ok.", idx);
     
+    __benv_dirty[idx] = false;
+
     return 0;
 }
 #endif
 #endif
 
 static inline int
-benv_loadby(int begin, int count)
+__benv_loadby(int begin, int count)
 {
     int i, err = 0;
 
@@ -2088,34 +2231,87 @@ benv_loadby(int begin, int count)
     
     return err;
 }
-#define __benv_save_nothing(_idx)   0
-#define benv_load_cookie()      __benv_load(BENV_COOKIE)
-#define benv_load_os()          __benv_load(BENV_OS)
-#define benv_load_mark()        __benv_load(BENV_MARK)
-#define benv_load_info()        benv_loadby(BENV_INFO, BENV_BLOCK_COUNT)
-#define benv_load_info_named()  benv_loadby(BENV_INFO, BENV_INFO + __benv_info_block_named_count)
-#define benv_load()             benv_loadby(0, BENV_BLOCK_COUNT)
+
+static inline int
+benv_loadone(int idx)
+{
+    int err;
+    err = __benv_load(idx);
+    if (err<0) {
+        return err;
+    }
+    
+    if (idx!=BENV_MARK) {
+        err = __benv_load(BENV_MARK);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
+}
+
+#define benv_load_cookie()  benv_loadone(BENV_COOKIE)
+#define benv_load_os()      benv_loadone(BENV_OS)
+#define benv_load_mark()    benv_loadone(BENV_MARK)
+
+static inline int
+benv_load_info(void)
+{
+    int err = __benv_loadby(BENV_INFO, BENV_BLOCK_COUNT);
+    if (err<0) {
+        return err;
+    }
+    
+    return __benv_load(BENV_MARK);
+}
+
+#define benv_load()             __benv_loadby(0, BENV_BLOCK_COUNT)
+
+static inline int
+__benv_saveby(int begin, int end)
+{
+    int i, err;
+
+    for (i=begin; i<end; i++) {
+        err = __benv_save(i);
+    }
+
+    err = __benv_save(BENV_MARK);
+}
+
+static inline int
+benv_saveone(int idx)
+{
+    int err;
+
+    err = __benv_save(idx);
+    
+    if (BENV_MARK!=idx) {
+        err = __benv_save(BENV_MARK);
+    }
+
+    return err;
+}
+
+#define benv_save_cookie()  benv_saveone(BENV_COOKIE)
+#define benv_save_os()      benv_saveone(BENV_OS)
+#define benv_save_mark()    benv_saveone(BENV_MARK)
+#define benv_save_info()    __benv_saveby(BENV_INFO, BENV_BLOCK_COUNT)
 
 static inline int
 benv_save(void)
 {
     int i, err = 0;
-    int begin = __benv_dirty[0]?0:1;
 
-    /* 
-     * block 0 is read only
-     */
-    for (i = begin; i < BENV_BLOCK_COUNT; i++) {
-        if (__benv_dirty[i]) {
-            err = __benv_save(i);
-                debug_trace_error(err, "save benv block %d", i);
-            if (err<0) {
-                /* todo: log */
-            }
-
-            __benv_dirty[i] = false;
-        }
-    }
+    /*
+    * 1. save blocks before mark
+    * 2. save blocks after mark
+    * 3. save mark
+    */
+    __benv_saveby(0, BENV_MARK);
+    __benv_saveby(1+BENV_MARK, BENV_BLOCK_COUNT);
+    err = benv_saveone(BENV_MARK);
 
     return err;
 }
@@ -2133,8 +2329,9 @@ benv_init(void)
     if (err<0) {
         return err;
     }
-    
-    __benv_show_count = 0;
+
+    __benv_errno        = 0;
+    __benv_show_count   = 0;
     if (__benv_cache) {
         os_memzero(__benv_cache, __benv_ops_count * sizeof(benv_cache_t));
     }
@@ -2154,8 +2351,8 @@ benv_init(void)
     }
 
 #ifdef __BOOT__
-    __THIS_DEBUG    = benv_mark_pointer(__benv_mark_debug);
-    __THIS_JDEBUG   = benv_mark_pointer(__benv_mark_jsdebug);
+    __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
+    __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
 
     os_println("boot debug:%d jsdebug:%d", *__THIS_DEBUG, *__THIS_JDEBUG);
 #endif
@@ -2248,10 +2445,12 @@ benv_check_os(void)
 
     os_firmware_foreach_all(i) {
         if (false==is_benv_good_rootfs(i)) {
+            __benv_errno = -1;
             os_println("bad rootfs%d");
         }
         
         if (false==is_benv_good_kernel(i)) {
+            __benv_errno = -1;
             os_println("bad kernel%d");
         }
     }
@@ -2272,7 +2471,7 @@ benv_check_os(void)
     },                  \
 }   /* end */
 
-#define BENV_DEFT_MARK  {.key = {0}}
+#define BENV_DEFT_MARK  {.var = {0}}
 #define BENV_DEFT_INFO  {                                           \
     .var = {                                                        \
         [__benv_info_pcba_model]        = PRODUCT_PCBA_MODEL,       \
@@ -2348,7 +2547,7 @@ __benv_deft_os(void)
     for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
         __benv_firmware_deft(benv_firmware(i));
     }
-    __benv_current = PRODUCT_FIRMWARE_CURRENT;
+    benv_current_set(PRODUCT_FIRMWARE_CURRENT);
     os_println("benv os restore ok.");
     
     benv_dirty_os();
@@ -2366,7 +2565,7 @@ __benv_deft_info(void)
     for (i=0; i<os_count_of(ro); i++) {
         idx = ro[i];
 
-        os_strcpy(benv_info_get(idx), info.var[idx]);
+        os_strcpy(benv_info(idx), info.var[idx]);
     }
 
     os_println("benv info restore ok.");
@@ -2400,7 +2599,7 @@ __benv_mark_private_save(uint32 backup[])
 {
     int i;
     
-    for (i=__benv_mark_private; i<__benv_mark_end; i++) {
+    for (i=__benv_mark_protect_begin; i<__benv_mark_protect_end; i++) {
         backup[i] = benv_mark(i);
     }
 }
@@ -2410,7 +2609,7 @@ __benv_mark_private_restore(uint32 backup[])
 {
     int i;
     
-    for (i=__benv_mark_private; i<__benv_mark_end; i++) {
+    for (i=__benv_mark_protect_begin; i<__benv_mark_protect_end; i++) {
         benv_mark(i) = backup[i];
     }
 }
@@ -2424,8 +2623,11 @@ __benv_clean_mark(void)
     __benv_mark_private_save(backup);
     os_objzero(__benv_mark);
     __benv_mark_private_restore(backup);
-    
-    benv_dirty_mark();
+
+    /*
+    * crc is clean, calc crc by dirty all
+    */
+    benv_dirty_all();
     
     os_println("benv marks clean ok");
 }
@@ -2452,6 +2654,9 @@ __benv_clean(void)
     os_objzero(__benv_env);
     __benv_mark_private_restore(backup);
     
+    /*
+    * crc is clean, calc crc by dirty all
+    */
     benv_dirty_all();
     
     os_println("benv clean ok, need reboot");
@@ -2614,6 +2819,7 @@ benv_cmd_hiden(int argc, char *argv[])
         __benv_cmd_item("show",     "all",      benv_show_all),
         
         __benv_cmd_item("check",    "os",       benv_check_os),
+        __benv_cmd_item("check",    "crc",      benv_check_crc),
         
         __benv_cmd_item("reset",    "os",       __benv_deft_os),
         __benv_cmd_item("reset",    "info",     __benv_deft_info),
@@ -2653,7 +2859,7 @@ benv_cmd(int argc, char *argv[])
     __benv_self = cli_argv_dump(argc, argv);
     
     if (true==benv_cmd_hiden(argc, argv)) {
-        return 0;
+        return __benv_errno;
     }
 
     return benv_command(argc - 1, argv + 1);

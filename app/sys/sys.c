@@ -87,7 +87,6 @@ static struct {
     int idx; /* rootfs idx */
     int resetby;
     
-    bool dirty;
     benv_version_t version;
     benv_version_t old_version;
     
@@ -196,12 +195,6 @@ rootfs_file(int idx, char *file)
 #define dev_obj(_obj, _idx)     dev_##_obj(_idx)
 #define dir_obj(_obj, _idx)     dir_##_obj(_idx)
 
-#define set_obj(_obj, _idx, _field, _value) do{ \
-    benv_obj(_obj, _idx)->_field = _value;      \
-                                                \
-    sys.dirty = true;                           \
-}while(0)
-
 #define efsm(_err)  ((_err)?BENV_FSM_FAIL:BENV_FSM_OK)
 
 #define SYS_PRINT   0
@@ -266,7 +259,7 @@ __rsync(int idx, benv_version_t *version)
                 sys.env.path,
                 new,
             dir_rootfs(idx));
-    set_obj(rootfs, idx, upgrade, efsm(err));
+    benv_obj_set(rootfs, idx, upgrade, efsm(err));
     put_pwdfile(pwdfile);
 
     jinfo("%o", 
@@ -306,7 +299,7 @@ __rcopy(int idx, char *dir, benv_version_t *version)
     __benv_version_itoa(&sys.old_version, old);
 
     err = __xcopy(dir_rootfs(idx), dir);
-    set_obj(rootfs, idx, upgrade, efsm(err));
+    benv_obj_set(rootfs, idx, upgrade, efsm(err));
 
     jinfo("%o",
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
@@ -367,7 +360,7 @@ mount has the following return codes (the bits can be ORed):
 static int
 __is_readonly_default(void)
 {
-    return os_streq(PRODUCT_ROOTFS_RO, benv_info_get(__benv_info_pcba_rootrw));
+    return os_streq(PRODUCT_ROOTFS_RO, benv_info(__benv_info_pcba_rootrw));
 }
 
 static int
@@ -716,11 +709,9 @@ static int
 save(void)
 {
     int err = 0;
-    
-    if (sys.dirty) {
-        err = os_call(benv_open, benv_close, __benv_save, BENV_OS);
-        
-        sys.dirty = false;
+
+    if (is_benv_dirty_os()) {
+        err = os_callv(benv_open, benv_close, benv_save_os);
     }
 
     return err;
@@ -729,9 +720,7 @@ save(void)
 static int
 load(void)
 {
-    save();
-    
-    return os_call(benv_open, benv_close, __benv_load, BENV_OS);
+    return os_callv(benv_open, benv_close, benv_load_os);
 }
 
 /*
@@ -739,16 +728,15 @@ load(void)
 *   set obj fsm failed
 *   save obj version
 */
-#define __upgrade_init(_obj, _idx, _version)    do{     \
-    benv_obj(_obj, _idx)->upgrade = BENV_FSM_UNKNOW;    \
-    benv_obj(_obj, _idx)->other   = BENV_FSM_UNKNOW;    \
-    benv_obj(_obj, _idx)->self    = BENV_FSM_UNKNOW;    \
-    benv_obj(_obj, _idx)->error   = 0;                  \
-                                                        \
-    os_objcpy(benv_obj_version(_obj, _idx), _version);  \
-                                                        \
+#define __upgrade_init(_obj, _idx, _version)        do{     \
+    benv_obj_set(_obj, _idx, upgrade,   BENV_FSM_UNKNOW);   \
+    benv_obj_set(_obj, _idx, other,     BENV_FSM_UNKNOW);   \
+    benv_obj_set(_obj, _idx, self,      BENV_FSM_UNKNOW);   \
+    benv_obj_set(_obj, _idx, error,     0);                 \
+                                                            \
+    benv_obj_version_save(_obj, _idx, _version);            \
+                                                            \
     os_objcpy(&sys.old_version, benv_obj_version(_obj, _idx)); \
-    sys.dirty = true;                                   \
 }while(0)
 
 /*
@@ -855,7 +843,7 @@ __rdd(int dst, int src)
     __benv_version_itoa(&sys.old_version, old);
 
     err = __dd(dev_rootfs(dst), dev_rootfs(src));
-    set_obj(rootfs, dst, upgrade, efsm(err));
+    benv_obj_set(rootfs, dst, upgrade, efsm(err));
 
     jinfo("%o",
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
@@ -910,7 +898,7 @@ __kdd_bydev(int dst, int src)
     __benv_version_itoa(&sys.old_version, old);
 
     err = __dd(dev_kernel(dst), dev_kernel(src));
-    set_obj(kernel, dst, upgrade, efsm(err));
+    benv_obj_set(kernel, dst, upgrade, efsm(err));
 
     jinfo("%o",
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
@@ -966,7 +954,7 @@ __kdd_byfile(int idx, char *file, benv_version_t *version)
     __benv_version_itoa(&sys.old_version, old);
 
     err = __dd(dev_kernel(idx), file);
-    set_obj(kernel, idx, upgrade, efsm(err));
+    benv_obj_set(kernel, idx, upgrade, efsm(err));
 
     jinfo("%o",
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
@@ -1017,17 +1005,16 @@ switch_to(int idx)
                         "from", __benv_current,
                         "to", idx));
 
-    benv_rootfs(idx)->error   = 0;
-    benv_kernel(idx)->error   = 0;
+    benv_obj_set(rootfs, idx, error, 0);
+    benv_obj_set(kernel, idx, error, 0);
+
+    benv_obj_set(rootfs, idx, upgrade, BENV_FSM_OK);
+    benv_obj_set(kernel, idx, upgrade, BENV_FSM_OK);
+
+    benv_obj_set(rootfs, idx, self, BENV_FSM_UNKNOW);
+    benv_obj_set(kernel, idx, self, BENV_FSM_UNKNOW);
     
-    benv_rootfs(idx)->upgrade = BENV_FSM_OK;
-    benv_kernel(idx)->upgrade = BENV_FSM_OK;
-    
-    benv_rootfs(idx)->self    = BENV_FSM_UNKNOW;
-    benv_kernel(idx)->self    = BENV_FSM_UNKNOW;
-    
-    __benv_current = idx;
-    sys.dirty = true;
+    benv_current_set(idx);
     save();
     
     return 0;
@@ -1479,7 +1466,7 @@ super_startup(void)
             && is_benv_good_obj(_obj, i)            \
             && benv_obj_version_eq(_obj, i, _idx)){ \
             debug_ok("tagged " #_obj "%d's other is ok", i); \
-            benv_obj(_obj, i)->other = BENV_FSM_OK; \
+            benv_obj_set(_obj, i, other, BENV_FSM_OK); \
         }                                           \
     }                                               \
 }while(0)
@@ -1492,19 +1479,15 @@ super_startup(void)
         __update_other_ok(_obj, current, skips);    \
     }                                               \
                                                     \
-    benv_obj(_obj, current)->error  = 0;            \
-    benv_obj(_obj, current)->self   = BENV_FSM_OK;  \
-                                                    \
-    sys.dirty = true;                               \
+    benv_obj_set(_obj, current, error, 0);          \
+    benv_obj_set(_obj, current, self, BENV_FSM_OK); \
 }while(0)
 
 #define __fail_startup(_obj)                    do{ \
     int current = sys.current;                      \
                                                     \
-    benv_obj(_obj, current)->error  = 3;            \
-    benv_obj(_obj, current)->self   = BENV_FSM_UNKNOW; \
-                                                    \
-    sys.dirty = true;                               \
+    benv_obj_set(_obj, current, error, 3);          \
+    benv_obj_set(_obj, current, self, BENV_FSM_UNKNOW); \
 }while(0)
 
 static int
@@ -1999,21 +1982,17 @@ __main(int argc, char *argv[])
     return cmd_handle(cmd, argc, argv, usage);
 }
 
-#ifndef __BUSYBOX__
-#define sys_main  main
-#endif
-
 /*
 * otp have enabled when boot
 */
-int sys_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     int err = os_call(__init, __fini, __main, argc, argv);
 
     return shell_error(err);
 }
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 int sysmount_main(int argc, char *argv[])
 {
     int err = os_call(__init, __fini, cmd_mount, argc, argv);

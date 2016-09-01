@@ -674,7 +674,7 @@ error:
 #define DECLARE_FAKE_FLOCK  extern int __THIS_LOCKFD
 #define DECLARE_REAL_FLOCK  int __THIS_LOCKFD = INVALID_FD
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_FLOCK    DECLARE_FAKE_FLOCK
 #else
 #   define DECLARE_FLOCK    DECLARE_REAL_FLOCK

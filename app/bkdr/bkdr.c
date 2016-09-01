@@ -69,11 +69,7 @@ __main(int argc, char *argv[])
     return err;
 }
 
-#ifndef __BUSYBOX__
-#define bkdr_main  main
-#endif
-
-int bkdr_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     return os_main(__main, argc, argv);
 }

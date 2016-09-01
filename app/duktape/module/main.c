@@ -143,11 +143,7 @@ error:
     return err;
 }
 
-#ifndef __BUSYBOX__
-#define js_main  main
-#endif
-
-int js_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     return os_main(__main, argc, argv);
 }

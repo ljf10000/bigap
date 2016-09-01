@@ -219,5 +219,15 @@ enum {
 
 #define is_mv2_break(_mv)       (__MV_BREAK==mv2_control(_mv))
 #define is_mv2_go(_mv)          (__MV_GO==mv2_control(_mv))
+
+#define SZERO1      "0"
+#define SZERO2      SZERO1  SZERO1
+#define SZERO4      SZERO2  SZERO2
+#define SZERO6      SZERO4  SZERO2
+#define SZERO8      SZERO4  SZERO4
+#define SZERO16     SZERO8  SZERO8
+#define SZERO32     SZERO16 SZERO16
+#define SZERO64     SZERO32 SZERO32
+#define SZERO128    SZERO64 SZERO64
 /******************************************************************************/
 #endif /* __TYPE_H_65c53c7cd7364495b1d962dec632cfdb__ */

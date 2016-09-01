@@ -259,11 +259,7 @@ __main(int argc, char *argv[])
     return err;
 }
 
-#ifndef __BUSYBOX__
-#define haenv_main  main
-#endif
-
-int haenv_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     int err = os_call(__init, __fini, __main, argc, argv);
 

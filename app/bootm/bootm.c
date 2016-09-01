@@ -297,8 +297,8 @@ getvalue_byname(char *name)
     }
 }
 
-#ifndef __BUSYBOX__
-#define bootm_main  main
+#ifndef __ALLINONE__
+#define bootm_main main
 #endif
 
 int bootm_main(int argc, char *argv[])

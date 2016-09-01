@@ -36,14 +36,10 @@ static cmd_multi_table_t multi[] = {
 #endif
 };
 
-#ifndef __BUSYBOX__
-#define hisi_main  main
-#endif
-
 /*
 * dog have enabled when boot
 */
-int hisi_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);

@@ -70,7 +70,7 @@ typedef uint32 akid_t;
 #    define DECLARE_REAL_DEBUGGER       akid_t __THIS_DEBUG
 #    define DECLARE_FAKE_JDEBUGGER      extern akid_t __THIS_JDEBUG
 #    define DECLARE_REAL_JDEBUGGER      akid_t __THIS_JDEBUG
-#    ifdef __BUSYBOX__
+#    ifdef __ALLINONE__
 #        define DECLARE_DEBUGGER        DECLARE_FAKE_DEBUGGER
 #        define DECLARE_JDEBUGGER       DECLARE_FAKE_JDEBUGGER
 #    else
@@ -318,7 +318,7 @@ __ak_get_value(char *key, char *value)
 #define DECLARE_FAKE_COMMAND  extern bool __THIS_COMMAND
 #define DECLARE_REAL_COMMAND  bool __THIS_COMMAND;
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_COMMAND  DECLARE_FAKE_COMMAND
 #else
 #   define DECLARE_COMMAND  DECLARE_REAL_COMMAND
@@ -420,7 +420,7 @@ __ak_offset(akid_t akid)
 #define DECLARE_FAKE_AK  extern os_shm_t __THIS_AK
 #define DECLARE_REAL_AK  os_shm_t __THIS_AK = OS_SHM_INITER(OS_AK_SHM_ID)
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_AK   DECLARE_FAKE_AK
 #else
 #   define DECLARE_AK   DECLARE_REAL_AK

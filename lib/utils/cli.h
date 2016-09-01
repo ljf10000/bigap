@@ -116,7 +116,7 @@ typedef struct {
 #define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t __THIS_CLI_BUFFER
 #define DECLARE_REAL_CLI_BUFFER     cli_buffer_t __THIS_CLI_BUFFER
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_CLI_BUFFER       DECLARE_FAKE_CLI_BUFFER
 #else
 #   define DECLARE_CLI_BUFFER       DECLARE_REAL_CLI_BUFFER

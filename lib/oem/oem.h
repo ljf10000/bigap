@@ -147,7 +147,7 @@ DECLARE_ENUM(oem_type, __XLIST_OEM, OEM_T_END);
     [OEM_T_2]     = OEM2_INITER,  \
 }   /* end */
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_OEM      DECLARE_FAKE_OEM
 #else
 #   define DECLARE_OEM      DECLARE_REAL_OEM

@@ -130,7 +130,7 @@ typedef struct {
 #define DECLARE_REAL_JLOG   jlog_control_t __THIS_JLOGGER = JLOG_CONTROL_INITER
 #define DECLARE_FAKE_JLOG   extern jlog_control_t __THIS_JLOGGER
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_JLOG     DECLARE_FAKE_JLOG
 #else
 #   define DECLARE_JLOG     DECLARE_REAL_JLOG

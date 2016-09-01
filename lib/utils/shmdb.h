@@ -83,7 +83,7 @@ typedef struct {
 #define DECLARE_REAL_SDB    sdb_table_t VAR_INLINE_SDB
 #define DECLARE_FAKE_SDB    extern DECLARE_REAL_SDB
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_SDB      DECLARE_FAKE_SDB
 #else
 #   define DECLARE_SDB      DECLARE_REAL_SDB

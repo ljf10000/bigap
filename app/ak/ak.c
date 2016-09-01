@@ -41,11 +41,7 @@ __main(int argc, char *argv[])
     return cmd_handle(cmd, argc, argv, usage);
 }
 
-#ifndef __BUSYBOX__
-#define ak_main  main
-#endif
-
-int ak_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);

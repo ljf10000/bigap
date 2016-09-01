@@ -74,11 +74,7 @@ __main(int argc, char *argv[])
     return err;
 }
 
-#ifndef __BUSYBOX__
-#define sem_main  main
-#endif
-
-int sem_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     return os_main(__main, argc, argv);
 }

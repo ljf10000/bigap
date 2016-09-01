@@ -146,7 +146,7 @@ typedef struct {
 #define DECLARE_REAL_ENV    DECLARE_FAKE_ENV
 #endif
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_ENV      DECLARE_FAKE_ENV
 #else
 #   define DECLARE_ENV      DECLARE_REAL_ENV

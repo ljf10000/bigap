@@ -269,14 +269,10 @@ __main(int argc, char *argv[])
     return 0;
 }
 
-#ifndef __BUSYBOX__
-#define nglog_main  main
-#endif
-
 /*
 * cmd have enabled when boot
 */
-int nglog_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     return os_main(__main, argc, argv);
 }

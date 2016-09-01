@@ -78,10 +78,17 @@ enum { HACKED_CUSTOM = 1 };
 #define PPSLEEP             5
 #endif
 
+#ifndef SAVEINTERVAL
+#define SAVEINTERVAL        3600
+#endif
+
 static int cmdsleep = CMDSLEEP;
+static int nosaved;
 
 static byte custom[OTP_SIZE];
 static byte private[OTP_SIZE];
+
+static uint32 noauth;
 
 #if IS_PRODUCT_PC
 #define get_mac()       "12:34:56:78:9a:bc"
@@ -90,9 +97,10 @@ static byte private[OTP_SIZE];
 #define get_rt()        3
 #define get_na()        4
 #define set_na(_na)     os_do_nothing()
-#define get_version()   "0.0.0.1"
 #define get_oem()       "none"
-#define __prepare() os_do_nothing()
+#define get_version()   "0.0.0.1"
+#define load()          os_do_nothing()
+#define save()          os_do_nothing()
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_A
 static char *
 get_mac(void)
@@ -159,36 +167,22 @@ get_rt(void)
     return rt;
 }
 
-static uint32 na;
-
 static uint32
 get_na(void)
 {
-    if (0==na) {
-        os_pgeti(&na, "bootm na");
+    if (0==noauth) {
+        os_pgeti(&noauth, "bootm na");
     }
 
-    return na;
+    return noauth;
 }
 
 static void
-set_na(int NA)
+set_na(uint32 na)
 {
-    na = NA;
+    noauth = na;
     
-    os_system("bootm na=%d", NA);
-}
-
-static inline char *
-get_version(void)
-{
-    static char version[1+OS_LINE_LEN];
-
-    if (false==is_good_str(version)) {
-        os_fgets(version, OS_LINE_LEN, "/etc/.version");
-    }
-    
-    return version;
+    os_system("bootm na=%d", na);
 }
 
 static inline char *
@@ -203,18 +197,44 @@ get_oem(void)
     return vendor;
 }
 
-#define __prepare() os_do_nothing()
+static inline char *
+get_version(void)
+{
+    static char version[1+OS_LINE_LEN];
+
+    if (false==is_good_str(version)) {
+        os_fgets(version, OS_LINE_LEN, "/etc/.version");
+    }
+    
+    return version;
+}
+
+#define load()      os_do_nothing()
+#define save()      os_do_nothing()
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B
-#define get_mac()   benv_info_get(__benv_info_oem_mac)
+#define get_mac()   benv_info(__benv_info_oem_mac)
 #define get_mid()   benv_mark_get(__benv_mark_cid_mid)
 #define get_psn()   benv_mark_get(__benv_mark_cid_psn)
 #define get_rt()    benv_mark_get(__benv_mark_runtime)
-#define get_na()    benv_mark_get(__benv_mark_noauth)
+#define get_oem()   benv_info(__benv_info_oem_vendor)
 
-#define set_na(_na) do{ \
-    benv_mark_set(__benv_mark_noauth, _na); \
-    benv_dirty_mark(); \
-}while(0)
+static uint32
+get_na(void)
+{
+    if (0==noauth) {
+        noauth = benv_mark_get(__benv_mark_noauth);
+    }
+
+    return noauth;
+}
+
+static void
+set_na(uint32 na)
+{
+    noauth = na;
+    
+    benv_mark_set(__benv_mark_noauth, na);
+}
 
 static inline char *
 get_version(void)
@@ -228,47 +248,28 @@ get_version(void)
     return version;
 }
 
-#define get_oem()   benv_info_get(__benv_info_oem_vendor)
 
 static void
-__prepare(void)
+load(void)
+{
+    /*
+    * load info, and auto load mark
+    */
+    os_callv(benv_open, benv_close, benv_load_info);
+}
+
+static void
+save(void)
 {
     benv_open();
-    /*
-    * just load mark/info(named)
-    */
     benv_load_mark();
-    benv_load_info_named();
+    benv_mark_set(__benv_mark_noauth, noauth);
+    benv_save_mark();
     benv_close();
 }
 #else
 #error "bad product"
 #endif
-
-static void
-prepare(void)
-{
-    static bool ok = false;
-    
-    char *mac;
-    uint32 mid, psn;
-    
-    while(!ok) {
-        __prepare();
-        
-        mac = get_mac();
-        mid = get_mid();
-        psn = get_psn();
-        
-        ok = is_good_macstring(mac) && mid && psn;
-        if (!ok) {
-            sleep(PPSLEEP);
-        }
-        
-        debug_trace("load mac=%s, mid=%d, psn=%d, rt=%d, na=%d, ok=%d", 
-            mac, mid, psn, get_rt(), get_na(), ok);
-    }
-}
 
 static int
 jcheck(jobj_t obj)
@@ -350,12 +351,13 @@ failed(char *action)
     
     if (get_rt() > rt && get_na() > na) {
         if (os_file_exist(FILE_RN)) {
-            os_system("for ((i=0; i<100; i++)); do echo checked %s failed!; done");
+            os_system("for ((i=0; i<100; i++)); do echo checked %s failed!; done", action);
         }
 
         sleep(rs);
-        
-        os_system("reboot &");
+        save();
+
+        __os_system("(sysreboot || reboot) &");
     }
     
     return 0;
@@ -730,8 +732,10 @@ do_cmd(void)
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
     if (err<0) {
-        debug_error("curl err(%d)", err);
         err = -ECURLFAIL; goto error;
+    }
+    if (0==line[0]) {
+        err = 0; goto error;
     }
     
     obj = jobj(line);
@@ -740,13 +744,11 @@ do_cmd(void)
         err = -EFAKESEVER; goto error;
     }
 
-#if 0
     code = jcheck(obj);
     if (code) {
         debug_error("check json failed");
         err = -EFAKESEVER; goto error;
     }
-#endif
 
     jobj_t jsleep = jobj_get(obj, "sleep");
     if (jsleep) {
@@ -771,6 +773,55 @@ error:
     put_cert(key);
 
     return err;
+}
+
+static void
+prepare(void)
+{
+    static bool ok = false;
+    
+    char *mac;
+    uint32 mid, psn;
+    
+    while(!ok) {
+        load();
+        
+        mac = get_mac();
+        mid = get_mid();
+        psn = get_psn();
+        
+        ok = is_good_macstring(mac) && mid && psn;
+        if (!ok) {
+            sleep(PPSLEEP);
+        }
+        
+        debug_trace("load mac=%s, mid=%d, psn=%d, rt=%d, na=%d, ok=%d", 
+            mac, mid, psn, get_rt(), get_na(), ok);
+    }
+}
+
+static void
+try_save(uint32 time)
+{
+    nosaved += time;
+    if (nosaved>=time) {
+        nosaved = 0;
+
+        save();
+    }
+}
+
+static void
+check(void)
+{
+    uint32 total = 0;
+    
+    while(do_check()) {
+        sleep(CHKSLEEP);
+
+        set_na(get_na() + CHKSLEEP);
+        try_save(CHKSLEEP);
+    }
 }
 
 static int
@@ -809,13 +860,8 @@ __main(int argc, char *argv[])
     (void)argv;
     
     prepare();
+    check();
     
-    while(do_check()) {
-        sleep(CHKSLEEP);
-
-        set_na(get_na() + CHKSLEEP);
-    }
-
     while(1) {
         do_cmd();
 
@@ -825,14 +871,10 @@ __main(int argc, char *argv[])
     return 0;
 }
 
-#ifndef __BUSYBOX__
-#define guard_main  main
-#endif
-
 /*
 * cmd have enabled when boot
 */
-int guard_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(__exit);
     setup_signal_callstack(NULL);

@@ -71,8 +71,8 @@ __bversion(int argc, char *argv[])
     }
     
     for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
-        os_objcpy(benv_rootfs_version(i), &version);
-        os_objcpy(benv_kernel_version(i), &version);
+        benv_obj_version_save(rootfs, i, &version);
+        benv_obj_version_save(kernel, i, &version);
     }
 
     benv_dirty_os();

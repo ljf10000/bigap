@@ -11,6 +11,10 @@
 #   endif
 #endif
 
+#ifdef __BUSYBOX__
+#define __ALLINONE__
+#endif
+
 #ifdef __BOOT__
 #   include <malloc.h>
 #   include <command.h>

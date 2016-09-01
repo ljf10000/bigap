@@ -174,11 +174,7 @@ __main(int argc, char **argv)
     return err;
 }
 
-#ifndef __BUSYBOX__
-#define umd_main  main
-#endif
-
-int umd_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(__exit);
     setup_signal_callstack(NULL);

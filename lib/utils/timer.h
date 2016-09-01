@@ -81,7 +81,7 @@ typedef struct {
 #define DECLARE_REAL_TIMER  tm_clock_t __THIS_TIMER
 #define DECLARE_FAKE_TIMER  extern tm_clock_t __THIS_TIMER
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_TIMER    DECLARE_FAKE_TIMER
 #else
 #   define DECLARE_TIMER    DECLARE_REAL_TIMER

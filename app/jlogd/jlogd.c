@@ -544,11 +544,7 @@ __main(int argc, char *argv[])
     return 0;
 }
 
-#ifndef __BUSYBOX__
-#define jlogd_main  main
-#endif
-
-int jlogd_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     setup();
     

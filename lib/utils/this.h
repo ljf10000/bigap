@@ -5,8 +5,18 @@
 #error "must defined __THIS_APP before all #include"
 #endif
 
-#define __SYMBOL_TO_STRING2(x)  #x
-#define __SYMBOL_TO_STRING(x)   __SYMBOL_TO_STRING2(x)
+#define __SYMBOL_CONTRACT2(x, y)    x##y
+#define __SYMBOL_CONTRACT(x, y)     __SYMBOL_CONTRACT2(x, y)
+#define OS_DEFINE(x)                __SYMBOL_CONTRACT(x, __COUNTER__)
+
+#define __SYMBOL_TO_STRING2(x)      #x
+#define __SYMBOL_TO_STRING(x)       __SYMBOL_TO_STRING2(x)
+
+#ifdef __ALLINONE__
+#define allinone_main           __SYMBOL_CONTRACT(__THIS_APP, _main)
+#else
+#define allinone_main           main
+#endif
 
 #ifndef __THIS_APPNAME
 #define __THIS_APPNAME          __SYMBOL_TO_STRING(__THIS_APP)
@@ -31,7 +41,7 @@
 #define __SYMBOL_TO_VAR2(_prefix, _name)        __THIS_##_prefix##_name
 #define __SYMBOL_TO_VAR(_prefix, _name)         __SYMBOL_TO_VAR2(_prefix, _name)
 
-#if defined(__BUSYBOX__) || defined(__BOOT__)
+#if defined(__ALLINONE__) || defined(__BOOT__)
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(_, _name)
 #else
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)

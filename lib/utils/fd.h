@@ -99,7 +99,7 @@ typedef struct {
 #define DECLARE_REAL_FD     fd_control_t __THIS_FD
 #define DECLARE_FAKE_FD     extern fd_control_t __THIS_FD
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_FD       DECLARE_FAKE_FD
 #else
 #   define DECLARE_FD       DECLARE_REAL_FD

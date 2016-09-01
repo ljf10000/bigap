@@ -62,11 +62,7 @@ __main(int argc, char *argv[])
     }
 }
 
-#ifndef __BUSYBOX__
-#define jlogger_main  main
-#endif
-
-int jlogger_main(int argc, char *argv[])
+int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);

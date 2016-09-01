@@ -175,7 +175,7 @@ typedef struct {
 #define DECLARE_REAL_COROUTINE  co_control_t __THIS_COROUTINE
 #define DECLARE_FAKE_COROUTINE  extern co_control_t __THIS_COROUTINE
 
-#ifdef __BUSYBOX__
+#ifdef __ALLINONE__
 #   define DECLARE_COROUTINE    DECLARE_FAKE_COROUTINE
 #else
 #   define DECLARE_COROUTINE    DECLARE_REAL_COROUTINE
