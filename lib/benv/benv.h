@@ -2123,6 +2123,21 @@ benv_check_crc(void)
     benv_crc_restore(crc, 0, BENV_BLOCK_COUNT);
 }
 
+static inline void
+benv_test_crc(void)
+{
+    uint32 crc[BENV_BLOCK_COUNT] = {0};
+    uint32 crc32;
+    int i, j;
+
+    for (i=0; i<BENV_BLOCK_COUNT; i++) {
+        for (j=0; j<3; j++) {
+            crc32 = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
+            os_println("calc block[%d] crc[0x%x]", i, crc32);
+        }
+    }
+}
+
 #ifdef __BOOT__
 extern int 
 benv_emmc_read(uint32 begin, void *buf, int size);
@@ -2851,6 +2866,8 @@ benv_cmd_hiden(int argc, char *argv[])
         __benv_cmd_item("clean",    "mark",     __benv_clean_mark),
         __benv_cmd_item("clean",    "info",     __benv_clean_info),
         __benv_cmd_item("clean",    "all",      __benv_clean),
+
+        __benv_cmd_item("test",     "crc",      benv_test_crc),
     };
 #undef __benv_cmd_item
     char *action    = argv[1];
