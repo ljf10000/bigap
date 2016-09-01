@@ -2147,14 +2147,18 @@ static inline void
 benv_calc_crc(void)
 {
     uint32 crc;
-    int i;
+    int i, j;
 
     benv_crc_clean();
 
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         crc = os_crc32(benv_block(i), BENV_BLOCK_SIZE);
         os_println("calc block[%d] crc[0x%x]", i, crc);
-        __os_dump_buffer(benv_block(i), BENV_BLOCK_SIZE, NULL);
+
+        for (j=0; j<BENV_BLOCK_SIZE; j++) {
+            os_printf("%.2x", (byte)benv_block(i)[j]);
+        }
+        os_printf(__crlf);
     }
 }
 
