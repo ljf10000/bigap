@@ -2304,7 +2304,6 @@ benv_saveone(int idx)
 #define benv_save_cookie()  benv_saveone(BENV_COOKIE)
 #define benv_save_os()      benv_saveone(BENV_OS)
 #define benv_save_mark()    benv_saveone(BENV_MARK)
-#define benv_save_info()    __benv_saveby(BENV_INFO, BENV_BLOCK_COUNT)
 
 static inline int benv_save_nothing(void) {return 0;}
 
