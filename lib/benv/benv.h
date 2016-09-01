@@ -2299,6 +2299,8 @@ benv_saveone(int idx)
 #define benv_save_mark()    benv_saveone(BENV_MARK)
 #define benv_save_info()    __benv_saveby(BENV_INFO, BENV_BLOCK_COUNT)
 
+static inline int benv_save_nothing(void) {return 0;}
+
 static inline int
 benv_save(void)
 {
