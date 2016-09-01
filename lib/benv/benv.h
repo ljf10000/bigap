@@ -1577,7 +1577,7 @@ benv_mark_add(int idx, int value)
     __BENV_MARK_OPS("crc/4",        __benv_mark_crc4,           NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("crc/5",        __benv_mark_crc5,           NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("crc/6",        __benv_mark_crc6,           NULL, NULL,             __benv_show_number), \
-    __BENV_MARK_OPS("crc/7",        __benv_mark_crc7,           NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("crc/7",        __benv_mark_crc7,           NULL, NULL,             __benv_show_number)  \
     /* end */
 
 #define BENV_MARK_OPS_IDX       \
