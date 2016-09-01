@@ -2128,7 +2128,7 @@ benv_show_crc(void)
 {
     int i;
 
-    for (i=0; i<BENV_MARK; i++) {
+    for (i=0; i<BENV_BLOCK_COUNT; i++) {
         os_println("block[%d] crc[0x%x]", i, benv_mark_get(__benv_mark_crc+i));
     }
 }
