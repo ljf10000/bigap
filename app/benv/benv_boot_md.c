@@ -131,27 +131,27 @@ __benv_save(int idx /* benv's block */)
     void *obj   = (char *)__benv_env + offset;
     
     if (false==__benv_loaded[idx]) {
-        benv_println("benv block:%d not loaded, needn't save", idx);
-         debug_trace("benv block:%d not loaded, needn't save", idx);
+         benv_debug("benv block:%d not loaded, needn't save", idx);
+        debug_trace("benv block:%d not loaded, needn't save", idx);
         
         return 0;
     }
 
     if (false==benv_crc(idx)) {
-        benv_println("benv block:%d crc not changed, needn't save", idx);
-         debug_trace("benv block:%d crc not changed, needn't save", idx);
+         benv_debug("benv block:%d crc not changed, needn't save", idx);
+        debug_trace("benv block:%d crc not changed, needn't save", idx);
         
         return 0;
     }
 
-    benv_println("benv save block:%d ...", idx);
+    benv_debug("benv save block:%d ...", idx);
     if (BENV_BLOCK_SIZE!=benv_emmc_write(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
-        benv_println("benv save block:%d error", idx);
-         debug_error("benv save block:%d error", idx);
+         benv_debug("benv save block:%d error", idx);
+        debug_error("benv save block:%d error", idx);
 
         return -EIO;
     }
-    benv_println("benv save block:%d ok", idx);
+    benv_debug("benv save block:%d ok", idx);
     
     return 0;
 }

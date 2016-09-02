@@ -5,15 +5,16 @@
 #define BENV_DEBUG_SORT             0x01
 #define BENV_DEBUG_CMP              0x02
 #define BENV_DEBUG_TRACE            0x04
+#define BENV_DEBUG_MMC              0x08
 
 #ifndef BENV_DEBUG
-#define BENV_DEBUG                  0 //(BENV_DEBUG_SORT | BENV_DEBUG_CMP)
+#define BENV_DEBUG                  0 //(BENV_DEBUG_TRACE|BENV_DEBUG_MMC|BENV_DEBUG_SORT|BENV_DEBUG_CMP)
 #endif
 
 #if (BENV_DEBUG & BENV_DEBUG_TRACE)
-#define benv_println(_fmt, _args...)    printf(_fmt "\n", ##_args)
+#define benv_debug(_fmt, _args...)  printf(_fmt "\n", ##_args)
 #else
-#define benv_println(_fmt, _args...)    os_do_nothing()
+#define benv_debug(_fmt, _args...)  os_do_nothing()
 #endif
 
 #ifndef BENV_SIZE
@@ -2141,37 +2142,37 @@ __benv_save(int idx /* benv's block */ )
     int err     = 0;
 
     if (false==__benv_loaded[idx]) {
-        benv_println("benv block:%d not loaded, needn't save", idx);
-         debug_trace("benv block:%d not loaded, needn't save", idx);
+         benv_debug("benv block:%d not loaded, needn't save", idx);
+        debug_trace("benv block:%d not loaded, needn't save", idx);
         
         return 0;
     }
 
     if (false==benv_crc(idx)) {
-        benv_println("benv block:%d crc not changed, needn't save", idx);
-         debug_trace("benv block:%d crc not changed, needn't save", idx);
+         benv_debug("benv block:%d crc not changed, needn't save", idx);
+        debug_trace("benv block:%d crc not changed, needn't save", idx);
         
         return 0;
     }
     
-    benv_println("benv save block:%d ...", idx);
+    benv_debug("benv save block:%d ...", idx);
     
     err = lseek(__benv_fd, offset, SEEK_SET);
     if (err < 0) {        /* <0 is error */
-        benv_println("benv seek block:%d error;%d", idx, -errno);
-         debug_error("benv seek block:%d error;%d", idx, -errno);
+         benv_debug("benv seek block:%d error;%d", idx, -errno);
+        debug_error("benv seek block:%d error;%d", idx, -errno);
         
         return -errno;
     }
 
     if (BENV_BLOCK_SIZE != write(__benv_fd, obj, BENV_BLOCK_SIZE)) {
-        benv_println("benv write block:%d error;%d", idx, -errno);
-         debug_error("benv write block:%d error;%d", idx, -errno);
+         benv_debug("benv write block:%d error;%d", idx, -errno);
+        debug_error("benv write block:%d error;%d", idx, -errno);
         
         return -errno;
     }
 
-    benv_println("benv save block:%d ok.", idx);
+    benv_debug("benv save block:%d ok.", idx);
     
     return 0;
 }
