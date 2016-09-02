@@ -2093,7 +2093,7 @@ extern int __benv_save(int idx);    /* idx is benv's block */
 static inline int
 benv_open(void)
 {
-    __benv_fd = __os_file_lock(PRODUCT_DEV_BOOTENV, O_RDWR, 0, true);
+    __benv_fd = __os_file_lock(PRODUCT_DEV_BOOTENV, O_RDWR | O_SYNC, 0, true);
 
     return is_good_fd(__benv_fd)?0:__benv_fd;
 }
@@ -2171,7 +2171,7 @@ __benv_save(int idx /* benv's block */ )
         
         return -errno;
     }
-
+    
     benv_debug("benv save block:%d ok.", idx);
     
     return 0;
