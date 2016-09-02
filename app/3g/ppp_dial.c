@@ -145,8 +145,8 @@ static int set_register_operator(HI_3G_CARD_MODE_E search_mode,
 	return 0;
 }
 
-#ifndef __ALLINONE__
-#define ppp_dial_main main
+#ifndef __BUSYBOX__
+#define ppp_dial_main  main
 #endif
 
 int ppp_dial_main(int argc, char *argv[])
