@@ -1430,7 +1430,7 @@ __crc(void)
 
         bdd("restore", "bootenv", PRODUCT_DEV_BOOTENV, FILE_BOOTENV);
 
-        os_p_system("(sleep 5; sysreboot) &");
+        os_p_system("sleep 5; sysreboot");
 
         return -EBADCRC;
     }
@@ -1480,7 +1480,7 @@ super_startup(void)
     switch_to(best);
 
 reboot:
-    return os_p_system("(sleep 5; sysreboot) &");
+    return os_p_system("sleep 5; sysreboot");
 }
 
 /*
