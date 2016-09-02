@@ -738,7 +738,7 @@ load(void)
     benv_obj(_obj, _idx)->upgrade   = BENV_FSM_UNKNOW;  \
     benv_obj(_obj, _idx)->other     = BENV_FSM_UNKNOW;  \
     benv_obj(_obj, _idx)->self      = BENV_FSM_UNKNOW;  \
-    benv_obj(_obj, _idx)->error     = 0);               \
+    benv_obj(_obj, _idx)->error     = 0;                \
                                                         \
     os_objcpy(benv_obj_version(_obj, _idx), _version);  \
     os_objcpy(&sys.old_version, benv_obj_version(_obj, _idx)); \
