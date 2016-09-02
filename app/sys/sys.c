@@ -1430,7 +1430,7 @@ __crc(void)
 
         bdd("restore", "bootenv", PRODUCT_DEV_BOOTENV, FILE_BOOTENV);
 
-        __os_system("(sysreboot || reboot) &")
+        __os_system("(sysreboot || reboot) &");
         
         return -EBADCRC;
     }
