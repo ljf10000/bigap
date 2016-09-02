@@ -502,16 +502,6 @@ extern benv_control_t benv_control;
 #define benv_mark(_idx)     __benv_mark->var[_idx]
 #define benv_info(_idx)     __benv_info->var[_idx]
 
-static inline void
-benv_dirty(void)
-{
-#ifdef __BOOT__
-    extern bool bootenv_dirty;
-    
-    bootenv_dirty = true;
-#endif
-}
-
 /*
 * idx is block index
 */
@@ -1757,8 +1747,6 @@ __benv_handle_write(benv_ops_t * ops)
 
     if (value) {
         benv_ops_write(ops, value);
-
-        benv_dirty();
     }
 }
 
@@ -1990,7 +1978,6 @@ benv_crc(int idx)
     benv_mark_crc(idx) = new = benv_block_crc(idx);
     if (new != old) {
         recalc = true;
-        benv_dirty();
         debug_crc("recalc block[%d] crc[0x%x]", idx, new);
     }
     
@@ -2486,7 +2473,7 @@ static inline void
 __benv_deft_cookie(void)
 {
     os_println("benv cookie restore...");
-    os_objcpy(__benv_cookie, benv_cookie_deft()); benv_dirty();
+    os_objcpy(__benv_cookie, benv_cookie_deft());
     os_println("benv cookie restore ok");
 }
 
@@ -2500,7 +2487,6 @@ __benv_deft_os(void)
         __benv_firmware_deft(benv_firmware(i));
     }
     __benv_current = PRODUCT_FIRMWARE_CURRENT;
-    benv_dirty();
     os_println("benv os restore ok.");
 }
 
@@ -2517,7 +2503,6 @@ __benv_deft_info(void)
 
         os_strcpy(benv_info(idx), info.var[idx]);
     }
-    benv_dirty();
     os_println("benv info restore ok.");
 }
 
@@ -2525,7 +2510,7 @@ static inline void
 __benv_deft(void)
 {
     os_println("benv restore ...");
-    os_objdeft(__benv_env, BENF_DEFT); benv_dirty();
+    os_objdeft(__benv_env, BENF_DEFT);
     os_println("benv restore ok");
 }
 
@@ -2533,7 +2518,7 @@ static inline void
 __benv_clean_cookie(void)
 {
     os_println("benv cookie clean ...");
-    os_objzero(__benv_cookie); benv_dirty();
+    os_objzero(__benv_cookie);
     os_println("benv cookie clean ok.");
 }
 
@@ -2564,7 +2549,7 @@ __benv_clean_mark(void)
 
     os_println("benv marks clean ...");
     __benv_mark_private_save(backup);
-    os_objzero(__benv_mark); benv_dirty();
+    os_objzero(__benv_mark);
     __benv_mark_private_restore(backup);
 
     os_println("benv marks clean ok");
@@ -2577,7 +2562,6 @@ __benv_clean_info(void)
     
     os_objzero(__benv_info);
     __benv_deft_info();
-    benv_dirty();
     
     os_println("benv infos clean ok.");
 }
@@ -2590,7 +2574,7 @@ __benv_clean(void)
     os_println("benv clean ...");
     
     __benv_mark_private_save(backup);
-    os_objzero(__benv_env); benv_dirty();
+    os_objzero(__benv_env);
     __benv_mark_private_restore(backup);
     
     os_println("benv clean ok, need reboot");

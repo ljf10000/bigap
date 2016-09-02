@@ -28,14 +28,14 @@ __read_emmc(uint32 begin, void *buf, int count)
     
     struct mmc *mmc = find_mmc_device(0);
     if (!mmc) {
-        os_println("find mmc error");
+        os_println("no-found mmc");
         
         return -EINVAL;
     }
 
     err = mmc_init(mmc);
     if (err) {
-        os_println("init mmc error");
+        os_println("init mmc error:%d", err);
 
         return native_error(err);
     }
@@ -59,14 +59,14 @@ __write_emmc(uint32 begin, void *buf, int count)
     struct mmc *mmc = find_mmc_device(0);
 
     if (!mmc) {
-        os_println("find mmc error");
+        os_println("no-found mmc");
         
         return -EINVAL;
     }
 
     err = mmc_init(mmc);
     if (err) {
-        os_println("init mmc error");
+        os_println("init mmc error:%d", err);
 
         return native_error(err);
     }
@@ -274,7 +274,6 @@ benv_boot_check(void)
         }
         __benv_deft_cookie();
 
-        benv_save();
         benv_show_cookie();
     }
 }
@@ -398,6 +397,8 @@ benv_boot_select(void)
 static void
 benv_boot_save(void)
 {
+    benv_save();
+    
     if (bootenv_dirty) {
         os_println("bootenv update ...");
         
