@@ -213,16 +213,16 @@ get_version(void)
 #define save()      os_do_nothing()
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B
 #define get_mac()   benv_info(__benv_info_oem_mac)
-#define get_mid()   benv_mark_get(__benv_mark_cid_mid)
-#define get_psn()   benv_mark_get(__benv_mark_cid_psn)
-#define get_rt()    benv_mark_get(__benv_mark_runtime)
+#define get_mid()   benv_mark(__benv_mark_cid_mid)
+#define get_psn()   benv_mark(__benv_mark_cid_psn)
+#define get_rt()    benv_mark(__benv_mark_runtime)
 #define get_oem()   benv_info(__benv_info_oem_vendor)
 
 static uint32
 get_na(void)
 {
     if (0==noauth) {
-        noauth = benv_mark_get(__benv_mark_noauth);
+        noauth = benv_mark(__benv_mark_noauth);
     }
 
     return noauth;
@@ -233,7 +233,7 @@ set_na(uint32 na)
 {
     noauth = na;
     
-    benv_mark_set(__benv_mark_noauth, na);
+    benv_mark(__benv_mark_noauth) = na;
 }
 
 static inline char *
@@ -247,7 +247,6 @@ get_version(void)
     
     return version;
 }
-
 
 static void
 load(void)
@@ -263,8 +262,8 @@ save(void)
 {
     benv_open();
     benv_load_mark();
-    benv_mark_set(__benv_mark_noauth, noauth);
-    benv_save_mark();
+    benv_mark(__benv_mark_noauth) = noauth;
+    benv_save();
     benv_close();
 }
 #else

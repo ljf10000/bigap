@@ -44,7 +44,7 @@ __rt_save(void)
 static int
 __rt_load(void)
 {
-    runtime = benv_mark_get(__benv_mark_runtime);
+    runtime = benv_mark(__benv_mark_runtime);
     
     return 0;
 }
@@ -52,7 +52,7 @@ __rt_load(void)
 static int
 __rt_save(void)
 {
-    benv_mark_set(__benv_mark_runtime,  runtime);
+    benv_mark(__benv_mark_runtime) = runtime;
 
     return 0;
 }
@@ -77,7 +77,7 @@ rt_save(void)
     int err;
 
     benv_open();
-    err = os_callv(benv_load_mark, benv_save_mark, __rt_save);
+    err = os_callv(benv_load_mark, benv_save, __rt_save);
         debug_trace_error(err, "rt save");
     benv_close();
 

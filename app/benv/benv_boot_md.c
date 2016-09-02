@@ -116,7 +116,7 @@ __benv_load(int idx /* benv's block */)
     void *obj   = (char *)__benv_env + offset;
     
     if (BENV_BLOCK_SIZE==benv_emmc_read(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
-        __benv_dirty[idx] = false;
+        __benv_loaded[idx] = true;
         
         return 0;
     } else {
@@ -130,24 +130,28 @@ __benv_save(int idx /* benv's block */)
     int offset  = BENV_BLOCK_SIZE * idx;
     void *obj   = (char *)__benv_env + offset;
     
-    if (false==__benv_dirty[idx]) {
+    if (false==__benv_loaded[idx]) {
+        benv_println("benv block:%d not loaded, needn't save", idx);
+         debug_trace("benv block:%d not loaded, needn't save", idx);
+        
         return 0;
     }
 
-    benv_crc(idx);
+    if (false==benv_crc(idx)) {
+        benv_println("benv block:%d crc not changed, needn't save", idx);
+         debug_trace("benv block:%d crc not changed, needn't save", idx);
+        
+        return 0;
+    }
 
     benv_println("benv save block:%d ...", idx);
     if (BENV_BLOCK_SIZE!=benv_emmc_write(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
         benv_println("benv save block:%d error", idx);
-        debug_error("benv save block:%d error", idx);
+         debug_error("benv save block:%d error", idx);
 
         return -EIO;
     }
-    
     benv_println("benv save block:%d ok", idx);
-    debug_ok("benv save block:%d ok", idx);
-
-    __benv_dirty[idx] = false;
     
     return 0;
 }
@@ -347,7 +351,7 @@ benv_select(void)
     if (is_benv_good_firmware(buddy)) {
         os_println("buddy firmware%d is good", buddy);
 
-        benv_current_set(buddy);
+        __benv_current = buddy;
         
         goto selected;
     }
@@ -362,7 +366,7 @@ benv_select(void)
     if (is_benv_good_firmware(best)) {
         os_println("the best firmware%d is good", best);
 
-        benv_current_set(best);
+        __benv_current = best;
         
         goto selected;
     }
@@ -374,12 +378,13 @@ benv_select(void)
     * force 0
     */
     os_println("force firmware0");
-    benv_current_set(0);
+    __benv_current = 0;
 
 selected:
-    benv_firmware_select(__benv_current);
-    
-    benv_mark_add(__benv_mark_uptimes, 1);
+    benv_rootfs(__benv_current)->error++;
+    benv_kernel(__benv_current)->error++;
+        
+    benv_mark(__benv_mark_uptimes) += 1;
 }
 
 static void 
@@ -432,16 +437,16 @@ md_boot_init(void)
     * try save benv mid
     */
     uint32 mid = bcookie_cid_mid(emmc_cid);
-    if (mid != benv_mark_get(__benv_mark_cid_mid)) {
-        benv_mark_set(__benv_mark_cid_mid, mid);
+    if (mid != benv_mark(__benv_mark_cid_mid)) {
+        benv_mark(__benv_mark_cid_mid) = mid;
     }
 
     /*
     * try save benv psn
     */
     uint32 psn = bcookie_cid_psn(emmc_cid);
-    if (psn != benv_mark_get(__benv_mark_cid_psn)) {
-        benv_mark_set(__benv_mark_cid_psn, psn);
+    if (psn != benv_mark(__benv_mark_cid_psn)) {
+        benv_mark(__benv_mark_cid_psn) = psn;
     }
     
     bcookie_cid_dump(emmc_cid);

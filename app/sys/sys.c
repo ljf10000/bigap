@@ -261,7 +261,7 @@ __rsync(int idx, benv_version_t *version)
                 sys.env.path,
                 new,
             dir_rootfs(idx));
-    benv_obj_set(rootfs, idx, upgrade, efsm(err));
+    benv_obj(rootfs, idx, upgrade) = efsm(err);
     put_pwdfile(pwdfile);
 
     jinfo("%o", 
@@ -301,7 +301,7 @@ __rcopy(int idx, char *dir, benv_version_t *version)
     __benv_version_itoa(&sys.old_version, old);
 
     err = __xcopy(dir_rootfs(idx), dir);
-    benv_obj_set(rootfs, idx, upgrade, efsm(err));
+    benv_obj(rootfs, idx, upgrade) = efsm(err);
 
     jinfo("%o",
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
@@ -718,9 +718,7 @@ save(void)
 {
     int err = 0;
 
-    if (is_benv_dirty_os()) {
-        err = os_callv(benv_open, benv_close, benv_save_os);
-    }
+    err = os_callv(benv_open, benv_close, benv_save);
 
     return err;
 }
@@ -728,7 +726,7 @@ save(void)
 static int
 load(void)
 {
-    return os_callv(benv_open, benv_close, benv_load);
+    return os_callv(benv_open, benv_close, benv_load_os);
 }
 
 /*
@@ -736,14 +734,13 @@ load(void)
 *   set obj fsm failed
 *   save obj version
 */
-#define __upgrade_init(_obj, _idx, _version)        do{     \
-    benv_obj_set(_obj, _idx, upgrade,   BENV_FSM_UNKNOW);   \
-    benv_obj_set(_obj, _idx, other,     BENV_FSM_UNKNOW);   \
-    benv_obj_set(_obj, _idx, self,      BENV_FSM_UNKNOW);   \
-    benv_obj_set(_obj, _idx, error,     0);                 \
-                                                            \
-    benv_obj_version_save(_obj, _idx, _version);            \
-                                                            \
+#define __upgrade_init(_obj, _idx, _version)    do{     \
+    benv_obj(_obj, _idx, upgrade)   = BENV_FSM_UNKNOW;  \
+    benv_obj(_obj, _idx, other)     = BENV_FSM_UNKNOW;  \
+    benv_obj(_obj, _idx, self)      = BENV_FSM_UNKNOW;  \
+    benv_obj(_obj, _idx, error)     = 0);               \
+                                                        \
+    os_objcpy(benv_obj_version(_obj, _idx), _version);  \
     os_objcpy(&sys.old_version, benv_obj_version(_obj, _idx)); \
 }while(0)
 
@@ -851,7 +848,7 @@ __rdd(int dst, int src)
     __benv_version_itoa(&sys.old_version, old);
 
     err = __dd(dev_rootfs(dst), dev_rootfs(src));
-    benv_obj_set(rootfs, dst, upgrade, efsm(err));
+    benv_obj(rootfs, dst, upgrade) = efsm(err);
 
     jinfo("%o",
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
@@ -906,7 +903,7 @@ __kdd_bydev(int dst, int src)
     __benv_version_itoa(&sys.old_version, old);
 
     err = __dd(dev_kernel(dst), dev_kernel(src));
-    benv_obj_set(kernel, dst, upgrade, efsm(err));
+    benv_obj(kernel, dst, upgrade) = efsm(err);
 
     jinfo("%o",
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
@@ -962,7 +959,7 @@ __kdd_byfile(int idx, char *file, benv_version_t *version)
     __benv_version_itoa(&sys.old_version, old);
 
     err = __dd(dev_kernel(idx), file);
-    benv_obj_set(kernel, idx, upgrade, efsm(err));
+    benv_obj(kernel, idx, upgrade) = efsm(err);
 
     jinfo("%o",
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
@@ -1013,16 +1010,16 @@ switch_to(int idx)
                         "from", __benv_current,
                         "to", idx));
 
-    benv_obj_set(rootfs, idx, error, 0);
-    benv_obj_set(kernel, idx, error, 0);
+    benv_obj(rootfs, idx, error) = 0;
+    benv_obj(kernel, idx, error) = 0;
 
-    benv_obj_set(rootfs, idx, upgrade, BENV_FSM_OK);
-    benv_obj_set(kernel, idx, upgrade, BENV_FSM_OK);
+    benv_obj(rootfs, idx, upgrade) = BENV_FSM_OK;
+    benv_obj(kernel, idx, upgrade) = BENV_FSM_OK;
 
-    benv_obj_set(rootfs, idx, self, BENV_FSM_UNKNOW);
-    benv_obj_set(kernel, idx, self, BENV_FSM_UNKNOW);
+    benv_obj(rootfs, idx, self) = BENV_FSM_UNKNOW;
+    benv_obj(kernel, idx, self) = BENV_FSM_UNKNOW;
     
-    benv_current_set(idx);
+    __benv_current = idx;
     save();
     
     return 0;
@@ -1498,7 +1495,7 @@ reboot:
             && is_benv_good_obj(_obj, i)            \
             && benv_obj_version_eq(_obj, i, _idx)){ \
             debug_ok("tagged " #_obj "%d's other is ok", i); \
-            benv_obj_set(_obj, i, other, BENV_FSM_OK); \
+            benv_obj(_obj, i, other) = BENV_FSM_OK; \
         }                                           \
     }                                               \
 }while(0)
@@ -1511,15 +1508,15 @@ reboot:
         __update_other_ok(_obj, current, skips);    \
     }                                               \
                                                     \
-    benv_obj_set(_obj, current, error, 0);          \
-    benv_obj_set(_obj, current, self, BENV_FSM_OK); \
+    benv_obj(_obj, current, error)  = 0;            \
+    benv_obj(_obj, current, self)   = BENV_FSM_OK;  \
 }while(0)
 
 #define __fail_startup(_obj)                    do{ \
     int current = sys.current;                      \
                                                     \
-    benv_obj_set(_obj, current, error, 3);          \
-    benv_obj_set(_obj, current, self, BENV_FSM_UNKNOW); \
+    benv_obj(_obj, current, error)  = 3;            \
+    benv_obj(_obj, current, self)   = BENV_FSM_UNKNOW; \
 }while(0)
 
 static int
