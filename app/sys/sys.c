@@ -1427,11 +1427,11 @@ __crc(void)
         jcrit("%s%s", 
             "crc-check", "failed",
             "todo", "crc-restore");
-
+#if 0
         bdd("restore", "bootenv", PRODUCT_DEV_BOOTENV, FILE_BOOTENV);
 
         __os_system("(sysreboot || reboot) &");
-        
+#endif
         return -EBADCRC;
     }
 
