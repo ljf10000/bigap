@@ -2037,39 +2037,54 @@ benv_crc_clean(void)
 }
 
 static inline void
-benv_calc_crc(void)
+__recalc_crc(char *action)
 {
-    uint32 crc;
-    int i, j;
+    uint32 crc[BENV_BLOCK_COUNT] = {0};
+    int i;
 
+    /*
+    * clean crc
+    */
     benv_crc_clean();
 
+    /*
+    * calc crc
+    */
+    for (i=0; i<BENV_MARK; i++) {
+        crc[i] = benv_block_crc(i);
+    }
+    for (i=1+BENV_MARK; i<BENV_BLOCK_COUNT; i++) {
+        crc[i] = benv_block_crc(i);
+    }
+    crc[BENV_MARK] = benv_block_crc(BENV_MARK);
+
+    /*
+    * save crc to marks
+    */
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
-        crc = benv_block_crc(i);
-        os_println("calc block[%d] crc[0x%x]", i, crc);
+        benv_mark_crc(i) = crc[i];
+        os_println("%s block[%d] crc[0x%x]", action, i, crc[i]);
     }
 }
 
 static inline void
 benv_update_crc(void)
 {
-    uint32 crc[BENV_BLOCK_COUNT] = {0};
+    __recalc_crc("update");
+}
+
+static inline void
+benv_calc_crc(void)
+{
     int i;
+    
+    __recalc_crc("calc");
 
-    benv_crc_clean();
-
-    for (i=0; i<BENV_MARK; i++) {
-        crc[i] = benv_block_crc(i);
-    }
-
-    for (i=1+BENV_MARK; i<BENV_BLOCK_COUNT; i++) {
-        crc[i] = benv_block_crc(i);
-    }
-    crc[BENV_MARK] = benv_block_crc(BENV_MARK);
-
+    /*
+    * clean loaded, not save
+    */
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
-        benv_mark_crc(i) = crc[i];
-        os_println("update block[%d] crc[0x%x]", i, crc[i]);
+        __benv_loaded[i] = false;
     }
 }
 
