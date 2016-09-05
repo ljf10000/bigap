@@ -379,6 +379,15 @@ __otp_private_write(byte otp[OTP_SIZE])
 
 #endif
 
+static inline bool
+is_good_otp_custom(byte otp[OTP_SIZE])
+{
+    char *oem = oem_vendor();
+    int len = os_strlen(oem);
+
+    return os_memeq(otp, oem, len);
+}
+
 static inline int
 __otp_check(
     byte val[OTP_SIZE], 
@@ -410,7 +419,7 @@ __otp_check(
 
         return 0;
     }
-    else if (__otp_eq(otp, __OTP_CUSTOM) || __otp_eq(otp, OTP_CUSTOM)) {
+    else if (is_good_otp_custom(otp)) {
         otp_println("otp set==get");
 
         return 0;

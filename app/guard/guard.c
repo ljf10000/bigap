@@ -661,8 +661,7 @@ do_check(void)
 
         return -ENOAUTH;
     }
-    else if (false==__otp_eq(custom, __OTP_CUSTOM)
-          && false==__otp_eq(custom, OTP_CUSTOM)) {
+    else if (false==is_good_otp_custom(custom)) {
         /*
         * custom is HACKED
         *

@@ -198,6 +198,18 @@ __this_oem(void)
     return &__THIS_OEM[type];
 }
 
+static inline char *
+oem_vendor(void)
+{
+    static char *vendor;
+
+    if (NULL==vendor) {
+        vendor = oem_type_string(__oem_type());
+    }
+
+    return vendor;
+}
+
 #define oem_rsync_user      __this_oem()->rsync.user
 #define oem_rsync_pwdfile   __this_oem()->rsync.pwdfile
 #define oem_rsync_path      __this_oem()->rsync.path
