@@ -1151,8 +1151,13 @@ LIB_PARAM(getcwd, 0);
 static duk_ret_t
 duke_getcwd(duk_context *ctx)
 {
+#if 0
     char *cwd = getcwd(NULL, -1);
-        os_println("getcwd=%s", cwd);
+#else
+    char line[1+OS_LINE_LEN] = {0};
+    char *cwd = getcwd(line, OS_LINE_LEN);
+#endif
+    os_println("getcwd=%s", cwd);
     if (NULL==cwd) {
         seterrno(ctx);
         duk_push_null(ctx);
