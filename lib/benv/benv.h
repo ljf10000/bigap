@@ -2001,14 +2001,16 @@ benv_check_crc(void)
     
     benv_crc_save(crc);
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
-        crc32 = benv_block_crc(i);
-        debug_crc("calc block[%d] crc[0x%x]", i, crc32);
-        
-        if (crc[i] != crc32) {
-            __benv_errno = -1;
+        if (__benv_loaded[i]) {
+            crc32 = benv_block_crc(i);
+            debug_crc("calc block[%d] crc[0x%x]", i, crc32);
 
-            os_eprintln("block[%d].crc[0x%x] != mark.crc[0x%x]",
-                i, crc32, crc[i]);
+            if (crc[i] != crc32) {
+                __benv_errno = -1;
+
+                os_eprintln("block[%d].crc[0x%x] != mark.crc[0x%x]",
+                    i, crc32, crc[i]);
+            }
         }
     }
     benv_crc_restore(crc, 0, BENV_BLOCK_COUNT);

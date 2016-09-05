@@ -726,7 +726,7 @@ save(void)
 static int
 load(void)
 {
-    return os_callv(benv_open, benv_close, benv_load_os);
+    return os_callv(benv_open, benv_close, benv_load);
 }
 
 /*
