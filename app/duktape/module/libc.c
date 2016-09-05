@@ -1154,8 +1154,8 @@ duke_getcwd(duk_context *ctx)
 #if 0
     char *cwd = getcwd(NULL, -1);
 #else
-    char cwd[1+OS_LINE_LEN] = {0};
-    getcwd(cwd, OS_LINE_LEN);
+    char line[1+PATH_MAX] = {0};
+    char *cwd = getcwd(line, PATH_MAX);
 #endif
     os_println("getcwd=%s", cwd);
     if (NULL==cwd) {
