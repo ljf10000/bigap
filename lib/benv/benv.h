@@ -8,10 +8,10 @@
 #define BENV_DEBUG_MMC              0x08
 
 #ifndef BENV_DEBUG
-#define BENV_DEBUG                  0 //(BENV_DEBUG_TRACE|BENV_DEBUG_MMC|BENV_DEBUG_SORT|BENV_DEBUG_CMP)
+#define BENV_DEBUG                  (BENV_DEBUG_TRACE|BENV_DEBUG_MMC|BENV_DEBUG_SORT|BENV_DEBUG_CMP)
 #endif
 
-#if (BENV_DEBUG & BENV_DEBUG_TRACE)
+#if BENV_DEBUG
 #define benv_debug(_fmt, _args...)  printf(_fmt "\n", ##_args)
 #else
 #define benv_debug(_fmt, _args...)  os_do_nothing()
