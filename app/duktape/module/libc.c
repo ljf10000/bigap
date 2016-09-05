@@ -1163,7 +1163,6 @@ duke_getcwd(duk_context *ctx)
         duk_push_null(ctx);
     } else {
         duk_push_string(ctx, cwd);
-        os_free(cwd);
     }
 
 	return 1;
