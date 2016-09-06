@@ -2001,11 +2001,15 @@ cmd_umount(int argc, char *argv[])
     return errs;
 }
 
+#define SYSREBOOT   0
+
 static int
 __reboot(void)
 {
+#if SYSREBOOT
     cmd_umount(0, NULL);
     kill(1, SIGTERM);
+#endif
 
     return -EINVAL;
 }
