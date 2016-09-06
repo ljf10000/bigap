@@ -29,6 +29,7 @@ BENV_INITER;
 #define SCRIPT_FIRMWARE             SCRIPT_FILE("firmware_check.sh")
 #define SCRIPT_MOUNT                SCRIPT_FILE("mount.script")
 #define SCRIPT_UMOUNT               SCRIPT_FILE("umount.script")
+#define SCRIPT_REBOOT               SCRIPT_FILE("reboot.script")
 #define SCRIPT_HOTPLUG              SCRIPT_FILE("hotplug/disk.cb")
 
 #define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
@@ -208,7 +209,13 @@ rootfs_file(int idx, char *file)
 #define sys_println(_fmt, _args...)     os_do_nothing()
 #endif
 
-static int __reboot(void);
+static int
+__reboot(void)
+{
+    __os_system(SCRIPT_REBOOT);
+
+    return -EINVAL;
+}
 
 static int
 __dd(char *dst, char *src)
@@ -1999,19 +2006,6 @@ cmd_umount(int argc, char *argv[])
     }
     
     return errs;
-}
-
-#define SYSREBOOT   0
-
-static int
-__reboot(void)
-{
-#if SYSREBOOT
-    cmd_umount(0, NULL);
-    kill(1, SIGTERM);
-#endif
-
-    return -EINVAL;
 }
 
 static cmd_table_t cmd[] = {
