@@ -1937,7 +1937,7 @@ benv_command(int argc, char *argv[])
 }
 
 static inline void
-benv_crc_save(uint32 crc[])
+benv_crc_cache(uint32 crc[])
 {
     int i;
     
@@ -1945,7 +1945,7 @@ benv_crc_save(uint32 crc[])
         crc[i] = benv_mark_crc(i);
         benv_mark_crc(i) = 0;
 
-        debug_crc("save block[%d] crc[0x%x]", i, crc[i]);
+        debug_crc("cache block[%d] crc[0x%x]", i, crc[i]);
     }
 }
 
@@ -1973,7 +1973,7 @@ benv_crc(int idx)
     }
 
     if (idx==BENV_MARK) {
-        benv_crc_save(crc);
+        benv_crc_cache(crc);
     }
     
     benv_mark_crc(idx) = new = benv_block_crc(idx);
@@ -1999,7 +1999,7 @@ benv_check_crc(void)
 
     __benv_errno = 0;
     
-    benv_crc_save(crc);
+    benv_crc_cache(crc);
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         if (__benv_loaded[i]) {
             crc32 = benv_block_crc(i);
