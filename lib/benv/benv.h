@@ -1890,12 +1890,16 @@ __benv_analysis(char *args)
      * found '=', is wirte
      */
     else if (os_strchr(args, '=')) {
+        debug_trace("analysis write");
+        
         return benv_analysis_write(args);
     }
     /*
      * no found '=', is show
      */
     else {
+        debug_trace("analysis show");
+        
         return benv_analysis_show(args);
     }
 }
@@ -2257,6 +2261,7 @@ __benv_restore(void)
     }
 
     os_memcpy(__benv_env, env, BENV_SIZE);
+    
     benv_crc_clean();
 error:
     if (fd>=0) {
