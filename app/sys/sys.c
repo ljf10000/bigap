@@ -212,7 +212,7 @@ rootfs_file(int idx, char *file)
 static int
 __reboot(void)
 {
-    __os_system(SCRIPT_REBOOT);
+    __os_system(SCRIPT_REBOOT "&");
 
     return -EINVAL;
 }
