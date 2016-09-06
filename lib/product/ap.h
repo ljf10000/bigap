@@ -57,6 +57,10 @@
 #ifndef PRODUCT_DEV_USB_MASTER
 #define PRODUCT_DEV_USB_MASTER          "dev/fixme"
 #endif
+
+#ifndef PRODUCT_BOOTENV_BACKUP
+#define PRODUCT_BOOTENV_BACKUP         "data/.backup/.bootenv"
+#endif
 /******************************************************************************/
 #include "product/ap/ap1.h"
 #include "product/ap/ap2.h"

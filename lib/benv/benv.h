@@ -2093,12 +2093,19 @@ benv_emmc_write(uint32 begin, void *buf, int size);
 
 extern int __benv_load(int idx);    /* idx is benv's block */
 extern int __benv_save(int idx);    /* idx is benv's block */
+
+#define __benv_backup()     0
+#define __benv_restore()    0
 #elif defined(__APP__)
 #if IS_PRODUCT_LTEFI_MD1
 #define benv_open()         0
 #define benv_close()        0
+
 #define __benv_load(_idx)   0
 #define __benv_save(_idx)   0
+
+#define __benv_backup()     0
+#define __benv_restore()    0
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
 static inline int
 benv_open(void)
@@ -2186,6 +2193,75 @@ __benv_save(int idx /* benv's block */ )
     
     return 0;
 }
+
+static inline int
+__benv_backup(void)
+{
+    int fd = -1, err = 0;
+    
+    fd = open(PRODUCT_FILE(PRODUCT_BOOTENV_BACKUP), O_RDWR | O_SYNC, 0);
+    if (fd<0) {
+        debug_error("open backup error:%d", -fd);
+        
+        err = fd; goto error;
+    }
+
+    err = lseek(fd, 0, SEEK_SET);
+    if (err < 0) {        /* <0 is error */
+        debug_error("seek backup error:%d", -errno);
+        
+        err = -errno; goto error;
+    }
+
+    if (BENV_SIZE != write(fd, __benv_env, BENV_SIZE)) {
+        debug_error("write backup error:%d", -errno);
+
+        err = -errno; goto error;
+    }
+
+error:
+    if (fd>=0) {
+        close(fd);
+    }
+
+    return err;
+}
+
+static inline int
+__benv_restore(void)
+{
+    int fd = -1, err = 0;
+    byte env[BENV_SIZE];
+    
+    fd = open(PRODUCT_FILE(PRODUCT_BOOTENV_BACKUP), O_RDWR | O_SYNC, 0);
+    if (fd<0) {
+        debug_error("open backup error:%d", -fd);
+        
+        err = fd; goto error;
+    }
+
+    err = lseek(fd, 0, SEEK_SET);
+    if (err < 0) {        /* <0 is error */
+        debug_error("seek backup error:%d", -errno);
+        
+        err = -errno; goto error;
+    }
+
+    if (BENV_SIZE != read(fd, env, BENV_SIZE)) {
+        debug_error("read backup error:%d", -errno);
+
+        err = -errno; goto error;
+    }
+
+    os_memcpy(__benv_env, env, BENV_SIZE);
+error:
+    if (fd>=0) {
+        close(fd);
+    }
+
+    return err;
+}
+
 #endif
 #endif
 
@@ -2204,28 +2280,7 @@ __benv_loadby(int begin, int count)
     return err;
 }
 
-static inline int
-benv_loadone(int idx)
-{
-    int err;
-    err = __benv_load(idx);
-    if (err<0) {
-        return err;
-    }
-    
-    if (idx != BENV_MARK) {
-        err = __benv_load(BENV_MARK);
-        if (err<0) {
-            return err;
-        }
-    }
-
-    return 0;
-}
-
-#define benv_load_cookie()  benv_loadone(BENV_COOKIE)
-#define benv_load_os()      benv_loadone(BENV_OS)
-#define benv_load_mark()    benv_loadone(BENV_MARK)
+#define benv_load_mark()        __benv_load(BENV_MARK)
 
 static inline int
 benv_load_info(void)
@@ -2266,6 +2321,18 @@ benv_save(void)
     __benv_saveby(1+BENV_MARK, BENV_BLOCK_COUNT);
 
     return __benv_save(BENV_MARK);
+}
+
+static inline void
+benv_backup(void)
+{
+    __benv_backup();
+}
+
+static inline void
+benv_restore(void)
+{
+    __benv_restore();
 }
 
 static inline int
@@ -2762,6 +2829,9 @@ benv_cmd_hiden(int argc, char *argv[])
 
         __benv_cmd_item("calc",     "crc",      benv_calc_crc),
         __benv_cmd_item("update",   "crc",      benv_update_crc),
+        
+        __benv_cmd_item("backup",   ".",        benv_backup),
+        __benv_cmd_item("restore",  ".",        benv_restore),
     };
 #undef __benv_cmd_item
     char *action    = argv[1];

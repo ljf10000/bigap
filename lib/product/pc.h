@@ -66,6 +66,10 @@
 #define PRODUCT_DEV_BOOTENV             "bootenv"   /* no /dev/xxx, use local file*/
 #endif
 
+#ifndef PRODUCT_BOOTENV_BACKUP
+#define PRODUCT_BOOTENV_BACKUP          ".bootenv"
+#endif
+
 #ifndef PRODUCT_DEV_PREFIX
 #define PRODUCT_DEV_PREFIX              "p"
 #endif

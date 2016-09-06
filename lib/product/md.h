@@ -27,6 +27,10 @@
 #ifndef PRODUCT_DEV_SD_MASTER
 #define PRODUCT_DEV_SD_MASTER           "dev/mmcblk1"
 #endif
+
+#ifndef PRODUCT_BOOTENV_BACKUP
+#define PRODUCT_BOOTENV_BACKUP         "data/.backup/.bootenv"
+#endif
 /******************************************************************************/
 #include "product/md/md1.h"
 #include "product/md/md2.h"

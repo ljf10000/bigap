@@ -40,7 +40,6 @@ BENV_INITER;
 #define SCRIPT_USBUPGRADE_FAIL      SCRIPT_FILE("usbupgrade/fail.cb")
 
 #define __FILE_VERSION              "etc/" PRODUCT_FILE_VERSION
-#define __FILE_BOOTENV              "data/.backup/bootenv"
 #define __FILE_ROOTFS_VERSION       __FILE_VERSION
 #define __FILE_KERNEL_VERSION       __FILE_VERSION
 #define __BIN_MD_PQPARAM            "image/" PRODUCT_BIN_MD_PQPARAM
@@ -52,7 +51,7 @@ BENV_INITER;
 #define __BIN_AP_BOOTENV            "image/" PRODUCT_BIN_AP_BOOTENV
 #define __BIN_AP_FIRMWARE           "image/" PRODUCT_BIN_AP_FIRMWARE
 
-#define FILE_BOOTENV                PRODUCT_FILE(__FILE_BOOTENV)
+#define FILE_BOOTENV_BACKUP         PRODUCT_FILE(PRODUCT_BOOTENV_BACKUP)
 #define FILE_ROOTFS_VERSION         PRODUCT_FILE(__FILE_ROOTFS_VERSION)
 #define FILE_KERNEL_VERSION         PRODUCT_FILE(__FILE_KERNEL_VERSION)
 #define BIN_MD_PQPARAM              PRODUCT_FILE(__BIN_MD_PQPARAM)
@@ -726,11 +725,7 @@ kernel_version(int idx)
 static int
 save(void)
 {
-    int err = 0;
-
-    err = os_callv(benv_open, benv_close, benv_save);
-
-    return err;
+    return os_callv(benv_open, benv_close, benv_save);
 }
 
 static int
@@ -1429,23 +1424,6 @@ usbupgrade(void)
     return 0;
 }
 
-static int
-__crc(void)
-{
-    benv_check_crc();
-    if (__benv_errno<0) {
-        jcrit("%s%s", 
-            "crc-check", "failed",
-            "todo", "crc-restore");
-
-        bdd("restore", "bootenv", PRODUCT_DEV_BOOTENV, FILE_BOOTENV);
-
-        return __reboot();
-    }
-
-    return 0;
-}
-
 /*
 * just repair one firmware with the best rootfs
 */
@@ -1457,10 +1435,6 @@ super_startup(void)
     os_println("super startup");
     jcrit("%s%d", "superstartup", "begin");
 
-    if (__crc()<0) {
-        return 0;
-    }
-    
     /*
     * 1. find best rootfs
     */
@@ -1532,21 +1506,12 @@ normal_startup(void)
 {
     os_println("normal startup");
     jinfo("%s", "startup", "normal");
-    
-    if (__crc()<0) {
-        return 0;
-    }
-    
+
     __normal_startup(rootfs);
     __normal_startup(kernel);
 
     save();
 
-    /*
-    * benv is ok, backup it
-    */
-    bdd("restore", "bootenv", FILE_BOOTENV, PRODUCT_DEV_BOOTENV);
-    
     return 0;
 }
 
