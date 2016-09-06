@@ -1981,7 +1981,7 @@ benv_crc(int idx)
         recalc = true;
         debug_crc("recalc block[%d] crc[0x%x]", idx, new);
     } else {
-        debug_crc("recalc block[%d] new crc[0x%x]==old crc[0x%x]", idx, new, old);
+        debug_crc("block[%d] new crc[0x%x]==old crc[0x%x]", idx, new, old);
     }
     
     if (idx==BENV_MARK) {
