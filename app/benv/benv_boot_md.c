@@ -414,7 +414,7 @@ benv_boot_save(void)
     }
 
     if (false==saved) {
-        usleep(100*1000);
+        udelay(100*1000);
         
         benv_save();
     }
