@@ -2318,11 +2318,13 @@ static inline int
 benv_save(void)
 {
     int i;
-    uint32 current = __benv_current;
+    os_println("os/current=%d, mark's crc=0x%x", __benv_current, benv_mark_crc(1));
     
+    uint32 current = __benv_current;
+
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         __benv_current = i;
-        os_println("os/current=%d crc=0x%x", __benv_current, benv_block_crc(1));
+        os_println("set os/current=%d, calc crc=0x%x", __benv_current, benv_block_crc(1));
     }
     __benv_current = current;
     
