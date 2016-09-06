@@ -1209,6 +1209,7 @@ __benv_show_string_all(benv_ops_t * ops)
 static inline void
 __benv_set_number(benv_ops_t * ops, char *value)
 {
+    os_println("set number:%s", value);
     *benv_ops_number(ops) = (uint32)(value[0] ? os_atoi(value) : 0);
 }
 
@@ -1764,12 +1765,16 @@ __benv_handle(benv_ops_t * ops)
      * show
      */
     if (benv_cache_showit(ops)) {
+        debug_trace("handle show");
+        
         __benv_handle_show(ops);
     }
     /*
      * wirite
      */
     else if (benv_cache_value(ops)) {
+        debug_trace("handle write");
+        
         __benv_handle_write(ops);
     }
 }
