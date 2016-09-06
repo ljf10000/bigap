@@ -1965,7 +1965,8 @@ static inline bool
 benv_crc(int idx)
 {
     uint32 crc[BENV_BLOCK_COUNT] = {0};
-    uint32 new, old = benv_mark_crc(idx);
+    uint32 old = benv_mark_crc(idx);
+    uint32 new;
     bool recalc = false;
 
     if (false==__benv_loaded[idx]) {
@@ -2256,6 +2257,7 @@ __benv_restore(void)
     }
 
     os_memcpy(__benv_env, env, BENV_SIZE);
+    benv_crc_clean();
 error:
     if (fd>=0) {
         close(fd);
