@@ -2199,7 +2199,7 @@ __benv_backup(void)
 {
     int fd = -1, err = 0;
     
-    fd = open(PRODUCT_FILE(PRODUCT_BOOTENV_BACKUP), O_RDWR | O_SYNC, 0);
+    fd = open(PRODUCT_FILE(PRODUCT_BOOTENV_BACKUP), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (fd<0) {
         debug_error("open backup error:%d", -fd);
         
