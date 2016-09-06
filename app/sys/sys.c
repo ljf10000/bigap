@@ -28,6 +28,7 @@ BENV_INITER;
 
 #define SCRIPT_FIRMWARE             SCRIPT_FILE("firmware_check.sh")
 #define SCRIPT_MOUNT                SCRIPT_FILE("mount.script")
+#define SCRIPT_UMOUNT               SCRIPT_FILE("umount.script")
 #define SCRIPT_HOTPLUG              SCRIPT_FILE("hotplug/disk.cb")
 
 #define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
@@ -207,6 +208,8 @@ rootfs_file(int idx, char *file)
 #define sys_println(_fmt, _args...)     os_do_nothing()
 #endif
 
+static int __reboot(void);
+
 static int
 __dd(char *dst, char *src)
 {
@@ -320,7 +323,7 @@ __rcopy(int idx, char *dir, benv_version_t *version)
 static int
 __umount(char *dir)
 {
-    return os_p_system("umount %s", dir);
+    return os_p_system(SCRIPT_UMOUNT " %s", dir);
 }
 
 #if 0
@@ -1430,9 +1433,7 @@ __crc(void)
 
         bdd("restore", "bootenv", PRODUCT_DEV_BOOTENV, FILE_BOOTENV);
 
-        __os_system("(sysreboot || reboot) &");
-
-        return -EBADCRC;
+        return __reboot();
     }
 
     return 0;
@@ -1480,7 +1481,7 @@ super_startup(void)
     switch_to(best);
 
 reboot:
-    return __os_system("(sysreboot || reboot) &");
+    return __reboot();
 }
 
 /*
@@ -1998,6 +1999,15 @@ cmd_umount(int argc, char *argv[])
     }
     
     return errs;
+}
+
+static int
+__reboot(void)
+{
+    cmd_umount(0, NULL);
+    kill(1, SIGTERM);
+
+    return -EINVAL;
 }
 
 static cmd_table_t cmd[] = {

@@ -2076,16 +2076,9 @@ benv_update_crc(void)
 static inline void
 benv_calc_crc(void)
 {
-    int i;
-    
     __recalc_crc("calc");
 
-    /*
-    * clean loaded, not save
-    */
-    for (i=0; i<BENV_BLOCK_COUNT; i++) {
-        __benv_loaded[i] = false;
-    }
+    os_arrayzero(__benv_loaded);
 }
 
 #ifdef __BOOT__
@@ -2798,11 +2791,11 @@ benv_cmd(int argc, char *argv[])
 {
     __benv_self = cli_argv_dump(argc, argv);
     
-    if (true==benv_cmd_hiden(argc, argv)) {
+    if (benv_cmd_hiden(argc, argv)) {
         return __benv_errno;
+    } else {
+        return benv_command(argc - 1, argv + 1);
     }
-
-    return benv_command(argc - 1, argv + 1);
 }
 
 static inline int

@@ -22,11 +22,11 @@ __get_sockaddr(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
                 sizeof(p->un.sun_path) - !!abstract);
         }   break;
         case AF_PACKET:
-            p->ll.sll_protocol = __get_obj_int(ctx, idx, "protocol");
-            p->ll.sll_ifindex = __get_obj_int(ctx, idx, "ifindex");
-            p->ll.sll_hatype = __get_obj_int(ctx, idx, "hatype");
-            p->ll.sll_pkttype = __get_obj_int(ctx, idx, "pkttype");
-            p->ll.sll_halen = __get_obj_int(ctx, idx, "halen");
+            p->ll.sll_protocol  = __get_obj_int(ctx, idx, "protocol");
+            p->ll.sll_ifindex   = __get_obj_int(ctx, idx, "ifindex");
+            p->ll.sll_hatype    = __get_obj_int(ctx, idx, "hatype");
+            p->ll.sll_pkttype   = __get_obj_int(ctx, idx, "pkttype");
+            p->ll.sll_halen     = __get_obj_int(ctx, idx, "halen");
 
             __copy_obj_buffer(ctx, idx, "addr", (char *)p->ll.sll_addr, 8);
 

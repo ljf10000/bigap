@@ -466,5 +466,6 @@ benv_boot(void)
     benv_boot_check();
     benv_boot_select();
     benv_boot_save();
+    benv_check_crc();
 }
 /******************************************************************************/
