@@ -1937,7 +1937,7 @@ benv_command(int argc, char *argv[])
 }
 
 static inline void
-benv_crc_cache(uint32 crc[])
+benv_crc_push(uint32 crc[])
 {
     int i;
     
@@ -1945,19 +1945,19 @@ benv_crc_cache(uint32 crc[])
         crc[i] = benv_mark_crc(i);
         benv_mark_crc(i) = 0;
 
-        debug_crc("cache block[%d] crc[0x%x]", i, crc[i]);
+        debug_crc("push block[%d] crc[0x%x]", i, crc[i]);
     }
 }
 
 static inline void
-benv_crc_restore(uint32 crc[], int begin, int end)
+benc_crc_pop(uint32 crc[], int begin, int end)
 {
     int i;
     
     for (i=begin; i<end; i++) {
         benv_mark_crc(i) = crc[i];
 
-        debug_crc("restore block[%d] crc[0x%x]", i, crc[i]);
+        debug_crc("pop block[%d] crc[0x%x]", i, crc[i]);
     }
 }
 
@@ -1973,7 +1973,7 @@ benv_crc(int idx)
     }
 
     if (idx==BENV_MARK) {
-        benv_crc_cache(crc);
+        benv_crc_push(crc);
     }
     
     benv_mark_crc(idx) = new = benv_block_crc(idx);
@@ -1983,8 +1983,8 @@ benv_crc(int idx)
     }
     
     if (idx==BENV_MARK) {
-        benv_crc_restore(crc, 0, BENV_MARK);
-        benv_crc_restore(crc, 1+BENV_MARK, BENV_BLOCK_COUNT);
+        benc_crc_pop(crc, 0, BENV_MARK);
+        benc_crc_pop(crc, 1+BENV_MARK, BENV_BLOCK_COUNT);
     }
 
     return recalc;
@@ -1999,7 +1999,7 @@ benv_check_crc(void)
 
     __benv_errno = 0;
     
-    benv_crc_cache(crc);
+    benv_crc_push(crc);
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         if (__benv_loaded[i]) {
             crc32 = benv_block_crc(i);
@@ -2013,7 +2013,7 @@ benv_check_crc(void)
             }
         }
     }
-    benv_crc_restore(crc, 0, BENV_BLOCK_COUNT);
+    benc_crc_pop(crc, 0, BENV_BLOCK_COUNT);
 }
 
 static inline void
