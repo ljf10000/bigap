@@ -455,6 +455,7 @@ typedef struct {
     char *self;
     int fd;
     int error;
+    int werror;
 } benv_control_t;
 
 #define __BENV_CONTROL_INITER(_env, _ops, _cache) {   \
@@ -484,6 +485,7 @@ typedef struct {
 extern benv_control_t benv_control;
 #define __benv_control    (&benv_control)
 
+#define __benv_werror       __benv_control->werror
 #define __benv_errno        __benv_control->error
 #define __benv_fd           __benv_control->fd
 #define __benv_env          __benv_control->env
@@ -1981,8 +1983,6 @@ benv_crc(int idx)
     if (new != old) {
         recalc = true;
         debug_crc("recalc block[%d] crc[0x%x]", idx, new);
-    } else {
-        debug_crc("block[%d] new crc[0x%x]==old crc[0x%x]", idx, new, old);
     }
     
     if (idx==BENV_MARK) {
@@ -2161,6 +2161,8 @@ __benv_save(int idx /* benv's block */ )
     void *obj   = (char *)__benv_env + offset;
     int err     = 0;
 
+    __benv_werror = 0;
+    
     if (false==__benv_loaded[idx]) {
          benv_debug("benv block:%d not loaded, needn't save", idx);
         debug_trace("benv block:%d not loaded, needn't save", idx);
@@ -2182,14 +2184,14 @@ __benv_save(int idx /* benv's block */ )
          benv_debug("benv seek block:%d error;%d", idx, -errno);
         debug_error("benv seek block:%d error;%d", idx, -errno);
         
-        return -errno;
+        return (__benv_werror = -errno);
     }
 
     if (BENV_BLOCK_SIZE != write(__benv_fd, obj, BENV_BLOCK_SIZE)) {
          benv_debug("benv write block:%d error;%d", idx, -errno);
         debug_error("benv write block:%d error;%d", idx, -errno);
         
-        return -errno;
+        return (__benv_werror = -errno);
     }
     
     benv_debug("benv save block:%d ok.", idx);
@@ -2355,6 +2357,7 @@ benv_init(void)
     }
 
     __benv_errno        = 0;
+    __benv_werror       = 0;
     __benv_show_count   = 0;
     if (__benv_cache) {
         os_memzero(__benv_cache, __benv_ops_count * sizeof(benv_cache_t));

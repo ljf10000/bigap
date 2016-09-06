@@ -129,6 +129,8 @@ __benv_save(int idx /* benv's block */)
 {
     int offset  = BENV_BLOCK_SIZE * idx;
     void *obj   = (char *)__benv_env + offset;
+
+    __benv_werror = 0;
     
     if (false==__benv_loaded[idx]) {
          benv_debug("benv block:%d not loaded, needn't save", idx);
@@ -149,7 +151,8 @@ __benv_save(int idx /* benv's block */)
          benv_debug("benv save block:%d error", idx);
         debug_error("benv save block:%d error", idx);
 
-        return -EIO;
+        __benv_werror = 1;
+        return (__benv_werror = -EIO);
     }
     benv_debug("benv save block:%d ok", idx);
     
@@ -409,9 +412,15 @@ benv_boot_save(void)
         bootenv_dirty = false;
         os_println("bootenv update ok.");
     } else {
-        os_usleep(100*1000);
-        
-        benv_save();
+        int i;
+
+        for (i=0; i<10; i++) {
+            os_usleep(100*1000);
+            benv_save();
+            if (0==__benv_werror) {
+                break;
+            }
+        }
     }
 }
 
