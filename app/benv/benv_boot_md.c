@@ -151,7 +151,6 @@ __benv_save(int idx /* benv's block */)
          benv_debug("benv save block:%d error", idx);
         debug_error("benv save block:%d error", idx);
 
-        __benv_werror = 1;
         return (__benv_werror = -EIO);
     }
     benv_debug("benv save block:%d ok", idx);
