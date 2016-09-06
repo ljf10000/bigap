@@ -1209,7 +1209,6 @@ __benv_show_string_all(benv_ops_t * ops)
 static inline void
 __benv_set_number(benv_ops_t * ops, char *value)
 {
-    os_println("set number:%s", value);
     *benv_ops_number(ops) = (uint32)(value[0] ? os_atoi(value) : 0);
 }
 
@@ -1765,16 +1764,12 @@ __benv_handle(benv_ops_t * ops)
      * show
      */
     if (benv_cache_showit(ops)) {
-        debug_trace("handle show");
-        
         __benv_handle_show(ops);
     }
     /*
      * wirite
      */
     else if (benv_cache_value(ops)) {
-        debug_trace("handle write");
-        
         __benv_handle_write(ops);
     }
 }
@@ -1895,16 +1890,12 @@ __benv_analysis(char *args)
      * found '=', is wirte
      */
     else if (os_strchr(args, '=')) {
-        debug_trace("analysis write");
-        
         return benv_analysis_write(args);
     }
     /*
      * no found '=', is show
      */
     else {
-        debug_trace("analysis show");
-        
         return benv_analysis_show(args);
     }
 }
@@ -1978,6 +1969,8 @@ benv_crc(int idx)
     uint32 new;
     bool recalc = false;
 
+    os_println("block[%d] crc[0x%x]", idx, benv_mark_crc(idx));
+    
     if (false==__benv_loaded[idx]) {
         return false;
     }
@@ -1985,7 +1978,7 @@ benv_crc(int idx)
     if (idx==BENV_MARK) {
         benv_crc_push(crc);
     }
-    
+
     benv_mark_crc(idx) = new = benv_block_crc(idx);
     if (new != old) {
         recalc = true;
