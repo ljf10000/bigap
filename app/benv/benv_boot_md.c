@@ -397,8 +397,6 @@ benv_boot_select(void)
 static void
 benv_boot_save(void)
 {
-    bool saved = false;
-    
     if (bootenv_dirty) {
         os_println("bootenv update ...");
         
@@ -408,12 +406,9 @@ benv_boot_save(void)
         */
         saveenv();
 
-        saved = true;
         bootenv_dirty = false;
         os_println("bootenv update ok.");
-    }
-
-    if (false==saved) {
+    } else {
         os_usleep(100*1000);
         
         benv_save();
