@@ -1969,7 +1969,7 @@ benv_crc(int idx)
     uint32 new;
     bool recalc = false;
 
-    os_println("block[%d] crc[0x%x]", idx, benv_mark_crc(idx));
+    os_println("os/current=%d", __benv_current);
     
     if (false==__benv_loaded[idx]) {
         return false;
