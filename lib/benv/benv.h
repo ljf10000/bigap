@@ -1987,7 +1987,11 @@ __benv_read(int env, int idx)
     extern benv_env_t ____benv_env[];
     extern benv_env_t ____benv_mirror[];
     
-    os_println("env=%p mirror=%p", ____benv_env, ____benv_mirror);
+    os_println("env=[%p, %p] mirror=[%p, %p]", 
+        ____benv_env,
+        (byte *)____benv_env + BENV_COUNT*BENV_SIZE,
+        ____benv_mirror,
+        (byte *)____benv_mirror + BENV_COUNT*BENV_SIZE);
     os_println("read benv[%d:%d] offset=0x%x block=%p mirror=%p", 
         env, idx, 
         benv_offset(env, idx),
