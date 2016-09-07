@@ -8,7 +8,7 @@
 #define BENV_DEBUG_MMC              0x08
 
 #ifndef BENV_DEBUG
-#define BENV_DEBUG                  1 //(BENV_DEBUG_TRACE|BENV_DEBUG_MMC|BENV_DEBUG_SORT|BENV_DEBUG_CMP)
+#define BENV_DEBUG                  0 //(BENV_DEBUG_TRACE|BENV_DEBUG_MMC|BENV_DEBUG_SORT|BENV_DEBUG_CMP)
 #endif
 
 #if BENV_DEBUG
@@ -2061,7 +2061,6 @@ __benv_repair(int idx)
     bool good[BENV_COUNT] = {0};
     bool eq;
 
-    os_println("__benv_repair block%d ...", idx);
     /*
     * check same
     */
@@ -2083,8 +2082,6 @@ __benv_repair(int idx)
     * all same, so all good
     */
     if (BENV_COUNT==goodall) {
-        os_println("__benv_repair block%d ok(not repair)", idx);
-        
         return 0;
     }
 
