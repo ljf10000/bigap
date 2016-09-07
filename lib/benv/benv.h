@@ -485,7 +485,6 @@ typedef struct {
     benv_control_t ____benv_control = __BENV_CONTROL_INITER(_benv, ____benv_mirror, ____benv_ops, ____benv_cache); \
     os_fake_declare /* end */
 
-extern char ____benv_zero[BENV_COUNT*BENV_SIZE];
 extern benv_control_t ____benv_control;
 
 #define __benv_control      (&____benv_control)
@@ -1989,10 +1988,11 @@ __benv_read(int env, int idx)
     extern benv_env_t ____benv_mirror[];
     
     os_println("env=%p mirror=%p", ____benv_env, ____benv_mirror);
-    os_println("read benv[%d:%d] offset=0x%x to block=%p", 
+    os_println("read benv[%d:%d] offset=0x%x block=%p mirror=%p", 
         env, idx, 
         benv_offset(env, idx),
-        benv_block(env, idx));
+        benv_block(env, idx),
+        benv_mirror(env, idx));
     
     err = lseek(__benv_fd, benv_offset(env, idx), SEEK_SET);
     if (err < 0) { /* <0 is error */
