@@ -1756,12 +1756,14 @@ __benv_handle(benv_ops_t * ops)
      * show
      */
     if (benv_cache_showit(ops)) {
+        os_println("__benv_handle show %s", ops->path);
         __benv_handle_show(ops);
     }
     /*
      * wirite
      */
     else if (benv_cache_value(ops)) {
+        os_println("__benv_handle write %s", ops->path);
         __benv_handle_write(ops);
     }
     os_println("__benv_handle %s ok", ops->path);
