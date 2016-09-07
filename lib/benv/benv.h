@@ -2138,7 +2138,7 @@ __benv_save(int idx)
          benv_debug("benv block:%d not changed, needn't save", idx);
         debug_trace("benv block:%d not changed, needn't save", idx);
         
-        continue;
+        return 0;
     }
 
     /*
