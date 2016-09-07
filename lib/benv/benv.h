@@ -1944,26 +1944,14 @@ benv_command(int argc, char *argv[])
         return benv_usage();
     }
 
-    os_println("before analysis");
-    __os_dump_buffer(____benv_zero, BENV_SIZE*BENV_COUNT, NULL);
-
     err = benv_analysis(argc, argv);
     if (err<0) {
         return err;
     }
 
-    os_println("after analysis");
-    __os_dump_buffer(____benv_zero, BENV_SIZE*BENV_COUNT, NULL);
-
     benv_cache_dump();
 
-    os_println("before handle");
-    __os_dump_buffer(____benv_zero, BENV_SIZE*BENV_COUNT, NULL);
-
     benv_handle(argc, argv);
-    
-    os_println("after handle");
-    __os_dump_buffer(____benv_zero, BENV_SIZE*BENV_COUNT, NULL);
     
     return 0;
 }
