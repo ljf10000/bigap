@@ -1930,7 +1930,10 @@ benv_command(int argc, char *argv[])
     }
 
     for (i = 0; i < __benv_ops_count; i++) {
-        os_println("before analysis ops[%d] showit=%d", i, benv_cache_showit(benv_ops(i)));
+        os_println("before analysis ops[%d] showit=%d value=%s", 
+            i, 
+            benv_cache_showit(benv_ops(i)),
+            benv_cache_value(benv_ops(i)));
     }
 
     err = benv_analysis(argc, argv);
