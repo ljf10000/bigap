@@ -101,9 +101,7 @@ struct init_action {
 }
 
 static struct init_action actions[] = {
-    action_entry("sysstartup",          ONCE | STATICACT),
-    action_entry("/etc/init.d/rc.last", ONCE | STATICACT),
-    action_entry("bck",                 ONCE | STATICACT),
+    action_entry("bck",     ONCE | STATICACT),
 
     action_entry("jlogd",  RESPAWN | STATICACT),
     action_entry("umd",    RESPAWN | STATICACT),

@@ -101,7 +101,6 @@ struct init_action {
 }
 
 static struct init_action actions[] = {
-    action_entry("/etc/init.d/rc.last", ONCE | STATICACT),
     action_entry("jlogd",  RESPAWN | STATICACT),
 #ifndef NO_UM
     action_entry("umd",    RESPAWN | STATICACT),
