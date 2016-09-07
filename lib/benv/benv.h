@@ -2133,15 +2133,22 @@ __benv_save(int idx)
         
         return 0;
     }
+    
+    if (os_memeq(benv_block(0, idx), benv_mirror(0, idx), BENV_BLOCK_SIZE)) {
+         benv_debug("benv block:%d not changed, needn't save", idx);
+        debug_trace("benv block:%d not changed, needn't save", idx);
+        
+        continue;
+    }
+
+    /*
+    * 0==>others
+    */
+    for (env=1; env<BENV_COUNT; env++) {
+        os_memcpy(benv_block(env, idx), benv_block(0, idx), BENV_BLOCK_SIZE);
+    }
 
     for (env=0; env<BENV_COUNT; env++) {
-        if (os_memeq(benv_block(env, idx), benv_mirror(env, idx), BENV_BLOCK_SIZE)) {
-             benv_debug("benv[%d:%d] not changed, needn't save", env, idx);
-            debug_trace("benv[%d:%d] not changed, needn't save", env, idx);
-            
-            continue;
-        }
-        
         err = __benv_write(env, idx);
         if (err<0) {
             return err;
