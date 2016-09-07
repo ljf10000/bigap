@@ -461,7 +461,7 @@ typedef struct {
 
 #define __BENV_CONTROL_INITER(_env, _mirror, _ops, _cache) {   \
     .mirror     = _mirror,                      \
-    .env        = (benv_env_t *)_env,           \
+    .env        = _env,                         \
     .ops        = _ops,                         \
     .cache      = _cache,                       \
     .ops_count  = (_ops)?os_count_of(_ops):0,   \
@@ -518,13 +518,13 @@ benv_offset(int env, int idx)
 static inline byte *
 benv_mirror(int env, int idx)
 {
-    return (byte *)__benv_mirror(env) + benv_offset(env, idx);
+    return (byte *)__benv_mirror(0) + benv_offset(env, idx);
 }
 
 static inline byte *
 benv_block(int env, int idx)
 {
-    return (byte *)__benv_env(env) + benv_offset(env, idx);
+    return (byte *)__benv_env(0) + benv_offset(env, idx);
 }
 
 static inline benv_ops_t *
