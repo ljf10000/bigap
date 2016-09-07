@@ -461,7 +461,7 @@ typedef struct {
 
 #define __BENV_CONTROL_INITER(_env, _mirror, _ops, _cache) {   \
     .mirror     = _mirror,                      \
-    .env        = _env,                         \
+    .env        = (benv_env_t *)_env,           \
     .ops        = _ops,                         \
     .cache      = _cache,                       \
     .ops_count  = (_ops)?os_count_of(_ops):0,   \
