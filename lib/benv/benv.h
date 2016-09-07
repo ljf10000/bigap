@@ -1766,22 +1766,18 @@ __benv_handle_show(benv_ops_t * ops)
 static inline void
 __benv_handle(benv_ops_t * ops)
 {
-    os_println("__benv_handle %s ...", ops->path);
     /*
      * show
      */
     if (benv_cache_showit(ops)) {
-        os_println("__benv_handle show %s", ops->path);
         __benv_handle_show(ops);
     }
     /*
      * wirite
      */
     else if (benv_cache_value(ops)) {
-        os_println("__benv_handle write %s", ops->path);
         __benv_handle_write(ops);
     }
-    os_println("__benv_handle %s ok", ops->path);
 }
 
 static inline void
@@ -1811,17 +1807,13 @@ __benv_analysis_write(benv_ops_t *ops, char *args)
     char *value = eq + 1;
     int err;
 
-    os_println("__benv_analysis_write %s ...", ops->path);
     if (benv_ops_match(ops, path, eq - path, false)) {
         err = benv_ops_check(ops, value);
         if (err<0) {
             return err;
         }
 
-        os_println("__benv_analysis_write %s true", ops->path);
         benv_cache_value(ops) = value;
-    } else {
-        os_println("__benv_analysis_write %s false", ops->path);
     }
     
     return 0;
@@ -1846,8 +1838,6 @@ static inline int
 __benv_analysis_show(benv_ops_t *ops, char *args)
 {
     char *wildcard = os_strlast(args, '*');
-
-    os_println("__benv_analysis_show %s ...", ops->path);
     
     /*
      * if found '*'
@@ -1858,16 +1848,12 @@ __benv_analysis_show(benv_ops_t *ops, char *args)
     if (os_strchr(args, '*') != wildcard) {
         debug_error("only support show 'xxx*'");
 
-        os_println("__benv_analysis_show %s false", ops->path);
         return -EFORMAT;
     } else if (benv_ops_match(ops, args, os_strlen(args), !!wildcard)) {
         benv_cache_showit(ops) = true;
 
-        os_println("__benv_analysis_show %s true", ops->path);
         __benv_show_count++;
     }
-
-    os_println("__benv_analysis_show %s false", ops->path);
     
     return 0;
 }
