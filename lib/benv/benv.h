@@ -1457,7 +1457,7 @@ __benv_check_string(benv_ops_t * ops, char *value)
     __BENV_MARK_OPS("mid",          __benv_mark_cid_mid,        NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("psn",          __benv_mark_cid_psn,        NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("na",           __benv_mark_noauth,         NULL, NULL,             __benv_show_number), \
-    __BENV_MARK_OPS("jdebug",       __benv_mark_jdebug,         NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("jdebug",       __benv_mark_jdebug,         NULL, NULL,             __benv_show_number)  \
     /* end */
 
 #define BENV_MARK_OPS_IDX       \
