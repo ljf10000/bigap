@@ -470,8 +470,8 @@ typedef struct {
 
 #if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
 #   define BENV_INITER \
-        static benv_env_t ____benv_env[BENV_COUNT]; \
-        static benv_env_t ____benv_mirror[BENV_COUNT]; \
+        benv_env_t ____benv_env[BENV_COUNT]; \
+        benv_env_t ____benv_mirror[BENV_COUNT]; \
         benv_control_t ____benv_control = __BENV_CONTROL_INITER(____benv_env, ____benv_mirror, NULL, NULL); \
         os_fake_declare /* end */
 #else
@@ -481,7 +481,7 @@ typedef struct {
 #define BENV_CONTROL_INITER(_benv) \
     static benv_ops_t   ____benv_ops[] = BENV_DEFT_OPS; \
     static benv_cache_t ____benv_cache[os_count_of(____benv_ops)]; \
-    static benv_env_t   ____benv_mirror[BENV_COUNT]; \
+    benv_env_t   ____benv_mirror[BENV_COUNT]; \
     benv_control_t ____benv_control = __BENV_CONTROL_INITER(_benv, ____benv_mirror, ____benv_ops, ____benv_cache); \
     os_fake_declare /* end */
 
@@ -1986,9 +1986,10 @@ __benv_read(int env, int idx)
     int err = 0;
 
     extern benv_env_t ____benv_env[];
+    extern benv_env_t ____benv_mirror[];
     
-    os_println("env=0x%x mirror=0x%x", ____benv_env, ____benv_mirror);
-    os_println("read benv[%d:%d] offset=0x%x to block=0x%x", 
+    os_println("env=%p mirror=%p", ____benv_env, ____benv_mirror);
+    os_println("read benv[%d:%d] offset=0x%x to block=%p", 
         env, idx, 
         benv_offset(env, idx),
         benv_block(env, idx));
