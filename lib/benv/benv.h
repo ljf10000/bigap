@@ -599,13 +599,11 @@ benv_cache_dump(void)
     for (i = 0; i < __benv_ops_count; i++) {
         benv_ops_t *ops = benv_ops(i);
 
-        os_println("benv_cache_dump %d ...", i);
         debug_trace("ops idx=%d, path=%s, value=%s, showit=%s",
             benv_ops_idx(ops),
             ops->path,
             benv_cache_value(ops)?benv_cache_value(ops):"nothing",
             benv_cache_showit(ops)?"true":"false");
-        os_println("benv_cache_dump %d ok", i);
     }
 }
 
@@ -1753,6 +1751,7 @@ __benv_handle_show(benv_ops_t * ops)
 static inline void
 __benv_handle(benv_ops_t * ops)
 {
+    os_println("__benv_handle %s ...", ops->path);
     /*
      * show
      */
@@ -1765,6 +1764,7 @@ __benv_handle(benv_ops_t * ops)
     else if (benv_cache_value(ops)) {
         __benv_handle_write(ops);
     }
+    os_println("__benv_handle %s ok", ops->path);
 }
 
 static inline void
