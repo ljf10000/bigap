@@ -2040,7 +2040,7 @@ benv_crc_clean(void)
 }
 
 static inline void
-__recalc_crc(char *action)
+benv_recalc_crc(char *action)
 {
     uint32 crc[BENV_BLOCK_COUNT] = {0};
     int i;
@@ -2066,20 +2066,22 @@ __recalc_crc(char *action)
     */
     for (i=0; i<BENV_BLOCK_COUNT; i++) {
         benv_mark_crc(i) = crc[i];
-        os_println("%s block[%d] crc[0x%x]", action, i, crc[i]);
+        if (action) {
+            os_println("%s block[%d] crc[0x%x]", action, i, crc[i]);
+        }
     }
 }
 
 static inline void
 benv_update_crc(void)
 {
-    __recalc_crc("update");
+    benv_recalc_crc("update");
 }
 
 static inline void
 benv_calc_crc(void)
 {
-    __recalc_crc("calc");
+    benv_recalc_crc("calc");
 
     os_arrayzero(__benv_loaded);
 }

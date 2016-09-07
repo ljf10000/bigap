@@ -401,6 +401,11 @@ benv_boot_save(void)
 {
     if (bootenv_dirty) {
         os_println("bootenv update ...");
+
+        /*
+        * not call benv_save, so update crc
+        */
+        benv_update_crc();
         
         env_crc_update();
         /*
@@ -418,6 +423,8 @@ benv_boot_save(void)
             benv_save();
             if (0==__benv_werror) {
                 break;
+            } else {
+                os_println("benv save error %d times.", i);
             }
         }
     }
