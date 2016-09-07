@@ -445,6 +445,7 @@ benv_ops_match(benv_ops_t *ops, char *path, int len, bool wildcard)
 }
 
 typedef struct {
+    benv_env_t raw;
     benv_env_t *env;
     benv_ops_t *ops;
     benv_cache_t *cache;
@@ -465,7 +466,6 @@ typedef struct {
     .ops_count  = (_ops)?os_count_of(_ops):0,   \
     .fd         = INVALID_FD,                   \
 }   /* end */
-
 
 #if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
 #   define BENV_INITER \
@@ -488,6 +488,7 @@ extern benv_control_t benv_control;
 #define __benv_werror       __benv_control->werror
 #define __benv_errno        __benv_control->error
 #define __benv_fd           __benv_control->fd
+#define __benv_raw          (&__benv_control->raw)
 #define __benv_env          __benv_control->env
 #define __benv_ops          __benv_control->ops
 #define __benv_ops_count    __benv_control->ops_count
@@ -508,7 +509,9 @@ extern benv_control_t benv_control;
 /*
 * idx is block index
 */
-#define benv_block(_idx)        ((char *)(__benv_env) + (_idx)*BENV_BLOCK_SIZE)
+#define benv_offset(_idx)       ((_idx)*BENV_BLOCK_SIZE)
+#define benv_raw(_idx)          ((char *)(__benv_raw) + benv_offset(_idx))
+#define benv_block(_idx)        ((char *)(__benv_env) + benv_offset(_idx))
 #define benv_block_crc(_idx)    os_crc32(benv_block(_idx), BENV_BLOCK_SIZE)
 #define benv_mark_crc(_idx)     benv_mark(__benv_mark_crc+_idx)
 
@@ -2132,25 +2135,23 @@ benv_close(void)
 
 static inline int
 __benv_load(int idx)
-{
-    int offset = BENV_BLOCK_SIZE * idx;
-    void *obj = (char *)__benv_env + offset;
+{    
+    int err = 0;
     
-    int err;
-    
-    err = lseek(__benv_fd, offset, SEEK_SET);
+    err = lseek(__benv_fd, benv_offset(idx), SEEK_SET);
     if (err < 0) {        /* <0 is error */
         debug_error("seek benv error:%d", -errno);
 
         return -errno;
     }
 
-    if (BENV_BLOCK_SIZE != read(__benv_fd, obj, BENV_BLOCK_SIZE)) {
+    if (BENV_BLOCK_SIZE != read(__benv_fd, benv_block(idx), BENV_BLOCK_SIZE)) {
         debug_error("read benv error:%d", -errno);
 
         return -errno;
     }
 
+    os_memcpy(benv_raw(idx), benv_block(idx), BENV_BLOCK_SIZE);
     __benv_loaded[idx] = true;
     
     return 0;
@@ -2159,9 +2160,7 @@ __benv_load(int idx)
 static inline int
 __benv_save(int idx /* benv's block */ )
 {
-    int offset  = BENV_BLOCK_SIZE * idx;
-    void *obj   = (char *)__benv_env + offset;
-    int err     = 0;
+    int err = 0;
 
     __benv_werror = 0;
     
@@ -2172,16 +2171,18 @@ __benv_save(int idx /* benv's block */ )
         return 0;
     }
 
-    if (false==benv_crc(idx)) {
-         benv_debug("benv block:%d crc not changed, needn't save", idx);
-        debug_trace("benv block:%d crc not changed, needn't save", idx);
+    if (false==os_memcmp(benv_block(idx), benv_raw(idx), BENV_BLOCK_SIZE)) {
+         benv_debug("benv block:%d not changed, needn't save", idx);
+        debug_trace("benv block:%d not changed, needn't save", idx);
         
         return 0;
     }
+
+    benv_crc(idx);
     
     benv_debug("benv save block:%d ...", idx);
     
-    err = lseek(__benv_fd, offset, SEEK_SET);
+    err = lseek(__benv_fd, benv_offset(idx), SEEK_SET);
     if (err < 0) {        /* <0 is error */
          benv_debug("benv seek block:%d error;%d", idx, -errno);
         debug_error("benv seek block:%d error;%d", idx, -errno);
@@ -2189,13 +2190,13 @@ __benv_save(int idx /* benv's block */ )
         return (__benv_werror = -errno);
     }
 
-    if (BENV_BLOCK_SIZE != write(__benv_fd, obj, BENV_BLOCK_SIZE)) {
+    if (BENV_BLOCK_SIZE != write(__benv_fd, benv_block(idx), BENV_BLOCK_SIZE)) {
          benv_debug("benv write block:%d error;%d", idx, -errno);
         debug_error("benv write block:%d error;%d", idx, -errno);
         
         return (__benv_werror = -errno);
     }
-    
+    os_memcpy(benv_raw(idx), benv_block(idx), BENV_BLOCK_SIZE);
     benv_debug("benv save block:%d ok.", idx);
     
     return 0;

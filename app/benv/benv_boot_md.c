@@ -108,14 +108,11 @@ benv_emmc_write(uint32 begin, void *buf, int size)
     return size;
 }
 
-
 int
 __benv_load(int idx /* benv's block */)
 {
-    int offset  = BENV_BLOCK_SIZE * idx;
-    void *obj   = (char *)__benv_env + offset;
-    
-    if (BENV_BLOCK_SIZE==benv_emmc_read(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
+    if (BENV_BLOCK_SIZE==benv_emmc_read(BENV_START + benv_offset(idx), benv_block(idx), BENV_BLOCK_SIZE)) {
+        os_memcpy(benv_raw(idx), benv_block(idx), BENV_BLOCK_SIZE);
         __benv_loaded[idx] = true;
         
         return 0;
@@ -127,9 +124,6 @@ __benv_load(int idx /* benv's block */)
 int
 __benv_save(int idx /* benv's block */)
 {
-    int offset  = BENV_BLOCK_SIZE * idx;
-    void *obj   = (char *)__benv_env + offset;
-
     __benv_werror = 0;
     
     if (false==__benv_loaded[idx]) {
@@ -139,20 +133,24 @@ __benv_save(int idx /* benv's block */)
         return 0;
     }
 
-    if (false==benv_crc(idx)) {
-         benv_debug("benv block:%d crc not changed, needn't save", idx);
-        debug_trace("benv block:%d crc not changed, needn't save", idx);
+    if (false==os_memcmp(benv_block(idx), benv_raw(idx), BENV_BLOCK_SIZE)) {
+         benv_debug("benv block:%d not changed, needn't save", idx);
+        debug_trace("benv block:%d not changed, needn't save", idx);
         
         return 0;
     }
 
+    benv_crc(idx);
+
     benv_debug("benv save block:%d ...", idx);
-    if (BENV_BLOCK_SIZE!=benv_emmc_write(BENV_START + offset, obj, BENV_BLOCK_SIZE)) {
+    if (BENV_BLOCK_SIZE!=benv_emmc_write(BENV_START + benv_offset(idx), benv_block(idx), BENV_BLOCK_SIZE)) {
          benv_debug("benv save block:%d error", idx);
         debug_error("benv save block:%d error", idx);
 
         return (__benv_werror = -EIO);
     }
+    os_memcpy(benv_raw(idx), benv_block(idx), BENV_BLOCK_SIZE);
+    
     benv_debug("benv save block:%d ok", idx);
     
     return 0;
