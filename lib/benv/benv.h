@@ -485,6 +485,7 @@ typedef struct {
     benv_control_t ____benv_control = __BENV_CONTROL_INITER(_benv, ____benv_mirror, ____benv_ops, ____benv_cache); \
     os_fake_declare /* end */
 
+extern char ____benv_zero[BENV_COUNT*BENV_SIZE];
 extern benv_control_t ____benv_control;
 
 #define __benv_control      (&____benv_control)
@@ -509,9 +510,23 @@ extern benv_control_t ____benv_control;
 #define benv_mark(_idx)     __benv_mark->var[_idx]
 #define benv_info(_idx)     __benv_info->var[_idx]
 
-#define benv_offset(_env, _idx)     ((_env)*BENV_SIZE + (_idx)*BENV_BLOCK_SIZE)
-#define benv_mirror(_env, _idx)     ((byte *)__benv_mirror(_env) + benv_offset(_env, _idx))
-#define benv_block(_env, _idx)      ((byte *)__benv_env(_env) + benv_offset(_env, _idx))
+static inline uint32
+benv_offset(int env, int idx)
+{
+    return env*BENV_SIZE + idx*BENV_BLOCK_SIZE;
+}
+
+static inline byte *
+benv_mirror(int env, int idx)
+{
+    return (byte *)__benv_mirror(env) + benv_offset(env, idx);
+}
+
+static inline byte *
+benv_block(int env, int idx)
+{
+    return (byte *)__benv_env(env) + benv_offset(env, idx);
+}
 
 static inline benv_ops_t *
 benv_ops(int idx)
@@ -1929,43 +1944,27 @@ benv_command(int argc, char *argv[])
         return benv_usage();
     }
 
-    for (i = 0; i < __benv_ops_count; i++) {
-        os_println("before analysis ops[%d] showit=%d value=%s", 
-            i, 
-            benv_cache_showit(benv_ops(i)),
-            benv_cache_value(benv_ops(i)));
-    }
+    os_println("before analysis");
+    __os_dump_buffer(____benv_zero, BENV_SIZE*BENV_COUNT, NULL);
 
     err = benv_analysis(argc, argv);
     if (err<0) {
         return err;
     }
 
-    for (i = 0; i < __benv_ops_count; i++) {
-        os_println("after analysis ops[%d] showit=%d value=%s", 
-            i, 
-            benv_cache_showit(benv_ops(i)),
-            benv_cache_value(benv_ops(i)));
-    }
+    os_println("after analysis");
+    __os_dump_buffer(____benv_zero, BENV_SIZE*BENV_COUNT, NULL);
 
     benv_cache_dump();
 
-    for (i = 0; i < __benv_ops_count; i++) {
-        os_println("after dump ops[%d] showit=%d value=%s", 
-            i, 
-            benv_cache_showit(benv_ops(i)),
-            benv_cache_value(benv_ops(i)));
-    }
-    
+    os_println("before handle");
+    __os_dump_buffer(____benv_zero, BENV_SIZE*BENV_COUNT, NULL);
+
     benv_handle(argc, argv);
-
-    for (i = 0; i < __benv_ops_count; i++) {
-        os_println("after handle ops[%d] showit=%d value=%s", 
-            i, 
-            benv_cache_showit(benv_ops(i)),
-            benv_cache_value(benv_ops(i)));
-    }
-
+    
+    os_println("after handle");
+    __os_dump_buffer(____benv_zero, BENV_SIZE*BENV_COUNT, NULL);
+    
     return 0;
 }
 
