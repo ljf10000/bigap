@@ -490,7 +490,7 @@ extern benv_control_t ____benv_control;
 #define __benv_control      (&____benv_control)
 #define __benv_errno        __benv_control->error
 #define __benv_fd           __benv_control->fd
-#define __benv_mirror(_env) (&__benv_control->morror[_env])
+#define __benv_mirror(_env) (&__benv_control->mirror[_env])
 #define __benv_env(_env)    (&__benv_control->env[_env])
 #define __benv_env0         __benv_env(0)
 #define __benv_ops          __benv_control->ops
