@@ -1934,7 +1934,9 @@ benv_command(int argc, char *argv[])
         return err;
     }
 
+    __cli_argv_dump(os_println, argc, argv);
     benv_cache_dump();
+    __cli_argv_dump(os_println, argc, argv);
     
     benv_handle(argc, argv);
 
