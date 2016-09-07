@@ -2143,46 +2143,21 @@ __benv_loadby(int begin, int count)
 }
 
 #define benv_load_mark()        __benv_load(BENV_MARK)
-
-static inline int
-benv_load_info(void)
-{
-    int err = __benv_loadby(BENV_INFO, BENV_BLOCK_COUNT);
-    if (err<0) {
-        return err;
-    }
-    
-    return __benv_load(BENV_MARK);
-}
-
+#define benv_load_info()        __benv_loadby(BENV_INFO, BENV_BLOCK_COUNT)
 #define benv_load()             __benv_loadby(0, BENV_BLOCK_COUNT)
-
-static inline int
-__benv_saveby(int begin, int end)
-{
-    int i, err = 0;
-
-    for (i=begin; i<end; i++) {
-        err = __benv_write(i);
-    }
-
-    return err;
-}
 
 static inline int benv_save_nothing(void) {return 0;}
 
 static inline int
 benv_save(void)
 {
-    /*
-    * 1. save blocks before mark
-    * 2. save blocks after mark
-    * 3. save mark
-    */
-    __benv_saveby(0, BENV_MARK);
-    __benv_saveby(1+BENV_MARK, BENV_BLOCK_COUNT);
+    int i, err = 0;
 
-    return __benv_write(BENV_MARK);
+    for (i=0; i<BENV_BLOCK_COUNT; i++) {
+        err = __benv_save(i);
+    }
+
+    return 0;
 }
 
 static inline int
