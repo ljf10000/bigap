@@ -492,6 +492,7 @@ extern benv_control_t ____benv_control;
 #define __benv_fd           __benv_control->fd
 #define __benv_mirror(_env) (&__benv_control->mirror[_env])
 #define __benv_env(_env)    (&__benv_control->env[_env])
+#define __benv_mirror0      __benv_mirror(0)
 #define __benv_env0         __benv_env(0)
 #define __benv_ops          __benv_control->ops
 #define __benv_ops_count    __benv_control->ops_count
@@ -518,13 +519,13 @@ benv_offset(int env, int idx)
 static inline byte *
 benv_mirror(int env, int idx)
 {
-    return (byte *)__benv_mirror(0) + benv_offset(env, idx);
+    return (byte *)__benv_mirror0 + benv_offset(env, idx);
 }
 
 static inline byte *
 benv_block(int env, int idx)
 {
-    return (byte *)__benv_env(0) + benv_offset(env, idx);
+    return (byte *)__benv_env0 + benv_offset(env, idx);
 }
 
 static inline benv_ops_t *
@@ -1983,7 +1984,7 @@ static inline int
 __benv_read(int env, int idx)
 {    
     int err = 0;
-
+#if 0
     extern benv_env_t ____benv_env[];
     extern benv_env_t ____benv_mirror[];
     
@@ -1997,14 +1998,14 @@ __benv_read(int env, int idx)
         benv_offset(env, idx),
         benv_block(env, idx),
         benv_mirror(env, idx));
-    
+#endif
+
     err = lseek(__benv_fd, benv_offset(env, idx), SEEK_SET);
     if (err < 0) { /* <0 is error */
         debug_error("seek benv[%d:%d] error:%d", env, idx, -errno);
 
         return -errno;
     }
-    os_println("seek benv[%d:%d] offset:0x%x ok", env, idx, benv_offset(env, idx));
     
     /*
     * emmc==>block
@@ -2112,7 +2113,6 @@ __benv_load(int idx)
 {    
     int env, err = 0;
 
-    os_println("__benv_load block%d ...", idx);
     for (env=0; env<BENV_COUNT; env++) {
         err = __benv_read(env, idx);
         if (err<0) {
@@ -2121,7 +2121,6 @@ __benv_load(int idx)
     }
     
     __benv_loaded[idx] = true;
-    os_println("__benv_load block%d ok", idx);
     
     return __benv_repair(idx);
 }
