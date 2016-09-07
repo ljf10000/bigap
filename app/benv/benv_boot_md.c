@@ -82,8 +82,7 @@ __write_emmc(uint32 begin, void *buf, int count)
     return ret << 9;
 }
 
-int 
-benv_emmc_read(uint32 begin, void *buf, int size)
+int benv_emmc_read(uint32 begin, void *buf, int size)
 {
     int ret;
 
@@ -95,63 +94,54 @@ benv_emmc_read(uint32 begin, void *buf, int size)
     return size;
 }
 
-int 
-benv_emmc_write(uint32 begin, void *buf, int size)
+int benv_emmc_write(uint32 begin, void *buf, int size)
 {
-    int ret;
+    int i, err = -1;
 
-    ret = __write_emmc(begin>>9, buf, size>>9);
-    if (ret<0) {
-        return ret;
+    for (i=0; i<10; i++) {
+        err = __write_emmc(begin>>9, buf, size>>9);
+        if (size==err) {
+            return size;
+        }
+
+        os_usleep(10*1000);
     }
     
-    return size;
+    return err;
 }
 
-int
-__benv_load(int idx /* benv's block */)
+int __benv_read(int env, int idx)
 {
-    if (BENV_BLOCK_SIZE==benv_emmc_read(BENV_START + benv_offset(idx), benv_block(idx), BENV_BLOCK_SIZE)) {
-        os_memcpy(benv_raw(idx), benv_block(idx), BENV_BLOCK_SIZE);
-        __benv_loaded[idx] = true;
+    /*
+    * emmc==>block
+    */
+    if (BENV_BLOCK_SIZE!=benv_emmc_read(__benv_start(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE)) {
+         benv_debug("read benv[%d:%d] error", env, idx);
+        debug_error("read benv[%d:%d] error", env, idx);
         
-        return 0;
-    } else {
         return -EIO;
     }
+
+    /*
+    * block==>mirror
+    */
+    os_memcpy(benv_mirror(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE);
+
+    return 0;
 }
 
-int
-__benv_save(int idx /* benv's block */)
+int __benv_write(int env, int idx)
 {
-    __benv_werror = 0;
+    benv_debug("save benv[%d:%d] ...", env, idx);
+    if (BENV_BLOCK_SIZE!=benv_emmc_write(__benv_start(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE)) {
+         benv_debug("save benv[%d:%d] error", env, idx);
+        debug_error("save benv[%d:%d] error", env, idx);
+
+        return -EIO;
+    }
+    benv_debug("save benv[%d:%d] ok", env, idx);
     
-    if (false==__benv_loaded[idx]) {
-         benv_debug("benv block:%d not loaded, needn't save", idx);
-        debug_trace("benv block:%d not loaded, needn't save", idx);
-        
-        return 0;
-    }
-
-    if (false==os_memcmp(benv_block(idx), benv_raw(idx), BENV_BLOCK_SIZE)) {
-         benv_debug("benv block:%d not changed, needn't save", idx);
-        debug_trace("benv block:%d not changed, needn't save", idx);
-        
-        return 0;
-    }
-
-    benv_crc(idx);
-
-    benv_debug("benv save block:%d ...", idx);
-    if (BENV_BLOCK_SIZE!=benv_emmc_write(BENV_START + benv_offset(idx), benv_block(idx), BENV_BLOCK_SIZE)) {
-         benv_debug("benv save block:%d error", idx);
-        debug_error("benv save block:%d error", idx);
-
-        return (__benv_werror = -EIO);
-    }
-    os_memcpy(benv_raw(idx), benv_block(idx), BENV_BLOCK_SIZE);
-    
-    benv_debug("benv save block:%d ok", idx);
+    os_memcpy(benv_mirror(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE);
     
     return 0;
 }
@@ -400,11 +390,6 @@ benv_boot_save(void)
     if (bootenv_dirty) {
         os_println("bootenv update ...");
 
-        /*
-        * not call benv_save, so update crc
-        */
-        benv_update_crc();
-        
         env_crc_update();
         /*
         * include benv
@@ -414,17 +399,7 @@ benv_boot_save(void)
         bootenv_dirty = false;
         os_println("bootenv update ok.");
     } else {
-        int i;
-
-        for (i=0; i<10; i++) {
-            os_usleep(100*1000);
-            benv_save();
-            if (0==__benv_werror) {
-                break;
-            } else {
-                os_println("benv save error %d times.", i);
-            }
-        }
+        benv_save();
     }
 }
 
@@ -481,6 +456,5 @@ benv_boot(void)
     benv_boot_check();
     benv_boot_select();
     benv_boot_save();
-    benv_check_crc();
 }
 /******************************************************************************/
