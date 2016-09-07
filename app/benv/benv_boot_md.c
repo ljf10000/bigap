@@ -110,6 +110,8 @@ int benv_emmc_write(uint32 begin, void *buf, int size)
     return err;
 }
 
+#define __benv_start(_env, _idx)    (BENV_START + benv_offset(_env, _idx))
+
 int __benv_read(int env, int idx)
 {
     /*

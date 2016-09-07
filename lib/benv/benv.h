@@ -1934,9 +1934,7 @@ benv_command(int argc, char *argv[])
         return err;
     }
 
-    __cli_argv_dump(os_println, argc, argv);
     benv_cache_dump();
-    __cli_argv_dump(os_println, argc, argv);
     
     benv_handle(argc, argv);
 
@@ -1950,8 +1948,6 @@ benv_emmc_read(uint32 begin, void *buf, int size);
 extern int 
 benv_emmc_write(uint32 begin, void *buf, int size);
 
-#define __benv_start(_env, _idx)    (BENV_START + benv_offset(_env, _idx))
-
 #define benv_open()                 0
 #define benv_close()                0
 
@@ -1959,15 +1955,12 @@ extern int __benv_read(int env, int idx);
 extern int __benv_write(int env, int idx);
 #elif defined(__APP__)
 #if IS_PRODUCT_LTEFI_MD1
-#define __benv_start(_env, _idx)    0
 #define benv_open()                 0
 #define benv_close()                0
 
 #define __benv_read(_env, _idx)     0
 #define __benv_write(_env, _idx)    0
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
-#define __benv_start(_env, _idx)    benv_offset(_env, _idx)
-
 static inline int
 benv_open(void)
 {
@@ -1991,7 +1984,7 @@ __benv_read(int env, int idx)
 {    
     int err = 0;
 
-    err = lseek(__benv_fd, __benv_start(env, idx), SEEK_SET);
+    err = lseek(__benv_fd, benv_offset(env, idx), SEEK_SET);
     if (err < 0) { /* <0 is error */
         debug_error("seek benv[%d:%d] error:%d", env, idx, -errno);
 
@@ -2021,8 +2014,8 @@ __benv_write(int env, int idx)
     int err = 0;
     
     benv_debug("save benv[%d:%d] ...", env, idx);
-    err = lseek(__benv_fd, __benv_start(env, idx), SEEK_SET);
-    if (err < 0) {        /* <0 is error */
+    err = lseek(__benv_fd, benv_offset(env, idx), SEEK_SET);
+    if (err < 0) { /* <0 is error */
          benv_debug("seek benv[%d:%d] error:%d", env, idx, -errno);
         debug_error("seek benv[%d:%d] error:%d", env, idx, -errno);
         
