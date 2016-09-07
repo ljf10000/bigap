@@ -479,9 +479,9 @@ typedef struct {
 #endif
 
 #define BENV_CONTROL_INITER(_benv) \
-    static benv_ops_t ____benv_ops[] = BENV_DEFT_OPS; \
+    static benv_ops_t   ____benv_ops[] = BENV_DEFT_OPS; \
     static benv_cache_t ____benv_cache[os_count_of(____benv_ops)]; \
-    static benv_env_t ____benv_mirror[BENV_COUNT]; \
+    static benv_env_t   ____benv_mirror[BENV_COUNT]; \
     benv_control_t ____benv_control = __BENV_CONTROL_INITER(_benv, ____benv_mirror, ____benv_ops, ____benv_cache); \
     os_fake_declare /* end */
 
@@ -1923,10 +1923,14 @@ benv_analysis(int argc, char *argv[])
 static inline int
 benv_command(int argc, char *argv[])
 {
-    int err;
+    int err, i;
 
     if (0==argc) {
         return benv_usage();
+    }
+
+    for (i = 0; i < __benv_ops_count; i++) {
+        os_println("before analysis ops[%d] showit=%d", i, benv_cache_showit(benv_ops(i)));
     }
 
     err = benv_analysis(argc, argv);
@@ -1934,9 +1938,30 @@ benv_command(int argc, char *argv[])
         return err;
     }
 
+    for (i = 0; i < __benv_ops_count; i++) {
+        os_println("after analysis ops[%d] showit=%d value=%s", 
+            i, 
+            benv_cache_showit(benv_ops(i)),
+            benv_cache_value(benv_ops(i)));
+    }
+
     benv_cache_dump();
+
+    for (i = 0; i < __benv_ops_count; i++) {
+        os_println("after dump ops[%d] showit=%d value=%s", 
+            i, 
+            benv_cache_showit(benv_ops(i)),
+            benv_cache_value(benv_ops(i)));
+    }
     
     benv_handle(argc, argv);
+
+    for (i = 0; i < __benv_ops_count; i++) {
+        os_println("after handle ops[%d] showit=%d value=%s", 
+            i, 
+            benv_cache_showit(benv_ops(i)),
+            benv_cache_value(benv_ops(i)));
+    }
 
     return 0;
 }
@@ -2043,7 +2068,7 @@ __benv_repair(int idx)
 {
     int env, next, goodall = 0, goodfirst = -1, err = 0;
     bool good[BENV_COUNT] = {0};
-    bool same[BENV_COUNT];
+    bool eq;
 
     os_println("__benv_repair block%d ...", idx);
     /*
@@ -2052,15 +2077,15 @@ __benv_repair(int idx)
     for (env=0; env<BENV_COUNT; env++) {
         next = (env+1)%BENV_COUNT;
         
-        same[env] = os_memeq(benv_block(env, idx), benv_block(next, idx), BENV_BLOCK_SIZE);
-        if (same[env]) {
+        eq = os_memeq(benv_block(env, idx), benv_block(next, idx), BENV_BLOCK_SIZE);
+        if (eq) {
             good[env] = good[next] = true;
             if (goodfirst<0) {
                 goodfirst = env;
             }
         }
         
-        goodall += same[env];
+        goodall += eq;
     }
 
     /*
@@ -2089,7 +2114,7 @@ __benv_repair(int idx)
     }
     os_println("__benv_repair block%d ok(repaired)", idx);
     
-    return err;
+    return 0;
 }
 
 static inline int
