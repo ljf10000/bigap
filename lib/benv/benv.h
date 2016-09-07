@@ -2005,7 +2005,8 @@ __benv_read(int env, int idx)
 
         return -errno;
     }
-
+    os_println("seek benv[%d:%d] offset:0x%x ok", env, idx, benv_offset(env, idx));
+    
     /*
     * emmc==>block
     */
@@ -2014,7 +2015,7 @@ __benv_read(int env, int idx)
 
         return -errno;
     }
-
+    
     /*
     * block==>mirror
     */
