@@ -1986,7 +1986,10 @@ __benv_read(int env, int idx)
     int err = 0;
 
     os_println("env=0x%x mirror=0x%x", ____benv_env, ____benv_mirror);
-    os_println("read benv[%d:%d] offset=0x%x", env, idx, benv_offset(env, idx));
+    os_println("read benv[%d:%d] offset=0x%x to block=0x%x", 
+        env, idx, 
+        benv_offset(env, idx),
+        benv_block(env, idx));
     
     err = lseek(__benv_fd, benv_offset(env, idx), SEEK_SET);
     if (err < 0) { /* <0 is error */
