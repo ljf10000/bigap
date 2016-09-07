@@ -1785,22 +1785,26 @@ benv_usage(void)
 }
 
 static inline int
-__benv_analysis_write(benv_ops_t * ops, char *args)
+__benv_analysis_write(benv_ops_t *ops, char *args)
 {
     char *path = args;
     char *eq = os_strchr(args, '=');
     char *value = eq + 1;
     int err;
 
+    os_println("__benv_analysis_write %s ...", ops->path);
     if (benv_ops_match(ops, path, eq - path, false)) {
         err = benv_ops_check(ops, value);
         if (err<0) {
             return err;
         }
 
+        os_println("__benv_analysis_write %s true", ops->path);
         benv_cache_value(ops) = value;
     }
 
+    os_println("__benv_analysis_write %s false", ops->path);
+    
     return 0;
 }
 
@@ -1820,9 +1824,11 @@ benv_analysis_write(char *args)
 }
 
 static inline int
-__benv_analysis_show(benv_ops_t * ops, char *args)
+__benv_analysis_show(benv_ops_t *ops, char *args)
 {
     char *wildcard = os_strlast(args, '*');
+
+    os_println("__benv_analysis_show %s ...", ops->path);
     
     /*
      * if found '*'
@@ -1833,13 +1839,17 @@ __benv_analysis_show(benv_ops_t * ops, char *args)
     if (os_strchr(args, '*') != wildcard) {
         debug_error("only support show 'xxx*'");
 
+        os_println("__benv_analysis_show %s false", ops->path);
         return -EFORMAT;
     } else if (benv_ops_match(ops, args, os_strlen(args), !!wildcard)) {
         benv_cache_showit(ops) = true;
 
+        os_println("__benv_analysis_show %s true", ops->path);
         __benv_show_count++;
     }
 
+    os_println("__benv_analysis_show %s false", ops->path);
+    
     return 0;
 }
 
@@ -2201,7 +2211,7 @@ benv_init(void)
     __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
     __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
 
-    os_println("boot debug:%d jsdebug:%d", *__THIS_DEBUG, *__THIS_JDEBUG);
+    os_println("boot debug:%d jdebug:%d", *__THIS_DEBUG, *__THIS_JDEBUG);
 #endif
 
     return 0;
