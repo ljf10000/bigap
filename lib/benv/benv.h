@@ -8,7 +8,7 @@
 #define BENV_DEBUG_MMC              0x08
 
 #ifndef BENV_DEBUG
-#define BENV_DEBUG                  0 //(BENV_DEBUG_TRACE|BENV_DEBUG_MMC|BENV_DEBUG_SORT|BENV_DEBUG_CMP)
+#define BENV_DEBUG                  1 //(BENV_DEBUG_TRACE|BENV_DEBUG_MMC|BENV_DEBUG_SORT|BENV_DEBUG_CMP)
 #endif
 
 #if BENV_DEBUG
@@ -2036,6 +2036,7 @@ __benv_repair(int idx)
     bool good[BENV_COUNT] = {0};
     bool same[BENV_COUNT];
 
+    os_println("__benv_repair block%d ...", idx);
     /*
     * check same
     */
@@ -2057,7 +2058,7 @@ __benv_repair(int idx)
     * all same, so all good
     */
     if (BENV_COUNT==goodall) {
-        os_println("benv block%d is good.", idx);
+        os_println("__benv_repair block%d ok(not repair)", idx);
         
         return 0;
     }
@@ -2077,7 +2078,8 @@ __benv_repair(int idx)
             os_println("repair benv[%d:%d] by benv[%d:%d]", env, idx, goodfirst, idx);
         }
     }
-
+    os_println("__benv_repair block%d ok(repaired)", idx);
+    
     return err;
 }
 
@@ -2086,6 +2088,7 @@ __benv_load(int idx)
 {    
     int env, err = 0;
 
+    os_println("__benv_load block%d ...", idx);
     for (env=0; env<BENV_COUNT; env++) {
         err = __benv_read(env, idx);
         if (err<0) {
@@ -2094,7 +2097,8 @@ __benv_load(int idx)
     }
     
     __benv_loaded[idx] = true;
-
+    os_println("__benv_load block%d ok", idx);
+    
     return __benv_repair(idx);
 }
 
