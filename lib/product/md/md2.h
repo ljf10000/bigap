@@ -19,8 +19,8 @@
 #endif
 
 #define PRODUCT_DOG_COUNT               2
-#define PRODUCT_FLASH_SIZE              4 /* 4G */
-#define PRODUCT_MEMORY_SIZE             2 /* 2G */
+#define PRODUCT_FLASH_SIZE              8 /* 8G */
+#define PRODUCT_MEMORY_SIZE             1 /* 1G */
 #define PRODUCT_FIRMWARE_COUNT          7
 #define PRODUCT_FIRMWARE_CURRENT        1
 #define PRODUCT_KERNEL_SIZE             16 /* 16M */
