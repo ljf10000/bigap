@@ -22,6 +22,7 @@
 #endif
 
 #define BENV_COUNT                  4
+#define BENV_SIZE_ALL               BENV_SIZE*BENV_COUNT
 #define BENV_START                  PRODUCT_BOOT_SIZE
 #define BENV_BLOCK_SIZE             PRODUCT_BLOCK_SIZE
 #define BENV_BLOCK_COUNT            (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
