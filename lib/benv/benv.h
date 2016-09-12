@@ -1960,7 +1960,7 @@ benv_emmc_write(uint32 begin, void *buf, int size);
 
 extern void set_default_env(void);
 extern void env_crc_update(void);
-extern void saveenv(void);
+extern int saveenv(void);
 
 #define benv_open()                 0
 #define benv_close()                0
