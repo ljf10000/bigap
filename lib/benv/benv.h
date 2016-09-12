@@ -771,11 +771,6 @@ enum {
 };
 
 /*
-* mm: mark magic
-*/
-#define benv_mm_boot_upgrade    ((1<<0) | (1<<31))
-
-/*
 * step 1:normal
 * 1. firmware, bad < good
 * 2. version, small < big
@@ -1957,6 +1952,10 @@ benv_emmc_read(uint32 begin, void *buf, int size);
 extern int 
 benv_emmc_write(uint32 begin, void *buf, int size);
 
+extern void set_default_env(void);
+extern void env_crc_update(void);
+extern void saveenv(void);
+
 #define benv_open()                 0
 #define benv_close()                0
 
@@ -2062,6 +2061,115 @@ __benv_write(int env, int idx)
 #endif
 #endif
 
+#if (defined(__BOOT__) || defined(__PC__)) && BENV_COUNT > 1
+static int
+__benv_repair(int idx)
+{
+    int env, next, goodall = 0, goodfirst = -1, err = 0;
+    bool good[BENV_COUNT] = {0};
+    bool eq;
+
+    /*
+    * check same
+    */
+    for (env=0; env<BENV_COUNT; env++) {
+        next = (env+1)%BENV_COUNT;
+        
+        eq = os_memeq(benv_block(env, idx), benv_block(next, idx), BENV_BLOCK_SIZE);
+        if (eq) {
+            good[env] = good[next] = true;
+            if (goodfirst<0) {
+                goodfirst = env;
+            }
+        }
+        
+        goodall += eq;
+    }
+
+    /*
+    * all same, so all good
+    */
+    if (BENV_COUNT==goodall) {
+        return 0;
+    }
+
+    if (goodfirst<0) {
+        goodfirst = 0;
+    }
+
+    for (env=0; env<BENV_COUNT; env++) {
+        if (false==good[env]) {
+            /*
+            * repair env by goodfirst
+            */
+            os_memcpy(benv_block(env, idx), benv_block(goodfirst, idx), BENV_BLOCK_SIZE);
+            os_memcpy(benv_mirror(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE);
+
+            os_println("repair benv[%d:%d] by benv[%d:%d]", env, idx, goodfirst, idx);
+        }
+    }
+    os_println("repair block%d ok", idx);
+    
+    return 0;
+}
+
+static int
+__benv_upgrade(void)
+{
+    int env;
+
+    os_println("benv upgrade ...");
+    for (env=1; env<BENV_COUNT; env++) {
+        /*
+        * repair by env0
+        */
+        os_memcpy(__benv_env(env),      __benv_env0, BENV_SIZE);
+        os_memcpy(__benv_mirror(env),   __benv_env0, BENV_SIZE);
+    }
+    os_println("benv upgrade ok.");
+    
+    return 0;
+}
+#endif
+
+static inline benv_cookie_t *benv_cookie_deft(void);
+
+static int
+benv_repair(void)
+{
+#if (defined(__BOOT__) || defined(__PC__)) && BENV_COUNT > 1
+    int err = 0, env, idx;
+    bool upgrade = false;
+
+    /*
+    * 1-count-benv upgrade to 4-count-benv
+    *   benv-1/2/3 cookie != default cookie(fixed)
+    *   so, it is upgrade
+    */
+    for (env=1; env<BENV_COUNT; env++) {
+        if (false==os_memeq(benv_cookie_deft(), benv_block(env, BENV_COOKIE), BENV_COOKIE_FIXED)) {
+            upgrade = true;
+
+            break;
+        }
+    }
+
+    if (upgrade) {
+        __benv_upgrade();
+        
+        set_default_env();
+        env_crc_update();
+        saveenv();
+    } else {
+        for (idx=0; idx<BENV_BLOCK_COUNT; idx++) {
+            err = __benv_repair(idx);
+        }
+    }
+#endif
+
+    return 0;
+}
+
 static inline int
 __benv_load(int idx)
 {    
@@ -2135,6 +2243,14 @@ __benv_loadby(int begin, int count)
 #define benv_load_mark()        __benv_load(BENV_MARK)
 #define benv_load_info()        __benv_loadby(BENV_INFO, BENV_BLOCK_COUNT)
 #define benv_load()             __benv_loadby(0, BENV_BLOCK_COUNT)
+
+static inline int
+benv_load(void)
+{
+    __benv_loadby(0, BENV_BLOCK_COUNT);
+
+    benv_repair();
+}
 
 static inline int benv_save_nothing(void) {return 0;}
 

@@ -21,10 +21,6 @@ uint32 emmc_cid[4];
 static struct bcookie_otp botp = BCOOKIE_OBJ(BCOOKIE_OTP);
 static struct bcookie_cid bcid = BCOOKIE_OBJ(BCOOKIE_CID);
 
-extern void set_default_env(void);
-extern void env_crc_update(void);
-extern void saveenv(void);
-
 static int 
 __read_emmc(uint32 begin, void *buf, int count)
 {
@@ -150,100 +146,6 @@ int __benv_write(int env, int idx)
     
     os_memcpy(benv_mirror(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE);
     
-    return 0;
-}
-
-#if BENV_COUNT > 1
-static inline int
-__benv_repair(int idx)
-{
-    int env, next, goodall = 0, goodfirst = -1, err = 0;
-    bool good[BENV_COUNT] = {0};
-    bool eq;
-
-    /*
-    * check same
-    */
-    for (env=0; env<BENV_COUNT; env++) {
-        next = (env+1)%BENV_COUNT;
-        
-        eq = os_memeq(benv_block(env, idx), benv_block(next, idx), BENV_BLOCK_SIZE);
-        if (eq) {
-            good[env] = good[next] = true;
-            if (goodfirst<0) {
-                goodfirst = env;
-            }
-        }
-        
-        goodall += eq;
-    }
-
-    /*
-    * all same, so all good
-    */
-    if (BENV_COUNT==goodall) {
-        return 0;
-    }
-
-    if (goodfirst<0) {
-        goodfirst = 0;
-    }
-
-    for (env=0; env<BENV_COUNT; env++) {
-        if (false==good[env]) {
-            /*
-            * repair env by goodfirst
-            */
-            os_memcpy(benv_block(env, idx), benv_block(goodfirst, idx), BENV_BLOCK_SIZE);
-            os_memcpy(benv_mirror(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE);
-
-            os_println("repair benv[%d:%d] by benv[%d:%d]", env, idx, goodfirst, idx);
-        }
-    }
-    os_println("repair block%d ok", idx);
-    
-    return 0;
-}
-
-static int
-__benv_upgrade(void)
-{
-    int env;
-
-    os_println("benv upgrade ...");
-    for (env=1; env<BENV_COUNT; env++) {
-        /*
-        * repair by env0
-        */
-        os_memcpy(__benv_env(env),      __benv_env0, BENV_SIZE);
-        os_memcpy(__benv_mirror(env),   __benv_env0, BENV_SIZE);
-    }
-    os_println("benv upgrade ok.");
-    
-    return 0;
-}
-#endif
-
-static int
-benv_repair(void)
-{
-#if BENV_COUNT > 1
-    int err = 0, idx;
-    
-    if (os_hasflag(benv_mark(__benv_mark_magic), benv_mm_boot_upgrade)) {
-        os_clrflag(benv_mark(__benv_mark_magic), benv_mm_boot_upgrade);
-        __benv_upgrade();
-        
-        set_default_env();
-        env_crc_update();
-        saveenv();
-    } else {
-        for (idx=0; idx<BENV_BLOCK_COUNT; idx++) {
-            err = __benv_repair(idx);
-        }
-    }
-#endif
-
     return 0;
 }
 
