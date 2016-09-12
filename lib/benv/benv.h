@@ -2108,8 +2108,8 @@ __benv_repair(int idx)
             /*
             * repair env by goodfirst
             */
-            os_memcpy(benv_block(env, idx), benv_block(goodfirst, idx), BENV_BLOCK_SIZE);
-            os_memcpy(benv_mirror(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE);
+            os_memcpy(benv_block(env, idx),  benv_block(goodfirst, idx), BENV_BLOCK_SIZE);
+            os_memcpy(benv_mirror(env, idx), benv_block(goodfirst, idx), BENV_BLOCK_SIZE);
 
             os_println("repair benv[%d:%d] by benv[%d:%d]", env, idx, goodfirst, idx);
         }
