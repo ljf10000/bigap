@@ -98,9 +98,8 @@ int benv_emmc_write(uint32 begin, void *buf, int size)
 {
     int i, err = -1;
 
-	os_usleep(1000); //0 error
     for (i=0; i<10; i++) {
-        os_printf(" \b"); os_usleep(10*1000);
+        os_usleep(10*1000);
         
         err = __write_emmc(begin>>9, buf, size>>9);
         if (size==err) {
