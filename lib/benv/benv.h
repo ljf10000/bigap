@@ -2258,7 +2258,13 @@ benv_load(void)
     __benv_loadby(0, BENV_BLOCK_COUNT);
 
     benv_repair();
+
+    /*
+    * just for debug on PC
+    */
+#ifdef __PC__
     benv_check();
+#endif
 }
 
 static inline int benv_save_nothing(void) {return 0;}
