@@ -21,7 +21,10 @@
 #define BENV_SIZE                   4096
 #endif
 
+#ifndef BENV_COUNT
 #define BENV_COUNT                  4
+#endif
+
 #define BENV_START                  PRODUCT_BOOT_SIZE
 #define BENV_BLOCK_SIZE             PRODUCT_BLOCK_SIZE
 #define BENV_BLOCK_COUNT            (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
@@ -760,11 +763,17 @@ enum {
     __benv_mark_cid_mid         = 5,
     __benv_mark_cid_psn         = 6,
     __benv_mark_noauth          = 7,
-    __benv_mark_protect_end     = 8,
+    __benv_mark_magic           = 8,
+    __benv_mark_protect_end     = 9,
     __benv_mark_jdebug          = __benv_mark_protect_end,
     
     __benv_mark_end
 };
+
+/*
+* mm: mark magic
+*/
+#define benv_mm_boot_upgrade    ((1<<0) | (1<<31))
 
 /*
 * step 1:normal
@@ -1472,12 +1481,11 @@ __benv_check_string(benv_ops_t * ops, char *value)
     __BENV_MARK_OPS("mid",          __benv_mark_cid_mid,        NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("psn",          __benv_mark_cid_psn,        NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("na",           __benv_mark_noauth,         NULL, NULL,             __benv_show_number), \
+    __BENV_MARK_OPS("mg",           __benv_mark_magic,          NULL, NULL,             __benv_show_number), \
     __BENV_MARK_OPS("jdebug",       __benv_mark_jdebug,         NULL, NULL,             __benv_show_number)  \
     /* end */
 
 #define BENV_MARK_OPS_IDX       \
-    __BENV_MARK_OPS_IDX(9),     \
-                                \
     __BENV_MARK_OPS_IDX(10),    \
     __BENV_MARK_OPS_IDX(11),    \
     __BENV_MARK_OPS_IDX(12),    \
@@ -2055,57 +2063,6 @@ __benv_write(int env, int idx)
 #endif
 
 static inline int
-__benv_repair(int idx)
-{
-    int env, next, goodall = 0, goodfirst = -1, err = 0;
-    bool good[BENV_COUNT] = {0};
-    bool eq;
-
-    /*
-    * check same
-    */
-    for (env=0; env<BENV_COUNT; env++) {
-        next = (env+1)%BENV_COUNT;
-        
-        eq = os_memeq(benv_block(env, idx), benv_block(next, idx), BENV_BLOCK_SIZE);
-        if (eq) {
-            good[env] = good[next] = true;
-            if (goodfirst<0) {
-                goodfirst = env;
-            }
-        }
-        
-        goodall += eq;
-    }
-
-    /*
-    * all same, so all good
-    */
-    if (BENV_COUNT==goodall) {
-        return 0;
-    }
-
-    if (goodfirst<0) {
-        goodfirst = 0;
-    }
-
-    for (env=0; env<BENV_COUNT; env++) {
-        if (false==good[env]) {
-            /*
-            * repair env by goodfirst
-            */
-            os_memcpy(benv_block(env, idx), benv_block(goodfirst, idx), BENV_BLOCK_SIZE);
-            __benv_write(env, idx);
-
-            os_println("repair benv[%d:%d] by benv[%d:%d]", env, idx, goodfirst, idx);
-        }
-    }
-    os_println("__benv_repair block%d ok(repaired)", idx);
-    
-    return 0;
-}
-
-static inline int
 __benv_load(int idx)
 {    
     int env, err = 0;
@@ -2118,8 +2075,8 @@ __benv_load(int idx)
     }
     
     __benv_loaded[idx] = true;
-    
-    return __benv_repair(idx);
+
+    return err;
 }
 
 static inline int
@@ -2141,12 +2098,14 @@ __benv_save(int idx)
         return 0;
     }
 
+#if BENV_COUNT > 1
     /*
     * 0==>others
     */
     for (env=1; env<BENV_COUNT; env++) {
         os_memcpy(benv_block(env, idx), benv_block(0, idx), BENV_BLOCK_SIZE);
     }
+#endif
 
     for (env=0; env<BENV_COUNT; env++) {
         err = __benv_write(env, idx);
