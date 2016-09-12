@@ -71,7 +71,7 @@ __write_emmc(uint32 begin, void *buf, int count)
         return native_error(err);
     }
     
-    ret = mmc->block_dev.block_write(dev, begin, count, buf);
+    ret = mmc->block_dev.block_write(0, begin, count, buf);
     if (ret != count) {
         os_println("write emmc(block) error, begin:0x%x, count:0x%x, buf:0x%x", begin, count, buf);
         return -EIO;
