@@ -25,6 +25,12 @@
 #define BENV_COUNT                  4
 #endif
 
+#if (defined(__BOOT__) || defined(__PC__)) && BENV_COUNT > 1
+#define BENV_REPAIR                 1
+#else
+#define BENV_REPAIR                 0
+#endif
+
 #define BENV_START                  PRODUCT_BOOT_SIZE
 #define BENV_BLOCK_SIZE             PRODUCT_BLOCK_SIZE
 #define BENV_BLOCK_COUNT            (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
@@ -2061,7 +2067,7 @@ __benv_write(int env, int idx)
 #endif
 #endif
 
-#if (defined(__BOOT__) || defined(__PC__)) && BENV_COUNT > 1
+#if BENV_REPAIR
 static int
 __benv_repair(int idx)
 {
@@ -2128,6 +2134,12 @@ __benv_upgrade(void)
     }
     os_println("benv upgrade ok.");
     
+#ifdef __BOOT__
+    set_default_env();
+    env_crc_update();
+    saveenv();
+#endif
+
     return 0;
 }
 #endif
@@ -2137,7 +2149,7 @@ static inline benv_cookie_t *benv_cookie_deft(void);
 static int
 benv_repair(void)
 {
-#if (defined(__BOOT__) || defined(__PC__)) && BENV_COUNT > 1
+#if BENV_REPAIR
     int err = 0, env, idx;
     bool upgrade = false;
 
@@ -2156,10 +2168,6 @@ benv_repair(void)
 
     if (upgrade) {
         __benv_upgrade();
-        
-        set_default_env();
-        env_crc_update();
-        saveenv();
     } else {
         for (idx=0; idx<BENV_BLOCK_COUNT; idx++) {
             err = __benv_repair(idx);
@@ -2242,7 +2250,6 @@ __benv_loadby(int begin, int count)
 
 #define benv_load_mark()        __benv_load(BENV_MARK)
 #define benv_load_info()        __benv_loadby(BENV_INFO, BENV_BLOCK_COUNT)
-#define benv_load()             __benv_loadby(0, BENV_BLOCK_COUNT)
 
 static inline int
 benv_load(void)
