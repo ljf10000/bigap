@@ -2145,6 +2145,7 @@ __benv_upgrade(void)
 #endif
 
 static inline benv_cookie_t *benv_cookie_deft(void);
+static inline void benv_check(void);
 
 static int
 benv_repair(void)
@@ -2257,6 +2258,7 @@ benv_load(void)
     __benv_loadby(0, BENV_BLOCK_COUNT);
 
     benv_repair();
+    benv_check();
 }
 
 static inline int benv_save_nothing(void) {return 0;}
@@ -2594,6 +2596,35 @@ __benv_clean(void)
     __benv_mark_private_restore(backup);
     
     os_println("benv clean ok, need reboot");
+}
+
+static inline void 
+benv_check(void) 
+{
+#if defined(__BOOT__) || defined(__PC__)
+    if (false==is_benv_cookie_deft()) {
+        if (is_benv_cookie_fixed()) {
+            /*
+            * boot cookie(fixed) == benv cookie(fixed)
+            *   so, boot maybe have upgraded
+            *       benv cookie need recover
+            */
+            os_println("benv cookie update...");
+        } else {
+            /*
+            * boot cookie(fixed) != benv cookie(fixed)
+            *   so, benv maybe destroy
+            *       benv cookie/info need recover
+            */
+            os_println("benv cookie/info recover...");
+            
+            __benv_deft_info();
+        }
+        __benv_deft_cookie();
+
+        benv_show_cookie();
+    }
+#endif
 }
 
 static int

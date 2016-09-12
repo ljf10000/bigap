@@ -246,29 +246,8 @@ static void
 benv_boot_check(void) 
 {
     benv_show_cookie();
-    
-    if (false==is_benv_cookie_deft()) {
-        if (is_benv_cookie_fixed()) {
-            /*
-            * boot cookie(fixed) == benv cookie(fixed)
-            *   so, boot maybe have upgraded
-            *       benv cookie need recover
-            */
-            os_println("benv cookie update...");
-        } else {
-            /*
-            * boot cookie(fixed) != benv cookie(fixed)
-            *   so, benv maybe destroy
-            *       benv cookie/info need recover
-            */
-            os_println("benv cookie/info recover...");
-            
-            __benv_deft_info();
-        }
-        __benv_deft_cookie();
 
-        benv_show_cookie();
-    }
+    benv_check();
 }
 
 #if 0
