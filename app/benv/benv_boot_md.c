@@ -56,7 +56,8 @@ static int
 __write_emmc(uint32 begin, void *buf, int count)
 {
     int err, ret;
-    struct mmc *mmc = find_mmc_device(0);
+	int dev = 0;
+    struct mmc *mmc = find_mmc_device(dev);
 
     if (!mmc) {
         os_println("no-found mmc");
@@ -71,9 +72,9 @@ __write_emmc(uint32 begin, void *buf, int count)
         return native_error(err);
     }
     
-    ret = mmc->block_dev.block_write(0, begin, count, buf);
+    ret = mmc->block_dev.block_write(dev, begin, count, buf);
     if (ret != count) {
-        os_println("write emmc(block) error, begin:0x%x, count:0x%x", begin, count);
+        os_println("write emmc(block) error, begin:0x%x, count:0x%x, buf:0x%x", begin, count, buf);
         return -EIO;
     }
 
@@ -98,13 +99,12 @@ int benv_emmc_write(uint32 begin, void *buf, int size)
 {
     int i, err = -1;
 
+	os_usleep(1000); //0 error
     for (i=0; i<10; i++) {
         err = __write_emmc(begin>>9, buf, size>>9);
         if (size==err) {
             return size;
         }
-
-        os_usleep(10*1000);
     }
     
     return err;
