@@ -51,7 +51,7 @@
 #endif
 
 #ifndef PRODUCT_DEV_USB_MASTER
-#define PRODUCT_DEV_USB_MASTER          "dev/udisk1110" // fixme
+#define PRODUCT_DEV_USB_MASTER          "dev/udisk1310p1"
 #endif
 
 #ifndef PRODUCT_DEV_HD_MASTER
@@ -112,11 +112,11 @@
         "32M(config0)," /* 20 */\
         "32M(config1)," /* 21 */\
                                 \
-        "512M(tool0),"  /* 22 */\
-        "512M(tool1),"  /* 23 */\
+        "1024M(tool0)," /* 22 */\
+        "1024M(tool1)," /* 23 */\
                                 \
-        "512M(data0),"  /* 24 */\
-        "512M(data1),"  /* 25 */\
+        "1900M(data0)," /* 24 */\
+        "1900M(data1)," /* 25 */\
                                 \
         "-(others)"     /* 26 */\
         /* end */
