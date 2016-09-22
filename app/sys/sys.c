@@ -21,7 +21,6 @@ BENV_INITER;
 #define DIR_USB_CONFIG              DIR_USB_UPGRADE "/config"
 #define DIR_USB_DATA                DIR_USB_UPGRADE "/data"
 #define DIR_USB_TOOL                DIR_USB_UPGRADE "/tool"
-#define DIR_USB_OTHER               DIR_USB_UPGRADE "/other"
 
 #define USB_FILE(_file)             DIR_USB_ROOTFS  "/" _file
 #define USB_TOOL_FILE(_file)        DIR_USB_TOOL    "/" _file
@@ -470,19 +469,6 @@ mount_data(void)
                 &sys.dmaster);
 }
 
-#define MOUNT_OTHER 0
-
-#if MOUNT_OTHER
-static int
-mount_other(void)
-{
-    return do_mount(PRODUCT_DEV_OTHER, PRODUCT_DIR_OTHER, 
-                true,   /* check    */
-                false,  /* readonly */
-                true);  /* repair   */
-}
-#endif
-
 static int
 mount_rootfs(void)
 {
@@ -575,14 +561,6 @@ umount_data(void)
     return umount_double(PRODUCT_DIR_DATA, dir_data(0), dir_data(1));
 }
 
-#if MOUNT_OTHER
-static int
-umount_other(void)
-{
-    return do_umount(PRODUCT_DIR_OTHER);
-}
-#endif
-
 static int
 umount_rootfs(void)
 {
@@ -642,12 +620,6 @@ static struct {
          .mount =  mount_data,
         .umount = umount_data,
     },
-#if MOUNT_OTHER
-    {
-         .mount =  mount_other,
-        .umount = umount_other,
-    },
-#endif
     {
          .mount =  mount_sd,
         .umount = umount_sd,

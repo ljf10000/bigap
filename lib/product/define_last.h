@@ -89,10 +89,6 @@
 #define PRODUCT_DIR_DATA                PRODUCT_DIR_FLASH "/data"
 #endif
 
-#ifndef PRODUCT_DIR_OTHER
-#define PRODUCT_DIR_OTHER               PRODUCT_DIR_FLASH "/other"
-#endif
-
 #define PRODUCT_IDIR_KERNEL(_idx)       PRODUCT_IDIR(PRODUCT_DIR_KERNEL, _idx)
 #define PRODUCT_IDIR_ROOTFS(_idx)       PRODUCT_IDIR(PRODUCT_DIR_ROOTFS, _idx)
 #define PRODUCT_IDIR_CONFIG(_idx)       PRODUCT_IDIR(PRODUCT_DIR_CONFIG, _idx)
