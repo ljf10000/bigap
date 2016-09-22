@@ -338,36 +338,6 @@ __umount(char *dir)
 #define ROOTFS_MOUNT_MODE   __empty
 #endif
 
-#if 0
-static int
-__mount(char *dev, char *dir, bool readonly)
-{
-#if 0
-mount has the following return codes (the bits can be ORed):
-
-0:success
-1 - incorrect invocation or permissions
-2 - system error (out of memory, cannot fork, no more loop devices)
-4 - internal mount bug
-8 - user interrupt
-16 - problems writing or locking /etc/mtab
-32 - mount failure
-64 - some mount succeeded
-#endif
-    int err;
-    
-    sys_println("before mount %s", dev);
-    err = os_p_system("mount -t ext4 "
-            "-o %s,noatime,nodiratime "
-            "%s %s",
-            readonly?"ro":"rw" ROOTFS_MOUNT_MODE,
-            dev, dir);
-    sys_println("after  mount %s", dev);
-
-    return err;
-}
-#endif
-
 static int
 __is_readonly_default(void)
 {
@@ -500,6 +470,9 @@ mount_data(void)
                 &sys.dmaster);
 }
 
+#define MOUNT_OTHER 0
+
+#if MOUNT_OTHER
 static int
 mount_other(void)
 {
@@ -508,6 +481,7 @@ mount_other(void)
                 false,  /* readonly */
                 true);  /* repair   */
 }
+#endif
 
 static int
 mount_rootfs(void)
@@ -601,11 +575,13 @@ umount_data(void)
     return umount_double(PRODUCT_DIR_DATA, dir_data(0), dir_data(1));
 }
 
+#if MOUNT_OTHER
 static int
 umount_other(void)
 {
     return do_umount(PRODUCT_DIR_OTHER);
 }
+#endif
 
 static int
 umount_rootfs(void)
@@ -666,10 +642,12 @@ static struct {
          .mount =  mount_data,
         .umount = umount_data,
     },
+#if MOUNT_OTHER
     {
          .mount =  mount_other,
         .umount = umount_other,
     },
+#endif
     {
          .mount =  mount_sd,
         .umount = umount_sd,
