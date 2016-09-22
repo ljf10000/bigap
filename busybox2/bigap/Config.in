@@ -149,6 +149,13 @@ config TTYUSB
 	help
 	  ttyUSB
 
+#for clearTTY
+config CLEARTTY
+	bool "clearTTY"
+	default y
+	help
+	  clearTTY
+
 config UMC
 	bool "umc"
 	default y

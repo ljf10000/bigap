@@ -186,6 +186,10 @@
 #define ttyUSB_trivial_usage	"\n\n"
 #define ttyUSB_full_usage		"\n\n"
 
+//for clearTTY
+#define clearTTY_trivial_usage	"\n\n"
+#define clearTTY_full_usage	"\n\n"
+
 #define umc_trivial_usage       "\n\n"
 #define umc_full_usage          "\n\n"
 

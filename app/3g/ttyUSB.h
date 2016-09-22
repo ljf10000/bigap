@@ -28,6 +28,8 @@ static inline void serial_init(int fd)
 	cfsetispeed(&options, B115200);
 	cfsetospeed(&options, B115200);
 	tcsetattr(fd,TCSANOW,&options);
+
+	tcflush(fd, TCIOFLUSH);
 }
 
 static inline int send(int fd, char *cmdbuf)

@@ -31,6 +31,8 @@ lib-$(CONFIG_SYS)    	+= app/sys/sys.o
 lib-$(CONFIG_TMC)  	+= app/tmc/tmc.o
 lib-$(CONFIG_TMD)  	+= app/tmd/tmd.o
 lib-$(CONFIG_TTYUSB)	+= app/3g/ttyUSB.o
+#for clearTTY
+lib-$(CONFIG_CLEARTTY)    += app/3g/clearTTY.o
 lib-$(CONFIG_UMC)  	+= app/umc/umc.o
 lib-$(CONFIG_UMD)  	+= app/umd/umd.o
 lib-$(CONFIG_UMD)  	+= app/umd/cli.o
