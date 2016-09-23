@@ -123,8 +123,8 @@
 #define benv_trivial_usage      "\n\n"
 #define benv_full_usage         "\n\n"
 
-#define cleartty_trivial_usage	"\n\n"
-#define cleartty_full_usage	    "\n\n"
+#define clearTTY_trivial_usage	"\n\n"
+#define clearTTY_full_usage	    "\n\n"
 
 #define fcookie_trivial_usage   "\n\n"
 #define fcookie_full_usage      "\n\n"
