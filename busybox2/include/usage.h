@@ -114,14 +114,17 @@
      "\n	DST_IP		Target IP address" \
  
 #if 1 /* BIGAP */
-#define ak_trivial_usage    "\n\n"
-#define ak_full_usage       "\n\n"
+#define ak_trivial_usage        "\n\n"
+#define ak_full_usage           "\n\n"
 
 #define bck_trivial_usage       "\n\n"
 #define bck_full_usage          "\n\n"
 
 #define benv_trivial_usage      "\n\n"
 #define benv_full_usage         "\n\n"
+
+#define clearTTY_trivial_usage	"\n\n"
+#define clearTTY_full_usage	    "\n\n"
 
 #define fcookie_trivial_usage   "\n\n"
 #define fcookie_full_usage      "\n\n"
@@ -185,10 +188,6 @@
 
 #define ttyUSB_trivial_usage	"\n\n"
 #define ttyUSB_full_usage		"\n\n"
-
-//for clearTTY
-#define clearTTY_trivial_usage	"\n\n"
-#define clearTTY_full_usage	"\n\n"
 
 #define umc_trivial_usage       "\n\n"
 #define umc_full_usage          "\n\n"

@@ -23,7 +23,6 @@ config BENV
 	help
 	  benv
 
-#for clearTTY
 config CLEARTTY
 	bool "clearTTY"
 	default y
