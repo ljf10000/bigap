@@ -8,8 +8,7 @@ lib-y:=
 lib-$(CONFIG_AK)	+= app/ak/ak.o
 lib-$(CONFIG_BCK)  	+= app/bck/bck.o
 lib-$(CONFIG_BENV)    	+= app/benv/benv.o
-#for clearTTY
-lib-$(CONFIG_CLEARTTY)    += app/3g/clearTTY.o
+lib-$(CONFIG_CLEARTTY)	+= app/3g/clearTTY.o
 lib-$(CONFIG_FCOOKIE)  	+= app/fcookie/fcookie.o
 lib-$(CONFIG_GUARD)    	+= app/guard/guard.o
 lib-$(CONFIG_HISI)    	+= app/hisi/hisi.o
