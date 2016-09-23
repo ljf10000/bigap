@@ -12,7 +12,6 @@ include $(SDK_DIR)/cfg.mak
 include $(SDK_DIR)/base.mak
 endif
 
-#add  by autelan
 TARGET=ttyUSB
 TTYTARGET=clearTTY
 CROSS_COMPILE=arm-hisiv200-linux-
@@ -20,10 +19,10 @@ CC:=$(CROSS_COMPILE)gcc
 RM:=rm -rf
 
 ifdef LTEFI
-	AUTE_CFLAGS+=-DLTEFI
+	LTEFI_CFLAGS+=-DLTEFI
 endif
 ifdef LTEFI_V2
-        AUTE_CFLAGS+=-DLTEFI_V2
+        LTEFI_CFLAGS+=-DLTEFI_V2
 endif
 #add  end by autelan
 
@@ -39,20 +38,16 @@ all:$(image) install
 ppp_dial:
 	@$(CC) -static -o $@ $^ -I$(INCLUDE_DIR) -L$(STATIC_LIB_DIR) -lhi_3g -lhi_common $(LIB) -lpthread
 	@$(STRIP) $@
-	$(CC) $(AUTE_CFLAGS) -o $(TTYTARGET) clearTTY.c -lpthread
-	$(CC) $(AUTE_CFLAGS) -o $(TARGET) ttyUSB.c -lpthread
+	$(CC) $(LTEFI_CFLAGS) -o $(TTYTARGET) clearTTY.c -lpthread
+	$(CC) $(LTEFI_CFLAGS) -o $(TARGET) ttyUSB.c -lpthread
 clean:
 	-@rm -f $(image)
-#add by autelan
 	$(RM) $(TARGET) *.o *.ko *.mod.c .*.cmd *.order *.symvers .tmp_versions $(TARGET) $(TTYTARGET)
-#add end by autelan
 
 install:
 	cp ppp_dial $(ROOTBOX_DIR)/usr/sbin
-#add by autelan
 	cp ttyUSB $(ROOTBOX_DIR)/usr/sbin
 	cp $(TTYTARGET) $(ROOTBOX_DIR)/usr/sbin/
-#add end by autelan
 
 uninstall:
 
