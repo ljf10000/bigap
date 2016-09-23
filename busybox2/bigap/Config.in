@@ -23,6 +23,13 @@ config BENV
 	help
 	  benv
 
+#for clearTTY
+config CLEARTTY
+	bool "clearTTY"
+	default y
+	help
+	  clearTTY
+
 config FCOOKIE
 	bool "fcookie"
 	default y
@@ -148,13 +155,6 @@ config TTYUSB
 	default y
 	help
 	  ttyUSB
-
-#for clearTTY
-config CLEARTTY
-	bool "clearTTY"
-	default y
-	help
-	  clearTTY
 
 config UMC
 	bool "umc"
