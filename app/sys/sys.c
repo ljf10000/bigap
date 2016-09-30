@@ -605,6 +605,10 @@ static struct {
     int (*umount)(void);
 } mounts[] = {
     {
+         .mount =  mount_data,
+        .umount = umount_data,
+    },
+    {
          .mount =  mount_rootfs,
         .umount = umount_rootfs,
     },
@@ -615,10 +619,6 @@ static struct {
     {
          .mount =  mount_tool,
         .umount = umount_tool,
-    },
-    {
-         .mount =  mount_data,
-        .umount = umount_data,
     },
     {
          .mount =  mount_sd,
