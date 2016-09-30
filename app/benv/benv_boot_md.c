@@ -397,23 +397,24 @@ benv_boot_save(void)
     if (bootenv_dirty) {
         if (os_streq("force", getenv("benvsave"))) {
             os_println("benv force save ...");
-            benv_save();
+            {
+                benv_save();
+            }
             os_println("benv force save end");
         }
         
-        os_println("bootenv update ...");
-
-        env_crc_update();
-        /*
-        * include benv
-        */
-        saveenv();
-
-        bootenv_dirty = false;
+        os_println("bootenv update ..."); 
+        {
+            env_crc_update();
+            saveenv(); /* include benv */
+            bootenv_dirty = false;
+        }
         os_println("bootenv update ok.");
     } else {
         os_println("benv normal save ...");
-        benv_save();
+        {
+            benv_save();
+        }
         os_println("benv normal save end");
     }
 }
