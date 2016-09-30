@@ -5,17 +5,20 @@
 #define BENV_DEBUG_SORT             0x01
 #define BENV_DEBUG_CMP              0x02
 #define BENV_DEBUG_TRACE            0x04
-#define BENV_DEBUG_MMC              0x08
 
 #ifndef BENV_DEBUG
 #define BENV_DEBUG                  0 //(BENV_DEBUG_TRACE|BENV_DEBUG_MMC|BENV_DEBUG_SORT|BENV_DEBUG_CMP)
 #endif
 
 #if BENV_DEBUG
-#define benv_debug(_fmt, _args...)  printf(_fmt "\n", ##_args)
+#define benv_debug(_debug, _fmt, _args...)  printf(_fmt "\n", ##_args)
 #else
-#define benv_debug(_fmt, _args...)  os_do_nothing()
+#define benv_debug(_debug, _fmt, _args...)  os_do_nothing()
 #endif
+
+#define benv_debug_sort(_fmt, _args...)     benv_debug(BENV_DEBUG_SORT, _fmt, ##_args)
+#define benv_debug_cmp(_fmt, _args...)      benv_debug(BENV_DEBUG_CMP, _fmt, ##_args)
+#define benv_debug_trace(_fmt, _args...)    benv_debug(BENV_DEBUG_TRACE, _fmt, ##_args)
 
 #ifndef BENV_SIZE
 #define BENV_SIZE                   4096
@@ -2042,22 +2045,20 @@ __benv_write(int env, int idx)
 {
     int err = 0;
     
-    benv_debug("save benv[%d:%d] ...", env, idx);
+    debug_io("save benv[%d:%d] ...", env, idx);
     err = lseek(__benv_fd, benv_offset(env, idx), SEEK_SET);
     if (err < 0) { /* <0 is error */
-         benv_debug("seek benv[%d:%d] error:%d", env, idx, -errno);
-        debug_error("seek benv[%d:%d] error:%d", env, idx, -errno);
+         debug_error("seek benv[%d:%d] error:%d", env, idx, -errno);
         
         return -errno;
     }
 
     if (BENV_BLOCK_SIZE != write(__benv_fd, benv_block(env, idx), BENV_BLOCK_SIZE)) {
-         benv_debug("save benv[%d:%d] error:%d", env, idx, -errno);
-        debug_error("save benv[%d:%d] error:%d", env, idx, -errno);
+         debug_error("save benv[%d:%d] error:%d", env, idx, -errno);
         
         return -errno;
     }
-    benv_debug("save benv[%d:%d] ok", env, idx);
+    debug_io("save benv[%d:%d] ok", env, idx);
     
     os_memcpy(benv_mirror(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE);
     
@@ -2202,15 +2203,13 @@ __benv_save(int idx)
     int env, err = 0;
     
     if (false==__benv_loaded[idx]) {
-         benv_debug("benv block:%d not loaded, needn't save", idx);
-        debug_trace("benv block:%d not loaded, needn't save", idx);
+         debug_trace("benv block:%d not loaded, needn't save", idx);
         
         return 0;
     }
     
     if (os_memeq(benv_block(0, idx), benv_mirror(0, idx), BENV_BLOCK_SIZE)) {
-         benv_debug("benv block:%d not changed, needn't save", idx);
-        debug_trace("benv block:%d not changed, needn't save", idx);
+         debug_trace("benv block:%d not changed, needn't save", idx);
         
         return 0;
     }
