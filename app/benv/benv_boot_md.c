@@ -395,7 +395,9 @@ static void
 benv_boot_save(void)
 {
     if (os_streq("force", getenv("benvsave"))) {
+        os_println("benv force save ...");
         benv_save();
+        os_println("benv force save end");
     }
     
     if (bootenv_dirty) {
