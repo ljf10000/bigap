@@ -182,7 +182,7 @@ __change_bootenv(char *name, char *find, char *replace)
 }
 
 static bool
-change_bootcmd(void)
+bootcmd_change(void)
 {
     int idx = __benv_current;
     
@@ -203,7 +203,7 @@ change_bootcmd(void)
 }
 
 static bool
-change_bootargs(void)
+bootargs_change(void)
 {
     int idx = __benv_current;
     
@@ -235,7 +235,7 @@ change_bootargs(void)
 }
 
 static void
-check_bootenv(void)
+bootenv_check(void)
 {
     static struct {
         char *k;
@@ -262,9 +262,9 @@ check_bootenv(void)
 static void
 change_bootenv(void)
 {
-    check_bootenv();
-    change_bootargs();
-    change_bootcmd();
+    bootenv_check();
+    bootargs_change();
+    bootcmd_change();
 }
 
 static void 
