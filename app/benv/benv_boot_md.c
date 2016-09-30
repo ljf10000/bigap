@@ -368,6 +368,10 @@ benv_boot_select(void)
 static void
 benv_boot_save(void)
 {
+    if ("force"==getenv("benvsave")) {
+        benv_save();
+    }
+    
     if (bootenv_dirty) {
         os_println("bootenv update ...");
 
