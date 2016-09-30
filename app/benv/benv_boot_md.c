@@ -235,8 +235,34 @@ change_bootargs(void)
 }
 
 static void
+check_bootenv(void)
+{
+    static struct {
+        char *k;
+        char *v;
+    } map[] = {
+        {
+            .k = "bootargs",
+            .v = CONFIG_BOOTARGS,
+        },
+        {
+            .k = "bootcmd",
+            .v = PRODUCT_BOOTCOMMAND,
+        },
+    };
+    int i;
+
+    for (i=0; i<os_count_of(map); i++) {
+        if (NULL==getenv(map[i].k)) {
+            setenv(map[i].k, map[i].v);
+        }
+    }
+}
+
+static void
 change_bootenv(void)
 {
+    check_bootenv();
     change_bootargs();
     change_bootcmd();
 }
@@ -368,7 +394,7 @@ benv_boot_select(void)
 static void
 benv_boot_save(void)
 {
-    if ("force"==getenv("benvsave")) {
+    if (os_streq("force", getenv("benvsave"))) {
         benv_save();
     }
     
