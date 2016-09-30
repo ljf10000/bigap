@@ -154,6 +154,7 @@
         " "                     \
     /* end */
 
+#if 0
 #define PRODUCT_BOOTARGS_BODY   \
     "mem=" PRODUCT_MEMORY_SIZE_STRING \
         " "                     \
@@ -164,6 +165,16 @@
     "blkdevparts="              \
         PRODUCT_BOOTARGS_BLOCK0_NAME ":" PRODUCT_BOOTARGS_BLOCK0 \
     /* end */
+#else
+#define PRODUCT_BOOTARGS_BODY   \
+    "mem=" PRODUCT_MEMORY_SIZE_STRING \
+        " "                     \
+    "console=" PRODUCT_CONSOLE "," __SYMBOL_TO_STRING(PRODUCT_CONSOLE_BAUD) \
+        " "                     \
+    "blkdevparts="              \
+        PRODUCT_BOOTARGS_BLOCK0_NAME ":" PRODUCT_BOOTARGS_BLOCK0 \
+    /* end */
+#endif
 
 #ifdef CONFIG_BOOTARGS
 #undef CONFIG_BOOTARGS

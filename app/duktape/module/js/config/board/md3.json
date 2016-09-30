@@ -1,0 +1,310 @@
+{
+    "type": "md3",
+    "INTF": {
+        "LAN": {
+            "COUNT": 1
+        },
+        "WAN": {
+            "COUNT": 2
+        }
+    },
+    "basemac": [
+        "$(benv infos/oem/mac 2>/dev/null)",
+        "$(benv infos/product/mac 2>/dev/null)",
+        "$(benv infos/pcba/mac 2>/dev/null)"
+    ],
+    "intf": {
+        "lo": {
+            "link": "up"
+        },
+        "ifb0": {
+            "link": "up"
+        },
+        "eth0": {
+            "link": "up",
+            "ip": {
+                "addr": "1.0.0.2",
+                "masklen": 30
+            }
+        },
+        "eth0.1": {
+            "rename": {
+                "ifname": "lan0",
+                "policy": "static"
+            },
+            "vconfig": {
+                "father": "eth0",
+                "vlanid": 1
+            }
+        },
+        "eth0.8": {
+            "rename": {
+                "ifname": "peer1",
+                "policy": "static"
+            },
+            "vconfig": {
+                "father": "eth0",
+                "vlanid": 8
+            }
+        },
+        "eth0.9": {
+            "rename": {
+                "ifname": "peer0",
+                "policy": "static"
+            },
+            "vconfig": {
+                "father": "eth0",
+                "vlanid": 9
+            }
+        },
+        "usb0": {
+            "rename": {
+                "prefix": "wan",
+                "policy": "auto"
+            }
+        },
+        "usb1": {
+            "rename": {
+                "prefix": "wan",
+                "policy": "auto"
+            }
+        },
+        "peer0": {
+            "link": "up",
+            "vconfig": {
+                "flag": 1
+            },
+            "ip": {
+                "addr": "1.0.0.6",
+                "masklen": 30
+            }
+        },
+        "peer1": {
+            "link": "up",
+            "vconfig": {
+                "flag": 1
+            },
+            "ip": {
+                "addr": "1.0.0.10",
+                "masklen": 30
+            }
+        },
+        "lan0": {
+            "link": "up",
+            "vconfig": {
+                "flag": 1
+            },
+            "ip": {
+                "addr": "192.168.0.1",
+                "masklen": 24
+            }
+        },
+        "wan": {
+
+        }
+    },
+    "service": {
+        "godusevpn.sh": {
+            "run": "/etc/platform/bin/godusevpn.sh",
+            "monitor": "smd"
+        },
+        "udhcpd": {
+            "config_file": "/tmp/config/udhcpd.conf",
+            "run": "udhcpd -f ${config_file}",
+            "monitor": "smd",
+            "config": {
+                "intf": "lan0",
+                "start": 12,
+                "end": 254,
+                "lease_file": "/tmp/udhcp.lease",
+                "opt": {
+                    "dns": "${.intf.lan0.ip.addr}",
+                    "subnet": "${.intf.lan0.ip.mask}",
+                    "router": "${.intf.lan0.ip.addr}",
+                    "lease": 3600
+                }
+            }
+        },
+        "ntpd": {
+            "run": "ntpd -l -n",
+            "monitor": "smd"
+        },
+        "pcmd.d": {
+            "run": "pcmd.d",
+            "monitor": "smd"
+        },
+        "wndbyisock": {
+            "run": "/etc/wnd/wndbyisock",
+            "monitor": "smd"
+        },
+        "wndbyping": {
+            "run": "/etc/wnd/wndbyping",
+            "monitor": "smd"
+        },
+        "xinetd": {
+            "config_file": "/etc/xinetd.conf",
+            "pid_file": "/var/run/xinetd.pid",
+            "run": "xinetd -reuse -f ${config_file} -pidfile ${pid_file}",
+            "monitor": "smd"
+        },
+        "sshd": {
+            "config_file": "/tmp/config/ssh/sshd_config",
+            "pid_file": "/var/run/sshd.pid",
+            "host_key_file": "/tmp/config/ssh/ssh_host_rsa_key",
+            "port": 22,
+            "run": "/usr/sbin/sshd -f ${config_file} -h ${host_key_file} -p ${port}",
+            "monitor": "smd"
+        },
+        "dnsmasq": {
+            "config_file": "/tmp/config/dnsmasq.conf",
+            "pid_file": "/var/run/dnsmasq.pid",
+            "run": "dnsmasq -C ${config_file}",
+            "monitor": "smd",
+            "config": {
+                "directive": [
+                    "expand-hosts"
+                ],
+                "domain": "example.com",
+                "interface": "lan0",
+                "address": [
+                    "/www.9797168.com/${.intf.lan0.ip.addr}",
+                    "/#/1.1.1.1"
+                ],
+                "resolv-file": "/tmp/config/resolv.conf"
+            }
+        },
+        "syslogd": {
+            "pid_file": "/var/run/syslogd.pid",
+            "log_file": "/tmp/log/ulog/md.log",
+            "log_file_size": 4096,
+            "run": "syslogd -s ${log_file_size} -O ${log_file}",
+            "monitor": "smd"
+        },
+        "php-fpm": {
+            "pid_file": "/var/run/php-fpm.pid",
+            "config_file": "/tmp/config/php-fpm.ini",
+            "run": "php-fpm -y ${config_file}",
+            "monitor": "smd"
+        },
+        "nginx": {
+            "pid_file": "/var/run/nginx.pid",
+            "config_file": "/tmp/config/nginx/nginx.conf",
+            "prefix_path": "/tmp/config/nginx/",
+            "run": "nginx -c ${config_file} -p ${prefix_path}",
+            "monitor": "smd"
+        }
+    },
+    "app": {
+        "voltage": {
+            "run": "voltage_monitor 9 36",
+            "delay": 0,
+            "interval": 5,
+            "timer": "tmd"
+        },
+        "ntpclient": {
+            "hostname": "cn.pool.ntp.org",
+            "count": 1,
+            "run": "ntpclient -h ${hostname} -s -c ${count}",
+            "delay": 0,
+            "interval": 300,
+            "timer": "tmd"
+        },
+        "repair": {
+            "run": "sys repair",
+            "delay": 120,
+            "interval": 3600,
+            "timer": "tmd"
+        },
+        "backup": {
+            "config_file": "/tmp/config/backup.conf",
+            "run": "/etc/backup/backup",
+            "delay": 600,
+            "interval": 3600,
+            "timer": "tmd",
+            "config": [
+                {
+                    "alias": "config",
+                    "src": "/mnt/flash/config",
+                    "dst": "/mnt/flash/config1"
+                },
+                {
+                    "alias": "tool",
+                    "src": "/mnt/flash/tool",
+                    "dst": "/mnt/flash/tool1"
+                },
+                {
+                    "alias": "data",
+                    "src": "/mnt/flash/data",
+                    "dst": "/mnt/flash/data1"
+                }
+            ]
+        },
+        "led": {
+            "config_file": "/tmp/config/led.conf",
+            "config": [
+                {
+                    "name": "main",
+                    "status": "NA",
+                    "interval": 2
+                },
+                {
+                    "name": "pwr",
+                    "status": "up",
+                    "interval": 2
+                },
+                {
+                    "name": "hdd",
+                    "status": "down",
+                    "interval": 2
+                },
+                {
+                    "name": "sys",
+                    "status": "down",
+                    "interval": 2
+                },
+                {
+                    "name": "stat1",
+                    "status": "down",
+                    "interval": 2
+                },
+                {
+                    "name": "stat2",
+                    "status": "down",
+                    "interval": 2
+                },
+                {
+                    "name": "sim1",
+                    "status": "down",
+                    "interval": 2
+                },
+                {
+                    "name": "sim2",
+                    "status": "down",
+                    "interval": 2
+                },
+                {
+                    "name": "gps",
+                    "status": "down",
+                    "interval": 2
+                },
+                {
+                    "name": "lte1",
+                    "status": "down",
+                    "interval": 2
+                },
+                {
+                    "name": "lte2",
+                    "status": "down",
+                    "interval": 2
+                }
+            ]
+        },
+        "mwan": {
+            "config_file": "/tmp/config/mwan.conf",
+            "config": {
+                "mode": "lb",
+                "lb": "user"
+            }
+        }
+    }
+}
