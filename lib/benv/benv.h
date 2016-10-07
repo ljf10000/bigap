@@ -621,16 +621,18 @@ benv_cache_dump(void)
 {
     int i;
 
-    debug_trace("ops count=%d", __benv_ops_count);
-    
-    for (i = 0; i < __benv_ops_count; i++) {
-        benv_ops_t *ops = benv_ops(i);
+    if (__is_ak_debug_trace) {
+        os_println("ops count=%d", __benv_ops_count);
+        
+        for (i = 0; i < __benv_ops_count; i++) {
+            benv_ops_t *ops = benv_ops(i);
 
-        debug_trace("ops idx=%d, path=%s, value=%s, showit=%s",
-            benv_ops_idx(ops),
-            ops->path,
-            benv_cache_value(ops)?benv_cache_value(ops):"nothing",
-            benv_cache_showit(ops)?"true":"false");
+            os_println("ops idx=%d, path=%s, value=%s, showit=%s",
+                benv_ops_idx(ops),
+                ops->path,
+                benv_cache_value(ops)?benv_cache_value(ops):"nothing",
+                benv_cache_showit(ops)?"true":"false");
+        }
     }
 }
 
@@ -1785,7 +1787,7 @@ __benv_handle(benv_ops_t * ops)
         __benv_handle_show(ops);
     }
     /*
-     * wirite
+     * write
      */
     else if (benv_cache_value(ops)) {
         __benv_handle_write(ops);
