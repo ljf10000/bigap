@@ -46,7 +46,8 @@ __read_emmc(uint32 begin, void *buf, int count)
         
         return -EIO;
     }
-
+    flush_cache(buf, count<<9);
+    
     debug_ok("read emmc(block) ok, begin:0x%x, count:0x%x", begin, count);
     
     return ret << 9;
@@ -84,14 +85,18 @@ __write_emmc(uint32 begin, void *buf, int count)
 
 int benv_emmc_read(uint32 begin, void *buf, int size)
 {
-    int ret;
+    int i, err = -1;
 
-    ret = __read_emmc(begin>>9, buf, size>>9);
-    if (ret<0) {
-        return ret;
+    for (i=0; i<10; i++) {
+        os_usleep(10*1000);
+
+        err = __read_emmc(begin>>9, buf, size>>9);
+        if (size==err) {
+            return size;
+        }
     }
 
-    return size;
+    return err;
 }
 
 int benv_emmc_write(uint32 begin, void *buf, int size)
@@ -106,7 +111,7 @@ int benv_emmc_write(uint32 begin, void *buf, int size)
             return size;
         }
     }
-    
+
     return err;
 }
 
@@ -468,7 +473,6 @@ static void
 benv_boot(void)
 {
     benv_boot_init();
-    benv_init();
     md_boot_init();
     
     benv_boot_check();

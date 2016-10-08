@@ -2314,7 +2314,7 @@ benv_init(void)
     if (err<0) {
         return err;
     }
-
+    
 #ifdef __BOOT__
     __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
     __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
