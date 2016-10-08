@@ -235,7 +235,7 @@ bootargs_change(void)
 }
 
 static void
-bootenv_check(void)
+bootenv_repair(void)
 {
     static struct {
         char *k;
@@ -255,6 +255,8 @@ bootenv_check(void)
     for (i=0; i<os_count_of(map); i++) {
         if (NULL==getenv(map[i].k)) {
             setenv(map[i].k, map[i].v);
+
+            bootenv_dirty = true;
         }
     }
 }
@@ -262,7 +264,7 @@ bootenv_check(void)
 static void
 change_bootenv(void)
 {
-    bootenv_check();
+    bootenv_repair();
     bootargs_change();
     bootcmd_change();
 }
