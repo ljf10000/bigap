@@ -203,7 +203,7 @@ __main(int argc, char *argv[])
         * cat SCRIPT  | js
         * echo SCRIPT | js
         */
-        duk_eval_string(ctx, script);
+        duk_peval_string(ctx, script);
     }
 
     duk_pop(ctx);
