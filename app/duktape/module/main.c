@@ -196,9 +196,6 @@ __main(int argc, char *argv[])
     } else {
         script = readfd(ctx, 0);
 
-        os_println("===begin script===");
-        os_println("%s", script);
-        os_println("===end   script===");
         /*
         * cat SCRIPT  | js
         * echo SCRIPT | js
