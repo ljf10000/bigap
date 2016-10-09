@@ -117,26 +117,27 @@ __register(duk_context *ctx)
 static char *
 readfd(duk_context *ctx, int fd) 
 {
-	duk_file *f = NULL;
+	FILE *f = NULL;
 	char *buf = NULL;
 	long sz = 0, len = 0, left, ret;  /* ANSI C typing */
 
 	if (fd<0) {
-		return NULL;
+		goto error;
 	}
+	
 	f = fdopen(fd, "r");
 	if (!f) {
-		return NULL;
+		goto error;
 	}
 
-	while(!feof(f) && !ferror(f)) {
+	while(!os_feof(f) && !ferror(f)) {
         if (0==sz) {
             sz += 4096;
-            buf = (char *)malloc(sz);
+            buf = (char *)os_malloc(sz);
         }
         else if (sz - len < 512) {
             sz += 4096;
-            buf = (char *)realloc(buf, sz);
+            buf = (char *)os_realloc(buf, sz);
         }
         else {
             /*
@@ -145,13 +146,13 @@ readfd(duk_context *ctx, int fd)
         }
         
         if (NULL==buf) {
-            return NULL;
+            goto error;
         }
 
 	    left = sz - len;
-        ret = fread(buf + len, 1, left, f);
+        ret = os_fread(f, buf + len, left);
         if (ret > left || ret < 0) {
-            return NULL;
+            goto error;
         }
         
         len += ret;
@@ -164,6 +165,11 @@ readfd(duk_context *ctx, int fd)
     }
 
 	return buf;
+error:
+    os_free(buf);
+    os_fclose(f);
+
+    return NULL;
 }
 
 static int
