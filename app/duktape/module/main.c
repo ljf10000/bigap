@@ -170,6 +170,7 @@ static int
 __main(int argc, char *argv[])
 {
     duk_context *ctx = NULL;
+    char *script = NULL;
     int err = 0;
     
     __js_argc = argc;
@@ -187,16 +188,22 @@ __main(int argc, char *argv[])
     }
 
     if (__js_shabang) {
+        script = argv[1];
         /*
         * argv[1] is script name
         */
-        duk_peval_file(ctx, argv[1]);
+        duk_peval_file(ctx, script);
     } else {
+        script = readfd(ctx, 0);
+
+        os_println("===begin script===");
+        os_println("%s", script);
+        os_println("===end   script===");
         /*
         * cat SCRIPT  | js
         * echo SCRIPT | js
         */
-        duk_eval_string(ctx, readfd(ctx, 0));
+        duk_eval_string(ctx, script);
     }
 
     duk_pop(ctx);
