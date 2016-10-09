@@ -158,7 +158,8 @@ readfd(duk_context *ctx, int fd)
         len += ret;
 	}
 	buf[len++] = 0;
-	
+
+	os_println("script len=%d", len);
     if ('#'==buf[0] && '!'==buf[1]) {
         buf[0] = '/';
         buf[1] = '/';
@@ -206,7 +207,7 @@ __main(int argc, char *argv[])
         * cat SCRIPT  | js
         * echo SCRIPT | js
         */
-        duk_peval_string(ctx, script);
+        duk_peval_string(ctx, script); os_free(script);
     }
 
     duk_pop(ctx);
