@@ -125,12 +125,12 @@ readfd(duk_context *ctx, int fd)
 		goto error;
 	}
 	
-	f = fdopen(fd, "r");
+	f = os_fdopen(fd, "r");
 	if (!f) {
 		goto error;
 	}
 
-	while(!os_feof(f) && !ferror(f)) {
+	while(!os_feof(f) && !os_ferror(f)) {
         if (0==sz) {
             sz += 4096;
             buf = (char *)os_malloc(sz);

@@ -130,6 +130,8 @@ __os_fclose(STREAM stream)
 
 #define os_feof(_stream)            (_stream?!!feof(_stream):true)
 #define os_fflush(_stream)          fflush(_stream)
+#define os_ferror(_stream)          ferror(_stream)
+#define os_fdopen(_fd, _flag)       fdopen(_fd, _flag)
 
 static inline int 
 os_fseek(STREAM stream, int offset, int fromwhere)
