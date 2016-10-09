@@ -159,7 +159,6 @@ readfd(duk_context *ctx, int fd)
 	}
 	buf[len++] = 0;
 
-	os_println("script len=%d", len);
     if ('#'==buf[0] && '!'==buf[1]) {
         buf[0] = '/';
         buf[1] = '/';
