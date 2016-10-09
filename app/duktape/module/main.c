@@ -187,12 +187,10 @@ __main(int argc, char *argv[])
     }
 
     if (__js_shabang) {
-        char *script = argv[1];
         /*
-        * #!/bin/js
-        * SCRIPT...
+        * argv[1] is script name
         */
-        duk_peval_file(ctx, script);
+        duk_peval_file(ctx, argv[1]);
     } else {
         /*
         * cat SCRIPT  | js
