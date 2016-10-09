@@ -846,9 +846,10 @@ __load_code(duk_context *ctx, char *tag, char *code)
     return err;
 }
 
-extern duk_context *__ctx;
-extern int __argc;
-extern char **__argv;
+extern duk_context *__js_ctx;
+extern bool __js_shabang;
+extern int __js_argc;
+extern char **__js_argv;
 
 #if duk_LIBC_SIG
 extern char *libc_sig_name[];

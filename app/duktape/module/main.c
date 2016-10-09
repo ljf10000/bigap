@@ -17,9 +17,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-duk_context *__ctx;
-int __argc;
-char **__argv;
+duk_context *__js_ctx;
+bool __js_shabang;
+int __js_argc;
+char **__js_argv;
 
 static int
 buildin_register(duk_context *ctx)
@@ -113,16 +114,68 @@ __register(duk_context *ctx)
     return 0;
 }
 
+static char *
+readfd(duk_context *ctx, int fd) 
+{
+	duk_file *f = NULL;
+	char *buf = NULL;
+	long sz = 0, len = 0, left, ret;  /* ANSI C typing */
+
+	if (fd<0) {
+		return NULL;
+	}
+	f = fdopen(fd, "r");
+	if (!f) {
+		return NULL;
+	}
+
+	while(!feof(f) && !ferror(f)) {
+        if (0==sz) {
+            sz += 4096;
+            buf = (char *)malloc(sz);
+        }
+        else if (sz - len < 512) {
+            sz += 4096;
+            buf = (char *)realloc(buf, sz);
+        }
+        else {
+            /*
+            * use the buf, do nothing
+            */
+        }
+        
+        if (NULL==buf) {
+            return NULL;
+        }
+
+	    left = sz - len;
+        ret = fread(buf + len, 1, left, f);
+        if (ret > left || ret < 0) {
+            return NULL;
+        }
+        
+        len += ret;
+	}
+	buf[len++] = 0;
+	
+    if ('#'==buf[0] && '!'==buf[1]) {
+        buf[0] = '/';
+        buf[1] = '/';
+    }
+
+	return buf;
+}
+
 static int
 __main(int argc, char *argv[])
 {
     duk_context *ctx = NULL;
     int err = 0;
     
-    __argc = argc;
-    __argv = argv;
+    __js_argc = argc;
+    __js_argv = argv;
     
-    ctx = __ctx = duk_create_heap_default();
+    ctx = __js_ctx = duk_create_heap_default();
     if (NULL==ctx) {
         return -ENOMEM;
     }
@@ -131,10 +184,23 @@ __main(int argc, char *argv[])
     if (err<0) {
         goto error;
     }
-    
-    duk_peval_file(ctx, argv[1]);
-    duk_pop(ctx);
 
+    if (1==__js_argc) {
+        /*
+        * cat SCRIPT  | js
+        * echo SCRIPT | js
+        */
+        duk_eval_string(ctx, readfd(ctx, 0));
+    } else {
+        /*
+        * #!/bin/js
+        * SCRIPT...
+        */
+        __js_shabang = true;
+        duk_peval_file(ctx, argv[1]);
+    }
+
+    duk_pop(ctx);
 error:
     debug_js("before destroy duk heap");
     duk_destroy_heap(ctx);

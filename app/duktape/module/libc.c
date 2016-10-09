@@ -21,16 +21,16 @@ void libc_sig_handler(int sig)
     /*
     * global handler sig
     */
-    duk_push_global_object(__ctx);
-    duk_get_prop_string(__ctx, -1, libc_sig_name[sig]);
-    if (duk_is_function(__ctx, -1)) {
-        duk_push_int(__ctx, sig);
+    duk_push_global_object(__js_ctx);
+    duk_get_prop_string(__js_ctx, -1, libc_sig_name[sig]);
+    if (duk_is_function(__js_ctx, -1)) {
+        duk_push_int(__js_ctx, sig);
         /*
         * global result
         */
-        duk_pcall(__ctx, 1);
+        duk_pcall(__js_ctx, 1);
     }
-    duk_pop_2(__ctx);
+    duk_pop_2(__js_ctx);
 }
 #endif /* duk_LIBC_SIG */
 
@@ -38,12 +38,12 @@ static char *atexit_name;
 static void
 __atexit_handler(void)
 {
-    duk_push_global_object(__ctx);
-    duk_get_prop_string(__ctx, -1, atexit_name);
-    if (duk_is_function(__ctx, -1)) {
-        duk_pcall(__ctx, 0);
+    duk_push_global_object(__js_ctx);
+    duk_get_prop_string(__js_ctx, -1, atexit_name);
+    if (duk_is_function(__js_ctx, -1)) {
+        duk_pcall(__js_ctx, 0);
     }
-    duk_pop_2(__ctx);
+    duk_pop_2(__js_ctx);
 }
 
 #if duk_LIBC_LINUX

@@ -808,12 +808,12 @@ env_register(duk_context *ctx)
 static void 
 arg_register(duk_context *ctx)
 {
-    int i, argc = __argc - 2;
-    char **argv = __argv + 2;
+    int i, argc = __js_argc - (1 + !!__js_shabang);
+    char **argv = __js_argv + (1 + !!__js_shabang);
     
-    __set_obj_string(ctx, -1, "name", __argv[0]);
-    __set_obj_string(ctx, -1, "script", __argv[1]);
-
+    __set_obj_string(ctx, -1, "name", __js_argv[0]);
+    __set_obj_string(ctx, -1, "script", __js_shabang?__js_argv[1]:"");
+    
     duk_push_array(ctx);
     for (i=0; i<argc; i++) {
         __set_array_string(ctx, -1, i, argv[i]);
