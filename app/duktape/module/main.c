@@ -174,7 +174,8 @@ __main(int argc, char *argv[])
     
     __js_argc = argc;
     __js_argv = argv;
-    
+    __js_shabang = (__js_argc>1);
+
     ctx = __js_ctx = duk_create_heap_default();
     if (NULL==ctx) {
         return -ENOMEM;
@@ -185,19 +186,19 @@ __main(int argc, char *argv[])
         goto error;
     }
 
-    if (1==__js_argc) {
+    if (__js_shabang) {
+        char *script = argv[1];
+        /*
+        * #!/bin/js
+        * SCRIPT...
+        */
+        duk_peval_file(ctx, script);
+    } else {
         /*
         * cat SCRIPT  | js
         * echo SCRIPT | js
         */
         duk_eval_string(ctx, readfd(ctx, 0));
-    } else {
-        /*
-        * #!/bin/js
-        * SCRIPT...
-        */
-        __js_shabang = true;
-        duk_peval_file(ctx, argv[1]);
     }
 
     duk_pop(ctx);
