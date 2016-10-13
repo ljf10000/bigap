@@ -128,7 +128,7 @@ int __benv_read(int env)
         
         return -EIO;
     }
-    debug_io("read benv%d ok", env);
+    debug_io("read benv%d ok.", env);
     
     /*
     * block==>mirror
@@ -146,7 +146,7 @@ int __benv_write(int env)
 
         return -EIO;
     }
-    debug_io("save benv%d ok", env);
+    debug_io("save benv%d ok.", env);
     
     os_memcpy(__benv_mirror(env), __benv_env(env), BENV_SIZE);
     
