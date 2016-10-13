@@ -2192,7 +2192,7 @@ __benv_save(void)
 #endif
 
     for (env=0; env<BENV_COUNT; env++) {
-        err = __benv_write(env, idx);
+        err = __benv_write(env);
         if (err<0) {
             return err;
         }
