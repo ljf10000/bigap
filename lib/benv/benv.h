@@ -1952,8 +1952,8 @@ extern int saveenv(void);
 #define benv_open()                 0
 #define benv_close()                0
 
-extern int __benv_read(int env, int idx);
-extern int __benv_write(int env, int idx);
+extern int __benv_read(int env);
+extern int __benv_write(int env);
 #elif defined(__APP__)
 #if IS_PRODUCT_LTEFI_MD1
 #define benv_open()                 0
