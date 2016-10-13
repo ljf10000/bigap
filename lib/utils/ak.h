@@ -414,7 +414,7 @@ __ak_offset(akid_t akid)
     return (int)aku.v.offset;
 }
 
-#define appkey_shm_size     (0  \
+#define ak_shm_size     (0  \
     + sizeof(ak_hdr_t)          \
     + sizeof(ak_t) * AK_LIMIT   \
     + sizeof(uint32)          \
@@ -787,7 +787,7 @@ ak_init(void)
 {
     int err = 0;
     
-    err = os_shm_create(__this_ak(), appkey_shm_size, false);
+    err = os_shm_create(__this_ak(), ak_shm_size, false);
     if (err<0) { /* >=0 is valid shm id */
         goto error;
     }
