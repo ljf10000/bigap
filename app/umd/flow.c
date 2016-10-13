@@ -17,19 +17,19 @@ static struct um_flow flow;
 static inline bool
 is_local_mac(byte mac[])
 {
-    return os_maceq(mac, umd.intf[UM_INTF_TC].mac);
+    return os_maceq(mac, umd.intf[UM_INTF_INGRESS].mac);
 }
 
 static inline bool
 is_local_ip(uint32 ip)
 {
-    return ip==umd.intf[UM_INTF_TC].ip;
+    return ip==umd.intf[UM_INTF_INGRESS].ip;
 }
 
 static inline bool
 is_user_ip(uint32 ip)
 {
-    struct um_intf *intf = &umd.intf[UM_INTF_TC];
+    struct um_intf *intf = &umd.intf[UM_INTF_INGRESS];
     
     return (ip & intf->mask)==(intf->ip & intf->mask);
 }
@@ -57,7 +57,7 @@ pkt_recv(cli_server_t *server)
 static int
 intf_check(cli_server_t *server)
 {
-    if (server->addr.ll.sll_ifindex == umd.intf[UM_INTF_TC].index) {
+    if (server->addr.ll.sll_ifindex == umd.intf[UM_INTF_INGRESS].index) {
         return 0;
     } else {
         return -EBADIDX;
@@ -437,7 +437,7 @@ flow_server_init(cli_server_t *server)
     sockaddr_ll_t addr = {
         .sll_family     = AF_PACKET,
         .sll_protocol   = flow.ether_type_all,
-        .sll_ifindex    = umd.intf[UM_INTF_TC].index,
+        .sll_ifindex    = umd.intf[UM_INTF_INGRESS].index,
     };
     err = bind(fd, (sockaddr_t *)&addr, sizeof(addr));
     if (err<0) {

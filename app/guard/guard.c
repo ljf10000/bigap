@@ -254,14 +254,14 @@ load(void)
     /*
     * load info, and auto load mark
     */
-    os_callv(benv_open, benv_close, benv_load_info);
+    os_callv(benv_open, benv_close, benv_load);
 }
 
 static void
 save(void)
 {
     benv_open();
-    benv_load_mark();
+    benv_load();
     benv_mark(__benv_mark_noauth) = noauth;
     benv_save();
     benv_close();

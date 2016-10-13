@@ -30,7 +30,7 @@ struct um_control umd = {
         [UM_INTF_FLOW] = {
             .name = UMD_INTF_FLOW_DEFT,
         },
-        [UM_INTF_TC] = {
+        [UM_INTF_INGRESS] = {
             .name = UMD_INTF_TC_DEFT,
         },
     },
@@ -68,7 +68,7 @@ init_intf(void)
         os_maccpy(umd.basemac, intf->mac);
     }
 
-    intf = &umd.intf[UM_INTF_TC];
+    intf = &umd.intf[UM_INTF_INGRESS];
     {
         intf->index = if_nametoindex(intf->name);
         

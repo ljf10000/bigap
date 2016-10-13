@@ -397,9 +397,9 @@ struct um_intf {
 enum {
     UM_INTF_FLOW    = 0,
 #ifdef __PC__
-    UM_INTF_TC      = 0,
+    UM_INTF_INGRESS = 0,
 #else
-    UM_INTF_TC      = 1,
+    UM_INTF_INGRESS = 1,
 #endif
 
     UM_INTF_END

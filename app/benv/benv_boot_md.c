@@ -115,40 +115,40 @@ int benv_emmc_write(uint32 begin, void *buf, int size)
     return err;
 }
 
-#define __benv_start(_env, _idx)    (BENV_START + benv_offset(_env, _idx))
+#define __benv_start(_env)    (BENV_START + benv_offset(_env))
 
-int __benv_read(int env, int idx)
+int __benv_read(int env)
 {
     /*
     * emmc==>block
     */
-    debug_io("read benv[%d:%d] ...", env, idx);
-    if (BENV_BLOCK_SIZE!=benv_emmc_read(__benv_start(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE)) {
-         os_println("read benv[%d:%d] error", env, idx);
+    debug_io("read benv%d ...", env);
+    if (BENV_BLOCK_SIZE!=benv_emmc_read(__benv_start(env), __benv_env(env), BENV_SIZE)) {
+         os_println("read benv%d error", env);
         
         return -EIO;
     }
-    debug_io("read benv[%d:%d] ok", env, idx);
+    debug_io("read benv%d ok", env);
     
     /*
     * block==>mirror
     */
-    os_memcpy(benv_mirror(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE);
+    os_memcpy(__benv_mirror(env), __benv_env(env), BENV_SIZE);
 
     return 0;
 }
 
-int __benv_write(int env, int idx)
+int __benv_write(int env)
 {
-    debug_io("save benv[%d:%d] ...", env, idx);
-    if (BENV_BLOCK_SIZE!=benv_emmc_write(__benv_start(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE)) {
-         os_println("save benv[%d:%d] error", env, idx);
+    debug_io("save benv%d ...", env);
+    if (BENV_BLOCK_SIZE!=benv_emmc_write(__benv_start(env), __benv_env(env), BENV_SIZE)) {
+         os_println("save benv%d error", env);
 
         return -EIO;
     }
-    debug_io("save benv[%d:%d] ok", env, idx);
+    debug_io("save benv%d ok", env);
     
-    os_memcpy(benv_mirror(env, idx), benv_block(env, idx), BENV_BLOCK_SIZE);
+    os_memcpy(__benv_mirror(env), __benv_env(env), BENV_SIZE);
     
     return 0;
 }
