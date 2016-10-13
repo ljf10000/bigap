@@ -123,7 +123,7 @@ int __benv_read(int env)
     * emmc==>block
     */
     debug_io("read benv%d ...", env);
-    if (BENV_BLOCK_SIZE!=benv_emmc_read(__benv_start(env), __benv_env(env), BENV_SIZE)) {
+    if (BENV_SIZE!=benv_emmc_read(__benv_start(env), __benv_env(env), BENV_SIZE)) {
          os_println("read benv%d error", env);
         
         return -EIO;
@@ -141,7 +141,7 @@ int __benv_read(int env)
 int __benv_write(int env)
 {
     debug_io("save benv%d ...", env);
-    if (BENV_BLOCK_SIZE!=benv_emmc_write(__benv_start(env), __benv_env(env), BENV_SIZE)) {
+    if (BENV_SIZE!=benv_emmc_write(__benv_start(env), __benv_env(env), BENV_SIZE)) {
          os_println("save benv%d error", env);
 
         return -EIO;

@@ -1995,7 +1995,7 @@ __benv_read(int env)
     /*
     * emmc==>block
     */
-    if (BENV_BLOCK_SIZE != read(__benv_fd, __benv_env(env), BENV_SIZE)) {
+    if (BENV_SIZE != read(__benv_fd, __benv_env(env), BENV_SIZE)) {
         debug_error("read benv%d error:%d", env, -errno);
 
         return -errno;
@@ -2022,7 +2022,7 @@ __benv_write(int env)
         return -errno;
     }
 
-    if (BENV_BLOCK_SIZE != write(__benv_fd, __benv_env(env), BENV_SIZE)) {
+    if (BENV_SIZE != write(__benv_fd, __benv_env(env), BENV_SIZE)) {
          debug_error("save benv%d error:%d", env, -errno);
         
         return -errno;
