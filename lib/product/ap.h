@@ -72,7 +72,7 @@
 * ap not use emmc(with mid/psn), so use boot cookie
 */
 #ifndef PRODUCT_BCOOKIE_ENABLE
-#define PRODUCT_BCOOKIE_ENABLE          1
+#define PRODUCT_BCOOKIE_ENABLE          0
 #endif
 
 #endif
