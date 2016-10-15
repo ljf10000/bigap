@@ -1230,7 +1230,7 @@ touser_flow(struct um_limit_flow *flow, jobj_t jflow)
 }
 
 static void
-touser_rate(struct um_limit_flow *rate, jobj_t jrate)
+touser_rate(struct um_limit_rate *rate, jobj_t jrate)
 {
     jobj_t jobj;
     
