@@ -1346,7 +1346,7 @@ struct um_user *um_touser(struct um_user *user, jobj_t juser)
 #endif
     touser_limit(user, juser);
     
-    return juser;
+    return user;
 }
 #endif /* UM_USE_SYNC */
 
