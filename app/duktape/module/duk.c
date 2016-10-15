@@ -33,10 +33,10 @@ duke_modSearch(duk_context *ctx)
     }
 
     /*
-    * try duk_PATH/file.js
+    * try js_PATH/file.js
     */
     char env[1+OS_LINE_LEN] = {0};
-    os_strdcpy(env, env_gets(ENV_duk_PATH, duk_PATH));
+    os_strdcpy(env, env_gets(ENV_JPATH, js_PATH));
 
     char *path = NULL;
     os_strtok_foreach(path, env, ":") {
@@ -75,7 +75,7 @@ static const dukc_func_entry_t duktape_func[] = {
 int js_duktape_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
-    	duk_get_prop_string(ctx, -1, duk_DUKTAPE);
+    	duk_get_prop_string(ctx, -1, js_DUKTAPE);
     	    duk_put_functions(ctx, -1, duktape_func);
     	duk_pop(ctx);
 	duk_pop(ctx);

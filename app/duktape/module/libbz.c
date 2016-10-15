@@ -14,7 +14,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "dukc.h"
 
-#if duk_LIBBZ
+#if js_LIBBZ
 #include <bzlib.h>
 #include "libbz.h"
 #include "libxz.h"
@@ -281,12 +281,12 @@ int js_libbz_register(duk_context *ctx)
         duk_push_object(ctx);
             libbzf_register(ctx, -1);
             libbzn_register(ctx, -1);
-        duk_put_prop_string(ctx, -2, duk_MOD_LIBBZ);
+        duk_put_prop_string(ctx, -2, js_MOD_LIBBZ);
     duk_pop(ctx);
 
     debug_ok("register libbz ok.");
 
     return 0;
 }
-#endif /* duk_LIBBZ */
+#endif /* js_LIBBZ */
 

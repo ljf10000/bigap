@@ -1,5 +1,5 @@
 static const dukc_number_entry_t libc_number[] = {
-#if duk_LIBC_LINUX
+#if js_LIBC_LINUX
     JS_VALUE(CLOCK_REALTIME),
     JS_VALUE(CLOCK_MONOTONIC),
     JS_VALUE(TFD_NONBLOCK),
@@ -254,7 +254,7 @@ static const dukc_number_entry_t libc_number[] = {
     JS_VALUE(SEEK_END),
 
     // 13.7 Memory-mapped I/O
-#if duk_LIBC_MEMORY
+#if js_LIBC_MEMORY
     JS_VALUE(MAP_PRIVATE),
     JS_VALUE(MAP_SHARED),
     JS_VALUE(MAP_FIXED),
@@ -539,7 +539,7 @@ static const dukc_number_entry_t libc_number[] = {
     JS_VALUE(MSG_PEEK),
     JS_VALUE(MSG_DONTROUTE),
 
-#if duk_LIBC_TTY
+#if js_LIBC_TTY
     // 17.4.1 Terminal Mode Data Types
     JS_VALUE(NCCS),
 
@@ -669,7 +669,7 @@ static const dukc_number_entry_t libc_number[] = {
     JS_VALUE(LOG_INFO),
     JS_VALUE(LOG_DEBUG),
 
-#if duk_LIBC_MATH
+#if js_LIBC_MATH
     // 19 Mathematics
     // 19.1 Predefined Mathematical Constants
     JS_VALUE(M_E),
@@ -703,7 +703,7 @@ static const dukc_number_entry_t libc_number[] = {
     JS_VALUE(NAN),
 #endif
 
-#if duk_LIBC_TIME
+#if js_LIBC_TIME
     // 21 Date and Time
     // 21.3.1 CPU Time Inquiry
     JS_VALUE(CLOCKS_PER_SEC),
@@ -764,7 +764,7 @@ static const dukc_number_entry_t libc_number[] = {
     {"size_cpu_set_t", sizeof(cpu_set_t)},
 #endif
 
-#if duk_LIBC_SIG
+#if js_LIBC_SIG
     // 24.2 Standard Signals
     JS_VALUE(NSIG),
     JS_VALUE(_SIGSET_NWORDS),

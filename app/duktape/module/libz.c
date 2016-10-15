@@ -14,7 +14,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "dukc.h"
 
-#if duk_LIBZ
+#if js_LIBZ
 #include <zlib.h>
 #include "libz.h"
 #include "libxz.h"
@@ -944,12 +944,12 @@ int js_libz_register(duk_context *ctx)
         duk_push_object(ctx);
             libzf_register(ctx, -1);
             libzn_register(ctx, -1);
-        duk_put_prop_string(ctx, -2, duk_MOD_LIBZ);
+        duk_put_prop_string(ctx, -2, js_MOD_LIBZ);
     duk_pop(ctx);
 
     debug_ok("register libz ok.");
 
     return 0;
 }
-#endif /* duk_LIBZ */
+#endif /* js_LIBZ */
 

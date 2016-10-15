@@ -14,7 +14,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "dukc.h"
 
-#if duk_LIBC_SIG
+#if js_LIBC_SIG
 char *js_libc_sig_name[NSIG];
 void js_libc_sig_handler(int sig)
 {
@@ -32,7 +32,7 @@ void js_libc_sig_handler(int sig)
     }
     duk_pop_2(__js_ctx);
 }
-#endif /* duk_LIBC_SIG */
+#endif /* js_LIBC_SIG */
 
 static char *atexit_name;
 static void
@@ -46,7 +46,7 @@ __atexit_handler(void)
     duk_pop_2(__js_ctx);
 }
 
-#if duk_LIBC_LINUX
+#if js_LIBC_LINUX
 JS_PARAM(timerfd_create, 2);
 static duk_ret_t
 duke_timerfd_create(duk_context *ctx)
@@ -268,9 +268,9 @@ duke_inotify_rm_watch(duk_context *ctx)
 
     return js_push_error(ctx, err), 1;
 }
-#endif /* duk_LIBC_LINUX */
+#endif /* js_LIBC_LINUX */
 
-#if duk_LIBC_ERROR
+#if js_LIBC_ERROR
 // 2.3 Error Messages
 JS_PARAM(strerror, 1);
 static duk_ret_t
@@ -284,12 +284,12 @@ duke_strerror(duk_context *ctx)
 
     return js_push_string(ctx, errstring), 1;
 }
-#endif /* duk_LIBC_ERROR */
+#endif /* js_LIBC_ERROR */
 
 // 3.2.2 Unconstrained Allocation
 // malloc free realloc calloc
 
-#if duk_LIBC_CTYPE
+#if js_LIBC_CTYPE
 // 4.1 Classification of Characters
 JS_PARAM(islower, 1);
 static duk_ret_t
@@ -435,12 +435,12 @@ duke_toascii(duk_context *ctx)
 
     return duk_push_int(ctx, toascii(c)), 1;
 }
-#endif /* duk_LIBC_CTYPE */
+#endif /* js_LIBC_CTYPE */
 
 // 4.3 Character class determination for wide characters
 
 // 5.5 String/Array Comparison
-#if duk_LIBC_MEMORY
+#if js_LIBC_MEMORY
 JS_PARAM(memcmp, 3);
 static duk_ret_t
 duke_memcmp(duk_context *ctx)
@@ -455,7 +455,7 @@ duke_memcmp(duk_context *ctx)
 }
 #endif
 
-#if duk_LIBC_PRIVATE
+#if js_LIBC_PRIVATE
 JS_PARAM(fsize, 1);
 static duk_ret_t
 duke_fsize(duk_context *ctx)
@@ -842,7 +842,7 @@ duke_writev(duk_context *ctx)
 }
 
 // 13.7 Memory-mapped I/O
-#if duk_LIBC_MEMORY
+#if js_LIBC_MEMORY
 JS_PARAM(mmap, 6);
 static duk_ret_t
 duke_mmap(duk_context *ctx)
@@ -921,7 +921,7 @@ duke_madvise(duk_context *ctx)
 #endif
 
 // 13.8 Waiting for Input or Output
-#if duk_LIBC_FDSET
+#if js_LIBC_FDSET
 JS_PARAM(FD_NEW, 0);
 static duk_ret_t
 duke_FD_NEW(duk_context *ctx)
@@ -2573,7 +2573,7 @@ duke_endnetent(duk_context *ctx)
 	return endnetent(), 0;
 }
 
-#if duk_LIBC_TTY
+#if js_LIBC_TTY
 // 17 Low-Level Terminal Interface
 // 17.1 Identifying Terminals
 JS_PARAM(isatty, 1);
@@ -2804,9 +2804,9 @@ duke_ptsname(duk_context *ctx)
     
     return js_push_string(ctx, name), 1;
 }
-#endif /* duk_LIBC_TTY */
+#endif /* js_LIBC_TTY */
 
-#if duk_LIBC_LOG
+#if js_LIBC_LOG
 // 18 Syslog
 // 18.2 Submitting Syslog Messages
 JS_PARAM(openlog, 3);
@@ -2864,9 +2864,9 @@ duke_LOG_UPTO(duk_context *ctx)
 
     return duk_push_int(ctx, LOG_UPTO(mask)), 1;
 }
-#endif /* duk_LIBC_LOG */
+#endif /* js_LIBC_LOG */
 
-#if duk_LIBC_MATH
+#if js_LIBC_MATH
 // 19 Mathematics
 // 19.2 Trigonometric Functions
 JS_PARAM(sin, 1);
@@ -3591,9 +3591,9 @@ duke_fma(duk_context *ctx)
     
     return duk_push_number(ctx, fma(x, y, z)), 1;
 }
-#endif /* duk_LIBC_MATH */
+#endif /* js_LIBC_MATH */
 
-#if duk_LIBC_TIME
+#if js_LIBC_TIME
 // 21 Date and Time
 // 21.2 Elapsed Time
 JS_PARAM(difftime, 2);
@@ -3890,7 +3890,7 @@ duke_nanosleep(duk_context *ctx)
     
     return js_push_error(ctx, err), 1;
 }
-#endif /* duk_LIBC_TIME */
+#endif /* js_LIBC_TIME */
 
 // 22 Resource Usage And Limitation
 JS_PARAM(getrusage, 2);
@@ -3908,7 +3908,7 @@ duke_getrusage(duk_context *ctx)
     return js_push_error(ctx, err), 1;
 }
 
-#if duk_LIBC_VTIME
+#if js_LIBC_VTIME
 JS_PARAM(vtimes, 2);
 static duk_ret_t
 duke_vtimes(duk_context *ctx)
@@ -4320,7 +4320,7 @@ duke_getloadavg(duk_context *ctx)
 // sigjmp_buf/sigsetjmp/siglongjmp
 // ucontext_t/getcontext/makecontext/setcontext/swapcontext
 
-#if duk_LIBC_SIG
+#if js_LIBC_SIG
 // 24 Signal Handling
 // 24.2.8 Signal Messages
 JS_PARAM(strsignal, 1);
@@ -4614,7 +4614,7 @@ duke_sigsuspend(duk_context *ctx)
 error:
     return duk_push_int(ctx, err), 1;
 }
-#endif /* duk_LIBC_SIG */
+#endif /* js_LIBC_SIG */
 
 // 25 The Basic Program/System Interface
 // 25.4 Environment Variables
@@ -5261,7 +5261,7 @@ duke_updwtmp(duk_context *ctx)
     return updwtmp(file, &u), 0;
 }
 
-#if duk_LIBC_UTIL
+#if js_LIBC_UTIL
 // 29.12.3 Logging In and Out
 JS_PARAM(login_tty, 1);
 static duk_ret_t
@@ -5306,7 +5306,7 @@ duke_logwtmp(duk_context *ctx)
     
     return logwtmp(line, name, host), 0;
 }
-#endif /* duk_LIBC_UTIL */
+#endif /* js_LIBC_UTIL */
 
 // 29.13 User Database
 JS_PARAM(getpwuid, 1);
@@ -5331,7 +5331,7 @@ duke_getpwnam(duk_context *ctx)
     return js_obj_push(ctx, __set_passwd, p), 1;
 }
 
-#if duk_LIBC_PWENT
+#if js_LIBC_PWENT
 // 29.13.3 Scanning the List of All Users
 JS_PARAM(fgetpwent, 1);
 static duk_ret_t
@@ -5384,7 +5384,7 @@ duke_putpwent(duk_context *ctx)
 #endif
 
 // 29.14 Group Database
-#if duk_LIBC_GWENT
+#if js_LIBC_GWENT
 JS_PARAM(getgrgid, 1);
 static duk_ret_t
 duke_getgrgid(duk_context *ctx)
@@ -5562,7 +5562,7 @@ duke_uname(duk_context *ctx)
     return 1;
 }
 
-#if duk_LIBC_MOUNT
+#if js_LIBC_MOUNT
 // 30.3.1 Mount Information
 JS_PARAM(setfsent, 0);
 static duk_ret_t
@@ -5790,7 +5790,7 @@ int js_libc_register(duk_context *ctx)
             libcn_register(ctx, -1);
             libcs_register(ctx, -1);
             libcp_register(ctx, -1);
-        duk_put_prop_string(ctx, -2, duk_MOD_LIBC);
+        duk_put_prop_string(ctx, -2, js_MOD_LIBC);
     duk_pop(ctx);
 
     debug_ok("register libc ok.");

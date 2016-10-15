@@ -393,7 +393,7 @@ __set_itimerspec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
-#if duk_LIBC_LINUX
+#if js_LIBC_LINUX
 
 static inline int
 __get_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
@@ -720,7 +720,7 @@ __set_rusage(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
-#if duk_LIBC_VTIME
+#if js_LIBC_VTIME
 static inline int
 __get_vtimes(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
@@ -897,7 +897,7 @@ __set_sched_param(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
-#if duk_LIBC_SIG
+#if js_LIBC_SIG
 static inline int
 __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 {
@@ -1108,7 +1108,7 @@ __set_utsname(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
-#if duk_LIBC_MOUNT
+#if js_LIBC_MOUNT
 static inline int
 __get_fstab(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {

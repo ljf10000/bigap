@@ -726,7 +726,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-#if duk_LIBCALL
+#if js_LIBCALL
 static duk_ret_t
 libcall(duk_context *ctx)
 {
@@ -838,7 +838,7 @@ static const dukc_func_entry_t my_func[] = {
     JS_FUNC(appendfile),
     JS_FUNC(cleanfile),
     JS_FUNC(loop),
-#if duk_LIBCALL
+#if js_LIBCALL
     JS_FUNC(libcall),
 #endif
 
@@ -866,10 +866,10 @@ int js_auto_register(duk_context *ctx)
     int err = 0;
     
     /*
-    * try eval duk_PATH/auto/xxx.js
+    * try eval js_PATH/auto/xxx.js
     */
-    char *env = env_gets(ENV_duk_PATH, duk_PATH);
-    os_snprintf(path, OS_LINE_LEN, "%s/" duk_auto_PATH, env);
+    char *env = env_gets(ENV_JPATH, js_PATH);
+    os_snprintf(path, OS_LINE_LEN, "%s/" js_AUTO_PATH, env);
     
     bool __filter(char *path, char *filename)
     {
@@ -925,7 +925,7 @@ int js_my_register(duk_context *ctx)
             
             env_register(ctx);
             arg_register(ctx);
-        duk_put_prop_string(ctx, -2, duk_MOD_MY);
+        duk_put_prop_string(ctx, -2, js_MOD_MY);
     duk_pop(ctx);
 
     debug_ok("register my ok.");

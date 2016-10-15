@@ -14,7 +14,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "dukc.h"
 
-#if duk_LIBCURL
+#if js_LIBCURL
 #include <curl/curl.h>
 #include "libcurl.h"
 
@@ -814,12 +814,12 @@ int js_libcurl_register(duk_context *ctx)
         duk_push_object(ctx);
             libcurlf_register(ctx, -1);
             libcurln_register(ctx, -1);
-        duk_put_prop_string(ctx, -2, duk_MOD_LIBCURL);
+        duk_put_prop_string(ctx, -2, js_MOD_LIBCURL);
     duk_pop(ctx);
 
     debug_ok("register libcurl ok.");
 
     return 0;
 }
-#endif /* duk_LIBCURL */
+#endif /* js_LIBCURL */
 

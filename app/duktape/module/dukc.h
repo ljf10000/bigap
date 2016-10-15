@@ -3,146 +3,146 @@
 /******************************************************************************/
 #include "../src/duktape.h"
 
-#define duk_UCLIBC          1
-#define duk_GLIBC           2
-#define duk_LIBC            duk_UCLIBC
+#define js_UCLIBC           1
+#define js_GLIBC            2
+#define js_LIBC             js_UCLIBC
 
-#ifndef duk_LIGHT_FUNC
-#define duk_LIGHT_FUNC      0
+#ifndef js_LIGHT_FUNC
+#define js_LIGHT_FUNC       0
 #endif
 
 #if 1 /* libc */
-#ifndef duk_LIBC_PRIVATE
-#define duk_LIBC_PRIVATE    1
+#ifndef js_LIBC_PRIVATE
+#define js_LIBC_PRIVATE     1
 #endif
 
-#ifndef duk_LIBC_MEMORY
-#define duk_LIBC_MEMORY     0
+#ifndef js_LIBC_MEMORY
+#define js_LIBC_MEMORY      0
 #endif
 
-#ifndef duk_LIBC_CTYPE
-#define duk_LIBC_CTYPE      0
+#ifndef js_LIBC_CTYPE
+#define js_LIBC_CTYPE       0
 #endif
 
-#ifndef duk_LIBC_ERROR
-#define duk_LIBC_ERROR      0
+#ifndef js_LIBC_ERROR
+#define js_LIBC_ERROR       0
 #endif
 
-#ifndef duk_LIBC_TTY
-#define duk_LIBC_TTY        0
+#ifndef js_LIBC_TTY
+#define js_LIBC_TTY         0
 #endif
 
-#ifndef duk_LIBC_MATH
-#define duk_LIBC_MATH       1
+#ifndef js_LIBC_MATH
+#define js_LIBC_MATH        1
 #endif
 
-#ifndef duk_LIBC_TIME
-#define duk_LIBC_TIME       1
+#ifndef js_LIBC_TIME
+#define js_LIBC_TIME        1
 #endif
 
-#ifndef duk_LIBC_VTIME
+#ifndef js_LIBC_VTIME
 #ifdef __OPENWRT__
-#   define duk_LIBC_VTIME   0
+#   define js_LIBC_VTIME    0
 #else
-#   define duk_LIBC_VTIME   1
+#   define js_LIBC_VTIME    1
 #endif
 #endif
 
-#ifndef duk_LIBC_SIG
-#define duk_LIBC_SIG        1
+#ifndef js_LIBC_SIG
+#define js_LIBC_SIG         1
 #endif
 
-#ifndef duk_LIBC_LOG
-#define duk_LIBC_LOG        1
+#ifndef js_LIBC_LOG
+#define js_LIBC_LOG         1
 #endif
 
-#ifndef duk_LIBC_MOUNT
+#ifndef js_LIBC_MOUNT
 #ifdef __OPENWRT__
-#   define duk_LIBC_MOUNT   0
+#   define js_LIBC_MOUNT    0
 #else
-#   define duk_LIBC_MOUNT   1
+#   define js_LIBC_MOUNT    1
 #endif
 #endif
 
-#ifndef duk_LIBC_LINUX
-#define duk_LIBC_LINUX      1
+#ifndef js_LIBC_LINUX
+#define js_LIBC_LINUX       1
 #endif
 
-#ifndef duk_LIBC_UTIL
-#define duk_LIBC_UTIL       0
+#ifndef js_LIBC_UTIL
+#define js_LIBC_UTIL        0
 #endif
 
-#ifndef duk_LIBC_FDSET
-#define duk_LIBC_FDSET      0
+#ifndef js_LIBC_FDSET
+#define js_LIBC_FDSET       0
 #endif
 
-#ifndef duk_LIBC_PWENT
-#define duk_LIBC_PWENT      0
+#ifndef js_LIBC_PWENT
+#define js_LIBC_PWENT       0
 #endif
 
-#ifndef duk_LIBC_GWENT
-#define duk_LIBC_GWENT      0
+#ifndef js_LIBC_GWENT
+#define js_LIBC_GWENT       0
 #endif
 
-#ifndef duk_MOD_LIBC
-#define duk_MOD_LIBC        "__libc__"
+#ifndef js_MOD_LIBC
+#define js_MOD_LIBC         "__libc__"
 #endif
 #endif /* libc */
 
-#ifndef duk_LIBCALL
-#define duk_LIBCALL         0
+#ifndef js_LIBCALL
+#define js_LIBCALL          0
 #endif
 
-#ifndef duk_MOD_MY
-#define duk_MOD_MY          "__my__"
+#ifndef js_MOD_MY
+#define js_MOD_MY           "__my__"
 #endif
 
-#ifndef duk_LIBCURL
-#define duk_LIBCURL         0
+#ifndef js_LIBCURL
+#define js_LIBCURL          0
 #endif
 
-#ifndef duk_MOD_LIBCURL
-#define duk_MOD_LIBCURL     "__libcurl__"
+#ifndef js_MOD_LIBCURL
+#define js_MOD_LIBCURL      "__libcurl__"
 #endif
 
-#ifndef duk_LIBZ
-#define duk_LIBZ            0
+#ifndef js_LIBZ
+#define js_LIBZ             0
 #endif
 
-#ifndef duk_MOD_LIBZ
-#define duk_MOD_LIBZ        "__libz__"
+#ifndef js_MOD_LIBZ
+#define js_MOD_LIBZ         "__libz__"
 #endif
 
-#ifndef duk_LIBBZ
-#define duk_LIBBZ           0
+#ifndef js_LIBBZ
+#define js_LIBBZ            0
 #endif
 
-#ifndef duk_MOD_LIBBZ
-#define duk_MOD_LIBBZ       "__libbz__"
+#ifndef js_MOD_LIBBZ
+#define js_MOD_LIBBZ        "__libbz__"
 #endif
 
-#ifndef duk_LIBLZ
-#define duk_LIBLZ           0
+#ifndef js_LIBLZ
+#define js_LIBLZ            0
 #endif
 
-#ifndef duk_MOD_LIBLZ
-#define duk_MOD_LIBLZ       "__liblz__"
+#ifndef js_MOD_LIBLZ
+#define js_MOD_LIBLZ        "__liblz__"
 #endif
 
-#ifndef ENV_duk_PATH
-#define ENV_duk_PATH        "JPATH"
+#ifndef ENV_JPATH
+#define ENV_JPATH           "JPATH"
 #endif
 
-#ifndef duk_PATH
-#define duk_PATH            "/lib/js"
+#ifndef js_PATH
+#define js_PATH             "/lib/js"
 #endif
 
-#ifndef duk_auto_PATH
-#define duk_auto_PATH       ".auto"
+#ifndef js_AUTO_PATH
+#define js_AUTO_PATH        ".auto"
 #endif
 
-#ifndef duk_DUKTAPE
-#define duk_DUKTAPE         "Duktape"
+#ifndef js_DUKTAPE
+#define js_DUKTAPE          "Duktape"
 #endif
 /******************************************************************************/
 typedef duk_number_list_entry   dukc_number_entry_t;
@@ -175,7 +175,7 @@ duk_put_functions(duk_context *ctx, duk_idx_t obj_index, const dukc_func_entry_t
 
 	obj_index = duk_require_normalize_index(ctx, obj_index);
 	for (ent = funcs; ent && ent->key; ent++) {
-#if duk_LIGHT_FUNC
+#if js_LIGHT_FUNC
         duk_push_c_lightfunc(ctx, ent->value, ent->nargs, ent->nargs, ent->version);
 		duk_put_prop_string(ctx, obj_index, ent->key);
 #else
@@ -728,7 +728,7 @@ static inline int
 __js_seterrno(duk_context *ctx, int err)
 {
     duk_push_global_object(ctx);
-        if (duk_get_prop_string(ctx, -1, duk_MOD_LIBC)) {
+        if (duk_get_prop_string(ctx, -1, js_MOD_LIBC)) {
             js_set_obj_field(ctx, -1, int, "errno", err);
         }
     	duk_pop(ctx);
@@ -825,7 +825,7 @@ extern bool __js_shabang;
 extern int __js_argc;
 extern char **__js_argv;
 
-#if duk_LIBC_SIG
+#if js_LIBC_SIG
 extern char *js_libc_sig_name[];
 extern void js_libc_sig_handler(int sig);
 #endif
@@ -836,16 +836,16 @@ extern int js_global_register(duk_context *ctx);
 extern int js_duktape_register(duk_context *ctx);
 extern int js_my_register(duk_context *ctx);
 extern int js_libc_register(duk_context *ctx);
-#if duk_LIBZ
+#if js_LIBZ
 extern int js_libz_register(duk_context *ctx);
 #endif
-#if duk_LIBBZ
+#if js_LIBBZ
 extern int js_libbz_register(duk_context *ctx);
 #endif
-#if duk_LIBLZ
+#if js_LIBLZ
 extern int js_liblz_register(duk_context *ctx);
 #endif
-#if duk_LIBCURL
+#if js_LIBCURL
 extern int js_libcurl_register(duk_context *ctx);
 #endif
 
@@ -883,16 +883,16 @@ js_register(duk_context *ctx)
         js_duktape_register,
         js_my_register,
         js_libc_register,
-#if duk_LIBZ
+#if js_LIBZ
         js_libz_register,
 #endif
-#if duk_LIBBZ
+#if js_LIBBZ
         js_libbz_register,
 #endif
-#if duk_LIBLZ
+#if js_LIBLZ
         js_liblz_register,
 #endif
-#if duk_LIBCURL
+#if js_LIBCURL
         js_libcurl_register,
 #endif
         /*keep below last*/

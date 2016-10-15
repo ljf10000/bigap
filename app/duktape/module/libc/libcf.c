@@ -1,5 +1,5 @@
 static const dukc_func_entry_t libc_func[] = {
-#if duk_LIBC_LINUX
+#if js_LIBC_LINUX
     JS_FUNC(timerfd_create),
     JS_FUNC(timerfd_settime),
     JS_FUNC(timerfd_gettime),
@@ -17,12 +17,12 @@ static const dukc_func_entry_t libc_func[] = {
     
 #endif
 
-#if duk_LIBC_ERROR
+#if js_LIBC_ERROR
     // 2.3 Error Messages
     JS_FUNC(strerror),
 #endif
 
-#if duk_LIBC_CTYPE
+#if js_LIBC_CTYPE
     // 4.1 Classification of Characters
     JS_FUNC(islower),
     JS_FUNC(isupper),
@@ -45,12 +45,12 @@ static const dukc_func_entry_t libc_func[] = {
 #endif
 
     // 5.5 String/Array Comparison
-#if duk_LIBC_MEMORY
+#if js_LIBC_MEMORY
     JS_FUNC(memcmp),
 #endif
 
     // 12 Input/Output on Streams
-#if duk_LIBC_PRIVATE
+#if js_LIBC_PRIVATE
     JS_FUNC(fsize),
     JS_FUNC(fexist),
 #endif
@@ -89,7 +89,7 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC(writev),
 
     // 13.7 Memory-mapped I/O
-#if duk_LIBC_MEMORY
+#if js_LIBC_MEMORY
     JS_FUNC(mmap),
     JS_FUNC(munmap),
     JS_FUNC(msync),
@@ -98,7 +98,7 @@ static const dukc_func_entry_t libc_func[] = {
 #endif
 
     // 13.8 Waiting for Input or Output
-#if duk_LIBC_FDSET
+#if js_LIBC_FDSET
     JS_FUNC(FD_NEW),
     JS_FUNC(FD_ZERO),
     JS_FUNC(FD_SET),
@@ -283,7 +283,7 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC(getnetent),
     JS_FUNC(endnetent),
 
-#if duk_LIBC_TTY
+#if js_LIBC_TTY
     // 17 Low-Level Terminal Interface
     // 17.1 Identifying Terminals
     JS_FUNC(isatty),
@@ -312,7 +312,7 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC(ptsname),
 #endif
 
-#if duk_LIBC_LOG
+#if js_LIBC_LOG
     // 18 Syslog
     // 18.2 Submitting Syslog Messages
     JS_FUNC(openlog),
@@ -323,7 +323,7 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC(LOG_UPTO),
 #endif
 
-#if duk_LIBC_MATH
+#if js_LIBC_MATH
     // 19 Mathematics
     // 19.2 Trigonometric Functions
     JS_FUNC(sin),
@@ -409,7 +409,7 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC(fma),
 #endif
     
-#if duk_LIBC_TIME
+#if js_LIBC_TIME
     // 21 Date and Time
     JS_FUNC(difftime),
     JS_FUNC(clock),
@@ -439,7 +439,7 @@ static const dukc_func_entry_t libc_func[] = {
 
     // 22 Resource Usage And Limitation
     JS_FUNC(getrusage),
-#if duk_LIBC_VTIME
+#if js_LIBC_VTIME
     JS_FUNC(vtimes),
 #endif
     JS_FUNC(getrlimit),
@@ -479,7 +479,7 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC(getloadavg),
 #endif
 
-#if duk_LIBC_SIG
+#if js_LIBC_SIG
     // 24 Signal Handling
     JS_FUNC(strsignal),
     JS_FUNC(psignal),
@@ -564,7 +564,7 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC(pututline),
     JS_FUNC(utmpname),
     JS_FUNC(updwtmp),
-#if duk_LIBC_UTIL
+#if js_LIBC_UTIL
     JS_FUNC(login_tty),
     JS_FUNC(login),
     JS_FUNC(logout),
@@ -572,14 +572,14 @@ static const dukc_func_entry_t libc_func[] = {
 #endif
     JS_FUNC(getpwuid),
     JS_FUNC(getpwnam),
-#if duk_LIBC_PWENT
+#if js_LIBC_PWENT
     JS_FUNC(fgetpwent),
     JS_FUNC(setpwent),
     JS_FUNC(getpwent),
     JS_FUNC(endpwent),
     JS_FUNC(putpwent),
 #endif
-#if duk_LIBC_GWENT
+#if js_LIBC_GWENT
     JS_FUNC(getgrgid),
     JS_FUNC(getgrnam),
     JS_FUNC(fgetgrent),
@@ -596,7 +596,7 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC(gethostid),
     JS_FUNC(sethostid),
     JS_FUNC(uname),
-#if duk_LIBC_MOUNT
+#if js_LIBC_MOUNT
     JS_FUNC(setfsent),
     JS_FUNC(endfsent),
     JS_FUNC(getfsent),
