@@ -1147,7 +1147,7 @@ touser_base(struct um_user *user, jobj_t juser)
     jobj = jobj_get(juser, "ip");
     if (jobj) {
         string = jobj_get_string(jobj);
-        user->ip = inet_addr(string).s_addr;
+        user->ip = inet_addr(string);
     }
     
     jobj = jobj_get(juser, "state");
