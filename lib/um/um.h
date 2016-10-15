@@ -8,7 +8,7 @@
 #endif
 
 #ifndef UM_USE_SYNC
-#define UM_USE_SYNC             1
+#define UM_USE_SYNC             0
 #endif
 
 #ifndef UM_TIMEOUT
