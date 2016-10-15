@@ -89,7 +89,7 @@ handle_sync(char *args)
         return -EBADJSON;
     }
 
-    struct um_user *user = um_user_enter(os_mac(mac), obj);
+    struct um_user *user = um_user_sync(os_mac(mac), obj);
     if (NULL==user) {
         return -ENOEXIST;
     }
