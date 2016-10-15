@@ -7,12 +7,8 @@
 #define UM_USE_MONITOR          0
 #endif
 
-#ifndef UMD_UNIX
-#define UMD_UNIX                "/tmp/.umd.unix"
-#endif
-
-#ifndef UMC_UNIX
-#define UMC_UNIX                "/tmp/.umc.%d.unix"
+#ifndef UM_USE_SYNC
+#define UM_USE_SYNC             1
 #endif
 
 #ifndef UM_TIMEOUT
@@ -25,6 +21,14 @@
 #else
 #   define UMD_GC               600 /* second */
 #endif
+#endif
+
+#ifndef UMD_UNIX
+#define UMD_UNIX                "/tmp/.umd.unix"
+#endif
+
+#ifndef UMC_UNIX
+#define UMC_UNIX                "/tmp/.umc.%d.unix"
 #endif
 
 static inline int

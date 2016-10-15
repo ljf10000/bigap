@@ -260,6 +260,7 @@ struct um_monitor {
 };
 
 #define UM_F_MONITOR    0x01
+#define UM_F_SYNC       0x02
 
 enum {
     UM_USER_NIDX_MAC,
@@ -475,6 +476,11 @@ struct um_flow {
 /******************************************************************************/
 extern jobj_t
 um_juser(struct um_user *user);
+
+#if UM_USE_SYNC
+extern struct um_user *
+um_touser(struct um_user *user, jobj_t obj);
+#endif
 
 static inline void
 um_user_dump(char *tag, struct um_user *user)

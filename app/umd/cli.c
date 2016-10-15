@@ -12,23 +12,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 
 #include "umd.h"
-/*
-* online
-*/
-static int
-handle_online(char *args)
-{
-    return 0;
-}
-
-/*
-* offline
-*/
-static int
-handle_offline(char *args)
-{
-    return 0;
-}
 
 #if UM_USE_MONITOR
 /*
@@ -78,6 +61,40 @@ handle_leave(char *args)
     }
     
     um_user_leave(os_mac(mac));
+    
+    return 0;
+}
+#endif
+
+#if UM_USE_SYNC
+/*
+* sync {mac} {json}
+*/
+static int
+handle_sync(char *args)
+{
+    char *mac   = args; cli_shift(args);
+    char *json  = args; cli_shift(args);
+    
+    if (false==is_good_macstring(mac)) {
+        debug_trace("bad mac %s", mac);
+
+        return -EFORMAT;
+    }
+
+    jobj_t obj = jobj(json);
+    if (NULL==obj) {
+        debug_trace("bad json %s", json);
+
+        return -EBADJSON;
+    }
+
+    struct um_user *user = um_user_enter(os_mac(mac), obj);
+    if (NULL==user) {
+        return -ENOEXIST;
+    }
+    
+    jobj_put(obj);
     
     return 0;
 }
@@ -341,6 +358,9 @@ static cli_table_t cli_table[] = {
 #if UM_USE_MONITOR
     CLI_ENTRY("enter",  handle_enter),
     CLI_ENTRY("leave",  handle_leave),
+#endif
+#if UM_USE_SYNC
+    CLI_ENTRY("sync",   handle_sync),
 #endif
     CLI_ENTRY("bind",   handle_bind),
     CLI_ENTRY("unbind", handle_unbind),

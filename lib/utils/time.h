@@ -111,6 +111,30 @@ os_fulltime_string_link(time_t *t)
     return __fulltime_string(os_gettm(t), __os_fulltime_ifs_link);
 }
 
+static inline time_t
+__os_fulltime(char *fulltime, char *format)
+{
+    struct tm tm;
+
+    if (strptime(fulltime, format, &tm)) {
+        return mktime(&tm);
+    } else {
+        return time(NULL);
+    }
+}
+
+static inline time_t
+os_fulltime(char *fulltime)
+{
+    return __os_fulltime(fulltime, "%Y-%m-%d %H:%M:%S");
+}
+
+static inline time_t
+os_fulltime_link(char *fulltime)
+{
+    return __os_fulltime(fulltime, "%Y-%m-%d-%H:%M:%S");
+}
+
 #endif /* __APP__ */
 /******************************************************************************/
 #endif /* __TIME_H_9ed57e652d154962bbebe5adf9a06c11__ */

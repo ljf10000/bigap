@@ -632,6 +632,25 @@ __user_enter(struct um_user *user, jobj_t obj, event_cb_t *ev)
 }
 #endif
 
+#if UM_USE_SYNC
+static struct um_user *
+__user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
+{
+    if (NULL==user) {
+        return NULL;
+    }
+
+    // do sync
+    user->flags |= UM_F_SYNC;
+
+    if (ev) {
+        (*ev)(user, "sync");
+    }
+
+    return user;
+}
+#endif
+
 static struct um_user *
 __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
 {
@@ -810,6 +829,14 @@ user_leave(struct um_user *user)
 }
 #endif
 
+#if UM_USE_SYNC
+static struct um_user *
+user_sync(struct um_user *user, jobj_t obj)
+{
+    return __user_sync(user, obj, __ev);
+}
+#endif
+
 static struct um_user *
 user_bind(struct um_user *user, uint32 ip)
 {
@@ -898,6 +925,14 @@ int um_user_leave(byte mac[])
 }
 #endif
 
+#if UM_USE_SYNC
+struct um_user *
+um_user_sync(byte mac[], jobj_t obj)
+{
+    return user_sync(um_user_create(mac), obj);
+}
+#endif
+
 struct um_user *
 um_user_bind(byte mac[], uint32 ip)
 {
@@ -970,11 +1005,11 @@ juser_online(struct um_user *user, int type)
     jobj_t obj = jobj_new_object();
     time_t time;
 
-    jobj_add_i32(obj, "max",            __online_max(user, type));
-    jobj_add_i32(obj, "idle",           __online_idle(user, type));
+    jobj_add_u32(obj, "max",            __online_max(user, type));
+    jobj_add_u32(obj, "idle",           __online_idle(user, type));
     jobj_add_i32(obj, "aging",          __online_aging(user, type));
-    jobj_add_i32(obj, "numerator",      __online_numerator(user, type));
-    jobj_add_i32(obj, "denominator",    __online_denominator(user, type));
+    jobj_add_u32(obj, "numerator",      __online_numerator(user, type));
+    jobj_add_u32(obj, "denominator",    __online_denominator(user, type));
     
     time = __online_uptime(user, type);
     if (time) {
@@ -994,10 +1029,10 @@ __juser_flow(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
-    jobj_add_i64(obj, "max",          __flow_max(user, type, dir));
-    jobj_add_i64(obj, "now",          __flow_now(user, type, dir));
-    jobj_add_i64(obj, "numerator",    __flow_numerator(user, type, dir));
-    jobj_add_i64(obj, "denominator",  __flow_denominator(user, type, dir));
+    jobj_add_u64(obj, "max",          __flow_max(user, type, dir));
+    jobj_add_u64(obj, "now",          __flow_now(user, type, dir));
+    jobj_add_u64(obj, "numerator",    __flow_numerator(user, type, dir));
+    jobj_add_u64(obj, "denominator",  __flow_denominator(user, type, dir));
 
     return obj;
 }
@@ -1020,8 +1055,8 @@ __juser_rate(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
-    jobj_add_i32(obj, "max", __rate_max(user, type, dir));
-    jobj_add_i32(obj, "avg", __rate_avg(user, type, dir));
+    jobj_add_u32(obj, "max", __rate_max(user, type, dir));
+    jobj_add_u32(obj, "avg", __rate_avg(user, type, dir));
 
     return obj;
 }
@@ -1095,6 +1130,225 @@ jobj_t um_juser(struct um_user *user)
 
     return obj;
 }
+
+#if UM_USE_SYNC
+static void
+touser_base(struct um_user *user, jobj_t juser)
+{
+    jobj_t jobj;
+    char *string;
+    
+    jobj = jobj_get(juser, "mac");
+    if (jobj) {
+        string = jobj_get_string(jobj);
+        os_maccpy(user->mac, os_mac(string));
+    }
+    
+    jobj = jobj_get(juser, "ip");
+    if (jobj) {
+        string = jobj_get_string(jobj);
+        user->ip = inet_addr(ip).s_addr;
+    }
+    
+    jobj = jobj_get(juser, "state");
+    if (jobj) {
+        string = jobj_get_string(jobj);
+        user->state = user_state_idx(string);
+    }
+    
+    jobj = jobj_get(juser, "reason");
+    if (jobj) {
+        string = jobj_get_string(jobj);
+        user->reason = user_state_idx(string);
+    }
+    
+    jobj = jobj_get(juser, "create");
+    if (jobj) {
+        string = jobj_get_string(jobj);
+        user->create = os_fulltime(string);
+    }
+    
+    jobj = jobj_get(juser, "noused");
+    if (jobj) {
+        string = jobj_get_string(jobj);
+        user->noused = os_fulltime(string);
+    }
+    
+    jobj = jobj_get(juser, "group");
+    if (jobj) {
+        user->group = jobj_get_i32(jobj);
+    }
+}
+
+static void
+touser_tag(struct um_user *user, jobj_t juser)
+{
+    jobj_t jtag;
+    
+    jtag = jobj_get(juser, "tag");
+    if (jtag) {
+        jobj_foreach(jobj, k, v) {
+            if (jtype_string==jobj_type(v)) {
+                tag_set(user, k, jobj_get_string(v));
+            }
+        }
+    }
+}
+
+#if UM_USE_MONITOR
+static void
+touser_monitor(struct um_user *user, jobj_t juser)
+{
+
+}
+#endif
+
+static void
+touser_flow(struct um_limit_flow *flow, jobj_t jflow)
+{
+    jobj_t jobj;
+
+    jobj = jobj_get(jflow, "max");
+    if (jobj) {
+        flow->max = jobj_get_u64(jobj);
+    }
+
+    jobj = jobj_get(jflow, "now");
+    if (jobj) {
+        flow->now = jobj_get_u64(jobj);
+    }
+
+    jobj = jobj_get(jflow, "numerator");
+    if (jobj) {
+        flow->numerator = jobj_get_u64(jobj);
+    }
+
+    jobj = jobj_get(jflow, "denominator");
+    if (jobj) {
+        flow->denominator = jobj_get_u64(jobj);
+    }
+}
+
+static void
+touser_rate(struct um_limit_flow *rate, jobj_t jrate)
+{
+    jobj_t jobj;
+    
+    jobj = jobj_get(jrate, "max");
+    if (jobj) {
+        rate->max = jobj_get_u32(jobj);
+    }
+    
+    jobj = jobj_get(jrate, "avg");
+    if (jobj) {
+        rate->avg = jobj_get_u32(jobj);
+    }
+}
+
+static void
+touser_online(struct um_limit_online *online, jobj_t jonline)
+{
+    jobj_t obj;
+    char *string;
+    
+    jobj = jobj_get(jonline, "max");
+    if (jobj) {
+        online->max = jobj_get_u32(jobj);
+    }
+    
+    jobj = jobj_get(jonline, "idle");
+    if (jobj) {
+        online->idle = jobj_get_u32(jobj);
+    }
+    
+    jobj = jobj_get(jonline, "numerator");
+    if (jobj) {
+        online->numerator = jobj_get_u32(jobj);
+    }
+    
+    jobj = jobj_get(jonline, "denominator");
+    if (jobj) {
+        online->denominator = jobj_get_u32(jobj);
+    }
+    
+    jobj = jobj_get(jonline, "aging");
+    if (jobj) {
+        online->aging = jobj_get_i32(jobj);
+    }
+    
+    jobj = jobj_get(jonline, "uptime");
+    if (jobj) {
+        string = jobj_get_string(jobj);
+        online->uptime = os_fulltime(string);
+    }
+    
+    jobj = jobj_get(jonline, "downtime");
+    if (jobj) {
+        string = jobj_get_string(jobj);
+        online->downtime = os_fulltime(string);
+    }
+}
+
+static void
+touser_intf(struct um_limit *intf, jobj_t jintf)
+{
+    jobj_t jobj;
+    int dir;
+    
+    jobj_t jonline = jobj_get(jintf, "online");
+    if (jonline) {
+        touser_online(&intf->online, jonline);
+    }
+    
+    jobj_t jobj = jobj_get(jintf, "flow");
+    if (jobj) {
+        for (dir=0; dir<um_flow_dir_end; dir++) {
+            jobj_t jflow = jobj_get(jobj, flow_dir_string(dir));
+            if (jflow) {
+                touser_flow(&intf->flow[dir], jflow);
+            }
+        }
+    }
+    
+    jobj_t jobj = jobj_get(jintf, "rate");
+    if (jobj) {
+        for (dir=0; dir<um_flow_dir_end; dir++) {
+            jobj_t jrate = jobj_get(jobj, flow_dir_string(dir));
+            if (jrate) {
+                touser_rate(&intf->rate[dir], jrate);
+            }
+        }
+    }
+}
+
+static void
+touser_limit(struct um_user *user, jobj_t juser)
+{
+    jobj_t jlimit = jobj_get(juser, "limit");
+    if (jlimit) {
+        int type;
+        
+        for (type=0; type<um_flow_type_end; type++) {
+            jobj_t jintf = jobj_get(jlimit, flow_type_string(type));
+            if (jintf) {
+                touser_intf(&user->limit[type], jintf);
+            }
+        }
+    }
+}
+
+struct um_user *um_touser(struct um_user *user, jobj_t juser)
+{
+    touser_base(user, juser);
+    touser_tag(user, juser);
+#if UM_USE_MONITOR
+    touser_monitor(user, juser);
+#endif
+    touser_limit(user, juser);
+    
+    return juser;
+}
+#endif /* UM_USE_SYNC */
 
 static inline bool
 match_mac(byte umac[], byte fmac[], byte mask[])

@@ -34,38 +34,21 @@ usage(int error)
 #define umc_handle(_action, _argc, _argv) \
     cli_c_handle(_action, true, _argc, _argv, &umc.server, &umc.client, umc.timeout)
 
-/*
-* online
-*/
 static int
-cmd_online(int argc, char *argv[])
+umc_handle_none(char *action, int argc, char *argv[])
 {
     if (0!=argc) {
         return -EFORMAT;
     }
 
-    return umc_handle("online", argc, argv);
+    return umc_handle(action, argc, argv);
 }
 
 /*
-* offline
+* ACTION {mac} {json}
 */
 static int
-cmd_offline(int argc, char *argv[])
-{
-    if (0!=argc) {
-        return -EFORMAT;
-    }
-
-    return umc_handle("offline", argc, argv);
-}
-
-#if UM_USE_MONITOR
-/*
-* enter {mac} {json}
-*/
-static int
-cmd_enter(int argc, char *argv[])
+umc_handle_mac_json(char *action, int argc, char *argv[])
 {
     char *mac   = argv[0];
     char *json  = argv[1];
@@ -84,14 +67,14 @@ cmd_enter(int argc, char *argv[])
         return -EFORMAT;
     }
     
-    return umc_handle("enter", argc, argv);
+    return umc_handle(action, argc, argv);
 }
 
 /*
-* leave {mac}
+* ACTION {mac}
 */
 static int
-cmd_leave(int argc, char *argv[])
+umc_handle_mac(char *action, int argc, char *argv[])
 {
     char *mac= argv[0];
     
@@ -104,8 +87,40 @@ cmd_leave(int argc, char *argv[])
         return -EFORMAT;
     }
 
-    return umc_handle("leave", argc, argv);
+    return umc_handle(action, argc, argv);
 }
+
+#if UM_USE_MONITOR
+/*
+* enter {mac} {json}
+*/
+static int
+cmd_enter(int argc, char *argv[])
+{
+    return umc_handle_mac_json("enter", argc, argv);
+}
+
+/*
+* leave {mac}
+*/
+static int
+cmd_leave(int argc, char *argv[])
+{
+    return umc_handle_mac("leave", argc, argv);
+}
+#endif
+
+#if UM_USE_SYNC
+/*
+* sync {mac} {json}
+*/
+static int
+cmd_sync(int argc, char *argv[])
+{
+    
+    return umc_handle_mac_json("sync", argc, argv);
+}
+
 #endif
 
 /*
@@ -140,18 +155,7 @@ cmd_bind(int argc, char *argv[])
 static int
 cmd_unbind(int argc, char *argv[])
 {
-    char *mac= argv[0];
-    
-    if (1!=argc) {
-        return -EFORMAT;
-    }
-    else if (false==is_good_macstring(mac)) {
-        debug_trace("bad mac %s", mac);
-
-        return -EFORMAT;
-    }
-
-    return umc_handle("unbind", argc, argv);
+    return umc_handle_mac("unbind", argc, argv);
 }
 
 /*
@@ -182,23 +186,12 @@ cmd_auth(int argc, char *argv[])
 }
 
 /*
-* deauth {mac}
+* reauth {mac}
 */
 static int
 cmd_reauth(int argc, char *argv[])
 {
-    char *mac = argv[0];
-    
-    if (1!=argc) {
-        return -EFORMAT;
-    }
-    else if (false==is_good_macstring(mac)) {
-        debug_trace("bad mac %s", mac);
-
-        return -EFORMAT;
-    }
-
-    return umc_handle("reauth", argc, argv);
+    return umc_handle_mac("reauth", argc, argv);
 }
 
 /*
@@ -207,18 +200,7 @@ cmd_reauth(int argc, char *argv[])
 static int
 cmd_deauth(int argc, char *argv[])
 {
-    char *mac = argv[0];
-    
-    if (1!=argc) {
-        return -EFORMAT;
-    }
-    else if (false==is_good_macstring(mac)) {
-        debug_trace("bad mac %s", mac);
-
-        return -EFORMAT;
-    }
-
-    return umc_handle("deauth", argc, argv);
+    return umc_handle_mac("deauth", argc, argv);
 }
 
 static int
@@ -288,11 +270,7 @@ cmd_tag(int argc, char *argv[])
 static int
 cmd_gc(int argc, char *argv[])
 {
-    if (0!=argc) {
-        return -EFORMAT;
-    }
-
-    return umc_handle("gc", argc, argv);
+    return umc_handle_none("gc", argc, argv);
 }
 
 static int
@@ -303,11 +281,16 @@ command(int argc, char *argv[])
         CLI_ENTRY("enter",  cmd_enter),
         CLI_ENTRY("leave",  cmd_leave),
 #endif
+#if UM_USE_SYNC
+        CLI_ENTRY("sync",   cmd_sync),
+#endif
         CLI_ENTRY("bind",   cmd_bind),
         CLI_ENTRY("unbind", cmd_unbind),
+        
         CLI_ENTRY("auth",   cmd_auth),
         CLI_ENTRY("reauth", cmd_reauth),
         CLI_ENTRY("deauth", cmd_deauth),
+        
         CLI_ENTRY("show",   cmd_show),
         CLI_ENTRY("tag",    cmd_tag),
         CLI_ENTRY("gc",     cmd_gc),
