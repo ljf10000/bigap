@@ -1248,7 +1248,7 @@ touser_rate(struct um_limit_rate *rate, jobj_t jrate)
 static void
 touser_online(struct um_limit_online *online, jobj_t jonline)
 {
-    jobj_t obj;
+    jobj_t jobj;
     char *string;
     
     jobj = jobj_get(jonline, "max");
