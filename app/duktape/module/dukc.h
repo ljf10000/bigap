@@ -830,6 +830,8 @@ extern char *js_libc_sig_name[];
 extern void js_libc_sig_handler(int sig);
 #endif
 
+extern int js_auto_register(duk_context *ctx);
+extern int js_buildin_register(duk_context *ctx);
 extern int js_global_register(duk_context *ctx);
 extern int js_duktape_register(duk_context *ctx);
 extern int js_my_register(duk_context *ctx);
@@ -870,61 +872,6 @@ js_load_code(duk_context *ctx, char *tag, char *code)
     err = duk_peval_string_noresult(ctx, code);
     debug_js("load %s %s.", tag, __ok_string(0==err));
 
-    return err;
-}
-
-static inline int
-js_buildin_register(duk_context *ctx)
-{
-    int err = 0;
-    
-    err = js_load_code(ctx, "buildin", duk_global_CODE);
-
-    debug_ok_error(err, "register buildin");
-
-    return err;
-}
-
-static inline int
-js_auto_register(duk_context *ctx)
-{
-    char path[1+OS_LINE_LEN] = {0};
-    int err = 0;
-    
-    /*
-    * try eval duk_PATH/auto/xxx.js
-    */
-    char *env = env_gets(ENV_duk_PATH, duk_PATH);
-    os_snprintf(path, OS_LINE_LEN, "%s/" duk_auto_PATH, env);
-    
-    bool __filter(char *path, char *filename)
-    {
-        /*
-        * skip NOT-js file
-        */
-        return false==os_str_is_end_by(filename, ".js");
-    }
-    
-    mv_t __handler(char *path, char *filename, os_fscan_line_handle_f *line_handle)
-    {
-        (void)line_handle;
-        
-        char file[1+OS_LINE_LEN] = {0};
-
-        os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
-
-        int err = js_load_file(ctx, file);
-        if (err<0) {
-            return mv2_go(err);
-        }
-        
-        return mv2_ok;
-    }
-
-    err = os_fscan_dir(path, false, __filter, __handler, NULL);
-
-    debug_ok_error(err, "register auto");
-    
     return err;
 }
 

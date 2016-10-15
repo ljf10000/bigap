@@ -12,6 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __RUNAS_UNKNOW__
 
 #include "utils.h"
+#include "global.h"
 #include "dukc.h"
 #include "my.h"
 
@@ -847,6 +848,59 @@ static const dukc_func_entry_t my_func[] = {
 static const dukc_number_entry_t my_static_number[] = {
     JS_VALUE_END
 };
+
+int js_buildin_register(duk_context *ctx)
+{
+    int err = 0;
+    
+    err = js_load_code(ctx, "buildin", duk_global_CODE);
+
+    debug_ok_error(err, "register buildin");
+
+    return err;
+}
+
+int js_auto_register(duk_context *ctx)
+{
+    char path[1+OS_LINE_LEN] = {0};
+    int err = 0;
+    
+    /*
+    * try eval duk_PATH/auto/xxx.js
+    */
+    char *env = env_gets(ENV_duk_PATH, duk_PATH);
+    os_snprintf(path, OS_LINE_LEN, "%s/" duk_auto_PATH, env);
+    
+    bool __filter(char *path, char *filename)
+    {
+        /*
+        * skip NOT-js file
+        */
+        return false==os_str_is_end_by(filename, ".js");
+    }
+    
+    mv_t __handler(char *path, char *filename, os_fscan_line_handle_f *line_handle)
+    {
+        (void)line_handle;
+        
+        char file[1+OS_LINE_LEN] = {0};
+
+        os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
+
+        int err = js_load_file(ctx, file);
+        if (err<0) {
+            return mv2_go(err);
+        }
+        
+        return mv2_ok;
+    }
+
+    err = os_fscan_dir(path, false, __filter, __handler, NULL);
+
+    debug_ok_error(err, "register auto");
+    
+    return err;
+}
 
 int js_my_register(duk_context *ctx)
 {
