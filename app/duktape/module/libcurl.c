@@ -18,16 +18,16 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include <curl/curl.h>
 #include "libcurl.h"
 
-LIB_PARAM(curl_easy_init, 0);
+JS_PARAM(curl_easy_init, 0);
 static duk_ret_t
 duke_curl_easy_init(duk_context *ctx)
 {
     CURL *p = curl_easy_init();
 
-    return __push_pointer(ctx, p), 1;
+    return js_push_pointer(ctx, p), 1;
 }
 
-LIB_PARAM(curl_easy_cleanup, 1);
+JS_PARAM(curl_easy_cleanup, 1);
 static duk_ret_t
 duke_curl_easy_cleanup(duk_context *ctx)
 {
@@ -36,7 +36,7 @@ duke_curl_easy_cleanup(duk_context *ctx)
     return curl_easy_cleanup(p), 0;
 }
 
-LIB_PARAM(curl_easy_perform, 1);
+JS_PARAM(curl_easy_perform, 1);
 static duk_ret_t
 duke_curl_easy_perform(duk_context *ctx)
 {
@@ -47,7 +47,7 @@ duke_curl_easy_perform(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(curl_easy_setopt, 3);
+JS_PARAM(curl_easy_setopt, 3);
 static duk_ret_t
 duke_curl_easy_setopt(duk_context *ctx)
 {
@@ -567,7 +567,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
     
-LIB_PARAM(curl_formadd, DUK_VARARGS);
+JS_PARAM(curl_formadd, DUK_VARARGS);
 static duk_ret_t
 duke_curl_formadd(duk_context *ctx)
 {
@@ -578,7 +578,7 @@ duke_curl_formadd(duk_context *ctx)
     
     int argc = duk_get_argc(ctx);
     if (argc < (1+2*1) || argc > (1+2*32) || 1!=(argc%2)) {
-        err = __seterrno(ctx, -EFORMAT); 
+        err = __js_seterrno(ctx, -EFORMAT); 
 
         return duk_push_int(ctx, err), 1;
     }
@@ -607,7 +607,7 @@ duke_curl_formadd(duk_context *ctx)
             case CURLFORM_CONTENTTYPE:
             case CURLFORM_FILENAME:
                 if (false==duk_is_string(ctx, idx)) {
-                    err = __seterrno(ctx, -EFORMAT); 
+                    err = __js_seterrno(ctx, -EFORMAT); 
 
                     return duk_push_int(ctx, err), 1;
                 }
@@ -619,7 +619,7 @@ duke_curl_formadd(duk_context *ctx)
             case CURLFORM_BUFFER:
             case CURLFORM_BUFFERPTR:
                 if (false==duk_is_buffer(ctx, idx)) {
-                    err = __seterrno(ctx, -EFORMAT); 
+                    err = __js_seterrno(ctx, -EFORMAT); 
 
                     return duk_push_int(ctx, err), 1;
                 }
@@ -631,7 +631,7 @@ duke_curl_formadd(duk_context *ctx)
             case CURLFORM_CONTENTSLENGTH:
             case CURLFORM_BUFFERLENGTH:
                 if (false==duk_is_int(ctx, idx)) {
-                    err = __seterrno(ctx, -EFORMAT); 
+                    err = __js_seterrno(ctx, -EFORMAT); 
 
                     return duk_push_int(ctx, err), 1;
                 }
@@ -642,7 +642,7 @@ duke_curl_formadd(duk_context *ctx)
             case CURLFORM_ARRAY:
             case CURLFORM_CONTENTHEADER:
             default:
-                err = __seterrno(ctx, -ENOSUPPORT); 
+                err = __js_seterrno(ctx, -ENOSUPPORT); 
 
                 return duk_push_int(ctx, err), 1;
         }
@@ -717,7 +717,7 @@ duke_curl_formadd(duk_context *ctx)
         params_case(30);
         params_case(31);
         params_case(32);
-        default:err = __seterrno(ctx, -EFORMAT); break;
+        default:err = __js_seterrno(ctx, -EFORMAT); break;
     }
     
 #undef params
@@ -760,7 +760,7 @@ duke_curl_formadd(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(curl_formfree, 1);
+JS_PARAM(curl_formfree, 1);
 static duk_ret_t
 duke_curl_formfree(duk_context *ctx)
 {
@@ -773,7 +773,7 @@ duke_curl_formfree(duk_context *ctx)
     return 0;
 }
 
-LIB_PARAM(curl_slist_append, 1);
+JS_PARAM(curl_slist_append, 1);
 static duk_ret_t
 duke_curl_slist_append(duk_context *ctx)
 {
@@ -792,7 +792,7 @@ duke_curl_slist_append(duk_context *ctx)
     return duk_push_true(ctx), 1;
 }
 
-LIB_PARAM(curl_slist_free_all, 1);
+JS_PARAM(curl_slist_free_all, 1);
 static duk_ret_t
 duke_curl_slist_free_all(duk_context *ctx)
 {
@@ -808,7 +808,7 @@ duke_curl_slist_free_all(duk_context *ctx)
 #include "libcurl/libcurlf.c"
 #include "libcurl/libcurln.c"
 
-int libcurl_register(duk_context *ctx)
+int js_libcurl_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);

@@ -1,28 +1,28 @@
 static const dukc_func_entry_t libbz_func[] = {
-    LIB_FUNC(bzCompressInit),
-    LIB_FUNC(bzCompress),
-    LIB_FUNC(bzCompressEnd),
-    LIB_FUNC(bzDecompressInit),
-    LIB_FUNC(bzDecompress),
-    LIB_FUNC(bzDecompressEnd),
+    JS_FUNC(bzCompressInit),
+    JS_FUNC(bzCompress),
+    JS_FUNC(bzCompressEnd),
+    JS_FUNC(bzDecompressInit),
+    JS_FUNC(bzDecompress),
+    JS_FUNC(bzDecompressEnd),
     
-    LIB_FUNC(compress),
-    LIB_FUNC(compressEx),
-    LIB_FUNC(uncompress),
-    LIB_FUNC(uncompressEx),
+    JS_FUNC(compress),
+    JS_FUNC(compressEx),
+    JS_FUNC(uncompress),
+    JS_FUNC(uncompressEx),
 
 #ifndef BZ_NO_STDIO
-    LIB_FUNC(bzopen),
-    LIB_FUNC(bzdopen),
-    LIB_FUNC(bzread),
-    LIB_FUNC(bzreadEx),
-    LIB_FUNC(bzwrite),
-    LIB_FUNC(bzflush),
-    LIB_FUNC(bzclose),
-    LIB_FUNC(bzerror),    
+    JS_FUNC(bzopen),
+    JS_FUNC(bzdopen),
+    JS_FUNC(bzread),
+    JS_FUNC(bzreadEx),
+    JS_FUNC(bzwrite),
+    JS_FUNC(bzflush),
+    JS_FUNC(bzclose),
+    JS_FUNC(bzerror),    
 #endif
 
-    LIB_FUNC_END
+    JS_FUNC_END
 };
 
 static void

@@ -1,6 +1,6 @@
 static const dukc_func_entry_t liblz_func[] = {
 
-    LIB_FUNC_END
+    JS_FUNC_END
 };
 
 static void

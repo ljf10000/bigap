@@ -1,6 +1,6 @@
 static const dukc_number_entry_t liblz_number[] = {
 
-    LIB_VALUE_END
+    JS_VALUE_END
 };
 
 static void

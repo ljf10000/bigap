@@ -22,7 +22,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "liblz/liblzf.c"
 #include "liblz/liblzn.c"
 
-int liblz_register(duk_context *ctx)
+int js_liblz_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);

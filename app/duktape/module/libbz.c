@@ -19,7 +19,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "libbz.h"
 #include "libxz.h"
 
-LIB_PARAM(bzCompressInit, 4);
+JS_PARAM(bzCompressInit, 4);
 static duk_ret_t
 duke_bzCompressInit(duk_context *ctx)
 {
@@ -33,7 +33,7 @@ duke_bzCompressInit(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(bzCompress, 2);
+JS_PARAM(bzCompress, 2);
 static duk_ret_t
 duke_bzCompress(duk_context *ctx)
 {
@@ -45,7 +45,7 @@ duke_bzCompress(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(bzCompressEnd, 1);
+JS_PARAM(bzCompressEnd, 1);
 static duk_ret_t
 duke_bzCompressEnd(duk_context *ctx)
 {
@@ -56,7 +56,7 @@ duke_bzCompressEnd(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(bzDecompressInit, 3);
+JS_PARAM(bzDecompressInit, 3);
 static duk_ret_t
 duke_bzDecompressInit(duk_context *ctx)
 {
@@ -69,7 +69,7 @@ duke_bzDecompressInit(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(bzDecompress, 1);
+JS_PARAM(bzDecompress, 1);
 static duk_ret_t
 duke_bzDecompress(duk_context *ctx)
 {
@@ -80,7 +80,7 @@ duke_bzDecompress(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(bzDecompressEnd, 1);
+JS_PARAM(bzDecompressEnd, 1);
 static duk_ret_t
 duke_bzDecompressEnd(duk_context *ctx)
 {
@@ -91,7 +91,7 @@ duke_bzDecompressEnd(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(compress, 5);
+JS_PARAM(compress, 5);
 static duk_ret_t
 duke_compress(duk_context *ctx)
 {
@@ -109,7 +109,7 @@ duke_compress(duk_context *ctx)
 
     err = BZ2_bzBuffToBuffCompress(dst, &dst_len, src, src_size, blockSize100k, verbosity, workFactor);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     err = dst_len;    
@@ -117,7 +117,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(compressEx, 4);
+JS_PARAM(compressEx, 4);
 static duk_ret_t
 duke_compressEx(duk_context *ctx)
 {
@@ -132,12 +132,12 @@ duke_compressEx(duk_context *ctx)
     ulong_t dst_size = src_size + 600;
     duk_buffer_t dst = duk_push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
-        __seterrno(ctx, -ENOMEM); goto error;
+        __js_seterrno(ctx, -ENOMEM); goto error;
     }
 
     err = BZ2_bzBuffToBuffCompress(dst, &dst_size, src, src_size, blockSize100k, verbosity, workFactor);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     return duk_resize_buffer(ctx, -1, dst_size), 1;
@@ -145,7 +145,7 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(uncompress, 4);
+JS_PARAM(uncompress, 4);
 static duk_ret_t
 duke_uncompress(duk_context *ctx)
 {
@@ -162,7 +162,7 @@ duke_uncompress(duk_context *ctx)
 
     err = BZ2_bzBuffToBuffDecompress(dst, &dst_len, src, src_size, small, verbosity);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     err = dst_len;    
@@ -170,7 +170,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(uncompressEx, 3);
+JS_PARAM(uncompressEx, 3);
 static duk_ret_t
 duke_uncompressEx(duk_context *ctx)
 {
@@ -184,12 +184,12 @@ duke_uncompressEx(duk_context *ctx)
     ulong_t dst_size = src_size + 600;
     duk_buffer_t dst = duk_push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
-        __seterrno(ctx, -ENOMEM); goto error;
+        __js_seterrno(ctx, -ENOMEM); goto error;
     }
 
     err = BZ2_bzBuffToBuffDecompress(dst, &dst_size, src, src_size, small, verbosity);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     return duk_resize_buffer(ctx, -1, dst_size), 1;
@@ -197,52 +197,52 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(bzlibVersion, 0);
+JS_PARAM(bzlibVersion, 0);
 static duk_ret_t
 duke_bzlibVersion(duk_context *ctx)
 {
-    return __push_string(ctx, BZ2_bzlibVersion()), 1;
+    return js_push_string(ctx, BZ2_bzlibVersion()), 1;
 }
 
 #ifndef BZ_NO_STDIO
 #define HFILE   BZFILE*
 
-LIB_PARAM(bzopen, 2);
+JS_PARAM(bzopen, 2);
 static duk_ret_t
 duke_bzopen(duk_context *ctx)
 {
     return xzopen(ctx, BZ2_bzopen);
 }
 
-LIB_PARAM(bzdopen, 2);
+JS_PARAM(bzdopen, 2);
 static duk_ret_t
 duke_bzdopen(duk_context *ctx)
 {
     return xzdopen(ctx, BZ2_bzdopen);
 }
 
-LIB_PARAM(bzread, 2);
+JS_PARAM(bzread, 2);
 static duk_ret_t
 duke_bzread(duk_context *ctx)
 {
     return xzread(ctx, BZ2_bzread);
 }
 
-LIB_PARAM(bzreadEx, 2);
+JS_PARAM(bzreadEx, 2);
 static duk_ret_t
 duke_bzreadEx(duk_context *ctx)
 {
     return xzreadEx(ctx, BZ2_bzread);
 }
 
-LIB_PARAM(bzwrite, 2);
+JS_PARAM(bzwrite, 2);
 static duk_ret_t
 duke_bzwrite(duk_context *ctx)
 {
     return xzwrite(ctx, BZ2_bzwrite);
 }
 
-LIB_PARAM(bzflush, 1);
+JS_PARAM(bzflush, 1);
 static duk_ret_t
 duke_bzflush(duk_context *ctx)
 {
@@ -253,7 +253,7 @@ duke_bzflush(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(bzclose, 1);
+JS_PARAM(bzclose, 1);
 static duk_ret_t
 duke_bzclose(duk_context *ctx)
 {
@@ -264,7 +264,7 @@ duke_bzclose(duk_context *ctx)
     return duk_push_int(ctx, 0), 1;
 }
 
-LIB_PARAM(bzerror, 1);
+JS_PARAM(bzerror, 1);
 static duk_ret_t
 duke_bzerror(duk_context *ctx)
 {
@@ -275,7 +275,7 @@ duke_bzerror(duk_context *ctx)
 #include "libbz/libbzf.c"
 #include "libbz/libbzn.c"
 
-int libbz_register(duk_context *ctx)
+int js_libbz_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);

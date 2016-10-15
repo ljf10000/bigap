@@ -15,10 +15,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "dukc.h"
 
 static const dukc_func_entry_t global_func[] = {
-    LIB_FUNC_END
+    JS_FUNC_END
 };
 
-int global_register(duk_context *ctx)
+int js_global_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
 	    duk_put_functions(ctx, -1, global_func);

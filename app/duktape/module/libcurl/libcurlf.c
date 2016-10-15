@@ -1,14 +1,14 @@
 static const dukc_func_entry_t libcurl_func[] = {
-    LIB_FUNC(curl_easy_init),
-    LIB_FUNC(curl_easy_cleanup),
-    LIB_FUNC(curl_easy_perform),
-    LIB_FUNC(curl_easy_setopt),
-    LIB_FUNC(curl_formadd),
-    LIB_FUNC(curl_formfree),
-    LIB_FUNC(curl_slist_append),
-    LIB_FUNC(curl_slist_free_all),
+    JS_FUNC(curl_easy_init),
+    JS_FUNC(curl_easy_cleanup),
+    JS_FUNC(curl_easy_perform),
+    JS_FUNC(curl_easy_setopt),
+    JS_FUNC(curl_formadd),
+    JS_FUNC(curl_formfree),
+    JS_FUNC(curl_slist_append),
+    JS_FUNC(curl_slist_free_all),
 
-    LIB_FUNC_END
+    JS_FUNC_END
 };
 
 static void

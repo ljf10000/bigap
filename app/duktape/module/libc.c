@@ -15,14 +15,14 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "dukc.h"
 
 #if duk_LIBC_SIG
-char *libc_sig_name[NSIG];
-void libc_sig_handler(int sig)
+char *js_libc_sig_name[NSIG];
+void js_libc_sig_handler(int sig)
 {
     /*
     * global handler sig
     */
     duk_push_global_object(__js_ctx);
-    duk_get_prop_string(__js_ctx, -1, libc_sig_name[sig]);
+    duk_get_prop_string(__js_ctx, -1, js_libc_sig_name[sig]);
     if (duk_is_function(__js_ctx, -1)) {
         duk_push_int(__js_ctx, sig);
         /*
@@ -47,7 +47,7 @@ __atexit_handler(void)
 }
 
 #if duk_LIBC_LINUX
-LIB_PARAM(timerfd_create, 2);
+JS_PARAM(timerfd_create, 2);
 static duk_ret_t
 duke_timerfd_create(duk_context *ctx)
 {
@@ -56,10 +56,10 @@ duke_timerfd_create(duk_context *ctx)
 
     int fd = timerfd_create(clock, flags);
 
-    return __push_error(ctx, fd), 1;
+    return js_push_error(ctx, fd), 1;
 }
 
-LIB_PARAM(timerfd_settime, 4);
+JS_PARAM(timerfd_settime, 4);
 static duk_ret_t
 duke_timerfd_settime(duk_context *ctx)
 {
@@ -73,10 +73,10 @@ duke_timerfd_settime(duk_context *ctx)
         __set_itimerspec(ctx, 3, &old);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(timerfd_gettime, 2);
+JS_PARAM(timerfd_gettime, 2);
 static duk_ret_t
 duke_timerfd_gettime(duk_context *ctx)
 {
@@ -88,10 +88,10 @@ duke_timerfd_gettime(duk_context *ctx)
         __set_itimerspec(ctx, 1, &current);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(eventfd, 2);
+JS_PARAM(eventfd, 2);
 static duk_ret_t
 duke_eventfd(duk_context *ctx)
 {
@@ -100,10 +100,10 @@ duke_eventfd(duk_context *ctx)
 
     int err = eventfd(intval, flags);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(signalfd, 3);
+JS_PARAM(signalfd, 3);
 static duk_ret_t
 duke_signalfd(duk_context *ctx)
 {
@@ -113,20 +113,20 @@ duke_signalfd(duk_context *ctx)
     int fd = duk_require_int(ctx, 0);
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL2); goto error;
+        err = __js_seterrno(ctx, -EINVAL2); goto error;
     }
     int flags = duk_require_int(ctx, 2);
     
     err = signalfd(fd, set, flags);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
     
 error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(epoll_create, 1);
+JS_PARAM(epoll_create, 1);
 static duk_ret_t
 duke_epoll_create(duk_context *ctx)
 {
@@ -134,10 +134,10 @@ duke_epoll_create(duk_context *ctx)
     
     int fd = epoll_create(size);
 
-    return __push_error(ctx, fd), 1;
+    return js_push_error(ctx, fd), 1;
 }
 
-LIB_PARAM(epoll_create1, 1);
+JS_PARAM(epoll_create1, 1);
 static duk_ret_t
 duke_epoll_create1(duk_context *ctx)
 {
@@ -145,12 +145,12 @@ duke_epoll_create1(duk_context *ctx)
     
     int fd = epoll_create1(flags);
 
-    return __push_error(ctx, fd), 1;
+    return js_push_error(ctx, fd), 1;
 }
 
 #define duk_epoll_event_size    (2*sizeof(uint32))
 
-LIB_PARAM(epoll_wait, 3);
+JS_PARAM(epoll_wait, 3);
 static duk_ret_t
 duke_epoll_wait(duk_context *ctx)
 {
@@ -161,7 +161,7 @@ duke_epoll_wait(duk_context *ctx)
     int epfd = duk_require_int(ctx, 0);
     duk_buffer_t buffer = duk_require_buffer_data(ctx, 1, &bsize);
     if (0!=bsize%duk_epoll_event_size) {
-        err = __seterrno(ctx, -EINVAL2); goto error;
+        err = __js_seterrno(ctx, -EINVAL2); goto error;
     } else {
         count = bsize/duk_epoll_event_size;
         ev = (struct epoll_event *)buffer;
@@ -170,14 +170,14 @@ duke_epoll_wait(duk_context *ctx)
 
     err = epoll_wait(epfd, ev, count, timeout);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
 error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(epoll_pwait, 4);
+JS_PARAM(epoll_pwait, 4);
 static duk_ret_t
 duke_epoll_pwait(duk_context *ctx)
 {
@@ -188,7 +188,7 @@ duke_epoll_pwait(duk_context *ctx)
     int epfd = duk_require_int(ctx, 0);
     duk_buffer_t buffer = duk_require_buffer_data(ctx, 1, &bsize);
     if (0!=bsize%duk_epoll_event_size) {
-        err = __seterrno(ctx, -EINVAL2); goto error;
+        err = __js_seterrno(ctx, -EINVAL2); goto error;
     } else {
         count = bsize/duk_epoll_event_size;
         ev = (struct epoll_event *)buffer;
@@ -196,19 +196,19 @@ duke_epoll_pwait(duk_context *ctx)
     int timeout = duk_require_int(ctx, 2);
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 3, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL4); goto error;
+        err = __js_seterrno(ctx, -EINVAL4); goto error;
     }
     
     err = epoll_pwait(epfd, ev, count, timeout, set);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
 error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(epoll_ctl, 4);
+JS_PARAM(epoll_ctl, 4);
 static duk_ret_t
 duke_epoll_ctl(duk_context *ctx)
 {
@@ -221,19 +221,19 @@ duke_epoll_ctl(duk_context *ctx)
     
     int err = epoll_ctl(epfd, op, fd, &ev);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(inotify_init, 0);
+JS_PARAM(inotify_init, 0);
 static duk_ret_t
 duke_inotify_init(duk_context *ctx)
 {
     int fd = inotify_init();
 
-    return __push_error(ctx, fd), 1;
+    return js_push_error(ctx, fd), 1;
 }
 
-LIB_PARAM(inotify_init1, 1);
+JS_PARAM(inotify_init1, 1);
 static duk_ret_t
 duke_inotify_init1(duk_context *ctx)
 {
@@ -241,10 +241,10 @@ duke_inotify_init1(duk_context *ctx)
     
     int err = inotify_init1(flags);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(inotify_add_watch, 3);
+JS_PARAM(inotify_add_watch, 3);
 static duk_ret_t
 duke_inotify_add_watch(duk_context *ctx)
 {
@@ -254,10 +254,10 @@ duke_inotify_add_watch(duk_context *ctx)
     
     int err = inotify_add_watch(fd, path, mask);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(inotify_rm_watch, 2);
+JS_PARAM(inotify_rm_watch, 2);
 static duk_ret_t
 duke_inotify_rm_watch(duk_context *ctx)
 {
@@ -266,13 +266,13 @@ duke_inotify_rm_watch(duk_context *ctx)
     
     int err = inotify_rm_watch(fd, wd);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 #endif /* duk_LIBC_LINUX */
 
 #if duk_LIBC_ERROR
 // 2.3 Error Messages
-LIB_PARAM(strerror, 1);
+JS_PARAM(strerror, 1);
 static duk_ret_t
 duke_strerror(duk_context *ctx)
 {
@@ -282,7 +282,7 @@ duke_strerror(duk_context *ctx)
 
     const char *errstring = strerror(errnum);
 
-    return __push_string(ctx, errstring), 1;
+    return js_push_string(ctx, errstring), 1;
 }
 #endif /* duk_LIBC_ERROR */
 
@@ -291,7 +291,7 @@ duke_strerror(duk_context *ctx)
 
 #if duk_LIBC_CTYPE
 // 4.1 Classification of Characters
-LIB_PARAM(islower, 1);
+JS_PARAM(islower, 1);
 static duk_ret_t
 duke_islower(duk_context *ctx)
 {
@@ -300,7 +300,7 @@ duke_islower(duk_context *ctx)
     return duk_push_bool(ctx, islower(c)), 1;
 }
 
-LIB_PARAM(isupper, 1);
+JS_PARAM(isupper, 1);
 static duk_ret_t
 duke_isupper(duk_context *ctx)
 {
@@ -309,7 +309,7 @@ duke_isupper(duk_context *ctx)
     return duk_push_bool(ctx, isupper(c)), 1;
 }
 
-LIB_PARAM(isalpha, 1);
+JS_PARAM(isalpha, 1);
 static duk_ret_t
 duke_isalpha(duk_context *ctx)
 {
@@ -318,7 +318,7 @@ duke_isalpha(duk_context *ctx)
     return duk_push_bool(ctx, isalpha(c)), 1;
 }
 
-LIB_PARAM(isdigit, 1);
+JS_PARAM(isdigit, 1);
 static duk_ret_t
 duke_isdigit(duk_context *ctx)
 {
@@ -327,7 +327,7 @@ duke_isdigit(duk_context *ctx)
     return duk_push_bool(ctx, isdigit(c)), 1;
 }
 
-LIB_PARAM(isalnum, 1);
+JS_PARAM(isalnum, 1);
 static duk_ret_t
 duke_isalnum(duk_context *ctx)
 {
@@ -336,7 +336,7 @@ duke_isalnum(duk_context *ctx)
     return duk_push_bool(ctx, isalnum(c)), 1;
 }
 
-LIB_PARAM(isxdigit, 1);
+JS_PARAM(isxdigit, 1);
 static duk_ret_t
 duke_isxdigit(duk_context *ctx)
 {
@@ -345,7 +345,7 @@ duke_isxdigit(duk_context *ctx)
     return duk_push_bool(ctx, isxdigit(c)), 1;
 }
 
-LIB_PARAM(ispunct, 1);
+JS_PARAM(ispunct, 1);
 static duk_ret_t
 duke_ispunct(duk_context *ctx)
 {
@@ -354,7 +354,7 @@ duke_ispunct(duk_context *ctx)
     return duk_push_bool(ctx, ispunct(c)), 1;
 }
 
-LIB_PARAM(isspace, 1);
+JS_PARAM(isspace, 1);
 static duk_ret_t
 duke_isspace(duk_context *ctx)
 {
@@ -363,7 +363,7 @@ duke_isspace(duk_context *ctx)
     return duk_push_bool(ctx, isspace(c)), 1;
 }
 
-LIB_PARAM(isblank, 1);
+JS_PARAM(isblank, 1);
 static duk_ret_t
 duke_isblank(duk_context *ctx)
 {
@@ -372,7 +372,7 @@ duke_isblank(duk_context *ctx)
     return duk_push_bool(ctx, isblank(c)), 1;
 }
 
-LIB_PARAM(isgraph, 1);
+JS_PARAM(isgraph, 1);
 static duk_ret_t
 duke_isgraph(duk_context *ctx)
 {
@@ -381,7 +381,7 @@ duke_isgraph(duk_context *ctx)
     return duk_push_bool(ctx, isgraph(c)), 1;
 }
 
-LIB_PARAM(isprint, 1);
+JS_PARAM(isprint, 1);
 static duk_ret_t
 duke_isprint(duk_context *ctx)
 {
@@ -390,7 +390,7 @@ duke_isprint(duk_context *ctx)
     return duk_push_bool(ctx, isprint(c)), 1;
 }
 
-LIB_PARAM(iscntrl, 1);
+JS_PARAM(iscntrl, 1);
 static duk_ret_t
 duke_iscntrl(duk_context *ctx)
 {
@@ -399,7 +399,7 @@ duke_iscntrl(duk_context *ctx)
     return duk_push_bool(ctx, iscntrl(c)), 1;
 }
 
-LIB_PARAM(isascii, 1);
+JS_PARAM(isascii, 1);
 static duk_ret_t
 duke_isascii(duk_context *ctx)
 {
@@ -409,7 +409,7 @@ duke_isascii(duk_context *ctx)
 }
 
 // 4.2 Case Conversion
-LIB_PARAM(tolower, 1);
+JS_PARAM(tolower, 1);
 static duk_ret_t
 duke_tolower(duk_context *ctx)
 {
@@ -418,7 +418,7 @@ duke_tolower(duk_context *ctx)
     return duk_push_int(ctx, tolower(c)), 1;
 }
 
-LIB_PARAM(toupper, 1);
+JS_PARAM(toupper, 1);
 static duk_ret_t
 duke_toupper(duk_context *ctx)
 {
@@ -427,7 +427,7 @@ duke_toupper(duk_context *ctx)
     return duk_push_int(ctx, toupper(c)), 1;
 }
 
-LIB_PARAM(toascii, 1);
+JS_PARAM(toascii, 1);
 static duk_ret_t
 duke_toascii(duk_context *ctx)
 {
@@ -441,7 +441,7 @@ duke_toascii(duk_context *ctx)
 
 // 5.5 String/Array Comparison
 #if duk_LIBC_MEMORY
-LIB_PARAM(memcmp, 3);
+JS_PARAM(memcmp, 3);
 static duk_ret_t
 duke_memcmp(duk_context *ctx)
 {
@@ -456,7 +456,7 @@ duke_memcmp(duk_context *ctx)
 #endif
 
 #if duk_LIBC_PRIVATE
-LIB_PARAM(fsize, 1);
+JS_PARAM(fsize, 1);
 static duk_ret_t
 duke_fsize(duk_context *ctx)
 {
@@ -465,7 +465,7 @@ duke_fsize(duk_context *ctx)
     return duk_push_int(ctx, os_fsize(filename)), 1;
 }
 
-LIB_PARAM(fexist, 1);
+JS_PARAM(fexist, 1);
 static duk_ret_t
 duke_fexist(duk_context *ctx)
 {
@@ -476,7 +476,7 @@ duke_fexist(duk_context *ctx)
 #endif
 
 // 12 Input/Output on Streams
-LIB_PARAM(fopen, 2);
+JS_PARAM(fopen, 2);
 static duk_ret_t
 duke_fopen(duk_context *ctx)
 {
@@ -485,10 +485,10 @@ duke_fopen(duk_context *ctx)
 
     STREAM f = os_fopen(filename, mode);
     
-    return __push_pointer(ctx, f), 1;
+    return js_push_pointer(ctx, f), 1;
 }
 
-LIB_PARAM(fclose, 1);
+JS_PARAM(fclose, 1);
 static duk_ret_t
 duke_fclose(duk_context *ctx)
 {
@@ -499,7 +499,7 @@ duke_fclose(duk_context *ctx)
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(fread, 2);
+JS_PARAM(fread, 2);
 static duk_ret_t
 duke_fread(duk_context *ctx)
 {
@@ -513,14 +513,14 @@ error:
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(freadEx, 2);
+JS_PARAM(freadEx, 2);
 static duk_ret_t
 duke_freadEx(duk_context *ctx)
 {
     STREAM f     = (STREAM)duk_require_pointer(ctx, 0);
     int size    = duk_require_int(ctx, 1);
 
-    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = js_push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
         return duk_push_null(ctx), 1;
     }
@@ -536,7 +536,7 @@ duke_freadEx(duk_context *ctx)
 	return 1;
 }
 
-LIB_PARAM(fwrite, 2);
+JS_PARAM(fwrite, 2);
 static duk_ret_t
 duke_fwrite(duk_context *ctx)
 {
@@ -546,7 +546,7 @@ duke_fwrite(duk_context *ctx)
     STREAM f = (STREAM)duk_require_pointer(ctx, 0);
     int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
     
     err = fwrite(buf, 1, bsize, f);
@@ -554,7 +554,7 @@ error:
     return duk_push_uint(ctx, err), 1;
 }
 
-LIB_PARAM(feof, 1);
+JS_PARAM(feof, 1);
 static duk_ret_t
 duke_feof(duk_context *ctx)
 {
@@ -565,7 +565,7 @@ duke_feof(duk_context *ctx)
     return duk_push_bool(ctx, eof), 1;
 }
 
-LIB_PARAM(ferror, 1);
+JS_PARAM(ferror, 1);
 static duk_ret_t
 duke_ferror(duk_context *ctx)
 {
@@ -576,7 +576,7 @@ duke_ferror(duk_context *ctx)
     return duk_push_bool(ctx, err), 1;
 }
 
-LIB_PARAM(ftell, 1);
+JS_PARAM(ftell, 1);
 static duk_ret_t
 duke_ftell(duk_context *ctx)
 {
@@ -587,7 +587,7 @@ duke_ftell(duk_context *ctx)
     return duk_push_int(ctx, len), 1;
 }
 
-LIB_PARAM(fseek, 3);
+JS_PARAM(fseek, 3);
 static duk_ret_t
 duke_fseek(duk_context *ctx)
 {
@@ -600,7 +600,7 @@ duke_fseek(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(fflush, 1);
+JS_PARAM(fflush, 1);
 static duk_ret_t
 duke_fflush(duk_context *ctx)
 {
@@ -612,7 +612,7 @@ duke_fflush(duk_context *ctx)
 }
 
 // 13 Low-Level Input/Output
-LIB_PARAM(open, DUK_VARARGS);
+JS_PARAM(open, DUK_VARARGS);
 static duk_ret_t
 duke_open(duk_context *ctx)
 {
@@ -634,10 +634,10 @@ duke_open(duk_context *ctx)
         }   break;
     }
 
-    return __push_error(ctx, fd), 1;
+    return js_push_error(ctx, fd), 1;
 }
 
-LIB_PARAM(close, 1);
+JS_PARAM(close, 1);
 static duk_ret_t
 duke_close(duk_context *ctx)
 {
@@ -645,10 +645,10 @@ duke_close(duk_context *ctx)
 
     int err = __os_close(fd);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(read, 2);
+JS_PARAM(read, 2);
 static duk_ret_t
 duke_read(duk_context *ctx)
 {
@@ -659,25 +659,25 @@ duke_read(duk_context *ctx)
     
     int err = read(fd, buf, bsize);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(readEx, 2);
+JS_PARAM(readEx, 2);
 static duk_ret_t
 duke_readEx(duk_context *ctx)
 {
     int fd      = duk_require_int(ctx, 0);
     int size    = duk_require_int(ctx, 1);
 
-    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = js_push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
-        __seterrno(ctx, -ENOMEM); goto error;
+        __js_seterrno(ctx, -ENOMEM); goto error;
     }
 
     int err = read(fd, buf, size);
     if (err<0) {
         duk_pop(ctx);
-        seterrno(ctx); goto error;
+        js_seterrno(ctx); goto error;
     }
 
 	return 1;
@@ -685,7 +685,7 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(write, 2);
+JS_PARAM(write, 2);
 static duk_ret_t
 duke_write(duk_context *ctx)
 {
@@ -695,19 +695,19 @@ duke_write(duk_context *ctx)
     int fd      = duk_require_int(ctx, 0);
     int err     = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
     
     err = write(fd, buf, bsize);
     if (err<0) {
-        seterrno(ctx); goto error;
+        js_seterrno(ctx); goto error;
     }
 
 error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(pread, 3);
+JS_PARAM(pread, 3);
 static duk_ret_t
 duke_pread(duk_context *ctx)
 {
@@ -718,10 +718,10 @@ duke_pread(duk_context *ctx)
 
     int err = pread(fd, buf, bsize, offset);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(preadEx, 3);
+JS_PARAM(preadEx, 3);
 static duk_ret_t
 duke_preadEx(duk_context *ctx)
 {
@@ -729,15 +729,15 @@ duke_preadEx(duk_context *ctx)
     int size    = duk_require_int(ctx, 1);
     int offset  = duk_require_int(ctx, 2);
 
-    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = js_push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
-        __seterrno(ctx, -ENOMEM); goto error;
+        __js_seterrno(ctx, -ENOMEM); goto error;
     }
 
     int err = pread(fd, buf, size, offset);
     if (err<0) {
         duk_pop(ctx);
-        seterrno(ctx); goto error;
+        js_seterrno(ctx); goto error;
     }
 
 	return 1;
@@ -745,7 +745,7 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(pwrite, 3);
+JS_PARAM(pwrite, 3);
 static duk_ret_t
 duke_pwrite(duk_context *ctx)
 {
@@ -755,20 +755,20 @@ duke_pwrite(duk_context *ctx)
     int fd      = duk_require_int(ctx, 0);
     int err     = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
     int offset  = duk_require_int(ctx, 2);
     
     err = pwrite(fd, buf, bsize, offset);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
 error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(lseek, 3);
+JS_PARAM(lseek, 3);
 static duk_ret_t
 duke_lseek(duk_context *ctx)
 {
@@ -778,10 +778,10 @@ duke_lseek(duk_context *ctx)
     
     int err = lseek(fd, offset, where);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(fdopen, 2);
+JS_PARAM(fdopen, 2);
 static duk_ret_t
 duke_fdopen(duk_context *ctx)
 {
@@ -790,10 +790,10 @@ duke_fdopen(duk_context *ctx)
 
     STREAM f = fdopen(fd, mode);
     
-    return __push_pointer(ctx, f), 1;
+    return js_push_pointer(ctx, f), 1;
 }
 
-LIB_PARAM(fileno, 1);
+JS_PARAM(fileno, 1);
 static duk_ret_t
 duke_fileno(duk_context *ctx)
 {
@@ -801,49 +801,49 @@ duke_fileno(duk_context *ctx)
 
     int fd = fileno(f);
 
-	return __push_error(ctx, fd), 1;
+	return js_push_error(ctx, fd), 1;
 }
 
 // 13.6 Fast Scatter-Gather I/O
-LIB_PARAM(readv, 2);
+JS_PARAM(readv, 2);
 static duk_ret_t
 duke_readv(duk_context *ctx)
 {
     int fd = duk_require_int(ctx, 0);
-    int count = __get_array_length(ctx, 1);
+    int count = js_get_array_length(ctx, 1);
     int i;
 
     struct iovec iov[count];
     for (i=0; i<count; i++) {
-        iov[i].iov_base = __get_array_buffer(ctx, 1, i, &iov[i].iov_len);
+        iov[i].iov_base = js_get_array_buffer(ctx, 1, i, &iov[i].iov_len);
     }
 
     int err = readv(fd, iov, count);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(writev, 2);
+JS_PARAM(writev, 2);
 static duk_ret_t
 duke_writev(duk_context *ctx)
 {
     int fd = duk_require_int(ctx, 0);
-    int count = __get_array_length(ctx, 1);
+    int count = js_get_array_length(ctx, 1);
     int i;
 
     struct iovec iov[count];
     for (i=0; i<count; i++) {
-        iov[i].iov_base = __get_array_buffer(ctx, 1, i, &iov[i].iov_len);
+        iov[i].iov_base = js_get_array_buffer(ctx, 1, i, &iov[i].iov_len);
     }
 
     int err = writev(fd, iov, count);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 13.7 Memory-mapped I/O
 #if duk_LIBC_MEMORY
-LIB_PARAM(mmap, 6);
+JS_PARAM(mmap, 6);
 static duk_ret_t
 duke_mmap(duk_context *ctx)
 {
@@ -856,14 +856,14 @@ duke_mmap(duk_context *ctx)
 
     duk_pointer_t pointer = mmap(address, len, protect, flags, fd, offset);
     if (MAP_FAILED==pointer) {
-        seterrno(ctx);
+        js_seterrno(ctx);
         pointer = NULL;
     }
 
-    return __push_pointer(ctx, pointer), 1;
+    return js_push_pointer(ctx, pointer), 1;
 }
 
-LIB_PARAM(munmap, 2);
+JS_PARAM(munmap, 2);
 static duk_ret_t
 duke_munmap(duk_context *ctx)
 {
@@ -872,10 +872,10 @@ duke_munmap(duk_context *ctx)
 
     int err = munmap(address, len);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(msync, 3);
+JS_PARAM(msync, 3);
 static duk_ret_t
 duke_msync(duk_context *ctx)
 {
@@ -885,10 +885,10 @@ duke_msync(duk_context *ctx)
 
     int err = msync(address, len, flags);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(mremap, 4);
+JS_PARAM(mremap, 4);
 static duk_ret_t
 duke_mremap(duk_context *ctx)
 {
@@ -899,14 +899,14 @@ duke_mremap(duk_context *ctx)
     
     duk_pointer_t pointer = mremap(address, len, nlen, flags);
     if (MAP_FAILED==pointer) {
-        seterrno(ctx);
+        js_seterrno(ctx);
         pointer = NULL;
     }
     
-    return __push_pointer(ctx, pointer), 1;
+    return js_push_pointer(ctx, pointer), 1;
 }
 
-LIB_PARAM(madvise, 3);
+JS_PARAM(madvise, 3);
 static duk_ret_t
 duke_madvise(duk_context *ctx)
 {
@@ -916,20 +916,20 @@ duke_madvise(duk_context *ctx)
 
     int err = madvise(address, len, advice);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 #endif
 
 // 13.8 Waiting for Input or Output
 #if duk_LIBC_FDSET
-LIB_PARAM(FD_NEW, 0);
+JS_PARAM(FD_NEW, 0);
 static duk_ret_t
 duke_FD_NEW(duk_context *ctx)
 {
-    return __push_dynamic_buffer(ctx, sizeof(fd_set)), 1;
+    return js_push_dynamic_buffer(ctx, sizeof(fd_set)), 1;
 }
 
-LIB_PARAM(FD_ZERO, 1);
+JS_PARAM(FD_ZERO, 1);
 static duk_ret_t
 duke_FD_ZERO(duk_context *ctx)
 {
@@ -938,7 +938,7 @@ duke_FD_ZERO(duk_context *ctx)
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(fd_set)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
     
     FD_ZERO(set);
@@ -947,7 +947,7 @@ error:
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(FD_SET, 2);
+JS_PARAM(FD_SET, 2);
 static duk_ret_t
 duke_FD_SET(duk_context *ctx)
 {
@@ -956,7 +956,7 @@ duke_FD_SET(duk_context *ctx)
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(fd_set)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
     int fd = duk_require_int(ctx, 1);
 
@@ -966,7 +966,7 @@ error:
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(FD_CLR, 2);
+JS_PARAM(FD_CLR, 2);
 static duk_ret_t
 duke_FD_CLR(duk_context *ctx)
 {
@@ -975,7 +975,7 @@ duke_FD_CLR(duk_context *ctx)
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(fd_set)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
     int fd = duk_require_int(ctx, 1);
 
@@ -985,7 +985,7 @@ error:
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(FD_ISSET, 2);
+JS_PARAM(FD_ISSET, 2);
 static duk_ret_t
 duke_FD_ISSET(duk_context *ctx)
 {
@@ -994,7 +994,7 @@ duke_FD_ISSET(duk_context *ctx)
     
     fd_set *set = (fd_set *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(fd_set)) {
-        err = __seterrno(ctx, -EINVAL1); return duk_push_false(ctx), 1;
+        err = __js_seterrno(ctx, -EINVAL1); return duk_push_false(ctx), 1;
     }
     int fd = duk_require_int(ctx, 1);
 
@@ -1004,7 +1004,7 @@ duke_FD_ISSET(duk_context *ctx)
 }
 #endif
 
-LIB_PARAM(select, 5);
+JS_PARAM(select, 5);
 static duk_ret_t
 duke_select(duk_context *ctx)
 {
@@ -1017,21 +1017,21 @@ duke_select(duk_context *ctx)
     if (duk_is_buffer(ctx, 1)) {
         rset = (fd_set *)duk_require_buffer_data(ctx, 1, &bsize);
         if (bsize!=sizeof(fd_set)) {
-            err = __seterrno(ctx, -EINVAL2); goto error;
+            err = __js_seterrno(ctx, -EINVAL2); goto error;
         }
     }
 
     if (duk_is_buffer(ctx, 2)) {
         wset = (fd_set *)duk_require_buffer_data(ctx, 2, &bsize);
         if (bsize!=sizeof(fd_set)) {
-            err = __seterrno(ctx, -EINVAL3); goto error;
+            err = __js_seterrno(ctx, -EINVAL3); goto error;
         }
     }
 
     if (duk_is_buffer(ctx, 3)) {
         eset = (fd_set *)duk_require_buffer_data(ctx, 3, &bsize);
         if (bsize!=sizeof(fd_set)) {
-            err = __seterrno(ctx, -EINVAL4); goto error;
+            err = __js_seterrno(ctx, -EINVAL4); goto error;
         }
     }
     
@@ -1040,7 +1040,7 @@ duke_select(duk_context *ctx)
     __set_timeval(ctx, 4, &tv);
 
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
 error:
@@ -1048,14 +1048,14 @@ error:
 }
 
 // 13.9 Synchronizing I/O operations
-LIB_PARAM(sync, 0);
+JS_PARAM(sync, 0);
 static duk_ret_t
 duke_sync(duk_context *ctx)
 {
     return sync(), 0;
 }
 
-LIB_PARAM(fsync, 1);
+JS_PARAM(fsync, 1);
 static duk_ret_t
 duke_fsync(duk_context *ctx)
 {
@@ -1063,13 +1063,13 @@ duke_fsync(duk_context *ctx)
 
     int err = fsync(fd);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
     
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(fcntl, 3);
+JS_PARAM(fcntl, 3);
 static duk_ret_t
 duke_fcntl(duk_context *ctx)
 {
@@ -1086,7 +1086,7 @@ duke_fcntl(duk_context *ctx)
             int new = duk_require_int(ctx, 2);
             err = fcntl(fd, cmd, new);
             if (err<0) {
-                seterrno(ctx);
+                js_seterrno(ctx);
             }
             
         }   break;
@@ -1100,19 +1100,19 @@ duke_fcntl(duk_context *ctx)
             __get_flock(ctx, 2, &k);
             err = fcntl(fd, cmd, &k);
             if (err<0) {
-                seterrno(ctx);
+                js_seterrno(ctx);
             }
             
         }   break;
         default:
-            err = __seterrno(ctx, -ENOSUPPORT);
+            err = __js_seterrno(ctx, -ENOSUPPORT);
             break;
     }
     
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(dup, 1);
+JS_PARAM(dup, 1);
 static duk_ret_t
 duke_dup(duk_context *ctx)
 {
@@ -1120,10 +1120,10 @@ duke_dup(duk_context *ctx)
 
     int new = dup(old);
 
-	return __push_error(ctx, new), 1;
+	return js_push_error(ctx, new), 1;
 }
 
-LIB_PARAM(dup2, 2);
+JS_PARAM(dup2, 2);
 static duk_ret_t
 duke_dup2(duk_context *ctx)
 {
@@ -1132,10 +1132,10 @@ duke_dup2(duk_context *ctx)
 
     int fd = dup2(old, new);
 
-	return __push_error(ctx, fd), 1;
+	return js_push_error(ctx, fd), 1;
 }
 
-LIB_PARAM(ioctl, 3);
+JS_PARAM(ioctl, 3);
 static duk_ret_t
 duke_ioctl(duk_context *ctx)
 {
@@ -1147,7 +1147,7 @@ duke_ioctl(duk_context *ctx)
 
 // 14 File System Interface
 // 14.1 Working Directory
-LIB_PARAM(getcwd, 0);
+JS_PARAM(getcwd, 0);
 static duk_ret_t
 duke_getcwd(duk_context *ctx)
 {
@@ -1155,7 +1155,7 @@ duke_getcwd(duk_context *ctx)
     
     char *cwd = getcwd(path, PATH_MAX);
     if (NULL==cwd) {
-        seterrno(ctx);
+        js_seterrno(ctx);
         duk_push_null(ctx);
     } else {
         duk_push_string(ctx, cwd);
@@ -1164,7 +1164,7 @@ duke_getcwd(duk_context *ctx)
 	return 1;
 }
 
-LIB_PARAM(chdir, 1);
+JS_PARAM(chdir, 1);
 static duk_ret_t
 duke_chdir(duk_context *ctx)
 {
@@ -1172,10 +1172,10 @@ duke_chdir(duk_context *ctx)
 
     int err = chdir(dirname);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(fchdir, 1);
+JS_PARAM(fchdir, 1);
 static duk_ret_t
 duke_fchdir(duk_context *ctx)
 {
@@ -1183,11 +1183,11 @@ duke_fchdir(duk_context *ctx)
 
     int err = fchdir(fd);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 14.2 Accessing Directories
-LIB_PARAM(opendir, 1);
+JS_PARAM(opendir, 1);
 static duk_ret_t
 duke_opendir(duk_context *ctx)
 {
@@ -1195,13 +1195,13 @@ duke_opendir(duk_context *ctx)
 
     DIR *dir = opendir(dirname);
     if (NULL==dir) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
     
-    return __push_pointer(ctx, dir), 1;
+    return js_push_pointer(ctx, dir), 1;
 }
 
-LIB_PARAM(fdopendir, 1);
+JS_PARAM(fdopendir, 1);
 static duk_ret_t
 duke_fdopendir(duk_context *ctx)
 {
@@ -1209,13 +1209,13 @@ duke_fdopendir(duk_context *ctx)
 
     DIR *dir = fdopendir(fd);
     if (NULL==dir) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
     
-    return __push_pointer(ctx, dir), 1;
+    return js_push_pointer(ctx, dir), 1;
 }
 
-LIB_PARAM(dirfd, 1);
+JS_PARAM(dirfd, 1);
 static duk_ret_t
 duke_dirfd(duk_context *ctx)
 {
@@ -1226,7 +1226,7 @@ duke_dirfd(duk_context *ctx)
 	return duk_push_int(ctx, fd), 1;
 }
 
-LIB_PARAM(readdir, 1);
+JS_PARAM(readdir, 1);
 static duk_ret_t
 duke_readdir(duk_context *ctx)
 {
@@ -1234,13 +1234,13 @@ duke_readdir(duk_context *ctx)
         
     struct dirent *d = readdir(dir);
     if (NULL==d) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
-	return __obj_push(ctx, __set_dirent, readdir(dir)), 1;
+	return js_obj_push(ctx, __set_dirent, readdir(dir)), 1;
 }
 
-LIB_PARAM(closedir, 1);
+JS_PARAM(closedir, 1);
 static duk_ret_t
 duke_closedir(duk_context *ctx)
 {
@@ -1248,10 +1248,10 @@ duke_closedir(duk_context *ctx)
     
     int err = closedir(dir);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(rewinddir, 1);
+JS_PARAM(rewinddir, 1);
 static duk_ret_t
 duke_rewinddir(duk_context *ctx)
 {
@@ -1260,7 +1260,7 @@ duke_rewinddir(duk_context *ctx)
     return rewinddir(dir), 0;
 }
 
-LIB_PARAM(telldir, 1);
+JS_PARAM(telldir, 1);
 static duk_ret_t
 duke_telldir(duk_context *ctx)
 {
@@ -1271,7 +1271,7 @@ duke_telldir(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(seekdir, 2);
+JS_PARAM(seekdir, 2);
 static duk_ret_t
 duke_seekdir(duk_context *ctx)
 {
@@ -1282,7 +1282,7 @@ duke_seekdir(duk_context *ctx)
 }
 
 // 14.4 Hard Links
-LIB_PARAM(link, 2);
+JS_PARAM(link, 2);
 static duk_ret_t
 duke_link(duk_context *ctx)
 {
@@ -1291,11 +1291,11 @@ duke_link(duk_context *ctx)
 
     int err = link(old, new);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 14.5 Symbolic Links
-LIB_PARAM(symlink, 2);
+JS_PARAM(symlink, 2);
 static duk_ret_t
 duke_symlink(duk_context *ctx)
 {
@@ -1304,10 +1304,10 @@ duke_symlink(duk_context *ctx)
 
     int err = symlink(old, new);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(readlink, 1);
+JS_PARAM(readlink, 1);
 static duk_ret_t
 duke_readlink(duk_context *ctx)
 {
@@ -1320,14 +1320,14 @@ duke_readlink(duk_context *ctx)
         
         int len = readlink(filename, line, size);
         if (len<0) {
-            seterrno(ctx); 
+            js_seterrno(ctx); 
             duk_push_null(ctx);
             
             break;
         }
         else if (len<=size) {
             line[len] = 0;
-            __push_lstring(ctx, line, len);
+            js_push_lstring(ctx, line, len);
             
             break;
         }
@@ -1340,7 +1340,7 @@ error:
     return 1;
 }
 
-LIB_PARAM(realpath, 1);
+JS_PARAM(realpath, 1);
 static duk_ret_t
 duke_realpath(duk_context *ctx)
 {
@@ -1348,14 +1348,14 @@ duke_realpath(duk_context *ctx)
 
     char *path = realpath(filename, NULL);
     if (NULL==path) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
-    return __push_string(ctx, path), 1;
+    return js_push_string(ctx, path), 1;
 }
 
 // 14.6 Deleting Files
-LIB_PARAM(unlink, 1);
+JS_PARAM(unlink, 1);
 static duk_ret_t
 duke_unlink(duk_context *ctx)
 {    
@@ -1363,7 +1363,7 @@ duke_unlink(duk_context *ctx)
 
     int err = unlink(filename);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 static inline int
@@ -1401,7 +1401,7 @@ __rmdir_r(duk_context *ctx, char *path)
     return 0;
 }
 
-LIB_PARAM(rmdir, DUK_VARARGS);
+JS_PARAM(rmdir, DUK_VARARGS);
 static duk_ret_t
 duke_rmdir(duk_context *ctx)
 {
@@ -1423,12 +1423,12 @@ duke_rmdir(duk_context *ctx)
     if (all) {
         err = __rmdir_r(ctx, filename);
         if (err<0) {
-            __seterrno(ctx, err);
+            __js_seterrno(ctx, err);
         }
     } else {
         err = rmdir(filename);
         if (err<0) {
-            seterrno(ctx);
+            js_seterrno(ctx);
         }
     }
 
@@ -1436,7 +1436,7 @@ error:
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(remove, 1);
+JS_PARAM(remove, 1);
 static duk_ret_t
 duke_remove(duk_context *ctx)
 {
@@ -1444,11 +1444,11 @@ duke_remove(duk_context *ctx)
 
     int err = remove(filename);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 14.7 Renaming Files
-LIB_PARAM(rename, 2);
+JS_PARAM(rename, 2);
 static duk_ret_t
 duke_rename(duk_context *ctx)
 {
@@ -1457,12 +1457,12 @@ duke_rename(duk_context *ctx)
 
     int err = rename(old, new);
     
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 
 }
 
 // 14.8 Creating Directories
-LIB_PARAM(mkdir, DUK_VARARGS);
+JS_PARAM(mkdir, DUK_VARARGS);
 static duk_ret_t
 duke_mkdir(duk_context *ctx)
 {
@@ -1488,7 +1488,7 @@ duke_mkdir(duk_context *ctx)
 
 // 14.9 File Attributes
 // 14.9.2 Reading the Attributes of a File
-LIB_PARAM(stat, 2);
+JS_PARAM(stat, 2);
 static duk_ret_t
 duke_stat(duk_context *ctx)
 {
@@ -1501,10 +1501,10 @@ duke_stat(duk_context *ctx)
         __set_stat(ctx, 1, &st);
     }
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(lstat, 2);
+JS_PARAM(lstat, 2);
 static duk_ret_t
 duke_lstat(duk_context *ctx)
 {
@@ -1517,10 +1517,10 @@ duke_lstat(duk_context *ctx)
         __set_stat(ctx, 1, &st);
     }
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(fstat, 2);
+JS_PARAM(fstat, 2);
 static duk_ret_t
 duke_fstat(duk_context *ctx)
 {
@@ -1533,12 +1533,12 @@ duke_fstat(duk_context *ctx)
         __set_stat(ctx, 1, &st);
     }
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 14.9.3 Testing the Type of a File
 #if 0
-LIB_PARAM(S_ISDIR, 1);
+JS_PARAM(S_ISDIR, 1);
 static duk_ret_t
 duke_S_ISDIR(duk_context *ctx)
 {
@@ -1547,7 +1547,7 @@ duke_S_ISDIR(duk_context *ctx)
     return duk_push_bool(ctx, S_ISDIR(mode)), 1;
 }
 
-LIB_PARAM(S_ISCHR, 1);
+JS_PARAM(S_ISCHR, 1);
 static duk_ret_t
 duke_S_ISCHR(duk_context *ctx)
 {
@@ -1556,7 +1556,7 @@ duke_S_ISCHR(duk_context *ctx)
     return duk_push_bool(ctx, S_ISCHR(mode)), 1;
 }
 
-LIB_PARAM(S_ISBLK, 1);
+JS_PARAM(S_ISBLK, 1);
 static duk_ret_t
 duke_S_ISBLK(duk_context *ctx)
 {
@@ -1565,7 +1565,7 @@ duke_S_ISBLK(duk_context *ctx)
     return duk_push_bool(ctx, S_ISBLK(mode)), 1;
 }
 
-LIB_PARAM(S_ISREG, 1);
+JS_PARAM(S_ISREG, 1);
 static duk_ret_t
 duke_S_ISREG(duk_context *ctx)
 {
@@ -1574,7 +1574,7 @@ duke_S_ISREG(duk_context *ctx)
     return duk_push_bool(ctx, S_ISREG(mode)), 1;
 }
 
-LIB_PARAM(S_ISFIFO, 1);
+JS_PARAM(S_ISFIFO, 1);
 static duk_ret_t
 duke_S_ISFIFO(duk_context *ctx)
 {
@@ -1583,7 +1583,7 @@ duke_S_ISFIFO(duk_context *ctx)
     return duk_push_bool(ctx, S_ISFIFO(mode)), 1;
 }
 
-LIB_PARAM(S_ISLNK, 1);
+JS_PARAM(S_ISLNK, 1);
 static duk_ret_t
 duke_S_ISLNK(duk_context *ctx)
 {
@@ -1592,7 +1592,7 @@ duke_S_ISLNK(duk_context *ctx)
     return duk_push_bool(ctx, S_ISLNK(mode)), 1;
 }
 
-LIB_PARAM(S_ISSOCK, 1);
+JS_PARAM(S_ISSOCK, 1);
 static duk_ret_t
 duke_S_ISSOCK(duk_context *ctx)
 {
@@ -1601,7 +1601,7 @@ duke_S_ISSOCK(duk_context *ctx)
     return duk_push_bool(ctx, S_ISSOCK(mode)), 1;
 }
 
-LIB_PARAM(S_TYPEISMQ, 1);
+JS_PARAM(S_TYPEISMQ, 1);
 static duk_ret_t
 duke_S_TYPEISMQ(duk_context *ctx)
 {
@@ -1612,7 +1612,7 @@ duke_S_TYPEISMQ(duk_context *ctx)
     return duk_push_bool(ctx, S_TYPEISMQ(&st)), 1;
 }
 
-LIB_PARAM(S_TYPEISSEM, 1);
+JS_PARAM(S_TYPEISSEM, 1);
 static duk_ret_t
 duke_S_TYPEISSEM(duk_context *ctx)
 {
@@ -1623,7 +1623,7 @@ duke_S_TYPEISSEM(duk_context *ctx)
     return duk_push_bool(ctx, S_TYPEISSEM(&st)), 1;
 }
 
-LIB_PARAM(S_TYPEISSHM, 1);
+JS_PARAM(S_TYPEISSHM, 1);
 static duk_ret_t
 duke_S_TYPEISSHM(duk_context *ctx)
 {
@@ -1636,7 +1636,7 @@ duke_S_TYPEISSHM(duk_context *ctx)
 #endif
 
 // 14.9.4 File Owner
-LIB_PARAM(chown, 3);
+JS_PARAM(chown, 3);
 static duk_ret_t
 duke_chown(duk_context *ctx)
 {
@@ -1646,10 +1646,10 @@ duke_chown(duk_context *ctx)
 
     int err = chown(filename, owner, group);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(fchown, 3);
+JS_PARAM(fchown, 3);
 static duk_ret_t
 duke_fchown(duk_context *ctx)
 {
@@ -1659,11 +1659,11 @@ duke_fchown(duk_context *ctx)
 
     int err = fchown(fd, owner, group);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 14.9.7 Assigning File Permissions
-LIB_PARAM(umask, 1);
+JS_PARAM(umask, 1);
 static duk_ret_t
 duke_umask(duk_context *ctx)
 {
@@ -1674,7 +1674,7 @@ duke_umask(duk_context *ctx)
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(chmod, 2);
+JS_PARAM(chmod, 2);
 static duk_ret_t
 duke_chmod(duk_context *ctx)
 {
@@ -1683,10 +1683,10 @@ duke_chmod(duk_context *ctx)
     
 	int err = chmod(filename, mode);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(fchmod, 2);
+JS_PARAM(fchmod, 2);
 static duk_ret_t
 duke_fchmod(duk_context *ctx)
 {
@@ -1695,11 +1695,11 @@ duke_fchmod(duk_context *ctx)
     
 	int err = fchmod(fd, mode);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 14.9.8 Testing Permission to Access a File
-LIB_PARAM(access, 2);
+JS_PARAM(access, 2);
 static duk_ret_t
 duke_access(duk_context *ctx)
 {
@@ -1708,11 +1708,11 @@ duke_access(duk_context *ctx)
     
 	int err = access(filename, how);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 14.9.9 File Times
-LIB_PARAM(utime, 2);
+JS_PARAM(utime, 2);
 static duk_ret_t
 duke_utime(duk_context *ctx)
 {
@@ -1722,11 +1722,11 @@ duke_utime(duk_context *ctx)
     
 	int err = utime(filename, &b);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 14.9.10 File Size
-LIB_PARAM(truncate, 2);
+JS_PARAM(truncate, 2);
 static duk_ret_t
 duke_truncate(duk_context *ctx)
 {
@@ -1735,10 +1735,10 @@ duke_truncate(duk_context *ctx)
     
 	int err = truncate(filename, len);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(ftruncate, 2);
+JS_PARAM(ftruncate, 2);
 static duk_ret_t
 duke_ftruncate(duk_context *ctx)
 {
@@ -1747,11 +1747,11 @@ duke_ftruncate(duk_context *ctx)
     
 	int err = ftruncate(fd, len);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 14.10 Making Special Files
-LIB_PARAM(mknod, 3);
+JS_PARAM(mknod, 3);
 static duk_ret_t
 duke_mknod(duk_context *ctx)
 {
@@ -1761,20 +1761,20 @@ duke_mknod(duk_context *ctx)
     
 	int err = mknod(filename, mode, dev);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 14.11 Temporary Files
-LIB_PARAM(tmpfile, 0);
+JS_PARAM(tmpfile, 0);
 static duk_ret_t
 duke_tmpfile(duk_context *ctx)
 {
 	STREAM f = tmpfile();
 
-	return __push_pointer(ctx, f), 1;
+	return js_push_pointer(ctx, f), 1;
 }
 
-LIB_PARAM(mkstemp, 1);
+JS_PARAM(mkstemp, 1);
 static duk_ret_t
 duke_mkstemp(duk_context *ctx)
 {
@@ -1782,10 +1782,10 @@ duke_mkstemp(duk_context *ctx)
     
 	int err = mkstemp(template);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(mkdtemp, 1);
+JS_PARAM(mkdtemp, 1);
 static duk_ret_t
 duke_mkdtemp(duk_context *ctx)
 {
@@ -1793,31 +1793,31 @@ duke_mkdtemp(duk_context *ctx)
     
 	char *filename = mkdtemp(template);
 
-	return __push_string(ctx, filename), 1;
+	return js_push_string(ctx, filename), 1;
 }
 
 // 15 Pipes and FIFOs
 // 15.1 Creating a Pipe
-LIB_PARAM(pipe, 1);
+JS_PARAM(pipe, 1);
 static duk_ret_t
 duke_pipe(duk_context *ctx)
 {
 	int fd[2] = {
-        [0] = __get_array_int(ctx, 0, 0),
-        [1] = __get_array_int(ctx, 0, 1),
+        [0] = js_get_array_int(ctx, 0, 0),
+        [1] = js_get_array_int(ctx, 0, 1),
 	};
 	
     int err = pipe(fd);
 
-    __set_array_int(ctx, 0, 0, fd[0]);
-    __set_array_int(ctx, 0, 1, fd[1]);
+    js_set_array_int(ctx, 0, 0, fd[0]);
+    js_set_array_int(ctx, 0, 1, fd[1]);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 
 // 15.2 Pipe to a Subprocess
-LIB_PARAM(popen, 2);
+JS_PARAM(popen, 2);
 static duk_ret_t
 duke_popen(duk_context *ctx)
 {
@@ -1826,10 +1826,10 @@ duke_popen(duk_context *ctx)
     
 	STREAM f = popen(command, mode);
 
-	return __push_pointer(ctx, f), 1;
+	return js_push_pointer(ctx, f), 1;
 }
 
-LIB_PARAM(pclose, 1);
+JS_PARAM(pclose, 1);
 static duk_ret_t
 duke_pclose(duk_context *ctx)
 {
@@ -1841,7 +1841,7 @@ duke_pclose(duk_context *ctx)
 }
 
 // 15.3 FIFO Special Files
-LIB_PARAM(mkfifo, 2);
+JS_PARAM(mkfifo, 2);
 static duk_ret_t
 duke_mkfifo(duk_context *ctx)
 {
@@ -1850,12 +1850,12 @@ duke_mkfifo(duk_context *ctx)
     
 	int err = mkfifo(filename, mode);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
 // 16 Sockets
 // 16.3 Socket Addresses
-LIB_PARAM(bind, 2);
+JS_PARAM(bind, 2);
 static duk_ret_t
 duke_bind(duk_context *ctx)
 {
@@ -1864,14 +1864,14 @@ duke_bind(duk_context *ctx)
 
     int err = __get_sockaddr(ctx, 1, &sa);
     if (err<0) {
-        __seterrno(ctx, err);
+        __js_seterrno(ctx, err);
         
         goto error;
     }
     
     err = bind(fd, &sa.c, os_sockaddr_len(&sa.c));
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
 
         goto error;
     }
@@ -1880,7 +1880,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(getsockname, 2);
+JS_PARAM(getsockname, 2);
 static duk_ret_t
 duke_getsockname(duk_context *ctx)
 {
@@ -1894,10 +1894,10 @@ duke_getsockname(duk_context *ctx)
         __set_sockaddr(ctx, 1, &sa);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(if_nametoindex, 1);
+JS_PARAM(if_nametoindex, 1);
 static duk_ret_t
 duke_if_nametoindex(duk_context *ctx)
 {
@@ -1908,7 +1908,7 @@ duke_if_nametoindex(duk_context *ctx)
 	return duk_push_uint(ctx, ifindex), 1;
 }
 
-LIB_PARAM(if_indextoname, 2);
+JS_PARAM(if_indextoname, 2);
 static duk_ret_t
 duke_if_indextoname(duk_context *ctx)
 {
@@ -1917,10 +1917,10 @@ duke_if_indextoname(duk_context *ctx)
     
 	char *name = if_indextoname(ifindex, ifname);
 
-	return __push_string(ctx, name), 1;
+	return js_push_string(ctx, name), 1;
 }
 
-LIB_PARAM(if_nameindex, 0);
+JS_PARAM(if_nameindex, 0);
 static duk_ret_t
 duke_if_nameindex(duk_context *ctx)
 {
@@ -1935,8 +1935,8 @@ duke_if_nameindex(duk_context *ctx)
 	duk_push_object(ctx);
     for (i=0, p = &array[0]; p; p++, i++) {
         duk_push_object(ctx);
-            __set_obj_uint(ctx, -1, "index", p->if_index);
-            __set_obj_string(ctx, -1, "name", p->if_name);
+            js_set_obj_uint(ctx, -1, "index", p->if_index);
+            js_set_obj_string(ctx, -1, "name", p->if_name);
         duk_put_prop_index(ctx, -1, i);
     }
 	
@@ -1944,7 +1944,7 @@ duke_if_nameindex(duk_context *ctx)
 }
 
 // 16.6 The Internet Namespace
-LIB_PARAM(inet_aton, 1);
+JS_PARAM(inet_aton, 1);
 static duk_ret_t
 duke_inet_aton(duk_context *ctx)
 {
@@ -1959,7 +1959,7 @@ duke_inet_aton(duk_context *ctx)
 	return duk_push_uint(ctx, in.s_addr), 1;
 }
 
-LIB_PARAM(inet_addr, 1);
+JS_PARAM(inet_addr, 1);
 static duk_ret_t
 duke_inet_addr(duk_context *ctx)
 {
@@ -1970,7 +1970,7 @@ duke_inet_addr(duk_context *ctx)
 	return duk_push_uint(ctx, addr), 1;
 }
 
-LIB_PARAM(inet_network, 1);
+JS_PARAM(inet_network, 1);
 static duk_ret_t
 duke_inet_network(duk_context *ctx)
 {
@@ -1981,7 +1981,7 @@ duke_inet_network(duk_context *ctx)
 	return duk_push_uint(ctx, net), 1;
 }
 
-LIB_PARAM(inet_ntoa, 1);
+JS_PARAM(inet_ntoa, 1);
 static duk_ret_t
 duke_inet_ntoa(duk_context *ctx)
 {
@@ -1990,10 +1990,10 @@ duke_inet_ntoa(duk_context *ctx)
     
 	char *name = inet_ntoa(in);
 	
-	return __push_string(ctx, name), 1;
+	return js_push_string(ctx, name), 1;
 }
 
-LIB_PARAM(inet_makeaddr, 2);
+JS_PARAM(inet_makeaddr, 2);
 static duk_ret_t
 duke_inet_makeaddr(duk_context *ctx)
 {
@@ -2005,7 +2005,7 @@ duke_inet_makeaddr(duk_context *ctx)
 	return duk_push_uint(ctx, in.s_addr), 1;
 }
 
-LIB_PARAM(inet_lnaof, 1);
+JS_PARAM(inet_lnaof, 1);
 static duk_ret_t
 duke_inet_lnaof(duk_context *ctx)
 {
@@ -2017,7 +2017,7 @@ duke_inet_lnaof(duk_context *ctx)
 	return duk_push_uint(ctx, host), 1;
 }
 
-LIB_PARAM(inet_netof, 1);
+JS_PARAM(inet_netof, 1);
 static duk_ret_t
 duke_inet_netof(duk_context *ctx)
 {
@@ -2029,7 +2029,7 @@ duke_inet_netof(duk_context *ctx)
 	return duk_push_uint(ctx, host), 1;
 }
 
-LIB_PARAM(gethostbyname, 1);
+JS_PARAM(gethostbyname, 1);
 static duk_ret_t
 duke_gethostbyname(duk_context *ctx)
 {
@@ -2037,10 +2037,10 @@ duke_gethostbyname(duk_context *ctx)
 
     struct hostent *p = gethostbyname(name);
 
-	return __obj_push(ctx, __set_hostent, p), 1;
+	return js_obj_push(ctx, __set_hostent, p), 1;
 }
 
-LIB_PARAM(gethostbyname2, 2);
+JS_PARAM(gethostbyname2, 2);
 static duk_ret_t
 duke_gethostbyname2(duk_context *ctx)
 {
@@ -2049,10 +2049,10 @@ duke_gethostbyname2(duk_context *ctx)
     
     struct hostent *p = gethostbyname2(name, af);
 
-	return __obj_push(ctx, __set_hostent, p), 1;
+	return js_obj_push(ctx, __set_hostent, p), 1;
 }
 
-LIB_PARAM(gethostbyaddr, 3);
+JS_PARAM(gethostbyaddr, 3);
 static duk_ret_t
 duke_gethostbyaddr(duk_context *ctx)
 {
@@ -2062,10 +2062,10 @@ duke_gethostbyaddr(duk_context *ctx)
     
     struct hostent *p = gethostbyaddr(addr, len, af);
 
-	return __obj_push(ctx, __set_hostent, p), 1;
+	return js_obj_push(ctx, __set_hostent, p), 1;
 }
 
-LIB_PARAM(sethostent, 1);
+JS_PARAM(sethostent, 1);
 static duk_ret_t
 duke_sethostent(duk_context *ctx)
 {
@@ -2074,23 +2074,23 @@ duke_sethostent(duk_context *ctx)
 	return sethostent(stayopen), 0;
 }
 
-LIB_PARAM(gethostent, 0);
+JS_PARAM(gethostent, 0);
 static duk_ret_t
 duke_gethostent(duk_context *ctx)
 {
 	struct hostent *p = gethostent();
 
-	return __obj_push(ctx, __set_hostent, p), 1;
+	return js_obj_push(ctx, __set_hostent, p), 1;
 }
 
-LIB_PARAM(endhostent, 0);
+JS_PARAM(endhostent, 0);
 static duk_ret_t
 duke_endhostent(duk_context *ctx)
 {
 	return endhostent(), 0;
 }
 
-LIB_PARAM(getservbyname, 2);
+JS_PARAM(getservbyname, 2);
 static duk_ret_t
 duke_getservbyname(duk_context *ctx)
 {
@@ -2099,10 +2099,10 @@ duke_getservbyname(duk_context *ctx)
 	
 	struct servent *p = getservbyname(name, proto);
 
-	return __obj_push(ctx, __set_servent, p), 1;
+	return js_obj_push(ctx, __set_servent, p), 1;
 }
 
-LIB_PARAM(getservbyport, 2);
+JS_PARAM(getservbyport, 2);
 static duk_ret_t
 duke_getservbyport(duk_context *ctx)
 {
@@ -2111,10 +2111,10 @@ duke_getservbyport(duk_context *ctx)
 	
 	struct servent *p = getservbyport(port, proto);
 
-	return __obj_push(ctx, __set_servent, p), 1;
+	return js_obj_push(ctx, __set_servent, p), 1;
 }
 
-LIB_PARAM(setservent, 1);
+JS_PARAM(setservent, 1);
 static duk_ret_t
 duke_setservent(duk_context *ctx)
 {
@@ -2123,23 +2123,23 @@ duke_setservent(duk_context *ctx)
 	return setservent(stayopen), 0;
 }
 
-LIB_PARAM(getservent, 0);
+JS_PARAM(getservent, 0);
 static duk_ret_t
 duke_getservent(duk_context *ctx)
 {
 	struct servent *p = getservent();
 
-	return __obj_push(ctx, __set_servent, p), 1;
+	return js_obj_push(ctx, __set_servent, p), 1;
 }
 
-LIB_PARAM(endservent, 0);
+JS_PARAM(endservent, 0);
 static duk_ret_t
 duke_endservent(duk_context *ctx)
 {
 	return endservent(), 0;
 }
 
-LIB_PARAM(htons, 1);
+JS_PARAM(htons, 1);
 static duk_ret_t
 duke_htons(duk_context *ctx)
 {
@@ -2149,7 +2149,7 @@ duke_htons(duk_context *ctx)
 	return duk_push_uint(ctx, v), 1;
 }
 
-LIB_PARAM(ntohs, 1);
+JS_PARAM(ntohs, 1);
 static duk_ret_t
 duke_ntohs(duk_context *ctx)
 {
@@ -2159,7 +2159,7 @@ duke_ntohs(duk_context *ctx)
 	return duk_push_uint(ctx, v), 1;
 }
 
-LIB_PARAM(htonl, 1);
+JS_PARAM(htonl, 1);
 static duk_ret_t
 duke_htonl(duk_context *ctx)
 {
@@ -2169,7 +2169,7 @@ duke_htonl(duk_context *ctx)
 	return duk_push_uint(ctx, v), 1;
 }
 
-LIB_PARAM(ntohl, 1);
+JS_PARAM(ntohl, 1);
 static duk_ret_t
 duke_ntohl(duk_context *ctx)
 {
@@ -2179,7 +2179,7 @@ duke_ntohl(duk_context *ctx)
 	return duk_push_uint(ctx, v), 1;
 }
 
-LIB_PARAM(getprotobyname, 1);
+JS_PARAM(getprotobyname, 1);
 static duk_ret_t
 duke_getprotobyname(duk_context *ctx)
 {
@@ -2187,10 +2187,10 @@ duke_getprotobyname(duk_context *ctx)
 	
 	struct protoent *p = getprotobyname(name);
 
-	return __obj_push(ctx, __set_protoent, p), 1;
+	return js_obj_push(ctx, __set_protoent, p), 1;
 }
 
-LIB_PARAM(getprotobynumber, 1);
+JS_PARAM(getprotobynumber, 1);
 static duk_ret_t
 duke_getprotobynumber(duk_context *ctx)
 {
@@ -2198,10 +2198,10 @@ duke_getprotobynumber(duk_context *ctx)
 	
 	struct protoent *p = getprotobynumber(proto);
 
-	return __obj_push(ctx, __set_protoent, p), 1;
+	return js_obj_push(ctx, __set_protoent, p), 1;
 }
 
-LIB_PARAM(setprotoent, 1);
+JS_PARAM(setprotoent, 1);
 static duk_ret_t
 duke_setprotoent(duk_context *ctx)
 {
@@ -2210,16 +2210,16 @@ duke_setprotoent(duk_context *ctx)
 	return setprotoent(stayopen), 0;
 }
 
-LIB_PARAM(getprotoent, 0);
+JS_PARAM(getprotoent, 0);
 static duk_ret_t
 duke_getprotoent(duk_context *ctx)
 {
 	struct protoent *p = getprotoent();
 
-	return __obj_push(ctx, __set_protoent, p), 1;
+	return js_obj_push(ctx, __set_protoent, p), 1;
 }
 
-LIB_PARAM(endprotoent, 0);
+JS_PARAM(endprotoent, 0);
 static duk_ret_t
 duke_endprotoent(duk_context *ctx)
 {
@@ -2227,7 +2227,7 @@ duke_endprotoent(duk_context *ctx)
 }
 
 // 16.8 Opening and Closing Sockets
-LIB_PARAM(socket, 3);
+JS_PARAM(socket, 3);
 static duk_ret_t
 duke_socket(duk_context *ctx)
 {
@@ -2237,10 +2237,10 @@ duke_socket(duk_context *ctx)
     
     int fd = socket(domain, type, protocol);
 
-    return __push_error(ctx, fd), 1;
+    return js_push_error(ctx, fd), 1;
 }
 
-LIB_PARAM(shutdown, 2);
+JS_PARAM(shutdown, 2);
 static duk_ret_t
 duke_shutdown(duk_context *ctx)
 {
@@ -2249,10 +2249,10 @@ duke_shutdown(duk_context *ctx)
 
     int err = shutdown(fd, how);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(socketpair, 4);
+JS_PARAM(socketpair, 4);
 static duk_ret_t
 duke_socketpair(duk_context *ctx)
 {
@@ -2260,17 +2260,17 @@ duke_socketpair(duk_context *ctx)
     int style = duk_require_int(ctx, 1);
     int protocol = duk_require_int(ctx, 2);
     int fd[2] = {
-        [0] = __get_array_int(ctx, 3, 0),
-        [1] = __get_array_int(ctx, 3, 1),
+        [0] = js_get_array_int(ctx, 3, 0),
+        [1] = js_get_array_int(ctx, 3, 1),
     };
 
     int err = socketpair(namespace, style, protocol, fd);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 16.9 Using Sockets with Connections
-LIB_PARAM(connect, 2);
+JS_PARAM(connect, 2);
 static duk_ret_t
 duke_connect(duk_context *ctx)
 {
@@ -2285,10 +2285,10 @@ duke_connect(duk_context *ctx)
     err = connect(fd, &sa.c, os_sockaddr_len(&sa.c));
 
 error:
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(listen, 2);
+JS_PARAM(listen, 2);
 static duk_ret_t
 duke_listen(duk_context *ctx)
 {
@@ -2297,10 +2297,10 @@ duke_listen(duk_context *ctx)
 
     int err = listen(fd, backlog);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(accept, 2);
+JS_PARAM(accept, 2);
 static duk_ret_t
 duke_accept(duk_context *ctx)
 {
@@ -2314,10 +2314,10 @@ duke_accept(duk_context *ctx)
         __set_sockaddr(ctx, 1, &sa);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(getpeername, 2);
+JS_PARAM(getpeername, 2);
 static duk_ret_t
 duke_getpeername(duk_context *ctx)
 {
@@ -2331,10 +2331,10 @@ duke_getpeername(duk_context *ctx)
         __set_sockaddr(ctx, 1, &sa);
     }
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(send, 3);
+JS_PARAM(send, 3);
 static duk_ret_t
 duke_send(duk_context *ctx)
 {
@@ -2344,20 +2344,20 @@ duke_send(duk_context *ctx)
     int fd  = duk_require_int(ctx, 0);
     int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
     int flag= duk_require_int(ctx, 2);
 
     err = send(fd, buf, bsize, flag);
     if (err<0) {
-        seterrno(ctx); goto error;
+        js_seterrno(ctx); goto error;
     }
     
 error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(recv, 3);
+JS_PARAM(recv, 3);
 static duk_ret_t
 duke_recv(duk_context *ctx)
 {
@@ -2368,11 +2368,11 @@ duke_recv(duk_context *ctx)
     
     int err = recv(fd, buf, bsize, flag);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 16.10 Datagram Socket Operations
-LIB_PARAM(sendto, 4);
+JS_PARAM(sendto, 4);
 static duk_ret_t
 duke_sendto(duk_context *ctx)
 {
@@ -2383,7 +2383,7 @@ duke_sendto(duk_context *ctx)
     int fd      = duk_require_int(ctx, 0);
     int err     = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
     int flag    = duk_require_int(ctx, 2);
     err = __get_sockaddr(ctx, 3, &sa);
@@ -2393,14 +2393,14 @@ duke_sendto(duk_context *ctx)
     
     err = sendto(fd, buf, bsize, flag, &sa.c, os_sockaddr_len(&sa.c));
     if (err<0) {
-        seterrno(ctx); goto error;
+        js_seterrno(ctx); goto error;
     }
     
 error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(recvfrom, 4);
+JS_PARAM(recvfrom, 4);
 static duk_ret_t
 duke_recvfrom(duk_context *ctx)
 {
@@ -2414,7 +2414,7 @@ duke_recvfrom(duk_context *ctx)
     
     int err = recvfrom(fd, buf, bsize, flag, &sa.c, &len);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     } else {
         __set_sockaddr(ctx, 3, &sa);
     }
@@ -2424,7 +2424,7 @@ error:
 }
 
 // 16.12 Socket Options
-LIB_PARAM(getsockopt, 4);
+JS_PARAM(getsockopt, 4);
 static duk_ret_t
 duke_getsockopt(duk_context *ctx)
 {
@@ -2449,9 +2449,9 @@ duke_getsockopt(duk_context *ctx)
             size = sizeof(val);
             err = getsockopt(fd, level, opt, &val, &size);
             if (err<0) {
-                seterrno(ctx);
+                js_seterrno(ctx);
             } else {
-                __set_obj_int(ctx, 3, "optval", val);
+                js_set_obj_int(ctx, 3, "optval", val);
             }
 
             break;
@@ -2461,7 +2461,7 @@ duke_getsockopt(duk_context *ctx)
             
             err = getsockopt(fd, level, opt, &linger, &size);
             if (err<0) {
-                seterrno(ctx);
+                js_seterrno(ctx);
             } else {
                 __set_linger(ctx, 3, &linger);
             }
@@ -2476,7 +2476,7 @@ duke_getsockopt(duk_context *ctx)
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(setsockopt, 4);
+JS_PARAM(setsockopt, 4);
 static duk_ret_t
 duke_setsockopt(duk_context *ctx)
 {
@@ -2500,7 +2500,7 @@ duke_setsockopt(duk_context *ctx)
             size = sizeof(val);
             err = setsockopt(fd, level, opt, &val, size);
             if (err<0) {
-                seterrno(ctx);
+                js_seterrno(ctx);
             }
             
             break;
@@ -2512,7 +2512,7 @@ duke_setsockopt(duk_context *ctx)
             
             err = setsockopt(fd, level, opt, &linger, size);
             if (err<0) {
-                seterrno(ctx);
+                js_seterrno(ctx);
             }
             
         }   break;
@@ -2525,7 +2525,7 @@ duke_setsockopt(duk_context *ctx)
 }
 
 // 16.13 Networks Database
-LIB_PARAM(getnetbyname, 1);
+JS_PARAM(getnetbyname, 1);
 static duk_ret_t
 duke_getnetbyname(duk_context *ctx)
 {
@@ -2533,10 +2533,10 @@ duke_getnetbyname(duk_context *ctx)
 	
     struct netent *ne = getnetbyname(name);
 
-	return __obj_push(ctx, __set_netent, ne), 1;
+	return js_obj_push(ctx, __set_netent, ne), 1;
 }
 
-LIB_PARAM(getnetbyaddr, 2);
+JS_PARAM(getnetbyaddr, 2);
 static duk_ret_t
 duke_getnetbyaddr(duk_context *ctx)
 {
@@ -2545,10 +2545,10 @@ duke_getnetbyaddr(duk_context *ctx)
 	
     struct netent *ne = getnetbyaddr(net, type);
 
-	return __obj_push(ctx, __set_netent, ne), 1;
+	return js_obj_push(ctx, __set_netent, ne), 1;
 }
 
-LIB_PARAM(setnetent, 1);
+JS_PARAM(setnetent, 1);
 static duk_ret_t
 duke_setnetent(duk_context *ctx)
 {
@@ -2557,16 +2557,16 @@ duke_setnetent(duk_context *ctx)
 	return setnetent(stayopen), 0;
 }
 
-LIB_PARAM(getnetent, 0);
+JS_PARAM(getnetent, 0);
 static duk_ret_t
 duke_getnetent(duk_context *ctx)
 {
     struct netent *ne = getnetent();
 
-	return __obj_push(ctx, __set_netent, ne), 1;
+	return js_obj_push(ctx, __set_netent, ne), 1;
 }
 
-LIB_PARAM(endnetent, 0);
+JS_PARAM(endnetent, 0);
 static duk_ret_t
 duke_endnetent(duk_context *ctx)
 {
@@ -2576,7 +2576,7 @@ duke_endnetent(duk_context *ctx)
 #if duk_LIBC_TTY
 // 17 Low-Level Terminal Interface
 // 17.1 Identifying Terminals
-LIB_PARAM(isatty, 1);
+JS_PARAM(isatty, 1);
 static duk_ret_t
 duke_isatty(duk_context *ctx)
 {
@@ -2585,7 +2585,7 @@ duke_isatty(duk_context *ctx)
 	return duk_push_bool(ctx, isatty(fd)), 1;
 }
 
-LIB_PARAM(ttyname, 1);
+JS_PARAM(ttyname, 1);
 static duk_ret_t
 duke_ttyname(duk_context *ctx)
 {
@@ -2593,14 +2593,14 @@ duke_ttyname(duk_context *ctx)
 
     char *name = ttyname(fd);
     if (NULL==name) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
     
-	return __push_string(ctx, name), 1;
+	return js_push_string(ctx, name), 1;
 }
 
 // 17.4 Terminal Modes
-LIB_PARAM(tcgetattr, 2);
+JS_PARAM(tcgetattr, 2);
 static duk_ret_t
 duke_tcgetattr(duk_context *ctx)
 {
@@ -2613,10 +2613,10 @@ duke_tcgetattr(duk_context *ctx)
         __set_termios(ctx, 1, &t);
     }
     
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(tcsetattr, 3);
+JS_PARAM(tcsetattr, 3);
 static duk_ret_t
 duke_tcsetattr(duk_context *ctx)
 {
@@ -2629,10 +2629,10 @@ duke_tcsetattr(duk_context *ctx)
     
     int err = tcsetattr(fd, when, &t);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(cfgetospeed, 1);
+JS_PARAM(cfgetospeed, 1);
 static duk_ret_t
 duke_cfgetospeed(duk_context *ctx)
 {
@@ -2645,7 +2645,7 @@ duke_cfgetospeed(duk_context *ctx)
 	return duk_push_uint(ctx, speed), 1;
 }
 
-LIB_PARAM(cfgetispeed, 1);
+JS_PARAM(cfgetispeed, 1);
 static duk_ret_t
 duke_cfgetispeed(duk_context *ctx)
 {
@@ -2658,7 +2658,7 @@ duke_cfgetispeed(duk_context *ctx)
 	return duk_push_uint(ctx, speed), 1;
 }
 
-LIB_PARAM(cfsetospeed, 2);
+JS_PARAM(cfsetospeed, 2);
 static duk_ret_t
 duke_cfsetospeed(duk_context *ctx)
 {
@@ -2669,10 +2669,10 @@ duke_cfsetospeed(duk_context *ctx)
 
     int err = cfsetospeed(&t, speed);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(cfsetispeed, 2);
+JS_PARAM(cfsetispeed, 2);
 static duk_ret_t
 duke_cfsetispeed(duk_context *ctx)
 {
@@ -2683,10 +2683,10 @@ duke_cfsetispeed(duk_context *ctx)
 
     int err = cfsetispeed(&t, speed);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(cfsetspeed, 2);
+JS_PARAM(cfsetspeed, 2);
 static duk_ret_t
 duke_cfsetspeed(duk_context *ctx)
 {
@@ -2697,10 +2697,10 @@ duke_cfsetspeed(duk_context *ctx)
 
     int err = cfsetspeed(&t, speed);
 
-	return __push_error(ctx, err), 1;
+	return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(cfmakeraw, 1);
+JS_PARAM(cfmakeraw, 1);
 static duk_ret_t
 duke_cfmakeraw(duk_context *ctx)
 {
@@ -2712,7 +2712,7 @@ duke_cfmakeraw(duk_context *ctx)
 }
 
 // 17.6 Line Control Functions
-LIB_PARAM(tcsendbreak, 2);
+JS_PARAM(tcsendbreak, 2);
 static duk_ret_t
 duke_tcsendbreak(duk_context *ctx)
 {
@@ -2721,10 +2721,10 @@ duke_tcsendbreak(duk_context *ctx)
 
     int err = tcsendbreak(fd, du);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(tcdrain, 1);
+JS_PARAM(tcdrain, 1);
 static duk_ret_t
 duke_tcdrain(duk_context *ctx)
 {
@@ -2732,10 +2732,10 @@ duke_tcdrain(duk_context *ctx)
 
     int err = tcdrain(fd);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(tcflush, 2);
+JS_PARAM(tcflush, 2);
 static duk_ret_t
 duke_tcflush(duk_context *ctx)
 {
@@ -2744,10 +2744,10 @@ duke_tcflush(duk_context *ctx)
 
     int err = tcflush(fd, q);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(tcflow, 2);
+JS_PARAM(tcflow, 2);
 static duk_ret_t
 duke_tcflow(duk_context *ctx)
 {
@@ -2756,20 +2756,20 @@ duke_tcflow(duk_context *ctx)
 
     int err = tcflow(fd, act);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 17.8 Pseudo-Terminals
-LIB_PARAM(getpt, 0);
+JS_PARAM(getpt, 0);
 static duk_ret_t
 duke_getpt(duk_context *ctx)
 {
     int err = getpt();
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(grantpt, 1);
+JS_PARAM(grantpt, 1);
 static duk_ret_t
 duke_grantpt(duk_context *ctx)
 {
@@ -2777,10 +2777,10 @@ duke_grantpt(duk_context *ctx)
 
     int err = grantpt(fd);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(unlockpt, 1);
+JS_PARAM(unlockpt, 1);
 static duk_ret_t
 duke_unlockpt(duk_context *ctx)
 {
@@ -2788,10 +2788,10 @@ duke_unlockpt(duk_context *ctx)
 
     int err = unlockpt(fd);
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(ptsname, 1);
+JS_PARAM(ptsname, 1);
 static duk_ret_t
 duke_ptsname(duk_context *ctx)
 {
@@ -2799,17 +2799,17 @@ duke_ptsname(duk_context *ctx)
 
     char *name = ptsname(fd);
     if (NULL==name) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
     
-    return __push_string(ctx, name), 1;
+    return js_push_string(ctx, name), 1;
 }
 #endif /* duk_LIBC_TTY */
 
 #if duk_LIBC_LOG
 // 18 Syslog
 // 18.2 Submitting Syslog Messages
-LIB_PARAM(openlog, 3);
+JS_PARAM(openlog, 3);
 static duk_ret_t
 duke_openlog(duk_context *ctx)
 {
@@ -2820,7 +2820,7 @@ duke_openlog(duk_context *ctx)
     return openlog(ident, opt, facility), 0;
 }
 
-LIB_PARAM(syslog, 2);
+JS_PARAM(syslog, 2);
 static duk_ret_t
 duke_syslog(duk_context *ctx)
 {
@@ -2830,7 +2830,7 @@ duke_syslog(duk_context *ctx)
     return syslog(facility_priority, "%s", string), 0;
 }
 
-LIB_PARAM(closelog, 0);
+JS_PARAM(closelog, 0);
 static duk_ret_t
 duke_closelog(duk_context *ctx)
 {
@@ -2838,7 +2838,7 @@ duke_closelog(duk_context *ctx)
 }
 
 // 18.2.4 setlogmask
-LIB_PARAM(setlogmask, 1);
+JS_PARAM(setlogmask, 1);
 static duk_ret_t
 duke_setlogmask(duk_context *ctx)
 {
@@ -2847,7 +2847,7 @@ duke_setlogmask(duk_context *ctx)
     return duk_push_int(ctx, setlogmask(mask)), 1;
 }
 
-LIB_PARAM(LOG_MASK, 1);
+JS_PARAM(LOG_MASK, 1);
 static duk_ret_t
 duke_LOG_MASK(duk_context *ctx)
 {
@@ -2856,7 +2856,7 @@ duke_LOG_MASK(duk_context *ctx)
     return duk_push_int(ctx, LOG_MASK(mask)), 1;
 }
 
-LIB_PARAM(LOG_UPTO, 1);
+JS_PARAM(LOG_UPTO, 1);
 static duk_ret_t
 duke_LOG_UPTO(duk_context *ctx)
 {
@@ -2869,7 +2869,7 @@ duke_LOG_UPTO(duk_context *ctx)
 #if duk_LIBC_MATH
 // 19 Mathematics
 // 19.2 Trigonometric Functions
-LIB_PARAM(sin, 1);
+JS_PARAM(sin, 1);
 static duk_ret_t
 duke_sin(duk_context *ctx)
 {
@@ -2878,7 +2878,7 @@ duke_sin(duk_context *ctx)
     return duk_push_number(ctx, sin(x)), 1;
 }
 
-LIB_PARAM(cos, 1);
+JS_PARAM(cos, 1);
 static duk_ret_t
 duke_cos(duk_context *ctx)
 {
@@ -2887,7 +2887,7 @@ duke_cos(duk_context *ctx)
     return duk_push_number(ctx, cos(x)), 1;
 }
 
-LIB_PARAM(tan, 1);
+JS_PARAM(tan, 1);
 static duk_ret_t
 duke_tan(duk_context *ctx)
 {
@@ -2897,7 +2897,7 @@ duke_tan(duk_context *ctx)
 }
 
 // 19.3 Inverse Trigonometric Functions
-LIB_PARAM(asin, 1);
+JS_PARAM(asin, 1);
 static duk_ret_t
 duke_asin(duk_context *ctx)
 {
@@ -2906,7 +2906,7 @@ duke_asin(duk_context *ctx)
     return duk_push_number(ctx, asin(x)), 1;
 }
 
-LIB_PARAM(acos, 1);
+JS_PARAM(acos, 1);
 static duk_ret_t
 duke_acos(duk_context *ctx)
 {
@@ -2915,7 +2915,7 @@ duke_acos(duk_context *ctx)
     return duk_push_number(ctx, acos(x)), 1;
 }
 
-LIB_PARAM(atan, 1);
+JS_PARAM(atan, 1);
 static duk_ret_t
 duke_atan(duk_context *ctx)
 {
@@ -2924,7 +2924,7 @@ duke_atan(duk_context *ctx)
     return duk_push_number(ctx, atan(x)), 1;
 }
 
-LIB_PARAM(atan2, 2);
+JS_PARAM(atan2, 2);
 static duk_ret_t
 duke_atan2(duk_context *ctx)
 {
@@ -2935,7 +2935,7 @@ duke_atan2(duk_context *ctx)
 }
 
 // 19.4 Exponentiation and Logarithms
-LIB_PARAM(exp, 1);
+JS_PARAM(exp, 1);
 static duk_ret_t
 duke_exp(duk_context *ctx)
 {
@@ -2944,7 +2944,7 @@ duke_exp(duk_context *ctx)
     return duk_push_number(ctx, exp(x)), 1;
 }
 
-LIB_PARAM(exp2, 1);
+JS_PARAM(exp2, 1);
 static duk_ret_t
 duke_exp2(duk_context *ctx)
 {
@@ -2954,7 +2954,7 @@ duke_exp2(duk_context *ctx)
 }
 
 #ifndef __OPENWRT__
-LIB_PARAM(exp10, 1);
+JS_PARAM(exp10, 1);
 static duk_ret_t
 duke_exp10(duk_context *ctx)
 {
@@ -2964,7 +2964,7 @@ duke_exp10(duk_context *ctx)
 }
 #endif
 
-LIB_PARAM(log, 1);
+JS_PARAM(log, 1);
 static duk_ret_t
 duke_log(duk_context *ctx)
 {
@@ -2973,7 +2973,7 @@ duke_log(duk_context *ctx)
     return duk_push_number(ctx, log(x)), 1;
 }
 
-LIB_PARAM(log2, 1);
+JS_PARAM(log2, 1);
 static duk_ret_t
 duke_log2(duk_context *ctx)
 {
@@ -2982,7 +2982,7 @@ duke_log2(duk_context *ctx)
     return duk_push_number(ctx, log2(x)), 1;
 }
 
-LIB_PARAM(log10, 1);
+JS_PARAM(log10, 1);
 static duk_ret_t
 duke_log10(duk_context *ctx)
 {
@@ -2991,7 +2991,7 @@ duke_log10(duk_context *ctx)
     return duk_push_number(ctx, log10(x)), 1;
 }
 
-LIB_PARAM(logb, 1);
+JS_PARAM(logb, 1);
 static duk_ret_t
 duke_logb(duk_context *ctx)
 {
@@ -3000,7 +3000,7 @@ duke_logb(duk_context *ctx)
     return duk_push_number(ctx, logb(x)), 1;
 }
 
-LIB_PARAM(ilogb, 1);
+JS_PARAM(ilogb, 1);
 static duk_ret_t
 duke_ilogb(duk_context *ctx)
 {
@@ -3009,7 +3009,7 @@ duke_ilogb(duk_context *ctx)
     return duk_push_int(ctx, ilogb(x)), 1;
 }
 
-LIB_PARAM(pow, 2);
+JS_PARAM(pow, 2);
 static duk_ret_t
 duke_pow(duk_context *ctx)
 {
@@ -3019,7 +3019,7 @@ duke_pow(duk_context *ctx)
     return duk_push_number(ctx, pow(x, y)), 1;
 }
 
-LIB_PARAM(sqrt, 1);
+JS_PARAM(sqrt, 1);
 static duk_ret_t
 duke_sqrt(duk_context *ctx)
 {
@@ -3028,7 +3028,7 @@ duke_sqrt(duk_context *ctx)
     return duk_push_int(ctx, sqrt(x)), 1;
 }
 
-LIB_PARAM(cbrt, 1);
+JS_PARAM(cbrt, 1);
 static duk_ret_t
 duke_cbrt(duk_context *ctx)
 {
@@ -3037,7 +3037,7 @@ duke_cbrt(duk_context *ctx)
     return duk_push_number(ctx, cbrt(x)), 1;
 }
 
-LIB_PARAM(hypot, 2);
+JS_PARAM(hypot, 2);
 static duk_ret_t
 duke_hypot(duk_context *ctx)
 {
@@ -3047,7 +3047,7 @@ duke_hypot(duk_context *ctx)
     return duk_push_number(ctx, hypot(x, y)), 1;
 }
 
-LIB_PARAM(expm1, 1);
+JS_PARAM(expm1, 1);
 static duk_ret_t
 duke_expm1(duk_context *ctx)
 {
@@ -3056,7 +3056,7 @@ duke_expm1(duk_context *ctx)
     return duk_push_number(ctx, expm1(x)), 1;
 }
 
-LIB_PARAM(log1p, 1);
+JS_PARAM(log1p, 1);
 static duk_ret_t
 duke_log1p(duk_context *ctx)
 {
@@ -3066,7 +3066,7 @@ duke_log1p(duk_context *ctx)
 }
 
 // 19.5 Hyperbolic Functions
-LIB_PARAM(sinh, 1);
+JS_PARAM(sinh, 1);
 static duk_ret_t
 duke_sinh(duk_context *ctx)
 {
@@ -3075,7 +3075,7 @@ duke_sinh(duk_context *ctx)
     return duk_push_number(ctx, sinh(x)), 1;
 }
 
-LIB_PARAM(cosh, 1);
+JS_PARAM(cosh, 1);
 static duk_ret_t
 duke_cosh(duk_context *ctx)
 {
@@ -3084,7 +3084,7 @@ duke_cosh(duk_context *ctx)
     return duk_push_number(ctx, cosh(x)), 1;
 }
 
-LIB_PARAM(tanh, 1);
+JS_PARAM(tanh, 1);
 static duk_ret_t
 duke_tanh(duk_context *ctx)
 {
@@ -3093,7 +3093,7 @@ duke_tanh(duk_context *ctx)
     return duk_push_number(ctx, tanh(x)), 1;
 }
 
-LIB_PARAM(asinh, 1);
+JS_PARAM(asinh, 1);
 static duk_ret_t
 duke_asinh(duk_context *ctx)
 {
@@ -3102,7 +3102,7 @@ duke_asinh(duk_context *ctx)
     return duk_push_number(ctx, asinh(x)), 1;
 }
 
-LIB_PARAM(acosh, 1);
+JS_PARAM(acosh, 1);
 static duk_ret_t
 duke_acosh(duk_context *ctx)
 {
@@ -3111,7 +3111,7 @@ duke_acosh(duk_context *ctx)
     return duk_push_number(ctx, acosh(x)), 1;
 }
 
-LIB_PARAM(atanh, 1);
+JS_PARAM(atanh, 1);
 static duk_ret_t
 duke_atanh(duk_context *ctx)
 {
@@ -3121,7 +3121,7 @@ duke_atanh(duk_context *ctx)
 }
 
 // 19.6 Special Functions
-LIB_PARAM(erf, 1);
+JS_PARAM(erf, 1);
 static duk_ret_t
 duke_erf(duk_context *ctx)
 {
@@ -3130,7 +3130,7 @@ duke_erf(duk_context *ctx)
     return duk_push_number(ctx, erf(x)), 1;
 }
 
-LIB_PARAM(erfc, 1);
+JS_PARAM(erfc, 1);
 static duk_ret_t
 duke_erfc(duk_context *ctx)
 {
@@ -3139,7 +3139,7 @@ duke_erfc(duk_context *ctx)
     return duk_push_number(ctx, erfc(x)), 1;
 }
 
-LIB_PARAM(lgamma, 1);
+JS_PARAM(lgamma, 1);
 static duk_ret_t
 duke_lgamma(duk_context *ctx)
 {
@@ -3148,7 +3148,7 @@ duke_lgamma(duk_context *ctx)
     return duk_push_number(ctx, lgamma(x)), 1;
 }
 
-LIB_PARAM(gamma, 1);
+JS_PARAM(gamma, 1);
 static duk_ret_t
 duke_gamma(duk_context *ctx)
 {
@@ -3157,7 +3157,7 @@ duke_gamma(duk_context *ctx)
     return duk_push_number(ctx, gamma(x)), 1;
 }
 
-LIB_PARAM(tgamma, 1);
+JS_PARAM(tgamma, 1);
 static duk_ret_t
 duke_tgamma(duk_context *ctx)
 {
@@ -3167,7 +3167,7 @@ duke_tgamma(duk_context *ctx)
 }
 
 #ifndef __OPENWRT__
-LIB_PARAM(j0, 1);
+JS_PARAM(j0, 1);
 static duk_ret_t
 duke_j0(duk_context *ctx)
 {
@@ -3176,7 +3176,7 @@ duke_j0(duk_context *ctx)
     return duk_push_number(ctx, j0(x)), 1;
 }
 
-LIB_PARAM(j1, 1);
+JS_PARAM(j1, 1);
 static duk_ret_t
 duke_j1(duk_context *ctx)
 {
@@ -3185,7 +3185,7 @@ duke_j1(duk_context *ctx)
     return duk_push_number(ctx, j1(x)), 1;
 }
 
-LIB_PARAM(jn, 2);
+JS_PARAM(jn, 2);
 static duk_ret_t
 duke_jn(duk_context *ctx)
 {
@@ -3195,7 +3195,7 @@ duke_jn(duk_context *ctx)
     return duk_push_number(ctx, jn(n, x)), 1;
 }
 
-LIB_PARAM(y0, 1);
+JS_PARAM(y0, 1);
 static duk_ret_t
 duke_y0(duk_context *ctx)
 {
@@ -3204,7 +3204,7 @@ duke_y0(duk_context *ctx)
     return duk_push_number(ctx, y0(x)), 1;
 }
 
-LIB_PARAM(y1, 1);
+JS_PARAM(y1, 1);
 static duk_ret_t
 duke_y1(duk_context *ctx)
 {
@@ -3213,7 +3213,7 @@ duke_y1(duk_context *ctx)
     return duk_push_number(ctx, y1(x)), 1;
 }
 
-LIB_PARAM(yn, 2);
+JS_PARAM(yn, 2);
 static duk_ret_t
 duke_yn(duk_context *ctx)
 {
@@ -3226,14 +3226,14 @@ duke_yn(duk_context *ctx)
 
 // 19.8 Pseudo-Random Numbers
 // 19.8.1 ISO C Random Number Functions
-LIB_PARAM(rand, 0);
+JS_PARAM(rand, 0);
 static duk_ret_t
 duke_rand(duk_context *ctx)
 {
     return duk_push_int(ctx, rand()), 1;
 }
 
-LIB_PARAM(srand, 1);
+JS_PARAM(srand, 1);
 static duk_ret_t
 duke_srand(duk_context *ctx)
 {
@@ -3244,7 +3244,7 @@ duke_srand(duk_context *ctx)
 
 // 20 Arithmetic Functions
 // 20.2 Integer Division
-LIB_PARAM(div, 2);
+JS_PARAM(div, 2);
 static duk_ret_t
 duke_div(duk_context *ctx)
 {
@@ -3253,11 +3253,11 @@ duke_div(duk_context *ctx)
 
     div_t d = div(numerator, denominator);
     
-    return __obj_push(ctx, __set_div, &d), 1;
+    return js_obj_push(ctx, __set_div, &d), 1;
 }
 
 // 20.4 Floating-Point Number Classification Functions
-LIB_PARAM(fpclassify, 1);
+JS_PARAM(fpclassify, 1);
 static duk_ret_t
 duke_fpclassify(duk_context *ctx)
 {
@@ -3266,7 +3266,7 @@ duke_fpclassify(duk_context *ctx)
     return duk_push_int(ctx, fpclassify(x)), 1;
 }
 
-LIB_PARAM(isfinite, 1);
+JS_PARAM(isfinite, 1);
 static duk_ret_t
 duke_isfinite(duk_context *ctx)
 {
@@ -3275,7 +3275,7 @@ duke_isfinite(duk_context *ctx)
     return duk_push_bool(ctx, isfinite(x)), 1;
 }
 
-LIB_PARAM(isnormal, 1);
+JS_PARAM(isnormal, 1);
 static duk_ret_t
 duke_isnormal(duk_context *ctx)
 {
@@ -3284,7 +3284,7 @@ duke_isnormal(duk_context *ctx)
     return duk_push_bool(ctx, isnormal(x)), 1;
 }
 
-LIB_PARAM(isnan, 1);
+JS_PARAM(isnan, 1);
 static duk_ret_t
 duke_isnan(duk_context *ctx)
 {
@@ -3293,7 +3293,7 @@ duke_isnan(duk_context *ctx)
     return duk_push_bool(ctx, isnan(x)), 1;
 }
 
-LIB_PARAM(isinf, 1);
+JS_PARAM(isinf, 1);
 static duk_ret_t
 duke_isinf(duk_context *ctx)
 {
@@ -3303,7 +3303,7 @@ duke_isinf(duk_context *ctx)
 }
 
 // 20.8 Arithmetic Functions
-LIB_PARAM(abs, 1);
+JS_PARAM(abs, 1);
 static duk_ret_t
 duke_abs(duk_context *ctx)
 {
@@ -3312,7 +3312,7 @@ duke_abs(duk_context *ctx)
     return duk_push_int(ctx, abs(x)), 1;
 }
 
-LIB_PARAM(fabs, 1);
+JS_PARAM(fabs, 1);
 static duk_ret_t
 duke_fabs(duk_context *ctx)
 {
@@ -3321,7 +3321,7 @@ duke_fabs(duk_context *ctx)
     return duk_push_number(ctx, fabs(x)), 1;
 }
 
-LIB_PARAM(frexp, 2);
+JS_PARAM(frexp, 2);
 static duk_ret_t
 duke_frexp(duk_context *ctx)
 {
@@ -3330,12 +3330,12 @@ duke_frexp(duk_context *ctx)
     
     double n = frexp(x, &exponent);
 
-    __set_obj_int(ctx, 1, "exponent", exponent);
+    js_set_obj_int(ctx, 1, "exponent", exponent);
     
     return duk_push_number(ctx, n), 1;
 }
 
-LIB_PARAM(ldexp, 2);
+JS_PARAM(ldexp, 2);
 static duk_ret_t
 duke_ldexp(duk_context *ctx)
 {
@@ -3345,7 +3345,7 @@ duke_ldexp(duk_context *ctx)
     return duk_push_number(ctx, ldexp(x, exponent)), 1;
 }
 
-LIB_PARAM(scalb, 2);
+JS_PARAM(scalb, 2);
 static duk_ret_t
 duke_scalb(duk_context *ctx)
 {
@@ -3355,7 +3355,7 @@ duke_scalb(duk_context *ctx)
     return duk_push_number(ctx, scalb(x, exponent)), 1;
 }
 
-LIB_PARAM(ceil, 1);
+JS_PARAM(ceil, 1);
 static duk_ret_t
 duke_ceil(duk_context *ctx)
 {
@@ -3364,7 +3364,7 @@ duke_ceil(duk_context *ctx)
     return duk_push_number(ctx, ceil(x)), 1;
 }
 
-LIB_PARAM(floor, 1);
+JS_PARAM(floor, 1);
 static duk_ret_t
 duke_floor(duk_context *ctx)
 {
@@ -3373,7 +3373,7 @@ duke_floor(duk_context *ctx)
     return duk_push_number(ctx, floor(x)), 1;
 }
 
-LIB_PARAM(trunc, 1);
+JS_PARAM(trunc, 1);
 static duk_ret_t
 duke_trunc(duk_context *ctx)
 {
@@ -3382,7 +3382,7 @@ duke_trunc(duk_context *ctx)
     return duk_push_number(ctx, trunc(x)), 1;
 }
 
-LIB_PARAM(rint, 1);
+JS_PARAM(rint, 1);
 static duk_ret_t
 duke_rint(duk_context *ctx)
 {
@@ -3391,7 +3391,7 @@ duke_rint(duk_context *ctx)
     return duk_push_number(ctx, rint(x)), 1;
 }
 
-LIB_PARAM(nearbyint, 1);
+JS_PARAM(nearbyint, 1);
 static duk_ret_t
 duke_nearbyint(duk_context *ctx)
 {
@@ -3400,7 +3400,7 @@ duke_nearbyint(duk_context *ctx)
     return duk_push_number(ctx, nearbyint(x)), 1;
 }
 
-LIB_PARAM(round, 1);
+JS_PARAM(round, 1);
 static duk_ret_t
 duke_round(duk_context *ctx)
 {
@@ -3409,7 +3409,7 @@ duke_round(duk_context *ctx)
     return duk_push_number(ctx, round(x)), 1;
 }
 
-LIB_PARAM(fmod, 2);
+JS_PARAM(fmod, 2);
 static duk_ret_t
 duke_fmod(duk_context *ctx)
 {
@@ -3419,7 +3419,7 @@ duke_fmod(duk_context *ctx)
     return duk_push_number(ctx, fmod(numerator, denominator)), 1;
 }
 
-LIB_PARAM(drem, 2);
+JS_PARAM(drem, 2);
 static duk_ret_t
 duke_drem(duk_context *ctx)
 {
@@ -3429,7 +3429,7 @@ duke_drem(duk_context *ctx)
     return duk_push_number(ctx, drem(numerator, denominator)), 1;
 }
 
-LIB_PARAM(remainder, 2);
+JS_PARAM(remainder, 2);
 static duk_ret_t
 duke_remainder(duk_context *ctx)
 {
@@ -3439,7 +3439,7 @@ duke_remainder(duk_context *ctx)
     return duk_push_number(ctx, remainder(numerator, denominator)), 1;
 }
 
-LIB_PARAM(copysign, 2);
+JS_PARAM(copysign, 2);
 static duk_ret_t
 duke_copysign(duk_context *ctx)
 {
@@ -3449,7 +3449,7 @@ duke_copysign(duk_context *ctx)
     return duk_push_number(ctx, copysign(x, y)), 1;
 }
 
-LIB_PARAM(signbit, 1);
+JS_PARAM(signbit, 1);
 static duk_ret_t
 duke_signbit(duk_context *ctx)
 {
@@ -3458,7 +3458,7 @@ duke_signbit(duk_context *ctx)
     return duk_push_number(ctx, signbit(x)), 1;
 }
 
-LIB_PARAM(nextafter, 2);
+JS_PARAM(nextafter, 2);
 static duk_ret_t
 duke_nextafter(duk_context *ctx)
 {
@@ -3469,7 +3469,7 @@ duke_nextafter(duk_context *ctx)
 }
 
 #ifndef __OPENWRT__
-LIB_PARAM(nexttoward, 2);
+JS_PARAM(nexttoward, 2);
 static duk_ret_t
 duke_nexttoward(duk_context *ctx)
 {
@@ -3480,7 +3480,7 @@ duke_nexttoward(duk_context *ctx)
 }
 #endif
 
-LIB_PARAM(nan, 1);
+JS_PARAM(nan, 1);
 static duk_ret_t
 duke_nan(duk_context *ctx)
 {
@@ -3490,7 +3490,7 @@ duke_nan(duk_context *ctx)
 }
 
 // 20.8.6 Floating-Point Comparison Functions
-LIB_PARAM(isgreater, 2);
+JS_PARAM(isgreater, 2);
 static duk_ret_t
 duke_isgreater(duk_context *ctx)
 {
@@ -3500,7 +3500,7 @@ duke_isgreater(duk_context *ctx)
     return duk_push_bool(ctx, isgreater(x, y)), 1;
 }
 
-LIB_PARAM(isgreaterequal, 2);
+JS_PARAM(isgreaterequal, 2);
 static duk_ret_t
 duke_isgreaterequal(duk_context *ctx)
 {
@@ -3510,7 +3510,7 @@ duke_isgreaterequal(duk_context *ctx)
     return duk_push_bool(ctx, isgreaterequal(x, y)), 1;
 }
 
-LIB_PARAM(isless, 2);
+JS_PARAM(isless, 2);
 static duk_ret_t
 duke_isless(duk_context *ctx)
 {
@@ -3520,7 +3520,7 @@ duke_isless(duk_context *ctx)
     return duk_push_bool(ctx, isless(x, y)), 1;
 }
 
-LIB_PARAM(islessequal, 2);
+JS_PARAM(islessequal, 2);
 static duk_ret_t
 duke_islessequal(duk_context *ctx)
 {
@@ -3530,7 +3530,7 @@ duke_islessequal(duk_context *ctx)
     return duk_push_bool(ctx, islessequal(x, y)), 1;
 }
 
-LIB_PARAM(islessgreater, 2);
+JS_PARAM(islessgreater, 2);
 static duk_ret_t
 duke_islessgreater(duk_context *ctx)
 {
@@ -3540,7 +3540,7 @@ duke_islessgreater(duk_context *ctx)
     return duk_push_bool(ctx, islessgreater(x, y)), 1;
 }
 
-LIB_PARAM(isunordered, 2);
+JS_PARAM(isunordered, 2);
 static duk_ret_t
 duke_isunordered(duk_context *ctx)
 {
@@ -3551,7 +3551,7 @@ duke_isunordered(duk_context *ctx)
 }
 
 // 20.8.7 Miscellaneous FP arithmetic functions
-LIB_PARAM(fmin, 2);
+JS_PARAM(fmin, 2);
 static duk_ret_t
 duke_fmin(duk_context *ctx)
 {
@@ -3561,7 +3561,7 @@ duke_fmin(duk_context *ctx)
     return duk_push_number(ctx, fmin(x, y)), 1;
 }
 
-LIB_PARAM(fmax, 2);
+JS_PARAM(fmax, 2);
 static duk_ret_t
 duke_fmax(duk_context *ctx)
 {
@@ -3571,7 +3571,7 @@ duke_fmax(duk_context *ctx)
     return duk_push_number(ctx, fmax(x, y)), 1;
 }
 
-LIB_PARAM(fdim, 2);
+JS_PARAM(fdim, 2);
 static duk_ret_t
 duke_fdim(duk_context *ctx)
 {
@@ -3581,7 +3581,7 @@ duke_fdim(duk_context *ctx)
     return duk_push_number(ctx, fdim(x, y)), 1;
 }
 
-LIB_PARAM(fma, 3);
+JS_PARAM(fma, 3);
 static duk_ret_t
 duke_fma(duk_context *ctx)
 {
@@ -3596,7 +3596,7 @@ duke_fma(duk_context *ctx)
 #if duk_LIBC_TIME
 // 21 Date and Time
 // 21.2 Elapsed Time
-LIB_PARAM(difftime, 2);
+JS_PARAM(difftime, 2);
 static duk_ret_t
 duke_difftime(duk_context *ctx)
 {
@@ -3607,14 +3607,14 @@ duke_difftime(duk_context *ctx)
 }
 
 // 21.3.1 CPU Time Inquiry
-LIB_PARAM(clock, 0);
+JS_PARAM(clock, 0);
 static duk_ret_t
 duke_clock(duk_context *ctx)
 {
     return duk_push_uint(ctx, clock()), 1;
 }
 
-LIB_PARAM(times, 1);
+JS_PARAM(times, 1);
 static duk_ret_t
 duke_times(duk_context *ctx)
 {
@@ -3626,14 +3626,14 @@ duke_times(duk_context *ctx)
 }
 
 // 21.4 Calendar Time
-LIB_PARAM(time, 0);
+JS_PARAM(time, 0);
 static duk_ret_t
 duke_time(duk_context *ctx)
 {
     return duk_push_uint(ctx, time(NULL)), 1;
 }
 
-LIB_PARAM(gettimeofday, 2);
+JS_PARAM(gettimeofday, 2);
 static duk_ret_t
 duke_gettimeofday(duk_context *ctx)
 {
@@ -3645,10 +3645,10 @@ duke_gettimeofday(duk_context *ctx)
     __set_timeval(ctx, 0, &tv);
     __set_timezone(ctx, 1, &tz);
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(settimeofday, 2);
+JS_PARAM(settimeofday, 2);
 static duk_ret_t
 duke_settimeofday(duk_context *ctx)
 {
@@ -3660,10 +3660,10 @@ duke_settimeofday(duk_context *ctx)
 
     int err = settimeofday(&tv, &tz);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(adjtime, 2);
+JS_PARAM(adjtime, 2);
 static duk_ret_t
 duke_adjtime(duk_context *ctx)
 {
@@ -3675,11 +3675,11 @@ duke_adjtime(duk_context *ctx)
 
     __set_timeval(ctx, 1, &old);
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 21.4.3 Broken-down Time
-LIB_PARAM(localtime, 1);
+JS_PARAM(localtime, 1);
 static duk_ret_t
 duke_localtime(duk_context *ctx)
 {
@@ -3687,10 +3687,10 @@ duke_localtime(duk_context *ctx)
 
     struct tm *tm = localtime(&time);
 
-    return __obj_push(ctx, __set_tm, tm), 1;
+    return js_obj_push(ctx, __set_tm, tm), 1;
 }
 
-LIB_PARAM(gmtime, 1);
+JS_PARAM(gmtime, 1);
 static duk_ret_t
 duke_gmtime(duk_context *ctx)
 {
@@ -3698,10 +3698,10 @@ duke_gmtime(duk_context *ctx)
 
     struct tm *tm = gmtime(&time);
 
-    return __obj_push(ctx, __set_tm, tm), 1;
+    return js_obj_push(ctx, __set_tm, tm), 1;
 }
 
-LIB_PARAM(mktime, 1);
+JS_PARAM(mktime, 1);
 static duk_ret_t
 duke_mktime(duk_context *ctx)
 {
@@ -3714,7 +3714,7 @@ duke_mktime(duk_context *ctx)
     return duk_push_uint(ctx, time), 1;
 }
 
-LIB_PARAM(timelocal, 1);
+JS_PARAM(timelocal, 1);
 static duk_ret_t
 duke_timelocal(duk_context *ctx)
 {
@@ -3727,7 +3727,7 @@ duke_timelocal(duk_context *ctx)
     return duk_push_uint(ctx, time), 1;
 }
 
-LIB_PARAM(timegm, 1);
+JS_PARAM(timegm, 1);
 static duk_ret_t
 duke_timegm(duk_context *ctx)
 {
@@ -3742,7 +3742,7 @@ duke_timegm(duk_context *ctx)
 
 // 21.4.4 High Accuracy Clock
 #ifndef __OPENWRT__
-LIB_PARAM(ntp_gettime, 1);
+JS_PARAM(ntp_gettime, 1);
 static duk_ret_t
 duke_ntp_gettime(duk_context *ctx)
 {
@@ -3752,10 +3752,10 @@ duke_ntp_gettime(duk_context *ctx)
 
     __set_ntptimeval(ctx, 0, &ntv);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(ntp_adjtime, 1);
+JS_PARAM(ntp_adjtime, 1);
 static duk_ret_t
 duke_ntp_adjtime(duk_context *ctx)
 {
@@ -3765,12 +3765,12 @@ duke_ntp_adjtime(duk_context *ctx)
 
     __set_timex(ctx, 0, &tx);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 #endif
 
 // 21.4.5 Formatting Calendar Time
-LIB_PARAM(asctime, 1);
+JS_PARAM(asctime, 1);
 static duk_ret_t
 duke_asctime(duk_context *ctx)
 {
@@ -3780,10 +3780,10 @@ duke_asctime(duk_context *ctx)
     
     char *time = asctime(&tm);
 
-    return __push_string(ctx, time), 1;
+    return js_push_string(ctx, time), 1;
 }
 
-LIB_PARAM(ctime, 1);
+JS_PARAM(ctime, 1);
 static duk_ret_t
 duke_ctime(duk_context *ctx)
 {
@@ -3791,10 +3791,10 @@ duke_ctime(duk_context *ctx)
 
     char *time = ctime(&t);
 
-    return __push_string(ctx, time), 1;
+    return js_push_string(ctx, time), 1;
 }
 
-LIB_PARAM(strftime, 2);
+JS_PARAM(strftime, 2);
 static duk_ret_t
 duke_strftime(duk_context *ctx)
 {
@@ -3812,7 +3812,7 @@ duke_strftime(duk_context *ctx)
         size_t len = strftime(line, OS_LINE_LEN, template, &tm);
         if (len) {
             line[len] = 0;
-            __push_string(ctx, line);
+            js_push_string(ctx, line);
 
             break;
         }
@@ -3825,7 +3825,7 @@ duke_strftime(duk_context *ctx)
 }
 
 // 21.5 Setting an Alarm
-LIB_PARAM(setitimer, 3);
+JS_PARAM(setitimer, 3);
 static duk_ret_t
 duke_setitimer(duk_context *ctx)
 {
@@ -3838,10 +3838,10 @@ duke_setitimer(duk_context *ctx)
         __set_itimerval(ctx, 2, &old);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(getitimer, 2);
+JS_PARAM(getitimer, 2);
 static duk_ret_t
 duke_getitimer(duk_context *ctx)
 {
@@ -3853,10 +3853,10 @@ duke_getitimer(duk_context *ctx)
         __set_itimerval(ctx, 1, &old);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(alarm, 1);
+JS_PARAM(alarm, 1);
 static duk_ret_t
 duke_alarm(duk_context *ctx)
 {
@@ -3866,7 +3866,7 @@ duke_alarm(duk_context *ctx)
 }
 
 // 21.6 Sleeping
-LIB_PARAM(sleep, 1);
+JS_PARAM(sleep, 1);
 static duk_ret_t
 duke_sleep(duk_context *ctx)
 {
@@ -3875,7 +3875,7 @@ duke_sleep(duk_context *ctx)
     return duk_push_uint(ctx, sleep(sec)), 1;
 }
 
-LIB_PARAM(nanosleep, 2);
+JS_PARAM(nanosleep, 2);
 static duk_ret_t
 duke_nanosleep(duk_context *ctx)
 {
@@ -3888,12 +3888,12 @@ duke_nanosleep(duk_context *ctx)
         __set_timespec(ctx, 2, &remain);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 #endif /* duk_LIBC_TIME */
 
 // 22 Resource Usage And Limitation
-LIB_PARAM(getrusage, 2);
+JS_PARAM(getrusage, 2);
 static duk_ret_t
 duke_getrusage(duk_context *ctx)
 {
@@ -3905,11 +3905,11 @@ duke_getrusage(duk_context *ctx)
         __set_rusage(ctx, 1, &u);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 #if duk_LIBC_VTIME
-LIB_PARAM(vtimes, 2);
+JS_PARAM(vtimes, 2);
 static duk_ret_t
 duke_vtimes(duk_context *ctx)
 {
@@ -3921,12 +3921,12 @@ duke_vtimes(duk_context *ctx)
         __set_vtimes(ctx, 1, &child);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 #endif
 
 // 22.2 Limiting Resource Usage
-LIB_PARAM(getrlimit, 2);
+JS_PARAM(getrlimit, 2);
 static duk_ret_t
 duke_getrlimit(duk_context *ctx)
 {
@@ -3938,10 +3938,10 @@ duke_getrlimit(duk_context *ctx)
         __set_rlimit(ctx, 1, &r);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setrlimit, 2);
+JS_PARAM(setrlimit, 2);
 static duk_ret_t
 duke_setrlimit(duk_context *ctx)
 {
@@ -3951,10 +3951,10 @@ duke_setrlimit(duk_context *ctx)
     __get_rlimit(ctx, 1, &r);
     int err = setrlimit(resource, &r);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(ulimit, DUK_VARARGS);
+JS_PARAM(ulimit, DUK_VARARGS);
 static duk_ret_t
 duke_ulimit(duk_context *ctx)
 {
@@ -3976,11 +3976,11 @@ duke_ulimit(duk_context *ctx)
             break;
     }
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 #ifndef __OPENWRT__
-LIB_PARAM(vlimit, 2);
+JS_PARAM(vlimit, 2);
 static duk_ret_t
 duke_vlimit(duk_context *ctx)
 {
@@ -3989,12 +3989,12 @@ duke_vlimit(duk_context *ctx)
 
     int err = vlimit(resource, limit);
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 #endif
 
 // 22.3 Process CPU Priority And Scheduling
-LIB_PARAM(sched_setscheduler, 3);
+JS_PARAM(sched_setscheduler, 3);
 static duk_ret_t
 duke_sched_setscheduler(duk_context *ctx)
 {
@@ -4006,10 +4006,10 @@ duke_sched_setscheduler(duk_context *ctx)
     
     int err = sched_setscheduler(pid, policy, &param);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(sched_getscheduler, 1);
+JS_PARAM(sched_getscheduler, 1);
 static duk_ret_t
 duke_sched_getscheduler(duk_context *ctx)
 {
@@ -4017,10 +4017,10 @@ duke_sched_getscheduler(duk_context *ctx)
     
     int err = sched_getscheduler(pid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(sched_setparam, 2);
+JS_PARAM(sched_setparam, 2);
 static duk_ret_t
 duke_sched_setparam(duk_context *ctx)
 {
@@ -4031,10 +4031,10 @@ duke_sched_setparam(duk_context *ctx)
     
     int err = sched_setparam(pid, &param);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(sched_getparam, 2);
+JS_PARAM(sched_getparam, 2);
 static duk_ret_t
 duke_sched_getparam(duk_context *ctx)
 {
@@ -4047,10 +4047,10 @@ duke_sched_getparam(duk_context *ctx)
         __set_sched_param(ctx, 1, &param);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(sched_get_priority_min, 1);
+JS_PARAM(sched_get_priority_min, 1);
 static duk_ret_t
 duke_sched_get_priority_min(duk_context *ctx)
 {
@@ -4058,10 +4058,10 @@ duke_sched_get_priority_min(duk_context *ctx)
 
     int err = sched_get_priority_min(policy);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(sched_get_priority_max, 1);
+JS_PARAM(sched_get_priority_max, 1);
 static duk_ret_t
 duke_sched_get_priority_max(duk_context *ctx)
 {
@@ -4069,10 +4069,10 @@ duke_sched_get_priority_max(duk_context *ctx)
 
     int err = sched_get_priority_max(policy);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(sched_rr_get_interval, 2);
+JS_PARAM(sched_rr_get_interval, 2);
 static duk_ret_t
 duke_sched_rr_get_interval(duk_context *ctx)
 {
@@ -4084,19 +4084,19 @@ duke_sched_rr_get_interval(duk_context *ctx)
         __set_timespec(ctx, 1, &interval);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(sched_yield, 0);
+JS_PARAM(sched_yield, 0);
 static duk_ret_t
 duke_sched_yield(duk_context *ctx)
 {
     int err = sched_yield();
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(getpriority, 2);
+JS_PARAM(getpriority, 2);
 static duk_ret_t
 duke_getpriority(duk_context *ctx)
 {
@@ -4105,10 +4105,10 @@ duke_getpriority(duk_context *ctx)
     
     int err = getpriority(class, id);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setpriority, 3);
+JS_PARAM(setpriority, 3);
 static duk_ret_t
 duke_setpriority(duk_context *ctx)
 {
@@ -4118,10 +4118,10 @@ duke_setpriority(duk_context *ctx)
     
     int err = setpriority(class, id, niceval);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(nice, 1);
+JS_PARAM(nice, 1);
 static duk_ret_t
 duke_nice(duk_context *ctx)
 {
@@ -4129,18 +4129,18 @@ duke_nice(duk_context *ctx)
 
     int err = nice(increment);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 #ifdef _GNU_SOURCE
-LIB_PARAM(CPU_NEW, 0);
+JS_PARAM(CPU_NEW, 0);
 static duk_ret_t
 duke_CPU_NEW(duk_context *ctx)
 {
-    return __push_dynamic_buffer(ctx, sizeof(cpu_set_t)), 1;
+    return js_push_dynamic_buffer(ctx, sizeof(cpu_set_t)), 1;
 }
 
-LIB_PARAM(CPU_ZERO, 1);
+JS_PARAM(CPU_ZERO, 1);
 static duk_ret_t
 duke_CPU_ZERO(duk_context *ctx)
 {
@@ -4149,7 +4149,7 @@ duke_CPU_ZERO(duk_context *ctx)
     
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
     CPU_ZERO(set);
     
@@ -4157,7 +4157,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(CPU_SET, 2);
+JS_PARAM(CPU_SET, 2);
 static duk_ret_t
 duke_CPU_SET(duk_context *ctx)
 {
@@ -4167,7 +4167,7 @@ duke_CPU_SET(duk_context *ctx)
     int cpu = duk_require_int(ctx, 0);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = __seterrno(ctx, -EINVAL2); goto error;
+        err = __js_seterrno(ctx, -EINVAL2); goto error;
     }
     CPU_SET(cpu, set);
     
@@ -4175,7 +4175,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(CPU_CLR, 2);
+JS_PARAM(CPU_CLR, 2);
 static duk_ret_t
 duke_CPU_CLR(duk_context *ctx)
 {
@@ -4185,7 +4185,7 @@ duke_CPU_CLR(duk_context *ctx)
     int cpu = duk_require_int(ctx, 0);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = __seterrno(ctx, -EINVAL2); goto error;
+        err = __js_seterrno(ctx, -EINVAL2); goto error;
     }
     CPU_CLR(cpu, set);
     
@@ -4193,7 +4193,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(CPU_ISSET, 2);
+JS_PARAM(CPU_ISSET, 2);
 static duk_ret_t
 duke_CPU_ISSET(duk_context *ctx)
 {
@@ -4203,13 +4203,13 @@ duke_CPU_ISSET(duk_context *ctx)
     int cpu = duk_require_int(ctx, 0);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = __seterrno(ctx, -EINVAL2); return duk_push_false(ctx), 1;
+        err = __js_seterrno(ctx, -EINVAL2); return duk_push_false(ctx), 1;
     }
     
     return duk_push_bool(ctx, CPU_ISSET(cpu, set)), 1;
 }
 
-LIB_PARAM(sched_getaffinity, 3);
+JS_PARAM(sched_getaffinity, 3);
 static duk_ret_t
 duke_sched_getaffinity(duk_context *ctx)
 {
@@ -4220,19 +4220,19 @@ duke_sched_getaffinity(duk_context *ctx)
     size_t size = duk_require_uint(ctx, 1);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = __seterrno(ctx, -EINVAL3); return duk_push_false(ctx), 1;
+        err = __js_seterrno(ctx, -EINVAL3); return duk_push_false(ctx), 1;
     }
 
     err = sched_getaffinity(pid, size, set);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
 error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(sched_setaffinity, 3);
+JS_PARAM(sched_setaffinity, 3);
 static duk_ret_t
 duke_sched_setaffinity(duk_context *ctx)
 {
@@ -4243,12 +4243,12 @@ duke_sched_setaffinity(duk_context *ctx)
     size_t size = duk_require_uint(ctx, 1);
     cpu_set_t *set = (cpu_set_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(cpu_set_t)) {
-        err = __seterrno(ctx, -EINVAL3); return duk_push_false(ctx), 1;
+        err = __js_seterrno(ctx, -EINVAL3); return duk_push_false(ctx), 1;
     }
 
     err = sched_setaffinity(pid, size, set);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
 error:
@@ -4257,7 +4257,7 @@ error:
 #endif /* _GNU_SOURCE */
 
 // 22.4 Querying memory available resources
-LIB_PARAM(getpagesize, 0);
+JS_PARAM(getpagesize, 0);
 static duk_ret_t
 duke_getpagesize(duk_context *ctx)
 {
@@ -4265,14 +4265,14 @@ duke_getpagesize(duk_context *ctx)
 }
 
 #ifndef __OPENWRT__
-LIB_PARAM(get_phys_pages, 0);
+JS_PARAM(get_phys_pages, 0);
 static duk_ret_t
 duke_get_phys_pages(duk_context *ctx)
 {
     return duk_push_int(ctx, get_phys_pages()), 1;
 }
 
-LIB_PARAM(get_avphys_pages, 0);
+JS_PARAM(get_avphys_pages, 0);
 static duk_ret_t
 duke_get_avphys_pages(duk_context *ctx)
 {
@@ -4281,14 +4281,14 @@ duke_get_avphys_pages(duk_context *ctx)
 #endif
 
 // 22.5 Learn about the processors available
-LIB_PARAM(get_nprocs_conf, 0);
+JS_PARAM(get_nprocs_conf, 0);
 static duk_ret_t
 duke_get_nprocs_conf(duk_context *ctx)
 {
     return duk_push_int(ctx, get_nprocs_conf()), 1;
 }
 
-LIB_PARAM(get_nprocs, 0);
+JS_PARAM(get_nprocs, 0);
 static duk_ret_t
 duke_get_nprocs(duk_context *ctx)
 {
@@ -4296,7 +4296,7 @@ duke_get_nprocs(duk_context *ctx)
 }
 
 #ifndef __OPENWRT__
-LIB_PARAM(getloadavg, 1);
+JS_PARAM(getloadavg, 1);
 static duk_ret_t
 duke_getloadavg(duk_context *ctx)
 {
@@ -4307,11 +4307,11 @@ duke_getloadavg(duk_context *ctx)
         int i;
         
         for (i=0; i<os_count_of(loadavg); i++) {
-            __set_array_number(ctx, 0, i, loadavg[i]);
+            js_set_array_number(ctx, 0, i, loadavg[i]);
         }
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 #endif
 
@@ -4323,7 +4323,7 @@ duke_getloadavg(duk_context *ctx)
 #if duk_LIBC_SIG
 // 24 Signal Handling
 // 24.2.8 Signal Messages
-LIB_PARAM(strsignal, 1);
+JS_PARAM(strsignal, 1);
 static duk_ret_t
 duke_strsignal(duk_context *ctx)
 {
@@ -4331,10 +4331,10 @@ duke_strsignal(duk_context *ctx)
 
     char *string = strsignal(sig);
 
-    return __push_string(ctx, string), 1;
+    return js_push_string(ctx, string), 1;
 }
 
-LIB_PARAM(psignal, 2);
+JS_PARAM(psignal, 2);
 static duk_ret_t
 duke_psignal(duk_context *ctx)
 {
@@ -4345,7 +4345,7 @@ duke_psignal(duk_context *ctx)
 }
 
 // 24.3 Specifying Signal Actions
-LIB_PARAM(signal, 2);
+JS_PARAM(signal, 2);
 static duk_ret_t
 duke_signal(duk_context *ctx)
 {
@@ -4353,10 +4353,10 @@ duke_signal(duk_context *ctx)
     int sig = duk_require_int(ctx, 0);
 
     if (duk_is_function(ctx, 1)) {
-        action = libc_sig_handler;
+        action = js_libc_sig_handler;
 
         // save Function name
-        libc_sig_name[sig] = __get_obj_string(ctx, 1, "name", NULL);
+        js_libc_sig_name[sig] = js_get_obj_string(ctx, 1, "name", NULL);
     }
     else if (duk_is_number(ctx, 1)) {
         action = (__sighandler_t)(uintptr_t)duk_require_int(ctx, 1);
@@ -4364,7 +4364,7 @@ duke_signal(duk_context *ctx)
             goto error;
         }
 
-        libc_sig_name[sig] = (char *)action;
+        js_libc_sig_name[sig] = (char *)action;
     }
     else {
         goto error;
@@ -4372,14 +4372,14 @@ duke_signal(duk_context *ctx)
 
     old = signal(sig, action);
     if (SIG_ERR==old) {
-        seterrno(ctx); goto error;
+        js_seterrno(ctx); goto error;
     }
 
     if (SIG_DFL==old || SIG_IGN==old) {
         duk_push_int(ctx, (uintptr_t)old);
     } else {
         duk_push_global_object(ctx);
-        duk_get_prop_string(ctx, -1, libc_sig_name[sig]);
+        duk_get_prop_string(ctx, -1, js_libc_sig_name[sig]);
         duk_swap(ctx, -1, -2);
         duk_pop(ctx);
     }
@@ -4390,7 +4390,7 @@ error:
 }
 
 // 24.3.2 Advanced Signal Handling
-LIB_PARAM(sigaction, 2);
+JS_PARAM(sigaction, 2);
 static duk_ret_t
 duke_sigaction(duk_context *ctx)
 {
@@ -4403,11 +4403,11 @@ duke_sigaction(duk_context *ctx)
         __set_sigaction(ctx, 2, sig, &old);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 24.6 Generating Signals
-LIB_PARAM(raise, 1);
+JS_PARAM(raise, 1);
 static duk_ret_t
 duke_raise(duk_context *ctx)
 {
@@ -4418,7 +4418,7 @@ duke_raise(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(kill, 2);
+JS_PARAM(kill, 2);
 static duk_ret_t
 duke_kill(duk_context *ctx)
 {
@@ -4427,10 +4427,10 @@ duke_kill(duk_context *ctx)
 
     int err = kill(pid, sig);
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(killpg, 2);
+JS_PARAM(killpg, 2);
 static duk_ret_t
 duke_killpg(duk_context *ctx)
 {
@@ -4439,18 +4439,18 @@ duke_killpg(duk_context *ctx)
 
     int err = killpg(pid, sig);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 24.7 Blocking Signals
-LIB_PARAM(signewset, 1);
+JS_PARAM(signewset, 1);
 static duk_ret_t
 duke_signewset(duk_context *ctx)
 {
-    return __push_dynamic_buffer(ctx, sizeof(sigset_t)), 1;
+    return js_push_dynamic_buffer(ctx, sizeof(sigset_t)), 1;
 }
 
-LIB_PARAM(sigemptyset, 1);
+JS_PARAM(sigemptyset, 1);
 static duk_ret_t
 duke_sigemptyset(duk_context *ctx)
 {
@@ -4459,7 +4459,7 @@ duke_sigemptyset(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
     
     err = sigemptyset(set);
@@ -4468,7 +4468,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(sigfillset, 1);
+JS_PARAM(sigfillset, 1);
 static duk_ret_t
 duke_sigfillset(duk_context *ctx)
 {
@@ -4477,7 +4477,7 @@ duke_sigfillset(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
 
     err = sigfillset(set);
@@ -4486,7 +4486,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(sigaddset, 2);
+JS_PARAM(sigaddset, 2);
 static duk_ret_t
 duke_sigaddset(duk_context *ctx)
 {
@@ -4495,7 +4495,7 @@ duke_sigaddset(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
     int sig = duk_require_int(ctx, 1);
     
@@ -4505,7 +4505,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(sigdelset, 2);
+JS_PARAM(sigdelset, 2);
 static duk_ret_t
 duke_sigdelset(duk_context *ctx)
 {
@@ -4514,7 +4514,7 @@ duke_sigdelset(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
     int sig = duk_require_int(ctx, 1);
     
@@ -4524,7 +4524,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(sigismember, 2);
+JS_PARAM(sigismember, 2);
 static duk_ret_t
 duke_sigismember(duk_context *ctx)
 {
@@ -4533,14 +4533,14 @@ duke_sigismember(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL1); duk_push_false(ctx), 1;
+        err = __js_seterrno(ctx, -EINVAL1); duk_push_false(ctx), 1;
     }
     int sig = duk_require_int(ctx, 1);
     
     return duk_push_bool(ctx, sigismember(set, sig)), 1;
 }
 
-LIB_PARAM(sigprocmask, DUK_VARARGS);
+JS_PARAM(sigprocmask, DUK_VARARGS);
 static duk_ret_t
 duke_sigprocmask(duk_context *ctx)
 {
@@ -4551,26 +4551,26 @@ duke_sigprocmask(duk_context *ctx)
     int how = duk_require_int(ctx, 0);
     new = (sigset_t *)duk_require_buffer_data(ctx, 1, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL2); goto error;
+        err = __js_seterrno(ctx, -EINVAL2); goto error;
     }
 
     if (2==duk_get_argc(ctx) && duk_is_buffer(ctx, 2)) {
         old = (sigset_t *)duk_require_buffer_data(ctx, 2, &bsize);
         if (bsize!=sizeof(sigset_t)) {
-            err = __seterrno(ctx, -EINVAL3); goto error;
+            err = __js_seterrno(ctx, -EINVAL3); goto error;
         }
     }
     
     err = sigprocmask(how, new, old);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
 error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(sigpending, 1);
+JS_PARAM(sigpending, 1);
 static duk_ret_t
 duke_sigpending(duk_context *ctx)
 {
@@ -4579,7 +4579,7 @@ duke_sigpending(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
     
     err = sigpending(set);
@@ -4588,16 +4588,16 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(pause, 0);
+JS_PARAM(pause, 0);
 static duk_ret_t
 duke_pause(duk_context *ctx)
 {
     int err = pause();
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(sigsuspend, 1);
+JS_PARAM(sigsuspend, 1);
 static duk_ret_t
 duke_sigsuspend(duk_context *ctx)
 {
@@ -4606,7 +4606,7 @@ duke_sigsuspend(duk_context *ctx)
     
     sigset_t *set = (sigset_t *)duk_require_buffer_data(ctx, 0, &bsize);
     if (bsize!=sizeof(sigset_t)) {
-        err = __seterrno(ctx, -EINVAL1); goto error;
+        err = __js_seterrno(ctx, -EINVAL1); goto error;
     }
     
     err = sigsuspend(set);
@@ -4618,7 +4618,7 @@ error:
 
 // 25 The Basic Program/System Interface
 // 25.4 Environment Variables
-LIB_PARAM(getenv, 1);
+JS_PARAM(getenv, 1);
 static duk_ret_t
 duke_getenv(duk_context *ctx)
 {
@@ -4626,11 +4626,11 @@ duke_getenv(duk_context *ctx)
 
     char *env = getenv(k);
 
-    return __push_string(ctx, env), 1;
+    return js_push_string(ctx, env), 1;
 }
 
 #if defined(_GNU_SOURCE) && 0
-LIB_PARAM(secure_getenv, 1);
+JS_PARAM(secure_getenv, 1);
 static duk_ret_t
 duke_secure_getenv(duk_context *ctx)
 {
@@ -4638,11 +4638,11 @@ duke_secure_getenv(duk_context *ctx)
 
     char *env = secure_getenv(k);
 
-    return __push_string(ctx, env), 1;
+    return js_push_string(ctx, env), 1;
 }
 #endif
 
-LIB_PARAM(putenv, 1);
+JS_PARAM(putenv, 1);
 static duk_ret_t
 duke_putenv(duk_context *ctx)
 {
@@ -4650,10 +4650,10 @@ duke_putenv(duk_context *ctx)
 
     int err = putenv(kv);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setenv, 3);
+JS_PARAM(setenv, 3);
 static duk_ret_t
 duke_setenv(duk_context *ctx)
 {
@@ -4663,10 +4663,10 @@ duke_setenv(duk_context *ctx)
 
     int err = setenv(k, v, replace);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(unsetenv, 1);
+JS_PARAM(unsetenv, 1);
 static duk_ret_t
 duke_unsetenv(duk_context *ctx)
 {
@@ -4674,22 +4674,22 @@ duke_unsetenv(duk_context *ctx)
 
     int err = unsetenv(k);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(clearenv, 0);
+JS_PARAM(clearenv, 0);
 static duk_ret_t
 duke_clearenv(duk_context *ctx)
 {
     int err = clearenv();
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 25.6 System Calls
 
 // 25.7 Program Termination
-LIB_PARAM(exit, 1);
+JS_PARAM(exit, 1);
 static duk_ret_t
 duke_exit(duk_context *ctx)
 {
@@ -4698,7 +4698,7 @@ duke_exit(duk_context *ctx)
     return exit(status), 0;
 }
 
-LIB_PARAM(atexit, 1);
+JS_PARAM(atexit, 1);
 static duk_ret_t
 duke_atexit(duk_context *ctx)
 {
@@ -4706,21 +4706,21 @@ duke_atexit(duk_context *ctx)
         return duk_push_null(ctx), 1;
     }
 
-    atexit_name = __get_obj_string(ctx, 0, "name", NULL);
+    atexit_name = js_get_obj_string(ctx, 0, "name", NULL);
     
     int err = atexit(__atexit_handler);
 
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(abort, 0);
+JS_PARAM(abort, 0);
 static duk_ret_t
 duke_abort(duk_context *ctx)
 {
     return abort(), 0;
 }
 
-LIB_PARAM(_exit, 1);
+JS_PARAM(_exit, 1);
 static duk_ret_t
 duke__exit(duk_context *ctx)
 {
@@ -4729,7 +4729,7 @@ duke__exit(duk_context *ctx)
     return _exit(status), 0;
 }
 
-LIB_PARAM(_Exit, 1);
+JS_PARAM(_Exit, 1);
 static duk_ret_t
 duke__Exit(duk_context *ctx)
 {
@@ -4740,14 +4740,14 @@ duke__Exit(duk_context *ctx)
 
 // 26 Processes
 // 26.3 Process Identification
-LIB_PARAM(getpid, 0);
+JS_PARAM(getpid, 0);
 static duk_ret_t
 duke_getpid(duk_context *ctx)
 {
     return duk_push_int(ctx, getpid()), 1;
 }
 
-LIB_PARAM(getppid, 0);
+JS_PARAM(getppid, 0);
 static duk_ret_t
 duke_getppid(duk_context *ctx)
 {
@@ -4755,93 +4755,93 @@ duke_getppid(duk_context *ctx)
 }
 
 // 26.4 Creating a Process
-LIB_PARAM(fork, 0);
+JS_PARAM(fork, 0);
 static duk_ret_t
 duke_fork(duk_context *ctx)
 {
     int pid = fork();
 
-    return __push_error(ctx, pid), 1;
+    return js_push_error(ctx, pid), 1;
 }
 
-LIB_PARAM(vfork, 0);
+JS_PARAM(vfork, 0);
 static duk_ret_t
 duke_vfork(duk_context *ctx)
 {
     int pid = vfork();
 
-    return __push_error(ctx, pid), 1;
+    return js_push_error(ctx, pid), 1;
 }
 
-LIB_PARAM(execv, 2);
+JS_PARAM(execv, 2);
 static duk_ret_t
 duke_execv(duk_context *ctx)
 {
     int i;
     
     char *filename = (char *)duk_require_string(ctx, 0);
-    int len = __get_array_length(ctx, 1);
+    int len = js_get_array_length(ctx, 1);
     char *arg[len];
 
     for (i=0; i<len-1; i++) {
-        arg[i] = __get_array_string(ctx, 1, i, NULL);
+        arg[i] = js_get_array_string(ctx, 1, i, NULL);
     }
     arg[len-1] = NULL;
 
     int err = execv(filename, arg);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(execve, 3);
+JS_PARAM(execve, 3);
 static duk_ret_t
 duke_execve(duk_context *ctx)
 {
     int i;
     
     char *filename = (char *)duk_require_string(ctx, 0);
-    int arg_len = __get_array_length(ctx, 1);
-    int env_len = __get_array_length(ctx, 2);
+    int arg_len = js_get_array_length(ctx, 1);
+    int env_len = js_get_array_length(ctx, 2);
     char *arg[arg_len];
     char *env[env_len];
 
     for (i=0; i<arg_len-1; i++) {
-        arg[i] = __get_array_string(ctx, 1, i, NULL);
+        arg[i] = js_get_array_string(ctx, 1, i, NULL);
     }
     arg[arg_len-1] = NULL;
 
     for (i=0; i<env_len-1; i++) {
-        env[i] = __get_array_string(ctx, 2, i, NULL);
+        env[i] = js_get_array_string(ctx, 2, i, NULL);
     }
     env[env_len-1] = NULL;
 
     int err = execve(filename, arg, env);
  
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(execvp, 2);
+JS_PARAM(execvp, 2);
 static duk_ret_t
 duke_execvp(duk_context *ctx)
 {
     int i;
     
     char *filename = (char *)duk_require_string(ctx, 0);
-    int len = __get_array_length(ctx, 1);
+    int len = js_get_array_length(ctx, 1);
     char *arg[len];
 
     for (i=0; i<len-1; i++) {
-        arg[i] = __get_array_string(ctx, 1, i, NULL);
+        arg[i] = js_get_array_string(ctx, 1, i, NULL);
     }
     arg[len-1] = NULL;
 
     int err = execvp(filename, arg);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 26.6 Process Completion
-LIB_PARAM(waitpid, 3);
+JS_PARAM(waitpid, 3);
 static duk_ret_t
 duke_waitpid(duk_context *ctx)
 {
@@ -4851,13 +4851,13 @@ duke_waitpid(duk_context *ctx)
 
     int err = waitpid(pid, &status, opt);
     if (err>0) {
-        __set_obj_int(ctx, 1, "status", status);
+        js_set_obj_int(ctx, 1, "status", status);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(wait, 1);
+JS_PARAM(wait, 1);
 static duk_ret_t
 duke_wait(duk_context *ctx)
 {
@@ -4865,13 +4865,13 @@ duke_wait(duk_context *ctx)
     
     int err = wait(&status);
     if (err>0) {
-        __set_obj_int(ctx, 1, "status", status);
+        js_set_obj_int(ctx, 1, "status", status);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(wait4, 4);
+JS_PARAM(wait4, 4);
 static duk_ret_t
 duke_wait4(duk_context *ctx)
 {
@@ -4882,14 +4882,14 @@ duke_wait4(duk_context *ctx)
 
     int err = wait4(pid, &status, opt, &r);
     if (err>0) {
-        __set_obj_int(ctx, 1, "status", status);
+        js_set_obj_int(ctx, 1, "status", status);
         __set_rusage(ctx, 3, &r);
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(WIFEXITED, 1);
+JS_PARAM(WIFEXITED, 1);
 static duk_ret_t
 duke_WIFEXITED(duk_context *ctx)
 {
@@ -4898,7 +4898,7 @@ duke_WIFEXITED(duk_context *ctx)
     return duk_push_int(ctx, WIFEXITED(status)), 1;
 }
 
-LIB_PARAM(WEXITSTATUS, 1);
+JS_PARAM(WEXITSTATUS, 1);
 static duk_ret_t
 duke_WEXITSTATUS(duk_context *ctx)
 {
@@ -4907,7 +4907,7 @@ duke_WEXITSTATUS(duk_context *ctx)
     return duk_push_int(ctx, WEXITSTATUS(status)), 1;
 }
 
-LIB_PARAM(WIFSIGNALED, 1);
+JS_PARAM(WIFSIGNALED, 1);
 static duk_ret_t
 duke_WIFSIGNALED(duk_context *ctx)
 {
@@ -4916,7 +4916,7 @@ duke_WIFSIGNALED(duk_context *ctx)
     return duk_push_int(ctx, WIFSIGNALED(status)), 1;
 }
 
-LIB_PARAM(WTERMSIG, 1);
+JS_PARAM(WTERMSIG, 1);
 static duk_ret_t
 duke_WTERMSIG(duk_context *ctx)
 {
@@ -4925,7 +4925,7 @@ duke_WTERMSIG(duk_context *ctx)
     return duk_push_int(ctx, WTERMSIG(status)), 1;
 }
 
-LIB_PARAM(WCOREDUMP, 1);
+JS_PARAM(WCOREDUMP, 1);
 static duk_ret_t
 duke_WCOREDUMP(duk_context *ctx)
 {
@@ -4934,7 +4934,7 @@ duke_WCOREDUMP(duk_context *ctx)
     return duk_push_int(ctx, WCOREDUMP(status)), 1;
 }
 
-LIB_PARAM(WIFSTOPPED, 1);
+JS_PARAM(WIFSTOPPED, 1);
 static duk_ret_t
 duke_WIFSTOPPED(duk_context *ctx)
 {
@@ -4943,7 +4943,7 @@ duke_WIFSTOPPED(duk_context *ctx)
     return duk_push_int(ctx, WIFSTOPPED(status)), 1;
 }
 
-LIB_PARAM(WSTOPSIG, 1);
+JS_PARAM(WSTOPSIG, 1);
 static duk_ret_t
 duke_WSTOPSIG(duk_context *ctx)
 {
@@ -4954,25 +4954,25 @@ duke_WSTOPSIG(duk_context *ctx)
 
 // 27 Job Control
 // 27.7 Functions for Job Control
-LIB_PARAM(setsid, 0);
+JS_PARAM(setsid, 0);
 static duk_ret_t
 duke_setsid(duk_context *ctx)
 {
     int err = setsid();
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(getpgrp, 0);
+JS_PARAM(getpgrp, 0);
 static duk_ret_t
 duke_getpgrp(duk_context *ctx)
 {
     int err = getpgrp();
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(getpgid, 0);
+JS_PARAM(getpgid, 0);
 static duk_ret_t
 duke_getpgid(duk_context *ctx)
 {
@@ -4980,10 +4980,10 @@ duke_getpgid(duk_context *ctx)
     
     int err = getpgid(pid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setpgid, 2);
+JS_PARAM(setpgid, 2);
 static duk_ret_t
 duke_setpgid(duk_context *ctx)
 {
@@ -4992,11 +4992,11 @@ duke_setpgid(duk_context *ctx)
     
     int err = setpgid(pid, pgid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 27.7.3 Functions for Controlling Terminal Access
-LIB_PARAM(tcgetpgrp, 1);
+JS_PARAM(tcgetpgrp, 1);
 static duk_ret_t
 duke_tcgetpgrp(duk_context *ctx)
 {
@@ -5004,10 +5004,10 @@ duke_tcgetpgrp(duk_context *ctx)
     
     int err = tcgetpgrp(fd);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(tcsetpgrp, 2);
+JS_PARAM(tcsetpgrp, 2);
 static duk_ret_t
 duke_tcsetpgrp(duk_context *ctx)
 {
@@ -5016,44 +5016,44 @@ duke_tcsetpgrp(duk_context *ctx)
     
     int err = tcsetpgrp(fd, pgid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 29 Users and Groups
-LIB_PARAM(getuid, 0);
+JS_PARAM(getuid, 0);
 static duk_ret_t
 duke_getuid(duk_context *ctx)
 {
     return duk_push_uint(ctx, getuid()), 1;
 }
 
-LIB_PARAM(getgid, 0);
+JS_PARAM(getgid, 0);
 static duk_ret_t
 duke_getgid(duk_context *ctx)
 {
     return duk_push_uint(ctx, getgid()), 1;
 }
 
-LIB_PARAM(geteuid, 0);
+JS_PARAM(geteuid, 0);
 static duk_ret_t
 duke_geteuid(duk_context *ctx)
 {
     return duk_push_uint(ctx, geteuid()), 1;
 }
 
-LIB_PARAM(getegid, 0);
+JS_PARAM(getegid, 0);
 static duk_ret_t
 duke_getegid(duk_context *ctx)
 {
     return duk_push_uint(ctx, getegid()), 1;
 }
 
-LIB_PARAM(getgroups, 1);
+JS_PARAM(getgroups, 1);
 static duk_ret_t
 duke_getgroups(duk_context *ctx)
 {
     int i, err;
-    int count = __get_array_length(ctx, 0);
+    int count = js_get_array_length(ctx, 0);
     if (0==count) {
         return duk_push_int(ctx, getgroups(0, NULL)), 1;
     }
@@ -5062,14 +5062,14 @@ duke_getgroups(duk_context *ctx)
     err = getgroups(count, groups);
     if (err>0) {
         for (i=0; i<count; i++) {
-            __set_array_uint(ctx, 0, i, groups[i]);
+            js_set_array_uint(ctx, 0, i, groups[i]);
         }
     }
     
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(seteuid, 1);
+JS_PARAM(seteuid, 1);
 static duk_ret_t
 duke_seteuid(duk_context *ctx)
 {
@@ -5077,10 +5077,10 @@ duke_seteuid(duk_context *ctx)
 
     int err = seteuid(uid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setuid, 1);
+JS_PARAM(setuid, 1);
 static duk_ret_t
 duke_setuid(duk_context *ctx)
 {
@@ -5088,10 +5088,10 @@ duke_setuid(duk_context *ctx)
 
     int err = setuid(uid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setreuid, 2);
+JS_PARAM(setreuid, 2);
 static duk_ret_t
 duke_setreuid(duk_context *ctx)
 {
@@ -5100,10 +5100,10 @@ duke_setreuid(duk_context *ctx)
 
     int err = setreuid(ruid, euid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setegid, 1);
+JS_PARAM(setegid, 1);
 static duk_ret_t
 duke_setegid(duk_context *ctx)
 {
@@ -5111,10 +5111,10 @@ duke_setegid(duk_context *ctx)
 
     int err = setegid(gid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setgid, 1);
+JS_PARAM(setgid, 1);
 static duk_ret_t
 duke_setgid(duk_context *ctx)
 {
@@ -5122,10 +5122,10 @@ duke_setgid(duk_context *ctx)
 
     int err = setgid(gid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setregid, 2);
+JS_PARAM(setregid, 2);
 static duk_ret_t
 duke_setregid(duk_context *ctx)
 {
@@ -5134,27 +5134,27 @@ duke_setregid(duk_context *ctx)
 
     int err = setregid(rgid, egid);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(setgroups, 2);
+JS_PARAM(setgroups, 2);
 static duk_ret_t
 duke_setgroups(duk_context *ctx)
 {
     int i, err;
-    int count = __get_array_length(ctx, 0);
+    int count = js_get_array_length(ctx, 0);
     gid_t groups[count];
 
     for (i=0; i<count; i++) {
-        groups[i] = __get_array_uint(ctx, 0, i);
+        groups[i] = js_get_array_uint(ctx, 0, i);
     }
     
     err = setgroups(count, groups);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(initgroups, 2);
+JS_PARAM(initgroups, 2);
 static duk_ret_t
 duke_initgroups(duk_context *ctx)
 {
@@ -5163,44 +5163,44 @@ duke_initgroups(duk_context *ctx)
     
     int err = initgroups(user, group);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 29.11 Identifying Who Logged In
-LIB_PARAM(getlogin, 0);
+JS_PARAM(getlogin, 0);
 static duk_ret_t
 duke_getlogin(duk_context *ctx)
 {
     char *name = getlogin();
 
-    return __push_string(ctx, name), 1;
+    return js_push_string(ctx, name), 1;
 }
 
 // 29.12.1 Manipulating the User Accounting Database
-LIB_PARAM(setutent, 0);
+JS_PARAM(setutent, 0);
 static duk_ret_t
 duke_setutent(duk_context *ctx)
 {
     return setutent(), 0;
 }
 
-LIB_PARAM(getutent, 0);
+JS_PARAM(getutent, 0);
 static duk_ret_t
 duke_getutent(duk_context *ctx)
 {
     struct utmp *p = getutent();
 
-    return __obj_push(ctx, __set_utmp, p), 1;
+    return js_obj_push(ctx, __set_utmp, p), 1;
 }
 
-LIB_PARAM(endutent, 0);
+JS_PARAM(endutent, 0);
 static duk_ret_t
 duke_endutent(duk_context *ctx)
 {
     return endutent(), 0;
 }
 
-LIB_PARAM(getutid, 1);
+JS_PARAM(getutid, 1);
 static duk_ret_t
 duke_getutid(duk_context *ctx)
 {
@@ -5210,10 +5210,10 @@ duke_getutid(duk_context *ctx)
     
     struct utmp *p = getutid(&u);
 
-    return __obj_push(ctx, __set_utmp, p), 1;
+    return js_obj_push(ctx, __set_utmp, p), 1;
 }
 
-LIB_PARAM(getutline, 1);
+JS_PARAM(getutline, 1);
 static duk_ret_t
 duke_getutline(duk_context *ctx)
 {
@@ -5223,10 +5223,10 @@ duke_getutline(duk_context *ctx)
     
     struct utmp *p = getutline(&u);
 
-    return __obj_push(ctx, __set_utmp, p), 1;
+    return js_obj_push(ctx, __set_utmp, p), 1;
 }
 
-LIB_PARAM(pututline, 1);
+JS_PARAM(pututline, 1);
 static duk_ret_t
 duke_pututline(duk_context *ctx)
 {
@@ -5236,10 +5236,10 @@ duke_pututline(duk_context *ctx)
     
     struct utmp *p = pututline(&u);
 
-    return __obj_push(ctx, __set_utmp, p), 1;
+    return js_obj_push(ctx, __set_utmp, p), 1;
 }
 
-LIB_PARAM(utmpname, 1);
+JS_PARAM(utmpname, 1);
 static duk_ret_t
 duke_utmpname(duk_context *ctx)
 {
@@ -5247,10 +5247,10 @@ duke_utmpname(duk_context *ctx)
 
     int err = utmpname(file);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(updwtmp, 2);
+JS_PARAM(updwtmp, 2);
 static duk_ret_t
 duke_updwtmp(duk_context *ctx)
 {
@@ -5263,7 +5263,7 @@ duke_updwtmp(duk_context *ctx)
 
 #if duk_LIBC_UTIL
 // 29.12.3 Logging In and Out
-LIB_PARAM(login_tty, 1);
+JS_PARAM(login_tty, 1);
 static duk_ret_t
 duke_login_tty(duk_context *ctx)
 {
@@ -5271,10 +5271,10 @@ duke_login_tty(duk_context *ctx)
 
     int err = login_tty(fd);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(login, 1);
+JS_PARAM(login, 1);
 static duk_ret_t
 duke_login(duk_context *ctx)
 {
@@ -5285,7 +5285,7 @@ duke_login(duk_context *ctx)
     return login(&u), 0;
 }
 
-LIB_PARAM(logout, 1);
+JS_PARAM(logout, 1);
 static duk_ret_t
 duke_logout(duk_context *ctx)
 {
@@ -5296,7 +5296,7 @@ duke_logout(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(logwtmp, 3);
+JS_PARAM(logwtmp, 3);
 static duk_ret_t
 duke_logwtmp(duk_context *ctx)
 {
@@ -5309,7 +5309,7 @@ duke_logwtmp(duk_context *ctx)
 #endif /* duk_LIBC_UTIL */
 
 // 29.13 User Database
-LIB_PARAM(getpwuid, 1);
+JS_PARAM(getpwuid, 1);
 static duk_ret_t
 duke_getpwuid(duk_context *ctx)
 {
@@ -5317,10 +5317,10 @@ duke_getpwuid(duk_context *ctx)
     
     struct passwd *p = getpwuid(uid);
 
-    return __obj_push(ctx, __set_passwd, p), 1;
+    return js_obj_push(ctx, __set_passwd, p), 1;
 }
 
-LIB_PARAM(getpwnam, 1);
+JS_PARAM(getpwnam, 1);
 static duk_ret_t
 duke_getpwnam(duk_context *ctx)
 {
@@ -5328,12 +5328,12 @@ duke_getpwnam(duk_context *ctx)
     
     struct passwd *p = getpwnam(name);
 
-    return __obj_push(ctx, __set_passwd, p), 1;
+    return js_obj_push(ctx, __set_passwd, p), 1;
 }
 
 #if duk_LIBC_PWENT
 // 29.13.3 Scanning the List of All Users
-LIB_PARAM(fgetpwent, 1);
+JS_PARAM(fgetpwent, 1);
 static duk_ret_t
 duke_fgetpwent(duk_context *ctx)
 {
@@ -5341,26 +5341,26 @@ duke_fgetpwent(duk_context *ctx)
     
     struct passwd *p = fgetpwent(f);
 
-    return __obj_push(ctx, __set_passwd, p), 1;
+    return js_obj_push(ctx, __set_passwd, p), 1;
 }
 
-LIB_PARAM(setpwent, 0);
+JS_PARAM(setpwent, 0);
 static duk_ret_t
 duke_setpwent(duk_context *ctx)
 {
     return setpwent(), 0;
 }
 
-LIB_PARAM(getpwent, 0);
+JS_PARAM(getpwent, 0);
 static duk_ret_t
 duke_getpwent(duk_context *ctx)
 {
     struct passwd *p = getpwent();
 
-    return __obj_push(ctx, __set_passwd, p), 1;
+    return js_obj_push(ctx, __set_passwd, p), 1;
 }
 
-LIB_PARAM(endpwent, 0);
+JS_PARAM(endpwent, 0);
 static duk_ret_t
 duke_endpwent(duk_context *ctx)
 {
@@ -5368,7 +5368,7 @@ duke_endpwent(duk_context *ctx)
 }
 
 // 29.13.4 Writing a User Entry
-LIB_PARAM(putpwent, 2);
+JS_PARAM(putpwent, 2);
 static duk_ret_t
 duke_putpwent(duk_context *ctx)
 {
@@ -5379,13 +5379,13 @@ duke_putpwent(duk_context *ctx)
     
     int err = putpwent(&u, f);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 #endif
 
 // 29.14 Group Database
 #if duk_LIBC_GWENT
-LIB_PARAM(getgrgid, 1);
+JS_PARAM(getgrgid, 1);
 static duk_ret_t
 duke_getgrgid(duk_context *ctx)
 {
@@ -5393,10 +5393,10 @@ duke_getgrgid(duk_context *ctx)
     
     struct group *p = getgrgid(gid);
 
-    return __obj_push(ctx, __set_group, p), 1;
+    return js_obj_push(ctx, __set_group, p), 1;
 }
 
-LIB_PARAM(getgrnam, 1);
+JS_PARAM(getgrnam, 1);
 static duk_ret_t
 duke_getgrnam(duk_context *ctx)
 {
@@ -5404,10 +5404,10 @@ duke_getgrnam(duk_context *ctx)
     
     struct group *p = getgrnam(name);
 
-    return __obj_push(ctx, __set_group, p), 1;
+    return js_obj_push(ctx, __set_group, p), 1;
 }
 
-LIB_PARAM(fgetgrent, 1);
+JS_PARAM(fgetgrent, 1);
 static duk_ret_t
 duke_fgetgrent(duk_context *ctx)
 {
@@ -5415,26 +5415,26 @@ duke_fgetgrent(duk_context *ctx)
     
     struct group *p = fgetgrent(f);
 
-    return __obj_push(ctx, __set_group, p), 1;
+    return js_obj_push(ctx, __set_group, p), 1;
 }
 
-LIB_PARAM(setgrent, 0);
+JS_PARAM(setgrent, 0);
 static duk_ret_t
 duke_setgrent(duk_context *ctx)
 {
     return setgrent(), 0;
 }
 
-LIB_PARAM(getgrent, 0);
+JS_PARAM(getgrent, 0);
 static duk_ret_t
 duke_getgrent(duk_context *ctx)
 {
     struct group *p = getgrent();
 
-    return __obj_push(ctx, __set_group, p), 1;
+    return js_obj_push(ctx, __set_group, p), 1;
 }
 
-LIB_PARAM(endgrent, 0);
+JS_PARAM(endgrent, 0);
 static duk_ret_t
 duke_endgrent(duk_context *ctx)
 {
@@ -5443,7 +5443,7 @@ duke_endgrent(duk_context *ctx)
 #endif
 
 // 30 System Management
-LIB_PARAM(gethostname, 0);
+JS_PARAM(gethostname, 0);
 static duk_ret_t
 duke_gethostname(duk_context *ctx)
 {
@@ -5455,12 +5455,12 @@ duke_gethostname(duk_context *ctx)
         
         err = gethostname(line, size);
         if (0==err) { // 0 is ok
-            __push_string(ctx, line);
+            js_push_string(ctx, line);
 
             break;
         }
         else if (err<0 && ENAMETOOLONG!=errno) {
-            seterrno(ctx);
+            js_seterrno(ctx);
             duk_push_null(ctx);
 
             break;
@@ -5472,7 +5472,7 @@ error:
     return 1;
 }
 
-LIB_PARAM(sethostname, 1);
+JS_PARAM(sethostname, 1);
 static duk_ret_t
 duke_sethostname(duk_context *ctx)
 {
@@ -5481,10 +5481,10 @@ duke_sethostname(duk_context *ctx)
 
     int err = sethostname(line, size);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(getdomainname, 0);
+JS_PARAM(getdomainname, 0);
 static duk_ret_t
 duke_getdomainname(duk_context *ctx)
 {
@@ -5496,12 +5496,12 @@ duke_getdomainname(duk_context *ctx)
         
         err = getdomainname(line, size);
         if (0==err) { // 0 is ok
-            __push_string(ctx, line);
+            js_push_string(ctx, line);
 
             break;
         }
         else if (err<0 && ENAMETOOLONG!=errno) {
-            seterrno(ctx);
+            js_seterrno(ctx);
             duk_push_null(ctx);
 
             break;
@@ -5513,7 +5513,7 @@ error:
     return 1;
 }
 
-LIB_PARAM(setdomainname, 1);
+JS_PARAM(setdomainname, 1);
 static duk_ret_t
 duke_setdomainname(duk_context *ctx)
 {
@@ -5522,17 +5522,17 @@ duke_setdomainname(duk_context *ctx)
 
     int err = setdomainname(line, size);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(gethostid, 0);
+JS_PARAM(gethostid, 0);
 static duk_ret_t
 duke_gethostid(duk_context *ctx)
 {
     return duk_push_int(ctx, gethostid()), 1;
 }
 
-LIB_PARAM(sethostid, 1);
+JS_PARAM(sethostid, 1);
 static duk_ret_t
 duke_sethostid(duk_context *ctx)
 {
@@ -5540,11 +5540,11 @@ duke_sethostid(duk_context *ctx)
 
     int err = sethostid(id);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 30.2 Platform Type Identification
-LIB_PARAM(uname, 0);
+JS_PARAM(uname, 0);
 static duk_ret_t
 duke_uname(duk_context *ctx)
 {
@@ -5552,11 +5552,11 @@ duke_uname(duk_context *ctx)
 
     int err = uname(&name);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
 
         duk_push_null(ctx);
     } else {
-        __obj_push(ctx, __set_utsname, &name);
+        js_obj_push(ctx, __set_utsname, &name);
     }
 
     return 1;
@@ -5564,30 +5564,30 @@ duke_uname(duk_context *ctx)
 
 #if duk_LIBC_MOUNT
 // 30.3.1 Mount Information
-LIB_PARAM(setfsent, 0);
+JS_PARAM(setfsent, 0);
 static duk_ret_t
 duke_setfsent(duk_context *ctx)
 {
     return duk_push_int(ctx, setfsent()), 1;
 }
 
-LIB_PARAM(endfsent, 0);
+JS_PARAM(endfsent, 0);
 static duk_ret_t
 duke_endfsent(duk_context *ctx)
 {
     return endfsent(), 0;
 }
 
-LIB_PARAM(getfsent, 0);
+JS_PARAM(getfsent, 0);
 static duk_ret_t
 duke_getfsent(duk_context *ctx)
 {
     struct fstab *p = getfsent();
 
-    return __obj_push(ctx, __set_fstab, p), 1;
+    return js_obj_push(ctx, __set_fstab, p), 1;
 }
 
-LIB_PARAM(getfsspec, 1);
+JS_PARAM(getfsspec, 1);
 static duk_ret_t
 duke_getfsspec(duk_context *ctx)
 {
@@ -5595,10 +5595,10 @@ duke_getfsspec(duk_context *ctx)
     
     struct fstab *p = getfsspec(name);
 
-    return __obj_push(ctx, __set_fstab, p), 1;
+    return js_obj_push(ctx, __set_fstab, p), 1;
 }
 
-LIB_PARAM(getfsfile, 1);
+JS_PARAM(getfsfile, 1);
 static duk_ret_t
 duke_getfsfile(duk_context *ctx)
 {
@@ -5606,11 +5606,11 @@ duke_getfsfile(duk_context *ctx)
     
     struct fstab *p = getfsfile(name);
 
-    return __obj_push(ctx, __set_fstab, p), 1;
+    return js_obj_push(ctx, __set_fstab, p), 1;
 }
 #endif
 
-LIB_PARAM(setmntent, 2);
+JS_PARAM(setmntent, 2);
 static duk_ret_t
 duke_setmntent(duk_context *ctx)
 {
@@ -5619,10 +5619,10 @@ duke_setmntent(duk_context *ctx)
     
     STREAM f = setmntent(name, mode);
 
-    return __push_pointer(ctx, f), 1;
+    return js_push_pointer(ctx, f), 1;
 }
 
-LIB_PARAM(endmntent, 1);
+JS_PARAM(endmntent, 1);
 static duk_ret_t
 duke_endmntent(duk_context *ctx)
 {
@@ -5631,7 +5631,7 @@ duke_endmntent(duk_context *ctx)
     return duk_push_int(ctx, endmntent(f)), 1;
 }
 
-LIB_PARAM(getmntent, 1);
+JS_PARAM(getmntent, 1);
 static duk_ret_t
 duke_getmntent(duk_context *ctx)
 {
@@ -5639,10 +5639,10 @@ duke_getmntent(duk_context *ctx)
     
     struct mntent *p = getmntent(f);
 
-    return __obj_push(ctx, __set_mntent, p), 1;
+    return js_obj_push(ctx, __set_mntent, p), 1;
 }
 
-LIB_PARAM(addmntent, 2);
+JS_PARAM(addmntent, 2);
 static duk_ret_t
 duke_addmntent(duk_context *ctx)
 {
@@ -5653,10 +5653,10 @@ duke_addmntent(duk_context *ctx)
     
     int err = addmntent(f, &m);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(hasmntopt, 2);
+JS_PARAM(hasmntopt, 2);
 static duk_ret_t
 duke_hasmntopt(duk_context *ctx)
 {
@@ -5667,11 +5667,11 @@ duke_hasmntopt(duk_context *ctx)
     
     char *p = hasmntopt(&m, mnt);
     
-    return __push_string(ctx, p), 1;
+    return js_push_string(ctx, p), 1;
 }
 
 // 30.3.2 Mount, Unmount, Remount
-LIB_PARAM(mount, 4);
+JS_PARAM(mount, 4);
 static duk_ret_t
 duke_mount(duk_context *ctx)
 {
@@ -5682,10 +5682,10 @@ duke_mount(duk_context *ctx)
     
     int err = mount(file, dir, fstype, opt, "");
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(umount2, 2);
+JS_PARAM(umount2, 2);
 static duk_ret_t
 duke_umount2(duk_context *ctx)
 {
@@ -5694,10 +5694,10 @@ duke_umount2(duk_context *ctx)
     
     int err = umount2(file, flags);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(umount, 1);
+JS_PARAM(umount, 1);
 static duk_ret_t
 duke_umount(duk_context *ctx)
 {
@@ -5705,7 +5705,7 @@ duke_umount(duk_context *ctx)
     
     int err = umount(file);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 30.4 System Parameters
@@ -5714,7 +5714,7 @@ duke_umount(duk_context *ctx)
 
 // 31 System Configuration Parameters
 // 31.4 Using sysconf
-LIB_PARAM(sysconf, 1);
+JS_PARAM(sysconf, 1);
 static duk_ret_t
 duke_sysconf(duk_context *ctx)
 {
@@ -5722,11 +5722,11 @@ duke_sysconf(duk_context *ctx)
     
     int err = sysconf(parameter);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 31.9 Using pathconf
-LIB_PARAM(pathconf, 2);
+JS_PARAM(pathconf, 2);
 static duk_ret_t
 duke_pathconf(duk_context *ctx)
 {
@@ -5735,10 +5735,10 @@ duke_pathconf(duk_context *ctx)
     
     int err = pathconf(filename, parameter);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
-LIB_PARAM(fpathconf, 2);
+JS_PARAM(fpathconf, 2);
 static duk_ret_t
 duke_fpathconf(duk_context *ctx)
 {
@@ -5747,11 +5747,11 @@ duke_fpathconf(duk_context *ctx)
     
     int err = fpathconf(fd, parameter);
 
-    return __push_error(ctx, err), 1;
+    return js_push_error(ctx, err), 1;
 }
 
 // 31.12 String-Valued Parameters
-LIB_PARAM(confstr, 1);
+JS_PARAM(confstr, 1);
 static duk_ret_t
 duke_confstr(duk_context *ctx)
 {
@@ -5759,7 +5759,7 @@ duke_confstr(duk_context *ctx)
     
     int parameter = duk_require_int(ctx, 0);
     if (false==duk_is_dynamic_buffer(ctx, 1)) {
-        err = __seterrno(ctx, -EINVAL); goto error;
+        err = __js_seterrno(ctx, -EINVAL); goto error;
     }
     
     size_t len = confstr(parameter, NULL, 0);
@@ -5767,7 +5767,7 @@ duke_confstr(duk_context *ctx)
 
     err = confstr(parameter, buf, len);
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
 error:
@@ -5782,7 +5782,7 @@ error:
 #include "libc/libcs.c"
 #include "libc/libcp.c"
 
-int libc_register(duk_context *ctx)
+int js_libc_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);

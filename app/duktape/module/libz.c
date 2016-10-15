@@ -19,14 +19,14 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "libz.h"
 #include "libxz.h"
 
-LIB_PARAM(zlibVersion, 0);
+JS_PARAM(zlibVersion, 0);
 static duk_ret_t
 duke_zlibVersion(duk_context *ctx)
 {
-    return __push_string(ctx, zlibVersion()), 1;
+    return js_push_string(ctx, zlibVersion()), 1;
 }
 
-LIB_PARAM(deflateInit, 1);
+JS_PARAM(deflateInit, 1);
 static duk_ret_t
 duke_deflateInit(duk_context *ctx)
 {
@@ -41,14 +41,14 @@ duke_deflateInit(duk_context *ctx)
         goto error;
     }
     
-    return __push_pointer(ctx, f), 1;
+    return js_push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(deflateInit2, 5);
+JS_PARAM(deflateInit2, 5);
 static duk_ret_t
 duke_deflateInit2(duk_context *ctx)
 {
@@ -68,14 +68,14 @@ duke_deflateInit2(duk_context *ctx)
         goto error;
     }
     
-    return __push_pointer(ctx, f), 1;
+    return js_push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(deflate, 2);
+JS_PARAM(deflate, 2);
 static duk_ret_t
 duke_deflate(duk_context *ctx)
 {
@@ -87,7 +87,7 @@ duke_deflate(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(deflateEnd, 1);
+JS_PARAM(deflateEnd, 1);
 static duk_ret_t
 duke_deflateEnd(duk_context *ctx)
 {
@@ -98,7 +98,7 @@ duke_deflateEnd(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(inflateInit, 0);
+JS_PARAM(inflateInit, 0);
 static duk_ret_t
 duke_inflateInit(duk_context *ctx)
 {
@@ -112,14 +112,14 @@ duke_inflateInit(duk_context *ctx)
         goto error;
     }
     
-    return __push_pointer(ctx, f), 1;
+    return js_push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(inflateInit2, 1);
+JS_PARAM(inflateInit2, 1);
 static duk_ret_t
 duke_inflateInit2(duk_context *ctx)
 {
@@ -135,14 +135,14 @@ duke_inflateInit2(duk_context *ctx)
         goto error;
     }
     
-    return __push_pointer(ctx, f), 1;
+    return js_push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(inflate, 2);
+JS_PARAM(inflate, 2);
 static duk_ret_t
 duke_inflate(duk_context *ctx)
 {
@@ -154,7 +154,7 @@ duke_inflate(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(inflateEnd, 1);
+JS_PARAM(inflateEnd, 1);
 static duk_ret_t
 duke_inflateEnd(duk_context *ctx)
 {
@@ -165,7 +165,7 @@ duke_inflateEnd(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(deflateSetDictionary, 2);
+JS_PARAM(deflateSetDictionary, 2);
 static duk_ret_t
 duke_deflateSetDictionary(duk_context *ctx)
 {
@@ -176,7 +176,7 @@ duke_deflateSetDictionary(duk_context *ctx)
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
     err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     err = deflateSetDictionary(f, buf, bsize);
@@ -185,7 +185,7 @@ error:
     return duk_push_uint(ctx, err), 1;
 }
 
-LIB_PARAM(deflateCopy, 2);
+JS_PARAM(deflateCopy, 2);
 static duk_ret_t
 duke_deflateCopy(duk_context *ctx)
 {
@@ -197,7 +197,7 @@ duke_deflateCopy(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(deflateReset, 1);
+JS_PARAM(deflateReset, 1);
 static duk_ret_t
 duke_deflateReset(duk_context *ctx)
 {
@@ -208,7 +208,7 @@ duke_deflateReset(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(deflateParams, 3);
+JS_PARAM(deflateParams, 3);
 static duk_ret_t
 duke_deflateParams(duk_context *ctx)
 {
@@ -221,7 +221,7 @@ duke_deflateParams(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(deflateTune, 3);
+JS_PARAM(deflateTune, 3);
 static duk_ret_t
 duke_deflateTune(duk_context *ctx)
 {
@@ -236,7 +236,7 @@ duke_deflateTune(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(deflateBound, 3);
+JS_PARAM(deflateBound, 3);
 static duk_ret_t
 duke_deflateBound(duk_context *ctx)
 {
@@ -250,7 +250,7 @@ duke_deflateBound(duk_context *ctx)
 
 
 #if ZLIB_VERNUM >= 0x1251
-LIB_PARAM(deflatePending, 1);
+JS_PARAM(deflatePending, 1);
 static duk_ret_t
 duke_deflatePending(duk_context *ctx)
 {
@@ -264,14 +264,14 @@ duke_deflatePending(duk_context *ctx)
     }
     
     duk_push_object(ctx);
-        __set_obj_uint(ctx, -1, "pending", pending);
-        __set_obj_int(ctx, -1, "bits", bits);
+        js_set_obj_uint(ctx, -1, "pending", pending);
+        js_set_obj_int(ctx, -1, "bits", bits);
     
     return 1;
 }
 #endif
 
-LIB_PARAM(deflatePrime, 3);
+JS_PARAM(deflatePrime, 3);
 static duk_ret_t
 duke_deflatePrime(duk_context *ctx)
 {
@@ -284,7 +284,7 @@ duke_deflatePrime(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(deflateSetHeader, 2);
+JS_PARAM(deflateSetHeader, 2);
 static duk_ret_t
 duke_deflateSetHeader(duk_context *ctx)
 {
@@ -298,7 +298,7 @@ duke_deflateSetHeader(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(inflateSetDictionary, 2);
+JS_PARAM(inflateSetDictionary, 2);
 static duk_ret_t
 duke_inflateSetDictionary(duk_context *ctx)
 {
@@ -309,7 +309,7 @@ duke_inflateSetDictionary(duk_context *ctx)
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
     err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
     
     err = inflateSetDictionary(f, buf, bsize);
@@ -319,7 +319,7 @@ error:
 }
 
 #if ZLIB_VERNUM >= 0x1271
-LIB_PARAM(inflateGetDictionary, 3);
+JS_PARAM(inflateGetDictionary, 3);
 static duk_ret_t
 duke_inflateGetDictionary(duk_context *ctx)
 {
@@ -329,9 +329,9 @@ duke_inflateGetDictionary(duk_context *ctx)
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
     inflateGetDictionary(f, NULL, &size);
     
-    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = js_push_dynamic_buffer(ctx, size);
     if (NULL==buf) {
-        err = __seterrno(ctx, -ENOMEM); goto error;
+        err = __js_seterrno(ctx, -ENOMEM); goto error;
     }
 
     err = inflateGetDictionary(f, buf, size);
@@ -345,7 +345,7 @@ error:
 }
 #endif
 
-LIB_PARAM(inflateSync, 1);
+JS_PARAM(inflateSync, 1);
 static duk_ret_t
 duke_inflateSync(duk_context *ctx)
 {
@@ -356,7 +356,7 @@ duke_inflateSync(duk_context *ctx)
     return duk_push_uint(ctx, err), 1;
 }
 
-LIB_PARAM(inflateCopy, 2);
+JS_PARAM(inflateCopy, 2);
 static duk_ret_t
 duke_inflateCopy(duk_context *ctx)
 {
@@ -368,7 +368,7 @@ duke_inflateCopy(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(inflateReset, 1);
+JS_PARAM(inflateReset, 1);
 static duk_ret_t
 duke_inflateReset(duk_context *ctx)
 {
@@ -379,7 +379,7 @@ duke_inflateReset(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(inflateReset2, 2);
+JS_PARAM(inflateReset2, 2);
 static duk_ret_t
 duke_inflateReset2(duk_context *ctx)
 {
@@ -391,7 +391,7 @@ duke_inflateReset2(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(inflatePrime, 3);
+JS_PARAM(inflatePrime, 3);
 static duk_ret_t
 duke_inflatePrime(duk_context *ctx)
 {
@@ -404,7 +404,7 @@ duke_inflatePrime(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(inflateMark, 1);
+JS_PARAM(inflateMark, 1);
 static duk_ret_t
 duke_inflateMark(duk_context *ctx)
 {
@@ -415,7 +415,7 @@ duke_inflateMark(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(inflateGetHeader, 1);
+JS_PARAM(inflateGetHeader, 1);
 static duk_ret_t
 duke_inflateGetHeader(duk_context *ctx)
 {
@@ -425,10 +425,10 @@ duke_inflateGetHeader(duk_context *ctx)
 
     int err = inflateGetHeader(f, &header);
     
-    return __obj_push(ctx, __set_gz_header, &header), 1;
+    return js_obj_push(ctx, __set_gz_header, &header), 1;
 }
 
-LIB_PARAM(inflateBackInit, 2);
+JS_PARAM(inflateBackInit, 2);
 static duk_ret_t
 duke_inflateBackInit(duk_context *ctx)
 {
@@ -445,14 +445,14 @@ duke_inflateBackInit(duk_context *ctx)
         goto error;
     }
     
-    return __push_pointer(ctx, f), 1;
+    return js_push_pointer(ctx, f), 1;
 error:
     os_free(f);
     
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(inflateBackEnd, 1);
+JS_PARAM(inflateBackEnd, 1);
 static duk_ret_t
 duke_inflateBackEnd(duk_context *ctx)
 {
@@ -463,7 +463,7 @@ duke_inflateBackEnd(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(zlibCompileFlags, 0);
+JS_PARAM(zlibCompileFlags, 0);
 static duk_ret_t
 duke_zlibCompileFlags(duk_context *ctx)
 {
@@ -472,7 +472,7 @@ duke_zlibCompileFlags(duk_context *ctx)
     return duk_push_uint(ctx, flag), 1;
 }
 
-LIB_PARAM(compress, 2);
+JS_PARAM(compress, 2);
 static duk_ret_t
 duke_compress(duk_context *ctx)
 {
@@ -485,12 +485,12 @@ duke_compress(duk_context *ctx)
     ulong_t dst_len = compressBound(src_size);
 
     if (dst_len>dst_size) {
-        err = __seterrno(ctx, -ENOSPACE); goto error;
+        err = __js_seterrno(ctx, -ENOSPACE); goto error;
     }
     
     err = compress(dst, &dst_len, src, src_size);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     err = dst_len;    
@@ -498,7 +498,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(compressEx, 1);
+JS_PARAM(compressEx, 1);
 static duk_ret_t
 duke_compressEx(duk_context *ctx)
 {
@@ -509,12 +509,12 @@ duke_compressEx(duk_context *ctx)
     ulong_t dst_size = compressBound(src_size);
     duk_buffer_t dst = duk_push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
-        __seterrno(ctx, -ENOMEM); goto error;
+        __js_seterrno(ctx, -ENOMEM); goto error;
     }
 
     err = compress(dst, &dst_size, src, src_size);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     return duk_resize_buffer(ctx, -1, dst_size), 1;
@@ -522,7 +522,7 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(compress2, 3);
+JS_PARAM(compress2, 3);
 static duk_ret_t
 duke_compress2(duk_context *ctx)
 {
@@ -536,12 +536,12 @@ duke_compress2(duk_context *ctx)
     ulong_t dst_len = compressBound(src_size);
 
     if (dst_len>dst_size) {
-        err = __seterrno(ctx, -ENOSPACE); goto error;
+        err = __js_seterrno(ctx, -ENOSPACE); goto error;
     }
     
     err = compress2(dst, &dst_len, src, src_size, level);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     err = dst_len;    
@@ -549,7 +549,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(compress2Ex, 2);
+JS_PARAM(compress2Ex, 2);
 static duk_ret_t
 duke_compress2Ex(duk_context *ctx)
 {
@@ -562,12 +562,12 @@ duke_compress2Ex(duk_context *ctx)
 
     duk_buffer_t dst = duk_push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
-        __seterrno(ctx, -ENOMEM); goto error;
+        __js_seterrno(ctx, -ENOMEM); goto error;
     }
 
     err = compress2(dst, &dst_size, src, src_size, level);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     return duk_resize_buffer(ctx, -1, dst_size), 1;
@@ -575,7 +575,7 @@ error:
     return duk_push_null(ctx), 1;
 }
 
-LIB_PARAM(compressBound, 1);
+JS_PARAM(compressBound, 1);
 static duk_ret_t
 duke_compressBound(duk_context *ctx)
 {
@@ -586,7 +586,7 @@ duke_compressBound(duk_context *ctx)
     return duk_push_uint(ctx, size), 1;
 }
 
-LIB_PARAM(uncompress, 2);
+JS_PARAM(uncompress, 2);
 static duk_ret_t
 duke_uncompress(duk_context *ctx)
 {
@@ -599,12 +599,12 @@ duke_uncompress(duk_context *ctx)
     ulong_t dst_len = compressBound(src_size);
 
     if (dst_len>dst_size) {
-        err = __seterrno(ctx, -ENOSPACE); goto error;
+        err = __js_seterrno(ctx, -ENOSPACE); goto error;
     }
     
     err = uncompress(dst, &dst_len, src, src_size);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     err = dst_len;    
@@ -612,7 +612,7 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(uncompressEx, 1);
+JS_PARAM(uncompressEx, 1);
 static duk_ret_t
 duke_uncompressEx(duk_context *ctx)
 {
@@ -622,14 +622,14 @@ duke_uncompressEx(duk_context *ctx)
     duk_buffer_t src = duk_require_buffer_data(ctx, 0, &src_size);
     ulong_t dst_size = compressBound(src_size);
 
-    duk_buffer_t dst = __push_dynamic_buffer(ctx, dst_size);
+    duk_buffer_t dst = js_push_dynamic_buffer(ctx, dst_size);
     if (NULL==dst) {
-        __seterrno(ctx, -ENOMEM); goto error;
+        __js_seterrno(ctx, -ENOMEM); goto error;
     }
 
     err = uncompress(dst, &dst_size, src, src_size);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
     duk_resize_buffer(ctx, -1, dst_size);
     
@@ -640,21 +640,21 @@ error:
 
 #define HFILE   gzFile
 
-LIB_PARAM(gzopen, 2);
+JS_PARAM(gzopen, 2);
 static duk_ret_t
 duke_gzopen(duk_context *ctx)
 {
     return xzopen(ctx, gzopen);
 }
 
-LIB_PARAM(gzdopen, 2);
+JS_PARAM(gzdopen, 2);
 static duk_ret_t
 duke_gzdopen(duk_context *ctx)
 {
     return xzdopen(ctx, gzdopen);
 }
 
-LIB_PARAM(gzsetparams, 3);
+JS_PARAM(gzsetparams, 3);
 static duk_ret_t
 duke_gzsetparams(duk_context *ctx)
 {
@@ -667,28 +667,28 @@ duke_gzsetparams(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzread, 2);
+JS_PARAM(gzread, 2);
 static duk_ret_t
 duke_gzread(duk_context *ctx)
 {
     return xzread(ctx, gzread);
 }
 
-LIB_PARAM(gzreadEx, 2);
+JS_PARAM(gzreadEx, 2);
 static duk_ret_t
 duke_gzreadEx(duk_context *ctx)
 {
     return xzreadEx(ctx, gzread);
 }
 
-LIB_PARAM(gzwrite, 2);
+JS_PARAM(gzwrite, 2);
 static duk_ret_t
 duke_gzwrite(duk_context *ctx)
 {
     return xzwrite(ctx, gzwrite);
 }
 
-LIB_PARAM(gzputs, 2);
+JS_PARAM(gzputs, 2);
 static duk_ret_t
 duke_gzputs(duk_context *ctx)
 {
@@ -700,7 +700,7 @@ duke_gzputs(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzgets, 2);
+JS_PARAM(gzgets, 2);
 static duk_ret_t
 duke_gzgets(duk_context *ctx)
 {
@@ -715,7 +715,7 @@ duke_gzgets(duk_context *ctx)
 	return duk_push_int(ctx, len), 1;
 }
 
-LIB_PARAM(gzputc, 2);
+JS_PARAM(gzputc, 2);
 static duk_ret_t
 duke_gzputc(duk_context *ctx)
 {
@@ -727,7 +727,7 @@ duke_gzputc(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzgetc, 1);
+JS_PARAM(gzgetc, 1);
 static duk_ret_t
 duke_gzgetc(duk_context *ctx)
 {
@@ -738,7 +738,7 @@ duke_gzgetc(duk_context *ctx)
     return duk_push_int(ctx, ch), 1;
 }
 
-LIB_PARAM(gzungetc, 2);
+JS_PARAM(gzungetc, 2);
 static duk_ret_t
 duke_gzungetc(duk_context *ctx)
 {
@@ -750,7 +750,7 @@ duke_gzungetc(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzflush, 2);
+JS_PARAM(gzflush, 2);
 static duk_ret_t
 duke_gzflush(duk_context *ctx)
 {
@@ -762,7 +762,7 @@ duke_gzflush(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzrewind, 1);
+JS_PARAM(gzrewind, 1);
 static duk_ret_t
 duke_gzrewind(duk_context *ctx)
 {
@@ -773,7 +773,7 @@ duke_gzrewind(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzseek, 3);
+JS_PARAM(gzseek, 3);
 static duk_ret_t
 duke_gzseek(duk_context *ctx)
 {
@@ -786,7 +786,7 @@ duke_gzseek(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gztell, 1);
+JS_PARAM(gztell, 1);
 static duk_ret_t
 duke_gztell(duk_context *ctx)
 {
@@ -797,7 +797,7 @@ duke_gztell(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzeof, 1);
+JS_PARAM(gzeof, 1);
 static duk_ret_t
 duke_gzeof(duk_context *ctx)
 {
@@ -808,7 +808,7 @@ duke_gzeof(duk_context *ctx)
     return duk_push_bool(ctx, is), 1;
 }
 
-LIB_PARAM(gzdirect, 1);
+JS_PARAM(gzdirect, 1);
 static duk_ret_t
 duke_gzdirect(duk_context *ctx)
 {
@@ -819,7 +819,7 @@ duke_gzdirect(duk_context *ctx)
     return duk_push_bool(ctx, is), 1;
 }
 
-LIB_PARAM(gzclose, 1);
+JS_PARAM(gzclose, 1);
 static duk_ret_t
 duke_gzclose(duk_context *ctx)
 {
@@ -831,7 +831,7 @@ duke_gzclose(duk_context *ctx)
 }
 
 #if ZLIB_VERNUM >= 0x1235
-LIB_PARAM(gzbuffer, 2);
+JS_PARAM(gzbuffer, 2);
 static duk_ret_t
 duke_gzbuffer(duk_context *ctx)
 {
@@ -843,7 +843,7 @@ duke_gzbuffer(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzoffset, 1);
+JS_PARAM(gzoffset, 1);
 static duk_ret_t
 duke_gzoffset(duk_context *ctx)
 {
@@ -854,7 +854,7 @@ duke_gzoffset(duk_context *ctx)
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(gzclose_r, 1);
+JS_PARAM(gzclose_r, 1);
 static duk_ret_t
 duke_gzclose_r(duk_context *ctx)
 {
@@ -865,7 +865,7 @@ duke_gzclose_r(duk_context *ctx)
     return duk_push_bool(ctx, err), 1;
 }
 
-LIB_PARAM(gzclose_w, 1);
+JS_PARAM(gzclose_w, 1);
 static duk_ret_t
 duke_gzclose_w(duk_context *ctx)
 {
@@ -877,14 +877,14 @@ duke_gzclose_w(duk_context *ctx)
 }
 #endif
 
-LIB_PARAM(gzerror, 1);
+JS_PARAM(gzerror, 1);
 static duk_ret_t
 duke_gzerror(duk_context *ctx)
 {
     return xzerror(ctx, gzerror);
 }
 
-LIB_PARAM(gzclearerr, 1);
+JS_PARAM(gzclearerr, 1);
 static duk_ret_t
 duke_gzclearerr(duk_context *ctx)
 {
@@ -893,7 +893,7 @@ duke_gzclearerr(duk_context *ctx)
     return gzclearerr(f), 0;
 }
 
-LIB_PARAM(adler32, 3);
+JS_PARAM(adler32, 3);
 static duk_ret_t
 duke_adler32(duk_context *ctx)
 {
@@ -905,7 +905,7 @@ duke_adler32(duk_context *ctx)
     int size = duk_require_int(ctx, 2);
 
     if (bsize < size) {
-        err = __seterrno(ctx, -E2SMALL); goto error;
+        err = __js_seterrno(ctx, -E2SMALL); goto error;
     }
 
     err = adler32(adler, buf, size);
@@ -914,7 +914,7 @@ error:
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(crc32, 3);
+JS_PARAM(crc32, 3);
 static duk_ret_t
 duke_crc32(duk_context *ctx)
 {
@@ -926,7 +926,7 @@ duke_crc32(duk_context *ctx)
     int size = duk_require_int(ctx, 2);
 
     if (bsize < size) {
-        err = __seterrno(ctx, -E2SMALL); goto error;
+        err = __js_seterrno(ctx, -E2SMALL); goto error;
     }
 
     err = crc32(adler, buf, size);
@@ -938,7 +938,7 @@ error:
 #include "libz/libzf.c"
 #include "libz/libzn.c"
 
-int libz_register(duk_context *ctx)
+int js_libz_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);

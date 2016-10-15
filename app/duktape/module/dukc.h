@@ -196,17 +196,17 @@ duk_put_functions(duk_context *ctx, duk_idx_t obj_index, const dukc_func_entry_t
 	}
 }
 
-#define __LIB_PARAM_VERSION_DEFT    1
-#define __LIB_PARAM_NUMBER(x)       duke_##__THIS_FILE##x##_param_number
-#define __LIB_PARAM_VERSION(x)      duke_##__THIS_FILE##x##_version
-#define LIB_PARAM_API(x, n, v)      enum{ __LIB_PARAM_NUMBER(x) = n, __LIB_PARAM_VERSION(x) = v }
-#define LIB_PARAM(x, n)             LIB_PARAM_API(x, n, __LIB_PARAM_VERSION_DEFT)
-#define LIB_FUNC(x)                 {#x, duke_##x, __LIB_PARAM_NUMBER(x), __LIB_PARAM_VERSION(x)}
-#define LIB_FUNC_END                {NULL, NULL, 0, __LIB_PARAM_VERSION_DEFT}
-#define __LIB_VALUE(_name, _value)  {_name, _value}
-#define LIB_TVAR(x, _type)          __LIB_VALUE(#x, (_type)(x))
-#define LIB_VALUE(x)                __LIB_VALUE(#x, x)
-#define LIB_VALUE_END               __LIB_VALUE(NULL, 0)
+#define JS_PARAM_VERSION_DEFT       1
+#define JS_PARAM_NUMBER(x)          duke_##__THIS_FILE##x##_param_number
+#define JS_PARAM_VERSION(x)         duke_##__THIS_FILE##x##_version
+#define JS_PARAM_API(x, n, v)       enum{ JS_PARAM_NUMBER(x) = n, JS_PARAM_VERSION(x) = v }
+#define JS_PARAM(x, n)              JS_PARAM_API(x, n, JS_PARAM_VERSION_DEFT)
+#define JS_FUNC(x)                  {#x, duke_##x, JS_PARAM_NUMBER(x), JS_PARAM_VERSION(x)}
+#define JS_FUNC_END                 {NULL, NULL, 0, JS_PARAM_VERSION_DEFT}
+#define __JS_VALUE(_name, _value)   {_name, _value}
+#define JS_TVAR(x, _type)           __JS_VALUE(#x, (_type)(x))
+#define JS_VALUE(x)                 __JS_VALUE(#x, x)
+#define JS_VALUE_END                __JS_VALUE(NULL, 0)
 
 typedef void *duk_pointer_t;
 typedef void *duk_buffer_t;
@@ -247,10 +247,10 @@ duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, duk_buffer_t *pbu
     return 0;
 }
 
-static inline int __push_error(duk_context *ctx, int err);
+static inline int js_push_error(duk_context *ctx, int err);
 
 static inline duk_buffer_t
-__push_pointer(duk_context *ctx, duk_pointer_t pointer)
+js_push_pointer(duk_context *ctx, duk_pointer_t pointer)
 {
     if (pointer) {
         duk_push_pointer(ctx, pointer);
@@ -262,7 +262,7 @@ __push_pointer(duk_context *ctx, duk_pointer_t pointer)
 }
 
 static inline duk_string_t
-__push_lstring(duk_context *ctx, duk_string_t s, duk_size_t len)
+js_push_lstring(duk_context *ctx, duk_string_t s, duk_size_t len)
 {
     if (is_good_str(s) && len>0) {
         return duk_push_lstring(ctx, s, len);
@@ -272,7 +272,7 @@ __push_lstring(duk_context *ctx, duk_string_t s, duk_size_t len)
 }
 
 static inline duk_string_t
-__push_string(duk_context *ctx, duk_string_t s)
+js_push_string(duk_context *ctx, duk_string_t s)
 {
     if (s) {
         return duk_push_string(ctx, s);
@@ -282,7 +282,7 @@ __push_string(duk_context *ctx, duk_string_t s)
 }
 
 static inline duk_buffer_t
-__push_buffer(duk_context *ctx, duk_size_t size, bool dynamic)
+js_push_buffer(duk_context *ctx, duk_size_t size, bool dynamic)
 {
     if (size>0) {
         return duk_push_buffer(ctx, size, dynamic);
@@ -292,7 +292,7 @@ __push_buffer(duk_context *ctx, duk_size_t size, bool dynamic)
 }
 
 static inline duk_buffer_t
-__push_fixed_buffer(duk_context *ctx, duk_size_t size)
+js_push_fixed_buffer(duk_context *ctx, duk_size_t size)
 {
     if (size>0) {
         return duk_push_fixed_buffer(ctx, size);
@@ -302,7 +302,7 @@ __push_fixed_buffer(duk_context *ctx, duk_size_t size)
 }
 
 static inline duk_buffer_t
-__push_dynamic_buffer(duk_context *ctx, duk_size_t size)
+js_push_dynamic_buffer(duk_context *ctx, duk_size_t size)
 {
     if (size>0) {
         return duk_push_dynamic_buffer(ctx, size);
@@ -312,7 +312,7 @@ __push_dynamic_buffer(duk_context *ctx, duk_size_t size)
 }
 
 static inline void
-__pcall(duk_context *ctx, duk_idx_t idx, int (*push)(void))
+js_pcall(duk_context *ctx, duk_idx_t idx, int (*push)(void))
 {
     idx = duk_normalize_index(ctx, idx);
     
@@ -322,7 +322,7 @@ __pcall(duk_context *ctx, duk_idx_t idx, int (*push)(void))
 }
 
 static inline int
-__get_a_prop_string(
+js_get_a_prop_string(
     duk_context *ctx, 
     bool auto_create, 
     duk_idx_t idx, 
@@ -359,7 +359,7 @@ __get_a_prop_string(
 }
 
 static inline int
-__get_v_prop_string(
+js_get_v_prop_string(
     duk_context *ctx, 
     bool auto_create, 
     duk_idx_t idx, 
@@ -397,18 +397,18 @@ __get_v_prop_string(
 }
 
 static inline int
-__get_prop_string(duk_context *ctx, bool auto_create, duk_idx_t idx, int *level, ...)
+js_get_prop_string(duk_context *ctx, bool auto_create, duk_idx_t idx, int *level, ...)
 {
     va_list args;
     
     va_start(args, level);
-    int err = __get_v_prop_string(ctx, auto_create, idx, level, args);
+    int err = js_get_v_prop_string(ctx, auto_create, idx, level, args);
     va_end(args);
 
     return err;
 }
 
-#define __get_obj_field(_ctx, _idx, _type, _key) ({ \
+#define js_get_obj_field(_ctx, _idx, _type, _key) ({ \
     duk_##_type##_t v = (duk_##_type##_t)0;         \
                                                     \
     duk_get_prop_string(_ctx, _idx, _key);          \
@@ -420,74 +420,74 @@ __get_prop_string(duk_context *ctx, bool auto_create, duk_idx_t idx, int *level,
     v;                                              \
 })
 
-#define __set_obj_field(_ctx, _idx, _type, _key, _v)    do{ \
+#define js_set_obj_field(_ctx, _idx, _type, _key, _v)   do{ \
     duk_idx_t __idx = duk_normalize_index(_ctx, _idx);      \
     duk_push_##_type(_ctx, _v);                             \
     duk_put_prop_string(_ctx, __idx, _key);                 \
 }while(0)
 
 static inline bool
-__get_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k)
+js_get_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
-    return __get_obj_field(ctx, idx, bool, k);
+    return js_get_obj_field(ctx, idx, bool, k);
 }
 
 static inline void
-__set_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_bool_t v)
+js_set_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_bool_t v)
 {
-    __set_obj_field(ctx, idx, bool, k, v);
+    js_set_obj_field(ctx, idx, bool, k, v);
 }
 
 static inline int
-__get_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k)
+js_get_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
-    return __get_obj_field(ctx, idx, int, k);
+    return js_get_obj_field(ctx, idx, int, k);
 }
 
 static inline void
-__set_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_int_t v)
+js_set_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_int_t v)
 {
-    __set_obj_field(ctx, idx, int, k, v);
+    js_set_obj_field(ctx, idx, int, k, v);
 }
 
 static inline duk_uint_t
-__get_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k)
+js_get_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
-    return __get_obj_field(ctx, idx, uint, k);
+    return js_get_obj_field(ctx, idx, uint, k);
 }
 
 static inline void
-__set_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_uint_t v)
+js_set_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_uint_t v)
 {
-    __set_obj_field(ctx, idx, uint, k, v);
+    js_set_obj_field(ctx, idx, uint, k, v);
 }
 
 static inline duk_number_t
-__get_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k)
+js_get_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
-    return __get_obj_field(ctx, idx, number, k);
+    return js_get_obj_field(ctx, idx, number, k);
 }
 
 static inline void
-__set_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_number_t v)
+js_set_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_number_t v)
 {
-    __set_obj_field(ctx, idx, number, k, v);
+    js_set_obj_field(ctx, idx, number, k, v);
 }
 
 static inline duk_pointer_t
-__get_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k)
+js_get_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k)
 {
-    return __get_obj_field(ctx, idx, pointer, k);
+    return js_get_obj_field(ctx, idx, pointer, k);
 }
 
 static inline void
-__set_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_pointer_t v)
+js_set_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_pointer_t v)
 {
-    __set_obj_field(ctx, idx, pointer, k, v);
+    js_set_obj_field(ctx, idx, pointer, k, v);
 }
 
 static inline char *
-__get_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *plen)
+js_get_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *plen)
 {
     char *v = NULL;
     
@@ -501,10 +501,10 @@ __get_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *pl
 }
 
 static inline char *
-__copy_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, char *buffer, int size)
+js_copy_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, char *buffer, int size)
 {
     duk_size_t len = 0;
-    char *v = __get_obj_string(ctx, idx, k, &len);
+    char *v = js_get_obj_string(ctx, idx, k, &len);
     
     if (v && (size-1) >= len ) {
         v = os_strmcpy(buffer, v, len);
@@ -516,16 +516,16 @@ __copy_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, char *buffer,
 }
 
 static inline void
-__set_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, char * v)
+js_set_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, char * v)
 {
     idx = duk_normalize_index(ctx, idx);
     
-    __push_string(ctx, v);
+    js_push_string(ctx, v);
     duk_put_prop_string(ctx, idx, k);
 }
 
 static inline duk_buffer_t
-__get_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *plen)
+js_get_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *plen)
 {
     duk_buffer_t v = NULL;
     
@@ -539,10 +539,10 @@ __get_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *pl
 }
 
 static inline char *
-__copy_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t buffer, duk_size_t size)
+js_copy_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t buffer, duk_size_t size)
 {
     duk_size_t len = 0;
-    duk_buffer_t v = __get_obj_buffer(ctx, idx, k, &len);
+    duk_buffer_t v = js_get_obj_buffer(ctx, idx, k, &len);
     if (v && size>=len) {
         os_memcpy(buffer, v, len);
         v = buffer;
@@ -554,22 +554,22 @@ __copy_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t 
 }
 
 static inline void
-__set_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t v, duk_size_t size)
+js_set_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t v, duk_size_t size)
 {
     idx = duk_normalize_index(ctx, idx);
     
-    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = js_push_dynamic_buffer(ctx, size);
     os_memcpy(buf, v, size);
     duk_put_prop_string(ctx, idx, k);
 }
 
 static inline int
-__get_array_length(duk_context *ctx, duk_idx_t idx)
+js_get_array_length(duk_context *ctx, duk_idx_t idx)
 {
-    return __get_obj_int(ctx, idx, "length");
+    return js_get_obj_int(ctx, idx, "length");
 }
 
-#define __get_array_field(_ctx, _idx, _type, _aidx)  ({ \
+#define js_get_array_field(_ctx, _idx, _type, _aidx) ({ \
     duk_##_type##_t v = (duk_##_type##_t)0;             \
                                                         \
     duk_get_prop_index(_ctx, _idx, _aidx);              \
@@ -581,74 +581,74 @@ __get_array_length(duk_context *ctx, duk_idx_t idx)
     v;                                                  \
 })
 
-#define __set_array_field(_ctx, _idx, _type, _aidx, _v)  do{    \
+#define js_set_array_field(_ctx, _idx, _type, _aidx, _v)  do{   \
     duk_idx_t __idx = duk_normalize_index(_ctx, _idx);          \
     duk_push_##_type(_ctx, _v);                                 \
     duk_put_prop_index(_ctx, __idx, _aidx);                     \
 }while(0)
 
 static inline bool
-__get_array_bool(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
+js_get_array_bool(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
 {
-    return __get_array_field(ctx, idx, bool, aidx);
+    return js_get_array_field(ctx, idx, bool, aidx);
 }
 
 static inline void
-__set_array_bool(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_bool_t v)
+js_set_array_bool(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_bool_t v)
 {
-    __set_array_field(ctx, idx, bool, aidx, v);
+    js_set_array_field(ctx, idx, bool, aidx, v);
 }
 
 static inline int
-__get_array_int(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
+js_get_array_int(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
 {
-    return __get_array_field(ctx, idx, int, aidx);
+    return js_get_array_field(ctx, idx, int, aidx);
 }
 
 static inline void
-__set_array_int(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_int_t v)
+js_set_array_int(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_int_t v)
 {
-    __set_array_field(ctx, idx, int, aidx, v);
+    js_set_array_field(ctx, idx, int, aidx, v);
 }
 
 static inline duk_uint_t
-__get_array_uint(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
+js_get_array_uint(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
 {
-    return __get_array_field(ctx, idx, uint, aidx);
+    return js_get_array_field(ctx, idx, uint, aidx);
 }
 
 static inline void
-__set_array_uint(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_uint_t v)
+js_set_array_uint(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_uint_t v)
 {
-    __set_array_field(ctx, idx, uint, aidx, v);
+    js_set_array_field(ctx, idx, uint, aidx, v);
 }
 
 static inline duk_number_t
-__get_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
+js_get_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
 {
-    return __get_array_field(ctx, idx, number, aidx);
+    return js_get_array_field(ctx, idx, number, aidx);
 }
 
 static inline void
-__set_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_number_t v)
+js_set_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_number_t v)
 {
-    __set_array_field(ctx, idx, number, aidx, v);
+    js_set_array_field(ctx, idx, number, aidx, v);
 }
 
 static inline duk_pointer_t
-__get_array_pointer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
+js_get_array_pointer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
 {
-    return __get_array_field(ctx, idx, pointer, aidx);
+    return js_get_array_field(ctx, idx, pointer, aidx);
 }
 
 static inline void
-__set_array_pointer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_pointer_t v)
+js_set_array_pointer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_pointer_t v)
 {
-    __set_array_field(ctx, idx, pointer, aidx, v);
+    js_set_array_field(ctx, idx, pointer, aidx, v);
 }
 
 static inline char *
-__get_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *plen)
+js_get_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *plen)
 {
     char *v = NULL;
     
@@ -662,10 +662,10 @@ __get_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *
 }
 
 static inline char *
-__copy_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, char *buffer, int size)
+js_copy_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, char *buffer, int size)
 {
     duk_size_t len = 0;
-    char *v = __get_array_string(ctx, idx, aidx, &len);
+    char *v = js_get_array_string(ctx, idx, aidx, &len);
     if (v && (size-1) >= len) {
         os_strmcpy(buffer, v, len);
         v = buffer;
@@ -677,16 +677,16 @@ __copy_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, char *buffe
 }
 
 static inline void
-__set_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, char *v)
+js_set_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, char *v)
 {
     idx = duk_normalize_index(ctx, idx);
     
-    __push_string(ctx, (char *)v);
+    js_push_string(ctx, (char *)v);
     duk_put_prop_index(ctx, idx, aidx);
 }
 
 static inline duk_buffer_t
-__get_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *plen)
+js_get_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *plen)
 {
     duk_buffer_t v = NULL;
     
@@ -700,10 +700,10 @@ __get_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *
 }
 
 static inline char *
-__copy_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_t buffer, int size)
+js_copy_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_t buffer, int size)
 {
     duk_size_t len = 0;
-    duk_buffer_t v = __get_array_buffer(ctx, idx, aidx, &len);
+    duk_buffer_t v = js_get_array_buffer(ctx, idx, aidx, &len);
     if (v && size >= len) {
         os_memcpy(buffer, v, len);
         v = buffer;
@@ -715,36 +715,36 @@ __copy_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_
 }
 
 static inline void
-__set_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_t v, int size)
+js_set_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_t v, int size)
 {
     idx = duk_normalize_index(ctx, idx);
     
-    duk_buffer_t buf = __push_dynamic_buffer(ctx, size);
+    duk_buffer_t buf = js_push_dynamic_buffer(ctx, size);
     os_memcpy(buf, v, size);
     duk_put_prop_index(ctx, idx, aidx);
 }
 
 static inline int
-__seterrno(duk_context *ctx, int err)
+__js_seterrno(duk_context *ctx, int err)
 {
     duk_push_global_object(ctx);
         if (duk_get_prop_string(ctx, -1, duk_MOD_LIBC)) {
-            __set_obj_field(ctx, -1, int, "errno", err);
+            js_set_obj_field(ctx, -1, int, "errno", err);
         }
     	duk_pop(ctx);
     duk_pop(ctx);
 
     return err;
 }
-#define seterrno(_ctx)  __seterrno(ctx, -errno)
+#define js_seterrno(_ctx)  __js_seterrno(ctx, -errno)
 
 typedef int dukc_obj_op_f(duk_context *ctx, duk_idx_t idx, duk_object_t obj);
 
 static inline int 
-__push_error(duk_context *ctx, int err)
+js_push_error(duk_context *ctx, int err)
 {
     if (err<0) {
-        seterrno(ctx);
+        js_seterrno(ctx);
     }
 
     duk_push_int(ctx, err);
@@ -753,7 +753,7 @@ __push_error(duk_context *ctx, int err)
 }
 
 static inline int
-__obj_push(duk_context *ctx, dukc_obj_op_f *set, duk_object_t obj)
+js_obj_push(duk_context *ctx, dukc_obj_op_f *set, duk_object_t obj)
 {
     if (obj) {
         duk_push_object(ctx);
@@ -767,7 +767,7 @@ __obj_push(duk_context *ctx, dukc_obj_op_f *set, duk_object_t obj)
 }
 
 static inline int
-__obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, duk_object_t obj, duk_string_t k)
+js_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, duk_object_t obj, duk_string_t k)
 {
     int err = 0;
 
@@ -792,19 +792,19 @@ __obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, d
     return err;
 }
 
-#define __obj_get(_ctx, _idx, _get, _obj, _k) \
-    __obj_op(_ctx, false, _idx, _get, _obj, _k)
+#define js_obj_get(_ctx, _idx, _get, _obj, _k) \
+    js_obj_op(_ctx, false, _idx, _get, _obj, _k)
 #define __obj_set(_ctx, _idx, _set, _obj, _k) \
-    __obj_op(_ctx, true, _idx, _set, _obj, _k)
+    js_obj_op(_ctx, true, _idx, _set, _obj, _k)
 
 static inline int
-__obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, duk_object_t obj, ...)
+js_obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, duk_object_t obj, ...)
 {
     int err = 0, level = 0;
     va_list args;
 
     va_start(args, obj);
-    err = __get_v_prop_string(ctx, auto_create, idx, &level, args);
+    err = js_get_v_prop_string(ctx, auto_create, idx, &level, args);
     va_end(args);
 
     if (0==err) {
@@ -815,13 +815,40 @@ __obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *o
     return err;
 }
 
-#define __obj_obj_get(_ctx, _idx, _get, _obj, _args...) \
-    __obj_obj_op(_ctx, false, _idx, _get, _obj, ##_args)
-#define __obj_obj_set(_ctx, _idx, _get, _obj, _args...) \
-    __obj_obj_op(_ctx, true, _idx, _get, _obj, ##_args)
+#define js_obj_obj_get(_ctx, _idx, _get, _obj, _args...) \
+    js_obj_obj_op(_ctx, false, _idx, _get, _obj, ##_args)
+#define js_obj_obj_set(_ctx, _idx, _get, _obj, _args...) \
+    js_obj_obj_op(_ctx, true, _idx, _get, _obj, ##_args)
+
+extern duk_context *__js_ctx;
+extern bool __js_shabang;
+extern int __js_argc;
+extern char **__js_argv;
+
+#if duk_LIBC_SIG
+extern char *js_libc_sig_name[];
+extern void js_libc_sig_handler(int sig);
+#endif
+
+extern int js_global_register(duk_context *ctx);
+extern int js_duktape_register(duk_context *ctx);
+extern int js_my_register(duk_context *ctx);
+extern int js_libc_register(duk_context *ctx);
+#if duk_LIBZ
+extern int js_libz_register(duk_context *ctx);
+#endif
+#if duk_LIBBZ
+extern int js_libbz_register(duk_context *ctx);
+#endif
+#if duk_LIBLZ
+extern int js_liblz_register(duk_context *ctx);
+#endif
+#if duk_LIBCURL
+extern int js_libcurl_register(duk_context *ctx);
+#endif
 
 static inline int
-__load_file(duk_context *ctx, char *filename)
+js_load_file(duk_context *ctx, char *filename)
 {
     int err = -ENOEXIST;
     
@@ -835,7 +862,7 @@ __load_file(duk_context *ctx, char *filename)
 }
 
 static inline int
-__load_code(duk_context *ctx, char *tag, char *code)
+js_load_code(duk_context *ctx, char *tag, char *code)
 {
     int err = 0;
     
@@ -846,32 +873,96 @@ __load_code(duk_context *ctx, char *tag, char *code)
     return err;
 }
 
-extern duk_context *__js_ctx;
-extern bool __js_shabang;
-extern int __js_argc;
-extern char **__js_argv;
+static inline int
+js_buildin_register(duk_context *ctx)
+{
+    int err = 0;
+    
+    err = js_load_code(ctx, "buildin", duk_global_CODE);
 
-#if duk_LIBC_SIG
-extern char *libc_sig_name[];
-extern void libc_sig_handler(int sig);
-#endif
+    debug_ok_error(err, "register buildin");
 
-extern int global_register(duk_context *ctx);
-extern int duktape_register(duk_context *ctx);
-extern int my_register(duk_context *ctx);
-extern int libc_register(duk_context *ctx);
+    return err;
+}
+
+static inline int
+js_auto_register(duk_context *ctx)
+{
+    char path[1+OS_LINE_LEN] = {0};
+    int err = 0;
+    
+    /*
+    * try eval duk_PATH/auto/xxx.js
+    */
+    char *env = env_gets(ENV_duk_PATH, duk_PATH);
+    os_snprintf(path, OS_LINE_LEN, "%s/" duk_auto_PATH, env);
+    
+    bool __filter(char *path, char *filename)
+    {
+        /*
+        * skip NOT-js file
+        */
+        return false==os_str_is_end_by(filename, ".js");
+    }
+    
+    mv_t __handler(char *path, char *filename, os_fscan_line_handle_f *line_handle)
+    {
+        (void)line_handle;
+        
+        char file[1+OS_LINE_LEN] = {0};
+
+        os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
+
+        int err = js_load_file(ctx, file);
+        if (err<0) {
+            return mv2_go(err);
+        }
+        
+        return mv2_ok;
+    }
+
+    err = os_fscan_dir(path, false, __filter, __handler, NULL);
+
+    debug_ok_error(err, "register auto");
+    
+    return err;
+}
+
+static inline int
+js_register(duk_context *ctx)
+{
+    static int (*registers[])(duk_context *) = {
+        js_global_register,
+        js_duktape_register,
+        js_my_register,
+        js_libc_register,
 #if duk_LIBZ
-extern int libz_register(duk_context *ctx);
+        js_libz_register,
 #endif
 #if duk_LIBBZ
-extern int libbz_register(duk_context *ctx);
+        js_libbz_register,
 #endif
 #if duk_LIBLZ
-extern int liblz_register(duk_context *ctx);
+        js_liblz_register,
 #endif
 #if duk_LIBCURL
-extern int libcurl_register(duk_context *ctx);
+        js_libcurl_register,
 #endif
+        /*keep below last*/
+        js_buildin_register,
+        js_auto_register,
+    };
+    int i, err;
+
+    for (i=0; i<os_count_of(registers); i++) {
+        err = (*registers[i])(ctx);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
+}
 
 #include "libc.h"   /* must end */
 /******************************************************************************/

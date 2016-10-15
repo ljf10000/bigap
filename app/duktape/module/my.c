@@ -15,7 +15,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "dukc.h"
 #include "my.h"
 
-LIB_PARAM(ak_getbyname, 2);
+JS_PARAM(ak_getbyname, 2);
 static duk_ret_t
 duke_ak_getbyname(duk_context *ctx)
 {
@@ -25,7 +25,7 @@ duke_ak_getbyname(duk_context *ctx)
     return duk_push_uint(ctx, __ak_getbyname(app, key)), 1;
 }
 
-LIB_PARAM(ak_get, 2);
+JS_PARAM(ak_get, 2);
 static duk_ret_t
 duke_ak_get(duk_context *ctx)
 {
@@ -35,7 +35,7 @@ duke_ak_get(duk_context *ctx)
     return duk_push_uint(ctx, ak_get(akid, deft)), 1;
 }
 
-LIB_PARAM(ak_set, 2);
+JS_PARAM(ak_set, 2);
 static duk_ret_t
 duke_ak_set(duk_context *ctx)
 {
@@ -45,7 +45,7 @@ duke_ak_set(duk_context *ctx)
     return duk_push_int(ctx, ak_set(akid, value)), 1;
 }
 
-LIB_PARAM(ak_reload, 0);
+JS_PARAM(ak_reload, 0);
 static duk_ret_t
 duke_ak_reload(duk_context *ctx)
 {
@@ -53,7 +53,7 @@ duke_ak_reload(duk_context *ctx)
 }
 
 /*
-LIB_PARAM(is_debug_mod, 1);
+JS_PARAM(is_debug_mod, 1);
 static duk_ret_t
 duke_is_debug_mod(duk_context *ctx)
 {
@@ -83,7 +83,7 @@ duke_is_debug_mod(duk_context *ctx)
 }
 */
 
-LIB_PARAM(is_debug, 1);
+JS_PARAM(is_debug, 1);
 static duk_ret_t
 duke_is_debug(duk_context *ctx)
 {
@@ -92,7 +92,7 @@ duke_is_debug(duk_context *ctx)
     return duk_push_bool(ctx, is), 1;
 }
 
-LIB_PARAM(debug, 1);
+JS_PARAM(debug, 1);
 static duk_ret_t
 duke_debug(duk_context *ctx)
 {
@@ -103,7 +103,7 @@ duke_debug(duk_context *ctx)
     return 0;
 }
 
-LIB_PARAM(pipe, 1);
+JS_PARAM(pipe, 1);
 static duk_ret_t
 duke_pipe(duk_context *ctx)
 {
@@ -112,7 +112,7 @@ duke_pipe(duk_context *ctx)
     
     int cb(pipe_info_t *info)
     {
-        return __obj_push(ctx, __set___info_t, info);
+        return js_obj_push(ctx, __set___info_t, info);
     }
 
     err = os_pipe_system(cb, line);
@@ -123,7 +123,7 @@ duke_pipe(duk_context *ctx)
 	return 1;
 }
 
-LIB_PARAM(shell, 1);
+JS_PARAM(shell, 1);
 static duk_ret_t
 duke_shell(duk_context *ctx)
 {
@@ -134,7 +134,7 @@ duke_shell(duk_context *ctx)
 	return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(readtxt, 1);
+JS_PARAM(readtxt, 1);
 static duk_ret_t
 duke_readtxt(duk_context *ctx)
 {
@@ -143,13 +143,13 @@ duke_readtxt(duk_context *ctx)
     char *filename = (char *)duk_require_string(ctx, 0);
     
     int err = os_readfileall(filename, &buf, &size, false);
-    __push_lstring(ctx, buf, size);
+    js_push_lstring(ctx, buf, size);
     os_free(buf);
     
     return 1;
 }
 
-LIB_PARAM(readbin, 1);
+JS_PARAM(readbin, 1);
 static duk_ret_t
 duke_readbin(duk_context *ctx)
 {
@@ -160,7 +160,7 @@ duke_readbin(duk_context *ctx)
         return duk_push_null(ctx), 1;
     }
 
-    char *buf = __push_dynamic_buffer(ctx, size);
+    char *buf = js_push_dynamic_buffer(ctx, size);
 
     if (os_readfile(filename, buf, size) < 0) {
         duk_pop(ctx);
@@ -180,7 +180,7 @@ __writefile(duk_context *ctx, bool append)
     char *filename = (char *)duk_require_string(ctx, 0);
     int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
 
     if (2==duk_get_max_idx(ctx)) {
@@ -192,21 +192,21 @@ error:
     return duk_push_int(ctx, err), 1;
 }
 
-LIB_PARAM(writefile, DUK_VARARGS);
+JS_PARAM(writefile, DUK_VARARGS);
 static duk_ret_t
 duke_writefile(duk_context *ctx)
 {
     return __writefile(ctx, false);
 }
 
-LIB_PARAM(appendfile, DUK_VARARGS);
+JS_PARAM(appendfile, DUK_VARARGS);
 static duk_ret_t
 duke_appendfile(duk_context *ctx)
 {
     return __writefile(ctx, true);
 }
 
-LIB_PARAM(cleanfile, 1);
+JS_PARAM(cleanfile, 1);
 static duk_ret_t
 duke_cleanfile(duk_context *ctx)
 {
@@ -215,7 +215,7 @@ duke_cleanfile(duk_context *ctx)
     return os_fclean(filename), 0;
 }
 
-LIB_PARAM(readline, 2);
+JS_PARAM(readline, 2);
 static duk_ret_t
 duke_readline(duk_context *ctx)
 {
@@ -227,12 +227,12 @@ duke_readline(duk_context *ctx)
     
     line = (char *)os_malloc(1+OS_FILE_LEN);
     if (NULL==line) {
-        err = __seterrno(ctx, -ENOMEM); goto error;
+        err = __js_seterrno(ctx, -ENOMEM); goto error;
     }
     
     f = os_fopen(filename, "r");
     if (NULL==f) {
-        err = __seterrno(ctx, -ENOEXIST); goto error;
+        err = __js_seterrno(ctx, -ENOEXIST); goto error;
     }
     
     while(!os_feof(f)) {
@@ -257,13 +257,13 @@ duke_readline(duk_context *ctx)
         }
 
         duk_dup(ctx, 1);                        // dup callback         , callback
-        __push_lstring(ctx, line, len);         // push line            , callback line
+        js_push_lstring(ctx, line, len);         // push line            , callback line
         int exec = duk_pcall(ctx, 1);           // call callback(line)  , result/error
         err = duk_get_int(ctx, -1);             // get callback error
         duk_pop(ctx);                           // pop callback result  , empty
         
         if (DUK_EXEC_ERROR==exec) { // check callback exec
-            err = __seterrno(ctx, -ESCRIPT); goto error;
+            err = __js_seterrno(ctx, -ESCRIPT); goto error;
         }
         else if (err<0) {             // check callback result
             goto error;
@@ -344,7 +344,7 @@ loop_signal_init(duk_context *ctx)
         goto error;
     }
     
-    int i, count = __get_array_length(ctx, -1);
+    int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
         goto error;
     }
@@ -352,7 +352,7 @@ loop_signal_init(duk_context *ctx)
     sigset_t set;
     sigemptyset(&set);
     for (i=0; i<count; i++) {
-        sigaddset(&set, __get_array_int(ctx, -1, i));
+        sigaddset(&set, js_get_array_int(ctx, -1, i));
     }
     sigprocmask(SIG_SETMASK, &set, NULL);
 
@@ -445,13 +445,13 @@ loop_epoll_init(duk_context *ctx)
         goto error;
     }
     
-    int i, count = __get_array_length(ctx, -1);
+    int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
         goto error;
     }
 
     for (i=0; i<count; i++) {
-        err = loop_add(__get_array_int(ctx, -1, i));
+        err = loop_add(js_get_array_int(ctx, -1, i));
         if (err<0) {
             goto error;
         }
@@ -497,14 +497,14 @@ loop_inotify_init(duk_context *ctx)
         goto error;
     }
     
-    int i, count = __get_array_length(ctx, -1);
+    int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
         goto error;
     }
     
     for (i=0; i<count; i++) {
-        char *path = __get_array_string(ctx, -1, i, NULL);
-        uint32 mask = __get_array_uint(ctx, -1, i);
+        char *path = js_get_array_string(ctx, -1, i, NULL);
+        uint32 mask = js_get_array_uint(ctx, -1, i);
 
         err = inotify_add_watch(__loop_inotify.fd, path, mask);
         if (err<0) {
@@ -526,7 +526,7 @@ loop_save(duk_context *ctx)
     for (i=0; i<os_count_of(LOOP); i++) {
         if (LOOP[i]->used) {
             duk_get_prop_string(ctx, loop_param_idx, LOOP[i]->obj);
-            __set_obj_int(ctx, -1, "fd", LOOP[i]->fd);
+            js_set_obj_int(ctx, -1, "fd", LOOP[i]->fd);
             duk_pop(ctx);
         }
     }
@@ -607,12 +607,12 @@ loop_signal_handle(duk_context *ctx)
     struct signalfd_siginfo siginfo;
 
     int push_signal(void) {
-        return __obj_push(ctx, __set_signalfd_siginfo, &siginfo), 1;
+        return js_obj_push(ctx, __set_signalfd_siginfo, &siginfo), 1;
     }
 
     int len = read(__loop_signal.fd, &siginfo, sizeof(siginfo));
     if (len==sizeof(siginfo)) {
-        __pcall(ctx, __loop_signal.func, push_signal);
+        js_pcall(ctx, __loop_signal.func, push_signal);
     }
 }
 
@@ -627,7 +627,7 @@ loop_timer_handle(duk_context *ctx)
     
     int len = read(__loop_timer.fd, &val, sizeof(val));
     if (len==sizeof(val)) {
-        __pcall(ctx, __loop_timer.func, push_timer);
+        js_pcall(ctx, __loop_timer.func, push_timer);
     }
 }
 
@@ -635,10 +635,10 @@ static void
 loop_epoll_handle(duk_context *ctx, struct epoll_event *ev)
 {
     int push_epoll(void) {
-        return __obj_push(ctx, __set_epoll_event, ev), 1;
+        return js_obj_push(ctx, __set_epoll_event, ev), 1;
     }
 
-    __pcall(ctx, __loop_epoll.func, push_epoll);
+    js_pcall(ctx, __loop_epoll.func, push_epoll);
 }
 
 static void
@@ -647,12 +647,12 @@ loop_inotify_handle(duk_context *ctx)
     struct inotify_event val;
     
     int push_inotify(void) {
-        return __obj_push(ctx, __set_inotify_event, &val), 1;
+        return js_obj_push(ctx, __set_inotify_event, &val), 1;
     }
     
     int len = read(__loop_inotify.fd, &val, sizeof(val));
     if (len==sizeof(val)) {
-        __pcall(ctx, __loop_inotify.func, push_inotify);
+        js_pcall(ctx, __loop_inotify.func, push_inotify);
     }
 }
 
@@ -695,7 +695,7 @@ loop_handle(duk_context *ctx)
 }
 
 // TODO: inotify on loop
-LIB_PARAM(loop, 1);
+JS_PARAM(loop, 1);
 static duk_ret_t
 duke_loop(duk_context *ctx)
 {
@@ -705,7 +705,7 @@ duke_loop(duk_context *ctx)
 
     err = loop_init(ctx);
     if (err<0) {
-        __seterrno(ctx, err); goto error;
+        __js_seterrno(ctx, err); goto error;
     }
     
     loop_save(ctx);
@@ -714,7 +714,7 @@ duke_loop(duk_context *ctx)
     while(1) {
         err = loop_handle(ctx);
         if (err<0) {
-            __seterrno(ctx, err); goto error;
+            __js_seterrno(ctx, err); goto error;
         }
     }
 
@@ -732,7 +732,7 @@ libcall(duk_context *ctx)
     int err = 0;
     duk_string_t lib = (duk_string_t)duk_require_string(ctx, 0);
     duk_string_t sym = (duk_string_t)duk_require_string(ctx, 1);
-    int count = __get_array_length(ctx, 2);
+    int count = js_get_array_length(ctx, 2);
     if (count<=0) {
         return -EKEYBAD;
     }
@@ -773,7 +773,7 @@ libcall(duk_context *ctx)
     return 0;
 }
 
-LIB_PARAM(libcall, 4);
+JS_PARAM(libcall, 4);
 static duk_ret_t
 duke_libcall(duk_context *ctx)
 {
@@ -796,7 +796,7 @@ env_register(duk_context *ctx)
         if (NULL!=v) {
             *v++ = 0;
 
-            __set_obj_string(ctx, -1, k, v);
+            js_set_obj_string(ctx, -1, k, v);
         }
         os_free(k);
         
@@ -811,56 +811,56 @@ arg_register(duk_context *ctx)
     int i, argc = __js_argc - (1 + !!__js_shabang);
     char **argv = __js_argv + (1 + !!__js_shabang);
     
-    __set_obj_string(ctx, -1, "name", __js_argv[0]);
-    __set_obj_string(ctx, -1, "script", __js_shabang?__js_argv[1]:"");
+    js_set_obj_string(ctx, -1, "name", __js_argv[0]);
+    js_set_obj_string(ctx, -1, "script", __js_shabang?__js_argv[1]:"");
     
     duk_push_array(ctx);
     for (i=0; i<argc; i++) {
-        __set_array_string(ctx, -1, i, argv[i]);
+        js_set_array_string(ctx, -1, i, argv[i]);
     }
     duk_put_prop_string(ctx, -2, "argv");
 }
 
 static const dukc_func_entry_t my_func[] = {
-    LIB_FUNC(ak_getbyname),
-    LIB_FUNC(ak_get),
-    LIB_FUNC(ak_set),
-    LIB_FUNC(ak_reload),
-    LIB_FUNC(is_debug),
-    LIB_FUNC(debug),
-    LIB_FUNC(pipe),
-    LIB_FUNC(shell),
-    LIB_FUNC(readtxt),
-    LIB_FUNC(readbin),
-    LIB_FUNC(readline),
-    LIB_FUNC(writefile),
-    LIB_FUNC(appendfile),
-    LIB_FUNC(cleanfile),
-    LIB_FUNC(loop),
+    JS_FUNC(ak_getbyname),
+    JS_FUNC(ak_get),
+    JS_FUNC(ak_set),
+    JS_FUNC(ak_reload),
+    JS_FUNC(is_debug),
+    JS_FUNC(debug),
+    JS_FUNC(pipe),
+    JS_FUNC(shell),
+    JS_FUNC(readtxt),
+    JS_FUNC(readbin),
+    JS_FUNC(readline),
+    JS_FUNC(writefile),
+    JS_FUNC(appendfile),
+    JS_FUNC(cleanfile),
+    JS_FUNC(loop),
 #if duk_LIBCALL
-    LIB_FUNC(libcall),
+    JS_FUNC(libcall),
 #endif
 
-    LIB_FUNC_END
+    JS_FUNC_END
 };
 
 static const dukc_number_entry_t my_static_number[] = {
-    LIB_VALUE_END
+    JS_VALUE_END
 };
 
-int my_register(duk_context *ctx)
+int js_my_register(duk_context *ctx)
 {
     const dukc_number_entry_t my_dynamic_number[] = {
-        __LIB_VALUE("SIZEOF_SHORT",     sizeof(short)),
-        __LIB_VALUE("SIZEOF_INT",       sizeof(int)),
-        __LIB_VALUE("SIZEOF_LONG",      sizeof(long)),
-        __LIB_VALUE("SIZEOF_LONGLONG",  sizeof(long long)),
-        __LIB_VALUE("SIZEOF_POINTER",   sizeof(void *)),
+        __JS_VALUE("SIZEOF_SHORT",     sizeof(short)),
+        __JS_VALUE("SIZEOF_INT",       sizeof(int)),
+        __JS_VALUE("SIZEOF_LONG",      sizeof(long)),
+        __JS_VALUE("SIZEOF_LONGLONG",  sizeof(long long)),
+        __JS_VALUE("SIZEOF_POINTER",   sizeof(void *)),
 
-        __LIB_VALUE("BIG_ENDIAN",       !!(*(uint16 *)"\x12\x34"==0x1234)),
-        __LIB_VALUE("LITTLE_ENDIAN",    !!(*(uint16 *)"\x12\x34"==0x3412)),
+        __JS_VALUE("BIG_ENDIAN",       !!(*(uint16 *)"\x12\x34"==0x1234)),
+        __JS_VALUE("LITTLE_ENDIAN",    !!(*(uint16 *)"\x12\x34"==0x3412)),
 
-        LIB_VALUE_END
+        JS_VALUE_END
     };
     
     duk_push_global_object(ctx);

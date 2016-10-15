@@ -15,7 +15,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "dukc.h"
 
 
-LIB_PARAM(modSearch, DUK_VARARGS);
+JS_PARAM(modSearch, DUK_VARARGS);
 static duk_ret_t
 duke_modSearch(duk_context *ctx)
 {
@@ -67,12 +67,12 @@ duke_modSearch(duk_context *ctx)
 }
 
 static const dukc_func_entry_t duktape_func[] = {
-    LIB_FUNC(modSearch),
+    JS_FUNC(modSearch),
 
-    LIB_FUNC_END
+    JS_FUNC_END
 };
 
-int duktape_register(duk_context *ctx)
+int js_duktape_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
     	duk_get_prop_string(ctx, -1, duk_DUKTAPE);

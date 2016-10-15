@@ -7,7 +7,7 @@
                                     \
     HFILE f = func(filename, mode); \
                                     \
-    __push_pointer(ctx, f);         \
+    js_push_pointer(ctx, f);         \
                                     \
     1;                              \
 })
@@ -18,7 +18,7 @@
                                     \
     HFILE f = func(fd, mode);       \
                                     \
-    __push_pointer(ctx, f);         \
+    js_push_pointer(ctx, f);         \
                                     \
     1;                              \
 })
@@ -42,9 +42,9 @@
     HFILE f = (HFILE)duk_require_pointer(ctx, 0); \
     int size = duk_require_int(ctx, 1); \
                                     \
-    duk_buffer_t buf = __push_dynamic_buffer(ctx, size); \
+    duk_buffer_t buf = js_push_dynamic_buffer(ctx, size); \
     if (NULL==buf) {                \
-        err = __seterrno(ctx, -ENOMEM); \
+        err = __js_seterrno(ctx, -ENOMEM); \
     } else {                        \
         err = func(f, buf, size);   \
     }                               \
@@ -62,7 +62,7 @@
                                     \
     int err = duk_require_buffer_or_lstring(ctx, 1, &buf, &bsize); \
     if (err<0) {                    \
-        __seterrno(ctx, err);       \
+        __js_seterrno(ctx, err);       \
     } else {                        \
         err = func(f, buf, bsize);  \
     }                               \

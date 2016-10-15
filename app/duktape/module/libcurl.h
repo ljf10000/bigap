@@ -10,8 +10,8 @@ __get_curl_forms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_forms *p = (struct curl_forms *)obj; os_objzero(p);
     
-    p->option   = __get_obj_int(ctx, idx, "option");
-    p->value    = __get_obj_string(ctx, idx, "value", NULL);
+    p->option   = js_get_obj_int(ctx, idx, "option");
+    p->value    = js_get_obj_string(ctx, idx, "value", NULL);
 
     return 0;
 }
@@ -21,8 +21,8 @@ __set_curl_forms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_forms *p = (struct curl_forms *)obj;
     
-    __set_obj_int(ctx, idx, "option", p->option);
-    __set_obj_string(ctx, idx, "value", (char *)p->value);
+    js_set_obj_int(ctx, idx, "option", p->option);
+    js_set_obj_string(ctx, idx, "value", (char *)p->value);
 
     return 0;
 }
@@ -37,8 +37,8 @@ __get_curl_httppost_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_httppost_obj *p = (struct curl_httppost_obj *)obj; os_objzero(p);
     
-    p->post = (struct curl_httppost *)__get_obj_pointer(ctx, idx, "post");
-    p->last = (struct curl_httppost *)__get_obj_pointer(ctx, idx, "last");
+    p->post = (struct curl_httppost *)js_get_obj_pointer(ctx, idx, "post");
+    p->last = (struct curl_httppost *)js_get_obj_pointer(ctx, idx, "last");
 
     return 0;
 }
@@ -48,8 +48,8 @@ __set_curl_httppost_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_httppost_obj *p = (struct curl_httppost_obj *)obj;
     
-    __set_obj_pointer(ctx, idx, "post", p->post);
-    __set_obj_pointer(ctx, idx, "last", p->last);
+    js_set_obj_pointer(ctx, idx, "post", p->post);
+    js_set_obj_pointer(ctx, idx, "last", p->last);
 
     return 0;
 }
@@ -63,7 +63,7 @@ __get_curl_slist_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_slist_obj *p = (struct curl_slist_obj *)obj; os_objzero(p);
     
-    p->list = (struct curl_slist *)__get_obj_pointer(ctx, idx, "list");
+    p->list = (struct curl_slist *)js_get_obj_pointer(ctx, idx, "list");
 
     return 0;
 }
@@ -73,7 +73,7 @@ __set_curl_slist_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct curl_slist_obj *p = (struct curl_slist_obj *)obj;
     
-    __set_obj_pointer(ctx, idx, "list", p->list);
+    js_set_obj_pointer(ctx, idx, "list", p->list);
 
     return 0;
 }

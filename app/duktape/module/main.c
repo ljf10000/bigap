@@ -22,98 +22,6 @@ bool __js_shabang;
 int __js_argc;
 char **__js_argv;
 
-static int
-buildin_register(duk_context *ctx)
-{
-    int err = 0;
-    
-    err = __load_code(ctx, "buildin", duk_global_CODE);
-
-    debug_ok_error(err, "register buildin");
-
-    return err;
-}
-
-static bool 
-__filter(char *path, char *filename)
-{
-    /*
-    * skip NOT-js file
-    */
-    return false==os_str_is_end_by(filename, ".js");
-}
-
-static int
-auto_register(duk_context *ctx)
-{
-    char path[1+OS_LINE_LEN] = {0};
-    int err = 0;
-    
-    /*
-    * try eval duk_PATH/auto/xxx.js
-    */
-    char *env = env_gets(ENV_duk_PATH, duk_PATH);
-    os_snprintf(path, OS_LINE_LEN, "%s/" duk_auto_PATH, env);
-    
-    mv_t __handler(char *path, char *filename, os_fscan_line_handle_f *line_handle)
-    {
-        (void)line_handle;
-        
-        char file[1+OS_LINE_LEN] = {0};
-
-        os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
-
-        int err = __load_file(ctx, file);
-        if (err<0) {
-            return mv2_go(err);
-        }
-        
-        return mv2_ok;
-    }
-
-    err = os_fscan_dir(path, false, __filter, __handler, NULL);
-
-    debug_ok_error(err, "register auto");
-    
-    return err;
-}
-
-static inline int
-__register(duk_context *ctx)
-{
-    static int (*registers[])(duk_context *) = {
-        global_register,
-        duktape_register,
-        my_register,
-        libc_register,
-#if duk_LIBZ
-        libz_register,
-#endif
-#if duk_LIBBZ
-        libbz_register,
-#endif
-#if duk_LIBLZ
-        liblz_register,
-#endif
-#if duk_LIBCURL
-        libcurl_register,
-#endif
-        /*keep below last*/
-        buildin_register,
-        auto_register,
-    };
-    int i, err;
-
-    for (i=0; i<os_count_of(registers); i++) {
-        err = (*registers[i])(ctx);
-        if (err<0) {
-            return err;
-        }
-    }
-
-    return 0;
-}
-
 static char *
 readfd(duk_context *ctx, int fd) 
 {
@@ -188,7 +96,7 @@ __main(int argc, char *argv[])
         return -ENOMEM;
     }
 
-    err = __register(ctx);
+    err = js_register(ctx);
     if (err<0) {
         goto error;
     }
