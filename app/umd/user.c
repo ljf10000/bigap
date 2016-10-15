@@ -1300,7 +1300,7 @@ touser_intf(struct um_limit *intf, jobj_t jintf)
         touser_online(&intf->online, jonline);
     }
     
-    jobj_t jobj = jobj_get(jintf, "flow");
+    jobj = jobj_get(jintf, "flow");
     if (jobj) {
         for (dir=0; dir<um_flow_dir_end; dir++) {
             jobj_t jflow = jobj_get(jobj, flow_dir_string(dir));
@@ -1310,7 +1310,7 @@ touser_intf(struct um_limit *intf, jobj_t jintf)
         }
     }
     
-    jobj_t jobj = jobj_get(jintf, "rate");
+    jobj = jobj_get(jintf, "rate");
     if (jobj) {
         for (dir=0; dir<um_flow_dir_end; dir++) {
             jobj_t jrate = jobj_get(jobj, flow_dir_string(dir));
