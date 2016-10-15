@@ -343,8 +343,8 @@ __set_itimerval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct itimerval *p = (struct itimerval *)obj;
     
-    __obj_set(ctx, idx, __set_timeval, &p->it_interval, "interval");
-    __obj_set(ctx, idx, __set_timeval, &p->it_value, "value");
+    js_obj_set(ctx, idx, __set_timeval, &p->it_interval, "interval");
+    js_obj_set(ctx, idx, __set_timeval, &p->it_value, "value");
 
     return 0;
 }
@@ -387,8 +387,8 @@ __set_itimerspec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct itimerspec *p = (struct itimerspec *)obj;
 
-    __obj_set(ctx, idx, __set_timespec, &p->it_interval, "interval");
-    __obj_set(ctx, idx, __set_timespec, &p->it_value, "value");
+    js_obj_set(ctx, idx, __set_timespec, &p->it_interval, "interval");
+    js_obj_set(ctx, idx, __set_timespec, &p->it_value, "value");
 
     return 0;
 }
@@ -596,7 +596,7 @@ __set_ntptimeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     js_set_obj_int(ctx, idx, "maxerror", p->maxerror);
     js_set_obj_int(ctx, idx, "esterror", p->esterror);
 
-    __obj_set(ctx, idx, __set_timeval, &p->time, "time");
+    js_obj_set(ctx, idx, __set_timeval, &p->time, "time");
 
     return 0;
 }
@@ -660,7 +660,7 @@ __set_timex(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     js_set_obj_int(ctx, idx, "errcnt", p->errcnt);
     js_set_obj_int(ctx, idx, "stbcnt", p->stbcnt);
 
-    __obj_set(ctx, idx, __set_timeval, &p->time, "time");
+    js_obj_set(ctx, idx, __set_timeval, &p->time, "time");
 
     return 0;
 }
@@ -714,8 +714,8 @@ __set_rusage(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     js_set_obj_int(ctx, idx, "nvcsw", p->ru_nvcsw);
     js_set_obj_int(ctx, idx, "nivcsw", p->ru_nivcsw);
     
-    __obj_set(ctx, idx, __set_timeval, &p->ru_utime, "utime");
-    __obj_set(ctx, idx, __set_timeval, &p->ru_stime, "stime");
+    js_obj_set(ctx, idx, __set_timeval, &p->ru_utime, "utime");
+    js_obj_set(ctx, idx, __set_timeval, &p->ru_stime, "stime");
 
     return 0;
 }

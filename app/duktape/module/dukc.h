@@ -794,7 +794,7 @@ js_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, 
 
 #define js_obj_get(_ctx, _idx, _get, _obj, _k) \
     js_obj_op(_ctx, false, _idx, _get, _obj, _k)
-#define __obj_set(_ctx, _idx, _set, _obj, _k) \
+#define js_obj_set(_ctx, _idx, _set, _obj, _k) \
     js_obj_op(_ctx, true, _idx, _set, _obj, _k)
 
 static inline int
