@@ -1147,7 +1147,7 @@ touser_base(struct um_user *user, jobj_t juser)
     jobj = jobj_get(juser, "ip");
     if (jobj) {
         string = jobj_get_string(jobj);
-        user->ip = inet_addr(ip).s_addr;
+        user->ip = inet_addr(string).s_addr;
     }
     
     jobj = jobj_get(juser, "state");
@@ -1187,7 +1187,7 @@ touser_tag(struct um_user *user, jobj_t juser)
     
     jtag = jobj_get(juser, "tag");
     if (jtag) {
-        jobj_foreach(jobj, k, v) {
+        jobj_foreach(jtag, k, v) {
             if (jtype_string==jobj_type(v)) {
                 tag_set(user, k, jobj_get_string(v));
             }
