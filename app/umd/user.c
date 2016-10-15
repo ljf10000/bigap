@@ -640,8 +640,7 @@ __user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
         return NULL;
     }
 
-    // do sync
-    user->flags |= UM_F_SYNC;
+    um_touser(user, obj);
 
     if (ev) {
         (*ev)(user, "sync");
