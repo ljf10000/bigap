@@ -20,6 +20,7 @@ static duk_ret_t
 duke_modSearch(duk_context *ctx)
 {
     char *id = (char *)duk_require_string(ctx, 0);
+    int err = -1;
     
     /*
     * try file.js
@@ -35,10 +36,9 @@ duke_modSearch(duk_context *ctx)
     /*
     * try js_PATH/file.js
     */
-    char env[1+OS_LINE_LEN] = {0};
-    os_strdcpy(env, env_gets(ENV_JPATH, js_PATH));
-
     char *path = NULL;
+    char *env = os_strdup(env_gets(ENV_JPATH, js_PATH));
+    
     os_strtok_foreach(path, env, ":") {
         int len = os_strlen(path);
 
@@ -56,14 +56,15 @@ duke_modSearch(duk_context *ctx)
             duk_push_string_file(ctx, file);
 
             debug_js("search %s at %s OK.", file, path);
-            return 1;
+
+            err = 1; goto error;
         }
     }
 
-    /*
-    * no found
-    */
-    return -1;
+error:
+    os_free(env);
+    
+    return err;
 }
 
 static const dukc_func_entry_t duktape_func[] = {
