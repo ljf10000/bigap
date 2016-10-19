@@ -63,24 +63,9 @@ add_flow_total(int type, int valid)
 {
     add_flowst(&flow.total[type][valid]);
 }
-
-static inline void
-add_flow_all(int type)
-{
-    add_flow_total(type, um_pkt_check_all);
-}
-
-static inline void
-add_flow_good(int type)
-{
-    add_flow_total(type, um_pkt_check_good);
-}
-
-static inline void
-add_flow_bad(int type)
-{
-    add_flow_total(type, um_pkt_check_bad);
-}
+#define add_flow_good(_type)    add_flow_total(_type, um_pkt_check_good)
+#define add_flow_bad(_type)     add_flow_total(_type, um_pkt_check_bad)
+#define add_flow_all(_type)     add_flow_total(_type, um_pkt_check_all)
 
 static inline void
 set_flow_dev(void)
