@@ -873,7 +873,7 @@ __clogger(
     jobj_t obj = NULL;
     int err;
 
-    obj = jobj(json);
+    obj = jobj_byjson(json);
     if (NULL==obj) {
         err = -EBADJSON; goto error;
     }

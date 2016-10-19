@@ -436,7 +436,7 @@ do_report(int hack)
         err = -ECURLFAIL; goto error;
     }
 
-    obj = jobj(line);
+    obj = jobj_byjson(line);
     if (NULL==obj) {
         debug_error("bad json=%s", line);
         err = -EFAKESEVER; goto error;
@@ -512,7 +512,7 @@ do_register(void)
         err = -ECURLFAIL; goto error;
     }
 
-    obj = jobj(line);
+    obj = jobj_byjson(line);
     if (NULL==obj) {
         debug_error("bad json=%s", line);
         err = -EFAKESEVER; goto error;
@@ -597,7 +597,7 @@ do_auth(void)
         err = -ECURLFAIL; goto error;
     }
     
-    obj = jobj(line);
+    obj = jobj_byjson(line);
     if (NULL==obj) {
         debug_error("bad json=%s", line);
         err = -EFAKESEVER; goto error;
@@ -736,7 +736,7 @@ do_cmd(void)
         err = 0; goto error;
     }
     
-    obj = jobj(line);
+    obj = jobj_byjson(line);
     if (NULL==obj) {
         debug_error("bad json=%s", line);
         err = -EFAKESEVER; goto error;

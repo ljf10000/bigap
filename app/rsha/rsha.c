@@ -216,7 +216,7 @@ load_config(void)
     int err;
     jobj_t jcfg = NULL;
     
-    jcfg = jobj_file(rsh_config);
+    jcfg = jobj_byfile(rsh_config);
     if (NULL==jcfg) {
         debug_error("invalid rsh.config");
         
@@ -240,7 +240,7 @@ load_cloud(void)
         return 0;
     }
     
-    jcfg = jobj_file(rsh_cloud);
+    jcfg = jobj_byfile(rsh_cloud);
     if (NULL==jcfg) {
         debug_error("invalid rsh.cloud");
         
@@ -518,7 +518,7 @@ __handle(struct sockaddr_in *client)
         return -ENOMATCH;
     }
     
-    jobj_t jrequest = jobj(rsh_buffer);
+    jobj_t jrequest = jobj_byjson(rsh_buffer);
     if (NULL==jrequest) {
         debug_proto("invalid request");
         

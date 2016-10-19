@@ -63,11 +63,10 @@ struct um_control umd = {
 static int
 init_cfg(void)
 {
-    jobj_t jcfg = NULL;
-    jobj_t jobj;
-    char *json = NULL, *string;
-    int i, err, size, number;
-
+    jobj_t jcfg = NULL, jobj;
+    char *string;
+    int i, err;
+    
     err = os_readfileall(UMD_CONFIG, &json, &size, false);
     if (err<0) {
         /* 
@@ -76,7 +75,7 @@ init_cfg(void)
         return 0;
     }
 
-    jcfg = jobj(json);
+    jcfg = jobj_byfile(UMD_CONFIG);
     if (NULL==jcfg) {
         /* 
         * bad config file, use default config

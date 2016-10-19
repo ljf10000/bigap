@@ -103,11 +103,6 @@ __jobj_put(jobj_t obj)
     _obj = NULL;            \
 }while(0)
 
-#define jobj_set(_obj, _new) do{ \
-    __jobj_put(_obj);       \
-    _obj = _new;            \
-}while(0)
-
 static inline char *
 jobj_string_ex(jobj_t obj, int flag)
 {
@@ -118,7 +113,11 @@ jobj_string_ex(jobj_t obj, int flag)
     }
 }
 
-#define jobj_json(_obj)     jobj_string_ex(_obj, JSON_C_TO_STRING_PLAIN)
+static inline char *
+jobj_json(jobj_t obj)
+{
+    return jobj_string_ex(obj, JSON_C_TO_STRING_PLAIN);
+}
 
 static inline int
 jobj_string_len(jobj_t obj)
@@ -329,7 +328,7 @@ jobj_sprintf(jobj_t obj, const char *key, const char *fmt, ...)
 }
 
 static inline jobj_t
-jobj_file(char *file)
+jobj_byfile(char *file)
 {
     jobj_t obj = json_object_from_file(file);
     if (NULL==obj) {
@@ -340,7 +339,7 @@ jobj_file(char *file)
 }
 
 static inline jobj_t
-jobj_fd(int fd)
+jobj_byfd(int fd)
 {
     jobj_t obj = json_object_from_fd(fd);
     if (NULL==obj) {
@@ -351,7 +350,7 @@ jobj_fd(int fd)
 }
 
 static inline jobj_t
-jobj(char *json)
+jobj_byjson(char *json)
 {
     int err = 0;
     jtok_t tok = NULL;
@@ -396,7 +395,7 @@ jobj_add_json(jobj_t obj, char *key, char *value)
         return 0;
     }
 
-    new = jobj(value);
+    new = jobj_byjson(value);
     if (NULL==new) {
         return -EBADJSON;
     }
@@ -655,7 +654,7 @@ jobj_oprintf(const char *fmt, ...)
 static inline bool
 is_good_json(char *json)
 {
-    jobj_t obj = jobj(json);
+    jobj_t obj = jobj_byjson(json);
     if (obj) {
         jobj_put(obj);
 

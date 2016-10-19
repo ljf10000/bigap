@@ -228,7 +228,7 @@ jadd(jlog_server_t *server)
     int len = 0, pri, err;
     jobj_t obj, header, opri;
     
-    obj = jobj(jlogb);
+    obj = jobj_byjson(jlogb);
     if (NULL==obj) {
         len = -EBADJSON; goto error;
     }

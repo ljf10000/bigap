@@ -29,7 +29,7 @@ handle_enter(char *args)
         return -EFORMAT;
     }
         
-    jobj_t obj = jobj(json);
+    jobj_t obj = jobj_byjson(json);
     if (NULL==obj) {
         debug_trace("bad json %s", json);
 
@@ -82,7 +82,7 @@ handle_sync(char *args)
         return -EFORMAT;
     }
 
-    jobj_t obj = jobj(json);
+    jobj_t obj = jobj_byjson(json);
     if (NULL==obj) {
         debug_trace("bad json %s", json);
 
@@ -162,7 +162,7 @@ handle_auth(char *args)
     
     int groupid = os_atoi(group);
     
-    jobj_t obj = jobj(json);
+    jobj_t obj = jobj_byjson(json);
     if (NULL==obj) {
         debug_trace("bad json %s", json);
 
@@ -239,7 +239,7 @@ show_user_byjson(char *json)
     jobj_t juser    = NULL;
     int err = 0;
     
-    obj = jobj(json);
+    obj = jobj_byjson(json);
     if (NULL==obj) {
         err = -EFILTER; goto error;
     }

@@ -80,7 +80,7 @@ void update_limit_test(void)
     };
     os_maccpy(user.mac, umd.cfg.intf[UM_INTF_INGRESS].mac);
     
-    jobj_t obj = jobj_file("./auth.json");
+    jobj_t obj = jobj_byfile("./auth.json");
     if (NULL==obj) {
         os_println("read auth.json failed");
 
