@@ -108,7 +108,7 @@ init_cfg(void)
         jobj_put(jcfg);
     }
 
-    return err;
+    return 0;
 }
 
 static int
