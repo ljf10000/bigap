@@ -99,6 +99,8 @@ set_flow_user(bool source)
         flow.userip = flow.iph->ip_dst.s_addr;
     }
 }
+#define set_flow_suser()    set_flow_user(true)
+#define set_flow_duser()    set_flow_user(false)
 
 static int
 pkt_handle(cli_server_t *server)
@@ -111,7 +113,8 @@ pkt_handle(cli_server_t *server)
         return err;
     }
     flow.len    = err;
-    set_flow_user(NULL, 0);
+    flow.usermac= NULL;
+    flow.userip = 0;
     
     if (__is_ak_debug_packet) {
         os_println("recv packet length=%d", flow.len);
@@ -229,7 +232,7 @@ ip_source_is_dev(uint32 sip, uint32 dip)
         flow.dir    = um_flow_dir_down;
         flow.type   = um_flow_type_lan;
         
-        set_flow_user(flow.eth->ether_dhost, dip);
+        set_flow_duser();
     }
     else if (is_lan_ip(dip)) {
         /*
@@ -269,7 +272,7 @@ ip_source_is_user(uint32 sip, uint32 dip)
         flow.dir    = um_flow_dir_up;
         flow.type   = um_flow_type_lan;
 
-        set_flow_user(flow.eth->ether_shost, sip);
+        set_flow_suser();
     }
     else if (is_user_ip(dip)) {
         if (sip==dip) {
@@ -284,7 +287,7 @@ ip_source_is_user(uint32 sip, uint32 dip)
         flow.dir    = um_flow_dir_up;
         flow.type   = um_flow_type_lan;
 
-        set_flow_user(flow.eth->ether_shost, sip);
+        set_flow_suser();
     }
     else if (is_lan_ip(dip)) {
         /*
@@ -295,7 +298,7 @@ ip_source_is_user(uint32 sip, uint32 dip)
         flow.dir    = um_flow_dir_up;
         flow.type   = um_flow_type_lan;
 
-        set_flow_user(flow.eth->ether_shost, sip);
+        set_flow_suser();
     }
     else { /* dip is wan */
         /*
@@ -306,7 +309,7 @@ ip_source_is_user(uint32 sip, uint32 dip)
         flow.dir    = um_flow_dir_up;
         flow.type   = um_flow_type_wan;
 
-        set_flow_user(flow.eth->ether_shost, sip);
+        set_flow_suser();
     }
 
     return 0;
@@ -335,7 +338,7 @@ ip_source_is_lan(uint32 sip, uint32 dip)
         flow.dir    = um_flow_dir_down;
         flow.type   = um_flow_type_lan;
 
-        set_flow_user(flow.eth->ether_dhost, dip);
+        set_flow_duser();
     }
     else if (is_lan_ip(dip)) {
         /*
@@ -376,7 +379,7 @@ ip_source_is_wan(uint32 sip, uint32 dip)
         flow.dir    = um_flow_dir_down;
         flow.type   = um_flow_type_wan;
         
-        set_flow_user(flow.eth->ether_dhost, dip);
+        set_flow_duser();
     }
     else if (is_lan_ip(dip)) {
         /*
