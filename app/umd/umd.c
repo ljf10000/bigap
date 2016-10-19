@@ -97,7 +97,7 @@ init_cfg(void)
             jobj = jobj_get(jintf, type_string);
             if (jobj) {
                 string = jobj_get_string(jobj);
-                umd.cfg.intf[i].name = os_strdup(string);
+                os_strdcpy(umd.cfg.intf[i].name, string);
 
                 debug_cfg("%s intf=%s", type_string, string);
             }
