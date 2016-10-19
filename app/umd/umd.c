@@ -65,16 +65,8 @@ init_cfg(void)
 {
     jobj_t jcfg = NULL, jobj;
     char *string;
-    int i, err;
+    int i;
     
-    err = os_readfileall(UMD_CONFIG, &json, &size, false);
-    if (err<0) {
-        /* 
-        * no config file, use default config
-        */
-        return 0;
-    }
-
     jcfg = jobj_byfile(UMD_CONFIG);
     if (NULL==jcfg) {
         /* 
