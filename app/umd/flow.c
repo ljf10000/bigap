@@ -17,13 +17,13 @@ static struct um_flow   flow;
 static inline bool
 is_dev_mac(byte mac[])
 {
-    return os_maceq(mac, umd.cfg.intf[UM_INTF_INGRESS].mac);
+    return os_maceq(mac, umd.cfg.intf[um_intf_type_ingress].mac);
 }
 
 static inline bool
 is_dev_ip(uint32 ip)
 {
-    return ip==umd.cfg.intf[UM_INTF_INGRESS].ip;
+    return ip==umd.cfg.intf[um_intf_type_ingress].ip;
 }
 
 static inline bool
@@ -46,7 +46,7 @@ is_lan_ip(uint32 ip)
 static inline bool
 is_user_ip(uint32 ip)
 {
-    struct um_intf *intf = &umd.cfg.intf[UM_INTF_INGRESS];
+    struct um_intf *intf = &umd.cfg.intf[um_intf_type_ingress];
     
     return (ip & intf->mask)==(intf->ip & intf->mask);
 }
@@ -125,7 +125,7 @@ pkt_handle(cli_server_t *server)
 static int
 intf_handle(cli_server_t *server)
 {
-    if (server->addr.ll.sll_ifindex == umd.cfg.intf[UM_INTF_INGRESS].index) {
+    if (server->addr.ll.sll_ifindex == umd.cfg.intf[um_intf_type_ingress].index) {
         return 0;
     } else {
         return -EBADIDX;
@@ -680,7 +680,7 @@ flow_server_init(cli_server_t *server)
     sockaddr_ll_t addr = {
         .sll_family     = AF_PACKET,
         .sll_protocol   = flow.ether_type_all,
-        .sll_ifindex    = umd.cfg.intf[UM_INTF_INGRESS].index,
+        .sll_ifindex    = umd.cfg.intf[um_intf_type_ingress].index,
     };
     err = bind(fd, (sockaddr_t *)&addr, sizeof(addr));
     if (err<0) {
