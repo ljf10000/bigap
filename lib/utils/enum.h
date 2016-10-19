@@ -7,6 +7,16 @@
     _(KEY_B, VALUE_B, "NAME-B"), \
     _(KEY_C, VALUE_C, "NAME-C"), \
     /* end */
+
+static inline bool is_good_xxx(int id);
+static inline char *xxx_string(int id);
+static inline int xxx_idx(char *name);
+DECLARE_ENUM(xxx, XXX_LIST, KEY_END);
+
+#define KEY_A       KEY_A
+#define KEY_B       KEY_B
+#define KEY_C       KEY_C
+#define KEY_END     KEY_END
 #endif
 
 #define __ENUM_MAP_VALUE(_key, _value, _name)   _key = _value
