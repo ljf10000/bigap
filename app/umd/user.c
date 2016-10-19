@@ -73,12 +73,12 @@ void update_limit_test(void)
 {
 #if UM_TEST & UM_TEST_JSON
     struct um_user user = {
-        .ip = umd.intf[UM_INTF_INGRESS].ip,
+        .ip = umd.cfg.intf[UM_INTF_INGRESS].ip,
         .head = { 
             .tag = LIST_HEAD_INIT(user.head.tag),
         },
     };
-    os_maccpy(user.mac, umd.intf[UM_INTF_INGRESS].mac);
+    os_maccpy(user.mac, umd.cfg.intf[UM_INTF_INGRESS].mac);
     
     jobj_t obj = jobj_file("./auth.json");
     if (NULL==obj) {
@@ -1177,6 +1177,8 @@ touser_base(struct um_user *user, jobj_t juser)
     if (jobj) {
         user->group = jobj_get_i32(jobj);
     }
+
+    user->flags |= UM_F_SYNC;
 }
 
 static void
@@ -1323,10 +1325,10 @@ touser_intf(struct um_limit *intf, jobj_t jintf)
 static void
 touser_limit(struct um_user *user, jobj_t juser)
 {
+    int type;
+    
     jobj_t jlimit = jobj_get(juser, "limit");
     if (jlimit) {
-        int type;
-        
         for (type=0; type<um_flow_type_end; type++) {
             jobj_t jintf = jobj_get(jlimit, flow_type_string(type));
             if (jintf) {

@@ -12,30 +12,96 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-static struct um_flow flow;
+static struct um_flow   flow;
 
 static inline bool
-is_local_mac(byte mac[])
+is_dev_mac(byte mac[])
 {
-    return os_maceq(mac, umd.intf[UM_INTF_INGRESS].mac);
+    return os_maceq(mac, umd.cfg.intf[UM_INTF_INGRESS].mac);
 }
 
 static inline bool
-is_local_ip(uint32 ip)
+is_dev_ip(uint32 ip)
 {
-    return ip==umd.intf[UM_INTF_INGRESS].ip;
+    return ip==umd.cfg.intf[UM_INTF_INGRESS].ip;
+}
+
+static inline bool
+is_lan_ip(uint32 ip)
+{
+    int i;
+    uint32 mask;
+    
+    for (i=0; i<os_count_of(umd.cfg.lan); i++) {
+        mask = umd.cfg.lan[i].mask;
+        
+        if ((ip & mask)==(umd.cfg.lan[i].ip & mask)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static inline bool
 is_user_ip(uint32 ip)
 {
-    struct um_intf *intf = &umd.intf[UM_INTF_INGRESS];
+    struct um_intf *intf = &umd.cfg.intf[UM_INTF_INGRESS];
     
     return (ip & intf->mask)==(intf->ip & intf->mask);
 }
 
+static inline void
+add_flowst(struct um_flowst *st)
+{
+    st->packets++;
+    st->bytes += flow.len;
+}
+
+static inline void
+add_flow_total(int type, int valid)
+{
+    add_flowst(&flow.total[type][valid]);
+}
+
+static inline void
+add_flow_all(int type)
+{
+    add_flow_total(type, um_pkt_check_all);
+}
+
+static inline void
+add_flow_good(int type)
+{
+    add_flow_total(type, um_pkt_check_good);
+}
+
+static inline void
+add_flow_bad(int type)
+{
+    add_flow_total(type, um_pkt_check_bad);
+}
+
+static inline void
+set_flow_dev(void)
+{
+    add_flowst(&flow.dev[flow.type][flow.dir]);
+}
+
+static inline void
+set_flow_user(bool source)
+{
+    if (source) {
+        flow.usermac= flow.eth->ether_shost;
+        flow.userip = flow.iph->ip_src.s_addr;
+    } else {
+        flow.usermac= flow.eth->ether_dhost;
+        flow.userip = flow.iph->ip_dst.s_addr;
+    }
+}
+
 static int
-pkt_recv(cli_server_t *server)
+pkt_handle(cli_server_t *server)
 {
     int err, len;
     socklen_t addrlen = sizeof(server->addr.ll);
@@ -44,10 +110,12 @@ pkt_recv(cli_server_t *server)
     if (err<0) { /* yes, <0 */
         return err;
     }
-    flow.len = err;
-
+    flow.len    = err;
+    set_flow_user(NULL, 0);
+    
     if (__is_ak_debug_packet) {
         os_println("recv packet length=%d", flow.len);
+        
         __os_dump_buffer(flow.packet, flow.len, NULL);
     }
     
@@ -55,9 +123,9 @@ pkt_recv(cli_server_t *server)
 }
 
 static int
-intf_check(cli_server_t *server)
+intf_handle(cli_server_t *server)
 {
-    if (server->addr.ll.sll_ifindex == umd.intf[UM_INTF_INGRESS].index) {
+    if (server->addr.ll.sll_ifindex == umd.cfg.intf[UM_INTF_INGRESS].index) {
         return 0;
     } else {
         return -EBADIDX;
@@ -65,104 +133,276 @@ intf_check(cli_server_t *server)
 }
 
 static int
-eth_check(cli_server_t *server)
+eth_handle(cli_server_t *server)
 {
     struct ether_header *eth = flow.eth = (struct ether_header *)flow.packet;
+    
     byte *smac = eth->ether_shost;
     byte *dmac = eth->ether_dhost;
+
+    add_flow_all(um_pkt_type_eth);
     
     if (eth->ether_type != flow.ether_type_ip &&
         eth->ether_type != flow.ether_type_vlan) {
         /*
         * bad ether type
         */
+        add_flow_bad(um_pkt_type_eth);
+        
         return -EFORMAT;
     }
-#if 1
     else if (false==is_good_mac(smac)) {
         /*
         * bad src mac
         */
+        add_flow_bad(um_pkt_type_eth);
+        
         return -EFORMAT;
     }
     else if (false==is_good_mac(dmac)) {
         /*
         * bad dst mac
         */
-        return -EFORMAT;
-    }
-#endif
-    else if (is_local_mac(smac)) {
-        /*
-        * src mac is self
-        *
-        * local==>user
-        */
-        flow.dir = um_flow_dir_down;
-        flow.usermac = dmac;
-    }
-    else if (is_local_mac(dmac)) {
-        /*
-        * dst mac is self
-        *
-        * user==>local
-        */
-        flow.dir = um_flow_dir_up;
-        flow.usermac = smac;
-    }
-    else {
+        add_flow_bad(um_pkt_type_eth);
+        
         return -EFORMAT;
     }
 
-    flow.eth_packets++;
-    flow.eth_bytes += flow.len;
+    add_flow_good(um_pkt_type_eth);
 
     if (__is_ak_debug_packet) {
         char smacstring[1+MACSTRINGLEN_L];
         char dmacstring[1+MACSTRINGLEN_L];
-        char  macstring[1+MACSTRINGLEN_L];
         
-        os_strcpy(smacstring, os_macstring(eth->ether_shost));
-        os_strcpy(dmacstring, os_macstring(eth->ether_dhost));
-        os_strcpy( macstring, os_macstring(flow.usermac));
+        os_strcpy(smacstring, os_macstring(smac));
+        os_strcpy(dmacstring, os_macstring(dmac));
         
-        debug_packet("recv packet smac=%s dmac=%s type=0x%x dir=%s usermac=%s", 
+        debug_packet("recv packet smac=%s dmac=%s type=0x%x", 
             smacstring,
             dmacstring,
-            ntohs(eth->ether_type),
-            flow_dir_string(flow.dir),
-            macstring);
+            ntohs(eth->ether_type));
     }
     
     return 0;
 }
 
 static int
-vlan_check(cli_server_t *server)
+vlan_handle(cli_server_t *server)
 {
     if (flow.eth->ether_type == flow.ether_type_vlan) {
         struct vlan_header *vlan = flow.vlan = (struct vlan_header *)(flow.eth+1);
 
+        add_flow_all(um_pkt_type_vlan);
+        
         if (vlan->type != flow.ether_type_ip) {
+            add_flow_bad(um_pkt_type_vlan);
+            
             return -EFORMAT;
         }
-
-        flow.vlan_packets++;
-        flow.vlan_bytes += flow.len;
 
         debug_packet("recv packet vlan=%d type=%d", 
             vlan->vid,
             vlan->type);
+
+        add_flow_good(um_pkt_type_vlan);
     }
     
     return 0;
 }
 
 static int
-ip_check(cli_server_t *server)
+ip_source_is_dev(uint32 sip, uint32 dip)
+{
+    if (is_dev_ip(dip)) {
+        /*
+        * dev==>dev, invalid
+        */
+        
+        return -EFORMAT;
+    }
+    else if (is_user_ip(dip)) {
+        /*
+        * dev==>user
+        *
+        * lan down for user
+        */
+        flow.dir    = um_flow_dir_down;
+        flow.type   = um_flow_type_lan;
+        
+        set_flow_user(flow.eth->ether_dhost, dip);
+    }
+    else if (is_lan_ip(dip)) {
+        /*
+        * dev==>lan
+        *
+        * lan up for dev
+        */
+        flow.dir    = um_flow_dir_up;
+        flow.type   = um_flow_type_lan;
+
+        set_flow_dev();
+    }
+    else { /* dip is wan */
+        /*
+        * dev==>wan
+        *
+        * wan up for dev
+        */
+        flow.dir    = um_flow_dir_up;
+        flow.type   = um_flow_type_wan;
+
+        set_flow_dev();
+    }
+
+    return 0;
+}
+
+static int
+ip_source_is_user(uint32 sip, uint32 dip)
+{
+    if (is_dev_ip(dip)) {
+        /*
+        * user==>dev
+        *
+        * lan up for user
+        */
+        flow.dir    = um_flow_dir_up;
+        flow.type   = um_flow_type_lan;
+
+        set_flow_user(flow.eth->ether_shost, sip);
+    }
+    else if (is_user_ip(dip)) {
+        if (sip==dip) {
+            return -EFORMAT;
+        }
+        
+        /*
+        * user==>user
+        *
+        * lan up for user
+        */
+        flow.dir    = um_flow_dir_up;
+        flow.type   = um_flow_type_lan;
+
+        set_flow_user(flow.eth->ether_shost, sip);
+    }
+    else if (is_lan_ip(dip)) {
+        /*
+        * user==>lan
+        *
+        * lan up for user
+        */
+        flow.dir    = um_flow_dir_up;
+        flow.type   = um_flow_type_lan;
+
+        set_flow_user(flow.eth->ether_shost, sip);
+    }
+    else { /* dip is wan */
+        /*
+        * user==>wan
+        *
+        * wan up for user
+        */
+        flow.dir    = um_flow_dir_up;
+        flow.type   = um_flow_type_wan;
+
+        set_flow_user(flow.eth->ether_shost, sip);
+    }
+
+    return 0;
+}
+
+static int
+ip_source_is_lan(uint32 sip, uint32 dip)
+{
+    if (is_dev_ip(dip)) {
+        /*
+        * lan==>dev
+        *
+        * lan down for dev
+        */
+        flow.dir    = um_flow_dir_down;
+        flow.type   = um_flow_type_lan;
+
+        set_flow_dev();
+    }
+    else if (is_user_ip(dip)) {
+        /*
+        * lan==>user
+        *
+        * lan down for user
+        */
+        flow.dir    = um_flow_dir_down;
+        flow.type   = um_flow_type_lan;
+
+        set_flow_user(flow.eth->ether_dhost, dip);
+    }
+    else if (is_lan_ip(dip)) {
+        /*
+        * lan==>lan, invalid
+        */
+        return -EFORMAT;
+    }
+    else { /* dip is wan */
+        /*
+        * lan==>wan, invalid
+        */
+        return -EFORMAT;
+    }
+
+    return 0;
+}
+
+static int
+ip_source_is_wan(uint32 sip, uint32 dip)
+{
+    if (is_dev_ip(dip)) {
+        /*
+        * wan==>dev
+        *
+        * wan down for dev
+        */
+        flow.dir    = um_flow_dir_down;
+        flow.type   = um_flow_type_wan;
+
+        set_flow_dev();
+    }
+    else if (is_user_ip(dip)) {
+        /*
+        * wan==>user
+        *
+        * wan down for user
+        */
+        flow.dir    = um_flow_dir_down;
+        flow.type   = um_flow_type_wan;
+        
+        set_flow_user(flow.eth->ether_dhost, dip);
+    }
+    else if (is_lan_ip(dip)) {
+        /*
+        * wan==>lan, invalid
+        */
+        
+        return -EFORMAT;
+    }
+    else { /* dip is wan */
+        /*
+        * wan==>wan, invalid
+        */
+        return -EFORMAT;
+    }
+
+    return 0;
+}
+
+static int
+ip_handle(cli_server_t *server)
 {
     struct ip *iph;
-
+    int err;
+    
+    add_flow_all(um_pkt_type_ip);
+        
     if (flow.eth->ether_type == flow.ether_type_ip) {
         iph = flow.iph = (struct ip *)(flow.eth+1);
     }
@@ -170,107 +410,77 @@ ip_check(cli_server_t *server)
         iph = flow.iph = (struct ip *)(flow.vlan+1);
     }
     else {
+        add_flow_bad(um_pkt_type_ip);
+        
         return -EFORMAT;
     }
 
     uint32 sip = iph->ip_src.s_addr;
     uint32 dip = iph->ip_dst.s_addr;
-    
+
     if (4!=iph->ip_v) {
+        add_flow_bad(um_pkt_type_ip);
+        
         return -EFORMAT;
     }
     else if (5!=iph->ip_hl) {
+        add_flow_bad(um_pkt_type_ip);
+        
         return -EFORMAT;
     }
-    else if (is_local_ip(sip)) {
-        if (is_local_ip(dip)) {
-            /*
-            * local==>local
-            */
-            return -EFORMAT;
-        }
-        else if (is_user_ip(dip)) {
-            /*
-            * local==>user
-            */
-            flow.type = um_flow_type_lan;
-            flow.userip = dip;
-        }
-        else { /* dip is cloud */
-            /*
-            * local==>cloud
-            */
-            flow.type = um_flow_type_local;
-            
-            return -EFORMAT;
-        }
+
+    if (is_dev_ip(sip)) {
+        err = ip_source_is_dev(sip, dip);
     }
     else if (is_user_ip(sip)) {
-        if (is_local_ip(dip)) {
-            /*
-            * user==>local
-            */
-            flow.type = um_flow_type_lan;
-            flow.userip = sip;
-        }
-        else if (is_user_ip(dip)) {
-            /*
-            * user==>user
-            */
-            return -EFORMAT;
-        }
-        else { /* dip is cloud */
-            /*
-            * user==>cloud
-            */
-            flow.type = um_flow_type_wan;
-            flow.userip = sip;
-        }
+        err = ip_source_is_user(sip, dip);
     }
-    else { /* sip is cloud */
-        if (is_local_ip(dip)) {
-            /*
-            * cloud==>local
-            */
-            flow.type = um_flow_type_local;
-            
-            return -EFORMAT;
-        }
-        else if (is_user_ip(dip)) {
-            /*
-            * cloud==>user
-            */
-            flow.type = um_flow_type_wan;
-            flow.userip = dip;
-        }
-        else { /* dip is cloud */
-            /*
-            * cloud==>cloud
-            */
-            return -EFORMAT;
-        }
+    else if (is_lan_ip(sip)) {
+        err = ip_source_is_lan(sip, dip);
+    }
+    else { /* sip is wan */
+        err = ip_source_is_wan(sip, dip);
+    }
+    if (err<0) {
+        add_flow_bad(um_pkt_type_ip);
+        
+        return err;
     }
 
-    flow.ip_packets++;
-    flow.ip_bytes += flow.len;
-    
+    add_flow_good(um_pkt_type_ip);
+
     if (__is_ak_debug_packet) {
         char sipstring[1+OS_IPSTRINGLEN];
         char dipstring[1+OS_IPSTRINGLEN];
         char  ipstring[1+OS_IPSTRINGLEN];
+        char  macstring[1+MACSTRINGLEN_L];
         
         os_strcpy(sipstring, os_ipstring(iph->ip_src.s_addr));
         os_strcpy(dipstring, os_ipstring(iph->ip_dst.s_addr));
         os_strcpy( ipstring, os_ipstring(flow.userip));
+        os_strcpy( macstring, os_macstring(flow.usermac));
         
-        debug_packet("recv packet sip=%s dip=%s protocol=%d type=%s userip=%s",
+        debug_packet("recv packet"
+                        " sip=%s"
+                        " dip=%s"
+                        " protocol=%d"
+                        " dir=%s"
+                        " type=%s"
+                        " userip=%s"
+                        " usermac=%s",
             sipstring,
             dipstring,
             iph->ip_p,
+            flow_dir_string(flow.dir),
             flow_type_string(flow.type),
-            ipstring);
+            ipstring,
+            macstring);
     }
 
+    if (NULL==flow.usermac || 0==flow.userip) {
+        return -ENOSUPPORT;
+    }
+    
     return 0;
 }
 
@@ -366,7 +576,7 @@ flow_update(struct um_user *user, int type, int dir)
 }
 
 static int
-flow_check(cli_server_t *server)
+flow_handle(cli_server_t *server)
 {
     struct um_user *user;
 
@@ -392,27 +602,60 @@ flow_check(cli_server_t *server)
     return 0;
 }
 
+static jobj_t
+__um_jflow_st(struct um_flowst *st)
+{
+    jobj_t jst = jobj_new_object();
+
+    jobj_add_i32(jst, "packets", st->packets);
+    jobj_add_i64(jst, "bytes", st->bytes);
+
+    return jst;
+}
+
+static jobj_t
+um_jflow_total(int type, int valid)
+{
+    return __um_jflow_st(&flow.total[type][valid]);
+}
+
+static jobj_t
+um_jflow_dev(int type, int dir)
+{
+    return __um_jflow_st(&flow.dev[type][dir]);
+}
+
 jobj_t
 um_jflow(void)
 {
-    jobj_t obj = jobj_new_object();
-    jobj_t eth = jobj_new_object();
-    jobj_t vlan= jobj_new_object();
-    jobj_t ip  = jobj_new_object();
-
-    jobj_add_i32(eth, "packets", flow.eth_packets);
-    jobj_add_i64(eth, "bytes", flow.eth_bytes);
-    jobj_add(obj, "eth", eth);
-
-    jobj_add_i32(vlan, "packets", flow.vlan_packets);
-    jobj_add_i64(vlan, "bytes", flow.vlan_bytes);
-    jobj_add(obj, "vlan", vlan);
-
-    jobj_add_i32(ip, "packets", flow.ip_packets);
-    jobj_add_i64(ip, "bytes", flow.ip_bytes);
-    jobj_add(obj, "ip", ip);
-
-    return obj;
+    jobj_t jflow, jtotal, jdev, jtype, jst;
+    int i, j;
+    
+    jflow = jobj_new_object();
+    
+    jtotal = jobj_new_object();
+    for (i=0; i<um_pkt_type_end; i++) {
+        jtype = jobj_new_object();
+        for (j=0; j<um_pkt_check_end; j++) {
+            jst = um_jflow_total(i, j);
+            jobj_add(jtype, pkt_check_string(j), jst);
+        }
+        jobj_add(jtotal, pkt_type_string(i), jtype);
+    }
+    jobj_add(jflow, "total", jtotal);
+    
+    jdev = jobj_new_object();
+    for (i=0; i<um_flow_type_end; i++) {
+        jtype = jobj_new_object();
+        for (j=0; j<um_flow_dir_end; j++) {
+            jst = um_jflow_dev(i, j);
+            jobj_add(jtype, flow_dir_string(j), jst);
+        }
+        jobj_add(jdev, flow_type_string(i), jtype);
+    }
+    jobj_add(jflow, "dev", jdev);
+    
+    return jflow;
 }
 
 static int
@@ -437,7 +680,7 @@ flow_server_init(cli_server_t *server)
     sockaddr_ll_t addr = {
         .sll_family     = AF_PACKET,
         .sll_protocol   = flow.ether_type_all,
-        .sll_ifindex    = umd.intf[UM_INTF_INGRESS].index,
+        .sll_ifindex    = umd.cfg.intf[UM_INTF_INGRESS].index,
     };
     err = bind(fd, (sockaddr_t *)&addr, sizeof(addr));
     if (err<0) {
@@ -458,12 +701,12 @@ static int
 __flow_server_handle(cli_server_t *server)
 {
     static int (*handle[])(cli_server_t *) = {
-        pkt_recv,
-        intf_check,
-        eth_check,
-        vlan_check,
-        ip_check,
-        flow_check,
+        pkt_handle,
+        intf_handle,
+        eth_handle,
+        vlan_handle,
+        ip_handle,
+        flow_handle,
     };
     int i, err;
 
@@ -473,7 +716,7 @@ __flow_server_handle(cli_server_t *server)
             return err;
         }
     }
-    
+
     return 0;
 }
 

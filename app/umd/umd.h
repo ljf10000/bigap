@@ -65,12 +65,20 @@
 #endif
 #endif
 
+#ifndef UMD_CONFIG
+#ifdef __PC__
+#   define UMD_CONFIG           "./umd.conf"
+#else
+#   define UMD_CONFIG           "/tmp/config/umd.conf"
+#endif
+#endif
+
 #ifndef UMD_SNIFF_COUNT
 #define UMD_SNIFF_COUNT         32
 #endif
 
-#ifndef UMD_INTF_FLOW_DEFT
-#define UMD_INTF_FLOW_DEFT      "eth0"
+#ifndef UMD_IFNAME_BASE
+#define UMD_IFNAME_BASE         "eth0"
 #endif
 
 #ifndef UMD_INTF_FLOW_ETHERTYPE
@@ -78,18 +86,18 @@
 #endif
 
 #ifdef __PC__
-#   ifndef UMD_INTF_TC_DEFT
-#       define UMD_INTF_TC_DEFT         UMD_INTF_FLOW_DEFT
+#   ifndef UMD_IFNAME_INGRESS
+#       define UMD_IFNAME_INGRESS       "eth0"
 #   endif
-#   ifndef UMD_INTF_TC_ETHERTYPE
-#       define UMD_INTF_TC_ETHERTYPE    ETHERTYPE_IP
+#   ifndef UMD_ETHTYPE_INGRESS
+#       define UMD_ETHTYPE_INGRESS      ETHERTYPE_IP
 #   endif
 #else
-#   ifndef UMD_INTF_TC_DEFT
-#       define UMD_INTF_TC_DEFT         "lan0"
+#   ifndef UMD_IFNAME_INGRESS
+#       define UMD_IFNAME_INGRESS       "lan0"
 #   endif
-#   ifndef UMD_INTF_TC_ETHERTYPE
-#       define UMD_INTF_TC_ETHERTYPE    ETHERTYPE_VLAN
+#   ifndef UMD_ETHTYPE_INGRESS
+#       define UMD_ETHTYPE_INGRESS      ETHERTYPE_VLAN
 #   endif
 #endif
 
@@ -193,8 +201,6 @@ DECLARE_ENUM(flow_type, __XLIST_UM_FLOW_TYPE, um_flow_type_end);
 #define um_flow_type_wan    um_flow_type_wan
 #define um_flow_type_end    um_flow_type_end
 #endif /* just for sourceinsight */
-
-enum {um_flow_type_local = um_flow_type_end};
 
 #define __XLIST_UM_FLOW_DIR(_)      \
     _(um_flow_dir_up,   0, "up"),   \
@@ -395,15 +401,52 @@ struct um_intf {
     byte mac[OS_MACSIZE], __r0[2];
 };
 
-enum {
-    UM_INTF_FLOW    = 0,
-#ifdef __PC__
-    UM_INTF_INGRESS = 0,
-#else
-    UM_INTF_INGRESS = 1,
-#endif
+#define __XLIST_UM_INTF_TYPE(_)             \
+    _(um_intf_type_base,    0, "base"),     \
+    _(um_intf_type_ingress, 1, "ingress"),  \
+    /* end */
 
-    UM_INTF_END
+static inline bool is_good_intf_type(int id);
+static inline char *intf_type_string(int id);
+static inline int intf_type_idx(char *name);
+DECLARE_ENUM(intf_type, __XLIST_UM_INTF_TYPE, um_intf_type_end);
+
+#if 1 /* just for sourceinsight */
+#define um_intf_type_base       um_intf_type_base
+#define um_intf_type_ingress    um_intf_type_ingress
+#define um_intf_type_end        um_intf_type_end
+#endif /* just for sourceinsight */
+
+#define __XLIST_UM_FORWARD_MODE(_)      \
+    _(um_forward_mode_br,   0, "br"),   \
+    _(um_forward_mode_rt,   1, "rt"),   \
+    /* end */
+
+static inline bool is_good_forward_mode(int id);
+static inline char *forward_mode_string(int id);
+static inline int forward_mode_idx(char *name);
+DECLARE_ENUM(forward_mode, __XLIST_UM_FORWARD_MODE, um_forward_mode_end);
+
+#if 1 /* just for sourceinsight */
+#define um_forward_mode_br  um_forward_mode_br
+#define um_forward_mode_rt  um_forward_mode_rt
+#define um_forward_mode_end um_forward_mode_end
+#endif /* just for sourceinsight */
+
+#define UM_LAN_COUNT    3
+
+struct um_lan {
+    uint32 ip;
+    uint32 mask;
+    char *ipstring;
+    char *maskstring;
+};
+
+struct um_config {
+    struct um_intf intf[um_intf_type_end];
+    struct um_lan lan[UM_LAN_COUNT];
+    uint32 gc;
+    int forward;
 };
 
 struct um_control {
@@ -412,8 +455,7 @@ struct um_control {
     bool deinit;
 
     cli_server_t *server[UM_SERVER_END];
-    struct um_intf intf[UM_INTF_END];
-    uint32 gc;
+    struct um_config cfg;
     
     h2_table_t table;
     int hash_size[UM_USER_NIDX_END];
@@ -445,6 +487,47 @@ struct vlan_header {
     uint16 type;
 };
 
+#define __XLIST_UM_PKT_TYPE(_)  \
+    _(um_pkt_type_eth,  0, "eth"),  \
+    _(um_pkt_type_vlan, 1, "vlan"), \
+    _(um_pkt_type_ip,   2, "ip"),   \
+    /* end */
+
+static inline bool is_good_pkt_type(int id);
+static inline char *pkt_type_string(int id);
+static inline int pkt_type_idx(char *name);
+DECLARE_ENUM(pkt_type, __XLIST_UM_PKT_TYPE, um_pkt_type_end);
+
+#if 1 /* just for sourceinsight */
+#define um_pkt_type_eth     um_pkt_type_eth
+#define um_pkt_type_vlan    um_pkt_type_vlan
+#define um_pkt_type_ip      um_pkt_type_ip
+#define um_pkt_type_end     um_pkt_type_end
+#endif /* just for sourceinsight */
+
+#define __XLIST_UM_PKT_CHECK(_)  \
+    _(um_pkt_check_good,    0, "good"), \
+    _(um_pkt_check_bad,     1, "bad"),  \
+    _(um_pkt_check_all,     2, "all"),  \
+    /* end */
+
+static inline bool is_good_pkt_check(int id);
+static inline char *pkt_check_string(int id);
+static inline int pkt_check_idx(char *name);
+DECLARE_ENUM(pkt_check, __XLIST_UM_PKT_CHECK, um_pkt_check_end);
+
+#if 1 /* just for sourceinsight */
+#define um_pkt_check_good   um_pkt_check_good
+#define um_pkt_check_bad    um_pkt_check_bad
+#define um_pkt_check_all    um_pkt_check_all
+#define um_pkt_check_end    um_pkt_check_end
+#endif /* just for sourceinsight */
+
+struct um_flowst {
+    uint32 packets;
+    uint64 bytes;
+};
+
 struct um_flow {
     byte packet[2048];
     int len;
@@ -457,22 +540,22 @@ struct um_flow {
     uint16 ether_type_vlan; /* network sort */
     uint16 ether_type_all;  /* network sort */
     uint16 __r0;
-    
+
     uint32 userip; /* network sort */
+    uint32 sip;
+    uint32 dip;
+    
     byte *usermac;
+    byte *smac;
+    byte *dmac;
     
     int type;   /* um_flow_type_lan/um_flow_type_wan */
     int dir;    /* um_flow_dir_up/um_flow_dir_down/um_flow_dir_all */
-    
-    uint32 eth_packets;
-    uint64 eth_bytes;
-    
-    uint32 vlan_packets;
-    uint64 vlan_bytes;
-    
-    uint32 ip_packets;
-    uint64 ip_bytes;
+
+    struct um_flowst    total[um_pkt_type_end][um_pkt_check_end],
+                        dev[um_flow_type_end][um_flow_dir_end];
 };
+
 /******************************************************************************/
 extern jobj_t
 um_juser(struct um_user *user);

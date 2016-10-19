@@ -26,27 +26,106 @@ struct um_control umd = {
         [UM_SERVER_FLOW]    = &um_flow_server,
     },
 
-    .intf = {
-        [UM_INTF_FLOW] = {
-            .name = UMD_INTF_FLOW_DEFT,
-        },
-        [UM_INTF_INGRESS] = {
-            .name = UMD_INTF_TC_DEFT,
-        },
-    },
-
     .hash_size = {
         [UM_USER_NIDX_MAC]  = UMD_HASHSIZE,
         [UM_USER_NIDX_IP]   = UMD_HASHSIZE,
     },
+
+    .cfg = {
+        .intf = {
+            [um_intf_type_base] = {
+                .name = UMD_IFNAME_BASE,
+            },
+            [um_intf_type_ingress] = {
+                .name = UMD_IFNAME_INGRESS,
+            },
+        },
+
+        .forward = um_forward_mode_rt,
+
+        .lan = {
+            {
+                .ipstring   = "192.168.0.0",
+                .maskstring = "255.255.255.0",
+            },
+            {
+                .ipstring   = "172.16.0.0",
+                .maskstring = "255.240.0.0",
+            },
+            {
+                .ipstring   = "10.0.0.0",
+                .maskstring = "255.0.0.0",
+            },
+        },
+    },
 };
+
+static int
+init_cfg(void)
+{
+    jobj_t jcfg = NULL;
+    jobj_t jobj;
+    char *json = NULL, *string;
+    int i, err, size, number;
+
+    err = os_readfileall(UMD_CONFIG, &json, &size, false);
+    if (err<0) {
+        /* 
+        * no config file, use default config
+        */
+        return 0;
+    }
+
+    jcfg = jobj(json);
+    if (NULL==jcfg) {
+        /* 
+        * bad config file, use default config
+        */
+        return 0;
+    }
+
+    jobj = jobj_get(jcfg, "gc");
+    if (jobj) {
+        umd.cfg.gc = jobj_get_bool(jobj);
+
+        debug_cfg("gc=%d", umd.cfg.gc);
+    }
+
+    jobj = jobj_get(jcfg, "forward");
+    if (NULL==jobj) {
+        string = jobj_get_string(jobj);
+        umd.cfg.forward = forward_mode_idx(string);
+
+        debug_cfg("forward=%d", umd.cfg.forward);
+    }
+
+    jobj_t jintf = jobj_get(jcfg, "interface");
+    if (jintf) {
+        for (i=0; i<um_intf_type_end; i++) {
+            char *type_string = intf_type_string(i);
+            jobj = jobj_get(jintf, type_string);
+            if (jobj) {
+                string = jobj_get_string(jobj);
+                umd.cfg.intf[i].name = os_strdup(string);
+
+                debug_cfg("%s intf=%s", type_string, string);
+            }
+        }
+    }
+
+    if (jcfg) {
+        jobj_put(jcfg);
+    }
+
+    return err;
+}
 
 static int
 init_env(void)
 {
     int err;
 
-    umd.gc = get_umd_gc_env();
+    umd.cfg.gc = get_umd_gc_env();
 
     return 0;
 }
@@ -54,47 +133,43 @@ init_env(void)
 static int
 init_intf(void)
 {
-    int err;
+    int i, err;
     struct um_intf *intf;
 
-    intf = &umd.intf[UM_INTF_FLOW];
-    {
+    for (i=0; i<um_intf_type_end; i++) {
+        intf = &umd.cfg.intf[i];
         intf->index = if_nametoindex(intf->name);
 
         err = intf_get_mac(intf->name, intf->mac);
         if (err<0) {
             return err;
         }
-        os_maccpy(umd.basemac, intf->mac);
     }
-
-    intf = &umd.intf[UM_INTF_INGRESS];
-    {
-        intf->index = if_nametoindex(intf->name);
-        
-        err = intf_get_mac(intf->name, intf->mac);
-        if (err<0) {
-            return err;
-        }
-        
-        err = intf_get_ip(intf->name, &intf->ip);
-        if (err<0) {
-            return err;
-        }
-        
-        err = intf_get_netmask(intf->name, &intf->mask);
-        if (err<0) {
-            return err;
-        }
-
-#if UMD_USE_PROMISC
-        err = intf_set_promisc(intf->name);
-        if (err<0) {
-            return err;
-        }
-#endif
+    os_maccpy(umd.basemac, umd.cfg.intf[um_intf_type_base].mac);
+    
+    intf = &umd.cfg.intf[um_intf_type_ingress];
+    err = intf_get_ip(intf->name, &intf->ip);
+    if (err<0) {
+        return err;
     }
     
+    err = intf_get_netmask(intf->name, &intf->mask);
+    if (err<0) {
+        return err;
+    }
+
+#if UMD_USE_PROMISC
+    err = intf_set_promisc(intf->name);
+    if (err<0) {
+        return err;
+    }
+#endif
+
+    for (i=0; i<os_count_of(umd.cfg.lan); i++) {
+        umd.cfg.lan[i].ip   = inet_addr(umd.cfg.lan[i].ipstring);
+        umd.cfg.lan[i].mask = inet_addr(umd.cfg.lan[i].maskstring);
+    }
+
     return 0;
 }
 
@@ -135,6 +210,11 @@ __init(void)
         return err;
     }
 
+    err = init_cfg();
+    if (err<0) {
+        return err;
+    }
+    
     err = init_env();
     if (err<0) {
         return err;
