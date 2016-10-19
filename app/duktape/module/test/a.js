@@ -1,3 +1,8 @@
 #!/bin/js
 
-print('a simple test');
+idx = 1;
+number = 100;
+
+rule = (number+idx) + 'wan' + idx;
+
+print(rule);
