@@ -1,6 +1,7 @@
 #ifndef __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 #define __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 /******************************************************************************/
+#if 1
 #define __XLIST_STRING_TYPE(_)          \
     _(STRING_T_GLOBAL,  0, "global"),   \
     _(STRING_T_CONST,   1, "const"),    \
@@ -12,12 +13,11 @@ static inline char *string_type_string(int type);
 static inline int string_type_idx(char *type_string);
 DECLARE_ENUM(string_type, __XLIST_STRING_TYPE, STRING_T_END);
 
-#if 1 /* just for sourceinsight */
 #define STRING_T_GLOBAL     STRING_T_GLOBAL
 #define STRING_T_CONST      STRING_T_CONST
 #define STRING_T_HEAP       STRING_T_HEAP
 #define STRING_T_END        STRING_T_END
-#endif /* just for sourceinsight */
+#endif
 
 typedef struct {
 #if __BYTE_ORDER == __BIG_ENDIAN

@@ -236,6 +236,7 @@ __ak_debug_getname(uint32 level)
 #define __is_ak_debug_cfg       __is_ak_debug(__ak_debug_cfg)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
+#if 1
 #define __XLIST_AK_SYS(_) \
     _(__AK_SYS_DEBUG,   0, AK_DEBUG_NAME), \
     _(__AK_SYS_JDEBUG,  1, JS_DEBUG_NAME), \
@@ -245,11 +246,10 @@ static inline bool is_good_ak_sys(int id);
 static inline int ak_sys_idx(char *name);
 DECLARE_ENUM(ak_sys, __XLIST_AK_SYS, __AK_SYS_END);
 
-#if 1 /* just for sourceinsight */
 #define __AK_SYS_DEBUG  __AK_SYS_DEBUG
 #define __AK_SYS_JDEBUG __AK_SYS_JDEBUG
 #define __AK_SYS_END    __AK_SYS_END
-#endif /* just for sourceinsight */
+#endif
 
 static inline uint32
 __ak_sys_debug(char *var)

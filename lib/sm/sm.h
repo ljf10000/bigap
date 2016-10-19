@@ -58,6 +58,7 @@
 #define SCRIPT_SMD_INIT_RUN         \
 "(sleep " __SYMBOL_TO_STRING(SCRIPT_SMD_INIT_DELAY) ";" SCRIPT_SMD_INIT ";) &"
 
+#if 1
 #define __XLIST_SM(_)               \
     _(SM_STATE_INIT,  0, "init"),   \
     _(SM_STATE_FORK,  1, "fork"),   \
@@ -70,13 +71,12 @@ static inline char *sm_state_string(int id);
 static inline int sm_state_idx(char *name);
 DECLARE_ENUM(sm_state, __XLIST_SM, SM_STATE_END);
 
-#if 1 /* just for sourceinsight */
 #define SM_STATE_INIT   SM_STATE_INIT
 #define SM_STATE_FORK   SM_STATE_FORK
 #define SM_STATE_RUN    SM_STATE_RUN
 #define SM_STATE_DIE    SM_STATE_DIE
 #define SM_STATE_END    SM_STATE_END
-#endif /* just for sourceinsight */
+#endif
 
 static inline int
 get_smd_path_env(sockaddr_un_t *addr) 

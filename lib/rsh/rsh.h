@@ -217,6 +217,7 @@ syn: rshc==(syn-request)==>xinetd==(syn-response)==>rshc
 
 #define RSH_ECHO_REQUEST    "{\"version\":%d, \"mac\":\"%s\", \"cmd\":\"echo\"}"
 
+#if 1
 #define __XLIST_RSH_CMD(_)              \
     _(RSH_CMD_COMMAND,  0, "command"),  \
     _(RSH_CMD_ECHO,     1, "echo"),     \
@@ -227,12 +228,12 @@ static inline char *rsh_cmd_string(int cmd);
 static inline int rsh_cmd_idx(char *cmd_string);
 DECLARE_ENUM(rsh_cmd, __XLIST_RSH_CMD, RSH_CMD_END);
 
-#if 1 /* just for sourceinsight */
 #define RSH_CMD_COMMAND     RSH_CMD_COMMAND
 #define RSH_CMD_ECHO        RSH_CMD_ECHO
 #define RSH_CMD_END         RSH_CMD_END
-#endif /* just for sourceinsight */
+#endif
 
+#if 1
 #define __XLIST_RSH_MODE(_)             \
     _(RSH_MODE_SYN,     0, "syn"),      \
     _(RSH_MODE_ACK,     1, "ack"),      \
@@ -245,12 +246,11 @@ static inline char *rsh_mode_string(int mode);
 static inline int rsh_mode_idx(char *mode_string);
 DECLARE_ENUM(rsh_mode, __XLIST_RSH_MODE, RSH_MODE_END);
 
-#if 1 /* just for sourceinsight */
 #define RSH_MODE_SYN        RSH_MODE_SYN
 #define RSH_MODE_ACK        RSH_MODE_ACK
 #define RSH_MODE_ASYN       RSH_MODE_ASYN
 #define RSH_MODE_REFLECT    RSH_MODE_REFLECT
 #define RSH_MODE_END        RSH_MODE_END
-#endif /* just for sourceinsight */
+#endif
 /******************************************************************************/
 #endif /* __RSH_H_cd4ac08f199c4732a4decf3ae976b791__ */

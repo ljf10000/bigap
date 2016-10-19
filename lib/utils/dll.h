@@ -2,6 +2,7 @@
 #define __DLL_H_246c16b7624f4197910c79d8f0707b65__
 #ifdef __APP__
 /******************************************************************************/
+#if 1
 #define __XLIST_LIBVAL_TYPE(_)  \
     _(LIBVAL_F32,   0, "f32"),  \
     _(LIBVAL_I32,   1, "i32"),  \
@@ -20,7 +21,6 @@ static inline char *libval_type_string(int id);
 static inline int libval_type_idx(char *name);
 DECLARE_ENUM(libval_type, __XLIST_LIBVAL_TYPE, LIBVAL_END);
 
-#if 1 /* just for sourceinsight */
 #define LIBVAL_F32  LIBVAL_F32
 #define LIBVAL_I32  LIBVAL_I32
 #define LIBVAL_U32  LIBVAL_U32
@@ -32,7 +32,7 @@ DECLARE_ENUM(libval_type, __XLIST_LIBVAL_TYPE, LIBVAL_END);
 #define LIBVAL_PTR  LIBVAL_PTR
 #define LIBVAL_VOD  LIBVAL_VOD
 #define LIBVAL_END  LIBVAL_END
-#endif /* just for sourceinsight */
+#endif
 
 #define LIBVAL_IN       0x01
 #define LIBVAL_OUT      0x02

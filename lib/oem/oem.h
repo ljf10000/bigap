@@ -122,6 +122,7 @@ typedef struct {
 #include "oem1.h"
 #include "oem2.h"
 /******************************************************************************/
+#if 1
 #define __XLIST_OEM(_)              \
     _(OEM_T_DEFT, 0, OEM_NAME),     \
     _(OEM_T_1,    1, OEM1_NAME),    \
@@ -133,12 +134,11 @@ static inline char *oem_type_string(int id);
 static inline int oem_type_idx(char *type);
 DECLARE_ENUM(oem_type, __XLIST_OEM, OEM_T_END);
 
-#if 1 /* just for sourceinsight */
 #define OEM_T_DEFT  OEM_T_DEFT
 #define OEM_T_1     OEM_T_1
 #define OEM_T_2     OEM_T_2
 #define OEM_T_END   OEM_T_END
-#endif /* just for sourceinsight */
+#endif
 
 #define DECLARE_FAKE_OEM    extern oem_t __THIS_OEM[]
 #define DECLARE_REAL_OEM    oem_t __THIS_OEM[OEM_T_END] = { \

@@ -15,14 +15,6 @@
 #define UM_TIMEOUT              3000    /* ms */
 #endif
 
-#ifndef UMD_GC
-#ifdef __PC__
-#   define UMD_GC               60  /* second */
-#else
-#   define UMD_GC               600 /* second */
-#endif
-#endif
-
 #ifndef UMD_UNIX
 #define UMD_UNIX                "/tmp/.umd.unix"
 #endif
@@ -55,12 +47,6 @@ static inline int
 get_um_timeout_env(void) 
 {
     return env_geti(OS_ENV(TIMEOUT), UM_TIMEOUT);
-}
-
-static inline int
-get_umd_gc_env(void) 
-{
-    return env_geti(OS_ENV(GC), 0 /* UMD_GC */);
 }
 /******************************************************************************/
 #endif /* __UM_H_cdb651156406414c97daca3b0f7527a6__ */

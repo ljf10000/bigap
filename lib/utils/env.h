@@ -77,6 +77,7 @@ env_geti(char *envname, int deft)
 /******************************************************************************/
 #define use_THIS_ENV    0
 
+#if 1
 #define OS_ENVLIST(_)   \
     _(ENV_TIMEOUT,  0,  "timeout"),     \
     _(ENV_INTERVAL, 1,  "interval"),    \
@@ -108,7 +109,6 @@ static inline char *os_env_string(int type);
 static inline int os_env_idx(char *type_string);
 DECLARE_ENUM(os_env, OS_ENVLIST, OS_ENV_END);
 
-#if 1 /* just for sourceinsight */
 #define ENV_TIMEOUT     ENV_TIMEOUT
 #define ENV_INTERVAL    ENV_INTERVAL
 #define ENV_PWDFILE     ENV_PWDFILE
@@ -133,7 +133,7 @@ DECLARE_ENUM(os_env, OS_ENVLIST, OS_ENV_END);
 #define ENV_FAMILY      ENV_FAMILY
 #define ENV_GC          ENV_GC
 #define OS_ENV_END      OS_ENV_END
-#endif /* just for sourceinsight */
+#endif
 
 typedef struct {
     char *env[OS_ENV_END];

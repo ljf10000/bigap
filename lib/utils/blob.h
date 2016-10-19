@@ -9,6 +9,7 @@ enum {
     BLOB_F_MUST     = 0x10,
 };
 
+#if 1
 #define __XLIST_BLOB_TYPE(_)            \
     _(BLOB_T_OBJECT,    0, "object"),   \
     _(BLOB_T_ARRAY,     1, "array"),    \
@@ -28,7 +29,6 @@ static inline char *blob_type_string(int type);
 static inline int blob_type_idx(char *type_string);
 DECLARE_ENUM(blob_type, __XLIST_BLOB_TYPE, BLOB_T_END);
 
-#if 1 /* just for sourceinsight */
 #define BLOB_T_OBJECT   BLOB_T_OBJECT
 #define BLOB_T_ARRAY    BLOB_T_ARRAY
 #define BLOB_T_STRING   BLOB_T_STRING
@@ -41,7 +41,7 @@ DECLARE_ENUM(blob_type, __XLIST_BLOB_TYPE, BLOB_T_END);
 #define BLOB_T_UINT64   BLOB_T_UINT64
 #define BLOB_T_FLOAT64  BLOB_T_FLOAT64
 #define BLOB_T_END      BLOB_T_END
-#endif /* just for sourceinsight */
+#endif
 
 static inline bool
 is_blob_type_container(int type)

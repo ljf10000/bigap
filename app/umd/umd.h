@@ -101,6 +101,7 @@
 #   endif
 #endif
 
+#if 1
 #define __XLIST_UM_STATE(_)         \
     _(UM_STATE_NONE, 0, "none"),    \
     _(UM_STATE_BIND, 1, "bind"),    \
@@ -112,12 +113,11 @@ static inline char *user_state_string(int id);
 static inline int user_state_idx(char *name);
 DECLARE_ENUM(user_state, __XLIST_UM_STATE, UM_STATE_END);
 
-#if 1 /* just for sourceinsight */
 #define UM_STATE_NONE   UM_STATE_NONE
 #define UM_STATE_BIND   UM_STATE_BIND
 #define UM_STATE_AUTH   UM_STATE_AUTH
 #define UM_STATE_END    UM_STATE_END
-#endif /* just for sourceinsight */
+#endif
 
 static inline bool
 __is_none(int state)
@@ -154,6 +154,7 @@ __have_bind(int state)
 #define is_noused(_user)    (__is_none((_user)->state) && 0==(_user)->flags)
 #define have_bind(_user)    __have_bind((_user)->state)
 
+#if 1
 #define __XLIST_UM_DEAUTH(_)                    \
     _(UM_DEAUTH_NONE,       0, "none"),         \
     _(UM_DEAUTH_AUTO,       1, "auto"),         \
@@ -169,7 +170,6 @@ static inline char *deauth_reason_string(int id);
 static inline int deauth_reason_idx(char *name);
 DECLARE_ENUM(deauth_reason, __XLIST_UM_DEAUTH, UM_DEAUTH_END);
 
-#if 1 /* just for sourceinsight */
 #define UM_DEAUTH_NONE          UM_DEAUTH_NONE
 #define UM_DEAUTH_AUTO          UM_DEAUTH_AUTO
 #define UM_DEAUTH_ONLINETIME    UM_DEAUTH_ONLINETIME
@@ -178,7 +178,7 @@ DECLARE_ENUM(deauth_reason, __XLIST_UM_DEAUTH, UM_DEAUTH_END);
 #define UM_DEAUTH_AGING         UM_DEAUTH_AGING
 #define UM_DEAUTH_INITIATIVE    UM_DEAUTH_INITIATIVE
 #define UM_DEAUTH_END           UM_DEAUTH_END
-#endif /* just for sourceinsight */
+#endif
 
 static inline bool
 is_valid_deauth_reason(int reason)
@@ -186,6 +186,7 @@ is_valid_deauth_reason(int reason)
     return IS_GOOD_VALUE(reason, UM_DEAUTH_NONE+1, UM_DEAUTH_END);
 }
 
+#if 1
 #define __XLIST_UM_FLOW_TYPE(_)     \
     _(um_flow_type_lan, 0, "lan"),  \
     _(um_flow_type_wan, 1, "wan"),  \
@@ -196,12 +197,12 @@ static inline char *flow_type_string(int id);
 static inline int flow_type_idx(char *name);
 DECLARE_ENUM(flow_type, __XLIST_UM_FLOW_TYPE, um_flow_type_end);
 
-#if 1 /* just for sourceinsight */
 #define um_flow_type_lan    um_flow_type_lan
 #define um_flow_type_wan    um_flow_type_wan
 #define um_flow_type_end    um_flow_type_end
-#endif /* just for sourceinsight */
+#endif
 
+#if 1
 #define __XLIST_UM_FLOW_DIR(_)      \
     _(um_flow_dir_up,   0, "up"),   \
     _(um_flow_dir_down, 1, "down"), \
@@ -213,12 +214,11 @@ static inline char *flow_dir_string(int id);
 static inline int flow_dir_idx(char *name);
 DECLARE_ENUM(flow_dir, __XLIST_UM_FLOW_DIR, um_flow_dir_end);
 
-#if 1 /* just for sourceinsight */
 #define um_flow_dir_up      um_flow_dir_up
 #define um_flow_dir_down    um_flow_dir_down
 #define um_flow_dir_all     um_flow_dir_all
 #define um_flow_dir_end     um_flow_dir_end
-#endif /* just for sourceinsight */
+#endif
 
 struct um_limit_online {
     uint32 max;   /* config */
@@ -401,6 +401,7 @@ struct um_intf {
     byte mac[OS_MACSIZE], __r0[2];
 };
 
+#if 1
 #define __XLIST_UM_INTF_TYPE(_)             \
     _(um_intf_type_base,    0, "base"),     \
     _(um_intf_type_ingress, 1, "ingress"),  \
@@ -411,12 +412,12 @@ static inline char *intf_type_string(int id);
 static inline int intf_type_idx(char *name);
 DECLARE_ENUM(intf_type, __XLIST_UM_INTF_TYPE, um_intf_type_end);
 
-#if 1 /* just for sourceinsight */
 #define um_intf_type_base       um_intf_type_base
 #define um_intf_type_ingress    um_intf_type_ingress
 #define um_intf_type_end        um_intf_type_end
-#endif /* just for sourceinsight */
+#endif
 
+#if 1
 #define __XLIST_UM_FORWARD_MODE(_)      \
     _(um_forward_mode_br,   0, "br"),   \
     _(um_forward_mode_rt,   1, "rt"),   \
@@ -427,11 +428,10 @@ static inline char *forward_mode_string(int id);
 static inline int forward_mode_idx(char *name);
 DECLARE_ENUM(forward_mode, __XLIST_UM_FORWARD_MODE, um_forward_mode_end);
 
-#if 1 /* just for sourceinsight */
 #define um_forward_mode_br  um_forward_mode_br
 #define um_forward_mode_rt  um_forward_mode_rt
 #define um_forward_mode_end um_forward_mode_end
-#endif /* just for sourceinsight */
+#endif
 
 #define UM_LAN_COUNT    3
 
@@ -487,6 +487,7 @@ struct vlan_header {
     uint16 type;
 };
 
+#if 1
 #define __XLIST_UM_PKT_TYPE(_)  \
     _(um_pkt_type_eth,  0, "eth"),  \
     _(um_pkt_type_vlan, 1, "vlan"), \
@@ -498,13 +499,13 @@ static inline char *pkt_type_string(int id);
 static inline int pkt_type_idx(char *name);
 DECLARE_ENUM(pkt_type, __XLIST_UM_PKT_TYPE, um_pkt_type_end);
 
-#if 1 /* just for sourceinsight */
 #define um_pkt_type_eth     um_pkt_type_eth
 #define um_pkt_type_vlan    um_pkt_type_vlan
 #define um_pkt_type_ip      um_pkt_type_ip
 #define um_pkt_type_end     um_pkt_type_end
-#endif /* just for sourceinsight */
+#endif
 
+#if 1
 #define __XLIST_UM_PKT_CHECK(_)  \
     _(um_pkt_check_good,    0, "good"), \
     _(um_pkt_check_bad,     1, "bad"),  \
@@ -516,12 +517,11 @@ static inline char *pkt_check_string(int id);
 static inline int pkt_check_idx(char *name);
 DECLARE_ENUM(pkt_check, __XLIST_UM_PKT_CHECK, um_pkt_check_end);
 
-#if 1 /* just for sourceinsight */
 #define um_pkt_check_good   um_pkt_check_good
 #define um_pkt_check_bad    um_pkt_check_bad
 #define um_pkt_check_all    um_pkt_check_all
 #define um_pkt_check_end    um_pkt_check_end
-#endif /* just for sourceinsight */
+#endif
 
 struct um_flowst {
     uint32 packets;

@@ -114,10 +114,6 @@ init_cfg(void)
 static int
 init_env(void)
 {
-    int err;
-
-    umd.cfg.gc = get_umd_gc_env();
-
     return 0;
 }
 
