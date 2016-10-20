@@ -64,7 +64,11 @@
 /*
 * make PRI by level & pri
 */
-#define JLOG_DEBUGLEVEL(_level)     JLOG_MAKEPRI(_level, LOG_DEBUG)
+#define JLOG_DEBUGLEVEL(_level)     ({ \
+    uint32 asdf = JLOG_MAKEPRI(_level, LOG_DEBUG); \
+    os_println("DEBUGLEVEL=0x%x", asdf); \
+    asdf; \
+})
 
 static inline void
 __jlog_header(
@@ -513,8 +517,6 @@ __jlog_add_header(
     int pri     = LOG_PRI(PRI);
     int level   = JLOG_LEVEL(PRI);
     int err;
-
-    os_println("PRI=0x%x", PRI);
     
     if (NULL==obj) {
         obj = jobj_new_object();
