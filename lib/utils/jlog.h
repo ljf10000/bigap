@@ -66,7 +66,7 @@
 */
 #define JLOG_DEBUGLEVEL(_level)     ({ \
     uint32 asdf = JLOG_MAKEPRI(_level, LOG_DEBUG); \
-    os_println("DEBUGLEVEL=0x%x", asdf); \
+    os_println("level=%d, DEBUGLEVEL=0x%x", _level, asdf); \
     asdf; \
 })
 
