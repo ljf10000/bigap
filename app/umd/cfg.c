@@ -111,6 +111,8 @@ init_cfg_server(int count)
     int i;
     
     umd.server_count = count + UM_SERVER_FLOW;
+    debug_cfg("server count %d", umd.server_count);
+    
     server = (cli_server_t **)os_zalloc(umd.server_count*sizeof(cli_server_t *));
     if (NULL==server) {
         return -ENOMEM;
@@ -119,9 +121,9 @@ init_cfg_server(int count)
     debug_cfg("setup timer server");
     
     server[UM_SERVER_CLI]   = &um_cli_server;
-    debug_cfg("setup timer server");
+    debug_cfg("setup cli server");
     
-    for (i=UM_SERVER_FLOW; i<count; i++) {
+    for (i=UM_SERVER_FLOW; i<umd.server_count; i++) {
         server[i] = (cli_server_t *)os_zalloc(sizeof(cli_server_t));
         if (NULL==server[i]) {
             return -ENOMEM;
