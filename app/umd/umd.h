@@ -402,22 +402,6 @@ struct um_intf {
 };
 
 #if 1
-#define __XLIST_UM_INTF_TYPE(_)             \
-    _(um_intf_type_base,    0, "base"),     \
-    _(um_intf_type_ingress, 1, "ingress"),  \
-    /* end */
-
-static inline bool is_good_intf_type(int id);
-static inline char *intf_type_string(int id);
-static inline int intf_type_idx(char *name);
-DECLARE_ENUM(intf_type, __XLIST_UM_INTF_TYPE, um_intf_type_end);
-
-#define um_intf_type_base       um_intf_type_base
-#define um_intf_type_ingress    um_intf_type_ingress
-#define um_intf_type_end        um_intf_type_end
-#endif
-
-#if 1
 #define __XLIST_UM_FORWARD_MODE(_)      \
     _(um_forward_mode_br,   0, "br"),   \
     _(um_forward_mode_rt,   1, "rt"),   \
@@ -452,8 +436,6 @@ struct um_lan {
 }   /* end */
 
 struct um_config {
-    struct um_intf intf[um_intf_type_end];
-    
     struct um_lan lan[UM_LAN_COUNT];
     
     struct {
