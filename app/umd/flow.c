@@ -34,7 +34,7 @@ is_dev_ip(uint32 ip)
     int i;
 
     for (i=0; i<umd.cfg.instance.count; i++) {
-        if (ip==get_intf_by_id(i)->ip)) {
+        if (ip==get_intf_by_id(i)->ip) {
             return true;
         }
     }
