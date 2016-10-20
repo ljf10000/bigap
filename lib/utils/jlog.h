@@ -64,11 +64,17 @@
 /*
 * make PRI by level & pri
 */
-#define JLOG_DEBUGLEVEL(_level)     ({ \
-    uint32 asdf = JLOG_MAKEPRI(_level, LOG_DEBUG); \
-    os_println("level=%d, DEBUGLEVEL=0x%x", _level, asdf); \
-    asdf; \
-})
+// #define JLOG_DEBUGLEVEL(_level)     JLOG_MAKEPRI(_level, LOG_DEBUG)
+
+static inline uint32
+JLOG_DEBUGLEVEL(uint32 level)
+{
+    uint32 DEBUGLEVEL = JLOG_MAKEPRI(level, LOG_DEBUG);
+
+    os_println("level=%d, DEBUGLEVEL=0x%x", level, DEBUGLEVEL);
+
+    return DEBUGLEVEL;
+}
 
 static inline void
 __jlog_header(
