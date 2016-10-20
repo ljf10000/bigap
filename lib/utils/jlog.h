@@ -60,7 +60,7 @@
 /*
 * get level from PRI
 */
-#define JLOG_LEVEL(_PRI)            (((_PRI) >> 3) & __ak_debug_all)
+#define JLOG_LEVEL(_PRI)            ((_PRI) >> 3)
 /*
 * make PRI by level & pri
 */
@@ -514,6 +514,8 @@ __jlog_add_header(
     int level   = JLOG_LEVEL(PRI);
     int err;
 
+    os_println("PRI=0x%x", PRI);
+    
     if (NULL==obj) {
         obj = jobj_new_object();
         if (NULL==obj) {
