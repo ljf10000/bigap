@@ -493,7 +493,7 @@ get_server_by_intf(struct um_intf *intf)
 static inline struct um_intf *
 get_intf_by_id(int intf_id)
 {
-    return &umd.cfg.instance.intf[intf_id]
+    return &umd.cfg.instance.intf[intf_id];
 }
 
 static inline struct um_intf *
