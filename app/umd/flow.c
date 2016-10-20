@@ -525,6 +525,7 @@ static int
 ip_handle(cli_server_t *server)
 {
     int err = __ip_handle(server, true);
+    bool again = (1==err);
     
     if (1==err) {
         err = __ip_handle(server, false);
@@ -752,7 +753,6 @@ __flow_server_handle(cli_server_t *server)
         eth_handle,
         vlan_handle,
         ip_handle,
-        flow_handle,
     };
     int i, err;
 
