@@ -25,7 +25,7 @@ init_cfg_lan(void)
         umd.cfg.lan[i].ip   = inet_addr(umd.cfg.lan[i].ipstring);
         umd.cfg.lan[i].mask = inet_addr(umd.cfg.lan[i].maskstring);
     }
-
+    
     return 0;
 }
 
@@ -60,6 +60,8 @@ init_cfg_intf_pre(int count)
     }
     umd.cfg.instance.intf = intf;
     umd.cfg.instance.count = count;
+
+    debug_cfg("intf count %d", count);
     
     return 0;
 }
@@ -96,6 +98,7 @@ init_cfg_intf_post(void)
             return err;
         }
 #endif
+        debug_cfg("init intf %s", intf->name);
     }
 
     return 0;
@@ -113,8 +116,11 @@ init_cfg_server(int count)
         return -ENOMEM;
     }
     server[UM_SERVER_TIMER] = &um_timer_server;
+    debug_cfg("setup timer server");
+    
     server[UM_SERVER_CLI]   = &um_cli_server;
-
+    debug_cfg("setup timer server");
+    
     for (i=UM_SERVER_FLOW; i<count; i++) {
         server[i] = (cli_server_t *)os_zalloc(sizeof(cli_server_t));
         if (NULL==server[i]) {
@@ -122,6 +128,7 @@ init_cfg_server(int count)
         }
         os_objcpy(server[i], &um_flow_server);
         server[i]->id = i;
+        debug_cfg("setup flow server[%d]", i);
     }
 
     umd.server = server;
