@@ -129,7 +129,7 @@ pkt_handle(cli_server_t *server)
 static int
 intf_handle(cli_server_t *server)
 {
-    if (server->addr.ll.sll_ifindex == umd.cfg.intf[um_intf_type_ingress].index) {
+    if (server->addr.ll.sll_ifindex == flow.intf->index) {
         return 0;
     } else {
         return -EBADIDX;
@@ -724,12 +724,14 @@ flow_server_init(cli_server_t *server)
     
 #if UMD_USE_BINDIF
     struct um_intf *intf = get_intf_by_server(server);
-    sockaddr_ll_t *addr = &server->addr.ll;
-    
-    addr->sll_protocol  = umd.ether_type_all,
-    addr->sll_ifindex   = intf->index,
 
-    err = bind(fd, (sockaddr_t *)addr, sizeof(*addr));
+    sockaddr_ll_t addr = {
+        .sll_family     = AF_PACKET,
+        .sll_protocol   = umd.ether_type_all,
+        .sll_ifindex    = intf->index,
+    };
+
+    err = bind(fd, (sockaddr_t *)(&addr), sizeof(addr));
     if (err<0) {
         debug_error("bind error:%d", -errno);
         
