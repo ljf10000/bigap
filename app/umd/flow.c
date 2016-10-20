@@ -174,14 +174,14 @@ eth_handle(cli_server_t *server)
 
     add_flow_good(um_pkt_type_eth);
 
-    if (__is_ak_debug_st) {
+    if (__is_ak_debug_flow) {
         char smacstring[1+MACSTRINGLEN_L];
         char dmacstring[1+MACSTRINGLEN_L];
         
         os_strcpy(smacstring, os_macstring(smac));
         os_strcpy(dmacstring, os_macstring(dmac));
         
-        debug_st("recv packet smac=%s dmac=%s type=0x%x", 
+        debug_flow("recv packet smac=%s dmac=%s type=0x%x", 
             smacstring,
             dmacstring,
             ntohs(eth->ether_type));
@@ -204,10 +204,12 @@ vlan_handle(cli_server_t *server)
             return -EFORMAT;
         }
 
-        debug_packet("recv packet vlan=%d type=%d", 
-            vlan->vid,
-            vlan->type);
-
+        if (__is_ak_debug_flow) {
+            debug_flow("recv packet vlan=%d type=%d", 
+                vlan->vid,
+                vlan->type);
+        }
+        
         add_flow_good(um_pkt_type_vlan);
     }
     
@@ -484,7 +486,7 @@ __ip_handle(cli_server_t *server, bool first)
         add_flow_good(um_pkt_type_ip);
     }
     
-    if (__is_ak_debug_st) {
+    if (__is_ak_debug_flow) {
         char sipstring[1+OS_IPSTRINGLEN];
         char dipstring[1+OS_IPSTRINGLEN];
         char  ipstring[1+OS_IPSTRINGLEN];
@@ -495,7 +497,7 @@ __ip_handle(cli_server_t *server, bool first)
         os_strcpy( ipstring, os_ipstring(flow.userip));
         os_strcpy( macstring, os_macstring(flow.usermac));
         
-        debug_st("recv packet"
+        debug_flow("recv packet"
                         " sip=%s"
                         " dip=%s"
                         " protocol=%d"
