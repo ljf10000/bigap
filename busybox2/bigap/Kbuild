@@ -35,6 +35,7 @@ lib-$(CONFIG_TTYUSB)	+= app/3g/ttyUSB.o
 lib-$(CONFIG_UMC)  	+= app/umc/umc.o
 lib-$(CONFIG_UMD)  	+= app/umd/umd.o
 lib-$(CONFIG_UMD)  	+= app/umd/cli.o
+lib-$(CONFIG_UMD)  	+= app/umd/cfg.o
 lib-$(CONFIG_UMD)  	+= app/umd/flow.o
 lib-$(CONFIG_UMD)  	+= app/umd/timer.o
 lib-$(CONFIG_UMD)  	+= app/umd/user.o

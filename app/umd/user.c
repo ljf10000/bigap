@@ -72,13 +72,14 @@ update_limit(struct um_user *user, jobj_t obj)
 void update_limit_test(void)
 {
 #if UM_TEST & UM_TEST_JSON
+    struct um_intf *intf = &umd.cfg.instance.intf[0];
     struct um_user user = {
-        .ip = umd.cfg.intf[um_intf_type_ingress].ip,
+        .ip = intf->ip,
         .head = { 
             .tag = LIST_HEAD_INIT(user.head.tag),
         },
     };
-    os_maccpy(user.mac, umd.cfg.intf[um_intf_type_ingress].mac);
+    os_maccpy(user.mac, intf->mac);
     
     jobj_t obj = jobj_byfile("./auth.json");
     if (NULL==obj) {

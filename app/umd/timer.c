@@ -218,11 +218,6 @@ timer_server_handle(cli_server_t *server)
     return 0;
 }
 
-cli_server_t um_timer_server = {
-    .fd     = INVALID_FD,
-
-    .init   = timer_server_init,
-    .handle = timer_server_handle,
-};
-
+cli_server_t um_timer_server = 
+    CLI_SERVER_INITER(UM_SERVER_TIMER, 0, timer_server_init, timer_server_handle);
 /******************************************************************************/

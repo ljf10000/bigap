@@ -1,0 +1,22 @@
+{
+	"autouser": true,
+	"promisc": false,
+	"bindif": true,
+	"ticks": 5,
+	"idle": {
+		"wireless": 5
+		"lan": 300,
+		"wan": 300,
+	},
+	"sniff": 32,
+	"hash": {
+		"mac": 256,
+		"ip": 256
+	},
+	"script": {
+		"getipbymac": "/usr/sbin/getipbymac",
+		"getmacbyip": "/usr/sbin/getmacbyip",
+		"getbasemac": "/usr/sbin/getbasemac",
+		"event": "/etc/um/umevent"
+	}
+}

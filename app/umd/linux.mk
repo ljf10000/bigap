@@ -19,6 +19,7 @@ include $(DIR_ROOT)/mk/define.mk
 OBJS=$(DIR_SELF)/umd.o \
 	$(DIR_SELF)/user.o \
 	$(DIR_SELF)/cli.o \
+	$(DIR_SELF)/cfg.o \
 	$(DIR_SELF)/timer.o \
 	$(DIR_SELF)/flow.o \
 	# end

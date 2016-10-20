@@ -201,46 +201,24 @@ jtrycut(void)
 }
 
 static int
-jmac(void)
-{
-    if (0==jlogd.mac[0]) {
-        char line[1+OS_LINE_LEN] = {0};
-        int err;
-        
-        err = os_v_pgets(line, OS_LINE_LEN, SCRIPT_GETMAC);
-        if (err || 0==line[0]) {
-            __debug_error("no-found mac, err:%d, line:%s", err, line);
-            
-            return -EBADMAC;
-        } else {
-            os_strmcpy(jlogd.mac, line, MACSTRINGLEN_L);
-
-            return 0;
-        }
-    } else {        
-        return 0;
-    }
-}
-
-static int
 jadd(jlog_server_t *server)
 {
     int len = 0, pri, err;
-    jobj_t obj, header, opri;
+    jobj_t obj = NULL;
     
     obj = jobj_byjson(jlogb);
     if (NULL==obj) {
         len = -EBADJSON; goto error;
     }
 
-    header = jobj_get(obj, JLOG_KEY_HEADER);
+    jobj_t header = jobj_get(obj, JLOG_KEY_HEADER);
     if (NULL==header) {
         __debug_error("no-found header");
         
         len = -EFORMAT; goto error;
     }
     
-    opri = jobj_get(header, JLOG_KEY_PRI);
+    jobj_t opri = jobj_get(header, JLOG_KEY_PRI);
     if (NULL==opri) {
         __debug_error("no-found pri");
         
@@ -255,8 +233,9 @@ jadd(jlog_server_t *server)
         len = err; goto error;
     }
 
-    if (0==jmac()) {
-        err = jobj_add_string(header, JLOG_KEY_MAC, jlogd.mac);
+    char *mac = os_getbasemac();
+    if (mac) {
+        err = jobj_add_string(header, JLOG_KEY_MAC, mac);
         if (err<0) {
             __debug_error("add mac error");
             

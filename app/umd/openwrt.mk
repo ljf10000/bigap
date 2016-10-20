@@ -1,5 +1,5 @@
 
-OBJS=umd.o user.o cli.o flow.o timer.o
+OBJS=umd.o user.o cli.o cfg.o flow.o timer.o
 __TARGET=umd
 TARGET=$(__TARGET)
 LIBS_DEPEND=-lm -ljson-c

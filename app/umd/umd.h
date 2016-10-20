@@ -81,10 +81,6 @@
 #define UMD_IFNAME_BASE         "eth0"
 #endif
 
-#ifndef UMD_INTF_FLOW_ETHERTYPE
-#define UMD_INTF_FLOW_ETHERTYPE ETHERTYPE_IP
-#endif
-
 #ifdef __PC__
 #   ifndef UMD_IFNAME_INGRESS
 #       define UMD_IFNAME_INGRESS       "eth0"
@@ -221,22 +217,22 @@ DECLARE_ENUM(flow_dir, __XLIST_UM_FLOW_DIR, um_flow_dir_end);
 #endif
 
 struct um_limit_online {
-    uint32 max;   /* config */
-    uint32 idle;  /* config */
-    uint32 numerator;
-    uint32 denominator;
+    uint32 max;         /* config */
+    uint32 idle;        /* config */
+    uint32 numerator;   /* config */
+    uint32 denominator; /* config */
 
-    int aging; /* run data */
-    time_t uptime;  /* run data */
-    time_t downtime;/* run data */
+    int aging;          /* run data */
+    time_t uptime;      /* run data */
+    time_t downtime;    /* run data */
 };
 
 struct um_limit_flow {
-    uint64 max;   /* config */
-    uint64 now;   /* run data */
+    uint64 max;         /* config */
+    uint64 now;         /* run data */
     
-    uint64 numerator;
-    uint64 denominator;
+    uint64 numerator;   /* config */
+    uint64 denominator; /* config */
 };
 
 struct um_limit_rate {
@@ -386,19 +382,23 @@ typedef mv_t um_get_f(struct um_user *user);
 enum {
     UM_SERVER_TIMER,    /* must first */
     UM_SERVER_CLI,
-    UM_SERVER_FLOW,     /* must last */
     
-    UM_SERVER_END
+    UM_SERVER_FLOW,
+    UM_SERVER_END = UM_SERVER_FLOW
 };
+
+#define um_intf_id(_server_id)  (_server_id - UM_SERVER_END)
+#define um_server_id(_intf_id)  (_intf_id + UM_SERVER_END)
 
 struct um_intf {
     char name[1+OS_IFNAME_LEN];
+    byte mac[OS_MACSIZE], __r0[2];
+    uint32 id;
     
     uint32 index;
     uint32 ip;
     uint32 mask;
     uint32 flag;
-    byte mac[OS_MACSIZE], __r0[2];
 };
 
 #if 1
@@ -441,27 +441,66 @@ struct um_lan {
     char *ipstring;
     char *maskstring;
 };
+#define __UM_LAN_INITER(_ipstring, _maskstring) { \
+    .ipstring   = _ipstring,    \
+    .maskstring = _maskstring,  \
+}   /* end */
+#define UM_LAN_INITER { \
+    __UM_LAN_INITER("192.168.0.0", "255.255.255.0"), \
+    __UM_LAN_INITER("172.16.0.0", "255.240.0.0"),    \
+    __UM_LAN_INITER("10.0.0.0", "255.0.0.0"),        \
+}   /* end */
 
 struct um_config {
     struct um_intf intf[um_intf_type_end];
+    
     struct um_lan lan[UM_LAN_COUNT];
+    
+    struct {
+        int count;
+        struct um_intf *intf;
+    } instance;
+    
     uint32 gc;
     int forward;
 };
 
 struct um_control {
-    byte resv[2], basemac[OS_MACSIZE]; /* local ap's base mac */
+    byte basemac[OS_MACSIZE]; /* local ap's base mac */
+    uint16 ether_type_ip;   /* network sort */
+    uint16 ether_type_vlan; /* network sort */
+    uint16 ether_type_all;  /* network sort */
+    
     uint32 ticks;
     bool deinit;
 
-    cli_server_t *server[UM_SERVER_END];
     struct um_config cfg;
+    cli_server_t **server;
+    int server_count;
     
     h2_table_t table;
     int hash_size[UM_USER_NIDX_END];
 };
 
 extern struct um_control umd;
+
+static inline cli_server_t *
+get_server_by_intf(struct um_intf *intf)
+{
+    return umd.server[um_server_id(intf->id)];
+}
+
+static inline struct um_intf *
+get_intf_by_id(int intf_id)
+{
+    return &umd.cfg.instance.intf[intf_id]
+}
+
+static inline struct um_intf *
+get_intf_by_server(cli_server_t *server)
+{
+    return get_intf_by_id(um_intf_id(server->id));
+}
 
 struct um_user_filter {
     int state;
@@ -529,17 +568,14 @@ struct um_flowst {
 };
 
 struct um_flow {
+    struct um_intf *intf;
+    
     byte packet[2048];
     int len;
 
     struct ether_header *eth;
     struct vlan_header  *vlan;
     struct ip           *iph;
-
-    uint16 ether_type_ip;   /* network sort */
-    uint16 ether_type_vlan; /* network sort */
-    uint16 ether_type_all;  /* network sort */
-    uint16 __r0;
 
     uint32 userip; /* network sort */
     uint32 sip;

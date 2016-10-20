@@ -10,7 +10,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #define __DEAMON__
-
 #include "umd.h"
 
 #if UM_USE_MONITOR
@@ -411,11 +410,6 @@ cli_init(cli_server_t *server)
     return 0;
 }
 
-cli_server_t um_cli_server = {
-    .fd     = INVALID_FD,
-    .addr   = OS_SOCKADDR_INITER(AF_UNIX),
-
-    .init   = cli_init,
-    .handle = cli_handle,
-};
+cli_server_t um_cli_server = 
+    CLI_SERVER_INITER(UM_SERVER_CLI, AF_UNIX, cli_init, cli_handle);
 /******************************************************************************/

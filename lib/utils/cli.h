@@ -363,11 +363,20 @@ cli_c_handle(
 
 typedef struct cli_server {
     int fd;
+    int id;
     os_sockaddr_t addr;
     
     int (*init)(struct cli_server *server);
     int (*handle)(struct cli_server *server);
 } cli_server_t;
+
+#define CLI_SERVER_INITER(_id, _family, _init, _handle) { \
+    .id     = _id, \
+    .fd     = INVALID_FD, \
+    .addr   = OS_SOCKADDR_INITER(_family), \
+    .init   = _init, \
+    .handle = _handle, \
+} /* end */
 
 static inline int
 cli_u_server_init(cli_server_t *server)
@@ -403,11 +412,13 @@ static inline int
 __cli_server_init(cli_server_t *server[], int count)
 {
     int i, err;
-
+    
     for (i=0; i<count; i++) {
-        err = (*server[i]->init)(server[i]);
-        if (err<0) {
-            return err;
+        if (server[i]) {
+            err = (*server[i]->init)(server[i]);
+            if (err<0) {
+                return err;
+            }
         }
     }
     
@@ -421,7 +432,9 @@ __cli_server_fdmax(cli_server_t *server[], int count)
     int i, fdmax = 0;
     
     for (i=0; i<count; i++) {
-        fdmax = OS_MAX(fdmax, server[i]->fd);
+        if (server[i]) {
+            fdmax = OS_MAX(fdmax, server[i]->fd);
+        }
     }
 
     return fdmax;
@@ -434,7 +447,9 @@ __cli_server_prepare(cli_server_t *server[], int count, fd_set *set)
     
     FD_ZERO(set);
     for (i=0; i<count; i++) {
-        FD_SET(server[i]->fd, set);
+        if (server[i]) {
+            FD_SET(server[i]->fd, set);
+        }
     }
 }
 
@@ -444,7 +459,7 @@ __cli_server_handle(cli_server_t *server[], int count, fd_set *set)
     int i, err;
     
     for (i=0; i<count; i++) {
-        if (FD_ISSET(server[i]->fd, set)) {
+        if (server[i] && FD_ISSET(server[i]->fd, set)) {
             err = (*server[i]->handle)(server[i]);
             if (err<0) {
                 /* log, but no return */

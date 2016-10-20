@@ -70,10 +70,8 @@ set_abstract_path(sockaddr_un_t *addr, const char *path)
     os_memcpy(get_abstract_path(addr), path, os_strlen(path));
 }
 
-enum {
-    unix_path_size      = sizeof(sockaddr_un_t) - offsetof(sockaddr_un_t, sun_path),
-    abstract_path_size  = unix_path_size - 1,
-};
+enum { unix_path_size = sizeof(sockaddr_un_t) - offsetof(sockaddr_un_t, sun_path) };
+enum { abstract_path_size  = unix_path_size - 1 };
 
 static inline void
 set_abstract_sockaddr_len(sockaddr_un_t *addr, int addrlen)
@@ -478,11 +476,11 @@ os_macstring(byte mac[])
 #endif
 #endif
 
-#ifndef SCRIPT_BASEMAC
+#ifndef SCRIPT_GETBASEMAC
 #ifdef __PC__
-#   define SCRIPT_BASEMAC   SCRIPT_GETMAC
+#   define SCRIPT_GETBASEMAC   SCRIPT_GETMAC
 #else
-#   define SCRIPT_BASEMAC   "/usr/sbin/basemac"
+#   define SCRIPT_GETBASEMAC   "/usr/sbin/getbasemac"
 #endif
 #endif
 
@@ -490,13 +488,21 @@ os_macstring(byte mac[])
 * todo: md1 or md3 handle
 */
 static inline char *
-get_basemac(void)
+os_getbasemac(void)
 {
     static char line[1+OS_LINE_LEN];
 
-    os_pgets(line, OS_LINE_LEN, SCRIPT_BASEMAC);
+    if (0==line[0]) {
+        int err = os_pgets(line, OS_LINE_LEN, SCRIPT_GETBASEMAC);
+        if (err) {
+            return NULL;
+        }
+        else if (false==is_good_macstring(line)) {
+            return NULL;
+        }
+    }
 
-    return is_good_macstring(line)?line:NULL;
+    return line;
 }
 
 /******************************************************************************/
