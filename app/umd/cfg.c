@@ -16,7 +16,7 @@ extern cli_server_t um_cli_server;
 extern cli_server_t um_flow_server;
 extern cli_server_t um_timer_server;
 
-static init
+static int
 init_cfg_lan(void)
 {
     int i;
