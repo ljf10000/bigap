@@ -16,9 +16,9 @@ extern cli_server_t um_cli_server;
 extern cli_server_t um_flow_server;
 extern cli_server_t um_timer_server;
 
-#define um_jcfg_u32(_jcfg, _member)     jcfg_bytype(_jcfg, &umd.cfg, _member, u32)
-#define um_jcfg_i32(_jcfg, _member)     jcfg_bytype(_jcfg, &umd.cfg, _member, i32)
-#define um_jcfg_bool(_jcfg, _member)    jcfg_bytype(_jcfg, &umd.cfg, _member, bool)
+#define um_jcfg_u32(_jcfg, _member)     jcfg_u32(_jcfg, &umd.cfg, _member)
+#define um_jcfg_i32(_jcfg, _member)     jcfg_i32(_jcfg, &umd.cfg, _member)
+#define um_jcfg_bool(_jcfg, _member)    jcfg_bool(_jcfg, &umd.cfg, _member)
 #define um_jcfg_string(_jcfg, _member)  jcfg_string(_jcfg, &umd.cfg, _member)
 
 static int

@@ -696,22 +696,22 @@ jobj_get_leaf(jobj_t obj, ...)
     jobj_t jobj = jobj_get(_jcfg, #_member); \
     if (jobj) { \
         (_pcfg)->_member = os_strdup(jobj_get_string(jobj)); \
-        debug_config(#_member "=%d", (_pcfg)->_member); \
+        debug_config(#_member "=%s", (_pcfg)->_member); \
     } \
     0; \
 })  /* end */
 
-#define jcfg_bytype(_jcfg, _pcfg, _member, _type) ({ \
+#define jcfg_bytype(_jcfg, _pcfg, _member, _type, _format) ({ \
     jobj_t jobj = jobj_get(_jcfg, #_member); \
     if (jobj) { \
         (_pcfg)->_member = jobj_get_##_type(jobj); \
-        debug_config(#_member "=%d", (_pcfg)->_member); \
+        debug_config(#_member "=" _format, (_pcfg)->_member); \
     } \
     0; \
 })  /* end */
-#define jcfg_u32(_jcfg, _pcfg, _member)     init_jcfg_bytype(_jcfg, _pcfg, _member, u32)
-#define jcfg_i32(_jcfg, _pcfg, _member)     init_jcfg_bytype(_jcfg, _pcfg, _member, i32)
-#define jcfg_bool(_jcfg, _pcfg, _member)    init_jcfg_bytype(_jcfg, _pcfg, _member, bool)
+#define jcfg_u32(_jcfg, _pcfg, _member)     jcfg_bytype(_jcfg, _pcfg, _member, u32, "%u")
+#define jcfg_i32(_jcfg, _pcfg, _member)     jcfg_bytype(_jcfg, _pcfg, _member, i32, "%d")
+#define jcfg_bool(_jcfg, _pcfg, _member)    jcfg_bytype(_jcfg, _pcfg, _member, bool, "%d")
 
 #endif /* __APP__ */
 /******************************************************************************/
