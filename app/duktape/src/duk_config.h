@@ -1949,13 +1949,17 @@ static inline void
 duk_priv_fini(duk_priv_t *priv)
 {
     int i;
-    
-    os_free(priv->name);
-    os_free(priv->atexit_name);
 
+    if (priv->name) {
+        free(priv->name);
+    }
+    if (priv->atexit_name) {
+        free(priv->atexit_name);
+    }
+    
     for (i=0; i<NSIG; i++) {
-        if (priv->sig[i].is_func) {
-            os_free(priv->sig[i].name);
+        if (priv->sig[i].is_func && priv->sig[i].name) {
+            free(priv->sig[i].name);
         }
     }
 }
