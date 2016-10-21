@@ -19,7 +19,9 @@ static duk_context *__js_ctx;
 
 void js_ctx_save(duk_context *ctx)
 {
-    __js_ctx = ctx;
+    if (NULL==__js_ctx) {
+        __js_ctx = ctx;
+    }
 }
 
 duk_context *js_ctx(void)

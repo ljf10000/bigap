@@ -916,7 +916,8 @@ js_init(char *name, int argc, char *argv)
     if (NULL==ctx) {
         return NULL;
     }
-
+    js_ctx_save(ctx);
+    
     duk_priv_t *priv = duk_priv(ctx);
     duk_priv_init(priv, name, argc, argv);
 

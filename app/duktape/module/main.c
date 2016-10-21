@@ -26,7 +26,6 @@ __main(int argc, char *argv[])
     if (NULL==ctx) {
         err = -ENOMEM; goto error;
     }
-    js_ctx_save(ctx);
 
     err = duk_script(ctx);
     if (err<0) {
