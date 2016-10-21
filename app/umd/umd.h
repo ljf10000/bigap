@@ -272,7 +272,7 @@ struct um_user {
     uint32 ip; /* network */
 
     time_t create;
-    time_t fake;
+    time_t faketime;
     time_t noused;
 
     struct um_limit limit[um_flow_type_end];

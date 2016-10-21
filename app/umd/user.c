@@ -590,7 +590,8 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
     */
     __set_state(user, UM_STATE_BIND);
     wan_offline(user);
-
+    user->faketime = 0;
+    
     __user_debug("after-user-unfake", user);
     
     return 0;
@@ -708,7 +709,7 @@ __user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
     __set_state(user, UM_STATE_FAKE);
     lan_online(user);
     update_aging(user, true);
-    user->fake = time(NULL);
+    user->faketime = time(NULL);
     
     if (ev) {
         (*ev)(user, "fake");
@@ -1132,7 +1133,7 @@ jobj_t um_juser(struct um_user *user)
     
     jobj_add_string(obj, "create",  os_fulltime_string(&user->create));
     jobj_add_string(obj, "noused",  os_fulltime_string(&user->noused));
-    jobj_add_string(obj, "fake",  os_fulltime_string(&user->fake));
+    jobj_add_string(obj, "faketime",os_fulltime_string(&user->faketime));
     
     jobj_add_i32(obj,   "group",    user->group);
 

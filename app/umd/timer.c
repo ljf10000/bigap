@@ -163,10 +163,10 @@ online_reauth(struct um_user *user, time_t now)
 static inline bool
 is_fake_timeout(struct um_user *user, time_t now)
 {
-    time_t faketime = user->fake;
+    time_t faketime = user->faketime;
     uint32 fake = umd.cfg.fake;
     
-    bool is = fake && (faketime < now) && (now - faketime > fake);
+    bool is = fake && (faketime < now) && (now - faketime > umd.cfg.fake);
     if (is) {
         debug_timeout("user(%s) faketime(%u) now(%u) timeout",
             os_macstring(user->mac),
