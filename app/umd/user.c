@@ -1133,6 +1133,7 @@ jobj_t um_juser(struct um_user *user)
     jobj_add_string(obj, "create",  os_fulltime_string(&user->create));
     jobj_add_string(obj, "noused",  os_fulltime_string(&user->noused));
     jobj_add_string(obj, "faketime",os_fulltime_string(&user->faketime));
+    jobj_add_string(obj, "hitime",  os_fulltime_string(&user->hitime));
     
     jobj_add_i32(obj,   "group",    user->group);
 

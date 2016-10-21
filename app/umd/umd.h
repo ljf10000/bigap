@@ -274,7 +274,8 @@ struct um_user {
     time_t create;
     time_t faketime;
     time_t noused;
-
+    time_t hitime;
+    
     struct um_limit limit[um_flow_type_end];
 
     h2_node_t node;

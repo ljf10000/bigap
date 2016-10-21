@@ -647,6 +647,8 @@ flow_handle(cli_server_t *server)
         return -ENOEXIST;
     }
 
+    user->hitime = time(NULL);
+
     if (have_bind(user)) {
         flow_update(user, flow.type, flow.dir);
         um_user_debug("user-flow-update", user, __is_ak_debug_flow);
