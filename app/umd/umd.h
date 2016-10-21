@@ -409,7 +409,6 @@ struct um_config {
 
 #define UMD_CFG_INITER                  {   \
     .conf = UMD_CONF,                       \
-    .lan = UM_LAN_INITER,                   \
     .sniff_count = UMD_SNIFF_COUNT,         \
     .ticks = UMD_TICKS,                     \
     .idle = UMD_IDLE,                       \
@@ -430,14 +429,14 @@ struct um_lan {
     char *ipstring;
     char *maskstring;
 };
-#define __UM_LAN_INITER(_ipstring, _maskstring) { \
+#define __UMD_LAN_INITER(_ipstring, _maskstring) { \
     .ipstring   = _ipstring,    \
     .maskstring = _maskstring,  \
 }   /* end */
-#define UM_LAN_INITER { \
-    __UM_LAN_INITER("192.168.0.0", "255.255.255.0"), \
-    __UM_LAN_INITER("172.16.0.0", "255.240.0.0"),    \
-    __UM_LAN_INITER("10.0.0.0", "255.0.0.0"),        \
+#define UMD_LAN_INITER { \
+    __UMD_LAN_INITER("192.168.0.0", "255.255.255.0"), \
+    __UMD_LAN_INITER("172.16.0.0", "255.240.0.0"),    \
+    __UMD_LAN_INITER("10.0.0.0", "255.0.0.0"),        \
 }   /* end */
 
 enum {
@@ -464,6 +463,7 @@ struct um_control {
 };
 
 #define UMD_INITER      {   \
+    .lan = UMD_LAN_INITER,  \
     .cfg = UMD_CFG_INITER,  \
 }   /* end */
 
