@@ -1041,7 +1041,7 @@ js_run(duk_context *ctx)
 }
 
 static inline duk_context *
-js_init(char *name, int argc, char *argv)
+js_init(char *name, int argc, char **argv)
 {
     int err = 0;
 
