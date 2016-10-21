@@ -821,7 +821,7 @@ arg_register(duk_context *ctx)
     }
     
     if (JS_EXEC_SHABANG == priv->mode) {
-        js_set_obj_string(ctx, -1, "script", shabang?priv->argv[1]:"");
+        js_set_obj_string(ctx, -1, "script", priv->argv[1]);
         
         int i, argc = priv->argc - 2;
         char **argv = priv->argv + 2;
