@@ -343,7 +343,7 @@ wan_offline(struct um_user *user)
     */
     __online_downtime(user, um_flow_type_wan)   = time(NULL);
     __online_downtime(user, um_flow_type_lan)   = 0;
-
+    
     debug_event("user %s wan offline", os_macstring(user->mac));
 }
 
@@ -590,7 +590,6 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
     */
     __set_state(user, UM_STATE_BIND);
     wan_offline(user);
-    user->faketime = 0;
     
     __user_debug("after-user-unfake", user);
     
