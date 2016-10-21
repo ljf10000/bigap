@@ -6318,6 +6318,12 @@ struct duk_hthread {
 #endif
 };
 
+#if 1 /* liujf */
+js_priv_t *js_priv(duk_context *ctx)
+{
+    return &ctx->priv;
+}
+#endif
 /*
  *  Prototypes
  */
