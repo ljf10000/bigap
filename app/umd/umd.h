@@ -67,6 +67,14 @@
 #endif
 #endif
 
+#ifndef UMD_FAKE
+#ifdef __PC__
+#   define UMD_FAKE             5  /* second */
+#else
+#   define UMD_FAKE             30 /* second */
+#endif
+#endif
+
 #ifndef UMD_GC
 #ifdef __PC__
 #   define UMD_GC               30  /* second */
@@ -264,6 +272,7 @@ struct um_user {
     uint32 ip; /* network */
 
     time_t create;
+    time_t fake;
     time_t noused;
 
     struct um_limit limit[um_flow_type_end];
@@ -411,6 +420,7 @@ struct um_config {
     uint32 sniff_count;
     uint32 ticks;
     uint32 idle;
+    uint32 fake;
     uint32 machashsize;
     uint32 iphashsize;
 };
@@ -421,6 +431,7 @@ struct um_config {
     .sniff_count = UMD_SNIFF_COUNT,         \
     .ticks = UMD_TICKS,                     \
     .idle = UMD_IDLE,                       \
+    .fake = UMD_FAKE,                       \
     .machashsize = UMD_MACHASHSIZE,         \
     .iphashsize = UMD_IPHASHSIZE,           \
                                             \

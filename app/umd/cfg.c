@@ -80,6 +80,12 @@ init_cfg_idle(jobj_t jcfg)
 }
 
 static int
+init_cfg_fake(jobj_t jcfg)
+{
+    return init_jcfg_u32(jcfg, fake);
+}
+
+static int
 init_cfg_machashsize(jobj_t jcfg)
 {
     return init_jcfg_u32(jcfg, machashsize);
@@ -263,6 +269,8 @@ int init_cfg(void)
         init_cfg_gc,
         init_cfg_sniff_count,
         init_cfg_ticks,
+        init_cfg_idle,
+        init_cfg_fake,
         init_cfg_machashsize,
         init_cfg_iphashsize,
         init_cfg_autouser,
@@ -284,7 +292,6 @@ int init_cfg(void)
             goto error;
         }
     }
-
     
 error:
     jobj_put(jcfg);

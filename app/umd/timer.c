@@ -160,10 +160,38 @@ online_reauth(struct um_user *user, time_t now)
     return mv2_ok;
 }
 
+static inline bool
+is_fake_timeout(struct um_user *user, time_t now)
+{
+    time_t faketime = user->fake;
+    uint32 fake = umd.cfg.fake;
+    
+    bool is = fake && (faketime < now) && (now - faketime > fake);
+    if (is) {
+        debug_timeout("user(%s) faketime(%u) now(%u) timeout",
+            os_macstring(user->mac),
+            faketime,
+            now);
+    }
+
+    return is;
+}
+
+static mv_t 
+fake_timeout(struct um_user *user, time_t now)
+{
+    if (is_fake(user) && is_fake_timeout(user, now)) {        
+        user_unfake(user, UM_DEAUTH_ONLINETIME);
+    }
+
+    return mv2_ok;
+}
+
 static mv_t
 timer_handle(struct um_user *user, time_t now)
 {
     static um_timer_handle_t *table[] = {
+        fake_timeout,
         online_reauth,
         online_timeout,
         online_aging,
