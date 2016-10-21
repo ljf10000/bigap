@@ -19,6 +19,14 @@
 #define UMD_IPHASHSIZE          256
 #endif
 
+#ifndef UMD_CONF
+#ifdef __PC__
+#   define UMD_CONF             "./umd.conf"
+#else
+#   define UMD_CONF             "/tmp/config/umd.conf"
+#endif
+#endif
+
 #ifndef UMD_SCRIPT_EVENT
 #ifdef __PC__
 #   define UMD_SCRIPT_EVENT     "./umevent"
@@ -400,7 +408,7 @@ struct um_config {
 };
 
 #define UMD_CFG_INITER                  {   \
-    .conf = UMD_CONFIG,                     \
+    .conf = UMD_CONF,                       \
     .lan = UM_LAN_INITER,                   \
     .sniff_count = UMD_SNIFF_COUNT,         \
     .ticks = UMD_TICKS,                     \

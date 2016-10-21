@@ -35,7 +35,7 @@ init_pre(void)
         umd.lan[i].mask = inet_addr(umd.lan[i].maskstring);
     }
 
-    umd.cfg.conf = env_gets(OS_ENV(CONF), UMD_CONFIG);
+    umd.cfg.conf = env_gets(OS_ENV(CONF), UMD_CONF);
     
     return 0;
 }
