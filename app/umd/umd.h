@@ -69,9 +69,9 @@
 
 #ifndef UMD_FAKE
 #ifdef __PC__
-#   define UMD_FAKE             5  /* second */
+#   define UMD_FAKE             10  /* second */
 #else
-#   define UMD_FAKE             30 /* second */
+#   define UMD_FAKE             30  /* second */
 #endif
 #endif
 
