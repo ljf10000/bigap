@@ -1010,11 +1010,12 @@ error:
 static inline int
 js_run(duk_context *ctx)
 {
+    duk_priv_t *priv = duk_priv(ctx);
     char *script = NULL;
     
     switch(priv->mode) {
         case JS_EXEC_SHABANG:
-            script = duk_priv(ctx)->argv[1];
+            script = priv->argv[1];
             /*
             * argv[1] is script name
             */
