@@ -704,7 +704,7 @@ jobj_get_leaf(jobj_t obj, ...)
 #define jcfg_bytype(_jcfg, _pcfg, _member, _type) ({ \
     jobj_t jobj = jobj_get(_jcfg, #_member); \
     if (jobj) { \
-        (_pcfg)->_field = jobj_get_##_type(jobj); \
+        (_pcfg)->_member = jobj_get_##_type(jobj); \
         debug_config(#_member "=%d", (_pcfg)->_member); \
     } \
     0; \
