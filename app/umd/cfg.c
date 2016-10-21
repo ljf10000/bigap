@@ -268,7 +268,7 @@ int init_cfg(void)
         init_cfg_autouser,
         
         init_cfg_instance,
-    }
+    };
     int i, err = 0;
     
     jobj_t jcfg = jobj_byfile(umd.cfg.conf);
