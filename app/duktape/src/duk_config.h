@@ -1996,7 +1996,7 @@ duk_readfd(duk_context *ctx, int fd)
         }
 
 	    left = sz - len;
-        ret = fread(f, buf + len, left);
+        ret = fread(buf + len, 1, left, f);
         if (ret > left || ret < 0) {
             goto error;
         }
