@@ -909,7 +909,6 @@ js_register(duk_context *ctx)
 static inline duk_context *
 js_init(char *name, int argc, char *argv)
 {
-    char *script = NULL;
     int err = 0;
 
     duk_context *ctx = duk_create_heap_default();
@@ -918,8 +917,8 @@ js_init(char *name, int argc, char *argv)
     }
     js_ctx_save(ctx);
     
-    duk_priv_t *priv = duk_priv(ctx);
-    duk_priv_init(priv, name, argc, argv);
+    js_priv_t *priv = js_priv(ctx);
+    js_priv_init(priv, name, argc, argv);
 
     err = js_register(ctx);
     if (err<0) {
@@ -933,7 +932,7 @@ static inline void
 __js_fini(duk_context *ctx)
 {
     if (ctx) {
-        duk_priv_fini(duk_priv(ctx));
+        js_priv_fini(js_priv(ctx));
         
         debug_js("before destroy duk heap(%s)", priv->name);
         duk_destroy_heap(ctx);

@@ -1917,16 +1917,16 @@ typedef struct {
         char *name;
         int is_func;
     } sig[NSIG];
-} duk_priv_t;
+} js_priv_t;
 
-static inline duk_priv_t *
-duk_priv(duk_context *ctx)
+static inline js_priv_t *
+js_priv(duk_context *ctx)
 {
     return &ctx->priv;
 }
 
 static inline void
-duk_priv_init(duk_priv_t *priv, char *name, int buildin, int argc, char **argv)
+js_priv_init(js_priv_t *priv, char *name, int buildin, int argc, char **argv)
 {
     os_objzero(priv);
 
@@ -1946,7 +1946,7 @@ duk_priv_init(duk_priv_t *priv, char *name, int buildin, int argc, char **argv)
 }
 
 static inline void
-duk_priv_fini(duk_priv_t *priv)
+js_priv_fini(js_priv_t *priv)
 {
     int i;
 
@@ -1965,7 +1965,7 @@ duk_priv_fini(duk_priv_t *priv)
 }
 
 static inline char *
-duk_readfd(duk_context *ctx, int fd) 
+js_readfd(duk_context *ctx, int fd) 
 {
 	FILE *f = NULL;
 	char *buf = NULL;
@@ -2027,7 +2027,7 @@ error:
 }
 
 static inline int
-duk_script(duk_priv_t *priv, void *obj)
+js_run(js_priv_t *priv)
 {
     char *script = NULL;
 
@@ -2041,7 +2041,7 @@ duk_script(duk_priv_t *priv, void *obj)
             
             break;
         case JS_EXEC_STRING:
-            script = duk_readfd(ctx, 0);
+            script = js_readfd(ctx, 0);
 
             /*
             * cat SCRIPT  | js

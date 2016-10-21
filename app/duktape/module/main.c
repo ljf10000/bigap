@@ -27,7 +27,7 @@ __main(int argc, char *argv[])
         err = -ENOMEM; goto error;
     }
 
-    err = duk_script(ctx, NULL);
+    err = js_run(ctx);
     if (err<0) {
         goto error;
     }
