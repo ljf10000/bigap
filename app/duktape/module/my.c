@@ -809,7 +809,7 @@ env_register(duk_context *ctx)
 static void 
 arg_register(duk_context *ctx)
 {
-    js_priv_t *priv = js_priv(ctx);
+    duk_priv_t *priv = duk_priv(ctx);
 
 #if 0
     js_set_obj_string(ctx, -1, "priv", priv->name);

@@ -915,7 +915,7 @@ enum {
 };
 
 static inline void
-js_priv_init(js_priv_t *priv, char *name, int argc, char **argv)
+js_priv_init(duk_priv_t *priv, char *name, int argc, char **argv)
 {
     os_objzero(priv);
 
@@ -935,7 +935,7 @@ js_priv_init(js_priv_t *priv, char *name, int argc, char **argv)
 }
 
 static inline void
-js_priv_fini(js_priv_t *priv)
+js_priv_fini(duk_priv_t *priv)
 {
     int i;
 
@@ -1014,7 +1014,7 @@ js_run(duk_context *ctx)
     
     switch(priv->mode) {
         case JS_EXEC_SHABANG:
-            script = js_priv(ctx)->argv[1];
+            script = duk_priv(ctx)->argv[1];
             /*
             * argv[1] is script name
             */
@@ -1051,7 +1051,7 @@ js_init(char *name, int argc, char *argv)
     }
     js_ctx_save(ctx);
     
-    js_priv_t *priv = js_priv(ctx);
+    duk_priv_t *priv = duk_priv(ctx);
     js_priv_init(priv, name, argc, argv);
 
     err = js_register(ctx);
@@ -1066,7 +1066,7 @@ static inline void
 __js_fini(duk_context *ctx)
 {
     if (ctx) {
-        js_priv_t *priv = js_priv(ctx);
+        duk_priv_t *priv = duk_priv(ctx);
         char *name = os_strdup(priv->name);
         js_priv_fini(priv);
         

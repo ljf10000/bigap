@@ -1910,9 +1910,9 @@ typedef struct {
         int is_func;
     } sig[NSIG];
 } 
-js_priv_t;
+duk_priv_t;
 
-extern js_priv_t *js_priv(duk_context *ctx);
+extern duk_priv_t *duk_priv(duk_context *ctx);
 #endif
 
 

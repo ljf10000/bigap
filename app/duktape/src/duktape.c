@@ -6219,7 +6219,7 @@ struct duk_catcher {
 
 struct duk_hthread {
 #if 1 /* liujf */
-    js_priv_t priv;
+    duk_priv_t priv;
 #endif
 	/* Shared object part */
 	duk_hobject obj;
@@ -6319,7 +6319,7 @@ struct duk_hthread {
 };
 
 #if 1 /* liujf */
-js_priv_t *js_priv(duk_context *ctx)
+duk_priv_t *duk_priv(duk_context *ctx)
 {
     return &ctx->priv;
 }

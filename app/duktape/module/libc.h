@@ -901,7 +901,7 @@ __set_sched_param(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 static inline int
 __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 {
-    js_priv_t *priv = js_priv(ctx);
+    duk_priv_t *priv = duk_priv(ctx);
     struct sigaction *p = (struct sigaction *)obj; os_objzero(p);
     
     p->sa_mask  = *(sigset_t *)js_get_obj_buffer(ctx, idx, "mask", NULL);
@@ -936,7 +936,7 @@ __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 static inline int
 __set_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 {
-    js_priv_t *priv = js_priv(ctx);
+    duk_priv_t *priv = duk_priv(ctx);
     struct sigaction *p = (struct sigaction *)obj;
 
     *(sigset_t *)js_get_obj_buffer(ctx, idx, "mask", NULL) = p->sa_mask;
