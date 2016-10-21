@@ -55,8 +55,8 @@ is_lan_ip(uint32 ip)
 {
     int i;
     
-    for (i=0; i<os_count_of(umd.cfg.lan); i++) {
-        struct um_lan *lan = &umd.cfg.lan[i];
+    for (i=0; i<os_count_of(umd.lan); i++) {
+        struct um_lan *lan = &umd.lan[i];
 
         if ((ip & lan->mask)==(lan->ip & lan->mask)) {
             return true;
@@ -490,7 +490,7 @@ __ip_handle(cli_server_t *server, bool first)
         char sipstring[1+OS_IPSTRINGLEN];
         char dipstring[1+OS_IPSTRINGLEN];
         char  ipstring[1+OS_IPSTRINGLEN];
-        char  macstring[1+MACSTRINGLEN_L];
+        char macstring[1+MACSTRINGLEN_L];
         
         os_strcpy(sipstring, os_ipstring(iph->ip_src.s_addr));
         os_strcpy(dipstring, os_ipstring(iph->ip_dst.s_addr));
@@ -632,11 +632,17 @@ flow_handle(cli_server_t *server)
 {
     struct um_user *user;
 
-#if UMD_USE_AUTOUSER
-    user = um_user_bind(flow.usermac, flow.userip);
-#else
     user = um_user_get(flow.usermac);
-#endif
+    if (umd.cfg.autouser && NULL==user) {
+        switch(umd.cfg.autouser) {
+            case UM_AUTO_BIND:
+                user = um_user_bind(flow.usermac, flow.userip);
+                break;
+            case UM_AUTO_FAKE:
+                user = um_user_fake(flow.usermac, flow.userip);
+                break;
+        }
+    }
     if (NULL==user) {
         return -ENOEXIST;
     }
@@ -724,7 +730,6 @@ flow_server_init(cli_server_t *server)
     
     fcntl(fd, F_SETFL, O_NONBLOCK);
     
-#if UMD_USE_BINDIF
     struct um_intf *intf = get_intf_by_server(server);
 
     sockaddr_ll_t addr = {
@@ -739,7 +744,6 @@ flow_server_init(cli_server_t *server)
         
         return -errno;
     }
-#endif
 
     server->fd = fd;
     
@@ -775,7 +779,7 @@ flow_server_handle(cli_server_t *server)
 {
     int i, err;
 
-    for (i=0; i<UMD_SNIFF_COUNT; i++) {
+    for (i=0; i<umd.cfg.sniff_count; i++) {
         err = __flow_server_handle(server);
         if (err<0) {
             return err;

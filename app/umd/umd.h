@@ -4,29 +4,19 @@
 #include "um/um.h"
 
 #ifndef UMD_USE_AUTOUSER
-#define UMD_USE_AUTOUSER        1
+#define UMD_USE_AUTOUSER        2
 #endif
 
 #ifndef UMD_USE_PROMISC
 #define UMD_USE_PROMISC         0
 #endif
 
-#ifndef UMD_USE_BINDIF
-#define UMD_USE_BINDIF          1
+#ifndef UMD_MACHASHSIZE
+#define UMD_MACHASHSIZE         256
 #endif
 
-#ifndef UMD_HASHSIZE
-#define UMD_HASHSIZE            256
-#endif
-
-#define UMD_HASHMASK            (UMD_HASHSIZE-1)
-
-#ifndef UMD_CONFIG_FILE
-#ifdef __PC__
-#   define UMD_CONFIG_FILE      "./umd.conf"
-#else
-#   define UMD_CONFIG_FILE      "/tmp/config/umd.conf"
-#endif
+#ifndef UMD_IPHASHSIZE
+#define UMD_IPHASHSIZE          256
 #endif
 
 #ifndef UMD_SCRIPT_EVENT
@@ -54,7 +44,11 @@
 #endif
 
 #ifndef UMD_TICKS
-#define UMD_TICKS               10  /* second */
+#ifdef __PC__
+#   define UMD_TICKS            5  /* second */
+#else
+#   define UMD_TICKS            10 /* second */
+#endif
 #endif
 
 #ifndef UMD_IDLE
@@ -65,43 +59,46 @@
 #endif
 #endif
 
-#ifndef UMD_CONFIG
-#ifdef __PC__
-#   define UMD_CONFIG           "./umd.conf"
-#else
-#   define UMD_CONFIG           "/tmp/config/umd.conf"
-#endif
-#endif
-
 #ifndef UMD_SNIFF_COUNT
-#define UMD_SNIFF_COUNT         32
-#endif
-
-#ifndef UMD_IFNAME_BASE
-#define UMD_IFNAME_BASE         "eth0"
-#endif
-
 #ifdef __PC__
-#   ifndef UMD_IFNAME_INGRESS
-#       define UMD_IFNAME_INGRESS       "eth0"
-#   endif
-#   ifndef UMD_ETHTYPE_INGRESS
-#       define UMD_ETHTYPE_INGRESS      ETHERTYPE_IP
-#   endif
+#    define UMD_SNIFF_COUNT     128
 #else
-#   ifndef UMD_IFNAME_INGRESS
-#       define UMD_IFNAME_INGRESS       "lan0"
-#   endif
-#   ifndef UMD_ETHTYPE_INGRESS
-#       define UMD_ETHTYPE_INGRESS      ETHERTYPE_VLAN
-#   endif
+#    define UMD_SNIFF_COUNT     32
+#endif
+#endif
+
+#ifndef UMD_IFNAME_INGRESS
+#ifdef __PC__
+#    define UMD_IFNAME_INGRESS  "eth0"
+#else
+#    define UMD_IFNAME_INGRESS  "lan0"
+#endif
+#endif
+
+#if 1
+#define __XLIST_UM_AUTO(_)         \
+    _(UM_AUTO_NONE, 0, "none"),    \
+    _(UM_AUTO_BIND, 1, "bind"),    \
+    _(UM_AUTO_FAKE, 2, "fake"),    \
+    /* end */
+
+static inline bool is_good_user_auto(int id);
+static inline char *user_auto_string(int id);
+static inline int user_auto_idx(char *name);
+DECLARE_ENUM(user_auto, __XLIST_UM_AUTO, UM_AUTO_END);
+
+#define UM_AUTO_NONE   UM_AUTO_NONE
+#define UM_AUTO_BIND   UM_AUTO_BIND
+#define UM_AUTO_FAKE   UM_AUTO_FAKE
+#define UM_AUTO_END    UM_AUTO_END
 #endif
 
 #if 1
 #define __XLIST_UM_STATE(_)         \
     _(UM_STATE_NONE, 0, "none"),    \
     _(UM_STATE_BIND, 1, "bind"),    \
-    _(UM_STATE_AUTH, 2, "auth"),    \
+    _(UM_STATE_FAKE, 2, "fake"),    \
+    _(UM_STATE_AUTH, 3, "auth"),    \
     /* end */
 
 static inline bool is_good_user_state(int id);
@@ -111,43 +108,24 @@ DECLARE_ENUM(user_state, __XLIST_UM_STATE, UM_STATE_END);
 
 #define UM_STATE_NONE   UM_STATE_NONE
 #define UM_STATE_BIND   UM_STATE_BIND
+#define UM_STATE_FAKE   UM_STATE_FAKE
 #define UM_STATE_AUTH   UM_STATE_AUTH
 #define UM_STATE_END    UM_STATE_END
 #endif
 
-static inline bool
-__is_none(int state)
-{
-    return UM_STATE_NONE==state;
-}
+#define __is_none(_state)   (UM_STATE_NONE==(_state))
+#define __is_bind(_state)   (UM_STATE_BIND==(_state))
+#define __is_fake(_state)   (UM_STATE_FAKE==(_state))
+#define __is_auth(_state)   (UM_STATE_AUTH==(_state))
+#define __have_auth(_state) (__is_fake(_state) || __is_auth(_state))
+#define __have_bind(_state) (__is_bind(_state) || __have_auth(_state))
 
-static inline bool
-__is_auth(int state)
-{
-    return UM_STATE_AUTH==state;
-}
-
-static inline bool
-__is_bind(int state)
-{
-    return UM_STATE_BIND==state;
-}
-
-static inline bool
-__have_bind(int state)
-{
-    return __is_bind(state) || __is_auth(state);
-}
-
-#if UM_USE_MONITOR
-#define is_monitor(_user)   os_hasflag((_user)->state, UM_F_MONITOR)
-#else
-#define is_monitor(_user)   false
-#endif
-
-#define is_auth(_user)      __is_auth((_user)->state)
+#define is_none(_user)      __is_none((_user)->state)
 #define is_bind(_user)      __is_bind((_user)->state)
+#define is_fake(_user)      __is_fake((_user)->state)
+#define is_auth(_user)      __is_auth((_user)->state)
 #define is_noused(_user)    (__is_none((_user)->state) && 0==(_user)->flags)
+#define have_auth(_user)    __have_auth((_user)->state)
 #define have_bind(_user)    __have_bind((_user)->state)
 
 #if 1
@@ -253,42 +231,26 @@ struct um_tag {
     char *v;
 };
 
-#ifndef UM_SSID_MAX
-#define UM_SSID_MAX     32
-#endif
-
-struct um_monitor {
-    char ssid[OS_ALIGN(1+UM_SSID_MAX, 4)];
-};
-
 #define UM_F_MONITOR    0x01
 #define UM_F_SYNC       0x02
 
-enum {
-    UM_USER_NIDX_MAC,
-    UM_USER_NIDX_IP,
-
-    UM_USER_NIDX_END
-};
-
 struct um_user {
     byte mac[OS_MACSIZE];
-    byte flags;
-    byte __r0;
-    uint32 ip; /* network */
+    byte bssid[OS_MACSIZE];
+
+    char *ssid;
     
     int state;
     int reason;
     int group;
 
+    uint32 flags;
+    uint32 ip; /* network */
+
     time_t create;
     time_t noused;
 
     struct um_limit limit[um_flow_type_end];
-    
-#if UM_USE_MONITOR
-    struct um_monitor monitor;
-#endif
 
     h2_node_t node;
     
@@ -417,6 +379,41 @@ DECLARE_ENUM(forward_mode, __XLIST_UM_FORWARD_MODE, um_forward_mode_end);
 #define um_forward_mode_end um_forward_mode_end
 #endif
 
+struct um_config {
+    struct {
+        int count;
+        struct um_intf *intf;
+    } instance;
+    
+    char *conf;
+    char *script_event;
+    char *script_getmacbyip;
+    char *script_getipbymac;
+    
+    uint32 gc;
+    int forward;
+    int autouser;
+    uint32 sniff_count;
+    uint32 ticks;
+    uint32 machashsize;
+    uint32 iphashsize;
+};
+
+#define UMD_CFG_INITER                  {   \
+    .conf = UMD_CONFIG,                     \
+    .lan = UM_LAN_INITER,                   \
+    .sniff_count = UMD_SNIFF_COUNT,         \
+    .ticks = UMD_TICKS,                     \
+    .idle = UMD_IDLE,                       \
+    .machashsize = UMD_MACHASHSIZE,         \
+    .iphashsize = UMD_IPHASHSIZE,           \
+    .autouser = UMD_USE_AUTOUSER,           \
+                                            \
+    .script_event = UMD_SCRIPT_EVENT,       \
+    .script_getipbymac = UMD_SCRIPT_IP,     \
+    .script_getmacbyip = UMD_SCRIPT_MAC,    \
+}   /* end */
+
 #define UM_LAN_COUNT    3
 
 struct um_lan {
@@ -435,16 +432,11 @@ struct um_lan {
     __UM_LAN_INITER("10.0.0.0", "255.0.0.0"),        \
 }   /* end */
 
-struct um_config {
-    struct um_lan lan[UM_LAN_COUNT];
-    
-    struct {
-        int count;
-        struct um_intf *intf;
-    } instance;
-    
-    uint32 gc;
-    int forward;
+enum {
+    UM_USER_NIDX_MAC,
+    UM_USER_NIDX_IP,
+
+    UM_USER_NIDX_END
 };
 
 struct um_control {
@@ -456,13 +448,16 @@ struct um_control {
     uint32 ticks;
     bool deinit;
 
+    struct um_lan lan[UM_LAN_COUNT];
     struct um_config cfg;
     cli_server_t **server;
     int server_count;
-    
     h2_table_t table;
-    int hash_size[UM_USER_NIDX_END];
 };
+
+#define UMD_INITER      {   \
+    .cfg = UMD_CFG_INITER,  \
+}   /* end */
 
 extern struct um_control umd;
 
@@ -578,10 +573,8 @@ struct um_flow {
 extern jobj_t
 um_juser(struct um_user *user);
 
-#if UM_USE_SYNC
 extern struct um_user *
 um_touser(struct um_user *user, jobj_t obj);
-#endif
 
 static inline void
 um_user_dump(char *tag, struct um_user *user)
@@ -615,6 +608,9 @@ extern int
 user_unbind(struct um_user *user, int reason);
 
 extern int
+user_unfake(struct um_user *user, int reason);
+
+extern int
 user_reauth(struct um_user *user);
 
 extern int
@@ -632,19 +628,17 @@ um_user_delete(byte mac[]);
 extern struct um_user *
 um_user_create(byte mac[]);
 
-#if UM_USE_MONITOR
-extern struct um_user *
-um_user_enter(byte mac[], jobj_t obj);
-
-extern int
-um_user_leave(byte mac[]);
-#endif
-
 extern struct um_user *
 um_user_bind(byte mac[], uint32 ip);
 
 extern int
 um_user_unbind(byte mac[]);
+
+extern struct um_user *
+um_user_fake(byte mac[], uint32 ip);
+
+extern int
+um_user_unfake(byte mac[]);
 
 extern struct um_user *
 um_user_auth(byte mac[], int group, jobj_t obj);

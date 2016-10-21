@@ -109,7 +109,8 @@ __ev(struct um_user *user, char *action)
         return -ENOEXIST;
     }
 
-    os_system(UMD_SCRIPT_EVENT " %s '%s' &", 
+    os_system("%s %s '%s' &", 
+        umd.cfg.script_event,
         action,
         jobj_json(juser));
     jobj_put(juser);
@@ -120,13 +121,13 @@ __ev(struct um_user *user, char *action)
 static inline hash_idx_t
 hashmac(byte mac[])
 {
-    return hash_bybuf(mac, OS_MACSIZE, UMD_HASHMASK);
+    return hash_bybuf(mac, OS_MACSIZE, umd.cfg.machashsize - 1);
 }
 
 static inline hash_idx_t
 haship(uint32 ip)
 {
-    return hash_bybuf((byte *)&ip, sizeof(ip), UMD_HASHMASK);
+    return hash_bybuf((byte *)&ip, sizeof(ip), umd.cfg.iphashsize - 1);
 }
 
 static inline struct um_user *
@@ -281,8 +282,8 @@ lan_online(struct um_user *user)
     __online_downtime(user, um_flow_type_lan)   = 0;
     __online_downtime(user, um_flow_type_wan)   = 0;
 
-    __online_idle(user, um_flow_type_lan) = UMD_IDLE;
-    __online_idle(user, um_flow_type_wan) = UMD_IDLE;
+    __online_idle(user, um_flow_type_lan) = umd.cfg.idle;
+    __online_idle(user, um_flow_type_wan) = umd.cfg.idle;
     
     flow_reset(user, um_flow_type_lan);
     flow_reset(user, um_flow_type_wan);
@@ -399,9 +400,13 @@ static void
 __set_group(struct um_user *user, int group)
 {
     if (NULL==user) {
+        debug_bug("user nil");
+        
         return;
     }
     else if (group==user->group) {
+        debug_bug("same group %d", group);
+        
         return;
     }
     
@@ -412,9 +417,13 @@ static void
 __set_reason(struct um_user *user, int reason)
 {
     if (NULL==user) {
+        debug_bug("user nil");
+        
         return;
     }
     else if (reason==user->reason) {
+        debug_bug("same reason %s", deauth_reason_string(reason));
+        
         return;
     }
 
@@ -436,6 +445,8 @@ __set_ip(struct um_user *user, uint32 ip)
         return;
     }
     else if (ip==user->ip) {
+        debug_bug("same ip %s", os_ipstring(ip));
+        
         return;
     }
     
@@ -453,6 +464,8 @@ __set_state(struct um_user *user, int state)
         return;
     }
     else if (state==user->state) {
+        debug_bug("same state %s", user_state_string(state));
+        
         return;
     }
 
@@ -506,7 +519,7 @@ __user_create(byte mac[], event_cb_t *ev)
     __set_state(user, UM_STATE_NONE);
     lan_online(user);
     user->create = user->noused = time(NULL);
-    
+
     __user_insert(user);
 
     if (ev) {
@@ -554,15 +567,46 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *ev)
 }
 
 static int
+__user_unfake(struct um_user *user, int reason, event_cb_t *ev)
+{
+    int err = 0;
+
+    if (is_auth(user)) {
+        __user_deauth(user, reason, __ev);
+    }
+    
+    if (false==is_fake(user)) {
+        return 0;
+    }
+
+    __user_debug("before-user-unfake", user);
+    
+    if (ev) {
+        (*ev)(user, "unfake");
+    }
+
+    /*
+    * fake==>bind
+    */
+    __set_state(user, UM_STATE_BIND);
+    wan_offline(user);
+
+    __user_debug("after-user-unfake", user);
+    
+    return 0;
+}
+
+static int
 __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
 {
     int err = 0;
 
-    err = __user_deauth(user, reason, __ev);
-    if (err<0) {
-        return err;
+    if (is_auth(user)) {
+        __user_deauth(user, reason, __ev);
+    } else if (is_fake(user)) {
+        __user_unfake(user, reason, __ev);
     }
-
+    
     if (false==is_bind(user)) {
         return 0;
     }
@@ -580,12 +624,11 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
         (*ev)(user, "unbind");
     }
 
-    __set_ip(user, 0);
     /*
-    * bind==>connect
+    * bind==>none
     */
+    __set_ip(user, 0);
     __set_state(user, UM_STATE_NONE);
-    
     lan_offline(user);
 
     __user_debug("after-user-unbind", user);
@@ -593,47 +636,6 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
     return 0;
 }
 
-#if UM_USE_MONITOR
-static int
-__user_leave(struct um_user *user, event_cb_t *ev)
-{
-    if (NULL==user) {
-        return -ENOEXIST;
-    }
-
-    // do leave
-    user->flags &= ~UM_F_MONITOR;
-
-    if (is_noused(user)) {
-        user->noused = time(NULL);
-    }
-
-    if (ev) {
-        (*ev)(user, "leave");
-    }
-
-    return 0;
-}
-
-static struct um_user *
-__user_enter(struct um_user *user, jobj_t obj, event_cb_t *ev)
-{
-    if (NULL==user) {
-        return NULL;
-    }
-
-    // do enter
-    user->flags |= UM_F_MONITOR;
-    
-    if (ev) {
-        (*ev)(user, "enter");
-    }
-
-    return user;
-}
-#endif
-
-#if UM_USE_SYNC
 static struct um_user *
 __user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
 {
@@ -649,7 +651,6 @@ __user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
 
     return user;
 }
-#endif
 
 static struct um_user *
 __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
@@ -661,9 +662,9 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
     if (have_bind(user)) {
         if (ip==user->ip) {
             return user;
-        } else {
-            __user_unbind(user, UM_DEAUTH_AUTO, __ev);
         }
+        
+        __user_unbind(user, UM_DEAUTH_AUTO, __ev);
     }
 
     __user_debug("before-user-bind", user);
@@ -682,6 +683,37 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
     }
 
     __user_debug("after-user-bind", user);
+
+    return user;
+}
+
+static struct um_user *
+__user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
+{
+    if (NULL==user) {
+        return NULL;
+    }
+
+    if (have_auth(user)) {
+        __user_unfake(user, UM_DEAUTH_AUTO, __ev);
+    }
+
+    __user_debug("before-user-fake", user);
+
+    /*
+    * 1. unbind
+    * 2. callback
+    */
+    __set_ip(user, ip);
+    __set_state(user, UM_STATE_FAKE);
+    lan_online(user);
+    update_aging(user, true);
+
+    if (ev) {
+        (*ev)(user, "fake");
+    }
+
+    __user_debug("after-user-fake", user);
 
     return user;
 }
@@ -708,26 +740,6 @@ __user_reauth(struct um_user *user, event_cb_t *ev)
 }
 
 static struct um_user *
-__user_clone(struct um_user *user)
-{
-    struct um_user *new = (struct um_user *)os_malloc(sizeof(*new));
-    if (new) {
-        os_objcpy(new, user);
-    }
-
-    return new;
-}
-
-static struct um_user *
-__user_rollback(struct um_user *dst, struct um_user *src)
-{
-    os_objcpy(dst, src);
-    os_free(src);
-
-    return dst;
-}
-
-static struct um_user *
 __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
 {
     int err;
@@ -739,7 +751,10 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
     if (false==have_bind(user)) {
         char ipaddress[1+OS_LINE_LEN];
         
-        err = os_v_pgets(ipaddress, OS_LINE_LEN, UMD_SCRIPT_IP " %s", os_macstring(user->mac));
+        err = os_v_pgets(ipaddress, OS_LINE_LEN, 
+                        "%s %s", 
+                        umd.cfg.script_getipbymac,
+                        os_macstring(user->mac));
         if (err<0) {
             return NULL;
         }
@@ -807,7 +822,7 @@ user_get(byte mac[])
 static struct um_user *
 user_create(byte mac[])
 {
-    return __user_create(mac, NULL);
+    return __user_create(mac, __ev);
 }
 
 int user_delete(struct um_user *user)
@@ -815,27 +830,11 @@ int user_delete(struct um_user *user)
     return __user_delete(user, __ev);
 }
 
-#if UM_USE_MONITOR
-static struct um_user *
-user_enter(struct um_user *user, jobj_t obj)
-{
-    return __user_enter(user, obj, __ev);
-}
-
-static int
-user_leave(struct um_user *user)
-{
-    return __user_leave(user, __ev);
-}
-#endif
-
-#if UM_USE_SYNC
 static struct um_user *
 user_sync(struct um_user *user, jobj_t obj)
 {
     return __user_sync(user, obj, __ev);
 }
-#endif
 
 static struct um_user *
 user_bind(struct um_user *user, uint32 ip)
@@ -847,6 +846,21 @@ int user_unbind(struct um_user *user, int reason)
 {
     if (is_valid_deauth_reason(reason)) {
         return __user_unbind(user, reason, __ev);
+    } else {
+        return -EBADREASON;
+    }
+}
+
+static struct um_user *
+user_fake(struct um_user *user, uint32 ip)
+{
+    return __user_fake(user, ip, __ev);
+}
+
+int user_unfake(struct um_user *user, int reason)
+{
+    if (is_valid_deauth_reason(reason)) {
+        return __user_unfake(user, reason, __ev);
     } else {
         return -EBADREASON;
     }
@@ -912,26 +926,11 @@ um_user_create(byte mac[])
     return user?user:user_create(mac);
 }
 
-#if UM_USE_MONITOR
-struct um_user *
-um_user_enter(byte mac[], jobj_t obj)
-{
-    return user_enter(um_user_create(mac), obj);
-}
-
-int um_user_leave(byte mac[])
-{
-    return user_leave(user_get(mac));
-}
-#endif
-
-#if UM_USE_SYNC
 struct um_user *
 um_user_sync(byte mac[], jobj_t obj)
 {
     return user_sync(um_user_create(mac), obj);
 }
-#endif
 
 struct um_user *
 um_user_bind(byte mac[], uint32 ip)
@@ -942,6 +941,17 @@ um_user_bind(byte mac[], uint32 ip)
 int um_user_unbind(byte mac[])
 {
     return user_unbind(user_get(mac), UM_DEAUTH_INITIATIVE);
+}
+
+struct um_user *
+um_user_fake(byte mac[], uint32 ip)
+{
+    return user_fake(um_user_create(mac), ip);
+}
+
+int um_user_unfake(byte mac[])
+{
+    return user_unfake(user_get(mac), UM_DEAUTH_INITIATIVE);
 }
 
 struct um_user *
@@ -1123,15 +1133,13 @@ jobj_t um_juser(struct um_user *user)
     jobj_add_string(obj, "noused",  os_fulltime_string(&user->noused));
     
     jobj_add_i32(obj,   "group",    user->group);
-    jobj_add_bool(obj,  "monitor",  is_monitor(user));
-    
+
     jobj_add(obj, "tag",    juser_tag(user));
     jobj_add(obj, "limit",  juser_limit(user));
 
     return obj;
 }
 
-#if UM_USE_SYNC
 static void
 touser_base(struct um_user *user, jobj_t juser)
 {
@@ -1196,14 +1204,6 @@ touser_tag(struct um_user *user, jobj_t juser)
         }
     }
 }
-
-#if UM_USE_MONITOR
-static void
-touser_monitor(struct um_user *user, jobj_t juser)
-{
-
-}
-#endif
 
 static void
 touser_flow(struct um_limit_flow *flow, jobj_t jflow)
@@ -1343,14 +1343,10 @@ struct um_user *um_touser(struct um_user *user, jobj_t juser)
 {
     touser_base(user, juser);
     touser_tag(user, juser);
-#if UM_USE_MONITOR
-    touser_monitor(user, juser);
-#endif
     touser_limit(user, juser);
     
     return user;
 }
-#endif /* UM_USE_SYNC */
 
 static inline bool
 match_mac(byte umac[], byte fmac[], byte mask[])

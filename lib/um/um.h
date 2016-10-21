@@ -3,16 +3,16 @@
 /******************************************************************************/
 #include "utils.h"
 /******************************************************************************/
-#ifndef UM_USE_MONITOR
-#define UM_USE_MONITOR          0
-#endif
-
-#ifndef UM_USE_SYNC
-#define UM_USE_SYNC             0
+#ifndef UM_USE_WIRELESS
+#define UM_USE_WIRELESS         0
 #endif
 
 #ifndef UM_TIMEOUT
 #define UM_TIMEOUT              3000    /* ms */
+#endif
+
+#ifndef UM_SSID_MAX
+#define UM_SSID_MAX             128
 #endif
 
 #ifndef UMD_UNIX

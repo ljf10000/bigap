@@ -12,12 +12,11 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-#if UM_USE_MONITOR
 /*
-* enter {mac} {json}
+* handle {mac} {json}
 */
 static int
-handle_enter(char *args)
+handle_mac_json(struct um_user *(*handle)(byte mac[], jobj_t obj), char *args)
 {
     char *mac   = args; cli_shift(args);
     char *json  = args; cli_shift(args);
@@ -35,7 +34,7 @@ handle_enter(char *args)
         return -EBADJSON;
     }
 
-    struct um_user *user = um_user_enter(os_mac(mac), obj);
+    struct um_user *user = (*handle)(os_mac(mac), obj);
     if (NULL==user) {
         return -ENOEXIST;
     }
@@ -46,64 +45,10 @@ handle_enter(char *args)
 }
 
 /*
-* leave {mac}
+* handle {mac} {ip}
 */
 static int
-handle_leave(char *args)
-{
-    char *mac = args; cli_shift(args);
-
-    if (false==is_good_macstring(mac)) {
-        debug_trace("bad mac %s", mac);
-
-        return -EFORMAT;
-    }
-    
-    um_user_leave(os_mac(mac));
-    
-    return 0;
-}
-#endif
-
-#if UM_USE_SYNC
-/*
-* sync {mac} {json}
-*/
-static int
-handle_sync(char *args)
-{
-    char *mac   = args; cli_shift(args);
-    char *json  = args; cli_shift(args);
-    
-    if (false==is_good_macstring(mac)) {
-        debug_trace("bad mac %s", mac);
-
-        return -EFORMAT;
-    }
-
-    jobj_t obj = jobj_byjson(json);
-    if (NULL==obj) {
-        debug_trace("bad json %s", json);
-
-        return -EBADJSON;
-    }
-
-    struct um_user *user = um_user_sync(os_mac(mac), obj);
-    if (NULL==user) {
-        return -ENOEXIST;
-    }
-    
-    jobj_put(obj);
-    
-    return 0;
-}
-#endif
-
-/*
-* bind {mac} {ip}
-*/
-static int
-handle_bind(char *args)
+handle_mac_ip(struct um_user *(*handle)(byte mac[], uint32 ip), char *args)
 {
     char *mac   = args; cli_shift(args);
     char *ip    = args; cli_shift(args);
@@ -119,16 +64,16 @@ handle_bind(char *args)
         return -EFORMAT;
     }
 
-    um_user_bind(os_mac(mac), inet_addr(ip));
+    (*handle)(os_mac(mac), inet_addr(ip));
 
     return 0;
 }
 
 /*
-* unbind {mac}
+* handle {mac}
 */
 static int
-handle_unbind(char *args)
+handle_mac(int (*handle)(byte mac[]), char *args)
 {
     char *mac = args; cli_shift(args);
 
@@ -138,9 +83,54 @@ handle_unbind(char *args)
         return -EFORMAT;
     }
     
-    um_user_unbind(os_mac(mac));
+    (*handle)(os_mac(mac));
     
     return 0;
+}
+
+/*
+* sync {mac} {json}
+*/
+static int
+handle_sync(char *args)
+{
+    return handle_mac_json(um_user_sync, args);
+}
+
+/*
+* bind {mac} {ip}
+*/
+static int
+handle_bind(char *args)
+{
+    return handle_mac_ip(um_user_bind, args);
+}
+
+/*
+* unbind {mac}
+*/
+static int
+handle_unbind(char *args)
+{
+    return handle_mac(um_user_unbind, args);
+}
+
+/*
+* fake {mac} {ip}
+*/
+static int
+handle_fake(char *args)
+{
+    return handle_mac_ip(um_user_fake, args);
+}
+
+/*
+* unfake {mac}
+*/
+static int
+handle_unfake(char *args)
+{
+    return handle_mac(um_user_unfake, args);
 }
 
 /*
@@ -184,17 +174,7 @@ handle_auth(char *args)
 static int
 handle_reauth(char *args)
 {
-    char *mac = args; cli_shift(args);
-    
-    if (false==is_good_macstring(mac)) {
-        debug_trace("bad mac %s", mac);
-
-        return -EFORMAT;
-    }
-    
-    um_user_reauth(os_mac(mac));
-    
-    return 0;
+    return handle_mac(um_user_reauth, args);
 }
 
 /*
@@ -203,17 +183,14 @@ handle_reauth(char *args)
 static int
 handle_deauth(char *args)
 {
-    char *mac   = args; cli_shift(args);
-    
-    if (false==is_good_macstring(mac)) {
-        debug_trace("bad mac %s", mac);
+    int deauth(byte mac[])
+    {
+        um_user_deauth(os_mac(mac), UM_DEAUTH_ADMIN);
 
-        return -EFORMAT;
+        return 0;
     }
     
-    um_user_deauth(os_mac(mac), UM_DEAUTH_ADMIN);
-    
-    return 0;
+    return handle_mac(deauth, args);
 }
 
 static mv_t
@@ -354,18 +331,14 @@ handle_gc(char *args)
 }
 
 static cli_table_t cli_table[] = {
-#if UM_USE_MONITOR
-    CLI_ENTRY("enter",  handle_enter),
-    CLI_ENTRY("leave",  handle_leave),
-#endif
-#if UM_USE_SYNC
     CLI_ENTRY("sync",   handle_sync),
-#endif
     CLI_ENTRY("bind",   handle_bind),
     CLI_ENTRY("unbind", handle_unbind),
+    CLI_ENTRY("bind",   handle_fake),
+    CLI_ENTRY("unbind", handle_unfake),
     CLI_ENTRY("auth",   handle_auth),
-    CLI_ENTRY("reauth", handle_reauth),
     CLI_ENTRY("deauth", handle_deauth),
+    CLI_ENTRY("reauth", handle_reauth),
     CLI_ENTRY("show",   handle_show),
     CLI_ENTRY("tag",    handle_tag),
     CLI_ENTRY("gc",     handle_gc),

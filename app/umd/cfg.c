@@ -16,30 +16,85 @@ extern cli_server_t um_cli_server;
 extern cli_server_t um_flow_server;
 extern cli_server_t um_timer_server;
 
+#define init_jcfg_string(_jcfg, _field) ({ \
+    jobj_t jobj = jobj_get(_jcfg, #_field); \
+    if (jobj) { \
+        umd.cfg._field = os_strdup(jobj_get_string(jobj)); \
+        debug_cfg(#_field "=%d", umd.cfg._field); \
+    } \
+    0; \
+})  /* end */
+
+#define init_jcfg_bytype(_jcfg, _field, _type) ({ \
+    jobj_t jobj = jobj_get(_jcfg, #_field); \
+    if (jobj) { \
+        umd.cfg._field = jobj_get_##_type(jobj); \
+        debug_cfg(#_field "=%d", umd.cfg._field); \
+    } \
+    0; \
+})  /* end */
+#define init_jcfg_u32(_jcfg, _field)    init_jcfg_bytype(_jcfg, _field, u32)
+#define init_jcfg_i32(_jcfg, _field)    init_jcfg_bytype(_jcfg, _field, i32)
+#define init_jcfg_bool(_jcfg, _field)   init_jcfg_bytype(_jcfg, _field, bool)
+
 static int
-init_cfg_lan(void)
+init_cfg_script_event(jobj_t jcfg)
 {
-    int i;
-    
-    for (i=0; i<os_count_of(umd.cfg.lan); i++) {
-        umd.cfg.lan[i].ip   = inet_addr(umd.cfg.lan[i].ipstring);
-        umd.cfg.lan[i].mask = inet_addr(umd.cfg.lan[i].maskstring);
-    }
-    
-    return 0;
+    return init_jcfg_string(jcfg, script_event);
+}
+
+static int
+init_cfg_script_getipbymac(jobj_t jcfg)
+{
+    return init_jcfg_string(jcfg, script_getipbymac);
+}
+
+static int
+init_cfg_script_getmacbyip(jobj_t jcfg)
+{
+    return init_jcfg_string(jcfg, script_getmacbyip);
 }
 
 static int
 init_cfg_gc(jobj_t jcfg)
 {
-    jobj_t jobj = jobj_get(jcfg, "gc");
-    if (jobj) {
-        umd.cfg.gc = jobj_get_bool(jobj);
+    return init_jcfg_bool(jcfg, gc);
+}
 
-        debug_cfg("gc=%d", umd.cfg.gc);
-    }
+static int
+init_cfg_sniff_count(jobj_t jcfg)
+{
+    return init_jcfg_u32(jcfg, sniff_count);
+}
 
-    return 0;
+static int
+init_cfg_ticks(jobj_t jcfg)
+{
+    return init_jcfg_u32(jcfg, ticks);
+}
+
+static int
+init_cfg_idle(jobj_t jcfg)
+{
+    return init_jcfg_u32(jcfg, idle);
+}
+
+static int
+init_cfg_machashsize(jobj_t jcfg)
+{
+    return init_jcfg_u32(jcfg, machashsize);
+}
+
+static int
+init_cfg_iphashsize(jobj_t jcfg)
+{
+    return init_jcfg_u32(jcfg, iphashsize);
+}
+
+static int
+init_cfg_autouser(jobj_t jcfg)
+{
+    return init_jcfg_i32(jcfg, autouser);
 }
 
 static int
@@ -139,7 +194,7 @@ init_cfg_server(int count)
 }
 
 static int
-init_cfg_instance_one(jobj_t jinstance, int id)
+__init_cfg_instance(jobj_t jinstance, int id)
 {
     struct um_intf *intf = &umd.cfg.instance.intf[id];
     
@@ -179,7 +234,7 @@ init_cfg_instance(jobj_t jcfg)
     for (i=0; i<count; i++) {
         jobj_t jinstance = jarray_get(jarray, i);
         if (jinstance) {
-            err = init_cfg_instance_one(jinstance, i);
+            err = __init_cfg_instance(jinstance, i);
             if (err<0) {
                 return err;
             }
@@ -201,30 +256,36 @@ init_cfg_instance(jobj_t jcfg)
 
 int init_cfg(void)
 {
-    int err = 0;
-
-    jobj_t jcfg = jobj_byfile(UMD_CONFIG);
+    static int (*map[])(jobj_t jcfg) = {
+        init_cfg_script_event,
+        init_cfg_script_getipbymac,
+        init_cfg_script_getmacbyip,
+        init_cfg_gc,
+        init_cfg_sniff_count,
+        init_cfg_ticks,
+        init_cfg_machashsize,
+        init_cfg_iphashsize,
+        init_cfg_autouser,
+        
+        init_cfg_instance,
+    }
+    int i, err = 0;
+    
+    jobj_t jcfg = jobj_byfile(umd.cfg.conf);
     if (NULL==jcfg) {
-        debug_error("bad " UMD_CONFIG);
+        debug_error("bad %s", umd.cfg.conf);
         
         err = -EBADCONF; goto error;
     }
 
-    err = init_cfg_lan();
-    if (err<0) {
-        goto error;
+    for (i=0; i<os_count_of(map); i++) {
+        err = (*map[i])(jcfg);
+        if (err<0) {
+            goto error;
+        }
     }
 
-    err = init_cfg_gc(jcfg);
-    if (err<0) {
-        goto error;
-    }
-
-    err = init_cfg_instance(jcfg);
-    if (err<0) {
-        goto error;
-    }
-
+    
 error:
     jobj_put(jcfg);
 

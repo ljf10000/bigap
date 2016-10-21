@@ -17,14 +17,12 @@ usage(int error)
 {
     os_eprintln(__THIS_APPNAME " bind   {mac} {ip}");
     os_eprintln(__THIS_APPNAME " unbind {mac}");
+    os_eprintln(__THIS_APPNAME " fake   {mac} {ip}");
+    os_eprintln(__THIS_APPNAME " unfake {mac}");
     os_eprintln(__THIS_APPNAME " auth   {mac} {group} {json}");
-    os_eprintln(__THIS_APPNAME " reauth {mac}");
     os_eprintln(__THIS_APPNAME " deauth {mac}");
+    os_eprintln(__THIS_APPNAME " reauth {mac}");
     os_eprintln(__THIS_APPNAME " tag    {mac} {key} [value]");
-#if UM_USE_MONITOR
-    os_eprintln(__THIS_APPNAME " enter  {mac} {json}");
-    os_eprintln(__THIS_APPNAME " leave  {mac}");
-#endif
     os_eprintln(__THIS_APPNAME " gc");
     os_eprintln(__THIS_APPNAME " show [stat | json]");
 
@@ -38,6 +36,33 @@ static int
 umc_handle_none(char *action, int argc, char *argv[])
 {
     if (0!=argc) {
+        return -EFORMAT;
+    }
+
+    return umc_handle(action, argc, argv);
+}
+
+
+/*
+* ACTION {mac} {ip}
+*/
+static int
+umc_handle_mac_ip(char *action, int argc, char *argv[])
+{
+    char *mac= argv[0];
+    char *ip = argv[1];
+    
+    if (2!=argc) {
+        return -EFORMAT;
+    }
+    else if (false==is_good_macstring(mac)) {
+        debug_trace("bad mac %s", mac);
+
+        return -EFORMAT;
+    }
+    else if (false==is_good_ipstring(ip)) {
+        debug_trace("bad ip %s", ip);
+
         return -EFORMAT;
     }
 
@@ -90,27 +115,6 @@ umc_handle_mac(char *action, int argc, char *argv[])
     return umc_handle(action, argc, argv);
 }
 
-#if UM_USE_MONITOR
-/*
-* enter {mac} {json}
-*/
-static int
-cmd_enter(int argc, char *argv[])
-{
-    return umc_handle_mac_json("enter", argc, argv);
-}
-
-/*
-* leave {mac}
-*/
-static int
-cmd_leave(int argc, char *argv[])
-{
-    return umc_handle_mac("leave", argc, argv);
-}
-#endif
-
-#if UM_USE_SYNC
 /*
 * sync {mac} {json}
 */
@@ -121,32 +125,13 @@ cmd_sync(int argc, char *argv[])
     return umc_handle_mac_json("sync", argc, argv);
 }
 
-#endif
-
 /*
 * bind {mac} {ip}
 */
 static int
 cmd_bind(int argc, char *argv[])
 {
-    char *mac= argv[0];
-    char *ip = argv[1];
-    
-    if (2!=argc) {
-        return -EFORMAT;
-    }
-    else if (false==is_good_macstring(mac)) {
-        debug_trace("bad mac %s", mac);
-
-        return -EFORMAT;
-    }
-    else if (false==is_good_ipstring(ip)) {
-        debug_trace("bad ip %s", ip);
-
-        return -EFORMAT;
-    }
-
-    return umc_handle("bind", argc, argv);
+    return umc_handle_mac_ip("bind", argc, argv);
 }
 
 /*
@@ -156,6 +141,24 @@ static int
 cmd_unbind(int argc, char *argv[])
 {
     return umc_handle_mac("unbind", argc, argv);
+}
+
+/*
+* fake {mac} {ip}
+*/
+static int
+cmd_fake(int argc, char *argv[])
+{
+    return umc_handle_mac_ip("fake", argc, argv);
+}
+
+/*
+* unfake {mac}
+*/
+static int
+cmd_unfake(int argc, char *argv[])
+{
+    return umc_handle_mac("unfake", argc, argv);
 }
 
 /*
@@ -277,20 +280,17 @@ static int
 command(int argc, char *argv[])
 {
     static cli_table_t table[] = {
-#if UM_USE_MONITOR
-        CLI_ENTRY("enter",  cmd_enter),
-        CLI_ENTRY("leave",  cmd_leave),
-#endif
-#if UM_USE_SYNC
-        CLI_ENTRY("sync",   cmd_sync),
-#endif
         CLI_ENTRY("bind",   cmd_bind),
         CLI_ENTRY("unbind", cmd_unbind),
         
+        CLI_ENTRY("fake",   cmd_fake),
+        CLI_ENTRY("unfake", cmd_unfake),
+        
         CLI_ENTRY("auth",   cmd_auth),
         CLI_ENTRY("reauth", cmd_reauth),
-        CLI_ENTRY("deauth", cmd_deauth),
         
+        CLI_ENTRY("deauth", cmd_deauth),
+        CLI_ENTRY("sync",   cmd_sync),
         CLI_ENTRY("show",   cmd_show),
         CLI_ENTRY("tag",    cmd_tag),
         CLI_ENTRY("gc",     cmd_gc),
