@@ -2023,7 +2023,7 @@ error:
 }
 
 static inline int
-duk_script(duk_priv_t *priv, duk_object_t *obj)
+duk_script(duk_priv_t *priv, void *obj)
 {
     char *script = NULL;
 

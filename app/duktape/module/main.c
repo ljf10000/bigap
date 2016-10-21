@@ -27,7 +27,7 @@ __main(int argc, char *argv[])
         err = -ENOMEM; goto error;
     }
 
-    err = duk_script(ctx);
+    err = duk_script(ctx, NULL);
     if (err<0) {
         goto error;
     }
