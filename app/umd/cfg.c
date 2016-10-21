@@ -16,103 +16,87 @@ extern cli_server_t um_cli_server;
 extern cli_server_t um_flow_server;
 extern cli_server_t um_timer_server;
 
-#define init_jcfg_string(_jcfg, _field) ({ \
-    jobj_t jobj = jobj_get(_jcfg, #_field); \
-    if (jobj) { \
-        umd.cfg._field = os_strdup(jobj_get_string(jobj)); \
-        debug_config(#_field "=%d", umd.cfg._field); \
-    } \
-    0; \
-})  /* end */
-
-#define init_jcfg_bytype(_jcfg, _field, _type) ({ \
-    jobj_t jobj = jobj_get(_jcfg, #_field); \
-    if (jobj) { \
-        umd.cfg._field = jobj_get_##_type(jobj); \
-        debug_config(#_field "=%d", umd.cfg._field); \
-    } \
-    0; \
-})  /* end */
-#define init_jcfg_u32(_jcfg, _field)    init_jcfg_bytype(_jcfg, _field, u32)
-#define init_jcfg_i32(_jcfg, _field)    init_jcfg_bytype(_jcfg, _field, i32)
-#define init_jcfg_bool(_jcfg, _field)   init_jcfg_bytype(_jcfg, _field, bool)
+#define um_jcfg_u32(_jcfg, _member)     jcfg_bytype(_jcfg, &umd.cfg, _member, u32)
+#define um_jcfg_i32(_jcfg, _member)     jcfg_bytype(_jcfg, &umd.cfg, _member, i32)
+#define um_jcfg_bool(_jcfg, _member)    jcfg_bytype(_jcfg, &umd.cfg, _member, bool)
+#define um_jcfg_string(_jcfg, _member)  jcfg_string(_jcfg, &umd.cfg, _member)
 
 static int
 init_cfg_script_event(jobj_t jcfg)
 {
-    return init_jcfg_string(jcfg, script_event);
+    return um_jcfg_string(jcfg, script_event);
 }
 
 static int
 init_cfg_script_getipbymac(jobj_t jcfg)
 {
-    return init_jcfg_string(jcfg, script_getipbymac);
+    return um_jcfg_string(jcfg, script_getipbymac);
 }
 
 static int
 init_cfg_script_getmacbyip(jobj_t jcfg)
 {
-    return init_jcfg_string(jcfg, script_getmacbyip);
+    return um_jcfg_string(jcfg, script_getmacbyip);
 }
 
 static int
 init_cfg_syncable(jobj_t jcfg)
 {
-    return init_jcfg_bool(jcfg, syncable);
+    return um_jcfg_bool(jcfg, syncable);
 }
 
 static int
 init_cfg_reauthable(jobj_t jcfg)
 {
-    return init_jcfg_bool(jcfg, reauthable);
+    return um_jcfg_bool(jcfg, reauthable);
 }
 
 static int
 init_cfg_gc(jobj_t jcfg)
 {
-    return init_jcfg_u32(jcfg, gc);
+    return um_jcfg_u32(jcfg, gc);
 }
 
 static int
 init_cfg_sniff_count(jobj_t jcfg)
 {
-    return init_jcfg_u32(jcfg, sniff_count);
+    return um_jcfg_u32(jcfg, sniff_count);
 }
 
 static int
 init_cfg_ticks(jobj_t jcfg)
 {
-    return init_jcfg_u32(jcfg, ticks);
+    return um_jcfg_u32(jcfg, ticks);
 }
 
 static int
 init_cfg_idle(jobj_t jcfg)
 {
-    return init_jcfg_u32(jcfg, idle);
+    return um_jcfg_u32(jcfg, idle);
 }
 
 static int
 init_cfg_fake(jobj_t jcfg)
 {
-    return init_jcfg_u32(jcfg, fake);
+    return um_jcfg_u32(jcfg, fake);
 }
 
 static int
 init_cfg_machashsize(jobj_t jcfg)
 {
-    return init_jcfg_u32(jcfg, machashsize);
+    return um_jcfg_u32(jcfg, machashsize);
 }
 
 static int
 init_cfg_iphashsize(jobj_t jcfg)
 {
-    return init_jcfg_u32(jcfg, iphashsize);
+    return um_jcfg_u32(jcfg, iphashsize);
 }
 
 static int
 init_cfg_autouser(jobj_t jcfg)
 {
-    return init_jcfg_u32(jcfg, autouser);
+    return um_jcfg_u32(jcfg, autouser);
 }
 
 static int

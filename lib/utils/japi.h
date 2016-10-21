@@ -692,6 +692,27 @@ jobj_get_leaf(jobj_t obj, ...)
     return leaf;
 }
 
+#define jcfg_string(_jcfg, _pcfg, _member) ({ \
+    jobj_t jobj = jobj_get(_jcfg, #_member); \
+    if (jobj) { \
+        (_pcfg)->_member = os_strdup(jobj_get_string(jobj)); \
+        debug_config(#_member "=%d", (_pcfg)->_member); \
+    } \
+    0; \
+})  /* end */
+
+#define jcfg_bytype(_jcfg, _pcfg, _member, _type) ({ \
+    jobj_t jobj = jobj_get(_jcfg, #_member); \
+    if (jobj) { \
+        (_pcfg)->_field = jobj_get_##_type(jobj); \
+        debug_config(#_member "=%d", (_pcfg)->_member); \
+    } \
+    0; \
+})  /* end */
+#define jcfg_u32(_jcfg, _pcfg, _member)     init_jcfg_bytype(_jcfg, _pcfg, _member, u32)
+#define jcfg_i32(_jcfg, _pcfg, _member)     init_jcfg_bytype(_jcfg, _pcfg, _member, i32)
+#define jcfg_bool(_jcfg, _pcfg, _member)    init_jcfg_bytype(_jcfg, _pcfg, _member, bool)
+
 #endif /* __APP__ */
 /******************************************************************************/
 #endif /* __JAPI_H_82b58c7daf6248b381aac0f6971b0d3d__ */
