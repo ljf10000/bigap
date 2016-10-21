@@ -646,6 +646,9 @@ extern struct um_user *
 um_user_create(byte mac[]);
 
 extern struct um_user *
+um_user_sync(byte mac[], jobj_t obj);
+
+extern struct um_user *
 um_user_bind(byte mac[], uint32 ip);
 
 extern int

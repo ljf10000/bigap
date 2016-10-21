@@ -185,7 +185,7 @@ handle_deauth(char *args)
 {
     int deauth(byte mac[])
     {
-        um_user_deauth(os_mac(mac), UM_DEAUTH_ADMIN);
+        um_user_deauth(mac, UM_DEAUTH_ADMIN);
 
         return 0;
     }
