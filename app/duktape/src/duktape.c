@@ -6218,6 +6218,9 @@ struct duk_catcher {
 };
 
 struct duk_hthread {
+#if 1 /* liujf */
+    duk_priv_t priv;
+#endif
 	/* Shared object part */
 	duk_hobject obj;
 

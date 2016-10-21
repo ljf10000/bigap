@@ -509,7 +509,9 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC(unsetenv),
     JS_FUNC(clearenv),
     JS_FUNC(exit),
+#if js_LIBC_SIG
     JS_FUNC(atexit),
+#endif
     JS_FUNC(abort),
     JS_FUNC(_exit),
     JS_FUNC(_Exit),

@@ -901,6 +901,7 @@ __set_sched_param(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 static inline int
 __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 {
+    duk_priv_t *priv = duk_priv(ctx);
     struct sigaction *p = (struct sigaction *)obj; os_objzero(p);
     
     p->sa_mask  = *(sigset_t *)js_get_obj_buffer(ctx, idx, "mask", NULL);
@@ -908,9 +909,13 @@ __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
     
     duk_get_prop_string(ctx, idx, "handler");
     if (duk_is_function(ctx, -1)) {
-        p->sa_handler = js_libc_sig_handler;
+        p->sa_handler = __libc_sig_handler;
 
-        js_libc_sig_name[sig] = js_get_obj_string(ctx, idx, "name", NULL);
+        priv->sig[sig].is_func = true;
+        char *name = js_get_obj_string(ctx, idx, "name", NULL);
+        
+        os_free(priv->sig[sig].name);
+        priv->sig[sig].name = name;
     }
     else if (duk_is_number(ctx, -1)) {
         __sighandler_t action = (__sighandler_t)(uintptr_t)duk_require_int(ctx, -1);
@@ -919,7 +924,9 @@ __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
         }
         
         p->sa_handler = action;
-        js_libc_sig_name[sig] = (char *)action;
+
+        priv->sig[sig].is_func = false;
+        priv->sig[sig].name = (char *)action;
     }
     duk_pop(ctx);
 
@@ -929,8 +936,9 @@ __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 static inline int
 __set_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 {
+    duk_priv_t *priv = duk_priv(ctx);
     struct sigaction *p = (struct sigaction *)obj;
-    
+
     *(sigset_t *)js_get_obj_buffer(ctx, idx, "mask", NULL) = p->sa_mask;
     js_set_obj_int(ctx, idx, "flags", p->sa_flags);
 
@@ -938,7 +946,7 @@ __set_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
         js_set_obj_int(ctx, idx, "handler", (uintptr_t)p->sa_handler);
     } else {
         duk_push_global_object(ctx);                    // global
-        duk_get_prop_string(ctx, -1, js_libc_sig_name[sig]);  // global function/undefined
+        duk_get_prop_string(ctx, -1, priv->sig[sig].name);  // global function/undefined
         if (duk_is_function(ctx, -1)) {
             duk_put_prop_string(ctx, idx, "handler");   // global
         } else {

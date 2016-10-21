@@ -1896,6 +1896,168 @@ typedef double duk_double_t;
 /* Type for public API calls. */
 typedef struct duk_hthread duk_context;
 
+#if 1 /* liujf */
+enum {
+    JS_EXEC_SHABANG,
+    JS_EXEC_STRING,
+    JS_EXEC_BUILDIN,
+
+    JS_EXEC_END
+};
+
+typedef struct {
+    int argc;
+    char **argv;
+    int mode;
+    
+    char *atexit_name;
+    char *name;
+
+    struct {
+        char *name;
+        int is_func;
+    } sig[NSIG];
+} duk_priv_t;
+
+static inline duk_priv_t *
+duk_priv(duk_context *ctx)
+{
+    return &ctx->priv;
+}
+
+static inline void
+duk_priv_init(duk_priv_t *priv, char *name, int buildin, int argc, char **argv)
+{
+    os_objzero(priv);
+
+    priv->argc = argc;
+    priv->argv = argv;
+    priv->name = os_strdup(name);
+    
+    if (buildin) {
+        priv->mode = JS_EXEC_BUILDIN;
+    } else {
+        if (argc > 1) {
+            priv->mode = JS_EXEC_SHABANG;
+        } else {
+            priv->mode = JS_EXEC_STRING;
+        }
+    }
+}
+
+static inline void
+duk_priv_fini(duk_priv_t *priv)
+{
+    int i;
+    
+    os_free(priv->name);
+    os_free(priv->atexit_name);
+
+    for (i=0; i<NSIG; i++) {
+        if (priv->sig[i].is_func) {
+            os_free(priv->sig[i].name);
+        }
+    }
+}
+
+static inline char *
+duk_readfd(duk_context *ctx, int fd) 
+{
+	FILE *f = NULL;
+	char *buf = NULL;
+	long sz = 0, len = 0, left, ret;  /* ANSI C typing */
+
+	if (fd<0) {
+		goto error;
+	}
+	
+	f = fdopen(fd, "r");
+	if (!f) {
+		goto error;
+	}
+
+	while(!feof(f) && !ferror(f)) {
+        if (0==sz) {
+            sz += 4096;
+            buf = (char *)malloc(sz);
+        }
+        else if (sz - len < 512) {
+            sz += 4096;
+            buf = (char *)realloc(buf, sz);
+        }
+        else {
+            /*
+            * use the buf, do nothing
+            */
+        }
+        
+        if (NULL==buf) {
+            goto error;
+        }
+
+	    left = sz - len;
+        ret = fread(f, buf + len, left);
+        if (ret > left || ret < 0) {
+            goto error;
+        }
+        
+        len += ret;
+	}
+	buf[len++] = 0;
+
+    if ('#'==buf[0] && '!'==buf[1]) {
+        buf[0] = '/';
+        buf[1] = '/';
+    }
+
+	return buf;
+error:
+    if (buf) {
+        free(buf);
+    }
+    if (f) {
+        fclose(f);
+    }
+    
+    return NULL;
+}
+
+static inline int
+duk_script(duk_priv_t *priv, duk_object_t *obj)
+{
+    char *script = NULL;
+
+    switch(priv->mode) {
+        case JS_EXEC_SHABANG:
+            script = priv->argv[1];
+            /*
+            * argv[1] is script name
+            */
+            duk_peval_file(ctx, script);
+            
+            break;
+        case JS_EXEC_STRING:
+            script = duk_readfd(ctx, 0);
+
+            /*
+            * cat SCRIPT  | js
+            * echo SCRIPT | js
+            */
+            duk_peval_string(ctx, script); free(script);
+            
+            break;
+        case JS_EXEC_BUILDIN:
+            break;
+    }
+    
+    duk_pop(ctx);
+
+    return 0;
+}
+
+#endif
+
+
 /* Check whether we should use 64-bit integers or not.
  *
  * Quite incomplete now.  Use 64-bit types if detected (C99 or other detection)

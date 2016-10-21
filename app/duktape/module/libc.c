@@ -15,36 +15,54 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "dukc.h"
 
 #if js_LIBC_SIG
-char *js_libc_sig_name[NSIG];
-void js_libc_sig_handler(int sig)
+static duk_context *__js_ctx;
+
+void js_ctx_save(duk_context *ctx)
 {
-    /*
-    * global handler sig
-    */
-    duk_push_global_object(__js_ctx);
-    duk_get_prop_string(__js_ctx, -1, js_libc_sig_name[sig]);
-    if (duk_is_function(__js_ctx, -1)) {
-        duk_push_int(__js_ctx, sig);
+    __js_ctx = ctx;
+}
+
+duk_context *js_ctx(void)
+{
+    return __js_ctx;
+}
+
+static void
+__libc_sig_handler(int sig)
+{
+    duk_context *ctx = js_ctx();
+    duk_priv_t *priv = duk_priv(ctx);
+
+    if (priv->sig[sig].is_func) {
         /*
-        * global result
+        * global handler sig
         */
-        duk_pcall(__js_ctx, 1);
+        duk_push_global_object(ctx);
+        duk_get_prop_string(ctx, -1, priv->sig[sig].name);
+        if (duk_is_function(ctx, -1)) {
+            duk_push_int(ctx, sig);
+            /*
+            * global result
+            */
+            duk_pcall(ctx, 1);
+        }
+        duk_pop_2(ctx);
     }
-    duk_pop_2(__js_ctx);
+}
+
+static void
+__libc_atexit_handler(void)
+{
+    duk_context *ctx = js_ctx();
+    
+    duk_push_global_object(ctx);
+    duk_get_prop_string(ctx, -1, duk_priv(ctx)->atexit_name);
+    if (duk_is_function(ctx, -1)) {
+        duk_pcall(ctx, 0);
+    }
+    duk_pop_2(ctx);
 }
 #endif /* js_LIBC_SIG */
-
-static char *atexit_name;
-static void
-__atexit_handler(void)
-{
-    duk_push_global_object(__js_ctx);
-    duk_get_prop_string(__js_ctx, -1, atexit_name);
-    if (duk_is_function(__js_ctx, -1)) {
-        duk_pcall(__js_ctx, 0);
-    }
-    duk_pop_2(__js_ctx);
-}
 
 #if js_LIBC_LINUX
 JS_PARAM(timerfd_create, 2);
@@ -4350,13 +4368,20 @@ static duk_ret_t
 duke_signal(duk_context *ctx)
 {
     __sighandler_t action, old;
+    duk_priv_t *priv = duk_priv(ctx);
     int sig = duk_require_int(ctx, 0);
-
+    
     if (duk_is_function(ctx, 1)) {
-        action = js_libc_sig_handler;
+        action = __libc_sig_handler;
 
-        // save Function name
-        js_libc_sig_name[sig] = js_get_obj_string(ctx, 1, "name", NULL);
+        priv->sig[sig].is_func = true;
+
+        /*
+        * save Function name
+        */
+        char *name = js_get_obj_string(ctx, 1, "name", NULL);
+        os_free(priv->sig[sig].name);
+        priv->sig[sig].name = os_strdup(name);
     }
     else if (duk_is_number(ctx, 1)) {
         action = (__sighandler_t)(uintptr_t)duk_require_int(ctx, 1);
@@ -4364,7 +4389,8 @@ duke_signal(duk_context *ctx)
             goto error;
         }
 
-        js_libc_sig_name[sig] = (char *)action;
+        priv->sig[sig].is_func = false;
+        priv->sig[sig].name = (char *)action;
     }
     else {
         goto error;
@@ -4379,7 +4405,7 @@ duke_signal(duk_context *ctx)
         duk_push_int(ctx, (uintptr_t)old);
     } else {
         duk_push_global_object(ctx);
-        duk_get_prop_string(ctx, -1, js_libc_sig_name[sig]);
+        duk_get_prop_string(ctx, -1, priv->sig[sig].name);
         duk_swap(ctx, -1, -2);
         duk_pop(ctx);
     }
@@ -4698,6 +4724,7 @@ duke_exit(duk_context *ctx)
     return exit(status), 0;
 }
 
+#if js_LIBC_SIG
 JS_PARAM(atexit, 1);
 static duk_ret_t
 duke_atexit(duk_context *ctx)
@@ -4706,12 +4733,20 @@ duke_atexit(duk_context *ctx)
         return duk_push_null(ctx), 1;
     }
 
-    atexit_name = js_get_obj_string(ctx, 0, "name", NULL);
+    char *atexit_name = js_get_obj_string(ctx, 0, "name", NULL);
+    if (NULL==atexit_name) {
+        return duk_push_int(ctx, -ENOEXIST), -1;
+    }
+
+    duk_priv_t *priv = duk_priv(ctx);
+    os_free(priv->atexit_name);
+    priv->atexit_name = os_strdup(atexit_name);
     
-    int err = atexit(__atexit_handler);
+    int err = atexit(__libc_atexit_handler);
 
     return duk_push_int(ctx, err), 1;
 }
+#endif
 
 JS_PARAM(abort, 0);
 static duk_ret_t

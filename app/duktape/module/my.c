@@ -809,17 +809,28 @@ env_register(duk_context *ctx)
 static void 
 arg_register(duk_context *ctx)
 {
-    int i, argc = __js_argc - (1 + !!__js_shabang);
-    char **argv = __js_argv + (1 + !!__js_shabang);
-    
-    js_set_obj_string(ctx, -1, "name", __js_argv[0]);
-    js_set_obj_string(ctx, -1, "script", __js_shabang?__js_argv[1]:"");
-    
-    duk_push_array(ctx);
-    for (i=0; i<argc; i++) {
-        js_set_array_string(ctx, -1, i, argv[i]);
+    duk_priv_t *priv = duk_priv(ctx);
+
+#if 0
+    js_set_obj_string(ctx, -1, "priv", priv->name);
+    js_set_obj_int(ctx, -1, "mode", priv->mode);
+#endif
+
+    if (JS_EXEC_BUILDIN != priv->mode) {
+        js_set_obj_string(ctx, -1, "name", priv->argv[0]);
     }
-    duk_put_prop_string(ctx, -2, "argv");
+    
+    if (JS_EXEC_SHABANG == priv->mode) {
+        js_set_obj_string(ctx, -1, "script", shabang?priv->argv[1]:"");
+        
+        int i, argc = priv->argc - 2;
+        char **argv = priv->argv + 2;
+        duk_push_array(ctx);
+        for (i=0; i<argc; i++) {
+            js_set_array_string(ctx, -1, i, argv[i]);
+        }
+        duk_put_prop_string(ctx, -2, "argv");
+    }
 }
 
 static const dukc_func_entry_t my_func[] = {

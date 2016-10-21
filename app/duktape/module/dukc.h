@@ -820,14 +820,9 @@ js_obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *
 #define js_obj_obj_set(_ctx, _idx, _get, _obj, _args...) \
     js_obj_obj_op(_ctx, true, _idx, _get, _obj, ##_args)
 
-extern duk_context *__js_ctx;
-extern bool __js_shabang;
-extern int __js_argc;
-extern char **__js_argv;
-
 #if js_LIBC_SIG
-extern char *js_libc_sig_name[];
-extern void js_libc_sig_handler(int sig);
+extern void js_ctx_save(duk_context *ctx);
+extern duk_context *js_ctx(void);
 #endif
 
 extern int js_auto_register(duk_context *ctx);
@@ -910,6 +905,45 @@ js_register(duk_context *ctx)
 
     return 0;
 }
+
+static inline duk_context *
+js_init(char *name, int argc, char *argv)
+{
+    char *script = NULL;
+    int err = 0;
+
+    duk_context *ctx = duk_create_heap_default();
+    if (NULL==ctx) {
+        return NULL;
+    }
+
+    duk_priv_t *priv = duk_priv(ctx);
+    duk_priv_init(priv, name, argc, argv);
+
+    err = js_register(ctx);
+    if (err<0) {
+        return NULL;
+    }
+
+    return ctx;
+}
+
+static inline void
+__js_fini(duk_context *ctx)
+{
+    if (ctx) {
+        duk_priv_fini(duk_priv(ctx));
+        
+        debug_js("before destroy duk heap(%s)", priv->name);
+        duk_destroy_heap(ctx);
+        debug_js("after  destroy duk heap(%s)", priv->name);
+    }
+}
+
+#define js_fini(_ctx) do{ \
+    __js_fini(_ctx); \
+    _ctx = NULL; \
+}while(0)
 
 #include "libc.h"   /* must end */
 /******************************************************************************/
