@@ -3,20 +3,20 @@
 /******************************************************************************/
 #include "um/um.h"
 
-#ifndef UMD_USE_AUTOUSER
-#define UMD_USE_AUTOUSER        2
-#endif
-
-#ifndef UMD_USE_PROMISC
-#define UMD_USE_PROMISC         0
-#endif
-
 #ifndef UMD_MACHASHSIZE
 #define UMD_MACHASHSIZE         256
 #endif
 
 #ifndef UMD_IPHASHSIZE
 #define UMD_IPHASHSIZE          256
+#endif
+
+#ifndef UMD_SYNC
+#define UMD_SYNC                true
+#endif
+
+#ifndef UMD_REAUTH
+#define UMD_REAUTH              true
 #endif
 
 #ifndef UMD_CONF
@@ -111,10 +111,14 @@ static inline char *user_auto_string(int id);
 static inline int user_auto_idx(char *name);
 DECLARE_ENUM(user_auto, __XLIST_UM_AUTO, UM_AUTO_END);
 
-#define UM_AUTO_NONE   UM_AUTO_NONE
-#define UM_AUTO_BIND   UM_AUTO_BIND
-#define UM_AUTO_FAKE   UM_AUTO_FAKE
-#define UM_AUTO_END    UM_AUTO_END
+#define UM_AUTO_NONE    UM_AUTO_NONE
+#define UM_AUTO_BIND    UM_AUTO_BIND
+#define UM_AUTO_FAKE    UM_AUTO_FAKE
+#define UM_AUTO_END     UM_AUTO_END
+#endif
+
+#ifndef UMD_AUTOUSER
+#define UMD_AUTOUSER    UM_AUTO_FAKE
 #endif
 
 #if 1
@@ -415,8 +419,10 @@ struct um_config {
     char *script_event;
     char *script_getmacbyip;
     char *script_getipbymac;
-    
-    int autouser;
+
+    bool   sync;
+    bool   reauth;
+    uint32 autouser;
     uint32 gc;
     uint32 sniff_count;
     uint32 ticks;
@@ -427,7 +433,9 @@ struct um_config {
 };
 
 #define UMD_CFG_INITER                  {   \
-    .autouser = UMD_USE_AUTOUSER,           \
+    .sync = UMD_SYNC,                       \
+    .reauth = UMD_REAUTH,                   \
+    .autouser = UMD_AUTOUSER,               \
     .gc = UMD_GC,                           \
     .sniff_count = UMD_SNIFF_COUNT,         \
     .ticks = UMD_TICKS,                     \

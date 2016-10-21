@@ -565,7 +565,10 @@ is_flow_reauth(struct um_user *user, int type, int dir)
 static void
 flow_reauth(struct um_user *user, int type, int dir)
 {
-    if (um_flow_type_wan==type && is_auth(user) && is_flow_reauth(user, type, dir)) {
+    if (umd.cfg.reauth
+            && um_flow_type_wan==type 
+            && is_auth(user) 
+            && is_flow_reauth(user, type, dir)) {
         user_reauth(user);
     }
 }

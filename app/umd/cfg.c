@@ -56,6 +56,18 @@ init_cfg_script_getmacbyip(jobj_t jcfg)
 }
 
 static int
+init_cfg_sync(jobj_t jcfg)
+{
+    return init_jcfg_bool(jcfg, sync);
+}
+
+static int
+init_cfg_reauth(jobj_t jcfg)
+{
+    return init_jcfg_bool(jcfg, reauth);
+}
+
+static int
 init_cfg_gc(jobj_t jcfg)
 {
     return init_jcfg_u32(jcfg, gc);
@@ -100,7 +112,7 @@ init_cfg_iphashsize(jobj_t jcfg)
 static int
 init_cfg_autouser(jobj_t jcfg)
 {
-    return init_jcfg_i32(jcfg, autouser);
+    return init_jcfg_u32(jcfg, autouser);
 }
 
 static int
@@ -153,7 +165,7 @@ init_cfg_intf_post(void)
             return err;
         }
 
-#if UMD_USE_PROMISC
+#if 0
         err = intf_set_promisc(intf->name);
         if (err<0) {
             return err;
@@ -266,6 +278,8 @@ int init_cfg(void)
         init_cfg_script_event,
         init_cfg_script_getipbymac,
         init_cfg_script_getmacbyip,
+        init_cfg_sync,
+        init_cfg_reauth,
         init_cfg_gc,
         init_cfg_sniff_count,
         init_cfg_ticks,

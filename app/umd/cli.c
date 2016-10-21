@@ -94,7 +94,11 @@ handle_mac(int (*handle)(byte mac[]), char *args)
 static int
 handle_sync(char *args)
 {
-    return handle_mac_json(um_user_sync, args);
+    if (umd.cfg.sync) {
+        return handle_mac_json(um_user_sync, args);
+    } else {
+        return -ENOSUPPORT;
+    }
 }
 
 /*
@@ -121,7 +125,11 @@ handle_unbind(char *args)
 static int
 handle_fake(char *args)
 {
-    return handle_mac_ip(um_user_fake, args);
+    if (UM_AUTO_FAKE==umd.cfg.autouser) {
+        return handle_mac_ip(um_user_fake, args);
+    } else {
+        return -ENOSUPPORT;
+    }
 }
 
 /*
@@ -130,7 +138,11 @@ handle_fake(char *args)
 static int
 handle_unfake(char *args)
 {
-    return handle_mac(um_user_unfake, args);
+    if (UM_AUTO_FAKE==umd.cfg.autouser) {
+        return handle_mac(um_user_unfake, args);
+    } else {
+        return -ENOSUPPORT;
+    }
 }
 
 /*
@@ -174,7 +186,11 @@ handle_auth(char *args)
 static int
 handle_reauth(char *args)
 {
-    return handle_mac(um_user_reauth, args);
+    if (umd.cfg.reauth) {
+        return handle_mac(um_user_reauth, args);
+    } else {
+        return -ENOSUPPORT;
+    }
 }
 
 /*
