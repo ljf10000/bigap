@@ -67,6 +67,14 @@
 #endif
 #endif
 
+#ifndef UMD_GC
+#ifdef __PC__
+#   define UMD_GC               30  /* second */
+#else
+#   define UMD_GC               0   /* second */
+#endif
+#endif
+
 #ifndef UMD_SNIFF_COUNT
 #ifdef __PC__
 #    define UMD_SNIFF_COUNT     128
@@ -398,24 +406,25 @@ struct um_config {
     char *script_getmacbyip;
     char *script_getipbymac;
     
-    uint32 gc;
-    int forward;
     int autouser;
+    uint32 gc;
     uint32 sniff_count;
     uint32 ticks;
+    uint32 idle;
     uint32 machashsize;
     uint32 iphashsize;
 };
 
 #define UMD_CFG_INITER                  {   \
-    .conf = UMD_CONF,                       \
+    .autouser = UMD_USE_AUTOUSER,           \
+    .gc = UMD_GC,                           \
     .sniff_count = UMD_SNIFF_COUNT,         \
     .ticks = UMD_TICKS,                     \
     .idle = UMD_IDLE,                       \
     .machashsize = UMD_MACHASHSIZE,         \
     .iphashsize = UMD_IPHASHSIZE,           \
-    .autouser = UMD_USE_AUTOUSER,           \
                                             \
+    .conf = UMD_CONF,                       \
     .script_event = UMD_SCRIPT_EVENT,       \
     .script_getipbymac = UMD_SCRIPT_IP,     \
     .script_getmacbyip = UMD_SCRIPT_MAC,    \

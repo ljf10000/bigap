@@ -58,7 +58,7 @@ init_cfg_script_getmacbyip(jobj_t jcfg)
 static int
 init_cfg_gc(jobj_t jcfg)
 {
-    return init_jcfg_bool(jcfg, gc);
+    return init_jcfg_u32(jcfg, gc);
 }
 
 static int
