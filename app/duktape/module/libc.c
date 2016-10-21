@@ -24,15 +24,14 @@ void js_ctx_save(duk_context *ctx)
     }
 }
 
-duk_context *js_ctx(void)
+duk_context *js_ctx_get(void)
 {
     return __js_ctx;
 }
 
-static void
-__libc_sig_handler(int sig)
+void __libc_sig_handler(int sig)
 {
-    duk_context *ctx = js_ctx();
+    duk_context *ctx = js_ctx_get();
     duk_priv_t *priv = duk_priv(ctx);
 
     if (priv->sig[sig].is_func) {
@@ -55,7 +54,7 @@ __libc_sig_handler(int sig)
 static void
 __libc_atexit_handler(void)
 {
-    duk_context *ctx = js_ctx();
+    duk_context *ctx = js_ctx_get();
     
     duk_push_global_object(ctx);
     duk_get_prop_string(ctx, -1, duk_priv(ctx)->atexit_name);

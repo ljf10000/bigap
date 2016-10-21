@@ -898,6 +898,8 @@ __set_sched_param(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 }
 
 #if js_LIBC_SIG
+extern void __libc_sig_handler(int sig);
+
 static inline int
 __get_sigaction(duk_context *ctx, duk_idx_t idx, int sig, duk_object_t obj)
 {

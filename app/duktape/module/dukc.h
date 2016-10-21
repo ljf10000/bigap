@@ -822,7 +822,7 @@ js_obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *
 
 #if js_LIBC_SIG
 extern void js_ctx_save(duk_context *ctx);
-extern duk_context *js_ctx(void);
+extern duk_context *js_ctx_get(void);
 #endif
 
 extern int js_auto_register(duk_context *ctx);
