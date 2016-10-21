@@ -915,7 +915,7 @@ enum {
 };
 
 static inline void
-js_priv_init(js_priv_t *priv, char *name, int buildin, int argc, char **argv)
+js_priv_init(js_priv_t *priv, char *name, int argc, char **argv)
 {
     os_objzero(priv);
 
@@ -923,14 +923,14 @@ js_priv_init(js_priv_t *priv, char *name, int buildin, int argc, char **argv)
     priv->argv = argv;
     priv->name = os_strdup(name);
     
-    if (buildin) {
-        priv->mode = JS_EXEC_BUILDIN;
-    } else {
+    if (argv) {
         if (argc > 1) {
             priv->mode = JS_EXEC_SHABANG;
         } else {
             priv->mode = JS_EXEC_STRING;
         }
+    } else {
+        priv->mode = JS_EXEC_BUILDIN;
     }
 }
 
@@ -939,16 +939,12 @@ js_priv_fini(js_priv_t *priv)
 {
     int i;
 
-    if (priv->name) {
-        free(priv->name);
-    }
-    if (priv->atexit_name) {
-        free(priv->atexit_name);
-    }
+    os_free(priv->name);
+    os_free(priv->atexit_name);
     
     for (i=0; i<NSIG; i++) {
-        if (priv->sig[i].is_func && priv->sig[i].name) {
-            free(priv->sig[i].name);
+        if (priv->sig[i].is_func) {
+            os_free(priv->sig[i].name);
         }
     }
 }
@@ -964,19 +960,19 @@ js_readfd(duk_context *ctx, int fd)
 		goto error;
 	}
 	
-	f = fdopen(fd, "r");
+	f = os_fdopen(fd, "r");
 	if (!f) {
 		goto error;
 	}
 
-	while(!feof(f) && !ferror(f)) {
+	while(!os_feof(f) && !os_ferror(f)) {
         if (0==sz) {
             sz += 4096;
-            buf = (char *)malloc(sz);
+            buf = (char *)os_malloc(sz);
         }
         else if (sz - len < 512) {
             sz += 4096;
-            buf = (char *)realloc(buf, sz);
+            buf = (char *)os_realloc(buf, sz);
         }
         else {
             /*
@@ -989,7 +985,7 @@ js_readfd(duk_context *ctx, int fd)
         }
 
 	    left = sz - len;
-        ret = fread(buf + len, 1, left, f);
+        ret = os_fread(f, buf + len, left);
         if (ret > left || ret < 0) {
             goto error;
         }
@@ -1005,12 +1001,8 @@ js_readfd(duk_context *ctx, int fd)
 
 	return buf;
 error:
-    if (buf) {
-        free(buf);
-    }
-    if (f) {
-        fclose(f);
-    }
+    os_free(buf);
+    os_fclose(f);
     
     return NULL;
 }
@@ -1074,11 +1066,14 @@ static inline void
 __js_fini(duk_context *ctx)
 {
     if (ctx) {
-        js_priv_fini(js_priv(ctx));
+        js_priv_t *priv = js_priv(ctx);
+        char *name = os_strdup(priv->name);
+        js_priv_fini(priv);
         
-        debug_js("before destroy duk heap(%s)", priv->name);
+        debug_js("before destroy duk heap(%s)", name);
         duk_destroy_heap(ctx);
-        debug_js("after  destroy duk heap(%s)", priv->name);
+        debug_js("after  destroy duk heap(%s)", name);
+        os_free(name);
     }
 }
 
