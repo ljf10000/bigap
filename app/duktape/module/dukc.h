@@ -1008,13 +1008,13 @@ error:
 }
 
 static inline int
-js_run(js_priv_t *priv)
+js_run(duk_context *ctx)
 {
     char *script = NULL;
-
+    
     switch(priv->mode) {
         case JS_EXEC_SHABANG:
-            script = priv->argv[1];
+            script = js_priv(ctx)->argv[1];
             /*
             * argv[1] is script name
             */

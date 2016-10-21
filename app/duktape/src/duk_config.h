@@ -1897,7 +1897,6 @@ typedef double duk_double_t;
 typedef struct duk_hthread duk_context;
 
 #if 1 /* liujf */
-
 typedef struct {
     int argc;
     char **argv;
@@ -1910,7 +1909,8 @@ typedef struct {
         char *name;
         int is_func;
     } sig[NSIG];
-} js_priv_t;
+} 
+js_priv_t;
 
 extern js_priv_t *js_priv(duk_context *ctx);
 #endif
