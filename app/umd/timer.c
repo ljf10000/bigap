@@ -153,7 +153,9 @@ online_reauth(struct um_user *user, time_t now)
     * online reauth
     *   just for auth user
     */
-    if (umd.cfg.reauth && is_auth(user) && is_online_reauth(user, now)) {        
+    if (umd.cfg.reauthable 
+            && is_auth(user) 
+            && is_online_reauth(user, now)) {        
         user_reauth(user);
     }
 

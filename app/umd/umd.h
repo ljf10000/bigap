@@ -11,12 +11,16 @@
 #define UMD_IPHASHSIZE          256
 #endif
 
-#ifndef UMD_SYNC
-#define UMD_SYNC                true
+#ifndef UMD_SYNCABLE
+#define UMD_SYNCABLE            true
 #endif
 
-#ifndef UMD_REAUTH
-#define UMD_REAUTH              true
+#ifndef UMD_REAUTHABLE
+#define UMD_REAUTHABLE          true
+#endif
+
+#ifndef UMD_FAKEABLE
+#define UMD_FAKEABLE            true
 #endif
 
 #ifndef UMD_CONF
@@ -420,8 +424,8 @@ struct um_config {
     char *script_getmacbyip;
     char *script_getipbymac;
 
-    bool   sync;
-    bool   reauth;
+    bool   syncable;
+    bool   reauthable;
     uint32 autouser;
     uint32 gc;
     uint32 sniff_count;
@@ -433,8 +437,8 @@ struct um_config {
 };
 
 #define UMD_CFG_INITER                  {   \
-    .sync = UMD_SYNC,                       \
-    .reauth = UMD_REAUTH,                   \
+    .syncable = UMD_SYNCABLE,               \
+    .reauthable = UMD_REAUTHABLE,           \
     .autouser = UMD_AUTOUSER,               \
     .gc = UMD_GC,                           \
     .sniff_count = UMD_SNIFF_COUNT,         \

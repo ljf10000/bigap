@@ -94,7 +94,7 @@ handle_mac(int (*handle)(byte mac[]), char *args)
 static int
 handle_sync(char *args)
 {
-    if (umd.cfg.sync) {
+    if (umd.cfg.syncable) {
         return handle_mac_json(um_user_sync, args);
     } else {
         return -ENOSUPPORT;
@@ -186,7 +186,7 @@ handle_auth(char *args)
 static int
 handle_reauth(char *args)
 {
-    if (umd.cfg.reauth) {
+    if (umd.cfg.reauthable) {
         return handle_mac(um_user_reauth, args);
     } else {
         return -ENOSUPPORT;
@@ -343,7 +343,11 @@ handle_tag(char *args)
 static int
 handle_gc(char *args)
 {
-    return um_user_foreach(umd_gc, true);
+    if (umd.cfg.gc) {
+        return um_user_foreach(umd_gc, true);
+    } else {
+        return -ENOSUPPORT;
+    }
 }
 
 static cli_table_t cli_table[] = {

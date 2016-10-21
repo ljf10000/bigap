@@ -56,15 +56,15 @@ init_cfg_script_getmacbyip(jobj_t jcfg)
 }
 
 static int
-init_cfg_sync(jobj_t jcfg)
+init_cfg_syncable(jobj_t jcfg)
 {
-    return init_jcfg_bool(jcfg, sync);
+    return init_jcfg_bool(jcfg, syncable);
 }
 
 static int
-init_cfg_reauth(jobj_t jcfg)
+init_cfg_reauthable(jobj_t jcfg)
 {
-    return init_jcfg_bool(jcfg, reauth);
+    return init_jcfg_bool(jcfg, reauthable);
 }
 
 static int
@@ -278,8 +278,8 @@ int init_cfg(void)
         init_cfg_script_event,
         init_cfg_script_getipbymac,
         init_cfg_script_getmacbyip,
-        init_cfg_sync,
-        init_cfg_reauth,
+        init_cfg_syncable,
+        init_cfg_reauthable,
         init_cfg_gc,
         init_cfg_sniff_count,
         init_cfg_ticks,
