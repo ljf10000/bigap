@@ -426,7 +426,7 @@ blob_vgetby(blob_t *blob, const char *fmt, va_list args)
     char *p = (char *)fmt;
     while(*p) {
         if ('%' != *p++) {
-            debug_blob("bad format:%s", fmt);
+            debug_format("bad format:%s", fmt);
             
             return NULL;
         }
@@ -443,7 +443,7 @@ blob_vgetby(blob_t *blob, const char *fmt, va_list args)
 
                 break;
             default:
-                debug_blob("bad format:%s", fmt);
+                debug_format("bad format:%s", fmt);
                 
                 return NULL;
         }
@@ -556,7 +556,7 @@ __blob_dump(const blob_t *blob, int level)
 static inline void
 blob_dump(const blob_t *blob)
 {
-    if (__is_ak_debug_blob) {
+    if (__is_ak_debug_format) {
         __blob_dump(blob, 0);
     }
 }
@@ -802,7 +802,7 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
     
     uint32 size = blob_size(&tmp);
 
-    if (__is_ak_debug_trace && __is_ak_debug_blob) {
+    if (__is_ak_debug_trace && __is_ak_debug_format) {
         os_printf("blob_new" __crlf
             __tab "slice(size=%u, used=%u, remain=%u)" __crlf
             __tab "blob(type=%s, name=%s, payload=%u, size=%u)" __crlf, 
@@ -871,7 +871,7 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
         return NULL;
 	}
 
-    if (__is_ak_debug_trace && __is_ak_debug_blob) {
+    if (__is_ak_debug_trace && __is_ak_debug_format) {
         __blob_dump_slice(slice, "blob nest begin");
 	}
 
@@ -894,7 +894,7 @@ __blob_nest_end(slice_t *slice, void *cookie)
 	root = blob_root(slice);
 	blob_vlen(root) += size;
 
-    if (__is_ak_debug_trace && __is_ak_debug_blob) {
+    if (__is_ak_debug_trace && __is_ak_debug_format) {
         os_printf("blob nest end" __crlf
             __tab "slice(size=%u, used=%u, remain=%u)" __crlf
             __tab "root(added=%u, vlen=%u)" __crlf, 
@@ -948,7 +948,7 @@ blob_put(
 	    }
 	}
 	
-    if (__is_ak_debug_trace && __is_ak_debug_blob) {
+    if (__is_ak_debug_trace && __is_ak_debug_format) {
         __blob_dump_slice(slice, "blob_put");
 	}
 

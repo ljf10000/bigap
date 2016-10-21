@@ -321,7 +321,7 @@ const
 		}
 	};
 
-	global.debug_st = function(mod) {
+	global.debug_statistics = function(mod) {
 		if (is_debug(mod, pt.ST)) {
 			__my__.debug(slice.call(arguments).slice(1).toString());
 		}

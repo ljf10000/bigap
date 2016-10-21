@@ -322,7 +322,7 @@
 "}\n" \
 "};\n" \
 "\n" \
-"global.debug_st = function(mod) {\n" \
+"global.debug_statistics = function(mod) {\n" \
 "if (is_debug(mod, pt.ST)) {\n" \
 "__my__.debug(slice.call(arguments).slice(1).toString());\n" \
 "}\n" \

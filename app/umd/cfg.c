@@ -20,7 +20,7 @@ extern cli_server_t um_timer_server;
     jobj_t jobj = jobj_get(_jcfg, #_field); \
     if (jobj) { \
         umd.cfg._field = os_strdup(jobj_get_string(jobj)); \
-        debug_cfg(#_field "=%d", umd.cfg._field); \
+        debug_config(#_field "=%d", umd.cfg._field); \
     } \
     0; \
 })  /* end */
@@ -29,7 +29,7 @@ extern cli_server_t um_timer_server;
     jobj_t jobj = jobj_get(_jcfg, #_field); \
     if (jobj) { \
         umd.cfg._field = jobj_get_##_type(jobj); \
-        debug_cfg(#_field "=%d", umd.cfg._field); \
+        debug_config(#_field "=%d", umd.cfg._field); \
     } \
     0; \
 })  /* end */
@@ -122,7 +122,7 @@ init_cfg_intf_pre(int count)
     umd.cfg.instance.intf = intf;
     umd.cfg.instance.count = count;
 
-    debug_cfg("intf count %d", count);
+    debug_config("intf count %d", count);
     
     return 0;
 }
@@ -159,7 +159,7 @@ init_cfg_intf_post(void)
             return err;
         }
 #endif
-        debug_cfg("init intf %s", intf->name);
+        debug_config("init intf %s", intf->name);
     }
 
     return 0;
@@ -172,17 +172,17 @@ init_cfg_server(int count)
     int i;
     
     umd.server_count = count + UM_SERVER_FLOW;
-    debug_cfg("server count %d", umd.server_count);
+    debug_config("server count %d", umd.server_count);
     
     server = (cli_server_t **)os_zalloc(umd.server_count*sizeof(cli_server_t *));
     if (NULL==server) {
         return -ENOMEM;
     }
     server[UM_SERVER_TIMER] = &um_timer_server;
-    debug_cfg("setup timer server");
+    debug_config("setup timer server");
     
     server[UM_SERVER_CLI]   = &um_cli_server;
-    debug_cfg("setup cli server");
+    debug_config("setup cli server");
     
     for (i=UM_SERVER_FLOW; i<umd.server_count; i++) {
         server[i] = (cli_server_t *)os_zalloc(sizeof(cli_server_t));
@@ -191,7 +191,7 @@ init_cfg_server(int count)
         }
         os_objcpy(server[i], &um_flow_server);
         server[i]->id = i;
-        debug_cfg("setup flow server[%d]", i);
+        debug_config("setup flow server[%d]", i);
     }
 
     umd.server = server;
@@ -210,7 +210,7 @@ __init_cfg_instance(jobj_t jinstance, int id)
         
         os_strdcpy(intf->name, ifname);
 
-        debug_cfg("ingress=%s", ifname);
+        debug_config("ingress=%s", ifname);
     }
 
     return 0;

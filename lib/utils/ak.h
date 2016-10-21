@@ -82,36 +82,36 @@ typedef uint32 akid_t;
 DECLARE_FAKE_DEBUGGER;
 DECLARE_FAKE_JDEBUGGER;
 /******************************************************************************/
-#define __XLIST_AK_DEBUG(_)                 \
-    _(____ak_debug_ok,      0, "ok"),       \
-    _(____ak_debug_bug,     1, "bug"),      \
-    _(____ak_debug_error,   2, "error"),    \
-    _(____ak_debug_trace,   3, "trace"),    \
-    _(____ak_debug_init,    4, "init"),     \
-    _(____ak_debug_config,  5, "config"),   \
-    _(____ak_debug_lib,     6, "lib"),      \
-    _(____ak_debug_io,      7, "io"),       \
-    _(____ak_debug_timer,   8, "timer"),    \
-    _(____ak_debug_timeout, 9, "timeout"),  \
-    _(____ak_debug_aging,   10,"aging"),    \
-    _(____ak_debug_event,   11,"event"),    \
-    _(____ak_debug_entry,   12,"entry"),    \
-    _(____ak_debug_packet,  13,"packet"),   \
-    _(____ak_debug_proto,   14,"proto"),    \
-    _(____ak_debug_flow,    15,"flow"),     \
-    _(____ak_debug_file,    16,"file"),     \
-    _(____ak_debug_signal,  17,"signal"),   \
-    _(____ak_debug_shell,   18,"shell"),    \
-    _(____ak_debug_st,      19,"st"),       \
-    _(____ak_debug_gc,      20,"gc"),       \
-    _(____ak_debug_js,      21,"js"),       \
-    _(____ak_debug_blob,    22,"blob"),     \
-    _(____ak_debug_json,    23,"json"),     \
-    _(____ak_debug_cli,     24,"cli"),      \
-    _(____ak_debug_crc,     25,"crc"),      \
-    _(____ak_debug_cfg,     26,"cfg"),      \
-    _(____ak_debug_r3,      27,"r3"),       \
-    _(____ak_debug_test,    28,"test"),     \
+#define __XLIST_AK_DEBUG(_)                     \
+    _(____ak_debug_ok,          0, "ok"),       \
+    _(____ak_debug_bug,         1, "bug"),      \
+    _(____ak_debug_error,       2, "error"),    \
+    _(____ak_debug_trace,       3, "trace"),    \
+    _(____ak_debug_init,        4, "init"),     \
+    _(____ak_debug_config,      5, "config"),   \
+    _(____ak_debug_lib,         6, "lib"),      \
+    _(____ak_debug_io,          7, "io"),       \
+    _(____ak_debug_timer,       8, "timer"),    \
+    _(____ak_debug_timeout,     9, "timeout"),  \
+    _(____ak_debug_aging,       10,"aging"),    \
+    _(____ak_debug_event,       11,"event"),    \
+    _(____ak_debug_entry,       12,"entry"),    \
+    _(____ak_debug_packet,      13,"packet"),   \
+    _(____ak_debug_proto,       14,"proto"),    \
+    _(____ak_debug_flow,        15,"flow"),     \
+    _(____ak_debug_file,        16,"file"),     \
+    _(____ak_debug_signal,      17,"signal"),   \
+    _(____ak_debug_shell,       18,"shell"),    \
+    _(____ak_debug_gc,          19,"gc"),       \
+    _(____ak_debug_js,          20,"js"),       \
+    _(____ak_debug_format,      21,"format"),   \
+    _(____ak_debug_cli,         22,"cli"),      \
+    _(____ak_debug_r0,          23,"r0"),       \
+    _(____ak_debug_r1,          24,"r1"),       \
+    _(____ak_debug_r2,          25,"r2"),       \
+    _(____ak_debug_r3,          26,"r3"),       \
+    _(____ak_debug_r4,          27,"r4"),       \
+    _(____ak_debug_test,        28,"test"),     \
     /* end */
     /* 29/30/31 reserved for log pri */
 
@@ -121,36 +121,32 @@ static inline int ak_DEBUG_idx(char *name);
 DECLARE_ENUM(ak_DEBUG, __XLIST_AK_DEBUG, ____ak_debug_end);
 
 enum {
-    __ak_debug_ok       = os_bit(____ak_debug_ok),
-    __ak_debug_bug      = os_bit(____ak_debug_bug),
-    __ak_debug_error    = os_bit(____ak_debug_error),
-    __ak_debug_trace    = os_bit(____ak_debug_trace),
-    __ak_debug_init     = os_bit(____ak_debug_init),
-    __ak_debug_config   = os_bit(____ak_debug_config),
-    __ak_debug_lib      = os_bit(____ak_debug_lib),
-    __ak_debug_io       = os_bit(____ak_debug_io),
-    __ak_debug_timer    = os_bit(____ak_debug_timer),
-    __ak_debug_timeout  = os_bit(____ak_debug_timeout),
-    __ak_debug_aging    = os_bit(____ak_debug_aging),
-    __ak_debug_event    = os_bit(____ak_debug_event),
-    __ak_debug_entry    = os_bit(____ak_debug_entry),
-    __ak_debug_packet   = os_bit(____ak_debug_packet),
-    __ak_debug_proto    = os_bit(____ak_debug_proto),
-    __ak_debug_flow     = os_bit(____ak_debug_flow),
-    __ak_debug_file     = os_bit(____ak_debug_file),
-    __ak_debug_signal   = os_bit(____ak_debug_signal),
-    __ak_debug_shell    = os_bit(____ak_debug_shell),
-    __ak_debug_st       = os_bit(____ak_debug_st),
-    __ak_debug_gc       = os_bit(____ak_debug_gc),
-    __ak_debug_js       = os_bit(____ak_debug_js),
-    __ak_debug_blob     = os_bit(____ak_debug_blob),
-    __ak_debug_json     = os_bit(____ak_debug_json),
-    __ak_debug_cli      = os_bit(____ak_debug_cli),
-    __ak_debug_crc      = os_bit(____ak_debug_crc),
-    __ak_debug_cfg      = os_bit(____ak_debug_cfg),
-    __ak_debug_test     = os_bit(____ak_debug_test),
+    __ak_debug_ok           = os_bit(____ak_debug_ok),
+    __ak_debug_bug          = os_bit(____ak_debug_bug),
+    __ak_debug_error        = os_bit(____ak_debug_error),
+    __ak_debug_trace        = os_bit(____ak_debug_trace),
+    __ak_debug_init         = os_bit(____ak_debug_init),
+    __ak_debug_config       = os_bit(____ak_debug_config),
+    __ak_debug_lib          = os_bit(____ak_debug_lib),
+    __ak_debug_io           = os_bit(____ak_debug_io),
+    __ak_debug_timer        = os_bit(____ak_debug_timer),
+    __ak_debug_timeout      = os_bit(____ak_debug_timeout),
+    __ak_debug_aging        = os_bit(____ak_debug_aging),
+    __ak_debug_event        = os_bit(____ak_debug_event),
+    __ak_debug_entry        = os_bit(____ak_debug_entry),
+    __ak_debug_packet       = os_bit(____ak_debug_packet),
+    __ak_debug_proto        = os_bit(____ak_debug_proto),
+    __ak_debug_flow         = os_bit(____ak_debug_flow),
+    __ak_debug_file         = os_bit(____ak_debug_file),
+    __ak_debug_signal       = os_bit(____ak_debug_signal),
+    __ak_debug_shell        = os_bit(____ak_debug_shell),
+    __ak_debug_gc           = os_bit(____ak_debug_gc),
+    __ak_debug_js           = os_bit(____ak_debug_js),
+    __ak_debug_format       = os_bit(____ak_debug_format),
+    __ak_debug_cli          = os_bit(____ak_debug_cli),
+    __ak_debug_test         = os_bit(____ak_debug_test),
 
-    __ak_debug_all      = os_mask(____ak_debug_end),
+    __ak_debug_all          = os_mask(____ak_debug_end),
 };
 
 #ifndef __ak_debug_default
@@ -226,14 +222,10 @@ __ak_debug_getname(uint32 level)
 #define __is_ak_debug_file      __is_ak_debug(__ak_debug_file)
 #define __is_ak_debug_signal    __is_ak_debug(__ak_debug_signal)
 #define __is_ak_debug_shell     __is_ak_debug(__ak_debug_shell)
-#define __is_ak_debug_st        __is_ak_debug(__ak_debug_st)
 #define __is_ak_debug_gc        __is_ak_debug(__ak_debug_gc)
 #define __is_ak_debug_js        __is_ak_debug(__ak_debug_js)
-#define __is_ak_debug_blob      __is_ak_debug(__ak_debug_blob)
-#define __is_ak_debug_json      __is_ak_debug(__ak_debug_json)
+#define __is_ak_debug_format    __is_ak_debug(__ak_debug_format)
 #define __is_ak_debug_cli       __is_ak_debug(__ak_debug_cli)
-#define __is_ak_debug_crc       __is_ak_debug(__ak_debug_crc)
-#define __is_ak_debug_cfg       __is_ak_debug(__ak_debug_cfg)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
 #if 1
