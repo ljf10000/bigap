@@ -1192,7 +1192,10 @@ jobj_t um_juser(struct um_user *user)
 {
     jobj_t obj = jobj_new_object();
 
-    jobj_add_string(obj, "mac",     os_macstring(user->mac));
+    jobj_add_string(obj, "mac",             os_macstring(user->mac));
+    jobj_add_string(obj, "bssid_first",     os_macstring(user->bssid_first));
+    jobj_add_string(obj, "bssid_current",   os_macstring(user->bssid_current));
+    jobj_add_string(obj, "ssid",    user->ssid);
     jobj_add_string(obj, "ip",      os_ipstring(user->ip));
     jobj_add_string(obj, "state",   user_state_string(user->state));
     jobj_add_string(obj, "reason",  deauth_reason_string(user->reason));
@@ -1213,8 +1216,6 @@ jobj_t um_juser(struct um_user *user)
 static void
 touser_base(struct um_user *user, jobj_t juser)
 {
-    jobj_t jobj;
-
     jj_mac(user, juser, mac);
     jj_mac(user, juser, bssid_first);
     jj_ip(user, juser, ip);
