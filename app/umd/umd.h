@@ -131,6 +131,7 @@ DECLARE_ENUM(user_auto, __XLIST_UM_AUTO, UM_AUTO_END);
     _(UM_STATE_BIND, 1, "bind"),    \
     _(UM_STATE_FAKE, 2, "fake"),    \
     _(UM_STATE_AUTH, 3, "auth"),    \
+    _(UM_STATE_BLOCK,4, "block"),   \
     /* end */
 
 static inline bool is_good_user_state(int id);
@@ -142,6 +143,7 @@ DECLARE_ENUM(user_state, __XLIST_UM_STATE, UM_STATE_END);
 #define UM_STATE_BIND   UM_STATE_BIND
 #define UM_STATE_FAKE   UM_STATE_FAKE
 #define UM_STATE_AUTH   UM_STATE_AUTH
+#define UM_STATE_BLOCK  UM_STATE_BLOCK
 #define UM_STATE_END    UM_STATE_END
 #endif
 
@@ -149,6 +151,7 @@ DECLARE_ENUM(user_state, __XLIST_UM_STATE, UM_STATE_END);
 #define __is_bind(_state)   (UM_STATE_BIND==(_state))
 #define __is_fake(_state)   (UM_STATE_FAKE==(_state))
 #define __is_auth(_state)   (UM_STATE_AUTH==(_state))
+#define __is_block(_state)  (UM_STATE_BLOCK==(_state))
 #define __have_auth(_state) (__is_fake(_state) || __is_auth(_state))
 #define __have_bind(_state) (__is_bind(_state) || __have_auth(_state))
 
@@ -156,6 +159,7 @@ DECLARE_ENUM(user_state, __XLIST_UM_STATE, UM_STATE_END);
 #define is_bind(_user)      __is_bind((_user)->state)
 #define is_fake(_user)      __is_fake((_user)->state)
 #define is_auth(_user)      __is_auth((_user)->state)
+#define is_block(_user)     __is_block((_user)->state)
 #define is_noused(_user)    (__is_none((_user)->state) && 0==(_user)->flags)
 #define have_auth(_user)    __have_auth((_user)->state)
 #define have_bind(_user)    __have_bind((_user)->state)
@@ -169,6 +173,7 @@ DECLARE_ENUM(user_state, __XLIST_UM_STATE, UM_STATE_END);
     _(UM_DEAUTH_ADMIN,      4, "admin"),        \
     _(UM_DEAUTH_AGING,      5, "aging"),        \
     _(UM_DEAUTH_INITIATIVE, 6, "initiative"),   \
+    _(UM_DEAUTH_BLOCK,      7, "block"),        \
     /* end */
 
 static inline bool is_good_deauth_reason(int id);
@@ -183,6 +188,7 @@ DECLARE_ENUM(deauth_reason, __XLIST_UM_DEAUTH, UM_DEAUTH_END);
 #define UM_DEAUTH_ADMIN         UM_DEAUTH_ADMIN
 #define UM_DEAUTH_AGING         UM_DEAUTH_AGING
 #define UM_DEAUTH_INITIATIVE    UM_DEAUTH_INITIATIVE
+#define UM_DEAUTH_BLOCK         UM_DEAUTH_BLOCK
 #define UM_DEAUTH_END           UM_DEAUTH_END
 #endif
 
@@ -663,14 +669,17 @@ um_tag_get(byte mac[], char *k);
 extern struct um_tag *
 um_tag_set(byte mac[], char *k, char *v);
 
-extern int
-um_user_delete(byte mac[]);
-
 extern struct um_user *
 um_user_create(byte mac[]);
 
-extern struct um_user *
-um_user_sync(byte mac[], jobj_t obj);
+extern int
+um_user_delete(byte mac[]);
+
+extern int
+um_user_block(byte mac[]);
+
+extern int
+um_user_unblock(byte mac[]);
 
 extern struct um_user *
 um_user_bind(byte mac[], uint32 ip);
@@ -688,10 +697,13 @@ extern struct um_user *
 um_user_auth(byte mac[], int group, jobj_t obj);
 
 extern int
-um_user_reauth(byte mac[]);
+um_user_deauth(byte mac[], int reason);
 
 extern int
-um_user_deauth(byte mac[], int reason);
+um_user_reauth(byte mac[]);
+
+extern struct um_user *
+um_user_sync(byte mac[], jobj_t obj);
 
 extern int
 um_user_foreach(um_foreach_f *foreach, bool safe);

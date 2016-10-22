@@ -118,6 +118,18 @@ __ev(struct um_user *user, char *action)
     return 0;
 }
 
+static int
+__ev_call(event_cb_t *ev, struct um_user *user, char *action)
+{
+    int err = 0;
+    
+    if (ev) {
+        err = (*ev)(user, action);
+    }
+
+    return err;
+}
+
 static inline hash_idx_t
 hashmac(byte mac[])
 {
@@ -477,11 +489,26 @@ __set_state(struct um_user *user, int state)
     user->state = state;
 }
 
+
 static void
 __user_debug(char *tag, struct um_user *user)
 {
     um_user_debug(tag, user, __is_ak_debug_entry && __is_ak_debug_event);
 }
+
+#define __user_debug_before(_tag, _user) \
+    __user_debug("before-user-" _tag, _user)
+
+#define __user_debug_after(_tag, _user) \
+    __user_debug("after-user-" _tag, _user)
+
+#define ev_call(_ev, _user)     __ev_call(_ev, _user, _tag)
+
+#define __user_debug_call(_tag, _user, _body)   do{ \
+    __user_debug("before-user-" _tag, _user);       \
+    _body                                           \
+    __user_debug("after-user-" _tag, _user);        \
+}while(0)
 
 static int
 __user_delete(struct um_user *user, event_cb_t *ev)
@@ -490,16 +517,13 @@ __user_delete(struct um_user *user, event_cb_t *ev)
         return -ENOEXIST;
     }
 
-    __user_debug("before-user-delete", user);
-    
-    if (ev) {
-        (*ev)(user, "delete");
-    }
-    
-    tag_clear(user);
-    __user_remove(user);
-    os_free(user);
-    
+    __user_debug_call("delete", user, {
+        ev_call(ev, user);
+        tag_clear(user);
+        __user_remove(user);
+        os_free(user);
+    });
+
     return 0;
 }
 
@@ -516,17 +540,15 @@ __user_create(byte mac[], event_cb_t *ev)
     
     INIT_LIST_HEAD(&user->head.tag);
 
+#define USERACTION "create"
     __set_state(user, UM_STATE_NONE);
     lan_online(user);
     user->create = user->noused = time(NULL);
-
     __user_insert(user);
-
-    if (ev) {
-        (*ev)(user, "create");
-    }
-
-    __user_debug("after-user-create", user);
+    __ev_call(ev, user, USERACTION);
+    
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
     
     return user;
 }
@@ -540,29 +562,19 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *ev)
     else if (false==is_auth(user)) {
         return 0;
     }
-
-    __user_debug("before-user-deauth", user);
-    /*
-    * 1. save reason
-    * 2. callback
-    * 3. deauth
-    */
-    __set_reason(user, reason);
-
-    if (ev) {
-        (*ev)(user, "deauth");
-    }
     
-    /*
-    * auth==>bind
-    */
+#define USERACTION "deauth"
+    __user_debug_before(USERACTION, user);
+    
+    __set_reason(user, reason);
+    __ev_call(ev, user, USERACTION);
     __set_state(user, UM_STATE_BIND);
     __set_group(user, 0);
-    
     wan_offline(user);
-
-    __user_debug("after-user-deauth", user);
     
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
+
     return 0;
 }
 
@@ -571,28 +583,22 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
 {
     int err = 0;
 
-    if (is_auth(user)) {
-        __user_deauth(user, reason, __ev);
-    }
+    __user_deauth(user, reason, __ev);
     
     if (false==is_fake(user)) {
         return 0;
     }
-
-    __user_debug("before-user-unfake", user);
     
-    if (ev) {
-        (*ev)(user, "unfake");
-    }
-
-    /*
-    * fake==>bind
-    */
+#define USERACTION "unfake"
+    __user_debug_before(USERACTION, user);
+    
+    __ev_call(ev, user, USERACTION);
     __set_state(user, UM_STATE_BIND);
     wan_offline(user);
     
-    __user_debug("after-user-unfake", user);
-    
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
+
     return 0;
 }
 
@@ -601,53 +607,63 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
 {
     int err = 0;
 
-    if (is_auth(user)) {
-        __user_deauth(user, reason, __ev);
-    } else if (is_fake(user)) {
-        __user_unfake(user, reason, __ev);
-    }
+    __user_unfake(user, reason, __ev);
     
     if (false==is_bind(user)) {
         return 0;
     }
-
-    __user_debug("before-user-unbind", user);
     
-    /*
-    * 1. save reason
-    * 2. callback
-    * 3. unbind
-    */
+#define USERACTION "unbind"
+    __user_debug_before(USERACTION, user);
+    
     __set_reason(user, reason);
-
-    if (ev) {
-        (*ev)(user, "unbind");
-    }
-
-    /*
-    * bind==>none
-    */
+    __ev_call(ev, user, USERACTION);
     __set_ip(user, 0);
     __set_state(user, UM_STATE_NONE);
     lan_offline(user);
 
-    __user_debug("after-user-unbind", user);
-    
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
+
     return 0;
 }
 
 static struct um_user *
-__user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
+__user_block(struct um_user *user, event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
     }
 
-    um_touser(user, obj);
+    __user_unbind(user, UM_DEAUTH_BLOCK, __ev);
+    
+#define USERACTION "block"
+    __user_debug_before(USERACTION, user);
 
-    if (ev) {
-        (*ev)(user, "sync");
+    __ev_call(ev, user, USERACTION);
+    __set_state(user, UM_STATE_BLOCK);
+
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
+
+    return user;
+}
+
+static struct um_user *
+__user_unblock(struct um_user *user, event_cb_t *ev)
+{
+    if (NULL==user) {
+        return NULL;
     }
+    
+#define USERACTION "unblock"
+    __user_debug_before(USERACTION, user);
+
+    __set_state(user, UM_STATE_NONE);
+    __ev_call(ev, user, USERACTION);
+
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
 
     return user;
 }
@@ -662,27 +678,22 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
     if (have_bind(user)) {
         if (ip==user->ip) {
             return user;
-        }
-        
+        } 
+
         __user_unbind(user, UM_DEAUTH_AUTO, __ev);
     }
+    
+#define USERACTION "bind"
+    __user_debug_before(USERACTION, user);
 
-    __user_debug("before-user-bind", user);
-
-    /*
-    * 1. unbind
-    * 2. callback
-    */
     __set_ip(user, ip);
     __set_state(user, UM_STATE_BIND);
     lan_online(user);
     update_aging(user, true);
+    __ev_call(ev, user, USERACTION);
 
-    if (ev) {
-        (*ev)(user, "bind");
-    }
-
-    __user_debug("after-user-bind", user);
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
 
     return user;
 }
@@ -695,26 +706,30 @@ __user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
     }
 
     if (have_auth(user)) {
-        __user_unfake(user, UM_DEAUTH_AUTO, __ev);
+        if (ip==user->ip) {
+            return user;
+        } 
+
+        __user_unbind(user, UM_DEAUTH_AUTO, __ev);
     }
+    else if (is_bind(user)) {
+        if (ip!=user->ip) {
+            __user_unbind(user, UM_DEAUTH_AUTO, __ev);
+        }
+    }
+    
+#define USERACTION "fake"
+    __user_debug_before(USERACTION, user);
 
-    __user_debug("before-user-fake", user);
-
-    /*
-    * 1. unbind
-    * 2. callback
-    */
     __set_ip(user, ip);
     __set_state(user, UM_STATE_FAKE);
     lan_online(user);
     update_aging(user, true);
     user->faketime = time(NULL);
+    __ev_call(ev, user, USERACTION);
     
-    if (ev) {
-        (*ev)(user, "fake");
-    }
-
-    __user_debug("after-user-fake", user);
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
 
     return user;
 }
@@ -728,14 +743,14 @@ __user_reauth(struct um_user *user, event_cb_t *ev)
     else if (false==is_auth(user)) {
         return 0;
     }
+    
+#define USERACTION "reauth"
+    __user_debug_before(USERACTION, user);
 
-    __user_debug("before-user-reauth", user);
+    __ev_call(ev, user, USERACTION);
 
-    if (ev) {
-        (*ev)(user, "reauth");
-    }
-
-    __user_debug("after-user-reauth", user);
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
 
     return 0;
 }
@@ -766,25 +781,39 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
             __user_bind(user, inet_addr(ipaddress), __ev);
         }
     }
+    
+#define USERACTION "auth"
+    __user_debug_before(USERACTION, user);
 
-    __user_debug("before-user-auth", user);
-
-    /*
-    * bind==>auth
-    */
     __set_state(user, UM_STATE_AUTH);
     __set_group(user, group);
     __set_reason(user, UM_DEAUTH_NONE);
-    
     update_limit(user, obj);
     wan_online(user);
     update_aging(user, true);
+    __ev_call(ev, user, USERACTION);
     
-    if (ev) {
-        (*ev)(user, "auth");
-    }
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
 
-    __user_debug("after-user-auth", user);
+    return user;
+}
+
+static struct um_user *
+__user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
+{
+    if (NULL==user) {
+        return NULL;
+    }
+    
+#define USERACTION "sync"
+    __user_debug_before(USERACTION, user);
+
+    um_touser(user, obj);
+    __ev_call(ev, user, USERACTION);
+    
+    __user_debug_after(USERACTION, user);
+#undef USERACTION
 
     return user;
 }
@@ -832,9 +861,14 @@ int user_delete(struct um_user *user)
 }
 
 static struct um_user *
-user_sync(struct um_user *user, jobj_t obj)
+user_block(struct um_user *user)
 {
-    return __user_sync(user, obj, __ev);
+    return __user_block(user, __ev);
+}
+
+int user_unblock(struct um_user *user)
+{
+    return __user_unblock(user, __ev);
 }
 
 static struct um_user *
@@ -873,11 +907,6 @@ user_auth(struct um_user *user, int group, jobj_t obj)
     return __user_auth(user, group, obj, __ev);
 }
 
-int user_reauth(struct um_user *user)
-{
-    return __user_reauth(user, __ev);
-}
-
 int user_deauth(struct um_user *user, int reason)
 {
     if (is_valid_deauth_reason(reason)) {
@@ -885,6 +914,17 @@ int user_deauth(struct um_user *user, int reason)
     } else {
         return -EBADREASON;
     }
+}
+
+int user_reauth(struct um_user *user)
+{
+    return __user_reauth(user, __ev);
+}
+
+static struct um_user *
+user_sync(struct um_user *user, jobj_t obj)
+{
+    return __user_sync(user, obj, __ev);
 }
 
 static int
@@ -928,9 +968,14 @@ um_user_create(byte mac[])
 }
 
 struct um_user *
-um_user_sync(byte mac[], jobj_t obj)
+um_user_block(byte mac[])
 {
-    return user_sync(um_user_create(mac), obj);
+    return user_block(um_user_create(mac));
+}
+
+int um_user_unblock(byte mac[])
+{
+    return user_unblock(user_get(mac));
 }
 
 struct um_user *
@@ -961,14 +1006,20 @@ um_user_auth(byte mac[], int group, jobj_t obj)
     return user_auth(um_user_create(mac), group, obj);
 }
 
+int um_user_deauth(byte mac[], int reason)
+{
+    return user_deauth(user_get(mac), reason);
+}
+
 int um_user_reauth(byte mac[])
 {
     return user_reauth(user_get(mac));
 }
 
-int um_user_deauth(byte mac[], int reason)
+struct um_user *
+um_user_sync(byte mac[], jobj_t obj)
 {
-    return user_deauth(user_get(mac), reason);
+    return user_sync(um_user_create(mac), obj);
 }
 
 int um_user_foreach(um_foreach_f *foreach, bool safe)

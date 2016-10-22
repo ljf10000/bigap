@@ -89,16 +89,46 @@ handle_mac(int (*handle)(byte mac[]), char *args)
 }
 
 /*
-* sync {mac} {json}
+* create {mac}
 */
 static int
-handle_sync(char *args)
+handle_create(char *args)
 {
-    if (umd.cfg.syncable) {
-        return handle_mac_json(um_user_sync, args);
-    } else {
-        return -ENOSUPPORT;
+    int create(byte mac[])
+    {
+        struct um_user *user = um_user_create(mac);
+        
+        return user?0:-ENOMEM;
     }
+    
+    return handle_mac(um_user_create, args);
+}
+
+/*
+* delete {mac}
+*/
+static int
+handle_delete(char *args)
+{
+    return handle_mac(um_user_delete, args);
+}
+
+/*
+* block {mac}
+*/
+static int
+handle_block(char *args)
+{
+    return handle_mac(um_user_block, args);
+}
+
+/*
+* unblock {mac}
+*/
+static int
+handle_unblock(char *args)
+{
+    return handle_mac(um_user_unblock, args);
 }
 
 /*
@@ -181,19 +211,6 @@ handle_auth(char *args)
 }
 
 /*
-* reauth {mac}
-*/
-static int
-handle_reauth(char *args)
-{
-    if (umd.cfg.reauthable) {
-        return handle_mac(um_user_reauth, args);
-    } else {
-        return -ENOSUPPORT;
-    }
-}
-
-/*
 * deauth {mac}
 */
 static int
@@ -207,6 +224,19 @@ handle_deauth(char *args)
     }
     
     return handle_mac(deauth, args);
+}
+
+/*
+* reauth {mac}
+*/
+static int
+handle_reauth(char *args)
+{
+    if (umd.cfg.reauthable) {
+        return handle_mac(um_user_reauth, args);
+    } else {
+        return -ENOSUPPORT;
+    }
 }
 
 static mv_t
@@ -309,6 +339,19 @@ handle_show(char *args)
 }
 
 /*
+* sync {mac} {json}
+*/
+static int
+handle_sync(char *args)
+{
+    if (umd.cfg.syncable) {
+        return handle_mac_json(um_user_sync, args);
+    } else {
+        return -ENOSUPPORT;
+    }
+}
+
+/*
 * tag {mac} {key} [value]
 */
 static int
@@ -351,14 +394,23 @@ handle_gc(char *args)
 }
 
 static cli_table_t cli_table[] = {
-    CLI_ENTRY("sync",   handle_sync),
+    CLI_ENTRY("create", handle_create),
+    CLI_ENTRY("delete", handle_delete),
+    
+    CLI_ENTRY("block",  handle_block),
+    CLI_ENTRY("unblock",handle_unblock),
+    
     CLI_ENTRY("bind",   handle_bind),
     CLI_ENTRY("unbind", handle_unbind),
-    CLI_ENTRY("bind",   handle_fake),
-    CLI_ENTRY("unbind", handle_unfake),
+    
+    CLI_ENTRY("fake",   handle_fake),
+    CLI_ENTRY("unfake", handle_unfake),
+    
     CLI_ENTRY("auth",   handle_auth),
     CLI_ENTRY("deauth", handle_deauth),
     CLI_ENTRY("reauth", handle_reauth),
+    
+    CLI_ENTRY("sync",   handle_sync),
     CLI_ENTRY("show",   handle_show),
     CLI_ENTRY("tag",    handle_tag),
     CLI_ENTRY("gc",     handle_gc),

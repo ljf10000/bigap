@@ -116,13 +116,39 @@ umc_handle_mac(char *action, int argc, char *argv[])
 }
 
 /*
-* sync {mac} {json}
+* create {mac}
 */
 static int
-cmd_sync(int argc, char *argv[])
+cmd_create(int argc, char *argv[])
 {
-    
-    return umc_handle_mac_json("sync", argc, argv);
+    return umc_handle_mac("create", argc, argv);
+}
+
+/*
+* delete {mac}
+*/
+static int
+cmd_delete(int argc, char *argv[])
+{
+    return umc_handle_mac("delete", argc, argv);
+}
+
+/*
+* block {mac}
+*/
+static int
+cmd_block(int argc, char *argv[])
+{
+    return umc_handle_mac("block", argc, argv);
+}
+
+/*
+* unblock {mac}
+*/
+static int
+cmd_unblock(int argc, char *argv[])
+{
+    return umc_handle_mac("unblock", argc, argv);
 }
 
 /*
@@ -189,21 +215,21 @@ cmd_auth(int argc, char *argv[])
 }
 
 /*
-* reauth {mac}
-*/
-static int
-cmd_reauth(int argc, char *argv[])
-{
-    return umc_handle_mac("reauth", argc, argv);
-}
-
-/*
 * deauth {mac}
 */
 static int
 cmd_deauth(int argc, char *argv[])
 {
     return umc_handle_mac("deauth", argc, argv);
+}
+
+/*
+* reauth {mac}
+*/
+static int
+cmd_reauth(int argc, char *argv[])
+{
+    return umc_handle_mac("reauth", argc, argv);
 }
 
 static int
@@ -219,6 +245,16 @@ show_by(int argc, char *argv[])
         
         return -EFORMAT;
     }
+}
+
+/*
+* sync {mac} {json}
+*/
+static int
+cmd_sync(int argc, char *argv[])
+{
+    
+    return umc_handle_mac_json("sync", argc, argv);
 }
 
 /*
@@ -280,6 +316,12 @@ static int
 command(int argc, char *argv[])
 {
     static cli_table_t table[] = {
+        CLI_ENTRY("create", cmd_create),
+        CLI_ENTRY("delete", cmd_delete),
+        
+        CLI_ENTRY("block",  cmd_block),
+        CLI_ENTRY("unblock",cmd_unblock),
+        
         CLI_ENTRY("bind",   cmd_bind),
         CLI_ENTRY("unbind", cmd_unbind),
         
@@ -288,10 +330,10 @@ command(int argc, char *argv[])
         
         CLI_ENTRY("auth",   cmd_auth),
         CLI_ENTRY("reauth", cmd_reauth),
-        
         CLI_ENTRY("deauth", cmd_deauth),
-        CLI_ENTRY("sync",   cmd_sync),
+        
         CLI_ENTRY("show",   cmd_show),
+        CLI_ENTRY("sync",   cmd_sync),
         CLI_ENTRY("tag",    cmd_tag),
         CLI_ENTRY("gc",     cmd_gc),
     };
