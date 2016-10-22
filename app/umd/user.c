@@ -496,9 +496,10 @@ __user_debug(char *tag, struct um_user *user)
     um_user_debug(tag, user, __is_ak_debug_entry && __is_ak_debug_event);
 }
 
-#define ev_call(_ev, _user)     __ev_call(_ev, _user, _tag)
+#define ev_call(_ev, _user)     __ev_call(_ev, _user, __user_debug_call_tag)
 
 #define __user_debug_call(_pos, _tag, _user, _body)   do{ \
+    char *__user_debug_call_tag = _tag;             \
     if (is_position_head(_pos)) {                   \
         __user_debug("before-user-" _tag, _user);   \
     }                                               \
