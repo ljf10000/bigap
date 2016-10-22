@@ -1005,10 +1005,9 @@ static inline duk_context *
 js_init(char *name, int argc, char **argv)
 {
     duk_context *ctx = NULL;
-    js_priv_t *priv = NULL;
     int err = 0;
 
-    duk_context *ctx = duk_create_heap_default();
+    ctx = duk_create_heap_default();
     if (NULL==ctx) {
         goto error;
     }
