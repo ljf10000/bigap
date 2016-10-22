@@ -27,7 +27,7 @@ __main(int argc, char *argv[])
         err = -ENOMEM; goto error;
     }
 
-    err = js_eval(ctx);
+    err = js_eval(ctx, NULL);
     if (err<0) {
         goto error;
     }
