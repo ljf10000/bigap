@@ -496,19 +496,26 @@ __user_debug(char *tag, struct um_user *user)
     um_user_debug(tag, user, __is_ak_debug_entry && __is_ak_debug_event);
 }
 
-#define __user_debug_before(_tag, _user) \
-    __user_debug("before-user-" _tag, _user)
-
-#define __user_debug_after(_tag, _user) \
-    __user_debug("after-user-" _tag, _user)
-
 #define ev_call(_ev, _user)     __ev_call(_ev, _user, _tag)
 
-#define __user_debug_call(_tag, _user, _body)   do{ \
-    __user_debug("before-user-" _tag, _user);       \
+#define __user_debug_call(_pos, _tag, _user, _body)   do{ \
+    if (is_position_head(_pos)) {                   \
+        __user_debug("before-user-" _tag, _user);   \
+    }                                               \
     _body                                           \
-    __user_debug("after-user-" _tag, _user);        \
+    if (is_position_tail(_pos)) {                   \
+        __user_debug("after-user-" _tag, _user);    \
+    }                                               \
 }while(0)
+
+#define user_debug_head_call(_tag, _user, _body) \
+    __user_debug_call(OS_POSITION_HEAD, _tag, _user, _body)
+
+#define user_debug_tail_call(_tag, _user, _body) \
+    __user_debug_call(OS_POSITION_TAIL, _tag, _user, _body)
+
+#define user_debug_call(_tag, _user, _body) \
+    __user_debug_call(OS_POSITION_ALL, _tag, _user, _body)
 
 static int
 __user_delete(struct um_user *user, event_cb_t *ev)
@@ -517,7 +524,7 @@ __user_delete(struct um_user *user, event_cb_t *ev)
         return -ENOEXIST;
     }
 
-    __user_debug_call("delete", user, {
+    user_debug_head_call("delete", user, {
         ev_call(ev, user);
         tag_clear(user);
         __user_remove(user);
@@ -540,15 +547,13 @@ __user_create(byte mac[], event_cb_t *ev)
     
     INIT_LIST_HEAD(&user->head.tag);
 
-#define USERACTION "create"
-    __set_state(user, UM_STATE_NONE);
-    lan_online(user);
-    user->create = user->noused = time(NULL);
-    __user_insert(user);
-    __ev_call(ev, user, USERACTION);
-    
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_tail_call("create", user, {
+        __set_state(user, UM_STATE_NONE);
+        lan_online(user);
+        user->create = user->noused = time(NULL);
+        __user_insert(user);
+        ev_call(ev, user);
+    });
     
     return user;
 }
@@ -563,17 +568,13 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *ev)
         return 0;
     }
     
-#define USERACTION "deauth"
-    __user_debug_before(USERACTION, user);
-    
-    __set_reason(user, reason);
-    __ev_call(ev, user, USERACTION);
-    __set_state(user, UM_STATE_BIND);
-    __set_group(user, 0);
-    wan_offline(user);
-    
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("deauth", user, {
+        __set_reason(user, reason);
+        ev_call(ev, user);
+        __set_state(user, UM_STATE_BIND);
+        __set_group(user, 0);
+        wan_offline(user);
+    });
 
     return 0;
 }
@@ -589,15 +590,11 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
         return 0;
     }
     
-#define USERACTION "unfake"
-    __user_debug_before(USERACTION, user);
-    
-    __ev_call(ev, user, USERACTION);
-    __set_state(user, UM_STATE_BIND);
-    wan_offline(user);
-    
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("unfake", user, {
+        ev_call(ev, user);
+        __set_state(user, UM_STATE_BIND);
+        wan_offline(user);
+    });
 
     return 0;
 }
@@ -613,17 +610,13 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
         return 0;
     }
     
-#define USERACTION "unbind"
-    __user_debug_before(USERACTION, user);
-    
-    __set_reason(user, reason);
-    __ev_call(ev, user, USERACTION);
-    __set_ip(user, 0);
-    __set_state(user, UM_STATE_NONE);
-    lan_offline(user);
-
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("unbind", user, {
+        __set_reason(user, reason);
+        ev_call(ev, user);
+        __set_ip(user, 0);
+        __set_state(user, UM_STATE_NONE);
+        lan_offline(user);
+    });
 
     return 0;
 }
@@ -637,14 +630,10 @@ __user_block(struct um_user *user, event_cb_t *ev)
 
     __user_unbind(user, UM_DEAUTH_BLOCK, __ev);
     
-#define USERACTION "block"
-    __user_debug_before(USERACTION, user);
-
-    __ev_call(ev, user, USERACTION);
-    __set_state(user, UM_STATE_BLOCK);
-
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("block", user, {
+        ev_call(ev, user);
+        __set_state(user, UM_STATE_BLOCK);
+    });
 
     return user;
 }
@@ -656,14 +645,10 @@ __user_unblock(struct um_user *user, event_cb_t *ev)
         return NULL;
     }
     
-#define USERACTION "unblock"
-    __user_debug_before(USERACTION, user);
-
-    __set_state(user, UM_STATE_NONE);
-    __ev_call(ev, user, USERACTION);
-
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("unblock", user, {
+        __set_state(user, UM_STATE_NONE);
+        ev_call(ev, user);
+    });
 
     return user;
 }
@@ -683,17 +668,13 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
         __user_unbind(user, UM_DEAUTH_AUTO, __ev);
     }
     
-#define USERACTION "bind"
-    __user_debug_before(USERACTION, user);
-
-    __set_ip(user, ip);
-    __set_state(user, UM_STATE_BIND);
-    lan_online(user);
-    update_aging(user, true);
-    __ev_call(ev, user, USERACTION);
-
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("bind", user, {
+        __set_ip(user, ip);
+        __set_state(user, UM_STATE_BIND);
+        lan_online(user);
+        update_aging(user, true);
+        ev_call(ev, user);
+    });
 
     return user;
 }
@@ -718,18 +699,14 @@ __user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
         }
     }
     
-#define USERACTION "fake"
-    __user_debug_before(USERACTION, user);
-
-    __set_ip(user, ip);
-    __set_state(user, UM_STATE_FAKE);
-    lan_online(user);
-    update_aging(user, true);
-    user->faketime = time(NULL);
-    __ev_call(ev, user, USERACTION);
-    
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("fake", user, {
+        __set_ip(user, ip);
+        __set_state(user, UM_STATE_FAKE);
+        lan_online(user);
+        update_aging(user, true);
+        user->faketime = time(NULL);
+        ev_call(ev, user);
+    });
 
     return user;
 }
@@ -744,13 +721,9 @@ __user_reauth(struct um_user *user, event_cb_t *ev)
         return 0;
     }
     
-#define USERACTION "reauth"
-    __user_debug_before(USERACTION, user);
-
-    __ev_call(ev, user, USERACTION);
-
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("reauth", user, {
+        ev_call(ev, user);
+    });
 
     return 0;
 }
@@ -781,20 +754,16 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
             __user_bind(user, inet_addr(ipaddress), __ev);
         }
     }
-    
-#define USERACTION "auth"
-    __user_debug_before(USERACTION, user);
 
-    __set_state(user, UM_STATE_AUTH);
-    __set_group(user, group);
-    __set_reason(user, UM_DEAUTH_NONE);
-    update_limit(user, obj);
-    wan_online(user);
-    update_aging(user, true);
-    __ev_call(ev, user, USERACTION);
-    
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("auth", user, {
+        __set_state(user, UM_STATE_AUTH);
+        __set_group(user, group);
+        __set_reason(user, UM_DEAUTH_NONE);
+        update_limit(user, obj);
+        wan_online(user);
+        update_aging(user, true);
+        ev_call(ev, user);
+    });
 
     return user;
 }
@@ -806,14 +775,10 @@ __user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
         return NULL;
     }
     
-#define USERACTION "sync"
-    __user_debug_before(USERACTION, user);
-
-    um_touser(user, obj);
-    __ev_call(ev, user, USERACTION);
-    
-    __user_debug_after(USERACTION, user);
-#undef USERACTION
+    user_debug_call("sync", user, {
+        um_touser(user, obj);
+        ev_call(ev, user);
+    });
 
     return user;
 }

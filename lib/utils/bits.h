@@ -198,4 +198,11 @@ os_bitmap_isset(os_bitmap_t *bp, uint32 bit)
     }
 }
 /******************************************************************************/
+#define OS_POSITION_HEAD    0x01
+#define OS_POSITION_TAIL    0x02
+#define OS_POSITION_ALL     (OS_POSITION_HEAD | OS_POSITION_TAIL)
+
+#define is_position_head(_pos)  os_hasflag(_pos, OS_POSITION_HEAD)
+#define is_position_tail(_pos)  os_hasflag(_pos, OS_POSITION_TAIL)
+/******************************************************************************/
 #endif /* __BITS_H_472ca09446fa4bc389460b4391206b0f__ */
