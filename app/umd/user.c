@@ -883,7 +883,7 @@ user_block(struct um_user *user)
 
 int user_unblock(struct um_user *user)
 {
-    return __user_unblock(user, __ev);
+    return __user_unblock(user, __ev)?0:-ENOPERM;
 }
 
 static struct um_user *
@@ -1029,7 +1029,7 @@ int um_user_deauth(byte mac[], int reason)
 
 int um_user_reauth(byte mac[])
 {
-    return user_reauth(user_get(mac));
+    return user_reauth(user_get(mac))?0:-ENOPERM;
 }
 
 struct um_user *
