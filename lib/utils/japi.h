@@ -701,18 +701,18 @@ jobj_get_leaf(jobj_t obj, ...)
     0; \
 })  /* end */
 
-#define jj_bymap(_obj, _jobj, _member, _mapper, _op) ({ \
+#define jj_bymap(_obj, _jobj, _member, _mapper, _eq) ({ \
     jobj_t __tmp = jobj_get(_jobj, #_member); \
     if (__tmp) { \
         char *string = jobj_get_string(__tmp); \
-        _op((_obj)->_member, _mapper(string)); \
+        _eq((_obj)->_member, _mapper(string)); \
         debug_format(#_member "=%s", string); \
     } \
     0; \
 })  /* end */
 
 #define jj_bymapeq(_obj, _jobj, _member, _mapper) \
-        jj_bymap(_obj, _jobj, _member, _mapper, os_eq)
+        jj_bymap(_obj, _jobj, _member, _mapper, os_eq_buildin)
         
 #define jj_ip(_obj, _jobj, _member)         jj_bymapeq(_obj, _jobj, _member, inet_addr)
 #define jj_time(_obj, _jobj, _member)       jj_bymapeq(_obj, _jobj, _member, os_fulltime)

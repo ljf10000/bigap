@@ -92,8 +92,8 @@
 #define os_map_nothing(_var)    (_var)
 #endif
 
-#ifndef os_eq
-#define os_eq(_d, _s)           do{ _d = (_s); }while(0)
+#ifndef os_eq_buildin
+#define os_eq_buildin(_d, _s)   do{ _d = (_s); }while(0)
 #endif
 
 #ifndef os_fake_declare
