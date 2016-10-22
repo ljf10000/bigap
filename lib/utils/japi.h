@@ -692,26 +692,45 @@ jobj_get_leaf(jobj_t obj, ...)
     return leaf;
 }
 
-#define jcfg_string(_jcfg, _pcfg, _member) ({ \
-    jobj_t jobj = jobj_get(_jcfg, #_member); \
-    if (jobj) { \
-        (_pcfg)->_member = os_strdup(jobj_get_string(jobj)); \
-        debug_config(#_member "=%s", (_pcfg)->_member); \
+#define jj_bytype(_obj, _jobj, _member, _type, _format) ({ \
+    jobj_t __tmp = jobj_get(_jobj, #_member); \
+    if (__tmp) { \
+        (_obj)->_member = jobj_get_##_type(__tmp); \
+        debug_format(#_member "=" _format, (_obj)->_member); \
     } \
     0; \
 })  /* end */
 
-#define jcfg_bytype(_jcfg, _pcfg, _member, _type, _format) ({ \
-    jobj_t jobj = jobj_get(_jcfg, #_member); \
-    if (jobj) { \
-        (_pcfg)->_member = jobj_get_##_type(jobj); \
-        debug_config(#_member "=" _format, (_pcfg)->_member); \
+#define jj_bymap(_obj, _jobj, _member, _mapper) ({ \
+    jobj_t __tmp = jobj_get(_jobj, #_member); \
+    if (__tmp) { \
+        char *string = jobj_get_string(__tmp); \
+        _obj->_member = _mapper(string); \
+        debug_format(#_member "=%s", string); \
     } \
     0; \
 })  /* end */
-#define jcfg_u32(_jcfg, _pcfg, _member)     jcfg_bytype(_jcfg, _pcfg, _member, u32, "%u")
-#define jcfg_i32(_jcfg, _pcfg, _member)     jcfg_bytype(_jcfg, _pcfg, _member, i32, "%d")
-#define jcfg_bool(_jcfg, _pcfg, _member)    jcfg_bytype(_jcfg, _pcfg, _member, bool, "%d")
+
+#define jj_bycpy(_obj, _jobj, _member, _mapper, _cpy) ({ \
+    jobj_t __tmp = jobj_get(_jobj, #_member); \
+    if (__tmp) { \
+        char *string = jobj_get_string(__tmp); \
+        _cpy(_obj->_member, _mapper(string)); \
+        debug_format(#_member "=%s", string); \
+    } \
+    0; \
+})  /* end */
+    
+
+#define jj_ip(_obj, _jobj, _member)         jj_bymap(_obj, _jobj, _member, inet_addr)
+#define jj_time(_obj, _jobj, _member)       jj_bymap(_obj, _jobj, _member, os_fulltime)
+#define jj_string(_obj, _jobj, _member)     jj_bymap(_obj, _jobj, _member, os_strdup)
+
+#define jj_mac(_obj, _jobj, _member)        jj_bycpy(_obj, _jobj, _member, os_mac, os_maccpy)
+
+#define jj_u32(_obj, _jobj, _member)        jj_bytype(_obj, _jobj, _member, u32, "%u")
+#define jj_i32(_obj, _jobj, _member)        jj_bytype(_obj, _jobj, _member, i32, "%d")
+#define jj_bool(_obj, _jobj, _member)       jj_bytype(_obj, _jobj, _member, bool, "%d")
 
 #endif /* __APP__ */
 /******************************************************************************/

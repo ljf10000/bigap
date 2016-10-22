@@ -567,7 +567,7 @@ flow_reauth(struct um_user *user, int type, int dir)
 {
     if (umd.cfg.reauthable
             && um_flow_type_wan==type
-            && is_auth(user)
+            && is_user_auth(user)
             && is_flow_reauth(user, type, dir)) {
         user_reauth(user);
     }
@@ -602,7 +602,7 @@ is_overflow(struct um_user *user, int type, int dir)
 static void
 overflow(struct um_user *user, int type, int dir)
 {
-    if (um_flow_type_wan==type && is_auth(user) && is_overflow(user, type, dir)) {
+    if (um_flow_type_wan==type && is_user_auth(user) && is_overflow(user, type, dir)) {
         user_deauth(user, UM_DEAUTH_FLOWLIMIT);
     }
 
@@ -652,7 +652,7 @@ flow_handle(cli_server_t *server)
 
     user->hitime = time(NULL);
 
-    if (have_bind(user)) {
+    if (is_user_have_bind(user)) {
         flow_update(user, flow.type, flow.dir);
         um_user_debug("user-flow-update", user, __is_ak_debug_flow);
 

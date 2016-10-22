@@ -35,7 +35,7 @@ online_aging(struct um_user *user, time_t now)
 {
     (void)now;
     
-    if (have_bind(user)) {
+    if (is_user_have_bind(user)) {
         __try_aging(user, um_flow_type_wan);
         __try_aging(user, um_flow_type_lan);
     }
@@ -62,7 +62,7 @@ __is_gc(struct um_user *user, time_t now)
 
 mv_t umd_gc(struct um_user *user)
 {
-    if (is_noused(user)) {
+    if (is_user_noused(user)) {
         um_user_debug("gc", user, __is_ak_debug_gc);
         
         user_delete(user);
@@ -113,7 +113,7 @@ online_timeout(struct um_user *user, time_t now)
     * online timeout
     *   just for auth user
     */
-    if (is_auth(user) && is_online_timeout(user, now)) {        
+    if (is_user_auth(user) && is_online_timeout(user, now)) {        
         user_deauth(user, UM_DEAUTH_ONLINETIME);
     }
 
@@ -154,7 +154,7 @@ online_reauth(struct um_user *user, time_t now)
     *   just for auth user
     */
     if (umd.cfg.reauthable 
-            && is_auth(user) 
+            && is_user_auth(user) 
             && is_online_reauth(user, now)) {        
         user_reauth(user);
     }
@@ -182,7 +182,7 @@ is_fake_timeout(struct um_user *user, time_t now)
 static mv_t 
 fake_timeout(struct um_user *user, time_t now)
 {
-    if (is_fake(user) && is_fake_timeout(user, now)) {        
+    if (is_user_fake(user) && is_fake_timeout(user, now)) {        
         user_unfake(user, UM_DEAUTH_ONLINETIME);
     }
 

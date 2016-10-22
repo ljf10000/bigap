@@ -101,7 +101,7 @@ handle_create(char *args)
         return user?0:-ENOMEM;
     }
     
-    return handle_mac(um_user_create, args);
+    return handle_mac(create, args);
 }
 
 /*
@@ -119,7 +119,14 @@ handle_delete(char *args)
 static int
 handle_block(char *args)
 {
-    return handle_mac(um_user_block, args);
+    int block(byte mac[])
+    {
+        struct um_user *user = um_user_block(mac);
+
+        return user?0:-ENOMEM;
+    }
+    
+    return handle_mac(block, args);
 }
 
 /*

@@ -126,6 +126,21 @@ DECLARE_ENUM(user_auto, __XLIST_UM_AUTO, UM_AUTO_END);
 #endif
 
 #if 1
+/*
+                   [FAKE]--------------->
+                    ^                   |
+                    |                   |
+                    |                   |
+                  (fake)              (unfake)
+                    |                   |
+                    |                   |
+    <--(delete)----[NONE]<--(unbind)--[BIND]<--(deauth)--[AUTH]
+    ---(create)--->[NONE]---(bind)--->[BIND]---(auth)--->[AUTH]
+    (unblock)----->[NONE]             [BIND]             [AUTH]
+       |            |
+       |            |
+    [BLOCK]<------(block)
+*/
 #define __XLIST_UM_STATE(_)         \
     _(UM_STATE_NONE, 0, "none"),    \
     _(UM_STATE_BIND, 1, "bind"),    \
@@ -147,22 +162,22 @@ DECLARE_ENUM(user_state, __XLIST_UM_STATE, UM_STATE_END);
 #define UM_STATE_END    UM_STATE_END
 #endif
 
-#define __is_none(_state)   (UM_STATE_NONE==(_state))
-#define __is_bind(_state)   (UM_STATE_BIND==(_state))
-#define __is_fake(_state)   (UM_STATE_FAKE==(_state))
-#define __is_auth(_state)   (UM_STATE_AUTH==(_state))
-#define __is_block(_state)  (UM_STATE_BLOCK==(_state))
-#define __have_auth(_state) (__is_fake(_state) || __is_auth(_state))
-#define __have_bind(_state) (__is_bind(_state) || __have_auth(_state))
+#define __is_user_none(_state)      (UM_STATE_NONE==(_state))
+#define __is_user_bind(_state)      (UM_STATE_BIND==(_state))
+#define __is_user_fake(_state)      (UM_STATE_FAKE==(_state))
+#define __is_user_auth(_state)      (UM_STATE_AUTH==(_state))
+#define __is_user_block(_state)     (UM_STATE_BLOCK==(_state))
+#define __is_user_have_auth(_state) (__is_user_fake(_state) || __is_user_auth(_state))
+#define __is_user_have_bind(_state) (__is_user_bind(_state) || __is_user_have_auth(_state))
 
-#define is_none(_user)      __is_none((_user)->state)
-#define is_bind(_user)      __is_bind((_user)->state)
-#define is_fake(_user)      __is_fake((_user)->state)
-#define is_auth(_user)      __is_auth((_user)->state)
-#define is_block(_user)     __is_block((_user)->state)
-#define is_noused(_user)    (__is_none((_user)->state) && 0==(_user)->flags)
-#define have_auth(_user)    __have_auth((_user)->state)
-#define have_bind(_user)    __have_bind((_user)->state)
+#define is_user_none(_user)         __is_user_none((_user)->state)
+#define is_user_bind(_user)         __is_user_bind((_user)->state)
+#define is_user_fake(_user)         __is_user_fake((_user)->state)
+#define is_user_auth(_user)         __is_user_auth((_user)->state)
+#define is_user_block(_user)        __is_user_block((_user)->state)
+#define is_user_noused(_user)       (__is_user_none((_user)->state) && 0==(_user)->flags)
+#define is_user_have_auth(_user)    __is_user_have_auth((_user)->state)
+#define is_user_have_bind(_user)    __is_user_have_bind((_user)->state)
 
 #if 1
 #define __XLIST_UM_DEAUTH(_)                    \
@@ -269,13 +284,13 @@ struct um_tag {
     char *v;
 };
 
-#define UM_F_MONITOR    0x01
-#define UM_F_SYNC       0x02
+#define UM_F_SYNC       0x01
 
 struct um_user {
-    byte mac[OS_MACSIZE];
-    byte bssid[OS_MACSIZE];
-
+    byte mac[OS_MACSIZE], __r0[2];
+    byte bssid_first[OS_MACSIZE], 
+         bssid_current[OS_MACSIZE];
+    
     char *ssid;
     
     int state;
@@ -657,7 +672,7 @@ user_unbind(struct um_user *user, int reason);
 extern int
 user_unfake(struct um_user *user, int reason);
 
-extern int
+extern struct um_user *
 user_reauth(struct um_user *user);
 
 extern int
@@ -675,7 +690,7 @@ um_user_create(byte mac[]);
 extern int
 um_user_delete(byte mac[]);
 
-extern int
+extern struct um_user *
 um_user_block(byte mac[]);
 
 extern int
