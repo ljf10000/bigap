@@ -705,7 +705,7 @@ jobj_get_leaf(jobj_t obj, ...)
     jobj_t __tmp = jobj_get(_jobj, #_member); \
     if (__tmp) { \
         char *string = jobj_get_string(__tmp); \
-        _obj->_member = _mapper(string); \
+        (_obj)->_member = _mapper(string); \
         debug_format(#_member "=%s", string); \
     } \
     0; \
@@ -715,7 +715,7 @@ jobj_get_leaf(jobj_t obj, ...)
     jobj_t __tmp = jobj_get(_jobj, #_member); \
     if (__tmp) { \
         char *string = jobj_get_string(__tmp); \
-        _cpy(_obj->_member, _mapper(string)); \
+        _cpy((_obj)->_member, _mapper(string)); \
         debug_format(#_member "=%s", string); \
     } \
     0; \
