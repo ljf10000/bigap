@@ -1247,87 +1247,31 @@ touser_tag(struct um_user *user, jobj_t juser)
 static void
 touser_flow(struct um_limit_flow *flow, jobj_t jflow)
 {
-    jobj_t jobj;
-
-    jobj = jobj_get(jflow, "max");
-    if (jobj) {
-        flow->max = jobj_get_u64(jobj);
-    }
-
-    jobj = jobj_get(jflow, "now");
-    if (jobj) {
-        flow->now = jobj_get_u64(jobj);
-    }
-
-    jobj = jobj_get(jflow, "numerator");
-    if (jobj) {
-        flow->numerator = jobj_get_u64(jobj);
-    }
-
-    jobj = jobj_get(jflow, "denominator");
-    if (jobj) {
-        flow->denominator = jobj_get_u64(jobj);
-    }
+    jj_u64(flow, jflow, max);
+    jj_u64(flow, jflow, now);
+    jj_u64(flow, jflow, numerator);
+    jj_u64(flow, jflow, denominator);
 }
 
 static void
 touser_rate(struct um_limit_rate *rate, jobj_t jrate)
 {
-    jobj_t jobj;
-    
-    jobj = jobj_get(jrate, "max");
-    if (jobj) {
-        rate->max = jobj_get_u32(jobj);
-    }
-    
-    jobj = jobj_get(jrate, "avg");
-    if (jobj) {
-        rate->avg = jobj_get_u32(jobj);
-    }
+    jj_u32(rate, jrate, max);
+    jj_u32(rate, jrate, avg);
 }
 
 static void
 touser_online(struct um_limit_online *online, jobj_t jonline)
 {
-    jobj_t jobj;
-    char *string;
+    jj_u32(online, jonline, max);
+    jj_u32(online, jonline, idle);
+    jj_u32(online, jonline, numerator);
+    jj_u32(online, jonline, denominator);
     
-    jobj = jobj_get(jonline, "max");
-    if (jobj) {
-        online->max = jobj_get_u32(jobj);
-    }
-    
-    jobj = jobj_get(jonline, "idle");
-    if (jobj) {
-        online->idle = jobj_get_u32(jobj);
-    }
-    
-    jobj = jobj_get(jonline, "numerator");
-    if (jobj) {
-        online->numerator = jobj_get_u32(jobj);
-    }
-    
-    jobj = jobj_get(jonline, "denominator");
-    if (jobj) {
-        online->denominator = jobj_get_u32(jobj);
-    }
-    
-    jobj = jobj_get(jonline, "aging");
-    if (jobj) {
-        online->aging = jobj_get_i32(jobj);
-    }
-    
-    jobj = jobj_get(jonline, "uptime");
-    if (jobj) {
-        string = jobj_get_string(jobj);
-        online->uptime = os_fulltime(string);
-    }
-    
-    jobj = jobj_get(jonline, "downtime");
-    if (jobj) {
-        string = jobj_get_string(jobj);
-        online->downtime = os_fulltime(string);
-    }
+    jj_i32(online, jonline, aging);
+
+    jj_time(online, jonline, uptime);
+    jj_time(online, jonline, downtime);
 }
 
 static void

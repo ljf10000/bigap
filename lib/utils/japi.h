@@ -721,6 +721,8 @@ jobj_get_leaf(jobj_t obj, ...)
 #define jj_mac(_obj, _jobj, _member)        jj_bymap(_obj, _jobj, _member, os_mac, os_maccpy)
 #define jj_strcpy(_obj, _jobj, _member)     jj_bymap(_obj, _jobj, _member, os_map_nothing, os_strcpy)
 
+#define jj_u64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, u64, "%llu")
+#define jj_i64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i64, "%lld")
 #define jj_u32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, u32, "%u")
 #define jj_i32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i32, "%d")
 #define jj_bool(_obj, _jobj, _member)       jj_byvar(_obj, _jobj, _member, bool, "%d")
