@@ -914,103 +914,129 @@ enum {
     JS_EXEC_END
 };
 
-static inline void
-js_priv_init(duk_priv_t *priv, char *name, int argc, char **argv)
+typedef struct {
+    int argc;
+    char **argv;
+    int mode;
+    
+    char *atexit_name;
+    char *name;
+
+    struct {
+        char *name;
+        int is_func;
+    } sig[NSIG];
+} js_priv_t;
+
+extern void *duk_get_priv(duk_context *ctx);
+extern void  duk_set_priv(duk_context *ctx, void *priv);
+
+static inline js_priv_t *
+js_priv(duk_context *ctx)
 {
-    os_objzero(priv);
+    return (js_priv_t *)duk_get_priv(ctx);
+}
+
+static inline void
+__js_priv_fini(js_priv_t *priv)
+{
+    int i;
+
+    if (priv) {
+        os_free(priv->name);
+        os_free(priv->atexit_name);
+        
+        for (i=0; i<NSIG; i++) {
+            if (priv->sig[i].is_func) {
+                os_free(priv->sig[i].name);
+            }
+        }
+    }
+}
+
+#define js_priv_fini(_priv) do{ \
+    __js_priv_fini(_priv);      \
+    _priv = NULL;               \
+}while(0)
+
+static inline js_priv_t *
+js_priv_init(char *name, int argc, char **argv)
+{
+    js_priv_t *priv = (js_priv_t *)os_zalloc(sizeof(*priv));
+    if (NULL==priv) {
+        return NULL;
+    }
 
     priv->argc = argc;
     priv->argv = argv;
     priv->name = os_strdup(name);
-    
-    if (argv) {
-        if (argc > 1) {
-            priv->mode = JS_EXEC_SHABANG;
-        } else {
-            priv->mode = JS_EXEC_STRING;
-        }
+
+    if (1==argc) {
+        priv->mode = JS_EXEC_STRING;
+    } else if (argc > 1) {
+        priv->mode = JS_EXEC_SHABANG;
     } else {
         priv->mode = JS_EXEC_BUILDIN;
     }
+    
+    return priv;
 }
 
 static inline void
-js_priv_fini(duk_priv_t *priv)
+__js_fini(duk_context *ctx)
 {
-    int i;
-
-    os_free(priv->name);
-    os_free(priv->atexit_name);
-    
-    for (i=0; i<NSIG; i++) {
-        if (priv->sig[i].is_func) {
-            os_free(priv->sig[i].name);
-        }
+    if (ctx) {
+        js_priv_t *priv = js_priv(ctx);
+        
+        debug_js("before destroy duk heap(%s)", priv->name);
+        duk_destroy_heap(ctx);
+        debug_js("after  destroy duk heap(%s)", priv->name);
+        
+        js_priv_fini(priv);
     }
 }
 
-static inline char *
-js_readfd(duk_context *ctx, int fd) 
+#define js_fini(_ctx) do{ \
+    __js_fini(_ctx); \
+    _ctx = NULL; \
+}while(0)
+
+static inline duk_context *
+js_init(char *name, int argc, char **argv)
 {
-	FILE *f = NULL;
-	char *buf = NULL;
-	long sz = 0, len = 0, left, ret;  /* ANSI C typing */
+    duk_context *ctx = NULL;
+    js_priv_t *priv = NULL;
+    int err = 0;
 
-	if (fd<0) {
-		goto error;
-	}
-	
-	f = os_fdopen(fd, "r");
-	if (!f) {
-		goto error;
-	}
-
-	while(!os_feof(f) && !os_ferror(f)) {
-        if (0==sz) {
-            sz += 4096;
-            buf = (char *)os_malloc(sz);
-        }
-        else if (sz - len < 512) {
-            sz += 4096;
-            buf = (char *)os_realloc(buf, sz);
-        }
-        else {
-            /*
-            * use the buf, do nothing
-            */
-        }
-        
-        if (NULL==buf) {
-            goto error;
-        }
-
-	    left = sz - len;
-        ret = os_fread(f, buf + len, left);
-        if (ret > left || ret < 0) {
-            goto error;
-        }
-        
-        len += ret;
-	}
-	buf[len++] = 0;
-
-    if ('#'==buf[0] && '!'==buf[1]) {
-        buf[0] = '/';
-        buf[1] = '/';
+    duk_context *ctx = duk_create_heap_default();
+    if (NULL==ctx) {
+        goto error;
+    }
+    js_ctx_save(ctx);
+    duk_set_priv(ctx, NULL);
+    
+    js_priv_t *priv = js_priv_init(name, argc, argv);
+    if (NULL==priv) {
+        goto error;
+    }
+    duk_set_priv(ctx, priv);
+    
+    err = js_register(ctx);
+    if (err<0) {
+        goto error;
     }
 
-	return buf;
+    return ctx;
 error:
-    os_free(buf);
-    os_fclose(f);
+    js_fini(ctx);
     
     return NULL;
 }
 
 static inline int
-js_run(duk_context *ctx)
+js_eval(duk_context *ctx, char *jsfile)
 {
-    duk_priv_t *priv = duk_priv(ctx);
+    js_priv_t *priv = js_priv(ctx);
     char *script = NULL;
     
     switch(priv->mode) {
@@ -1023,7 +1049,7 @@ js_run(duk_context *ctx)
             
             break;
         case JS_EXEC_STRING:
-            script = js_readfd(ctx, 0);
+            script = os_readfd(0, 4096);
 
             /*
             * cat SCRIPT  | js
@@ -1033,55 +1059,21 @@ js_run(duk_context *ctx)
             
             break;
         case JS_EXEC_BUILDIN:
+            script = jsfile;
+            /*
+            * jsfile is script name
+            */
+            duk_peval_file(ctx, script);
+            
             break;
+        default:
+            return -ENOSUPPORT;
     }
     
     duk_pop(ctx);
 
     return 0;
 }
-
-static inline duk_context *
-js_init(char *name, int argc, char **argv)
-{
-    int err = 0;
-
-    duk_context *ctx = duk_create_heap_default();
-    if (NULL==ctx) {
-        return NULL;
-    }
-    js_ctx_save(ctx);
-    
-    duk_priv_t *priv = duk_priv(ctx);
-    js_priv_init(priv, name, argc, argv);
-
-    err = js_register(ctx);
-    if (err<0) {
-        return NULL;
-    }
-
-    return ctx;
-}
-
-static inline void
-__js_fini(duk_context *ctx)
-{
-    if (ctx) {
-        duk_priv_t *priv = duk_priv(ctx);
-        char *name = os_strdup(priv->name);
-        js_priv_fini(priv);
-        
-        debug_js("before destroy duk heap(%s)", name);
-        duk_destroy_heap(ctx);
-        debug_js("after  destroy duk heap(%s)", name);
-        os_free(name);
-    }
-}
-
-#define js_fini(_ctx) do{ \
-    __js_fini(_ctx); \
-    _ctx = NULL; \
-}while(0)
 
 #include "libc.h"   /* must end */
 /******************************************************************************/

@@ -32,7 +32,7 @@ duk_context *js_ctx_get(void)
 void __libc_sig_handler(int sig)
 {
     duk_context *ctx = js_ctx_get();
-    duk_priv_t *priv = duk_priv(ctx);
+    js_priv_t *priv = js_priv(ctx);
 
     if (priv->sig[sig].is_func) {
         /*
@@ -57,7 +57,7 @@ __libc_atexit_handler(void)
     duk_context *ctx = js_ctx_get();
     
     duk_push_global_object(ctx);
-    duk_get_prop_string(ctx, -1, duk_priv(ctx)->atexit_name);
+    duk_get_prop_string(ctx, -1, js_priv(ctx)->atexit_name);
     if (duk_is_function(ctx, -1)) {
         duk_pcall(ctx, 0);
     }
@@ -4369,7 +4369,7 @@ static duk_ret_t
 duke_signal(duk_context *ctx)
 {
     __sighandler_t action, old;
-    duk_priv_t *priv = duk_priv(ctx);
+    js_priv_t *priv = js_priv(ctx);
     int sig = duk_require_int(ctx, 0);
     
     if (duk_is_function(ctx, 1)) {
@@ -4739,7 +4739,7 @@ duke_atexit(duk_context *ctx)
         return duk_push_int(ctx, -ENOEXIST), -1;
     }
 
-    duk_priv_t *priv = duk_priv(ctx);
+    js_priv_t *priv = js_priv(ctx);
     os_free(priv->atexit_name);
     priv->atexit_name = os_strdup(atexit_name);
     

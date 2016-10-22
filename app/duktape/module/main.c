@@ -21,13 +21,13 @@ __main(int argc, char *argv[])
 {
     int err = 0;
     duk_context *ctx = NULL;
-    
-    ctx = js_init("master", argc, argv);
+
+    ctx = js_init("main", argc, argv);
     if (NULL==ctx) {
         err = -ENOMEM; goto error;
     }
 
-    err = js_run(ctx);
+    err = js_eval(ctx);
     if (err<0) {
         goto error;
     }

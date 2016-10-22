@@ -6218,9 +6218,6 @@ struct duk_catcher {
 };
 
 struct duk_hthread {
-#if 1 /* liujf */
-    duk_priv_t priv;
-#endif
 	/* Shared object part */
 	duk_hobject obj;
 
@@ -6316,12 +6313,21 @@ struct duk_hthread {
 	duk_hstring **strs;
 #endif
 #endif
+
+#if 1 /* liujf */
+    void *priv;
+#endif
 };
 
 #if 1 /* liujf */
-duk_priv_t *duk_priv(duk_context *ctx)
+void *duk_get_priv(duk_context *ctx)
 {
-    return &ctx->priv;
+    return ctx->priv;
+}
+
+void duk_set_priv(duk_context *ctx, void *priv)
+{
+    ctx->priv = priv;
 }
 #endif
 /*

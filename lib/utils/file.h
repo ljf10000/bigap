@@ -284,6 +284,64 @@ error:
     return err;
 }
 
+static inline char *
+os_readfd(int fd, int block) 
+{
+	FILE *f = NULL;
+	char *buf = NULL;
+	long sz = 0, len = 0, left, ret;  /* ANSI C typing */
+
+	if (fd<0) {
+		goto error;
+	}
+	
+	f = os_fdopen(fd, "r");
+	if (!f) {
+		goto error;
+	}
+
+	while(!os_feof(f) && !os_ferror(f)) {
+        if (0==sz) {
+            sz += block;
+            buf = (char *)os_malloc(sz);
+        }
+        else if (sz - len < 512) {
+            sz += block;
+            buf = (char *)os_realloc(buf, sz);
+        }
+        else {
+            /*
+            * use the buf, do nothing
+            */
+        }
+        
+        if (NULL==buf) {
+            goto error;
+        }
+
+	    left = sz - len;
+        ret = os_fread(f, buf + len, left);
+        if (ret > left || ret < 0) {
+            goto error;
+        }
+        
+        len += ret;
+	}
+	buf[len++] = 0;
+
+    if ('#'==buf[0] && '!'==buf[1]) {
+        buf[0] = '/';
+        buf[1] = '/';
+    }
+
+	return buf;
+error:
+    os_free(buf);
+    os_fclose(f);
+    
+    return NULL;
+}
+
 static inline bool
 is_current_dir(char *filename/* not include path */)
 {

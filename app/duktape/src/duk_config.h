@@ -1896,26 +1896,6 @@ typedef double duk_double_t;
 /* Type for public API calls. */
 typedef struct duk_hthread duk_context;
 
-#if 1 /* liujf */
-typedef struct {
-    int argc;
-    char **argv;
-    int mode;
-    
-    char *atexit_name;
-    char *name;
-
-    struct {
-        char *name;
-        int is_func;
-    } sig[NSIG];
-} 
-duk_priv_t;
-
-extern duk_priv_t *duk_priv(duk_context *ctx);
-#endif
-
-
 /* Check whether we should use 64-bit integers or not.
  *
  * Quite incomplete now.  Use 64-bit types if detected (C99 or other detection)
