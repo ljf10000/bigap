@@ -85,7 +85,15 @@
 #endif
 
 #ifndef os_do_nothing 
-#define os_do_nothing()     do{}while(0)
+#define os_do_nothing()         do{}while(0)
+#endif
+
+#ifndef os_map_nothing
+#define os_map_nothing(_var)    (_var)
+#endif
+
+#ifndef os_eq
+#define os_eq(_d, _s)           do{ _d = (_s); }while(0)
 #endif
 
 #ifndef os_fake_declare

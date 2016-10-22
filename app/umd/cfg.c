@@ -19,7 +19,7 @@ extern cli_server_t um_timer_server;
 #define um_jcfg_u32(_jcfg, _member)     jj_u32(&umd.cfg, _jcfg, _member)
 #define um_jcfg_i32(_jcfg, _member)     jj_i32(&umd.cfg, _jcfg, _member)
 #define um_jcfg_bool(_jcfg, _member)    jj_bool(&umd.cfg, _jcfg, _member)
-#define um_jcfg_string(_jcfg, _member)  jj_string(&umd.cfg, _jcfg, _member)
+#define um_jcfg_string(_jcfg, _member)  jj_strdup(&umd.cfg, _jcfg, _member)
 
 static int
 init_cfg_script_event(jobj_t jcfg)
