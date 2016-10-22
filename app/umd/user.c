@@ -1220,8 +1220,8 @@ touser_base(struct um_user *user, jobj_t juser)
     jj_mac(user, juser, bssid_first);
     jj_ip(user, juser, ip);
 
-    jj_bymapeq(user, juser, state, user_state_idx);
-    jj_bymapeq(user, juser, reason, deauth_reason_idx);
+    jj_byeq(user, juser, state, user_state_idx);
+    jj_byeq(user, juser, reason, deauth_reason_idx);
 
     jj_time(user, juser, create);
     jj_time(user, juser, noused);

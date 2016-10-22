@@ -701,22 +701,22 @@ jobj_get_leaf(jobj_t obj, ...)
     0; \
 })  /* end */
 
-#define jj_bymap(_obj, _jobj, _member, _mapper, _eq) ({ \
+#define jj_bymap(_obj, _jobj, _member, _mapper, _op) ({ \
     jobj_t __tmp = jobj_get(_jobj, #_member); \
     if (__tmp) { \
         char *string = jobj_get_string(__tmp); \
-        _eq((_obj)->_member, _mapper(string)); \
+        _op((_obj)->_member, _mapper(string)); \
         debug_format(#_member "=%s", string); \
     } \
     0; \
 })  /* end */
 
-#define jj_bymapeq(_obj, _jobj, _member, _mapper) \
+#define jj_byeq(_obj, _jobj, _member, _mapper) \
         jj_bymap(_obj, _jobj, _member, _mapper, os_eq_buildin)
         
-#define jj_ip(_obj, _jobj, _member)         jj_bymapeq(_obj, _jobj, _member, inet_addr)
-#define jj_time(_obj, _jobj, _member)       jj_bymapeq(_obj, _jobj, _member, os_fulltime)
-#define jj_strdup(_obj, _jobj, _member)     jj_bymapeq(_obj, _jobj, _member, os_strdup)
+#define jj_ip(_obj, _jobj, _member)         jj_byeq(_obj, _jobj, _member, inet_addr)
+#define jj_time(_obj, _jobj, _member)       jj_byeq(_obj, _jobj, _member, os_fulltime)
+#define jj_strdup(_obj, _jobj, _member)     jj_byeq(_obj, _jobj, _member, os_strdup)
 
 #define jj_mac(_obj, _jobj, _member)        jj_bymap(_obj, _jobj, _member, os_mac, os_maccpy)
 #define jj_strcpy(_obj, _jobj, _member)     jj_bymap(_obj, _jobj, _member, os_map_nothing, os_strcpy)
