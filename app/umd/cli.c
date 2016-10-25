@@ -20,28 +20,31 @@ handle_mac_json(struct um_user *(*handle)(byte mac[], jobj_t obj), char *args)
 {
     char *mac   = args; cli_shift(args);
     char *json  = args; cli_shift(args);
+    jobj_t obj  = NULL;
+    int err = 0;
     
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
 
-        return -EFORMAT;
+        err = -EFORMAT; goto error;
     }
         
-    jobj_t obj = jobj_byjson(json);
+    obj = jobj_byjson(json);
     if (NULL==obj) {
         debug_trace("bad json %s", json);
 
-        return -EBADJSON;
+        err = -EFORMAT; goto error;
     }
 
     struct um_user *user = (*handle)(os_mac(mac), obj);
     if (NULL==user) {
-        return -ENOEXIST;
+        err = -EFORMAT; goto error;
     }
-    
+
+error:
     jobj_put(obj);
     
-    return 0;
+    return err;
 }
 
 /*
@@ -64,7 +67,10 @@ handle_mac_ip(struct um_user *(*handle)(byte mac[], uint32 ip), char *args)
         return -EFORMAT;
     }
 
-    (*handle)(os_mac(mac), inet_addr(ip));
+    struct um_user *user = (*handle)(os_mac(mac), inet_addr(ip));
+    if (NULL==user) {
+        return -ENOEXIST;
+    }
 
     return 0;
 }
@@ -77,12 +83,12 @@ handle_mac(int (*handle)(byte mac[]), char *args)
 {
     char *mac = args; cli_shift(args);
 
-    if (false==is_good_macstring(mac)) {
+    if (is_good_macstring(mac)) {
+        return (*handle)(os_mac(mac));
+    } else {
         debug_trace("bad mac %s", mac);
 
         return -EFORMAT;
-    } else {
-        return (*handle)(os_mac(mac));
     }
 }
 
