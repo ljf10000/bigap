@@ -243,7 +243,7 @@ tag_insert(struct um_user *user, char *k, char *v, bool update_if_exist)
         }
         else if (0!=os_strcmp(tag->v, v)) {
             os_free(tag->v);
-            tag->v = strdup(v);
+            tag->v = os_strdup(v);
         }
     }
 
