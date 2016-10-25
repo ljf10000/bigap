@@ -71,7 +71,9 @@ JLOG_DEBUGLEVEL(uint32 level)
 {
     uint32 DEBUGLEVEL = JLOG_MAKEPRI(level, LOG_DEBUG);
 
+#if 0
     os_println("level=%d, DEBUGLEVEL=0x%x", level, DEBUGLEVEL);
+#endif
 
     return DEBUGLEVEL;
 }

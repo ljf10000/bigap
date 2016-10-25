@@ -158,7 +158,7 @@ enum {
 #endif
 
 #ifndef __ak_debug_string_default
-#define __ak_debug_string_default   "error|bug"
+#define __ak_debug_string_default   "bug"
 #endif
 
 #ifndef __js_debug_string_default
