@@ -175,9 +175,11 @@ init_cfg_server(int count)
         return -ENOMEM;
     }
     server[UM_SERVER_TIMER] = &um_timer_server;
+    server[UM_SERVER_TIMER].id = UM_SERVER_TIMER;
     debug_config("setup timer server");
     
     server[UM_SERVER_CLI]   = &um_cli_server;
+    server[UM_SERVER_CLI].id = UM_SERVER_CLI;
     debug_config("setup cli server");
     
     for (i=UM_SERVER_FLOW; i<umd.server_count; i++) {
@@ -235,11 +237,13 @@ init_cfg_instance(jobj_t jcfg)
     
     for (i=0; i<count; i++) {
         jobj_t jinstance = jarray_get(jarray, i);
-        if (jinstance) {
-            err = __init_cfg_instance(jinstance, i);
-            if (err<0) {
-                return err;
-            }
+        if (NULL==jinstance) {
+            return -EBADCONF;
+        }
+        
+        err = __init_cfg_instance(jinstance, i);
+        if (err<0) {
+            return err;
         }
     }
     

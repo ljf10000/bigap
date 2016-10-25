@@ -529,6 +529,8 @@ load(void)
 
         debug_trace(SCRIPT_TMD_INIT);
     }
+
+    return 0;
 }
 
 static void

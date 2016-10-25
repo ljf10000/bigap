@@ -81,11 +81,9 @@ handle_mac(int (*handle)(byte mac[]), char *args)
         debug_trace("bad mac %s", mac);
 
         return -EFORMAT;
+    } else {
+        return (*handle)(os_mac(mac));
     }
-    
-    (*handle)(os_mac(mac));
-    
-    return 0;
 }
 
 /*
