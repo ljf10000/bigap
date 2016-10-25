@@ -175,11 +175,11 @@ init_cfg_server(int count)
         return -ENOMEM;
     }
     server[UM_SERVER_TIMER] = &um_timer_server;
-    server[UM_SERVER_TIMER].id = UM_SERVER_TIMER;
+    server[UM_SERVER_TIMER]->id = UM_SERVER_TIMER;
     debug_config("setup timer server");
     
     server[UM_SERVER_CLI]   = &um_cli_server;
-    server[UM_SERVER_CLI].id = UM_SERVER_CLI;
+    server[UM_SERVER_CLI]->id = UM_SERVER_CLI;
     debug_config("setup cli server");
     
     for (i=UM_SERVER_FLOW; i<umd.server_count; i++) {
