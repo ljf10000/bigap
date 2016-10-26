@@ -141,9 +141,9 @@ typedef struct {
     char *env[OS_ENV_END];
 } os_env_cache_t;
 
-#define DECLARE_FAKE_ENV    extern os_env_cache_t __THIS_ENV
+#define DECLARE_FAKE_ENV    extern os_env_cache_t *__THIS_ENV
 #if use_THIS_ENV
-#define DECLARE_REAL_ENV    os_env_cache_t __THIS_ENV
+#define DECLARE_REAL_ENV    os_env_cache_t *__THIS_ENV
 #else
 #define DECLARE_REAL_ENV    DECLARE_FAKE_ENV
 #endif
@@ -159,11 +159,15 @@ DECLARE_FAKE_ENV;
 static inline void
 os_env_init(void)
 {
+    if (NULL==__THIS_ENV) {
+        __THIS_ENV = (os_env_cache_t *)os_zalloc(sizeof(os_env_cache_t));
+    }
+    
 #if use_THIS_ENV
     int i;
     
 #define OS_ENV_GET(_key, _value, _name) \
-    __THIS_ENV.env[_key] = getenv("__env_" _name "__")
+    __THIS_ENV->env[_key] = getenv("__env_" _name "__")
 
     OS_ENVLIST(OS_ENV_GET) i=0;
 #undef OS_ENV_GET
@@ -174,7 +178,7 @@ static inline char *
 os_env_get(int idx)
 {
     if (is_good_os_env(idx)) {
-        return __THIS_ENV.env[idx];
+        return __THIS_ENV->env[idx];
     } else {
         return NULL;
     }
@@ -184,7 +188,7 @@ static inline char *
 os_env_set(int idx, char *env)
 {
     if (is_good_os_env(idx)) {
-        return (__THIS_ENV.env[idx] = env);
+        return (__THIS_ENV->env[idx] = env);
     } else {
         return NULL;
     }
