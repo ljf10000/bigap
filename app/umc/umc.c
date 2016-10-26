@@ -263,14 +263,15 @@ cmd_sync(int argc, char *argv[])
 static int
 cmd_show(int argc, char *argv[])
 {
-
     switch(argc) {
         case 0:
             return umc_handle("show", argc, argv);
         case 1: {
             char *json = argv[0];
 
-            if (is_good_json(json) || os_streq("stat", json)) {
+            if (is_good_json(json) 
+                || os_streq("stat", json)
+                || os_streq("count", json)) {
                 return umc_handle("show", argc, argv);
             }
             else {

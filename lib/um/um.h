@@ -48,5 +48,6 @@ get_um_timeout_env(void)
 {
     return env_geti(OS_ENV(TIMEOUT), UM_TIMEOUT);
 }
+
 /******************************************************************************/
 #endif /* __UM_H_cdb651156406414c97daca3b0f7527a6__ */

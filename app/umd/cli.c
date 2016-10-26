@@ -324,6 +324,14 @@ show_stat(void)
     return 0;
 }
 
+static int
+show_count(void)
+{
+    cli_sprintf("%d" __crlf, h2_count(&umd.table));
+    
+    return 0;
+}
+
 /*
 * show [json]
 */
@@ -338,11 +346,14 @@ handle_show(char *args)
         */
         return um_user_foreach(show_user, false);
     }
-    else if (is_good_json(json)) {
-        return show_user_byjson(json);
-    }
     else if (os_streq("stat", json)) {
         return show_stat();
+    }
+    else if (os_streq("count", json)) {
+        return show_count();
+    }
+    else if (is_good_json(json)) {
+        return show_user_byjson(json);
     }
     else {
         return -EFORMAT;
