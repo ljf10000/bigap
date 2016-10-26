@@ -263,6 +263,7 @@ cmd_sync(int argc, char *argv[])
 static int
 cmd_show(int argc, char *argv[])
 {
+
     switch(argc) {
         case 0:
             return umc_handle("show", argc, argv);

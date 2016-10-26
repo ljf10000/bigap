@@ -113,8 +113,8 @@ typedef struct {
     char buf[1+CLI_BUFFER_SIZE];
 } cli_buffer_t;
 
-#define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t __THIS_CLI_BUFFER
-#define DECLARE_REAL_CLI_BUFFER     cli_buffer_t __THIS_CLI_BUFFER
+#define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t *__THIS_CLI_BUFFER
+#define DECLARE_REAL_CLI_BUFFER     cli_buffer_t *__THIS_CLI_BUFFER
 
 #ifdef __ALLINONE__
 #   define DECLARE_CLI_BUFFER       DECLARE_FAKE_CLI_BUFFER
@@ -127,7 +127,11 @@ DECLARE_FAKE_CLI_BUFFER;
 static inline cli_buffer_t *
 __this_cli_buffer(void)
 {
-    return &__THIS_CLI_BUFFER;
+    if (NULL==__THIS_CLI_BUFFER) {
+        __THIS_CLI_BUFFER = (cli_buffer_t *)os_zalloc(sizeof(cli_buffer_t));
+    }
+    
+    return __THIS_CLI_BUFFER;
 }
 
 #define cli_buffer_err      __this_cli_buffer()->header.err

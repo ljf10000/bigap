@@ -140,12 +140,14 @@ DECLARE_ENUM(oem_type, __XLIST_OEM, OEM_T_END);
 #define OEM_T_END   OEM_T_END
 #endif
 
-#define DECLARE_FAKE_OEM    extern oem_t __THIS_OEM[]
-#define DECLARE_REAL_OEM    oem_t __THIS_OEM[OEM_T_END] = { \
+#define __THIS_OEM_INITER       { \
     [OEM_T_DEFT]  = OEM_INITER,   \
     [OEM_T_1]     = OEM1_INITER,  \
     [OEM_T_2]     = OEM2_INITER,  \
 }   /* end */
+
+#define DECLARE_FAKE_OEM    extern oem_t *__THIS_OEM
+#define DECLARE_REAL_OEM    oem_t *__THIS_OEM
 
 #ifdef __ALLINONE__
 #   define DECLARE_OEM      DECLARE_FAKE_OEM
@@ -195,7 +197,17 @@ __this_oem(void)
         type = __oem_type();
     }
 
+    if (NULL==__THIS_OEM) {
+        oem_t oem[] = __THIS_OEM_INITER;
+        int size = sizeof(oem_t) * OEM_T_END;
+        
+        __THIS_OEM = (oem_t *)os_zalloc(size);
+
+        os_memcpy(__THIS_OEM, oem, size);
+    }
+    
     return &__THIS_OEM[type];
+
 }
 
 static inline char *
