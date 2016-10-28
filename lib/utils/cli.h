@@ -101,16 +101,14 @@ typedef struct {
     int err;
 } cli_header_t;
 
-#define cli_header_size         sizeof(cli_header_t)
-
 #ifndef CLI_BUFFER_SIZE
-#define CLI_BUFFER_SIZE         (256*1024 - cli_header_size - 1)
+#define CLI_BUFFER_SIZE         (256*1024)
 #endif
 
 typedef struct {
     cli_header_t header;
 
-    char buf[1+CLI_BUFFER_SIZE];
+    char buf[CLI_BUFFER_SIZE - sizeof(cli_header_t)];
 } cli_buffer_t;
 
 #define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t *__THIS_CLI_BUFFER
@@ -138,14 +136,16 @@ __this_cli_buffer(void)
 #define cli_buffer_len      __this_cli_buffer()->header.len
 #define cli_buffer_buf      __this_cli_buffer()->buf
 #define cli_buffer_cursor   (cli_buffer_buf  + cli_buffer_len)
-#define cli_buffer_space    (cli_header_size + cli_buffer_len)
-#define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_len)
+#define cli_buffer_size     (CLI_BUFFER_SIZE - sizeof(cli_header_t) - 1)
+#define cli_buffer_space    (sizeof(cli_header_t) + cli_buffer_len)
+#define cli_buffer_left     ((cli_buffer_size>cli_buffer_len)?(cli_buffer_size - cli_buffer_len):0)
 
-#define cli_buffer_zero()   os_objzero(__this_cli_buffer())
-#define cli_buffer_clear()  do{ \
-    cli_buffer_buf[0]  = 0;     \
-    cli_buffer_len     = 0;     \
-}while(0)
+static inline void
+cli_buffer_clear(void) 
+{
+    cli_buffer_buf[0] = 0;
+    cli_buffer_len = 0;
+}
 
 static inline int
 cli_buffer_error(int err)
@@ -236,9 +236,7 @@ ____cli_d_handle(char *line, cli_table_t *table, int count, int (*reply)(int err
     char *method = line;
     char *args   = line;
     int err;
-    
-    cli_buffer_zero();
-    
+        
     os_str_strim_both(method, NULL);
     os_str_reduce(method, NULL);
 
@@ -412,7 +410,7 @@ cli_u_server_init(cli_server_t *server)
         return -errno;
     }
 
-    int size = 1+cli_header_size+CLI_BUFFER_SIZE;
+    int size = CLI_BUFFER_SIZE;
     err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
     if (err<0) {
         debug_error("setsockopt error:%d", -errno);
