@@ -96,21 +96,26 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 #endif /* defined(__APP__) || defined(__BOOT__) */
 /******************************************************************************/
 #ifdef __APP__
-typedef struct {
-    uint32 len, r0, r1;
-    int err;
-} cli_header_t;
 
-#define cli_header_size         sizeof(cli_header_t)
+#ifndef CLI_SOCK_TYPE
+#define CLI_SOCK_TYPE   SOCK_STREAM //SOCK_DGRAM
+#endif
+
+#if CLI_SOCK_TYPE!=SOCK_STREAM || CLI_SOCK_TYPE!=SOCK_DGRAM
+#error "cli sock type must SOCK_STREAM | SOCK_DGRAM"
+#endif
 
 #ifndef CLI_BUFFER_SIZE
-#define CLI_BUFFER_SIZE         (256*1024 - cli_header_size - 1)
+#define CLI_BUFFER_SIZE         (256*1024)
 #endif
 
 typedef struct {
-    cli_header_t header;
+    uint32 len;
+    uint32 size;
+    uint32 _r;
+    int err;
 
-    char buf[1+CLI_BUFFER_SIZE];
+    char buf[0];
 } cli_buffer_t;
 
 #define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t *__THIS_CLI_BUFFER
@@ -128,23 +133,56 @@ static inline cli_buffer_t *
 __this_cli_buffer(void)
 {
     if (NULL==__THIS_CLI_BUFFER) {
-        __THIS_CLI_BUFFER = (cli_buffer_t *)os_zalloc(sizeof(cli_buffer_t));
+        __THIS_CLI_BUFFER = (cli_buffer_t *)os_zalloc(CLI_BUFFER_SIZE);
+        __THIS_CLI_BUFFER->size = CLI_BUFFER_SIZE;
+    }
+    
+    return __THIS_CLI_BUFFER;
+}
+#define cli_buffer_err      __this_cli_buffer()->err
+#define cli_buffer_len      __this_cli_buffer()->len
+#define cli_buffer_buf      __this_cli_buffer()->buf
+#define cli_buffer_size     (__this_cli_buffer()->size - sizeof(cli_buffer_t) - 1)
+#define cli_buffer_cursor   (cli_buffer_buf + cli_buffer_len)
+#define cli_buffer_space    (sizeof(cli_buffer_t) + cli_buffer_len)
+#define cli_buffer_left     ((cli_buffer_size>cli_buffer_len)?(cli_buffer_size-cli_buffer_len):0)
+#define CLI_BUFFER_LEN      (cli_buffer_len + sizeof(cli_buffer_t) + 1)
+
+static inline cli_buffer_t *
+__this_cli_buffer_expand(uint32 expand)
+{
+    expand = OS_MAX(CLI_BUFFER_SIZE, expand);
+    expand = OS_ALIGN(expand, CLI_BUFFER_SIZE);
+    
+    uint32 size = __this_cli_buffer()->size + OS_MAX(CLI_BUFFER_SIZE, expand);
+    cli_buffer_t *buf = (cli_buffer_t *)os_realloc(__THIS_CLI_BUFFER, size);
+    if (NULL==buf) {
+        return NULL;
+    }
+    buf->size = size;
+    __THIS_CLI_BUFFER = buf;
+
+    return __THIS_CLI_BUFFER;
+}
+
+static inline cli_buffer_t *
+__this_cli_buffer_promise(void)
+{
+    if (CLI_BUFFER_SIZE < CLI_BUFFER_LEN) {
+        cli_buffer_t *buf = (cli_buffer_t *)os_realloc(__THIS_CLI_BUFFER, CLI_BUFFER_LEN);
+        if (NULL==buf) {
+            return buf;
+        }
+        buf->size = CLI_BUFFER_LEN;
+        __THIS_CLI_BUFFER = buf;
     }
     
     return __THIS_CLI_BUFFER;
 }
 
-#define cli_buffer_err      __this_cli_buffer()->header.err
-#define cli_buffer_len      __this_cli_buffer()->header.len
-#define cli_buffer_buf      __this_cli_buffer()->buf
-#define cli_buffer_cursor   (cli_buffer_buf + cli_buffer_len)
-#define cli_buffer_size     (cli_header_size + cli_buffer_len)
-#define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_size)
-
-#define cli_buffer_zero()   os_objzero(__this_cli_buffer())
 #define cli_buffer_clear()  do{ \
-    cli_buffer_buf[0]  = 0;     \
     cli_buffer_len     = 0;     \
+    cli_buffer_buf[0]  = 0;     \
 }while(0)
 
 static inline int
@@ -157,19 +195,19 @@ cli_buffer_error(int err)
 #define cli_buffer_ok       cli_buffer_error(0)
 
 static inline int
-cli_sprintf(const char *fmt, ...)
+cli_vsprintf(const char *fmt, va_list args)
 {
-    int len = 0;
-    va_list args;
+    va_list copy;
 
-    if (cli_buffer_len >= CLI_BUFFER_SIZE) {
-        return -ENOSPACE;
+    va_copy(copy, args);
+    uint32 vsize = os_vsprintf_size(fmt, copy);
+    va_end(copy);
+
+    if (cli_buffer_left < vsize) {
+        __this_cli_buffer_expand(vsize);
     }
     
-    va_start(args, (char *)fmt);
-    len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left, fmt, args);
-    va_end(args);
-
+    int len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left, fmt, args);
     if (len<0) {
         return -errno;
     }
@@ -178,7 +216,21 @@ cli_sprintf(const char *fmt, ...)
     }
 
     cli_buffer_len += len;
+    cli_buffer_cursor[0] = 0;
 
+    return len;
+}
+
+static inline int
+cli_sprintf(const char *fmt, ...)
+{
+    int len = 0;
+    va_list args;
+    
+    va_start(args, (char *)fmt);
+    len = cli_vsprintf(fmt, args);
+    va_end(args);
+    
     return len;
 }
 
@@ -191,7 +243,7 @@ cli_recv(int fd, int timeout /* ms */)
 static inline int
 cli_send(int fd)
 {
-    return io_send(fd, (char *)__this_cli_buffer(), cli_buffer_size);
+    return io_send(fd, (char *)__this_cli_buffer(), cli_buffer_space);
 }
 
 static inline int
@@ -203,7 +255,7 @@ cli_recvfrom(int fd, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen
 static inline int
 cli_sendto(int fd, sockaddr_t *addr, socklen_t addrlen)
 {
-    return io_sendto(fd, (char *)__this_cli_buffer(), cli_buffer_size, addr, addrlen);
+    return io_sendto(fd, (char *)__this_cli_buffer(), cli_buffer_space, addr, addrlen);
 }
 
 typedef struct {
@@ -224,9 +276,7 @@ ____cli_d_handle(char *line, cli_table_t *table, int count, int (*reply)(int err
     char *method = line;
     char *args   = line;
     int err;
-    
-    cli_buffer_zero();
-    
+        
     os_str_strim_both(method, NULL);
     os_str_reduce(method, NULL);
 
@@ -249,33 +299,51 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
 {
     char buf[1+OS_LINE_LEN] = {0};
     sockaddr_un_t client = OS_SOCKADDR_UNIX(__empty);
-    sockaddr_un_t *pclient = &client;
     socklen_t addrlen = sizeof(client);
-    int err;
-    
-    err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)pclient, &addrlen);
-    if (err<0) { /* yes, <0 */
-        return err;
-    }
-    buf[err] = 0;
-    
-    if (is_abstract_sockaddr(pclient)) {
-        set_abstract_sockaddr_len(pclient, addrlen);
+    int len, err;
 
-        debug_cli("recv request from:%s", get_abstract_path(pclient));
+#if CLI_SOCK_TYPE==SOCK_STREAM
+    fd = accept(fd, (sockaddr_t *)&client, &addrlen);
+    if (fd<0) {
+        return fd;
     }
-    debug_cli("recv request[%d]:%s", err, buf);
+    
+    len = __io_recv(fd, buf, sizeof(buf), 0);
+    if (len<0) { /* yes, <0 */
+        return len;
+    }
+#else
+    len = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&client, &addrlen);
+    if (len<0) { /* yes, <0 */
+        return len;
+    }
+#endif
+
+    buf[len] = 0;
+    
+    if (is_abstract_sockaddr(&client)) {
+        set_abstract_sockaddr_len(&client, addrlen);
+
+        debug_cli("recv request from:%s", get_abstract_path(&client));
+    }
+    debug_cli("recv request[%d]:%s", len, buf);
     
     int reply(int err)
     {
         cli_buffer_err = err;
 
-        debug_cli("send reply[%d]:%s", cli_buffer_size, (char *)__this_cli_buffer());
+        debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__this_cli_buffer());
         
-        return cli_sendto(fd, (sockaddr_t *)pclient, addrlen);
+        return cli_sendto(fd, (sockaddr_t *)&client, addrlen);
     }
     
-    return ____cli_d_handle(buf, table, count, reply);
+    err = ____cli_d_handle(buf, table, count, reply);
+
+#if CLI_SOCK_TYPE==SOCK_STREAM
+    close(fd);
+#endif
+
+    return err;
 }
 
 #define cli_d_handle(_fd, _table) \
@@ -292,7 +360,7 @@ __cli_c_handle(
 {
     int fd, err, len;
     
-    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+    fd = socket(AF_UNIX, CLI_SOCK_TYPE, 0);
     if (fd<0) {
         debug_error("socket error:%d", -errno);
         err = -errno; goto error;
@@ -318,12 +386,27 @@ __cli_c_handle(
     debug_cli("send repuest[%d]:%s", len, buf);
     
     if (syn) {
-        err = cli_recv(fd, timeout);
+#if CLI_SOCK_TYPE==SOCK_STREAM
+        err = io_recv(fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), timeout);
         if (err<0) { /* yes, <0 */
             goto error;
         }
         
-        if (0==cli_buffer_err && cli_buffer_len && is_good_str(cli_buffer_buf)) {
+        __this_cli_buffer_promise();
+        
+        err = io_recv(fd, cli_buffer_buf, cli_buffer_len, timeout);
+        if (err<0) { /* yes, <0 */
+            goto error;
+        }
+        cli_buffer_cursor[0] = 0;
+#else
+        err = cli_recv(fd, timeout);
+        if (err<0) { /* yes, <0 */
+            goto error;
+        }
+#endif
+
+        if (0==cli_buffer_err && cli_buffer_len) {
             os_printf("%s", cli_buffer_buf);
         }
 
@@ -387,7 +470,7 @@ cli_u_server_init(cli_server_t *server)
 {
     int fd, err;
     
-    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+    fd = socket(AF_UNIX, CLI_SOCK_TYPE, 0);
     if (fd<0) {
     	debug_error("socket error:%d", -errno);
         return -errno;
@@ -400,7 +483,7 @@ cli_u_server_init(cli_server_t *server)
         return -errno;
     }
 
-    int size = 1+CLI_BUFFER_SIZE;
+    int size = CLI_BUFFER_SIZE;
     err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
     if (err<0) {
         debug_error("setsockopt error:%d", -errno);

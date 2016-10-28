@@ -126,21 +126,6 @@ DECLARE_ENUM(user_auto, __XLIST_UM_AUTO, UM_AUTO_END);
 #endif
 
 #if 1
-/*
-                   [FAKE]--------------->
-                    ^                   |
-                    |                   |
-                    |                   |
-                  (fake)              (unfake)
-                    |                   |
-                    |                   |
-    <--(delete)----[NONE]<--(unbind)--[BIND]<--(deauth)--[AUTH]
-    ---(create)--->[NONE]---(bind)--->[BIND]---(auth)--->[AUTH]
-    (unblock)----->[NONE]             [BIND]             [AUTH]
-       |            |
-       |            |
-    [BLOCK]<------(block)
-*/
 #define __XLIST_UM_STATE(_)         \
     _(UM_STATE_NONE, 0, "none"),    \
     _(UM_STATE_BIND, 1, "bind"),    \

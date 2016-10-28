@@ -870,10 +870,12 @@ js_load_code(duk_context *ctx, char *tag, char *code)
     return err;
 }
 
+typedef int js_register_f(duk_context *);
+
 static inline int
-js_register(duk_context *ctx)
+js_register(duk_context *ctx, js_register_f *cb)
 {
-    static int (*registers[])(duk_context *) = {
+    static js_register_f *registers[] = {
         js_global_register,
         js_duktape_register,
         js_my_register,
@@ -896,14 +898,18 @@ js_register(duk_context *ctx)
     };
     int i, err;
 
-    for (i=0; i<os_count_of(registers); i++) {
-        err = (*registers[i])(ctx);
-        if (err<0) {
-            return err;
+    if (NULL==cb) {
+        for (i=0; i<os_count_of(registers); i++) {
+            err = (*registers[i])(ctx);
+            if (err<0) {
+                return err;
+            }
         }
-    }
 
-    return 0;
+        return 0;
+    } else {
+        return (*cb)(ctx);
+    }
 }
 
 enum {
@@ -1020,7 +1026,7 @@ js_init(char *name, int argc, char **argv)
     }
     duk_set_priv(ctx, priv);
     
-    err = js_register(ctx);
+    err = js_register(ctx, NULL);
     if (err<0) {
         goto error;
     }
