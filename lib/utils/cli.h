@@ -323,7 +323,7 @@ __cli_c_handle(
     }
     debug_cli("send repuest[%d]:%s", len, buf);
     
-    if (syn) {
+    while (syn) {
         err = cli_recv(fd, timeout);
         if (err<0) { /* yes, <0 */
             goto error;
