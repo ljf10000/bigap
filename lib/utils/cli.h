@@ -316,7 +316,11 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
 
         debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__this_cli_buffer());
 
+#if CLI_SOCK_TYPE==SOCK_STREAM
+        return io_send(fd, (char *)__this_cli_buffer(), cli_buffer_space);
+#else
         return io_sendto(fd, (char *)__this_cli_buffer(), cli_buffer_space, (sockaddr_t *)&client, addrlen);
+#endif
     }
     
     err = ____cli_d_handle(buf, table, count, reply);
