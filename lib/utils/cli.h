@@ -303,7 +303,9 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     int len, err;
 
 #if CLI_SOCK_TYPE==SOCK_STREAM
+    debug_cli("before accept fd=%d", fd);
     fd = accept(fd, (sockaddr_t *)&client, &addrlen);
+    debug_cli("after accept fd=%d", fd);
     if (fd<0) {
         return fd;
     }
