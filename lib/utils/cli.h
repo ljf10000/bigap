@@ -306,7 +306,23 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
 #define cli_d_handle(_fd, _table) \
     __cli_d_handle(_fd, _table, os_count_of(_table))
 
-static int
+static inline int
+__cli_c_printf(void)
+{
+    if (0==cli_buffer_err && cli_buffer_len && is_good_str(cli_buffer_buf)) {
+        os_printf("%s", cli_buffer_buf);
+    }
+
+    debug_trace("action:%s, error:%d, len:%d, buf:%s", 
+        buf,
+        cli_buffer_err,
+        cli_buffer_len,
+        cli_buffer_buf);
+
+    return cli_buffer_err;
+}
+
+static inline int
 __cli_c_handle(
     bool syn,
     char *buf, 
@@ -347,17 +363,17 @@ __cli_c_handle(
         if (err<0) { /* yes, <0 */
             goto error;
         }
-        
-        if (0==cli_buffer_err && cli_buffer_len && is_good_str(cli_buffer_buf)) {
-            os_printf("%s", cli_buffer_buf);
-        }
 
-        debug_trace("action:%s, error:%d, len:%d, buf:%s", 
-            buf,
-            cli_buffer_err,
-            cli_buffer_len,
-            cli_buffer_buf);
-        err = cli_buffer_err;
+        err = __cli_c_printf();
+
+        os_noblock(fd);
+        while(1) {
+            if (__io_recv(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE)<0) {
+                goto error;
+            }
+
+            err = __cli_c_printf();
+        }
     }
     
 error:
