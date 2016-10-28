@@ -313,8 +313,7 @@ __cli_c_printf(void)
         os_printf("%s", cli_buffer_buf);
     }
 
-    debug_trace("action:%s, error:%d, len:%d, buf:%s", 
-        buf,
+    debug_trace("error:%d, len:%d, buf:%s", 
         cli_buffer_err,
         cli_buffer_len,
         cli_buffer_buf);
