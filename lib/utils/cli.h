@@ -137,9 +137,9 @@ __this_cli_buffer(void)
 #define cli_buffer_err      __this_cli_buffer()->header.err
 #define cli_buffer_len      __this_cli_buffer()->header.len
 #define cli_buffer_buf      __this_cli_buffer()->buf
-#define cli_buffer_cursor   (cli_buffer_buf + cli_buffer_len)
+#define cli_buffer_cursor   (cli_buffer_buf  + cli_buffer_len)
 #define cli_buffer_space    (cli_header_size + cli_buffer_len)
-#define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_space)
+#define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_len)
 
 #define cli_buffer_zero()   os_objzero(__this_cli_buffer())
 #define cli_buffer_clear()  do{ \
@@ -412,7 +412,7 @@ cli_u_server_init(cli_server_t *server)
         return -errno;
     }
 
-    int size = 1+CLI_BUFFER_SIZE;
+    int size = 1+cli_header_size+CLI_BUFFER_SIZE;
     err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
     if (err<0) {
         debug_error("setsockopt error:%d", -errno);
