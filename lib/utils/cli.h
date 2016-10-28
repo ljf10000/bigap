@@ -100,12 +100,12 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 typedef struct {
     sockaddr_un_t addr;
     socklen_t len;
+    int fd;
 } cli_addr_t;
 
 typedef struct {
     uint32 len;
-    uint16 max, now;
-    uint32 _r;
+    uint32 _r0, _r1;
     int err;
 } cli_header_t;
 
@@ -154,7 +154,6 @@ __this_cli_buffer(void)
 
 #define cli_buffer_err      __this_cli_buffer()->header.err
 #define cli_buffer_len      __this_cli_buffer()->header.len
-#define cli_buffer_count    __this_cli_buffer()->header.count
 #define cli_buffer_buf      __this_cli_buffer()->buf
 #define cli_buffer_cursor   (cli_buffer_buf  + cli_buffer_len)
 #define cli_buffer_size     (CLI_BUFFER_SIZE - sizeof(cli_header_t) - 1)
@@ -164,8 +163,22 @@ __this_cli_buffer(void)
 static inline void
 cli_buffer_clear(void) 
 {
-    cli_buffer_buf[0] = 0;
-    cli_buffer_len = 0;
+    cli_buffer_buf[0]   = 0;
+    cli_buffer_len      = 0;
+}
+
+static inline int
+__cli_reply(int err)
+{
+    cli_buffer_err = err;
+
+    debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__this_cli_buffer());
+    
+    int ret = cli_sendto(__this_cli_addr()->fd, (sockaddr_t *)&__this_cli_addr()->addr, __this_cli_addr()->len);
+
+    cli_buffer_clear();
+    
+    return ret;
 }
 
 static inline int
@@ -254,7 +267,6 @@ ____cli_d_handle(char *line, cli_table_t *table, int count, int (*reply)(int err
 
     cli_shift(args);
 
-    cli_buffer_clear();
     err = cli_line_handle(table, count, method, args, reply);
 
     debug_trace("action:%s %s, error:%d, len:%d, buf:%s", 
@@ -270,34 +282,25 @@ static inline int
 __cli_d_handle(int fd, cli_table_t *table, int count)
 {
     char buf[1+OS_LINE_LEN] = {0};
-    sockaddr_un_t client = OS_SOCKADDR_UNIX(__empty);
-    sockaddr_un_t *pclient = &client;
-    socklen_t addrlen = sizeof(client);
     int err;
+
+    __this_cli_addr()->fd = fd;
+    cli_buffer_clear();
     
-    err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)pclient, &addrlen);
+    err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&__this_cli_addr()->addr, &__this_cli_addr()->len);
     if (err<0) { /* yes, <0 */
         return err;
     }
     buf[err] = 0;
     
-    if (is_abstract_sockaddr(pclient)) {
-        set_abstract_sockaddr_len(pclient, addrlen);
+    if (is_abstract_sockaddr(&__this_cli_addr()->addr)) {
+        set_abstract_sockaddr_len(&__this_cli_addr()->addr, __this_cli_addr()->len);
 
-        debug_cli("recv request from:%s", get_abstract_path(pclient));
+        debug_cli("recv request from:%s", get_abstract_path(&__this_cli_addr()->addr));
     }
     debug_cli("recv request[%d]:%s", err, buf);
     
-    int reply(int err)
-    {
-        cli_buffer_err = err;
-
-        debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__this_cli_buffer());
-        
-        return cli_sendto(fd, (sockaddr_t *)pclient, addrlen);
-    }
-    
-    return ____cli_d_handle(buf, table, count, reply);
+    return ____cli_d_handle(buf, table, count, __cli_reply);
 }
 
 #define cli_d_handle(_fd, _table) \
