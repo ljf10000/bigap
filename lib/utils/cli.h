@@ -200,7 +200,7 @@ cli_vsprintf(const char *fmt, va_list args)
     va_list copy;
 
     va_copy(copy, args);
-    uint32 vsize = os_vsprintf_size(fmt, copy);
+    uint32 vsize = os_vsprintf_size((char *)fmt, copy);
     va_end(copy);
 
     if (cli_buffer_left < vsize) {
