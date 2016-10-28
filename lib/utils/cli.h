@@ -367,6 +367,7 @@ __cli_c_handle(
 
         os_noblock(fd);
         while(1) {
+            os_usleep(10000);
             if (__io_recv(fd, (char *)__cli_buffer(), CLI_BUFFER_SIZE, 0)<0) {
                 goto error;
             }
