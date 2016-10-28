@@ -188,7 +188,7 @@ cli_sprintf(const char *fmt, ...)
     va_list args;
 
     va_start(args, (char *)fmt);
-    len = cli_vsprintf(fmt, args);
+    int len = cli_vsprintf(fmt, args);
     va_end(args);
 
     return len;
