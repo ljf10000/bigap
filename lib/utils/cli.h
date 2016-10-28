@@ -96,8 +96,12 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 #endif /* defined(__APP__) || defined(__BOOT__) */
 /******************************************************************************/
 #ifdef __APP__
+#define CLI_F_MORE  0x01
+
 typedef struct {
-    uint32 len, r0, r1;
+    uint32 len;
+    uint32 flag;
+    uint32 _r;
     int err;
 } cli_header_t;
 
@@ -108,7 +112,7 @@ typedef struct {
 typedef struct {
     cli_header_t header;
 
-    char buf[CLI_BUFFER_SIZE - sizeof(cli_header_t)];
+    char buf[0];
 } cli_buffer_t;
 
 #define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t *__THIS_CLI_BUFFER
@@ -126,7 +130,8 @@ static inline cli_buffer_t *
 __this_cli_buffer(void)
 {
     if (NULL==__THIS_CLI_BUFFER) {
-        __THIS_CLI_BUFFER = (cli_buffer_t *)os_zalloc(sizeof(cli_buffer_t));
+        __THIS_CLI_BUFFER = (cli_buffer_t *)os_zalloc(CLI_BUFFER_SIZE);
+        __THIS_CLI_BUFFER->header.size = CLI_BUFFER_SIZE;
     }
     
     return __THIS_CLI_BUFFER;
@@ -134,6 +139,7 @@ __this_cli_buffer(void)
 
 #define cli_buffer_err      __this_cli_buffer()->header.err
 #define cli_buffer_len      __this_cli_buffer()->header.len
+#define cli_buffer_flag     __this_cli_buffer()->header.flag
 #define cli_buffer_buf      __this_cli_buffer()->buf
 #define cli_buffer_cursor   (cli_buffer_buf  + cli_buffer_len)
 #define cli_buffer_size     (CLI_BUFFER_SIZE - sizeof(cli_header_t) - 1)
@@ -146,15 +152,6 @@ cli_buffer_clear(void)
     cli_buffer_buf[0] = 0;
     cli_buffer_len = 0;
 }
-
-static inline int
-cli_buffer_error(int err)
-{
-    cli_buffer_err = err;
-
-    return err;
-}
-#define cli_buffer_ok       cli_buffer_error(0)
 
 static inline int
 cli_vsprintf(const char *fmt, va_list args)
@@ -197,7 +194,7 @@ cli_sprintf(const char *fmt, ...)
 static inline int
 cli_recv(int fd, int timeout /* ms */)
 {
-    return io_recv(fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), timeout);
+    return io_recv(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, timeout);
 }
 
 static inline int
@@ -209,7 +206,7 @@ cli_send(int fd)
 static inline int
 cli_recvfrom(int fd, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen)
 {
-    return io_recvfrom(fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), timeout, addr, paddrlen);
+    return io_recvfrom(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, timeout, addr, paddrlen);
 }
 
 static inline int
