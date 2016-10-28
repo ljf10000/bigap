@@ -98,7 +98,7 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 #ifdef __APP__
 
 #ifndef CLI_SOCK_TYPE
-#define CLI_SOCK_TYPE   SOCK_DGRAM
+#define CLI_SOCK_TYPE       SOCK_DGRAM
 #endif
 
 #if CLI_SOCK_TYPE!=SOCK_STREAM || CLI_SOCK_TYPE!=SOCK_DGRAM
@@ -499,6 +499,10 @@ cli_u_server_init(cli_server_t *server)
         debug_error("setsockopt error:%d", -errno);
         return -errno;
     }
+
+#if CLI_SOCK_TYPE==SOCK_STREAM
+    listen(fd, 0);
+#endif
 
     server->fd = fd;
     
