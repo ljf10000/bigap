@@ -96,11 +96,15 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 #endif /* defined(__APP__) || defined(__BOOT__) */
 /******************************************************************************/
 #ifdef __APP__
-#define CLI_F_MORE  0x01
+
+typedef struct {
+    sockaddr_un_t addr;
+    socklen_t len;
+} cli_addr_t;
 
 typedef struct {
     uint32 len;
-    uint32 flag;
+    uint16 max, now;
     uint32 _r;
     int err;
 } cli_header_t;
@@ -118,13 +122,25 @@ typedef struct {
 #define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t *__THIS_CLI_BUFFER
 #define DECLARE_REAL_CLI_BUFFER     cli_buffer_t *__THIS_CLI_BUFFER
 
+#define DECLARE_FAKE_CLI_ADDR       extern cli_addr_t __THIS_CLI_ADDR
+#define DECLARE_REAL_CLI_ADDR       cli_addr_t __THIS_CLI_ADDR = { .addr = OS_SOCKADDR_UNIX(__empty), .len = sizeof(sockaddr_un_t) }
+
 #ifdef __ALLINONE__
 #   define DECLARE_CLI_BUFFER       DECLARE_FAKE_CLI_BUFFER
+#   define DECLARE_CLI_ADDR         DECLARE_FAKE_CLI_ADDR
 #else
 #   define DECLARE_CLI_BUFFER       DECLARE_REAL_CLI_BUFFER
+#   define DECLARE_CLI_ADDR         DECLARE_REAL_CLI_ADDR
 #endif
 
 DECLARE_FAKE_CLI_BUFFER;
+DECLARE_FAKE_CLI_ADDR;
+
+static inline cli_addr_t *
+__this_cli_addr(void)
+{
+    return &__THIS_CLI_ADDR;
+}
 
 static inline cli_buffer_t *
 __this_cli_buffer(void)
@@ -138,7 +154,7 @@ __this_cli_buffer(void)
 
 #define cli_buffer_err      __this_cli_buffer()->header.err
 #define cli_buffer_len      __this_cli_buffer()->header.len
-#define cli_buffer_flag     __this_cli_buffer()->header.flag
+#define cli_buffer_count    __this_cli_buffer()->header.count
 #define cli_buffer_buf      __this_cli_buffer()->buf
 #define cli_buffer_cursor   (cli_buffer_buf  + cli_buffer_len)
 #define cli_buffer_size     (CLI_BUFFER_SIZE - sizeof(cli_header_t) - 1)
@@ -158,7 +174,7 @@ cli_vsprintf(const char *fmt, va_list args)
     va_list copy;
 
     va_copy(copy, args);
-    int vsize = os_vsprintf_size(fmt, copy);
+    int vsize = os_vsprintf_size((char *)fmt, copy);
     va_end(copy);
 
     if (cli_buffer_left < vsize) {
@@ -323,7 +339,7 @@ __cli_c_handle(
     }
     debug_cli("send repuest[%d]:%s", len, buf);
     
-    while (syn) {
+    if (syn) {
         err = cli_recv(fd, timeout);
         if (err<0) { /* yes, <0 */
             goto error;
