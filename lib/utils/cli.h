@@ -138,8 +138,8 @@ __this_cli_buffer(void)
 #define cli_buffer_len      __this_cli_buffer()->header.len
 #define cli_buffer_buf      __this_cli_buffer()->buf
 #define cli_buffer_cursor   (cli_buffer_buf + cli_buffer_len)
-#define cli_buffer_size     (cli_header_size + cli_buffer_len)
-#define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_size)
+#define cli_buffer_space    (cli_header_size + cli_buffer_len)
+#define cli_buffer_left     (CLI_BUFFER_SIZE - cli_buffer_space)
 
 #define cli_buffer_zero()   os_objzero(__this_cli_buffer())
 #define cli_buffer_clear()  do{ \
@@ -191,7 +191,7 @@ cli_recv(int fd, int timeout /* ms */)
 static inline int
 cli_send(int fd)
 {
-    return io_send(fd, (char *)__this_cli_buffer(), cli_buffer_size);
+    return io_send(fd, (char *)__this_cli_buffer(), cli_buffer_space);
 }
 
 static inline int
@@ -203,7 +203,7 @@ cli_recvfrom(int fd, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen
 static inline int
 cli_sendto(int fd, sockaddr_t *addr, socklen_t addrlen)
 {
-    return io_sendto(fd, (char *)__this_cli_buffer(), cli_buffer_size, addr, addrlen);
+    return io_sendto(fd, (char *)__this_cli_buffer(), cli_buffer_space, addr, addrlen);
 }
 
 typedef struct {
@@ -270,7 +270,7 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     {
         cli_buffer_err = err;
 
-        debug_cli("send reply[%d]:%s", cli_buffer_size, (char *)__this_cli_buffer());
+        debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__this_cli_buffer());
         
         return cli_sendto(fd, (sockaddr_t *)pclient, addrlen);
     }
