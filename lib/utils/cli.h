@@ -98,7 +98,7 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 #ifdef __APP__
 
 #ifndef CLI_SOCK_TYPE
-#define CLI_SOCK_TYPE   SOCK_STREAM //SOCK_DGRAM
+#define CLI_SOCK_TYPE   SOCK_DGRAM
 #endif
 
 #if CLI_SOCK_TYPE!=SOCK_STREAM || CLI_SOCK_TYPE!=SOCK_DGRAM
@@ -148,6 +148,7 @@ __this_cli_buffer(void)
 #define cli_buffer_left     ((cli_buffer_size>cli_buffer_len)?(cli_buffer_size-cli_buffer_len):0)
 #define CLI_BUFFER_LEN      (cli_buffer_len + sizeof(cli_buffer_t) + 1)
 
+#if CLI_SOCK_TYPE==SOCK_STREAM
 static inline cli_buffer_t *
 __this_cli_buffer_expand(uint32 expand)
 {
@@ -179,6 +180,7 @@ __this_cli_buffer_promise(void)
     
     return __THIS_CLI_BUFFER;
 }
+#endif
 
 #define cli_buffer_clear()  do{ \
     cli_buffer_len     = 0;     \
@@ -202,9 +204,15 @@ cli_vsprintf(const char *fmt, va_list args)
     va_copy(copy, args);
     uint32 vsize = os_vsprintf_size((char *)fmt, copy);
     va_end(copy);
-
+    
+#if CLI_SOCK_TYPE==SOCK_STREAM
     if (cli_buffer_left < vsize) {
         __this_cli_buffer_expand(vsize);
+    }
+#endif
+
+    if (cli_buffer_left < vsize) {
+        return -ENOSPACE;
     }
     
     int len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left, fmt, args);
