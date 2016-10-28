@@ -368,7 +368,7 @@ __cli_c_handle(
 
         os_noblock(fd);
         while(1) {
-            if (__io_recv(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE)<0) {
+            if (__io_recv(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, 0)<0) {
                 goto error;
             }
 
