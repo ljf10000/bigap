@@ -110,8 +110,8 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 #endif
 
 typedef struct {
-    uint32 len;
-    uint32 size;
+    uint32 len;     /* just buf len */
+    uint32 size;    /* include header */
     uint32 _r;
     int err;
 
@@ -243,7 +243,7 @@ cli_sprintf(const char *fmt, ...)
 static inline int
 cli_recv(int fd, int timeout /* ms */)
 {
-    return io_recv(fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), timeout);
+    return io_recv(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, timeout);
 }
 
 static inline int
@@ -255,7 +255,7 @@ cli_send(int fd)
 static inline int
 cli_recvfrom(int fd, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen)
 {
-    return io_recvfrom(fd, (char *)__this_cli_buffer(), sizeof(cli_buffer_t), timeout, addr, paddrlen);
+    return io_recvfrom(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, timeout, addr, paddrlen);
 }
 
 static inline int
