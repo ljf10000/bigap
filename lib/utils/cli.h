@@ -157,19 +157,19 @@ cli_buffer_error(int err)
 #define cli_buffer_ok       cli_buffer_error(0)
 
 static inline int
-cli_sprintf(const char *fmt, ...)
+cli_vsprintf(const char *fmt, va_list args)
 {
-    int len = 0;
-    va_list args;
+    va_list copy;
 
-    if (cli_buffer_len >= CLI_BUFFER_SIZE) {
+    va_copy(copy, args);
+    int vsize = os_vsprintf_size(fmt, copy);
+    va_end(copy);
+
+    if (cli_buffer_left < vsize) {
         return -ENOSPACE;
     }
-    
-    va_start(args, (char *)fmt);
-    len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left, fmt, args);
-    va_end(args);
 
+    int len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left, fmt, args);
     if (len<0) {
         return -errno;
     }
@@ -178,6 +178,18 @@ cli_sprintf(const char *fmt, ...)
     }
 
     cli_buffer_len += len;
+
+    return len;
+}
+
+static inline int
+cli_sprintf(const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, (char *)fmt);
+    len = cli_vsprintf(fmt, args);
+    va_end(args);
 
     return len;
 }
