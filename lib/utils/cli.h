@@ -111,7 +111,7 @@ typedef struct {
 } cli_header_t;
 
 #ifndef CLI_BUFFER_SIZE
-#define CLI_BUFFER_SIZE         (4*1024)
+#define CLI_BUFFER_SIZE         (2*1024)
 #endif
 
 typedef struct {
