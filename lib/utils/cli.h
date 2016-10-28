@@ -131,7 +131,6 @@ __this_cli_buffer(void)
 {
     if (NULL==__THIS_CLI_BUFFER) {
         __THIS_CLI_BUFFER = (cli_buffer_t *)os_zalloc(CLI_BUFFER_SIZE);
-        __THIS_CLI_BUFFER->header.size = CLI_BUFFER_SIZE;
     }
     
     return __THIS_CLI_BUFFER;
