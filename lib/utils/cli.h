@@ -105,7 +105,8 @@ typedef struct {
 
 typedef struct {
     uint32 len;
-    uint32 _r0, _r1;
+    uint32 _r0;
+    uint32 _r1;
     int err;
 } cli_header_t;
 
@@ -137,13 +138,13 @@ DECLARE_FAKE_CLI_BUFFER;
 DECLARE_FAKE_CLI_ADDR;
 
 static inline cli_addr_t *
-__this_cli_addr(void)
+__cli_address(void)
 {
     return &__THIS_CLI_ADDR;
 }
 
 static inline cli_buffer_t *
-__this_cli_buffer(void)
+__cli_buffer(void)
 {
     if (NULL==__THIS_CLI_BUFFER) {
         __THIS_CLI_BUFFER = (cli_buffer_t *)os_zalloc(CLI_BUFFER_SIZE);
@@ -152,9 +153,9 @@ __this_cli_buffer(void)
     return __THIS_CLI_BUFFER;
 }
 
-#define cli_buffer_err      __this_cli_buffer()->header.err
-#define cli_buffer_len      __this_cli_buffer()->header.len
-#define cli_buffer_buf      __this_cli_buffer()->buf
+#define cli_buffer_err      __cli_buffer()->header.err
+#define cli_buffer_len      __cli_buffer()->header.len
+#define cli_buffer_buf      __cli_buffer()->buf
 #define cli_buffer_cursor   (cli_buffer_buf  + cli_buffer_len)
 #define cli_buffer_size     (CLI_BUFFER_SIZE - sizeof(cli_header_t) - 1)
 #define cli_buffer_space    (sizeof(cli_header_t) + cli_buffer_len)
@@ -170,35 +171,35 @@ cli_buffer_clear(void)
 static inline int
 __cli_recv(int fd, int timeout /* ms */)
 {
-    return io_recv(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, timeout);
+    return io_recv(fd, (char *)__cli_buffer(), CLI_BUFFER_SIZE, timeout);
 }
 
 static inline int
 __cli_send(int fd)
 {
-    return io_send(fd, (char *)__this_cli_buffer(), cli_buffer_space);
+    return io_send(fd, (char *)__cli_buffer(), cli_buffer_space);
 }
 
 static inline int
 __cli_recvfrom(int fd, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen)
 {
-    return io_recvfrom(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, timeout, addr, paddrlen);
+    return io_recvfrom(fd, (char *)__cli_buffer(), CLI_BUFFER_SIZE, timeout, addr, paddrlen);
 }
 
 static inline int
 __cli_sendto(int fd, sockaddr_t *addr, socklen_t addrlen)
 {
-    return io_sendto(fd, (char *)__this_cli_buffer(), cli_buffer_space, addr, addrlen);
+    return io_sendto(fd, (char *)__cli_buffer(), cli_buffer_space, addr, addrlen);
 }
 
 static inline int
 __cli_reply(int err)
 {
-    cli_addr_t *ca = __this_cli_addr();
+    cli_addr_t *ca = __cli_address();
     
     cli_buffer_err = err;
 
-    debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__this_cli_buffer());
+    debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__cli_buffer());
     
     int ret = __cli_sendto(ca->fd, (sockaddr_t *)&ca->addr, ca->len);
 
@@ -215,6 +216,10 @@ cli_vsprintf(const char *fmt, va_list args)
     va_copy(copy, args);
     int vsize = os_vsprintf_size((char *)fmt, copy);
     va_end(copy);
+
+    if (cli_buffer_left < vsize) {
+        __cli_reply();
+    }
 
     if (cli_buffer_left < vsize) {
         return -ENOSPACE;
@@ -260,7 +265,7 @@ typedef struct {
 static inline int
 __cli_d_handle(int fd, cli_table_t *table, int count)
 {
-    cli_addr_t *ca = __this_cli_addr();
+    cli_addr_t *ca = __cli_address();
     char buf[1+OS_LINE_LEN] = {0};
     int err;
 
@@ -362,7 +367,7 @@ __cli_c_handle(
 
         os_noblock(fd);
         while(1) {
-            if (__io_recv(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, 0)<0) {
+            if (__io_recv(fd, (char *)__cli_buffer(), CLI_BUFFER_SIZE, 0)<0) {
                 goto error;
             }
 
