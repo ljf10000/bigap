@@ -148,7 +148,6 @@ __this_cli_buffer(void)
 #define cli_buffer_left     ((cli_buffer_size>cli_buffer_len)?(cli_buffer_size-cli_buffer_len):0)
 #define CLI_BUFFER_LEN      (cli_buffer_len + sizeof(cli_buffer_t) + 1)
 
-#if CLI_SOCK_TYPE==SOCK_STREAM
 static inline cli_buffer_t *
 __this_cli_buffer_expand(uint32 expand)
 {
@@ -180,7 +179,6 @@ __this_cli_buffer_promise(void)
     
     return __THIS_CLI_BUFFER;
 }
-#endif
 
 #define cli_buffer_clear()  do{ \
     cli_buffer_len     = 0;     \
@@ -311,9 +309,7 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     int len, err;
 
 #if CLI_SOCK_TYPE==SOCK_STREAM
-    debug_cli("before accept fd=%d", fd);
     fd = accept(fd, (sockaddr_t *)&client, &addrlen);
-    debug_cli("after accept fd=%d", fd);
     if (fd<0) {
         return fd;
     }
