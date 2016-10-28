@@ -111,7 +111,7 @@ typedef struct {
 } cli_header_t;
 
 #ifndef CLI_BUFFER_SIZE
-#define CLI_BUFFER_SIZE         (256*1024)
+#define CLI_BUFFER_SIZE         (4*1024)
 #endif
 
 typedef struct {
@@ -218,7 +218,7 @@ cli_vsprintf(const char *fmt, va_list args)
     va_end(copy);
 
     if (cli_buffer_left < vsize) {
-        __cli_reply();
+        __cli_reply(0);
     }
 
     if (cli_buffer_left < vsize) {
@@ -307,7 +307,7 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     __cli_d_handle(_fd, _table, os_count_of(_table))
 
 static inline int
-__cli_c_printf(void)
+__cli_c_show(void)
 {
     if (0==cli_buffer_err && cli_buffer_len && is_good_str(cli_buffer_buf)) {
         os_printf("%s", cli_buffer_buf);
@@ -363,7 +363,7 @@ __cli_c_handle(
             goto error;
         }
 
-        err = __cli_c_printf();
+        err = __cli_c_show();
 
         os_noblock(fd);
         while(1) {
@@ -371,7 +371,7 @@ __cli_c_handle(
                 goto error;
             }
 
-            err = __cli_c_printf();
+            err = __cli_c_show();
         }
     }
     
