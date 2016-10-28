@@ -240,30 +240,6 @@ cli_sprintf(const char *fmt, ...)
     return len;
 }
 
-static inline int
-cli_recv(int fd, int timeout /* ms */)
-{
-    return io_recv(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, timeout);
-}
-
-static inline int
-cli_send(int fd)
-{
-    return io_send(fd, (char *)__this_cli_buffer(), cli_buffer_space);
-}
-
-static inline int
-cli_recvfrom(int fd, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen)
-{
-    return io_recvfrom(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, timeout, addr, paddrlen);
-}
-
-static inline int
-cli_sendto(int fd, sockaddr_t *addr, socklen_t addrlen)
-{
-    return io_sendto(fd, (char *)__this_cli_buffer(), cli_buffer_space, addr, addrlen);
-}
-
 typedef struct {
     int timeout;
     
@@ -339,8 +315,8 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
         cli_buffer_err = err;
 
         debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__this_cli_buffer());
-        
-        return cli_sendto(fd, (sockaddr_t *)&client, addrlen);
+
+        return io_sendto(fd, (char *)__this_cli_buffer(), cli_buffer_space, (sockaddr_t *)&client, addrlen);
     }
     
     err = ____cli_d_handle(buf, table, count, reply);
@@ -406,7 +382,7 @@ __cli_c_handle(
         }
         cli_buffer_cursor[0] = 0;
 #else
-        err = cli_recv(fd, timeout);
+        err = io_recv(fd, (char *)__this_cli_buffer(), CLI_BUFFER_SIZE, timeout);
         if (err<0) { /* yes, <0 */
             goto error;
         }
