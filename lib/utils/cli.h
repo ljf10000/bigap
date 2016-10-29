@@ -50,7 +50,7 @@ typedef struct {
     _args = __cli_line_next(_args);         \
 }while(0)
 
-static int
+static inline int
 cli_line_handle(cli_table_t tables[], int count, char *tag, char *args, int (*reply)(int err))
 {
     int i, err;
@@ -74,7 +74,7 @@ cli_line_handle(cli_table_t tables[], int count, char *tag, char *args, int (*re
     return -ENOEXIST;
 }
 
-static int
+static inline int
 cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 {
     int i;
@@ -396,7 +396,7 @@ error:
     return err;
 }
 
-static int
+static inline int
 cli_c_handle(
     char *action,
     bool syn,

@@ -53,9 +53,9 @@ typedef struct loop_epoll {
 }
 
 typedef struct {
-    loop_sig_t sig;
-    loop_timer_t timer;
-    loop_epoll_t epoll;
+    loop_sig_t      sig;
+    loop_timer_t    timer;
+    loop_epoll_t    epoll;
 } loop_t;
 
 #define LOOP_INITER(                                                    \
@@ -121,7 +121,7 @@ __loop_signal_init(loop_t *loop)
     }
     sigprocmask(SIG_SETMASK, &set, NULL);
 
-    loop->sig.fd = signalfd(-1, &set, 0/*EFD_CLOEXEC*/);
+    loop->sig.fd = signalfd(-1, &set, EFD_CLOEXEC);
     if (loop->sig.fd<0) {
         return -errno;
     }
