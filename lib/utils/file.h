@@ -764,7 +764,7 @@ __os_file_lock(char *file, int open_mode, int permit, bool block)
     return fd;
 }
 
-static int
+static inline int
 os_file_lock(bool block)
 {
     __THIS_LOCKFD = __os_file_lock(__THIS_LOCKFILE, 0, (S_IRUSR | S_IRGRP), block);
@@ -772,7 +772,7 @@ os_file_lock(bool block)
     return is_good_fd(__THIS_LOCKFD)?0:__THIS_LOCKFD;
 }
 
-static int
+static inline int
 __os_file_unlock(char *file, int fd)
 {
     int err = 0;

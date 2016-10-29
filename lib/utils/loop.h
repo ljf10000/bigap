@@ -85,7 +85,7 @@ __is_use_loop_epoll(loop_t *loop)
     return NULL!=loop->epoll.cb;
 }
 
-static int
+static inline int
 os_loop_add(loop_t *loop, int fd)
 {
     struct epoll_event ev;
@@ -96,13 +96,13 @@ os_loop_add(loop_t *loop, int fd)
     return epoll_ctl(loop->epoll.fd, EPOLL_CTL_ADD, fd, &ev);
 }
 
-static int
+static inline int
 os_loop_del(loop_t *loop, int fd)
 {
     return epoll_ctl(loop->epoll.fd, EPOLL_CTL_DEL, fd, NULL);
 }
 
-static int
+static inline int
 __loop_signal_init(loop_t *loop)
 {
     int i, err;
@@ -129,7 +129,7 @@ __loop_signal_init(loop_t *loop)
     return os_loop_add(loop, loop->sig.fd);
 }
 
-static int
+static inline int
 __loop_timer_init(loop_t *loop)
 {
     int err;
@@ -158,7 +158,7 @@ __loop_timer_init(loop_t *loop)
     return os_loop_add(loop, loop->timer.fd);
 }
 
-static int
+static inline int
 __loop_epoll_init(loop_t *loop)
 {
     int i, err;
@@ -182,7 +182,7 @@ __loop_epoll_init(loop_t *loop)
     return 0;
 }
 
-static int
+static inline int
 os_loop_init(loop_t *loop)
 {
     int err = 0;
@@ -216,7 +216,7 @@ os_loop_init(loop_t *loop)
     return 0;
 }
 
-static void
+static inline void
 os_loop_fini(loop_t *loop)
 {
     os_close(loop->sig.fd);
@@ -224,7 +224,7 @@ os_loop_fini(loop_t *loop)
     os_close(loop->epoll.fd);
 }
 
-static void
+static inline void
 __loop_signal_handle(loop_t *loop)
 {
     struct signalfd_siginfo siginfo;
@@ -235,7 +235,7 @@ __loop_signal_handle(loop_t *loop)
     }
 }
 
-static void
+static inline void
 __loop_timer_handle(loop_t *loop)
 {
     uint64 val = 0;
@@ -246,7 +246,7 @@ __loop_timer_handle(loop_t *loop)
     }
 }
 
-static void
+static inline void
 __loop_epoll_handle(loop_t *loop, struct epoll_event *ev)
 {
     if (loop->epoll.cb) {
@@ -254,7 +254,7 @@ __loop_epoll_handle(loop_t *loop, struct epoll_event *ev)
     }
 }
 
-static int
+static inline int
 __loop_handle(loop_t *loop)
 {
     struct epoll_event evs[32];

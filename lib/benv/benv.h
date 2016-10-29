@@ -2038,7 +2038,7 @@ __benv_write(int env)
 #endif
 
 #if BENV_REPAIR
-static int
+static inline int
 __benv_repair(void)
 {
     int env, next, goodall = 0, goodfirst = -1, err = 0;
@@ -2090,7 +2090,7 @@ __benv_repair(void)
     return 0;
 }
 
-static int
+static inline int
 __benv_upgrade(void)
 {
     int env;
@@ -2118,7 +2118,7 @@ __benv_upgrade(void)
 static inline benv_cookie_t *benv_cookie_deft(void);
 static inline void benv_check(void);
 
-static int
+static inline int
 benv_repair(void)
 {
 #if BENV_REPAIR
@@ -2576,7 +2576,7 @@ benv_check(void)
 #endif
 }
 
-static int
+static inline int
 benv_cmd_find(int argc, char *argv[])
 {
     char *obj = argv[1];

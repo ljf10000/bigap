@@ -174,7 +174,7 @@ __pipe_info_release(pipe_info_t *info)
     }
 }
 
-static bool
+static inline bool
 __pipe_father_wait(pipe_info_t *info, int son)
 {
     int err, status = 0;
@@ -196,7 +196,7 @@ __pipe_father_wait(pipe_info_t *info, int son)
     }
 }
 
-static int
+static inline int
 __pipe_father_handle(pipe_info_t *info, int son)
 {
     struct timeval tv = {

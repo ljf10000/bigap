@@ -168,7 +168,7 @@ typedef struct {
 	void *value;
 } dukc_pointer_entry_t;
 
-static void
+static inline void
 duk_put_functions(duk_context *ctx, duk_idx_t obj_index, const dukc_func_entry_t *funcs)
 {
 	const dukc_func_entry_t *ent;

@@ -122,7 +122,7 @@ intf_set_admin_updown(char *ifname, bool up)
 *  0: not promisc
 * >0: is  promisc
 */
-static int
+static inline int
 intf_get_promisc(char *ifname)
 {
     int flag = 0, err;
@@ -135,7 +135,7 @@ intf_get_promisc(char *ifname)
     return (IFF_PROMISC & flag)?1:0;
 }
 
-static int
+static inline int
 intf_set_promisc(char *ifname)
 {
     int flag = 0, err;

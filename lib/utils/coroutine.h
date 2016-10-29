@@ -339,7 +339,7 @@ ____co_a_unbind(coroutine_t *co, co_id_t id)
     co->id = INVALID_COMMON_ID;
 }
 
-static int
+static inline int
 __co_a_bind(coroutine_t *co, co_id_t id)
 {
     int i, err, found = INVALID_COMMON_ID;
@@ -402,7 +402,7 @@ again:
     return 0;
 }
 
-static void
+static inline void
 __co_a_unbind(coroutine_t *co, co_id_t id)
 {
     if (co) {
@@ -520,7 +520,7 @@ ____co_destroy(coroutine_t *co)
     }                           \
 }while(0)
 
-static void
+static inline void
 __co_main(uint32 L32, uint32 H32)
 {
     int err = 0;
@@ -553,7 +553,7 @@ __co_main(uint32 L32, uint32 H32)
     debug_trace("CO(%s) exit(set CO.dead=(CO(%s):%p))", co->name, __this_coroutine()->dead->name, __this_coroutine()->dead);
 }
 
-static int
+static inline int
 __co_ev_init(coroutine_t *co)
 {
     co->ev.box[CO_EV_MAIL] = os_och_new(co->ev.mail_limit, sizeof(union co_mail));
@@ -564,7 +564,7 @@ __co_ev_init(coroutine_t *co)
     return 0;
 }
 
-static int
+static inline int
 __co_init(coroutine_t *co)
 {
     int err;
@@ -607,7 +607,7 @@ __co_init(coroutine_t *co)
     return 0;
 }
 
-static coroutine_t *
+static inline coroutine_t *
 __co_create(
     const char *name,
     co_main_f *main, 
@@ -713,7 +713,7 @@ __co_mail_send(coroutine_t *co, enum co_event ev, union co_mail *mail)
     return os_och_write(co->ev.box[ev], mail);
 }
 
-static int
+static inline int
 __co_mail_recv(coroutine_t *co, enum co_event ev, union co_mail *mail)
 {
     trace_assert(NULL!=co->ev.box[ev], "co recv mail when not empty");
@@ -737,7 +737,7 @@ __co_ready(coroutine_t *co, co_cred_t cred, bool immediately)
     }
 }
 
-static int
+static inline int
 __co_resume(coroutine_t *create, bool suspend_old)
 {
     int err;
@@ -786,7 +786,7 @@ __co_suspend_timeout(tm_node_t *timer)
     return tm_SAFE(0);
 }
 
-static int
+static inline int
 __co_suspend(int timeout/* ms */, co_cred_t cred)
 {
     int err, after = 0;

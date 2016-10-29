@@ -619,7 +619,7 @@ tm_fd_trigger(int fd)
     return tm_trigger(tm_fd_read(fd));
 }
 
-static int 
+static inline int 
 setup_timer(int sec, int usec)
 {
     struct itimerval itimer = OS_ITIMEVAL_INITER(sec, usec);

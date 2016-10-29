@@ -159,7 +159,7 @@ __fd_is_sock(fd_map_t *map)
     return os_hasflag(map->flag, FD_F_SOCK);
 }
 
-static int 
+static inline int 
 __fd_watcher(int fd, int event, loop_node_t *node)
 {
     fd_map_t *map = container_of(node, fd_map_t, loop);
@@ -176,7 +176,7 @@ __fd_watcher(int fd, int event, loop_node_t *node)
     return 0;
 }
 
-static int
+static inline int
 __fd_create(int fd, int flag)
 {
     fd_map_t *map;
@@ -207,7 +207,7 @@ __fd_create(int fd, int flag)
     return fd;
 }
 
-static void
+static inline void
 __fd_loop_handle(void)
 {
     co_mask_t mask = co_evmask_read_and_zero();
@@ -246,7 +246,7 @@ __fd_epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout
     return epoll_wait(epfd, events, maxevents, timeout);
 }
 
-static void
+static inline void
 __fd_loop_once(void)
 {
     int i, count;
@@ -300,7 +300,7 @@ __fd_loop_once(void)
     }
 }
 
-static int
+static inline int
 __fd_loop_main(void *no_used)
 {
     (void)no_used;
@@ -320,7 +320,7 @@ __fd_loop_main(void *no_used)
     return 0;
 }
 
-static int
+static inline int
 __fd_add_watcher(int fd, int events, loop_node_t *node)
 {
     int err;
@@ -350,7 +350,7 @@ __fd_add_watcher(int fd, int events, loop_node_t *node)
     return 0;
 }
 
-static int
+static inline int
 __fd_mod_watcher(int fd, int events)
 {
     int err;
@@ -382,7 +382,7 @@ __fd_mod_watcher(int fd, int events)
     return 0;
 }
 
-static int
+static inline int
 __fd_del_watcher(int fd)
 {
     int err;
@@ -462,7 +462,7 @@ ____fd_read(int fd)
     return co_suspend(map->read_timeout, map->cred);
 }
 
-static int
+static inline int
 __fd_getopt(int fd, int level, int optname, void *optval, socklen_t *optlen)
 {
     fd_map_t *map;
@@ -497,7 +497,7 @@ __fd_getopt(int fd, int level, int optname, void *optval, socklen_t *optlen)
     return 0;
 }
 
-static int
+static inline int
 __fd_setopt(int fd, int level, int optname, const void *optval, socklen_t optlen)
 {
     fd_map_t *map;
