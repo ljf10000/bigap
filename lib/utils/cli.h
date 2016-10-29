@@ -97,6 +97,10 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 /******************************************************************************/
 #ifdef __APP__
 
+#ifndef CLI_MULTI
+#define CLI_MULTI   0
+#endif
+
 typedef struct {
     sockaddr_un_t addr;
     socklen_t len;
@@ -111,7 +115,11 @@ typedef struct {
 } cli_header_t;
 
 #ifndef CLI_BUFFER_SIZE
+#if CLI_MULTI
 #define CLI_BUFFER_SIZE         (2*1024)
+#else
+#define CLI_BUFFER_SIZE         (256*1024)
+#endif
 #endif
 
 typedef struct {
@@ -217,9 +225,11 @@ cli_vsprintf(const char *fmt, va_list args)
     int vsize = os_vsprintf_size((char *)fmt, copy);
     va_end(copy);
 
+#if CLI_MULTI
     if (cli_buffer_left < vsize) {
         __cli_reply(0);
     }
+#endif
 
     if (cli_buffer_left < vsize) {
         return -ENOSPACE;
@@ -234,7 +244,8 @@ cli_vsprintf(const char *fmt, va_list args)
     }
 
     cli_buffer_len += len;
-
+    cli_buffer_cursor[0] = 0;
+    
     return len;
 }
 
