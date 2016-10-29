@@ -235,11 +235,12 @@ cli_vsprintf(const char *fmt, va_list args)
         return -ENOSPACE;
     }
 
-    int len = os_vsnprintf(cli_buffer_cursor, cli_buffer_left, fmt, args);
+    uint32 left = cli_buffer_left;
+    int len = os_vsnprintf(cli_buffer_cursor, left, fmt, args);
     if (len<0) {
         return -errno;
     }
-    else if (len > cli_buffer_left) {
+    else if (len > left) {
         return -ENOSPACE;
     }
 
