@@ -250,7 +250,6 @@ static inline int
 __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
 {
     int err;
-    loop_watcher_t w;
     
     __loop_init(loop);
 
@@ -389,8 +388,7 @@ __loop_normal_handle(loop_watcher_t *watcher, struct epoll_event *ev)
 static inline void
 __loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
 {
-    loop_watcher_t *watcher;
-    int fd, err;
+    int fd;
     struct sockaddr addr;
     socklen_t addrlen;
     
