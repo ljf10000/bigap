@@ -143,9 +143,7 @@ __loop_watcher_fini(loop_t *loop)
 
 static inline int
 __loop_watcher_init(loop_t *loop, uint32 limit)
-{
-    debug_trace("loop watcher init ...");
-    
+{   
     if (NULL==loop->watcher.base) {
         if (0==limit) {
             limit = LOOP_FDLIMIT;
@@ -222,8 +220,6 @@ __loop_watcher_del(loop_t *loop, int fd)
 static inline int
 __loop_master_init(loop_t *loop)
 {
-    debug_trace("loop master init ...");
-    
     if (false==is_good_fd(loop->efd)) {
         loop->efd = epoll_create1(EPOLL_CLOEXEC);
         if (loop->efd<0) {
@@ -278,6 +274,8 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
 
     err = timerfd_settime(fd, 0, &loop->tm, NULL);
     if (err<0) {
+        debug_error("create timer fd error:%d", -errno);
+        
         return -errno;
     }
 
@@ -306,6 +304,8 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
 
     int fd = signalfd(-1, &set, EFD_CLOEXEC);
     if (fd<0) {
+        debug_error("create signal fd error:%d", -errno);
+        
         return -errno;
     }
 
