@@ -206,6 +206,10 @@ __loop_watcher_add(loop_t *loop, loop_watcher_t *w)
         
         return -ENOSPACE;
     }
+    else if (__is_good_loop_watcher(watcher)) {
+        return -EEXIST;
+    }
+    
     os_objcpy(watcher, w);
     
     err = __loop_fd_add(loop, w->fd);
