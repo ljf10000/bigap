@@ -44,18 +44,18 @@ static int timer_cb(uint32 times)
 static int signal_cb(struct signalfd_siginfo *p)
 {
     os_println( "signo=%d, errno=%d, code=%d, pid=%d, fd=%d, tid=%d, band=%d, overrun=%d, trapno=%d, status=%d, int=%d",
-                p->ssi_signo,
-                p->ssi_errno,
-                p->ssi_code,
-                p->ssi_pid,
-                p->ssi_uid,
-                p->ssi_fd,
-                p->ssi_tid,
-                p->ssi_band,
-                p->ssi_overrun,
-                p->ssi_trapno,
-                p->ssi_status,
-                p->ssi_int);
+        p->ssi_signo,
+        p->ssi_errno,
+        p->ssi_code,
+        p->ssi_pid,
+        p->ssi_uid,
+        p->ssi_fd,
+        p->ssi_tid,
+        p->ssi_band,
+        p->ssi_overrun,
+        p->ssi_trapno,
+        p->ssi_status,
+        p->ssi_int);
 
     return 0;
 }
