@@ -37,6 +37,8 @@ static loop_t loop;
 static int timer_cb(uint32 times)
 {
     os_println("timer %u", times);
+
+    return 0;
 }
 
 static int signal_cb(struct signalfd_siginfo *p)
