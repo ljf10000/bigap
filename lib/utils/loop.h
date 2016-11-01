@@ -202,11 +202,13 @@ __loop_watcher_add(loop_t *loop, loop_watcher_t *w)
     
     loop_watcher_t *watcher = __loop_watcher_take(loop, w->fd);
     if (NULL==watcher) {
-        debug_error("not found watcher:%d", w->fd);
+        debug_trace("not found watcher:%d", w->fd);
         
         return -ENOSPACE;
     }
     else if (__is_good_loop_watcher(watcher)) {
+        debug_trace("exist watcher:%d", w->fd);
+        
         return -EEXIST;
     }
     
