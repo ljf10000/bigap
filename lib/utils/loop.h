@@ -169,6 +169,18 @@ __loop_watcher_init(loop_t *loop, uint32 limit)
 }
 
 static inline loop_watcher_t *
+__loop_watcher_take(loop_t *loop, int fd)
+{
+    if (false==is_good_fd(fd)) {
+        return NULL;
+    }
+
+    loop_watcher_t *watcher = os_aa_get(&loop->watcher, fd, false);
+
+    return watcher;
+}
+
+static inline loop_watcher_t *
 __loop_watcher(loop_t *loop, int fd)
 {
     if (false==is_good_fd(fd)) {
@@ -188,7 +200,7 @@ __loop_watcher_add(loop_t *loop, loop_watcher_t *w)
 {
     int err;
     
-    loop_watcher_t *watcher = __loop_watcher(loop, w->fd);
+    loop_watcher_t *watcher = __loop_watcher_take(loop, w->fd);
     if (NULL==watcher) {
         debug_error("not found watcher:%d", w->fd);
         
