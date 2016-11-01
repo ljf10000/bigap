@@ -118,7 +118,7 @@ static int son_cb(struct epoll_event *ev)
 }
 
 static int
-unix(struct server *s)
+usock(struct server *s)
 {
     int fd, err;
     
@@ -152,7 +152,7 @@ tcp(void)
 {
     int err;
     
-    unix(&loops.tcp);
+    usock(&loops.tcp);
 
     err = listen(loops.tcp.fd, 0);
     if (err<0) {
@@ -167,7 +167,7 @@ tcp(void)
 static int
 udp(void)
 {
-    unix(&loops.udp);
+    usock(&loops.udp);
 
     return 0;
 }
