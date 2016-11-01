@@ -2,20 +2,20 @@
 #define __AUTOARRAY_H_8c73d7a7887b4bfc95a89f91321059f2__
 /******************************************************************************/
 typedef struct {
-    byte *base; /* array memory */
-    int size;   /* item size */
-    int count;  /* item total count */
-    int limit;  /* item total limit */
-    int grow;   /* once grow count */
+    byte *base;     /* array memory */
+    uint32 size;    /* item size */
+    uint32 count;   /* item total count */
+    uint32 limit;   /* item total limit */
+    uint32 grow;    /* once grow count */
     
     void (*init)(void *item);
     void (*clean)(void *item);
 } autoarray_t;
 
 static inline void *
-__os_aa_item(autoarray_t *aa, int idx)
+__os_aa_item(autoarray_t *aa, uint32 idx)
 {
-    if (idx < aa->count) {
+    if (is_good_enum(idx, aa->count)) {
         return (void *)(aa->base + idx * aa->size);
     } else {
         return NULL;
@@ -23,7 +23,7 @@ __os_aa_item(autoarray_t *aa, int idx)
 }
 
 static inline int
-__os_aa_grow_to(autoarray_t *aa, int count)
+__os_aa_grow_to(autoarray_t *aa, uint32 count)
 {
     int old  = aa->count;
     int grow = count - old;
@@ -99,10 +99,10 @@ os_aa_clean(autoarray_t *aa)
 static inline int
 os_aa_init(
     autoarray_t *aa, 
-    int size, 
-    int count,
-    int limit, 
-    int grow, 
+    uint32 size, 
+    uint32 count,
+    uint32 limit, 
+    uint32 grow, 
     void (*init)(void *item),
     void (*clean)(void *item)
 )
@@ -174,14 +174,10 @@ os_aa_get(autoarray_t *aa, int idx, bool grow)
     return value;
 }
 
-static inline int
+static inline uint32
 os_aa_count(autoarray_t *aa)
 {
-    if (aa) {
-        return aa->count;
-    } else {
-        return os_assertV(0);
-    }
+    return aa?aa->count:os_assertV(0);
 }
 /******************************************************************************/
 #endif /* __AUTOARRAY_H_8c73d7a7887b4bfc95a89f91321059f2__ */

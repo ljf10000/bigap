@@ -90,7 +90,7 @@ static void sigroutine(int id)
 static int 
 setup_timers(void)
 {
-    struct itimerval itimer = OS_ITIMEVAL_INITER(TV_SEC, TV_USEC);
+    struct itimerval itimer = OS_ITIMERVAL_INITER(TV_SEC, TV_USEC);
     
     signal(SIGALRM, sigroutine);
     debug_test("setup signal");

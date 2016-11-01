@@ -1,257 +1,436 @@
 #ifndef __LOOP_H_71254387166c488dbb36aa9ed0f8b379__
 #define __LOOP_H_71254387166c488dbb36aa9ed0f8b379__
 /******************************************************************************/
-typedef struct loop_sig {
+#ifndef LOOP_FDLIMIT
+#define LOOP_FDLIMIT        1024
+#endif
+
+#ifndef LOOP_FDGROW
+#define LOOP_FDGROW         1024
+#endif
+
+#if 1
+#define LOOP_LIST(_) \
+    _(LOOP_TYPE_SIGNAL, 0, "signal"),   \
+    _(LOOP_TYPE_TIMER,  1, "timer"),    \
+    _(LOOP_TYPE_NORMAL, 2, "normal"),   \
+    _(LOOP_TYPE_FATHER, 3, "father"),   \
+    _(LOOP_TYPE_SON,    4, "son"),      \
+    /* end */
+
+static inline bool is_good_loop_type(int id);
+static inline char *loop_type_string(int id);
+static inline int loop_type_idx(char *name);
+DECLARE_ENUM(loop_type, LOOP_LIST, LOOP_TYPE_END);
+
+#define LOOP_TYPE_SIGNAL    LOOP_TYPE_SIGNAL
+#define LOOP_TYPE_TIMER     LOOP_TYPE_TIMER
+#define LOOP_TYPE_NORMAL    LOOP_TYPE_NORMAL
+#define LOOP_TYPE_FATHER    LOOP_TYPE_FATHER
+#define LOOP_TYPE_SON       LOOP_TYPE_SON
+#define LOOP_TYPE_END       LOOP_TYPE_END
+#endif
+
+typedef int loop_timer_f(uint32 times);
+typedef int loop_signal_f(struct signalfd_siginfo *siginfo);
+typedef int loop_normal_f(struct epoll_event *ev);
+typedef int loop_son_f(struct epoll_event *ev);
+
+typedef struct loop_watcher {
     int fd;
-    int *number;
-    int count;
+    int father;
+    uint16 type;
+    uint16 flag;
 
-    int (*init)(struct loop_sig *loop);
-    int (*cb)(struct signalfd_siginfo *siginfo);
-} loop_sig_t;
+    union {
+        loop_timer_f    *timer;
+        loop_signal_f   *signal;
+        loop_normal_f   *normal;
+        loop_son_f      *son;
+        
+        void *cb;
+    } cb;
+} loop_watcher_t;
 
-#define LOOP_SIG_INITER(_sigs, _sigs_count, _init, _cb) {   \
-    .fd     = INVALID_FD,   \
-    .number = _sigs,        \
-    .count  = _sigs_count,  \
-    .init   = _init,        \
-    .cb     = _cb,          \
-}
-
-typedef struct loop_timer {
-    int fd;
-
-    struct itimerspec new;
-
-    int (*init)(struct loop_timer *loop);
-    int (*cb)(uint32 times);
-} loop_timer_t;
-
-#define LOOP_TIMER_INITER(_sec, _nsec, _init, _cb) {   \
-    .fd     = INVALID_FD,                       \
-    .new    = OS_ITIMESPEC_INITER(_sec, _nsec), \
-    .init   = _init,                            \
-    .cb     = _cb,                              \
-}
-
-typedef struct loop_epoll {
-    int fd;
-
-    int *fds;
-    int count;
-
-    int (*init)(struct loop_epoll *loop);
-    int (*cb)(struct epoll_event *ev);
-} loop_epoll_t;
-
-#define LOOP_EPOLL_INITER(_fds, _fds_count, _init, _cb)  {   \
-    .fd     = INVALID_FD,   \
-    .fds    = _fds,         \
-    .count  = _fds_count,   \
-    .init   = _init,        \
-    .cb     = _cb,          \
-}
+#define LOOP_WATCHER_INITER(_fd, _type, _cb) { \
+    .fd     = _fd, \
+    .father = INVALID_FD, \
+    .type   = _type, \
+    .flag   = 0, \
+    .cb     = { .cb = _cb }, \
+}   /* end */
 
 typedef struct {
-    loop_sig_t      sig;
-    loop_timer_t    timer;
-    loop_epoll_t    epoll;
+    int efd;
+
+    autoarray_t watcher;
+
+    uint32 count[LOOP_TYPE_END];
+    
+    struct itimerspec tm;
 } loop_t;
 
-#define LOOP_INITER(                                                    \
-            _sigs, _sigs_count, _siginit, _sigcb,                       \
-            _sec, _nsec, _timerinit, _timercb,                          \
-            _fds, _fds_count, _epollinit, _epollcb) {                   \
-    .sig    = LOOP_SIG_INITER(_sigs, _sigs_count, _siginit, _sigcb),    \
-    .timer  = LOOP_TIMER_INITER(_sec, _nsec, _timerinit, _timercb),     \
-    .epoll  = LOOP_EPOLL_INITER(_fds, _fds_count, _epollinit, _epollcb),\
+#define LOOP_INITER     {   \
+    .efd    = INVALID_FD,   \
+    .count  = {             \
+        [0 ... (LOOP_TYPE_END-1)] = INVALID_FD, \
+    }                       \
+}   /* end */
+
+static inline bool
+__is_loop_use(loop_t *loop, int type)
+{
+    return !!loop->count[type];
 }
 
 static inline bool
-__is_use_loop_signal(loop_t *loop)
+__is_good_loop(loop_t *loop)
 {
-    return loop->sig.cb && loop->sig.number && loop->sig.count;
+    return loop && is_good_fd(loop->efd);
 }
 
 static inline bool
-__is_use_loop_timer(loop_t *loop)
+__is_good_loop_watcher(loop_watcher_t *watcher)
 {
-    return NULL!=loop->timer.cb;
-}
-
-static inline bool
-__is_use_loop_epoll(loop_t *loop)
-{
-    return NULL!=loop->epoll.cb;
+    return watcher && is_good_fd(watcher->fd);
 }
 
 static inline int
-os_loop_add(loop_t *loop, int fd)
+__loop_fd_add(loop_t *loop, int fd)
 {
     struct epoll_event ev;
     
     ev.events   = EPOLLIN;
     ev.data.fd  = fd;
     
-    return epoll_ctl(loop->epoll.fd, EPOLL_CTL_ADD, fd, &ev);
+    return epoll_ctl(loop->efd, EPOLL_CTL_ADD, fd, &ev);
 }
 
 static inline int
-os_loop_del(loop_t *loop, int fd)
+__loop_fd_del(loop_t *loop, int fd)
 {
-    return epoll_ctl(loop->epoll.fd, EPOLL_CTL_DEL, fd, NULL);
+    return epoll_ctl(loop->efd, EPOLL_CTL_DEL, fd, NULL);
+}
+
+static inline void
+__loop_watcher_constructor(void *item)
+{
+    loop_watcher_t *watcher = (loop_watcher_t *)item;
+
+    os_objzero(watcher);
+    watcher->fd = INVALID_FD;
+}
+
+static inline void
+__loop_watcher_destructor(void *item)
+{
+    loop_watcher_t *watcher = (loop_watcher_t *)item;
+
+    if (is_good_fd(watcher->fd)) {
+        os_close(watcher->fd);
+    }
 }
 
 static inline int
-__loop_signal_init(loop_t *loop)
+__loop_watcher_fini(loop_t *loop)
 {
-    int i, err;
-    sigset_t set;
+    if (loop->watcher.base) {
+        os_aa_clean(&loop->watcher);
+    }
 
-    if (loop->sig.init) {
-        err = (*loop->sig.init)(&loop->sig);
-        if (err<0) {
-            return err;
+    return 0;
+}
+
+static inline int
+__loop_watcher_init(loop_t *loop, uint32 limit)
+{
+    if (NULL==loop->watcher.base) {
+        if (0==limit) {
+            limit = LOOP_FDLIMIT;
         }
-    }
-    
-    sigemptyset(&set);
-    for (i=0; i<loop->sig.count; i++) {
-        sigaddset(&set, loop->sig.number[i]);
-    }
-    sigprocmask(SIG_SETMASK, &set, NULL);
-
-    loop->sig.fd = signalfd(-1, &set, EFD_CLOEXEC);
-    if (loop->sig.fd<0) {
-        return -errno;
+        
+        os_aa_init(&loop->watcher,
+            sizeof(loop_watcher_t),     // size
+            limit,                      // count
+            limit,                      // limit
+            LOOP_FDGROW,                // grow
+            __loop_watcher_constructor, // init
+            __loop_watcher_destructor); // clean
     }
 
-    return os_loop_add(loop, loop->sig.fd);
+    return 0;
+}
+
+static inline loop_watcher_t *
+__loop_watcher(loop_t *loop, int fd)
+{
+    if (false==is_good_fd(fd)) {
+        return NULL;
+    }
+
+    loop_watcher_t *watcher = os_aa_get(&loop->watcher, fd, false);
+    if (false==__is_good_loop_watcher(watcher)) {
+        return NULL;
+    }
+
+    return watcher;
 }
 
 static inline int
-__loop_timer_init(loop_t *loop)
+__loop_watcher_add(loop_t *loop, loop_watcher_t *w)
 {
     int err;
     
-    if (loop->timer.init) {
-        err = (*loop->timer.init)(&loop->timer);
-        if (err<0) {
-            return err;
+    loop_watcher_t *watcher = __loop_watcher(loop, w->fd);
+    if (NULL==watcher) {
+        return -ENOSPACE;
+    }
+    os_objcpy(watcher, w);
+    
+    err = __loop_fd_add(loop, w->fd);
+    if (err<0) {
+        return err;
+    }
+    loop->count[w->type]++;
+    
+    return 0;
+}
+
+static inline int
+__loop_watcher_del(loop_t *loop, int fd)
+{
+    loop_watcher_t *watcher = __loop_watcher(loop, fd);
+    if (NULL==watcher) {
+        return -ENOEXIST;
+    }
+
+    loop->count[watcher->type]--;
+    __loop_watcher_destructor(watcher);
+
+    return 0;
+}
+
+static inline int
+__loop_master_init(loop_t *loop)
+{
+    if (false==is_good_fd(loop->efd)) {
+        loop->efd = epoll_create1(EPOLL_CLOEXEC);
+        if (loop->efd<0) {
+            return -errno;
         }
     }
+
+    return 0;
+}
+
+#define __loop_fini(_loop)  do{ \
+    __loop_watcher_fini(_loop); \
+    os_close((_loop)->efd);     \
+}while(0)
+
+static inline int
+__loop_init(loop_t *loop)
+{
+    int err;
     
-    loop->timer.fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
-    if (loop->timer.fd<0) {
+    err = __loop_master_init(loop);
+    if (err<0) {
+        return err;
+    }
+    
+    err = __loop_watcher_init(loop, 0);
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
+}
+
+static inline int
+__loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
+{
+    int err;
+    loop_watcher_t w;
+    
+    __loop_init(loop);
+
+    int fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
+    if (fd<0) {
         return -errno;
     }
 
-    if (0==loop->timer.new.it_value.tv_sec && 0==loop->timer.new.it_value.tv_nsec) {
-        loop->timer.new.it_value.tv_nsec = 1;
+    loop->tm = *timer;
+    if (0==loop->tm.it_value.tv_sec && 0==loop->tm.it_value.tv_nsec) {
+        loop->tm.it_value.tv_nsec = 1;
     }
-    
-    err = timerfd_settime(loop->timer.fd, 0, &loop->timer.new, NULL);
+
+    err = timerfd_settime(fd, 0, &loop->tm, NULL);
     if (err<0) {
         return -errno;
     }
 
-    return os_loop_add(loop, loop->timer.fd);
-}
-
-static inline int
-__loop_epoll_init(loop_t *loop)
-{
-    int i, err;
-    
-    if (loop->epoll.init) {
-        err = (*loop->epoll.init)(&loop->epoll);
-        if (err<0) {
-            return err;
-        }
-    }
-    
-    if (loop->epoll.fds && loop->epoll.count) {
-        for (i=0; i<loop->epoll.count; i++) {
-            err = os_loop_add(loop, loop->epoll.fds[i]);
-            if (err<0) {
-                return err;
-            }
-        }
+    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_TIMER, cb);
+    err = __loop_watcher_add(loop, &w);
+    if (err<0) {
+        return err;
     }
     
     return 0;
 }
 
 static inline int
-os_loop_init(loop_t *loop)
+__loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
 {
-    int err = 0;
+    int i, err;
+    sigset_t set;
     
-    loop->epoll.fd = epoll_create1(EPOLL_CLOEXEC);
-    if (loop->epoll.fd<0) {
+    __loop_init(loop);
+
+    sigemptyset(&set);
+    for (i=0; i<count; i++) {
+        sigaddset(&set, sigs[i]);
+    }
+    sigprocmask(SIG_SETMASK, &set, NULL);
+
+    int fd = signalfd(-1, &set, EFD_CLOEXEC);
+    if (fd<0) {
         return -errno;
     }
 
-    if (__is_use_loop_epoll(loop)) {
-        err = __loop_epoll_init(loop);
-        if (err<0) {
-            return err;
-        }
-    }
-    
-    if (__is_use_loop_signal(loop)) {
-        err = __loop_signal_init(loop);
-        if (err<0) {
-            return err;
-        }
-    }
-
-    if (__is_use_loop_timer(loop)) {
-        err = __loop_timer_init(loop);
-        if (err<0) {
-            return err;
-        }
+    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_SIGNAL, cb);
+    err = __loop_watcher_add(loop, &w);
+    if (err<0) {
+        return err;
     }
 
     return 0;
 }
 
-static inline void
-os_loop_fini(loop_t *loop)
+static inline int
+__loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
 {
-    os_close(loop->sig.fd);
-    os_close(loop->timer.fd);
-    os_close(loop->epoll.fd);
+    int err;
+    
+    __loop_init(loop);
+
+    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_NORMAL, cb);
+    err = __loop_watcher_add(loop, &w);
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
+}
+
+static inline int
+__loop_add_father(loop_t *loop, int fd, loop_son_f *cb)
+{
+    int err;
+    
+    __loop_init(loop);
+
+    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_FATHER, cb);
+    err = __loop_watcher_add(loop, &w);
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
+}
+
+static inline int
+__loop_add_son(loop_t *loop, int fd, int father, loop_son_f *cb)
+{
+    int err;
+    
+    __loop_init(loop);
+
+    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_SON, cb);
+    w.father = father;
+    
+    err = __loop_watcher_add(loop, &w);
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
 }
 
 static inline void
-__loop_signal_handle(loop_t *loop)
+__loop_signal_handle(loop_watcher_t *watcher)
 {
     struct signalfd_siginfo siginfo;
-    
-    int len = read(loop->sig.fd, &siginfo, sizeof(siginfo));
+
+    os_objzero(&siginfo);
+
+    int len = read(watcher->fd, &siginfo, sizeof(siginfo));
     if (len==sizeof(siginfo)) {
-        (*loop->sig.cb)(&siginfo);
+        (*watcher->cb.signal)(&siginfo);
     }
 }
 
 static inline void
-__loop_timer_handle(loop_t *loop)
+__loop_timer_handle(loop_watcher_t *watcher)
 {
     uint64 val = 0;
     
-    int len = read(loop->timer.fd, &val, sizeof(val));
+    int len = read(watcher->fd, &val, sizeof(val));
     if (len==sizeof(val)) {
-        (*loop->timer.cb)((uint32)val);
+        (*watcher->cb.timer)((uint32)val);
     }
 }
 
 static inline void
-__loop_epoll_handle(loop_t *loop, struct epoll_event *ev)
+__loop_normal_handle(loop_watcher_t *watcher, struct epoll_event *ev)
 {
-    if (loop->epoll.cb) {
-        (*loop->epoll.cb)(ev);
+    (*watcher->cb.normal)(ev);
+}
+
+static inline void
+__loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
+{
+    loop_watcher_t *watcher;
+    int fd, err;
+    struct sockaddr addr;
+    socklen_t addrlen;
+    
+    fd = accept(watcher->fd, &addr, &addrlen);
+    if (is_good_fd(watcher->fd)) {
+        __loop_add_son(loop, fd, watcher->fd, watcher->cb.cb);
     }
+}
+
+static inline int
+__loop_handle_ev(loop_t *loop, struct epoll_event *ev)
+{
+    loop_watcher_t *watcher = __loop_watcher(loop, ev->data.fd);
+    if (NULL==watcher) {
+        return -ENOEXIST;
+    }
+
+    switch(watcher->type) {
+        case LOOP_TYPE_SIGNAL:
+            __loop_signal_handle(watcher);
+            
+            break;
+        case LOOP_TYPE_TIMER:
+            __loop_timer_handle(watcher);
+            
+            break;
+        case LOOP_TYPE_FATHER:
+            __loop_father_handle(loop, watcher);
+            
+            break;
+        case LOOP_TYPE_SON: /* down */
+        case LOOP_TYPE_NORMAL:
+            __loop_normal_handle(watcher, ev);
+            
+            break;
+        default:
+            return -EBADFD;
+    }
+
+    return 0;
 }
 
 static inline int
@@ -260,7 +439,7 @@ __loop_handle(loop_t *loop)
     struct epoll_event evs[32];
     int i;
     
-    int nfds = epoll_wait(loop->epoll.fd, evs, os_count_of(evs), -1);
+    int nfds = epoll_wait(loop->efd, evs, os_count_of(evs), -1);
     if (nfds<0) {
         if (EINTR==errno) {
             return 0;
@@ -270,20 +449,78 @@ __loop_handle(loop_t *loop)
     }
 
     for (i=0; i<nfds; i++) {
-        struct epoll_event *ev = &evs[i];
-        
-        if (ev->data.fd==loop->sig.fd) {
-            __loop_signal_handle(loop);
-        }
-        else if (ev->data.fd==loop->timer.fd) {
-            __loop_timer_handle(loop);
-        }
-        else {
-            __loop_epoll_handle(loop, ev);
-        }
+        __loop_handle_ev(loop, &evs[i]);
     }
 
     return 0;
+}
+
+static inline int
+os_loop_init(loop_t *loop)
+{
+    if (loop) {
+        return __loop_init(loop);
+    } else {
+        return -EINVAL0;
+    }
+}
+
+static inline void
+os_loop_fini(loop_t *loop)
+{
+    if (loop) {
+        __loop_fini(loop);
+    }
+}
+
+static inline int
+os_loop_del_watcher(loop_t *loop, int fd)
+{
+    if (loop) {
+        return __loop_watcher_del(loop, fd);
+    } else {
+        return -EINVAL0;
+    }
+}
+
+static inline int
+os_loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
+{
+    if (loop) {
+        return __loop_add_timer(loop, cb, timer);
+    } else {
+        return -EINVAL0;
+    }
+}
+
+static inline int
+os_loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
+{
+    if (loop) {
+        return __loop_add_signal(loop, cb, sigs, count);
+    } else {
+        return -EINVAL0;
+    }
+}
+
+static inline int
+os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
+{
+    if (loop) {
+        return __loop_add_normal(loop, fd, cb);
+    } else {
+        return -EINVAL0;
+    }
+}
+
+static inline int
+os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb)
+{
+    if (loop) {
+        return __loop_add_father(loop, fd, cb);
+    } else {
+        return -EINVAL0;
+    }
 }
 
 static inline int

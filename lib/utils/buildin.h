@@ -68,11 +68,27 @@
 })
 #endif
 
+#ifndef os_attribute
+#define os_attribute(attrlist)          __attribute__(attrlist)
+#endif
+
+#ifndef os_is_const
+#define os_is_const(expr)               __builtin_constant_p (expr)
+#endif
+
+#ifndef os_expect
+#define os_expect(expr,value)           __builtin_expect ((expr),(value))
+#endif
+
+#ifndef os_prefetch
+#define os_prefetch(addr,rw,locality)   __builtin_prefetch (addr, rw, locality)
+#endif
+
 #ifndef os_constructor
 #   ifdef __ALLINONE__
 #       define os_constructor
 #   else
-#       define os_constructor   __attribute__((constructor))
+#       define os_constructor   os_attribute((constructor))
 #   endif
 #endif
 
@@ -80,7 +96,7 @@
 #   ifdef __ALLINONE__
 #       define os_destructor
 #   else
-#       define os_destructor    __attribute__((destructor))
+#       define os_destructor    os_attribute((destructor))
 #   endif
 #endif
 
@@ -242,21 +258,33 @@ static inline bool is_good_common_id(int id)
 #define OS_MSGHDR_INITER(_iov, _iovlen, _name, _namelen)    \
     __OS_MSGHDR_INITER(_iov, _iovlen, _name, _namelen, NULL, 0)
 
+/*
+* struct timeval
+*/
 #define OS_TIMEVAL_INITER(_sec, _usec) { \
     .tv_sec = _sec,     \
     .tv_usec= _usec,    \
 }   /* end */
 
-#define OS_ITIMEVAL_INITER(_sec, _usec) { \
+/*
+* struct itimerval
+*/
+#define OS_ITIMERVAL_INITER(_sec, _usec) { \
     .it_interval= OS_TIMEVAL_INITER(_sec, _usec),   \
     .it_value   = OS_TIMEVAL_INITER(_sec, _usec),   \
 }   /* end */
 
+/*
+* struct timespec
+*/
 #define OS_TIMESPEC_INITER(_sec, _nsec) { \
     .tv_sec = _sec,     \
     .tv_nsec= _nsec,    \
 }   /* end */
 
+/* 
+* struct itimerspec
+*/
 #define OS_ITIMESPEC_INITER(_sec, _nsec) { \
     .it_interval= OS_TIMESPEC_INITER(_sec, _nsec),  \
     .it_value   = OS_TIMESPEC_INITER(_sec, _nsec),  \

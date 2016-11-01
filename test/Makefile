@@ -11,7 +11,7 @@ include $(DIR_ROOT)/mk/define.mk
 #
 #changed me, append sub-system
 #
-SUB_SYSTEM=slice blob timer mac pipe coroutine fd dll zlib
+SUB_SYSTEM=slice blob timer mac pipe coroutine fd dll zlib loopc loops
 
 #
 #don't change it
