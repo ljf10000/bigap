@@ -153,7 +153,7 @@ usock(struct server *s)
         return -errno;
     }
 
-    server->fd = fd;
+    s->fd = fd;
     
     return 0;
 }
