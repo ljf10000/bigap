@@ -149,13 +149,18 @@ __loop_watcher_init(loop_t *loop, uint32 limit)
             limit = LOOP_FDLIMIT;
         }
         
-        os_aa_init(&loop->watcher,
+        int err = os_aa_init(&loop->watcher,
             sizeof(loop_watcher_t),     // size
             limit,                      // count
             limit,                      // limit
             LOOP_FDGROW,                // grow
             __loop_watcher_constructor, // init
             __loop_watcher_destructor); // clean
+        if (err<0) {
+            debug_error("loop watcher init error:%d", err);
+
+            return err;
+        }
     }
 
     return 0;
@@ -218,6 +223,8 @@ __loop_master_init(loop_t *loop)
         if (loop->efd<0) {
             return -errno;
         }
+
+        debug_ok("loop master init ok.");
     }
 
     return 0;
