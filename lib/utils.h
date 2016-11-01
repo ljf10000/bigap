@@ -177,18 +177,18 @@
 #include "utils/md5.h"
 #include "utils/base64.h"
 
-#ifdef OS_EXTEND
+#ifdef __EXTEND__
 #include "utils/autoarray.h"
 #include "utils/channel.h"
 #include "utils/cqueue.h"
 #include "utils/coroutine.h"
 #include "utils/fd.h"
 #include "utils/loop.h"
-#endif /* OS_EXTEND */
+#endif /* __EXTEND__ */
 
 #include "oem/oem.h"
 /******************************************************************************/
-#ifdef OS_EXTEND
+#ifdef __EXTEND__
 #define OS_EXT_INITER       \
     DECLARE_COROUTINE;      \
     DECLARE_FD;             \

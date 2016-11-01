@@ -2,66 +2,65 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      fd
+#define __THIS_APP      loopc
 #endif
 
-#define OS_EXTEND
-
+#define __EXTEND__
 #include "utils.h"
 
 OS_INITER;
 
-#define SERVER "server"
-#define CLIENT "client"
+static struct {
+    os_sockaddr_t server;
+    os_sockaddr_t client;
+
+    char buf[1024];
+} loopc = {
+    .server = OS_SOCKADDR_INITER(AF_UNIX),
+    .client = OS_SOCKADDR_UN_INITER("loopc"),
+};
 
 static int
-server(void *no_used)
+client(int type, char *path, char *msg)
 {
-    return 0;
-}
-
-static int
-client(void *no_used)
-{
-    return 0;
-}
-
-static int 
-as_server(int argc, char *argv[])
-{
-    fd_looper();
-    co_new("server", server, NULL, 0, CO_PRI_DEFAULT, 0, false);
-    co_idle();
-
-    return 0;
-}
-
-static int
-as_client(int argc, char *argv[])
-{
+    int fd, err, len;
     
-    return 0;
-}
+    set_abstract_path(&loopc.server.un, path);
+    
+    fd = socket(AF_UNIX, type, 0);
+    if (fd<0) {
+        debug_error("socket error:%d", -errno);
+        
+        return -errno;
+    }
+    
+    err = bind(fd, (sockaddr_t *)&loopc.client.c, get_abstract_sockaddr_len(&loopc.client.un));
+    if (err<0) {
+        __debug_error("bind error:%d", -errno);
+        return -errno;
+    }
 
-static int
-help(void)
-{
-    return 0;
-}
+    err = connect(fd, (sockaddr_t *)&loopc.server.c, get_abstract_sockaddr_len(&loopc.server.un));
+    if (err<0) {
+        debug_error("connect error:%d", -errno);
+        return -errno;
+    }
 
-static int 
-__fini(void) 
-{
-    fd_fini();
+    len = os_strlen(msg);
+    err = io_send(fd, msg, len);
+    if (err<0) { /* yes, <0 */
+        return err;
+    }
+    debug_cli("send repuest[%d]:%s", len, msg);
 
-    return 0;
-}
-
-static int 
-__init(void) 
-{    
-    fd_init();
-
+    len = io_recv(fd, loopc.buf, sizeof(loopc.buf), 5000);
+    if (len<0) { /* yes, <0 */
+        return len;
+    }
+    loopc.buf[len] = 0;
+    
+    os_println("recv response: %s", loopc.buf);
+    
     return 0;
 }
 
@@ -70,31 +69,29 @@ __main(int argc, char *argv[])
 {
     int err;
     
-    if (argc < 2) {
-        return help();
+    if (3!=argc) {
+        return -EINVAL0;
     }
+
+    char *type = argv[1];
+    char *msg = argv[2];
     
-    argc--; argv++;
-    
-    if (0==os_strcmp(SERVER, argv[0])) {
-        err = as_server(argc, argv);
+    if (0==os_strcmp("tcp", type)) {
+        err = client(SOCK_STREAM, "loops.tcp", msg);
     }
-    else if (0==os_strcmp(CLIENT, argv[0])) {
-        err = as_client(argc, argv);
+    else if (0==os_strcmp("udp", type)) {
+        err = client(SOCK_DGRAM, "loops.udp", msg);
     }
     else {
-        err = help();
+        return -EINVAL0;
     }
 
     return err;
 }
 
 int main(int argc, char *argv[])
-{
-    setup_signal_exit(NULL);
-    setup_signal_callstack(NULL);
-    
-    int err = os_call(__init, __fini, __main, argc, argv);
+{ 
+    int err = os_main(__main, argc, argv);
 
     return shell_error(err);
 }

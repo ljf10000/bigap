@@ -5,7 +5,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_APP      coroutine
 #endif
 
-#define OS_EXTEND
+#define __EXTEND__
 
 #include "utils.h"
 
