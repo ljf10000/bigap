@@ -32,7 +32,7 @@ static struct {
     },
 };
 
-static loop_t loop;
+static loop_t loop = LOOP_INITER;
 
 static int timer_cb(uint32 times)
 {
