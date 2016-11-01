@@ -144,6 +144,8 @@ __loop_watcher_fini(loop_t *loop)
 static inline int
 __loop_watcher_init(loop_t *loop, uint32 limit)
 {
+    debug_trace("loop watcher init ...");
+    
     if (NULL==loop->watcher.base) {
         if (0==limit) {
             limit = LOOP_FDLIMIT;
@@ -161,6 +163,8 @@ __loop_watcher_init(loop_t *loop, uint32 limit)
 
             return err;
         }
+
+        debug_ok("loop watcher init ok.");
     }
 
     return 0;
@@ -218,6 +222,8 @@ __loop_watcher_del(loop_t *loop, int fd)
 static inline int
 __loop_master_init(loop_t *loop)
 {
+    debug_trace("loop master init ...");
+    
     if (false==is_good_fd(loop->efd)) {
         loop->efd = epoll_create1(EPOLL_CLOEXEC);
         if (loop->efd<0) {
