@@ -129,7 +129,7 @@ usock(struct server *s)
     }
     os_closexec(fd);
     
-    err = bind(fd, &server->addr.c, get_abstract_sockaddr_len(&server->addr.un));
+    err = bind(fd, &s->addr.c, get_abstract_sockaddr_len(&s->addr.un));
     if (err<0) {
         debug_error("bind error:%d", -errno);
         return -errno;
