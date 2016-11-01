@@ -190,6 +190,8 @@ __loop_watcher_add(loop_t *loop, loop_watcher_t *w)
     
     loop_watcher_t *watcher = __loop_watcher(loop, w->fd);
     if (NULL==watcher) {
+        debug_error("not found watcher:%d", w->fd);
+        
         return -ENOSPACE;
     }
     os_objcpy(watcher, w);
