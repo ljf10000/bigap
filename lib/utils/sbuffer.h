@@ -2,17 +2,18 @@
 #define __SBUFFER_H_3338a77658884b5e8d82fcb23fb8b61c__
 /******************************************************************************/
 #ifndef SIMPILE_BUFFER_MINSIZE
-#define SIMPILE_BUFFER_MINSIZE  4096
+#define SIMPILE_BUFFER_MINSIZE      4096
 #endif
 
 #ifndef SIMPILE_BUFFER_EXPAND
-#define SIMPILE_BUFFER_EXPAND   4096
+#define SIMPILE_BUFFER_EXPAND       4096
 #endif
 
-#define SB_F_EXPAND_AUTO        0x01
+#define SB_F_EXPAND_AUTO            0x01
 
 typedef struct {
     int err;
+    
     uint32 len;
     uint32 size;
     uint32 minsize;
@@ -28,6 +29,7 @@ simple_buffer_init(simple_buffer_t *sb, uint32 size)
     if (0==sb->minsize) {
         sb->minsize = SIMPILE_BUFFER_MINSIZE;
     }
+    
     if (0==sb->expand) {
         sb->expand = SIMPILE_BUFFER_EXPAND;
     }
