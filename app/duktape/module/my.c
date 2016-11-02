@@ -318,7 +318,6 @@ static int
 __watcher_init(duk_context *ctx, int type, int idx, int *level)
 {
     loop_info_t *info = &LOOP[type];
-    int level = 0;
     bool ok;
 
     // push signal

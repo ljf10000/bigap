@@ -446,6 +446,8 @@ __get_watcher_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     p->father   = js_get_obj_int(ctx, idx, "father");
     p->type     = js_get_obj_int(ctx, idx, "type");
     p->flag     = js_get_obj_int(ctx, idx, "flag");
+
+    return 0;
 }
 
 static inline int
@@ -457,6 +459,8 @@ __set_watcher_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     js_set_obj_int(ctx, idx, "father",  p->father);
     js_set_obj_int(ctx, idx, "type",    p->type);
     js_set_obj_int(ctx, idx, "flag",    p->flag);
+
+    return 0;
 }
 
 static inline int
