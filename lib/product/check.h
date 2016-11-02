@@ -53,30 +53,21 @@
 #error "must define PRODUCT_ROOTFS_MODE!"
 #endif
 
-#if IS_PRODUCT_LTEFI_MD
+#if IS_PRODUCT_LTEFI_AP //AP is 16M
+#if 16!=PRODUCT_FLASH_SIZE
+#error "invalid PRODUCT_FLASH_SIZE!"
+#endif
+#else	//MD PC is 4G 8G
 #if 4!=PRODUCT_FLASH_SIZE && \
-    8!=PRODUCT_FLASH_SIZE
+	8!=PRODUCT_FLASH_SIZE
 #error "invalid PRODUCT_FLASH_SIZE!"
+#endif
 #endif
 
 #if 1!=PRODUCT_FIRMWARE_COUNT && \
     3!=PRODUCT_FIRMWARE_COUNT && \
     7!=PRODUCT_FIRMWARE_COUNT
 #error "invalid PRODUCT_FIRMWARE_COUNT!"
-#endif
-#endif
-
-#if IS_PRODUCT_LTEFI_AP
-#if 8!=PRODUCT_FLASH_SIZE && \
-    16!=PRODUCT_FLASH_SIZE
-#error "invalid PRODUCT_FLASH_SIZE!"
-#endif
-
-#if 1!=PRODUCT_FIRMWARE_COUNT && \
-    3!=PRODUCT_FIRMWARE_COUNT && \
-    7!=PRODUCT_FIRMWARE_COUNT
-#error "invalid PRODUCT_FIRMWARE_COUNT!"
-#endif
 #endif
 /******************************************************************************/
 #endif /* __CHECK_H_5b9ab40ec4e840a9b5403ab1c8e22def__ */
