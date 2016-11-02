@@ -19,7 +19,7 @@ TARGET_CFLAGS += -Wall \
 		-D__OPENWRT__ \
 		-D__BACKTRACE__=$(UBACKTRACE) \
 		-D__TAB_AS_SPACE=4 \
-		-D__PRODUCT__=6 \
+		-D__PRODUCT__=8 \
 		-DJLOG_SERVER=\\\"1.0.0.5\\\" \
 		-std=gnu99 \
 		-Wno-unused \
