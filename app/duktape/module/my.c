@@ -552,7 +552,7 @@ duke_loop(duk_context *ctx)
             return duk_push_int(ctx, (int)times), 1;
         }
     
-        __loop_call(ctx, idx, LOOP_TYPE_TIMER, push_signal);
+        __loop_call(ctx, idx, LOOP_TYPE_TIMER, push_timer);
     
         return 0;
     }
@@ -570,11 +570,11 @@ duke_loop(duk_context *ctx)
 
     int __father_handle(loop_watcher_t *watcher)
     {
-        int push_normal(void) {
+        int push_father(void) {
             return js_obj_push(ctx, __set_watcher_event, watcher), 1;
         }
 
-        __loop_call(ctx, idx, LOOP_TYPE_FATHER, push_normal);
+        __loop_call(ctx, idx, LOOP_TYPE_FATHER, push_father);
     
         return 0;
     }
