@@ -188,13 +188,6 @@ udp(void)
 }
 
 static int
-timer(void)
-{
-
-    return 0;
-}
-
-static int
 __main(int argc, char *argv[])
 {
     struct itimerspec tm = OS_ITIMESPEC_INITER(5, 0);
@@ -214,12 +207,7 @@ __main(int argc, char *argv[])
     if (err<0) {
         return err;
     }
-    
-    err = timer();
-    if (err<0) {
-        return err;
-    }
-    
+
     err = os_loop_add_signal(&loop, signal_cb, sigs, os_count_of(sigs));
     if (err<0) {
         debug_error("add loop signal error:%d", err);
