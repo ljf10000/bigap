@@ -425,6 +425,8 @@ __loop_inotify_handle(loop_watcher_t *watcher)
 
             current += sizeof(struct inotify_event) + ev->len;
         }
+    } else {
+        debug_trace("inotify read error:%d", -errno);
     }
 }
 
