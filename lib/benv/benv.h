@@ -422,16 +422,15 @@ enum {
     BENV_OPS_END
 };
 
-typedef struct struct_benv_ops benv_ops_t;
-struct struct_benv_ops {
+typedef struct struct_benv_ops {
     char  *path;
     uint32 offset;
     uint32 type;
 
-    int  (*check)(benv_ops_t* ops, char *value);
-    void (*write)(benv_ops_t* ops, char *value);
-    void (*show) (benv_ops_t* ops);
-};
+    int  (*check)(struct struct_benv_ops* ops, char *value);
+    void (*write)(struct struct_benv_ops* ops, char *value);
+    void (*show) (struct struct_benv_ops* ops);
+} benv_ops_t;
 
 typedef struct {
     char *value;        /* for write */
@@ -467,7 +466,8 @@ typedef struct {
     benv_ops_t *ops;
     benv_cache_t *cache;
     int ops_count;
-    
+
+    bool show_empty;
     int show_count;
     bool loaded;
     char *self;
@@ -511,6 +511,7 @@ extern benv_control_t ____benv_control;
 #define __benv_ops          __benv_control->ops
 #define __benv_ops_count    __benv_control->ops_count
 #define __benv_show_count   __benv_control->show_count
+#define __benv_show_empty   __benv_control->show_empty
 #define __benv_self         __benv_control->self
 #define __benv_loaded       __benv_control->loaded
 #define __benv_cache        __benv_control->cache
@@ -1723,10 +1724,10 @@ enum {
 }   /* end */
 
 static inline void
-__benv_show_byprefix(void (*show) (benv_ops_t* ops), char *prefix)
+__benv_show_byprefix(void (*show)(benv_ops_t* ops), char *prefix)
 {
     int i;
-    int len = prefix?os_strlen(prefix):0;
+    int len = os_strlen(prefix);
 
     show = show?show:benv_ops_show;
     
@@ -2298,43 +2299,48 @@ benv_show_os(void)
 }
 
 static inline void
+__benv_show_path_helper(benv_ops_t* ops)
+{
+    os_println("%s", ops->path);
+}
+
+static inline void
 benv_show_path(void)
 {
-    void show(benv_ops_t* ops)
-    {
-        os_println("%s", ops->path);
+    __benv_show_byprefix(__benv_show_path_helper, NULL);
+}
+
+static inline void
+__benv_show_helper(benv_ops_t* ops)
+{
+    switch(ops->type) {
+        case BENV_OPS_NUMBER:
+            __benv_show_number(ops);
+            break;
+        case BENV_OPS_STRING:
+            if (__benv_show_empty) {
+                __benv_show_string_all(ops);
+            } else {
+                __benv_show_string(ops);
+            }
+            
+            break;
+        case BENV_OPS_VERSION:
+            __benv_show_version(ops);
+            break;
     }
-    
-    __benv_show_byprefix(show, NULL);
 }
 
 static inline void
 __benv_show_all(bool show_empty)
 {
-    int count = __benv_show_count; __benv_show_count = 2;
+    int count   = __benv_show_count; __benv_show_count = 2;
+    bool empty  = __benv_show_empty; __benv_show_empty = show_empty;
     
-    void show(benv_ops_t* ops)
-    {
-        switch(ops->type) {
-            case BENV_OPS_NUMBER:
-                __benv_show_number(ops);
-                break;
-            case BENV_OPS_STRING:
-                if (show_empty) {
-                    __benv_show_string_all(ops);
-                } else {
-                    __benv_show_string(ops);
-                }
-                
-                break;
-            case BENV_OPS_VERSION:
-                __benv_show_version(ops);
-                break;
-        }
-    }
+    __benv_show_byprefix(__benv_show_helper, NULL);
     
-    __benv_show_byprefix(show, NULL);
     __benv_show_count = count;
+    __benv_show_empty = empty;
 }
 
 static inline void
