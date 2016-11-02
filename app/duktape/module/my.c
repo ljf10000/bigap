@@ -343,7 +343,7 @@ __watcher_initer(duk_context *ctx, int idx, loop_info_t *info, int *level)
 }
 
 static int
-__inotify_initer(duk_context *ctx, int idx, loop_info_t *info, loop_inotify_f *cb)
+__inotify_initer(loop_t *loop, loop_info_t *info, duk_context *ctx, int idx, loop_inotify_f *cb)
 {
     int err = 0, level = 0;
 
@@ -379,13 +379,13 @@ __inotify_initer(duk_context *ctx, int idx, loop_info_t *info, loop_inotify_f *c
         duk_pop(ctx); level--;
     }
 
-    err = os_loop_add_inotify(&loop, cb, inotify, count);
+    err = os_loop_add_inotify(loop, cb, inotify, count);
 
     duk_pop_n(ctx, level); return err;
 }
 
 static int
-__signal_initer(duk_context *ctx, int idx, loop_info_t *info, loop_signal_f *cb)
+__signal_initer(loop_t *loop, loop_info_t *info, duk_context *ctx, int idx, loop_signal_f *cb)
 {
     int err = 0, level = 0;
 
@@ -411,13 +411,13 @@ __signal_initer(duk_context *ctx, int idx, loop_info_t *info, loop_signal_f *cb)
         sigs[i] = js_get_array_int(ctx, -1, i);
     }
 
-    err = os_loop_add_signal(&loop, cb, sigs, count);
+    err = os_loop_add_signal(loop, cb, sigs, count);
     
     duk_pop_n(ctx, level); return err;
 }
 
 static int
-__timer_initer(duk_context *ctx, int idx, loop_info_t *info, loop_timer_f *cb)
+__timer_initer(loop_t *loop, loop_info_t *info, duk_context *ctx, int idx, loop_timer_f *cb)
 {
     int err = 0, level = 0;
 
@@ -436,13 +436,13 @@ __timer_initer(duk_context *ctx, int idx, loop_info_t *info, loop_timer_f *cb)
     struct itimerspec tm;
     __get_itimerspec(ctx, -1, &tm);
 
-    err = os_loop_add_timer(&loop, cb, &tm);
+    err = os_loop_add_timer(loop, cb, &tm);
 
     duk_pop_n(ctx, level); return err;
 }
 
 static int
-__normal_initer(duk_context *ctx, int idx, loop_info_t *info, loop_normal_f *cb)
+__normal_initer(loop_t *loop, loop_info_t *info, duk_context *ctx, int idx, loop_normal_f *cb)
 {
     int fd, err = 0, level = 0;
 
@@ -466,7 +466,7 @@ __normal_initer(duk_context *ctx, int idx, loop_info_t *info, loop_normal_f *cb)
     for (i=0; i<count; i++) {
         fd = js_get_array_int(ctx, -1, i);
 
-        err = os_loop_add_normal(&loop, fd, cb);
+        err = os_loop_add_normal(loop, fd, cb);
         if (err<0) {
             duk_pop_n(ctx, level); return 0;
         }
@@ -476,7 +476,7 @@ __normal_initer(duk_context *ctx, int idx, loop_info_t *info, loop_normal_f *cb)
 }
 
 static int
-__father_initer(duk_context *ctx, int idx, loop_info_t *info, loop_son_f *cb)
+__father_initer(loop_t *loop, loop_info_t *info, duk_context *ctx, int idx, loop_son_f *cb)
 {
     int fd, err = 0, level = 0;
 
@@ -500,7 +500,7 @@ __father_initer(duk_context *ctx, int idx, loop_info_t *info, loop_son_f *cb)
     for (i=0; i<count; i++) {
         fd = js_get_array_int(ctx, -1, i);
 
-        err = os_loop_add_father(&loop, fd, cb);
+        err = os_loop_add_father(loop, fd, cb);
         if (err<0) {
             duk_pop_n(ctx, level); return 0;
         }
@@ -579,27 +579,27 @@ duke_loop(duk_context *ctx)
         return 0;
     }
     
-    err = __inotify_initer(ctx, idx, &loops[LOOP_TYPE_INOTIFY], __inotify_handle);
+    err = __inotify_initer(&loop, &loops[LOOP_TYPE_INOTIFY], ctx, idx, __inotify_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __signal_initer(ctx, idx, &loop[LOOP_TYPE_SIGNAL], __signal_handle);
+    err = __signal_initer(&loop, &loops[LOOP_TYPE_SIGNAL], ctx, idx, __signal_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __timer_initer(ctx, idx, &loop[LOOP_TYPE_TIMER], __timer_handle);
+    err = __timer_initer(&loop, &loops[LOOP_TYPE_TIMER], ctx, idx, __timer_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __normal_initer(ctx, idx, &loop[LOOP_TYPE_NORMAL], __normal_handle);
+    err = __normal_initer(&loop, &loops[LOOP_TYPE_NORMAL], ctx, idx, __normal_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __father_initer(ctx, idx, &loop[LOOP_TYPE_FATHER], __father_handle);
+    err = __father_initer(&loop, &loops[LOOP_TYPE_FATHER], ctx, idx, __father_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
