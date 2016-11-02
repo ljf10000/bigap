@@ -119,25 +119,19 @@ __loop_fd_del(loop_t *loop, int fd)
     return epoll_ctl(loop->efd, EPOLL_CTL_DEL, fd, NULL);
 }
 
-static inline void
-__loop_watcher_constructor(void *item)
+static inline int
+__loop_master_init(loop_t *loop)
 {
-    loop_watcher_t *watcher = (loop_watcher_t *)item;
+    if (false==is_good_fd(loop->efd)) {
+        loop->efd = epoll_create1(EPOLL_CLOEXEC);
+        if (loop->efd<0) {
+            return -errno;
+        }
 
-    os_objzero(watcher);
-    watcher->fd = INVALID_FD;
-}
-
-static inline void
-__loop_watcher_destructor(void *item)
-{
-    loop_watcher_t *watcher = (loop_watcher_t *)item;
-
-    if (is_good_fd(watcher->fd)) {
-        os_close(watcher->fd);
+        debug_ok("loop master init ok.");
     }
 
-    __loop_watcher_constructor(watcher);
+    return 0;
 }
 
 static inline int
@@ -175,6 +169,50 @@ __loop_watcher_init(loop_t *loop, uint32 limit)
     }
 
     return 0;
+}
+
+#define __loop_fini(_loop)  do{ \
+    __loop_watcher_fini(_loop); \
+    os_close((_loop)->efd);     \
+}while(0)
+
+static inline int
+__loop_init(loop_t *loop)
+{
+    int err;
+    
+    err = __loop_master_init(loop);
+    if (err<0) {
+        return err;
+    }
+    
+    err = __loop_watcher_init(loop, 0);
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
+}
+
+static inline void
+__loop_watcher_constructor(void *item)
+{
+    loop_watcher_t *watcher = (loop_watcher_t *)item;
+
+    os_objzero(watcher);
+    watcher->fd = INVALID_FD;
+}
+
+static inline void
+__loop_watcher_destructor(void *item)
+{
+    loop_watcher_t *watcher = (loop_watcher_t *)item;
+
+    if (is_good_fd(watcher->fd)) {
+        os_close(watcher->fd);
+    }
+
+    __loop_watcher_constructor(watcher);
 }
 
 static inline loop_watcher_t *
@@ -241,44 +279,6 @@ __loop_watcher_del(loop_t *loop, int fd)
     loop->count[watcher->type]--;
     __loop_watcher_destructor(watcher);
 
-    return 0;
-}
-
-static inline int
-__loop_master_init(loop_t *loop)
-{
-    if (false==is_good_fd(loop->efd)) {
-        loop->efd = epoll_create1(EPOLL_CLOEXEC);
-        if (loop->efd<0) {
-            return -errno;
-        }
-
-        debug_ok("loop master init ok.");
-    }
-
-    return 0;
-}
-
-#define __loop_fini(_loop)  do{ \
-    __loop_watcher_fini(_loop); \
-    os_close((_loop)->efd);     \
-}while(0)
-
-static inline int
-__loop_init(loop_t *loop)
-{
-    int err;
-    
-    err = __loop_master_init(loop);
-    if (err<0) {
-        return err;
-    }
-    
-    err = __loop_watcher_init(loop, 0);
-    if (err<0) {
-        return err;
-    }
-    
     return 0;
 }
 
@@ -505,24 +505,6 @@ __loop_handle(loop_t *loop)
 }
 
 static inline int
-os_loop_init(loop_t *loop)
-{
-    if (loop) {
-        return __loop_init(loop);
-    } else {
-        return -EINVAL0;
-    }
-}
-
-static inline void
-os_loop_fini(loop_t *loop)
-{
-    if (loop) {
-        __loop_fini(loop);
-    }
-}
-
-static inline int
 os_loop_del_watcher(loop_t *loop, int fd)
 {
     if (loop) {
@@ -591,6 +573,8 @@ os_loop(loop_t *loop)
             // log
         }
     }
+
+    __loop_fini(loop);
     
     return 0;
 }
