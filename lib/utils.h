@@ -161,6 +161,7 @@
 #include "utils/debug.h"
 #include "utils/dump.h"
 #include "utils/crc32.h"
+#include "utils/autoarray.h"
 #include "utils/pipe.h"
 #include "utils/pid.h"
 #include "utils/if.h"
@@ -179,7 +180,6 @@
 #include "utils/base64.h"
 
 #ifdef __EXTEND__
-#include "utils/autoarray.h"
 #include "utils/channel.h"
 #include "utils/cqueue.h"
 #include "utils/coroutine.h"
