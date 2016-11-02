@@ -7,7 +7,13 @@ var loop = {
 			print("inotify times", loop.inotify.count++);
 
 			fmt.oprint(ev);
-		}
+		},
+		param: [
+			{
+				path: "/home/liujingfei/work/big/app/duktape/module/test",
+				mask: __libc__.IN_OPEN
+			}
+		]
 	},
 	signal: {
 		count: 0,
@@ -16,14 +22,25 @@ var loop = {
 
 		    fmt.oprint(siginfo);
 		},
-		sigs: [__libc__.SIGUSR1]
+		param: [
+			__libc__.SIGUSR1,
+			__libc__.SIGUSR2,
+			__libc__.SIGINT,
+			__libc__.SIGHUP,
+			__libc__.SIGTERM,
+			__libc__.SIGABRT,
+			__libc__.SIGBUS,
+			__libc__.SIGILL,
+			__libc__.SIGFPE,
+			__libc__.SIGSEGV
+		]
 	},
 	timer: {
 		count: 0,
 		handle: function (times) {
 			print("timer times:", loop.timer.count++);
 		},
-		spec: {
+		param: {
 			interval:{
 				sec:1,nsec:0
 			}
