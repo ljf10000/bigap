@@ -134,6 +134,27 @@ __loop_master_init(loop_t *loop)
     return 0;
 }
 
+static inline void
+__loop_watcher_constructor(void *item)
+{
+    loop_watcher_t *watcher = (loop_watcher_t *)item;
+
+    os_objzero(watcher);
+    watcher->fd = INVALID_FD;
+}
+
+static inline void
+__loop_watcher_destructor(void *item)
+{
+    loop_watcher_t *watcher = (loop_watcher_t *)item;
+
+    if (is_good_fd(watcher->fd)) {
+        os_close(watcher->fd);
+    }
+
+    __loop_watcher_constructor(watcher);
+}
+
 static inline int
 __loop_watcher_fini(loop_t *loop)
 {
@@ -192,27 +213,6 @@ __loop_init(loop_t *loop)
     }
     
     return 0;
-}
-
-static inline void
-__loop_watcher_constructor(void *item)
-{
-    loop_watcher_t *watcher = (loop_watcher_t *)item;
-
-    os_objzero(watcher);
-    watcher->fd = INVALID_FD;
-}
-
-static inline void
-__loop_watcher_destructor(void *item)
-{
-    loop_watcher_t *watcher = (loop_watcher_t *)item;
-
-    if (is_good_fd(watcher->fd)) {
-        os_close(watcher->fd);
-    }
-
-    __loop_watcher_constructor(watcher);
 }
 
 static inline loop_watcher_t *
