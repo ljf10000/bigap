@@ -49,12 +49,10 @@ var timer = {
 	}
 };
 
-var loop = {
+__my__.loop({
 	inotify: inotify,
 	signal: signal,
 	timer: timer
-};
-
-__my__.loop(loop);
+});
 
 print("errno=", __libc__.errno);
