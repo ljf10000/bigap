@@ -443,7 +443,7 @@ __timer_init(duk_context *ctx, int idx, loop_timer_f *cb)
     }
         
     struct itimerspec tm;
-    __get_itimerspec(ctx, -1, &new);
+    __get_itimerspec(ctx, -1, &tm);
 
     err = os_loop_add_timer(&loop, cb, tm);
 
