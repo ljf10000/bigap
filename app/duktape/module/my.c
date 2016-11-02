@@ -295,29 +295,26 @@ typedef struct {
 
 #define LOOP_HANDLE     "handle"
 
-static loop_info_t LOOP[LOOP_TYPE_END] = {
-    [LOOP_TYPE_INOTIFY] = LOOP_INFO("inotify",  "paths"),
-    [LOOP_TYPE_SIGNAL]  = LOOP_INFO("signal",   "sigs"),
-    [LOOP_TYPE_TIMER]   = LOOP_INFO("timer",    "spec"),
-    [LOOP_TYPE_NORMAL]  = LOOP_INFO("normal",   "fds"),
-    [LOOP_TYPE_FATHER]  = LOOP_INFO("father",   "fds"),
-};
-static loop_t loop = LOOP_INITER;
+#define LOOP_INFO_INITER { \
+    [LOOP_TYPE_INOTIFY] = LOOP_INFO("inotify",  "paths"),   \
+    [LOOP_TYPE_SIGNAL]  = LOOP_INFO("signal",   "sigs"),    \
+    [LOOP_TYPE_TIMER]   = LOOP_INFO("timer",    "spec"),    \
+    [LOOP_TYPE_NORMAL]  = LOOP_INFO("normal",   "fds"),     \
+    [LOOP_TYPE_FATHER]  = LOOP_INFO("father",   "fds"),     \
+}   /* end */
 
 static inline void
-__loop_call(duk_context *ctx, duk_idx_t idx, int type, int (*push)(void))
+__loop_call(duk_context *ctx, duk_idx_t idx, loop_info_t *info, int (*push)(void))
 {
-    loop_info_t *info = &LOOP[type];
-    
-    duk_push_string(ctx, info->obj);
-    duk_pcall_prop(ctx, idx, (*push)());
-    duk_pop(ctx);
+    int iobj = duk_get_prop_string(ctx, idx, info->obj);
+    duk_push_string(ctx, LOOP_HANDLE);
+    duk_pcall_prop(ctx, iobj, (*push)());
+    duk_pop_2(ctx);
 }
 
 static int
-__watcher_initer(duk_context *ctx, int type, int idx, int *level)
+__watcher_initer(duk_context *ctx, int idx, loop_info_t *info, int *level)
 {
-    loop_info_t *info = &LOOP[type];
     bool ok;
 
     // push signal
@@ -326,17 +323,18 @@ __watcher_initer(duk_context *ctx, int type, int idx, int *level)
     if (false==ok) {
         return -ENOEXIST;
     }
-
+    int iobj = duk_normalize_index(ctx, -1);
+    
     // push handle
     (*level)++;
-    ok = duk_get_prop_string(ctx, -1, LOOP_HANDLE);
+    ok = duk_get_prop_string(ctx, iobj, LOOP_HANDLE);
     if (false==ok) {
         return -ENOEXIST;
     }
     
     // push param
     (*level)++;
-    ok = duk_get_prop_string(ctx, -1, info->param);
+    ok = duk_get_prop_string(ctx, iobj, info->param);
     if (false==ok) {
         return -ENOEXIST;
     }
@@ -345,15 +343,14 @@ __watcher_initer(duk_context *ctx, int type, int idx, int *level)
 }
 
 static int
-__inotify_initer(duk_context *ctx, int idx, loop_inotify_f *cb)
+__inotify_initer(duk_context *ctx, int idx, loop_info_t *info, loop_inotify_f *cb)
 {
-    loop_info_t *info = &LOOP[LOOP_TYPE_INOTIFY];
     int err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, LOOP_TYPE_INOTIFY, idx, &level);
+    err = __watcher_initer(ctx, idx, info, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -388,14 +385,14 @@ __inotify_initer(duk_context *ctx, int idx, loop_inotify_f *cb)
 }
 
 static int
-__signal_initer(duk_context *ctx, int idx, loop_signal_f *cb)
+__signal_initer(duk_context *ctx, int idx, loop_info_t *info, loop_signal_f *cb)
 {
     int err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, LOOP_TYPE_SIGNAL, idx, &level);
+    err = __watcher_initer(ctx, idx, info, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -420,14 +417,14 @@ __signal_initer(duk_context *ctx, int idx, loop_signal_f *cb)
 }
 
 static int
-__timer_initer(duk_context *ctx, int idx, loop_timer_f *cb)
+__timer_initer(duk_context *ctx, int idx, loop_info_t *info, loop_timer_f *cb)
 {
     int err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, LOOP_TYPE_TIMER, idx, &level);
+    err = __watcher_initer(ctx, idx, info, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -435,7 +432,7 @@ __timer_initer(duk_context *ctx, int idx, loop_timer_f *cb)
     if (false==duk_is_object(ctx, -1)) {
         duk_pop_n(ctx, level); return 0;
     }
-        
+
     struct itimerspec tm;
     __get_itimerspec(ctx, -1, &tm);
 
@@ -445,14 +442,14 @@ __timer_initer(duk_context *ctx, int idx, loop_timer_f *cb)
 }
 
 static int
-__normal_initer(duk_context *ctx, int idx, loop_normal_f *cb)
+__normal_initer(duk_context *ctx, int idx, loop_info_t *info, loop_normal_f *cb)
 {
     int fd, err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, LOOP_TYPE_NORMAL, idx, &level);
+    err = __watcher_initer(ctx, idx, info, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -479,14 +476,14 @@ __normal_initer(duk_context *ctx, int idx, loop_normal_f *cb)
 }
 
 static int
-__father_initer(duk_context *ctx, int idx, loop_son_f *cb)
+__father_initer(duk_context *ctx, int idx, loop_info_t *info, loop_son_f *cb)
 {
     int fd, err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, LOOP_TYPE_FATHER, idx, &level);
+    err = __watcher_initer(ctx, idx, info, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -518,7 +515,10 @@ static duk_ret_t
 duke_loop(duk_context *ctx)
 {
     int err = 0;
-    
+
+    loop_info_t loops[LOOP_TYPE_END] = LOOP_INFO_INITER;
+    loop_t loop = LOOP_INITER;
+     
     int idx = duk_normalize_index(ctx, -1);
     if (false==duk_is_object(ctx, idx)) {
         __js_seterrno(ctx, -EFORMAT); goto error;
@@ -530,7 +530,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, __set_inotify_event, ev), 1;
         }
         
-        __loop_call(ctx, idx, LOOP_TYPE_INOTIFY, push_inotify);
+        __loop_call(ctx, idx, &loops[LOOP_TYPE_INOTIFY], push_inotify);
     
         return 0;
     }
@@ -541,7 +541,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, __set_signalfd_siginfo, siginfo), 1;
         }
     
-        __loop_call(ctx, idx, LOOP_TYPE_SIGNAL, push_signal);
+        __loop_call(ctx, idx, &loops[LOOP_TYPE_SIGNAL], push_signal);
     
         return 0;
     }
@@ -552,7 +552,7 @@ duke_loop(duk_context *ctx)
             return duk_push_int(ctx, (int)times), 1;
         }
     
-        __loop_call(ctx, idx, LOOP_TYPE_TIMER, push_timer);
+        __loop_call(ctx, idx, &loops[LOOP_TYPE_TIMER], push_timer);
     
         return 0;
     }
@@ -563,7 +563,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, __set_watcher_event, watcher), 1;
         }
     
-        __loop_call(ctx, idx, LOOP_TYPE_NORMAL, push_normal);
+        __loop_call(ctx, idx, &loops[LOOP_TYPE_NORMAL], push_normal);
     
         return 0;
     }
@@ -574,32 +574,32 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, __set_watcher_event, watcher), 1;
         }
 
-        __loop_call(ctx, idx, LOOP_TYPE_FATHER, push_father);
+        __loop_call(ctx, idx, &loops[LOOP_TYPE_FATHER], push_father);
     
         return 0;
     }
     
-    err = __inotify_initer(ctx, idx, __inotify_handle);
+    err = __inotify_initer(ctx, idx, &loops[LOOP_TYPE_INOTIFY], __inotify_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __signal_initer(ctx, idx, __signal_handle);
+    err = __signal_initer(ctx, idx, &loop[LOOP_TYPE_SIGNAL], __signal_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __timer_initer(ctx, idx, __timer_handle);
+    err = __timer_initer(ctx, idx, &loop[LOOP_TYPE_TIMER], __timer_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __normal_initer(ctx, idx, __normal_handle);
+    err = __normal_initer(ctx, idx, &loop[LOOP_TYPE_NORMAL], __normal_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __father_initer(ctx, idx, __father_handle);
+    err = __father_initer(ctx, idx, &loop[LOOP_TYPE_FATHER], __father_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
