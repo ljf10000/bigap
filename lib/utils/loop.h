@@ -412,12 +412,19 @@ __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father)
 static inline void
 __loop_inotify_handle(loop_watcher_t *watcher)
 {
-    char buf[sizeof(struct inotify_event) + NAME_MAX + 1] = {0};
-    struct inotify_event *ev = (struct inotify_event *)buf;
+    char buf[1+OS_PAGE_LEN] = {0};
+    struct inotify_event *ev;
 
-    int len = read(watcher->fd, ev, sizeof(struct inotify_event) + NAME_MAX + 1);
-    if (len>=sizeof(struct inotify_event)) {
-        (*watcher->cb.inotify)(watcher, ev);
+    int current = 0;
+    int len = read(watcher->fd, ev, 1+OS_PAGE_LEN);
+    if (len>0) {
+        while(current<len) {
+            ev = (struct inotify_event *)(buf + current);
+            
+            (*watcher->cb.inotify)(watcher, ev);
+
+            current += sizeof(struct inotify_event) + ev->len;
+        }
     }
 }
 

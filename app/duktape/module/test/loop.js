@@ -11,7 +11,7 @@ var loop = {
 		param: [
 			{
 				path: "/home/liujingfei/work/big",
-				mask: __libc__.IN_OPEN
+				mask: __libc__.IN_OPEN | __libc__.IN_ACCESS
 			}
 		]
 	},
@@ -42,7 +42,8 @@ var loop = {
 		},
 		param: {
 			interval:{
-				sec:1,nsec:0
+				sec:5,
+				nsec:0
 			}
 		}
 	}
