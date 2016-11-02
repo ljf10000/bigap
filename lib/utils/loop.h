@@ -123,6 +123,8 @@ __loop_watcher_destructor(void *item)
     if (is_good_fd(watcher->fd)) {
         os_close(watcher->fd);
     }
+
+    __loop_watcher_constructor(watcher);
 }
 
 static inline int
