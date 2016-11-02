@@ -314,6 +314,8 @@ __watcher_initer(duk_context *ctx, int idx, loop_obj_t *obj, int *level)
     (*level)++;
     ok = duk_get_prop_string(ctx, idx, obj->name);
     if (false==ok) {
+        debug_trace("no %s loop", obj->name);
+        
         return -ENOEXIST;
     }
     int iobj = duk_normalize_index(ctx, -1);
@@ -322,6 +324,8 @@ __watcher_initer(duk_context *ctx, int idx, loop_obj_t *obj, int *level)
     (*level)++;
     ok = duk_get_prop_string(ctx, iobj, LOOP_HANDLE);
     if (false==ok) {
+        debug_trace("invalid %s loop handle", obj->name);
+        
         return -ENOEXIST;
     }
     
@@ -329,6 +333,8 @@ __watcher_initer(duk_context *ctx, int idx, loop_obj_t *obj, int *level)
     (*level)++;
     ok = duk_get_prop_string(ctx, iobj, LOOP_PARAM);
     if (false==ok) {
+        debug_trace("invalid %s loop param", obj->name);
+        
         return -ENOEXIST;
     }
 
@@ -349,11 +355,15 @@ __inotify_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_
     }
     
     if (false==duk_is_array(ctx, -1)) {
+        debug_trace("%s loop param isn's array", obj->name);
+        
         duk_pop_n(ctx, level); return 0;
     }
     
     int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
+        debug_trace("invalid %s loop param array count", obj->name);
+        
         duk_pop_n(ctx, level); return 0;
     }
     
@@ -363,6 +373,8 @@ __inotify_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_
         duk_get_prop_index(ctx, -1, i); level++;
     
         if (false==duk_is_object(ctx, -1)) {
+            debug_trace("%s loop param array item isn't object", obj->name);
+            
             duk_pop_n(ctx, level); return 0;
         }
         
@@ -387,20 +399,18 @@ __signal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_s
     // push param
     err = __watcher_initer(ctx, idx, obj, &level);
     if (err<0) {
-        debug_trace("add signal watcher error:%d", err);
-        
         duk_pop_n(ctx, level); return 0;
     }
     
-    if (duk_is_array(ctx, -1)) {
-        debug_trace("add signal watcher error: invalid array");
+    if (false==duk_is_array(ctx, -1)) {
+        debug_trace("%s loop param isn's array", obj->name);
         
         duk_pop_n(ctx, level); return 0;
     }
     
     int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
-        debug_trace("add signal watcher error: invalid array count");
+        debug_trace("invalid %s loop param array count", obj->name);
         
         duk_pop_n(ctx, level); return 0;
     }
@@ -429,6 +439,8 @@ __timer_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_ti
     }
     
     if (false==duk_is_object(ctx, -1)) {
+        debug_trace("%s loop param isn's object", obj->name);
+        
         duk_pop_n(ctx, level); return 0;
     }
 
@@ -453,12 +465,16 @@ __normal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_n
         duk_pop_n(ctx, level); return 0;
     }
     
-    if (duk_is_array(ctx, -1)) {
+    if (false==duk_is_array(ctx, -1)) {
+        debug_trace("%s loop param isn's array", obj->name);
+        
         duk_pop_n(ctx, level); return 0;
     }
     
     int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
+        debug_trace("invalid %s loop param array count", obj->name);
+        
         duk_pop_n(ctx, level); return 0;
     }
 
@@ -487,12 +503,16 @@ __father_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_s
         duk_pop_n(ctx, level); return 0;
     }
     
-    if (duk_is_array(ctx, -1)) {
+    if (false==duk_is_array(ctx, -1)) {
+        debug_trace("%s loop param isn's array", obj->name);
+        
         duk_pop_n(ctx, level); return 0;
     }
     
     int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
+        debug_trace("invalid %s loop param array count", obj->name);
+        
         duk_pop_n(ctx, level); return 0;
     }
 
