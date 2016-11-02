@@ -198,7 +198,7 @@ __this_oem(void)
     }
 
     if (NULL==__THIS_OEM) {
-        oem_t oem[] = __THIS_OEM_INITER;
+        oem_t oem[OEM_T_END] = __THIS_OEM_INITER;
         int size = sizeof(oem_t) * OEM_T_END;
         
         __THIS_OEM = (oem_t *)os_zalloc(size);

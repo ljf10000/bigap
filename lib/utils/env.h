@@ -152,18 +152,24 @@ typedef struct {
 
 DECLARE_FAKE_ENV;
 
-static inline void
-os_env_init(void)
+static inline os_env_cache_t *
+__this_env(void)
 {
     if (NULL==__THIS_ENV) {
         __THIS_ENV = (os_env_cache_t *)os_zalloc(sizeof(os_env_cache_t));
     }
-    
+
+    return __THIS_ENV;
+}
+
+static inline void
+os_env_init(void)
+{
 #if use_THIS_ENV
     int i;
     
 #define OS_ENV_GET(_key, _value, _name) \
-    __THIS_ENV->env[_key] = getenv("__env_" _name "__")
+    __this_env()->env[_key] = getenv("__env_" _name "__")
 
     OS_ENVLIST(OS_ENV_GET) i=0;
 #undef OS_ENV_GET
@@ -174,7 +180,7 @@ static inline char *
 os_env_get(int idx)
 {
     if (is_good_os_env(idx)) {
-        return __THIS_ENV->env[idx];
+        return __this_env()->env[idx];
     } else {
         return NULL;
     }
@@ -184,7 +190,7 @@ static inline char *
 os_env_set(int idx, char *env)
 {
     if (is_good_os_env(idx)) {
-        return (__THIS_ENV->env[idx] = env);
+        return (__this_env()->env[idx] = env);
     } else {
         return NULL;
     }
