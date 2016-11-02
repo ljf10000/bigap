@@ -31,6 +31,8 @@ DECLARE_ENUM(loop_type, LOOP_LIST, LOOP_TYPE_END);
 #define LOOP_TYPE_END       LOOP_TYPE_END
 #endif
 
+struct loop_watcher;
+
 typedef int loop_timer_f(struct loop_watcher *watcher, uint32 times);
 typedef int loop_signal_f(struct loop_watcher *watcher, struct signalfd_siginfo *siginfo);
 typedef int loop_normal_f(struct loop_watcher *watcher);
