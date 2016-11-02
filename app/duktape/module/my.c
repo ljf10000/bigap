@@ -518,7 +518,7 @@ duke_loop(duk_context *ctx)
 
     loop_info_t loops[LOOP_TYPE_END] = LOOP_INFO_INITER;
     loop_t loop = LOOP_INITER;
-     
+
     int idx = duk_normalize_index(ctx, -1);
     if (false==duk_is_object(ctx, idx)) {
         __js_seterrno(ctx, -EFORMAT); goto error;

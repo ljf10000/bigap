@@ -82,7 +82,7 @@ typedef struct {
     uint16 attempts;
     byte id[NSQ_MSGID_SIZE];
 
-    char data[0];
+    char body[0];
 } nsq_msg_t;
 
 typedef struct {

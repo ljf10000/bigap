@@ -1,29 +1,36 @@
 #!/bin/js
 
-var count = 0;
+var loop = {
+	inotify: {
+		count: 0,
+		handle: function (ev) {
+			print("inotify times", loop.inotify.count++);
 
-var param = {
+			fmt.oprint(ev);
+		}
+	},
 	signal: {
+		count: 0,
 		handle: function (siginfo) {
-			if (siginfo.signo==__libc__.SIGUSR1) {
-		                print("recv signal SIGUSR1 times", count++);
-		                fmt.oprint(siginfo)
-		        }
+		    print("signal times", loop.signal.count++);
+
+		    fmt.oprint(siginfo);
 		},
 		sigs: [__libc__.SIGUSR1]
 	},
 	timer: {
+		count: 0,
 		handle: function (times) {
-		        print("timer times:", times + count++);
-		        print("signalfd =", param.signal.fd);
-		        print("timerfd  =", param.timer.fd);
-		        print("epollfd  =", param.epoll.fd);
-		        print("inotifyfd=", param.inotify.fd);
+			print("timer times:", loop.timer.count++);
 		},
-		spec: {interval:{sec:1,nsec:0}}
+		spec: {
+			interval:{
+				sec:1,nsec:0
+			}
+		}
 	}
 };
 
-__my__.loop(param);
+__my__.loop(loop);
 
 print("errno=", __libc__.errno);
