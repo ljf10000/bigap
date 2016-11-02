@@ -373,7 +373,6 @@ __inotify_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_
     }
 
     err = os_loop_add_inotify(loop, cb, inotify, count);
-    debug_ok("add inotify watcher ok.");
 
     duk_pop_n(ctx, level); return err;
 }
@@ -412,7 +411,6 @@ __signal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_s
     }
 
     err = os_loop_add_signal(loop, cb, sigs, count);
-    debug_ok("add signal watcher ok.");
     
     duk_pop_n(ctx, level); return err;
 }
@@ -438,7 +436,6 @@ __timer_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_ti
     __get_itimerspec(ctx, -1, &tm);
 
     err = os_loop_add_timer(loop, cb, &tm);
-    debug_ok("add timer watcher ok.");
 
     duk_pop_n(ctx, level); return err;
 }
@@ -473,7 +470,6 @@ __normal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_n
             duk_pop_n(ctx, level); return 0;
         }
     }
-    debug_ok("add normal watcher ok.");
     
     duk_pop_n(ctx, level); return err;
 }
@@ -508,7 +504,6 @@ __father_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_s
             duk_pop_n(ctx, level); return 0;
         }
     }
-    debug_ok("add father watcher ok.");
     
     duk_pop_n(ctx, level); return err;
 }
