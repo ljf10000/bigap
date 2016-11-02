@@ -304,7 +304,7 @@ typedef struct {
 }   /* end */
 
 static inline void
-__loop_call(duk_context *ctx, duk_idx_t idx, loop_info_t *info, int (*push)(void))
+__loop_pcall(duk_context *ctx, duk_idx_t idx, loop_info_t *info, int (*push)(void))
 {
     int iobj = duk_get_prop_string(ctx, idx, info->obj);
     duk_push_string(ctx, LOOP_HANDLE);
@@ -530,7 +530,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, __set_inotify_event, ev), 1;
         }
         
-        __loop_call(ctx, idx, &loops[LOOP_TYPE_INOTIFY], push_inotify);
+        __loop_pcall(ctx, idx, &loops[LOOP_TYPE_INOTIFY], push_inotify);
     
         return 0;
     }
@@ -541,7 +541,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, __set_signalfd_siginfo, siginfo), 1;
         }
     
-        __loop_call(ctx, idx, &loops[LOOP_TYPE_SIGNAL], push_signal);
+        __loop_pcall(ctx, idx, &loops[LOOP_TYPE_SIGNAL], push_signal);
     
         return 0;
     }
@@ -552,7 +552,7 @@ duke_loop(duk_context *ctx)
             return duk_push_int(ctx, (int)times), 1;
         }
     
-        __loop_call(ctx, idx, &loops[LOOP_TYPE_TIMER], push_timer);
+        __loop_pcall(ctx, idx, &loops[LOOP_TYPE_TIMER], push_timer);
     
         return 0;
     }
@@ -563,7 +563,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, __set_watcher_event, watcher), 1;
         }
     
-        __loop_call(ctx, idx, &loops[LOOP_TYPE_NORMAL], push_normal);
+        __loop_pcall(ctx, idx, &loops[LOOP_TYPE_NORMAL], push_normal);
     
         return 0;
     }
@@ -574,7 +574,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, __set_watcher_event, watcher), 1;
         }
 
-        __loop_call(ctx, idx, &loops[LOOP_TYPE_FATHER], push_father);
+        __loop_pcall(ctx, idx, &loops[LOOP_TYPE_FATHER], push_father);
     
         return 0;
     }
@@ -612,7 +612,7 @@ error:
 
 #if js_LIBCALL
 static duk_ret_t
-libcall(duk_context *ctx)
+__libcall(duk_context *ctx)
 {
     int err = 0;
     duk_string_t lib = (duk_string_t)duk_require_string(ctx, 0);
@@ -662,7 +662,7 @@ JS_PARAM(libcall, 4);
 static duk_ret_t
 duke_libcall(duk_context *ctx)
 {
-    return duk_push_int(ctx, libcall(ctx)), 1;
+    return duk_push_int(ctx, __libcall(ctx)), 1;
 }
 #endif
 
