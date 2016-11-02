@@ -166,6 +166,14 @@
         PRODUCT_BOOTARGS_BLOCK0_NAME ":" PRODUCT_BOOTARGS_BLOCK0 \
     /* end */
 #else
+#if IS_PRODUCT_LTEFI_AP
+#define PRODUCT_BOOTARGS_BODY   \
+	"console=" PRODUCT_CONSOLE "," __SYMBOL_TO_STRING(PRODUCT_CONSOLE_BAUD) \
+        " "                     \
+    "mtdparts="              \
+        PRODUCT_BOOTARGS_BLOCK0_NAME ":" PRODUCT_BOOTARGS_BLOCK0 \
+    /* end */
+#else
 #define PRODUCT_BOOTARGS_BODY   \
     "mem=" PRODUCT_MEMORY_SIZE_STRING \
         " "                     \
@@ -174,6 +182,7 @@
     "blkdevparts="              \
         PRODUCT_BOOTARGS_BLOCK0_NAME ":" PRODUCT_BOOTARGS_BLOCK0 \
     /* end */
+#endif
 #endif
 
 #ifdef CONFIG_BOOTARGS

@@ -12,10 +12,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 #define CONFIG_BOOTCOMMAND              PRODUCT_BOOTCOMMAND
 
-/*
-* bootargs/bootcmd is dirty???
-*/
-bool bootenv_dirty;
 uint32 emmc_cid[4];
 
 static struct bcookie_otp botp = BCOOKIE_OBJ(BCOOKIE_OTP);
@@ -274,14 +270,6 @@ change_bootenv(void)
     bootcmd_change();
 }
 
-static void 
-benv_boot_check(void) 
-{
-    benv_show_cookie();
-
-    benv_check();
-}
-
 #if 0
 static void
 percentage(int count)
@@ -396,34 +384,6 @@ benv_boot_select(void)
     benv_select();
     
     change_bootenv();
-}
-
-static void
-benv_boot_save(void)
-{
-    if (bootenv_dirty) {
-        if (os_streq("force", getenv("benvsave"))) {
-            os_println("benv force save ...");
-            {
-                benv_save();
-            }
-            os_println("benv force save end");
-        }
-        
-        os_println("bootenv update ..."); 
-        {
-            env_crc_update();
-            saveenv(); /* include benv */
-            bootenv_dirty = false;
-        }
-        os_println("bootenv update ok.");
-    } else {
-        os_println("benv normal save ...");
-        {
-            benv_save();
-        }
-        os_println("benv normal save end");
-    }
 }
 
 static void

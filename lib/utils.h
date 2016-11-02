@@ -17,8 +17,8 @@
 
 #ifdef __BOOT__
 #   include <malloc.h>
-#   include <command.h>
 #   include <common.h>
+#   include <command.h>
 #   include <linux/ctype.h>
 #   include <linux/string.h>
 #elif defined(__KERNEL__)

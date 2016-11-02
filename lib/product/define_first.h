@@ -38,7 +38,11 @@
 #endif
 
 #ifndef PRODUCT_CONSOLE
+#if IS_PRODUCT_LTEFI_AP
+#define PRODUCT_CONSOLE					"ttyS0"
+#else
 #define PRODUCT_CONSOLE                 "ttyAMA0"
+#endif
 #endif
 
 #ifndef PRODUCT_CONSOLE_BAUD

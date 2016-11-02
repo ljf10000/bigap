@@ -9,6 +9,47 @@ BENV_CONTROL_INITER(NULL);
 DECLARE_REAL_DEBUGGER;
 DECLARE_REAL_JDEBUGGER;
 
+/*
+* bootargs/bootcmd is dirty???
+*/
+bool bootenv_dirty;
+
+static void 
+benv_boot_check(void) 
+{
+    benv_show_cookie();
+
+    benv_check();
+}
+
+static void
+benv_boot_save(void)
+{
+    if (bootenv_dirty) {
+        if (os_streq("force", getenv("benvsave"))) {
+            os_println("benv force save ...");
+            {
+                benv_save();
+            }
+            os_println("benv force save end");
+        }
+        
+        os_println("bootenv update ..."); 
+        {
+            env_crc_update();
+            saveenv(); /* include benv */
+            bootenv_dirty = false;
+        }
+        os_println("bootenv update ok.");
+    } else {
+        os_println("benv normal save ...");
+        {
+            benv_save();
+        }
+        os_println("benv normal save end");
+    }
+}
+
 static void
 benv_boot_init(void)
 {

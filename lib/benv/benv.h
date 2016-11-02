@@ -35,7 +35,11 @@
 #endif
 
 #define BENV_START                  PRODUCT_BOOT_SIZE
+#if IS_PRODUCT_LTEFI_AP
+#define BENV_BLOCK_SIZE             PRODUCT_BLOCK_SIZE*2		/* 256*2=512 */
+#else
 #define BENV_BLOCK_SIZE             PRODUCT_BLOCK_SIZE
+#endif
 #define BENV_BLOCK_COUNT            (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
 
 #ifndef BENV_TRYS
