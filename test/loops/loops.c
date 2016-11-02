@@ -35,8 +35,13 @@ static loop_t loop = LOOP_INITER;
 
 static int timer_cb(loop_watcher_t *watcher, uint32 times)
 {
-    os_println("timer %u", times);
+    static uint32 count = 0;
+    int i;
 
+    for (i=0; i<times; i++) {
+        os_println("timer %u", count++);
+    }
+    
     return 0;
 }
 
