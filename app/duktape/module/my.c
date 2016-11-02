@@ -530,7 +530,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, __set_inotify_event, ev), 1;
         }
         
-        __loop_call(ctx, idx, LOOP_TYPE_INOTIFY, push_signal);
+        __loop_call(ctx, idx, LOOP_TYPE_INOTIFY, push_inotify);
     
         return 0;
     }
