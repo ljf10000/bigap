@@ -416,17 +416,19 @@ __loop_inotify_handle(loop_watcher_t *watcher)
     struct inotify_event *ev;
 
     int current = 0;
-    int len = read(watcher->fd, ev, 1+OS_PAGE_LEN);
-    if (len>0) {
-        while(current<len) {
-            ev = (struct inotify_event *)(buf + current);
-            
-            (*watcher->cb.inotify)(watcher, ev);
-
-            current += sizeof(struct inotify_event) + ev->len;
-        }
-    } else {
+    int len = read(watcher->fd, buf, 1+OS_PAGE_LEN);
+    if (len<0) {
         debug_trace("inotify read error:%d", -errno);
+
+        return;
+    }
+    
+    while(current<len) {
+        ev = (struct inotify_event *)(buf + current);
+        
+        (*watcher->cb.inotify)(watcher, ev);
+
+        current += sizeof(struct inotify_event) + ev->len;
     }
 }
 
