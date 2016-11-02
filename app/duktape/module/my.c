@@ -355,16 +355,16 @@ __inotify_init(duk_context *ctx, int idx, loop_inotify_f *cb)
     // push param
     err = __watcher_init(ctx, LOOP_TYPE_INOTIFY, idx, &level);
     if (err<0) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
     
     if (false==duk_is_array(ctx, -1)) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
     
     int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
     
     loop_inotify_t inotify[count];
@@ -384,10 +384,7 @@ __inotify_init(duk_context *ctx, int idx, loop_inotify_f *cb)
 
     err = os_loop_add_inotify(&loop, cb, inotify, count);
 
-error:
-    duk_pop_n(ctx, level);
-    
-    return err;
+    duk_pop_n(ctx, level); return err;
 }
 
 static int
@@ -419,9 +416,7 @@ __signal_init(duk_context *ctx, int idx, loop_signal_f *cb)
 
     err = os_loop_add_signal(&loop, cb, sigs, count);
     
-    duk_pop_n(ctx, level);
-    
-    return err;
+    duk_pop_n(ctx, level); return err;
 }
 
 static int
@@ -434,11 +429,11 @@ __timer_init(duk_context *ctx, int idx, loop_timer_f *cb)
     // push param
     err = __watcher_init(ctx, LOOP_TYPE_TIMER, idx, &level);
     if (err<0) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
     
     if (false==duk_is_object(ctx, -1)) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
         
     struct itimerspec tm;
@@ -446,10 +441,7 @@ __timer_init(duk_context *ctx, int idx, loop_timer_f *cb)
 
     err = os_loop_add_timer(&loop, cb, &tm);
 
-error:
-    duk_pop_n(ctx, level);
-    
-    return err;
+    duk_pop_n(ctx, level); return err;
 }
 
 static int
@@ -462,16 +454,16 @@ __normal_init(duk_context *ctx, int idx, loop_normal_f *cb)
     // push param
     err = __watcher_init(ctx, LOOP_TYPE_NORMAL, idx, &level);
     if (err<0) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
     
     if (duk_is_array(ctx, -1)) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
     
     int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
 
     for (i=0; i<count; i++) {
@@ -479,14 +471,11 @@ __normal_init(duk_context *ctx, int idx, loop_normal_f *cb)
 
         err = os_loop_add_normal(&loop, fd, cb);
         if (err<0) {
-            goto error;
+            duk_pop_n(ctx, level); return 0;
         }
     }
     
-error:
-    duk_pop_n(ctx, level);
-    
-    return err;
+    duk_pop_n(ctx, level); return err;
 }
 
 static int
@@ -499,16 +488,16 @@ __father_init(duk_context *ctx, int idx, loop_son_f *cb)
     // push param
     err = __watcher_init(ctx, LOOP_TYPE_FATHER, idx, &level);
     if (err<0) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
     
     if (duk_is_array(ctx, -1)) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
     
     int i, count = js_get_array_length(ctx, -1);
     if (count<=0) {
-        goto error;
+        duk_pop_n(ctx, level); return 0;
     }
 
     for (i=0; i<count; i++) {
@@ -516,14 +505,11 @@ __father_init(duk_context *ctx, int idx, loop_son_f *cb)
 
         err = os_loop_add_father(&loop, fd, cb);
         if (err<0) {
-            goto error;
+            duk_pop_n(ctx, level); return 0;
         }
     }
     
-error:
-    duk_pop_n(ctx, level);
-    
-    return err;
+    duk_pop_n(ctx, level); return err;
 }
 
 // TODO: inotify on loop
