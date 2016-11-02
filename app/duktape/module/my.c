@@ -283,61 +283,79 @@ typedef struct {
     char *obj;
     char *param;
     
-    int fd;
-    int func;   /* func index */
     bool used;
+    duk_context *ctx;
 } loop_info_t;
 
 #define LOOP_INFO(_obj, _param) {   \
-    .fd     = INVALID_FD,   \
-    .func   = 0,            \
-    .used   = false,        \
     .obj    = _obj,         \
     .param  = _param,       \
+    .used   = false,        \
 }
 
 #define LOOP_HANDLE     "handle"
 
-static loop_info_t __loop_signal    = LOOP_INFO("signal",   "sigs");
-static loop_info_t __loop_timer     = LOOP_INFO("timer",    "spec");
-static loop_info_t __loop_epoll     = LOOP_INFO("epoll",    "fds");
-static loop_info_t __loop_inotify   = LOOP_INFO("inotify",  "paths");
-
-static loop_info_t *LOOP[] = {
-    &__loop_signal,
-    &__loop_timer,
-    &__loop_epoll,
-    &__loop_inotify,
+static loop_info_t LOOP[LOOP_TYPE_END] = {
+    [LOOP_TYPE_INOTIFY] = LOOP_INFO("inotify",  "paths"),
+    [LOOP_TYPE_SIGNAL]  = LOOP_INFO("signal",   "sigs"),
+    [LOOP_TYPE_TIMER]   = LOOP_INFO("timer",    "spec"),
+    [LOOP_TYPE_NORMAL]  = LOOP_INFO("normal",   "fds"),
+    [LOOP_TYPE_FATHER]  = LOOP_INFO("father",   "fds"),
 };
+static loop_t loop = LOOP_INITER;
 
-static int loop_param_idx;
-
-static int
-loop_add(int fd)
+static inline void
+__loop_call(duk_context *ctx, duk_idx_t idx, int type, int (*push)(void))
 {
-    struct epoll_event ev;
+    loop_info_t *info = &LOOP[type];
     
-    ev.events   = EPOLLIN;
-    ev.data.fd  = fd;
-    
-    return epoll_ctl(__loop_epoll.fd, EPOLL_CTL_ADD, fd, &ev);
+    duk_push_string(ctx, info->obj);
+    duk_pcall_prop(ctx, idx, (*push)());
+    duk_pop(ctx);
 }
 
 static int
-loop_signal_init(duk_context *ctx)
+__watcher_init(duk_context *ctx, int type, int idx, int *level)
 {
-    int err = 0, pop = 0;
+    loop_info_t *info = &LOOP[type];
+    int level = 0;
+    bool ok;
 
-    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, __loop_signal.obj)) {
-        goto error;
+    // push signal
+    (*level)++;
+    ok = duk_get_prop_string(ctx, idx, info->obj);
+    if (false==ok) {
+        return -ENOEXIST;
     }
 
-    if (++pop, false==duk_get_prop_string(ctx, -1, LOOP_HANDLE)) {
-        goto error;
+    // push handle
+    (*level)++;
+    ok = duk_get_prop_string(ctx, -1, LOOP_HANDLE);
+    if (false==ok) {
+        return -ENOEXIST;
     }
-    --pop; duk_pop(ctx);
     
-    if (++pop, false==duk_get_prop_string(ctx, -1, __loop_signal.param)) {
+    // push param
+    (*level)++;
+    ok = duk_get_prop_string(ctx, -1, info->param);
+    if (false==ok) {
+        return -ENOEXIST;
+    }
+
+    return 0;
+}
+
+static int
+__inotify_init(duk_context *ctx, int idx, loop_inotify_f *cb)
+{
+    loop_info_t *info = &LOOP[LOOP_TYPE_INOTIFY];
+    int err = 0, level = 0;
+
+    // push obj
+    // push handle
+    // push param
+    err = __watcher_init(ctx, LOOP_TYPE_INOTIFY, idx, &level);
+    if (err<0) {
         goto error;
     }
     
@@ -350,349 +368,164 @@ loop_signal_init(duk_context *ctx)
         goto error;
     }
     
-    sigset_t set;
-    sigemptyset(&set);
+    loop_inotify_t inotify[count];
+    
     for (i=0; i<count; i++) {
-        sigaddset(&set, js_get_array_int(ctx, -1, i));
-    }
-    sigprocmask(SIG_SETMASK, &set, NULL);
+        duk_get_prop_index(ctx, -1, i); level++;
+    
+        if (false==duk_is_object(ctx, -1)) {
+            goto error;
+        }
+        
+        inotify[i].path = js_get_obj_string(ctx, -1, "path", NULL);
+        inotify[i].mask = js_get_obj_uint(ctx, -1, "mask");
 
-    __loop_signal.fd = signalfd(-1, &set, 0/*EFD_CLOEXEC*/);
-    if (__loop_signal.fd<0) {
-        err = -errno; goto error;
-    }
-
-    err = loop_add(__loop_signal.fd);
-    if (err<0) {
-        goto error;
+        duk_pop(ctx); level--;
     }
 
-    __loop_signal.used = true;
+    err = os_loop_add_inotify(&loop, cb, inotify, count);
+
 error:
-    duk_pop_n(ctx, pop);
+    duk_pop_n(ctx, level);
     
     return err;
 }
 
 static int
-loop_timer_init(duk_context *ctx)
+__signal_init(duk_context *ctx, int idx, loop_signal_f *cb)
 {
-    int err = 0, pop = 0;
+    int err = 0, level = 0;
 
-    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, __loop_timer.obj)) {
+    // push obj
+    // push handle
+    // push param
+    err = __watcher_init(ctx, LOOP_TYPE_SIGNAL, idx, &level);
+    if (err<0) {
+        goto error;
+    }
+    
+    if (duk_is_array(ctx, -1)) {
+        goto error;
+    }
+    
+    int i, count = js_get_array_length(ctx, -1);
+    if (count<=0) {
         goto error;
     }
 
-    if (++pop, false==duk_get_prop_string(ctx, -1, LOOP_HANDLE)) {
-        goto error;
-    }
-    --pop; duk_pop(ctx);
-
-    if (++pop, false==duk_get_prop_string(ctx, -1, __loop_timer.param)) {
-        goto error;
+    int sigs[count];
+    for (i=0; i<count; i++) {
+        sigs[i] = js_get_array_int(ctx, -1, i);
     }
 
+    err = os_loop_add_signal(&loop, cb, sigs, count);
+    
+error:
+    duk_pop_n(ctx, level);
+    
+    return err;
+}
+
+static int
+__timer_init(duk_context *ctx, int idx, loop_timer_f *cb)
+{
+    int err = 0, level = 0;
+
+    // push obj
+    // push handle
+    // push param
+    err = __watcher_init(ctx, LOOP_TYPE_TIMER, idx, &level);
+    if (err<0) {
+        goto error;
+    }
+    
     if (false==duk_is_object(ctx, -1)) {
         goto error;
     }
-
-    struct itimerspec new;
-    __get_itimerspec(ctx, -1, &new);
-    if (0==new.it_value.tv_sec && 0==new.it_value.tv_nsec) {
-        new.it_value.tv_nsec = 1;
-    }
-
-    __loop_timer.fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
-    if (__loop_timer.fd<0) {
-        err = -errno; goto error;
-    }
-
-    err = timerfd_settime(__loop_timer.fd, 0, &new, NULL);
-    if (err<0) {
-        err = -errno; goto error;
-    }
-
-    err = loop_add(__loop_timer.fd);
-    if (err<0) {
-        goto error;
-    }
-
-    __loop_timer.used = true;
-error:
-    duk_pop_n(ctx, pop);
-
-    return err;
-}
-
-static int
-loop_epoll_init(duk_context *ctx)
-{
-    int err = 0, pop = 0;
-
-    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, __loop_epoll.obj)) {
-        goto error;
-    }
-    
-    if (++pop, false==duk_get_prop_string(ctx, -1, LOOP_HANDLE)) {
-        goto error;
-    }
-    --pop; duk_pop(ctx);
-    
-    if (++pop, false==duk_get_prop_string(ctx, -1, __loop_epoll.param)) {
-        goto error;
-    }
-    
-    if (false==duk_is_array(ctx, -1)) {
-        goto error;
-    }
-    
-    int i, count = js_get_array_length(ctx, -1);
-    if (count<=0) {
-        goto error;
-    }
-
-    for (i=0; i<count; i++) {
-        err = loop_add(js_get_array_int(ctx, -1, i));
-        if (err<0) {
-            goto error;
-        }
-    }
-
-    __loop_epoll.used = true;
-error:
-    duk_pop_n(ctx, pop);
-    
-    return err;
-}
-
-static int
-loop_inotify_init(duk_context *ctx)
-{
-    int err = 0, pop = 0;
-
-    if (++pop, false==duk_get_prop_string(ctx, loop_param_idx, __loop_inotify.obj)) {
-        goto error;
-    }
-    
-    if (++pop, false==duk_get_prop_string(ctx, -1, LOOP_HANDLE)) {
-        goto error;
-    }
-    --pop; duk_pop(ctx);
-    
-    __loop_inotify.fd = inotify_init1(IN_CLOEXEC);
-    if (__loop_inotify.fd<0) {
-        err = -errno; goto error;
-    }
-    
-    err = loop_add(__loop_inotify.fd);
-    if (err<0) {
-        goto error;
-    }
-    __loop_signal.used = true;
-    
-    if (++pop, false==duk_get_prop_string(ctx, -1, __loop_inotify.param)) {
-        goto error;
-    }
-    
-    if (false==duk_is_array(ctx, -1)) {
-        goto error;
-    }
-    
-    int i, count = js_get_array_length(ctx, -1);
-    if (count<=0) {
-        goto error;
-    }
-    
-    for (i=0; i<count; i++) {
-        char *path = js_get_array_string(ctx, -1, i, NULL);
-        uint32 mask = js_get_array_uint(ctx, -1, i);
-
-        err = inotify_add_watch(__loop_inotify.fd, path, mask);
-        if (err<0) {
-            goto error;
-        }
-    }
-
-error:
-    duk_pop_n(ctx, pop);
-    
-    return err;
-}
-
-static void
-loop_save(duk_context *ctx)
-{
-    int i;
-
-    for (i=0; i<os_count_of(LOOP); i++) {
-        if (LOOP[i]->used) {
-            duk_get_prop_string(ctx, loop_param_idx, LOOP[i]->obj);
-            js_set_obj_int(ctx, -1, "fd", LOOP[i]->fd);
-            duk_pop(ctx);
-        }
-    }
-}
-
-static void
-loop_push_func(duk_context *ctx)
-{
-    int i;
-
-    for (i=0; i<os_count_of(LOOP); i++) {
-        if (LOOP[i]->used) {
-            duk_get_prop_string(ctx, loop_param_idx, LOOP[i]->obj);
-            duk_get_prop_string(ctx, -1, LOOP_HANDLE);
-            duk_swap(ctx, -1, -2);
-            duk_pop(ctx);
-            
-            LOOP[i]->func = duk_normalize_index(ctx, -1);
-        }
-    }
-}
-
-static void
-loop_pop_func(duk_context *ctx)
-{
-    int i;
-
-    for (i=0; i<os_count_of(LOOP); i++) {
-        if (LOOP[i]->used) {
-            duk_pop(ctx);
-        }
-    }
-}
-
-static int
-loop_init(duk_context *ctx)
-{
-    int i, err = 0;
-    
-    static int (*init[])(duk_context *) = {
-        loop_signal_init,
-        loop_timer_init,
-        loop_inotify_init,
-        loop_epoll_init,
-    };
-
-    if (false==duk_is_object(ctx, loop_param_idx)) {
-        return -EFORMAT;
-    }
-
-    __loop_epoll.fd = epoll_create1(EPOLL_CLOEXEC);
-    if (__loop_epoll.fd<0) {
-        return -errno;
-    }
-
-    for (i=0; i<os_count_of(init); i++) {
-        err = (*init[i])(ctx);
-        if (err<0) {
-            return err;
-        }
-    }
-    
-    return 0;
-}
-
-static void
-loop_fini(void)
-{
-    os_close(__loop_epoll.fd);
-    os_close(__loop_timer.fd);
-    os_close(__loop_signal.fd);
-    os_close(__loop_inotify.fd);
-}
-
-static void
-loop_signal_handle(duk_context *ctx)
-{
-    struct signalfd_siginfo siginfo;
-
-    int push_signal(void) {
-        return js_obj_push(ctx, __set_signalfd_siginfo, &siginfo), 1;
-    }
-
-    int len = read(__loop_signal.fd, &siginfo, sizeof(siginfo));
-    if (len==sizeof(siginfo)) {
-        js_pcall(ctx, __loop_signal.func, push_signal);
-    }
-}
-
-static void
-loop_timer_handle(duk_context *ctx)
-{
-    uint64 val = 0;
-    
-    int push_timer(void) {
-        return duk_push_int(ctx, (int)val), 1;
-    }
-    
-    int len = read(__loop_timer.fd, &val, sizeof(val));
-    if (len==sizeof(val)) {
-        js_pcall(ctx, __loop_timer.func, push_timer);
-    }
-}
-
-static void
-loop_epoll_handle(duk_context *ctx, struct epoll_event *ev)
-{
-    int push_epoll(void) {
-        return js_obj_push(ctx, __set_epoll_event, ev), 1;
-    }
-
-    js_pcall(ctx, __loop_epoll.func, push_epoll);
-}
-
-static void
-loop_inotify_handle(duk_context *ctx)
-{
-    struct inotify_event val;
-    
-    int push_inotify(void) {
-        return js_obj_push(ctx, __set_inotify_event, &val), 1;
-    }
-    
-    int len = read(__loop_inotify.fd, &val, sizeof(val));
-    if (len==sizeof(val)) {
-        js_pcall(ctx, __loop_inotify.func, push_inotify);
-    }
-}
-
-static int
-loop_handle(duk_context *ctx)
-{
-    struct epoll_event evs[32];
-    int i;
-    
-    int nfds = epoll_wait(__loop_epoll.fd, evs, os_count_of(evs), -1);
-    if (nfds<0) {
-        if (EINTR==errno) {
-            return 0;
-        } else {
-            return -errno;
-        }
-    }
-
-    for (i=0; i<nfds; i++) {
-        struct epoll_event *ev = &evs[i];
         
-        if (__loop_signal.used && ev->data.fd==__loop_signal.fd) {
-            loop_signal_handle(ctx);
-        }
-        else if (__loop_timer.used && ev->data.fd==__loop_timer.fd) {
-            loop_timer_handle(ctx);
-        }
-        else if (__loop_inotify.used && ev->data.fd==__loop_inotify.fd) {
-            loop_inotify_handle(ctx);
-        }
-        else if (__loop_epoll.used) {
-            loop_epoll_handle(ctx, ev);
-        }
-        else {
-            os_do_nothing(); // TODO: log it
-        }
+    struct itimerspec tm;
+    __get_itimerspec(ctx, -1, &new);
+
+    err = os_loop_add_timer(&loop, cb, tm);
+
+error:
+    duk_pop_n(ctx, level);
+    
+    return err;
+}
+
+static int
+__normal_init(duk_context *ctx, int idx, loop_normal_f *cb)
+{
+    int fd, err = 0, level = 0;
+
+    // push obj
+    // push handle
+    // push param
+    err = __watcher_init(ctx, LOOP_TYPE_NORMAL, idx, &level);
+    if (err<0) {
+        goto error;
+    }
+    
+    if (duk_is_array(ctx, -1)) {
+        goto error;
+    }
+    
+    int i, count = js_get_array_length(ctx, -1);
+    if (count<=0) {
+        goto error;
     }
 
-    return 0;
+    for (i=0; i<count; i++) {
+        fd = js_get_array_int(ctx, -1, i);
+
+        err = os_loop_add_normal(&loop, fd, cb);
+        if (err<0) {
+            goto error;
+        }
+    }
+    
+error:
+    duk_pop_n(ctx, level);
+    
+    return err;
+}
+
+static int
+__father_init(duk_context *ctx, int idx, loop_son_f *cb)
+{
+    int fd, err = 0, level = 0;
+
+    // push obj
+    // push handle
+    // push param
+    err = __watcher_init(ctx, LOOP_TYPE_FATHER, idx, &level);
+    if (err<0) {
+        goto error;
+    }
+    
+    if (duk_is_array(ctx, -1)) {
+        goto error;
+    }
+    
+    int i, count = js_get_array_length(ctx, -1);
+    if (count<=0) {
+        goto error;
+    }
+
+    for (i=0; i<count; i++) {
+        fd = js_get_array_int(ctx, -1, i);
+
+        err = os_loop_add_father(&loop, fd, cb);
+        if (err<0) {
+            goto error;
+        }
+    }
+    
+error:
+    duk_pop_n(ctx, level);
+    
+    return err;
 }
 
 // TODO: inotify on loop
@@ -701,28 +534,94 @@ static duk_ret_t
 duke_loop(duk_context *ctx)
 {
     int err = 0;
+    
+    int idx = duk_normalize_index(ctx, -1);
+    if (false==duk_is_object(ctx, idx)) {
+        __js_seterrno(ctx, -EFORMAT); goto error;
+    }
 
-    loop_param_idx = duk_normalize_index(ctx, -1);
+    int __inotify_handle(struct loop_watcher *watcher, struct inotify_event *ev)
+    {
+        int push_inotify(void) {
+            return js_obj_push(ctx, __set_inotify_event, ev), 1;
+        }
+        
+        __loop_call(ctx, idx, LOOP_TYPE_INOTIFY, push_signal);
+    
+        return 0;
+    }
 
-    err = loop_init(ctx);
+    int __signal_handle(loop_watcher_t *watcher, struct signalfd_siginfo *siginfo)
+    {
+        int push_signal(void) {
+            return js_obj_push(ctx, __set_signalfd_siginfo, siginfo), 1;
+        }
+    
+        __loop_call(ctx, idx, LOOP_TYPE_SIGNAL, push_signal);
+    
+        return 0;
+    }
+
+    int __timer_handle(loop_watcher_t *watcher, uint32 times)
+    {
+        int push_timer(void) {
+            return duk_push_int(ctx, (int)times), 1;
+        }
+    
+        __loop_call(ctx, idx, LOOP_TYPE_TIMER, push_signal);
+    
+        return 0;
+    }
+
+    int __normal_handle(loop_watcher_t *watcher)
+    {
+        int push_normal(void) {
+            return js_obj_push(ctx, __set_watcher_event, watcher), 1;
+        }
+    
+        __loop_call(ctx, idx, LOOP_TYPE_NORMAL, push_normal);
+    
+        return 0;
+    }
+
+    int __father_handle(loop_watcher_t *watcher)
+    {
+        int push_normal(void) {
+            return js_obj_push(ctx, __set_watcher_event, watcher), 1;
+        }
+
+        __loop_call(ctx, idx, LOOP_TYPE_FATHER, push_normal);
+    
+        return 0;
+    }
+    
+    err = __inotify_init(ctx, idx, __inotify_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    loop_save(ctx);
-    loop_push_func(ctx);
+    err = __signal_init(ctx, idx, __signal_handle);
+    if (err<0) {
+        __js_seterrno(ctx, err); goto error;
+    }
     
-    while(1) {
-        err = loop_handle(ctx);
-        if (err<0) {
-            __js_seterrno(ctx, err); goto error;
-        }
+    err = __timer_init(ctx, idx, __timer_handle);
+    if (err<0) {
+        __js_seterrno(ctx, err); goto error;
+    }
+    
+    err = __normal_init(ctx, idx, __normal_handle);
+    if (err<0) {
+        __js_seterrno(ctx, err); goto error;
+    }
+    
+    err = __father_init(ctx, idx, __father_handle);
+    if (err<0) {
+        __js_seterrno(ctx, err); goto error;
     }
 
+    err = os_loop(&loop);
 error:
-    loop_pop_func(ctx);
-    loop_fini();
-
     return duk_push_int(ctx, err), 1;
 }
 

@@ -11,11 +11,12 @@
 
 #if 1
 #define LOOP_LIST(_) \
-    _(LOOP_TYPE_SIGNAL, 0, "signal"),   \
-    _(LOOP_TYPE_TIMER,  1, "timer"),    \
-    _(LOOP_TYPE_NORMAL, 2, "normal"),   \
-    _(LOOP_TYPE_FATHER, 3, "father"),   \
-    _(LOOP_TYPE_SON,    4, "son"),      \
+    _(LOOP_TYPE_INOTIFY,0, "inotify"),  \
+    _(LOOP_TYPE_SIGNAL, 1, "signal"),   \
+    _(LOOP_TYPE_TIMER,  2, "timer"),    \
+    _(LOOP_TYPE_NORMAL, 3, "normal"),   \
+    _(LOOP_TYPE_FATHER, 4, "father"),   \
+    _(LOOP_TYPE_SON,    5, "son"),      \
     /* end */
 
 static inline bool is_good_loop_type(int id);
@@ -23,6 +24,7 @@ static inline char *loop_type_string(int id);
 static inline int loop_type_idx(char *name);
 DECLARE_ENUM(loop_type, LOOP_LIST, LOOP_TYPE_END);
 
+#define LOOP_TYPE_INOTIFY   LOOP_TYPE_INOTIFY
 #define LOOP_TYPE_SIGNAL    LOOP_TYPE_SIGNAL
 #define LOOP_TYPE_TIMER     LOOP_TYPE_TIMER
 #define LOOP_TYPE_NORMAL    LOOP_TYPE_NORMAL
@@ -33,10 +35,16 @@ DECLARE_ENUM(loop_type, LOOP_LIST, LOOP_TYPE_END);
 
 struct loop_watcher;
 
+typedef struct {
+    char *path;
+    uint32 mask;
+} loop_inotify_t;
+
 typedef int loop_timer_f(struct loop_watcher *watcher, uint32 times);
 typedef int loop_signal_f(struct loop_watcher *watcher, struct signalfd_siginfo *siginfo);
 typedef int loop_normal_f(struct loop_watcher *watcher);
 typedef int loop_son_f(struct loop_watcher *watcher);
+typedef int loop_inotify_f(struct loop_watcher *watcher, struct inotify_event *ev);
 
 typedef struct loop_watcher {
     int fd;
@@ -49,22 +57,25 @@ typedef struct loop_watcher {
         loop_signal_f   *signal;
         loop_normal_f   *normal;
         loop_son_f      *son;
+        loop_inotify_f  *inotify;
         
         void *cb;
     } cb;
 } loop_watcher_t;
 
-#define LOOP_WATCHER_INITER(_fd, _type, _cb) { \
-    .fd     = _fd, \
-    .father = INVALID_FD, \
-    .type   = _type, \
-    .flag   = 0, \
-    .cb     = { .cb = _cb }, \
-}   /* end */
+static inline void
+__loop_watcher_init(loop_watcher_t *watcher, int fd, int type, void *cb)
+{
+    watcher->fd     = fd;
+    watcher->father = INVALID_FD;
+    watcher->type   = type;
+    watcher->flag   = 0;
+    watcher->cb.cb  = cb;
+}
 
 typedef struct {
     int efd;
-
+    
     autoarray_t watcher;
 
     uint32 count[LOOP_TYPE_END];
@@ -189,32 +200,34 @@ __loop_watcher(loop_t *loop, int fd)
     }
 }
 
-static inline int
-__loop_watcher_add(loop_t *loop, loop_watcher_t *w)
+static inline loop_watcher_t *
+__loop_watcher_add(loop_t *loop, int fd, int type, void *cb)
 {
     int err;
+
+    __loop_init(loop);
     
-    loop_watcher_t *watcher = __loop_watcher_take(loop, w->fd);
+    loop_watcher_t *watcher = __loop_watcher_take(loop, fd);
     if (NULL==watcher) {
-        debug_trace("not found watcher:%d", w->fd);
+        debug_trace("not found watcher:%d", fd);
         
-        return -ENOSPACE;
+        return NULL;
     }
     else if (__is_good_loop_watcher(watcher)) {
-        debug_trace("exist watcher:%d", w->fd);
+        debug_trace("exist watcher:%d", fd);
         
-        return -EEXIST;
+        return NULL;
     }
+
+    __loop_watcher_init(watcher, fd, type, cb);
     
-    os_objcpy(watcher, w);
-    
-    err = __loop_fd_add(loop, w->fd);
+    err = __loop_fd_add(loop, fd);
     if (err<0) {
         return err;
     }
-    loop->count[w->type]++;
+    loop->count[type]++;
     
-    return 0;
+    return watcher;
 }
 
 static inline int
@@ -270,12 +283,35 @@ __loop_init(loop_t *loop)
 }
 
 static inline int
+__loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], int count)
+{
+    int i, fd, err;
+    
+    fd = inotify_init1(IN_CLOEXEC);
+    if (fd<0) {
+        return -errno;
+    }
+
+    for (i=0; i<count; i++) {
+        err = inotify_add_watch(fd, inotify[i].path, inotify[i].mask);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_INOTIFY, cb);
+    if (NULL==watcher) {
+        return -ENOEXIST;
+    }
+
+    return 0;
+}
+
+static inline int
 __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
 {
     int err;
     
-    __loop_init(loop);
-
     int fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
     if (fd<0) {
         return -errno;
@@ -293,10 +329,9 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
         return -errno;
     }
 
-    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_TIMER, cb);
-    err = __loop_watcher_add(loop, &w);
-    if (err<0) {
-        return err;
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_TIMER, cb);
+    if (NULL==watcher) {
+        return -ENOEXIST;
     }
     
     return 0;
@@ -307,9 +342,7 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
 {
     int i, err;
     sigset_t set;
-    
-    __loop_init(loop);
-
+        
     sigemptyset(&set);
     for (i=0; i<count; i++) {
         sigaddset(&set, sigs[i]);
@@ -323,10 +356,9 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
         return -errno;
     }
 
-    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_SIGNAL, cb);
-    err = __loop_watcher_add(loop, &w);
-    if (err<0) {
-        return err;
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SIGNAL, cb);
+    if (NULL==watcher) {
+        return -ENOEXIST;
     }
 
     return 0;
@@ -335,14 +367,9 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
 static inline int
 __loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
 {
-    int err;
-    
-    __loop_init(loop);
-
-    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_NORMAL, cb);
-    err = __loop_watcher_add(loop, &w);
-    if (err<0) {
-        return err;
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_NORMAL, cb);
+    if (NULL==watcher) {
+        return -ENOEXIST;
     }
     
     return 0;
@@ -351,35 +378,37 @@ __loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
 static inline int
 __loop_add_father(loop_t *loop, int fd, loop_son_f *cb)
 {
-    int err;
-    
-    __loop_init(loop);
-
-    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_FATHER, cb);
-    err = __loop_watcher_add(loop, &w);
-    if (err<0) {
-        return err;
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_FATHER, cb);
+    if (NULL==watcher) {
+        return -ENOEXIST;
     }
     
     return 0;
 }
 
 static inline int
-__loop_add_son(loop_t *loop, int fd, int father, loop_son_f *cb)
+__loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father)
 {
-    int err;
-    
-    __loop_init(loop);
-
-    loop_watcher_t w = LOOP_WATCHER_INITER(fd, LOOP_TYPE_SON, cb);
-    w.father = father;
-    
-    err = __loop_watcher_add(loop, &w);
-    if (err<0) {
-        return err;
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SON, cb);
+    if (NULL==watcher) {
+        return -ENOEXIST;
     }
+    watcher->father = father;
     
     return 0;
+}
+
+static inline void
+__loop_inotify_handle(loop_watcher_t *watcher)
+{
+    struct inotify_event ev;
+
+    os_objzero(&ev);
+
+    int len = read(watcher->fd, &ev, sizeof(ev));
+    if (len==sizeof(ev)) {
+        (*watcher->cb.inotify)(watcher, &ev);
+    }
 }
 
 static inline void
@@ -421,40 +450,35 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
     
     fd = accept(watcher->fd, &addr, &addrlen);
     if (is_good_fd(watcher->fd)) {
-        __loop_add_son(loop, fd, watcher->fd, watcher->cb.cb);
+        __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd);
     }
 }
 
 static inline int
 __loop_handle_ev(loop_t *loop, struct epoll_event *ev)
 {
+    static void (*map[LOOP_TYPE_END])(loop_watcher_t *watcher) = {
+        [LOOP_TYPE_INOTIFY] = __loop_inotify_handle,
+        [LOOP_TYPE_SIGNAL]  = __loop_signal_handle,
+        [LOOP_TYPE_TIMER]   = __loop_timer_handle,
+        [LOOP_TYPE_NORMAL]  = __loop_normal_handle,
+        [LOOP_TYPE_SON]     = __loop_normal_handle,
+    };
+    
     loop_watcher_t *watcher = __loop_watcher(loop, ev->data.fd);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-
-    switch(watcher->type) {
-        case LOOP_TYPE_SIGNAL:
-            __loop_signal_handle(watcher);
-            
-            break;
-        case LOOP_TYPE_TIMER:
-            __loop_timer_handle(watcher);
-            
-            break;
-        case LOOP_TYPE_FATHER:
-            __loop_father_handle(loop, watcher);
-            
-            break;
-        case LOOP_TYPE_SON: /* down */
-        case LOOP_TYPE_NORMAL:
-            __loop_normal_handle(watcher);
-            
-            break;
-        default:
-            return -EBADFD;
+    else if (false==is_good_loop_type(watcher->type)) {
+        return -EBADFD;
     }
-
+    else if (LOOP_TYPE_FATHER==watcher->type) {
+        __loop_father_handle(loop, watcher);
+    }
+    else {
+        (*map[watcher->type])(watcher);
+    }
+    
     return 0;
 }
 
@@ -503,6 +527,16 @@ os_loop_del_watcher(loop_t *loop, int fd)
 {
     if (loop) {
         return __loop_watcher_del(loop, fd);
+    } else {
+        return -EINVAL0;
+    }
+}
+
+static inline int
+os_loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], int count)
+{
+    if (loop) {
+        return __loop_add_inotify(loop, cb, inotify, count);
     } else {
         return -EINVAL0;
     }

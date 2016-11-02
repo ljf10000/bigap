@@ -438,6 +438,28 @@ __set_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 }
 
 static inline int
+__get_watcher_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    loop_watcher_t *p = (loop_watcher_t *)obj; os_objzero(p);
+
+    p->fd       = js_get_obj_int(ctx, idx, "fd");
+    p->father   = js_get_obj_int(ctx, idx, "father");
+    p->type     = js_get_obj_int(ctx, idx, "type");
+    p->flag     = js_get_obj_int(ctx, idx, "flag");
+}
+
+static inline int
+__set_watcher_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    loop_watcher_t *p = (loop_watcher_t *)obj; os_objzero(p);
+
+    js_set_obj_int(ctx, idx, "fd",      p->fd);
+    js_set_obj_int(ctx, idx, "father",  p->father);
+    js_set_obj_int(ctx, idx, "type",    p->type);
+    js_set_obj_int(ctx, idx, "flag",    p->flag);
+}
+
+static inline int
 __get_epoll_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct epoll_event *p = (struct epoll_event *)obj; os_objzero(p);
