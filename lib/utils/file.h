@@ -218,8 +218,9 @@ os_readfileall(char *filename, char **content, uint32 *filesize, bool bin)
 {
     char *buf = NULL;
     int pad = bin?0:1;
+    int size, err = 0;
     
-    int size = os_fsize(filename);
+    size = os_fsize(filename);
     if (size<0) {
         goto error;
     }
@@ -229,7 +230,7 @@ os_readfileall(char *filename, char **content, uint32 *filesize, bool bin)
         goto error;
     }
     
-    int err = os_readfile(filename, buf, size);
+    err = os_readfile(filename, buf, size);
     if (err<0) {
         goto error;
     }
