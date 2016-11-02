@@ -2,9 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8a6b29f2-528c-432a-8877-4c35f840a044" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/duktape/module/test/loop.js" afterPath="$PROJECT_DIR$/app/duktape/module/test/loop.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/duktape/module/my.c" afterPath="$PROJECT_DIR$/app/duktape/module/my.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/nsq/nsq.h" afterPath="$PROJECT_DIR$/lib/nsq/nsq.h" />
+      <change type="DELETED" beforePath="D:\code\ljf10000\bigap\.idea\.name" afterPath="" />
+      <change type="DELETED" beforePath="D:\code\ljf10000\bigap\.idea\bigap.iml" afterPath="" />
+      <change type="DELETED" beforePath="D:\code\ljf10000\bigap\.idea\encodings.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\code\ljf10000\bigap\.idea\misc.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\code\ljf10000\bigap\.idea\modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="D:\code\ljf10000\bigap\.idea\vcs.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="bigap.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -31,8 +35,8 @@
       <file leaf-file-name="loop.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/duktape/module/test/loop.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.88461536" vertical-offset="0" max-vertical-offset="943">
-              <caret line="34" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0260181" vertical-offset="0" max-vertical-offset="943">
+              <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -191,6 +195,7 @@
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="HbShouldOpenHtmlAsHb" value="" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/duktape/module" />
   </component>
   <component name="RunManager">
     <configuration default="true" type="BashConfigurationType" factoryName="Bash">
@@ -295,8 +300,8 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/app/duktape/module/test/loop.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.88461536" vertical-offset="0" max-vertical-offset="943">
-          <caret line="34" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0260181" vertical-offset="0" max-vertical-offset="943">
+          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
           <folding />
         </state>
       </provider>
