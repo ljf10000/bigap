@@ -40,7 +40,7 @@ static int timer_cb(uint32 times)
     return 0;
 }
 
-static int signal_cb(struct signalfd_siginfo *p)
+static int signal_cb(loop_watcher_t *watcher, struct signalfd_siginfo *p)
 {
     os_println( "signo=%d, "
                 "errno=%d, "
@@ -70,13 +70,13 @@ static int signal_cb(struct signalfd_siginfo *p)
     return 0;
 }
 
-static int normal_cb(struct epoll_event *ev)
+static int normal_cb(loop_watcher_t *watcher)
 {
     int err, len;
     os_sockaddr_t addr;
     socklen_t addrlen = sizeof(addr.un);
     
-    len = __io_recvfrom(ev->data.fd, loops.buf, sizeof(loops.buf), 0, (sockaddr_t *)&addr.c, &addrlen);
+    len = __io_recvfrom(watcher->fd, loops.buf, sizeof(loops.buf), 0, (sockaddr_t *)&addr.c, &addrlen);
     if (len<0) {
         debug_error("normal recv error:%d", -errno);
 
@@ -86,7 +86,7 @@ static int normal_cb(struct epoll_event *ev)
     
     os_println("normal recv:%s", loops.buf);
 
-    err = io_sendto(ev->data.fd, loops.buf, len, (sockaddr_t *)&addr.c, addrlen);
+    err = io_sendto(watcher->fd, loops.buf, len, (sockaddr_t *)&addr.c, addrlen);
     if (err<0) {
         debug_error("normal send error:%d", -errno);
 
@@ -96,11 +96,11 @@ static int normal_cb(struct epoll_event *ev)
     return 0;
 }
 
-static int son_cb(struct epoll_event *ev)
+static int son_cb(loop_watcher_t *watcher)
 {
     int err, len;
 
-    len = __io_recv(ev->data.fd, loops.buf, sizeof(loops.buf), 0);
+    len = __io_recv(watcher->fd, loops.buf, sizeof(loops.buf), 0);
     if (len<0) {
         debug_error("son recv error:%d", -errno);
 
@@ -110,14 +110,14 @@ static int son_cb(struct epoll_event *ev)
     
     os_println("son recv:%s", loops.buf);
 
-    err = io_send(ev->data.fd, loops.buf, len);
+    err = io_send(watcher->fd, loops.buf, len);
     if (err<0) {
         debug_error("son send error:%d", -errno);
 
         return -errno;
     }
 
-    err = os_loop_del_watcher(&loop, ev->data.fd);
+    err = os_loop_del_watcher(&loop, watcher->fd);
     if (err<0) {
         debug_error("son delete error:%d", err);
 

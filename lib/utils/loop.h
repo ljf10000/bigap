@@ -31,10 +31,10 @@ DECLARE_ENUM(loop_type, LOOP_LIST, LOOP_TYPE_END);
 #define LOOP_TYPE_END       LOOP_TYPE_END
 #endif
 
-typedef int loop_timer_f(uint32 times);
-typedef int loop_signal_f(struct signalfd_siginfo *siginfo);
-typedef int loop_normal_f(struct epoll_event *ev);
-typedef int loop_son_f(struct epoll_event *ev);
+typedef int loop_timer_f(struct loop_watcher *watcher, uint32 times);
+typedef int loop_signal_f(struct loop_watcher *watcher, struct signalfd_siginfo *siginfo);
+typedef int loop_normal_f(struct loop_watcher *watcher);
+typedef int loop_son_f(struct loop_watcher *watcher);
 
 typedef struct loop_watcher {
     int fd;
@@ -76,12 +76,6 @@ typedef struct {
         [0 ... (LOOP_TYPE_END-1)] = INVALID_FD, \
     }                       \
 }   /* end */
-
-static inline bool
-__is_loop_use(loop_t *loop, int type)
-{
-    return !!loop->count[type];
-}
 
 static inline bool
 __is_good_loop(loop_t *loop)
@@ -183,16 +177,12 @@ __loop_watcher_take(loop_t *loop, int fd)
 static inline loop_watcher_t *
 __loop_watcher(loop_t *loop, int fd)
 {
-    if (false==is_good_fd(fd)) {
+    loop_watcher_t *watcher = __loop_watcher_take(loop, fd);
+    if (__is_good_loop_watcher(watcher)) {
+        return watcher;
+    } else {
         return NULL;
     }
-
-    loop_watcher_t *watcher = os_aa_get(&loop->watcher, fd, false);
-    if (false==__is_good_loop_watcher(watcher)) {
-        return NULL;
-    }
-
-    return watcher;
 }
 
 static inline int
@@ -397,7 +387,7 @@ __loop_signal_handle(loop_watcher_t *watcher)
 
     int len = read(watcher->fd, &siginfo, sizeof(siginfo));
     if (len==sizeof(siginfo)) {
-        (*watcher->cb.signal)(&siginfo);
+        (*watcher->cb.signal)(watcher, &siginfo);
     }
 }
 
@@ -408,14 +398,14 @@ __loop_timer_handle(loop_watcher_t *watcher)
     
     int len = read(watcher->fd, &val, sizeof(val));
     if (len==sizeof(val)) {
-        (*watcher->cb.timer)((uint32)val);
+        (*watcher->cb.timer)(watcher, (uint32)val);
     }
 }
 
 static inline void
-__loop_normal_handle(loop_watcher_t *watcher, struct epoll_event *ev)
+__loop_normal_handle(loop_watcher_t *watcher)
 {
-    (*watcher->cb.normal)(ev);
+    (*watcher->cb.normal)(watcher);
 }
 
 static inline void
@@ -454,7 +444,7 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev)
             break;
         case LOOP_TYPE_SON: /* down */
         case LOOP_TYPE_NORMAL:
-            __loop_normal_handle(watcher, ev);
+            __loop_normal_handle(watcher);
             
             break;
         default:
