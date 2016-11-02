@@ -1,6 +1,7 @@
 #ifndef __LOOP_H_71254387166c488dbb36aa9ed0f8b379__
 #define __LOOP_H_71254387166c488dbb36aa9ed0f8b379__
 /******************************************************************************/
+#ifdef __APP__
 #ifndef LOOP_FDLIMIT
 #define LOOP_FDLIMIT        1024
 #endif
@@ -578,5 +579,6 @@ os_loop(loop_t *loop)
     
     return 0;
 }
+#endif
 /******************************************************************************/
 #endif /* __LOOP_H_71254387166c488dbb36aa9ed0f8b379__ */
