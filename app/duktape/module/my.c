@@ -605,7 +605,7 @@ duke_loop(duk_context *ctx)
     }
 
     err = os_loop(&loop);
-error:
+
     return duk_push_int(ctx, err), 1;
 }
 
