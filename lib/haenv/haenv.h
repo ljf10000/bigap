@@ -229,13 +229,12 @@ typedef struct {
     int deft_count;
 } haenv_file_t;
 
-#if defined(__BOOT__)
 #   define DECLARE_REAL_HAENV       haenv_file_t *__THIS_HAENV
 #   define DECLARE_FAKE_HAENV       extern haenv_file_t *__THIS_HAENV
+
+#if defined(__BOOT__)
 #   define DECLARE_HAENV            DECLARE_REAL_HAENV
 #else
-#   define DECLARE_REAL_HAENV       haenv_file_t __THIS_HAENV
-#   define DECLARE_FAKE_HAENV       extern haenv_file_t __THIS_HAENV
 #   ifdef __ALLINONE__
 #       define DECLARE_HAENV        DECLARE_FAKE_HAENV
 #   else
@@ -248,11 +247,13 @@ DECLARE_FAKE_HAENV;
 static inline haenv_file_t *
 haenv(void)
 {
-#ifdef __BOOT__
-    return __THIS_HAENV;
-#else
-    return &__THIS_HAENV;
+#ifdef __APP__
+    if (NULL==__THIS_HAENV) {
+        __THIS_HAENV = (haenv_file_t *)os_zalloc(sizeof(haenv_file_t));
+    }
 #endif
+
+    return __THIS_HAENV;
 }
 
 #define haenv_seq       haenv()->seq
