@@ -243,17 +243,18 @@ static inline loop_watcher_t *
 __loop_watcher_add(loop_t *loop, int fd, int type, void *cb)
 {
     int err;
-
+    char *watchname = loop_type_string(type);
+    
     __loop_init(loop);
     
     loop_watcher_t *watcher = __loop_watcher_take(loop, fd);
     if (NULL==watcher) {
-        debug_trace("not found watcher:%d", fd);
+        debug_trace("not found %s watcher:%d", watchname, fd);
         
         return NULL;
     }
     else if (__is_good_loop_watcher(watcher)) {
-        debug_trace("exist watcher:%d", fd);
+        debug_trace("exist %s watcher:%d", watchname, fd);
         
         return NULL;
     }
@@ -262,12 +263,12 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb)
     
     err = __loop_fd_add(loop, fd);
     if (err<0) {
-        debug_trace("add watcher error: %d", -errno);
+        debug_trace("add %s watcher error: %d", watchname, -errno);
         
         return NULL;
     }
     loop->count[type]++;
-    debug_ok("add loop watcher:%s ok.", loop_type_string(type));
+    debug_ok("add %s watcher ok.", watchname);
     
     return watcher;
 }
@@ -293,13 +294,17 @@ __loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], i
     
     fd = inotify_init1(IN_CLOEXEC);
     if (fd<0) {
+        debug_error("create inotify fd error:%d", -errno);
+        
         return -errno;
     }
 
     for (i=0; i<count; i++) {
         err = inotify_add_watch(fd, inotify[i].path, inotify[i].mask);
         if (err<0) {
-            return err;
+            debug_error("add inotify watch error:%d", -errno);
+            
+            return -errno;
         }
     }
 
@@ -318,6 +323,8 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
     
     int fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
     if (fd<0) {
+        debug_error("create timer fd error:%d", -errno);
+        
         return -errno;
     }
 
@@ -328,7 +335,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
 
     err = timerfd_settime(fd, 0, &loop->tm, NULL);
     if (err<0) {
-        debug_error("create timer fd error:%d", -errno);
+        debug_error("setup timer error:%d", -errno);
         
         return -errno;
     }
