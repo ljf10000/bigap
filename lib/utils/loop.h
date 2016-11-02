@@ -261,7 +261,7 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb)
     
     err = __loop_fd_add(loop, fd);
     if (err<0) {
-        return err;
+        return NULL;
     }
     loop->count[type]++;
     
