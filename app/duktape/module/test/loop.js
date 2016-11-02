@@ -10,7 +10,7 @@ var loop = {
 		},
 		param: [
 			{
-				path: "/home/liujingfei/work/big/app/duktape/module/test",
+				path: "/home/liujingfei/work/big",
 				mask: __libc__.IN_OPEN
 			}
 		]
