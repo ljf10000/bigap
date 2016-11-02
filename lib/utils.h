@@ -166,6 +166,7 @@
 #include "utils/if.h"
 #include "utils/io.h"
 #include "utils/kv.h"
+#include "utils/loop.h"
 #include "utils/sbuffer.h"
 #include "utils/command.h"
 #include "utils/cli.h"
@@ -183,7 +184,6 @@
 #include "utils/cqueue.h"
 #include "utils/coroutine.h"
 #include "utils/fd.h"
-#include "utils/loop.h"
 #endif /* __EXTEND__ */
 
 #include "oem/oem.h"
@@ -192,13 +192,15 @@
 #define OS_EXT_INITER       \
     DECLARE_COROUTINE;      \
     DECLARE_FD;             \
-    os_fake_declare /* last */ \
+                            \
+    os_fake_declare         \
     /* end */
 
 #define OS_EXT_REAL_INITER  \
     DECLARE_REAL_COROUTINE; \
     DECLARE_REAL_FD;        \
-    os_fake_declare /* last */ \
+                            \
+    os_fake_declare         \
     /* end */
 #else
 #define OS_EXT_INITER       os_fake_declare
@@ -220,7 +222,7 @@
     DECLARE_JDEBUGGER;      \
     DECLARE_ENV;            \
                             \
-    OS_EXT_INITER/* last */ \
+    OS_EXT_INITER           \
     /* end */
 
 #define OS_REAL_INITER          \
@@ -238,7 +240,7 @@
     DECLARE_REAL_JDEBUGGER;     \
     DECLARE_REAL_ENV;           \
                                 \
-    OS_EXT_REAL_INITER/* last */\
+    OS_EXT_REAL_INITER          \
     /* end */
 
 static inline int

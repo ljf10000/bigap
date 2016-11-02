@@ -6,7 +6,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #define __DEAMON__
-#define __EXTEND__
 #include "utils.h"
 
 OS_INITER;
