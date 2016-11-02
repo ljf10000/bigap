@@ -64,7 +64,7 @@ typedef struct loop_watcher {
 } loop_watcher_t;
 
 static inline void
-__loop_watcher_init(loop_watcher_t *watcher, int fd, int type, void *cb)
+__loop_watcher_initer(loop_watcher_t *watcher, int fd, int type, void *cb)
 {
     watcher->fd     = fd;
     watcher->father = INVALID_FD;
@@ -219,7 +219,7 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb)
         return NULL;
     }
 
-    __loop_watcher_init(watcher, fd, type, cb);
+    __loop_watcher_initer(watcher, fd, type, cb);
     
     err = __loop_fd_add(loop, fd);
     if (err<0) {
