@@ -373,7 +373,7 @@ __inotify_init(duk_context *ctx, int idx, loop_inotify_f *cb)
         duk_get_prop_index(ctx, -1, i); level++;
     
         if (false==duk_is_object(ctx, -1)) {
-            goto error;
+            duk_pop_n(ctx, level); return 0;
         }
         
         inotify[i].path = js_get_obj_string(ctx, -1, "path", NULL);
