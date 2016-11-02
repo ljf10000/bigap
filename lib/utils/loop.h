@@ -265,7 +265,7 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb)
         return NULL;
     }
     loop->count[type]++;
-    debug_trace("add loop watcher:%s ok.", loop_type_string(type));
+    debug_ok("add loop watcher:%s ok.", loop_type_string(type));
     
     return watcher;
 }
