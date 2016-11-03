@@ -42,10 +42,13 @@ nsqi_create(void)
 static void
 __nsqi_destroy(nsq_instance_t *instance)
 {
+    int i;
+    
     if (instance) {
         os_free(instance->name);
         os_free(instance->domain);
         os_free(instance->cache);
+        os_free(instance->identify);
     }
 }
 
@@ -100,6 +103,36 @@ nsqi_foreach(nsq_foreach_f *foreach, bool safe)
     } else {
         return h2_foreach(&nsqa.table, node_foreach);
     }
+}
+
+static int
+nsqi_identify(nsq_instance_t *instance, char *json)
+{
+    nsq_identify_rule_t *rule = nsq_identify_rule();   
+    jobj_t jobj = jobj_byjson(json);
+    if (NULL==jobj) {
+        return -EBADJSON;
+    }
+
+    jobj_foreach(jobj, k, v) {
+        int id = nsq_identify_idx(k);
+        if (false==is_good_nsq_identify(id) ||
+            jobj_type(v) != rule[id].jtype  ||
+            NSQ_IDENTIFY_TYPE_CLOUD!=rule[id].type) {
+            /* del invalid key */
+            jobj_del(k);
+        }
+    }
+
+    jobj_add_string(jobj, NSQ_IDENTIFY_USER_AGENT_STRING,   NSQ_USER_AGENT);
+    jobj_add_string(jobj, NSQ_IDENTIFY_CLIENT_ID_STRING,    nsqa.cfg.client_id);
+    jobj_add_string(jobj, NSQ_IDENTIFY_HOSTNAME_STRING,     nsqa.cfg.hostname);
+
+    os_free(instance->identify);
+    instance->identify = jobj_json(jobj);
+    jobj_put(jobj);
+    
+    return 0;
 }
 
 static int

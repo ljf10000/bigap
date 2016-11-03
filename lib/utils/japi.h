@@ -129,6 +129,8 @@ jobj_string_len(jobj_t obj)
     }
 }
 
+#define jobj_del(_jobj, _k)     json_object_object_del(_jobj, _k)
+
 static inline void
 jobj_add(jobj_t obj, char *k, jobj_t v)
 {
@@ -190,6 +192,9 @@ jarray_get(jobj_t array, int idx)
 
     return obj;
 }
+
+#define jarray_set(_jarray, _idx, _jval)    json_object_array_put_idx(_jarray, _idx, _jval)
+#define jarray_add(_jarray, _jval)          json_object_array_add(_jarray, _jval)
 
 static inline char *
 jobj_name(jobj_t obj)
@@ -407,6 +412,84 @@ jobj_add_json(jobj_t obj, char *key, char *value)
     jobj_add(obj, key, new);
 
     return 0;
+}
+
+static inline jobj_t jobj_clone(jobj_t jobj, bool keepsort);
+
+static inline jobj_t
+jarray_clone(jobj_t jobj, bool keepsort)
+{
+    int i, count = jarray_length(jobj);
+    jobj_t jsub;
+    jobj_t jnew = jobj_new_array();
+    
+    for (i=0; i<count; i++) {
+        jsub = jarray_get(jobj, i);
+        if (jsub) {
+            if (keepsort) {
+                jarray_set(jnew, i, jobj_clone(jsub, keepsort));
+            }
+            else if (jtype_null!=jobj_type(jsub)) {
+                jarray_add(jnew, jobj_clone(jsub, keepsort));
+            }
+        }
+    }
+
+    return jnew;
+}
+
+static inline jobj_t
+jobj_clone(jobj_t jobj, bool keepsort)
+{
+    jobj_t jv;
+    jobj_t jnew = jobj_new_object();
+    if (NULL==jnew) {
+        return NULL;
+    }
+
+    jobj_foreach(jobj, k, v) {
+        switch(jobj_type(v)) {
+            case jtype_bool:
+                jobj_add_bool(jnew, k, jobj_get_bool(v));
+                
+                break;
+            case jtype_double:
+                jobj_add_f64(jnew, k, jobj_get_f64(v));
+                
+                break;
+            case jtype_int:
+                jobj_add_i32(jnew, k, jobj_get_i32(v));
+                
+                break;
+            case jtype_string:
+                jobj_add_string(jnew, k, jobj_get_string(v));
+                
+                break;
+            case jtype_object:
+                jv = jobj_clone(v, keepsort);
+
+                jobj_add(jnew, k, jv);
+                
+                break;
+            case jtype_array:
+                jv = jarray_clone(v, keepsort);
+
+                jobj_add(jnew, k, jv);
+                
+                break;
+            case jtype_null:
+            default:
+                goto error;
+        }
+
+        
+    }
+
+    return jnew;
+error:
+    jobj_put(jnew);
+    
+    return NULL;
 }
 
 static inline bool

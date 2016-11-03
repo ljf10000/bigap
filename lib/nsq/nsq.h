@@ -4,15 +4,24 @@
 #include "utils.h"
 /******************************************************************************/
 #if 1
-#define XCMEM_NSQ_IDENTIFY(_)                                               \
-    _(NSQ_IDENTIFY_CLIENT_ID,               0,  "client_id"),               \
-    _(NSQ_IDENTIFY_HOSTNAME ,               1,  "hostname"),                \
-    _(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     2,  "feature_negotiation"),     \
-    _(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       3,  "heartbeat_interval"),      \
-    _(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      4,  "output_buffer_size"),      \
-    _(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,   5,  "output_buffer_timeout"),   \
-    _(NSQ_IDENTIFY_USER_AGENT,              6,  "user_agent"),              \
-    _(NSQ_IDENTIFY_MSG_TIMEOUT,             7,  "msg_timeout"),             \
+#define NSQ_IDENTIFY_CLIENT_ID_STRING               "client_id"
+#define NSQ_IDENTIFY_HOSTNAME_STRING                "hostname"
+#define NSQ_IDENTIFY_FEATURE_NEGOTIATION_STRING     "feature_negotiation"
+#define NSQ_IDENTIFY_HEARBEAT_INTERVAL_STRING       "heartbeat_interval"
+#define NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_STRING      "output_buffer_size"
+#define NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_STRING   "output_buffer_timeout"
+#define NSQ_IDENTIFY_USER_AGENT_STRING              "user_agent"
+#define NSQ_IDENTIFY_MSG_TIMEOUT_STRING             "msg_timeout"
+
+#define XCMEM_NSQ_IDENTIFY(_)                                                               \
+    _(NSQ_IDENTIFY_CLIENT_ID,               0,  NSQ_IDENTIFY_CLIENT_ID_STRING),             \
+    _(NSQ_IDENTIFY_HOSTNAME ,               1,  NSQ_IDENTIFY_HOSTNAME_STRING),              \
+    _(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     2,  NSQ_IDENTIFY_FEATURE_NEGOTIATION_STRING),   \
+    _(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       3,  NSQ_IDENTIFY_HEARBEAT_INTERVAL_STRING),     \
+    _(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      4,  NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_STRING),    \
+    _(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,   5,  NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_STRING), \
+    _(NSQ_IDENTIFY_USER_AGENT,              6,  NSQ_IDENTIFY_USER_AGENT_STRING),            \
+    _(NSQ_IDENTIFY_MSG_TIMEOUT,             7,  NSQ_IDENTIFY_MSG_TIMEOUT_STRING),           \
     /* end */
 DECLARE_ENUM(nsq_identify, XCMEM_NSQ_IDENTIFY, NSQ_IDENTIFY_END);
 
@@ -31,11 +40,47 @@ static inline int nsq_identify_idx(char *name);
 #define NSQ_IDENTIFY_END                    NSQ_IDENTIFY_END   
 #endif
 
+enum {
+    NSQ_IDENTIFY_TYPE_CLOUD,
+    NSQ_IDENTIFY_TYPE_LOCAL,
+    NSQ_IDENTIFY_TYPE_CONST,
+    
+    NSQ_IDENTIFY_TYPE_END
+};
+
+typedef struct {
+    int jtype;
+    int type;
+} nsq_identify_rule_t;
+
+#define NSQ_IDENTIFY_RULE(_id, _jtype, _type)   [_id] = { .jtype = _jtype, .type = _type }
+
+static inline nsq_identify_rule_t *
+nsq_identify_rule(void)
+{
+    static nsq_identify_rule_t rule[NSQ_IDENTIFY_END] = {
+        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_CLIENT_ID,               jtype_string,   NSQ_IDENTIFY_TYPE_LOCAL),
+        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_HOSTNAME,                jtype_string,   NSQ_IDENTIFY_TYPE_LOCAL),
+        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     jtype_bool,     NSQ_IDENTIFY_TYPE_CLOUD),
+        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       jtype_int,      NSQ_IDENTIFY_TYPE_CLOUD),
+        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      jtype_int,      NSQ_IDENTIFY_TYPE_CLOUD),
+        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,   jtype_int,      NSQ_IDENTIFY_TYPE_CLOUD),
+        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_USER_AGENT,              jtype_string,   NSQ_IDENTIFY_TYPE_CONST),
+        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_MSG_TIMEOUT,             jtype_string,   false),
+    };
+
+    return rule;
+}
+
 #if 1
-#define XCMEM_NSQ_AUTH(_)                                       \
-    _(NSQ_AUTH_IDENTIFY,            0,  "identity"),            \
-    _(NSQ_AUTH_IDENTIFY_URL ,       1,  "identity_url"),        \
-    _(NSQ_AUTH_PERMISSION_COUNT,    2,  "permission_count"),    \
+#define NSQ_AUTH_IDENTIFY_STRING            "identity"
+#define NSQ_AUTH_IDENTIFY_URL_STRING        "identity_url"
+#define NSQ_AUTH_PERMISSION_COUNT_STRING    "permission_count"
+    
+#define XCMEM_NSQ_AUTH(_)                                                   \
+    _(NSQ_AUTH_IDENTIFY,            0,  NSQ_AUTH_IDENTIFY_STRING),          \
+    _(NSQ_AUTH_IDENTIFY_URL ,       1,  NSQ_AUTH_IDENTIFY_URL_STRING),      \
+    _(NSQ_AUTH_PERMISSION_COUNT,    2,  NSQ_AUTH_PERMISSION_COUNT_STRING),  \
     /* end */
 DECLARE_ENUM(nsq_auth, XCMEM_NSQ_AUTH, NSQ_AUTH_END);
 
@@ -50,22 +95,38 @@ static inline int nsq_auth_idx(char *name);
 #endif
 
 #if 1
-#define XCMEM_NSQ_ERROR(_)                          \
-    _(NSQ_E_OK,             0,  "OK"),              \
-    _(NSQ_E_CLOSE_WAIT,     1,  "CLOSE_WAIT"),      \
-    _(NSQ_E_ERROR,          2,  "E_ERROR"),         \
-    _(NSQ_E_INVALID,        2,  "E_INVALID"),       \
-    _(NSQ_E_BAD_TOPIC,      3,  "E_BAD_TOPIC"),     \
-    _(NSQ_E_BAD_CHANNEL,    4,  "E_BAD_CHANNEL"),   \
-    _(NSQ_E_BAD_BODY,       5,  "E_BAD_BODY"),      \
-    _(NSQ_E_BAD_MESSAGE,    6,  "E_BAD_MESSAGE"),   \
-    _(NSQ_E_PUB_FAILED,     7,  "E_PUB_FAILED"),    \
-    _(NSQ_E_MPUB_FAILED,    8,  "E_MPUB_FAILED"),   \
-    _(NSQ_E_FIN_FAILED,     9,  "E_FIN_FAILED"),    \
-    _(NSQ_E_REQ_FAILED,     10, "E_REQ_FAILED"),    \
-    _(NSQ_E_TOUCH_FAILED,   11, "E_TOUCH_FAILED"),  \
-    _(NSQ_E_AUTH_FAILED ,   12, "E_AUTH_FAILED "),  \
-    _(NSQ_E_UNAUTHORIZED,   13, "E_UNAUTHORIZED"),  \
+#define NSQ_E_OK_STRING             "OK"
+#define NSQ_E_CLOSE_WAIT_STRING     "CLOSE_WAIT"
+#define NSQ_E_ERROR_STRING          "E_ERROR"
+#define NSQ_E_INVALID_STRING        "E_INVALID"
+#define NSQ_E_BAD_TOPIC_STRING      "E_BAD_TOPIC"
+#define NSQ_E_BAD_CHANNEL_STRING    "E_BAD_CHANNEL"
+#define NSQ_E_BAD_BODY_STRING       "E_BAD_BODY"
+#define NSQ_E_BAD_MESSAGE_STRING    "E_BAD_MESSAGE"
+#define NSQ_E_PUB_FAILED_STRING     "E_PUB_FAILED"
+#define NSQ_E_MPUB_FAILED_STRING    "E_MPUB_FAILED"
+#define NSQ_E_FIN_FAILED_STRING     "E_FIN_FAILED"
+#define NSQ_E_REQ_FAILED_STRING     "E_REQ_FAILED"
+#define NSQ_E_TOUCH_FAILED_STRING   "E_TOUCH_FAILED"
+#define NSQ_E_AUTH_FAILED_STRING    "E_AUTH_FAILED "
+#define NSQ_E_UNAUTHORIZED_STRING   "E_UNAUTHORIZED"
+    
+#define XCMEM_NSQ_ERROR(_)                                  \
+    _(NSQ_E_OK,             0,  NSQ_E_OK_STRING),           \
+    _(NSQ_E_CLOSE_WAIT,     1,  NSQ_E_CLOSE_WAIT_STRING),   \
+    _(NSQ_E_ERROR,          2,  NSQ_E_ERROR_STRING),        \
+    _(NSQ_E_INVALID,        2,  NSQ_E_INVALID_STRING),      \
+    _(NSQ_E_BAD_TOPIC,      3,  NSQ_E_BAD_TOPIC_STRING),    \
+    _(NSQ_E_BAD_CHANNEL,    4,  NSQ_E_BAD_CHANNEL_STRING),  \
+    _(NSQ_E_BAD_BODY,       5,  NSQ_E_BAD_BODY_STRING),     \
+    _(NSQ_E_BAD_MESSAGE,    6,  NSQ_E_BAD_MESSAGE_STRING),  \
+    _(NSQ_E_PUB_FAILED,     7,  NSQ_E_PUB_FAILED_STRING),   \
+    _(NSQ_E_MPUB_FAILED,    8,  NSQ_E_MPUB_FAILED_STRING),  \
+    _(NSQ_E_FIN_FAILED,     9,  NSQ_E_FIN_FAILED_STRING),   \
+    _(NSQ_E_REQ_FAILED,     10, NSQ_E_REQ_FAILED_STRING),   \
+    _(NSQ_E_TOUCH_FAILED,   11, NSQ_E_TOUCH_FAILED_STRING), \
+    _(NSQ_E_AUTH_FAILED,    12, NSQ_E_AUTH_FAILED_STRING),  \
+    _(NSQ_E_UNAUTHORIZED,   13, NSQ_E_UNAUTHORIZED_STRING), \
     /* end */
 DECLARE_ENUM(nsq_error, XCMEM_NSQ_ERROR, NSQ_E_END);
 
@@ -441,6 +502,5 @@ nsqb_AUTH(nsq_buffer_t *b, char *secret, uint32 len)
 
     return 0;
 }
-
 /******************************************************************************/
 #endif /* __NSQ_H_700ea21373ce4d74a3027b48b6f332c8__ */

@@ -25,14 +25,17 @@
 #endif
 
 #ifndef NSQ_USER_AGENT
-#define NSQ_USER_AGENT      "weos/nsqa"
+#define NSQ_USER_AGENT      "weos-nsq-agent"
+#endif
+
+#ifndef NSQ_TOPIC
+#define NSQ_TOPIC           "weos.nsq.topic.default"
 #endif
 
 typedef struct {
     char *hostname;
     char *client_id;
     
-    char *conf;
     char *script;
 } nsq_config_t;
 
@@ -40,7 +43,7 @@ typedef struct {
     char *name;
     char *domain;
     char *cache;
-    char *identify[NSQ_IDENTIFY_END];
+    char *identify; // json
     
     nsq_buffer_t    sender;
     nsq_buffer_t    recver;
