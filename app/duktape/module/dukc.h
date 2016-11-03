@@ -962,6 +962,7 @@ __js_priv_fini(js_priv_t *priv)
     if (priv) {
         os_free(priv->name);
         os_free(priv->atexit_name);
+        os_free(priv->cache);
         
         for (i=0; i<NSIG; i++) {
             if (priv->sig[i].is_func) {

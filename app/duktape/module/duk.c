@@ -17,17 +17,18 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 static int
 search_path(duk_context *ctx, char *file, char *path)
 {
-    char fullname[1+OS_LINE_LEN] = 0;
-    int len = os_strlen(path);
+    char fullname[1+OS_LINE_LEN] = {0};
 
     if (NULL==path) {
         return -ENOEXIST;
     }
     
     debug_js("search %s at %s ...", file, path);
+    
     /*
     * path last char is '/'
     */
+    int len = os_strlen(path);
     if (len>1 && '/'==path[len-1]) {
         os_saprintf(fullname, "%s%s", path, file);
     } else {
