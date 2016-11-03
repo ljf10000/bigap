@@ -59,13 +59,13 @@
 "(sleep " __SYMBOL_TO_STRING(SCRIPT_SMD_INIT_DELAY) ";" SCRIPT_SMD_INIT ";) &"
 
 #if 1
-#define __XLIST_SM(_)               \
+#define XCMEM_SM(_)                 \
     _(SM_STATE_INIT,  0, "init"),   \
     _(SM_STATE_FORK,  1, "fork"),   \
     _(SM_STATE_RUN,   2, "run"),    \
     _(SM_STATE_DIE,   3, "die"),    \
     /* end */
-DECLARE_ENUM(sm_state, __XLIST_SM, SM_STATE_END);
+DECLARE_ENUM(sm_state, XCMEM_SM, SM_STATE_END);
 
 static inline bool is_good_sm_state(int id);
 static inline char *sm_state_string(int id);

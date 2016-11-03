@@ -2,12 +2,16 @@
 #define __ENUM_H_1b2ec28c4a404b41b1508c4effa0487d__
 /******************************************************************************/
 #if 0
-#define XXX_LIST(_) \
+/*
+* XCMEM: c magic enum macro
+*
+*/
+#define XCMEM_XXX(_) \
     _(KEY_A, VALUE_A, "NAME-A"), \
     _(KEY_B, VALUE_B, "NAME-B"), \
     _(KEY_C, VALUE_C, "NAME-C"), \
     /* end */
-DECLARE_ENUM(xxx, XXX_LIST, KEY_END);
+DECLARE_ENUM(xxx, XCMEM_XXX, KEY_END);
 
 static inline bool is_good_xxx(int id);
 static inline char *xxx_string(int id);
