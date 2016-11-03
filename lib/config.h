@@ -59,5 +59,11 @@
 #define OS_HAENV_SEM_ID         (OS_IPC_ID + 2)
 
 #define OS_INLINE               __attribute__((always_inline))
+
+#ifdef __PC__
+#define PC_DIR(_dir)             "./"
+#else
+#define PC_DIR(_dir)             _dir "/"
+#endif
 /******************************************************************************/
 #endif /* __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__ */

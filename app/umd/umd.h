@@ -24,35 +24,19 @@
 #endif
 
 #ifndef UMD_CONF
-#ifdef __PC__
-#   define UMD_CONF             "./umd.conf"
-#else
-#   define UMD_CONF             "/tmp/config/umd.conf"
-#endif
+#define UMD_CONF                PC_DIR("/tmp/config")   "umd.conf"
 #endif
 
 #ifndef UMD_SCRIPT_EVENT
-#ifdef __PC__
-#   define UMD_SCRIPT_EVENT     "./umevent"
-#else
-#   define UMD_SCRIPT_EVENT     "/etc/um/umevent"
-#endif
+#define UMD_SCRIPT_EVENT        PC_DIR("/etc/um")       "umevent"
 #endif
 
 #ifndef UMD_SCRIPT_IP
-#ifdef __PC__
-#   define UMD_SCRIPT_IP        "./getipbymac"
-#else
-#   define UMD_SCRIPT_IP        "/usr/sbin/getipbymac"
-#endif
+#define UMD_SCRIPT_IP           PC_DIR("/usr/sbin")     "getipbymac"
 #endif
 
 #ifndef UMD_SCRIPT_MAC
-#ifdef __PC__
-#   define UMD_SCRIPT_MAC       "./getmacbyip"
-#else
-#   define UMD_SCRIPT_MAC       "/usr/sbin/getmacbyip"
-#endif
+#define UMD_SCRIPT_MAC          PC_DIR("/usr/sbin")     "getmacbyip"
 #endif
 
 #ifndef UMD_TICKS
