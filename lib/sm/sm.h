@@ -44,11 +44,7 @@
 #endif
 
 #ifndef SCRIPT_SMD_INIT
-#ifdef __PC__
-#   define SCRIPT_SMD_INIT          "./smd.init"
-#else
-#   define SCRIPT_SMD_INIT          SCRIPT_FILE("smd.init")
-#endif
+#define SCRIPT_SMD_INIT             PC_VAL("./smd.init", SCRIPT_FILE("smd.init"))
 #endif
 
 #ifndef SCRIPT_SMD_INIT_DELAY

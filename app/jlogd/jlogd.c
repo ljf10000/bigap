@@ -25,11 +25,7 @@ OS_INITER;
 #endif
 
 #ifndef JLOGD_CUTCOUNT
-#ifdef __PC__
-#   define JLOGD_CUTCOUNT   10
-#else
-#   define JLOGD_CUTCOUNT   1000
-#endif
+#ifndef JLOGD_CUTCOUNT      PC_VAL(10, 1000)
 #endif
 
 #ifndef JLOG_LPATH
@@ -56,13 +52,8 @@ OS_INITER;
 #define JLOG_RCACHE         JLOG_RPATH "/.ap.log"
 #endif
 
-#ifdef __PC__
-#   define SCRIPT_CUT       "./jlogcut"
-#   define SCRIPT_PUSH      "./jlogpush"
-#else
-#   define SCRIPT_CUT       SCRIPT_FILE("jlog/cut.cb")
-#   define SCRIPT_PUSH      SCRIPT_FILE("jlog/push.cb")
-#endif
+#define SCRIPT_CUT          PC_VAL("./jlogcut", SCRIPT_FILE("jlog/cut.cb"))
+#define SCRIPT_PUSH         PC_VAL("./jlogpush", SCRIPT_FILE("jlog/push.cb"))
 
 static char jlogb[1 + JLOGD_BUFSIZE];
 

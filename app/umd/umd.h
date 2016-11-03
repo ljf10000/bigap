@@ -40,51 +40,27 @@
 #endif
 
 #ifndef UMD_TICKS
-#ifdef __PC__
-#   define UMD_TICKS            5  /* second */
-#else
-#   define UMD_TICKS            10 /* second */
-#endif
+#define UMD_TICKS               PC_VAL(5, 10)   /* second */
 #endif
 
 #ifndef UMD_IDLE
-#ifdef __PC__
-#   define UMD_IDLE             60  /* second */
-#else
-#   define UMD_IDLE             300 /* second */
-#endif
+#define UMD_IDLE                PC_VAL(60, 300) /* second */
 #endif
 
 #ifndef UMD_FAKE
-#ifdef __PC__
-#   define UMD_FAKE             10  /* second */
-#else
-#   define UMD_FAKE             30  /* second */
-#endif
+#define UMD_FAKE                PC_VAL(10, 30)  /* second */
 #endif
 
 #ifndef UMD_GC
-#ifdef __PC__
-#   define UMD_GC               30  /* second */
-#else
-#   define UMD_GC               0   /* second */
-#endif
+#define UMD_GC                  PC_VAL(30, 0)   /* second */
 #endif
 
 #ifndef UMD_SNIFF_COUNT
-#ifdef __PC__
-#    define UMD_SNIFF_COUNT     128
-#else
-#    define UMD_SNIFF_COUNT     32
-#endif
+#define UMD_SNIFF_COUNT         PC_VAL(128, 32)
 #endif
 
 #ifndef UMD_IFNAME_INGRESS
-#ifdef __PC__
-#    define UMD_IFNAME_INGRESS  "eth0"
-#else
-#    define UMD_IFNAME_INGRESS  "lan0"
-#endif
+#define UMD_IFNAME_INGRESS      PC_VAL("eth0", "lan0")
 #endif
 
 #if 1
@@ -710,11 +686,7 @@ um_user_delby(struct um_user_filter *filter);
 #define UM_TEST_JSON    0x01
 
 #ifndef UM_TEST
-#ifdef __PC__
-#   define UM_TEST      UM_TEST_JSON
-#else
-#   define UM_TEST      0
-#endif
+#define UM_TEST         PC_VAL(UM_TEST_JSON, 0)
 #endif
 
 extern void

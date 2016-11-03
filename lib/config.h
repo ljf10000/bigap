@@ -61,9 +61,12 @@
 #define OS_INLINE               __attribute__((always_inline))
 
 #ifdef __PC__
-#define PC_DIR(_dir)             "./"
+#define PC_VAL(_pc, _real)      _pc
 #else
-#define PC_DIR(_dir)             _dir "/"
+#define PC_VAL(_pc, _real)      _real
 #endif
+
+#define __PC_DIR(_dir)          PC_VAL(".", _dir)
+#define PC_DIR(_dir)            __PC_DIR(_dir)  "/"
 /******************************************************************************/
 #endif /* __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__ */

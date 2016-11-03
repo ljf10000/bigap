@@ -61,11 +61,7 @@
 }while(0)
 
 #ifndef BACKTRACE_PATH
-#ifdef __PC__
-#   define BACKTRACE_PATH       "."
-#else
-#   define BACKTRACE_PATH       "/tmp/.backtrace"
-#endif
+#define BACKTRACE_PATH          PC_VAL(".", "/tmp/.backtrace")
 #endif
 
 #define BACKTRACE_NAME          BACKTRACE_PATH "/" __THIS_APPNAME

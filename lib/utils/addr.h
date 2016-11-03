@@ -469,19 +469,12 @@ os_macstring(byte mac[])
 }
 
 #ifndef SCRIPT_GETMAC
-#ifdef __PC__
-#   define SCRIPT_GETMAC    "ip link show eth0 | grep link | awk '{print $2}'"
-#else
-#   define SCRIPT_GETMAC    "ifconfig | grep 'eth0 ' | awk '{print $5}'"
-#endif
+#define SCRIPT_GETMAC       PC_VAL( "ip link show eth0 | grep link | awk '{print $2}'", \
+                                    "ifconfig | grep 'eth0 ' | awk '{print $5}'")
 #endif
 
 #ifndef SCRIPT_GETBASEMAC
-#ifdef __PC__
-#   define SCRIPT_GETBASEMAC   SCRIPT_GETMAC
-#else
-#   define SCRIPT_GETBASEMAC   "/usr/sbin/getbasemac"
-#endif
+#define SCRIPT_GETBASEMAC   PC_VAL(SCRIPT_GETMAC, "/usr/sbin/getbasemac")
 #endif
 
 /*

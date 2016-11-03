@@ -14,11 +14,7 @@
 #endif
 
 #ifndef JLOG_SERVER
-#ifdef __PC__
-#   define JLOG_SERVER      "0.0.0.0"
-#else
-#   define JLOG_SERVER      "1.0.0.6"
-#endif
+#define JLOG_SERVER         PC_VAL("0.0.0.0", "1.0.0.6")
 #endif
 
 #ifndef JLOG_PORT

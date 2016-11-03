@@ -40,11 +40,7 @@
 #endif
 
 #ifndef SCRIPT_TMD_INIT
-#ifdef __PC__
-#   define SCRIPT_TMD_INIT          "./tmd.init"
-#else
-#   define SCRIPT_TMD_INIT          SCRIPT_FILE("tmd.init")
-#endif
+#define SCRIPT_TMD_INIT             PC_VAL("./tmd.init", SCRIPT_FILE("tmd.init"))
 #endif
 
 #ifndef SCRIPT_TMD_INIT_DELAY

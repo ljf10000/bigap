@@ -45,13 +45,8 @@
 #define RSH_PORT                    8740
 #endif
 
-#ifdef __PC__
-#   define RSH_CFG_PREFIX           __empty
-#   define RSH_BIN_PREFIX           __empty
-#else
-#   define RSH_CFG_PREFIX           "/tmp/config/"
-#   define RSH_BIN_PREFIX           "/usr/sbin/"
-#endif
+#define RSH_CFG_PREFIX              PC_VAL(__empty, "/tmp/config/")
+#define RSH_BIN_PREFIX              PC_VAL(__empty, "/usr/sbin/")
 
 #ifndef RSH_CONFIG_FILE
 #define RSH_CONFIG_FILE             RSH_CFG_PREFIX "rsh.config"
