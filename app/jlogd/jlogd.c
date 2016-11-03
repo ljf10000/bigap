@@ -25,7 +25,7 @@ OS_INITER;
 #endif
 
 #ifndef JLOGD_CUTCOUNT
-#ifndef JLOGD_CUTCOUNT      PC_VAL(10, 1000)
+#define JLOGD_CUTCOUNT      PC_VAL(10, 1000)
 #endif
 
 #ifndef JLOG_LPATH
