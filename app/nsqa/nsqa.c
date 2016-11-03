@@ -10,7 +10,97 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 /******************************************************************************/
+nsqa_t nsqa;
 
+static nsq_instance_t *
+nsqi_entry(h1_node_t *node)
+{
+    if (node) {
+        return h1_entry(node, nsq_instance_t, node);
+    } else {
+        return NULL;
+    }
+}
+
+static hash_idx_t
+nsqi_hash(char *name)
+{
+    return hash_bybuf(name, os_strlen(name), NSQ_HASHMASK);
+}
+
+static nsq_instance_t *
+nsqi_create(void)
+{
+    nsq_instance_t *instance = (nsq_instance_t *)os_zalloc(sizeof(nsq_instance_t));
+    if (NULL==instance) {
+        return NULL;
+    }
+    
+    return instance;
+}
+
+static void
+__nsqi_destroy(nsq_instance_t *instance)
+{
+    if (instance) {
+        os_free(instance->name);
+        os_free(instance->domain);
+        os_free(instance->cache);
+    }
+}
+
+#define nsqi_destroy(_instance) do{ \
+    __nsqi_destroy(_instance);      \
+    _instance = NULL;               \
+}while(0)
+
+static void
+nsqi_insert(nsq_instance_t *instance)
+{
+    hash_idx_t nhash(hash_node_t *node)
+    {
+        return nsqi_hash(nsqi_entry(node)->name);
+    }
+    
+    h1_add(&nsqa.table, &instance->node, nsqi_hash);
+}
+
+static void
+nsqi_remove(nsq_instance_t *instance)
+{
+    h1_del(&nsqa.table, &instance->node);
+}
+
+static nsq_instance_t *
+nsqi_get(char *name)
+{
+    hash_idx_t dhash(void)
+    {
+        return nsqi_hash(name);
+    }
+    
+    bool eq(hash_node_t *node)
+    {
+        return os_streq(name, nsqi_entry(node)->name);
+    }
+
+    return nsqi_entry(h1_find(&nsqa.table, dhash, eq));
+}
+
+static int
+nsqi_foreach(nsq_foreach_f *foreach, bool safe)
+{
+    mv_t node_foreach(h1_node_t *node)
+    {
+        return (*foreach)(nsqi_entry(node));
+    }
+
+    if (safe) {
+        return h2_foreach_safe(&nsqa.table, node_foreach);
+    } else {
+        return h2_foreach(&nsqa.table, node_foreach);
+    }
+}
 
 static int
 __fini(void)
@@ -30,6 +120,8 @@ __init(void)
         return err;
     }
 
+    h1_init(&nsqa.table, NSQ_HASHSIZE);
+    
     debug_ok("init ok");
     
     return 0;

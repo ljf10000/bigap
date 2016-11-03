@@ -281,9 +281,9 @@ int init_cfg(void)
     };
     int i, err = 0;
     
-    jobj_t jcfg = jobj_byfile(umd.cfg.conf);
+    jobj_t jcfg = jobj_byfile(umd.conf);
     if (NULL==jcfg) {
-        debug_error("bad %s", umd.cfg.conf);
+        debug_error("bad %s", umd.conf);
         
         err = -EBADCONF; goto error;
     }

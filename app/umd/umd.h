@@ -385,7 +385,6 @@ struct um_config {
         struct um_intf *intf;
     } instance;
     
-    char *conf;
     char *script_event;
     char *script_getmacbyip;
     char *script_getipbymac;
@@ -414,7 +413,6 @@ struct um_config {
     .machashsize = UMD_MACHASHSIZE,         \
     .iphashsize = UMD_IPHASHSIZE,           \
                                             \
-    .conf = UMD_CONF,                       \
     .script_event = UMD_SCRIPT_EVENT,       \
     .script_getipbymac = UMD_SCRIPT_IP,     \
     .script_getmacbyip = UMD_SCRIPT_MAC,    \
@@ -456,14 +454,16 @@ struct um_control {
 
     struct um_lan lan[UM_LAN_COUNT];
     struct um_config cfg;
+    char *conf;
     cli_server_t **server;
     int server_count;
     h2_table_t table;
 };
 
-#define UMD_INITER      {   \
-    .lan = UMD_LAN_INITER,  \
-    .cfg = UMD_CFG_INITER,  \
+#define UMD_INITER          {   \
+    .lan    = UMD_LAN_INITER,   \
+    .cfg    = UMD_CFG_INITER,   \
+    .conf   = UMD_CONF,         \
 }   /* end */
 
 extern struct um_control umd;

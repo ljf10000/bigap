@@ -163,6 +163,8 @@ typedef __h1_table_t    h1_table_t;
 typedef __h1_node_t     h1_node_t;
 typedef __h1_foreach_f  h1_foreach_f;
 
+#define h1_entry(_node, _type, _member) hx_entry(_node, _type, _member, 0)
+
 static inline int 
 h1_init(h1_table_t *table, int size)
 {

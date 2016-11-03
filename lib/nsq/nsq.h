@@ -32,6 +32,24 @@ static inline int nsq_identify_idx(char *name);
 #endif
 
 #if 1
+#define XCMEM_NSQ_AUTH(_)                                       \
+    _(NSQ_AUTH_IDENTIFY,            0,  "identity"),            \
+    _(NSQ_AUTH_IDENTIFY_URL ,       1,  "identity_url"),        \
+    _(NSQ_AUTH_PERMISSION_COUNT,    2,  "permission_count"),    \
+    /* end */
+DECLARE_ENUM(nsq_auth, XCMEM_NSQ_AUTH, NSQ_AUTH_END);
+
+static inline bool is_good_nsq_auth(int id);
+static inline char *nsq_auth_string(int id);
+static inline int nsq_auth_idx(char *name);
+
+#define NSQ_AUTH_IDENTIFY           NSQ_AUTH_IDENTIFY
+#define NSQ_AUTH_IDENTIFY_URL       NSQ_AUTH_IDENTIFY_URL
+#define NSQ_AUTH_PERMISSION_COUNT   NSQ_AUTH_PERMISSION_COUNT
+#define NSQ_AUTH_END                NSQ_AUTH_END  
+#endif
+
+#if 1
 #define XCMEM_NSQ_ERROR(_)                          \
     _(NSQ_E_OK,             0,  "OK"),              \
     _(NSQ_E_CLOSE_WAIT,     1,  "CLOSE_WAIT"),      \
@@ -112,12 +130,6 @@ typedef struct {
 
     char body[0];
 } nsq_msg_t;
-
-typedef struct {
-    char *identity;
-    char *identity_url;
-    char *permission_count;
-} nsq_identity_t;
 
 typedef simple_buffer_t nsq_buffer_t;
 
