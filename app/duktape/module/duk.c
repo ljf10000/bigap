@@ -14,57 +14,97 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "dukc.h"
 
+static int
+search_path(duk_context *ctx, char *file, char *path)
+{
+    char fullname[1+OS_LINE_LEN] = 0;
+    int len = os_strlen(path);
+
+    if (NULL==path) {
+        return -ENOEXIST;
+    }
+    
+    debug_js("search %s at %s ...", file, path);
+    /*
+    * path last char is '/'
+    */
+    if (len>1 && '/'==path[len-1]) {
+        os_saprintf(fullname, "%s%s", path, file);
+    } else {
+        os_saprintf(fullname, "%s/%s", path, file);
+    }
+
+    if (os_file_exist(fullname)) {
+        duk_push_string_file(ctx, fullname);
+
+        debug_js("search %s at %s OK.", file, path);
+
+        return 0;
+    }
+
+    return -ENOEXIST;
+}
+
+static int
+search_env(duk_context *ctx, char *file, char *env, char *deft)
+{
+    char *ENV = os_strdup(env_gets(env, deft));
+    char *path = NULL;
+    int err = -ENOEXIST;
+    
+    os_strtok_foreach(path, ENV, ":") {
+        if (0==search_path(ctx, file, path)) {
+            err = 1; goto ok;
+        }
+    }
+    
+ok:
+    os_free(ENV);
+    
+    return err;
+}
+
+static int
+search_CURRENT(duk_context *ctx, char *file)
+{
+    return search_path(ctx, file, "./");
+}
+
+static int
+search_JPATH(duk_context *ctx, char *file)
+{
+    return search_env(ctx, file, ENV_JPATH, js_PATH);
+}
+
+static int
+search_JPRIV(duk_context *ctx, char *file)
+{
+    return search_path(ctx, file, js_priv(ctx)->cache);
+}
 
 JS_PARAM(modSearch, DUK_VARARGS);
 static duk_ret_t
 duke_modSearch(duk_context *ctx)
 {
     char *id = (char *)duk_require_string(ctx, 0);
+    char *path;
     int err = -1;
     
-    /*
-    * try file.js
-    */
     char file[1+OS_LINE_LEN] = {0};
     os_snprintf(file, OS_LINE_LEN, "%s.js", id);
-    if (os_file_exist(file)) {
-        duk_push_string_file(ctx, file);
-
+    
+    /*
+    * try ./file.js
+    * try __js_PATH/file.js
+    * try __js_CACHE/file.js
+    */
+    if (0==search_CURRENT(ctx, file) ||
+        0==search_JPATH(ctx, file) ||
+        0==search_JPRIV(ctx, file)) {
         return 1;
     }
 
-    /*
-    * try js_PATH/file.js
-    */
-    char *path = NULL;
-    char *env = os_strdup(env_gets(ENV_JPATH, js_PATH));
-    
-    os_strtok_foreach(path, env, ":") {
-        int len = os_strlen(path);
-
-        debug_js("search %s at %s ...", file, path);
-        /*
-        * path last char is '/'
-        */
-        if (len>1 && '/'==path[len-1]) {
-            os_saprintf(file, "%s%s.js", path, id);
-        } else {
-            os_saprintf(file, "%s/%s.js", path, id);
-        }
-
-        if (os_file_exist(file)) {
-            duk_push_string_file(ctx, file);
-
-            debug_js("search %s at %s OK.", file, path);
-
-            err = 1; goto error;
-        }
-    }
-
-error:
-    os_free(env);
-    
-    return err;
+    return -1;
 }
 
 static const dukc_func_entry_t duktape_func[] = {

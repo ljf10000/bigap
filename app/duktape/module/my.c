@@ -776,19 +776,14 @@ int js_buildin_register(duk_context *ctx)
 
 int js_auto_register(duk_context *ctx)
 {
-    char path[1+OS_LINE_LEN] = {0};
-    int err = 0;
-    
-    /*
-    * try eval js_PATH/auto/xxx.js
-    */
-    char *env = env_gets(ENV_JPATH, js_PATH);
-    os_snprintf(path, OS_LINE_LEN, "%s/" js_AUTO_PATH, env);
+    char autopath[1+OS_LINE_LEN] = {0};
+    char *env = os_strdup(env_gets(ENV_JPATH, js_PATH));
+    char *sub;
     
     bool __filter(char *path, char *filename)
     {
         /*
-        * skip NOT-js file
+        * NOT js file, skip it
         */
         return false==os_str_is_end_by(filename, ".js");
     }
@@ -799,7 +794,7 @@ int js_auto_register(duk_context *ctx)
         
         char file[1+OS_LINE_LEN] = {0};
 
-        os_snprintf(file, OS_LINE_LEN, "%s/%s", path, filename);
+        os_saprintf(file, "%s/%s", path, filename);
 
         int err = js_load_file(ctx, file);
         if (err<0) {
@@ -809,11 +804,17 @@ int js_auto_register(duk_context *ctx)
         return mv2_ok;
     }
 
-    err = os_fscan_dir(path, false, __filter, __handler, NULL);
-
-    debug_ok_error(err, "register auto");
-    
-    return err;
+    /*
+    * try js_PATH/.auto/xxx.js
+    */
+    os_strtok_foreach(sub, env, ":") {
+        os_saprintf(autopath, "%s/" js_AUTO_PATH, sub);
+        
+        os_fscan_dir(autopath, false, __filter, __handler, NULL);
+    }
+    os_free(env);
+        
+    return 0;
 }
 
 int js_my_register(duk_context *ctx)

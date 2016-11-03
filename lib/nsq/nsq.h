@@ -119,7 +119,7 @@ typedef struct {
     char *permission_count;
 } nsq_identity_t;
 
-typedef simple_buffer_t nsqb_t;
+typedef simple_buffer_t nsq_buffer_t;
 
 #define NSQ_MAGIC       "  V2"
 #define NSQ_IDENTIFY    "IDENTIFY\n"
@@ -174,7 +174,7 @@ is_good_nsq_name(char *name)
 }
 
 static inline int
-nsqb_data(nsqb_t *b, char *data, uint32 len)
+nsqb_data(nsq_buffer_t *b, char *data, uint32 len)
 {
     uint32 len_n = htonl(len);
     int err = 0;
@@ -193,7 +193,7 @@ nsqb_data(nsqb_t *b, char *data, uint32 len)
 }
 
 static inline int
-nsqb_MAGIC(nsqb_t *b)
+nsqb_MAGIC(nsq_buffer_t *b)
 {
     int err;
     
@@ -208,7 +208,7 @@ nsqb_MAGIC(nsqb_t *b)
 }
 
 static inline int
-nsqb_CLS(nsqb_t *b)
+nsqb_CLS(nsq_buffer_t *b)
 {
     int err;
     
@@ -223,7 +223,7 @@ nsqb_CLS(nsqb_t *b)
 }
 
 static inline int
-nsqb_IDENTIFY(nsqb_t *b, char *json)
+nsqb_IDENTIFY(nsq_buffer_t *b, char *json)
 {
     int err;
     
@@ -243,7 +243,7 @@ nsqb_IDENTIFY(nsqb_t *b, char *json)
 }
 
 static inline int
-nsqb_SUB(nsqb_t *b, char *topic, char *channel)
+nsqb_SUB(nsq_buffer_t *b, char *topic, char *channel)
 {
     int err;
     
@@ -258,7 +258,7 @@ nsqb_SUB(nsqb_t *b, char *topic, char *channel)
 }
 
 static inline int
-nsqb_PUB(nsqb_t *b, char *topic, char *data, uint32 len)
+nsqb_PUB(nsq_buffer_t *b, char *topic, char *data, uint32 len)
 {
     int err;
     
@@ -278,7 +278,7 @@ nsqb_PUB(nsqb_t *b, char *topic, char *data, uint32 len)
 }
 
 static inline int
-nsqb_MPUB(nsqb_t *b, char *topic, struct iovec *iov, uint32 count)
+nsqb_MPUB(nsq_buffer_t *b, char *topic, struct iovec *iov, uint32 count)
 {
     uint32 count_n = htonl(count);
     int i, err;
@@ -306,7 +306,7 @@ nsqb_MPUB(nsqb_t *b, char *topic, struct iovec *iov, uint32 count)
 }
 
 static inline int
-nsqb_RDY(nsqb_t *b, uint32 count)
+nsqb_RDY(nsq_buffer_t *b, uint32 count)
 {
     int err;
     
@@ -321,7 +321,7 @@ nsqb_RDY(nsqb_t *b, uint32 count)
 }
 
 static inline int
-nsqb_FIN(nsqb_t *b, char *msg_id)
+nsqb_FIN(nsq_buffer_t *b, char *msg_id)
 {
     int err;
     
@@ -346,7 +346,7 @@ nsqb_FIN(nsqb_t *b, char *msg_id)
 }
 
 static inline int
-nsqb_REQ(nsqb_t *b, char *msg_id, int timeout)
+nsqb_REQ(nsq_buffer_t *b, char *msg_id, int timeout)
 {
     int err;
     
@@ -371,7 +371,7 @@ nsqb_REQ(nsqb_t *b, char *msg_id, int timeout)
 }
 
 static inline int
-nsqb_TOUCH(nsqb_t *b, char *msg_id)
+nsqb_TOUCH(nsq_buffer_t *b, char *msg_id)
 {
     int err;
     
@@ -396,7 +396,7 @@ nsqb_TOUCH(nsqb_t *b, char *msg_id)
 }
 
 static inline int
-nsqb_NOP(nsqb_t *b)
+nsqb_NOP(nsq_buffer_t *b)
 {
     int err;
     
@@ -411,7 +411,7 @@ nsqb_NOP(nsqb_t *b)
 }
 
 static inline int
-nsqb_AUTH(nsqb_t *b, char *secret, uint32 len)
+nsqb_AUTH(nsq_buffer_t *b, char *secret, uint32 len)
 {
     int err;
     

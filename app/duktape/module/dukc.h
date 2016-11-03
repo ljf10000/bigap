@@ -133,8 +133,16 @@
 #define ENV_JPATH           "JPATH"
 #endif
 
+#ifndef __js_CACHE
+#define __js_CACHE          "/tmp/js"
+#endif
+
+#ifndef __js_PATH
+#define __js_PATH           "/lib/js"
+#endif
+
 #ifndef js_PATH
-#define js_PATH             "/lib/js"
+#define js_PATH             __js_PATH ":" __js_CACHE
 #endif
 
 #ifndef js_AUTO_PATH
@@ -927,11 +935,14 @@ typedef struct {
     
     char *atexit_name;
     char *name;
-
+    char *cache;
+    
     struct {
         char *name;
         int is_func;
     } sig[NSIG];
+
+    dlist_t list;
 } js_priv_t;
 
 extern void *duk_get_priv(duk_context *ctx);
