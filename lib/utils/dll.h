@@ -15,11 +15,11 @@
     _(LIBVAL_PTR,   8, "ptr"),  \
     _(LIBVAL_VOD,   9, "void"), \
     /* end */
+DECLARE_ENUM(libval_type, __XLIST_LIBVAL_TYPE, LIBVAL_END);
 
 static inline bool is_good_libval_type(int id);
 static inline char *libval_type_string(int id);
 static inline int libval_type_idx(char *name);
-DECLARE_ENUM(libval_type, __XLIST_LIBVAL_TYPE, LIBVAL_END);
 
 #define LIBVAL_F32  LIBVAL_F32
 #define LIBVAL_I32  LIBVAL_I32

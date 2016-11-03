@@ -6,8 +6,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #define __DEAMON__
-
-#include "nsq/nsq.h"
+#include "nsqa.h"
 
 OS_INITER;
 /******************************************************************************/
@@ -74,9 +73,20 @@ __service(void)
     return __handle(&client);
 }
 
+static int
+__js_init(void)
+{
+    duk_context *ctx = NULL;
+
+    duk_context *ctx = js_init("main", argc, argv);
+}
+
 int __main(int argc, char *argv[])
 {
-    __echo();
+    duk_context *ctx = js_init("main", argc, argv);
+    if (NULL==ctx) {
+        return -ENOMEM;
+    }
     
     while(1) {
         __service();

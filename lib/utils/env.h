@@ -104,11 +104,11 @@ env_geti(char *envname, int deft)
     _(ENV_GC,       23, "gc"),          \
     _(ENV_CONF,     24, "conf"),        \
     /* end */
+DECLARE_ENUM(os_env, OS_ENVLIST, OS_ENV_END);
 
 static inline bool is_good_os_env(int type);
 static inline char *os_env_string(int type);
 static inline int os_env_idx(char *type_string);
-DECLARE_ENUM(os_env, OS_ENVLIST, OS_ENV_END);
 
 #define ENV_TIMEOUT     ENV_TIMEOUT
 #define ENV_INTERVAL    ENV_INTERVAL

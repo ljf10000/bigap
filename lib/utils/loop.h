@@ -19,11 +19,11 @@
     _(LOOP_TYPE_FATHER, 4, "father"),   \
     _(LOOP_TYPE_SON,    5, "son"),      \
     /* end */
+DECLARE_ENUM(loop_type, LOOP_LIST, LOOP_TYPE_END);
 
 static inline bool is_good_loop_type(int id);
 static inline char *loop_type_string(int id);
 static inline int loop_type_idx(char *name);
-DECLARE_ENUM(loop_type, LOOP_LIST, LOOP_TYPE_END);
 
 #define LOOP_TYPE_INOTIFY   LOOP_TYPE_INOTIFY
 #define LOOP_TYPE_SIGNAL    LOOP_TYPE_SIGNAL

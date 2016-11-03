@@ -23,11 +23,11 @@ enum {
     _(BLOB_T_UINT64,    9, "uint64"),   \
     _(BLOB_T_FLOAT64,   10,"float64"),  \
     /* end */
+DECLARE_ENUM(blob_type, __XLIST_BLOB_TYPE, BLOB_T_END);
 
 static inline bool is_good_blob_type(int type);
 static inline char *blob_type_string(int type);
 static inline int blob_type_idx(char *type_string);
-DECLARE_ENUM(blob_type, __XLIST_BLOB_TYPE, BLOB_T_END);
 
 #define BLOB_T_OBJECT   BLOB_T_OBJECT
 #define BLOB_T_ARRAY    BLOB_T_ARRAY

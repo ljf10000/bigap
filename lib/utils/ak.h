@@ -115,10 +115,11 @@ DECLARE_FAKE_JDEBUGGER;
     /* end */
     /* 29/30/31 reserved for log pri */
 
+DECLARE_ENUM(ak_DEBUG, __XLIST_AK_DEBUG, ____ak_debug_end);
+
 static inline bool is_good_ak_DEBUG(int id);
 static inline char *ak_DEBUG_string(int id);
 static inline int ak_DEBUG_idx(char *name);
-DECLARE_ENUM(ak_DEBUG, __XLIST_AK_DEBUG, ____ak_debug_end);
 
 enum {
     __ak_debug_ok           = os_bit(____ak_debug_ok),
@@ -233,10 +234,10 @@ __ak_debug_getname(uint32 level)
     _(__AK_SYS_DEBUG,   0, AK_DEBUG_NAME), \
     _(__AK_SYS_JDEBUG,  1, JS_DEBUG_NAME), \
     /* end */
-    
+DECLARE_ENUM(ak_sys, __XLIST_AK_SYS, __AK_SYS_END);
+
 static inline bool is_good_ak_sys(int id);
 static inline int ak_sys_idx(char *name);
-DECLARE_ENUM(ak_sys, __XLIST_AK_SYS, __AK_SYS_END);
 
 #define __AK_SYS_DEBUG  __AK_SYS_DEBUG
 #define __AK_SYS_JDEBUG __AK_SYS_JDEBUG

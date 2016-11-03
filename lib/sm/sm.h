@@ -65,11 +65,11 @@
     _(SM_STATE_RUN,   2, "run"),    \
     _(SM_STATE_DIE,   3, "die"),    \
     /* end */
+DECLARE_ENUM(sm_state, __XLIST_SM, SM_STATE_END);
 
 static inline bool is_good_sm_state(int id);
 static inline char *sm_state_string(int id);
 static inline int sm_state_idx(char *name);
-DECLARE_ENUM(sm_state, __XLIST_SM, SM_STATE_END);
 
 #define SM_STATE_INIT   SM_STATE_INIT
 #define SM_STATE_FORK   SM_STATE_FORK

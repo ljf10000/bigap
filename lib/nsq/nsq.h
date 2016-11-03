@@ -4,6 +4,34 @@
 #include "utils.h"
 /******************************************************************************/
 #if 1
+#define __XLIST_NSQ_IDENTIFY(_)                                             \
+    _(NSQ_IDENTIFY_CLIENT_ID,               0,  "client_id"),               \
+    _(NSQ_IDENTIFY_HOSTNAME ,               1,  "hostname"),                \
+    _(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     2,  "feature_negotiation"),     \
+    _(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       3,  "heartbeat_interval"),      \
+    _(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      4,  "output_buffer_size"),      \
+    _(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,   5,  "output_buffer_timeout"),   \
+    _(NSQ_IDENTIFY_USER_AGENT,              6,  "user_agent"),              \
+    _(NSQ_IDENTIFY_MSG_TIMEOUT,             7,  "msg_timeout"),             \
+    /* end */
+DECLARE_ENUM(nsq_identify, __XLIST_NSQ_IDENTIFY, NSQ_IDENTIFY_END);
+
+static inline bool is_good_nsq_identify(int id);
+static inline char *nsq_identify_string(int id);
+static inline int nsq_identify_idx(char *name);
+
+#define NSQ_IDENTIFY_CLIENT_ID              NSQ_IDENTIFY_CLIENT_ID
+#define NSQ_IDENTIFY_HOSTNAME               NSQ_IDENTIFY_HOSTNAME
+#define NSQ_IDENTIFY_FEATURE_NEGOTIATION    NSQ_IDENTIFY_FEATURE_NEGOTIATION
+#define NSQ_IDENTIFY_HEARBEAT_INTERVAL      NSQ_IDENTIFY_HEARBEAT_INTERVAL
+#define NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE     NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE
+#define NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT  NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT
+#define NSQ_IDENTIFY_USER_AGENT             NSQ_IDENTIFY_USER_AGENT
+#define NSQ_IDENTIFY_MSG_TIMEOUT            NSQ_IDENTIFY_MSG_TIMEOUT
+#define NSQ_IDENTIFY_END                    NSQ_IDENTIFY_END   
+#endif
+
+#if 1
 #define __XLIST_NSQ_ERROR(_)                        \
     _(NSQ_E_OK,             0,  "OK"),              \
     _(NSQ_E_CLOSE_WAIT,     1,  "CLOSE_WAIT"),      \
@@ -21,11 +49,11 @@
     _(NSQ_E_AUTH_FAILED ,   12, "E_AUTH_FAILED "),  \
     _(NSQ_E_UNAUTHORIZED,   13, "E_UNAUTHORIZED"),  \
     /* end */
+DECLARE_ENUM(nsq_error, __XLIST_NSQ_ERROR, NSQ_E_END);
 
 static inline bool is_good_nsq_error(int id);
 static inline char *nsq_error_string(int id);
 static inline int nsq_error_idx(char *name);
-DECLARE_ENUM(nsq_error, __XLIST_NSQ_ERROR, NSQ_E_END);
 
 static inline bool is_valid_nsq_error(int id)
 {
@@ -57,11 +85,11 @@ static inline bool is_valid_nsq_error(int id)
     _(NSQ_FRAME_ERROR,      1,  "error"),       \
     _(NSQ_FRAME_MESSAGE,    2,  "message"),     \
     /* end */
+DECLARE_ENUM(nsq_frame, __XLIST_NSQ_FRAME, NSQ_FRAME_END);
 
 static inline bool is_good_nsq_frame(int id);
 static inline char *nsq_frame_string(int id);
 static inline int nsq_frame_idx(char *name);
-DECLARE_ENUM(nsq_frame, __XLIST_NSQ_FRAME, NSQ_FRAME_END);
 
 #define NSQ_FRAME_RESPONSE  NSQ_FRAME_RESPONSE
 #define NSQ_FRAME_ERROR     NSQ_FRAME_ERROR

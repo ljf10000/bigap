@@ -16,7 +16,7 @@ include $(DIR_ROOT)/mk/define.mk
 #
 #changed me, append obj
 #
-OBJS=$(DIR_SELF)/nsqa.o
+OBJS=$(DIR_SELF)/nsqa.o $(DIR_SELF)/cfg.o $(DIR_SELF)/cli.o $(DIR_SELF)/msg.o
 TARGET_NAME=nsqa
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe

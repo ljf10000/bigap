@@ -1,5 +1,5 @@
 
-OBJS=nsqa.o
+OBJS=nsqa.o cfg.o cli.o msg.o
 __TARGET=nsqa
 TARGET=$(__TARGET)
 LIBS_DEPEND=-lm -ljson-c

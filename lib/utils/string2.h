@@ -7,11 +7,11 @@
     _(STRING_T_CONST,   1, "const"),    \
     _(STRING_T_HEAP,    3, "heap"),     \
     /* end */
+DECLARE_ENUM(string_type, __XLIST_STRING_TYPE, STRING_T_END);
 
 static inline bool is_good_string_type(int type);
 static inline char *string_type_string(int type);
 static inline int string_type_idx(char *type_string);
-DECLARE_ENUM(string_type, __XLIST_STRING_TYPE, STRING_T_END);
 
 #define STRING_T_GLOBAL     STRING_T_GLOBAL
 #define STRING_T_CONST      STRING_T_CONST
