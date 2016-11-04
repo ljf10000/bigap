@@ -1868,7 +1868,7 @@ __benv_analysis_show(benv_ops_t *ops, char *args)
 {
     char *wildcard = os_strlast(args, '*');
 
-    os_println("__benv_analysis_show args=%s wildcard=%s", args, wildcard);
+    os_println("__benv_analysis_show ops=%p, path=%s, args=%s, wildcard=%s", ops, ops->path, args, wildcard);
     /*
      * if found '*'
      *   first '*' is not last '*'
