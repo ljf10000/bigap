@@ -1955,19 +1955,27 @@ benv_command(int argc, char *argv[])
 {
     int err, i;
 
+    os_println("benv_command 1");
+    
     if (0==argc) {
         return benv_usage();
     }
+    os_println("benv_command 2");
 
     err = benv_analysis(argc, argv);
     if (err<0) {
         return err;
     }
 
+    os_println("benv_command 3");
+
     benv_cache_dump();
+
+    os_println("benv_command 4");
 
     benv_handle(argc, argv);
     
+    os_println("benv_command 5");
     return 0;
 }
 
@@ -2924,12 +2932,9 @@ benv_cmd(int argc, char *argv[])
 {
     __benv_self = cli_argv_dump(argc, argv);
 
-    os_println("ops count=%d", __benv_ops_count);
     if (benv_cmd_hiden(argc, argv)) {
-        os_println("benv_cmd 1.1");
         return __benv_errno;
     } else {
-        os_println("benv_cmd 1.2");
         return benv_command(argc - 1, argv + 1);
     }
 }
