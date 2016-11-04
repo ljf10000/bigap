@@ -1970,6 +1970,75 @@ benv_command(int argc, char *argv[])
     return 0;
 }
 
+static inline void
+benv_show_cookie(void)
+{
+    __benv_cookie_show(__benv_cookie(0));
+}
+
+static inline void
+benv_show_os(void)
+{
+    __benv_os_show(__benv_os(0));
+}
+
+static inline void
+__benv_show_path_helper(benv_ops_t* ops)
+{
+    os_println("%s", ops->path);
+}
+
+static inline void
+benv_show_path(void)
+{
+    __benv_show_byprefix(__benv_show_path_helper, NULL);
+}
+
+static inline void
+__benv_show_helper(benv_ops_t* ops)
+{
+    switch(ops->type) {
+        case BENV_OPS_NUMBER:
+            __benv_show_number(ops);
+            break;
+        case BENV_OPS_STRING:
+            if (__benv_show_empty) {
+                __benv_show_string_all(ops);
+            } else {
+                __benv_show_string(ops);
+            }
+            
+            break;
+        case BENV_OPS_VERSION:
+            __benv_show_version(ops);
+            break;
+    }
+}
+
+static inline void
+__benv_show_all(bool show_empty)
+{
+    int count   = __benv_show_count; __benv_show_count = 2;
+    bool empty  = __benv_show_empty; __benv_show_empty = show_empty;
+    
+    __benv_show_byprefix(__benv_show_helper, NULL);
+    
+    __benv_show_count = count;
+    __benv_show_empty = empty;
+}
+
+static inline void
+benv_show_all(void)
+{
+    __benv_show_all(false);
+}
+
+static inline void
+benv_show_hide(void)
+{
+    __benv_show_all(true);
+}
+
 #ifdef __BOOT__
 extern int 
 benv_emmc_read(uint32 begin, void *buf, int size);
@@ -2092,6 +2161,8 @@ benv_open(void)
         return err;
     }
 
+    benv_show_cookie();
+    
 #ifdef __APP__
     __benv_fd = os_file_open(PRODUCT_DEV_BOOTENV, O_RDWR | O_SYNC, 0);
     if (false==is_good_fd(__benv_fd)) {
@@ -2426,75 +2497,6 @@ benv_fini(void)
         debug_trace_error(err, "close benv");
 
     return err;
-}
-
-static inline void
-benv_show_cookie(void)
-{
-    __benv_cookie_show(__benv_cookie(0));
-}
-
-static inline void
-benv_show_os(void)
-{
-    __benv_os_show(__benv_os(0));
-}
-
-static inline void
-__benv_show_path_helper(benv_ops_t* ops)
-{
-    os_println("%s", ops->path);
-}
-
-static inline void
-benv_show_path(void)
-{
-    __benv_show_byprefix(__benv_show_path_helper, NULL);
-}
-
-static inline void
-__benv_show_helper(benv_ops_t* ops)
-{
-    switch(ops->type) {
-        case BENV_OPS_NUMBER:
-            __benv_show_number(ops);
-            break;
-        case BENV_OPS_STRING:
-            if (__benv_show_empty) {
-                __benv_show_string_all(ops);
-            } else {
-                __benv_show_string(ops);
-            }
-            
-            break;
-        case BENV_OPS_VERSION:
-            __benv_show_version(ops);
-            break;
-    }
-}
-
-static inline void
-__benv_show_all(bool show_empty)
-{
-    int count   = __benv_show_count; __benv_show_count = 2;
-    bool empty  = __benv_show_empty; __benv_show_empty = show_empty;
-    
-    __benv_show_byprefix(__benv_show_helper, NULL);
-    
-    __benv_show_count = count;
-    __benv_show_empty = empty;
-}
-
-static inline void
-benv_show_all(void)
-{
-    __benv_show_all(false);
-}
-
-static inline void
-benv_show_hide(void)
-{
-    __benv_show_all(true);
 }
 
 static inline void
