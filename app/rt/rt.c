@@ -23,6 +23,7 @@ enum {
 };
 
 static int runtime;
+static int savecycle;
 
 #if IS_PRODUCT_LTEFI_MD_PARTITION_A
 static int
@@ -118,6 +119,8 @@ __main(int argc, char *argv[])
 
     (void)argc;
     (void)argv;
+
+    savecycle = env_geti("RT_SAVECYCLE", RT_SAVECYCLE);
     
     rt_load();
     
