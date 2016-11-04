@@ -1970,53 +1970,6 @@ benv_command(int argc, char *argv[])
     return 0;
 }
 
-static inline int
-benv_open(void)
-{
-    int err = 0, fd;
-
-    if (__benv_cache) {
-        os_memzero(__benv_cache, __benv_ops_count * sizeof(benv_cache_t));
-    }
-
-#if BENV_USE_SEM
-    err = os_sem_create(__benv_sem, OS_BENV_SEM_ID);
-    if (err<0) {
-        return err;
-    }
-#endif
-
-    err = os_shm_create(__benv_shm, sizeof(benv_env_t) * BENV_COUNT * 2, false);
-    if (err<0) {
-        return err;
-    }
-
-#ifdef __BOOT__
-    __benv_shm_address = env_ptr->env;
-#else
-    __benv_fd = os_file_open(PRODUCT_DEV_BOOTENV, O_RDWR | O_SYNC, 0);
-    if (false==is_good_fd(__benv_fd)) {
-        return __benv_fd;
-    }
-#endif
-
-    return 0;
-}
-
-static inline int
-benv_close(void)
-{
-#ifdef __APP__
-    os_close(__benv_fd);
-#endif
-    os_shm_destroy(__benv_shm);
-#if BENV_USE_SEM
-    os_sem_destroy(__benv_sem);
-#endif
-    return 0;
-}
-
-
 #ifdef __BOOT__
 extern int 
 benv_emmc_read(uint32 begin, void *buf, int size);
@@ -2109,6 +2062,56 @@ __benv_write(int env, int idx)
 
 #endif
 #endif
+
+static inline int
+benv_open(void)
+{
+    int err = 0, fd;
+    
+    __benv_errno        = 0;
+    __benv_show_count   = 0;
+#ifdef __BOOT__
+    __benv_shm_address = env_ptr->env;
+#endif
+
+    if (__benv_cache) {
+        os_memzero(__benv_cache, __benv_ops_count * sizeof(benv_cache_t));
+    }
+
+#if BENV_USE_SEM
+    err = os_sem_create(__benv_sem, OS_BENV_SEM_ID);
+    if (err<0) {
+        return err;
+    }
+#endif
+
+    err = os_shm_create(__benv_shm, sizeof(benv_env_t) * BENV_COUNT * 2, false);
+    if (err<0) {
+        return err;
+    }
+
+#ifdef __APP__
+    __benv_fd = os_file_open(PRODUCT_DEV_BOOTENV, O_RDWR | O_SYNC, 0);
+    if (false==is_good_fd(__benv_fd)) {
+        return __benv_fd;
+    }
+#endif
+
+    return 0;
+}
+
+static inline int
+benv_close(void)
+{
+#ifdef __APP__
+    os_close(__benv_fd);
+#endif
+    os_shm_destroy(__benv_shm);
+#if BENV_USE_SEM
+    os_sem_destroy(__benv_sem);
+#endif
+    return 0;
+}
 
 #if BENV_REPAIR
 static inline int
@@ -2219,18 +2222,32 @@ benv_repair(void)
     return 0;
 }
 
+/*
+* in boot, 
+*   bootenv include benv
+*   so, needn't load benv
+*/
+static inline bool
+is_benv_loaded(void)
+{
+#ifdef __APP__
+    return is_good_benv_cookie(__benv_cookie(0));
+#else
+    return true;
+#endif
+}
+
 static inline int
 benv_load(void)
 {
     int env, err = 0;
-    
-    __benv_errno        = 0;
-    __benv_show_count   = 0;
-    
-    for (env=0; env<BENV_COUNT; env++) {
-        err = __benv_read(env, false);
-        if (err<0) {
-            return err;
+
+    if (false==is_benv_loaded()) {
+        for (env=0; env<BENV_COUNT; env++) {
+            err = __benv_read(env, false);
+            if (err<0) {
+                return err;
+            }
         }
     }
 
