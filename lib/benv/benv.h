@@ -2018,6 +2018,8 @@ __benv_read(int env, bool mirror)
 
         return -errno;
     }
+
+    debug_ok("read benv%d to %s ok.", env, name);
     
     return 0;
 }
