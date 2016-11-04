@@ -39,7 +39,7 @@ os_shm_init(os_shm_t *shm, unsigned int key)
 static inline void 
 os_shm_destroy(os_shm_t *shm)
 {
-#if __APP__
+#ifdef __APP__
     if (shm && INVALID_SHM_ADDR != shm->address) {
         shmdt(shm->address);
         shm->address = INVALID_SHM_ADDR;
