@@ -113,28 +113,37 @@ int benv_emmc_write(uint32 begin, void *buf, int size)
 
 #define __benv_start(_env)    (BENV_START + benv_offset(_env))
 
-int __benv_read(int env)
+int __benv_read(int env, bool mirror)
 {
+    char *buf;
+    char *name;
+
+    if (mirror) {
+        buf = __benv_mirror;
+        name = "mirror";
+    } else {
+        buf = __benv_env(env);
+        name = "benv";
+    }
+    
     /*
     * emmc==>block
     */
-    debug_io("read benv%d ...", env);
-    if (BENV_SIZE!=benv_emmc_read(__benv_start(env), __benv_env(env), BENV_SIZE)) {
-         os_println("read benv%d error", env);
+    debug_io("read benv%d to %s ...", env, name);
+    if (BENV_SIZE!=benv_emmc_read(__benv_start(env), buf, BENV_SIZE)) {
+         os_println("read benv%d to %s error", env, name);
         
         return -EIO;
     }
-    debug_io("read benv%d ok.", env);
+    debug_io("read benv%d to %s ok.", env, name);
     
-    /*
-    * block==>mirror
-    */
-    os_memcpy(__benv_mirror(env), __benv_env(env), BENV_SIZE);
-
     return 0;
 }
 
-int __benv_write(int env)
+/*
+* not support write by block, just write whole env
+*/
+int __benv_write(int env, int idx)
 {
     debug_io("save benv%d ...", env);
     if (BENV_SIZE!=benv_emmc_write(__benv_start(env), __benv_env(env), BENV_SIZE)) {
@@ -143,9 +152,7 @@ int __benv_write(int env)
         return -EIO;
     }
     debug_io("save benv%d ok.", env);
-    
-    os_memcpy(__benv_mirror(env), __benv_env(env), BENV_SIZE);
-    
+        
     return 0;
 }
 

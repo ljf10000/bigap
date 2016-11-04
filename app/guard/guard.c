@@ -263,7 +263,7 @@ save(void)
     benv_open();
     benv_load();
     benv_mark(__benv_mark_noauth) = noauth;
-    benv_save();
+    benv_save_mark();
     benv_close();
 }
 #else

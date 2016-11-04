@@ -115,6 +115,16 @@ typedef struct {
     char pad[BENV_BLOCK_SIZE - BENV_COOKIE_SIZE];
 } benv_cookie_t; /* 512 */
 
+static inline bool
+is_good_benv_cookie(benv_cookie_t *cookie)
+{
+    return  cookie->vendor[0]
+        &&  cookie->company[0]
+        &&  cookie->model[0]
+        &&  cookie->version[0]
+        &&  cookie->compile[0];
+}
+
 static inline void
 __benv_cookie_show(benv_cookie_t *cookie)
 {
@@ -322,6 +332,18 @@ typedef struct {
     char pad[BENV_BLOCK_SIZE - BENV_OS_SIZE];
 } benv_os_t; /* 512 */
 
+
+#define __benv_os_show_obj(_obj, _idx) do{ \
+    os_println("%s%c %-7d %-7d %-7s %-7s %-7s %-15s %s",    \
+        #_obj, _idx==os->current?'*':' ',                   \
+        _idx, os->firmware[_idx]._obj.error,                \
+        benv_fsm_string(os->firmware[_idx]._obj.upgrade),   \
+        benv_fsm_string(os->firmware[_idx]._obj.self),      \
+        benv_fsm_string(os->firmware[_idx]._obj.other),     \
+        benv_version_itoa(&os->firmware[_idx]._obj.version), \
+        os->firmware[_idx]._obj.cookie);                    \
+    }while(0)
+
 static inline void
 __benv_os_show(benv_os_t *os)
 {
@@ -334,23 +356,12 @@ rootfs  0       0       ok      ok      unknow
 kernel* 1       0       fail    fail    unknow
 rootfs* 1       0       fail    unknow  unknow
 #endif
-
-#define benv_os_show_obj(_obj, _idx) do{ \
-    os_println("%s%c %-7d %-7d %-7s %-7s %-7s %-15s %s",    \
-        #_obj, _idx==os->current?'*':' ',                   \
-        _idx, os->firmware[_idx]._obj.error,                \
-        benv_fsm_string(os->firmware[_idx]._obj.upgrade),   \
-        benv_fsm_string(os->firmware[_idx]._obj.self),      \
-        benv_fsm_string(os->firmware[_idx]._obj.other),     \
-        benv_version_itoa(&os->firmware[_idx]._obj.version), \
-        os->firmware[_idx]._obj.cookie);                    \
-    }while(0)
     
     os_println("        index   error   upgrade self    other   version         cookie");
     os_println("======================================================================");
     for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
-        benv_os_show_obj(kernel, i);
-        benv_os_show_obj(rootfs, i);
+        __benv_os_show_obj(kernel, i);
+        __benv_os_show_obj(rootfs, i);
         
         if (i<(PRODUCT_FIRMWARE_COUNT-1)) {
             os_println
@@ -358,7 +369,6 @@ rootfs* 1       0       fail    unknow  unknow
         }
     }
     os_println("======================================================================");
-#undef benv_os_show_obj
 }
 
 enum {
@@ -379,6 +389,8 @@ typedef struct {
 } benv_info_t;
 
 enum {
+    BENV_ALL    = -1,
+    
     BENV_COOKIE = 0,
     BENV_OS     = 1,
     BENV_MARK   = 2,
@@ -461,7 +473,7 @@ benv_ops_match(benv_ops_t *ops, char *path, int len, bool wildcard)
 }
 
 typedef struct {
-    benv_env_t *mirror;
+    benv_env_t mirror;
     benv_env_t *env;
     benv_ops_t *ops;
     benv_cache_t *cache;
@@ -473,59 +485,69 @@ typedef struct {
     char *self;
     int fd;
     int error;
+
+    os_shm_t shm;
+    os_sem_t sem;
 } benv_control_t;
 
-#define __BENV_CONTROL_INITER(_env, _mirror, _ops, _cache) {   \
-    .mirror     = _mirror,                      \
-    .env        = _env,                         \
-    .ops        = _ops,                         \
+#define __BENV_CONTROL_INITER(_ops, _cache) {   \
     .cache      = _cache,                       \
     .ops_count  = (_ops)?os_count_of(_ops):0,   \
     .fd         = INVALID_FD,                   \
 }   /* end */
 
+#ifdef __BOOT__
+extern env_t *env_ptr;
+#endif
+
 #if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
 #   define BENV_INITER \
-        benv_env_t ____benv_env[BENV_COUNT]; \
-        benv_env_t ____benv_mirror[BENV_COUNT]; \
-        benv_control_t ____benv_control = __BENV_CONTROL_INITER(____benv_env, ____benv_mirror, NULL, NULL); \
+        benv_control_t ____benv_control = __BENV_CONTROL_INITER(NULL, NULL); \
         os_fake_declare /* end */
 #else
 #   define BENV_INITER    os_fake_declare
 #endif
 
-#define BENV_CONTROL_INITER(_benv) \
+#define BENV_MAIN_INITER \
     static benv_ops_t   ____benv_ops[] = BENV_DEFT_OPS; \
     static benv_cache_t ____benv_cache[os_count_of(____benv_ops)]; \
-    benv_env_t   ____benv_mirror[BENV_COUNT]; \
-    benv_control_t ____benv_control = __BENV_CONTROL_INITER(_benv, ____benv_mirror, ____benv_ops, ____benv_cache); \
+    benv_control_t ____benv_control = __BENV_CONTROL_INITER(____benv_ops, ____benv_cache); \
     os_fake_declare /* end */
 
+extern benv_env_t *____boot_benv;
 extern benv_control_t ____benv_control;
 
-#define __benv_control      (&____benv_control)
-#define __benv_errno        __benv_control->error
-#define __benv_fd           __benv_control->fd
-#define __benv_mirror(_env) (&__benv_control->mirror[_env])
-#define __benv_env(_env)    (&__benv_control->env[_env])
-#define __benv_ops          __benv_control->ops
-#define __benv_ops_count    __benv_control->ops_count
-#define __benv_show_count   __benv_control->show_count
-#define __benv_show_empty   __benv_control->show_empty
-#define __benv_self         __benv_control->self
-#define __benv_loaded       __benv_control->loaded
-#define __benv_cache        __benv_control->cache
-#define __benv_cookie(_env) (&__benv_env(_env)->cookie)
-#define __benv_os(_env)     (&__benv_env(_env)->os)
-#define __benv_current      __benv_os(0)->current
-#define __benv_firmware     __benv_os(0)->firmware
-#define __benv_mark(_env)   (&__benv_env(_env)->mark)
-#define __benv_info(_env)   (&__benv_env(_env)->info)
+#define __benv_control          (&____benv_control)
+#define __benv_sem              (&__benv_control->sem)
+#define __benv_shm              (&__benv_control->shm)
+#define __benv_shm_address      __benv_shm->address
+#define __benv_shm_env          ((benv_env_t *)__benv_shm_address)
+#define __benv_errno            __benv_control->error
+#define __benv_fd               __benv_control->fd
+#define __benv_mirror           (&__benv_control->mirror)
+#define __benv_env(_env)        (&__benv_shm_env[_env])
+#define __benv_ops              __benv_control->ops
+#define __benv_ops_count        __benv_control->ops_count
+#define __benv_show_count       __benv_control->show_count
+#define __benv_show_empty       __benv_control->show_empty
+#define __benv_self             __benv_control->self
+#define __benv_cache            __benv_control->cache
+#define __benv_cookie(_env)     (&__benv_env(_env)->cookie)
+#define __benv_os(_env)         (&__benv_env(_env)->os)
+#define __benv_current          __benv_os(0)->current
+#define __benv_firmware         __benv_os(0)->firmware
+#define __benv_mark(_env)       (&__benv_env(_env)->mark)
+#define __benv_info(_env)       (&__benv_env(_env)->info)
+#define __benv_block(_env, _idx)    ((char *)__benv_env(_env) + (_idx)*BENV_BLOCK_SIZE)
+#define __benv_mirror_block(_idx)   ((char *)__benv_mirror + (_idx)*BENV_BLOCK_SIZE)
 
-#define benv_mark(_idx)     __benv_mark(0)->var[_idx]
-#define benv_info(_idx)     __benv_info(0)->var[_idx]
+#define benv_mark(_idx)         __benv_mark(0)->var[_idx]
+#define benv_info(_idx)         __benv_info(0)->var[_idx]
 
-#define benv_offset(_env)   ((_env) * BENV_SIZE)
+#define benv_offset(_env)       ((_env) * BENV_SIZE)
+
+#define benv_lock()             os_sem_lock(__benv_sem)
+#define benv_unlock()           os_sem_unlock(__benv_sem)
 
 static inline benv_ops_t *
 benv_ops(int idx)
@@ -1943,6 +1965,51 @@ benv_command(int argc, char *argv[])
     return 0;
 }
 
+static inline int
+benv_open(void)
+{
+    int err = 0, fd;
+
+    if (__benv_cache) {
+        os_memzero(__benv_cache, __benv_ops_count * sizeof(benv_cache_t));
+    }
+    
+    err = os_sem_create(__benv_sem, OS_BENV_SEM_ID);
+    if (err<0) {
+        return err;
+    }
+
+    err = os_shm_create(__benv_shm, sizeof(benv_env_t) * BENV_COUNT * 2, false);
+    if (err<0) {
+        return err;
+    }
+
+#ifdef __BOOT__
+    __benv_shm_address = env_ptr->env;
+#else
+    __benv_fd = os_file_open(PRODUCT_DEV_BOOTENV, O_RDWR | O_SYNC, 0);
+    if (false==is_good_fd(__benv_fd)) {
+        return __benv_fd;
+    }
+#endif
+
+    return 0;
+}
+
+static inline int
+benv_close(void)
+{
+#ifdef __APP__
+    os_close(__benv_fd);
+#endif
+    os_free(__benv_mirror_address);
+    os_shm_destroy(__benv_shm);
+    os_sem_destroy(__benv_sem);
+    
+    return 0;
+}
+
+
 #ifdef __BOOT__
 extern int 
 benv_emmc_read(uint32 begin, void *buf, int size);
@@ -1954,41 +2021,27 @@ extern void set_default_env(void);
 extern void env_crc_update(void);
 extern int saveenv(void);
 
-#define benv_open()                 0
-#define benv_close()                0
-
-extern int __benv_read(int env);
-extern int __benv_write(int env);
+extern int __benv_read(int env, bool mirror);
+extern int __benv_write(int env, int idx);
 #elif defined(__APP__)
 #if IS_PRODUCT_LTEFI_MD1
-#define benv_open()                 0
-#define benv_close()                0
-
-#define __benv_read(_env)           0
-#define __benv_write(_env)          0
+#define __benv_read(int env, bool mirror)   0
+#define __benv_write(_env)                  0
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
 static inline int
-benv_open(void)
-{
-    __benv_fd = __os_file_lock(PRODUCT_DEV_BOOTENV, O_RDWR | O_SYNC, 0, true);
-
-    return is_good_fd(__benv_fd)?0:__benv_fd;
-}
-
-static inline int
-benv_close(void)
-{
-    __os_file_unlock(PRODUCT_DEV_BOOTENV, __benv_fd);
-
-    __benv_fd = INVALID_FD;
-
-    return 0;
-}
-
-static inline int
-__benv_read(int env)
+__benv_read(int env, bool mirror)
 {    
     int err = 0;
+    char *buf;
+    char *name;
+
+    if (mirror) {
+        buf = __benv_mirror;
+        name = "mirror";
+    } else {
+        buf = __benv_env(env);
+        name = "benv";
+    }
 
     err = lseek(__benv_fd, benv_offset(env), SEEK_SET);
     if (err < 0) { /* <0 is error */
@@ -2000,41 +2053,49 @@ __benv_read(int env)
     /*
     * emmc==>block
     */
-    if (BENV_SIZE != read(__benv_fd, __benv_env(env), BENV_SIZE)) {
-        debug_error("read benv%d error:%d", env, -errno);
+    if (BENV_SIZE != read(__benv_fd, buf, BENV_SIZE)) {
+        debug_error("read benv%d to %s error:%d", env, name, -errno);
 
         return -errno;
     }
-    
-    /*
-    * block==>mirror
-    */
-    os_memcpy(__benv_mirror(env), __benv_env(env), BENV_SIZE);
     
     return 0;
 }
 
+/*
+* write whole env when block = -1
+*/
 static inline int
-__benv_write(int env)
+__benv_write(int env, int idx)
 {
     int err = 0;
+    uint32 offset, size;
+    char *buf;
     
-    debug_io("save benv%d ...", env);
-    err = lseek(__benv_fd, benv_offset(env), SEEK_SET);
+    if (BENV_ALL==idx) {
+        size    = BENV_SIZE;
+        offset  = benv_offset(env);
+        buf     = __benv_env(env);
+    } else {
+        size    = BENV_BLOCK_SIZE;
+        offset  = benv_offset(env) + idx*BENV_BLOCK_SIZE;
+        buf     = __benv_block(env, idx);
+    }
+    
+    debug_io("save benv%d block%d ...", env, idx);
+    err = lseek(__benv_fd, offset, SEEK_SET);
     if (err < 0) { /* <0 is error */
-         debug_error("seek benv%d error:%d", env, -errno);
+         debug_error("seek benv%d block%d error:%d", env, idx, -errno);
         
         return -errno;
     }
 
-    if (BENV_SIZE != write(__benv_fd, __benv_env(env), BENV_SIZE)) {
-         debug_error("save benv%d error:%d", env, -errno);
+    if (BENV_SIZE != write(__benv_fd, buf, size)) {
+         debug_error("save benv%d block%d error:%d", env, idx, -errno);
         
         return -errno;
     }
-    debug_io("save benv%d ok", env);
-    
-    os_memcpy(__benv_mirror(env), __benv_env(env), BENV_SIZE);
+    debug_io("save benv%d block%d ok", env, idx);
     
     return 0;
 }
@@ -2085,7 +2146,6 @@ __benv_repair(void)
             * repair env by goodfirst
             */
             os_memcpy(__benv_env(env),  __benv_env(goodfirst), BENV_SIZE);
-            os_memcpy(__benv_mirror(env), __benv_env(goodfirst), BENV_SIZE);
 
             os_println("repair benv%d by benv%d", env, goodfirst);
         }
@@ -2106,7 +2166,6 @@ __benv_upgrade(void)
         * repair by env0
         */
         os_memcpy(__benv_env(env),      __benv_env(0), BENV_SIZE);
-        os_memcpy(__benv_mirror(env),   __benv_env(0), BENV_SIZE);
     }
     os_println("benv upgrade ok.");
     
@@ -2154,35 +2213,126 @@ benv_repair(void)
 }
 
 static inline int
-__benv_load(void)
-{    
+benv_load(void)
+{
     int env, err = 0;
-
+    
+    __benv_errno        = 0;
+    __benv_show_count   = 0;
+    
     for (env=0; env<BENV_COUNT; env++) {
-        err = __benv_read(env);
+        err = __benv_read(env, false);
         if (err<0) {
             return err;
         }
     }
-    
-    __benv_loaded = true;
 
-    return err;
+    benv_repair();
+
+    /*
+    * just for debug on PC
+    */
+#ifdef __PC__
+    benv_check();
+#endif
+    
+#ifdef __BOOT__
+    __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
+    __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
+
+    os_println("boot debug:%d jdebug:%d", *__THIS_DEBUG, *__THIS_JDEBUG);
+#endif
+
+    return 0;
 }
 
+static inline int benv_save_nothing(void) {return 0;}
+
+#ifdef __APP__
 static inline int
-__benv_save(void)
+__benv_save(int idx)
 {
     int env, err = 0;
+
+    /*
+    * load mirror
+    */
+    err = __benv_read(0, true);
+    if (err<0) {
+        return err;
+    }
     
-    if (false==__benv_loaded) {
-         debug_trace("benv not loaded, needn't save");
+    if (os_memeq(__benv_block(0, idx), __benv_mirror_block(idx), BENV_BLOCK_SIZE)) {
+        debug_trace("benv0 block%d not changed, needn't save", idx);
         
         return 0;
     }
+
+#if BENV_COUNT > 1
+    /*
+    * 0==>others
+    */
+    for (env=1; env<BENV_COUNT; env++) {
+        os_memcpy(__benv_block(env, idx), __benv_block(0, idx), BENV_BLOCK_SIZE);
+    }
+#endif
+
+    /*
+    * save all env's block(idx)
+    */
+    for (env=0; env<BENV_COUNT; env++) {
+        err = __benv_write(env, idx);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
+}
+
+static inline int
+benv_save_os(void)
+{
+    return __benv_save(BENV_OS);
+}
+
+static inline int
+benv_save_mark(void)
+{
+    return __benv_save(BENV_MARK);
+}
+
+static inline int
+benv_save_info(void)
+{
+    int idx, err;
+
+    for (idx=BENV_INFO; idx<BENV_BLOCK_COUNT; idx++)
+        err = __benv_save(idx);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
+}
+#endif
+
+static inline int
+benv_save(void)
+{
+    int env, err = 0;
+
+    /*
+    * load mirror
+    */
+    err = __benv_read(0, true);
+    if (err<0) {
+        return err;
+    }
     
-    if (os_memeq(__benv_env(0), __benv_mirror(0), BENV_SIZE)) {
-         debug_trace("benv0 not changed, needn't save");
+    if (os_memeq(__benv_env(0), __benv_mirror, BENV_SIZE)) {
+        debug_trace("benv0 not changed, needn't save");
         
         return 0;
     }
@@ -2196,37 +2346,17 @@ __benv_save(void)
     }
 #endif
 
+    /*
+    * save all env
+    */
     for (env=0; env<BENV_COUNT; env++) {
-        err = __benv_write(env);
+        err = __benv_write(env, BENV_ALL);
         if (err<0) {
             return err;
         }
     }
 
     return 0;
-}
-
-static inline int
-benv_load(void)
-{
-    __benv_load();
-
-    benv_repair();
-
-    /*
-    * just for debug on PC
-    */
-#ifdef __PC__
-    benv_check();
-#endif
-}
-
-static inline int benv_save_nothing(void) {return 0;}
-
-static inline int
-benv_save(void)
-{
-    return __benv_save();
 }
 
 static inline int
@@ -2242,13 +2372,6 @@ benv_init(void)
     if (err<0) {
         return err;
     }
-
-    __benv_errno        = 0;
-    __benv_show_count   = 0;
-    __benv_loaded       = false;
-    if (__benv_cache) {
-        os_memzero(__benv_cache, __benv_ops_count * sizeof(benv_cache_t));
-    }
     
     err = benv_open();
         debug_trace_error(err, "open benv");
@@ -2261,13 +2384,6 @@ benv_init(void)
     if (err<0) {
         return err;
     }
-    
-#ifdef __BOOT__
-    __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
-    __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
-
-    os_println("boot debug:%d jdebug:%d", *__THIS_DEBUG, *__THIS_JDEBUG);
-#endif
 
     return 0;
 }

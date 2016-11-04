@@ -56,7 +56,8 @@
 #endif
 
 #define OS_AK_SHM_ID            (OS_IPC_ID + 1)
-#define OS_HAENV_SEM_ID         (OS_IPC_ID + 2)
+#define OS_BENV_SEM_ID          (OS_IPC_ID + 2)
+#define OS_HAENV_SEM_ID         (OS_IPC_ID + 3)
 
 #define OS_INLINE               __attribute__((always_inline))
 

@@ -1,6 +1,5 @@
 #ifndef __SEM_H_a0a31796eccd4a57a41d91eea4cd2f9e__
 #define __SEM_H_a0a31796eccd4a57a41d91eea4cd2f9e__
-#ifdef __APP__
 /******************************************************************************/
 typedef struct {
     int id;
@@ -24,9 +23,14 @@ typedef struct {
 #define sem_println(_fmt, _args...)     os_do_nothing()
 #endif
 
+#ifndef __APP__
+#define SEM_UNDO    0
+#endif
+
 static inline void 
 __os_do_sem(int semid, int op, int undo)
 {
+#ifdef __APP__
     struct {
         uint16 sem_num;
         int16 sem_op;
@@ -34,6 +38,7 @@ __os_do_sem(int semid, int op, int undo)
     } sem = {0, op, undo};
 
     semop(semid, (struct sembuf *)&sem, 1);
+#endif
 }
 
 static inline void
@@ -55,17 +60,20 @@ os_sem_unlock(os_sem_t *sem)
 static inline void 
 os_sem_destroy(os_sem_t *sem)
 {
+#if __APP__
     if (sem && is_good_semid(sem->id) && true == sem->owner) {
         semctl(sem->id, 0, IPC_RMID, NULL);
         
         sem_println("sem(%d) destroy", sem->id);
     }
+#endif
 }
 
 static inline int 
 os_sem_create(os_sem_t *sem, int key)
 {
     int id = 0;
+#if __APP__
     int flags = IPC_CREAT | IPC_EXCL | 0x1FF;
 
     if (NULL==sem) {
@@ -115,10 +123,10 @@ os_sem_create(os_sem_t *sem, int key)
     sem_println("sem(%d) %s OK!", 
         id, 
         (true == sem->owner)?"create":"get");
+#endif
 
     return id;
 }
 /******************************************************************************/
-#endif /* __APP__ */
 #endif /* __SEM_H_a0a31796eccd4a57a41d91eea4cd2f9e__ */
 

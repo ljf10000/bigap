@@ -1,6 +1,5 @@
 #ifndef __SHM_H_9251a716aabe4602b0c492b50399af54__
 #define __SHM_H_9251a716aabe4602b0c492b50399af54__
-#ifdef __APP__
 /******************************************************************************/
 #define INVALID_SHM_ID      INVALID_COMMON_ID
 #define INVALID_SHM_ADDR    ((void *)(-1))
@@ -40,6 +39,7 @@ os_shm_init(os_shm_t *shm, unsigned int key)
 static inline void 
 os_shm_destroy(os_shm_t *shm)
 {
+#if __APP__
     if (shm && INVALID_SHM_ADDR != shm->address) {
         shmdt(shm->address);
         shm->address = INVALID_SHM_ADDR;
@@ -50,11 +50,13 @@ os_shm_destroy(os_shm_t *shm)
             shm->id,
             shm->address);
     }
+#endif
 }
 
 static inline int 
 os_shm_create(os_shm_t *shm, unsigned int size, bool readonly)
 {
+#ifdef __APP__
     int flags = IPC_CREAT | (readonly?SHM_RDONLY:0) | 0x1FF;
     size_t pagesize;
     
@@ -110,8 +112,11 @@ os_shm_create(os_shm_t *shm, unsigned int size, bool readonly)
     }
     
     return shm->id;
+#else
+    return 0;
+#endif
 }
+
 /******************************************************************************/
-#endif /* __APP__ */
 #endif /* __SHM_H_9251a716aabe4602b0c492b50399af54__ */
 

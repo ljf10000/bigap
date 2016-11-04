@@ -921,11 +921,11 @@ js_register(duk_context *ctx, js_register_f *cb)
 }
 
 enum {
-    JS_EXEC_SHABANG,
-    JS_EXEC_STRING,
-    JS_EXEC_BUILDIN,
+    JS_EVAL_SHABANG,
+    JS_EVAL_STREAM,
+    JS_EVAL_BUILDIN,
 
-    JS_EXEC_END
+    JS_EVAL_END
 };
 
 typedef struct {
@@ -990,11 +990,11 @@ js_priv_init(char *name, int argc, char **argv)
     priv->name = os_strdup(name);
 
     if (1==argc) {
-        priv->mode = JS_EXEC_STRING;
+        priv->mode = JS_EVAL_STREAM;
     } else if (argc > 1) {
-        priv->mode = JS_EXEC_SHABANG;
+        priv->mode = JS_EVAL_SHABANG;
     } else {
-        priv->mode = JS_EXEC_BUILDIN;
+        priv->mode = JS_EVAL_BUILDIN;
     }
     
     return priv;
@@ -1057,7 +1057,7 @@ js_eval(duk_context *ctx, char *jsfile)
     char *script = NULL;
     
     switch(priv->mode) {
-        case JS_EXEC_SHABANG:
+        case JS_EVAL_SHABANG:
             script = priv->argv[1];
             /*
             * argv[1] is script name
@@ -1065,7 +1065,7 @@ js_eval(duk_context *ctx, char *jsfile)
             duk_peval_file(ctx, script);
             
             break;
-        case JS_EXEC_STRING:
+        case JS_EVAL_STREAM:
             script = os_readfd(0, 4096);
 
             /*
@@ -1075,7 +1075,7 @@ js_eval(duk_context *ctx, char *jsfile)
             duk_peval_string(ctx, script); free(script);
             
             break;
-        case JS_EXEC_BUILDIN:
+        case JS_EVAL_BUILDIN:
             script = jsfile;
             /*
             * jsfile is script name

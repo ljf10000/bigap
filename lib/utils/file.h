@@ -744,19 +744,29 @@ error:
 DECLARE_FAKE_FLOCK;
 
 static inline int
-__os_file_lock(char *file, int open_mode, int permit, bool block)
+os_file_open(char *file, int open_mode, int permit)
 {
-    int err, fd;
     int deft_permit = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
     int deft_mode   = O_RDONLY | O_CREAT;
     
-    fd = open(file, open_mode?open_mode:deft_mode, permit?permit:deft_permit);
-    file_println("open:%s error:%d", file, (err?-errno:0));
+    int fd = open(file, open_mode?open_mode:deft_mode, permit?permit:deft_permit);
+    file_println("open:%s error:%d", file, (is_good_fd(fd)?0:-errno));
     if (fd<0) {
         return -errno;
     }
+
+    return fd;
+}
+
+static inline int
+__os_file_lock(char *file, int open_mode, int permit, bool block)
+{
+    int fd = os_file_open(file, open_mode, permit);
+    if (fd<0) {
+        return fd;
+    }
     
-    err = flock(fd, LOCK_EX | (block?0:LOCK_NB));
+    int err = flock(fd, LOCK_EX | (block?0:LOCK_NB));
     file_println("lock:%s error:%d", file, (err?-errno:0));
     if (err<0) {
         return -errno;

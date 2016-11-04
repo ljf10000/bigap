@@ -77,7 +77,7 @@ rt_save(void)
     int err;
 
     benv_open();
-    err = os_callv(benv_load, benv_save, __rt_save);
+    err = os_callv(benv_load, benv_save_mark, __rt_save);
         debug_trace_error(err, "rt save");
     benv_close();
 

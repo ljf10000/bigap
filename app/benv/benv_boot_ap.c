@@ -7,16 +7,16 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __benv_start(_env)    (BENV_START + benv_offset(_env))
 
 #if 1
-int __benv_read(int env)
+int __benv_read(int env, bool mirror)
 {
 	return 0;
 }
-int __benv_write(int env)
+int __benv_write(int env, int idx)
 {
 	return 0;
 }
 #else
-int __benv_read(int env)
+int __benv_read(int env, bool mirror)
 {
     /*
     * emmc==>block
@@ -37,7 +37,7 @@ int __benv_read(int env)
     return 0;
 }
 
-int __benv_write(int env)
+int __benv_write(int env, int idx)
 {
     debug_io("save benv%d ...", env);
     if (BENV_SIZE != __flash_write(__benv_start(env), __benv_env(env), BENV_SIZE)) {

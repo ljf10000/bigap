@@ -675,7 +675,7 @@ kernel_version(int idx)
 static int
 save(void)
 {
-    return os_callv(benv_open, benv_close, benv_save);
+    return os_callv(benv_open, benv_close, benv_save_os);
 }
 
 static int
@@ -1674,17 +1674,17 @@ __init(void)
         return err;
     }
 
+    err = os_file_lock(true);
+    if (err<0) {
+        return err;
+    }
+
     err = init_current();
     if (err<0) {
         return err;
     }
 
     err = init_env();
-    if (err<0) {
-        return err;
-    }
-
-    err = os_file_lock(false);
     if (err<0) {
         return err;
     }

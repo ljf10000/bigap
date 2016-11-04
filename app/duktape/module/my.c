@@ -719,11 +719,11 @@ arg_register(duk_context *ctx)
     js_set_obj_int(ctx, -1, "mode", priv->mode);
 #endif
 
-    if (JS_EXEC_BUILDIN != priv->mode) {
+    if (JS_EVAL_BUILDIN != priv->mode) {
         js_set_obj_string(ctx, -1, "name", priv->argv[0]);
     }
     
-    if (JS_EXEC_SHABANG == priv->mode) {
+    if (JS_EVAL_SHABANG == priv->mode) {
         js_set_obj_string(ctx, -1, "script", priv->argv[1]);
         
         int i, argc = priv->argc - 2;
