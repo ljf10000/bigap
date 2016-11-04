@@ -1925,12 +1925,16 @@ __benv_analysis(char *args)
      * found '=', is wirte
      */
     else if (os_strchr(args, '=')) {
+        debug_trace("found '=', is write");
+        
         return benv_analysis_write(args);
     }
     /*
      * no found '=', is show
      */
     else {
+        debug_trace("no found '=', is show");
+        
         return benv_analysis_show(args);
     }
 }
@@ -1940,12 +1944,15 @@ benv_analysis(int argc, char *argv[])
 {
     int i, err;
 
+    os_println("benv_analysis 1");
+    
     for (i = 0; i < argc; i++) {
         err = __benv_analysis(argv[i]);
         if (err<0) {
             return err;
         }
     }
+    os_println("benv_analysis 2");
 
     return 0;
 }
@@ -1955,27 +1962,19 @@ benv_command(int argc, char *argv[])
 {
     int err, i;
 
-    os_println("benv_command 1");
-    
     if (0==argc) {
         return benv_usage();
     }
-    os_println("benv_command 2");
 
     err = benv_analysis(argc, argv);
     if (err<0) {
         return err;
     }
 
-    os_println("benv_command 3");
-
     benv_cache_dump();
-
-    os_println("benv_command 4");
 
     benv_handle(argc, argv);
     
-    os_println("benv_command 5");
     return 0;
 }
 
