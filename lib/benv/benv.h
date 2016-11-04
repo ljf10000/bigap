@@ -500,6 +500,7 @@ typedef struct {
     .cache      = _cache,                       \
     .ops_count  = (_ops)?os_count_of(_ops):0,   \
     .fd         = INVALID_FD,                   \
+    .shm        = OS_SHM_INITER(OS_BENV_SHM_ID),\
 }   /* end */
 
 #ifdef __BOOT__
