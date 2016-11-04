@@ -55,8 +55,8 @@ benv_boot_init(void)
 {
 #ifdef __BOOT__
     extern env_t *env_ptr;
-    
-    __benv_control->env = (benv_env_t *)(env_ptr->env);
+
+    __benv_shm_address = env_ptr->env;
 #endif
 }
 /******************************************************************************/

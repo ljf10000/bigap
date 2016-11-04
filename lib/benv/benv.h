@@ -497,15 +497,12 @@ typedef struct {
 } benv_control_t;
 
 #define __BENV_CONTROL_INITER(_ops, _cache) {   \
+    .ops        = _ops,                         \
     .cache      = _cache,                       \
     .ops_count  = (_ops)?os_count_of(_ops):0,   \
     .fd         = INVALID_FD,                   \
     .shm        = OS_SHM_INITER(OS_BENV_SHM_ID),\
 }   /* end */
-
-#ifdef __BOOT__
-extern env_t *env_ptr;
-#endif
 
 #if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
 #   define BENV_INITER \
@@ -521,26 +518,24 @@ extern env_t *env_ptr;
     benv_control_t ____benv_control = __BENV_CONTROL_INITER(____benv_ops, ____benv_cache); \
     os_fake_declare /* end */
 
-extern benv_env_t *____boot_benv;
 extern benv_control_t ____benv_control;
 
-#define __benv_control          (&____benv_control)
 #if BENV_USE_SEM
-#define __benv_sem              (&__benv_control->sem)
+#define __benv_sem              (&____benv_control.sem)
 #endif
-#define __benv_shm              (&__benv_control->shm)
+#define __benv_shm              (&____benv_control.shm)
 #define __benv_shm_address      __benv_shm->address
 #define __benv_shm_env          ((benv_env_t *)__benv_shm_address)
-#define __benv_errno            __benv_control->error
-#define __benv_fd               __benv_control->fd
-#define __benv_mirror           (&__benv_control->mirror)
+#define __benv_errno            ____benv_control.error
+#define __benv_fd               ____benv_control.fd
+#define __benv_mirror           (&____benv_control.mirror)
 #define __benv_env(_env)        (&__benv_shm_env[_env])
-#define __benv_ops              __benv_control->ops
-#define __benv_ops_count        __benv_control->ops_count
-#define __benv_show_count       __benv_control->show_count
-#define __benv_show_empty       __benv_control->show_empty
-#define __benv_self             __benv_control->self
-#define __benv_cache            __benv_control->cache
+#define __benv_ops              ____benv_control.ops
+#define __benv_ops_count        ____benv_control.ops_count
+#define __benv_show_count       ____benv_control.show_count
+#define __benv_show_empty       ____benv_control.show_empty
+#define __benv_self             ____benv_control.self
+#define __benv_cache            ____benv_control.cache
 #define __benv_cookie(_env)     (&__benv_env(_env)->cookie)
 #define __benv_os(_env)         (&__benv_env(_env)->os)
 #define __benv_current          __benv_os(0)->current
@@ -2156,9 +2151,6 @@ benv_open(void)
     
     __benv_errno        = 0;
     __benv_show_count   = 0;
-#ifdef __BOOT__
-    __benv_shm_address = env_ptr->env;
-#endif
 
     if (__benv_cache) {
         os_memzero(__benv_cache, __benv_ops_count * sizeof(benv_cache_t));
