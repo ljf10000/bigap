@@ -473,7 +473,7 @@ benv_ops_match(benv_ops_t *ops, char *path, int len, bool wildcard)
 }
 
 typedef struct {
-    benv_env_t mirror;
+    benv_env_t *mirror;
     benv_env_t *env;
     benv_ops_t *ops;
     benv_cache_t *cache;
@@ -492,26 +492,29 @@ typedef struct {
 #endif
 } benv_control_t;
 
-#define __BENV_CONTROL_INITER(_ops, _cache) {   \
+#define __BENV_CONTROL_INITER(_ops, _cache, _mirror) {   \
     .ops        = _ops,                         \
     .cache      = _cache,                       \
     .ops_count  = (_ops)?os_count_of(_ops):0,   \
     .fd         = INVALID_FD,                   \
     .shm        = OS_SHM_INITER(OS_BENV_SHM_ID),\
+    .mirror     = _mirror,                      \
 }   /* end */
 
 #if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
 #   define BENV_INITER \
-        benv_control_t ____benv_control = __BENV_CONTROL_INITER(NULL, NULL); \
+        static benv_env_t ____benv_mirror; \
+        benv_control_t ____benv_control = __BENV_CONTROL_INITER(NULL, NULL, &____benv_mirror); \
         os_fake_declare /* end */
 #else
 #   define BENV_INITER    os_fake_declare
 #endif
 
 #define BENV_MAIN_INITER \
+    static benv_env_t ____benv_mirror; \
     static benv_ops_t   ____benv_ops[] = BENV_DEFT_OPS; \
     static benv_cache_t ____benv_cache[os_count_of(____benv_ops)]; \
-    benv_control_t ____benv_control = __BENV_CONTROL_INITER(____benv_ops, ____benv_cache); \
+    benv_control_t ____benv_control = __BENV_CONTROL_INITER(____benv_ops, ____benv_cache, &____benv_mirror); \
     os_fake_declare /* end */
 
 extern benv_control_t ____benv_control;
@@ -524,7 +527,7 @@ extern benv_control_t ____benv_control;
 #define __benv_shm_env          ((benv_env_t *)__benv_shm_address)
 #define __benv_errno            ____benv_control.error
 #define __benv_fd               ____benv_control.fd
-#define __benv_mirror           (&____benv_control.mirror)
+#define __benv_mirror           ____benv_control.mirror
 #define __benv_env(_env)        (&__benv_shm_env[_env])
 #define __benv_ops              ____benv_control.ops
 #define __benv_ops_count        ____benv_control.ops_count
@@ -2113,19 +2116,24 @@ __benv_write(int env, int idx)
         buf     = __benv_block(env, idx);
     }
     
+    os_println("save benv%d block%d 1", env, idx);
     debug_io("save benv%d block%d ...", env, idx);
     err = lseek(__benv_fd, offset, SEEK_SET);
+    os_println("save benv%d block%d 2", env, idx);
     if (err < 0) { /* <0 is error */
          debug_error("seek benv%d block%d error:%d", env, idx, -errno);
         
         return -errno;
     }
 
+    os_println("save benv%d block%d 3", env, idx);
+
     if (BENV_SIZE != write(__benv_fd, buf, size)) {
          debug_error("save benv%d block%d error:%d", env, idx, -errno);
         
         return -errno;
     }
+    os_println("save benv%d block%d 4", env, idx);
     debug_io("save benv%d block%d ok", env, idx);
     
     return 0;
