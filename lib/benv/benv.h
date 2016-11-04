@@ -2320,15 +2320,13 @@ benv_load(void)
                 return err;
             }
         }
-    }
 
-    benv_repair();
+        benv_repair();
+    }
     
 #ifdef __BOOT__
     __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
     __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
-
-    os_println("boot debug:%d jdebug:%d", *__THIS_DEBUG, *__THIS_JDEBUG);
 #endif
 
     /*

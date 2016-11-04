@@ -254,23 +254,15 @@ load(void)
     /*
     * load info, and auto load mark
     */
-    os_println("guard load 1");
-    benv_open();
-    os_println("guard load 2");
     benv_load();
-    os_println("guard load 3");
-    benv_close();
-    os_println("guard load 4");
 }
 
 static void
 save(void)
 {
-    benv_open();
     benv_load();
     benv_mark(__benv_mark_noauth) = noauth;
     benv_save_mark();
-    benv_close();
 }
 #else
 #error "bad product"
@@ -861,6 +853,8 @@ check(void)
 static int
 __fini(void)
 {
+    benv_close();
+    
     os_fini();
 
     return 0;
@@ -884,7 +878,10 @@ __init(void)
         return err;
     }
 
-    os_println("guard __init");
+    err = benv_open();
+    if (err<0) {
+        return err;
+    }
     
     return 0;
 }

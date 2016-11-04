@@ -27,7 +27,7 @@ static int savecycle;
 
 #if IS_PRODUCT_LTEFI_MD_PARTITION_A
 static int
-__rt_load(void)
+rt_load(void)
 {
     os_pgeti(&runtime, "bootm rt");
 
@@ -35,7 +35,7 @@ __rt_load(void)
 }
 
 static int
-__rt_save(void)
+rt_save(void)
 {
     os_system("bootm rt=%d", runtime);
 
@@ -43,49 +43,58 @@ __rt_save(void)
 }
 #elif IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B
 static int
-__rt_load(void)
+rt_load(void)
 {
+    benv_load();
     runtime = benv_mark(__benv_mark_runtime);
     
     return 0;
 }
 
 static int
-__rt_save(void)
+rt_save(void)
 {
+    benv_load();
     benv_mark(__benv_mark_runtime) = runtime;
-
+    benv_save_mark();
+    
     return 0;
 }
 #endif
 
 static int
-rt_load(void)
+__fini(void)
 {
-    int err;
-
-    benv_open();
-        benv_load();
-        err = __rt_load();
-        debug_trace_error(err, "rt load");
+    rt_save();
+    
     benv_close();
     
-    return err;
+    os_fini();
+
+    return 0;
 }
 
 static int
-rt_save(void)
+__init(void)
 {
     int err;
+    
+    err = os_init();
+    if (err<0) {
+        return err;
+    }
 
-    benv_open();
-        benv_load();
-        err = __rt_save();
-        benv_save_mark();
-        debug_trace_error(err, "rt save");
-    benv_close();
+    err = benv_open();
+    if (err<0) {
+        return err;
+    }
 
-    return err;
+    err = rt_load();
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
 }
 
 static void 
@@ -101,15 +110,11 @@ __user(int signo)
 }
 
 static void 
-__exit(int signo)
+__exit(int sig)
 {
-    debug_trace("recive signo:%d", signo);
+    __fini();
     
-    int err = rt_save();
-
-    os_fini();
-    
-    exit(shell_error(err));
+    exit(sig);
 }
 
 static int
@@ -121,9 +126,7 @@ __main(int argc, char *argv[])
     (void)argv;
 
     savecycle = env_geti("RT_SAVECYCLE", RT_SAVECYCLE);
-    
-    rt_load();
-    
+        
     while(1) {
         sleep(1);
 
@@ -142,6 +145,6 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(__exit);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_call(__init, __fini, __main, argc, argv);
 }
 /******************************************************************************/

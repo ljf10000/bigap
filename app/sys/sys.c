@@ -675,13 +675,7 @@ kernel_version(int idx)
 static int
 save(void)
 {
-    return os_callv(benv_open, benv_close, benv_save_os);
-}
-
-static int
-load(void)
-{
-    return os_callv(benv_open, benv_close, benv_load);
+    return benv_save_os();
 }
 
 /*
@@ -1655,7 +1649,7 @@ static int
 __fini(void)
 {
     os_file_unlock();
-
+    benv_close();
     os_fini();
 
     return 0;
@@ -1689,12 +1683,25 @@ __init(void)
         return err;
     }
 
-    err = load();
+    err = benv_open();
+    if (err<0) {
+        return err;
+    }
+
+    err = benv_load();
     if (err<0) {
         return err;
     }
 
     return 0;
+}
+
+static void 
+__exit(int sig)
+{
+    __fini();
+    
+    exit(sig);
 }
 
 static int
@@ -1936,6 +1943,9 @@ static cmd_table_t cmd[] = {
 static int
 __main(int argc, char *argv[])
 {
+    setup_signal_exit(__exit);
+    setup_signal_callstack(NULL);
+    
     return cmd_handle(cmd, argc, argv, usage);
 }
 
@@ -1952,6 +1962,9 @@ int allinone_main(int argc, char *argv[])
 #ifdef __ALLINONE__
 int sysmount_main(int argc, char *argv[])
 {
+    setup_signal_exit(__exit);
+    setup_signal_callstack(NULL);
+    
     int err = os_call(__init, __fini, cmd_mount, argc, argv);
 
     return shell_error(err);
@@ -1959,6 +1972,9 @@ int sysmount_main(int argc, char *argv[])
 
 int sysreset_main(int argc, char *argv[])
 {
+    setup_signal_exit(__exit);
+    setup_signal_callstack(NULL);
+    
     int err = os_call(__init, __fini, cmd_reset, argc, argv);
 
     return shell_error(err);
@@ -1966,6 +1982,9 @@ int sysreset_main(int argc, char *argv[])
 
 int sysrepair_main(int argc, char *argv[])
 {
+    setup_signal_exit(__exit);
+    setup_signal_callstack(NULL);
+    
     int err = os_call(__init, __fini, cmd_repair, argc, argv);
 
     return shell_error(err);
@@ -1973,6 +1992,9 @@ int sysrepair_main(int argc, char *argv[])
 
 int sysstartup_main(int argc, char *argv[])
 {
+    setup_signal_exit(__exit);
+    setup_signal_callstack(NULL);
+    
     int err = os_call(__init, __fini, cmd_startup, argc, argv);
 
     return shell_error(err);
@@ -1980,6 +2002,9 @@ int sysstartup_main(int argc, char *argv[])
 
 int sysumount_main(int argc, char *argv[])
 {
+    setup_signal_exit(__exit);
+    setup_signal_callstack(NULL);
+    
     int err = os_call(__init, __fini, cmd_umount, argc, argv);
 
     return shell_error(err);
@@ -1987,6 +2012,9 @@ int sysumount_main(int argc, char *argv[])
 
 int sysupgrade_main(int argc, char *argv[])
 {
+    setup_signal_exit(__exit);
+    setup_signal_callstack(NULL);
+    
     int err = os_call(__init, __fini, cmd_upgrade, argc, argv);
 
     return shell_error(err);
@@ -1994,6 +2022,9 @@ int sysupgrade_main(int argc, char *argv[])
 
 int sysusbupgrade_main(int argc, char *argv[])
 {
+    setup_signal_exit(__exit);
+    setup_signal_callstack(NULL);
+    
     int err = os_call(__init, __fini, cmd_usbupgrade, argc, argv);
 
     return shell_error(err);
