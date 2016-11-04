@@ -2009,7 +2009,6 @@ benv_close(void)
 #ifdef __APP__
     os_close(__benv_fd);
 #endif
-    os_free(__benv_mirror_address);
     os_shm_destroy(__benv_shm);
 #if BENV_USE_SEM
     os_sem_destroy(__benv_sem);
@@ -2040,7 +2039,7 @@ static inline int
 __benv_read(int env, bool mirror)
 {    
     int err = 0;
-    char *buf;
+    void *buf;
     char *name;
 
     if (mirror) {
@@ -2315,7 +2314,7 @@ benv_save_info(void)
 {
     int idx, err;
 
-    for (idx=BENV_INFO; idx<BENV_BLOCK_COUNT; idx++)
+    for (idx=BENV_INFO; idx<BENV_BLOCK_COUNT; idx++) {
         err = __benv_save(idx);
         if (err<0) {
             return err;

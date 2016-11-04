@@ -115,7 +115,7 @@ int benv_emmc_write(uint32 begin, void *buf, int size)
 
 int __benv_read(int env, bool mirror)
 {
-    char *buf;
+    void *buf;
     char *name;
 
     if (mirror) {
