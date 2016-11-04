@@ -2161,8 +2161,6 @@ benv_open(void)
     if (err<0) {
         return err;
     }
-
-    benv_show_cookie();
     
 #ifdef __APP__
     __benv_fd = os_file_open(PRODUCT_DEV_BOOTENV, O_RDWR | O_SYNC, 0);
@@ -2925,10 +2923,13 @@ static inline int
 benv_cmd(int argc, char *argv[])
 {
     __benv_self = cli_argv_dump(argc, argv);
-    
+
+    os_println("ops count=%d", __benv_ops_count);
     if (benv_cmd_hiden(argc, argv)) {
+        os_println("benv_cmd 1.1");
         return __benv_errno;
     } else {
+        os_println("benv_cmd 1.2");
         return benv_command(argc - 1, argv + 1);
     }
 }
