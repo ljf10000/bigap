@@ -73,7 +73,7 @@ static inline int
 os_sem_create(os_sem_t *sem, int key)
 {
     int id = 0;
-#if __APP__
+#ifdef __APP__
     int flags = IPC_CREAT | IPC_EXCL | 0x1FF;
 
     if (NULL==sem) {
