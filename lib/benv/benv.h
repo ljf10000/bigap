@@ -1867,7 +1867,8 @@ static inline int
 __benv_analysis_show(benv_ops_t *ops, char *args)
 {
     char *wildcard = os_strlast(args, '*');
-    
+
+    os_println("__benv_analysis_show 1");
     /*
      * if found '*'
      *   first '*' is not last '*'
