@@ -1868,7 +1868,7 @@ __benv_analysis_show(benv_ops_t *ops, char *args)
 {
     char *wildcard = os_strlast(args, '*');
 
-    os_println("__benv_analysis_show ops=%p, path=%s, args=%s, wildcard=%s", ops, ops->path, args, wildcard);
+    os_println("__benv_analysis_show ops=%p, args=%s, wildcard=%s", ops, args, wildcard);
     /*
      * if found '*'
      *   first '*' is not last '*'
@@ -1879,7 +1879,12 @@ __benv_analysis_show(benv_ops_t *ops, char *args)
         debug_error("only support show 'xxx*'");
 
         return -EFORMAT;
-    } else if (benv_ops_match(ops, args, os_strlen(args), !!wildcard)) {
+    } 
+    os_println("__benv_analysis_show 1");
+    os_println("__benv_analysis_show path=%s", ops->path);
+    os_println("__benv_analysis_show 2");
+    
+    if (benv_ops_match(ops, args, os_strlen(args), !!wildcard)) {
         debug_trace("need show ops %s", ops->path);
         
         benv_cache_showit(ops) = true;
