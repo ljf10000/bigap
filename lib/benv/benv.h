@@ -35,11 +35,7 @@
 #endif
 
 #define BENV_START                  PRODUCT_BOOT_SIZE
-#if IS_PRODUCT_LTEFI_AP
-#define BENV_BLOCK_SIZE             PRODUCT_BLOCK_SIZE*2		/* 256*2=512 */
-#else
 #define BENV_BLOCK_SIZE             PRODUCT_BLOCK_SIZE
-#endif
 #define BENV_BLOCK_COUNT            (BENV_SIZE/BENV_BLOCK_SIZE) /* 8 */
 
 #ifndef BENV_TRYS
@@ -2324,13 +2320,6 @@ benv_load(void)
     }
 
     benv_repair();
-
-    /*
-    * just for debug on PC
-    */
-#ifdef __PC__
-    benv_check();
-#endif
     
 #ifdef __BOOT__
     __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
@@ -2339,6 +2328,13 @@ benv_load(void)
     os_println("boot debug:%d jdebug:%d", *__THIS_DEBUG, *__THIS_JDEBUG);
 #endif
 
+    /*
+    * just for debug on PC
+    */
+#ifdef __PC__
+    benv_check();
+#endif
+    
     return 0;
 }
 
@@ -2414,6 +2410,15 @@ benv_save_info(void)
 }
 #endif
 
+#if 1
+static inline int
+benv_save(void)
+{
+    benv_save_os();
+    benv_save_mark();
+    benv_save_info();
+}
+#else
 static inline int
 benv_save(void)
 {
@@ -2454,6 +2459,7 @@ benv_save(void)
 
     return 0;
 }
+#endif
 
 static inline int
 benv_init(void)

@@ -8,7 +8,7 @@
 #include "product/ap/ap4.h"
 /******************************************************************************/
 #ifndef PRODUCT_BLOCK_SIZE
-#define PRODUCT_BLOCK_SIZE              256
+#define PRODUCT_BLOCK_SIZE              512
 #endif
 
 #ifndef PRODUCT_BOOT_SIZE
