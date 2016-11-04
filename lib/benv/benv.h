@@ -1896,18 +1896,13 @@ static inline int
 benv_analysis_show(char *args)
 {
     int i, err = 0;
-
-    os_println("benv_analysis_show 1");
     
     for (i = 0; i < __benv_ops_count; i++) {
         err = __benv_analysis_show(benv_ops(i), args);
         if (err<0) {
-            os_println("benv_analysis_show error");
             return err;
         }
     }
-
-    os_println("benv_analysis_show 2");
     
     return 0;
 }
