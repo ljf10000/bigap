@@ -51,23 +51,62 @@ enum {
 typedef struct {
     int jtype;
     int type;
+
+    union {
+        char *s;
+        bool  b;
+        int   i;
+        void *v;
+    } deft;
 } nsq_identify_rule_t;
 
-#define NSQ_IDENTIFY_RULE(_id, _jtype, _type)   [_id] = { .jtype = _jtype, .type = _type }
+#define NSQ_IDENTIFY_RULE(_id, _jtype, _type, _v)   [_id] = { \
+    .jtype  = _jtype,       \
+    .type   = _type,        \
+    .deft   = {             \
+        .v  = (void *)(_v), \
+    }                       \
+}   /* end */
+
+#define NSQ_IDENTIFY_RULE_INITER {                          \
+    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_CLIENT_ID,               \
+        jtype_string,                                       \
+        NSQ_IDENTIFY_TYPE_LOCAL,                            \
+        NULL),                                              \
+    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_HOSTNAME,                \
+        jtype_string,                                       \
+        NSQ_IDENTIFY_TYPE_LOCAL,                            \
+        NULL),                                              \
+    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     \
+        jtype_bool,                                         \
+        NSQ_IDENTIFY_TYPE_CLOUD,                            \
+        true),                                              \
+    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       \
+        jtype_int,                                          \
+        NSQ_IDENTIFY_TYPE_CLOUD,                            \
+        300*1000),                                          \
+    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      \
+        jtype_int,                                          \
+        NSQ_IDENTIFY_TYPE_CLOUD,                            \
+        32*1024),                                           \
+    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,   \
+        jtype_int,                                          \
+        NSQ_IDENTIFY_TYPE_CLOUD,                            \
+        250),                                               \
+    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_USER_AGENT,              \
+        jtype_string,                                       \
+        NSQ_IDENTIFY_TYPE_CONST,                            \
+        NULL),                                              \
+    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_MSG_TIMEOUT,             \
+        jtype_int,                                          \
+        NSQ_IDENTIFY_TYPE_CLOUD,                            \
+        10000),                                             \
+}   /* end */
 
 static inline nsq_identify_rule_t *
 nsq_identify_rule(void)
 {
-    static nsq_identify_rule_t rule[NSQ_IDENTIFY_END] = {
-        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_CLIENT_ID,               jtype_string,   NSQ_IDENTIFY_TYPE_LOCAL),
-        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_HOSTNAME,                jtype_string,   NSQ_IDENTIFY_TYPE_LOCAL),
-        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     jtype_bool,     NSQ_IDENTIFY_TYPE_CLOUD),
-        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       jtype_int,      NSQ_IDENTIFY_TYPE_CLOUD),
-        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      jtype_int,      NSQ_IDENTIFY_TYPE_CLOUD),
-        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,   jtype_int,      NSQ_IDENTIFY_TYPE_CLOUD),
-        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_USER_AGENT,              jtype_string,   NSQ_IDENTIFY_TYPE_CONST),
-        NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_MSG_TIMEOUT,             jtype_string,   false),
-    };
+    static nsq_identify_rule_t rule[NSQ_IDENTIFY_END] = NSQ_IDENTIFY_RULE_INITER;
 
     return rule;
 }
