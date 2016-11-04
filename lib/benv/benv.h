@@ -2156,7 +2156,7 @@ benv_open(void)
     }
 #endif
 
-    err = os_shm_create(__benv_shm, sizeof(benv_env_t) * BENV_COUNT * 2, false);
+    err = os_shm_create(__benv_shm, BENV_SIZE*BENV_COUNT, false);
     if (err<0) {
         return err;
     }
