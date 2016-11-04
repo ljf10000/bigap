@@ -1879,10 +1879,14 @@ __benv_analysis_show(benv_ops_t *ops, char *args)
 
         return -EFORMAT;
     } else if (benv_ops_match(ops, args, os_strlen(args), !!wildcard)) {
+        debug_trace("need show ops %s", ops->path);
+        
         benv_cache_showit(ops) = true;
 
         __benv_show_count++;
     }
+
+    debug_trace("show what ???");
     
     return 0;
 }
@@ -1943,8 +1947,6 @@ static inline int
 benv_analysis(int argc, char *argv[])
 {
     int i, err;
-
-    os_println("benv_analysis 1");
     
     for (i = 0; i < argc; i++) {
         err = __benv_analysis(argv[i]);
@@ -1952,7 +1954,6 @@ benv_analysis(int argc, char *argv[])
             return err;
         }
     }
-    os_println("benv_analysis 2");
 
     return 0;
 }
