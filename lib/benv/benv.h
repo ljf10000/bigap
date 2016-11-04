@@ -2116,24 +2116,19 @@ __benv_write(int env, int idx)
         buf     = __benv_block(env, idx);
     }
     
-    os_println("save benv%d block%d 1", env, idx);
     debug_io("save benv%d block%d ...", env, idx);
     err = lseek(__benv_fd, offset, SEEK_SET);
-    os_println("save benv%d block%d 2", env, idx);
     if (err < 0) { /* <0 is error */
          debug_error("seek benv%d block%d error:%d", env, idx, -errno);
         
         return -errno;
     }
 
-    os_println("save benv%d block%d 3", env, idx);
-
-    if (BENV_SIZE != write(__benv_fd, buf, size)) {
+    if (size != write(__benv_fd, buf, size)) {
          debug_error("save benv%d block%d error:%d", env, idx, -errno);
         
         return -errno;
     }
-    os_println("save benv%d block%d 4", env, idx);
     debug_io("save benv%d block%d ok", env, idx);
     
     return 0;
