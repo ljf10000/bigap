@@ -2343,6 +2343,24 @@ benv_load(void)
 
 static inline int benv_save_nothing(void) {return 0;}
 
+static inline int
+____benv_save(int idx)
+{
+    int err, env;
+    
+    /*
+    * save all env's block(idx)
+    */
+    for (env=0; env<BENV_COUNT; env++) {
+        err = __benv_write(env, idx);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
+}
+
 #ifdef __APP__
 static inline int
 __benv_save(int idx)
@@ -2372,17 +2390,7 @@ __benv_save(int idx)
     }
 #endif
 
-    /*
-    * save all env's block(idx)
-    */
-    for (env=0; env<BENV_COUNT; env++) {
-        err = __benv_write(env, idx);
-        if (err<0) {
-            return err;
-        }
-    }
-
-    return 0;
+    return ____benv_save(idx);
 }
 
 static inline int
@@ -2411,15 +2419,46 @@ benv_save_info(void)
 
     return 0;
 }
-#endif
 
-#if 1
 static inline int
 benv_save(void)
 {
-    benv_save_os();
-    benv_save_mark();
-    benv_save_info();
+    int idx, env, err = 0;
+
+    /*
+    * load mirror
+    */
+    err = __benv_read(0, true);
+    if (err<0) {
+        return err;
+    }
+
+#if BENV_COUNT > 1
+    /*
+    * 0==>others
+    */
+    for (env=1; env<BENV_COUNT; env++) {
+        os_memcpy(__benv_env(env), __benv_env(0), BENV_SIZE);
+    }
+#endif
+
+    /*
+    * skip block 0(cookie)
+    */
+    for (idx=1; idx<BENV_BLOCK_COUNT; idx++) {
+        if (os_memeq(__benv_block(0, idx), __benv_mirror_block(idx), BENV_BLOCK_SIZE)) {
+            debug_trace("benv0 block%d not changed, needn't save", idx);
+            
+            continue;
+        }
+
+        err = ____benv_save(idx);
+        if (err<0) {
+            return err;
+        }
+    }
+    
+    return 0;
 }
 #else
 static inline int
@@ -2450,17 +2489,7 @@ benv_save(void)
     }
 #endif
 
-    /*
-    * save all env
-    */
-    for (env=0; env<BENV_COUNT; env++) {
-        err = __benv_write(env, BENV_ALL);
-        if (err<0) {
-            return err;
-        }
-    }
-
-    return 0;
+    return ____benv_save(BENV_ALL);
 }
 #endif
 
