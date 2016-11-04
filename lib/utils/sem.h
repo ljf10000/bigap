@@ -60,7 +60,7 @@ os_sem_unlock(os_sem_t *sem)
 static inline void 
 os_sem_destroy(os_sem_t *sem)
 {
-#if __APP__
+#ifdef __APP__
     if (sem && is_good_semid(sem->id) && true == sem->owner) {
         semctl(sem->id, 0, IPC_RMID, NULL);
         

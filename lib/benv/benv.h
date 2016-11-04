@@ -50,6 +50,10 @@
 #define BENV_INFO_SIZE              64
 #endif
 
+#ifndef BENV_USE_SEM
+#define BENV_USE_SEM                0
+#endif
+
 #define is_good_benv_idx(_idx)      is_good_enum(_idx, PRODUCT_FIRMWARE_COUNT)
 #define is_normal_benv_idx(_idx)    is_good_value(_idx, 1, PRODUCT_FIRMWARE_COUNT)
 
@@ -487,7 +491,9 @@ typedef struct {
     int error;
 
     os_shm_t shm;
+#if BENV_USE_SEM
     os_sem_t sem;
+#endif
 } benv_control_t;
 
 #define __BENV_CONTROL_INITER(_ops, _cache) {   \
@@ -518,7 +524,9 @@ extern benv_env_t *____boot_benv;
 extern benv_control_t ____benv_control;
 
 #define __benv_control          (&____benv_control)
+#if BENV_USE_SEM
 #define __benv_sem              (&__benv_control->sem)
+#endif
 #define __benv_shm              (&__benv_control->shm)
 #define __benv_shm_address      __benv_shm->address
 #define __benv_shm_env          ((benv_env_t *)__benv_shm_address)
@@ -545,9 +553,6 @@ extern benv_control_t ____benv_control;
 #define benv_info(_idx)         __benv_info(0)->var[_idx]
 
 #define benv_offset(_env)       ((_env) * BENV_SIZE)
-
-#define benv_lock()             os_sem_lock(__benv_sem)
-#define benv_unlock()           os_sem_unlock(__benv_sem)
 
 static inline benv_ops_t *
 benv_ops(int idx)
@@ -1973,11 +1978,13 @@ benv_open(void)
     if (__benv_cache) {
         os_memzero(__benv_cache, __benv_ops_count * sizeof(benv_cache_t));
     }
-    
+
+#if BENV_USE_SEM
     err = os_sem_create(__benv_sem, OS_BENV_SEM_ID);
     if (err<0) {
         return err;
     }
+#endif
 
     err = os_shm_create(__benv_shm, sizeof(benv_env_t) * BENV_COUNT * 2, false);
     if (err<0) {
@@ -2004,8 +2011,9 @@ benv_close(void)
 #endif
     os_free(__benv_mirror_address);
     os_shm_destroy(__benv_shm);
+#if BENV_USE_SEM
     os_sem_destroy(__benv_sem);
-    
+#endif
     return 0;
 }
 
