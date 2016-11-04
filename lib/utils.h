@@ -2,7 +2,7 @@
 #define __UTILS_H_6bb0dde2b3424f97a297b2b0e37d90aa__
 /******************************************************************************/
 #ifdef __FASTBOOT__
-#define __BOOT__
+#define __BOOT__        1
 #endif
 
 #ifdef __OPENWRT__
@@ -38,7 +38,7 @@
 #   include <linux/list.h>
 #   include <net/sock.h>
 #else /* __APP__ */
-#   define __APP__
+#   define __APP__          1
 #   ifdef __BUSYBOX__
 #       include "libbb.h"
 #   endif
