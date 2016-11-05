@@ -625,18 +625,11 @@ cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
         return -errno;
     }
 
-    struct timeval send_timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
+    struct timeval send_timeout = OS_TIMEVAL_INITER(1000, 0);
     err = setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&send_timeout, sizeof(send_timeout));
     if (err<0) {
         debug_error("setsockopt SO_SNDTIMEO error:%d", -errno);
         err = -errno; goto error;
-    }
-    
-    struct timeval recv_timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
-    err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&recv_timeout, sizeof(recv_timeout));
-    if (err<0) {
-        debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
-        return -errno;
     }
     
     err = os_loop_add_father(loop, fd, cb);
@@ -726,13 +719,6 @@ __cli_loopc_init(cli_client_t *clic)
         err = -errno; goto error;
     }
 
-    struct timeval send_timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
-    err = setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&send_timeout, sizeof(send_timeout));
-    if (err<0) {
-        debug_error("setsockopt SO_SNDTIMEO error:%d", -errno);
-        err = -errno; goto error;
-    }
-    
     struct timeval recv_timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
     err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&recv_timeout, sizeof(recv_timeout));
     if (err<0) {
