@@ -65,12 +65,9 @@ client(int type, char *path, char *msg)
             os_println("%s", loopc.buf);
 
             os_println("err=%d, errno=%d", len, -errno);
-            return 0;
         }
         else if (0==len) {
             os_println("err=%d, errno=%d", len, -errno);
-
-            return 0;
         }
         else if (len<0) {
             os_println("err=%d, errno=%d", len, -errno);
