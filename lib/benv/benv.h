@@ -2498,7 +2498,7 @@ benv_init(void)
 
     BUILD_BUG_ON(BENV_COOKIE_SIZE     > BENV_BLOCK_SIZE);
     BUILD_BUG_ON(BENV_OS_SIZE         > BENV_BLOCK_SIZE);
-    BUILD_BUG_ON(__benv_info_idx_max  >= BENV_INFO_COUNT);
+    BUILD_BUG_ON((uint32)__benv_info_idx_max  >= (uint32)BENV_INFO_COUNT);
 
     err = os_init();
     if (err<0) {
