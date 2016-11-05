@@ -764,7 +764,7 @@ __cli_loopc_recv(cli_client_t *clic, int fd)
     
     char *buf = (char *)__cli_buffer();
     while(1) {
-        err = __io_recv(fd, buf, CLI_BUFFER_SIZE);
+        err = __io_recv(fd, buf, CLI_BUFFER_SIZE, 0);
         if (err>0) {
             buf[err] = 0;
             
