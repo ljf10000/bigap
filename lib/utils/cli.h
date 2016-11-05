@@ -418,9 +418,7 @@ cli_c_handle(
     bool syn,
     int argc, 
     char *argv[],
-    sockaddr_un_t *server, 
-    sockaddr_un_t *client,
-    int timeout
+    cli_client_t *client
 )
 {
     char buf[1+OS_LINE_LEN] = {0};
@@ -431,9 +429,15 @@ cli_c_handle(
         len += os_snprintf(buf + len, OS_LINE_LEN - len, " %s", argv[i]);
     }
 
-    return __cli_c_handle(syn, buf, server, client, timeout);
+    return __cli_c_handle(syn, buf, &client->server, &client->client, client->timeout);
 }
 
+#define cli_c_sync(_action, _argc, _argv, _client) \
+    cli_c_handle(_action, true, _argc, _argv, _client)
+
+#define cli_c_async(_action, _argc, _argv, _client) \
+    cli_c_handle(_action, false, _argc, _argv, _client)
+    
 typedef struct cli_server {
     int fd;
     int id;

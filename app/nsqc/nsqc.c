@@ -11,6 +11,9 @@ OS_INITER;
 
 static cli_client_t nsqc = CLI_CLIENT_INITER(nsqa);
 
+#define nsqc_handle(_action, _argc, _argv) \
+    cli_c_sync(_action, _argc, _argv, &nsqc)
+
 static int
 usage(int error)
 {
@@ -20,9 +23,6 @@ usage(int error)
 
     return error;
 }
-
-#define nsqc_handle(_action, _argc, _argv) \
-    cli_c_handle(_action, true, _argc, _argv, &nsqc.server, &nsqc.client, nsqc.timeout)
 
 static int
 cmd_insert(int argc, char *argv[])

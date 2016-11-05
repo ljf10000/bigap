@@ -12,6 +12,9 @@ OS_INITER;
 
 static cli_client_t umc = CLI_CLIENT_INITER(umd);
 
+#define umc_handle(_action, _argc, _argv) \
+    cli_c_sync(_action, _argc, _argv, &umc)
+
 static int
 usage(int error)
 {
@@ -28,9 +31,6 @@ usage(int error)
 
     return error;
 }
-
-#define umc_handle(_action, _argc, _argv) \
-    cli_c_handle(_action, true, _argc, _argv, &umc.server, &umc.client, umc.timeout)
 
 static int
 umc_handle_none(char *action, int argc, char *argv[])

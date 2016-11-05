@@ -12,6 +12,9 @@ OS_INITER;
 
 static cli_client_t smc = CLI_CLIENT_INITER(smd);
 
+#define smc_handle(_action, _argc, _argv) \
+    cli_c_sync(_action, _argc, _argv, &smc)
+
 static int
 usage(int error)
 {
@@ -22,9 +25,6 @@ usage(int error)
 
     return error;
 }
-
-#define smc_handle(_action, _argc, _argv) \
-    cli_c_handle(_action, true, _argc, _argv, &smc.server, &smc.client, smc.timeout)
 
 static int
 cmd_insert(int argc, char *argv[])
