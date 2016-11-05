@@ -765,7 +765,7 @@ __cli_loopc_recv(cli_client_t *clic, int fd)
             */
             return -EPEERCLOSED;
         }
-        else if (EINTER==errno) {
+        else if (EINTR==errno) {
             continue;
         }
         else if (EAGAIN==errno) {
