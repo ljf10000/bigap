@@ -55,7 +55,7 @@ client(int type, char *path, char *msg)
     debug_cli("send repuest[%d]:%s", len, msg);
 
     while(1) {
-        len = __io_recv(fd, loopc.buf, BUFFERSIZE, 0);
+        len = recv(fd, loopc.buf, BUFFERSIZE, 0);
         if (BUFFERSIZE==len) {
             loopc.buf[len] = 0;
             os_println("%s", loopc.buf);
