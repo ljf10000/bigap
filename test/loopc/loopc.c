@@ -68,7 +68,7 @@ client(int type, char *path, char *msg)
             return 0;
         }
         else if (0==len) {
-            os_println("peer closed");
+            os_println("err=%d, errno=%d", len, -errno);
 
             return 0;
         }
