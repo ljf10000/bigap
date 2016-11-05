@@ -1,5 +1,13 @@
 
-OBJS=nsqa.o cfg.o cli.o msg.o
+OBJS=nsqa.o \
+	cfg.o \
+	cli.o \
+	instance \
+	loop.o \
+	msg.o \
+	timer.o \
+	#end
+
 __TARGET=nsqa
 TARGET=$(__TARGET)
 LIBS_DEPEND=-lm -ljson-c

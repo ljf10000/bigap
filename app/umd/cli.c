@@ -195,6 +195,7 @@ handle_auth(char *args)
     char *mac   = args; cli_shift(args);
     char *group = args; cli_shift(args);
     char *json  = args; cli_shift(args);
+    jobj_t obj = NULL;
     
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -203,22 +204,24 @@ handle_auth(char *args)
     }
     
     int groupid = os_atoi(group);
+    int err = 0;
     
-    jobj_t obj = jobj_byjson(json);
+    obj = jobj_byjson(json);
     if (NULL==obj) {
         debug_trace("bad json %s", json);
 
-        return -EBADJSON;
+        err = -EBADJSON; goto error;
     }
 
     struct um_user *user = um_user_auth(os_mac(mac), groupid, obj);
     if (NULL==user) {
-        return -ENOEXIST;
+        err = -ENOEXIST; goto error;
     }
-    
+
+error:
     jobj_put(obj);
     
-    return 0;
+    return err;
 }
 
 /*
@@ -445,22 +448,11 @@ cli_handle(cli_server_t *server)
 }
 
 static int
-cli_env_init(cli_server_t *server)
-{
-    set_abstract_path(&server->addr.un, OS_UNIX_PATH("umd"));
-    
-    return 0;
-}
-
-static int
 cli_init(cli_server_t *server)
 {
     int err;
     
-    err = cli_env_init(server);
-    if (err<0) {
-        return err;
-    }
+    set_abstract_path(&server->addr.un, OS_UNIX_PATH("umd"));
 
     err = cli_u_server_init(server);
     if (err<0) {

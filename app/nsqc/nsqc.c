@@ -12,7 +12,7 @@ OS_INITER;
 static cli_client_t nsqc = CLI_CLIENT_INITER("nsqa");
 
 #define nsqc_handle(_action, _argc, _argv) \
-    cli_c_sync_handle(_action, _argc, _argv, &nsqc)
+    cli_loopc_handle(&nsqc, _action, _argc, _argv)
 
 static int
 usage(int error)
@@ -71,23 +71,24 @@ cmd_show(int argc, char *argv[])
     }
 }
 
+static cli_table_t nsqc_table[] = {
+    CLI_ENTRY("insert", cmd_insert),
+    CLI_ENTRY("remove", cmd_remove),
+    CLI_ENTRY("show",   cmd_show),
+};
+
 static int
 command(int argc, char *argv[])
 {
-    static cli_table_t table[] = {
-        CLI_ENTRY("insert", cmd_insert),
-        CLI_ENTRY("remove", cmd_remove),
-        CLI_ENTRY("show",   cmd_show),
-    };
     int err;
 
-    err = cli_argv_handle(table, os_count_of(table), argc, argv);
+    err = cli_argv_handle(nsqc_table, os_count_of(nsqc_table), argc, argv);
     if (err<0) {
         debug_error("%s error:%d", argv[0], err);
 
         return err;
     }
-    
+
     return 0;
 }
 

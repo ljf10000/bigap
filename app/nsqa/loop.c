@@ -4,11 +4,11 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #ifndef __THIS_APP
 #define __THIS_APP      nsqa
 #endif
-
+        
 #ifndef __THIS_FILE
-#define __THIS_FILE     cfg
+#define __THIS_FILE     loop
 #endif
-
+        
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/

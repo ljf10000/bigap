@@ -466,7 +466,7 @@ static inline void
 __loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
 {
     int fd;
-    struct sockaddr addr;
+    sockaddr_t addr;
     socklen_t addrlen;
     
     fd = accept(watcher->fd, &addr, &addrlen);

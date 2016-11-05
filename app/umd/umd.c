@@ -54,7 +54,7 @@ init_post(void)
         return err;
     }
 
-    err = __cli_server_init(umd.server, umd.server_count);
+    err = cli_servers_init(umd.server, umd.server_count);
     if (err<0) {
         return err;
     }
@@ -124,7 +124,7 @@ __main(int argc, char **argv)
     update_limit_test();
 
     while(1) {
-        __cli_server_run(umd.server, umd.server_count);
+        cli_server_run(umd.server, umd.server_count);
     }
     
     return err;

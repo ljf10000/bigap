@@ -9,11 +9,13 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
+#define BUFFERSIZE 15
+
 static struct {
     os_sockaddr_t server;
     os_sockaddr_t client;
 
-    char buf[1024];
+    char buf[1+BUFFERSIZE];
 } loopc = {
     .server = OS_SOCKADDR_INITER(AF_UNIX),
     .client = OS_SOCKADDR_ABSTRACT_INITER("loopc"),
@@ -52,13 +54,29 @@ client(int type, char *path, char *msg)
     }
     debug_cli("send repuest[%d]:%s", len, msg);
 
-    len = io_recv(fd, loopc.buf, sizeof(loopc.buf), 5000);
-    if (len<0) { /* yes, <0 */
-        return len;
+    while(1) {
+        len = __io_recv(fd, loopc.buf, BUFFERSIZE);
+        if (BUFFERSIZE==len) {
+            loopc.buf[len] = 0;
+            os_printf("%s", loopc.buf);
+        }
+        else if (len>0) {
+            loopc.buf[len] = 0;
+            os_println("%s", loopc.buf);
+
+            return 0;
+        }
+        else if (0==len) {
+            os_println("peer closed");
+
+            return 0;
+        }
+        else if (len<0) {
+            os_println("err=%d, errno=%d", len, -errno);
+
+            return -errno;
+        }
     }
-    loopc.buf[len] = 0;
-    
-    os_println("recv response: %s", loopc.buf);
     
     return 0;
 }

@@ -352,7 +352,7 @@ __send(char *buf, int size)
     if (is_cloud_ready()) {
         struct sockaddr_in cloud = RSH_CLOUD_ADDR;
 
-        err = io_sendto(rsh.fd, buf, size, (struct sockaddr *)&cloud, sizeof(cloud));
+        err = io_sendto(rsh.fd, buf, size, (sockaddr_t *)&cloud, sizeof(cloud));
     }
 
     return err;
@@ -619,7 +619,7 @@ __service(void)
     socklen_t addrlen;
     struct sockaddr_in client;
     
-    len = io_recvfrom(rsh.fd, rsh_buffer, sizeof(rsh_buffer), RSH_TICKS, (struct sockaddr *)&client, &addrlen);
+    len = io_recvfrom(rsh.fd, rsh_buffer, sizeof(rsh_buffer), RSH_TICKS, (sockaddr_t *)&client, &addrlen);
     if (len<0) {
         return len;
     }

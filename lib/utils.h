@@ -217,7 +217,7 @@
     DECLARE_AK;             \
     DECLARE_TIMER;          \
     DECLARE_CLI_BUFFER;     \
-    DECLARE_CLI_ADDR;       \
+    DECLARE_CLI_MAGIC;       \
     DECLARE_DEBUGGER;       \
     DECLARE_JDEBUGGER;      \
     DECLARE_ENV;            \
@@ -235,7 +235,7 @@
     DECLARE_REAL_AK;            \
     DECLARE_REAL_TIMER;         \
     DECLARE_REAL_CLI_BUFFER;    \
-    DECLARE_REAL_CLI_ADDR;      \
+    DECLARE_REAL_CLI_MAGIC;      \
     DECLARE_REAL_DEBUGGER;      \
     DECLARE_REAL_JDEBUGGER;     \
     DECLARE_REAL_ENV;           \

@@ -231,6 +231,7 @@ enum {
     EPROTOCOL   = ERRNO(72),
     EDAMAGED    = ERRNO(73),
     ENOREADY    = ERRNO(74),
+    EPEERCLOSED = ERRNO(75),
     
     EDLLLOAD        = ERRNO(80),
     EDLLSYMLOAD     = ERRNO(81),

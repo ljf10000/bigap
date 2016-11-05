@@ -109,7 +109,9 @@ typedef struct {
     sockaddr_un_t addr;
     socklen_t len;
     int fd;
-} cli_addr_t;
+    
+    int (*reply)(int err);
+} cli_magic_t;
 
 typedef struct {
     uint32 len;
@@ -135,24 +137,24 @@ typedef struct {
 #define DECLARE_FAKE_CLI_BUFFER     extern cli_buffer_t *__THIS_CLI_BUFFER
 #define DECLARE_REAL_CLI_BUFFER     cli_buffer_t *__THIS_CLI_BUFFER
 
-#define DECLARE_FAKE_CLI_ADDR       extern cli_addr_t __THIS_CLI_ADDR
-#define DECLARE_REAL_CLI_ADDR       cli_addr_t __THIS_CLI_ADDR = { .addr = OS_SOCKADDR_UNIX(__empty), .len = sizeof(sockaddr_un_t) }
+#define DECLARE_FAKE_CLI_MAGIC      extern cli_magic_t __THIS_CLI_MAGIC
+#define DECLARE_REAL_CLI_MAGIC      cli_magic_t __THIS_CLI_MAGIC = { .addr = OS_SOCKADDR_UNIX(__empty), .len = sizeof(sockaddr_un_t) }
 
 #ifdef __ALLINONE__
 #   define DECLARE_CLI_BUFFER       DECLARE_FAKE_CLI_BUFFER
-#   define DECLARE_CLI_ADDR         DECLARE_FAKE_CLI_ADDR
+#   define DECLARE_CLI_MAGIC        DECLARE_FAKE_CLI_MAGIC
 #else
 #   define DECLARE_CLI_BUFFER       DECLARE_REAL_CLI_BUFFER
-#   define DECLARE_CLI_ADDR         DECLARE_REAL_CLI_ADDR
+#   define DECLARE_CLI_MAGIC        DECLARE_REAL_CLI_MAGIC
 #endif
 
 DECLARE_FAKE_CLI_BUFFER;
-DECLARE_FAKE_CLI_ADDR;
+DECLARE_FAKE_CLI_MAGIC;
 
-static inline cli_addr_t *
-__cli_address(void)
+static inline cli_magic_t *
+__cli_magic(void)
 {
-    return &__THIS_CLI_ADDR;
+    return &__THIS_CLI_MAGIC;
 }
 
 static inline cli_buffer_t *
@@ -174,7 +176,7 @@ __cli_buffer(void)
 #define cli_buffer_left     ((cli_buffer_size>cli_buffer_len)?(cli_buffer_size - cli_buffer_len):0)
 
 static inline void
-cli_buffer_clear(void) 
+__cli_buffer_clear(void) 
 {
     cli_buffer_buf[0]   = 0;
     cli_buffer_len      = 0;
@@ -207,15 +209,15 @@ __cli_sendto(int fd, sockaddr_t *addr, socklen_t addrlen)
 static inline int
 __cli_reply(int err)
 {
-    cli_addr_t *ca = __cli_address();
+    cli_magic_t *magic = __cli_magic();
     
     cli_buffer_err = err;
 
     debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__cli_buffer());
     
-    int ret = __cli_sendto(ca->fd, (sockaddr_t *)&ca->addr, ca->len);
+    int ret = __cli_sendto(magic->fd, (sockaddr_t *)&magic->addr, magic->len);
 
-    cli_buffer_clear();
+    __cli_buffer_clear();
     
     return ret;
 }
@@ -231,7 +233,7 @@ cli_vsprintf(const char *fmt, va_list args)
 
 #if CLI_MULTI
     if (cli_buffer_left < vsize) {
-        __cli_reply(0);
+        __cli_magic()->reply(0);
     }
 #endif
 
@@ -293,23 +295,24 @@ init_cli_client(cli_client_t *c)
 static inline int
 __cli_d_handle(int fd, cli_table_t *table, int count)
 {
-    cli_addr_t *ca = __cli_address();
+    cli_magic_t *magic = __cli_magic();
     char buf[1+OS_LINE_LEN] = {0};
     int err;
 
-    ca->fd = fd;
-    cli_buffer_clear();
+    magic->fd = fd;
+    magic->reply = __cli_reply;
+    __cli_buffer_clear();
     
-    err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&ca->addr, &ca->len);
+    err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&magic->addr, &magic->len);
     if (err<0) { /* yes, <0 */
         return err;
     }
     buf[err] = 0;
     
-    if (is_abstract_sockaddr(&ca->addr)) {
-        set_abstract_sockaddr_len(&ca->addr, ca->len);
+    if (is_abstract_sockaddr(&magic->addr)) {
+        set_abstract_sockaddr_len(&magic->addr, magic->len);
 
-        debug_cli("recv request from:%s", get_abstract_path(&ca->addr));
+        debug_cli("recv request from:%s", get_abstract_path(&magic->addr));
     }
     debug_cli("recv request[%d]:%s", err, buf);
     
@@ -335,7 +338,7 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     __cli_d_handle(_fd, _table, os_count_of(_table))
 
 static inline int
-__cli_c_show(void)
+__cli_buffer_show(void)
 {
     if (0==cli_buffer_err && cli_buffer_len && is_good_str(cli_buffer_buf)) {
         os_printf("%s", cli_buffer_buf);
@@ -385,7 +388,7 @@ __cli_c_handle(bool syn, char *buf, cli_client_t *clic)
             goto error;
         }
 
-        err = __cli_c_show();
+        err = __cli_buffer_show();
 
         os_noblock(fd);
         while(1) {
@@ -394,7 +397,7 @@ __cli_c_handle(bool syn, char *buf, cli_client_t *clic)
                 goto error;
             }
 
-            err = __cli_c_show();
+            err = __cli_buffer_show();
         }
     }
     
@@ -479,8 +482,22 @@ cli_u_server_init(cli_server_t *server)
     return 0;
 }
 
+#define CLI_U_SERVER_INIT(_server, _name) ({  \
+    int _err = 0;                           \
+                                            \
+    set_abstract_path(&(_server)->addr.un, OS_UNIX_PATH(_name)); \
+                                            \
+    _err = cli_u_server_init(_server);      \
+    if (0==_err) {                          \
+        debug_ok("init cli server ok");     \
+    }                                       \
+                                            \
+    _err;                                   \
+})  /* end */
+
+
 static inline int
-__cli_server_init(cli_server_t *server[], int count)
+cli_servers_init(cli_server_t *server[], int count)
 {
     int i, err;
     
@@ -495,7 +512,6 @@ __cli_server_init(cli_server_t *server[], int count)
     
     return 0;
 }
-#define cli_server_init(_server)  __cli_server_init(_server, os_count_of(_server))
 
 static inline int
 __cli_server_fdmax(cli_server_t *server[], int count)
@@ -542,7 +558,7 @@ __cli_server_handle(cli_server_t *server[], int count, fd_set *set)
 }
 
 static inline int
-__cli_server_run(cli_server_t *server[], int count)
+cli_server_run(cli_server_t *server[], int count)
 {
     fd_set rset;
     int i, err, fdmax = __cli_server_fdmax(server, count);
@@ -577,8 +593,252 @@ __cli_server_run(cli_server_t *server[], int count)
 
     return 0;
 }
+#endif
+/******************************************************************************/
+#ifdef __APP__
 
-#define cli_server_run(_server)  __cli_server_run(_server, os_count_of(_server))
+static inline int
+cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
+{
+    sockaddr_un_t server = OS_SOCKADDR_UNIX(__zero);
+    int fd, err;
+
+    set_abstract_path(&server, path);
+    
+    fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (fd<0) {
+    	debug_error("socket error:%d", -errno);
+        return -errno;
+    }
+    os_closexec(fd);
+    
+    err = bind(fd, (sockaddr_t)&server, get_abstract_sockaddr_len(&server));
+    if (err<0) {
+        debug_error("bind error:%d", -errno);
+        return -errno;
+    }
+
+    int size = CLI_BUFFER_SIZE;
+    err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
+    if (err<0) {
+        debug_error("setsockopt SO_SNDBUF error:%d", -errno);
+        return -errno;
+    }
+
+    struct timeval send_timeout = OS_TIMEVAL_INITER(clic->timeout);
+    err = setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&send_timeout, sizeof(send_timeout));
+    if (err<0) {
+        debug_error("setsockopt SO_SNDTIMEO error:%d", -errno);
+        err = -errno; goto error;
+    }
+    
+    struct timeval recv_timeout = OS_TIMEVAL_INITER(clic->timeout);
+    err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&recv_timeout, sizeof(recv_timeout));
+    if (err<0) {
+        debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
+        return -errno;
+    }
+    
+    err = os_loop_add_father(loop, fd, cb);
+    if (err<0) {
+        debug_error("add cli loop error:%d", err);
+        
+        return err;
+    }
+
+    return 0;
+}
+
+static inline int
+__cli_loop_reply(int err)
+{
+    cli_magic_t *magic = __cli_magic();
+    
+    cli_buffer_err = err;
+
+    debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__cli_buffer());
+    
+    int ret = __cli_send(magic->fd);
+
+    __cli_buffer_clear();
+    
+    return ret;
+}
+
+static inline int
+__cli_loops_handle(int fd, cli_table_t *table, int count)
+{
+    cli_magic_t *magic = __cli_magic();
+    char buf[1+OS_LINE_LEN] = {0};
+    int err;
+
+    magic->fd = fd;
+    magic->reply = __cli_loop_reply;
+    __cli_buffer_clear();
+    
+    err = __io_recv(fd, buf, sizeof(buf), 0);
+    if (err<0) { /* yes, <0 */
+        return err;
+    }
+    buf[err] = 0;
+    
+    char *method = buf;
+    char *args   = buf;
+
+    os_str_strim_both(method, NULL);
+    os_str_reduce(method, NULL);
+    cli_shift(args);
+
+    err = cli_line_handle(table, count, method, args, __cli_loop_reply);
+
+    debug_trace("action:%s %s, error:%d, len:%d, buf:%s", 
+        method, args?args:__empty,
+        cli_buffer_err,
+        cli_buffer_len,
+        cli_buffer_buf);
+
+    return err;
+}
+
+#define cli_loops_handle(_fd, _table) \
+    __cli_loops_handle(_fd, _table, os_count_of(_table))
+
+static inline int
+__cli_loopc_init(cli_client_t *clic)
+{
+    int fd, err;
+    
+    fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (fd<0) {
+        debug_error("socket error:%d", -errno);
+        err = -errno; goto error;
+    }
+    
+    err = bind(fd, (sockaddr_t *)&clic->client, get_abstract_sockaddr_len(&clic->client));
+    if (err<0) {
+        __debug_error("bind error:%d", -errno);
+        err = -errno; goto error;
+    }
+
+    err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_sockaddr_len(&clic->server));
+    if (err<0) {
+        debug_error("connect error:%d", -errno);
+        err = -errno; goto error;
+    }
+
+    struct timeval send_timeout = OS_TIMEVAL_INITER(clic->timeout);
+    err = setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&send_timeout, sizeof(send_timeout));
+    if (err<0) {
+        debug_error("setsockopt SO_SNDTIMEO error:%d", -errno);
+        err = -errno; goto error;
+    }
+    
+    struct timeval recv_timeout = OS_TIMEVAL_INITER(clic->timeout);
+    err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&recv_timeout, sizeof(recv_timeout));
+    if (err<0) {
+        debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
+        return -errno;
+    }
+
+    return fd;
+}
+
+static inline int
+__cli_loopc_send(cli_client_t *clic, int fd, char *buf)
+{
+    int len = os_strlen(buf);
+    
+    int err = io_send(fd, buf, len);
+    if (err<0) { /* yes, <0 */
+        return err;
+    }
+    debug_cli("send repuest[%d]:%s", len, buf);
+
+    return 0;
+}
+
+static inline int
+__cli_loopc_recv(cli_client_t *clic, int fd)
+{
+    int err = 0;
+    
+    char *buf = (char *)__cli_buffer();
+    while(1) {
+        err = __io_recv(fd, buf, CLI_BUFFER_SIZE);
+        if (err>0) {
+            buf[err] = 0;
+            
+            err = __cli_buffer_show();
+            if (err<0) {
+                return err;
+            }
+        }
+        else if (0==err) {
+            /*
+            * peer closed
+            */
+            return -EPEERCLOSED;
+        }
+        else if (EINTER==errno) {
+            continue;
+        }
+        else if (EAGAIN==errno) {
+            /*
+            * timeout
+            */
+            return -ETIMEOUT;
+        }
+    }
+
+    return 0;
+}
+
+static inline int
+__cli_loopc_handle(cli_client_t *clic, char *buf)
+{
+    int fd = INVALID_FD, err = 0;
+
+    err = fd = __cli_loopc_init(clic);
+    if (err<0) {
+        goto error;
+    }
+
+    err = __cli_loopc_send(clic, fd, buf);
+    if (err<0) {
+        goto error;
+    }
+
+    err = __cli_loopc_recv(clic, fd);
+    if (err<0) {
+        goto error;
+    }
+    
+error:
+    if (is_good_fd(fd)) {
+        close(fd);
+    }
+    
+    return err;
+}
+
+static inline int
+cli_loopc_handle(
+    cli_client_t *clic,
+    char *action,
+    int argc, 
+    char *argv[]
+)
+{
+    char buf[1+OS_LINE_LEN] = {0};
+    int i, len;
+
+    len = os_saprintf(buf, "%s", action);
+    for (i=0; i<argc; i++) {
+        len += os_snprintf(buf + len, OS_LINE_LEN - len, " %s", argv[i]);
+    }
+
+    return __cli_loopc_handle(clic, buf);
+}
 
 #endif /* __APP__ */
 /******************************************************************************/
