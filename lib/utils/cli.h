@@ -278,14 +278,14 @@ typedef struct {
     .timeout    = CLI_TIMEOUT,                          \
 }   /* end */
 
-#define CLI_SERVER_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"
+#define CLI_CLIENT_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"
 
 static inline int
 init_cli_client(cli_client_t *c)
 {
     c->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
 
-    abstract_path_sprintf(&c->client, CLI_SERVER_UNIX, getpid());
+    abstract_path_sprintf(&c->client, CLI_CLIENT_UNIX, getpid());
 
     return 0;
 }
