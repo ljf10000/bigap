@@ -66,11 +66,31 @@ get_abstract_path(sockaddr_un_t *addr)
 }
 
 static inline void
-set_abstract_path(sockaddr_un_t *addr, const char *path)
+set_abstract_path(sockaddr_un_t *addr, char *path)
 {
     addr->sun_path[0] = 0;
 
     os_memcpy(get_abstract_path(addr), path, os_strlen(path));
+}
+
+static inline void
+abstract_path_vsprintf(sockaddr_un_t *addr, const char *fmt, va_list args)
+{
+    char path[1+OS_LINE_LEN] = {0};
+
+    os_vsprintf(path, fmt, args);
+    
+    set_abstract_path(addr, path);
+}
+
+static inline void
+abstract_path_sprintf(sockaddr_un_t *addr, const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, (char *)fmt);
+    abstract_path_vsprintf(addr, fmt, args);
+    va_end(args);
 }
 
 enum { unix_path_size = sizeof(sockaddr_un_t) - offsetof(sockaddr_un_t, sun_path) };

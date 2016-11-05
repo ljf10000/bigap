@@ -278,24 +278,14 @@ typedef struct {
     .timeout    = CLI_TIMEOUT,                          \
 }   /* end */
 
-static inline int
-__init_cli_client_address(sockaddr_un_t *addr) 
-{
-    char path[1+OS_LINE_LEN] = {0};
-
-    os_saprintf(path, "/tmp/." __THIS_APPNAME ".%d.unix", getpid());
-
-    set_abstract_path(addr, path);
-    
-    return 0;
-}
+#define CLI_SERVER_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"
 
 static inline int
 init_cli_client(cli_client_t *c)
 {
     c->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
 
-    __init_cli_client_address(&c->client);
+    abstract_path_sprintf(&c->client, CLI_SERVER_UNIX, getpid());
 
     return 0;
 }
