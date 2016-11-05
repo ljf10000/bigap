@@ -36,7 +36,7 @@ static struct {
 smd = {
     .server = {
         .fd     = INVALID_FD,
-        .addr   = OS_ABSTRACT_ADDR(smd),
+        .addr   = OS_SOCKADDR_ABSTRACT("smd"),
     },
 
     .timeout = CLI_TIMEOUT,

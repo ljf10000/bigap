@@ -16,7 +16,7 @@ static struct {
     char buf[1024];
 } loopc = {
     .server = OS_SOCKADDR_INITER(AF_UNIX),
-    .client = OS_SOCKADDR_UN_INITER("loopc"),
+    .client = OS_SOCKADDR_ABSTRACT_INITER("loopc"),
 };
 
 static int
@@ -76,10 +76,10 @@ __main(int argc, char *argv[])
     char *msg = argv[2];
     
     if (0==os_strcmp("tcp", type)) {
-        err = client(SOCK_STREAM, "loops.tcp", msg);
+        err = client(SOCK_STREAM, OS_UNIX_PATH("loops.tcp"), msg);
     }
     else if (0==os_strcmp("udp", type)) {
-        err = client(SOCK_DGRAM, "loops.udp", msg);
+        err = client(SOCK_DGRAM, OS_UNIX_PATH("loops.udp"), msg);
     }
     else {
         return -EINVAL0;

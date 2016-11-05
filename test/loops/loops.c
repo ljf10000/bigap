@@ -23,11 +23,11 @@ static struct {
 } loops = {
     .tcp = {
         .type = SOCK_STREAM,
-        .addr = OS_SOCKADDR_UN_INITER("loops.tcp"),
+        .addr = OS_SOCKADDR_ABSTRACT_INITER("loops.tcp"),
     },
     .udp = {
         .type = SOCK_DGRAM,
-        .addr = OS_SOCKADDR_UN_INITER("loops.udp"),
+        .addr = OS_SOCKADDR_ABSTRACT_INITER("loops.udp"),
     },
 };
 

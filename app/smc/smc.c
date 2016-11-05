@@ -10,7 +10,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t smc = CLI_CLIENT_INITER(smd);
+static cli_client_t smc = CLI_CLIENT_INITER("smd");
 
 #define smc_handle(_action, _argc, _argv) \
     cli_c_sync_handle(_action, _argc, _argv, &smc)

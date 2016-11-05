@@ -2,6 +2,10 @@
 #define __ADDR_H_a60fcc799b2f44c38dcbf510eb97f0c6__
 #ifdef __APP__
 /******************************************************************************/
+#define OS_UNIX_PATH(_path)             "/tmp/." _path ".unix"
+#define __ABSTRACT_PATH(_path)          __zero _path
+#define OS_ABSTRACT_PATH(_path)         __ABSTRACT_PATH(OS_UNIX_PATH(_path))
+
 #define OS_SOCKADDR_UNSPEC()    {   \
     .sa_family = AF_UNSPEC,         \
 }   /* end */
@@ -10,6 +14,7 @@
     .sun_family = AF_UNIX,          \
     .sun_path   = _path,            \
 }   /* end */
+#define OS_SOCKADDR_ABSTRACT(_path) OS_SOCKADDR_UNIX(OS_ABSTRACT_PATH(_path))
 
 #define OS_SOCKADDR_INET(_ip, _port) { \
     .sin_family = AF_INET,          \
@@ -41,11 +46,9 @@ typedef union {
 
 #define OS_SOCKADDR_INITER(_family)         {.c = {.sa_family = _family}}
 #define OS_SOCKADDR_ZERO()                  OS_SOCKADDR_INITER(0)
-#define OS_SOCKADDR_UN_INITER(_path)        {.un = OS_SOCKADDR_UNIX("\0" _path)}
 #define OS_SOCKADDR_IN_INITER(_ip, _port)   {.in = OS_SOCKADDR_INET(_ip, _port)}
-
-#define OS_ABSTRACT_PATH(_name)             "/tmp/." #_name ".unix"
-#define OS_ABSTRACT_ADDR(_name)             OS_SOCKADDR_UNIX("\0" OS_ABSTRACT_PATH(_name))
+#define OS_SOCKADDR_UN_INITER(_path)        {.un = OS_SOCKADDR_UNIX(_path)}
+#define OS_SOCKADDR_ABSTRACT_INITER(_name)  {.un = OS_SOCKADDR_ABSTRACT(_name)}
 
 static inline bool
 is_abstract_sockaddr(void *addr)

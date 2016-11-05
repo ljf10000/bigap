@@ -5,6 +5,10 @@
 #define __empty         ""
 #endif
 
+#ifndef __zero
+#define __zero          "\0"
+#endif
+
 #ifndef __
 #define __(x)           #x
 #endif

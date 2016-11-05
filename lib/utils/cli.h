@@ -272,10 +272,10 @@ typedef struct {
     sockaddr_un_t server, client;
 } cli_client_t;
 
-#define CLI_CLIENT_INITER(_server) {            \
-    .server     = OS_ABSTRACT_ADDR(_server),    \
-    .client     = OS_SOCKADDR_UNIX("\0"),       \
-    .timeout    = CLI_TIMEOUT,                  \
+#define CLI_CLIENT_INITER(_server_path)             {   \
+    .server     = OS_SOCKADDR_ABSTRACT(_server_path),   \
+    .client     = OS_SOCKADDR_UNIX(__zero),             \
+    .timeout    = CLI_TIMEOUT,                          \
 }   /* end */
 
 #define CLI_SERVER_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"

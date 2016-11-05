@@ -33,7 +33,7 @@ tmd = {
 
     .server = {
         .fd     = INVALID_FD,
-        .addr   = OS_ABSTRACT_ADDR(tmd),
+        .addr   = OS_SOCKADDR_ABSTRACT("tmd"),
     },
 };
 
