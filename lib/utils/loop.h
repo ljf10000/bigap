@@ -111,7 +111,6 @@ __loop_fd_add(loop_t *loop, int fd)
     ev.events   = EPOLLIN;
     ev.data.fd  = fd;
 
-    os_println("add fd %d", fd);
     return epoll_ctl(loop->efd, EPOLL_CTL_ADD, fd, &ev);
 }
 
@@ -151,7 +150,6 @@ __loop_watcher_destructor(void *item)
     loop_watcher_t *watcher = (loop_watcher_t *)item;
 
     if (is_good_fd(watcher->fd)) {
-        os_println("close fd %d", watcher->fd);
         os_close(watcher->fd);
     }
 

@@ -24,7 +24,7 @@ static struct {
 static int
 client(int type, char *path, char *msg)
 {
-    int fd, err, len;
+    int fd, err, len, again = 0;
     
     set_abstract_path(&loopc.server.un, path);
     
@@ -63,11 +63,16 @@ client(int type, char *path, char *msg)
         else if (len>0) {
             loopc.buf[len] = 0;
             os_println("%s", loopc.buf);
-
-            os_println("short err=%d, errno=%d", len, -errno);
         }
         else if (0==len) {
+            if (again++ < 5) {
+                os_usleep(100000);
+
+                continue;
+            }
+            
             os_println("zero err=%d, errno=%d", len, -errno);
+            return 0;
         }
         else if (len<0) {
             os_println("err=%d, errno=%d", len, -errno);

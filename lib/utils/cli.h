@@ -747,11 +747,12 @@ static inline int
 __cli_loopc_recv(cli_client_t *clic, int fd)
 {
     int err = 0;
+    int again = 0;
     
     char *buf = (char *)__cli_buffer();
     while(1) {
         err = __io_recv(fd, buf, CLI_BUFFER_SIZE, 0);
-        if (err>0) {
+        if (err > sizeof(cli_buffer_t)) {
             buf[err] = 0;
             
             err = __cli_buffer_show();
@@ -759,11 +760,17 @@ __cli_loopc_recv(cli_client_t *clic, int fd)
                 return err;
             }
         }
+        else if (err > 0) {
+            return -ETOOSMALL;
+        }
         else if (0==err) {
-            /*
-            * peer closed
-            */
-            return -EPEERCLOSED;
+            if (again++ < 5) {
+                os_usleep(100000);
+
+                continue;
+            }
+            
+            return 0;
         }
         else if (EINTR==errno) {
             continue;
