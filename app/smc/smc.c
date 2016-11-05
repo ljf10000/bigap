@@ -10,7 +10,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t smc = CLI_CLIENT_INITER(OS_ABSTRACT_PATH(smd));
+static cli_client_t smc = CLI_CLIENT_INITER(smd);
 
 static int
 usage(int error)

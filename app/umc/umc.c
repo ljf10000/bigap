@@ -10,7 +10,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t umc = CLI_CLIENT_INITER(OS_ABSTRACT_PATH(umd));
+static cli_client_t umc = CLI_CLIENT_INITER(umd);
 
 static int
 usage(int error)

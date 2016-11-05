@@ -9,7 +9,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t nsqc = CLI_CLIENT_INITER(NSQA_UNIX);
+static cli_client_t nsqc = CLI_CLIENT_INITER(nsqa);
 
 static int
 usage(int error)
