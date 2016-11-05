@@ -279,6 +279,28 @@ typedef struct {
 }   /* end */
 
 static inline int
+__init_cli_client_address(sockaddr_un_t *addr) 
+{
+    char path[1+OS_LINE_LEN] = {0};
+
+    os_saprintf(path, "/tmp/." __THIS_APPNAME ".%d.unix", getpid());
+
+    set_abstract_path(addr, path);
+    
+    return 0;
+}
+
+static inline int
+init_cli_client(cli_client_t *c)
+{
+    c->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
+
+    __init_cli_client_address(&c->client);
+
+    return 0;
+}
+
+static inline int
 __cli_d_handle(int fd, cli_table_t *table, int count)
 {
     cli_addr_t *ca = __cli_address();
@@ -438,28 +460,6 @@ typedef struct cli_server {
     .init   = _init, \
     .handle = _handle, \
 } /* end */
-
-static inline int
-__init_cli_c_address(sockaddr_un_t *addr) 
-{
-    char path[1+OS_LINE_LEN] = {0};
-
-    os_saprintf(path, "/tmp/." __THIS_APPNAME ".%d.unix", getpid());
-
-    set_abstract_path(addr, path);
-    
-    return 0;
-}
-
-static inline int
-init_cli_c(cli_client_t *c)
-{
-    c->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
-
-    __init_cli_c_address(&c->client);
-
-    return 0;
-}
 
 static inline int
 cli_u_server_init(cli_server_t *server)

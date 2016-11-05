@@ -360,7 +360,7 @@ __main(int argc, char *argv[])
         return usage(-EHELP);
     }
 
-    init_cli_c(&umc.client);
+    init_cli_client(&umc);
     
     err = command(argc-1, argv+1);
     if (err<0) {

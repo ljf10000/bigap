@@ -100,7 +100,7 @@ __main(int argc, char *argv[])
         return usage(-EHELP);
     }
     
-    init_cli_c(&nsqc.client);
+    init_cli_client(&nsqc);
 
     err = command(argc-1, argv+1);
     if (err<0) {

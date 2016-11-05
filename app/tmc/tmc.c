@@ -128,7 +128,7 @@ __main(int argc, char *argv[])
         return usage(-EHELP);
     }
 
-    init_cli_c(&tmc.client);
+    init_cli_client(&tmc);
 
     err = command(argc-1, argv+1);
     if (err<0) {
