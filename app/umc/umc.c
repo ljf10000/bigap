@@ -10,7 +10,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t umc = CLI_CLIENT_INITER(UM_TIMEOUT, UMD_UNIX);
+static cli_client_t umc = CLI_CLIENT_INITER(OS_ABSTRACT_PATH(umd));
 
 static int
 usage(int error)
@@ -351,26 +351,6 @@ command(int argc, char *argv[])
     return 0;
 }
 
-static int
-init_env(void) 
-{
-    int err;
-    
-    umc.timeout = get_um_timeout_env();
-
-    err = get_umc_path_env(&umc.client);
-    if (err<0) {
-        return err;
-    }
-    
-    err = get_umd_path_env(&umc.server);
-    if (err<0) {
-        return err;
-    }
-
-    return 0;
-}
-
 static int 
 __main(int argc, char *argv[])
 {
@@ -379,12 +359,8 @@ __main(int argc, char *argv[])
     if (1==argc) {
         return usage(-EHELP);
     }
-    
-    err = init_env();
-        debug_trace_error(err, "init env");
-    if (err<0) {
-        return err;
-    }
+
+    init_cli_c(&umc.client);
     
     err = command(argc-1, argv+1);
     if (err<0) {

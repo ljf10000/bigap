@@ -2,57 +2,41 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      tmc
+#define __THIS_APP      nsqc
 #endif
 
-#include "utils.h"
-#include "tm/tm.h"
+#include "nsq/nsq.h"
 
 OS_INITER;
 
-static cli_client_t tmc = CLI_CLIENT_INITER(TM_TIMEOUT, TMD_UNIX);
+static cli_client_t nsqc = CLI_CLIENT_INITER(NSQA_UNIX);
 
 static int
 usage(int error)
 {
-    os_eprintln(__THIS_APPNAME " insert {name} delay(second) interval(second) limit command");
+    os_eprintln(__THIS_APPNAME " insert {json}");
     os_eprintln(__THIS_APPNAME " remove {name}");
     os_eprintln(__THIS_APPNAME " show [name]");
 
     return error;
 }
 
-#define tmc_handle(_action, _argc, _argv) \
-    cli_c_handle(_action, true, _argc, _argv, &tmc.server, &tmc.client, tmc.timeout)
+#define nsqc_handle(_action, _argc, _argv) \
+    cli_c_handle(_action, true, _argc, _argv, &nsqc.server, &nsqc.client, nsqc.timeout)
 
 static int
 cmd_insert(int argc, char *argv[])
 {
-    char *name      = argv[0];
-    char *delay     = argv[1];
-    char *interval  = argv[2];
-    char *limit     = argv[3];
-    char *command   = argv[4];
+    char *json = argv[0];
     
-    if (5!=argc) {
+    if (1!=argc) {
         return usage(-EINVAL0);
     }
-    else if (os_strlen(name) > TM_NAMESIZE) {
-        return usage(-ETOOBIG);
-    }
-    else if (os_strlen(command) > TM_CMDSIZE) {
-        return usage(-ETOOBIG);
+    else if (false==is_good_json(json)) {
+        return usage(-EBADJSON);
     }
     
-    int i_delay     = os_atoi(delay);
-    int i_interval  = os_atoi(interval);
-    int i_limit     = os_atoi(limit);
-    
-    if (false==is_good_tm_args(i_delay, i_interval, i_limit)) {
-        return usage(-EINVAL);
-    }
-    
-    return tmc_handle("insert", argc, argv);
+    return nsqc_handle("insert", argc, argv);
 }
 
 static int
@@ -63,22 +47,11 @@ cmd_remove(int argc, char *argv[])
     if (1!=argc) {
         return usage(-EINVAL1);
     }
-    else if (os_strlen(name) > TM_NAMESIZE) {
+    else if (os_strlen(name) > NSQ_NAMESIZE) {
         return usage(-ETOOBIG);
     }
     else {
-        return tmc_handle("remove", argc, argv);
-    }
-}
-
-static int
-cmd_clean(int argc, char *argv[])
-{
-    if (0!=argc) {
-        return usage(-EINVAL1);
-    }
-    else {
-        return tmc_handle("clean", argc, argv);
+        return nsqc_handle("remove", argc, argv);
     }
 }
 
@@ -90,11 +63,11 @@ cmd_show(int argc, char *argv[])
     if (0!=argc && 1!=argc) {
         return usage(-EINVAL2);
     }
-    else if (name && os_strlen(name) > TM_NAMESIZE) {
+    else if (name && os_strlen(name) > NSQ_NAMESIZE) {
         return usage(-ETOOBIG);
     }
     else {
-        return tmc_handle("show", argc, argv);
+        return nsqc_handle("show", argc, argv);
     }
 }
 
@@ -104,7 +77,6 @@ command(int argc, char *argv[])
     static cli_table_t table[] = {
         CLI_ENTRY("insert", cmd_insert),
         CLI_ENTRY("remove", cmd_remove),
-        CLI_ENTRY("clean",  cmd_clean),
         CLI_ENTRY("show",   cmd_show),
     };
     int err;
@@ -120,26 +92,6 @@ command(int argc, char *argv[])
 }
 
 static int
-init_env(void) 
-{
-    int err;
-    
-    tmc.timeout = get_tm_timeout_env();
-
-    err = get_tmc_path_env(&tmc.client);
-    if (err<0) {
-        return err;
-    }
-    
-    err = get_tmd_path_env(&tmc.server);
-    if (err<0) {
-        return err;
-    }
-
-    return 0;
-}
-
-static int
 __main(int argc, char *argv[])
 {
     int err;
@@ -148,12 +100,8 @@ __main(int argc, char *argv[])
         return usage(-EHELP);
     }
     
-    err = init_env();
-        debug_trace_error(err, "init env");
-    if (err<0) {
-        return err;
-    }
-    
+    init_cli_c(&nsqc.client);
+
     err = command(argc-1, argv+1);
     if (err<0) {
         /* just log, NOT return */

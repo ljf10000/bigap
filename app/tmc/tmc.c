@@ -10,7 +10,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t tmc = CLI_CLIENT_INITER(TM_TIMEOUT, TMD_UNIX);
+static cli_client_t tmc = CLI_CLIENT_INITER(OS_ABSTRACT_PATH(tmd));
 
 static int
 usage(int error)
@@ -120,26 +120,6 @@ command(int argc, char *argv[])
 }
 
 static int
-init_env(void) 
-{
-    int err;
-    
-    tmc.timeout = get_tm_timeout_env();
-
-    err = get_tmc_path_env(&tmc.client);
-    if (err<0) {
-        return err;
-    }
-    
-    err = get_tmd_path_env(&tmc.server);
-    if (err<0) {
-        return err;
-    }
-
-    return 0;
-}
-
-static int
 __main(int argc, char *argv[])
 {
     int err;
@@ -147,13 +127,9 @@ __main(int argc, char *argv[])
     if (1==argc) {
         return usage(-EHELP);
     }
-    
-    err = init_env();
-        debug_trace_error(err, "init env");
-    if (err<0) {
-        return err;
-    }
-    
+
+    init_cli_c(&tmc.client);
+
     err = command(argc-1, argv+1);
     if (err<0) {
         /* just log, NOT return */

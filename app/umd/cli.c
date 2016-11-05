@@ -447,13 +447,8 @@ cli_handle(cli_server_t *server)
 static int
 cli_env_init(cli_server_t *server)
 {
-    int err;
+    set_abstract_path(addr, OS_ABSTRACT_PATH(umd));
     
-    err = get_umd_path_env(&server->addr.un);
-    if (err<0) {
-        return err;
-    }
-
     return 0;
 }
 

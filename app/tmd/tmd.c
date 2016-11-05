@@ -28,12 +28,12 @@ static struct {
 tmd = {
     .timer = {
         .fd     = INVALID_FD,
-        .timeout= TM_TIMEOUT,
+        .timeout= CLI_TIMEOUT,
     },
 
     .server = {
         .fd     = INVALID_FD,
-        .addr   = OS_SOCKADDR_UNIX(__empty),
+        .addr   = OS_ABSTRACT_ADDR(tmd),
     },
 };
 
@@ -458,15 +458,7 @@ server_handle(void)
 static int
 init_env(void) 
 {
-    int err;
-    
-    tmd.timer.timeout   = get_tm_timeout_env();
     tm_unit_set(TM_TICKS);
-
-    err = get_tmd_path_env(&tmd.server.addr);
-    if (err<0) {
-        return err;
-    }
 
     return 0;
 }

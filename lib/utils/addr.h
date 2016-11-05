@@ -44,6 +44,9 @@ typedef union {
 #define OS_SOCKADDR_UN_INITER(_path)        {.un = OS_SOCKADDR_UNIX("\0" _path)}
 #define OS_SOCKADDR_IN_INITER(_ip, _port)   {.in = OS_SOCKADDR_INET(_ip, _port)}
 
+#define OS_ABSTRACT_PATH(_name)             "/tmp/." #_name ".unix"
+#define OS_ABSTRACT_ADDR(_name)             OS_SOCKADDR_UNIX("\0" OS_ABSTRACT_PATH(_name))
+
 static inline bool
 is_abstract_sockaddr(void *addr)
 {

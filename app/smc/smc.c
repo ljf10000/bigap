@@ -10,7 +10,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t smc = CLI_CLIENT_INITER(SM_TIMEOUT, SMD_UNIX);
+static cli_client_t smc = CLI_CLIENT_INITER(OS_ABSTRACT_PATH(smd));
 
 static int
 usage(int error)
@@ -122,26 +122,6 @@ command(int argc, char *argv[])
     return 0;
 }
 
-static int
-init_env(void) 
-{
-    int err;
-    
-    smc.timeout = get_sm_timeout_env();
-
-    err = get_smc_path_env(&smc.client);
-    if (err<0) {
-        return err;
-    }
-    
-    err = get_smd_path_env(&smc.server);
-    if (err<0) {
-        return err;
-    }
-
-    return 0;
-}
-
 static int 
 __main(int argc, char *argv[])
 {
@@ -150,13 +130,9 @@ __main(int argc, char *argv[])
     if (1==argc) {
         return usage(-EHELP);
     }
-    
-    err = init_env();
-        debug_trace_error(err, "init env");
-    if (err<0) {
-        return err;
-    }
-    
+
+    init_cli_c(&smc.client);
+
     err = command(argc-1, argv+1);
     if (err<0) {
         /* just log, NOT return */

@@ -1,6 +1,10 @@
 #ifndef __CLI_H_277ca663cad74dd5ad59851d69c58e0c__
 #define __CLI_H_277ca663cad74dd5ad59851d69c58e0c__
 /******************************************************************************/
+#ifndef CLI_TIMEOUT
+#define CLI_TIMEOUT         3000 /* ms */
+#endif
+
 #if defined(__APP__) || defined(__BOOT__)
 typedef struct {
     char *tag;
@@ -268,10 +272,10 @@ typedef struct {
     sockaddr_un_t server, client;
 } cli_client_t;
 
-#define CLI_CLIENT_INITER(_timeout, _server_path) {     \
+#define CLI_CLIENT_INITER(_server_path) {               \
     .server     = OS_SOCKADDR_UNIX("\0" _server_path),  \
-    .client     = OS_SOCKADDR_UNIX(__empty),            \
-    .timeout    = _timeout,                             \
+    .client     = OS_SOCKADDR_UNIX("\0"),               \
+    .timeout    = CLI_TIMEOUT,                          \
 }   /* end */
 
 static inline int
@@ -434,6 +438,28 @@ typedef struct cli_server {
     .init   = _init, \
     .handle = _handle, \
 } /* end */
+
+static inline int
+__init_cli_c_address(sockaddr_un_t *addr) 
+{
+    char path[1+OS_LINE_LEN] = {0};
+
+    os_saprintf(path, "/tmp/." __THIS_APPNAME ".%d.unix", getpid());
+
+    set_abstract_path(get_abstract_path(addr), path);
+    
+    return 0;
+}
+
+static inline int
+init_cli_c(cli_client_t *c)
+{
+    c->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
+
+    __init_cli_c_address(&c->client);
+
+    return 0;
+}
 
 static inline int
 cli_u_server_init(cli_server_t *server)

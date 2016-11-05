@@ -36,10 +36,10 @@ static struct {
 smd = {
     .server = {
         .fd     = INVALID_FD,
-        .addr   = OS_SOCKADDR_UNIX("\0" SMD_UNIX),
+        .addr   = OS_ABSTRACT_ADDR(smd),
     },
 
-    .timeout = SM_TIMEOUT,
+    .timeout = CLI_TIMEOUT,
 
     .list = LIST_HEAD_INIT(smd.list),
 };
@@ -755,22 +755,6 @@ server_handle(void)
     return 0;
 }
 
-
-static int
-init_env(void) 
-{
-    int err;
-    
-    smd.timeout = get_sm_timeout_env();
-
-    err = get_smd_path_env(&smd.server.addr);
-    if (err<0) {
-        return err;
-    }
-
-    return 0;
-}
-
 static int
 init_server(void)
 {
@@ -840,11 +824,6 @@ __init(void)
     int err;
     
     err = os_init();
-    if (err<0) {
-        return err;
-    }
-
-    err = init_env();
     if (err<0) {
         return err;
     }

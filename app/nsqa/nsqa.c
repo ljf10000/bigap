@@ -129,9 +129,9 @@ nsqi_identify(nsq_instance_t *instance, char *json)
         }
     }
 
-    jobj_add_string(jobj, NSQ_IDENTIFY_USER_AGENT_STRING,   NSQ_USER_AGENT);
-    jobj_add_string(jobj, NSQ_IDENTIFY_CLIENT_ID_STRING,    nsqa.cfg.client_id);
-    jobj_add_string(jobj, NSQ_IDENTIFY_HOSTNAME_STRING,     nsqa.cfg.hostname);
+    jobj_add_string(jobj, NSQ_IDENTIFY_USER_AGENT_NAME, NSQ_USER_AGENT);
+    jobj_add_string(jobj, NSQ_IDENTIFY_CLIENT_ID_NAME,  nsqa.cfg.client_id);
+    jobj_add_string(jobj, NSQ_IDENTIFY_HOSTNAME_NAME,   nsqa.cfg.hostname);
 
     for (id=0; id<NSQ_IDENTIFY_END; id++) {
         string = nsq_identify_string(id);
