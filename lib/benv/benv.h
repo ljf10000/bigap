@@ -2109,7 +2109,7 @@ __benv_write(int env, int idx)
     if (BENV_ALL==idx) {
         size    = BENV_SIZE;
         offset  = benv_offset(env);
-        buf     = __benv_env(env);
+        buf     = (char *)__benv_env(env);
     } else {
         size    = BENV_BLOCK_SIZE;
         offset  = benv_offset(env) + idx*BENV_BLOCK_SIZE;
