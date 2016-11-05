@@ -704,19 +704,19 @@ __cli_loopc_init(cli_client_t *clic)
     fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd<0) {
         debug_error("socket error:%d", -errno);
-        err = -errno; goto error;
+        return -errno;
     }
     
     err = bind(fd, (sockaddr_t *)&clic->client, get_abstract_sockaddr_len(&clic->client));
     if (err<0) {
         __debug_error("bind error:%d", -errno);
-        err = -errno; goto error;
+        return -errno;
     }
 
     err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_sockaddr_len(&clic->server));
     if (err<0) {
         debug_error("connect error:%d", -errno);
-        err = -errno; goto error;
+        return -errno;
     }
 
     struct timeval recv_timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
