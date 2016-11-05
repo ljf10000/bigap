@@ -446,7 +446,7 @@ __init_cli_c_address(sockaddr_un_t *addr)
 
     os_saprintf(path, "/tmp/." __THIS_APPNAME ".%d.unix", getpid());
 
-    set_abstract_path(get_abstract_path(addr), path);
+    set_abstract_path(addr, path);
     
     return 0;
 }
