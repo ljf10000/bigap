@@ -176,7 +176,7 @@ __cli_buffer(void)
 #define cli_buffer_left     ((cli_buffer_size>cli_buffer_len)?(cli_buffer_size - cli_buffer_len):0)
 
 static inline void
-__cli_buffer_clear(void) 
+cli_buffer_clear(void) 
 {
     cli_buffer_buf[0]   = 0;
     cli_buffer_len      = 0;
@@ -217,7 +217,7 @@ __cli_reply(int err)
     
     int ret = __cli_sendto(magic->fd, (sockaddr_t *)&magic->addr, magic->len);
 
-    __cli_buffer_clear();
+    cli_buffer_clear();
     
     return ret;
 }
@@ -301,7 +301,7 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
 
     magic->fd = fd;
     magic->reply = __cli_reply;
-    __cli_buffer_clear();
+    cli_buffer_clear();
     
     err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&magic->addr, &magic->len);
     if (err<0) { /* yes, <0 */
@@ -653,7 +653,7 @@ __cli_loop_reply(int err)
     
     int ret = __cli_send(magic->fd);
 
-    __cli_buffer_clear();
+    cli_buffer_clear();
     
     return ret;
 }
@@ -667,7 +667,7 @@ __cli_loops_handle(int fd, cli_table_t *table, int count)
 
     magic->fd = fd;
     magic->reply = __cli_loop_reply;
-    __cli_buffer_clear();
+    cli_buffer_clear();
     
     err = __io_recv(fd, buf, sizeof(buf), 0);
     if (err<0) { /* yes, <0 */
