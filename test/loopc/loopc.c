@@ -58,7 +58,7 @@ client(int type, char *path, char *msg)
         len = __io_recv(fd, loopc.buf, BUFFERSIZE, 0);
         if (BUFFERSIZE==len) {
             loopc.buf[len] = 0;
-            os_printf("%s", loopc.buf);
+            os_println("%s", loopc.buf);
         }
         else if (len>0) {
             loopc.buf[len] = 0;
