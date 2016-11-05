@@ -150,7 +150,7 @@ usock(struct server *s)
         return -errno;
     }
 
-    int size = CLI_BUFFER_SIZE;
+    int size = 1+CLI_BUFFER_LEN;
     err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
     if (err<0) {
         debug_error("setsockopt error:%d", -errno);

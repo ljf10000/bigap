@@ -113,23 +113,17 @@ typedef struct {
     int (*reply)(int err);
 } cli_magic_t;
 
+#ifndef CLI_BUFFER_LEN
+#if CLI_MULTI
+#   define CLI_BUFFER_LEN           OS_PAGE_LEN
+#else
+#   define CLI_BUFFER_LEN           OS_BIG_LEN
+#endif
+#endif
+
 typedef struct {
     uint32 len;
-    uint32 _r0;
-    uint32 _r1;
-    int err;
-} cli_header_t;
-
-#ifndef CLI_BUFFER_SIZE
-#if CLI_MULTI
-#define CLI_BUFFER_SIZE         (2*1024)
-#else
-#define CLI_BUFFER_SIZE         (256*1024)
-#endif
-#endif
-
-typedef struct {
-    cli_header_t header;
+     int32 err;
 
     char buf[0];
 } cli_buffer_t;
@@ -161,18 +155,18 @@ static inline cli_buffer_t *
 __cli_buffer(void)
 {
     if (NULL==__THIS_CLI_BUFFER) {
-        __THIS_CLI_BUFFER = (cli_buffer_t *)os_zalloc(CLI_BUFFER_SIZE);
+        __THIS_CLI_BUFFER = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
     }
     
     return __THIS_CLI_BUFFER;
 }
 
-#define cli_buffer_err      __cli_buffer()->header.err
-#define cli_buffer_len      __cli_buffer()->header.len
+#define cli_buffer_err      __cli_buffer()->err
+#define cli_buffer_len      __cli_buffer()->len
 #define cli_buffer_buf      __cli_buffer()->buf
 #define cli_buffer_cursor   (cli_buffer_buf  + cli_buffer_len)
-#define cli_buffer_size     (CLI_BUFFER_SIZE - sizeof(cli_header_t) - 1)
-#define cli_buffer_space    (sizeof(cli_header_t) + cli_buffer_len)
+#define cli_buffer_size     (CLI_BUFFER_LEN - sizeof(cli_buffer_t))
+#define cli_buffer_space    (sizeof(cli_buffer_t) + cli_buffer_len)
 #define cli_buffer_left     ((cli_buffer_size>cli_buffer_len)?(cli_buffer_size - cli_buffer_len):0)
 
 static inline void
@@ -185,7 +179,7 @@ cli_buffer_clear(void)
 static inline int
 __cli_recv(int fd, int timeout /* ms */)
 {
-    return io_recv(fd, (char *)__cli_buffer(), CLI_BUFFER_SIZE, timeout);
+    return io_recv(fd, (char *)__cli_buffer(), CLI_BUFFER_LEN, timeout);
 }
 
 static inline int
@@ -197,7 +191,7 @@ __cli_send(int fd)
 static inline int
 __cli_recvfrom(int fd, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen)
 {
-    return io_recvfrom(fd, (char *)__cli_buffer(), CLI_BUFFER_SIZE, timeout, addr, paddrlen);
+    return io_recvfrom(fd, (char *)__cli_buffer(), CLI_BUFFER_LEN, timeout, addr, paddrlen);
 }
 
 static inline int
@@ -393,7 +387,7 @@ __cli_c_handle(bool syn, char *buf, cli_client_t *clic)
         os_noblock(fd);
         while(1) {
             os_usleep(10000);
-            if (__io_recv(fd, (char *)__cli_buffer(), CLI_BUFFER_SIZE, 0)<0) {
+            if (__io_recv(fd, (char *)__cli_buffer(), CLI_BUFFER_LEN, 0)<0) {
                 goto error;
             }
 
@@ -470,7 +464,7 @@ cli_u_server_init(cli_server_t *server)
         return -errno;
     }
 
-    int size = CLI_BUFFER_SIZE;
+    int size = 1+CLI_BUFFER_LEN;
     err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
     if (err<0) {
         debug_error("setsockopt error:%d", -errno);
@@ -618,7 +612,7 @@ cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
         return -errno;
     }
 
-    int size = CLI_BUFFER_SIZE;
+    int size = 1+CLI_BUFFER_LEN;
     err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
     if (err<0) {
         debug_error("setsockopt SO_SNDBUF error:%d", -errno);
@@ -751,7 +745,7 @@ __cli_loopc_recv(cli_client_t *clic, int fd)
     
     char *buf = (char *)__cli_buffer();
     while(1) {
-        err = __io_recv(fd, buf, CLI_BUFFER_SIZE, 0);
+        err = __io_recv(fd, buf, CLI_BUFFER_LEN, 0);
         if (err > sizeof(cli_buffer_t)) {
             buf[err] = 0;
             

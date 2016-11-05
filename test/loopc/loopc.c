@@ -63,6 +63,8 @@ client(int type, char *path, char *msg)
         else if (len>0) {
             loopc.buf[len] = 0;
             os_println("%s", loopc.buf);
+
+            return 0;
         }
         else if (0==len) {
             if (again++ < 5) {
