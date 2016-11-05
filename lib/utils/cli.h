@@ -350,13 +350,7 @@ __cli_c_show(void)
 }
 
 static inline int
-__cli_c_handle(
-    bool syn,
-    char *buf, 
-    sockaddr_un_t *server, 
-    sockaddr_un_t *client,
-    int timeout
-)
+__cli_c_handle(bool syn, char *buf, cli_client_t *clic)
 {
     int fd, err, len;
     
@@ -366,13 +360,13 @@ __cli_c_handle(
         err = -errno; goto error;
     }
     
-    err = bind(fd, (sockaddr_t *)client, get_abstract_sockaddr_len(client));
+    err = bind(fd, (sockaddr_t *)&clic->client, get_abstract_sockaddr_len(&clic->client));
     if (err<0) {
         __debug_error("bind error:%d", -errno);
         err = -errno; goto error;
     }
 
-    err = connect(fd, (sockaddr_t *)server, get_abstract_sockaddr_len(server));
+    err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_sockaddr_len(&clic->server));
     if (err<0) {
         debug_error("connect error:%d", -errno);
         err = -errno; goto error;
@@ -386,7 +380,7 @@ __cli_c_handle(
     debug_cli("send repuest[%d]:%s", len, buf);
     
     if (syn) {
-        err = __cli_recv(fd, timeout);
+        err = __cli_recv(fd, clic->timeout);
         if (err<0) { /* yes, <0 */
             goto error;
         }
@@ -418,7 +412,7 @@ cli_c_handle(
     bool syn,
     int argc, 
     char *argv[],
-    cli_client_t *client
+    cli_client_t *clic
 )
 {
     char buf[1+OS_LINE_LEN] = {0};
@@ -429,13 +423,13 @@ cli_c_handle(
         len += os_snprintf(buf + len, OS_LINE_LEN - len, " %s", argv[i]);
     }
 
-    return __cli_c_handle(syn, buf, &client->server, &client->client, client->timeout);
+    return __cli_c_handle(syn, buf, clic);
 }
 
-#define cli_c_sync(_action, _argc, _argv, _client) \
+#define cli_c_sync_handle(_action, _argc, _argv, _client) \
     cli_c_handle(_action, true, _argc, _argv, _client)
 
-#define cli_c_async(_action, _argc, _argv, _client) \
+#define cli_c_async_handle(_action, _argc, _argv, _client) \
     cli_c_handle(_action, false, _argc, _argv, _client)
     
 typedef struct cli_server {

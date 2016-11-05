@@ -13,7 +13,7 @@ OS_INITER;
 static cli_client_t umc = CLI_CLIENT_INITER(umd);
 
 #define umc_handle(_action, _argc, _argv) \
-    cli_c_sync(_action, _argc, _argv, &umc)
+    cli_c_sync_handle(_action, _argc, _argv, &umc)
 
 static int
 usage(int error)
