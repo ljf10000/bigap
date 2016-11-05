@@ -629,7 +629,7 @@ cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
     err = setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&send_timeout, sizeof(send_timeout));
     if (err<0) {
         debug_error("setsockopt SO_SNDTIMEO error:%d", -errno);
-        err = -errno; goto error;
+        return -errno;
     }
     
     err = os_loop_add_father(loop, fd, cb);
