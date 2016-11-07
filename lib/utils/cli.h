@@ -292,22 +292,22 @@ __clic_fd(cli_client_t *clic)
 
     sockaddr_un_t *client = &clic->client;
     err = bind(fd, (sockaddr_t *)client, get_abstract_sockaddr_len(client));
-        debug_ok_error(-errno, "bind(%s)", get_abstract_path(client));
     if (err<0) {
+        debug_error("bind(%s) error:%d", get_abstract_path(client), -errno);
         return -errno;
     }
 
     struct timeval timeout = OS_TIMEVAL_INITER(os_second(clic->timeout), os_usecond(clic->timeout));
     err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-        debug_ok_error(-errno, "setsockopt SO_RCVTIMEO");
     if (err<0) {
+        debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
         return -errno;
     }
 
     sockaddr_un_t *server = &clic->server;
     err = connect(fd, (sockaddr_t *)server, get_abstract_sockaddr_len(server));
-        debug_ok_error(-errno, "connect(%s)", get_abstract_path(server));
     if (err<0) {
+        debug_error("connect(%s) error:%d", get_abstract_path(server), -errno);
         return -errno;
     }
 
@@ -429,8 +429,9 @@ __clis_fd(sockaddr_un_t *server)
     os_closexec(fd);
     
     err = bind(fd, (sockaddr_t *)server, get_abstract_sockaddr_len(server));
-        debug_ok_error(-errno, "bind(%s)", get_abstract_path(server));
     if (err<0) {
+        debug_error("bind(%s) error:%d", get_abstract_path(server), -errno);
+        
         return -errno;
     }
     os_println("path[0]=%d, path[1]=%s", server->sun_path[0], get_abstract_path(server));
