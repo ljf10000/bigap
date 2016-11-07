@@ -343,8 +343,6 @@ static int
 handle_show(char *args)
 {
     char *json = args; /* json maybe include space, not shift */
-
-    sleep(5);
     
     if (NULL==json) {
         /*
