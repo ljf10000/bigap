@@ -159,9 +159,6 @@ __clib_show(void)
     if (0==__clib_err && __clib_len && is_good_str(__clib_buf)) {
         os_printf("%s", __clib_buf);
     }
-    else if (0==__clib_len) {
-        os_printf(__crlf);
-    }
 
     return __clib_err;
 }
