@@ -279,10 +279,10 @@ __clic_fd(cli_client_t *clic)
 {
     int fd = INVALID_FD, err = 0;
     int type;
-    sockaddr_un_t *addr;
     
+    sockaddr_un_t *client = &clic->client;
+    abstract_path_sprintf(client, CLI_CLIENT_UNIX, getpid());
     clic->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
-    abstract_path_sprintf(&clic->client, CLI_CLIENT_UNIX, getpid());
 
     fd = socket(AF_UNIX, CLI_SOCK_TYPE, 0);
     if (fd<0) {
@@ -290,7 +290,6 @@ __clic_fd(cli_client_t *clic)
         return -errno;
     }
 
-    sockaddr_un_t *client = &clic->client;
     err = bind(fd, (sockaddr_t *)client, get_abstract_sockaddr_len(client));
     if (err<0) {
         debug_error("bind(%s) error:%d", get_abstract_path(client), -errno);
