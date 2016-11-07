@@ -95,12 +95,8 @@
 #define __THIS_AK               __SYMBOL_TO_THIS(_ak)
 #endif
 
-#ifndef __THIS_CLI_BUFFER
-#define __THIS_CLI_BUFFER       __SYMBOL_TO_THIS(_cli_buffer)
-#endif
-
 #ifndef __THIS_CLI
-#define __THIS_CLI         __SYMBOL_TO_THIS(_cli_addr)
+#define __THIS_CLI              __SYMBOL_TO_THIS(_cli)
 #endif
 
 #ifndef __THIS_HAENV
