@@ -128,8 +128,10 @@ DECLARE_FAKE_CLI;
 
 #if __CLI_TCP__
 #define CLI_SOCK_TYPE   SOCK_STREAM
+#define CLI_REPLY_END   __cli_reply
 #else
 #define CLI_SOCK_TYPE   SOCK_DGRAM
+#define CLI_REPLY_END   NULL
 #endif
 
 static inline cli_t *
@@ -199,9 +201,9 @@ __cli_reply(int err)
 
     __clib_err = err;
 #if __CLI_TCP__
-    len = io_send(cli->fd, (char *)__clib(), __clib_space);
+    len = io_send(cli->fd, __clib(), __clib_space);
 #else
-    len = io_sendto(cli->fd, (char *)__clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
+    len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
 #endif
     __clib_clear();
     
@@ -465,12 +467,6 @@ cli_line_handle(
     
     return -ENOEXIST;
 }
-
-#if __CLI_TCP__
-#define CLI_REPLY_END   __cli_reply
-#else
-#define CLI_REPLY_END   NULL
-#endif
 
 static inline int
 __clis_handle(int fd, cli_table_t *table, int count)
