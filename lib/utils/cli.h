@@ -302,9 +302,9 @@ __clic_fd(cli_client_t *clic)
         return -errno;
     }
 
-    err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_sockaddr_len(&clic->server));
+    err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_path(&clic->server), get_abstract_sockaddr_len(&clic->server));
     if (err<0) {
-        debug_error("connect error:%d", -errno);
+        debug_error("connect(%s) error:%d", -errno);
         return -errno;
     }
 
