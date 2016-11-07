@@ -1,12 +1,24 @@
 #ifndef __CLI_H_277ca663cad74dd5ad59851d69c58e0c__
 #define __CLI_H_277ca663cad74dd5ad59851d69c58e0c__
 /******************************************************************************/
+#ifndef __CLI_TCP__
+#define __CLI_TCP__         1
+#endif
+
 #ifndef CLI_TIMEOUT
 #define CLI_TIMEOUT         3000 /* ms */
 #endif
 
+#if __CLI_TCP__
+#define CLI_SOCK_TYPE       SOCK_STREAM
+#define CLI_REPLY_END       __cli_reply
+#else
+#define CLI_SOCK_TYPE       SOCK_DGRAM
+#define CLI_REPLY_END       NULL
+#endif
+
 #ifndef CLI_BUFFER_LEN
-#define CLI_BUFFER_LEN      PC_VAL(OS_LINE_LEN, OS_BIG_LEN)
+#define CLI_BUFFER_LEN      OS_BIG_LEN
 #endif
 
 #if defined(__APP__) || defined(__BOOT__)
@@ -113,18 +125,6 @@ typedef struct {
 #endif
 
 DECLARE_FAKE_CLI;
-
-#ifndef __CLI_TCP__
-#define __CLI_TCP__     1
-#endif
-
-#if __CLI_TCP__
-#define CLI_SOCK_TYPE   SOCK_STREAM
-#define CLI_REPLY_END   __cli_reply
-#else
-#define CLI_SOCK_TYPE   SOCK_DGRAM
-#define CLI_REPLY_END   NULL
-#endif
 
 static inline cli_t *
 __this_cli(void)
