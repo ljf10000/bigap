@@ -267,6 +267,15 @@ typedef struct sock_server {
     .handle = _handle, \
 } /* end */
 
+#define SOCK_USERVER_INITER(_id, _name, _init, _handle) { \
+    .id     = _id, \
+    .fd     = INVALID_FD, \
+    .addr   = OS_SOCKADDR_ABSTRACT_INITER(_name), \
+    .init   = _init, \
+    .handle = _handle, \
+} /* end */
+
+
 static inline int
 sock_servers_init(sock_server_t *server[], int count)
 {

@@ -453,7 +453,7 @@ cli_init(sock_server_t *server)
 {
     int fd;
     
-    fd = __clis_fd(&server->addr.un, "umd");
+    fd = __clis_fd(&server->addr.un);
     if (fd<0) {
         return fd;
     }
@@ -465,5 +465,5 @@ cli_init(sock_server_t *server)
 }
 
 sock_server_t um_cli_server = 
-    SOCK_SERVER_INITER(UM_SERVER_CLI, AF_UNIX, cli_init, cli_handle);
+    SOCK_USERVER_INITER(UM_SERVER_CLI, "umd", cli_init, cli_handle);
 /******************************************************************************/
