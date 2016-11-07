@@ -6,6 +6,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #define __DEAMON__
+#define __CLI_TCP__     0
 
 #include "utils.h"
 #include "tm/tm.h"

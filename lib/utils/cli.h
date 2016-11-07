@@ -99,7 +99,7 @@ typedef struct {
 typedef struct {
     int fd;
     bool tcp;
-    
+
     sockaddr_un_t   addr;
     socklen_t       addrlen;
 
@@ -117,6 +117,10 @@ typedef struct {
 
 DECLARE_FAKE_CLI;
 
+#ifndef __CLI_TCP__
+#define __CLI_TCP__     1
+#endif
+
 static inline cli_t *
 __this_cli(void)
 {
@@ -125,10 +129,11 @@ __this_cli(void)
     if (NULL==cli->b) {
         cli->b = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
 
-        cli->addrlen    = sizeof(sockaddr_un_t);
-
         sockaddr_un_t addr = OS_SOCKADDR_UNIX(__empty);
         os_objcpy(&cli->addr, &addr);
+        cli->addrlen    = sizeof(sockaddr_un_t);
+
+        cli->tcp = !!__CLI_TCP__;
     }
     
     return cli;
@@ -178,15 +183,6 @@ __cli_reply(int err)
     cli_buffer_clear();
     
     return len;
-}
-
-static inline void
-__this_cli_init(int fd, bool tcp)
-{
-    cli_t *cli = __this_cli();
-
-    cli->fd     = fd;
-    cli->tcp    = tcp;
 }
 
 static inline int
@@ -302,9 +298,9 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     char buf[1+OS_LINE_LEN] = {0};
     int err;
 
-    __this_cli_init(fd, false);
+    __this_cli()->fd = fd;
     cli_buffer_clear();
-
+    
     if (cli->tcp) {
         err = __io_recv(fd, buf, sizeof(buf), 0);
     } else {
