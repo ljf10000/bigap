@@ -127,6 +127,12 @@ DECLARE_FAKE_CLI;
 #define __CLI_TCP__     1
 #endif
 
+#ifdef __CLI_TCP__
+#define CLI_SOCK_TYPE   SOCK_STREAM
+#else
+#define CLI_SOCK_TYPE   SOCK_DGRAM
+#endif
+
 static inline cli_t *
 __this_cli(void)
 {
@@ -278,13 +284,7 @@ __clic_fd(cli_client_t *clic)
     clic->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
     abstract_path_sprintf(&clic->client, CLI_CLIENT_UNIX, getpid());
 
-#ifdef __CLI_TCP__
-    type = SOCK_STREAM;
-#else
-    type = SOCK_DGRAM;
-#endif
-
-    fd = socket(AF_UNIX, type, 0);
+    fd = socket(AF_UNIX, CLI_SOCK_TYPE, 0);
     if (fd<0) {
         debug_error("socket error:%d", -errno);
         return -errno;
@@ -421,7 +421,7 @@ __clis_fd(sockaddr_un_t *server)
 {
     int fd = INVALID_FD, err = 0;
     
-    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+    fd = socket(AF_UNIX, CLI_SOCK_TYPE, 0);
     if (fd<0) {
     	debug_error("socket error:%d", -errno);
         return -errno;
