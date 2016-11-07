@@ -266,7 +266,7 @@ typedef struct {
 static inline int
 __cli_client_init(cli_client_t *clic)
 {
-    int fd, err, len;
+    int fd = INVALID_FD, err = 0;
 
     clic->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
     abstract_path_sprintf(&clic->client, CLI_CLIENT_UNIX, getpid());
@@ -302,14 +302,14 @@ __cli_client_init(cli_client_t *clic)
 static inline int
 __cli_client_handle(bool syn, char *buf, cli_client_t *clic)
 {
-    int fd, err, len;
+    int fd = INVALID_FD, err = 0;
 
-    int fd = __cli_client_init(clic);
+    fd = __cli_client_init(clic);
     if (fd<0) {
         return fd;
     }
 
-    len = os_strlen(buf);
+    int len = os_strlen(buf);
     err = io_send(fd, buf, len);
     if (err<0) { /* yes, <0 */
         goto error;
