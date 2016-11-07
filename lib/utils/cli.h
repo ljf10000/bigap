@@ -433,6 +433,7 @@ __clis_fd(sockaddr_un_t *server)
     if (err<0) {
         return -errno;
     }
+    os_println("path[0]=%d, path[1]=%s", server->sun_path[0], get_abstract_path(server));
     
     return fd;
 }
@@ -516,27 +517,6 @@ __clis_handle(int fd, cli_table_t *table, int count)
 #define clis_handle(_fd, _table) \
     __clis_handle(_fd, _table, os_count_of(_table))
 #endif
-/******************************************************************************/
-static inline int
-cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
-{
-    sockaddr_un_t server = OS_SOCKADDR_UNIX(__zero);
-    int fd = INVALID_FD, err;
-
-    fd = __clis_fd(&server);
-    if (fd<0) {
-        return fd;
-    }
-
-    err = os_loop_add_father(loop, fd, cb);
-    if (err<0) {
-        debug_error("add cli loop error:%d", err);
-        
-        return err;
-    }
-
-    return 0;
-}
 #endif /* __APP__ */
 /******************************************************************************/
 #endif /* __CLI_H_277ca663cad74dd5ad59851d69c58e0c__ */
