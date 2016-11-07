@@ -2,19 +2,19 @@
 #define __ADDR_H_a60fcc799b2f44c38dcbf510eb97f0c6__
 #ifdef __APP__
 /******************************************************************************/
-#define OS_UNIX_PATH(_path)             "/tmp/." _path ".unix"
-#define __ABSTRACT_PATH(_path)          __zero _path
-#define OS_ABSTRACT_PATH(_path)         __ABSTRACT_PATH(OS_UNIX_PATH(_path))
+#define OS_UNIX_PATH(_PATH)             "/tmp/." _PATH ".unix"
+#define __ABSTRACT_PATH(_PATH)          __zero _PATH
+#define OS_ABSTRACT_PATH(_PATH)         __ABSTRACT_PATH(OS_UNIX_PATH(_PATH))
 
 #define OS_SOCKADDR_UNSPEC()    {   \
     .sa_family = AF_UNSPEC,         \
 }   /* end */
 
-#define OS_SOCKADDR_UNIX(_path) {   \
+#define OS_SOCKADDR_UNIX(_PATH) {   \
     .sun_family = AF_UNIX,          \
-    .sun_path   = _path,            \
+    .sun_path   = _PATH,            \
 }   /* end */
-#define OS_SOCKADDR_ABSTRACT(_path) OS_SOCKADDR_UNIX(OS_ABSTRACT_PATH(_path))
+#define OS_SOCKADDR_ABSTRACT(_PATH) OS_SOCKADDR_UNIX(OS_ABSTRACT_PATH(_PATH))
 
 #define OS_SOCKADDR_INET(_ip, _port) { \
     .sin_family = AF_INET,          \

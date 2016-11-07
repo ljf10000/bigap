@@ -6,7 +6,7 @@
 #ifdef __APP__
 
 static inline int
-__io_error(char *method, char *buf, int size, int error)
+__io_error(char *method, void *buf, int size, int error)
 {
     int err = error;
     
@@ -23,7 +23,7 @@ __io_error(char *method, char *buf, int size, int error)
 }
 
 static inline int
-__io_read_error(char *method, char *buf, int size, int error)
+__io_read_error(char *method, void *buf, int size, int error)
 {
     int err = __io_error(method, buf, size, error);
     if (0==err) {
@@ -36,7 +36,7 @@ __io_read_error(char *method, char *buf, int size, int error)
 }
 
 static inline int
-__io_write_error(char *method, char *buf, int size, int error)
+__io_write_error(char *method, void *buf, int size, int error)
 {
     int err = __io_error(method, buf, size, error);
     if (err != size) {
@@ -89,7 +89,7 @@ __io_write_error(char *method, char *buf, int size, int error)
 })
 
 static inline int
-__io_read(int fd, char *buf, int size)
+__io_read(int fd, void *buf, int size)
 {
     int err = 0;
 
@@ -101,7 +101,7 @@ __io_read(int fd, char *buf, int size)
 }
 
 static inline int
-__io_recvfrom(int fd, char *buf, int size, int flag, sockaddr_t *addr, socklen_t *paddrlen)
+__io_recvfrom(int fd, void *buf, int size, int flag, sockaddr_t *addr, socklen_t *paddrlen)
 {
     int err = recvfrom(fd, buf, size, flag, addr, paddrlen);
 
@@ -109,7 +109,7 @@ __io_recvfrom(int fd, char *buf, int size, int flag, sockaddr_t *addr, socklen_t
 }
 
 static inline int
-__io_recv(int fd, char *buf, int size, int flag)
+__io_recv(int fd, void *buf, int size, int flag)
 {
     int err = recv(fd, buf, size, flag);
 
@@ -117,7 +117,7 @@ __io_recv(int fd, char *buf, int size, int flag)
 }
 
 static inline int
-io_read(int fd, char *buf, int size, int timeout /* ms */)
+io_read(int fd, void *buf, int size, int timeout /* ms */)
 {
     return __IO_READ("read", fd, buf, size, timeout, __io_read(fd, buf, size));
 }
@@ -133,7 +133,7 @@ io_drop(int fd)
 }
 
 static inline int
-io_write(int fd, char *buf, int len)
+io_write(int fd, void *buf, int len)
 {
     int err = write(fd, buf, len);
 
@@ -141,13 +141,13 @@ io_write(int fd, char *buf, int len)
 }
 
 static inline int
-io_recvfrom(int fd, char *buf, int size, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen)
+io_recvfrom(int fd, void *buf, int size, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen)
 {
     return __IO_READ("recvfrom", fd, buf, size, timeout, __io_recvfrom(fd, buf, size, 0, addr, paddrlen));
 }
 
 static inline int
-io_sendto(int fd, char *buf, int len, sockaddr_t *addr, int addrlen)
+io_sendto(int fd, void *buf, int len, sockaddr_t *addr, int addrlen)
 {
     int err = sendto(fd, buf, len, 0, addr, addrlen);
 
@@ -155,13 +155,13 @@ io_sendto(int fd, char *buf, int len, sockaddr_t *addr, int addrlen)
 }
 
 static inline int
-io_recv(int fd, char *buf, int size, int timeout /* ms */)
+io_recv(int fd, void *buf, int size, int timeout /* ms */)
 {
     return __IO_READ("recv", fd, buf, size, timeout, __io_recv(fd, buf, size, 0));
 }
 
 static inline int
-io_send(int fd, char *buf, int len)
+io_send(int fd, void *buf, int len)
 {
     int err = send(fd, buf, len, 0);
 

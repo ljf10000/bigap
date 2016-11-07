@@ -260,8 +260,8 @@ typedef struct {
     sockaddr_un_t server, client;
 } cli_client_t;
 
-#define CLI_CLIENT_INITER(_server_path)             {   \
-    .server     = OS_SOCKADDR_ABSTRACT(_server_path),   \
+#define CLI_CLIENT_INITER(_server_PATH)             {   \
+    .server     = OS_SOCKADDR_ABSTRACT(_server_PATH),   \
     .client     = OS_SOCKADDR_UNIX(__zero),             \
     .timeout    = CLI_TIMEOUT,                          \
 }   /* end */
@@ -273,6 +273,7 @@ __clic_fd(cli_client_t *clic)
 {
     int fd = INVALID_FD, err = 0;
     int type;
+    sockaddr_un_t *addr;
     
     clic->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
     abstract_path_sprintf(&clic->client, CLI_CLIENT_UNIX, getpid());
@@ -288,10 +289,11 @@ __clic_fd(cli_client_t *clic)
         debug_error("socket error:%d", -errno);
         return -errno;
     }
-    
-    err = bind(fd, (sockaddr_t *)&clic->client, get_abstract_sockaddr_len(&clic->client));
+
+    sockaddr_un_t *client = &clic->client;
+    err = bind(fd, (sockaddr_t *)client, get_abstract_sockaddr_len(client));
     if (err<0) {
-        __debug_error("bind(%s) error:%d", get_abstract_path(&clic->client), -errno);
+        __debug_error("bind(%s) error:%d", get_abstract_path(client), -errno);
         return -errno;
     }
 
@@ -302,9 +304,10 @@ __clic_fd(cli_client_t *clic)
         return -errno;
     }
 
-    err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_sockaddr_len(&clic->server));
+    sockaddr_un_t *server = &clic->server;
+    err = connect(fd, (sockaddr_t *)server, get_abstract_sockaddr_len(server));
     if (err<0) {
-        debug_error("connect(%s) error:%d", get_abstract_path(&clic->server), -errno);
+        debug_error("connect(%s) error:%d", get_abstract_path(server), -errno);
         return -errno;
     }
 
