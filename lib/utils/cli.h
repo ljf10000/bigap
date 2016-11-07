@@ -283,7 +283,7 @@ __cli_client_init(cli_client_t *clic)
         return -errno;
     }
 
-    struct timeval timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
+    struct timeval timeout = OS_TIMEVAL_INITER(os_second(clic->timeout), 0);
     err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (err<0) {
         debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
@@ -518,7 +518,7 @@ cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
         return -errno;
     }
 
-    struct timeval send_timeout = OS_TIMEVAL_INITER(1000, 0);
+    struct timeval send_timeout = OS_TIMEVAL_INITER(os_second(1000), 0);
     err = setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&send_timeout, sizeof(send_timeout));
     if (err<0) {
         debug_error("setsockopt SO_SNDTIMEO error:%d", -errno);
