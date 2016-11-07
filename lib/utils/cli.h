@@ -132,9 +132,8 @@ __this_cli(void)
     if (NULL==cli->b) {
         cli->b = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
 
-        sockaddr_un_t addr = OS_SOCKADDR_UNIX(__empty);
-        os_objcpy(&cli->addr, &addr);
-        cli->addrlen    = sizeof(sockaddr_un_t);
+        cli->addr.sun_family = AF_UNIX;
+        cli->addrlen = sizeof(sockaddr_un_t);
     }
     
     return cli;
@@ -150,9 +149,9 @@ __clib(void)
 #define __clib_len      __clib()->hdr.len
 #define __clib_buf      __clib()->buf
 #define __clib_cursor   (__clib_buf  + __clib_len)
-#define __clib_size     (CLI_BUFFER_LEN - sizeof(cli_header_t))
 #define __clib_space    (sizeof(cli_header_t) + __clib_len)
-#define __clib_left     ((__clib_size>__clib_len)?(__clib_size - __clib_len):0)
+#define __clib_SIZE     (CLI_BUFFER_LEN - sizeof(cli_header_t))
+#define __clib_left     ((__clib_SIZE>__clib_len)?(__clib_SIZE - __clib_len):0)
 
 static inline int
 __clib_show(void)
