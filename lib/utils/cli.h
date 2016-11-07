@@ -316,7 +316,6 @@ __cli_client_recv(int fd)
         // err > hdr
         if (err > sizeof(cli_header_t)) {
             __this_clib_cut(err);
-            __this_clib_buf[err] = 0;
             
             err = __this_clib_show();
             if (false==cli->tcp) {
