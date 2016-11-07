@@ -5,16 +5,8 @@
 #define CLI_TIMEOUT         3000 /* ms */
 #endif
 
-#ifndef CLI_MULTI
-#define CLI_MULTI   0
-#endif
-
 #ifndef CLI_BUFFER_LEN
-#if CLI_MULTI
-#   define CLI_BUFFER_LEN           OS_PAGE_LEN
-#else
-#   define CLI_BUFFER_LEN           OS_BIG_LEN
-#endif
+#define CLI_BUFFER_LEN      PC_VAL(OS_LINE_LEN, OS_BIG_LEN)
 #endif
 
 #if defined(__APP__) || defined(__BOOT__)
