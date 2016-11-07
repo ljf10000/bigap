@@ -424,6 +424,12 @@ __clis_fd(sockaddr_un_t *server)
     return fd;
 }
 
+#define __clis_FD(_name)    ({  \
+    sockaddr_un_t server = OS_SOCKADDR_ABSTRACT(_name); \
+                                \
+    __clis_fd(&server);         \
+})  /* end */
+
 static inline int
 cli_line_handle(
     cli_table_t tables[],

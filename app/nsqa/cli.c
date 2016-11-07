@@ -177,21 +177,13 @@ nsq_cli(loop_watcher_t *watcher)
 int
 init_nsq_cli(void)
 {
-    sockaddr_un_t server = OS_SOCKADDR_ABSTRACT("nsqa");
-    int fd = INVALID_FD, err;
+    int err;
 
-    fd = __clis_fd(&server);
-    if (fd<0) {
-        return fd;
-    }
-
-    err = os_loop_add_father(&nsqa.loop, fd, nsq_cli);
+    err = os_loop_add_CLI(&nsqa.loop, "nsqa", nsq_cli);
     if (err<0) {
-        debug_error("add cli loop error:%d", err);
-        
         return err;
     }
-
+    
     return 0;
 }
 /******************************************************************************/

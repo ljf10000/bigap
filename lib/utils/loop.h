@@ -388,7 +388,7 @@ __loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
 
 static inline int
 __loop_add_father(loop_t *loop, int fd, loop_son_f *cb)
-{
+{    
     loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_FATHER, cb);
     if (NULL==watcher) {
         return -ENOEXIST;
@@ -568,6 +568,10 @@ os_loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
 static inline int
 os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
 {
+    if (false==is_good_fd(fd)) {
+        return -EBADF;
+    }
+    
     if (loop) {
         return __loop_add_normal(loop, fd, cb);
     } else {
@@ -578,12 +582,22 @@ os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
 static inline int
 os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb)
 {
+    if (false==is_good_fd(fd)) {
+        return -EBADF;
+    }
+    
     if (loop) {
         return __loop_add_father(loop, fd, cb);
     } else {
         return -EINVAL0;
     }
 }
+
+#if __CLI_TCP__
+#define os_loop_add_CLI(_loop, _name, _cb)  os_loop_add_father(_loop, __clis_FD(_name), _cb)
+#else
+#define os_loop_add_CLI(_loop, _name, _cb)  os_loop_add_normal(_loop, __clis_FD(_name), _cb)
+#endif
 
 static inline int
 os_loop(loop_t *loop)
