@@ -104,7 +104,6 @@ typedef struct {
 
 typedef struct {
     int fd;
-    bool tcp;
 
     sockaddr_un_t   addr;
     socklen_t       addrlen;
@@ -144,8 +143,6 @@ __this_cli(void)
         sockaddr_un_t addr = OS_SOCKADDR_UNIX(__empty);
         os_objcpy(&cli->addr, &addr);
         cli->addrlen    = sizeof(sockaddr_un_t);
-
-        cli->tcp = !!__CLI_TCP__;
     }
     
     return cli;
@@ -201,11 +198,11 @@ __cli_reply(int err)
     debug_cli("send reply[len=%d, err=%d]:%s", __clib_len, err, __clib_buf);
 
     __clib_err = err;
-    if (cli->tcp) {
-        len = io_send(cli->fd, (char *)__clib(), __clib_space);
-    } else {
-        len = io_sendto(cli->fd, (char *)__clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
-    }
+#if __CLI_TCP__
+    len = io_send(cli->fd, (char *)__clib(), __clib_space);
+#else
+    len = io_sendto(cli->fd, (char *)__clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
+#endif
     __clib_clear();
     
     return len;
@@ -324,9 +321,9 @@ __clic_recv(int fd)
             __clib_cut(err);
             
             err = __clib_show();
-            if (false==cli->tcp) {
-                return err;
-            }
+#if 0==__CLI_TCP__
+            return err;
+#endif
         }
         // err = hdr
         else if (err == sizeof(cli_header_t)) {
@@ -354,7 +351,7 @@ __clic_recv(int fd)
             return -errno;
         }
     } 
-    while(cli->tcp);
+    while(__CLI_TCP__);
 
     return 0;
 }
@@ -442,7 +439,7 @@ cli_line_handle(
     char *tag,
     char *args,
     int (*reply)(int err),
-    int (*end)(int err)
+    int (*reply_end)(int err)
 )
 {
     int i, err;
@@ -457,8 +454,8 @@ cli_line_handle(
                 int len = (*reply)(err);
                 debug_trace("send len:%d", len);
 
-                if (end) {
-                    (*end)(err);
+                if (reply_end) {
+                    (*reply_end)(err);
                 }
             }
 
@@ -468,6 +465,12 @@ cli_line_handle(
     
     return -ENOEXIST;
 }
+
+#if __CLI_TCP__
+#define CLI_REPLY_END   __cli_reply
+#else
+#define CLI_REPLY_END   NULL
+#endif
 
 static inline int
 __clis_handle(int fd, cli_table_t *table, int count)
@@ -479,14 +482,14 @@ __clis_handle(int fd, cli_table_t *table, int count)
     __this_cli()->fd = fd;
     __clib_clear();
     
-    if (cli->tcp) {
-        err = __io_recv(fd, buf, sizeof(buf), 0);
-    } else {
-        err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&cli->addr, &cli->addrlen);
-        if (is_abstract_sockaddr(&cli->addr)) {
-            set_abstract_sockaddr_len(&cli->addr, cli->addrlen);
-        }
+#if __CLI_TCP__
+    err = __io_recv(fd, buf, sizeof(buf), 0);
+#else
+    err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&cli->addr, &cli->addrlen);
+    if (is_abstract_sockaddr(&cli->addr)) {
+        set_abstract_sockaddr_len(&cli->addr, cli->addrlen);
     }
+#endif
     if (err<0) { /* yes, <0 */
         return err;
     }
@@ -500,7 +503,7 @@ __clis_handle(int fd, cli_table_t *table, int count)
     os_str_reduce(method, NULL);
     cli_shift(args);
 
-    err = cli_line_handle(table, count, method, args, __cli_reply, cli->tcp?__cli_reply:NULL);
+    err = cli_line_handle(table, count, method, args, __cli_reply, CLI_REPLY_END);
 
     debug_trace("action:%s %s, error:%d, len:%d, buf:%s", 
         method, args?args:__empty,
