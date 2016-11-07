@@ -216,8 +216,7 @@
     DECLARE_OEM;            \
     DECLARE_AK;             \
     DECLARE_TIMER;          \
-    DECLARE_CLI_BUFFER;     \
-    DECLARE_CLI_MAGIC;       \
+    DECLARE_CLI;            \
     DECLARE_DEBUGGER;       \
     DECLARE_JDEBUGGER;      \
     DECLARE_ENV;            \
@@ -234,8 +233,7 @@
     DECLARE_REAL_OEM;           \
     DECLARE_REAL_AK;            \
     DECLARE_REAL_TIMER;         \
-    DECLARE_REAL_CLI_BUFFER;    \
-    DECLARE_REAL_CLI_MAGIC;      \
+    DECLARE_REAL_CLI;           \
     DECLARE_REAL_DEBUGGER;      \
     DECLARE_REAL_JDEBUGGER;     \
     DECLARE_REAL_ENV;           \

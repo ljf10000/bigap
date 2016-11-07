@@ -99,8 +99,8 @@
 #define __THIS_CLI_BUFFER       __SYMBOL_TO_THIS(_cli_buffer)
 #endif
 
-#ifndef __THIS_CLI_MAGIC
-#define __THIS_CLI_MAGIC         __SYMBOL_TO_THIS(_cli_addr)
+#ifndef __THIS_CLI
+#define __THIS_CLI         __SYMBOL_TO_THIS(_cli_addr)
 #endif
 
 #ifndef __THIS_HAENV
