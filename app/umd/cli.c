@@ -445,18 +445,19 @@ static cli_table_t cli_table[] = {
 static int
 cli_handle(sock_server_t *server)
 {
-    return cli_server_handle(server->fd, cli_table);
+    return clis_handle(server->fd, cli_table);
 }
 
 static int
 cli_init(sock_server_t *server)
 {
-    int err;
+    int fd;
     
-    err = cli_server_init(server, "umd");
-    if (err<0) {
-        return err;
+    fd = __clis_fd(&server->addr.un, "umd");
+    if (fd<0) {
+        return fd;
     }
+    server->fd = fd;
     
     debug_ok("init cli server ok");
     

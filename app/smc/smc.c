@@ -14,7 +14,7 @@ OS_INITER;
 static cli_client_t smc = CLI_CLIENT_INITER("smd");
 
 #define smc_handle(_action, _argc, _argv) \
-    cli_client_sync_handle(&smc, _action, _argc, _argv)
+    clic_sync_handle(&smc, _action, _argc, _argv)
 
 static int
 usage(int error)

@@ -14,7 +14,7 @@ OS_INITER;
 static cli_client_t tmc = CLI_CLIENT_INITER("tmd");
 
 #define tmc_handle(_action, _argc, _argv) \
-    cli_client_sync_handle(&tmc, _action, _argc, _argv)
+    clic_sync_handle(&tmc, _action, _argc, _argv)
 
 static int
 usage(int error)

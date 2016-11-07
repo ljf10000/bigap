@@ -146,46 +146,46 @@ __this_cli(void)
 }
 
 static inline cli_buffer_t *
-__this_clib(void)
+__clib(void)
 {
     return __this_cli()->b;
 }
 
-#define __this_clib_err     __this_clib()->hdr.err
-#define __this_clib_len     __this_clib()->hdr.len
-#define __this_clib_buf     __this_clib()->buf
-#define __this_clib_cursor  (__this_clib_buf  + __this_clib_len)
-#define __this_clib_size    (CLI_BUFFER_LEN - sizeof(cli_header_t))
-#define __this_clib_space   (sizeof(cli_header_t) + __this_clib_len)
-#define __this_clib_left    ((__this_clib_size>__this_clib_len)?(__this_clib_size - __this_clib_len):0)
+#define __clib_err      __clib()->hdr.err
+#define __clib_len      __clib()->hdr.len
+#define __clib_buf      __clib()->buf
+#define __clib_cursor   (__clib_buf  + __clib_len)
+#define __clib_size     (CLI_BUFFER_LEN - sizeof(cli_header_t))
+#define __clib_space    (sizeof(cli_header_t) + __clib_len)
+#define __clib_left     ((__clib_size>__clib_len)?(__clib_size - __clib_len):0)
 
 static inline int
-__this_clib_show(void)
+__clib_show(void)
 {
-    if (0==__this_clib_err && __this_clib_len && is_good_str(__this_clib_buf)) {
-        os_printf("%s", __this_clib_buf);
+    if (0==__clib_err && __clib_len && is_good_str(__clib_buf)) {
+        os_printf("%s", __clib_buf);
     }
 
     debug_trace("error:%d, len:%d, buf:%s", 
-        __this_clib_err,
-        __this_clib_len,
-        __this_clib_buf);
+        __clib_err,
+        __clib_len,
+        __clib_buf);
 
-    return __this_clib_err;
+    return __clib_err;
 }
 
 static inline void
-__this_clib_cut(uint32 len)
+__clib_cut(uint32 len)
 {
-    __this_clib_buf[len] = 0;
+    __clib_buf[len] = 0;
 }
 
 static inline void
-__this_clib_clear(void) 
+__clib_clear(void) 
 {
-    __this_clib_len = 0;
+    __clib_len = 0;
     
-    __this_clib_cut(0);
+    __clib_cut(0);
 }
 
 static inline int
@@ -194,15 +194,15 @@ __cli_reply(int err)
     cli_t *cli = __this_cli();
     int len;
     
-    debug_cli("send reply[len=%d, err=%d]:%s", __this_clib_len, err, __this_clib_buf);
+    debug_cli("send reply[len=%d, err=%d]:%s", __clib_len, err, __clib_buf);
 
-    __this_clib_err = err;
+    __clib_err = err;
     if (cli->tcp) {
-        len = io_send(cli->fd, (char *)__this_clib(), __this_clib_space);
+        len = io_send(cli->fd, (char *)__clib(), __clib_space);
     } else {
-        len = io_sendto(cli->fd, (char *)__this_clib(), __this_clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
+        len = io_sendto(cli->fd, (char *)__clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
     }
-    __this_clib_clear();
+    __clib_clear();
     
     return len;
 }
@@ -217,17 +217,17 @@ cli_vsprintf(const char *fmt, va_list args)
     va_end(copy);
 
 #if CLI_MULTI
-    if (__this_clib_left < vsize) {
+    if (__clib_left < vsize) {
         __cli_reply(0);
     }
 #endif
 
-    if (__this_clib_left < vsize) {
+    if (__clib_left < vsize) {
         return -ENOSPACE;
     }
 
-    uint32 left = __this_clib_left;
-    int len = os_vsnprintf(__this_clib_cursor, left, fmt, args);
+    uint32 left = __clib_left;
+    int len = os_vsnprintf(__clib_cursor, left, fmt, args);
     if (len<0) {
         return -errno;
     }
@@ -235,8 +235,8 @@ cli_vsprintf(const char *fmt, va_list args)
         return -ENOSPACE;
     }
 
-    __this_clib_len += len;
-    __this_clib_cursor[0] = 0;
+    __clib_len += len;
+    __clib_cursor[0] = 0;
     
     return len;
 }
@@ -269,7 +269,7 @@ typedef struct {
 #define CLI_CLIENT_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"
 
 static inline int
-__cli_client_init(cli_client_t *clic)
+__clic_fd(cli_client_t *clic)
 {
     int fd = INVALID_FD, err = 0;
 
@@ -305,25 +305,25 @@ __cli_client_init(cli_client_t *clic)
 }
 
 static inline int
-__cli_client_recv(int fd)
+__clic_recv(int fd)
 {
     cli_t *cli = __this_cli();
     int err = 0;
     
     do {
-        err = __io_recv(fd, __this_clib(), CLI_BUFFER_LEN, 0);
+        err = __io_recv(fd, __clib(), CLI_BUFFER_LEN, 0);
         // err > hdr
         if (err > sizeof(cli_header_t)) {
-            __this_clib_cut(err);
+            __clib_cut(err);
             
-            err = __this_clib_show();
+            err = __clib_show();
             if (false==cli->tcp) {
                 return err;
             }
         }
         // err = hdr
         else if (err == sizeof(cli_header_t)) {
-            return __this_clib_show();
+            return __clib_show();
         }
         // 0 < err < hdr
         else if (err > 0) {
@@ -353,11 +353,11 @@ __cli_client_recv(int fd)
 }
 
 static inline int
-__cli_client_handle(bool syn, char *buf, cli_client_t *clic)
+__clic_handle(bool syn, char *buf, cli_client_t *clic)
 {
     int fd = INVALID_FD, err = 0;
 
-    fd = __cli_client_init(clic);
+    fd = __clic_fd(clic);
     if (fd<0) {
         return fd;
     }
@@ -373,7 +373,7 @@ __cli_client_handle(bool syn, char *buf, cli_client_t *clic)
         err = 0; goto error;
     }
 
-    err = __cli_client_recv(fd);
+    err = __clic_recv(fd);
     if (err<0) {
         goto error;
     }
@@ -385,7 +385,7 @@ error:
 }
 
 static inline int
-cli_client_handle(cli_client_t *clic, bool syn, char *action, int argc, char *argv[])
+clic_handle(cli_client_t *clic, bool syn, char *action, int argc, char *argv[])
 {
     char buf[1+OS_LINE_LEN] = {0};
     int i, len;
@@ -395,21 +395,21 @@ cli_client_handle(cli_client_t *clic, bool syn, char *action, int argc, char *ar
         len += os_snprintf(buf + len, OS_LINE_LEN - len, " %s", argv[i]);
     }
 
-    return __cli_client_handle(syn, buf, clic);
+    return __clic_handle(syn, buf, clic);
 }
 
-#define cli_client_sync_handle(_client, _action, _argc, _argv) \
-    cli_client_handle(_client, true, _action, _argc, _argv)
+#define clic_sync_handle(_client, _action, _argc, _argv) \
+    clic_handle(_client, true, _action, _argc, _argv)
 
-#define cli_client_async_handle(_client, _action, _argc, _argv) \
-    cli_client_handle(_client, false, _action, _argc, _argv)
+#define clic_async_handle(_client, _action, _argc, _argv) \
+    clic_handle(_client, false, _action, _argc, _argv)
 #endif
 /******************************************************************************/
 #if 1
 static inline int
-__cli_server_init(sock_server_t *server)
+____clis_fd(sockaddr_un_t *server)
 {
-    int fd, err;
+    int fd = INVALID_FD, err = 0;
     
     fd = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (fd<0) {
@@ -418,35 +418,19 @@ __cli_server_init(sock_server_t *server)
     }
     os_closexec(fd);
     
-    err = bind(fd, &server->addr.c, get_abstract_sockaddr_len(&server->addr.un));
+    err = bind(fd, (sockaddr_t *)server, get_abstract_sockaddr_len(server));
     if (err<0) {
         debug_error("bind error:%d", -errno);
         return -errno;
     }
-
-    int size = 1+CLI_BUFFER_LEN;
-    err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
-    if (err<0) {
-        debug_error("setsockopt error:%d", -errno);
-        return -errno;
-    }
-
-    server->fd = fd;
     
-    return 0;
+    return fd;
 }
 
-#define cli_server_init(_server, _name) ({  \
-    int _err = 0;                           \
-                                            \
-    set_abstract_path(&(_server)->addr.un, OS_UNIX_PATH(_name)); \
-                                            \
-    _err = __cli_server_init(_server);        \
-    if (0==_err) {                          \
-        debug_ok("init cli server ok");     \
-    }                                       \
-                                            \
-    _err;                                   \
+#define __clis_fd(_server, _name)   ({  \
+    set_abstract_path(_server, OS_UNIX_PATH(_name)); \
+                                        \
+    ____clis_fd(_server);               \
 })  /* end */
 
 static inline int
@@ -484,14 +468,14 @@ cli_line_handle(
 }
 
 static inline int
-__cli_server_handle(int fd, cli_table_t *table, int count)
+__clis_handle(int fd, cli_table_t *table, int count)
 {
     cli_t *cli = __this_cli();
     char buf[1+OS_LINE_LEN] = {0};
     int err;
 
     __this_cli()->fd = fd;
-    __this_clib_clear();
+    __clib_clear();
     
     if (cli->tcp) {
         err = __io_recv(fd, buf, sizeof(buf), 0);
@@ -518,43 +502,26 @@ __cli_server_handle(int fd, cli_table_t *table, int count)
 
     debug_trace("action:%s %s, error:%d, len:%d, buf:%s", 
         method, args?args:__empty,
-        __this_clib_err,
-        __this_clib_len,
-        __this_clib_buf);
+        __clib_err,
+        __clib_len,
+        __clib_buf);
 
     return err;
 }
 
-#define cli_server_handle(_fd, _table) \
-    __cli_server_handle(_fd, _table, os_count_of(_table))
+#define clis_handle(_fd, _table) \
+    __clis_handle(_fd, _table, os_count_of(_table))
 #endif
 /******************************************************************************/
 static inline int
 cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
 {
     sockaddr_un_t server = OS_SOCKADDR_UNIX(__zero);
-    int fd, err;
+    int fd = INVALID_FD, err;
 
-    set_abstract_path(&server, path);
-    
-    fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    fd = __clis_fd(&server);
     if (fd<0) {
-    	debug_error("socket error:%d", -errno);
-        return -errno;
-    }
-    os_closexec(fd);
-    
-    err = bind(fd, (sockaddr_t *)&server, get_abstract_sockaddr_len(&server));
-    if (err<0) {
-        debug_error("bind error:%d", -errno);
-        return -errno;
-    }
-
-    int size = 1+CLI_BUFFER_LEN;
-    err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
-    if (err<0) {
-        debug_error("setsockopt SO_SNDBUF error:%d", -errno);
-        return -errno;
+        return fd;
     }
 
     err = os_loop_add_father(loop, fd, cb);
