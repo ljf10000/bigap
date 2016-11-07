@@ -272,11 +272,18 @@ static inline int
 __clic_fd(cli_client_t *clic)
 {
     int fd = INVALID_FD, err = 0;
-
+    int type;
+    
     clic->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
     abstract_path_sprintf(&clic->client, CLI_CLIENT_UNIX, getpid());
-    
-    fd = socket(AF_UNIX, clic->tcp?SOCK_STREAM:SOCK_DGRAM, 0);
+
+#ifdef __CLI_TCP__
+    type = SOCK_STREAM;
+#else
+    type = SOCK_DGRAM;
+#endif
+
+    fd = socket(AF_UNIX, type, 0);
     if (fd<0) {
         debug_error("socket error:%d", -errno);
         return -errno;
