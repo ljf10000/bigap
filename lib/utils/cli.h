@@ -315,19 +315,21 @@ __cli_client_handle(bool syn, char *buf, cli_client_t *clic)
         goto error;
     }
     debug_cli("send repuest[%d]:%s", len, buf);
-    
-    if (syn) {
-#if 1
-        err = __io_recv(fd, (char *)__this_clib(), CLI_BUFFER_LEN, 0);
-#else
-        err = __cli_recv(fd, clic->timeout);
-#endif
-        if (err<0) { /* yes, <0 */
-            goto error;
-        }
 
-        err = __this_clib_show();
+    if (false==syn) {
+        err = 0; goto error;
     }
+    
+#if 1
+    err = __io_recv(fd, (char *)__this_clib(), CLI_BUFFER_LEN, 0);
+#else
+    err = __cli_recv(fd, clic->timeout);
+#endif
+    if (err<0) { /* yes, <0 */
+        goto error;
+    }
+
+    err = __this_clib_show();
     
 error:
     if (is_good_fd(fd)) {
