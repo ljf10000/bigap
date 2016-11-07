@@ -153,8 +153,23 @@ __this_clib(void)
 #define __this_clib_space   (sizeof(cli_buffer_t) + __this_clib_len)
 #define __this_clib_left    ((__this_clib_size>__this_clib_len)?(__this_clib_size - __this_clib_len):0)
 
+static inline int
+__this_clib_show(void)
+{
+    if (0==__this_clib_err && __this_clib_len && is_good_str(__this_clib_buf)) {
+        os_printf("%s", __this_clib_buf);
+    }
+
+    debug_trace("error:%d, len:%d, buf:%s", 
+        __this_clib_err,
+        __this_clib_len,
+        __this_clib_buf);
+
+    return __this_clib_err;
+}
+
 static inline void
-cli_buffer_clear(void) 
+__this_clib_clear(void) 
 {
     __this_clib_buf[0]   = 0;
     __this_clib_len      = 0;
@@ -180,7 +195,7 @@ __cli_reply(int err)
     } else {
         len = io_sendto(cli->fd, (char *)__this_clib(), __this_clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
     }
-    cli_buffer_clear();
+    __this_clib_clear();
     
     return len;
 }
@@ -231,6 +246,7 @@ cli_sprintf(const char *fmt, ...)
     return len;
 }
 
+#if 1
 typedef struct {
     bool tcp;
     int timeout;
@@ -248,14 +264,149 @@ typedef struct {
 #define CLI_CLIENT_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"
 
 static inline int
-init_cli_client(cli_client_t *c)
+__cli_client_init(cli_client_t *clic)
 {
-    c->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
+    int fd, err, len;
 
-    abstract_path_sprintf(&c->client, CLI_CLIENT_UNIX, getpid());
+    clic->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
+    abstract_path_sprintf(&clic->client, CLI_CLIENT_UNIX, getpid());
+    
+    fd = socket(AF_UNIX, clic->tcp?SOCK_STREAM:SOCK_DGRAM, 0);
+    if (fd<0) {
+        debug_error("socket error:%d", -errno);
+        return -errno;
+    }
+    
+    err = bind(fd, (sockaddr_t *)&clic->client, get_abstract_sockaddr_len(&clic->client));
+    if (err<0) {
+        __debug_error("bind error:%d", -errno);
+        return -errno;
+    }
 
+    struct timeval timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
+    err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
+    if (err<0) {
+        debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
+        return -errno;
+    }
+
+    err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_sockaddr_len(&clic->server));
+    if (err<0) {
+        debug_error("connect error:%d", -errno);
+        return -errno;
+    }
+
+    return fd;
+}
+
+static inline int
+__cli_client_handle(bool syn, char *buf, cli_client_t *clic)
+{
+    int fd, err, len;
+
+    int fd = __cli_client_init(clic);
+    if (fd<0) {
+        return fd;
+    }
+
+    len = os_strlen(buf);
+    err = io_send(fd, buf, len);
+    if (err<0) { /* yes, <0 */
+        goto error;
+    }
+    debug_cli("send repuest[%d]:%s", len, buf);
+    
+    if (syn) {
+#if 1
+        err = __io_recv(fd, (char *)__this_clib(), CLI_BUFFER_LEN, 0);
+#else
+        err = __cli_recv(fd, clic->timeout);
+#endif
+        if (err<0) { /* yes, <0 */
+            goto error;
+        }
+
+        err = __this_clib_show();
+    }
+    
+error:
+    if (is_good_fd(fd)) {
+        close(fd);
+    }
+    
+    return err;
+}
+
+static inline int
+cli_client_handle(
+    char *action,
+    bool syn,
+    int argc, 
+    char *argv[],
+    cli_client_t *clic
+)
+{
+    char buf[1+OS_LINE_LEN] = {0};
+    int i, len;
+
+    len = os_saprintf(buf, "%s", action);
+    for (i=0; i<argc; i++) {
+        len += os_snprintf(buf + len, OS_LINE_LEN - len, " %s", argv[i]);
+    }
+
+    return __cli_client_handle(syn, buf, clic);
+}
+
+#define cli_client_sync_handle(_action, _argc, _argv, _client) \
+    cli_client_handle(_action, true, _argc, _argv, _client)
+
+#define cli_client_async_handle(_action, _argc, _argv, _client) \
+    cli_client_handle(_action, false, _argc, _argv, _client)
+#endif
+/******************************************************************************/
+#if 1
+static inline int
+__cli_server_init(sock_server_t *server)
+{
+    int fd, err;
+    
+    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+    if (fd<0) {
+    	debug_error("socket error:%d", -errno);
+        return -errno;
+    }
+    os_closexec(fd);
+    
+    err = bind(fd, &server->addr.c, get_abstract_sockaddr_len(&server->addr.un));
+    if (err<0) {
+        debug_error("bind error:%d", -errno);
+        return -errno;
+    }
+
+    int size = 1+CLI_BUFFER_LEN;
+    err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
+    if (err<0) {
+        debug_error("setsockopt error:%d", -errno);
+        return -errno;
+    }
+
+    server->fd = fd;
+    
     return 0;
 }
+
+#define cli_server_init(_server, _name) ({  \
+    int _err = 0;                           \
+                                            \
+    set_abstract_path(&(_server)->addr.un, OS_UNIX_PATH(_name)); \
+                                            \
+    _err = __cli_server_init(_server);        \
+    if (0==_err) {                          \
+        debug_ok("init cli server ok");     \
+    }                                       \
+                                            \
+    _err;                                   \
+})  /* end */
 
 static inline int
 cli_line_handle(
@@ -292,14 +443,14 @@ cli_line_handle(
 }
 
 static inline int
-__cli_d_handle(int fd, cli_table_t *table, int count)
+__cli_server_handle(int fd, cli_table_t *table, int count)
 {
     cli_t *cli = __this_cli();
     char buf[1+OS_LINE_LEN] = {0};
     int err;
 
     __this_cli()->fd = fd;
-    cli_buffer_clear();
+    __this_clib_clear();
     
     if (cli->tcp) {
         err = __io_recv(fd, buf, sizeof(buf), 0);
@@ -333,146 +484,9 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     return err;
 }
 
-#define cli_d_handle(_fd, _table) \
-    __cli_d_handle(_fd, _table, os_count_of(_table))
-
-static inline int
-__cli_buffer_show(void)
-{
-    if (0==__this_clib_err && __this_clib_len && is_good_str(__this_clib_buf)) {
-        os_printf("%s", __this_clib_buf);
-    }
-
-    debug_trace("error:%d, len:%d, buf:%s", 
-        __this_clib_err,
-        __this_clib_len,
-        __this_clib_buf);
-
-    return __this_clib_err;
-}
-
-static inline int
-__cli_c_handle(bool syn, char *buf, cli_client_t *clic)
-{
-    int fd, err, len;
-    
-    fd = socket(AF_UNIX, clic->tcp?SOCK_STREAM:SOCK_DGRAM, 0);
-    if (fd<0) {
-        debug_error("socket error:%d", -errno);
-        err = -errno; goto error;
-    }
-    
-    err = bind(fd, (sockaddr_t *)&clic->client, get_abstract_sockaddr_len(&clic->client));
-    if (err<0) {
-        __debug_error("bind error:%d", -errno);
-        err = -errno; goto error;
-    }
-
-    struct timeval timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
-    err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-    if (err<0) {
-        debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
-        return -errno;
-    }
-
-    err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_sockaddr_len(&clic->server));
-    if (err<0) {
-        debug_error("connect error:%d", -errno);
-        err = -errno; goto error;
-    }
-
-    len = os_strlen(buf);
-    err = io_send(fd, buf, len);
-    if (err<0) { /* yes, <0 */
-        goto error;
-    }
-    debug_cli("send repuest[%d]:%s", len, buf);
-    
-    if (syn) {
-        err = __cli_recv(fd, clic->timeout);
-        if (err<0) { /* yes, <0 */
-            goto error;
-        }
-
-        err = __cli_buffer_show();
-    }
-    
-error:
-    if (is_good_fd(fd)) {
-        close(fd);
-    }
-    
-    return err;
-}
-
-static inline int
-cli_c_handle(
-    char *action,
-    bool syn,
-    int argc, 
-    char *argv[],
-    cli_client_t *clic
-)
-{
-    char buf[1+OS_LINE_LEN] = {0};
-    int i, len;
-
-    len = os_saprintf(buf, "%s", action);
-    for (i=0; i<argc; i++) {
-        len += os_snprintf(buf + len, OS_LINE_LEN - len, " %s", argv[i]);
-    }
-
-    return __cli_c_handle(syn, buf, clic);
-}
-
-#define cli_c_sync_handle(_action, _argc, _argv, _client) \
-    cli_c_handle(_action, true, _argc, _argv, _client)
-
-#define cli_c_async_handle(_action, _argc, _argv, _client) \
-    cli_c_handle(_action, false, _argc, _argv, _client)
-
-static inline int
-cli_u_server_init(sock_server_t *server)
-{
-    int fd, err;
-    
-    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
-    if (fd<0) {
-    	debug_error("socket error:%d", -errno);
-        return -errno;
-    }
-    os_closexec(fd);
-    
-    err = bind(fd, &server->addr.c, get_abstract_sockaddr_len(&server->addr.un));
-    if (err<0) {
-        debug_error("bind error:%d", -errno);
-        return -errno;
-    }
-
-    int size = 1+CLI_BUFFER_LEN;
-    err = setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size));
-    if (err<0) {
-        debug_error("setsockopt error:%d", -errno);
-        return -errno;
-    }
-
-    server->fd = fd;
-    
-    return 0;
-}
-
-#define CLI_U_SERVER_INIT(_server, _name) ({  \
-    int _err = 0;                           \
-                                            \
-    set_abstract_path(&(_server)->addr.un, OS_UNIX_PATH(_name)); \
-                                            \
-    _err = cli_u_server_init(_server);      \
-    if (0==_err) {                          \
-        debug_ok("init cli server ok");     \
-    }                                       \
-                                            \
-    _err;                                   \
-})  /* end */
+#define cli_server_handle(_fd, _table) \
+    __cli_server_handle(_fd, _table, os_count_of(_table))
+#endif
 /******************************************************************************/
 static inline int
 cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
@@ -520,39 +534,6 @@ cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
 }
 
 static inline int
-__cli_loopc_init(cli_client_t *clic)
-{
-    int fd, err;
-    
-    fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (fd<0) {
-        debug_error("socket error:%d", -errno);
-        return -errno;
-    }
-    
-    err = bind(fd, (sockaddr_t *)&clic->client, get_abstract_sockaddr_len(&clic->client));
-    if (err<0) {
-        __debug_error("bind error:%d", -errno);
-        return -errno;
-    }
-
-    err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_sockaddr_len(&clic->server));
-    if (err<0) {
-        debug_error("connect error:%d", -errno);
-        return -errno;
-    }
-
-    struct timeval recv_timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
-    err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&recv_timeout, sizeof(recv_timeout));
-    if (err<0) {
-        debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
-        return -errno;
-    }
-
-    return fd;
-}
-
-static inline int
 __cli_loopc_send(cli_client_t *clic, int fd, char *buf)
 {
     int len = os_strlen(buf);
@@ -577,7 +558,7 @@ __cli_loopc_recv(cli_client_t *clic, int fd)
         if (err > sizeof(cli_buffer_t)) {
             buf[err] = 0;
             
-            err = __cli_buffer_show();
+            err = __this_clib_show();
             if (err<0) {
                 return err;
             }
@@ -609,11 +590,6 @@ static inline int
 __cli_loopc_handle(cli_client_t *clic, char *buf)
 {
     int fd = INVALID_FD, err = 0;
-
-    err = fd = __cli_loopc_init(clic);
-    if (err<0) {
-        goto error;
-    }
 
     err = __cli_loopc_send(clic, fd, buf);
     if (err<0) {

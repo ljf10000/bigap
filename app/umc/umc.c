@@ -14,7 +14,7 @@ OS_INITER;
 static cli_client_t umc = CLI_CLIENT_INITER("umd", false);
 
 #define umc_handle(_action, _argc, _argv) \
-    cli_c_sync_handle(_action, _argc, _argv, &umc)
+    cli_client_sync_handle(_action, _argc, _argv, &umc)
 
 static int
 usage(int error)
@@ -360,8 +360,6 @@ __main(int argc, char *argv[])
     if (1==argc) {
         return usage(-EHELP);
     }
-
-    init_cli_client(&umc);
     
     err = command(argc-1, argv+1);
     if (err<0) {

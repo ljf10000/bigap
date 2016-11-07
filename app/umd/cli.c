@@ -344,6 +344,8 @@ handle_show(char *args)
 {
     char *json = args; /* json maybe include space, not shift */
 
+    sleep(5);
+    
     if (NULL==json) {
         /*
         * TODO: unix socket, 数据报方式, 无法传送大量数据，需要修改机制
@@ -445,7 +447,7 @@ static cli_table_t cli_table[] = {
 static int
 cli_handle(sock_server_t *server)
 {
-    return cli_d_handle(server->fd, cli_table);
+    return cli_server_handle(server->fd, cli_table);
 }
 
 static int
@@ -453,9 +455,7 @@ cli_init(sock_server_t *server)
 {
     int err;
     
-    set_abstract_path(&server->addr.un, OS_UNIX_PATH("umd"));
-
-    err = cli_u_server_init(server);
+    err = cli_server_init(server, "umd");
     if (err<0) {
         return err;
     }

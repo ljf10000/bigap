@@ -390,7 +390,7 @@ handle_show(char *args)
         /*
         * drop head line
         */
-        cli_buffer_clear();
+        __this_clib_clear();
 
         debug_trace("show timer(%s) nofound", name);
     }
@@ -414,7 +414,7 @@ __server_handle(fd_set *r)
     }
 
     if (FD_ISSET(tmd.server.fd, r)) {
-        err = cli_d_handle(tmd.server.fd, table);
+        err = cli_server_handle(tmd.server.fd, table);
     }
 
     return err;

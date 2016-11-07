@@ -694,7 +694,7 @@ handle_show(char *args)
         /*
         * drop head line
         */
-        cli_buffer_clear();
+        __this_clib_clear();
         
         debug_trace("show monitor(%s) nofound", name);
     }
@@ -714,7 +714,7 @@ __server_handle(fd_set *r)
     int err = 0;
 
     if (FD_ISSET(smd.server.fd, r)) {
-        err = cli_d_handle(smd.server.fd, table);
+        err = cli_server_handle(smd.server.fd, table);
     }
     
     return err;

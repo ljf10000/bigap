@@ -171,7 +171,7 @@ static cli_table_t cli_table[] = {
 static int
 nsq_cli(loop_watcher_t *watcher)
 {
-    return cli_d_handle(watcher->fd, cli_table);
+    return cli_server_handle(watcher->fd, cli_table);
 }
 
 int

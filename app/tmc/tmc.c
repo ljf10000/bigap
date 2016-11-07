@@ -14,7 +14,7 @@ OS_INITER;
 static cli_client_t tmc = CLI_CLIENT_INITER("tmd", false);
 
 #define tmc_handle(_action, _argc, _argv) \
-    cli_c_sync_handle(_action, _argc, _argv, &tmc)
+    cli_client_sync_handle(_action, _argc, _argv, &tmc)
 
 static int
 usage(int error)
@@ -128,8 +128,6 @@ __main(int argc, char *argv[])
     if (1==argc) {
         return usage(-EHELP);
     }
-
-    init_cli_client(&tmc);
 
     err = command(argc-1, argv+1);
     if (err<0) {
