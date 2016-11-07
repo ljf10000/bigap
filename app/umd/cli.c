@@ -290,7 +290,7 @@ show_user_byjson(char *json)
             err = -EBADMAC; goto error;
         }
 
-        user = um_user_get(os_mac(macstring));
+        user = um_user_get(os_mac(string));
     }
     else if (NULL!=(jip = jobj_get(obj, "ip"))) {
         string = jobj_get_string(jip);
