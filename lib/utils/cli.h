@@ -5,10 +5,6 @@
 #define __CLI_TCP__         1
 #endif
 
-#ifndef CLI_TIMEOUT
-#define CLI_TIMEOUT         3000 /* ms */
-#endif
-
 #if __CLI_TCP__
 #define CLI_SOCK_TYPE       SOCK_STREAM
 #define CLI_REPLY_END       __cli_reply
@@ -17,6 +13,10 @@
 #define CLI_SOCK_TYPE       SOCK_DGRAM
 #define CLI_REPLY_END       NULL
 #define CLI_BUFFER_LEN      OS_BIG_LEN
+#endif
+
+#ifndef CLI_TIMEOUT
+#define CLI_TIMEOUT         3000 /* ms */
 #endif
 
 #if defined(__APP__) || defined(__BOOT__)
