@@ -290,11 +290,13 @@ __clic_fd(cli_client_t *clic)
         return -errno;
     }
 
+#if 0
     err = bind(fd, (sockaddr_t *)client, get_abstract_sockaddr_len(client));
     if (err<0) {
         debug_error("bind(%s) error:%d", get_abstract_path(client), -errno);
         return -errno;
     }
+#endif
 
     struct timeval timeout = OS_TIMEVAL_INITER(os_second(clic->timeout), os_usecond(clic->timeout));
     err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));

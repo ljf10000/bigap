@@ -11,7 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t umc = CLI_CLIENT_INITER("sbumd");
+static cli_client_t umc = CLI_CLIENT_INITER("umd");
 
 #define umc_handle(_action, _argc, _argv) \
     clic_sync_handle(&umc, _action, _argc, _argv)

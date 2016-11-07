@@ -465,5 +465,5 @@ cli_init(sock_server_t *server)
 }
 
 sock_server_t um_cli_server = 
-    SOCK_USERVER_INITER(UM_SERVER_CLI, "sbumd", cli_init, cli_handle);
+    SOCK_USERVER_INITER(UM_SERVER_CLI, "umd", cli_init, cli_handle);
 /******************************************************************************/

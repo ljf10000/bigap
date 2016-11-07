@@ -259,22 +259,19 @@ typedef struct sock_server {
     int (*handle)(struct sock_server *server);
 } sock_server_t;
 
-#define SOCK_SERVER_INITER(_id, _family, _init, _handle) { \
-    .id     = _id, \
-    .fd     = INVALID_FD, \
-    .addr   = OS_SOCKADDR_INITER(_family), \
-    .init   = _init, \
-    .handle = _handle, \
+#define __SOCK_SERVER_INITER(_id, _addr, _init, _handle) { \
+    .id     = _id,          \
+    .fd     = INVALID_FD,   \
+    .addr   = _addr,        \
+    .init   = _init,        \
+    .handle = _handle,      \
 } /* end */
 
-#define SOCK_USERVER_INITER(_id, _name, _init, _handle) { \
-    .id     = _id, \
-    .fd     = INVALID_FD, \
-    .addr   = OS_SOCKADDR_ABSTRACT_INITER(_name), \
-    .init   = _init, \
-    .handle = _handle, \
-} /* end */
+#define SOCK_SERVER_INITER(_id, _family, _init, _handle) \
+    __SOCK_SERVER_INITER(_id, OS_SOCKADDR_INITER(_family), _init, _handle)
 
+#define SOCK_USERVER_INITER(_id, _name, _init, _handle) \
+    __SOCK_SERVER_INITER(_id, OS_SOCKADDR_ABSTRACT_INITER(_name), _init, _handle)
 
 static inline int
 sock_servers_init(sock_server_t *server[], int count)
