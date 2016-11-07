@@ -9,10 +9,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t nsqc = CLI_CLIENT_INITER("nsqa", true);
+static cli_client_t nsqc = CLI_CLIENT_INITER("nsqa");
 
 #define nsqc_handle(_action, _argc, _argv) \
-    cli_loopc_handle(&nsqc, _action, _argc, _argv)
+    cli_client_sync_handle(&nsqc, _action, _argc, _argv)
 
 static int
 usage(int error)

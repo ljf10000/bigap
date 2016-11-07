@@ -11,10 +11,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t smc = CLI_CLIENT_INITER("smd", false);
+static cli_client_t smc = CLI_CLIENT_INITER("smd");
 
 #define smc_handle(_action, _argc, _argv) \
-    cli_client_sync_handle(_action, _argc, _argv, &smc)
+    cli_client_sync_handle(&smc, _action, _argc, _argv)
 
 static int
 usage(int error)

@@ -183,7 +183,8 @@ __this_clib_cut(uint32 len)
 static inline void
 __this_clib_clear(void) 
 {
-    __this_clib_len      = 0;
+    __this_clib_len = 0;
+    
     __this_clib_cut(0);
 }
 
@@ -254,17 +255,15 @@ cli_sprintf(const char *fmt, ...)
 
 #if 1
 typedef struct {
-    bool tcp;
     int timeout;
     
     sockaddr_un_t server, client;
 } cli_client_t;
 
-#define CLI_CLIENT_INITER(_server_path, _tcp)       {   \
+#define CLI_CLIENT_INITER(_server_path)             {   \
     .server     = OS_SOCKADDR_ABSTRACT(_server_path),   \
     .client     = OS_SOCKADDR_UNIX(__zero),             \
     .timeout    = CLI_TIMEOUT,                          \
-    .tcp        = _tcp,                                 \
 }   /* end */
 
 #define CLI_CLIENT_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"
@@ -386,13 +385,7 @@ error:
 }
 
 static inline int
-cli_client_handle(
-    char *action,
-    bool syn,
-    int argc, 
-    char *argv[],
-    cli_client_t *clic
-)
+cli_client_handle(cli_client_t *clic, bool syn, char *action, int argc, char *argv[])
 {
     char buf[1+OS_LINE_LEN] = {0};
     int i, len;
@@ -405,11 +398,11 @@ cli_client_handle(
     return __cli_client_handle(syn, buf, clic);
 }
 
-#define cli_client_sync_handle(_action, _argc, _argv, _client) \
-    cli_client_handle(_action, true, _argc, _argv, _client)
+#define cli_client_sync_handle(_client, _action, _argc, _argv) \
+    cli_client_handle(_client, true, _action, _argc, _argv)
 
-#define cli_client_async_handle(_action, _argc, _argv, _client) \
-    cli_client_handle(_action, false, _argc, _argv, _client)
+#define cli_client_async_handle(_client, _action, _argc, _argv) \
+    cli_client_handle(_client, false, _action, _argc, _argv)
 #endif
 /******************************************************************************/
 #if 1
@@ -564,13 +557,6 @@ cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
         return -errno;
     }
 
-    struct timeval send_timeout = OS_TIMEVAL_INITER(os_second(1000), 0);
-    err = setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&send_timeout, sizeof(send_timeout));
-    if (err<0) {
-        debug_error("setsockopt SO_SNDTIMEO error:%d", -errno);
-        return -errno;
-    }
-    
     err = os_loop_add_father(loop, fd, cb);
     if (err<0) {
         debug_error("add cli loop error:%d", err);
@@ -580,102 +566,6 @@ cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
 
     return 0;
 }
-
-static inline int
-__cli_loopc_send(cli_client_t *clic, int fd, char *buf)
-{
-    int len = os_strlen(buf);
-    
-    int err = io_send(fd, buf, len);
-    if (err<0) { /* yes, <0 */
-        return err;
-    }
-    debug_cli("send repuest[%d]:%s", len, buf);
-
-    return 0;
-}
-
-static inline int
-__cli_loopc_recv(cli_client_t *clic, int fd)
-{
-    int err = 0;
-    
-    char *buf = (char *)__this_clib();
-    while(1) {
-        err = __io_recv(fd, buf, CLI_BUFFER_LEN, 0);
-        if (err > sizeof(cli_header_t)) {
-            buf[err] = 0;
-            
-            err = __this_clib_show();
-            if (err<0) {
-                return err;
-            }
-        }
-        else if (err == sizeof(cli_header_t)) {
-            return __this_clib_err;
-        }
-        else if (err > 0) {
-            return -ETOOSMALL;
-        }
-        else if (0==err) {
-            return 0;
-        }
-        else if (EINTR==errno) {
-            continue;
-        }
-        else if (EAGAIN==errno) {
-            /*
-            * timeout
-            */
-            return -ETIMEOUT;
-        }
-    }
-
-    return 0;
-}
-
-static inline int
-__cli_loopc_handle(cli_client_t *clic, char *buf)
-{
-    int fd = INVALID_FD, err = 0;
-
-    err = __cli_loopc_send(clic, fd, buf);
-    if (err<0) {
-        goto error;
-    }
-
-    err = __cli_loopc_recv(clic, fd);
-    if (err<0) {
-        goto error;
-    }
-    
-error:
-    if (is_good_fd(fd)) {
-        close(fd);
-    }
-    
-    return err;
-}
-
-static inline int
-cli_loopc_handle(
-    cli_client_t *clic,
-    char *action,
-    int argc, 
-    char *argv[]
-)
-{
-    char buf[1+OS_LINE_LEN] = {0};
-    int i, len;
-
-    len = os_saprintf(buf, "%s", action);
-    for (i=0; i<argc; i++) {
-        len += os_snprintf(buf + len, OS_LINE_LEN - len, " %s", argv[i]);
-    }
-
-    return __cli_loopc_handle(clic, buf);
-}
-
 #endif /* __APP__ */
 /******************************************************************************/
 #endif /* __CLI_H_277ca663cad74dd5ad59851d69c58e0c__ */
