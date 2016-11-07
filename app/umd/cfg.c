@@ -12,9 +12,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-extern cli_server_t um_cli_server;
-extern cli_server_t um_flow_server;
-extern cli_server_t um_timer_server;
+extern sock_server_t um_cli_server;
+extern sock_server_t um_flow_server;
+extern sock_server_t um_timer_server;
 
 #define um_jcfg_u32(_jcfg, _member)     jj_u32(&umd.cfg, _jcfg, _member)
 #define um_jcfg_i32(_jcfg, _member)     jj_i32(&umd.cfg, _jcfg, _member)
@@ -164,13 +164,13 @@ init_cfg_intf_post(void)
 static int
 init_cfg_server(int count)
 {
-    cli_server_t **server;
+    sock_server_t **server;
     int i;
     
     umd.server_count = count + UM_SERVER_FLOW;
     debug_config("server count %d", umd.server_count);
     
-    server = (cli_server_t **)os_zalloc(umd.server_count*sizeof(cli_server_t *));
+    server = (sock_server_t **)os_zalloc(umd.server_count*sizeof(sock_server_t *));
     if (NULL==server) {
         return -ENOMEM;
     }
@@ -183,7 +183,7 @@ init_cfg_server(int count)
     debug_config("setup cli server");
     
     for (i=UM_SERVER_FLOW; i<umd.server_count; i++) {
-        server[i] = (cli_server_t *)os_zalloc(sizeof(cli_server_t));
+        server[i] = (sock_server_t *)os_zalloc(sizeof(sock_server_t));
         if (NULL==server[i]) {
             return -ENOMEM;
         }
