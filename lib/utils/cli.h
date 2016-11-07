@@ -91,8 +91,14 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 
 typedef struct {
     uint32 len;
+    uint32 flag;
+    uint32 type;
      int32 err;
+} cli_header_t;
 
+typedef struct {
+    cli_header_t hdr;
+    
     char buf[0];
 } cli_buffer_t;
 
@@ -145,12 +151,12 @@ __this_clib(void)
     return __this_cli()->b;
 }
 
-#define __this_clib_err     __this_clib()->err
-#define __this_clib_len     __this_clib()->len
+#define __this_clib_err     __this_clib()->hdr.err
+#define __this_clib_len     __this_clib()->hdr.len
 #define __this_clib_buf     __this_clib()->buf
 #define __this_clib_cursor  (__this_clib_buf  + __this_clib_len)
-#define __this_clib_size    (CLI_BUFFER_LEN - sizeof(cli_buffer_t))
-#define __this_clib_space   (sizeof(cli_buffer_t) + __this_clib_len)
+#define __this_clib_size    (CLI_BUFFER_LEN - sizeof(cli_header_t))
+#define __this_clib_space   (sizeof(cli_header_t) + __this_clib_len)
 #define __this_clib_left    ((__this_clib_size>__this_clib_len)?(__this_clib_size - __this_clib_len):0)
 
 static inline int
@@ -173,12 +179,6 @@ __this_clib_clear(void)
 {
     __this_clib_buf[0]   = 0;
     __this_clib_len      = 0;
-}
-
-static inline int
-__cli_recv(int fd, int timeout /* ms */)
-{
-    return io_recv(fd, (char *)__this_clib(), CLI_BUFFER_LEN, timeout);
 }
 
 static inline int
@@ -283,7 +283,7 @@ __cli_client_init(cli_client_t *clic)
         return -errno;
     }
 
-    struct timeval timeout = OS_TIMEVAL_INITER(os_second(clic->timeout), 0);
+    struct timeval timeout = OS_TIMEVAL_INITER(os_second(clic->timeout), os_usecond(clic->timeout));
     err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (err<0) {
         debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
@@ -297,6 +297,55 @@ __cli_client_init(cli_client_t *clic)
     }
 
     return fd;
+}
+
+static inline int
+__cli_client_recv(int fd)
+{
+    cli_t *cli = __this_cli();
+    char *clib = (char *)__this_clib();
+    int err = 0;
+    
+    do {
+        err = __io_recv(fd, clib, CLI_BUFFER_LEN, 0);
+        // err > hdr
+        if (err > sizeof(cli_header_t)) {
+            clib[err - sizeof(cli_header_t)] = 0;
+            
+            err = __this_clib_show();
+            if (false==cli->tcp) {
+                return err;
+            }
+        }
+        // err = hdr
+        else if (err == sizeof(cli_header_t)) {
+            return __this_clib_err;
+        }
+        // 0 < err < hdr
+        else if (err > 0) {
+            return -ETOOSMALL;
+        }
+        // err = 0
+        else if (0==err) {
+            return 0;
+        }
+        // err < 0
+        else if (EINTR==errno) {
+            continue;
+        }
+        else if (EAGAIN==errno) {
+            /*
+            * timeout
+            */
+            return -ETIMEOUT;
+        }
+        else {
+            return -errno;
+        }
+    } 
+    while(cli->tcp);
+
+    return 0;
 }
 
 static inline int
@@ -319,22 +368,14 @@ __cli_client_handle(bool syn, char *buf, cli_client_t *clic)
     if (false==syn) {
         err = 0; goto error;
     }
-    
-#if 1
-    err = __io_recv(fd, (char *)__this_clib(), CLI_BUFFER_LEN, 0);
-#else
-    err = __cli_recv(fd, clic->timeout);
-#endif
-    if (err<0) { /* yes, <0 */
+
+    err = __cli_client_recv(fd);
+    if (err<0) {
         goto error;
     }
-
-    err = __this_clib_show();
     
 error:
-    if (is_good_fd(fd)) {
-        close(fd);
-    }
+    os_close(fd);
     
     return err;
 }
@@ -557,7 +598,7 @@ __cli_loopc_recv(cli_client_t *clic, int fd)
     char *buf = (char *)__this_clib();
     while(1) {
         err = __io_recv(fd, buf, CLI_BUFFER_LEN, 0);
-        if (err > sizeof(cli_buffer_t)) {
+        if (err > sizeof(cli_header_t)) {
             buf[err] = 0;
             
             err = __this_clib_show();
@@ -565,7 +606,7 @@ __cli_loopc_recv(cli_client_t *clic, int fd)
                 return err;
             }
         }
-        else if (err == sizeof(cli_buffer_t)) {
+        else if (err == sizeof(cli_header_t)) {
             return __this_clib_err;
         }
         else if (err > 0) {
