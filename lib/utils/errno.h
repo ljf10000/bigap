@@ -195,6 +195,7 @@ enum {
     EBADSLOT    = ERRNO(32),
     EBADCONF    = ERRNO(33),
     EBADBASEMAC = ERRNO(34),
+    EBADIP      = ERRNO(35),
     
     ETOOBIG     = ERRNO(40),
     ETOOSMALL   = ERRNO(41),

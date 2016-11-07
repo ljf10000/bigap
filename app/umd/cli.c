@@ -273,7 +273,10 @@ show_user_byjson(char *json)
 {
     jobj_t obj      = NULL;
     jobj_t jmac     = NULL;
+    jobj_t jip      = NULL;
     jobj_t juser    = NULL;
+    char *string    = NULL;
+    struct um_user *user = NULL;
     int err = 0;
     
     obj = jobj_byjson(json);
@@ -281,21 +284,30 @@ show_user_byjson(char *json)
         err = -EFILTER; goto error;
     }
     
-    jmac = jobj_get(obj, "mac");
-    if (NULL==obj) {
+    if (NULL!=(jmac = jobj_get(obj, "mac"))) {
+        string = jobj_get_string(jmac);
+        if (false==is_good_macstring(string)) {
+            err = -EBADMAC; goto error;
+        }
+
+        user = um_user_get(os_mac(macstring));
+    }
+    else if (NULL!=(jip = jobj_get(obj, "ip"))) {
+        string = jobj_get_string(jip);
+        if (false==is_good_ipstring(string)) {
+            err = -EBADIP; goto error;
+        }
+
+        user = um_user_getbyip(inet_addr(string));
+    }
+    else {
         err = -EFILTER; goto error;
     }
     
-    char *macstring = jobj_get_string(jmac);
-    if (false==is_good_macstring(macstring)) {
-        err = -EBADMAC; goto error;
-    }
-
-    struct um_user *user = um_user_get(os_mac(macstring));
     if (NULL==user) {
         err = -ENOEXIST; goto error;
     }
-
+    
     juser = um_juser(user);
     if (NULL==juser) {
         err = -ENOEXIST; goto error;
