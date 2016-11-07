@@ -442,13 +442,13 @@ static cli_table_t cli_table[] = {
 };
 
 static int
-cli_handle(cli_server_t *server)
+cli_handle(sock_server_t *server)
 {
     return cli_d_handle(server->fd, cli_table);
 }
 
 static int
-cli_init(cli_server_t *server)
+cli_init(sock_server_t *server)
 {
     int err;
     
@@ -464,6 +464,6 @@ cli_init(cli_server_t *server)
     return 0;
 }
 
-cli_server_t um_cli_server = 
-    CLI_SERVER_INITER(UM_SERVER_CLI, AF_UNIX, cli_init, cli_handle);
+sock_server_t um_cli_server = 
+    SOCK_SERVER_INITER(UM_SERVER_CLI, AF_UNIX, cli_init, cli_handle);
 /******************************************************************************/

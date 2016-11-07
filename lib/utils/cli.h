@@ -55,30 +55,6 @@ typedef struct {
 }while(0)
 
 static inline int
-cli_line_handle(cli_table_t tables[], int count, char *tag, char *args, int (*reply)(int err))
-{
-    int i, err;
-    
-    for (i=0; i<count; i++) {
-        cli_table_t *table = &tables[i];
-        
-        if (os_streq(table->tag, tag)) {
-            err = (*table->u.line_cb)(args);
-            
-            if (table->syn && reply) {
-                int len = (*reply)(err);
-                
-                debug_trace("send len:%d", len);
-            }
-
-            return err;
-        }
-    }
-    
-    return -ENOEXIST;
-}
-
-static inline int
 cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 {
     int i;
@@ -101,16 +77,56 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 /******************************************************************************/
 #ifdef __APP__
 
+static inline int
+cli_line_handle(
+    cli_table_t tables[],
+    int count,
+    char *tag,
+    char *args,
+    int (*reply)(int err),
+    int (*end)(int err)
+)
+{
+    int i, err;
+    
+    for (i=0; i<count; i++) {
+        cli_table_t *table = &tables[i];
+        
+        if (os_streq(table->tag, tag)) {
+            err = (*table->u.line_cb)(args);
+            
+            if (table->syn && reply) {
+                int len = (*reply)(err);
+                debug_trace("send len:%d", len);
+
+                if (end) {
+                    (*end)(err);
+                }
+            }
+
+            return err;
+        }
+    }
+    
+    return -ENOEXIST;
+}
+
 #ifndef CLI_MULTI
 #define CLI_MULTI   0
 #endif
 
 typedef struct {
+    int fd;
+    bool tcp;
+    
     sockaddr_un_t addr;
     socklen_t len;
-    int fd;
     
     int (*reply)(int err);
+    int (*end)(void);
+    
+    int (*sendto)(int fd, sockaddr_t *addr, socklen_t addrlen);
+    int (*send)(int fd);
 } cli_magic_t;
 
 #ifndef CLI_BUFFER_LEN
@@ -204,16 +220,35 @@ static inline int
 __cli_reply(int err)
 {
     cli_magic_t *magic = __cli_magic();
+    int len;
     
+    debug_cli("send reply[len=%d, err=%d]:%s", cli_buffer_space, err, (char *)__cli_buffer());
+
     cli_buffer_err = err;
-
-    debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__cli_buffer());
-    
-    int ret = __cli_sendto(magic->fd, (sockaddr_t *)&magic->addr, magic->len);
-
+    if (magic->tcp) {
+        len = (*magic->send)(magic->fd);
+    } else {
+        len = (*magic->sendto)(magic->fd, (sockaddr_t *)&magic->addr, magic->len);
+    }
     cli_buffer_clear();
     
-    return ret;
+    return len;
+}
+
+static inline void
+__cli_magic_init(int fd, bool tcp)
+{
+    cli_magic_t *magic = __cli_magic();
+
+    magic->fd   = fd;
+    magic->tcp  = tcp;
+
+    magic->reply        = __cli_reply;
+    if (tcp) {
+        magic->send     = __cli_send;
+    } else {
+        magic->sendto   = __cli_sendto;
+    }
 }
 
 static inline int
@@ -263,15 +298,17 @@ cli_sprintf(const char *fmt, ...)
 }
 
 typedef struct {
+    bool tcp;
     int timeout;
     
     sockaddr_un_t server, client;
 } cli_client_t;
 
-#define CLI_CLIENT_INITER(_server_path)             {   \
+#define CLI_CLIENT_INITER(_server_path, _tcp)       {   \
     .server     = OS_SOCKADDR_ABSTRACT(_server_path),   \
     .client     = OS_SOCKADDR_UNIX(__zero),             \
     .timeout    = CLI_TIMEOUT,                          \
+    .tcp        = _tcp,                                 \
 }   /* end */
 
 #define CLI_CLIENT_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"
@@ -293,21 +330,21 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     char buf[1+OS_LINE_LEN] = {0};
     int err;
 
-    magic->fd = fd;
-    magic->reply = __cli_reply;
+    __cli_magic_init(fd, false);
     cli_buffer_clear();
-    
-    err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&magic->addr, &magic->len);
+
+    if (magic->tcp) {
+        err = __io_recv(fd, buf, sizeof(buf), 0);
+    } else {
+        err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&magic->addr, &magic->len);
+        if (is_abstract_sockaddr(&magic->addr)) {
+            set_abstract_sockaddr_len(&magic->addr, magic->len);
+        }
+    }
     if (err<0) { /* yes, <0 */
         return err;
     }
     buf[err] = 0;
-    
-    if (is_abstract_sockaddr(&magic->addr)) {
-        set_abstract_sockaddr_len(&magic->addr, magic->len);
-
-        debug_cli("recv request from:%s", get_abstract_path(&magic->addr));
-    }
     debug_cli("recv request[%d]:%s", err, buf);
     
     char *method = buf;
@@ -317,7 +354,7 @@ __cli_d_handle(int fd, cli_table_t *table, int count)
     os_str_reduce(method, NULL);
     cli_shift(args);
 
-    err = cli_line_handle(table, count, method, args, __cli_reply);
+    err = cli_line_handle(table, count, method, args, __cli_reply, NULL);
 
     debug_trace("action:%s %s, error:%d, len:%d, buf:%s", 
         method, args?args:__empty,
@@ -351,7 +388,7 @@ __cli_c_handle(bool syn, char *buf, cli_client_t *clic)
 {
     int fd, err, len;
     
-    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+    fd = socket(AF_UNIX, clic->tcp?SOCK_STREAM:SOCK_DGRAM, 0);
     if (fd<0) {
         debug_error("socket error:%d", -errno);
         err = -errno; goto error;
@@ -361,6 +398,13 @@ __cli_c_handle(bool syn, char *buf, cli_client_t *clic)
     if (err<0) {
         __debug_error("bind error:%d", -errno);
         err = -errno; goto error;
+    }
+
+    struct timeval timeout = OS_TIMEVAL_INITER(clic->timeout, 0);
+    err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
+    if (err<0) {
+        debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
+        return -errno;
     }
 
     err = connect(fd, (sockaddr_t *)&clic->server, get_abstract_sockaddr_len(&clic->server));
@@ -383,16 +427,6 @@ __cli_c_handle(bool syn, char *buf, cli_client_t *clic)
         }
 
         err = __cli_buffer_show();
-
-        os_noblock(fd);
-        while(1) {
-            os_usleep(10000);
-            if (__io_recv(fd, (char *)__cli_buffer(), CLI_BUFFER_LEN, 0)<0) {
-                goto error;
-            }
-
-            err = __cli_buffer_show();
-        }
     }
     
 error:
@@ -428,26 +462,9 @@ cli_c_handle(
 
 #define cli_c_async_handle(_action, _argc, _argv, _client) \
     cli_c_handle(_action, false, _argc, _argv, _client)
-    
-typedef struct cli_server {
-    int fd;
-    int id;
-    os_sockaddr_t addr;
-    
-    int (*init)(struct cli_server *server);
-    int (*handle)(struct cli_server *server);
-} cli_server_t;
-
-#define CLI_SERVER_INITER(_id, _family, _init, _handle) { \
-    .id     = _id, \
-    .fd     = INVALID_FD, \
-    .addr   = OS_SOCKADDR_INITER(_family), \
-    .init   = _init, \
-    .handle = _handle, \
-} /* end */
 
 static inline int
-cli_u_server_init(cli_server_t *server)
+cli_u_server_init(sock_server_t *server)
 {
     int fd, err;
     
@@ -488,109 +505,7 @@ cli_u_server_init(cli_server_t *server)
                                             \
     _err;                                   \
 })  /* end */
-
-
-static inline int
-cli_servers_init(cli_server_t *server[], int count)
-{
-    int i, err;
-    
-    for (i=0; i<count; i++) {
-        if (server[i]) {
-            err = (*server[i]->init)(server[i]);
-            if (err<0) {
-                return err;
-            }
-        }
-    }
-    
-    return 0;
-}
-
-static inline int
-__cli_server_fdmax(cli_server_t *server[], int count)
-{
-    int i, fdmax = 0;
-    
-    for (i=0; i<count; i++) {
-        if (server[i]) {
-            fdmax = OS_MAX(fdmax, server[i]->fd);
-        }
-    }
-
-    return fdmax;
-}
-
-static inline void
-__cli_server_prepare(cli_server_t *server[], int count, fd_set *set)
-{
-    int i;
-    
-    FD_ZERO(set);
-    for (i=0; i<count; i++) {
-        if (server[i]) {
-            FD_SET(server[i]->fd, set);
-        }
-    }
-}
-
-static inline int
-__cli_server_handle(cli_server_t *server[], int count, fd_set *set)
-{
-    int i, err;
-    
-    for (i=0; i<count; i++) {
-        if (server[i] && FD_ISSET(server[i]->fd, set)) {
-            err = (*server[i]->handle)(server[i]);
-            if (err<0) {
-                /* log, but no return */
-            }
-        }
-    }
-
-    return 0;
-}
-
-static inline int
-cli_server_run(cli_server_t *server[], int count)
-{
-    fd_set rset;
-    int i, err, fdmax = __cli_server_fdmax(server, count);
-
-    while(1) {
-        __cli_server_prepare(server, count, &rset);
-        
-        err = select(fdmax+1, &rset, NULL, NULL, NULL);
-        switch(err) {
-            case -1:/* error */
-                if (EINTR==errno) {
-                    // is breaked
-                    debug_event("select breaked");
-                    continue;
-                } else {
-                    debug_trace("select error:%d", -errno);
-                    return -errno;
-                }
-            case 0: /* timeout, retry */
-                debug_timeout("select timeout");
-                
-                return os_assertV(-ETIMEOUT);
-            default: /* to accept */
-                err = __cli_server_handle(server, count, &rset);
-                if (err<0) {
-                    return err;
-                }
-                
-                break;
-        }
-    }
-
-    return 0;
-}
-#endif
 /******************************************************************************/
-#ifdef __APP__
-
 static inline int
 cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
 {
@@ -635,60 +550,6 @@ cli_loops_init(loop_t *loop, char *path, loop_son_f *cb)
 
     return 0;
 }
-
-static inline int
-__cli_loop_reply(int err)
-{
-    cli_magic_t *magic = __cli_magic();
-    
-    cli_buffer_err = err;
-
-    debug_cli("send reply[%d]:%s", cli_buffer_space, (char *)__cli_buffer());
-    
-    int ret = __cli_send(magic->fd);
-
-    cli_buffer_clear();
-    
-    return ret;
-}
-
-static inline int
-__cli_loops_handle(int fd, cli_table_t *table, int count)
-{
-    cli_magic_t *magic = __cli_magic();
-    char buf[1+OS_LINE_LEN] = {0};
-    int err;
-
-    magic->fd = fd;
-    magic->reply = __cli_loop_reply;
-    cli_buffer_clear();
-    
-    err = __io_recv(fd, buf, sizeof(buf), 0);
-    if (err<0) { /* yes, <0 */
-        return err;
-    }
-    buf[err] = 0;
-    
-    char *method = buf;
-    char *args   = buf;
-
-    os_str_strim_both(method, NULL);
-    os_str_reduce(method, NULL);
-    cli_shift(args);
-
-    err = cli_line_handle(table, count, method, args, __cli_loop_reply);
-
-    debug_trace("action:%s %s, error:%d, len:%d, buf:%s", 
-        method, args?args:__empty,
-        cli_buffer_err,
-        cli_buffer_len,
-        cli_buffer_buf);
-
-    return err;
-}
-
-#define cli_loops_handle(_fd, _table) \
-    __cli_loops_handle(_fd, _table, os_count_of(_table))
 
 static inline int
 __cli_loopc_init(cli_client_t *clic)
@@ -741,7 +602,6 @@ static inline int
 __cli_loopc_recv(cli_client_t *clic, int fd)
 {
     int err = 0;
-    int again = 0;
     
     char *buf = (char *)__cli_buffer();
     while(1) {
@@ -754,16 +614,13 @@ __cli_loopc_recv(cli_client_t *clic, int fd)
                 return err;
             }
         }
+        else if (err == sizeof(cli_buffer_t)) {
+            return cli_buffer_err;
+        }
         else if (err > 0) {
             return -ETOOSMALL;
         }
         else if (0==err) {
-            if (again++ < 5) {
-                os_usleep(100000);
-
-                continue;
-            }
-            
             return 0;
         }
         else if (EINTR==errno) {

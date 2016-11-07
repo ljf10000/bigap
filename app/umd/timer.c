@@ -214,7 +214,7 @@ timer_handle(struct um_user *user, time_t now)
 }
 
 static int
-timer_server_init(cli_server_t *server)
+timer_server_init(sock_server_t *server)
 {    
     int fd = tm_fd(os_second(1000*umd.cfg.ticks), os_nsecond(1000*umd.cfg.ticks));
     if (fd<0) {
@@ -228,7 +228,7 @@ timer_server_init(cli_server_t *server)
 }
 
 static int
-timer_server_handle(cli_server_t *server)
+timer_server_handle(sock_server_t *server)
 {
     uint32 times = tm_fd_read(server->fd);
     time_t now = time(NULL);
@@ -248,6 +248,6 @@ timer_server_handle(cli_server_t *server)
     return 0;
 }
 
-cli_server_t um_timer_server = 
-    CLI_SERVER_INITER(UM_SERVER_TIMER, 0, timer_server_init, timer_server_handle);
+sock_server_t um_timer_server = 
+    SOCK_SERVER_INITER(UM_SERVER_TIMER, 0, timer_server_init, timer_server_handle);
 /******************************************************************************/

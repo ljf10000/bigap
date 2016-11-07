@@ -249,6 +249,122 @@ io_writev(int fd, struct iovec *iov, int count)
     return __iov_dump_error(writev(fd, iov, count), iov, count);
 }
 
+
+typedef struct sock_server {
+    int fd;
+    int id;
+    os_sockaddr_t addr;
+    
+    int (*init)(struct sock_server *server);
+    int (*handle)(struct sock_server *server);
+} sock_server_t;
+
+#define SOCK_SERVER_INITER(_id, _family, _init, _handle) { \
+    .id     = _id, \
+    .fd     = INVALID_FD, \
+    .addr   = OS_SOCKADDR_INITER(_family), \
+    .init   = _init, \
+    .handle = _handle, \
+} /* end */
+
+static inline int
+sock_servers_init(sock_server_t *server[], int count)
+{
+    int i, err;
+    
+    for (i=0; i<count; i++) {
+        if (server[i]) {
+            err = (*server[i]->init)(server[i]);
+            if (err<0) {
+                return err;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+static inline int
+__sock_servers_fdmax(sock_server_t *server[], int count)
+{
+    int i, fdmax = 0;
+    
+    for (i=0; i<count; i++) {
+        if (server[i]) {
+            fdmax = OS_MAX(fdmax, server[i]->fd);
+        }
+    }
+
+    return fdmax;
+}
+
+static inline void
+__sock_servers_prepare(sock_server_t *server[], int count, fd_set *set)
+{
+    int i;
+    
+    FD_ZERO(set);
+    for (i=0; i<count; i++) {
+        if (server[i]) {
+            FD_SET(server[i]->fd, set);
+        }
+    }
+}
+
+static inline int
+__sock_servers_handle(sock_server_t *server[], int count, fd_set *set)
+{
+    int i, err;
+    
+    for (i=0; i<count; i++) {
+        if (server[i] && FD_ISSET(server[i]->fd, set)) {
+            err = (*server[i]->handle)(server[i]);
+            if (err<0) {
+                /* log, but no return */
+            }
+        }
+    }
+
+    return 0;
+}
+
+static inline int
+sock_servers_run(sock_server_t *server[], int count)
+{
+    fd_set rset;
+    int i, err, fdmax = __sock_servers_fdmax(server, count);
+
+    while(1) {
+        __sock_servers_prepare(server, count, &rset);
+        
+        err = select(fdmax+1, &rset, NULL, NULL, NULL);
+        switch(err) {
+            case -1:/* error */
+                if (EINTR==errno) {
+                    // is breaked
+                    debug_event("select breaked");
+                    continue;
+                } else {
+                    debug_trace("select error:%d", -errno);
+                    return -errno;
+                }
+            case 0: /* timeout, retry */
+                debug_timeout("select timeout");
+                
+                return os_assertV(-ETIMEOUT);
+            default: /* to accept */
+                err = __sock_servers_handle(server, count, &rset);
+                if (err<0) {
+                    return err;
+                }
+                
+                break;
+        }
+    }
+
+    return 0;
+}
+
 #endif
 /******************************************************************************/
 #endif /* __IO_H_cbe4cb82b7a74230bc3204daea2c6f49__ */

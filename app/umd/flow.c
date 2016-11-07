@@ -103,7 +103,7 @@ set_flow_duser(void)
 }
 
 static int
-pkt_handle(cli_server_t *server)
+pkt_handle(sock_server_t *server)
 {
     int err, len;
     socklen_t addrlen = sizeof(server->addr.ll);
@@ -127,7 +127,7 @@ pkt_handle(cli_server_t *server)
 }
 
 static int
-intf_handle(cli_server_t *server)
+intf_handle(sock_server_t *server)
 {
     if (server->addr.ll.sll_ifindex == flow.intf->index) {
         return 0;
@@ -137,7 +137,7 @@ intf_handle(cli_server_t *server)
 }
 
 static int
-eth_handle(cli_server_t *server)
+eth_handle(sock_server_t *server)
 {
     struct ether_header *eth = flow.eth = (struct ether_header *)flow.packet;
     
@@ -191,7 +191,7 @@ eth_handle(cli_server_t *server)
 }
 
 static int
-vlan_handle(cli_server_t *server)
+vlan_handle(sock_server_t *server)
 {
     if (flow.eth->ether_type == umd.ether_type_vlan) {
         struct vlan_header *vlan = flow.vlan = (struct vlan_header *)(flow.eth+1);
@@ -418,10 +418,10 @@ ip_source_wan(uint32 sip, uint32 dip)
 }
 
 static int
-flow_handle(cli_server_t *server);
+flow_handle(sock_server_t *server);
 
 static int
-__ip_handle(cli_server_t *server, bool first)
+__ip_handle(sock_server_t *server, bool first)
 {
     struct ip *iph;
     bool again = false;
@@ -524,7 +524,7 @@ __ip_handle(cli_server_t *server, bool first)
 }
 
 static int
-ip_handle(cli_server_t *server)
+ip_handle(sock_server_t *server)
 {
     int err = __ip_handle(server, true);
     bool again = (1==err);
@@ -631,7 +631,7 @@ flow_update(struct um_user *user, int type, int dir)
 }
 
 static int
-flow_handle(cli_server_t *server)
+flow_handle(sock_server_t *server)
 {
     struct um_user *user;
 
@@ -722,7 +722,7 @@ um_jflow(void)
 }
 
 static int
-flow_server_init(cli_server_t *server)
+flow_server_init(sock_server_t *server)
 {
     int fd, err;
     
@@ -758,9 +758,9 @@ flow_server_init(cli_server_t *server)
 }
 
 static int
-__flow_server_handle(cli_server_t *server)
+__flow_server_handle(sock_server_t *server)
 {
-    static int (*handle[])(cli_server_t *) = {
+    static int (*handle[])(sock_server_t *) = {
         pkt_handle,
         intf_handle,
         eth_handle,
@@ -780,7 +780,7 @@ __flow_server_handle(cli_server_t *server)
 }
 
 static int
-flow_server_handle(cli_server_t *server)
+flow_server_handle(sock_server_t *server)
 {
     int i, err;
 
@@ -794,6 +794,6 @@ flow_server_handle(cli_server_t *server)
     return 0;
 }
 
-cli_server_t um_flow_server = 
-    CLI_SERVER_INITER(UM_SERVER_FLOW, AF_PACKET, flow_server_init, flow_server_handle);
+sock_server_t um_flow_server = 
+    SOCK_SERVER_INITER(UM_SERVER_FLOW, AF_PACKET, flow_server_init, flow_server_handle);
 /******************************************************************************/

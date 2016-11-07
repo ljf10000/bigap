@@ -455,7 +455,7 @@ struct um_control {
     struct um_lan lan[UM_LAN_COUNT];
     struct um_config cfg;
     char *conf;
-    cli_server_t **server;
+    sock_server_t **server;
     int server_count;
     h2_table_t table;
 };
@@ -468,7 +468,7 @@ struct um_control {
 
 extern struct um_control umd;
 
-static inline cli_server_t *
+static inline sock_server_t *
 get_server_by_intf(struct um_intf *intf)
 {
     return umd.server[um_server_id(intf->id)];
@@ -481,7 +481,7 @@ get_intf_by_id(int intf_id)
 }
 
 static inline struct um_intf *
-get_intf_by_server(cli_server_t *server)
+get_intf_by_server(sock_server_t *server)
 {
     return get_intf_by_id(um_intf_id(server->id));
 }
