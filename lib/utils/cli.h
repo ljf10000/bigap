@@ -407,7 +407,7 @@ clic_handle(cli_client_t *clic, bool syn, char *action, int argc, char *argv[])
 /******************************************************************************/
 #if 1
 static inline int
-____clis_fd(sockaddr_un_t *server)
+__clis_fd(sockaddr_un_t *server)
 {
     int fd = INVALID_FD, err = 0;
     
@@ -426,12 +426,6 @@ ____clis_fd(sockaddr_un_t *server)
     
     return fd;
 }
-
-#define __clis_fd(_server, _name)   ({  \
-    set_abstract_path(_server, OS_UNIX_PATH(_name)); \
-                                        \
-    ____clis_fd(_server);               \
-})  /* end */
 
 static inline int
 cli_line_handle(
