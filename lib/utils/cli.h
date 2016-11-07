@@ -175,10 +175,16 @@ __this_clib_show(void)
 }
 
 static inline void
+__this_clib_cut(uint32 len)
+{
+    __this_clib_buf[len] = 0;
+}
+
+static inline void
 __this_clib_clear(void) 
 {
-    __this_clib_buf[0]   = 0;
     __this_clib_len      = 0;
+    __this_clib_cut(0);
 }
 
 static inline int
@@ -303,14 +309,14 @@ static inline int
 __cli_client_recv(int fd)
 {
     cli_t *cli = __this_cli();
-    char *clib = (char *)__this_clib();
     int err = 0;
     
     do {
-        err = __io_recv(fd, clib, CLI_BUFFER_LEN, 0);
+        err = __io_recv(fd, __this_clib(), CLI_BUFFER_LEN, 0);
         // err > hdr
         if (err > sizeof(cli_header_t)) {
-            clib[err - sizeof(cli_header_t)] = 0;
+            __this_clib_cut(err);
+            __this_clib_buf[err] = 0;
             
             err = __this_clib_show();
             if (false==cli->tcp) {
@@ -319,7 +325,7 @@ __cli_client_recv(int fd)
         }
         // err = hdr
         else if (err == sizeof(cli_header_t)) {
-            return __this_clib_err;
+            return __this_clib_show();
         }
         // 0 < err < hdr
         else if (err > 0) {
