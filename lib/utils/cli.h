@@ -291,7 +291,7 @@ __clic_fd(cli_client_t *clic)
     
     err = bind(fd, (sockaddr_t *)&clic->client, get_abstract_sockaddr_len(&clic->client));
     if (err<0) {
-        __debug_error("bind error:%d", -errno);
+        __debug_error("bind(%s) error:%d", get_abstract_path(&clic->client), -errno);
         return -errno;
     }
 
@@ -427,7 +427,7 @@ __clis_fd(sockaddr_un_t *server)
     
     err = bind(fd, (sockaddr_t *)server, get_abstract_sockaddr_len(server));
     if (err<0) {
-        debug_error("bind error:%d", -errno);
+        debug_error("bind(%s) error:%d", get_abstract_path(server), -errno);
         return -errno;
     }
     
