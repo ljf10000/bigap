@@ -24,19 +24,22 @@ init_nsq_cfg(void)
     DECLARE_JOBJ_LOADER(NSQ_JOBJ_LOADER);
     
     jobj_loader_f *map[] = JOBJ_MAPPER(NSQ_JOBJ_LOADER);
+    jobj_t jobj = NULL;
     int err;
     
-    jobj_t jcfg = jobj_byfile(nsqa.conf);
-    if (NULL==jcfg) {
+    jobj = jobj_byfile(nsqa.conf);
+    if (NULL==jobj) {
         debug_error("bad %s", nsqa.conf);
         
         return -EBADCONF;
     }
     
-    err = jobj_load(jcfg, map, os_count_of(map));
+    err = jobj_load(jobj, map, os_count_of(map));
     if (err<0) {
         return err;
     }
+    
+    jobj_put(jobj);
     
     return 0;
 }

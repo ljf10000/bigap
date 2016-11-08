@@ -16,89 +16,6 @@ extern sock_server_t um_cli_server;
 extern sock_server_t um_flow_server;
 extern sock_server_t um_timer_server;
 
-#define um_jcfg_u32(_jcfg, _member)     jj_u32(&umd.cfg, _jcfg, _member)
-#define um_jcfg_i32(_jcfg, _member)     jj_i32(&umd.cfg, _jcfg, _member)
-#define um_jcfg_bool(_jcfg, _member)    jj_bool(&umd.cfg, _jcfg, _member)
-#define um_jcfg_string(_jcfg, _member)  jj_string(&umd.cfg, _jcfg, _member)
-
-static int
-init_cfg_script_event(jobj_t jcfg)
-{
-    return um_jcfg_string(jcfg, script_event);
-}
-
-static int
-init_cfg_script_getipbymac(jobj_t jcfg)
-{
-    return um_jcfg_string(jcfg, script_getipbymac);
-}
-
-static int
-init_cfg_script_getmacbyip(jobj_t jcfg)
-{
-    return um_jcfg_string(jcfg, script_getmacbyip);
-}
-
-static int
-init_cfg_syncable(jobj_t jcfg)
-{
-    return um_jcfg_bool(jcfg, syncable);
-}
-
-static int
-init_cfg_reauthable(jobj_t jcfg)
-{
-    return um_jcfg_bool(jcfg, reauthable);
-}
-
-static int
-init_cfg_gc(jobj_t jcfg)
-{
-    return um_jcfg_u32(jcfg, gc);
-}
-
-static int
-init_cfg_sniff_count(jobj_t jcfg)
-{
-    return um_jcfg_u32(jcfg, sniff_count);
-}
-
-static int
-init_cfg_ticks(jobj_t jcfg)
-{
-    return um_jcfg_u32(jcfg, ticks);
-}
-
-static int
-init_cfg_idle(jobj_t jcfg)
-{
-    return um_jcfg_u32(jcfg, idle);
-}
-
-static int
-init_cfg_fake(jobj_t jcfg)
-{
-    return um_jcfg_u32(jcfg, fake);
-}
-
-static int
-init_cfg_machashsize(jobj_t jcfg)
-{
-    return um_jcfg_u32(jcfg, machashsize);
-}
-
-static int
-init_cfg_iphashsize(jobj_t jcfg)
-{
-    return um_jcfg_u32(jcfg, iphashsize);
-}
-
-static int
-init_cfg_autouser(jobj_t jcfg)
-{
-    return um_jcfg_u32(jcfg, autouser);
-}
-
 static int
 init_cfg_intf_pre(int count)
 {
@@ -260,33 +177,49 @@ init_cfg_instance(jobj_t jcfg)
     return 0;
 }
 
+#define UMD_JOBJ_LOADER(_)          \
+    _(&umd.cfg, string, script_event)       \
+    _(&umd.cfg, string, script_getipbymac)  \
+    _(&umd.cfg, string, script_getmacbyip)  \
+    _(&umd.cfg, bool, syncable)     \
+    _(&umd.cfg, bool, reauthable)   \
+    _(&umd.cfg, u32, gc)            \
+    _(&umd.cfg, u32, sniff_count)   \
+    _(&umd.cfg, u32, ticks)         \
+    _(&umd.cfg, u32, idle)          \
+    _(&umd.cfg, u32, fake)          \
+    _(&umd.cfg, u32, machashsize)   \
+    _(&umd.cfg, u32, iphashsize)    \
+    _(&umd.cfg, u32, autouser)      \
+    /* end */
+
 int init_cfg(void)
 {
-    static jobj_cfg_loader_f *map[] = {
-        init_cfg_script_event,
-        init_cfg_script_getipbymac,
-        init_cfg_script_getmacbyip,
-        init_cfg_syncable,
-        init_cfg_reauthable,
-        init_cfg_gc,
-        init_cfg_sniff_count,
-        init_cfg_ticks,
-        init_cfg_idle,
-        init_cfg_fake,
-        init_cfg_machashsize,
-        init_cfg_iphashsize,
-        init_cfg_autouser,
-        
-        init_cfg_instance,
-    };
-
-    jobj_t jobj = jobj_byfile(umd.conf);
+    DECLARE_JOBJ_LOADER(UMD_JOBJ_LOADER);
+    
+    jobj_loader_f *map[] = JOBJ_MAPPER(UMD_JOBJ_LOADER);
+    jobj_t jobj = NULL;
+    int err = 0;
+    
+    jobj = jobj_byfile(umd.conf);
     if (NULL==jobj) {
         debug_error("bad %s", umd.conf);
         
         return -EBADCONF;
     }
+    
+    err = jobj_load(jobj, map, os_count_of(map));
+    if (err<0) {
+        return err;
+    }
 
-    return jobj_cfg_load(jobj, map, os_count_of(map));
+    err = init_cfg_instance(jobj);
+    if (err<0) {
+        return err;
+    }
+
+    jobj_put(jobj);
+    
+    return 0;
 }
 /******************************************************************************/
