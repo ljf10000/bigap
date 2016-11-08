@@ -173,7 +173,13 @@ static cli_table_t cli_table[] = {
 static int
 nsq_cli(loop_watcher_t *watcher)
 {
-    return clis_handle(watcher->fd, cli_table);
+    int err;
+    
+    err = clis_handle(watcher->fd, cli_table);
+    
+    os_loop_del_watcher(&nsqa.loop, watcher->fd);
+
+    return err;
 }
 
 int

@@ -495,9 +495,7 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev)
     else if (false==is_good_loop_type(watcher->type)) {
         return -EBADFD;
     }
-
-    os_println("new ev fd=%d", ev->data.fd);
-    if (LOOP_TYPE_FATHER==watcher->type) {
+    else if (LOOP_TYPE_FATHER==watcher->type) {
         __loop_father_handle(loop, watcher);
     }
     else {

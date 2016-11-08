@@ -131,7 +131,10 @@ __this_cli(void)
     
     if (NULL==cli->b) {
         cli->b = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
-
+        if (NULL==cli->b) {
+            return NULL;
+        }
+        
         cli->addr.sun_family = AF_UNIX;
         cli->addrlen = sizeof(sockaddr_un_t);
 
