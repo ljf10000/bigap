@@ -176,6 +176,10 @@ nsq_cli(loop_watcher_t *watcher)
     return clis_handle(watcher->fd, cli_table);
 }
 
+#if __CLI_TCP__
+#error "__CLI_TCP__"
+#endif
+
 int
 init_nsq_cli(void)
 {
