@@ -311,11 +311,11 @@ __clic_recv(int fd)
         os_println("__io_recv after");
         // err > hdr
         if (err > sizeof(cli_header_t)) {
-            os_println("err > hdr");
-            __clib_cut(err);
-            os_println("err > hdr");
+            os_println("err=%d > hdr", err);
+            __clib_cut(err - sizeof(cli_header_t));
+            os_println("err=%d > hdr", err);
             err = __clib_show();
-            os_println("err > hdr");
+            os_println("err=%d > hdr", err);
 #if 0==__CLI_TCP__
             return err;
 #endif
