@@ -308,9 +308,12 @@ __clic_recv(int fd)
     int err = 0;
     
     do {
+        os_println("__io_recv before");
         err = __io_recv(fd, __clib(), CLI_BUFFER_LEN, 0);
+        os_println("__io_recv after");
         // err > hdr
         if (err > sizeof(cli_header_t)) {
+            os_println("err > hdr");
             __clib_cut(err);
             
             err = __clib_show();
@@ -320,27 +323,34 @@ __clic_recv(int fd)
         }
         // err = hdr
         else if (err == sizeof(cli_header_t)) {
+            os_println("err = hdr");
             return __clib_show();
         }
         // 0 < err < hdr
         else if (err > 0) {
+            os_println("err > 0");
             return -ETOOSMALL;
         }
         // err = 0
         else if (0==err) {
+            os_println("err = 0");
             return 0;
         }
         // err < 0
         else if (EINTR==errno) {
+            os_println("errno = EINTR");
             continue;
         }
         else if (EAGAIN==errno) {
+            os_println("errno = EAGAIN");
             /*
             * timeout
             */
             return -ETIMEOUT;
         }
         else {
+            os_println("errno = %d", -errno);
+            
             return -errno;
         }
     } 
