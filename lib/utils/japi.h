@@ -845,8 +845,8 @@ int __jobj_load_##_member(jobj_t jobj)          \
     _list(__JOBJ_LOADER)                        \
     os_fake_declare
 
-#define __JOBJ_MAPPER(_type, _member)       __jobj_load_##_member,
-#define JOBJ_MAPPER(_list)                  _list(__JOBJ_MAPPER)
+#define __JOBJ_MAPPER(_obj, _type, _member)     __jobj_load_##_member,
+#define JOBJ_MAPPER(_list)                      _list(__JOBJ_MAPPER)
 
 #endif /* __APP__ */
 /******************************************************************************/
