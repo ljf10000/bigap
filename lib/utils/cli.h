@@ -305,74 +305,46 @@ static inline int
 __clic_recv(int fd)
 {
     cli_t *cli = __this_cli();
-    int err = 0;
+    int err = 0, len;
 
     while(1) {
-        os_println("__clic_recv 1");
-        err = __io_recv(fd, __clib(), sizeof(cli_header_t), 0);
-        os_println("__clic_recv 2");
-        os_println("__clic_recv size = %d", err);
-        if (err==(int)sizeof(cli_header_t)) {
-            os_println("__clic_recv 3");
+        len = sizeof(cli_header_t);
+        err = __io_recv(fd, __clib(), len, 0);
+        if (err==len) {
             // is last
             if (0==__clib_len) {
-                os_println("__clic_recv 3.1");
                 return __clib_show();
             }
-            
-            os_println("__clic_recv 3.2");
-            err = __io_recv(fd, __clib_buf, __clib_len, 0);
-            os_println("__clic_recv size = %d", err);
-            if (err==__clib_len) {
-                os_println("__clic_recv 3.3");
+
+            len = __clib_len;
+            err = __io_recv(fd, __clib_buf, len, 0);
+            if (err==len) {
                 __clib_show();
+            } else {
+                goto error;
             }
-            else if (err>__clib_len) {
-                os_println("__clic_recv 3.4");
+        } else {
+error:
+            if (err > len) {
                 return -ETOOBIG;
             }
             else if (err>0) {
-                os_println("__clic_recv 3.5");
                 return -ETOOSMALL;
             }
+            // err = 0
             else if (0==err) {
-                os_println("__clic_recv 3.6");
                 return __clib_show();
             }
-            else {
-                os_println("__clic_recv 3.7");
-                goto error;
-            }
-        }
-        else if (err > (int)sizeof(cli_header_t)) {
-            os_println("__clic_recv 4");
-            return -ETOOBIG;
-        }
-        else if (err>0) {
-            os_println("__clic_recv 5");
-            return -ETOOSMALL;
-        }
-        // err = 0
-        else if (0==err) {
-            os_println("__clic_recv 6");
-            return 0;
-        }
-        else {
-error:
-            // err < 0
-            if (EINTR==errno) {
-                os_println("__clic_recv 7");
+            else if (EINTR==errno) {
                 continue;
             }
             else if (EAGAIN==errno) {
-                os_println("__clic_recv 8");
                 /*
                 * timeout
                 */
                 return -ETIMEOUT;
             }
             else {
-                os_println("__clic_recv 9");
                 return -errno;
             }
         }
