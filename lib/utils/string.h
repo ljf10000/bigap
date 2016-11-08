@@ -705,7 +705,7 @@ os_bin_bkdr(const void *binary, uint32 len)
         int i;
         
         for (i=0; i<len; i++) {
-            bkdr = __bkdr_push(bkdr, *(binary + i));
+            bkdr = __bkdr_push(bkdr, *((byte *)binary + i));
         }
     }
     
