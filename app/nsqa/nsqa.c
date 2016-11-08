@@ -27,9 +27,10 @@ init_nsq_table(void)
 static int
 init_nsq_env(void)
 {
-    nsqa.conf   = env_gets(OS_ENV(CONFIG), NSQ_CONF);
-    nsqa.cache  = env_gets(OS_ENV(CACHE), NSQ_CACHE);
-    nsqa.ticks  = env_geti(OS_ENV(TICKS), NSQ_TICKS);
+    nsqa.conf   = env_gets(OS_ENV(CONFIG),  NSQ_CONF);
+    nsqa.cache  = env_gets(OS_ENV(CACHE),   NSQ_CACHE);
+    nsqa.script = env_gets(OS_ENV(SCRIPT),  NSQ_SCRIPT);
+    nsqa.ticks  = env_geti(OS_ENV(TICKS),   NSQ_TICKS);
     
     return 0;
 }

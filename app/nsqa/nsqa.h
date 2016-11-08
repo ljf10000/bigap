@@ -71,6 +71,7 @@ typedef struct {
     int ticks;
     char *conf;
     char *cache;
+    char *script;
     
     nsq_config_t cfg;
 

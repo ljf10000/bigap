@@ -19,7 +19,7 @@ extern sock_server_t um_timer_server;
 #define um_jcfg_u32(_jcfg, _member)     jj_u32(&umd.cfg, _jcfg, _member)
 #define um_jcfg_i32(_jcfg, _member)     jj_i32(&umd.cfg, _jcfg, _member)
 #define um_jcfg_bool(_jcfg, _member)    jj_bool(&umd.cfg, _jcfg, _member)
-#define um_jcfg_string(_jcfg, _member)  jj_strdup(&umd.cfg, _jcfg, _member)
+#define um_jcfg_string(_jcfg, _member)  jj_string(&umd.cfg, _jcfg, _member)
 
 static int
 init_cfg_script_event(jobj_t jcfg)
@@ -262,7 +262,7 @@ init_cfg_instance(jobj_t jcfg)
 
 int init_cfg(void)
 {
-    static int (*map[])(jobj_t jcfg) = {
+    static jobj_cfg_loader_f *map[] = {
         init_cfg_script_event,
         init_cfg_script_getipbymac,
         init_cfg_script_getmacbyip,
@@ -279,25 +279,14 @@ int init_cfg(void)
         
         init_cfg_instance,
     };
-    int i, err = 0;
-    
-    jobj_t jcfg = jobj_byfile(umd.conf);
-    if (NULL==jcfg) {
+
+    jobj_t jobj = jobj_byfile(umd.conf);
+    if (NULL==jobj) {
         debug_error("bad %s", umd.conf);
         
-        err = -EBADCONF; goto error;
+        return -EBADCONF;
     }
 
-    for (i=0; i<os_count_of(map); i++) {
-        err = (*map[i])(jcfg);
-        if (err<0) {
-            goto error;
-        }
-    }
-    
-error:
-    jobj_put(jcfg);
-
-    return err;
+    return jobj_cfg_load(jobj, map, os_count_of(map));
 }
 /******************************************************************************/

@@ -3,7 +3,7 @@
 #ifdef __APP__
 /******************************************************************************/
 #if 1
-#define XCMEM_LIBVAL_TYPE(_)    \
+#define XENUM_LIBVAL_TYPE(_)    \
     _(LIBVAL_F32,   0, "f32"),  \
     _(LIBVAL_I32,   1, "i32"),  \
     _(LIBVAL_U32,   2, "u32"),  \
@@ -15,7 +15,7 @@
     _(LIBVAL_PTR,   8, "ptr"),  \
     _(LIBVAL_VOD,   9, "void"), \
     /* end */
-DECLARE_ENUM(libval_type, XCMEM_LIBVAL_TYPE, LIBVAL_END);
+DECLARE_ENUM(libval_type, XENUM_LIBVAL_TYPE, LIBVAL_END);
 
 static inline bool is_good_libval_type(int id);
 static inline char *libval_type_string(int id);

@@ -337,7 +337,7 @@ jobj_byfile(char *file)
 {
     jobj_t obj = json_object_from_file(file);
     if (NULL==obj) {
-        japi_println("read json file %s failed", file);
+        debug_error("read json file %s failed", file);
     }
     
     return obj;
@@ -348,7 +348,7 @@ jobj_byfd(int fd)
 {
     jobj_t obj = json_object_from_fd(fd);
     if (NULL==obj) {
-        japi_println("read fd %d failed", fd);
+        debug_error("read fd %d failed", fd);
     }
     
     return obj;
@@ -799,7 +799,7 @@ jobj_get_leaf(jobj_t obj, ...)
         
 #define jj_ip(_obj, _jobj, _member)         jj_byeq(_obj, _jobj, _member, inet_addr)
 #define jj_time(_obj, _jobj, _member)       jj_byeq(_obj, _jobj, _member, os_fulltime)
-#define jj_strdup(_obj, _jobj, _member)     jj_byeq(_obj, _jobj, _member, os_strdup)
+#define jj_string(_obj, _jobj, _member)     jj_byeq(_obj, _jobj, _member, os_strdup)
 
 #define jj_mac(_obj, _jobj, _member)        jj_bymap(_obj, _jobj, _member, os_mac, os_maccpy)
 #define jj_strcpy(_obj, _jobj, _member)     jj_bymap(_obj, _jobj, _member, os_map_nothing, os_strcpy)
@@ -809,6 +809,54 @@ jobj_get_leaf(jobj_t obj, ...)
 #define jj_u32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, u32, "%u")
 #define jj_i32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i32, "%d")
 #define jj_bool(_obj, _jobj, _member)       jj_byvar(_obj, _jobj, _member, bool, "%d")
+
+typedef int jobj_loader_f(jobj_t jcfg);
+
+static inline int 
+jobj_load(jobj_t jcfg, jobj_loader_f *map, int count)
+{
+    int i, err = 0;
+    
+    jobj_t jcfg = jobj_byfile(conf);
+    if (NULL==jcfg) {
+        debug_error("bad %s", umd.conf);
+        
+        err = -EBADCONF; goto error;
+    }
+
+    for (i=0; i<count; i++) {
+        err = (*map[i])(jcfg);
+        if (err<0) {
+            goto error;
+        }
+    }
+    
+error:
+    jobj_put(jcfg);
+
+    return err;
+}
+
+#if 0
+#define XXX_JOBJ_LOADER(_)              \
+    _(obj, string, script_event)        \
+    _(obj, string, script_getipbymac)   \
+    _(obj, string, script_getmacbyip)   \
+    /* end */
+#endif
+
+#define __JOBJ_LOADER(_obj, _type, _member)     \
+int __jobj_load_##_member(jobj_t jobj)          \
+{                                               \
+    return jj_##_type(_obj, jobj, _member);     \
+}   /* end */
+
+#define DECLARE_JOBJ_LOADER(_list)              \
+    _list(__JOBJ_LOADER)                        \
+    os_fake_declare
+
+#define __JOBJ_MAPPER(_type, _member)       __jobj_load_##_member,
+#define JOBJ_MAPPER(_list)                  _list(__JOBJ_MAPPER)
 
 #endif /* __APP__ */
 /******************************************************************************/

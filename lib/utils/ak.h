@@ -82,7 +82,7 @@ typedef uint32 akid_t;
 DECLARE_FAKE_DEBUGGER;
 DECLARE_FAKE_JDEBUGGER;
 /******************************************************************************/
-#define XCMEM_AK_DEBUG(_)                       \
+#define XENUM_AK_DEBUG(_)                       \
     _(____ak_debug_ok,          0, "ok"),       \
     _(____ak_debug_bug,         1, "bug"),      \
     _(____ak_debug_error,       2, "error"),    \
@@ -115,7 +115,7 @@ DECLARE_FAKE_JDEBUGGER;
     /* end */
     /* 29/30/31 reserved for log pri */
 
-DECLARE_ENUM(ak_DEBUG, XCMEM_AK_DEBUG, ____ak_debug_end);
+DECLARE_ENUM(ak_DEBUG, XENUM_AK_DEBUG, ____ak_debug_end);
 
 static inline bool is_good_ak_DEBUG(int id);
 static inline char *ak_DEBUG_string(int id);
@@ -230,11 +230,11 @@ __ak_debug_getname(uint32 level)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
 #if 1
-#define XCMEM_AK_SYS(_) \
+#define XENUM_AK_SYS(_) \
     _(__AK_SYS_DEBUG,   0, AK_DEBUG_NAME), \
     _(__AK_SYS_JDEBUG,  1, JS_DEBUG_NAME), \
     /* end */
-DECLARE_ENUM(ak_sys, XCMEM_AK_SYS, __AK_SYS_END);
+DECLARE_ENUM(ak_sys, XENUM_AK_SYS, __AK_SYS_END);
 
 static inline bool is_good_ak_sys(int id);
 static inline int ak_sys_idx(char *name);

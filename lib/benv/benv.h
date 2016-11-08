@@ -60,12 +60,12 @@
 /*
 * ok > unknow > fail
 */
-#define XCMEM_BENV_FSM(_)               \
+#define XENUM_BENV_FSM(_)               \
     _(BENV_FSM_FAIL,    0, "fail"),     \
     _(BENV_FSM_UNKNOW,  1, "unknow"),   \
     _(BENV_FSM_OK,      2, "ok"),       \
     /* end */
-DECLARE_ENUM(benv_fsm, XCMEM_BENV_FSM, BENV_FSM_END);
+DECLARE_ENUM(benv_fsm, XENUM_BENV_FSM, BENV_FSM_END);
 
 static inline bool is_good_benv_fsm(int id);
 static inline char *benv_fsm_string(int id);

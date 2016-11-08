@@ -64,12 +64,12 @@
 #endif
 
 #if 1
-#define XCMEM_UM_AUTO(_)            \
+#define XENUM_UM_AUTO(_)            \
     _(UM_AUTO_NONE, 0, "none"),     \
     _(UM_AUTO_BIND, 1, "bind"),     \
     _(UM_AUTO_FAKE, 2, "fake"),     \
     /* end */
-DECLARE_ENUM(user_auto, XCMEM_UM_AUTO, UM_AUTO_END);
+DECLARE_ENUM(user_auto, XENUM_UM_AUTO, UM_AUTO_END);
 
 static inline bool is_good_user_auto(int id);
 static inline char *user_auto_string(int id);
@@ -86,14 +86,14 @@ static inline int user_auto_idx(char *name);
 #endif
 
 #if 1
-#define XCMEM_UM_STATE(_)           \
+#define XENUM_UM_STATE(_)           \
     _(UM_STATE_NONE, 0, "none"),    \
     _(UM_STATE_BIND, 1, "bind"),    \
     _(UM_STATE_FAKE, 2, "fake"),    \
     _(UM_STATE_AUTH, 3, "auth"),    \
     _(UM_STATE_BLOCK,4, "block"),   \
     /* end */
-DECLARE_ENUM(user_state, XCMEM_UM_STATE, UM_STATE_END);
+DECLARE_ENUM(user_state, XENUM_UM_STATE, UM_STATE_END);
 
 static inline bool is_good_user_state(int id);
 static inline char *user_state_string(int id);
@@ -125,7 +125,7 @@ static inline int user_state_idx(char *name);
 #define is_user_have_bind(_user)    __is_user_have_bind((_user)->state)
 
 #if 1
-#define XCMEM_UM_DEAUTH(_)                      \
+#define XENUM_UM_DEAUTH(_)                      \
     _(UM_DEAUTH_NONE,       0, "none"),         \
     _(UM_DEAUTH_AUTO,       1, "auto"),         \
     _(UM_DEAUTH_ONLINETIME, 2, "onlinetime"),   \
@@ -135,7 +135,7 @@ static inline int user_state_idx(char *name);
     _(UM_DEAUTH_INITIATIVE, 6, "initiative"),   \
     _(UM_DEAUTH_BLOCK,      7, "block"),        \
     /* end */
-DECLARE_ENUM(deauth_reason, XCMEM_UM_DEAUTH, UM_DEAUTH_END);
+DECLARE_ENUM(deauth_reason, XENUM_UM_DEAUTH, UM_DEAUTH_END);
 
 static inline bool is_good_deauth_reason(int id);
 static inline char *deauth_reason_string(int id);
@@ -159,11 +159,11 @@ is_valid_deauth_reason(int reason)
 }
 
 #if 1
-#define XCMEM_UM_FLOW_TYPE(_)       \
+#define XENUM_UM_FLOW_TYPE(_)       \
     _(um_flow_type_lan, 0, "lan"),  \
     _(um_flow_type_wan, 1, "wan"),  \
     /* end */
-DECLARE_ENUM(flow_type, XCMEM_UM_FLOW_TYPE, um_flow_type_end);
+DECLARE_ENUM(flow_type, XENUM_UM_FLOW_TYPE, um_flow_type_end);
 
 static inline bool is_good_flow_type(int id);
 static inline char *flow_type_string(int id);
@@ -175,12 +175,12 @@ static inline int flow_type_idx(char *name);
 #endif
 
 #if 1
-#define XCMEM_UM_FLOW_DIR(_)        \
+#define XENUM_UM_FLOW_DIR(_)        \
     _(um_flow_dir_up,   0, "up"),   \
     _(um_flow_dir_down, 1, "down"), \
     _(um_flow_dir_all,  2, "all"),  \
     /* end */
-DECLARE_ENUM(flow_dir, XCMEM_UM_FLOW_DIR, um_flow_dir_end);
+DECLARE_ENUM(flow_dir, XENUM_UM_FLOW_DIR, um_flow_dir_end);
 
 static inline bool is_good_flow_dir(int id);
 static inline char *flow_dir_string(int id);
@@ -364,11 +364,11 @@ struct um_intf {
 };
 
 #if 1
-#define XCMEM_UM_FORWARD_MODE(_)        \
+#define XENUM_UM_FORWARD_MODE(_)        \
     _(um_forward_mode_br,   0, "br"),   \
     _(um_forward_mode_rt,   1, "rt"),   \
     /* end */
-DECLARE_ENUM(forward_mode, XCMEM_UM_FORWARD_MODE, um_forward_mode_end);
+DECLARE_ENUM(forward_mode, XENUM_UM_FORWARD_MODE, um_forward_mode_end);
 
 static inline bool is_good_forward_mode(int id);
 static inline char *forward_mode_string(int id);
@@ -511,12 +511,12 @@ struct vlan_header {
 };
 
 #if 1
-#define XCMEM_UM_PKT_TYPE(_)        \
+#define XENUM_UM_PKT_TYPE(_)        \
     _(um_pkt_type_eth,  0, "eth"),  \
     _(um_pkt_type_vlan, 1, "vlan"), \
     _(um_pkt_type_ip,   2, "ip"),   \
     /* end */
-DECLARE_ENUM(pkt_type, XCMEM_UM_PKT_TYPE, um_pkt_type_end);
+DECLARE_ENUM(pkt_type, XENUM_UM_PKT_TYPE, um_pkt_type_end);
 
 static inline bool is_good_pkt_type(int id);
 static inline char *pkt_type_string(int id);
@@ -529,12 +529,12 @@ static inline int pkt_type_idx(char *name);
 #endif
 
 #if 1
-#define XCMEM_UM_PKT_CHECK(_)           \
+#define XENUM_UM_PKT_CHECK(_)           \
     _(um_pkt_check_good,    0, "good"), \
     _(um_pkt_check_bad,     1, "bad"),  \
     _(um_pkt_check_all,     2, "all"),  \
     /* end */
-DECLARE_ENUM(pkt_check, XCMEM_UM_PKT_CHECK, um_pkt_check_end);
+DECLARE_ENUM(pkt_check, XENUM_UM_PKT_CHECK, um_pkt_check_end);
 
 static inline bool is_good_pkt_check(int id);
 static inline char *pkt_check_string(int id);

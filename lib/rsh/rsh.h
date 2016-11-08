@@ -213,11 +213,11 @@ syn: rshc==(syn-request)==>xinetd==(syn-response)==>rshc
 #define RSH_ECHO_REQUEST    "{\"version\":%d, \"mac\":\"%s\", \"cmd\":\"echo\"}"
 
 #if 1
-#define XCMEM_RSH_CMD(_)                \
+#define XENUM_RSH_CMD(_)                \
     _(RSH_CMD_COMMAND,  0, "command"),  \
     _(RSH_CMD_ECHO,     1, "echo"),     \
     /* end */
-DECLARE_ENUM(rsh_cmd, XCMEM_RSH_CMD, RSH_CMD_END);
+DECLARE_ENUM(rsh_cmd, XENUM_RSH_CMD, RSH_CMD_END);
 
 static inline bool is_good_rsh_cmd(int cmd);
 static inline char *rsh_cmd_string(int cmd);
@@ -229,13 +229,13 @@ static inline int rsh_cmd_idx(char *cmd_string);
 #endif
 
 #if 1
-#define XCMEM_RSH_MODE(_)               \
+#define XENUM_RSH_MODE(_)               \
     _(RSH_MODE_SYN,     0, "syn"),      \
     _(RSH_MODE_ACK,     1, "ack"),      \
     _(RSH_MODE_ASYN,    2, "asyn"),     \
     _(RSH_MODE_REFLECT, 3, "reflect"),  \
     /* end */
-DECLARE_ENUM(rsh_mode, XCMEM_RSH_MODE, RSH_MODE_END);
+DECLARE_ENUM(rsh_mode, XENUM_RSH_MODE, RSH_MODE_END);
 
 static inline bool is_good_rsh_mode(int mode);
 static inline char *rsh_mode_string(int mode);
