@@ -469,6 +469,7 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
     
     fd = accept(watcher->fd, &addr, &addrlen);
     if (is_good_fd(watcher->fd)) {
+        os_println("accept new fd=%d from %d", fd, watcher->fd);
         __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd);
     }
 }
