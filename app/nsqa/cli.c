@@ -12,19 +12,19 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-static int nsq_cli_fd;
-
 /*
 * remove {name}
 */
 static int
 handle_remove(char *args)
 {
+#if 0
     if (UM_AUTO_FAKE==umd.cfg.autouser) {
         return handle_mac(um_user_unfake, args);
     } else {
         return -ENOSUPPORT;
     }
+#endif
 }
 
 /*
@@ -36,7 +36,7 @@ handle_insert(char *args)
     char *json  = args;
     jobj_t obj = NULL;
     int err = 0;
-    
+#if 0
     obj = jobj_byjson(json);
     if (NULL==obj) {
         debug_trace("bad json %s", json);
@@ -51,13 +51,14 @@ handle_insert(char *args)
 
 error:
     jobj_put(obj);
-    
+#endif
     return err;
 }
 
 static mv_t
 show_user(struct um_user *user)
 {
+#if 0
     jobj_t obj = um_juser(user);
     
     if (obj) {
@@ -65,7 +66,8 @@ show_user(struct um_user *user)
 
         jobj_put(obj);
     }
-    
+#endif
+
     return mv2_ok;
 }
 
@@ -76,7 +78,7 @@ show_user_byjson(char *json)
     jobj_t jmac     = NULL;
     jobj_t juser    = NULL;
     int err = 0;
-    
+#if 0
     obj = jobj_byjson(json);
     if (NULL==obj) {
         err = -EFILTER; goto error;
@@ -106,7 +108,8 @@ show_user_byjson(char *json)
 error:
     jobj_put(juser);
     jobj_put(obj);
-    
+#endif
+
     return err;
 }
 
@@ -117,7 +120,7 @@ show_stat(void)
     if (NULL==obj) {
         return -ENOMEM;
     }
-
+#if 0
     jobj_add_string(obj, "mac", os_macstring(umd.basemac));
     jobj_add_i32(obj, "user", h2_count(&umd.table));
     jobj_add(obj, "flow", um_jflow());
@@ -125,14 +128,15 @@ show_stat(void)
     cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
     
     jobj_put(obj);
-    
+#endif
+
     return 0;
 }
 
 static int
 show_count(void)
 {
-    cli_sprintf("%d" __crlf, h2_count(&umd.table));
+    cli_sprintf("%d" __crlf, h2_count(&nsqa.table));
     
     return 0;
 }
@@ -144,7 +148,7 @@ static int
 handle_show(char *args)
 {
     char *json = args; /* json maybe include space, not shift */
-
+#if 0
     if (NULL==json) {
         return um_user_foreach(show_user, false);
     }
@@ -160,6 +164,7 @@ handle_show(char *args)
     else {
         return -EFORMAT;
     }
+#endif
 }
 
 static cli_table_t cli_table[] = {
