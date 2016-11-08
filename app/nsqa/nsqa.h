@@ -68,6 +68,10 @@ typedef mv_t nsq_foreach_f(nsq_instance_t *instance);
 typedef mv_t nsq_get_f(nsq_instance_t *instance);
 
 typedef struct {
+    int ticks;
+    char *conf;
+    char *cache;
+    
     nsq_config_t cfg;
 
     loop_t loop;
@@ -116,7 +120,13 @@ extern int
 init_nsq_cli(void);
 
 extern int
+init_nsq_cfg(void);
+
+extern int
 init_nsq_instance(void);
+
+extern int
+init_nsq_msg(void);
 
 /******************************************************************************/
 #endif /* __NSQA_H_138838ae69b44e039c63875789ba5889__ */

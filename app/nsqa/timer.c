@@ -12,8 +12,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-struct itimerspec nsq_ticks = OS_ITIMESPEC_INITER(NSQ_TICKS, 0);
-
 static int
 nsq_timer(loop_watcher_t *watcher, uint32 times)
 {
@@ -23,9 +21,10 @@ nsq_timer(loop_watcher_t *watcher, uint32 times)
 int
 init_nsq_timer(void)
 {
+    struct itimerspec iticks = OS_ITIMESPEC_INITER(os_second(nsqa.ticks), os_usecond(nsqa.ticks));
     int err;
     
-    err = os_loop_add_timer(&nsqa.loop, nsq_timer, &nsq_ticks);
+    err = os_loop_add_timer(&nsqa.loop, nsq_timer, &iticks);
     if (err<0) {
         debug_error("add loop timer error:%d", err);
         

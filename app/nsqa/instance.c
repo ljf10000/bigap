@@ -160,7 +160,6 @@ nsqi_identify(nsq_instance_t *instance, char *json)
     return 0;
 }
 
-
 int
 init_nsq_instance(void)
 {
