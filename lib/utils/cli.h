@@ -310,22 +310,37 @@ __clic_recv(int fd)
     while(1) {
         os_println("__clic_recv 1");
         err = __io_recv(fd, __clib(), sizeof(cli_header_t), 0);
+        os_println("__clic_recv 2");
         os_println("__clic_recv size = %d", err);
         if (err==(int)sizeof(cli_header_t)) {
             os_println("__clic_recv 3");
-            err = __io_recv(fd, __clib_buf, __clib_SIZE, 0);
+            // is last
+            if (0==__clib_len) {
+                os_println("__clic_recv 3.1");
+                return __clib_show();
+            }
+            
+            os_println("__clic_recv 3.2");
+            err = __io_recv(fd, __clib_buf, __clib_len, 0);
             os_println("__clic_recv size = %d", err);
-            os_println("__clic_recv 3.1");
-            if (err>0) {
-                os_println("__clic_recv 3.1.1");
+            if (err==__clib_len) {
+                os_println("__clic_recv 3.3");
                 __clib_show();
             }
+            else if (err>__clib_len) {
+                os_println("__clic_recv 3.4");
+                return -ETOOBIG;
+            }
+            else if (err>0) {
+                os_println("__clic_recv 3.5");
+                return -ETOOSMALL;
+            }
             else if (0==err) {
-                os_println("__clic_recv 3.1.2");
+                os_println("__clic_recv 3.6");
                 return __clib_show();
             }
             else {
-                os_println("__clic_recv 3.1.3");
+                os_println("__clic_recv 3.7");
                 goto error;
             }
         }
