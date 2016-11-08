@@ -195,25 +195,12 @@ init_cfg_instance(jobj_t jcfg)
 
 int init_cfg(void)
 {
-    DECLARE_JOBJ_LOADER(UMD_JOBJ_LOADER);
-    
-    jobj_loader_f *map[] = JOBJ_MAPPER(UMD_JOBJ_LOADER);
-    jobj_t jobj = NULL;
-    int err = 0;
-    
-    jobj = jobj_byfile(umd.conf);
+    jobj_t jobj = JOBJ_LOADF(umd.conf, UMD_JOBJ_LOADER);
     if (NULL==jobj) {
-        debug_error("bad %s", umd.conf);
-        
         return -EBADCONF;
     }
-    
-    err = jobj_load(jobj, map, os_count_of(map));
-    if (err<0) {
-        return err;
-    }
 
-    err = init_cfg_instance(jobj);
+    int err = init_cfg_instance(jobj);
     if (err<0) {
         return err;
     }

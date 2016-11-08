@@ -21,22 +21,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 int
 init_nsq_cfg(void)
 {
-    DECLARE_JOBJ_LOADER(NSQ_JOBJ_LOADER);
-    
-    jobj_loader_f *map[] = JOBJ_MAPPER(NSQ_JOBJ_LOADER);
-    jobj_t jobj = NULL;
-    int err;
-    
-    jobj = jobj_byfile(nsqa.conf);
+    jobj_t jobj = JOBJ_LOADF(nsqa.conf, NSQ_JOBJ_LOADER);
     if (NULL==jobj) {
-        debug_error("bad %s", nsqa.conf);
-        
         return -EBADCONF;
-    }
-    
-    err = jobj_load(jobj, map, os_count_of(map));
-    if (err<0) {
-        return err;
     }
     
     jobj_put(jobj);
