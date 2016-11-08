@@ -314,6 +314,7 @@ __clic_recv(int fd)
         if (err==(int)sizeof(cli_header_t)) {
             os_println("__clic_recv 3");
             err = __io_recv(fd, __clib_buf, __clib_SIZE, 0);
+            os_println("__clic_recv size = %d", err);
             os_println("__clic_recv 3.1");
             if (err>0) {
                 os_println("__clic_recv 3.1.1");
