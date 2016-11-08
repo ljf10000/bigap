@@ -78,7 +78,7 @@ env_geti(char *envname, int deft)
 #define use_THIS_ENV    0
 
 #if 1
-#define OS_ENVLIST(_)   \
+#define OS_ENV_ENUM_MAPPER(_)           \
     _(ENV_TIMEOUT,  0,  "timeout"),     \
     _(ENV_INTERVAL, 1,  "interval"),    \
     _(ENV_PWDFILE,  2,  "pwdfile"),     \
@@ -104,7 +104,7 @@ env_geti(char *envname, int deft)
     _(ENV_GC,       23, "gc"),          \
     _(ENV_CONF,     24, "conf"),        \
     /* end */
-DECLARE_ENUM(os_env, OS_ENVLIST, OS_ENV_END);
+DECLARE_ENUM(os_env, OS_ENV_ENUM_MAPPER, OS_ENV_END);
 
 static inline bool is_good_os_env(int type);
 static inline char *os_env_string(int type);
@@ -171,7 +171,7 @@ os_env_init(void)
 #define OS_ENV_GET(_key, _value, _name) \
     __this_env()->env[_key] = getenv("__env_" _name "__")
 
-    OS_ENVLIST(OS_ENV_GET) i=0;
+    OS_ENV_ENUM_MAPPER(OS_ENV_GET) i=0;
 #undef OS_ENV_GET
 #endif
 }

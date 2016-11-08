@@ -6,12 +6,12 @@
 * XENUM: c magic enum macro
 *
 */
-#define XENUM_XXX(_) \
+#define XXX_ENUM_MAPPER(_) \
     _(KEY_A, VALUE_A, "NAME-A"), \
     _(KEY_B, VALUE_B, "NAME-B"), \
     _(KEY_C, VALUE_C, "NAME-C"), \
     /* end */
-DECLARE_ENUM(xxx, XENUM_XXX, KEY_END);
+DECLARE_ENUM(xxx, XXX_ENUM_MAPPER, KEY_END);
 
 static inline bool is_good_xxx(int id);
 static inline char *xxx_string(int id);
@@ -26,9 +26,9 @@ static inline int xxx_idx(char *name);
 #define __ENUM_MAP_VALUE(_key, _value, _name)   _key = _value
 #define __ENUM_MAP_NAME(_key, _value, _name)    [_key] = _name
 
-#define DECLARE_ENUM(_mod, _list, _end) \
+#define DECLARE_ENUM(_mod, _mapper, _end) \
     enum {                          \
-        _list(__ENUM_MAP_VALUE)     \
+        _mapper(__ENUM_MAP_VALUE)   \
                                     \
         _end                        \
     };                              \
@@ -42,7 +42,7 @@ static inline int xxx_idx(char *name);
     static inline char **           \
     __##_mod##_strings(void)        \
     {                               \
-        static char *array[_end] = { _list(__ENUM_MAP_NAME) }; \
+        static char *array[_end] = { _mapper(__ENUM_MAP_NAME) }; \
                                     \
         return array;               \
     }                               \
@@ -62,6 +62,7 @@ static inline int xxx_idx(char *name);
                                     \
         return os_array_search_str(array, s, 0, _end); \
     }                               \
+                                    \
     os_fake_declare                 \
     /* end */
 /******************************************************************************/

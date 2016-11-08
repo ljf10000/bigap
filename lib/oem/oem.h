@@ -123,12 +123,12 @@ typedef struct {
 #include "oem2.h"
 /******************************************************************************/
 #if 1
-#define XENUM_OEM(_)                \
+#define OEM_T_ENUM_MAPPER(_)        \
     _(OEM_T_DEFT, 0, OEM_NAME),     \
     _(OEM_T_1,    1, OEM1_NAME),    \
     _(OEM_T_2,    2, OEM2_NAME),    \
     /* end */
-DECLARE_ENUM(oem_type, XENUM_OEM, OEM_T_END);
+DECLARE_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
 
 static inline bool is_good_oem_type(int id);
 static inline char *oem_type_string(int id);

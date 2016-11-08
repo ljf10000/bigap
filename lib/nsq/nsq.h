@@ -69,7 +69,7 @@ get_nsqa_path_env(sockaddr_un_t *addr)
 #define NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_DEFT     250
 #define NSQ_IDENTIFY_MSG_TIMEOUT_DEFT               (10*1000)
 
-#define XENUM_NSQ_IDENTIFY(_)                                                               \
+#define NSQ_IDENTIFY_ENUM_MAPPER(_)                                                               \
     _(NSQ_IDENTIFY_CLIENT_ID,               0,  NSQ_IDENTIFY_CLIENT_ID_NAME),               \
     _(NSQ_IDENTIFY_HOSTNAME ,               1,  NSQ_IDENTIFY_HOSTNAME_NAME),                \
     _(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     2,  NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME),     \
@@ -79,7 +79,7 @@ get_nsqa_path_env(sockaddr_un_t *addr)
     _(NSQ_IDENTIFY_USER_AGENT,              6,  NSQ_IDENTIFY_USER_AGENT_NAME),              \
     _(NSQ_IDENTIFY_MSG_TIMEOUT,             7,  NSQ_IDENTIFY_MSG_TIMEOUT_NAME),             \
     /* end */
-DECLARE_ENUM(nsq_identify, XENUM_NSQ_IDENTIFY, NSQ_IDENTIFY_END);
+DECLARE_ENUM(nsq_identify, NSQ_IDENTIFY_ENUM_MAPPER, NSQ_IDENTIFY_END);
 
 static inline bool is_good_nsq_identify(int id);
 static inline char *nsq_identify_string(int id);
@@ -172,12 +172,12 @@ nsq_identify_rule(void)
 #define NSQ_AUTH_IDENTIFY_URL_NAME        "identity_url"
 #define NSQ_AUTH_PERMISSION_COUNT_NAME    "permission_count"
     
-#define XENUM_NSQ_AUTH(_)                                                   \
+#define NSQ_AUTH_ENUM_MAPPER(_)                                             \
     _(NSQ_AUTH_IDENTIFY,            0,  NSQ_AUTH_IDENTIFY_NAME),            \
     _(NSQ_AUTH_IDENTIFY_URL ,       1,  NSQ_AUTH_IDENTIFY_URL_NAME),        \
     _(NSQ_AUTH_PERMISSION_COUNT,    2,  NSQ_AUTH_PERMISSION_COUNT_NAME),    \
     /* end */
-DECLARE_ENUM(nsq_auth, XENUM_NSQ_AUTH, NSQ_AUTH_END);
+DECLARE_ENUM(nsq_auth, NSQ_AUTH_ENUM_MAPPER, NSQ_AUTH_END);
 
 static inline bool is_good_nsq_auth(int id);
 static inline char *nsq_auth_string(int id);
@@ -206,7 +206,7 @@ static inline int nsq_auth_idx(char *name);
 #define NSQ_E_AUTH_FAILED_NAME    "E_AUTH_FAILED "
 #define NSQ_E_UNAUTHORIZED_NAME   "E_UNAUTHORIZED"
     
-#define XENUM_NSQ_ERROR(_)                                  \
+#define NSQ_ERROR_ENUM_MAPPER(_)                            \
     _(NSQ_E_OK,             0,  NSQ_E_OK_NAME),             \
     _(NSQ_E_CLOSE_WAIT,     1,  NSQ_E_CLOSE_WAIT_NAME),     \
     _(NSQ_E_ERROR,          2,  NSQ_E_ERROR_NAME),          \
@@ -223,7 +223,7 @@ static inline int nsq_auth_idx(char *name);
     _(NSQ_E_AUTH_FAILED,    12, NSQ_E_AUTH_FAILED_NAME),    \
     _(NSQ_E_UNAUTHORIZED,   13, NSQ_E_UNAUTHORIZED_NAME),   \
     /* end */
-DECLARE_ENUM(nsq_error, XENUM_NSQ_ERROR, NSQ_E_END);
+DECLARE_ENUM(nsq_error, NSQ_ERROR_ENUM_MAPPER, NSQ_E_END);
 
 static inline bool is_good_nsq_error(int id);
 static inline char *nsq_error_string(int id);
@@ -254,12 +254,12 @@ static inline bool is_valid_nsq_error(int id)
 #endif
 
 #if 1
-#define XENUM_NSQ_FRAME(_)                      \
+#define NSQ_FRAME_ENUM_MAPPER(_)                \
     _(NSQ_FRAME_RESPONSE,   0,  "response"),    \
     _(NSQ_FRAME_ERROR,      1,  "error"),       \
     _(NSQ_FRAME_MESSAGE,    2,  "message"),     \
     /* end */
-DECLARE_ENUM(nsq_frame, XENUM_NSQ_FRAME, NSQ_FRAME_END);
+DECLARE_ENUM(nsq_frame, NSQ_FRAME_ENUM_MAPPER, NSQ_FRAME_END);
 
 static inline bool is_good_nsq_frame(int id);
 static inline char *nsq_frame_string(int id);

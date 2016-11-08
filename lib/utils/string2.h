@@ -2,12 +2,12 @@
 #define __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 /******************************************************************************/
 #if 1
-#define XENUM_STRING_TYPE(_)            \
+#define STRING_TYPE_ENUM_MAPPER(_)      \
     _(STRING_T_GLOBAL,  0, "global"),   \
     _(STRING_T_CONST,   1, "const"),    \
     _(STRING_T_HEAP,    3, "heap"),     \
     /* end */
-DECLARE_ENUM(string_type, XENUM_STRING_TYPE, STRING_T_END);
+DECLARE_ENUM(string_type, STRING_TYPE_ENUM_MAPPER, STRING_T_END);
 
 static inline bool is_good_string_type(int type);
 static inline char *string_type_string(int type);

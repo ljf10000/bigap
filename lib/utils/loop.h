@@ -11,7 +11,7 @@
 #endif
 
 #if 1
-#define LOOP_LIST(_) \
+#define LOOP_TYPE_ENUM_MAPPER(_)        \
     _(LOOP_TYPE_INOTIFY,0, "inotify"),  \
     _(LOOP_TYPE_SIGNAL, 1, "signal"),   \
     _(LOOP_TYPE_TIMER,  2, "timer"),    \
@@ -19,7 +19,7 @@
     _(LOOP_TYPE_FATHER, 4, "father"),   \
     _(LOOP_TYPE_SON,    5, "son"),      \
     /* end */
-DECLARE_ENUM(loop_type, LOOP_LIST, LOOP_TYPE_END);
+DECLARE_ENUM(loop_type, LOOP_TYPE_ENUM_MAPPER, LOOP_TYPE_END);
 
 static inline bool is_good_loop_type(int id);
 static inline char *loop_type_string(int id);

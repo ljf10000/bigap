@@ -10,7 +10,7 @@ enum {
 };
 
 #if 1
-#define XENUM_BLOB_TYPE(_)              \
+#define BLOB_TYPE_ENUM_MAPPER(_)        \
     _(BLOB_T_OBJECT,    0, "object"),   \
     _(BLOB_T_ARRAY,     1, "array"),    \
     _(BLOB_T_STRING,    2, "string"),   \
@@ -23,7 +23,7 @@ enum {
     _(BLOB_T_UINT64,    9, "uint64"),   \
     _(BLOB_T_FLOAT64,   10,"float64"),  \
     /* end */
-DECLARE_ENUM(blob_type, XENUM_BLOB_TYPE, BLOB_T_END);
+DECLARE_ENUM(blob_type, BLOB_TYPE_ENUM_MAPPER, BLOB_T_END);
 
 static inline bool is_good_blob_type(int type);
 static inline char *blob_type_string(int type);
