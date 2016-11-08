@@ -834,7 +834,7 @@ int __jobj_load_##_member(jobj_t jobj)          \
 #define JOBJ_MAPPER(_list)                      { _list(__JOBJ_MAPPER) }
 
 static inline jobj_t 
-__jobj_load(jobj_t jobj, jobj_loader_f *map[], int count)
+__jobj_map(jobj_t jobj, jobj_loader_f *map[], int count)
 {
     int i, err = 0;
 
@@ -849,18 +849,18 @@ __jobj_load(jobj_t jobj, jobj_loader_f *map[], int count)
     
     return jobj;
 }
-#define jobj_load(_jobj, _map)              __jobj_load(_jobj, _map, os_count_of(_map))
+#define jobj_map(_jobj, _map)               __jobj_map(_jobj, _map, os_count_of(_map))
 
-#define __jobj_loadf(_file, _map, _count)   __jobj_load(jobj_byfile(_file), _map, _count)
-#define jobj_loadf(_file, _map)             __jobj_loadf(_file, _map, os_count_of(_map))
+#define __jobj_mapf(_file, _map, _count)    __jobj_map(jobj_byfile(_file), _map, _count)
+#define jobj_mapf(_file, _map)              __jobj_mapf(_file, _map, os_count_of(_map))
 
-#define JOBJ_LOAD(_jobj, _list)             ({  \
+#define JOBJ_MAP(_jobj, _list)              ({  \
     DECLARE_JOBJ_LOADER(_list);                 \
     jobj_loader_f *__map[] = JOBJ_MAPPER(_list);\
-    jobj_load(_jobj, __map);                    \
+    jobj_map(_jobj, __map);                    \
 })
 
-#define JOBJ_LOADF(_file, _list)            JOBJ_LOAD(jobj_byfile(_file), _list)
+#define JOBJ_MAPF(_file, _list)             JOBJ_MAP(jobj_byfile(_file), _list)
 
 #endif /* __APP__ */
 /******************************************************************************/

@@ -195,7 +195,7 @@ init_cfg_instance(jobj_t jcfg)
 
 int init_cfg(void)
 {
-    jobj_t jobj = JOBJ_LOADF(umd.conf, UMD_JOBJ_LOADER);
+    jobj_t jobj = JOBJ_MAPF(umd.conf, UMD_JOBJ_LOADER);
     if (NULL==jobj) {
         return -EBADCONF;
     }

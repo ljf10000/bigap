@@ -21,7 +21,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 int
 init_nsq_cfg(void)
 {
-    jobj_t jobj = JOBJ_LOADF(nsqa.conf, NSQ_JOBJ_LOADER);
+    jobj_t jobj = JOBJ_MAPF(nsqa.conf, NSQ_JOBJ_LOADER);
     if (NULL==jobj) {
         return -EBADCONF;
     }
