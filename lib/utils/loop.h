@@ -80,8 +80,6 @@ typedef struct {
     autoarray_t watcher;
 
     uint32 count[LOOP_TYPE_END];
-    
-    struct itimerspec tm;
 } loop_t;
 
 #define LOOP_INITER     {   \
@@ -320,6 +318,7 @@ static inline int
 __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
 {
     int err;
+    struct itimerspec tm = *timer;
     
     int fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
     if (fd<0) {
@@ -328,12 +327,11 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
         return -errno;
     }
 
-    loop->tm = *timer;
-    if (0==loop->tm.it_value.tv_sec && 0==loop->tm.it_value.tv_nsec) {
-        loop->tm.it_value.tv_nsec = 1;
+    if (0==tm.it_value.tv_sec && 0==tm.it_value.tv_nsec) {
+        tm.it_value.tv_nsec = 1;
     }
 
-    err = timerfd_settime(fd, 0, &loop->tm, NULL);
+    err = timerfd_settime(fd, 0, &tm, NULL);
     if (err<0) {
         debug_error("setup timer error:%d", -errno);
         
