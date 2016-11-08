@@ -468,8 +468,8 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
     socklen_t addrlen;
     
     fd = accept(watcher->fd, &addr, &addrlen);
+    os_println("accept new fd=%d from %d", fd, watcher->fd);
     if (is_good_fd(watcher->fd)) {
-        os_println("accept new fd=%d from %d", fd, watcher->fd);
         __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd);
     }
 }
@@ -484,7 +484,8 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev)
         [LOOP_TYPE_NORMAL]  = __loop_normal_handle,
         [LOOP_TYPE_SON]     = __loop_normal_handle,
     };
-    
+
+    os_println("new ev fd=%d", ev->data.fd);
     loop_watcher_t *watcher = __loop_watcher(loop, ev->data.fd);
     if (NULL==watcher) {
         return -ENOEXIST;

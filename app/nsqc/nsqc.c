@@ -9,10 +9,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-#if __CLI_TCP__
-#error "__CLI_TCP__"
-#endif
-
 static cli_client_t nsqc = CLI_CLIENT_INITER("nsqa");
 
 #define nsqc_handle(_action, _argc, _argv) \
