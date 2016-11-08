@@ -13,7 +13,7 @@
 #endif
 
 #ifndef NSQ_TICKS
-#define NSQ_TICKS           PC_VAL(5, 5)   /* second */
+#define NSQ_TICKS           PC_VAL(5000, 5000)  /* second */
 #endif
 
 #ifndef NSQ_CONF
