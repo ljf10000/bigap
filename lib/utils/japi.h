@@ -833,23 +833,21 @@ int __jobj_load_##_member(jobj_t jobj)          \
 #define __JOBJ_MAPPER(_obj, _type, _member)     __jobj_load_##_member,
 #define JOBJ_MAPPER(_list)                      { _list(__JOBJ_MAPPER) }
 
-static inline int 
+static inline jobj_t 
 __jobj_load(jobj_t jobj, jobj_loader_f *map[], int count)
 {
     int i, err = 0;
 
-    if (NULL==jobj) {
-        return -EBADJOBJ;
-    }
-    
-    for (i=0; i<count; i++) {
-        err = (*map[i])(jobj);
-        if (err<0) {
-            return err;
+    if (jobj) {
+        for (i=0; i<count; i++) {
+            err = (*map[i])(jobj);
+            if (err<0) {
+                return NULL;
+            }
         }
     }
     
-    return 0;
+    return jobj;
 }
 #define jobj_load(_jobj, _map)              __jobj_load(_jobj, _map, os_count_of(_map))
 
