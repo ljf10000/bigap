@@ -14,8 +14,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 /******************************************************************************/
 #define NSQ_JMAPPER(_)                  \
     _(&nsqa.cfg, string, script)        \
-    _(&nsqa.cfg, string, hostname)      \
-    _(&nsqa.cfg, string, client_id)     \
     /* end */
 
 int
@@ -25,6 +23,10 @@ init_nsq_cfg(void)
     if (NULL==jobj) {
         return -EBADCONF;
     }
+
+    char *mac = os_getbasemac();
+    nsqa.cfg.hostname = os_strdup(mac);
+    nsqa.cfg.client_id= os_strdup(mac);
     
     jobj_put(jobj);
     

@@ -774,7 +774,7 @@ jobj_get_leaf(jobj_t obj, ...)
     
     return leaf;
 }
-
+/******************************************************************************/
 #define jj_byvar(_obj, _jobj, _member, _type, _format) ({ \
     jobj_t __tmp = jobj_get(_jobj, #_member); \
     if (__tmp) { \
@@ -811,14 +811,6 @@ jobj_get_leaf(jobj_t obj, ...)
 #define jj_bool(_obj, _jobj, _member)       jj_byvar(_obj, _jobj, _member, bool, "%d")
 
 typedef int jobj_mapper_f(jobj_t jobj);
-
-#if 0
-#define XXX_JMAPPER(_)                  \
-    _(obj, string, script_event)        \
-    _(obj, string, script_getipbymac)   \
-    _(obj, string, script_getmacbyip)   \
-    /* end */
-#endif
 
 #define __JOBJ_MAPPER(_obj, _type, _member)     \
 int __jobj_map_##_member(jobj_t jobj)           \

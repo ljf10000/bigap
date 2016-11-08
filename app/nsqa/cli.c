@@ -34,24 +34,21 @@ static int
 handle_insert(char *args)
 {
     char *json  = args;
-    jobj_t obj = NULL;
+    jobj_t jobj = NULL;
     int err = 0;
-#if 0
-    obj = jobj_byjson(json);
-    if (NULL==obj) {
+
+    jobj = jobj_byjson(json);
+    if (NULL==jobj) {
         debug_trace("bad json %s", json);
 
         err = -EBADJSON; goto error;
     }
 
-    struct um_user *user = um_user_auth(os_mac(mac), groupid, obj);
-    if (NULL==user) {
-        err = -ENOEXIST; goto error;
-    }
-
+    cli_sprintf("%s" __crlf, json);
+    
 error:
-    jobj_put(obj);
-#endif
+    jobj_put(jobj);
+
     return err;
 }
 

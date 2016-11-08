@@ -14,7 +14,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 /******************************************************************************/
-nsqa_control_t nsqa;
+nsqa_control_t nsqa = NSQA_INITER;
 
 static int
 init_nsq_table(void)
@@ -29,7 +29,6 @@ init_nsq_env(void)
 {
     nsqa.conf   = env_gets(OS_ENV(CONFIG),  NSQ_CONF);
     nsqa.cache  = env_gets(OS_ENV(CACHE),   NSQ_CACHE);
-    nsqa.script = env_gets(OS_ENV(SCRIPT),  NSQ_SCRIPT);
     nsqa.ticks  = env_geti(OS_ENV(TICKS),   NSQ_TICKS);
     
     return 0;
@@ -91,17 +90,12 @@ int __main(int argc, char *argv[])
     }
 #endif
 
-    while(1) {
-        
-    }
-    
-    return 0;
+    return os_loop(&nsqa.loop);
 }
 
 int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(__exit);
-    setup_signal_timer(__signal);
     setup_signal_user(__signal);
     setup_signal_callstack(NULL);
     

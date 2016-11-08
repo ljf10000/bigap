@@ -17,7 +17,11 @@ ifndef MK_DEFINE
 	export TOOL_PATH=/home/liujingfei/tool
 
 	#export INCS=-I$(DIR_ROOT)/lib -I/usr/src/linux-headers-$(shell uname -r)/include
-	export INCS+=-I$(DIR_ROOT)/lib -I$(DIR_ROOT)/lib/json-c
+	export INCS+=-I$(DIR_ROOT)/lib \
+			-I$(DIR_ROOT)/app/duktape/src \
+			-I$(DIR_ROOT)/app/duktape/module \
+			-I$(DIR_ROOT)/lib/json-c \
+			#end
 	export UBACKTRACE=1
 	export CFLAGS+=-D_GNU_SOURCE \
 		-D$(shell $(SCRIPT_PATH)/64) \

@@ -51,6 +51,10 @@ typedef struct {
     char *script;
 } nsq_config_t;
 
+#define NSQA_CFG_INITER  {  \
+    .script = NSQ_SCRIPT,   \
+}   /* end */
+
 typedef struct {
     char *name;
     char *domain;
@@ -71,16 +75,19 @@ typedef struct {
     int ticks;
     char *conf;
     char *cache;
-    char *script;
     
     nsq_config_t cfg;
-
+    
     loop_t loop;
     
     h1_table_t table;
 } nsqa_control_t;
 
 extern nsqa_control_t nsqa;
+
+#define NSQA_INITER         {   \
+    .cfg    = NSQA_CFG_INITER,  \
+}   /* end */
 /******************************************************************************/
 extern nsq_instance_t *
 nsqi_entry(hash_node_t *node);
