@@ -194,6 +194,7 @@ __cli_reply(int err)
 #else
     len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
 #endif
+    os_println("reply size = %d", __clib_space);
     __clib_clear();
     
     return len;
@@ -309,7 +310,7 @@ __clic_recv(int fd)
     while(1) {
         os_println("__clic_recv 1");
         err = __io_recv(fd, __clib(), sizeof(cli_header_t), 0);
-        os_println("__clic_recv 2");
+        os_println("__clic_recv size = %d", err);
         if (err==(int)sizeof(cli_header_t)) {
             os_println("__clic_recv 3");
             err = __io_recv(fd, __clib_buf, __clib_SIZE, 0);
