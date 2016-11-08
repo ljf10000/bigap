@@ -13,7 +13,17 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "nsqa.h"
 /******************************************************************************/
 nsq_instance_t *
-nsqi_entry(h1_node_t *node)
+nsqi_entry(hash_node_t *node)
+{
+    if (node) {
+        return h1_entry(node, nsq_instance_t, node);
+    } else {
+        return NULL;
+    }
+}
+
+nsq_instance_t *
+nsqi_hx_entry(h1_node_t *node)
 {
     if (node) {
         return h1_entry(node, nsq_instance_t, node);
@@ -60,7 +70,7 @@ nsqi_insert(nsq_instance_t *instance)
         return nsqi_hash(nsqi_entry(node)->name);
     }
     
-    h1_add(&nsqa.table, &instance->node, nsqi_hash);
+    h1_add(&nsqa.table, &instance->node, nhash);
 }
 
 void
@@ -82,7 +92,7 @@ nsqi_get(char *name)
         return os_streq(name, nsqi_entry(node)->name);
     }
 
-    return nsqi_entry(h1_find(&nsqa.table, dhash, eq));
+    return nsqi_hx_entry(h1_find(&nsqa.table, dhash, eq));
 }
 
 int
@@ -90,13 +100,13 @@ nsqi_foreach(nsq_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h1_node_t *node)
     {
-        return (*foreach)(nsqi_entry(node));
+        return (*foreach)(nsqi_hx_entry(node));
     }
 
     if (safe) {
-        return h2_foreach_safe(&nsqa.table, node_foreach);
+        return h1_foreach_safe(&nsqa.table, node_foreach);
     } else {
-        return h2_foreach(&nsqa.table, node_foreach);
+        return h1_foreach(&nsqa.table, node_foreach);
     }
 }
 

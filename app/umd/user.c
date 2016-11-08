@@ -143,13 +143,17 @@ haship(uint32 ip)
 }
 
 static inline struct um_user *
-getuser_bynode(h2_node_t *node)
+user_hx_entry(h2_node_t *node)
 {
-    return hash_entry(node, struct um_user, node);
+    if (node) {
+        return hash_entry(node, struct um_user, node);
+    } else {
+        return NULL;
+    }
 }
 
 static inline struct um_user *
-getuser_bynidx(hash_node_t *node, hash_idx_t nidx)
+user_entry(hash_node_t *node, hash_idx_t nidx)
 {
     return hx_entry(node, struct um_user, node, nidx);
 }
@@ -157,7 +161,7 @@ getuser_bynidx(hash_node_t *node, hash_idx_t nidx)
 static hash_idx_t
 nodehashmac(hash_node_t *node)
 {
-    struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_MAC);
+    struct um_user *user = user_entry(node, UM_USER_NIDX_MAC);
 
     return hashmac(user->mac);
 }
@@ -165,7 +169,7 @@ nodehashmac(hash_node_t *node)
 static hash_idx_t
 nodehaship(hash_node_t *node)
 {
-    struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_IP);
+    struct um_user *user = user_entry(node, UM_USER_NIDX_IP);
 
     return haship(user->ip);
 }
@@ -843,14 +847,12 @@ __user_get(byte mac[])
     
     bool eq(hash_node_t *node)
     {
-        struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_MAC);
+        struct um_user *user = user_entry(node, UM_USER_NIDX_MAC);
         
         return os_maceq(user->mac, mac);
     }
     
-    h2_node_t *node = h2_find(&umd.table, UM_USER_NIDX_MAC, dhash, eq);
-
-    return node?getuser_bynode(node):NULL;
+    return user_hx_entry(h2_find(&umd.table, UM_USER_NIDX_MAC, dhash, eq));
 }
 
 static struct um_user *
@@ -948,7 +950,7 @@ user_foreach(um_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h2_node_t *node)
     {
-        return (*foreach)(getuser_bynode(node));
+        return (*foreach)(user_hx_entry(node));
     }
 
     if (safe) {
@@ -1059,17 +1061,12 @@ um_user_getbyip(uint32 ip)
     
     bool eq(hash_node_t *node)
     {
-        struct um_user *user = getuser_bynidx(node, UM_USER_NIDX_IP);
+        struct um_user *user = user_entry(node, UM_USER_NIDX_IP);
 
         return ip==user->ip;
     }
     
-    h2_node_t *node = h2_find(&umd.table, UM_USER_NIDX_IP, dhash, eq);
-    if (node) {
-        return getuser_bynode(node);
-    }
-
-    return NULL;
+    return user_hx_entry(h2_find(&umd.table, UM_USER_NIDX_IP, dhash, eq));
 }
 
 int um_user_delbyip(uint32 ip)

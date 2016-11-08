@@ -83,7 +83,10 @@ typedef struct {
 extern nsqa_control_t nsqa;
 /******************************************************************************/
 extern nsq_instance_t *
-nsqi_entry(h1_node_t *node);
+nsqi_entry(hash_node_t *node);
+
+extern nsq_instance_t *
+nsqi_hx_entry(h1_node_t *node);
 
 extern hash_idx_t
 nsqi_hash(char *name);
