@@ -23,7 +23,7 @@ init_nsq_cfg(void)
 {
     DECLARE_JOBJ_LOADER(NSQ_JOBJ_LOADER);
     
-    static jobj_loader_f *map[] = JOBJ_MAPPER(NSQ_JOBJ_LOADER);
+    jobj_loader_f *map[] = JOBJ_MAPPER(NSQ_JOBJ_LOADER);
     int err;
     
     jobj_t jcfg = jobj_byfile(nsqa.conf);
