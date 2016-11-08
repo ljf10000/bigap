@@ -820,7 +820,7 @@ jobj_load(jobj_t jcfg, jobj_loader_f *map[], int count)
     for (i=0; i<count; i++) {
         err = (*map[i])(jcfg);
         if (err<0) {
-            goto error;
+            return err;
         }
     }
     
