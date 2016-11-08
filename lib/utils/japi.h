@@ -337,7 +337,7 @@ jobj_byfile(char *file)
 {
     jobj_t obj = json_object_from_file(file);
     if (NULL==obj) {
-        debug_error("read json file %s failed", file);
+        japi_println("read json file %s failed", file);
     }
     
     return obj;
@@ -348,7 +348,7 @@ jobj_byfd(int fd)
 {
     jobj_t obj = json_object_from_fd(fd);
     if (NULL==obj) {
-        debug_error("read fd %d failed", fd);
+        japi_println("read fd %d failed", fd);
     }
     
     return obj;
@@ -817,13 +817,6 @@ jobj_load(jobj_t jcfg, jobj_loader_f *map, int count)
 {
     int i, err = 0;
     
-    jobj_t jcfg = jobj_byfile(conf);
-    if (NULL==jcfg) {
-        debug_error("bad %s", umd.conf);
-        
-        err = -EBADCONF; goto error;
-    }
-
     for (i=0; i<count; i++) {
         err = (*map[i])(jcfg);
         if (err<0) {
@@ -831,10 +824,7 @@ jobj_load(jobj_t jcfg, jobj_loader_f *map, int count)
         }
     }
     
-error:
-    jobj_put(jcfg);
-
-    return err;
+    return 0;
 }
 
 #if 0
