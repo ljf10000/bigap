@@ -194,7 +194,6 @@ __cli_reply(int err)
 #else
     len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
 #endif
-    os_println("__cli_reply %u", __clib_space);
     __clib_clear();
     
     return len;
@@ -308,48 +307,60 @@ __clic_recv(int fd)
     int err = 0;
 
     while(1) {
+        os_println("__clic_recv 1");
         err = __io_recv(fd, __clib(), sizeof(cli_header_t), 0);
+        os_println("__clic_recv 2");
         if (err==(int)sizeof(cli_header_t)) {
+            os_println("__clic_recv 3");
             err = __io_recv(fd, __clib_buf, __clib_SIZE, 0);
+            os_println("__clic_recv 3.1");
             if (err>0) {
+                os_println("__clic_recv 3.1.1");
                 __clib_show();
             }
             else if (0==err) {
+                os_println("__clic_recv 3.1.2");
                 return __clib_show();
             }
             else {
+                os_println("__clic_recv 3.1.3");
                 goto error;
             }
         }
         else if (err > (int)sizeof(cli_header_t)) {
+            os_println("__clic_recv 4");
             return -ETOOBIG;
         }
         else if (err>0) {
+            os_println("__clic_recv 5");
             return -ETOOSMALL;
         }
         // err = 0
         else if (0==err) {
+            os_println("__clic_recv 6");
             return 0;
         }
 error:
         // err < 0
         if (EINTR==errno) {
+            os_println("__clic_recv 7");
             continue;
         }
         else if (EAGAIN==errno) {
+            os_println("__clic_recv 8");
             /*
             * timeout
             */
             return -ETIMEOUT;
         }
         else {
+            os_println("__clic_recv 9");
             return -errno;
         }
     }
     
     return 0;
 }
-
 #else
 static inline int
 __clic_recv(int fd)
