@@ -813,7 +813,7 @@ jobj_get_leaf(jobj_t obj, ...)
 typedef int jobj_loader_f(jobj_t jcfg);
 
 static inline int 
-jobj_load(jobj_t jcfg, jobj_loader_f *map, int count)
+jobj_load(jobj_t jcfg, jobj_loader_f *map[], int count)
 {
     int i, err = 0;
     
