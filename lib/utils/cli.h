@@ -134,6 +134,8 @@ __this_cli(void)
 
         cli->addr.sun_family = AF_UNIX;
         cli->addrlen = sizeof(sockaddr_un_t);
+
+        os_println("clib=%p", cli->b);
     }
     
     return cli;
