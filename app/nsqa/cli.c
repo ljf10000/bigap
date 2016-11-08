@@ -122,7 +122,7 @@ show_stat(void)
     }
 #if 0
     jobj_add_string(obj, "mac", os_macstring(umd.basemac));
-    jobj_add_i32(obj, "user", h2_count(&umd.table));
+    jobj_add_i32(obj, "user", h1_count(&umd.table));
     jobj_add(obj, "flow", um_jflow());
 
     cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
@@ -136,7 +136,7 @@ show_stat(void)
 static int
 show_count(void)
 {
-    cli_sprintf("%d" __crlf, h2_count(&nsqa.table));
+    cli_sprintf("%d" __crlf, h1_count(&nsqa.table));
     
     return 0;
 }

@@ -697,7 +697,7 @@ os_str_bkdr(const char *s)
 }
 
 static inline bkdr_t
-os_bin_bkdr(const byte *binary, uint32 len)
+os_bin_bkdr(const void *binary, uint32 len)
 {
     bkdr_t bkdr = 0;
 

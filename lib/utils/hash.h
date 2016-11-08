@@ -236,7 +236,7 @@ hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline hash_idx_t
-hash_bybuf(byte *buf, uint32 len, hash_idx_t mask)
+hash_bybuf(void *buf, uint32 len, hash_idx_t mask)
 {
     bkdr_t bkdr = os_bin_bkdr(buf, len);
     
