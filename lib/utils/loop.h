@@ -126,7 +126,7 @@ __loop_master_init(loop_t *loop)
         if (loop->efd<0) {
             return -errno;
         }
-        os_println("add master fd=%d", fd);
+        os_println("add master fd=%d", loop->efd);
         debug_ok("loop master init ok.");
     }
 
