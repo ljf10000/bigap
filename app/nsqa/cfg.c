@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-#define NSQ_JOBJ_LOADER(_)              \
+#define NSQ_JMAPPER(_)                  \
     _(&nsqa.cfg, string, script)        \
     _(&nsqa.cfg, string, hostname)      \
     _(&nsqa.cfg, string, client_id)     \
@@ -21,7 +21,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 int
 init_nsq_cfg(void)
 {
-    jobj_t jobj = JOBJ_MAPF(nsqa.conf, NSQ_JOBJ_LOADER);
+    jobj_t jobj = JOBJ_MAPF(nsqa.conf, NSQ_JMAPPER);
     if (NULL==jobj) {
         return -EBADCONF;
     }

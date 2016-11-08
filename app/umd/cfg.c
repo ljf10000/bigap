@@ -177,7 +177,7 @@ init_cfg_instance(jobj_t jcfg)
     return 0;
 }
 
-#define UMD_JOBJ_LOADER(_)              \
+#define UMD_JMAPPER(_)                  \
     _(&umd.cfg, string, script_event)       \
     _(&umd.cfg, string, script_getipbymac)  \
     _(&umd.cfg, string, script_getmacbyip)  \
@@ -195,7 +195,7 @@ init_cfg_instance(jobj_t jcfg)
 
 int init_cfg(void)
 {
-    jobj_t jobj = JOBJ_MAPF(umd.conf, UMD_JOBJ_LOADER);
+    jobj_t jobj = JOBJ_MAPF(umd.conf, UMD_JMAPPER);
     if (NULL==jobj) {
         return -EBADCONF;
     }
