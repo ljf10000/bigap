@@ -84,11 +84,13 @@ __exit(int sig)
 
 int __main(int argc, char *argv[])
 {
+#if 0
     duk_context *ctx = js_init("main", argc, argv);
     if (NULL==ctx) {
         return -ENOMEM;
     }
-    
+#endif
+
     while(1) {
         
     }

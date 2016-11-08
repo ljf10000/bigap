@@ -312,6 +312,8 @@ os_initer(os_initer_t map[], int count)
     }
 
     debug_ok("init ok");
+
+    return 0;
 }
 /******************************************************************************/
 #endif /* __UTILS_H_6bb0dde2b3424f97a297b2b0e37d90aa__ */
