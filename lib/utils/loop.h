@@ -467,10 +467,10 @@ static inline void
 __loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
 {
     int fd;
-    sockaddr_t addr;
-    socklen_t addrlen;
+    os_sockaddr_t addr;
+    socklen_t addrlen = sizeof(addr);
     
-    fd = accept(watcher->fd, &addr, &addrlen);
+    fd = accept(watcher->fd, &addr.c, &addrlen);
     os_println("accept new fd=%d from %d, errno=%d", fd, watcher->fd, -errno);
     if (is_good_fd(watcher->fd)) {
         __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd);

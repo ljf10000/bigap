@@ -416,7 +416,16 @@ __clis_fd(sockaddr_un_t *server)
         
         return -errno;
     }
-    
+
+#if __CLI_TCP__
+    err = listen(fd, 0);
+    if (err<0) {
+        debug_error("listen(%s) error:%d", get_abstract_path(server), -errno);
+        
+        return -errno;
+    }
+#endif
+
     return fd;
 }
 
