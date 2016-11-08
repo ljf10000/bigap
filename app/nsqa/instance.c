@@ -120,7 +120,7 @@ nsqi_identify(nsq_instance_t *instance, char *json)
             /*
             * del invalid key
             */
-            jobj_del(k);
+            jobj_del(jobj, k);
         }
     }
 
