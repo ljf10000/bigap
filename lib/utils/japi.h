@@ -810,7 +810,7 @@ jobj_get_leaf(jobj_t obj, ...)
 #define jj_i32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i32, "%d")
 #define jj_bool(_obj, _jobj, _member)       jj_byvar(_obj, _jobj, _member, bool, "%d")
 
-typedef int jobj_loader_f(jobj_t jcfg);
+typedef int jobj_mapper_f(jobj_t jobj);
 
 #if 0
 #define XXX_JOBJ_LOADER(_)              \
@@ -820,21 +820,21 @@ typedef int jobj_loader_f(jobj_t jcfg);
     /* end */
 #endif
 
-#define __JOBJ_LOADER(_obj, _type, _member)     \
-int __jobj_load_##_member(jobj_t jobj)          \
+#define __JOBJ_MAPPER(_obj, _type, _member)     \
+int __jobj_map_##_member(jobj_t jobj)           \
 {                                               \
     return jj_##_type(_obj, jobj, _member);     \
 }   /* end */
 
-#define DECLARE_JOBJ_LOADER(_list)              \
-    _list(__JOBJ_LOADER)                        \
+#define DECLARE_JOBJ_MAPPER(_list)              \
+    _list(__JOBJ_MAPPER)                        \
     os_fake_declare
 
-#define __JOBJ_MAPPER(_obj, _type, _member)     __jobj_load_##_member,
-#define JOBJ_MAPPER(_list)                      { _list(__JOBJ_MAPPER) }
+#define __JOBJ_MAP_ENTRY(_obj, _type, _member)  __jobj_map_##_member,
+#define JOBJ_MAP_INITER(_list)                  { _list(__JOBJ_MAP_ENTRY) }
 
 static inline jobj_t 
-__jobj_map(jobj_t jobj, jobj_loader_f *map[], int count)
+__jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count)
 {
     int i, err = 0;
 
@@ -854,10 +854,10 @@ __jobj_map(jobj_t jobj, jobj_loader_f *map[], int count)
 #define __jobj_mapf(_file, _map, _count)    __jobj_map(jobj_byfile(_file), _map, _count)
 #define jobj_mapf(_file, _map)              __jobj_mapf(_file, _map, os_count_of(_map))
 
-#define JOBJ_MAP(_jobj, _list)              ({  \
-    DECLARE_JOBJ_LOADER(_list);                 \
-    jobj_loader_f *__map[] = JOBJ_MAPPER(_list);\
-    jobj_map(_jobj, __map);                    \
+#define JOBJ_MAP(_jobj, _list)  ({  \
+    DECLARE_JOBJ_MAPPER(_list);     \
+    jobj_mapper_f *__map[] = JOBJ_MAP_INITER(_list);\
+    jobj_map(_jobj, __map);         \
 })
 
 #define JOBJ_MAPF(_file, _list)             JOBJ_MAP(jobj_byfile(_file), _list)
