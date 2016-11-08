@@ -48,14 +48,14 @@ static int
 __init(void)
 {
     static os_initer_t map[] = {
-        INIT_ENTRY("os",    os_init),
-        INIT_ENTRY("env",   init_nsq_env),
-        INIT_ENTRY("table", init_nsq_table),
-        INIT_ENTRY("timer", init_nsq_timer),
-        INIT_ENTRY("cli",   init_nsq_cli),
-        INIT_ENTRY("cfg",   init_nsq_cfg),
+        INIT_ENTRY("os",        os_init),
+        INIT_ENTRY("env",       init_nsq_env),
+        INIT_ENTRY("table",     init_nsq_table),
+        INIT_ENTRY("timer",     init_nsq_timer),
+        INIT_ENTRY("cli",       init_nsq_cli),
+        INIT_ENTRY("cfg",       init_nsq_cfg),
         INIT_ENTRY("instance",  init_nsq_instance),
-        INIT_ENTRY("msg",   init_nsq_msg),
+        INIT_ENTRY("msg",       init_nsq_msg),
     };
 
     return os_initer(map, os_count_of(map));

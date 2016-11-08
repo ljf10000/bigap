@@ -444,30 +444,5 @@ typedef struct {
 } os_kv_t;
 
 #define OS_KV_ENTRY(_k, _v)         { .k = _k, .v = _v }
-
-typedef struct {
-    char *name;
-    int (*init)(void);
-} os_initer_t;
-
-#define INIT_ENTRY(_name, _init)    { .name = _name, .init = _init }
-
-static inline int
-os_initer(os_initer_t map[], int count)
-{
-    int i, err;
-
-    for (i=0; i<count; i++) {
-        err = (*map[i].init)();
-        if (err<0) {
-            debug_error("init %s error:%d", map[i].name, err);
-
-            return err;
-        }
-    }
-
-    debug_ok("init ok");
-}
-
 /******************************************************************************/
 #endif /* __BUILDIN_H_1e8d76851e034897b63a0defba950e58__ */

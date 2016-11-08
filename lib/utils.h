@@ -289,5 +289,29 @@ os_main(int (*func)(int, char **), int argc, char *argv[])
 
     return shell_error(err);
 }
+
+typedef struct {
+    char *name;
+    int (*init)(void);
+} os_initer_t;
+
+#define INIT_ENTRY(_name, _init)    { .name = _name, .init = _init }
+
+static inline int
+os_initer(os_initer_t map[], int count)
+{
+    int i, err;
+
+    for (i=0; i<count; i++) {
+        err = (*map[i].init)();
+        if (err<0) {
+            debug_error("init %s error:%d", map[i].name, err);
+
+            return err;
+        }
+    }
+
+    debug_ok("init ok");
+}
 /******************************************************************************/
 #endif /* __UTILS_H_6bb0dde2b3424f97a297b2b0e37d90aa__ */
