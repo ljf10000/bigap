@@ -87,6 +87,7 @@ extern nsqa_control_t nsqa;
 
 #define NSQA_INITER         {   \
     .cfg    = NSQA_CFG_INITER,  \
+    .looop  = LOOP_INITER,      \
 }   /* end */
 /******************************************************************************/
 extern nsq_instance_t *

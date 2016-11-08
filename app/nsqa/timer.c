@@ -15,6 +15,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 static int
 nsq_timer(loop_watcher_t *watcher, uint32 times)
 {
+    static uint32 count;
+    
+    os_println("nsq timer %d", ++count);
+
     return 0;
 }
 
