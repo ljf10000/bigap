@@ -19,7 +19,7 @@ include $(DIR_ROOT)/mk/define.mk
 OBJS=$(DIR_SELF)/nsqa.o \
 	$(DIR_SELF)/cfg.o \
 	$(DIR_SELF)/cli.o \
-	$(DIR_SELF)/instance \
+	$(DIR_SELF)/instance.o \
 	$(DIR_SELF)/loop.o \
 	$(DIR_SELF)/msg.o \
 	$(DIR_SELF)/timer.o \

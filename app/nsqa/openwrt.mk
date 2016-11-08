@@ -2,7 +2,7 @@
 OBJS=nsqa.o \
 	cfg.o \
 	cli.o \
-	instance \
+	instance.o \
 	loop.o \
 	msg.o \
 	timer.o \
