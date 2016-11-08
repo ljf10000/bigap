@@ -340,22 +340,24 @@ __clic_recv(int fd)
             os_println("__clic_recv 6");
             return 0;
         }
-error:
-        // err < 0
-        if (EINTR==errno) {
-            os_println("__clic_recv 7");
-            continue;
-        }
-        else if (EAGAIN==errno) {
-            os_println("__clic_recv 8");
-            /*
-            * timeout
-            */
-            return -ETIMEOUT;
-        }
         else {
-            os_println("__clic_recv 9");
-            return -errno;
+error:
+            // err < 0
+            if (EINTR==errno) {
+                os_println("__clic_recv 7");
+                continue;
+            }
+            else if (EAGAIN==errno) {
+                os_println("__clic_recv 8");
+                /*
+                * timeout
+                */
+                return -ETIMEOUT;
+            }
+            else {
+                os_println("__clic_recv 9");
+                return -errno;
+            }
         }
     }
     
