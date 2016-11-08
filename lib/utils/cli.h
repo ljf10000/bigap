@@ -137,8 +137,6 @@ __this_cli(void)
         
         cli->addr.sun_family = AF_UNIX;
         cli->addrlen = sizeof(sockaddr_un_t);
-
-        os_println("clib=%p", cli->b);
     }
     
     return cli;
@@ -315,8 +313,9 @@ __clic_recv(int fd)
         if (err > sizeof(cli_header_t)) {
             os_println("err > hdr");
             __clib_cut(err);
-            
+            os_println("err > hdr");
             err = __clib_show();
+            os_println("err > hdr");
 #if 0==__CLI_TCP__
             return err;
 #endif
