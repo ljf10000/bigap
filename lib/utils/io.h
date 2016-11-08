@@ -28,8 +28,6 @@ __io_read_error(char *method, void *buf, int size, int error)
     int err = __io_error(method, buf, size, error);
     if (0==err) {
         debug_io("%s nothing", method);
-
-        return -EIO;
     }
 
     return err;

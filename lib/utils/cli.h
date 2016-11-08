@@ -306,16 +306,12 @@ __clic_recv(int fd)
     int err = 0;
     
     do {
-        os_println("__io_recv before");
         err = __io_recv(fd, __clib(), CLI_BUFFER_LEN, 0);
-        os_println("__io_recv after");
         // err > hdr
-        if (err > sizeof(cli_header_t)) {
-            os_println("err=%d > hdr", err);
+        if (err > (int)sizeof(cli_header_t)) {
             __clib_cut(err - sizeof(cli_header_t));
-            os_println("err=%d > hdr", err);
+            
             err = __clib_show();
-            os_println("err=%d > hdr", err);
 #if 0==__CLI_TCP__
             return err;
 #endif
