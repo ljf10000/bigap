@@ -300,60 +300,99 @@ __clic_fd(cli_client_t *clic)
     return fd;
 }
 
+#if __CLI_TCP__
 static inline int
 __clic_recv(int fd)
 {
     cli_t *cli = __this_cli();
     int err = 0;
-    
-    do {
-        err = __io_recv(fd, __clib(), CLI_BUFFER_LEN, 0);
-        // err > hdr
-        if (err > (int)sizeof(cli_header_t)) {
-            __clib_cut(err - sizeof(cli_header_t));
-            
-            err = __clib_show();
-#if 0==__CLI_TCP__
-            return err;
-#endif
+
+    while(1) {
+        err = __io_recv(fd, __clib(), sizeof(cli_header_t), 0);
+        if (err==(int)sizeof(cli_header_t)) {
+            err = __io_recv(fd, __clib_buf, __clib_SIZE, 0);
+            if (err>0) {
+                __clib_show();
+            }
+            else if (0==err) {
+                return __clib_show();
+            }
+            else {
+                goto error;
+            }
         }
-        // err = hdr
-        else if (err == sizeof(cli_header_t)) {
-            os_println("err = hdr");
-            return __clib_show();
+        else if (err > (int)sizeof(cli_header_t)) {
+            return -ETOOBIG;
         }
-        // 0 < err < hdr
-        else if (err > 0) {
-            os_println("err > 0");
+        else if (err>0) {
             return -ETOOSMALL;
         }
         // err = 0
         else if (0==err) {
-            os_println("err = 0");
             return 0;
         }
+error:
         // err < 0
-        else if (EINTR==errno) {
-            os_println("errno = EINTR");
+        if (EINTR==errno) {
             continue;
         }
         else if (EAGAIN==errno) {
-            os_println("errno = EAGAIN");
             /*
             * timeout
             */
             return -ETIMEOUT;
         }
         else {
-            os_println("errno = %d", -errno);
-            
             return -errno;
         }
-    } 
-    while(__CLI_TCP__);
+    }
+    
+    return 0;
+}
+
+#else
+static inline int
+__clic_recv(int fd)
+{
+    cli_t *cli = __this_cli();
+    int err = 0;
+    
+    err = __io_recv(fd, __clib(), CLI_BUFFER_LEN, 0);
+    // err > hdr
+    if (err > (int)sizeof(cli_header_t)) {
+        __clib_cut(err - sizeof(cli_header_t));
+        
+        return __clib_show();
+    }
+    // err = hdr
+    else if (err == sizeof(cli_header_t)) {
+        return __clib_show();
+    }
+    // 0 < err < hdr
+    else if (err > 0) {
+        return -ETOOSMALL;
+    }
+    // err = 0
+    else if (0==err) {
+        return 0;
+    }
+    // err < 0
+    else if (EINTR==errno) {
+        continue;
+    }
+    else if (EAGAIN==errno) {
+        /*
+        * timeout
+        */
+        return -ETIMEOUT;
+    }
+    else {
+        return -errno;
+    }
 
     return 0;
 }
+#endif
 
 static inline int
 __clic_handle(bool syn, char *buf, cli_client_t *clic)
