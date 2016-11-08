@@ -126,7 +126,7 @@ __loop_master_init(loop_t *loop)
         if (loop->efd<0) {
             return -errno;
         }
-
+        os_println("add master fd=%d", fd);
         debug_ok("loop master init ok.");
     }
 
@@ -471,7 +471,7 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
     socklen_t addrlen;
     
     fd = accept(watcher->fd, &addr, &addrlen);
-    os_println("accept new fd=%d from %d", fd, watcher->fd);
+    os_println("accept new fd=%d from %d, errno=%d", fd, watcher->fd, -errno);
     if (is_good_fd(watcher->fd)) {
         __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd);
     }
