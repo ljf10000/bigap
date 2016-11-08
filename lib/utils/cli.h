@@ -194,7 +194,7 @@ __cli_reply(int err)
 #else
     len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
 #endif
-    os_println("__cli_reply %d", __clib_space);
+    os_println("__cli_reply %u", __clib_space);
     __clib_clear();
     
     return len;
@@ -356,7 +356,8 @@ __clic_recv(int fd)
 {
     cli_t *cli = __this_cli();
     int err = 0;
-    
+
+again:
     err = __io_recv(fd, __clib(), CLI_BUFFER_LEN, 0);
     // err > hdr
     if (err > (int)sizeof(cli_header_t)) {
@@ -378,7 +379,7 @@ __clic_recv(int fd)
     }
     // err < 0
     else if (EINTR==errno) {
-        continue;
+        goto again;
     }
     else if (EAGAIN==errno) {
         /*
