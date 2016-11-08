@@ -326,7 +326,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
         
         return -errno;
     }
-
+    
     if (0==tm.it_value.tv_sec && 0==tm.it_value.tv_nsec) {
         tm.it_value.tv_nsec = 1;
     }
@@ -342,6 +342,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
     if (NULL==watcher) {
         return -ENOEXIST;
     }
+    os_println("add timer fd=%d", fd);
     
     return 0;
 }
@@ -391,6 +392,7 @@ __loop_add_father(loop_t *loop, int fd, loop_son_f *cb)
     if (NULL==watcher) {
         return -ENOEXIST;
     }
+    os_println("add father fd=%d", fd);
     
     return 0;
 }
@@ -403,6 +405,7 @@ __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father)
         return -ENOEXIST;
     }
     watcher->father = father;
+    os_println("add son fd=%d", fd);
     
     return 0;
 }
@@ -485,7 +488,6 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev)
         [LOOP_TYPE_SON]     = __loop_normal_handle,
     };
 
-    os_println("new ev fd=%d", ev->data.fd);
     loop_watcher_t *watcher = __loop_watcher(loop, ev->data.fd);
     if (NULL==watcher) {
         return -ENOEXIST;
@@ -493,7 +495,9 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev)
     else if (false==is_good_loop_type(watcher->type)) {
         return -EBADFD;
     }
-    else if (LOOP_TYPE_FATHER==watcher->type) {
+
+    os_println("new ev fd=%d", ev->data.fd);
+    if (LOOP_TYPE_FATHER==watcher->type) {
         __loop_father_handle(loop, watcher);
     }
     else {
