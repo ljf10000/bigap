@@ -13,14 +13,6 @@ enum {
     OTP_SIZE = 16,
 };
 
-static inline int hisi_otp_init(void)   { return hisi_unf_call_0(OTP, Init); }
-static inline int hisi_otp_fini(void)   { return hisi_unf_call_0(OTP, DeInit); }
-
-#define hisi_otp_get_customer_key(_otp)         hisi_unf_call_x(OTP, GetCustomerKey, _otp, OTP_SIZE)
-#define hisi_otp_set_customer_key(_otp)         hisi_unf_call_x(OTP, SetCustomerKey, _otp, OTP_SIZE)
-#define hisi_otp_get_private_key(_otp, _idx)    hisi_unf_call_x(OTP, GetStbPrivData, _idx, &_otp[_idx])
-#define hisi_otp_set_private_key(_otp, _idx)    hisi_unf_call_x(OTP, SetStbPrivData, _idx, &_otp[_idx])
-
 #ifndef OTP_ZERO
 #define OTP_ZERO            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 #endif
@@ -248,6 +240,15 @@ __otp_private_write(byte otp[OTP_SIZE])
     return __otp_file_op(OTP_ID_PRIVATE, "r+", otp);
 }
 #elif IS_PRODUCT_LTEFI_MD
+
+static inline int hisi_otp_init(void)   { return hisi_unf_call_0(OTP, Init); }
+static inline int hisi_otp_fini(void)   { return hisi_unf_call_0(OTP, DeInit); }
+
+#define hisi_otp_get_customer_key(_otp)         hisi_unf_call_x(OTP, GetCustomerKey, _otp, OTP_SIZE)
+#define hisi_otp_set_customer_key(_otp)         hisi_unf_call_x(OTP, SetCustomerKey, _otp, OTP_SIZE)
+#define hisi_otp_get_private_key(_otp, _idx)    hisi_unf_call_x(OTP, GetStbPrivData, _idx, &_otp[_idx])
+#define hisi_otp_set_private_key(_otp, _idx)    hisi_unf_call_x(OTP, SetStbPrivData, _idx, &_otp[_idx])
+
 static inline int
 __otp_init(void)
 {
