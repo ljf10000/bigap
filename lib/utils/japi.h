@@ -826,9 +826,7 @@ int __jobj_map_##_member(jobj_t jobj)           \
     return jj_##_type(_obj, jobj, _member);     \
 }   /* end */
 
-#define DECLARE_JOBJ_MAPPER(_list)              \
-    _list(__JOBJ_MAPPER)                        \
-    os_fake_declare
+#define DECLARE_JOBJ_MAPPER(_list)              _list(__JOBJ_MAPPER) os_fake_declare
 
 #define __JOBJ_MAP_ENTRY(_obj, _type, _member)  __jobj_map_##_member,
 #define JOBJ_MAP_INITER(_list)                  { _list(__JOBJ_MAP_ENTRY) }
