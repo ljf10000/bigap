@@ -17,7 +17,6 @@ include $(DIR_ROOT)/mk/define.mk
 #changed me, append obj
 #
 OBJS=$(DIR_SELF)/duktape.o \
-	$(DIR_SELF)/duk.o \
 	$(DIR_SELF)/global.o \
 	$(DIR_SELF)/libbz.o \
 	$(DIR_SELF)/libc.o \
