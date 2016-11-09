@@ -492,7 +492,7 @@ typedef struct {
 #endif
 #define BENV_MAIN_INITER    benv_control_t *____benv_control
 
-extern benv_control_t ____benv_control;
+extern benv_control_t *____benv_control;
 
 #if BENV_USE_SEM
 #define __benv_sem              (&____benv_control->sem)
