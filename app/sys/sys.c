@@ -251,8 +251,8 @@ __rsync(int idx, benv_version_t *version)
         return -EIO;
     }
 
-    __benv_version_itoa(version, new);
-    __benv_version_itoa(&sys.old_version, old);
+    benv_version_itoa(version, new);
+    benv_version_itoa(&sys.old_version, old);
 
     err = os_p_system("rsync"
             " -acz --delete-after --stats --partial"
@@ -305,8 +305,8 @@ __rcopy(int idx, char *dir, benv_version_t *version)
     char new[1+BENV_VERSION_STRING_LEN];
     char old[1+BENV_VERSION_STRING_LEN];
     
-    __benv_version_itoa(version, new);
-    __benv_version_itoa(&sys.old_version, old);
+    benv_version_itoa(version, new);
+    benv_version_itoa(&sys.old_version, old);
 
     err = __xcopy(dir_rootfs(idx), dir);
     benv_obj(rootfs, idx)->upgrade = efsm(err);
@@ -647,7 +647,7 @@ __get_fversion(int idx, char *file, benv_version_t *version)
         return NULL;
     }
 
-    if (__benv_version_atoi(version, string)) {
+    if (NULL==benv_version_atoi(version, string)) {
         debug_error("bad version file %s/%s", dir_rootfs(idx), file);
         
         return NULL;
@@ -793,8 +793,8 @@ __rdd(int dst, int src)
     char new[1+BENV_VERSION_STRING_LEN];
     char old[1+BENV_VERSION_STRING_LEN];
     
-    __benv_version_itoa(benv_rootfs_version(src), new);
-    __benv_version_itoa(&sys.old_version, old);
+    benv_version_itoa(benv_rootfs_version(src), new);
+    benv_version_itoa(&sys.old_version, old);
 
     err = __dd(dev_rootfs(dst), dev_rootfs(src));
     benv_obj(rootfs, dst)->upgrade = efsm(err);
@@ -847,9 +847,9 @@ __kdd_bydev(int dst, int src)
     int err;
     char new[1+BENV_VERSION_STRING_LEN];
     char old[1+BENV_VERSION_STRING_LEN];
-    
-    os_strcpy(new, benv_kernel_version_string(src));
-    __benv_version_itoa(&sys.old_version, old);
+
+    benv_version_itoa(benv_kernel_version(src), new);
+    benv_version_itoa(&sys.old_version, old);
 
     err = __dd(dev_kernel(dst), dev_kernel(src));
     benv_obj(kernel, dst)->upgrade = efsm(err);
@@ -904,8 +904,8 @@ __kdd_byfile(int idx, char *file, benv_version_t *version)
     char new[1+BENV_VERSION_STRING_LEN];
     char old[1+BENV_VERSION_STRING_LEN];
     
-    __benv_version_itoa(version, new);
-    __benv_version_itoa(&sys.old_version, old);
+    benv_version_itoa(version, new);
+    benv_version_itoa(&sys.old_version, old);
 
     err = __dd(dev_kernel(idx), file);
     benv_obj(kernel, idx)->upgrade = efsm(err);
@@ -977,11 +977,13 @@ switch_to(int idx)
 static void 
 debug_rootfs_upgrade(int idx, char *master, char *rootfs)
 {
+    char version_string[1+BENV_VERSION_STRING_LEN];
+    
     debug_ok("%s upgrade %s rootfs%d %s==>%s ", 
         master, 
         rootfs, 
         idx, 
-        benv_rootfs_version_string(idx), 
+        benv_version_itoa(benv_rootfs_version(idx), version_string), 
         sys.env.version);
 }
 
@@ -1091,6 +1093,7 @@ static int
 repair_rootfs(int idx)
 {
     benv_version_t version;
+    char version_string[1+BENV_VERSION_STRING_LEN];
     int err = 0;
     
     if (false==is_rootfs_need_repair(idx)) {
@@ -1110,7 +1113,7 @@ repair_rootfs(int idx)
     jcrit("%s%d%s%s%d",
         "repair", "rootfs",
         "rootfs", idx,
-        "version", benv_version_itoa(&version),
+        "version", benv_version_itoa(&version, version_string),
         "find", "buddy",
         "buddy", buddy);
 
@@ -1263,11 +1266,10 @@ usbupgrade(void)
         return err;
     }
     
-    err = __benv_version_atoi(&version, rootfs_version);
-    if (err<0) {
+    if (NULL==benv_version_atoi(&version, rootfs_version)) {
         debug_error("bad rootfs version:%s", rootfs_version);
         
-        return err;
+        return -EFORMAT;
     }
     
     if (benv_version_eq(benv_rootfs_version(0), &version) && NULL==sys.env.force) {
@@ -1297,7 +1299,7 @@ usbupgrade(void)
     for (i=begin; i<end; i++) {
         if (i!=sys.current) {
             if (kernel_exist) {
-                __benv_version_atoi(&version, kernel_version);
+                benv_version_atoi(&version, kernel_version);
                 err = kdd_byfile(i, USB_BIN_MD_KERNEL, &version);
                 
                 jinfo("%s%d%d",
@@ -1310,7 +1312,7 @@ usbupgrade(void)
                 }
             }
             
-            __benv_version_atoi(&version, rootfs_version);
+            benv_version_atoi(&version, rootfs_version);
             err = rcopy(i, DIR_USB_ROOTFS, &version);
             
             jinfo("%s%d%d",
@@ -1496,7 +1498,7 @@ init_env(void)
 
     env = env_gets(OS_ENV(VERSION), NULL);
     if (env) {
-        if (__benv_version_atoi(&sys.version, env)) {
+        if (NULL==benv_version_atoi(&sys.version, env)) {
             debug_error("bad version:%s", env);
             
             return -EFORMAT;

@@ -10,6 +10,10 @@
 #define BENV_DEBUG                  0 //(BENV_DEBUG_TRACE|BENV_DEBUG_MMC|BENV_DEBUG_SORT|BENV_DEBUG_CMP)
 #endif
 
+#ifndef BENV_SBBUG
+#define BENV_SBBUG                  0
+#endif
+
 #if BENV_DEBUG
 #define benv_debug(_debug, _fmt, _args...)  printf(_fmt "\n", ##_args)
 #else
@@ -149,7 +153,7 @@ typedef product_version_t benv_version_t;
 #define BENV_DEFT_VERSION           PRODUCT_DEFT_VERSION
 
 static inline char *
-__benv_version_itoa(benv_version_t *version, char string[])
+benv_version_itoa(benv_version_t *version, char string[])
 {
     os_sprintf(string, "%d.%d.%d.%d",
            version->number[0],
@@ -160,15 +164,18 @@ __benv_version_itoa(benv_version_t *version, char string[])
     return string;
 }
 
-static inline int
-__benv_version_atoi(benv_version_t *version, char *string)
+static inline benv_version_t *
+benv_version_atoi(benv_version_t *version, char *string)
 {
     char line[1 + OS_LINE_LEN] = { 0 };
     char *number[4] = { line, NULL, NULL, NULL };
     int i;
 
-    if (NULL==string) {
-        return -EFORMAT;
+    if (NULL==version) {
+        return NULL;
+    }
+    else if (NULL==string) {
+        return NULL;
     }
     
     os_strdcpy(line, string);
@@ -179,7 +186,7 @@ __benv_version_atoi(benv_version_t *version, char *string)
         if (NULL == number[i]) {
             debug_error("bad version:%s", string);
 
-            return -EFORMAT;
+            return NULL;
         }
 
         *(number[i])++ = 0;
@@ -192,27 +199,11 @@ __benv_version_atoi(benv_version_t *version, char *string)
         if (false==os_strton_is_good_end(end)) {
             debug_error("bad-version:%s", string);
 
-            return -EFORMAT;
+            return NULL;
         }
     }
 
-    return 0;
-}
-
-static inline char *
-benv_version_itoa(benv_version_t *version)
-{
-    static char string[1+BENV_VERSION_STRING_LEN];
-
-    return __benv_version_itoa(version, string);
-}
-
-static inline benv_version_t *
-benv_version_atoi(char *string)
-{
-    static benv_version_t version;
-
-    return (0==__benv_version_atoi(&version, string))?&version:NULL;
+    return version;
 }
 
 static inline int
@@ -334,13 +325,15 @@ typedef struct {
 
 
 #define __benv_os_show_obj(_obj, _idx) do{ \
+    char version_string[1+BENV_VERSION_STRING_LEN];         \
+                                                            \
     os_println("%s%c %-7d %-7d %-7s %-7s %-7s %-15s %s",    \
         #_obj, _idx==os->current?'*':' ',                   \
         _idx, os->firmware[_idx]._obj.error,                \
         benv_fsm_string(os->firmware[_idx]._obj.upgrade),   \
         benv_fsm_string(os->firmware[_idx]._obj.self),      \
         benv_fsm_string(os->firmware[_idx]._obj.other),     \
-        benv_version_itoa(&os->firmware[_idx]._obj.version), \
+        benv_version_itoa(&os->firmware[_idx]._obj.version, version_string), \
         os->firmware[_idx]._obj.cookie);                    \
     }while(0)
 
@@ -492,29 +485,26 @@ typedef struct {
 #endif
 } benv_control_t;
 
-#define __BENV_CONTROL_INITER(_ops, _cache, _mirror) {   \
+#define __BENV_CONTROL_INITER(_ops, _cache) {   \
     .ops        = _ops,                         \
     .cache      = _cache,                       \
     .ops_count  = (_ops)?os_count_of(_ops):0,   \
     .fd         = INVALID_FD,                   \
     .shm        = OS_SHM_INITER(OS_BENV_SHM_ID),\
-    .mirror     = _mirror,                      \
 }   /* end */
 
 #if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
 #   define BENV_INITER \
-        static benv_env_t ____benv_mirror; \
-        benv_control_t ____benv_control = __BENV_CONTROL_INITER(NULL, NULL, &____benv_mirror); \
+        benv_control_t ____benv_control = __BENV_CONTROL_INITER(NULL, NULL); \
         os_fake_declare /* end */
 #else
 #   define BENV_INITER    os_fake_declare
 #endif
 
 #define BENV_MAIN_INITER \
-    static benv_env_t ____benv_mirror; \
     static benv_ops_t   ____benv_ops[] = BENV_DEFT_OPS; \
     static benv_cache_t ____benv_cache[os_count_of(____benv_ops)]; \
-    benv_control_t ____benv_control = __BENV_CONTROL_INITER(____benv_ops, ____benv_cache, &____benv_mirror); \
+    benv_control_t ____benv_control = __BENV_CONTROL_INITER(____benv_ops, ____benv_cache); \
     os_fake_declare /* end */
 
 extern benv_control_t ____benv_control;
@@ -724,20 +714,6 @@ benv_rootfs_version(int idx)
 }
 #define benv_firmware_version(_idx)     benv_rootfs_version(_idx)
 #define benv_obj_version(_obj, _idx)    benv_##_obj##_version(_idx)
-
-static inline char *
-benv_kernel_version_string(int idx)
-{
-    return benv_version_itoa(benv_kernel_version(idx));
-}
-
-static inline char *
-benv_rootfs_version_string(int idx)
-{
-    return benv_version_itoa(benv_rootfs_version(idx));
-}
-#define benv_firmware_version_string(_idx)      benv_rootfs_version_string(_idx)
-#define benv_obj_version_string(_obj, _idx)     benv_##_obj##_version_string(_idx)
 
 static inline int
 benv_kernel_version_cmp(int a, int b)
@@ -1261,7 +1237,7 @@ __benv_check_version(benv_ops_t * ops, char *value)
 {
     benv_version_t version = BENV_INVALID_VERSION;
 
-    if (__benv_version_atoi(&version, value)) {
+    if (NULL==benv_version_atoi(&version, value)) {
         /*
          * when set version, must input value
          */
@@ -1274,9 +1250,11 @@ __benv_check_version(benv_ops_t * ops, char *value)
 static inline void
 __benv_show_version(benv_ops_t * ops)
 {
+    char version_string[1+BENV_VERSION_STRING_LEN];
+    
     __benv_show_header(ops);
 
-    os_println("%s", benv_version_itoa(benv_ops_version(ops)));
+    os_println("%s", benv_version_itoa(benv_ops_version(ops), version_string));
 }
 
 static inline void
@@ -1285,7 +1263,7 @@ __benv_set_version(benv_ops_t * ops, char *value)
     benv_version_t *v = benv_ops_version(ops);
 
     if (value[0]) {
-        __benv_version_atoi(v, value);
+        benv_version_atoi(v, value);
     } else {
         benv_version_t version = BENV_DEFT_VERSION;
 
@@ -2260,23 +2238,23 @@ __benv_upgrade(void)
 }
 #endif
 
-static inline benv_cookie_t *benv_cookie_deft(void);
 static inline void benv_check(void);
 
 static inline int
 benv_repair(void)
 {
 #if BENV_REPAIR
+    benv_cookie_t deft = BENV_DEFT_COOKIE;
     int err = 0, env, idx;
     bool upgrade = false;
-
+    
     /*
     * 1-count-benv upgrade to 4-count-benv
     *   benv-1/2/3 cookie != default cookie(fixed)
     *   so, it is upgrade
     */
     for (env=1; env<BENV_COUNT; env++) {
-        if (false==os_memeq(benv_cookie_deft(), __benv_cookie(env), BENV_COOKIE_FIXED)) {
+        if (false==os_memeq(&deft, __benv_cookie(env), BENV_COOKIE_FIXED)) {
             upgrade = true;
 
             break;
@@ -2602,34 +2580,31 @@ benv_check_os(void)
     .info   = BENV_DEFT_INFO,   \
 }   /* end */
 
-static inline benv_cookie_t *
-benv_cookie_deft(void)
-{
-    static benv_cookie_t deft = BENV_DEFT_COOKIE;
-
-    return &deft;
-}
-
 static inline bool
 is_benv_cookie_fixed(void)
 {
+    benv_cookie_t deft = BENV_DEFT_COOKIE;
     /*
     * just cmp FIXED
     */
-    return os_memeq(benv_cookie_deft(), __benv_cookie(0), BENV_COOKIE_FIXED);
+    return os_memeq(&deft, __benv_cookie(0), BENV_COOKIE_FIXED);
 }
 
 static inline bool
 is_benv_cookie_deft(void)
 {
-    return os_objeq(benv_cookie_deft(), __benv_cookie(0));
+    benv_cookie_t deft = BENV_DEFT_COOKIE;
+    
+    return os_objeq(&deft, __benv_cookie(0));
 }
 
 static inline void
 __benv_deft_cookie(void)
 {
+    benv_cookie_t deft = BENV_DEFT_COOKIE;
+    
     os_println("benv cookie restore...");
-    os_objcpy(__benv_cookie(0), benv_cookie_deft());
+    os_objcpy(__benv_cookie(0), &deft);
     os_println("benv cookie restore ok");
 }
 
@@ -2771,7 +2746,7 @@ benv_cmd_find(int argc, char *argv[])
     char *obj = argv[1];
     char *ext = argv[2];
 
-    benv_version_t *version = NULL;
+    benv_version_t version;
     int skips = benv_skips(0);
     int idx[3] = {-1, -1, -1};
     int by = -1;
@@ -2843,48 +2818,45 @@ benv_cmd_find(int argc, char *argv[])
         os_println("find firmware[%d]'s first bad buddy:%d", by, idx[2]);
     }
     else if (os_streq("first.version", obj)) {
-        version = benv_version_atoi(ext);
-        if (NULL==version) {
+        if (NULL==benv_version_atoi(&version, ext)) {
             os_println(__THIS_APPNAME " find first.version {version}");
 
             return -EFORMAT;
         }
         
-        idx[0] = benv_find_first_byversion(rootfs, version, skips);
-        idx[1] = benv_find_first_byversion(kernel, version, skips);
-        idx[2] = benv_find_first_byversion(firmware, version, skips);
+        idx[0] = benv_find_first_byversion(rootfs, &version, skips);
+        idx[1] = benv_find_first_byversion(kernel, &version, skips);
+        idx[2] = benv_find_first_byversion(firmware, &version, skips);
         
         os_println("find first rootfs(%s):%d", ext, idx[0]);
         os_println("find first kernel(%s):%d", ext, idx[1]);
         os_println("find first firmware(%s):%d", ext, idx[2]);
     }
     else if (os_streq("first.good.version", obj)) {
-        version = benv_version_atoi(ext);
-        if (NULL==version) {
+        if (NULL==benv_version_atoi(&version, ext)) {
             os_println(__THIS_APPNAME " find first.good.version {version}");
 
             return -EFORMAT;
         }
         
-        idx[0] = benv_find_first_good_byversion(rootfs, version, skips);
-        idx[1] = benv_find_first_good_byversion(kernel, version, skips);
-        idx[2] = benv_find_first_good_byversion(firmware, version, skips);
+        idx[0] = benv_find_first_good_byversion(rootfs, &version, skips);
+        idx[1] = benv_find_first_good_byversion(kernel, &version, skips);
+        idx[2] = benv_find_first_good_byversion(firmware, &version, skips);
         
         os_println("find first good rootfs(%s):%d", ext, idx[0]);
         os_println("find first good kernel(%s):%d", ext, idx[1]);
         os_println("find first good firmware(%s):%d", ext, idx[2]);
     }
     else if (os_streq("first.bad.version", obj)) {
-        version = benv_version_atoi(ext);
-        if (NULL==version) {
+        if (NULL==benv_version_atoi(&version, ext)) {
             os_println(__THIS_APPNAME " find first.bad.version {version}");
 
             return -EFORMAT;
         }
         
-        idx[0] = benv_find_first_bad_byversion(rootfs, version, skips);
-        idx[1] = benv_find_first_bad_byversion(kernel, version, skips);
-        idx[2] = benv_find_first_bad_byversion(firmware, version, skips);
+        idx[0] = benv_find_first_bad_byversion(rootfs, &version, skips);
+        idx[1] = benv_find_first_bad_byversion(kernel, &version, skips);
+        idx[2] = benv_find_first_bad_byversion(firmware, &version, skips);
         
         os_println("find first bad rootfs(%s):%d", ext, idx[0]);
         os_println("find first bad kernel(%s):%d", ext, idx[1]);
@@ -2906,14 +2878,21 @@ benv_cmd_find(int argc, char *argv[])
     return 0;
 }
 
+#define __benv_cmd_item(_action, _obj, _handle) {.action = _action, .obj = _obj, .handle = _handle}
+
 static inline bool
 benv_cmd_hiden(int argc, char *argv[])
 {
-#define __benv_cmd_item(_action, _obj, _handle) {.action = _action, .obj = _obj, .handle = _handle}
-    static struct {
+    struct {
+#if BENV_SBBUG
+        int a;
+#endif
         char *action;
         char *obj;
         void (*handle)(void);
+#if BENV_SBBUG
+        int b;
+#endif
     } cmd[] = {
         __benv_cmd_item("show",     "cookie",   benv_show_cookie),
         __benv_cmd_item("show",     "os",       benv_show_os),
@@ -2932,7 +2911,6 @@ benv_cmd_hiden(int argc, char *argv[])
         __benv_cmd_item("clean",    "info",     __benv_clean_info),
         __benv_cmd_item("clean",    "all",      __benv_clean),
     };
-#undef __benv_cmd_item
     char *action    = argv[1];
     char *obj       = argv[2];
     int i;
@@ -2954,6 +2932,7 @@ benv_cmd_hiden(int argc, char *argv[])
     
     return false;
 }
+#undef __benv_cmd_item
 
 static inline int
 benv_cmd(int argc, char *argv[])

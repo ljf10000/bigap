@@ -62,12 +62,11 @@ U_BOOT_CMD(
 static inline int
 __bversion(int argc, char *argv[])
 {
-    int i, err;
     benv_version_t version;
-
-    err = __benv_version_atoi(&version, argv[1]);
-    if (err<0) {
-        return err;
+    int i;
+    
+    if (NULL==benv_version_atoi(&version, argv[1])) {
+        return -EFORMAT;
     }
     
     for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
