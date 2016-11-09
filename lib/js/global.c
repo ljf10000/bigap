@@ -2,7 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      libjs
+#define __THIS_APP      js
 #endif
 
 #ifndef __THIS_FILE
