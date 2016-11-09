@@ -524,46 +524,6 @@ extern benv_control_t ____benv_control;
 
 #define benv_offset(_env)       ((_env) * BENV_SIZE)
 
-static inline int
-benv_control_init(void)
-{
-    if (NULL==____benv_control) {
-        os_shm_t shm = OS_SHM_INITER(OS_BENV_SHM_ID);
-        benv_ops_t ops[] = BENV_DEFT_OPS;
-        int count = os_count_of(ops);
-                
-        ____benv_control = (benv_control_t *)os_zalloc(sizeof(benv_control_t));
-        if (NULL==____benv_control) {
-            return -ENOMEM;
-        }
-        __benv_ops_count = count;
-        __benv_fd = INVALID_FD;
-        os_objcpy(__benv_shm, &shm);
-#ifdef __BOOT__
-        extern env_t *env_ptr;
-        __benv_shm_address = env_ptr->env;
-#endif
-        
-        __benv_mirror = (benv_env_t *)os_zalloc(sizeof(benv_env_t));
-        if (NULL==__benv_mirror) {
-            return -ENOMEM;
-        }
-
-        __benv_ops = (benv_ops_t *)os_zalloc(count*sizeof(benv_ops_t));
-        if (NULL==__benv_ops) {
-            return -ENOMEM;
-        }
-        os_memcpy(__benv_ops, ops, count*sizeof(benv_ops_t));
-
-        __benv_cache = (benv_cache_t *)os_zalloc(count*sizeof(benv_ops_t));
-        if (NULL==__benv_cache) {
-            return -ENOMEM;
-        }
-    }
-    
-    return 0;
-}
-
 static inline benv_ops_t *
 benv_ops(int idx)
 {
@@ -1747,6 +1707,46 @@ enum {
     BENV_MARK_OPS,      \
     BENV_INFO_OPS,      \
 }   /* end */
+
+static inline int
+benv_control_init(void)
+{
+    if (NULL==____benv_control) {
+        os_shm_t shm = OS_SHM_INITER(OS_BENV_SHM_ID);
+        benv_ops_t ops[] = BENV_DEFT_OPS;
+        int count = os_count_of(ops);
+                
+        ____benv_control = (benv_control_t *)os_zalloc(sizeof(benv_control_t));
+        if (NULL==____benv_control) {
+            return -ENOMEM;
+        }
+        __benv_ops_count = count;
+        __benv_fd = INVALID_FD;
+        os_objcpy(__benv_shm, &shm);
+#ifdef __BOOT__
+        extern env_t *env_ptr;
+        __benv_shm_address = env_ptr->env;
+#endif
+        
+        __benv_mirror = (benv_env_t *)os_zalloc(sizeof(benv_env_t));
+        if (NULL==__benv_mirror) {
+            return -ENOMEM;
+        }
+
+        __benv_ops = (benv_ops_t *)os_zalloc(count*sizeof(benv_ops_t));
+        if (NULL==__benv_ops) {
+            return -ENOMEM;
+        }
+        os_memcpy(__benv_ops, ops, count*sizeof(benv_ops_t));
+
+        __benv_cache = (benv_cache_t *)os_zalloc(count*sizeof(benv_ops_t));
+        if (NULL==__benv_cache) {
+            return -ENOMEM;
+        }
+    }
+    
+    return 0;
+}
 
 static inline void
 __benv_show_byprefix(void (*show)(benv_ops_t* ops), char *prefix)
