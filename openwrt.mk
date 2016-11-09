@@ -52,7 +52,7 @@ endef
 define Package/libjs/install
 	$(Package/bigap/install/common)
 	
-	cp $(PKG_APP_BUILD_DIR)/js/libjs.* $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_APP_BUILD_DIR)/js/libjs.* $(1)/usr/lib
 endef
 
 define Package/libjs/compile
