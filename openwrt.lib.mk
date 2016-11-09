@@ -51,7 +51,7 @@ endef
 define Package/libjs/install
 	$(Package/bigap-lib/install/common)
 	
-	$(INSTALL_DATA) $(PKG_LIB_BUILD_DIR)/js/libjs.* $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_LIB_BUILD_DIR)/js/libjs.so $(1)/usr/lib
 endef
 
 define Package/libjs/compile
@@ -65,6 +65,7 @@ define Package/libjs/compile
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		OS_TYPE=openwrt \
 		#end
+	$(CP) $(PKG_LIB_BUILD_DIR)/js/libjs.so $(STAGING_DIR)/usr/lib
 endef
 ####################################################################
 define Build/Prepare
