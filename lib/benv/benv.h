@@ -2268,39 +2268,6 @@ __benv_upgrade(void)
 }
 #endif
 
-static inline void benv_check(void);
-
-static inline int
-benv_repair(void)
-{
-#if BENV_REPAIR
-    benv_cookie_t deft = BENV_DEFT_COOKIE;
-    int err = 0, env, idx;
-    bool upgrade = false;
-    
-    /*
-    * 1-count-benv upgrade to 4-count-benv
-    *   benv-1/2/3 cookie != default cookie(fixed)
-    *   so, it is upgrade
-    */
-    for (env=1; env<BENV_COUNT; env++) {
-        if (false==os_memeq(&deft, __benv_cookie(env), BENV_COOKIE_FIXED)) {
-            upgrade = true;
-
-            break;
-        }
-    }
-
-    if (upgrade) {
-        __benv_upgrade();
-    } else {
-        __benv_repair();
-    }
-#endif
-
-    return 0;
-}
-
 /*
 * in boot, 
 *   bootenv include benv
@@ -2315,6 +2282,9 @@ is_benv_loaded(void)
     return true;
 #endif
 }
+
+static inline int  benv_repair(void);
+static inline void benv_check(void);
 
 static inline int
 benv_load(void)
@@ -2609,6 +2579,37 @@ benv_check_os(void)
     .mark   = BENV_DEFT_MARK,   \
     .info   = BENV_DEFT_INFO,   \
 }   /* end */
+
+static inline int
+benv_repair(void)
+{
+#if BENV_REPAIR
+    benv_cookie_t deft = BENV_DEFT_COOKIE;
+    int err = 0, env, idx;
+    bool upgrade = false;
+    
+    /*
+    * 1-count-benv upgrade to 4-count-benv
+    *   benv-1/2/3 cookie != default cookie(fixed)
+    *   so, it is upgrade
+    */
+    for (env=1; env<BENV_COUNT; env++) {
+        if (false==os_memeq(&deft, __benv_cookie(env), BENV_COOKIE_FIXED)) {
+            upgrade = true;
+
+            break;
+        }
+    }
+
+    if (upgrade) {
+        __benv_upgrade();
+    } else {
+        __benv_repair();
+    }
+#endif
+
+    return 0;
+}
 
 static inline bool
 is_benv_cookie_fixed(void)
