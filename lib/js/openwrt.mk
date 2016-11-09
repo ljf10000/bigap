@@ -11,7 +11,11 @@ OBJS=duktape.o \
 	#end
 __TARGET=libjs
 TARGET=$(__TARGET).so
-LIBS_DEPEND=
+LIBS_DEPEND=c m json-c
+
+ifeq (1,$(UBACKTRACE))
+LIBS_DEPEND+=-lubacktrace
+endif
 
 .PHONY:all
 all:$(TARGET)
