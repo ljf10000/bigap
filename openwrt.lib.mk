@@ -42,32 +42,6 @@ define Package/bigap/install/common
 	$(INSTALL_DIR) $(1)/$(AK_PATH)/
 endef
 ####################################################################
-define Package/libjs
-  SECTION:=libs
-  CATEGORY:=Libraries
-  TITLE:=Basic utility library
-  DEPENDS:=+netifd +json-c
-endef
-
-define Package/libjs/install
-	$(Package/bigap/install/common)
-	
-	$(INSTALL_DATA) $(PKG_APP_BUILD_DIR)/js/libjs.* $(1)/usr/lib
-endef
-
-define Package/libjs/compile
-	$(MAKE) -C $(PKG_LIB_BUILD_DIR)/js \
-		CC="$(TARGET_CC)" \
-		CFLAGS=" \
-			$(TARGET_CFLAGS) \
-			$(TARGET_CPPFLAGS) \
-			$(BIGAP_LIB_CFLAGS) \
-			" \
-		LDFLAGS="$(TARGET_LDFLAGS)" \
-		OS_TYPE=openwrt \
-		#end
-endef
-####################################################################
 define Package/ak
   SECTION:=apps
   CATEGORY:=bigap
@@ -285,7 +259,6 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(Package/libjs/compile)
 	$(Package/ak/compile)
 	$(Package/jlogd/compile)
 	$(Package/jlogger/compile)
@@ -296,7 +269,6 @@ define Build/Compile
 	$(Package/duktape/compile)
 endef
 ####################################################################
-$(eval $(call BuildPackage,libjs))
 $(eval $(call BuildPackage,ak))
 $(eval $(call BuildPackage,jlogd))
 $(eval $(call BuildPackage,jlogger))
