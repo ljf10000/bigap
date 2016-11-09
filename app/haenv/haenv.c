@@ -5,7 +5,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_APP      haenv
 #endif
 
+#ifndef __COMMAND__
 #define __COMMAND__
+#endif
+
 #include "utils.h"
 #include "haenv/haenv.h"
 

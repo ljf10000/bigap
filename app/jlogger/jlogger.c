@@ -6,7 +6,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #define __JLOGGER__
+#ifndef __COMMAND__
 #define __COMMAND__
+#endif
+
 #include "utils.h"
 
 OS_INITER;
