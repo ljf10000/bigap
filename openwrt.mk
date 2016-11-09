@@ -28,7 +28,7 @@ TARGET_CFLAGS += -Wall \
 
 TARGET_LDFLAGS+= -L$(STAGING_DIR)/lib -L$(STAGING_DIR)/usr/lib
 
-CAPPLIB_CFLAGS += -fPIC -shared
+BIGAP_LIB_CFLAGS += -fPIC -shared
 
 AK_PATH=etc/ak
 
@@ -40,6 +40,32 @@ define Package/bigap/install/common
 	$(INSTALL_DIR) $(1)/lib/script/
 	$(INSTALL_DIR) $(1)/lib/functions/
 	$(INSTALL_DIR) $(1)/$(AK_PATH)/
+endef
+####################################################################
+define Package/libjs
+  SECTION:=apps
+  CATEGORY:=bigap
+  TITLE:=SuperWalle Basic App
+  DEPENDS:=+netifd +json-c
+endef
+
+define Package/libjs/install
+	$(Package/bigap/install/common)
+	
+	cp $(PKG_APP_BUILD_DIR)/js/libjs.* $(1)/usr/lib
+endef
+
+define Package/libjs/compile
+	$(MAKE) -C $(PKG_LIB_BUILD_DIR)/ak \
+		CC="$(TARGET_CC)" \
+		CFLAGS=" \
+			$(TARGET_CFLAGS) \
+			$(TARGET_CPPFLAGS) \
+			$(BIGAP_LIB_CFLAGS) \
+			" \
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		OS_TYPE=openwrt \
+		#end
 endef
 ####################################################################
 define Package/ak
@@ -224,7 +250,7 @@ define Package/duktape
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=SuperWalle Basic App
-  DEPENDS:=+netifd +json-c
+  DEPENDS:=+netifd +json-c +libjs
 endef
 
 define Package/duktape/install
@@ -269,6 +295,7 @@ define Build/Compile
 	$(Package/duktape/compile)
 endef
 ####################################################################
+$(eval $(call BuildPackage,libjs))
 $(eval $(call BuildPackage,ak))
 $(eval $(call BuildPackage,jlogd))
 $(eval $(call BuildPackage,jlogger))
