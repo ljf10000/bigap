@@ -56,7 +56,7 @@ define Package/libjs/install
 endef
 
 define Package/libjs/compile
-	$(MAKE) -C $(PKG_LIB_BUILD_DIR)/ak \
+	$(MAKE) -C $(PKG_LIB_BUILD_DIR)/js \
 		CC="$(TARGET_CC)" \
 		CFLAGS=" \
 			$(TARGET_CFLAGS) \
