@@ -3,11 +3,11 @@ OBJS=duktape.o \
 	duk.o \
 	global.o \
 	libbz.o \
-	libc. o \
-	libcurl. o \
-	liblz. o \
-	libz. o \
-	my. o \
+	libc.o \
+	libcurl.o \
+	liblz.o \
+	libz.o \
+	my.o \
 	#end
 __TARGET=libjs
 TARGET=$(__TARGET).so
