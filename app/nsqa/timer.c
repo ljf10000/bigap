@@ -9,6 +9,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     timer
 #endif
 
+#define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
 static int

@@ -18,17 +18,16 @@ INCS+=
 #
 #changed me, append obj
 #
-OBJS=$(DIR_SELF)/module/main.o $(JS_OBJS)
+OBJS=$(DIR_SELF)/module/main.o
 
 TARGET_NAME=js
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c m json-c
+LIB_DEPEND=c m json-c js
 CFLAGS+= -std=gnu99 \
 	-Os -fomit-frame-pointer \
 	-fstrict-aliasing \
 	-DDUK_OPT_FORCE_ALIGN=4 \
-	-D__THIS_APP=js \
 	#end
 
 #

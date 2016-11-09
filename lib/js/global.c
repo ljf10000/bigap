@@ -9,9 +9,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     global
 #endif
 
-#ifndef __COMMAND__
-#define __COMMAND__
-#endif
+#define __RUNAS_UNKNOW__
 
 #include "utils.h"
 #include "js.h"
@@ -130,13 +128,15 @@ int js_global_register(duk_context *ctx)
     duk_push_global_object(ctx);
 	    duk_put_functions(ctx, -1, global_func);
 	duk_pop(ctx);
+
 	debug_ok("register global ok.");
 	
-    duk_push_global_object(ctx);
+	duk_push_global_object(ctx);
     	duk_get_prop_string(ctx, -1, js_DUKTAPE);
     	    duk_put_functions(ctx, -1, duktape_func);
     	duk_pop(ctx);
 	duk_pop(ctx);
+
 	debug_ok("register mod search ok.");
 	
     return 0;

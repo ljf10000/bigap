@@ -6,8 +6,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 /*
-* for reload, NOT define __COMMAND__
+* for reload
 */
+#define __DEAMON__
+
 #include "utils.h"
 
 OS_REAL_INITER;

@@ -9,6 +9,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     nsqa
 #endif
 
+#define __DEAMON__
 #include "nsqa.h"
 
 OS_INITER;
