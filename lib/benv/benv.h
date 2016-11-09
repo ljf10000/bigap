@@ -2927,29 +2927,30 @@ typedef struct {
 #endif
 } benv_cmd_t;
 
-#define __benv_cmd_item(_action, _obj, _handle) {.action = _action, .obj = _obj, .handle = _handle}
+#define BENV_CMD(_action, _obj, _handle) {.action = _action, .obj = _obj, .handle = _handle}
+#define BENV_CMD_INITER     { \
+    BENV_CMD("show",    "cookie",   benv_show_cookie),  \
+    BENV_CMD("show",    "os",       benv_show_os),      \
+    BENV_CMD("show",    "path",     benv_show_path),    \
+    BENV_CMD("show",    "hide",     benv_show_hide),    \
+    BENV_CMD("show",    "all",      benv_show_all),     \
+                                                        \
+    BENV_CMD("check",   "os",       benv_check_os),     \
+                                                        \
+    BENV_CMD("reset",   "os",       __benv_deft_os),    \
+    BENV_CMD("reset",   "info",     __benv_deft_info),  \
+    BENV_CMD("reset",   "all",      __benv_deft),       \
+                                                        \
+    BENV_CMD("clean",   "cookie",   __benv_clean_cookie), \
+    BENV_CMD("clean",   "mark",     __benv_clean_mark), \
+    BENV_CMD("clean",   "info",     __benv_clean_info), \
+    BENV_CMD("clean",   "all",      __benv_clean),      \
+}   /* end */
 
 static inline bool
 benv_cmd_hiden(int argc, char *argv[])
 {
-    benv_cmd_t cmd[] = {
-        __benv_cmd_item("show",     "cookie",   benv_show_cookie),
-        __benv_cmd_item("show",     "os",       benv_show_os),
-        __benv_cmd_item("show",     "path",     benv_show_path),
-        __benv_cmd_item("show",     "hide",     benv_show_hide),
-        __benv_cmd_item("show",     "all",      benv_show_all),
-        
-        __benv_cmd_item("check",    "os",       benv_check_os),
-        
-        __benv_cmd_item("reset",    "os",       __benv_deft_os),
-        __benv_cmd_item("reset",    "info",     __benv_deft_info),
-        __benv_cmd_item("reset",    "all",      __benv_deft),
-        
-        __benv_cmd_item("clean",    "cookie",   __benv_clean_cookie),
-        __benv_cmd_item("clean",    "mark",     __benv_clean_mark),
-        __benv_cmd_item("clean",    "info",     __benv_clean_info),
-        __benv_cmd_item("clean",    "all",      __benv_clean),
-    };
+    benv_cmd_t cmd[] = BENV_CMD_INITER;
     char *action    = argv[1];
     char *obj       = argv[2];
     int i;
@@ -2971,7 +2972,6 @@ benv_cmd_hiden(int argc, char *argv[])
     
     return false;
 }
-#undef __benv_cmd_item
 
 static inline int
 benv_cmd(int argc, char *argv[])
