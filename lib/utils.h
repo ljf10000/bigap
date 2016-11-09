@@ -315,5 +315,32 @@ os_initer(os_initer_t map[], int count)
 
     return 0;
 }
+
+#if 0
+Addr.h (lib\utils):    static byte mac[OS_MACSIZE] = {0};
+Addr.h (lib\utils):    static char macstring[1+MACSTRINGLEN_L] = {0};
+Addr.h (lib\utils):    static char line[1+OS_LINE_LEN];
+Blob.h (lib\utils):    static blob_rule_t rule[BLOB_T_END] = {
+Cmd.h (lib\utils):    static char line[1+OS_LINE_LEN];
+Cmd.h (lib\utils):    static cmd_table_t cmd;
+Coroutine.h (lib\utils):    static char *reserved_name[] = {
+Crc32.h (lib\utils):    static uint32 table[256] = {
+Enum.h (lib\utils):        static char *array[_end] = { _mapper(__ENUM_MAP_NAME) }; \
+Fcookie.h (lib\fcookie):    static char tmp_file[1+FCOOKIE_FILE_LEN];
+Fcookie.h (lib\fcookie):    static char *domains[] = {
+Gpio.h (lib\hisi):    static hisi_gpio_t array[] = GPIO_INITER;
+Haenv.h (lib\haenv):    static haenv_deft_t deft[] = HAENV_DEFAULTS;
+Js.h (lib\js):    static js_register_f *registers[] = {
+Loop.h (lib\utils):    static void (*map[LOOP_TYPE_END])(loop_watcher_t *watcher) = {
+Md5.h (lib\utils):    static byte padding[64] = {
+Nsq.h (lib\nsq):    static nsq_identify_rule_t rule[NSQ_IDENTIFY_END] = NSQ_IDENTIFY_RULE_INITER;
+Oem.h (lib\oem):    static int type = OEM_T_END;
+Oem.h (lib\oem):    static char *vendor;
+Otp.h (lib\hisi):    static char string[2*OTP_SIZE+1];
+Otp.h (lib\hisi):    static int otp_offset = 0;
+Time.h (lib\utils):    static char current[1+FULLTIME_STRING_LEN];
+Time.h (lib\utils):    static char current[1+FULLTIME_STRING_LEN];
+Time.h (lib\utils):    static char current[1+FULLTIME_STRING_LEN];
+#endif
 /******************************************************************************/
 #endif /* __UTILS_H_6bb0dde2b3424f97a297b2b0e37d90aa__ */

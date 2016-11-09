@@ -427,14 +427,20 @@ enum {
     BENV_OPS_END
 };
 
-typedef struct struct_benv_ops {
+typedef struct benv_ops_s {
+#if BENV_SBBUG
+    int a1, b2;
+#endif
     char  *path;
     uint32 offset;
     uint32 type;
 
-    int  (*check)(struct struct_benv_ops* ops, char *value);
-    void (*write)(struct struct_benv_ops* ops, char *value);
-    void (*show) (struct struct_benv_ops* ops);
+    int  (*check)(struct benv_ops_s* ops, char *value);
+    void (*write)(struct benv_ops_s* ops, char *value);
+    void (*show) (struct benv_ops_s* ops);
+#if BENV_SBBUG
+    int b1, b2;
+#endif
 } benv_ops_t;
 
 typedef struct {
@@ -1725,21 +1731,21 @@ benv_control_init(void)
         os_objcpy(__benv_shm, &shm);
 #ifdef __BOOT__
         extern void benv_boot_init(void);
+        
         benv_boot_init();
 #endif
-        
         __benv_mirror = (benv_env_t *)os_zalloc(sizeof(benv_env_t));
         if (NULL==__benv_mirror) {
             return -ENOMEM;
         }
 
-        __benv_ops = (benv_ops_t *)os_zalloc(count*sizeof(benv_ops_t));
+        __benv_ops = (benv_ops_t *)os_zalloc(sizeof(ops));
         if (NULL==__benv_ops) {
             return -ENOMEM;
         }
-        os_memcpy(__benv_ops, ops, count*sizeof(benv_ops_t));
+        os_memcpy(__benv_ops, ops, sizeof(ops));
 
-        __benv_cache = (benv_cache_t *)os_zalloc(count*sizeof(benv_ops_t));
+        __benv_cache = (benv_cache_t *)os_zalloc(count*sizeof(benv_cache_t));
         if (NULL==__benv_cache) {
             return -ENOMEM;
         }
@@ -2916,13 +2922,13 @@ benv_cmd_hiden(int argc, char *argv[])
 {
     struct {
 #if BENV_SBBUG
-        int a;
+        int a1, a2;
 #endif
         char *action;
         char *obj;
         void (*handle)(void);
 #if BENV_SBBUG
-        int b;
+        int b1, b2;
 #endif
     } cmd[] = {
         __benv_cmd_item("show",     "cookie",   benv_show_cookie),
