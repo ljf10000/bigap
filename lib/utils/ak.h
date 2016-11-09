@@ -807,11 +807,11 @@ __ak_init_command()
 {
     char *value;
     
-    value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
+    value = env_gets(OS_ENV(AK_DEBUG), __ak_debug_string_default);
     __THIS_DEBUG = __ak_get_value(OS_ENV(AK_DEBUG), value);
     ak_println("__THIS_DEBUG=%s==>0x%x", value, __THIS_DEBUG);
 
-    value = env_gets(ENV_JS_DEBUG, __js_debug_string_default);
+    value = env_gets(OS_ENV(JS_DEBUG), __js_debug_string_default);
     __THIS_JDEBUG = __ak_get_value(OS_ENV(JS_DEBUG), value);
     ak_println("__THIS_JDEBUG=%s==>0x%x", value, __THIS_JDEBUG);
 }
@@ -833,7 +833,7 @@ __ak_init_unknow()
     char *value = getenv(OS_ENV(DEAMON));
     
     __THIS_COMMAND = (NULL==value);
-    ak_println(ENV_RUNAS_DEAMON "=%s, __THIS_COMMAND=%d", value, __THIS_COMMAND);
+    ak_println(OS_ENV(DEAMON) "=%s, __THIS_COMMAND=%d", value, __THIS_COMMAND);
 
     if (__THIS_COMMAND) {
         __ak_init_command();
