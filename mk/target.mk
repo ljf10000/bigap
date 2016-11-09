@@ -19,8 +19,10 @@ pre:$(DEPS) $(PRES)
 	${CC} -E $(<) ${CFLAGS} ${__CFLAGS} $(INCS) >>$(@)
 
 gen:
-	@if [[ -x $(GEN_SH) ]]; then \
-		./$(GEN_SH); \
+	@if [[ -x $(DIR_JS)/$(GEN_SH) ]]; then \
+		pushd $(DIR_JS); \
+			./$(GEN_SH); \
+		popd; \
 	fi
 endian:
 	@if [[ -x $(SCRIPT_PATH)/64 ]]; then \

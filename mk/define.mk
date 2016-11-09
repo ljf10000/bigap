@@ -11,7 +11,7 @@ ifndef MK_DEFINE
 	export MK_PATH=$(DIR_ROOT)/mk
 	export SCRIPT_PATH=$(DIR_ROOT)/script
 
-	DIR_JS=$(DIR_ROOT)/lib/js
+	export DIR_JS=$(DIR_ROOT)/lib/js
 	export JS_OBJS=$(DIR_JS)/duktape.o \
 			$(DIR_JS)/global.o \
 			$(DIR_JS)/libbz.o \
