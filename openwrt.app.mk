@@ -6,17 +6,6 @@ PKG_RELEASE:=1
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 PKG_LIB_BUILD_DIR := $(PKG_BUILD_DIR)/lib
 PKG_APP_BUILD_DIR := $(PKG_BUILD_DIR)/app
-DIR_JS := $(PKG_LIB_BUILD_DIR)/js
-
-export JS_OBJS=$(DIR_JS)/duktape.o \
-			$(DIR_JS)/global.o \
-			$(DIR_JS)/libbz.o \
-			$(DIR_JS)/libc.o \
-			$(DIR_JS)/libcurl.o \
-			$(DIR_JS)/liblz.o \
-			$(DIR_JS)/libz.o \
-			$(DIR_JS)/my.o \
-			#end
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -233,7 +222,7 @@ define Package/duktape
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=SuperWalle Basic App
-  DEPENDS:=+netifd +json-c
+  DEPENDS:=+netifd +json-c +libjs
 endef
 
 define Package/duktape/install
@@ -253,7 +242,6 @@ define Package/duktape/compile
 			-DDUK_OPT_FORCE_ALIGN=4 \
 			-Os -fomit-frame-pointer \
 			-fstrict-aliasing \
-			-D__THIS_APP=js \
 			" \
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		OS_TYPE=openwrt \
