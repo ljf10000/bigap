@@ -45,7 +45,7 @@ handle_insert(char *args)
     }
 
     cli_sprintf("%s" __crlf, json);
-    
+
 error:
     jobj_put(jobj);
 
