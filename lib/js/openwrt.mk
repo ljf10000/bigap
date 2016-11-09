@@ -27,4 +27,4 @@ clean:
 $(TARGET):$(OBJS)
 	${CC} ${CFLAGS} ${LDFLAGS} $(LIBS_DEPEND) -o $(TARGET) $(OBJS)
 %.o:%.c
-	${CC} -c ${CFLAGS} $@ $(OBJS)) $< -o $@
+	${CC} -c ${CFLAGS} $@ $(OBJS) $< -o $@
