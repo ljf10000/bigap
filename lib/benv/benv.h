@@ -429,7 +429,7 @@ enum {
 
 typedef struct benv_ops_s {
 #if BENV_SBBUG
-    int a1, b2;
+    uint32 __r0[2];
 #endif
     char  *path;
     uint32 offset;
@@ -439,7 +439,7 @@ typedef struct benv_ops_s {
     void (*write)(struct benv_ops_s* ops, char *value);
     void (*show) (struct benv_ops_s* ops);
 #if BENV_SBBUG
-    int b1, b2;
+    uint32 __r1[2];
 #endif
 } benv_ops_t;
 
@@ -2915,22 +2915,24 @@ benv_cmd_find(int argc, char *argv[])
     return 0;
 }
 
+typedef struct {
+#if BENV_SBBUG
+    uint32 __r0[2];
+#endif
+    char *action;
+    char *obj;
+    void (*handle)(void);
+#if BENV_SBBUG
+    uint32 __r1[2];
+#endif
+} benv_cmd_t;
+
 #define __benv_cmd_item(_action, _obj, _handle) {.action = _action, .obj = _obj, .handle = _handle}
 
 static inline bool
 benv_cmd_hiden(int argc, char *argv[])
 {
-    struct {
-#if BENV_SBBUG
-        int a1, a2;
-#endif
-        char *action;
-        char *obj;
-        void (*handle)(void);
-#if BENV_SBBUG
-        int b1, b2;
-#endif
-    } cmd[] = {
+    benv_cmd_t cmd[] = {
         __benv_cmd_item("show",     "cookie",   benv_show_cookie),
         __benv_cmd_item("show",     "os",       benv_show_os),
         __benv_cmd_item("show",     "path",     benv_show_path),
