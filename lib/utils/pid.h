@@ -70,7 +70,7 @@ __os_deamon_exist(void)
 static inline int
 os_deamon_check(void)
 {
-#ifndef __COMMAND__
+#ifdef __DEAMON__
     if (__os_deamon_exist()) {
         return -EDEAMON;
     }
@@ -86,7 +86,7 @@ os_deamon_check(void)
 static inline void
 os_deamon_exit(void)
 {
-#ifndef __COMMAND__
+#ifdef __DEAMON__
     if (__this_deamon()->running) {
         unlink(__THIS_PIDFILE);
     }
