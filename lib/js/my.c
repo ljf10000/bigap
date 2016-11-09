@@ -2,7 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      js
+#define __THIS_APP      libjs
 #endif
 
 #ifndef __THIS_FILE
@@ -848,3 +848,23 @@ int js_my_register(duk_context *ctx)
     return 0;
 }
 
+#ifndef __BUSYBOX__
+OS_INITER;
+
+static os_constructor void
+__init(void)
+{
+    int err;
+    
+    err = ak_init();
+    if (err<0) {
+        os_println("libjs ak init error:%d", err);
+    }
+
+    err = jlog_init();
+    if (err<0) {
+        os_println("libjs jlog init error:%d", err);
+        return err;
+    }
+}
+#endif
