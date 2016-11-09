@@ -5,7 +5,6 @@ PKG_RELEASE:=1
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 PKG_LIB_BUILD_DIR := $(PKG_BUILD_DIR)/lib
-PKG_APP_BUILD_DIR := $(PKG_BUILD_DIR)/app
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -52,7 +51,7 @@ endef
 define Package/libjs/install
 	$(Package/bigap-lib/install/common)
 	
-	$(INSTALL_DATA) $(PKG_APP_BUILD_DIR)/js/libjs.* $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_LIB_BUILD_DIR)/js/libjs.* $(1)/usr/lib
 endef
 
 define Package/libjs/compile
