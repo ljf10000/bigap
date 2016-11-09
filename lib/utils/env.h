@@ -17,19 +17,22 @@
 static inline char *
 env_gets(char *envname, char *deft) 
 {
-    if (NULL==envname) {
-        return os_assertV(deft);
-    }
-    
-    char *env = getenv(envname);
-    if (false==is_good_env(env)) {
-        env_println("no-found env:%s, use default:%s", envname, deft);
+    if (envname) {
+        char *env = getenv(envname);
         
-        return deft;
+        if (is_good_env(env)) {
+            env_println("get env:%s=%s", envname, env);
+            
+            return env;
+        } else {
+            env_println("no-found env:%s, use default:%s", envname, deft);
+
+            return deft;
+        }
     } else {
-        env_println("get env:%s=%s", envname, env);
-        
-        return env;
+        env_println("empty env, use default:%s", deft);
+
+        return deft;
     }
 }
 

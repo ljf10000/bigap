@@ -133,16 +133,16 @@
 #define ENV_JPATH           "JPATH"
 #endif
 
-#ifndef __js_CACHE
-#define __js_CACHE          "/tmp/js"
+#ifndef ENV_JCACHE
+#define ENV_JCACHE          "JCACHE"
 #endif
 
-#ifndef __js_PATH
-#define __js_PATH           "/lib/js"
+#ifndef js_CACHE
+#define js_CACHE            "/tmp/js"
 #endif
 
 #ifndef js_PATH
-#define js_PATH             __js_PATH ":" __js_CACHE
+#define js_PATH             "/lib/js:" js_CACHE
 #endif
 
 #ifndef js_AUTO_PATH
@@ -960,9 +960,9 @@ __js_priv_fini(js_priv_t *priv)
     int i;
 
     if (priv) {
+        os_free(priv->cache);
         os_free(priv->name);
         os_free(priv->atexit_name);
-        os_free(priv->cache);
         
         for (i=0; i<NSIG; i++) {
             if (priv->sig[i].is_func) {
@@ -978,7 +978,7 @@ __js_priv_fini(js_priv_t *priv)
 }while(0)
 
 static inline js_priv_t *
-js_priv_init(char *name, int argc, char **argv)
+js_priv_init(char *name, char *cache, int argc, char **argv)
 {
     js_priv_t *priv = (js_priv_t *)os_zalloc(sizeof(*priv));
     if (NULL==priv) {
@@ -988,7 +988,8 @@ js_priv_init(char *name, int argc, char **argv)
     priv->argc = argc;
     priv->argv = argv;
     priv->name = os_strdup(name);
-
+    priv->cache= os_strdup(cache);
+    
     if (1==argc) {
         priv->mode = JS_EVAL_STREAM;
     } else if (argc > 1) {
@@ -1020,7 +1021,7 @@ __js_fini(duk_context *ctx)
 }while(0)
 
 static inline duk_context *
-js_init(char *name, int argc, char **argv)
+js_init(char *name, char *cache, int argc, char **argv)
 {
     duk_context *ctx = NULL;
     int err = 0;
@@ -1030,9 +1031,8 @@ js_init(char *name, int argc, char **argv)
         goto error;
     }
     js_ctx_save(ctx);
-    duk_set_priv(ctx, NULL);
     
-    js_priv_t *priv = js_priv_init(name, argc, argv);
+    js_priv_t *priv = js_priv_init(name, cache, argc, argv);
     if (NULL==priv) {
         goto error;
     }

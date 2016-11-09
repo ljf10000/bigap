@@ -21,8 +21,9 @@ __main(int argc, char *argv[])
 {
     int err = 0;
     duk_context *ctx = NULL;
-
-    ctx = js_init("main", argc, argv);
+    char *cache = env_gets(ENV_JCACHE, NULL);
+    
+    ctx = js_init("main", cache, argc, argv);
     if (NULL==ctx) {
         err = -ENOMEM; goto error;
     }

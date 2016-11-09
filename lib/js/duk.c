@@ -2,7 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifndef __THIS_APP
-#define __THIS_APP      js
+#define __THIS_APP      libjs
 #endif
 
 #ifndef __THIS_FILE
@@ -47,21 +47,26 @@ search_path(duk_context *ctx, char *file, char *path)
 }
 
 static int
-search_env(duk_context *ctx, char *file, char *env, char *deft)
+search_paths(duk_context *ctx, char *file, char *paths)
 {
-    char *ENV = os_strdup(env_gets(env, deft));
     char *path = NULL;
-    int err = -ENOEXIST;
-    
-    os_strtok_foreach(path, ENV, ":") {
+
+    os_strtok_foreach(path, paths, ":") {
         if (0==search_path(ctx, file, path)) {
-            err = 1; goto ok;
+            return 0;
         }
     }
-    
-ok:
-    os_free(ENV);
-    
+
+    return -ENOEXIST;
+}
+
+static int
+search_env(duk_context *ctx, char *file, char *env, char *deft)
+{
+    char *paths = os_strdup(env_gets(env, deft));
+    int err = search_paths(ctx, file, paths);
+    os_free(paths);
+
     return err;
 }
 
@@ -72,15 +77,15 @@ search_CURRENT(duk_context *ctx, char *file)
 }
 
 static int
-search_JPATH(duk_context *ctx, char *file)
+search_JCACHE(duk_context *ctx, char *file)
 {
-    return search_env(ctx, file, ENV_JPATH, js_PATH);
+    return search_paths(ctx, file, js_priv(ctx)->cache);
 }
 
 static int
-search_JPRIV(duk_context *ctx, char *file)
+search_JPATH(duk_context *ctx, char *file)
 {
-    return search_path(ctx, file, js_priv(ctx)->cache);
+    return search_env(ctx, file, ENV_JPATH, js_PATH);
 }
 
 JS_PARAM(modSearch, DUK_VARARGS);
@@ -95,13 +100,13 @@ duke_modSearch(duk_context *ctx)
     os_snprintf(file, OS_LINE_LEN, "%s.js", id);
     
     /*
-    * try ./file.js
-    * try __js_PATH/file.js
-    * try __js_CACHE/file.js
+    * 1. try file.js
+    * 2. try JCACHE/file.js
+    * 3. try JPATH/file.js
     */
     if (0==search_CURRENT(ctx, file) ||
-        0==search_JPATH(ctx, file) ||
-        0==search_JPRIV(ctx, file)) {
+        0==search_JCACHE(ctx, file) ||
+        0==search_JPATH(ctx, file)) {
         return 1;
     }
 
