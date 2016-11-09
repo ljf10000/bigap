@@ -49,14 +49,4 @@ benv_boot_save(void)
         os_println("benv normal save end");
     }
 }
-
-static void
-benv_boot_init(void)
-{
-#ifdef __BOOT__
-    extern env_t *env_ptr;
-
-    __benv_shm_address = env_ptr->env;
-#endif
-}
 /******************************************************************************/
