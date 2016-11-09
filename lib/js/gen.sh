@@ -16,9 +16,7 @@ js2code() {
 }
 
 main() {
-	pushd module
 	js2code global
-	popd
 }
 
 main "$@"
