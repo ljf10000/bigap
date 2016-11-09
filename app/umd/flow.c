@@ -9,7 +9,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     flow
 #endif
 
-#define __DEAMON__
 #include "umd.h"
 
 static struct um_flow   flow;

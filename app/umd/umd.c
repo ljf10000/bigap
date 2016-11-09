@@ -9,7 +9,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     umd
 #endif
 
-#define __DEAMON__
 #include "umd.h"
 
 OS_INITER;

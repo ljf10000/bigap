@@ -9,7 +9,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     cli
 #endif
 
-#define __DEAMON__
 #define __CLI_TCP__     0
 #include "umd.h"
 

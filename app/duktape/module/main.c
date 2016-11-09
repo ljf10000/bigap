@@ -9,8 +9,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     main
 #endif
 
-#define __RUNAS_UNKNOW__
-
+#define __COMMAND__
 #include "utils.h"
 #include "js/js.h"
 

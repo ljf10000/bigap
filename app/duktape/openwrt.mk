@@ -1,10 +1,10 @@
 INCS+=-Isrc
 
-OBJS=module/main.o
+OBJS=module/main.o $(JS_OBJS)
 
 __TARGET=js
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lc -lm -ljson-c -ljs
+LIBS_DEPEND=-lc -lm -ljson-c
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace

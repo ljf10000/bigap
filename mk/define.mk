@@ -10,7 +10,17 @@ ifndef MK_DEFINE
 	export MODS=$(ARCH_PATH)/mod
 	export MK_PATH=$(DIR_ROOT)/mk
 	export SCRIPT_PATH=$(DIR_ROOT)/script
-	
+
+	DIR_JS=$(DIR_ROOT)/lib/js
+	export JS_OBJS=$(DIR_JS)/duktape.o \
+			$(DIR_JS)/global.o \
+			$(DIR_JS)/libbz.o \
+			$(DIR_JS)/libc.o \
+			$(DIR_JS)/libcurl.o \
+			$(DIR_JS)/liblz.o \
+			$(DIR_JS)/libz.o \
+			$(DIR_JS)/my.o \
+
 	export AK_PATH=/tmp/$(shell whoami)/ak
 	export GEN_SH=gen.sh
 	export OS_TYPE=linux

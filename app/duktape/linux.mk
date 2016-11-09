@@ -13,21 +13,22 @@ DIR_ROOT=$(DIR_SELF)/../..
 #
 include $(DIR_ROOT)/mk/define.mk
 
-INCS+=-I$(DIR_SELF)/src -I$(DIR_SELF)/module
+INCS+=
 
 #
 #changed me, append obj
 #
-OBJS=$(DIR_SELF)/module/main.o
+OBJS=$(DIR_SELF)/module/main.o $(JS_OBJS)
 
 TARGET_NAME=js
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c m json-c js
+LIB_DEPEND=c m json-c
 CFLAGS+= -std=gnu99 \
 	-Os -fomit-frame-pointer \
 	-fstrict-aliasing \
 	-DDUK_OPT_FORCE_ALIGN=4 \
+	-D__THIS_APP=js \
 	#end
 
 #

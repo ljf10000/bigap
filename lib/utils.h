@@ -42,16 +42,6 @@
 #   ifdef __BUSYBOX__
 #       include "libbb.h"
 #   endif
-#   define RUN_AS_DEAMON    1
-#   define RUN_AS_COMMAND   2
-#   define RUN_AS_UNKNOW    (RUN_AS_DEAMON|RUN_AS_COMMAND)
-#   ifdef __RUNAS_UNKNOW__
-#       define __RUNAS__    RUN_AS_UNKNOW
-#   elif defined(__DEAMON__)
-#       define __RUNAS__    RUN_AS_DEAMON
-#   else
-#       define __RUNAS__    RUN_AS_COMMAND
-#   endif
 #   include <stdint.h>
 #   include <stdarg.h>
 #   include <stdlib.h>

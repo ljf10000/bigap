@@ -11,7 +11,7 @@ include $(DIR_ROOT)/mk/define.mk
 #
 #changed me, append sub-system
 #
-SUB_SYSTEM=lib app test
+SUB_SYSTEM=app test
 
 #
 #don't change it

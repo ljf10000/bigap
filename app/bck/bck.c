@@ -5,6 +5,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_APP      bck
 #endif
 
+#define __COMMAND__
 #include "utils.h"
 #if IS_PRODUCT_LTEFI_MD_PARTITION_A
 #include "../bootm/bootm.h"

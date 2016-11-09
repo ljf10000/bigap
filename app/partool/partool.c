@@ -9,6 +9,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include <common.h>
 #include <command.h>
 #endif
+#define __COMMAND__
 #include "utils.h"
 
 OS_INITER;

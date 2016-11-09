@@ -26,19 +26,7 @@
 #endif
 
 #ifndef JS_DEBUG_NAME
-#define JS_DEBUG_NAME           "jsdebug"
-#endif
-
-#ifndef ENV_AK_DEBUG
-#define ENV_AK_DEBUG            "__AK_DEBUG__"
-#endif
-
-#ifndef ENV_JS_DEBUG
-#define ENV_JS_DEBUG            "__JS_DEBUG__"
-#endif
-
-#ifndef ENV_RUNAS_DEAMON
-#define ENV_RUNAS_DEAMON        "__RUN_AS_DEAMON__"
+#define JS_DEBUG_NAME           "jdebug"
 #endif
 
 enum {
@@ -186,10 +174,10 @@ __ak_debug_getname(uint32 level)
 #   define __ak_debug       (__THIS_DEBUG?(*__THIS_DEBUG):__ak_debug_default)
 #   define __js_debug       (__THIS_JDEBUG?(*__THIS_JDEBUG):__js_debug_default)
 #elif defined(__APP__)
-#   if __RUNAS__==RUN_AS_COMMAND
+#   ifdef __COMMAND__
 #       define __ak_debug   __THIS_DEBUG
 #       define __js_debug   __THIS_JDEBUG
-#   else /* run as deamon/unknow */
+#   else
 #       define __ak_debug   ak_get(__THIS_DEBUG, __ak_debug_default)
 #       define __js_debug   ak_get(__THIS_JDEBUG, __js_debug_default)
 #   endif
@@ -326,30 +314,7 @@ DECLARE_FAKE_COMMAND;
 
 static inline int __ak_init(void);
 
-#if !defined(__APP__) || __RUNAS__==RUN_AS_COMMAND
-#define DECLARE_FAKE_AK     os_fake_declare
-#define DECLARE_REAL_AK     os_fake_declare
-#define DECLARE_AK          os_fake_declare
-DECLARE_FAKE_AK;
-/*
-* kernel/boot/(app cmd)
-*/
-#define ak_getbyname(_key)              0
-
-#define ak_get(_akid, _deft)            (_akid)
-#define ak_set(_akid, _value)           0
-
-#define ak_reload()                     0
-#define ak_fini()                       0
-
-static inline int 
-ak_init(void)
-{    
-    __ak_init();
-
-    return 0;
-}
-#else /* defined(__APP__) && !defined(__COMMAND__) */
+#if defined(__APP__) && !defined(__COMMAND__)
 /*
 * app deamon
 */
@@ -811,64 +776,47 @@ error:
 
     return err;
 }
-#endif /* !defined(__APP__) || defined(__COMMAND__) */
 
-#if defined(__APP__) && (__RUNAS__ & RUN_AS_COMMAND)
-static inline void 
-__ak_init_command() 
-{
-    char *value;
-    
-    value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
-    __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
-    ak_println("__THIS_DEBUG=%s==>0x%x", value, __THIS_DEBUG);
+#else /* boot or command */
+#define DECLARE_FAKE_AK     os_fake_declare
+#define DECLARE_REAL_AK     os_fake_declare
+#define DECLARE_AK          os_fake_declare
+DECLARE_FAKE_AK;
+/*
+* kernel/boot/(app cmd)
+*/
+#define ak_getbyname(_key)              0
 
-    value = env_gets(ENV_JS_DEBUG, __js_debug_string_default);
-    __THIS_JDEBUG = __ak_get_value(JS_DEBUG_NAME, value);
-    ak_println("__THIS_JDEBUG=%s==>0x%x", value, __THIS_JDEBUG);
-}
-#endif
+#define ak_get(_akid, _deft)            (_akid)
+#define ak_set(_akid, _value)           0
 
-#if defined(__APP__) && (__RUNAS__ & RUN_AS_DEAMON)
-static inline void 
-__ak_init_deamon() 
+#define ak_reload()                     0
+#define ak_fini()                       0
+
+static inline int 
+ak_init(void)
 {    
-    __THIS_DEBUG    = ak_getbyname(AK_DEBUG_NAME);
-    __THIS_JDEBUG   = ak_getbyname(JS_DEBUG_NAME);
-}
-#endif
+    __ak_init();
 
-#if defined(__APP__) && (__RUNAS__==RUN_AS_UNKNOW)
-static inline void 
-__ak_init_unknow() 
-{
-    char *value = getenv(ENV_RUNAS_DEAMON);
-    
-    __THIS_COMMAND = (NULL==value);
-    ak_println(ENV_RUNAS_DEAMON "=%s, __THIS_COMMAND=%d", value, __THIS_COMMAND);
-
-    if (__THIS_COMMAND) {
-        __ak_init_command();
-    } else {
-        __ak_init_deamon();
-    }
+    return 0;
 }
-#endif
+#endif /* !defined(__APP__) || defined(__COMMAND__) */
 
 static inline int 
 __ak_init(void)
-{
-    ak_println("ak runas %d", __RUNAS__);
-    
-#ifdef __APP__
-#if __RUNAS__==RUN_AS_COMMAND
-    __ak_init_command();
-#elif __RUNAS__==RUN_AS_DEAMON
-    __ak_init_deamon();
-#elif __RUNAS__==RUN_AS_UNKNOW
-    __ak_init_unknow();
+{    
+#if defined(__APP__)
+#ifdef __COMMAND__
+    char *value = env_gets(OS_ENV(AK_DEBUG), __ak_debug_string_default);
+    __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
+    ak_println("__THIS_DEBUG=%s==>0x%x", value, __THIS_DEBUG);
+
+    value = env_gets(OS_ENV(JS_DEBUG), __js_debug_string_default);
+    __THIS_JDEBUG = __ak_get_value(JS_DEBUG_NAME, value);
+    ak_println("__THIS_JDEBUG=%s==>0x%x", value, __THIS_JDEBUG);
 #else
-#   error "bad __RUNAS__"
+    __THIS_DEBUG    = ak_getbyname(AK_DEBUG_NAME);
+    __THIS_JDEBUG   = ak_getbyname(JS_DEBUG_NAME);
 #endif
 #endif
 

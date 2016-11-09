@@ -5,8 +5,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_APP      guard
 #endif
 
-#define __DEAMON__
-
 #include "hisi/hisi.h"
 #include "fcookie/fcookie.h"
 
