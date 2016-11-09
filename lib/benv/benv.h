@@ -485,46 +485,31 @@ typedef struct {
 #endif
 } benv_control_t;
 
-#define __BENV_CONTROL_INITER(_ops, _cache) {   \
-    .ops        = _ops,                         \
-    .cache      = _cache,                       \
-    .ops_count  = (_ops)?os_count_of(_ops):0,   \
-    .fd         = INVALID_FD,                   \
-    .shm        = OS_SHM_INITER(OS_BENV_SHM_ID),\
-}   /* end */
-
 #if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
-#   define BENV_INITER \
-        benv_control_t ____benv_control = __BENV_CONTROL_INITER(NULL, NULL); \
-        os_fake_declare /* end */
+#   define BENV_INITER      benv_control_t *____benv_control
 #else
-#   define BENV_INITER    os_fake_declare
+#   define BENV_INITER      os_fake_declare
 #endif
-
-#define BENV_MAIN_INITER \
-    static benv_ops_t   ____benv_ops[] = BENV_DEFT_OPS; \
-    static benv_cache_t ____benv_cache[os_count_of(____benv_ops)]; \
-    benv_control_t ____benv_control = __BENV_CONTROL_INITER(____benv_ops, ____benv_cache); \
-    os_fake_declare /* end */
+#define BENV_MAIN_INITER    benv_control_t *____benv_control
 
 extern benv_control_t ____benv_control;
 
 #if BENV_USE_SEM
-#define __benv_sem              (&____benv_control.sem)
+#define __benv_sem              (&____benv_control->sem)
 #endif
-#define __benv_shm              (&____benv_control.shm)
+#define __benv_shm              (&____benv_control->shm)
 #define __benv_shm_address      __benv_shm->address
 #define __benv_shm_env          ((benv_env_t *)__benv_shm_address)
-#define __benv_errno            ____benv_control.error
-#define __benv_fd               ____benv_control.fd
-#define __benv_mirror           ____benv_control.mirror
+#define __benv_errno            ____benv_control->error
+#define __benv_fd               ____benv_control->fd
+#define __benv_mirror           ____benv_control->mirror
 #define __benv_env(_env)        (&__benv_shm_env[_env])
-#define __benv_ops              ____benv_control.ops
-#define __benv_ops_count        ____benv_control.ops_count
-#define __benv_show_count       ____benv_control.show_count
-#define __benv_show_empty       ____benv_control.show_empty
-#define __benv_self             ____benv_control.self
-#define __benv_cache            ____benv_control.cache
+#define __benv_ops              ____benv_control->ops
+#define __benv_ops_count        ____benv_control->ops_count
+#define __benv_show_count       ____benv_control->show_count
+#define __benv_show_empty       ____benv_control->show_empty
+#define __benv_self             ____benv_control->self
+#define __benv_cache            ____benv_control->cache
 #define __benv_cookie(_env)     (&__benv_env(_env)->cookie)
 #define __benv_os(_env)         (&__benv_env(_env)->os)
 #define __benv_current          __benv_os(0)->current
@@ -2468,6 +2453,42 @@ benv_save(void)
     return ____benv_save(BENV_ALL);
 }
 #endif
+
+static inline int
+__benv_init(void)
+{
+    if (NULL==____benv_control) {
+        os_shm_t shm = OS_SHM_INITER(OS_BENV_SHM_ID);
+        benv_ops_t ops[] = BENV_DEFT_OPS;
+        int count = os_count_of(ops);
+                
+        ____benv_control = (benv_control_t *)os_zalloc(sizeof(benv_control_t));
+        if (NULL==____benv_control) {
+            return -ENOMEM;
+        }
+        __benv_ops_count = count;
+        __benv_fd = INVALID_FD;
+        os_objcpy(__benv_shm, &shm);
+        
+        __benv_mirror = (benv_env_t *)os_zalloc(sizeof(benv_env_t));
+        if (NULL==__benv_mirror) {
+            return -ENOMEM;
+        }
+
+        __benv_ops = (benv_ops_t *)os_zalloc(count*sizeof(benv_ops_t));
+        if (NULL==__benv_ops) {
+            return -ENOMEM;
+        }
+        os_memcpy(__benv_ops, ops, count*sizeof(benv_ops_t));
+
+        __benv_cache = (benv_cache_t *)os_zalloc(count*sizeof(benv_ops_t));
+        if (NULL==__benv_cache) {
+            return -ENOMEM;
+        }
+    }
+    
+    return 0;
+}
 
 static inline int
 benv_init(void)
