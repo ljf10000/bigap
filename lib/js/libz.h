@@ -1,5 +1,6 @@
 #ifndef __LIBZ_H_fd23af79026249cf94aff1ae0ccb1f79__
 #define __LIBZ_H_fd23af79026249cf94aff1ae0ccb1f79__
+#if js_LIBZ
 /******************************************************************************/
 static inline int
 __get_gz_header(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
@@ -17,4 +18,5 @@ __set_gz_header(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 /******************************************************************************/
+#endif
 #endif /* __LIBZ_H_fd23af79026249cf94aff1ae0ccb1f79__ */

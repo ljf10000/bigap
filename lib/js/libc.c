@@ -1,19 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#ifndef __THIS_APP
-#define __THIS_APP      libjs
-#endif
-
-#ifndef __THIS_FILE
-#define __THIS_FILE     libc
-#endif
-
-#define __RUNAS_UNKNOW__
-
-#include "utils.h"
-#include "js.h"
-
 #if js_LIBC_SIG
 static duk_context *__js_ctx;
 

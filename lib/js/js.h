@@ -2,6 +2,8 @@
 #define __DUKC_H_fe1a608115554746877494835643599f__
 /******************************************************************************/
 #include "duktape.h"
+#include "utils.h"
+#include "global.h"
 
 #define js_UCLIBC           1
 #define js_GLIBC            2
@@ -1090,6 +1092,11 @@ js_eval(duk_context *ctx, char *jsfile)
     return 0;
 }
 
-#include "libc.h"   /* must end */
+#include "libc.h"
+#include "my.h"
+#include "libcurl.h"
+#include "libz.h"
+#include "libbz.h"
+#include "liblz.h"
 /******************************************************************************/
 #endif /* __DUKC_H_fe1a608115554746877494835643599f__ */

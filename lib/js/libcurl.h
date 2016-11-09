@@ -1,5 +1,6 @@
 #ifndef __LIBCURL_H_5cb068d46d6644ecb80a359194ae20d2__
 #define __LIBCURL_H_5cb068d46d6644ecb80a359194ae20d2__
+#if js_LIBCURL
 /******************************************************************************/
 #define __LIB_VERSION(A, B, C)  ((A)<<16 | (B)<<8 | (C))
 #define __LIB_VERSION_CURRENT   __LIB_VERSION(LIBCURL_VERSION_MAJOR, LIBCURL_VERSION_MINOR, LIBCURL_VERSION_PATCH)
@@ -78,4 +79,5 @@ __set_curl_slist_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 /******************************************************************************/
+#endif
 #endif /* __LIBCURL_H_5cb068d46d6644ecb80a359194ae20d2__ */

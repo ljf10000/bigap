@@ -1,19 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#ifndef __THIS_APP
-#define __THIS_APP      libjs
-#endif
-
-#ifndef __THIS_FILE
-#define __THIS_FILE     libcurl
-#endif
-
-#define __RUNAS_UNKNOW__
-
-#include "utils.h"
-#include "js.h"
-
 #if js_LIBCURL
 #include <curl/curl.h>
 #include "libcurl.h"
