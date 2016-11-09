@@ -1,7 +1,7 @@
 #ifndef __DUKC_H_fe1a608115554746877494835643599f__
 #define __DUKC_H_fe1a608115554746877494835643599f__
 /******************************************************************************/
-#include "../src/duktape.h"
+#include "duktape.h"
 
 #define js_UCLIBC           1
 #define js_GLIBC            2
