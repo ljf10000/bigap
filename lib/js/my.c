@@ -13,7 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 #include "global.h"
-#include "dukc.h"
+#include "js.h"
 #include "my.h"
 
 JS_PARAM(ak_getbyname, 2);

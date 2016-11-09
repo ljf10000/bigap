@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __RUNAS_UNKNOW__
 
 #include "utils.h"
-#include "dukc.h"
+#include "js.h"
 
 static int
 search_path(duk_context *ctx, char *file, char *path)
