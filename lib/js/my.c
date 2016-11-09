@@ -1,6 +1,21 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+#ifndef __THIS_APP
+#define __THIS_APP      libjs
+#endif
+
+#ifndef __THIS_FILE
+#define __THIS_FILE     my
+#endif
+
+#define __RUNAS_UNKNOW__
+
+#include "utils.h"
+#include "global.h"
+#include "js.h"
+#include "my.h"
+
 JS_PARAM(ak_getbyname, 2);
 static duk_ret_t
 duke_ak_getbyname(duk_context *ctx)

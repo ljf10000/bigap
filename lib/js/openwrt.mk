@@ -1,6 +1,13 @@
 
-OBJS=js.o
-
+OBJS=duktape.o \
+	global.o \
+	libbz.o \
+	libc.o \
+	libcurl.o \
+	liblz.o \
+	libz.o \
+	my.o \
+	#end
 __TARGET=libjs
 TARGET=$(__TARGET).so
 LIBS_DEPEND=-lc -lm -ljson-c

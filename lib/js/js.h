@@ -2,7 +2,6 @@
 #define __DUKC_H_fe1a608115554746877494835643599f__
 /******************************************************************************/
 #include "duktape.h"
-#include "global.h"
 
 #define js_UCLIBC           1
 #define js_GLIBC            2
@@ -206,8 +205,8 @@ duk_put_functions(duk_context *ctx, duk_idx_t obj_index, const dukc_func_entry_t
 }
 
 #define JS_PARAM_VERSION_DEFT       1
-#define JS_PARAM_NUMBER(x)          duke_##__THIS_APP##x##_param_number
-#define JS_PARAM_VERSION(x)         duke_##__THIS_APP##x##_version
+#define JS_PARAM_NUMBER(x)          duke_##__THIS_FILE##x##_param_number
+#define JS_PARAM_VERSION(x)         duke_##__THIS_FILE##x##_version
 #define JS_PARAM_API(x, n, v)       enum{ JS_PARAM_NUMBER(x) = n, JS_PARAM_VERSION(x) = v }
 #define JS_PARAM(x, n)              JS_PARAM_API(x, n, JS_PARAM_VERSION_DEFT)
 #define JS_FUNC(x)                  {#x, duke_##x, JS_PARAM_NUMBER(x), JS_PARAM_VERSION(x)}
@@ -1091,11 +1090,6 @@ js_eval(duk_context *ctx, char *jsfile)
     return 0;
 }
 
-#include "libc.h"
-#include "my.h"
-#include "libcurl.h"
-#include "libz.h"
-#include "libbz.h"
-#include "liblz.h"
+#include "libc.h"   /* must end */
 /******************************************************************************/
 #endif /* __DUKC_H_fe1a608115554746877494835643599f__ */
