@@ -836,7 +836,6 @@ extern duk_context *js_ctx_get(void);
 extern int js_auto_register(duk_context *ctx);
 extern int js_buildin_register(duk_context *ctx);
 extern int js_global_register(duk_context *ctx);
-extern int js_duktape_register(duk_context *ctx);
 extern int js_my_register(duk_context *ctx);
 extern int js_libc_register(duk_context *ctx);
 #if js_LIBZ
@@ -885,7 +884,6 @@ js_register(duk_context *ctx, js_register_f *cb)
 {
     static js_register_f *registers[] = {
         js_global_register,
-        js_duktape_register,
         js_my_register,
         js_libc_register,
 #if js_LIBZ

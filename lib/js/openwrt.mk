@@ -1,6 +1,5 @@
 
 OBJS=duktape.o \
-	duk.o \
 	global.o \
 	libbz.o \
 	libc.o \
