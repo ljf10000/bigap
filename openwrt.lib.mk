@@ -32,7 +32,7 @@ BIGAP_LIB_CFLAGS += -fPIC -shared
 
 AK_PATH=etc/ak
 
-define Package/bigap/install/common
+define Package/bigap-lib/install/common
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/etc/config/
@@ -50,7 +50,7 @@ define Package/libjs
 endef
 
 define Package/libjs/install
-	$(Package/bigap/install/common)
+	$(Package/bigap-lib/install/common)
 	
 	$(INSTALL_DATA) $(PKG_APP_BUILD_DIR)/js/libjs.* $(1)/usr/lib
 endef

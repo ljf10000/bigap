@@ -28,8 +28,6 @@ TARGET_CFLAGS += -Wall \
 
 TARGET_LDFLAGS+= -L$(STAGING_DIR)/lib -L$(STAGING_DIR)/usr/lib
 
-BIGAP_LIB_CFLAGS += -fPIC -shared
-
 AK_PATH=etc/ak
 
 define Package/bigap/install/common
