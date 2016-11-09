@@ -194,7 +194,6 @@ __cli_reply(int err)
 #else
     len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
 #endif
-    os_println("reply size = %d", __clib_space);
     __clib_clear();
     
     return len;
