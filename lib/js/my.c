@@ -16,6 +16,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "js.h"
 #include "my.h"
 
+OS_INITER;
+
 JS_PARAM(ak_getbyname, 2);
 static duk_ret_t
 duke_ak_getbyname(duk_context *ctx)
