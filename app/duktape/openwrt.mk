@@ -1,20 +1,10 @@
 INCS+=-Isrc
 
-OBJS=src/duktape.o 	\
-	module/main.o 	\
-	module/global.o \
-	module/duk.o 	\
-	module/my.o 	\
-	module/libc.o 	\
-	module/libcurl.o \
-	module/libz.o 	\
-	module/libbz.o 	\
-	module/liblz.o	\
-	#end
+OBJS=module/main.o
 
 __TARGET=js
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lc -lm -ljson-c
+LIBS_DEPEND=-lc -lm -ljson-c -ljs
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace

@@ -18,21 +18,12 @@ INCS+=-I$(DIR_SELF)/src -I$(DIR_SELF)/module
 #
 #changed me, append obj
 #
-OBJS=$(DIR_SELF)/src/duktape.o \
-	$(DIR_SELF)/module/main.o \
-	$(DIR_SELF)/module/global.o \
-	$(DIR_SELF)/module/duk.o \
-	$(DIR_SELF)/module/my.o \
-	$(DIR_SELF)/module/libc.o \
-	$(DIR_SELF)/module/libcurl.o \
-	$(DIR_SELF)/module/libz.o \
-	$(DIR_SELF)/module/libbz.o \
-	$(DIR_SELF)/module/liblz.o \
-	#end
+OBJS=$(DIR_SELF)/module/main.o
+
 TARGET_NAME=js
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c m json-c
+LIB_DEPEND=c m json-c js
 CFLAGS+= -std=gnu99 \
 	-Os -fomit-frame-pointer \
 	-fstrict-aliasing \
