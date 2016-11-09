@@ -1724,8 +1724,8 @@ benv_control_init(void)
         __benv_fd = INVALID_FD;
         os_objcpy(__benv_shm, &shm);
 #ifdef __BOOT__
-        extern env_t *env_ptr;
-        __benv_shm_address = env_ptr->env;
+        extern void benv_boot_init(void);
+        benv_boot_init();
 #endif
         
         __benv_mirror = (benv_env_t *)os_zalloc(sizeof(benv_env_t));
