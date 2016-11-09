@@ -285,6 +285,7 @@ define Build/Configure
 endef
 
 define Build/Compile
+	$(Package/libjs/compile)
 	$(Package/ak/compile)
 	$(Package/jlogd/compile)
 	$(Package/jlogger/compile)
