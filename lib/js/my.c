@@ -853,7 +853,6 @@ __init(void)
     err = jlog_init();
     if (err<0) {
         os_println("libjs jlog init error:%d", err);
-        return err;
     }
 }
 #endif

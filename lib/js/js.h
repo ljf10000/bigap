@@ -2,7 +2,6 @@
 #define __DUKC_H_fe1a608115554746877494835643599f__
 /******************************************************************************/
 #include "duktape.h"
-#include "utils.h"
 #include "global.h"
 
 #define js_UCLIBC           1
