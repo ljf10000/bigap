@@ -5,10 +5,6 @@
 #error "must defined __THIS_APP before all #include"
 #endif
 
-#ifndef __THIS_FILE
-#define __THIS_FILE                 __THIS_APP
-#endif
-
 #define __SYMBOL_CONTRACT2(x, y)    x##y
 #define __SYMBOL_CONTRACT(x, y)     __SYMBOL_CONTRACT2(x, y)
 #define OS_DEFINE(x)                __SYMBOL_CONTRACT(x, __COUNTER__)
@@ -27,7 +23,11 @@
 #endif
 
 #ifndef __THIS_FILENAME
-#define __THIS_FILENAME         __SYMBOL_TO_STRING(__THIS_FILE)
+#ifdef __THIS_FILE
+#   define __THIS_FILENAME      __SYMBOL_TO_STRING(__THIS_FILE)
+#else
+#   define __THIS_FILENAME      __THIS_APPNAME
+#endif
 #endif
 
 #ifndef __THIS_LOCKFILE
