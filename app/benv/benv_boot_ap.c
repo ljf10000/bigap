@@ -68,6 +68,7 @@ int __benv_write(int env, int idx)
 static void
 benv_boot(void)
 {
+    benv_control_fini();
     benv_init();
 //    md_boot_init();//md only now
     

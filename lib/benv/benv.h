@@ -1795,6 +1795,23 @@ benv_control_init(void)
 }
 
 static inline void
+__benv_control_fini(void)
+{
+    if (____benv_control) {
+        os_free(__benv_cache);
+        os_free(__benv_ops);
+        os_free(__benv_mirror);
+
+        os_free(____benv_control);
+    }
+}
+
+#define benv_control_fini() do{ \
+    __benv_control_fini();      \
+    ____benv_control = NULL;    \
+}while(0)
+
+static inline void
 __benv_show_byprefix(void (*show)(benv_ops_t* ops), char *prefix)
 {
     int i;

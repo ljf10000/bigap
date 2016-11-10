@@ -91,30 +91,10 @@ extern nsqa_control_t nsqa;
 }   /* end */
 /******************************************************************************/
 extern nsq_instance_t *
-nsqi_entry(hash_node_t *node);
+nsqi_insert(char *json);
 
-extern nsq_instance_t *
-nsqi_hx_entry(h1_node_t *node);
-
-extern hash_idx_t
-nsqi_hash(char *name);
-
-extern nsq_instance_t *
-nsqi_create(void);
-
-extern void
-__nsqi_destroy(nsq_instance_t *instance);
-
-#define nsqi_destroy(_instance) do{ \
-    __nsqi_destroy(_instance);      \
-    _instance = NULL;               \
-}while(0)
-
-extern void
-nsqi_insert(nsq_instance_t *instance);
-
-extern void
-nsqi_remove(nsq_instance_t *instance);
+extern int
+nsqi_remove(char *name);
 
 extern nsq_instance_t *
 nsqi_get(char *name);

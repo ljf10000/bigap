@@ -12,8 +12,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-nsq_instance_t *
-nsqi_entry(hash_node_t *node)
+static nsq_instance_t *
+__entry(hash_node_t *node)
 {
     if (node) {
         return h1_entry(node, nsq_instance_t, node);
@@ -22,8 +22,8 @@ nsqi_entry(hash_node_t *node)
     }
 }
 
-nsq_instance_t *
-nsqi_hx_entry(h1_node_t *node)
+static nsq_instance_t *
+__hentry(h1_node_t *node)
 {
     if (node) {
         return h1_entry(node, nsq_instance_t, node);
@@ -32,14 +32,14 @@ nsqi_hx_entry(h1_node_t *node)
     }
 }
 
-hash_idx_t
-nsqi_hash(char *name)
+static hash_idx_t
+__hash(char *name)
 {
     return hash_bybuf(name, os_strlen(name), NSQ_HASHMASK);
 }
 
-nsq_instance_t *
-nsqi_create(void)
+static nsq_instance_t *
+__create(void)
 {
     nsq_instance_t *instance = (nsq_instance_t *)os_zalloc(sizeof(nsq_instance_t));
     if (NULL==instance) {
@@ -49,8 +49,8 @@ nsqi_create(void)
     return instance;
 }
 
-void
-__nsqi_destroy(nsq_instance_t *instance)
+static void
+____destroy(nsq_instance_t *instance)
 {
     int i;
     
@@ -62,45 +62,50 @@ __nsqi_destroy(nsq_instance_t *instance)
     }
 }
 
-void
-nsqi_insert(nsq_instance_t *instance)
+#define __destroy(_instance)    do{ \
+    ____destroy(_instance);         \
+    _instance = NULL;               \
+}while(0)
+
+static void
+__insert(nsq_instance_t *instance)
 {
     hash_idx_t nhash(hash_node_t *node)
     {
-        return nsqi_hash(nsqi_entry(node)->name);
+        return __hash(__entry(node)->name);
     }
     
     h1_add(&nsqa.table, &instance->node, nhash);
 }
 
-void
-nsqi_remove(nsq_instance_t *instance)
+static void
+__remove(nsq_instance_t *instance)
 {
     h1_del(&nsqa.table, &instance->node);
 }
 
-nsq_instance_t *
-nsqi_get(char *name)
+static nsq_instance_t *
+__get(char *name)
 {
     hash_idx_t dhash(void)
     {
-        return nsqi_hash(name);
+        return __hash(name);
     }
     
     bool eq(hash_node_t *node)
     {
-        return os_streq(name, nsqi_entry(node)->name);
+        return os_streq(name, __entry(node)->name);
     }
 
-    return nsqi_hx_entry(h1_find(&nsqa.table, dhash, eq));
+    return __hentry(h1_find(&nsqa.table, dhash, eq));
 }
 
-int
-nsqi_foreach(nsq_foreach_f *foreach, bool safe)
+static int
+__foreach(nsq_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h1_node_t *node)
     {
-        return (*foreach)(nsqi_hx_entry(node));
+        return (*foreach)(__hentry(node));
     }
 
     if (safe) {
@@ -110,17 +115,12 @@ nsqi_foreach(nsq_foreach_f *foreach, bool safe)
     }
 }
 
-int
-nsqi_identify(nsq_instance_t *instance, char *json)
+static int
+__identify(nsq_instance_t *instance, jobj_t jobj)
 {
     nsq_identify_rule_t *rule = nsq_identify_rule();
     char *string;
     int id;
-    
-    jobj_t jobj = jobj_byjson(json);
-    if (NULL==jobj) {
-        return -EBADJSON;
-    }
 
     jobj_foreach(jobj, k, v) {
         id = nsq_identify_idx(k);
@@ -165,9 +165,21 @@ nsqi_identify(nsq_instance_t *instance, char *json)
 
     os_free(instance->identify);
     instance->identify = jobj_json(jobj);
-    jobj_put(jobj);
     
     return 0;
+}
+
+nsq_instance_t *
+nsqi_insert(char *json)
+{
+    nsq_instance_t *instance = NULL;
+    
+    jobj_t jobj = jobj_byjson(json);
+    if (NULL==jobj) {
+        return -EBADJSON;
+    }
+
+    
 }
 
 int
