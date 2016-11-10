@@ -1965,7 +1965,7 @@ __main(int argc, char *argv[])
 */
 int allinone_main(int argc, char *argv[])
 {
-    int err = os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(__init_lock_with_block, __fini, __main, argc, argv);
 
     return shell_error(err);
 }
