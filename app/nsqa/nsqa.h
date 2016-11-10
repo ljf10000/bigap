@@ -8,34 +8,6 @@
 #endif
 #define NSQ_HASHMASK        (NSQ_HASHSIZE-1)
 
-#ifndef NSQ_PORT
-#define NSQ_PORT            100
-#endif
-
-#ifndef NSQ_TICKS
-#define NSQ_TICKS           PC_VAL(5000, 5000)  /* second */
-#endif
-
-#ifndef NSQ_CONF
-#define NSQ_CONF            PC_FILE("/tmp/config", "nsqa.conf")
-#endif
-
-#ifndef NSQ_CACHE
-#define NSQ_CACHE           "/tmp/cache"
-#endif
-
-#ifndef NSQ_SCRIPT
-#define NSQ_SCRIPT          PC_FILE("/lib/script", "nsq.script")
-#endif
-
-#ifndef NSQ_USER_AGENT
-#define NSQ_USER_AGENT      "weos-nsq-agent"
-#endif
-
-#ifndef NSQ_TOPIC
-#define NSQ_TOPIC           "weos.nsq.topic.default"
-#endif
-
 enum {
     NSQA_SERVER_TIMER,    /* must first */
     NSQA_SERVER_CLI,

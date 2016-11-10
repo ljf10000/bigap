@@ -49,7 +49,7 @@ __create(char *name, jobj_t jobj)
     }
     instance->jobj      = jobj;
     instance->name      = os_strdup(name);
-    os_asprintf(&instance->cache, js_CACHE "/%s", name);
+    os_asprintf(&instance->cache, "%s/%s", nsqa.cache, name);
 
     jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
     instance->domain    = os_strdup(jobj_get_string(jval));

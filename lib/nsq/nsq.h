@@ -27,6 +27,50 @@
 #define NSQC_UNIX           "/tmp/.nsqc.%d.unix"
 #endif
 
+#ifndef NSQ_PORT
+#define NSQ_PORT            4151
+#endif
+
+#ifndef NSQ_TICKS
+#define NSQ_TICKS           PC_VAL(5000, 5000)  /* second */
+#endif
+
+#ifndef NSQ_CONF
+#define NSQ_CONF            PC_FILE("/tmp/config", "nsqa.conf")
+#endif
+
+#ifndef NSQ_SCRIPT
+#define NSQ_SCRIPT          PC_FILE("/lib/script", "nsq.script")
+#endif
+
+#ifndef NSQ_USER_AGENT
+#define NSQ_USER_AGENT      "weos-nsq-agent"
+#endif
+
+#ifndef NSQ_TOPIC
+#define NSQ_TOPIC           "weos.nsq.topic.default"
+#endif
+
+#ifndef NSQ_NEGOTIATION
+#define NSQ_NEGOTIATION             false
+#endif
+
+#ifndef NSQ_HEARBEAT_INTERVAL
+#define NSQ_HEARBEAT_INTERVAL       (30*1000)
+#endif
+
+#ifndef NSQ_OUT_BUFFER_SIZE
+#define NSQ_OUT_BUFFER_SIZE         (16*1024)
+#endif
+
+#ifndef NSQ_OUT_BUFFER_TIMEOUT
+#define NSQ_OUT_BUFFER_TIMEOUT      250
+#endif
+
+#ifndef NSQ_MSG_TIMEOUT
+#define NSQ_MSG_TIMEOUT             (10*1000)
+#endif
+
 static inline int
 get_nsq_timeout_env(void) 
 {
@@ -62,12 +106,6 @@ get_nsqa_path_env(sockaddr_un_t *addr)
 #define NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_NAME     "output_buffer_timeout"
 #define NSQ_IDENTIFY_USER_AGENT_NAME                "user_agent"
 #define NSQ_IDENTIFY_MSG_TIMEOUT_NAME               "msg_timeout"
-
-#define NSQ_IDENTIFY_FEATURE_NEGOTIATION_DEFT       false
-#define NSQ_IDENTIFY_HEARBEAT_INTERVAL_DEFT         (30*1000)
-#define NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_DEFT        (16*1024)
-#define NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_DEFT     250
-#define NSQ_IDENTIFY_MSG_TIMEOUT_DEFT               (10*1000)
 
 #define NSQ_IDENTIFY_ENUM_MAPPER(_)                                                         \
     _(NSQ_IDENTIFY_CLIENT_ID,               0,  NSQ_IDENTIFY_CLIENT_ID_NAME),               \
@@ -115,19 +153,19 @@ enum {
     J_RULE(NSQ_IDENTIFY_FEATURE_NEGOTIATION,        \
         jtype_bool,                                 \
         0,                                          \
-        NSQ_IDENTIFY_FEATURE_NEGOTIATION_DEFT),     \
+        NSQ_NEGOTIATION),                           \
     J_RULE(NSQ_IDENTIFY_HEARBEAT_INTERVAL,          \
         jtype_int,                                  \
         0,                                          \
-        NSQ_IDENTIFY_HEARBEAT_INTERVAL_DEFT),       \
+        NSQ_HEARBEAT_INTERVAL),                     \
     J_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,         \
         jtype_int,                                  \
         0,                                          \
-        NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_DEFT),      \
+        NSQ_OUT_BUFFER_SIZE),                       \
     J_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,      \
         jtype_int,                                  \
         0,                                          \
-        NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_DEFT),   \
+        NSQ_OUT_BUFFER_TIMEOUT),                    \
     J_RULE(NSQ_IDENTIFY_USER_AGENT,                 \
         jtype_string,                               \
         JRULE_CONST,                                \
@@ -135,7 +173,7 @@ enum {
     J_RULE(NSQ_IDENTIFY_MSG_TIMEOUT,                \
         jtype_int,                                  \
         0,                                          \
-        NSQ_IDENTIFY_MSG_TIMEOUT_DEFT),             \
+        NSQ_MSG_TIMEOUT),                           \
 }   /* end */
 
 static inline jrule_ops_t *
@@ -183,9 +221,6 @@ nsq_identify_repair(jobj_t jobj)
 #define NSQ_INSTANCE_TOPIC_NAME     "topic"
 #define NSQ_INSTANCE_IDENTIFY_NAME  "identify"
 
-#define NSQ_INSTANCE_PORT_DEFT      4151
-#define NSQ_INSTANCE_TOPIC_DEFT     "default"
-
 #define NSQ_INSTANCE_ENUM_MAPPER(_)                                 \
     _(NSQ_INSTANCE_NAME,        0,  NSQ_INSTANCE_NAME_NAME),        \
     _(NSQ_INSTANCE_DOMAIN,      1,  NSQ_INSTANCE_DOMAIN_NAME),      \
@@ -218,11 +253,11 @@ static inline int nsq_instance_idx(char *name);
     J_RULE(NSQ_INSTANCE_PORT,       \
         jtype_int,                  \
         0,                          \
-        NSQ_INSTANCE_PORT_DEFT),    \
+        NSQ_PORT),                  \
     J_RULE(NSQ_INSTANCE_TOPIC,      \
         jtype_string,               \
         0,                          \
-        NSQ_INSTANCE_TOPIC_DEFT),   \
+        NSQ_TOPIC),                 \
     J_RULE(NSQ_INSTANCE_IDENTIFY,   \
         jtype_object,               \
         JRULE_MUST,                 \
