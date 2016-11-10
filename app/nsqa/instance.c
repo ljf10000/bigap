@@ -66,8 +66,8 @@ __create(char *name, jobj_t jobj)
     jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
     instance->identify  = os_strdup(jobj_json(jval));
 
-    nsqb_init(&instance->recver, 0);
-    nsqb_init(&instance->sender, 0);
+    nsqb_init(&instance->recver, NSQ_OUT_BUFFER_SIZE);
+    nsqb_init(&instance->sender, 1+OS_PAGE_LEN);
     
     return instance;
 }
@@ -141,9 +141,16 @@ __foreach(nsq_foreach_f *foreach, bool safe)
 static int
 __nsqi_insert(jobj_t jobj)
 {
+    jobj_t jval;
+    char *name;
     int err;
+
+    jval = jobj_get(jobj, NSQ_INSTANCE_NAME_NAME);
+    if (NULL==jval) {
+        return -EBADJSON;
+    }
     
-    char *name = jobj_get(jobj, NSQ_INSTANCE_NAME_NAME);
+    name = jobj_get_string(jval);
     if (NULL==name) {
         return -EBADJSON;
     }
