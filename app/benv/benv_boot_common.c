@@ -57,9 +57,8 @@ benv_boot_init(void)
     extern env_t *env_ptr;
 
     __benv_shm_address = env_ptr->env;
-    
-    __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
-    __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
 #endif
+
+    benv_debug_init();
 }
 /******************************************************************************/

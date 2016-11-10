@@ -796,6 +796,15 @@ enum {
     __benv_mark_end
 };
 
+static inline void
+benv_debug_init(void)
+{
+#ifdef __BOOT__
+    __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
+    __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
+#endif
+}
+
 /*
 * step 1:normal
 * 1. firmware, bad < good
@@ -2346,11 +2355,8 @@ benv_load(void)
 
         benv_repair();
     }
-    
-#ifdef __BOOT__
-    __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
-    __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
-#endif
+
+    benv_debug_init();
 
     /*
     * just for debug on PC
