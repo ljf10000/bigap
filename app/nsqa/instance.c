@@ -48,9 +48,9 @@ static int
 __dns(nsq_instance_t *instance)
 {
     if (false==__is_dns_ok(instance)) {
-        in_addr_t in = inet_addr(instance->domain);
+        in_addr_t ip = inet_addr(instance->domain);
         if (INADDR_NONE != in.s_addr) {
-            instance->addr.sin_addr.s_addr = in.s_addr;
+            instance->addr.sin_addr.s_addr = ip;
         } else {
             struct hostent *p = gethostbyname(instance->domain);
             if (NULL==p) {
