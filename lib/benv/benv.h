@@ -14,6 +14,10 @@
 #define BENV_SBBUG                  0
 #endif
 
+#ifndef BENV_LINK_ADDRESS
+#define BENV_LINK_ADDRESS           0x9f000000
+#endif
+
 #if BENV_DEBUG
 #define benv_debug(_debug, _fmt, _args...)  printf(_fmt "\n", ##_args)
 #else
@@ -595,6 +599,29 @@ benv_ops_write(benv_ops_t *ops, char *value)
     if (ops->write) {
         (*ops->write)(ops, value);
     }
+}
+
+#define __benv_ops_selfcheck(_idx, _obj) do{ \
+    if ((uintptr)benv_ops(_idx)->_obj > BENV_LINK_ADDRESS) { \
+        os_println("benv ops[%d:%s] " #_obj " is %p", \
+            _idx,                       \
+            benv_ops(_idx)->path,       \
+            benv_ops(_idx)->_obj);      \
+    }                                   \
+}while(0)
+
+static inline void
+benv_ops_selfcheck(void)
+{
+#ifdef BENV_SBBUG
+    int i;
+    
+    for (i=0; i<__benv_ops_count; i++) {
+        __benv_ops_selfcheck(i, check);
+        __benv_ops_selfcheck(i, write);
+        __benv_ops_selfcheck(i, show);
+    }
+#endif
 }
 
 static inline benv_cache_t *
@@ -1720,8 +1747,8 @@ benv_control_init(void)
     if (NULL==____benv_control) {
         os_shm_t shm = OS_SHM_INITER(OS_BENV_SHM_ID);
         benv_ops_t ops[] = BENV_DEFT_OPS;
-        int count = os_count_of(ops);
-                
+        int i, count = os_count_of(ops);
+
         ____benv_control = (benv_control_t *)os_zalloc(sizeof(benv_control_t));
         if (NULL==____benv_control) {
             return -ENOMEM;
@@ -1744,7 +1771,8 @@ benv_control_init(void)
             return -ENOMEM;
         }
         os_memcpy(__benv_ops, ops, sizeof(ops));
-
+        benv_ops_selfcheck();
+        
         __benv_cache = (benv_cache_t *)os_zalloc(count*sizeof(benv_cache_t));
         if (NULL==__benv_cache) {
             return -ENOMEM;
@@ -2947,6 +2975,20 @@ typedef struct {
     BENV_CMD("clean",   "all",      __benv_clean),      \
 }   /* end */
 
+static inline void
+benv_cmd_hiden_selfcheck(benv_cmd_t *cmd, int count)
+{
+#ifdef BENV_SBBUG
+    int i;
+    
+    for (i=0; i<count; i++) {
+        if (cmd[i].handle < BENV_LINK_ADDRESS) {
+            os_println("benv cmd[%d] handle is %p", i, cmd[i].handle);
+        }
+    }
+#endif
+}
+
 static inline bool
 benv_cmd_hiden(int argc, char *argv[])
 {
@@ -2955,6 +2997,8 @@ benv_cmd_hiden(int argc, char *argv[])
     char *obj       = argv[2];
     int i;
 
+    benv_cmd_hiden_selfcheck(cmd, os_count_of(cmd));
+    
     if (os_streq("find", action)) {
         benv_cmd_find(argc-1, argv+1);
 
