@@ -63,15 +63,15 @@ get_nsqa_path_env(sockaddr_un_t *addr)
 #define NSQ_IDENTIFY_USER_AGENT_NAME                "user_agent"
 #define NSQ_IDENTIFY_MSG_TIMEOUT_NAME               "msg_timeout"
 
-#define NSQ_IDENTIFY_FEATURE_NEGOTIATION_DEFT       TRUE
+#define NSQ_IDENTIFY_FEATURE_NEGOTIATION_DEFT       false
 #define NSQ_IDENTIFY_HEARBEAT_INTERVAL_DEFT         (30*1000)
 #define NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_DEFT        (16*1024)
 #define NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_DEFT     250
 #define NSQ_IDENTIFY_MSG_TIMEOUT_DEFT               (10*1000)
 
-#define NSQ_IDENTIFY_ENUM_MAPPER(_)                                                               \
+#define NSQ_IDENTIFY_ENUM_MAPPER(_)                                                         \
     _(NSQ_IDENTIFY_CLIENT_ID,               0,  NSQ_IDENTIFY_CLIENT_ID_NAME),               \
-    _(NSQ_IDENTIFY_HOSTNAME ,               1,  NSQ_IDENTIFY_HOSTNAME_NAME),                \
+    _(NSQ_IDENTIFY_HOSTNAME,                1,  NSQ_IDENTIFY_HOSTNAME_NAME),                \
     _(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     2,  NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME),     \
     _(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       3,  NSQ_IDENTIFY_HEARBEAT_INTERVAL_NAME),       \
     _(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      4,  NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_NAME),      \
@@ -94,7 +94,6 @@ static inline int nsq_identify_idx(char *name);
 #define NSQ_IDENTIFY_USER_AGENT             NSQ_IDENTIFY_USER_AGENT
 #define NSQ_IDENTIFY_MSG_TIMEOUT            NSQ_IDENTIFY_MSG_TIMEOUT
 #define NSQ_IDENTIFY_END                    NSQ_IDENTIFY_END   
-#endif
 
 enum {
     NSQ_IDENTIFY_TYPE_CLOUD,
@@ -104,68 +103,163 @@ enum {
     NSQ_IDENTIFY_TYPE_END
 };
 
-typedef struct {
-    int jtype;
-    int type;
-
-    union {
-        char *s;
-        bool  b;
-        int   i;
-        void *v;
-    } deft;
-} nsq_identify_rule_t;
-
-#define NSQ_IDENTIFY_RULE(_id, _jtype, _type, _v)   [_id] = { \
-    .jtype  = _jtype,       \
-    .type   = _type,        \
-    .deft   = {             \
-        .v  = (void *)(_v), \
-    }                       \
+#define NSQ_IDENTIFY_RULE_INITER {                  \
+    J_RULE(NSQ_IDENTIFY_CLIENT_ID,                  \
+        jtype_string,                               \
+        JRULE_DYNAMIC,                              \
+        os_getbasemac),                             \
+    J_RULE(NSQ_IDENTIFY_HOSTNAME,                   \
+        jtype_string,                               \
+        JRULE_DYNAMIC,                              \
+        os_getbasemac),                             \
+    J_RULE(NSQ_IDENTIFY_FEATURE_NEGOTIATION,        \
+        jtype_bool,                                 \
+        0,                                          \
+        NSQ_IDENTIFY_FEATURE_NEGOTIATION_DEFT),     \
+    J_RULE(NSQ_IDENTIFY_HEARBEAT_INTERVAL,          \
+        jtype_int,                                  \
+        0,                                          \
+        NSQ_IDENTIFY_HEARBEAT_INTERVAL_DEFT),       \
+    J_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,         \
+        jtype_int,                                  \
+        0,                                          \
+        NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_DEFT),      \
+    J_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,      \
+        jtype_int,                                  \
+        0,                                          \
+        NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_DEFT),   \
+    J_RULE(NSQ_IDENTIFY_USER_AGENT,                 \
+        jtype_string,                               \
+        JRULE_CONST,                                \
+        NSQ_USER_AGENT),                            \
+    J_RULE(NSQ_IDENTIFY_MSG_TIMEOUT,                \
+        jtype_int,                                  \
+        0,                                          \
+        NSQ_IDENTIFY_MSG_TIMEOUT_DEFT),             \
 }   /* end */
 
-#define NSQ_IDENTIFY_RULE_INITER {                          \
-    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_CLIENT_ID,               \
-        jtype_string,                                       \
-        NSQ_IDENTIFY_TYPE_LOCAL,                            \
-        NULL),                                              \
-    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_HOSTNAME,                \
-        jtype_string,                                       \
-        NSQ_IDENTIFY_TYPE_LOCAL,                            \
-        NULL),                                              \
-    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     \
-        jtype_bool,                                         \
-        NSQ_IDENTIFY_TYPE_CLOUD,                            \
-        NSQ_IDENTIFY_FEATURE_NEGOTIATION_DEFT),             \
-    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       \
-        jtype_int,                                          \
-        NSQ_IDENTIFY_TYPE_CLOUD,                            \
-        NSQ_IDENTIFY_HEARBEAT_INTERVAL_DEFT),               \
-    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      \
-        jtype_int,                                          \
-        NSQ_IDENTIFY_TYPE_CLOUD,                            \
-        NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_DEFT),              \
-    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,   \
-        jtype_int,                                          \
-        NSQ_IDENTIFY_TYPE_CLOUD,                            \
-        NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_DEFT),           \
-    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_USER_AGENT,              \
-        jtype_string,                                       \
-        NSQ_IDENTIFY_TYPE_CONST,                            \
-        NULL),                                              \
-    NSQ_IDENTIFY_RULE(NSQ_IDENTIFY_MSG_TIMEOUT,             \
-        jtype_int,                                          \
-        NSQ_IDENTIFY_TYPE_CLOUD,                            \
-        NSQ_IDENTIFY_MSG_TIMEOUT_DEFT),                     \
-}   /* end */
-
-static inline nsq_identify_rule_t *
-nsq_identify_rule(void)
+static inline jrule_ops_t *
+nsq_identify_rule_ops(void)
 {
-    static nsq_identify_rule_t rule[NSQ_IDENTIFY_END] = NSQ_IDENTIFY_RULE_INITER;
+    static jrule_t rule[NSQ_IDENTIFY_END] = NSQ_IDENTIFY_RULE_INITER;
+    static jrule_ops_t ops = JRULE_OPS_INITER(rule,
+                                is_good_nsq_identify, 
+                                nsq_identify_string, 
+                                nsq_identify_idx);
 
-    return rule;
+    return &ops;
 }
+
+static inline int
+nsq_identify_check(jobj_t jobj)
+{
+    return jrule_apply(jobj, nsq_identify_rule_ops(), NULL);
+}
+
+static inline int
+nsq_identify_repair(jobj_t jobj)
+{
+    int err;
+
+    err = jrule_apply(jobj, nsq_identify_rule_ops(), jrule_repair);
+    if (err<0) {
+        return err;
+    }
+    
+#if 0
+    jobj_add_string(jobj, NSQ_IDENTIFY_USER_AGENT_NAME, NSQ_USER_AGENT);
+    jobj_add_string(jobj, NSQ_IDENTIFY_CLIENT_ID_NAME,  nsqa.cfg.client_id);
+    jobj_add_string(jobj, NSQ_IDENTIFY_HOSTNAME_NAME,   nsqa.cfg.hostname);
+#endif
+
+    return 0;
+}
+#endif
+
+#if 1
+#define NSQ_INSTANCE_NAME_NAME      "name"
+#define NSQ_INSTANCE_DOMAIN_NAME    "domain"
+#define NSQ_INSTANCE_PORT_NAME      "port"
+#define NSQ_INSTANCE_TOPIC_NAME     "topic"
+#define NSQ_INSTANCE_IDENTIFY_NAME  "identify"
+
+#define NSQ_INSTANCE_PORT_DEFT      4151
+#define NSQ_INSTANCE_TOPIC_DEFT     "default"
+
+#define NSQ_INSTANCE_ENUM_MAPPER(_)                                 \
+    _(NSQ_INSTANCE_NAME,        0,  NSQ_INSTANCE_NAME_NAME),        \
+    _(NSQ_INSTANCE_DOMAIN,      1,  NSQ_INSTANCE_DOMAIN_NAME),      \
+    _(NSQ_INSTANCE_PORT,        2,  NSQ_INSTANCE_PORT_NAME),        \
+    _(NSQ_INSTANCE_TOPIC,       3,  NSQ_INSTANCE_TOPIC_NAME),       \
+    _(NSQ_INSTANCE_IDENTIFY,    4,  NSQ_INSTANCE_IDENTIFY_NAME),    \
+    /* end */
+DECLARE_ENUM(nsq_instance, NSQ_INSTANCE_ENUM_MAPPER, NSQ_INSTANCE_END);
+
+static inline bool is_good_nsq_instance(int id);
+static inline char *nsq_instance_string(int id);
+static inline int nsq_instance_idx(char *name);
+
+#define NSQ_INSTANCE_NAME       NSQ_INSTANCE_NAME
+#define NSQ_INSTANCE_DOMAIN     NSQ_INSTANCE_DOMAIN
+#define NSQ_INSTANCE_PORT       NSQ_INSTANCE_PORT
+#define NSQ_INSTANCE_TOPIC      NSQ_INSTANCE_TOPIC
+#define NSQ_INSTANCE_IDENTIFY   NSQ_INSTANCE_IDENTIFY
+#define NSQ_INSTANCE_END        NSQ_INSTANCE_END
+
+#define NSQ_INSTANCE_RULE_INITER {  \
+    J_RULE(NSQ_INSTANCE_NAME,       \
+        jtype_string,               \
+        JRULE_MUST,                 \
+        NULL),                      \
+    J_RULE(NSQ_INSTANCE_DOMAIN,     \
+        jtype_string,               \
+        JRULE_MUST,                 \
+        NULL),                      \
+    J_RULE(NSQ_INSTANCE_PORT,       \
+        jtype_int,                  \
+        0,                          \
+        NSQ_INSTANCE_PORT_DEFT),    \
+    J_RULE(NSQ_INSTANCE_TOPIC,      \
+        jtype_string,               \
+        0,                          \
+        NSQ_INSTANCE_TOPIC_DEFT),   \
+    J_RULE(NSQ_INSTANCE_IDENTIFY,   \
+        jtype_object,               \
+        JRULE_MUST,                 \
+        nsq_identify_repair),       \
+}   /* end */
+
+static inline jrule_ops_t *
+nsq_instance_rule_ops(void)
+{
+    static jrule_t rule[NSQ_INSTANCE_END] = NSQ_INSTANCE_RULE_INITER;
+    static jrule_ops_t ops = JRULE_OPS_INITER(rule,
+                                is_good_nsq_instance, 
+                                nsq_instance_string, 
+                                nsq_instance_idx);
+
+    return &ops;
+}
+
+static inline int
+nsq_instance_check(jobj_t jobj)
+{
+    return jrule_apply(jobj, nsq_instance_rule_ops(), NULL);
+}
+
+static inline int
+nsq_instance_repair(jobj_t jobj)
+{
+    int err;
+
+    err = jrule_apply(jobj, nsq_instance_rule_ops(), jrule_repair);
+    if (err<0) {
+        return err;
+    }
+
+    return 0;
+}
+#endif
 
 #if 1
 #define NSQ_AUTH_IDENTIFY_NAME            "identity"

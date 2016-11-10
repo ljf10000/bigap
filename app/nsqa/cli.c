@@ -34,22 +34,8 @@ static int
 handle_insert(char *args)
 {
     char *json  = args;
-    jobj_t jobj = NULL;
-    int err = 0;
 
-    jobj = jobj_byjson(json);
-    if (NULL==jobj) {
-        debug_trace("bad json %s", json);
-
-        err = -EBADJSON; goto error;
-    }
-
-    cli_sprintf("%s" __crlf, json);
-
-error:
-    jobj_put(jobj);
-
-    return err;
+    return nsqi_insert(json);
 }
 
 static mv_t

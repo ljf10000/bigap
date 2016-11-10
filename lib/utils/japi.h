@@ -40,6 +40,7 @@ typedef union {
 } jvar_t;
 
 #ifdef __APP__
+
 enum {
     jtype_null    = json_type_null,
     jtype_bool    = json_type_boolean,
@@ -851,6 +852,157 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count)
 })
 
 #define JOBJ_MAPF(_file, _mapper)           JOBJ_MAP(jobj_byfile(_file), _mapper)
+/******************************************************************************/
+typedef struct {
+    int type;
+    
+    uint32 flag;
+    
+    union {
+        char *s;
+        void *v;
+        bool  b;
+        int   i;
+        
+        char   *(*fs)();
+        void   *(*fv)();
+        bool    (*fb)();
+        int     (*fi)();
+        jobj_t  (*fo)(jobj_t jobj);
+    } deft;
+} jrule_t;
+
+enum {
+    JRULE_MUST      = 0x01,
+    JRULE_DYNAMIC   = 0x02,
+    JRULE_CONST     = 0x04,
+};
+
+#define J_RULE(_id, _type, _flag, _deft) [_id] = { \
+    .type   = _type,            \
+    .flag   = _flag,            \
+    .deft   = {                 \
+        .v  = (void *)(_deft),  \
+    },                          \
+}   /* end */
+  
+typedef struct {
+    int count;
+    jrule_t *rule;
+
+    is_good_enum_f  *is_good_id;
+    getnamebyid_f   *getnamebyid;
+    getidbyname_f   *getidbyname;
+} jrule_ops_t;
+
+#define JRULE_OPS_INITER(_rule, _is_good_id, _getnamebyid, _getidbyname) { \
+    .rule = _rule,                  \
+    .count = os_count_of(_rule),    \
+                                    \
+    .is_good_id     = _is_good_id,  \
+    .getnamebyid    = _getnamebyid, \
+    .getidbyname    = _getidbyname, \
+}   /* end */
+
+typedef int jrule_apply_f(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval);
+
+static inline int
+__jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval)
+{
+    int err = 0;
+    
+    switch(rule->type) {
+        case jtype_bool: {
+            bool vb = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fb)():rule->deft.b;
+            
+            err = jobj_add_bool(jobj, name, vb);
+            
+        }   break;
+        case jtype_int: {
+            int32 vi = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fi)():rule->deft.i;
+            
+            err = jobj_add_i32(jobj, name, vi);
+            
+        }   break;
+        case jtype_string: {
+            char *vs = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fs)():rule->deft.s;
+            
+            err = jobj_add_string(jobj, name, vs);
+            
+        }   break;
+        case jtype_object: /* down */
+        case jtype_array: {
+            err = (*rule->deft.fo)(jval);
+            
+        }   break;
+        default:
+            err = -ENOSUPPORT;
+    }
+
+    return err;
+}
+
+static inline int
+jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval)
+{
+    /*
+    * dynamic/const, 
+    *   delete it from jobj
+    *   set default
+    */
+    if ((JRULE_CONST | JRULE_DYNAMIC) & rule->flag) {
+        jobj_del(jobj, name);
+        
+        return __jrule_repair(jobj, rule, name, jval);
+    }
+    /*
+    * no value, set default
+    */
+    else if (NULL==jval) {
+        return __jrule_repair(jobj, rule, name, jval);
+    }
+
+    return 0;
+}
+
+static inline int
+jrule_apply(jobj_t jobj, jrule_ops_t *ops, jrule_apply_f *apply)
+{
+    int id, err;
+    char *name;
+    jobj_t jval;
+    jrule_t *rule;
+    
+    for (id=0; id<ops->count; id++) {
+        if (false==(*ops->is_good_id)(id)) {
+            return -EBADRULE;
+        }
+        
+        name = (*ops->getnamebyid)(id);
+        if (NULL==name) {
+            return -EBADRULE;
+        }
+        rule = &ops->rule[id];
+        
+        jval = jobj_get(jobj, name);
+        if (NULL==jval) {
+            if (os_hasflag(rule->flag, JRULE_MUST)) {
+                return -ENOMUST;
+            }
+        }
+        else if (jobj_type(jval) != rule->type) {
+            return -EBADJTYPE;
+        }
+        else if (apply) {
+            err = (*apply)(jobj, rule, name, jval);
+            if (err<0) {
+                return err;
+            }
+        }
+    }
+
+    return 0;
+}
 
 #endif /* __APP__ */
 /******************************************************************************/

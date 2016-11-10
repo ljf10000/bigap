@@ -333,7 +333,7 @@ Haenv.h (lib\haenv):    static haenv_deft_t deft[] = HAENV_DEFAULTS;
 Js.h (lib\js):    static js_register_f *registers[] = {
 Loop.h (lib\utils):    static void (*map[LOOP_TYPE_END])(loop_watcher_t *watcher) = {
 Md5.h (lib\utils):    static byte padding[64] = {
-Nsq.h (lib\nsq):    static nsq_identify_rule_t rule[NSQ_IDENTIFY_END] = NSQ_IDENTIFY_RULE_INITER;
+Nsq.h (lib\nsq):    static jrule_t rule[NSQ_IDENTIFY_END] = NSQ_IDENTIFY_RULE_INITER;
 Oem.h (lib\oem):    static int type = OEM_T_END;
 Oem.h (lib\oem):    static char *vendor;
 Otp.h (lib\hisi):    static char string[2*OTP_SIZE+1];

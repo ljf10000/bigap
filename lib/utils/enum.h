@@ -65,5 +65,10 @@ static inline int xxx_idx(char *name);
                                     \
     os_fake_declare                 \
     /* end */
+
+typedef bool is_good_enum_f(int id);
+typedef char *getnamebyid_f(int id);
+typedef int getidbyname_f(char *name);
+
 /******************************************************************************/
 #endif /* __ENUM_H_1b2ec28c4a404b41b1508c4effa0487d__ */

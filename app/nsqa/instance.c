@@ -39,12 +39,32 @@ __hash(char *name)
 }
 
 static nsq_instance_t *
-__create(void)
+__create(char *name, jobj_t jobj)
 {
+    jobj_t jval;
+    
     nsq_instance_t *instance = (nsq_instance_t *)os_zalloc(sizeof(nsq_instance_t));
     if (NULL==instance) {
         return NULL;
     }
+    instance->jobj      = jobj;
+    instance->name      = os_strdup(name);
+    os_asprintf(&instance->cache, js_CACHE "/%s", name);
+
+    jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
+    instance->domain    = os_strdup(jobj_get_string(jval));
+
+    jval = jobj_get(jobj, NSQ_INSTANCE_TOPIC_NAME);
+    instance->topic     = os_strdup(jobj_get_string(jval));
+    
+    jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
+    int port = jobj_get(jobj, jval);
+    sockaddr_t *server  = &instance->addr.c;
+    server->sin_family  = AF_INET;
+    server->sin_port    = htons(port);
+    
+    jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
+    instance->identify  = os_strdup(jobj_json(jval));
     
     return instance;
 }
@@ -67,7 +87,7 @@ ____destroy(nsq_instance_t *instance)
     _instance = NULL;               \
 }while(0)
 
-static void
+static int
 __insert(nsq_instance_t *instance)
 {
     hash_idx_t nhash(hash_node_t *node)
@@ -75,13 +95,13 @@ __insert(nsq_instance_t *instance)
         return __hash(__entry(node)->name);
     }
     
-    h1_add(&nsqa.table, &instance->node, nhash);
+    return h1_add(&nsqa.table, &instance->node, nhash);
 }
 
-static void
+static int
 __remove(nsq_instance_t *instance)
 {
-    h1_del(&nsqa.table, &instance->node);
+    return h1_del(&nsqa.table, &instance->node);
 }
 
 static nsq_instance_t *
@@ -116,100 +136,55 @@ __foreach(nsq_foreach_f *foreach, bool safe)
 }
 
 static int
-__jcheck(jobj_t jobj, int (*invalid)(jobj_t obj, char *key))
+__nsqi_insert(jobj_t jobj)
 {
-    nsq_identify_rule_t *rule = nsq_identify_rule();
-    char *string;
-    int id, err;
-
-    jobj_foreach(jobj, k, v) {
-        id = nsq_identify_idx(k);
-        if (false==is_good_nsq_identify(id) ||
-            jobj_type(v) != rule[id].jtype  ||
-            NSQ_IDENTIFY_TYPE_CLOUD!=rule[id].type) {
-            
-            /*
-            * invalid key
-            */
-            err = (*invalid)(jobj, k);
-            if (err<0) {
-                return err;
-            }
-        }
-    }
-
-    return 0;
-}
-
-
-static int
-__identify(nsq_instance_t *instance, jobj_t jobj)
-{
-    nsq_identify_rule_t *rule = nsq_identify_rule();
-    char *string;
-    int id;
-
-    jobj_foreach(jobj, k, v) {
-        id = nsq_identify_idx(k);
-        if (false==is_good_nsq_identify(id) ||
-            jobj_type(v) != rule[id].jtype  ||
-            NSQ_IDENTIFY_TYPE_CLOUD!=rule[id].type) {
-            /*
-            * del invalid key
-            */
-            jobj_del(jobj, k);
-        }
-    }
-
-    jobj_add_string(jobj, NSQ_IDENTIFY_USER_AGENT_NAME, NSQ_USER_AGENT);
-    jobj_add_string(jobj, NSQ_IDENTIFY_CLIENT_ID_NAME,  nsqa.cfg.client_id);
-    jobj_add_string(jobj, NSQ_IDENTIFY_HOSTNAME_NAME,   nsqa.cfg.hostname);
-
-    for (id=0; id<NSQ_IDENTIFY_END; id++) {
-        string = nsq_identify_string(id);
-        
-        if (NSQ_IDENTIFY_TYPE_CLOUD==rule[id].type &&
-            NULL==jobj_get(jobj, string)) {
-            /*
-            * no value, set default
-            */
-            switch(rule[id].jtype) {
-                case jtype_bool:
-                    jobj_add_bool(jobj, string, rule[id].deft.b);
-                    
-                    break;
-                case jtype_int:
-                    jobj_add_i32(jobj, string, rule[id].deft.i);
-                    
-                    break;
-                case jtype_string:
-                    jobj_add_string(jobj, string, rule[id].deft.s);
-                    
-                    break;
-            }
-        }
-    }
-
-    os_free(instance->identify);
-    instance->identify = jobj_json(jobj);
+    int err;
     
-    return 0;
-}
-
-nsq_instance_t *
-nsqi_insert(char *json)
-{
-    nsq_instance_t *instance = NULL;
+    char *name = jobj_get(jobj, NSQ_INSTANCE_NAME_NAME);
+    if (NULL==name) {
+        return -EBADJSON;
+    }
     
-    jobj_t jobj = jobj_byjson(json);
-    if (NULL==jobj) {
+    if (__get(name)) {
         return -EBADJSON;
     }
 
+    nsq_instance_t *instance = __create(name, jobj);
+    if (NULL==instance) {
+        return -EEXIST;
+    }
+
+    err = __insert(instance);
+    if (err<0) {
+        return err;
+    }
     
+    return 0;
 }
 
+int
+nsqi_insert(char *json)
+{
+    jobj_t jobj = NULL;
+    int err = 0;
+    
+    jobj = jobj_byjson(json);
+    if (jobj) {
+        err = -EBADJSON; goto error;
+    }
 
+    err = __nsqi_insert(jobj);
+    if (err<0) {
+        goto error;
+    }
+
+error:
+    if (err<0) {
+        jobj_put(jobj);
+    }
+    
+    return err;
+}
 
 int
 init_nsq_instance(void)

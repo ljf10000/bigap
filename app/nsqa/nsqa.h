@@ -45,8 +45,8 @@ enum {
 };
 
 typedef struct {
-    char *hostname;
-    char *client_id;
+    char hostname[1+MACSTRINGLEN_L];
+    char client_id[1+MACSTRINGLEN_L];
     
     char *script;
 } nsq_config_t;
@@ -58,8 +58,12 @@ typedef struct {
 typedef struct {
     char *name;
     char *domain;
-    char *cache;
+    char *topic;
     char *identify; // json
+    
+    char *cache;
+
+    jobj_t jobj;
     
     nsq_buffer_t    sender;
     nsq_buffer_t    recver;
@@ -90,7 +94,7 @@ extern nsqa_control_t nsqa;
     .loop   = LOOP_INITER,      \
 }   /* end */
 /******************************************************************************/
-extern nsq_instance_t *
+extern int
 nsqi_insert(char *json);
 
 extern int
