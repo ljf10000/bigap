@@ -58,7 +58,7 @@ __create(char *name, jobj_t jobj)
     instance->topic     = os_strdup(jobj_get_string(jval));
     
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
-    int port = jobj_get_bool(jobj, jval);
+    int port = jobj_get_bool(jval);
     sockaddr_in_t *server  = &instance->addr.in;
     server->sin_family  = AF_INET;
     server->sin_port    = htons(port);
