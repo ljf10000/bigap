@@ -14,6 +14,22 @@
 
 #define is_good_env(_env)               is_good_str(_env)
 
+#ifndef ENV_JPATH
+#define ENV_JPATH           "JPATH"
+#endif
+
+#ifndef ENV_JCACHE
+#define ENV_JCACHE          "JCACHE"
+#endif
+
+#ifndef js_CACHE
+#define js_CACHE            "/tmp/js"
+#endif
+
+#ifndef js_PATH
+#define js_PATH             "/lib/js:" js_CACHE
+#endif
+
 static inline char *
 env_gets(char *envname, char *deft) 
 {

@@ -129,22 +129,6 @@
 #define js_MOD_LIBLZ        "__liblz__"
 #endif
 
-#ifndef ENV_JPATH
-#define ENV_JPATH           "JPATH"
-#endif
-
-#ifndef ENV_JCACHE
-#define ENV_JCACHE          "JCACHE"
-#endif
-
-#ifndef js_CACHE
-#define js_CACHE            "/tmp/js"
-#endif
-
-#ifndef js_PATH
-#define js_PATH             "/lib/js:" js_CACHE
-#endif
-
 #ifndef js_AUTO_PATH
 #define js_AUTO_PATH        ".auto"
 #endif
