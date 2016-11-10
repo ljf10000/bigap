@@ -197,22 +197,6 @@ jarray_get(jobj_t array, int idx)
 #define jarray_set(_jarray, _idx, _jval)    json_object_array_put_idx(_jarray, _idx, _jval)
 #define jarray_add(_jarray, _jval)          json_object_array_add(_jarray, _jval)
 
-static inline char *
-jobj_name(jobj_t obj)
-{
-    struct lh_table *table = json_object_get_object(obj);
-    if (NULL==table) {
-        return NULL;
-    }
-
-    struct lh_entry *entry = table->head;
-    if (NULL==entry) {
-        return NULL;
-    }
-
-    return (char *)entry->k;
-}
-
 #define jobj_foreach(_root, _k, _v)     json_object_object_foreach(_root, _k, _v)
 
 #define jtok_new()                      json_tokener_new()
