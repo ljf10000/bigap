@@ -1757,7 +1757,6 @@ static inline int
 benv_control_init(void)
 {
     if (NULL==____benv_control) {
-        os_shm_t shm = OS_SHM_INITER(OS_BENV_SHM_ID);
         benv_ops_t ops[] = BENV_DEFT_OPS;
         int i, count = os_count_of(ops);
 
@@ -1767,10 +1766,10 @@ benv_control_init(void)
         }
         __benv_ops_count = count;
         __benv_fd = INVALID_FD;
-        os_objcpy(__benv_shm, &shm);
+        os_shm_init(__benv_shm, OS_BENV_SHM_ID);
 #ifdef __BOOT__
         extern void benv_boot_init(void);
-        
+
         benv_boot_init();
 #endif
         __benv_mirror = (benv_env_t *)os_zalloc(sizeof(benv_env_t));
@@ -2205,13 +2204,13 @@ benv_open(void)
         return err;
     }
 #endif
-
+    
+#ifdef __APP__
     err = os_shm_create(__benv_shm, BENV_SIZE*BENV_COUNT, false);
     if (err<0) {
         return err;
     }
     
-#ifdef __APP__
     __benv_fd = os_file_open(PRODUCT_DEV_BOOTENV, O_RDWR | O_SYNC, 0);
     if (false==is_good_fd(__benv_fd)) {
         return __benv_fd;
@@ -2224,13 +2223,17 @@ benv_open(void)
 static inline int
 benv_close(void)
 {
+    if (____benv_control) {
 #ifdef __APP__
-    os_close(__benv_fd);
+        os_close(__benv_fd);
+        os_shm_destroy(__benv_shm);
 #endif
-    os_shm_destroy(__benv_shm);
+
 #if BENV_USE_SEM
-    os_sem_destroy(__benv_sem);
+        os_sem_destroy(__benv_sem);
 #endif
+    }
+    
     return 0;
 }
 

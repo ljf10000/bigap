@@ -116,6 +116,33 @@ __foreach(nsq_foreach_f *foreach, bool safe)
 }
 
 static int
+__jcheck(jobj_t jobj, int (*invalid)(jobj_t obj, char *key))
+{
+    nsq_identify_rule_t *rule = nsq_identify_rule();
+    char *string;
+    int id, err;
+
+    jobj_foreach(jobj, k, v) {
+        id = nsq_identify_idx(k);
+        if (false==is_good_nsq_identify(id) ||
+            jobj_type(v) != rule[id].jtype  ||
+            NSQ_IDENTIFY_TYPE_CLOUD!=rule[id].type) {
+            
+            /*
+            * invalid key
+            */
+            err = (*invalid)(jobj, k);
+            if (err<0) {
+                return err;
+            }
+        }
+    }
+
+    return 0;
+}
+
+
+static int
 __identify(nsq_instance_t *instance, jobj_t jobj)
 {
     nsq_identify_rule_t *rule = nsq_identify_rule();
@@ -181,6 +208,8 @@ nsqi_insert(char *json)
 
     
 }
+
+
 
 int
 init_nsq_instance(void)
