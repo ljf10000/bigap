@@ -65,6 +65,9 @@ __create(char *name, jobj_t jobj)
     
     jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
     instance->identify  = os_strdup(jobj_json(jval));
+
+    nsqb_init(&instance->recver, 0);
+    nsqb_init(&instance->sender, 0);
     
     return instance;
 }
