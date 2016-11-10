@@ -508,11 +508,11 @@ typedef struct {
 } benv_control_t;
 
 #if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
-#   define BENV_INITER      benv_control_t *____benv_control
+#   define BENV_INITER      benv_control_t *____benv_control = NULL
 #else
 #   define BENV_INITER      os_fake_declare
 #endif
-#define BENV_MAIN_INITER    benv_control_t *____benv_control
+#define BENV_MAIN_INITER    benv_control_t *____benv_control = NULL
 
 extern benv_control_t *____benv_control;
 
@@ -1793,23 +1793,6 @@ benv_control_init(void)
     
     return 0;
 }
-
-static inline void
-__benv_control_fini(void)
-{
-    if (____benv_control) {
-        os_free(__benv_cache);
-        os_free(__benv_ops);
-        os_free(__benv_mirror);
-
-        os_free(____benv_control);
-    }
-}
-
-#define benv_control_fini() do{ \
-    __benv_control_fini();      \
-    ____benv_control = NULL;    \
-}while(0)
 
 static inline void
 __benv_show_byprefix(void (*show)(benv_ops_t* ops), char *prefix)
