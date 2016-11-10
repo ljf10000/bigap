@@ -25,8 +25,8 @@ init_nsq_cfg(void)
     }
 
     char *mac = os_getbasemac();
-    nsqa.cfg.hostname = os_strdup(mac);
-    nsqa.cfg.client_id= os_strdup(mac);
+    os_strdcpy(nsqa.cfg.hostname, mac);
+    os_strdcpy(nsqa.cfg.client_id, mac);
     
     jobj_put(jobj);
     
