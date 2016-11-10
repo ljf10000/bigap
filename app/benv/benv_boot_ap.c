@@ -7,13 +7,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 void *benv_flash_read(void *flash, void *memory, int size)
 {
-	printf("%s, %s, L%d: %p, %p, %d\n", 
-		__FILE__, __func__, __LINE__, (uchar *)flash, (uchar *)memory, size);
-
 	return os_memcpy(memory, flash, size);
-	//return memcpy(memory, flash, size);
 }
-
 
 int __benv_read(int env, bool mirror)
 {
@@ -32,8 +27,6 @@ int __benv_read(int env, bool mirror)
     * emmc==>block
     */
     debug_io("read benv%d to %s ...", env, name);
-	printf("%s, %s, L%d: %d, %d, %p, %p\n", 
-		__FILE__, __func__, __LINE__, env, mirror, (void *)__benv_start(env), buf);
 
 	benv_flash_read((void *)__benv_start(env), buf, BENV_SIZE);
 
