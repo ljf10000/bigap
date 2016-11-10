@@ -86,9 +86,9 @@ __create(char *name, jobj_t jobj)
 
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
     int port = jobj_get_bool(jval);
-    sockaddr_in_t *server  = &instance->addr;
-    server->sin_family  = AF_INET;
-    server->sin_port    = htons(port);
+    sockaddr_in_t *server   = &instance->addr;
+    server->sin_family      = AF_INET;
+    server->sin_port        = htons(port);
     server->sin_addr.s_addr = INADDR_NONE;
     
     nsqb_init(&instance->recver, NSQ_SEND_BUFFER_SIZE);
