@@ -38,6 +38,30 @@ __hash(char *name)
     return hash_bybuf(name, os_strlen(name), NSQ_HASHMASK);
 }
 
+static bool
+__is_dns_ok(nsq_instance_t *instance)
+{
+    return INADDR_NONE != instance->addr.sin_addr.s_addr;
+}
+
+static int
+__dns(nsq_instance_t *instance)
+{
+    if (false==__is_dns_ok(instance)) {
+        in_addr_t in = inet_addr(instance->domain);
+        if (INADDR_NONE != in.s_addr) {
+            instance->addr.sin_addr.s_addr = in.s_addr;
+        } else {
+            struct hostent *p = gethostbyname(instance->domain);
+            if (NULL==p) {
+                return -EDNS;
+            }
+
+            instance->addr.sin_addr.s_addr = p->h_addr;
+        }
+    }
+}
+
 static nsq_instance_t *
 __create(char *name, jobj_t jobj)
 {
@@ -59,15 +83,18 @@ __create(char *name, jobj_t jobj)
     
     jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
     instance->identify  = os_strdup(jobj_json(jval));
-    
+
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
     int port = jobj_get_bool(jval);
-    sockaddr_in_t *server  = &instance->addr.in;
+    sockaddr_in_t *server  = &instance->addr;
     server->sin_family  = AF_INET;
     server->sin_port    = htons(port);
-
-    nsqb_init(&instance->recver, NSQ_OUT_BUFFER_SIZE);
-    nsqb_init(&instance->sender, 1+OS_PAGE_LEN);
+    server->sin_addr.s_addr = INADDR_NONE;
+    
+    nsqb_init(&instance->recver, NSQ_SEND_BUFFER_SIZE);
+    nsqb_init(&instance->sender, NSQ_RECV_BUFFER_SIZE);
+    
+    __dns(instance);
     
     return instance;
 }
@@ -85,6 +112,10 @@ ____destroy(nsq_instance_t *instance)
         os_free(instance->identify);
 
         jobj_put(instance->jobj);
+        
+        nsqb_fini(&instance->recver);
+        nsqb_fini(&instance->sender);
+
     }
 }
 

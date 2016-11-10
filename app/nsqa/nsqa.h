@@ -39,7 +39,7 @@ typedef struct {
     
     nsq_buffer_t    sender;
     nsq_buffer_t    recver;
-    os_sockaddr_t   addr;
+    sockaddr_in_t   addr;
     
     h1_node_t       node;
 } nsq_instance_t;

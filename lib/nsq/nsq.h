@@ -59,12 +59,16 @@
 #define NSQ_HEARBEAT_INTERVAL       (30*1000)
 #endif
 
-#ifndef NSQ_OUT_BUFFER_SIZE
-#define NSQ_OUT_BUFFER_SIZE         (16*1024)
+#ifndef NSQ_RECV_BUFFER_SIZE
+#define NSQ_RECV_BUFFER_SIZE        (4*1024)    /* for nsqd */
 #endif
 
-#ifndef NSQ_OUT_BUFFER_TIMEOUT
-#define NSQ_OUT_BUFFER_TIMEOUT      250
+#ifndef NSQ_SEND_BUFFER_SIZE
+#define NSQ_SEND_BUFFER_SIZE        (16*1024)   /* for nsqd */
+#endif
+
+#ifndef NSQ_SEND_BUFFER_TIMEOUT
+#define NSQ_SEND_BUFFER_TIMEOUT     250         /* for nsqd */
 #endif
 
 #ifndef NSQ_MSG_TIMEOUT
@@ -161,11 +165,11 @@ enum {
     J_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,         \
         jtype_int,                                  \
         0,                                          \
-        NSQ_OUT_BUFFER_SIZE),                       \
+        NSQ_SEND_BUFFER_SIZE),                      \
     J_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,      \
         jtype_int,                                  \
         0,                                          \
-        NSQ_OUT_BUFFER_TIMEOUT),                    \
+        NSQ_SEND_BUFFER_TIMEOUT),                   \
     J_RULE(NSQ_IDENTIFY_USER_AGENT,                 \
         jtype_string,                               \
         JRULE_CONST,                                \
