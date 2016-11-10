@@ -47,9 +47,9 @@ __create(char *name, jobj_t jobj)
     if (NULL==instance) {
         return NULL;
     }
+    os_asprintf(&instance->cache, "%s/%s", nsqa.cache, name);
     instance->jobj      = jobj;
     instance->name      = os_strdup(name);
-    os_asprintf(&instance->cache, "%s/%s", nsqa.cache, name);
 
     jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
     instance->domain    = os_strdup(jobj_get_string(jval));
@@ -57,14 +57,14 @@ __create(char *name, jobj_t jobj)
     jval = jobj_get(jobj, NSQ_INSTANCE_TOPIC_NAME);
     instance->topic     = os_strdup(jobj_get_string(jval));
     
+    jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
+    instance->identify  = os_strdup(jobj_json(jval));
+    
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
     int port = jobj_get_bool(jval);
     sockaddr_in_t *server  = &instance->addr.in;
     server->sin_family  = AF_INET;
     server->sin_port    = htons(port);
-    
-    jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
-    instance->identify  = os_strdup(jobj_json(jval));
 
     nsqb_init(&instance->recver, NSQ_OUT_BUFFER_SIZE);
     nsqb_init(&instance->sender, 1+OS_PAGE_LEN);
@@ -81,7 +81,10 @@ ____destroy(nsq_instance_t *instance)
         os_free(instance->name);
         os_free(instance->domain);
         os_free(instance->cache);
+        os_free(instance->topic);
         os_free(instance->identify);
+
+        jobj_put(instance->jobj);
     }
 }
 
@@ -141,27 +144,20 @@ __foreach(nsq_foreach_f *foreach, bool safe)
 static int
 __nsqi_insert(jobj_t jobj)
 {
-    jobj_t jval;
-    char *name;
     int err;
 
-    jval = jobj_get(jobj, NSQ_INSTANCE_NAME_NAME);
-    if (NULL==jval) {
-        return -EBADJSON;
-    }
-    
-    name = jobj_get_string(jval);
+    char *name = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_NAME_NAME));
     if (NULL==name) {
         return -EBADJSON;
     }
     
     if (__get(name)) {
-        return -EBADJSON;
+        return -EEXIST;
     }
 
     nsq_instance_t *instance = __create(name, jobj);
     if (NULL==instance) {
-        return -EEXIST;
+        return -ENOMEM;
     }
 
     err = __insert(instance);
