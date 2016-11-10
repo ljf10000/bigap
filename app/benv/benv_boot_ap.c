@@ -43,26 +43,6 @@ int __benv_read(int env, bool mirror)
 }
 
 /*
-* not support write by block, just write whole env
-*/
-int __benv_write(int env, int idx)
-{
-    debug_io("save benv%d ...", env);
-
-#if 1
-	saveenv();
-#else
-	printf("%s, %s, L%d: %d, %d, %p, %p\n", 
-		__FILE__, __func__, __LINE__, env, idx, (void *)__benv_start(env), __benv_env(env));
-    benv_flash_write(__benv_start(env), __benv_env(env), BENV_SIZE);
-#endif
-
-    debug_io("save benv%d ok.", env);
-        
-    return 0;
-}
-
-/*
 * call it in fastboot
 */
 static void
