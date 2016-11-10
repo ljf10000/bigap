@@ -224,6 +224,30 @@ error:
 }
 
 int
+nsqi_remove(char *name)
+{
+    int err;
+    
+    if (NULL==name) {
+        return -EINVAL0;
+    }
+
+    nsq_instance_t *instance = __get(name);
+    if (NULL==instance) {
+        return -ENOEXIST;
+    }
+
+    err = __remove(instance);
+    if (err<0) {
+        return err;
+    }
+
+    __destroy(instance);
+
+    return 0;
+}
+
+int
 init_nsq_instance(void)
 {
    return 0;

@@ -18,13 +18,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 static int
 handle_remove(char *args)
 {
-#if 0
-    if (UM_AUTO_FAKE==umd.cfg.autouser) {
-        return handle_mac(um_user_unfake, args);
-    } else {
-        return -ENOSUPPORT;
-    }
-#endif
+    char *name = args;
+    
+    return nsqi_remove(name);
 }
 
 /*
