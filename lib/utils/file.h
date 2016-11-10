@@ -808,8 +808,8 @@ __os_file_unlock(char *file, int fd)
 }
 
 #define os_file_unlock()        ({  \
-    __THIS_LOCKFD = INVALID_FD;     \
     __os_file_unlock(__THIS_LOCKFILE, __THIS_LOCKFD); \
+    __THIS_LOCKFD = INVALID_FD;     \
 })
 
 static inline bool
