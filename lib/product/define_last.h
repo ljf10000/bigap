@@ -143,6 +143,16 @@
 #define PRODUCT_IDEV_DATA(_idx)         PRODUCT_IDEV_OBJ(DATA, _idx)
 
 #if IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
+#if IS_PRODUCT_LTEFI_AP
+#define PRODUCT_BOOTARGS_HEAD   \
+    "root=" PRODUCT_DEV_ROOT    \
+		" "						\
+    "rootfstype=" PRODUCT_ROOTFSTYPE \
+		" "						\
+	"init=/sbin/init"			\
+		" "						\
+    /* end */
+#else
 #define PRODUCT_BOOTARGS_HEAD   \
     "root=" PRODUCT_DEV_ROOT    \
         " "                     \
@@ -153,6 +163,7 @@
     PRODUCT_ROOTFS_MODE         \
         " "                     \
     /* end */
+#endif
 
 #if 0
 #define PRODUCT_BOOTARGS_BODY   \

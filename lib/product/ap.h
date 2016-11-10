@@ -48,11 +48,11 @@
 #endif
 
 #ifndef PRODUCT_DIR_ROOT
-#define PRODUCT_DIR_ROOT                "/"
+#define PRODUCT_DIR_ROOT                ""
 #endif
 
 #ifndef PRODUCT_DEV_PREFIX
-#define PRODUCT_DEV_PREFIX              "p"/* fixme */
+#define PRODUCT_DEV_PREFIX              ":"
 #endif
 
 #ifndef PRODUCT_DEV_FLASH_MASTER
