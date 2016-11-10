@@ -44,6 +44,8 @@
 #define PRODUCT_ROOTFS_MODE             PRODUCT_ROOTFS_RO
 #endif
 
+#define PRODUCT_DEV_FLASH_MASTER        "31" /* root=31:02 */
+
 #ifndef PRODUCT_DEV_USB_MASTER
 #define PRODUCT_DEV_USB_MASTER          "dev/udisk51210" /* fixme */
 #endif
@@ -76,8 +78,8 @@
 #define PRODUCT_DEV_ROOT        PRODUCT_IDEV_FLASH(3) /* rootfs0 */
 
 #define PRODUCT_BOOTARGS_BLOCK0 \
-        "256K(fastboot)," /* 01 */\
-        "64K(bootenv),"   /* 02 */\
+        "256K(u-boot)," /* 01 */\
+        "64K(u-boot-env),"   /* 02 */\
         "1472K(kernel0)," /* 03 */\
         "14272K(rootfs0),"/* 04 */\
         "256K(config0),"  /* 05 */\

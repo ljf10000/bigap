@@ -2,56 +2,66 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #include "benv_boot_common.c"
-//#include <environment.h>
 
-#define __benv_start(_env)    (BENV_START + benv_offset(_env))
+#define __benv_start(_env)    (CFG_FLASH_BASE + BENV_START + benv_offset(_env))
 
-#if 1
+void *benv_flash_read(void *flash, void *memory, int size)
+{
+	printf("%s, %s, L%d: %p, %p, %d\n", 
+		__FILE__, __func__, __LINE__, (uchar *)flash, (uchar *)memory, size);
+
+	return os_memcpy(memory, flash, size);
+	//return memcpy(memory, flash, size);
+}
+
+
 int __benv_read(int env, bool mirror)
 {
-	return 0;
-}
-int __benv_write(int env, int idx)
-{
-	return 0;
-}
-#else
-int __benv_read(int env, bool mirror)
-{
+    void *buf;
+    char *name;
+
+    if (mirror) {
+        buf = __benv_mirror;
+        name = "mirror";
+    } else {
+        buf = __benv_env(env);
+        name = "benv";
+    }
+    
     /*
     * emmc==>block
     */
-    debug_io("read benv%d ...", env);
-    if (BENV_SIZE != __flash_read(__benv_start(env), __benv_env(env), BENV_SIZE)) {
-         os_println("read benv%d error", env);
-        
-        return -EIO;
-    }
-    debug_io("read benv%d ok.", env);
-    
-    /*
-    * block==>mirror
-    */
-    os_memcpy(__benv_mirror(env), __benv_env(env), BENV_SIZE);
+    debug_io("read benv%d to %s ...", env, name);
+	printf("%s, %s, L%d: %d, %d, %p, %p\n", 
+		__FILE__, __func__, __LINE__, env, mirror, (void *)__benv_start(env), buf);
 
+	benv_flash_read((void *)__benv_start(env), buf, BENV_SIZE);
+
+    debug_io("read benv%d to %s ok.", env, name);
+    
     return 0;
 }
 
+/*
+* not support write by block, just write whole env
+*/
 int __benv_write(int env, int idx)
 {
     debug_io("save benv%d ...", env);
-    if (BENV_SIZE != __flash_write(__benv_start(env), __benv_env(env), BENV_SIZE)) {
-         os_println("save benv%d error", env);
 
-        return -EIO;
-    }
+#if 1
+	saveenv();
+#else
+	printf("%s, %s, L%d: %d, %d, %p, %p\n", 
+		__FILE__, __func__, __LINE__, env, idx, (void *)__benv_start(env), __benv_env(env));
+    benv_flash_write(__benv_start(env), __benv_env(env), BENV_SIZE);
+#endif
+
     debug_io("save benv%d ok.", env);
-    
-    os_memcpy(__benv_mirror(env), __benv_env(env), BENV_SIZE);
-    
+        
     return 0;
 }
-#endif
+
 /*
 * call it in fastboot
 */
@@ -59,10 +69,10 @@ static void
 benv_boot(void)
 {
     benv_init();
-//    md_boot_init();//
+//    md_boot_init();//md only now
     
     benv_boot_check();
-//    benv_boot_select();//
+//    benv_boot_select();//md only now
     benv_boot_save();
 }
 
