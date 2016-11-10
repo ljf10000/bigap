@@ -864,11 +864,11 @@ typedef struct {
         bool  b;
         int   i;
         
-        char   *(*fs)();
-        void   *(*fv)();
-        bool    (*fb)();
-        int     (*fi)();
-        jobj_t  (*fo)(jobj_t jobj);
+        char   *(*fs)(void);
+        void   *(*fv)(void);
+        bool    (*fb)(void);
+        int     (*fi)(void);
+        int     (*fo)(jobj_t jobj);
     } deft;
 } jrule_t;
 
