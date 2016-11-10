@@ -36,6 +36,18 @@
 #define BENV_COUNT                  4
 #endif
 
+#define BENV_FLASH_EMMC             0
+#define BENV_FLASH_NOR              1
+
+#ifndef BENV_FLASH
+#define BENV_FLASH                  BENV_FLASH_EMMC
+#endif
+
+#if BENV_FLASH!=BENV_FLASH_EMMC && \
+    BENV_FLASH!=BENV_FLASH_NOR
+#   error "invalid BENV_FLASH"
+#endif
+
 #if (defined(__BOOT__) || defined(__PC__)) && BENV_COUNT > 1
 #define BENV_REPAIR                 1
 #else
@@ -2091,11 +2103,15 @@ extern void env_crc_update(void);
 extern int saveenv(void);
 
 extern int __benv_read(int env, bool mirror);
-extern int __benv_write(int env, int idx);
+#if BENV_FLASH==BENV_FLASH_EMMC
+    extern int __benv_write(int env, int idx /* no used */);
+#elif BENV_FLASH==BENV_FLASH_NOR
+#   define __benv_write(_env, _idx)             0
+#endif
 #elif defined(__APP__)
 #if IS_PRODUCT_LTEFI_MD1
-#define __benv_read(int env, bool mirror)   0
-#define __benv_write(_env)                  0
+#   define __benv_read(int env, bool mirror)    0
+#   define __benv_write(_env, _idx)             0
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
 static inline int
 __benv_read(int env, bool mirror)
@@ -2140,28 +2156,20 @@ static inline int
 __benv_write(int env, int idx)
 {
     int err = 0;
-    uint32 offset, size;
-    char *buf;
-    
+
     if (BENV_ALL==idx) {
-        size    = BENV_SIZE;
-        offset  = benv_offset(env);
-        buf     = (char *)__benv_env(env);
-    } else {
-        size    = BENV_BLOCK_SIZE;
-        offset  = benv_offset(env) + idx*BENV_BLOCK_SIZE;
-        buf     = __benv_block(env, idx);
+        return -ENOSUPPORT;
     }
     
     debug_io("save benv%d block%d ...", env, idx);
-    err = lseek(__benv_fd, offset, SEEK_SET);
+    err = lseek(__benv_fd, benv_offset(env) + idx*BENV_BLOCK_SIZE, SEEK_SET);
     if (err < 0) { /* <0 is error */
          debug_error("seek benv%d block%d error:%d", env, idx, -errno);
         
         return -errno;
     }
 
-    if (size != write(__benv_fd, buf, size)) {
+    if (BENV_BLOCK_SIZE != write(__benv_fd, __benv_block(env, idx), BENV_BLOCK_SIZE)) {
          debug_error("save benv%d block%d error:%d", env, idx, -errno);
         
         return -errno;
@@ -2353,8 +2361,9 @@ benv_load(void)
 
 static inline int benv_save_nothing(void) {return 0;}
 
+#if BENV_FLASH==BENV_FLASH_EMMC || defined(__APP__)
 static inline int
-____benv_save(int idx)
+__benv_save(int idx)
 {
     int err, env;
     
@@ -2370,10 +2379,13 @@ ____benv_save(int idx)
 
     return 0;
 }
+#elif BENV_FLASH==BENV_FLASH_NOR
+#define __benv_save(_idx)   saveenv()
+#endif
 
 #ifdef __APP__
 static inline int
-__benv_save(int idx)
+__benv_saveby(int idx)
 {
     int env, err = 0;
 
@@ -2400,19 +2412,19 @@ __benv_save(int idx)
     }
 #endif
 
-    return ____benv_save(idx);
+    return __benv_save(idx);
 }
 
 static inline int
 benv_save_os(void)
 {
-    return __benv_save(BENV_OS);
+    return __benv_saveby(BENV_OS);
 }
 
 static inline int
 benv_save_mark(void)
 {
-    return __benv_save(BENV_MARK);
+    return __benv_saveby(BENV_MARK);
 }
 
 static inline int
@@ -2421,7 +2433,7 @@ benv_save_info(void)
     int idx, err;
 
     for (idx=BENV_INFO; idx<BENV_BLOCK_COUNT; idx++) {
-        err = __benv_save(idx);
+        err = __benv_saveby(idx);
         if (err<0) {
             return err;
         }
@@ -2462,7 +2474,7 @@ benv_save(void)
             continue;
         }
 
-        err = ____benv_save(idx);
+        err = __benv_save(idx);
         if (err<0) {
             return err;
         }
@@ -2499,7 +2511,7 @@ benv_save(void)
     }
 #endif
 
-    return ____benv_save(BENV_ALL);
+    return __benv_save(BENV_ALL);
 }
 #endif
 

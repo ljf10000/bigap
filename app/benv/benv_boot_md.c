@@ -143,7 +143,7 @@ int __benv_read(int env, bool mirror)
 /*
 * not support write by block, just write whole env
 */
-int __benv_write(int env, int idx)
+int __benv_write(int env, int idx /* no used */)
 {
     debug_io("save benv%d ...", env);
     if (BENV_SIZE!=benv_emmc_write(__benv_start(env), __benv_env(env), BENV_SIZE)) {
