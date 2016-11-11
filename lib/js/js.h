@@ -160,9 +160,6 @@ typedef struct {
 	void *value;
 } dukc_pointer_entry_t;
 
-extern void
-js_put_functions(duk_context *ctx, duk_idx_t obj_index, const dukc_func_entry_t *funcs);
-
 #define JS_PARAM_VERSION_DEFT       1
 #define JS_PARAM_NUMBER(x)          duke_##__THIS_FILE##x##_param_number
 #define JS_PARAM_VERSION(x)         duke_##__THIS_FILE##x##_version
@@ -192,81 +189,29 @@ typedef duk_double_t duk_number_t;
 #define duk_is_uint(_ctx, _idx)         duk_is_number(_ctx, _idx)
 #define duk_is_bool(_ctx, _idx)         duk_is_boolean(_ctx, _idx)
 
-static inline int
-duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, duk_buffer_t *pbuf, duk_size_t *psize)
-{
-    duk_buffer_t buf = NULL;
-    
-    int type = duk_get_type(ctx, idx);
-    
-    if (DUK_TYPE_BUFFER==type) {
-        buf = duk_get_buffer_data(ctx, idx, psize);
-    }
-    else if (DUK_TYPE_STRING==type) {
-        buf = (duk_buffer_t)duk_get_lstring(ctx, idx, psize);
-    }
-    else {
-        return -EFORMAT;
-    }
+extern int
+duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, duk_buffer_t *pbuf, duk_size_t *psize);
 
-    *pbuf = buf;
-    
-    return 0;
-}
+extern void
+js_put_functions(duk_context *ctx, duk_idx_t obj_index, const dukc_func_entry_t *funcs);
 
-static inline int js_push_error(duk_context *ctx, int err);
+extern int
+js_push_error(duk_context *ctx, int err);
 
-static inline duk_buffer_t
-js_push_pointer(duk_context *ctx, duk_pointer_t pointer)
-{
-    if (pointer) {
-        duk_push_pointer(ctx, pointer);
-    } else {
-        duk_push_null(ctx);
-    }
+extern duk_buffer_t
+js_push_pointer(duk_context *ctx, duk_pointer_t pointer);
 
-    return pointer;
-}
+extern duk_string_t
+js_push_lstring(duk_context *ctx, duk_string_t s, duk_size_t len);
 
-static inline duk_string_t
-js_push_lstring(duk_context *ctx, duk_string_t s, duk_size_t len)
-{
-    if (is_good_str(s) && len>0) {
-        return duk_push_lstring(ctx, s, len);
-    } else {
-        return duk_push_null(ctx), NULL;
-    }
-}
+extern duk_string_t
+js_push_string(duk_context *ctx, duk_string_t s);
 
-static inline duk_string_t
-js_push_string(duk_context *ctx, duk_string_t s)
-{
-    if (s) {
-        return duk_push_string(ctx, s);
-    } else {
-        return duk_push_null(ctx), NULL;
-    }
-}
+extern duk_buffer_t
+js_push_buffer(duk_context *ctx, duk_size_t size, bool dynamic);
 
-static inline duk_buffer_t
-js_push_buffer(duk_context *ctx, duk_size_t size, bool dynamic)
-{
-    if (size>0) {
-        return duk_push_buffer(ctx, size, dynamic);
-    } else {
-        return duk_push_null(ctx), NULL;
-    }
-}
-
-static inline duk_buffer_t
-js_push_fixed_buffer(duk_context *ctx, duk_size_t size)
-{
-    if (size>0) {
-        return duk_push_fixed_buffer(ctx, size);
-    } else {
-        return duk_push_null(ctx), NULL;
-    }
-}
+extern duk_buffer_t
+js_push_fixed_buffer(duk_context *ctx, duk_size_t size);
 
 static inline duk_buffer_t
 js_push_dynamic_buffer(duk_context *ctx, duk_size_t size)
@@ -706,18 +651,6 @@ __js_seterrno(duk_context *ctx, int err)
 #define js_seterrno(_ctx)  __js_seterrno(ctx, -errno)
 
 typedef int dukc_obj_op_f(duk_context *ctx, duk_idx_t idx, duk_object_t obj);
-
-static inline int 
-js_push_error(duk_context *ctx, int err)
-{
-    if (err<0) {
-        js_seterrno(ctx);
-    }
-
-    duk_push_int(ctx, err);
-    
-    return err;
-}
 
 static inline int
 js_obj_push(duk_context *ctx, dukc_obj_op_f *set, duk_object_t obj)
