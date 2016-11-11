@@ -969,7 +969,7 @@ libc_get_timeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
-static inline int
+int
 libc_set_timeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct timeval *p = (struct timeval *)obj;
@@ -980,7 +980,27 @@ libc_set_timeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
+int
+libc_get_itimerval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct itimerval *p = (struct itimerval *)obj; os_objzero(p);
 
+    js_obj_get(ctx, idx, libc_get_timeval, &p->it_interval, "interval");
+    js_obj_get(ctx, idx, libc_get_timeval, &p->it_value, "value");
+
+    return 0;
+}
+
+int
+libc_set_itimerval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct itimerval *p = (struct itimerval *)obj;
+    
+    js_obj_set(ctx, idx, libc_set_timeval, &p->it_interval, "interval");
+    js_obj_set(ctx, idx, libc_set_timeval, &p->it_value, "value");
+
+    return 0;
+}
 
 
 
