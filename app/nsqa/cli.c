@@ -30,8 +30,6 @@ static int
 handle_insert(char *args)
 {
     char *json  = args;
-
-    debug_cli("handle insert %s", json);
     
     return nsqi_insert(json);
 }

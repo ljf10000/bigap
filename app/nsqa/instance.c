@@ -213,8 +213,7 @@ nsqi_insert(char *json)
     int err = 0;
     
     jobj = jobj_byjson(json);
-    if (jobj) {
-        os_println("insert bad josn:%s", json);
+    if (NULL==jobj) {
         err = -EBADJSON; goto error;
     }
 
