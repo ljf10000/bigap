@@ -497,7 +497,7 @@ cli_line_handle(
     int (*reply_end)(int err)
 )
 {
-    int i, err;
+    int i, len, err;
     
     for (i=0; i<count; i++) {
         cli_table_t *table = &tables[i];
@@ -506,10 +506,10 @@ cli_line_handle(
             err = (*table->u.line_cb)(args);
             
             if (table->syn && reply) {
-                int len = (*reply)(err);
+                len = (*reply)(err);
                 debug_trace("send len:%d", len);
 
-                if (reply_end) {
+                if (len>0 && reply_end) {
                     (*reply_end)(err);
                 }
             }

@@ -183,12 +183,14 @@ __nsqi_insert(jobj_t jobj)
 
     char *name = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_NAME_NAME));
     if (NULL==name) {
-        os_println("no-found name");
+        debug_cli("no-found key " NSQ_INSTANCE_NAME_NAME);
+        
         return -EBADJSON;
     }
     
     if (__get(name)) {
-        os_println("exist %s", name);
+        debug_cli("instance %s exist." name);
+        
         return -EEXIST;
     }
 
