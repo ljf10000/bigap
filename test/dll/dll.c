@@ -41,7 +41,7 @@ dll_memory(void)
     
     {
         libval_t params[] = {
-            [0] = LIBVAL_I4_INITER(LIBVAL_IN, pointer),
+            [0] = LIBVAL_P_INITER(LIBVAL_IN, pointer),
         };
         libproto_t proto = __LIBPROTO_INITER(0, params);
         
