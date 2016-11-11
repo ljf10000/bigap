@@ -137,14 +137,6 @@ static inline int nsq_identify_idx(char *name);
 #define NSQ_IDENTIFY_MSG_TIMEOUT            NSQ_IDENTIFY_MSG_TIMEOUT
 #define NSQ_IDENTIFY_END                    NSQ_IDENTIFY_END   
 
-enum {
-    NSQ_IDENTIFY_TYPE_CLOUD,
-    NSQ_IDENTIFY_TYPE_LOCAL,
-    NSQ_IDENTIFY_TYPE_CONST,
-    
-    NSQ_IDENTIFY_TYPE_END
-};
-
 #define NSQ_IDENTIFY_RULE_INITER {                  \
     J_RULE(NSQ_IDENTIFY_CLIENT_ID,                  \
         jtype_string,                               \
@@ -181,7 +173,7 @@ enum {
 }   /* end */
 
 static inline jrule_ops_t *
-nsq_identify_rule_ops(void)
+nsq_identify_jrule_ops(void)
 {
     static jrule_t rule[NSQ_IDENTIFY_END] = NSQ_IDENTIFY_RULE_INITER;
     static jrule_ops_t ops = JRULE_OPS_INITER(rule,
@@ -193,17 +185,17 @@ nsq_identify_rule_ops(void)
 }
 
 static inline int
-nsq_identify_check(jobj_t jobj)
+nsq_identify_jcheck(jobj_t jobj)
 {
-    return jrule_apply(jobj, nsq_identify_rule_ops(), NULL);
+    return jrule_apply(jobj, nsq_identify_jrule_ops(), NULL);
 }
 
 static inline int
-nsq_identify_repair(jobj_t jobj)
+nsq_identify_jrepair(jobj_t jobj)
 {
     int err;
 
-    err = jrule_apply(jobj, nsq_identify_rule_ops(), jrule_repair);
+    err = jrule_apply(jobj, nsq_identify_jrule_ops(), jrule_repair);
     if (err<0) {
         return err;
     }
@@ -265,11 +257,11 @@ static inline int nsq_instance_idx(char *name);
     J_RULE(NSQ_INSTANCE_IDENTIFY,   \
         jtype_object,               \
         JRULE_MUST,                 \
-        nsq_identify_repair),       \
+        nsq_identify_jrepair),      \
 }   /* end */
 
 static inline jrule_ops_t *
-nsq_instance_rule_ops(void)
+nsq_instance_jrule_ops(void)
 {
     static jrule_t rule[NSQ_INSTANCE_END] = NSQ_INSTANCE_RULE_INITER;
     static jrule_ops_t ops = JRULE_OPS_INITER(rule,
@@ -281,17 +273,17 @@ nsq_instance_rule_ops(void)
 }
 
 static inline int
-nsq_instance_check(jobj_t jobj)
+nsq_instance_jcheck(jobj_t jobj)
 {
-    return jrule_apply(jobj, nsq_instance_rule_ops(), NULL);
+    return jrule_apply(jobj, nsq_instance_jrule_ops(), NULL);
 }
 
 static inline int
-nsq_instance_repair(jobj_t jobj)
+nsq_instance_jrepair(jobj_t jobj)
 {
     int err;
 
-    err = jrule_apply(jobj, nsq_instance_rule_ops(), jrule_repair);
+    err = jrule_apply(jobj, nsq_instance_jrule_ops(), jrule_repair);
     if (err<0) {
         return err;
     }
