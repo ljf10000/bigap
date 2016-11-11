@@ -53,21 +53,23 @@ run_recver(nsq_instance_t *instance, time_t now)
 int
 nsq_resolve(nsq_instance_t *instance)
 {
-    if (false==is_resolve_ok(instance)) {
-        in_addr_t ip = inet_addr(instance->domain);
-        if (INADDR_NONE != ip) {
-            instance->server.sin_addr.s_addr = ip;
-        } else {
-            struct hostent *p = gethostbyname(instance->domain);
-            if (NULL==p) {
-                return -EDNS;
-            }
-
-            instance->server.sin_addr.s_addr = *(uint32 *)(p->h_addr);
+    if (is_resolve_ok(instance)) {
+        return 0;
+    }
+    
+    uint32 ip = inet_addr(instance->domain);
+    if (INADDR_NONE != ip) {
+        instance->server.sin_addr.s_addr = ip;
+    } else {
+        struct hostent *p = gethostbyname(instance->domain);
+        if (NULL==p) {
+            return -EDNS;
         }
 
-        nsq_fsm_change(instance, NSQ_FSM_RESOLVED);
+        instance->server.sin_addr.s_addr = *(uint32 *)(p->h_addr);
     }
+
+    nsq_fsm_change(instance, NSQ_FSM_RESOLVED);
 
     return 0;
 }
