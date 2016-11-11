@@ -445,7 +445,7 @@ __timer_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_ti
     }
 
     struct itimerspec tm;
-    __get_itimerspec(ctx, -1, &tm);
+    libc_get_itimerspec(ctx, -1, &tm);
 
     err = os_loop_add_timer(loop, cb, &tm);
 
@@ -546,7 +546,7 @@ duke_loop(duk_context *ctx)
     int __inotify_handle(loop_watcher_t *watcher, struct inotify_event *ev, time_t now)
     {
         int push_inotify(void) {
-            return js_obj_push(ctx, __set_inotify_event, ev), 1;
+            return js_obj_push(ctx, libc_set_inotify_event, ev), 1;
         }
         
         __loop_pcall(ctx, idx, &objs[LOOP_TYPE_INOTIFY], push_inotify);
@@ -557,7 +557,7 @@ duke_loop(duk_context *ctx)
     int __signal_handle(loop_watcher_t *watcher, struct signalfd_siginfo *siginfo, time_t now)
     {
         int push_signal(void) {
-            return js_obj_push(ctx, __set_signalfd_siginfo, siginfo), 1;
+            return js_obj_push(ctx, libc_set_signalfd_siginfo, siginfo), 1;
         }
     
         __loop_pcall(ctx, idx, &objs[LOOP_TYPE_SIGNAL], push_signal);
@@ -579,7 +579,7 @@ duke_loop(duk_context *ctx)
     int __normal_handle(loop_watcher_t *watcher, time_t now)
     {
         int push_normal(void) {
-            return js_obj_push(ctx, __set_watcher_event, watcher), 1;
+            return js_obj_push(ctx, libc_set_watcher_event, watcher), 1;
         }
     
         __loop_pcall(ctx, idx, &objs[LOOP_TYPE_NORMAL], push_normal);
@@ -590,7 +590,7 @@ duke_loop(duk_context *ctx)
     int __father_handle(loop_watcher_t *watcher, time_t now)
     {
         int push_father(void) {
-            return js_obj_push(ctx, __set_watcher_event, watcher), 1;
+            return js_obj_push(ctx, libc_set_watcher_event, watcher), 1;
         }
 
         __loop_pcall(ctx, idx, &objs[LOOP_TYPE_FATHER], push_father);

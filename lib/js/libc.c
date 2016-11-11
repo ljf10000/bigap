@@ -29,7 +29,7 @@ duk_context *js_ctx_get(void)
     return __js_ctx;
 }
 
-void __libc_sig_handler(int sig)
+void libc_sig_handler(int sig)
 {
     duk_context *ctx = js_ctx_get();
     js_priv_t *priv = js_priv(ctx);
@@ -86,10 +86,10 @@ duke_timerfd_settime(duk_context *ctx)
     int fd    = duk_require_int(ctx, 0);
     int flags = duk_require_int(ctx, 1);
 
-    __get_itimerspec(ctx, 2, &new);
+    libc_get_itimerspec(ctx, 2, &new);
     int err = timerfd_settime(fd, flags, &new, &old);
     if (0==err) { // 0 is ok
-        __set_itimerspec(ctx, 3, &old);
+        libc_set_itimerspec(ctx, 3, &old);
     }
     
     return js_push_error(ctx, err), 1;
@@ -104,7 +104,7 @@ duke_timerfd_gettime(duk_context *ctx)
 
     int err = timerfd_gettime(fd, &current);
     if (0==err) { // 0 is ok
-        __set_itimerspec(ctx, 1, &current);
+        libc_set_itimerspec(ctx, 1, &current);
     }
     
     return js_push_error(ctx, err), 1;
@@ -236,7 +236,7 @@ duke_epoll_ctl(duk_context *ctx)
     int epfd = duk_require_int(ctx, 0);
     int op = duk_require_int(ctx, 1);
     int fd = duk_require_int(ctx, 2);
-    __get_epoll_event(ctx, 3, &ev);
+    libc_get_epoll_event(ctx, 3, &ev);
     
     int err = epoll_ctl(epfd, op, fd, &ev);
 
@@ -1054,9 +1054,9 @@ duke_select(duk_context *ctx)
         }
     }
     
-    __get_timeval(ctx, 4, &tv);
+    libc_get_timeval(ctx, 4, &tv);
     err = select(nfds, rset, wset, eset, &tv);
-    __set_timeval(ctx, 4, &tv);
+    libc_set_timeval(ctx, 4, &tv);
 
     if (err<0) {
         js_seterrno(ctx);
@@ -1116,7 +1116,7 @@ duke_fcntl(duk_context *ctx)
         case F_SETOWN: {
             struct flock k;
 
-            __get_flock(ctx, 2, &k);
+            libc_get_flock(ctx, 2, &k);
             err = fcntl(fd, cmd, &k);
             if (err<0) {
                 js_seterrno(ctx);
@@ -1256,7 +1256,7 @@ duke_readdir(duk_context *ctx)
         js_seterrno(ctx);
     }
 
-	return js_obj_push(ctx, __set_dirent, readdir(dir)), 1;
+	return js_obj_push(ctx, libc_set_dirent, readdir(dir)), 1;
 }
 
 JS_PARAM(closedir, 1);
@@ -1517,7 +1517,7 @@ duke_stat(duk_context *ctx)
 
     int err = stat(filename, &st);
     if (0==err) { // 0 is ok
-        __set_stat(ctx, 1, &st);
+        libc_set_stat(ctx, 1, &st);
     }
 
     return js_push_error(ctx, err), 1;
@@ -1533,7 +1533,7 @@ duke_lstat(duk_context *ctx)
 
     int err = lstat(filename, &st);
     if (0==err) { // 0 is ok
-        __set_stat(ctx, 1, &st);
+        libc_set_stat(ctx, 1, &st);
     }
 
     return js_push_error(ctx, err), 1;
@@ -1549,7 +1549,7 @@ duke_fstat(duk_context *ctx)
 
     int err = fstat(fd, &st);
     if (0==err) { // 0 is ok
-        __set_stat(ctx, 1, &st);
+        libc_set_stat(ctx, 1, &st);
     }
 
     return js_push_error(ctx, err), 1;
@@ -1626,7 +1626,7 @@ duke_S_TYPEISMQ(duk_context *ctx)
 {
     struct stat st;
 
-    __get_stat(ctx, 0, &st);
+    libc_get_stat(ctx, 0, &st);
 
     return duk_push_bool(ctx, S_TYPEISMQ(&st)), 1;
 }
@@ -1637,7 +1637,7 @@ duke_S_TYPEISSEM(duk_context *ctx)
 {
     struct stat st;
 
-    __get_stat(ctx, 0, &st);
+    libc_get_stat(ctx, 0, &st);
 
     return duk_push_bool(ctx, S_TYPEISSEM(&st)), 1;
 }
@@ -1648,7 +1648,7 @@ duke_S_TYPEISSHM(duk_context *ctx)
 {
     struct stat st;
 
-    __get_stat(ctx, 0, &st);
+    libc_get_stat(ctx, 0, &st);
 
     return duk_push_bool(ctx, S_TYPEISSHM(&st)), 1;
 }
@@ -1737,7 +1737,7 @@ duke_utime(duk_context *ctx)
 {
     struct utimbuf b = {0};
     char *filename = (char *)duk_require_string(ctx, 0);
-    __get_utimbuf(ctx, 1, &b);
+    libc_get_utimbuf(ctx, 1, &b);
     
 	int err = utime(filename, &b);
 
@@ -2056,7 +2056,7 @@ duke_gethostbyname(duk_context *ctx)
 
     struct hostent *p = gethostbyname(name);
 
-	return js_obj_push(ctx, __set_hostent, p), 1;
+	return js_obj_push(ctx, libc_set_hostent, p), 1;
 }
 
 JS_PARAM(gethostbyname2, 2);
@@ -2068,7 +2068,7 @@ duke_gethostbyname2(duk_context *ctx)
     
     struct hostent *p = gethostbyname2(name, af);
 
-	return js_obj_push(ctx, __set_hostent, p), 1;
+	return js_obj_push(ctx, libc_set_hostent, p), 1;
 }
 
 JS_PARAM(gethostbyaddr, 3);
@@ -2081,7 +2081,7 @@ duke_gethostbyaddr(duk_context *ctx)
     
     struct hostent *p = gethostbyaddr(addr, len, af);
 
-	return js_obj_push(ctx, __set_hostent, p), 1;
+	return js_obj_push(ctx, libc_set_hostent, p), 1;
 }
 
 JS_PARAM(sethostent, 1);
@@ -2099,7 +2099,7 @@ duke_gethostent(duk_context *ctx)
 {
 	struct hostent *p = gethostent();
 
-	return js_obj_push(ctx, __set_hostent, p), 1;
+	return js_obj_push(ctx, libc_set_hostent, p), 1;
 }
 
 JS_PARAM(endhostent, 0);
@@ -2118,7 +2118,7 @@ duke_getservbyname(duk_context *ctx)
 	
 	struct servent *p = getservbyname(name, proto);
 
-	return js_obj_push(ctx, __set_servent, p), 1;
+	return js_obj_push(ctx, libc_set_servent, p), 1;
 }
 
 JS_PARAM(getservbyport, 2);
@@ -2130,7 +2130,7 @@ duke_getservbyport(duk_context *ctx)
 	
 	struct servent *p = getservbyport(port, proto);
 
-	return js_obj_push(ctx, __set_servent, p), 1;
+	return js_obj_push(ctx, libc_set_servent, p), 1;
 }
 
 JS_PARAM(setservent, 1);
@@ -2148,7 +2148,7 @@ duke_getservent(duk_context *ctx)
 {
 	struct servent *p = getservent();
 
-	return js_obj_push(ctx, __set_servent, p), 1;
+	return js_obj_push(ctx, libc_set_servent, p), 1;
 }
 
 JS_PARAM(endservent, 0);
@@ -2206,7 +2206,7 @@ duke_getprotobyname(duk_context *ctx)
 	
 	struct protoent *p = getprotobyname(name);
 
-	return js_obj_push(ctx, __set_protoent, p), 1;
+	return js_obj_push(ctx, libc_set_protoent, p), 1;
 }
 
 JS_PARAM(getprotobynumber, 1);
@@ -2217,7 +2217,7 @@ duke_getprotobynumber(duk_context *ctx)
 	
 	struct protoent *p = getprotobynumber(proto);
 
-	return js_obj_push(ctx, __set_protoent, p), 1;
+	return js_obj_push(ctx, libc_set_protoent, p), 1;
 }
 
 JS_PARAM(setprotoent, 1);
@@ -2235,7 +2235,7 @@ duke_getprotoent(duk_context *ctx)
 {
 	struct protoent *p = getprotoent();
 
-	return js_obj_push(ctx, __set_protoent, p), 1;
+	return js_obj_push(ctx, libc_set_protoent, p), 1;
 }
 
 JS_PARAM(endprotoent, 0);
@@ -2482,7 +2482,7 @@ duke_getsockopt(duk_context *ctx)
             if (err<0) {
                 js_seterrno(ctx);
             } else {
-                __set_linger(ctx, 3, &linger);
+                libc_set_linger(ctx, 3, &linger);
             }
             
         }   break;
@@ -2527,7 +2527,7 @@ duke_setsockopt(duk_context *ctx)
             struct linger linger;
             size = sizeof(linger);
 
-            __get_linger(ctx, 3, &linger);
+            libc_get_linger(ctx, 3, &linger);
             
             err = setsockopt(fd, level, opt, &linger, size);
             if (err<0) {
@@ -2552,7 +2552,7 @@ duke_getnetbyname(duk_context *ctx)
 	
     struct netent *ne = getnetbyname(name);
 
-	return js_obj_push(ctx, __set_netent, ne), 1;
+	return js_obj_push(ctx, libc_set_netent, ne), 1;
 }
 
 JS_PARAM(getnetbyaddr, 2);
@@ -2564,7 +2564,7 @@ duke_getnetbyaddr(duk_context *ctx)
 	
     struct netent *ne = getnetbyaddr(net, type);
 
-	return js_obj_push(ctx, __set_netent, ne), 1;
+	return js_obj_push(ctx, libc_set_netent, ne), 1;
 }
 
 JS_PARAM(setnetent, 1);
@@ -2582,7 +2582,7 @@ duke_getnetent(duk_context *ctx)
 {
     struct netent *ne = getnetent();
 
-	return js_obj_push(ctx, __set_netent, ne), 1;
+	return js_obj_push(ctx, libc_set_netent, ne), 1;
 }
 
 JS_PARAM(endnetent, 0);
@@ -2629,7 +2629,7 @@ duke_tcgetattr(duk_context *ctx)
 
     int err = tcgetattr(fd, &t);
     if (0==err) { // 0 is ok
-        __set_termios(ctx, 1, &t);
+        libc_set_termios(ctx, 1, &t);
     }
     
 	return js_push_error(ctx, err), 1;
@@ -2644,7 +2644,7 @@ duke_tcsetattr(duk_context *ctx)
 	int fd  = duk_require_int(ctx, 0);
     int when= duk_require_int(ctx, 1);
 
-    __get_termios(ctx, 2, &t);
+    libc_get_termios(ctx, 2, &t);
     
     int err = tcsetattr(fd, when, &t);
 
@@ -2657,7 +2657,7 @@ duke_cfgetospeed(duk_context *ctx)
 {
     struct termios t;
     
-    __get_termios(ctx, 0, &t);
+    libc_get_termios(ctx, 0, &t);
     
     speed_t speed = cfgetospeed(&t);
     
@@ -2670,7 +2670,7 @@ duke_cfgetispeed(duk_context *ctx)
 {
     struct termios t;
     
-    __get_termios(ctx, 0, &t);
+    libc_get_termios(ctx, 0, &t);
     
     speed_t speed = cfgetispeed(&t);
     
@@ -2683,7 +2683,7 @@ duke_cfsetospeed(duk_context *ctx)
 {
     struct termios t;
     
-    __get_termios(ctx, 0, &t);
+    libc_get_termios(ctx, 0, &t);
     speed_t speed = duk_require_uint(ctx, 1);
 
     int err = cfsetospeed(&t, speed);
@@ -2697,7 +2697,7 @@ duke_cfsetispeed(duk_context *ctx)
 {
     struct termios t;
     
-    __get_termios(ctx, 0, &t);
+    libc_get_termios(ctx, 0, &t);
     speed_t speed = duk_require_uint(ctx, 1);
 
     int err = cfsetispeed(&t, speed);
@@ -2711,7 +2711,7 @@ duke_cfsetspeed(duk_context *ctx)
 {
     struct termios t;
     
-    __get_termios(ctx, 0, &t);
+    libc_get_termios(ctx, 0, &t);
     speed_t speed = duk_require_uint(ctx, 1);
 
     int err = cfsetspeed(&t, speed);
@@ -2725,7 +2725,7 @@ duke_cfmakeraw(duk_context *ctx)
 {
     struct termios t;
     
-    __get_termios(ctx, 0, &t);
+    libc_get_termios(ctx, 0, &t);
 
     return cfmakeraw(&t), 0;
 }
@@ -3272,7 +3272,7 @@ duke_div(duk_context *ctx)
 
     div_t d = div(numerator, denominator);
     
-    return js_obj_push(ctx, __set_div, &d), 1;
+    return js_obj_push(ctx, libc_set_div, &d), 1;
 }
 
 // 20.4 Floating-Point Number Classification Functions
@@ -3639,7 +3639,7 @@ duke_times(duk_context *ctx)
 {
     struct tms t;
 
-    __get_tms(ctx, 0, &t);
+    libc_get_tms(ctx, 0, &t);
 
     return duk_push_uint(ctx, times(&t)), 1;
 }
@@ -3661,8 +3661,8 @@ duke_gettimeofday(duk_context *ctx)
 
     int err = gettimeofday(&tv, &tz);
 
-    __set_timeval(ctx, 0, &tv);
-    __set_timezone(ctx, 1, &tz);
+    libc_set_timeval(ctx, 0, &tv);
+    libc_set_timezone(ctx, 1, &tz);
     
     return js_push_error(ctx, err), 1;
 }
@@ -3674,8 +3674,8 @@ duke_settimeofday(duk_context *ctx)
     struct timeval tv;
     struct timezone tz;
 
-    __get_timeval(ctx, 0, &tv);
-    __get_timezone(ctx, 1, &tz);
+    libc_get_timeval(ctx, 0, &tv);
+    libc_get_timezone(ctx, 1, &tz);
 
     int err = settimeofday(&tv, &tz);
 
@@ -3688,11 +3688,11 @@ duke_adjtime(duk_context *ctx)
 {
     struct timeval delta, old;
 
-    __get_timeval(ctx, 0, &delta);
+    libc_get_timeval(ctx, 0, &delta);
 
     int err = adjtime(&delta, &old);
 
-    __set_timeval(ctx, 1, &old);
+    libc_set_timeval(ctx, 1, &old);
     
     return js_push_error(ctx, err), 1;
 }
@@ -3706,7 +3706,7 @@ duke_localtime(duk_context *ctx)
 
     struct tm *tm = localtime(&time);
 
-    return js_obj_push(ctx, __set_tm, tm), 1;
+    return js_obj_push(ctx, libc_set_tm, tm), 1;
 }
 
 JS_PARAM(gmtime, 1);
@@ -3717,7 +3717,7 @@ duke_gmtime(duk_context *ctx)
 
     struct tm *tm = gmtime(&time);
 
-    return js_obj_push(ctx, __set_tm, tm), 1;
+    return js_obj_push(ctx, libc_set_tm, tm), 1;
 }
 
 JS_PARAM(mktime, 1);
@@ -3726,7 +3726,7 @@ duke_mktime(duk_context *ctx)
 {
     struct tm tm;
 
-    __get_tm(ctx, 0, &tm);
+    libc_get_tm(ctx, 0, &tm);
     
     time_t time = mktime(&tm);
     
@@ -3739,7 +3739,7 @@ duke_timelocal(duk_context *ctx)
 {
     struct tm tm;
 
-    __get_tm(ctx, 0, &tm);
+    libc_get_tm(ctx, 0, &tm);
     
     time_t time = timelocal(&tm);
     
@@ -3752,7 +3752,7 @@ duke_timegm(duk_context *ctx)
 {
     struct tm tm;
 
-    __get_tm(ctx, 0, &tm);
+    libc_get_tm(ctx, 0, &tm);
     
     time_t time = timegm(&tm);
     
@@ -3769,7 +3769,7 @@ duke_ntp_gettime(duk_context *ctx)
 
     int err = ntp_gettime(&ntv);
 
-    __set_ntptimeval(ctx, 0, &ntv);
+    libc_set_ntptimeval(ctx, 0, &ntv);
 
     return js_push_error(ctx, err), 1;
 }
@@ -3782,7 +3782,7 @@ duke_ntp_adjtime(duk_context *ctx)
 
     int err = ntp_adjtime(&tx);
 
-    __set_timex(ctx, 0, &tx);
+    libc_set_timex(ctx, 0, &tx);
 
     return js_push_error(ctx, err), 1;
 }
@@ -3795,7 +3795,7 @@ duke_asctime(duk_context *ctx)
 {
     struct tm tm;
 
-    __get_tm(ctx, 0, &tm);
+    libc_get_tm(ctx, 0, &tm);
     
     char *time = asctime(&tm);
 
@@ -3822,7 +3822,7 @@ duke_strftime(duk_context *ctx)
     char *line = NULL;
     
     char *template = (char *)duk_require_string(ctx, 0);
-    __get_tm(ctx, 1, &tm);
+    libc_get_tm(ctx, 1, &tm);
 
 
     while(1) {
@@ -3851,10 +3851,10 @@ duke_setitimer(duk_context *ctx)
     struct itimerval new, old;
     int which = duk_require_int(ctx, 0);
 
-    __get_itimerval(ctx, 1, &new);
+    libc_get_itimerval(ctx, 1, &new);
     int err = setitimer(which, &new, &old);
     if (0==err) { // 0 is ok
-        __set_itimerval(ctx, 2, &old);
+        libc_set_itimerval(ctx, 2, &old);
     }
     
     return js_push_error(ctx, err), 1;
@@ -3869,7 +3869,7 @@ duke_getitimer(duk_context *ctx)
 
     int err = getitimer(which, &old);
     if (0==err) { // 0 is ok
-        __set_itimerval(ctx, 1, &old);
+        libc_set_itimerval(ctx, 1, &old);
     }
     
     return js_push_error(ctx, err), 1;
@@ -3901,10 +3901,10 @@ duke_nanosleep(duk_context *ctx)
     struct timespec req, remain;
     duk_uint_t sec = duk_require_uint(ctx, 0);
 
-    __get_timespec(ctx, 1, &req);
+    libc_get_timespec(ctx, 1, &req);
     int err = nanosleep(&req, &remain);
     if (0==err) { // 0 is ok
-        __set_timespec(ctx, 2, &remain);
+        libc_set_timespec(ctx, 2, &remain);
     }
     
     return js_push_error(ctx, err), 1;
@@ -3921,7 +3921,7 @@ duke_getrusage(duk_context *ctx)
 
     int err = getrusage(processes, &u);
     if (0==err) { // 0 is ok
-        __set_rusage(ctx, 1, &u);
+        libc_set_rusage(ctx, 1, &u);
     }
     
     return js_push_error(ctx, err), 1;
@@ -3936,8 +3936,8 @@ duke_vtimes(duk_context *ctx)
 
     int err = vtimes(&current, &child);
     if (0==err) { // ???
-        __set_vtimes(ctx, 0, &current);
-        __set_vtimes(ctx, 1, &child);
+        libc_set_vtimes(ctx, 0, &current);
+        libc_set_vtimes(ctx, 1, &child);
     }
     
     return js_push_error(ctx, err), 1;
@@ -3954,7 +3954,7 @@ duke_getrlimit(duk_context *ctx)
 
     int err = getrlimit(resource, &r);
     if (0==err) { // 0 is ok
-        __set_rlimit(ctx, 1, &r);
+        libc_set_rlimit(ctx, 1, &r);
     }
     
     return js_push_error(ctx, err), 1;
@@ -3967,7 +3967,7 @@ duke_setrlimit(duk_context *ctx)
     struct rlimit r;
     int resource = duk_require_int(ctx, 0);
 
-    __get_rlimit(ctx, 1, &r);
+    libc_get_rlimit(ctx, 1, &r);
     int err = setrlimit(resource, &r);
 
     return js_push_error(ctx, err), 1;
@@ -4021,7 +4021,7 @@ duke_sched_setscheduler(duk_context *ctx)
     
     pid_t pid = duk_require_int(ctx, 0);
     int policy = duk_require_int(ctx, 1);
-    __get_sched_param(ctx, 2, &param);
+    libc_get_sched_param(ctx, 2, &param);
     
     int err = sched_setscheduler(pid, policy, &param);
 
@@ -4046,7 +4046,7 @@ duke_sched_setparam(duk_context *ctx)
     struct sched_param param;
     
     pid_t pid = duk_require_int(ctx, 0);
-    __get_sched_param(ctx, 1, &param);
+    libc_get_sched_param(ctx, 1, &param);
     
     int err = sched_setparam(pid, &param);
 
@@ -4063,7 +4063,7 @@ duke_sched_getparam(duk_context *ctx)
     
     int err = sched_getparam(pid, &param);
     if (0==err) { // 0 is ok
-        __set_sched_param(ctx, 1, &param);
+        libc_set_sched_param(ctx, 1, &param);
     }
     
     return js_push_error(ctx, err), 1;
@@ -4100,7 +4100,7 @@ duke_sched_rr_get_interval(duk_context *ctx)
 
     int err = sched_rr_get_interval(pid, &interval);
     if (0==err) { // 0 is ok
-        __set_timespec(ctx, 1, &interval);
+        libc_set_timespec(ctx, 1, &interval);
     }
     
     return js_push_error(ctx, err), 1;
@@ -4373,7 +4373,7 @@ duke_signal(duk_context *ctx)
     int sig = duk_require_int(ctx, 0);
     
     if (duk_is_function(ctx, 1)) {
-        action = __libc_sig_handler;
+        action = libc_sig_handler;
 
         priv->sig[sig].is_func = true;
 
@@ -4424,10 +4424,10 @@ duke_sigaction(duk_context *ctx)
     struct sigaction action, old;
     int sig = duk_require_int(ctx, 0);
 
-    __get_sigaction(ctx, 1, sig, &action);
+    libc_get_sigaction(ctx, 1, sig, &action);
     int err = sigaction(sig, &action, &old);
     if (0==err) { // 0 is ok
-        __set_sigaction(ctx, 2, sig, &old);
+        libc_set_sigaction(ctx, 2, sig, &old);
     }
     
     return js_push_error(ctx, err), 1;
@@ -4919,7 +4919,7 @@ duke_wait4(duk_context *ctx)
     int err = wait4(pid, &status, opt, &r);
     if (err>0) {
         js_set_obj_int(ctx, 1, "status", status);
-        __set_rusage(ctx, 3, &r);
+        libc_set_rusage(ctx, 3, &r);
     }
     
     return js_push_error(ctx, err), 1;
@@ -5226,7 +5226,7 @@ duke_getutent(duk_context *ctx)
 {
     struct utmp *p = getutent();
 
-    return js_obj_push(ctx, __set_utmp, p), 1;
+    return js_obj_push(ctx, libc_set_utmp, p), 1;
 }
 
 JS_PARAM(endutent, 0);
@@ -5242,11 +5242,11 @@ duke_getutid(duk_context *ctx)
 {
     struct utmp u;
 
-    __get_utmp(ctx, 0, &u);
+    libc_get_utmp(ctx, 0, &u);
     
     struct utmp *p = getutid(&u);
 
-    return js_obj_push(ctx, __set_utmp, p), 1;
+    return js_obj_push(ctx, libc_set_utmp, p), 1;
 }
 
 JS_PARAM(getutline, 1);
@@ -5255,11 +5255,11 @@ duke_getutline(duk_context *ctx)
 {
     struct utmp u;
 
-    __get_utmp(ctx, 0, &u);
+    libc_get_utmp(ctx, 0, &u);
     
     struct utmp *p = getutline(&u);
 
-    return js_obj_push(ctx, __set_utmp, p), 1;
+    return js_obj_push(ctx, libc_set_utmp, p), 1;
 }
 
 JS_PARAM(pututline, 1);
@@ -5268,11 +5268,11 @@ duke_pututline(duk_context *ctx)
 {
     struct utmp u;
 
-    __get_utmp(ctx, 0, &u);
+    libc_get_utmp(ctx, 0, &u);
     
     struct utmp *p = pututline(&u);
 
-    return js_obj_push(ctx, __set_utmp, p), 1;
+    return js_obj_push(ctx, libc_set_utmp, p), 1;
 }
 
 JS_PARAM(utmpname, 1);
@@ -5292,7 +5292,7 @@ duke_updwtmp(duk_context *ctx)
 {
     struct utmp u;
     char *file = (char *)duk_require_string(ctx, 0);
-    __get_utmp(ctx, 1, &u);
+    libc_get_utmp(ctx, 1, &u);
     
     return updwtmp(file, &u), 0;
 }
@@ -5316,7 +5316,7 @@ duke_login(duk_context *ctx)
 {
     struct utmp u;
 
-    __get_utmp(ctx, 0, &u);
+    libc_get_utmp(ctx, 0, &u);
 
     return login(&u), 0;
 }
@@ -5353,7 +5353,7 @@ duke_getpwuid(duk_context *ctx)
     
     struct passwd *p = getpwuid(uid);
 
-    return js_obj_push(ctx, __set_passwd, p), 1;
+    return js_obj_push(ctx, libc_set_passwd, p), 1;
 }
 
 JS_PARAM(getpwnam, 1);
@@ -5364,7 +5364,7 @@ duke_getpwnam(duk_context *ctx)
     
     struct passwd *p = getpwnam(name);
 
-    return js_obj_push(ctx, __set_passwd, p), 1;
+    return js_obj_push(ctx, libc_set_passwd, p), 1;
 }
 
 #if js_LIBC_PWENT
@@ -5377,7 +5377,7 @@ duke_fgetpwent(duk_context *ctx)
     
     struct passwd *p = fgetpwent(f);
 
-    return js_obj_push(ctx, __set_passwd, p), 1;
+    return js_obj_push(ctx, libc_set_passwd, p), 1;
 }
 
 JS_PARAM(setpwent, 0);
@@ -5393,7 +5393,7 @@ duke_getpwent(duk_context *ctx)
 {
     struct passwd *p = getpwent();
 
-    return js_obj_push(ctx, __set_passwd, p), 1;
+    return js_obj_push(ctx, libc_set_passwd, p), 1;
 }
 
 JS_PARAM(endpwent, 0);
@@ -5410,7 +5410,7 @@ duke_putpwent(duk_context *ctx)
 {
     struct passwd u;
     
-    __get_passwd(ctx, 0, &u);
+    libc_get_passwd(ctx, 0, &u);
     STREAM f = (STREAM)duk_require_pointer(ctx, 1);
     
     int err = putpwent(&u, f);
@@ -5429,7 +5429,7 @@ duke_getgrgid(duk_context *ctx)
     
     struct group *p = getgrgid(gid);
 
-    return js_obj_push(ctx, __set_group, p), 1;
+    return js_obj_push(ctx, libc_set_group, p), 1;
 }
 
 JS_PARAM(getgrnam, 1);
@@ -5440,7 +5440,7 @@ duke_getgrnam(duk_context *ctx)
     
     struct group *p = getgrnam(name);
 
-    return js_obj_push(ctx, __set_group, p), 1;
+    return js_obj_push(ctx, libc_set_group, p), 1;
 }
 
 JS_PARAM(fgetgrent, 1);
@@ -5451,7 +5451,7 @@ duke_fgetgrent(duk_context *ctx)
     
     struct group *p = fgetgrent(f);
 
-    return js_obj_push(ctx, __set_group, p), 1;
+    return js_obj_push(ctx, libc_set_group, p), 1;
 }
 
 JS_PARAM(setgrent, 0);
@@ -5467,7 +5467,7 @@ duke_getgrent(duk_context *ctx)
 {
     struct group *p = getgrent();
 
-    return js_obj_push(ctx, __set_group, p), 1;
+    return js_obj_push(ctx, libc_set_group, p), 1;
 }
 
 JS_PARAM(endgrent, 0);
@@ -5592,7 +5592,7 @@ duke_uname(duk_context *ctx)
 
         duk_push_null(ctx);
     } else {
-        js_obj_push(ctx, __set_utsname, &name);
+        js_obj_push(ctx, libc_set_utsname, &name);
     }
 
     return 1;
@@ -5620,7 +5620,7 @@ duke_getfsent(duk_context *ctx)
 {
     struct fstab *p = getfsent();
 
-    return js_obj_push(ctx, __set_fstab, p), 1;
+    return js_obj_push(ctx, libc_set_fstab, p), 1;
 }
 
 JS_PARAM(getfsspec, 1);
@@ -5631,7 +5631,7 @@ duke_getfsspec(duk_context *ctx)
     
     struct fstab *p = getfsspec(name);
 
-    return js_obj_push(ctx, __set_fstab, p), 1;
+    return js_obj_push(ctx, libc_set_fstab, p), 1;
 }
 
 JS_PARAM(getfsfile, 1);
@@ -5642,7 +5642,7 @@ duke_getfsfile(duk_context *ctx)
     
     struct fstab *p = getfsfile(name);
 
-    return js_obj_push(ctx, __set_fstab, p), 1;
+    return js_obj_push(ctx, libc_set_fstab, p), 1;
 }
 #endif
 
@@ -5675,7 +5675,7 @@ duke_getmntent(duk_context *ctx)
     
     struct mntent *p = getmntent(f);
 
-    return js_obj_push(ctx, __set_mntent, p), 1;
+    return js_obj_push(ctx, libc_set_mntent, p), 1;
 }
 
 JS_PARAM(addmntent, 2);
@@ -5685,7 +5685,7 @@ duke_addmntent(duk_context *ctx)
     struct mntent m;
     
     STREAM f = duk_require_pointer(ctx, 0);
-    __get_mntent(ctx, 1, &m);
+    libc_get_mntent(ctx, 1, &m);
     
     int err = addmntent(f, &m);
 
@@ -5698,7 +5698,7 @@ duke_hasmntopt(duk_context *ctx)
 {
     struct mntent m;
     
-    __get_mntent(ctx, 0, &m);
+    libc_get_mntent(ctx, 0, &m);
     char *mnt = (char *)duk_require_string(ctx, 1);
     
     char *p = hasmntopt(&m, mnt);

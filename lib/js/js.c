@@ -738,4 +738,250 @@ libc_set_sockaddr(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
+int
+libc_get_linger(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct linger *p = (struct linger *)obj; os_objzero(p);
+    
+    p->l_onoff   = js_get_obj_bool(ctx, idx, "onoff");
+    p->l_linger  = js_get_obj_uint(ctx, idx, "linger");
+
+    return 0;
+}
+
+int
+libc_set_linger(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct linger *p = (struct linger *)obj;
+    
+    js_set_obj_bool(ctx, idx, "onoff", p->l_onoff);
+    js_set_obj_uint(ctx, idx, "linger", p->l_linger);
+
+    return 0;
+}
+
+int
+libc_get_dirent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct dirent *p = (struct dirent *)obj; os_objzero(p);
+    
+    p->d_type   = js_get_obj_int(ctx, idx, "type");
+    p->d_ino    = js_get_obj_int(ctx, idx, "ino");
+    p->d_off    = js_get_obj_uint(ctx, idx, "off");
+    js_copy_obj_string(ctx, idx, "name", p->d_name, sizeof(p->d_name));
+
+    return 0;
+}
+
+int
+libc_set_dirent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct dirent *p = (struct dirent *)obj;
+    
+    js_set_obj_int(ctx, idx, "type", p->d_type);
+    js_set_obj_int(ctx, idx, "ino", p->d_ino);
+    js_set_obj_uint(ctx, idx, "off", p->d_off);
+    js_set_obj_string(ctx, idx, "name", p->d_name);
+
+    return 0;
+}
+
+int
+libc_get_stat(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct stat *p = (struct stat *)obj; os_objzero(p);
+    
+    p->st_dev   = js_get_obj_uint(ctx, idx, "dev");
+    p->st_rdev  = js_get_obj_uint(ctx, idx, "rdev");
+    p->st_ino   = js_get_obj_uint(ctx, idx, "ino");
+    p->st_mode  = js_get_obj_uint(ctx, idx, "mode");
+    p->st_nlink = js_get_obj_uint(ctx, idx, "nlink");
+    p->st_uid   = js_get_obj_uint(ctx, idx, "uid");
+    p->st_gid   = js_get_obj_uint(ctx, idx, "gid");
+    p->st_atime = js_get_obj_uint(ctx, idx, "atime");
+    p->st_mtime = js_get_obj_uint(ctx, idx, "mtime");
+    p->st_ctime = js_get_obj_uint(ctx, idx, "ctime");
+    p->st_size  = js_get_obj_int(ctx, idx, "size");
+    p->st_blksize = js_get_obj_int(ctx, idx, "blksize");
+    p->st_blocks= js_get_obj_int(ctx, idx, "blocks");
+
+    return 0;
+}
+
+int
+libc_set_stat(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct stat *p = (struct stat *)obj;
+    
+    js_set_obj_uint(ctx, idx, "dev", p->st_dev);
+    js_set_obj_uint(ctx, idx, "rdev", p->st_rdev);
+    js_set_obj_uint(ctx, idx, "ino", p->st_ino);
+    js_set_obj_uint(ctx, idx, "mode", p->st_mode);
+    js_set_obj_uint(ctx, idx, "nlink", p->st_nlink);
+    js_set_obj_uint(ctx, idx, "uid", p->st_uid);
+    js_set_obj_uint(ctx, idx, "gid", p->st_gid);
+    js_set_obj_uint(ctx, idx, "atime", p->st_atime);
+    js_set_obj_uint(ctx, idx, "mtime", p->st_mtime);
+    js_set_obj_uint(ctx, idx, "ctime", p->st_ctime);
+    js_set_obj_int(ctx, idx, "size", p->st_size);
+    js_set_obj_int(ctx, idx, "blksize", p->st_blksize);
+    js_set_obj_int(ctx, idx, "blocks", p->st_blocks);
+
+    return 0;
+}
+
+int
+libc_get_if_nameindex(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct if_nameindex *p = (struct if_nameindex *)obj; os_objzero(p);
+    
+    p->if_index = js_get_obj_uint(ctx, idx, "index");
+    p->if_name  = js_get_obj_string(ctx, idx, "name", NULL);
+
+    return 0;
+}
+
+int
+libc_set_if_nameindex(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct if_nameindex *p = (struct if_nameindex *)obj;
+    
+    js_set_obj_uint(ctx, idx, "index", p->if_index);
+    js_set_obj_string(ctx, idx, "name", p->if_name);
+
+    return 0;
+}
+
+int
+libc_set_hostent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct hostent *p = (struct hostent *)obj;
+    int i;
+    
+    js_set_obj_string(ctx, idx, "name", p->h_name);
+    js_set_obj_int(ctx, idx, "addrtype", p->h_addrtype);
+    js_set_obj_int(ctx, idx, "length", p->h_length);
+    js_set_obj_uint(ctx, idx, "addr", *(uint32 *)(p->h_addr));
+    
+    duk_push_object(ctx);
+    for (i=0; p->h_aliases[i]; i++) {
+        js_set_array_string(ctx, -1, i, p->h_aliases[i]);
+    }
+    duk_put_prop_string(ctx, idx, "aliases");
+    
+    duk_push_object(ctx);
+    for (i=0; p->h_addr_list[0]; i++) {
+        js_set_array_uint(ctx, -1, i, *(uint32 *)p->h_addr_list[i]);
+    }
+    duk_put_prop_string(ctx, idx, "addr_list");
+
+    return 0;
+}
+
+int
+libc_set_servent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct servent *p = (struct servent *)obj;
+    char *a;
+    int i;
+    
+    js_set_obj_string(ctx, idx, "name", p->s_name);
+    js_set_obj_int(ctx, idx, "port", p->s_port);
+    js_set_obj_string(ctx, idx, "proto", p->s_proto);
+    
+    duk_push_object(ctx);
+    for (i=0, a=p->s_aliases[0]; a; i++, a++) {
+        js_set_array_string(ctx, -1, i, a);
+    }
+    duk_put_prop_string(ctx, idx, "aliases");
+
+    return 0;
+}
+
+int
+libc_set_protoent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct protoent *p = (struct protoent *)obj;
+    char *a;
+    int i;
+    
+    js_set_obj_string(ctx, idx, "name", p->p_name);
+    js_set_obj_int(ctx, idx, "proto", p->p_proto);
+    
+    duk_push_object(ctx);
+    for (i=0, a=p->p_aliases[0];a; i++, a++) {
+        js_set_array_string(ctx, -1, i, a);
+    }
+    duk_put_prop_string(ctx, idx, "aliases");
+
+    return 0;
+}
+
+int
+libc_set_netent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct netent *p = (struct netent *)obj;
+    int i;
+        
+    js_set_obj_string(ctx, idx, "n_name", p->n_name);
+    js_set_obj_int(ctx, idx, "n_addrtype", p->n_addrtype);
+    js_set_obj_int(ctx, idx, "n_net", p->n_net);
+
+    duk_push_object(ctx);
+    for (i=0; p->n_aliases[i]; i++) {
+        js_set_array_string(ctx, -1, i, p->n_aliases[i]);
+    }
+    duk_put_prop_string(ctx, idx, "n_aliases");
+
+    return 0;
+}
+
+int
+libc_get_utimbuf(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct utimbuf *p = (struct utimbuf *)obj; os_objzero(p);
+    
+    p->actime   = js_get_obj_uint(ctx, idx, "actime");
+    p->modtime  = js_get_obj_uint(ctx, idx, "modtime");
+
+    return 0;
+}
+
+int
+libc_set_utimbuf(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct utimbuf *p = (struct utimbuf *)obj;
+    
+    js_set_obj_uint(ctx, idx, "actime", p->actime);
+    js_set_obj_uint(ctx, idx, "modtime", p->modtime);
+
+    return 0;
+}
+
+int
+libc_get_timeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct timeval *p = (struct timeval *)obj; os_objzero(p);
+    
+    p->tv_sec   = js_get_obj_uint(ctx, idx, "sec");
+    p->tv_usec  = js_get_obj_uint(ctx, idx, "usec");
+
+    return 0;
+}
+
+static inline int
+libc_set_timeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct timeval *p = (struct timeval *)obj;
+    
+    js_set_obj_uint(ctx, idx, "sec", p->tv_sec);
+    js_set_obj_uint(ctx, idx, "usec", p->tv_usec);
+
+    return 0;
+}
+
+
+
+
+
 /******************************************************************************/
