@@ -44,7 +44,7 @@ __main(int argc, char *argv[])
     for (i=0; i<os_count_of(pkt); i++) {
         for (level=Z_BEST_SPEED; level<=Z_BEST_COMPRESSION; level++) {
             unsigned long output_len = sizeof(output);
-            err = compress2(output, &output_len, pkt[i].pkt, pkt[i].len, level);
+            err = compress2(output, &output_len, (const Bytef *)pkt[i].pkt, pkt[i].len, level);
 
             os_println("index:%d, input:%d, level:%d, output:%lu",
                 i,
