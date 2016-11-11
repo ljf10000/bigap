@@ -126,7 +126,9 @@
 
 #ifndef ntohll
 #if __BYTE_ORDER==__LITTLE_ENDIAN
-#   define ntohll(_val)         ((uint64)htonl(val) << 32) + htonl((val) >> 32)
+#   define ntohll_high(_val)    (((uint64)htonl(val)) << 32)
+#   define ntohll_low(_val)     ((uint64)htonl((val) >> 32))
+#   define ntohll(_val)         (ntohll_high(_val) + ntohll_low(_val))
 #elif __BYTE_ORDER==__BIG_ENDIAN
 #   define ntohll(_val)         (_val)
 #endif
