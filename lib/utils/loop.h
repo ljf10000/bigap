@@ -47,8 +47,6 @@ typedef int loop_normal_f(struct loop_watcher *watcher, time_t now);
 typedef int loop_son_f(struct loop_watcher *watcher, time_t now);
 typedef int loop_inotify_f(struct loop_watcher *watcher, struct inotify_event *ev, time_t now);
 
-struct loop_s;
-
 typedef struct loop_watcher {
     int fd;
     int father;
@@ -68,7 +66,7 @@ typedef struct loop_watcher {
     void *user;
 } loop_watcher_t;
 
-typedef struct loop_s {
+typedef struct {
     int efd;
     time_t now;
     
@@ -410,6 +408,8 @@ __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, void *user)
     return 0;
 }
 
+typedef void loop_watcher_handle_f(loop_t *loop, loop_watcher_t *watcher, time_t now);
+
 static inline void
 __loop_inotify_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
@@ -427,7 +427,7 @@ __loop_inotify_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     while(current<len) {
         ev = (struct inotify_event *)(buf + current);
         
-        (*watcher->cb.inotify)(watcher, ev);
+        (*watcher->cb.inotify)(watcher, ev, now);
 
         current += sizeof(struct inotify_event) + ev->len;
     }
@@ -442,7 +442,7 @@ __loop_signal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 
     int len = read(watcher->fd, &siginfo, sizeof(siginfo));
     if (len==sizeof(siginfo)) {
-        (*watcher->cb.signal)(watcher, &siginfo);
+        (*watcher->cb.signal)(watcher, &siginfo, now);
     }
 }
 
@@ -460,7 +460,7 @@ __loop_timer_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 static inline void
 __loop_normal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
-    (*watcher->cb.normal)(watcher);
+    (*watcher->cb.normal)(watcher, now);
 }
 
 static inline void
@@ -480,7 +480,7 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 static inline int
 __loop_handle_ev(loop_t *loop, struct epoll_event *ev, time_t now)
 {
-    static void (*map[LOOP_TYPE_END])(loop_watcher_t *watcher) = {
+    static loop_watcher_handle_f *map[LOOP_TYPE_END] = {
         [LOOP_TYPE_INOTIFY] = __loop_inotify_handle,
         [LOOP_TYPE_SIGNAL]  = __loop_signal_handle,
         [LOOP_TYPE_TIMER]   = __loop_timer_handle,
