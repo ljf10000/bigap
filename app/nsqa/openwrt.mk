@@ -2,6 +2,7 @@
 OBJS=nsqa.o \
 	cfg.o \
 	cli.o \
+	fsm.o \
 	instance.o \
 	loop.o \
 	msg.o \
