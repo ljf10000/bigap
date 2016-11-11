@@ -14,5 +14,5 @@ static const dukc_func_entry_t libcurl_func[] = {
 static void
 libcurlf_register(duk_context *ctx, duk_idx_t idx)
 {
-    duk_put_functions(ctx, idx, libcurl_func);
+    js_put_functions(ctx, idx, libcurl_func);
 }

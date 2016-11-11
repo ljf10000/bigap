@@ -16,6 +16,7 @@ lib-$(CONFIG_JLOGGER)	+= app/jlogger/jlogger.o
 lib-$(CONFIG_JLOGD)    	+= app/jlogd/jlogd.o
 lib-$(CONFIG_JS)    	+= app/duktape/module/main.o
 lib-$(CONFIG_JS)    	+= lib/js/duktape.o
+lib-$(CONFIG_JS)    	+= lib/js/js.o
 lib-$(CONFIG_JS)    	+= lib/js/global.o
 lib-$(CONFIG_JS)    	+= lib/js/my.o
 lib-$(CONFIG_JS)    	+= lib/js/libc.o

@@ -28,5 +28,5 @@ static const dukc_func_entry_t libbz_func[] = {
 static void
 libbzf_register(duk_context *ctx, duk_idx_t idx)
 {
-    duk_put_functions(ctx, idx, libbz_func);
+    js_put_functions(ctx, idx, libbz_func);
 }

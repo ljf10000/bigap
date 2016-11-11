@@ -626,5 +626,5 @@ static const dukc_func_entry_t libc_func[] = {
 static void
 libcf_register(duk_context *ctx, duk_idx_t idx)
 {
-    duk_put_functions(ctx, idx, libc_func);
+    js_put_functions(ctx, idx, libc_func);
 }

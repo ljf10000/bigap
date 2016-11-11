@@ -126,14 +126,14 @@ static const dukc_func_entry_t global_func[] = {
 int js_global_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
-	    duk_put_functions(ctx, -1, global_func);
+	    js_put_functions(ctx, -1, global_func);
 	duk_pop(ctx);
 
 	debug_ok("register global ok.");
 	
 	duk_push_global_object(ctx);
     	duk_get_prop_string(ctx, -1, js_DUKTAPE);
-    	    duk_put_functions(ctx, -1, duktape_func);
+    	    js_put_functions(ctx, -1, duktape_func);
     	duk_pop(ctx);
 	duk_pop(ctx);
 

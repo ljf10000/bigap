@@ -834,7 +834,7 @@ int js_my_register(duk_context *ctx)
     
     duk_push_global_object(ctx);
         duk_push_object(ctx);
-            duk_put_functions(ctx, -1, my_func);
+            js_put_functions(ctx, -1, my_func);
             duk_put_number_list(ctx, -1, my_static_number);
             duk_put_number_list(ctx, -1, my_dynamic_number);
             
