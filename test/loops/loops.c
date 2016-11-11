@@ -42,7 +42,7 @@ static int timer_cb(loop_watcher_t *watcher, time_t now)
     return 0;
 }
 
-static int signal_cb(loop_watcher_t *watcher, struct signalfd_siginfo *p)
+static int signal_cb(loop_watcher_t *watcher, struct signalfd_siginfo *p, time_t now)
 {
     os_println( "signo=%d, "
                 "errno=%d, "
@@ -72,7 +72,7 @@ static int signal_cb(loop_watcher_t *watcher, struct signalfd_siginfo *p)
     return 0;
 }
 
-static int normal_cb(loop_watcher_t *watcher)
+static int normal_cb(loop_watcher_t *watcher, time_t now)
 {
     int err, len;
     os_sockaddr_t addr;
@@ -98,7 +98,7 @@ static int normal_cb(loop_watcher_t *watcher)
     return 0;
 }
 
-static int son_cb(loop_watcher_t *watcher)
+static int son_cb(loop_watcher_t *watcher, time_t now)
 {
     int err, len;
 

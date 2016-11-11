@@ -155,7 +155,7 @@ static cli_table_t cli_table[] = {
 };
 
 static int
-nsq_cli(loop_watcher_t *watcher)
+nsq_cli(loop_watcher_t *watcher, time_t now)
 {
     int err;
     

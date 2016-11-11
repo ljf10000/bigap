@@ -543,7 +543,7 @@ duke_loop(duk_context *ctx)
         __js_seterrno(ctx, -EFORMAT); goto error;
     }
 
-    int __inotify_handle(loop_watcher_t *watcher, struct inotify_event *ev)
+    int __inotify_handle(loop_watcher_t *watcher, struct inotify_event *ev, time_t now)
     {
         int push_inotify(void) {
             return js_obj_push(ctx, __set_inotify_event, ev), 1;
@@ -554,7 +554,7 @@ duke_loop(duk_context *ctx)
         return 0;
     }
 
-    int __signal_handle(loop_watcher_t *watcher, struct signalfd_siginfo *siginfo)
+    int __signal_handle(loop_watcher_t *watcher, struct signalfd_siginfo *siginfo, time_t now)
     {
         int push_signal(void) {
             return js_obj_push(ctx, __set_signalfd_siginfo, siginfo), 1;
@@ -576,7 +576,7 @@ duke_loop(duk_context *ctx)
         return 0;
     }
 
-    int __normal_handle(loop_watcher_t *watcher)
+    int __normal_handle(loop_watcher_t *watcher, time_t now)
     {
         int push_normal(void) {
             return js_obj_push(ctx, __set_watcher_event, watcher), 1;
@@ -587,7 +587,7 @@ duke_loop(duk_context *ctx)
         return 0;
     }
 
-    int __father_handle(loop_watcher_t *watcher)
+    int __father_handle(loop_watcher_t *watcher, time_t now)
     {
         int push_father(void) {
             return js_obj_push(ctx, __set_watcher_event, watcher), 1;

@@ -42,17 +42,19 @@ typedef struct {
 } loop_inotify_t;
 
 typedef int loop_timer_f(struct loop_watcher *watcher, time_t now);
-typedef int loop_signal_f(struct loop_watcher *watcher, struct signalfd_siginfo *siginfo);
-typedef int loop_normal_f(struct loop_watcher *watcher);
-typedef int loop_son_f(struct loop_watcher *watcher);
-typedef int loop_inotify_f(struct loop_watcher *watcher, struct inotify_event *ev);
+typedef int loop_signal_f(struct loop_watcher *watcher, struct signalfd_siginfo *siginfo, time_t now);
+typedef int loop_normal_f(struct loop_watcher *watcher, time_t now);
+typedef int loop_son_f(struct loop_watcher *watcher, time_t now);
+typedef int loop_inotify_f(struct loop_watcher *watcher, struct inotify_event *ev, time_t now);
+
+struct loop_s;
 
 typedef struct loop_watcher {
     int fd;
     int father;
     uint16 type;
     uint16 flag;
-
+    
     union {
         loop_timer_f    *timer;
         loop_signal_f   *signal;
@@ -66,19 +68,9 @@ typedef struct loop_watcher {
     void *user;
 } loop_watcher_t;
 
-static inline void
-__loop_watcher_initer(loop_watcher_t *watcher, int fd, int type, void *cb, void *user)
-{
-    watcher->fd     = fd;
-    watcher->father = INVALID_FD;
-    watcher->type   = type;
-    watcher->flag   = 0;
-    watcher->cb.cb  = cb;
-    watcher->user   = user;
-}
-
-typedef struct {
+typedef struct loop_s {
     int efd;
+    time_t now;
     
     autoarray_t watcher;
 
@@ -259,8 +251,13 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb, void *user)
         
         return NULL;
     }
-
-    __loop_watcher_initer(watcher, fd, type, cb, user);
+    
+    watcher->fd     = fd;
+    watcher->father = INVALID_FD;
+    watcher->type   = type;
+    watcher->flag   = 0;
+    watcher->cb.cb  = cb;
+    watcher->user   = user;
     
     err = __loop_fd_add(loop, fd);
     if (err<0) {
@@ -414,7 +411,7 @@ __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, void *user)
 }
 
 static inline void
-__loop_inotify_handle(loop_watcher_t *watcher)
+__loop_inotify_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     char buf[1+OS_PAGE_LEN] = {0};
     struct inotify_event *ev;
@@ -437,7 +434,7 @@ __loop_inotify_handle(loop_watcher_t *watcher)
 }
 
 static inline void
-__loop_signal_handle(loop_watcher_t *watcher)
+__loop_signal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     struct signalfd_siginfo siginfo;
 
@@ -450,10 +447,9 @@ __loop_signal_handle(loop_watcher_t *watcher)
 }
 
 static inline void
-__loop_timer_handle(loop_watcher_t *watcher)
+__loop_timer_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     uint32 times = tm_fd_read(watcher->fd);
-    time_t now = time(NULL);
     int i;
 
     for (i=0; i<times; i++) {
@@ -462,13 +458,13 @@ __loop_timer_handle(loop_watcher_t *watcher)
 }
 
 static inline void
-__loop_normal_handle(loop_watcher_t *watcher)
+__loop_normal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     (*watcher->cb.normal)(watcher);
 }
 
 static inline void
-__loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
+__loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     int fd;
     os_sockaddr_t addr;
@@ -482,13 +478,14 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
 }
 
 static inline int
-__loop_handle_ev(loop_t *loop, struct epoll_event *ev)
+__loop_handle_ev(loop_t *loop, struct epoll_event *ev, time_t now)
 {
     static void (*map[LOOP_TYPE_END])(loop_watcher_t *watcher) = {
         [LOOP_TYPE_INOTIFY] = __loop_inotify_handle,
         [LOOP_TYPE_SIGNAL]  = __loop_signal_handle,
         [LOOP_TYPE_TIMER]   = __loop_timer_handle,
         [LOOP_TYPE_NORMAL]  = __loop_normal_handle,
+        [LOOP_TYPE_FATHER]  = __loop_father_handle,
         [LOOP_TYPE_SON]     = __loop_normal_handle,
     };
 
@@ -499,11 +496,8 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev)
     else if (false==is_good_loop_type(watcher->type)) {
         return -EBADFD;
     }
-    else if (LOOP_TYPE_FATHER==watcher->type) {
-        __loop_father_handle(loop, watcher);
-    }
     else {
-        (*map[watcher->type])(watcher);
+        (*map[watcher->type])(loop, watcher, now);
     }
     
     return 0;
@@ -523,9 +517,10 @@ __loop_handle(loop_t *loop)
             return -errno;
         }
     }
-
+    time_t now = time(NULL);
+    
     for (i=0; i<nfds; i++) {
-        __loop_handle_ev(loop, &evs[i]);
+        __loop_handle_ev(loop, &evs[i], now);
     }
 
     return 0;
