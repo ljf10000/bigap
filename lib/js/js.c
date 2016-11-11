@@ -1002,6 +1002,407 @@ libc_set_itimerval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     return 0;
 }
 
+int
+libc_get_timespec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct timespec *p = (struct timespec *)obj; os_objzero(p);
+    
+    p->tv_sec   = js_get_obj_uint(ctx, idx, "sec");
+    p->tv_nsec  = js_get_obj_uint(ctx, idx, "nsec");
+
+    return 0;
+}
+
+int
+libc_set_timespec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct timespec *p = (struct timespec *)obj;
+    
+    js_set_obj_uint(ctx, idx, "sec", p->tv_sec);
+    js_set_obj_uint(ctx, idx, "nsec", p->tv_nsec);
+
+    return 0;
+}
+
+int
+libc_get_itimerspec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct itimerspec *p = (struct itimerspec *)obj; os_objzero(p);
+
+    js_obj_get(ctx, idx, libc_get_timespec, &p->it_interval, "interval");
+    js_obj_get(ctx, idx, libc_get_timespec, &p->it_value, "value");
+
+    return 0;
+}
+
+int
+libc_set_itimerspec(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct itimerspec *p = (struct itimerspec *)obj;
+
+    js_obj_set(ctx, idx, libc_set_timespec, &p->it_interval, "interval");
+    js_obj_set(ctx, idx, libc_set_timespec, &p->it_value, "value");
+
+    return 0;
+}
+
+#if js_LIBC_LINUX
+int
+libc_get_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct signalfd_siginfo *p = (struct signalfd_siginfo *)obj; os_objzero(p);
+    
+    p->ssi_signo    = js_get_obj_uint(ctx, idx, "signo");
+    p->ssi_errno    = js_get_obj_int(ctx, idx, "errno");
+    p->ssi_code     = js_get_obj_int(ctx, idx, "code");
+    p->ssi_pid      = js_get_obj_uint(ctx, idx, "pid");
+    p->ssi_uid      = js_get_obj_uint(ctx, idx, "uid");
+    p->ssi_fd       = js_get_obj_int(ctx, idx, "fd");
+    p->ssi_tid      = js_get_obj_uint(ctx, idx, "tid");
+    p->ssi_band     = js_get_obj_uint(ctx, idx, "band");
+    p->ssi_overrun  = js_get_obj_uint(ctx, idx, "overrun");
+    p->ssi_trapno   = js_get_obj_uint(ctx, idx, "trapno");
+    p->ssi_status   = js_get_obj_int(ctx, idx, "status");
+    p->ssi_int      = js_get_obj_int(ctx, idx, "int");
+
+    return 0;
+}
+
+int
+libc_set_signalfd_siginfo(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct signalfd_siginfo *p = (struct signalfd_siginfo *)obj;
+    
+    js_set_obj_uint(ctx, idx, "signo", p->ssi_signo);
+    js_set_obj_int(ctx, idx, "errno", p->ssi_errno);
+    js_set_obj_int(ctx, idx, "code", p->ssi_code);
+    js_set_obj_uint(ctx, idx, "pid", p->ssi_pid);
+    js_set_obj_uint(ctx, idx, "uid", p->ssi_uid);
+    js_set_obj_int(ctx, idx, "fd", p->ssi_fd);
+    js_set_obj_uint(ctx, idx, "tid", p->ssi_tid);
+    js_set_obj_uint(ctx, idx, "band", p->ssi_band);
+    js_set_obj_uint(ctx, idx, "overrun", p->ssi_overrun);
+    js_set_obj_uint(ctx, idx, "trapno", p->ssi_trapno);
+    js_set_obj_int(ctx, idx, "status", p->ssi_status);
+    js_set_obj_int(ctx, idx, "int", p->ssi_int);
+
+    return 0;
+}
+
+int
+libc_get_watcher_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    loop_watcher_t *p = (loop_watcher_t *)obj; os_objzero(p);
+
+    p->fd       = js_get_obj_int(ctx, idx, "fd");
+    p->father   = js_get_obj_int(ctx, idx, "father");
+    p->type     = js_get_obj_int(ctx, idx, "type");
+    p->flag     = js_get_obj_int(ctx, idx, "flag");
+
+    return 0;
+}
+
+int
+libc_set_watcher_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    loop_watcher_t *p = (loop_watcher_t *)obj; os_objzero(p);
+
+    js_set_obj_int(ctx, idx, "fd",      p->fd);
+    js_set_obj_int(ctx, idx, "father",  p->father);
+    js_set_obj_int(ctx, idx, "type",    p->type);
+    js_set_obj_int(ctx, idx, "flag",    p->flag);
+
+    return 0;
+}
+
+int
+libc_get_epoll_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct epoll_event *p = (struct epoll_event *)obj; os_objzero(p);
+    
+    p->events   = js_get_obj_uint(ctx, idx, "events");
+    p->data.fd  = js_get_obj_int(ctx, idx, "fd");
+
+    return 0;
+}
+
+int
+libc_set_epoll_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct epoll_event *p = (struct epoll_event *)obj;
+    
+    js_set_obj_uint(ctx, idx, "events", p->events);
+    js_set_obj_int(ctx, idx, "fd", p->data.fd);
+
+    return 0;
+}
+
+int
+libc_get_inotify_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct inotify_event *p = (struct inotify_event *)obj; os_objzero(p);
+    
+    p->wd   = js_get_obj_int(ctx, idx, "wd");
+    p->mask = js_get_obj_uint(ctx, idx, "mask");
+    p->cookie = js_get_obj_uint(ctx, idx, "cookie");
+    js_copy_obj_string(ctx, idx, "name", p->name, 1+NAME_MAX);
+    p->len  = os_strlen(p->name);
+
+    return 0;
+}
+
+int
+libc_set_inotify_event(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct inotify_event *p = (struct inotify_event *)obj;
+    
+    js_set_obj_int(ctx, idx, "wd", p->wd);
+    js_set_obj_uint(ctx, idx, "mask", p->mask);
+    js_set_obj_uint(ctx, idx, "cookie", p->cookie);
+    js_set_obj_string(ctx, idx, "name", p->name);
+
+    return 0;
+}
+#endif
+
+int
+libc_get_tms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct tms *p = (struct tms *)obj; os_objzero(p);
+    
+    p->tms_utime    = js_get_obj_uint(ctx, idx, "utime");
+    p->tms_stime    = js_get_obj_uint(ctx, idx, "stime");
+    p->tms_cutime   = js_get_obj_uint(ctx, idx, "cutime");
+    p->tms_cstime   = js_get_obj_uint(ctx, idx, "cstime");
+
+    return 0;
+}
+
+int
+libc_set_tms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct tms *p = (struct tms *)obj;
+    
+    js_set_obj_uint(ctx, idx, "utime", p->tms_utime);
+    js_set_obj_uint(ctx, idx, "stime", p->tms_stime);
+    js_set_obj_uint(ctx, idx, "cutime", p->tms_cutime);
+    js_set_obj_uint(ctx, idx, "cstime", p->tms_cstime);
+
+    return 0;
+}
+
+int
+libc_get_timezone(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct timezone *p = (struct timezone *)obj; os_objzero(p);
+    
+    p->tz_minuteswest   = js_get_obj_uint(ctx, idx, "minuteswest");
+    p->tz_dsttime       = js_get_obj_uint(ctx, idx, "dsttime");
+
+    return 0;
+}
+
+int
+libc_set_timezone(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct timezone *p = (struct timezone *)obj;
+    
+    js_set_obj_uint(ctx, idx, "minuteswest", p->tz_minuteswest);
+    js_set_obj_uint(ctx, idx, "dsttime", p->tz_dsttime);
+
+    return 0;
+}
+
+int
+libc_get_tm(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct tm *p = (struct tm *)obj; os_objzero(p);
+    
+    p->tm_sec   = js_get_obj_int(ctx, idx, "sec");
+    p->tm_min   = js_get_obj_int(ctx, idx, "min");
+    p->tm_hour  = js_get_obj_int(ctx, idx, "hour");
+    p->tm_mday  = js_get_obj_int(ctx, idx, "mday");
+    p->tm_mon   = js_get_obj_int(ctx, idx, "mon");
+    p->tm_wday  = js_get_obj_int(ctx, idx, "wday");
+    p->tm_yday  = js_get_obj_int(ctx, idx, "yday");
+    p->tm_isdst = js_get_obj_int(ctx, idx, "isdst");
+    p->tm_gmtoff= js_get_obj_int(ctx, idx, "gmtoff");
+    p->tm_zone  = js_get_obj_string(ctx, idx, "zone", NULL);
+
+    return 0;
+}
+
+int
+libc_set_tm(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct tm *p = (struct tm *)obj;
+    
+    js_set_obj_int(ctx, idx, "sec", p->tm_sec);
+    js_set_obj_int(ctx, idx, "min", p->tm_min);
+    js_set_obj_int(ctx, idx, "hour", p->tm_hour);
+    js_set_obj_int(ctx, idx, "mday", p->tm_mday);
+    js_set_obj_int(ctx, idx, "mon", p->tm_mon);
+    js_set_obj_int(ctx, idx, "wday", p->tm_wday);
+    js_set_obj_int(ctx, idx, "yday", p->tm_yday);
+    js_set_obj_int(ctx, idx, "isdst", p->tm_isdst);
+    js_set_obj_int(ctx, idx, "gmtoff", p->tm_gmtoff);
+    js_set_obj_string(ctx, idx, "zone", (char *)p->tm_zone);
+
+    return 0;
+}
+
+int
+libc_get_ntptimeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct ntptimeval *p = (struct ntptimeval *)obj; os_objzero(p);
+    
+    p->maxerror   = js_get_obj_int(ctx, idx, "maxerror");
+    p->esterror  = js_get_obj_int(ctx, idx, "esterror");
+
+    os_objzero(&p->time);
+
+    js_obj_get(ctx, idx, libc_get_timeval, &p->time, "time");
+
+    return 0;
+}
+
+int
+libc_set_ntptimeval(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct ntptimeval *p = (struct ntptimeval *)obj;
+    
+    js_set_obj_int(ctx, idx, "maxerror", p->maxerror);
+    js_set_obj_int(ctx, idx, "esterror", p->esterror);
+
+    js_obj_set(ctx, idx, libc_set_timeval, &p->time, "time");
+
+    return 0;
+}
+
+int
+libc_get_timex(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct timex *p = (struct timex *)obj; os_objzero(p);
+    
+    p->modes    = js_get_obj_uint(ctx, idx, "modes");
+    p->offset   = js_get_obj_int(ctx, idx, "offset");
+#if 0
+    p->frequency= js_get_obj_int(ctx, idx, "frequency");
+#endif
+    p->maxerror = js_get_obj_int(ctx, idx, "maxerror");
+    p->esterror = js_get_obj_int(ctx, idx, "esterror");
+    p->status   = js_get_obj_int(ctx, idx, "status");
+    p->constant = js_get_obj_int(ctx, idx, "constant");
+    p->precision= js_get_obj_int(ctx, idx, "precision");
+    p->tolerance= js_get_obj_int(ctx, idx, "tolerance");
+    p->tick     = js_get_obj_int(ctx, idx, "tick");
+    p->ppsfreq  = js_get_obj_int(ctx, idx, "ppsfreq");
+    p->jitter   = js_get_obj_int(ctx, idx, "jitter");
+    p->shift    = js_get_obj_int(ctx, idx, "shift");
+    p->stabil   = js_get_obj_int(ctx, idx, "stabil");
+    p->jitcnt   = js_get_obj_int(ctx, idx, "jitcnt");
+    p->calcnt   = js_get_obj_int(ctx, idx, "calcnt");
+    p->errcnt   = js_get_obj_int(ctx, idx, "errcnt");
+    p->stbcnt   = js_get_obj_int(ctx, idx, "stbcnt");
+
+    os_objzero(&p->time);
+
+    js_obj_get(ctx, idx, libc_get_timeval, &p->time, "time");
+
+    return 0;
+}
+
+int
+libc_set_timex(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct timex *p = (struct timex *)obj;
+    
+    js_set_obj_uint(ctx, idx, "modes", p->modes);
+    js_set_obj_int(ctx, idx, "offset", p->offset);
+#if 0
+    js_set_obj_int(ctx, idx, "frequency", p->frequency);
+#endif
+    js_set_obj_int(ctx, idx, "maxerror", p->maxerror);
+    js_set_obj_int(ctx, idx, "esterror", p->esterror);
+    js_set_obj_int(ctx, idx, "status", p->status);
+    js_set_obj_int(ctx, idx, "constant", p->constant);
+    js_set_obj_int(ctx, idx, "precision", p->precision);
+    js_set_obj_int(ctx, idx, "tolerance", p->tolerance);
+    js_set_obj_int(ctx, idx, "tick", p->tick);
+    js_set_obj_int(ctx, idx, "ppsfreq", p->ppsfreq);
+    js_set_obj_int(ctx, idx, "jitter", p->jitter);
+    js_set_obj_int(ctx, idx, "shift", p->shift);
+    js_set_obj_int(ctx, idx, "stabil", p->stabil);
+    js_set_obj_int(ctx, idx, "jitcnt", p->jitcnt);
+    js_set_obj_int(ctx, idx, "calcnt", p->calcnt);
+    js_set_obj_int(ctx, idx, "errcnt", p->errcnt);
+    js_set_obj_int(ctx, idx, "stbcnt", p->stbcnt);
+
+    js_obj_set(ctx, idx, libc_set_timeval, &p->time, "time");
+
+    return 0;
+}
+
+int
+libc_get_rusage(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct rusage *p = (struct rusage *)obj; os_objzero(p);
+    
+    p->ru_maxrss = js_get_obj_int(ctx, idx, "maxrss");
+    p->ru_ixrss  = js_get_obj_int(ctx, idx, "ixrss");
+    p->ru_idrss  = js_get_obj_int(ctx, idx, "idrss");
+    p->ru_isrss  = js_get_obj_int(ctx, idx, "isrss");
+    p->ru_minflt = js_get_obj_int(ctx, idx, "minflt");
+    p->ru_majflt = js_get_obj_int(ctx, idx, "majflt");
+    p->ru_nswap  = js_get_obj_int(ctx, idx, "nswap");
+    p->ru_inblock= js_get_obj_int(ctx, idx, "inblock");
+    p->ru_oublock= js_get_obj_int(ctx, idx, "oublock");
+    p->ru_msgsnd = js_get_obj_int(ctx, idx, "msgsnd");
+    p->ru_msgrcv = js_get_obj_int(ctx, idx, "msgrcv");
+    p->ru_nsignals = js_get_obj_int(ctx, idx, "nsignals");
+    p->ru_nvcsw  = js_get_obj_int(ctx, idx, "nvcsw");
+    p->ru_nivcsw = js_get_obj_int(ctx, idx, "nivcsw");
+
+    os_objzero(&p->ru_utime);
+    os_objzero(&p->ru_stime);
+
+    js_obj_get(ctx, idx, libc_get_timeval, &p->ru_utime, "utime");
+    js_obj_get(ctx, idx, libc_get_timeval, &p->ru_stime, "stime");
+
+    return 0;
+}
+
+int
+libc_set_rusage(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct rusage *p = (struct rusage *)obj;
+    
+    js_set_obj_int(ctx, idx, "maxrss", p->ru_maxrss);
+    js_set_obj_int(ctx, idx, "ixrss", p->ru_ixrss);
+    js_set_obj_int(ctx, idx, "idrss", p->ru_idrss);
+    js_set_obj_int(ctx, idx, "isrss", p->ru_isrss);
+    js_set_obj_int(ctx, idx, "minflt", p->ru_minflt);
+    js_set_obj_int(ctx, idx, "majflt", p->ru_majflt);
+    js_set_obj_int(ctx, idx, "nswap", p->ru_nswap);
+    js_set_obj_int(ctx, idx, "inblock", p->ru_inblock);
+    js_set_obj_int(ctx, idx, "oublock", p->ru_oublock);
+    js_set_obj_int(ctx, idx, "msgsnd", p->ru_msgsnd);
+    js_set_obj_int(ctx, idx, "msgrcv", p->ru_msgrcv);
+    js_set_obj_int(ctx, idx, "nsignals", p->ru_nsignals);
+    js_set_obj_int(ctx, idx, "nvcsw", p->ru_nvcsw);
+    js_set_obj_int(ctx, idx, "nivcsw", p->ru_nivcsw);
+    
+    js_obj_set(ctx, idx, libc_set_timeval, &p->ru_utime, "utime");
+    js_obj_set(ctx, idx, libc_set_timeval, &p->ru_stime, "stime");
+
+    return 0;
+}
+
+
+
+
+
+
 
 
 /******************************************************************************/
