@@ -42,12 +42,13 @@
 "}\n" \
 "\n" \
 "const\n" \
-"__js__        = Duktape,\n" \
-"BIG_ENDIAN    = (1===__my__.BIG_ENDIAN),\n" \
-"LITTLE_ENDIAN = (1===__my__.LITTLE_ENDIAN),\n" \
-"OS_BITS       = 8*__my__.SIZEOF_POINTER,\n" \
-"UNKNOW_STRING = 'unknow',\n" \
-"UNKNOW_NUMBER = 0,\n" \
+"__js__          = Duktape,\n" \
+"Device          = Duktape,\n" \
+"BIG_ENDIAN    	= (1===__my__.BIG_ENDIAN),\n" \
+"LITTLE_ENDIAN 	= (1===__my__.LITTLE_ENDIAN),\n" \
+"OS_BITS       	= 8*__my__.SIZEOF_POINTER,\n" \
+"UNKNOW_STRING 	= 'unknow',\n" \
+"UNKNOW_NUMBER 	= 0,\n" \
 "fmt = {\n" \
 "oprint: function(name, obj) {\n" \
 "if (must_string(name) && must_object(obj)) {\n" \

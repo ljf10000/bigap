@@ -38,8 +38,8 @@ var signal = {
 
 var timer = {
 	count: 0,
-	handle: function (times) {
-		print("timer times:", loop.timer.count++);
+	handle: function (now) {
+		print("timer times:", loop.timer.count++, "now:", now);
 	},
 	param: {
 		interval:{
