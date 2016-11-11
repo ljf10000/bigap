@@ -129,4 +129,530 @@ js_push_fixed_buffer(duk_context *ctx, duk_size_t size)
     }
 }
 
+duk_buffer_t
+js_push_dynamic_buffer(duk_context *ctx, duk_size_t size)
+{
+    if (size>0) {
+        return duk_push_dynamic_buffer(ctx, size);
+    } else {
+        return duk_push_null(ctx), NULL;
+    }
+}
+
+void
+js_pcall(duk_context *ctx, duk_idx_t idx, int (*push)(void))
+{
+    idx = duk_normalize_index(ctx, idx);
+    
+    duk_dup(ctx, idx);
+    duk_pcall(ctx, (*push)());
+    duk_pop(ctx);
+}
+
+int
+js_get_a_prop_string(
+    duk_context *ctx, 
+    bool auto_create, 
+    duk_idx_t idx, 
+    int *level, 
+    char **keys,
+    int count
+)
+{
+    int i;
+
+    if (DUK_INVALID_INDEX==idx) { // global
+        duk_push_global_object(ctx); (*level)++;
+        idx = -1;
+    }
+    
+    idx = duk_normalize_index(ctx, idx);
+
+    for (i=0; i<count; i++, idx = -1) {
+        char *k = keys[i];
+        bool exist = duk_get_prop_string(ctx, idx, k); (*level)++;
+        if (false==exist) {
+            if (false==auto_create) {
+                return -EFORMAT;
+            }
+
+            duk_pop(ctx);                       // pop undefined,   empty
+            duk_push_object(ctx);               // push object      object
+            duk_put_prop_string(ctx, idx, k);   // set name         empty
+            duk_get_prop_string(ctx, idx, k);   // get name         object
+        }
+    }
+    
+    return 0;
+}
+
+int
+js_get_v_prop_string(
+    duk_context *ctx, 
+    bool auto_create, 
+    duk_idx_t idx, 
+    int *level, 
+    va_list args
+)
+{
+    int i, count = 0;
+    char *k;
+
+    if (DUK_INVALID_INDEX==idx) { // global
+        duk_push_global_object(ctx); (*level)++;
+        idx = -1;
+    }
+
+    idx = duk_normalize_index(ctx, idx);
+    
+    while((k = va_arg(args, char *))) {
+        bool exist = duk_get_prop_string(ctx, idx, k); (*level)++;
+        if (false==exist) {
+            if (false==auto_create) {
+                return -EFORMAT;
+            }
+
+            duk_pop(ctx);                       // pop undefined,   empty
+            duk_push_object(ctx);               // push object      object
+            duk_put_prop_string(ctx, idx, k);   // set name         empty
+            duk_get_prop_string(ctx, idx, k);   // get name         object
+        }
+
+        idx = -1;
+    }
+
+    return 0;
+}
+
+int
+js_get_prop_string(duk_context *ctx, bool auto_create, duk_idx_t idx, int *level, ...)
+{
+    va_list args;
+    
+    va_start(args, level);
+    int err = js_get_v_prop_string(ctx, auto_create, idx, level, args);
+    va_end(args);
+
+    return err;
+}
+
+
+char *
+js_get_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *plen)
+{
+    char *v = NULL;
+    
+    duk_get_prop_string(ctx, idx, k);
+    if (duk_is_string(ctx, -1)) {
+        v = (char *)duk_get_lstring(ctx, -1, plen);
+    }
+    duk_pop(ctx);
+
+    return v;
+}
+
+char *
+js_copy_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, char *buffer, int size)
+{
+    duk_size_t len = 0;
+    char *v = js_get_obj_string(ctx, idx, k, &len);
+    
+    if (v && (size-1) >= len ) {
+        v = os_strmcpy(buffer, v, len);
+    } else {
+        v = NULL;
+    }
+
+    return v;
+}
+
+void
+js_set_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, char * v)
+{
+    idx = duk_normalize_index(ctx, idx);
+    
+    js_push_string(ctx, v);
+    duk_put_prop_string(ctx, idx, k);
+}
+
+duk_buffer_t
+js_get_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *plen)
+{
+    duk_buffer_t v = NULL;
+    
+    duk_get_prop_string(ctx, idx, k);
+    if (duk_is_buffer(ctx, -1)) {
+        v = duk_get_buffer_data(ctx, -1, plen);
+    }
+    duk_pop(ctx);
+
+    return v;
+}
+
+char *
+js_copy_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t buffer, duk_size_t size)
+{
+    duk_size_t len = 0;
+    duk_buffer_t v = js_get_obj_buffer(ctx, idx, k, &len);
+    if (v && size>=len) {
+        os_memcpy(buffer, v, len);
+        v = buffer;
+    } else {
+        v = NULL;
+    }
+
+    return v;
+}
+
+void
+js_set_obj_buffer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_buffer_t v, duk_size_t size)
+{
+    idx = duk_normalize_index(ctx, idx);
+    
+    duk_buffer_t buf = js_push_dynamic_buffer(ctx, size);
+    os_memcpy(buf, v, size);
+    duk_put_prop_string(ctx, idx, k);
+}
+
+char *
+js_get_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *plen)
+{
+    char *v = NULL;
+    
+    duk_get_prop_index(ctx, idx, aidx);
+    if (duk_is_string(ctx, -1)) {
+        v = (char *)duk_get_lstring(ctx, -1, plen);
+    }
+    duk_pop(ctx);
+
+    return v;
+}
+
+char *
+js_copy_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, char *buffer, int size)
+{
+    duk_size_t len = 0;
+    char *v = js_get_array_string(ctx, idx, aidx, &len);
+    if (v && (size-1) >= len) {
+        os_strmcpy(buffer, v, len);
+        v = buffer;
+    } else {
+        v = NULL;
+    }
+
+    return v;
+}
+
+void
+js_set_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, char *v)
+{
+    idx = duk_normalize_index(ctx, idx);
+    
+    js_push_string(ctx, (char *)v);
+    duk_put_prop_index(ctx, idx, aidx);
+}
+
+duk_buffer_t
+js_get_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *plen)
+{
+    duk_buffer_t v = NULL;
+    
+    duk_get_prop_index(ctx, idx, aidx);
+    if (duk_is_buffer(ctx, -1)) {
+        v = duk_get_buffer_data(ctx, -1, plen);
+    }
+    duk_pop(ctx);
+
+    return v;
+}
+
+char *
+js_copy_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_t buffer, int size)
+{
+    duk_size_t len = 0;
+    duk_buffer_t v = js_get_array_buffer(ctx, idx, aidx, &len);
+    if (v && size >= len) {
+        os_memcpy(buffer, v, len);
+        v = buffer;
+    } else {
+        v = NULL;
+    }
+
+    return v;
+}
+
+void
+js_set_array_buffer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_buffer_t v, int size)
+{
+    idx = duk_normalize_index(ctx, idx);
+    
+    duk_buffer_t buf = js_push_dynamic_buffer(ctx, size);
+    os_memcpy(buf, v, size);
+    duk_put_prop_index(ctx, idx, aidx);
+}
+
+int
+__js_seterrno(duk_context *ctx, int err)
+{
+    duk_push_global_object(ctx);
+        if (duk_get_prop_string(ctx, -1, js_MOD_LIBC)) {
+            js_set_obj_field(ctx, -1, int, "errno", err);
+        }
+    	duk_pop(ctx);
+    duk_pop(ctx);
+
+    return err;
+}
+
+int
+js_obj_push(duk_context *ctx, dukc_obj_op_f *set, duk_object_t obj)
+{
+    if (obj) {
+        duk_push_object(ctx);
+
+        return (*set)(ctx, -1, obj);
+    } else {
+        duk_push_null(ctx);
+
+        return 0;
+    }
+}
+
+int
+js_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, duk_object_t obj, duk_string_t k)
+{
+    int err = 0;
+
+    idx = duk_normalize_index(ctx, idx);
+    
+    duk_get_prop_string(ctx, idx, k);
+    if (duk_is_object(ctx, -1)) {
+        err = (*op)(ctx, -1, obj);
+    }
+    else if (duk_is_undefined(ctx, -1) && auto_create) {
+        duk_pop(ctx);
+        duk_push_object(ctx);
+        duk_put_prop_string(ctx, idx, k);
+        duk_get_prop_string(ctx, idx, k);
+        err = (*op)(ctx, -1, obj);
+    }
+    else {
+        err = -EFORMAT;
+    }
+    duk_pop(ctx);
+    
+    return err;
+}
+
+int
+js_obj_obj_op(duk_context *ctx, bool auto_create, duk_idx_t idx, dukc_obj_op_f *op, duk_object_t obj, ...)
+{
+    int err = 0, level = 0;
+    va_list args;
+
+    va_start(args, obj);
+    err = js_get_v_prop_string(ctx, auto_create, idx, &level, args);
+    va_end(args);
+
+    if (0==err) {
+        err = (*op)(ctx, -1, obj);
+    }
+    duk_pop_n(ctx, level);
+    
+    return err;
+}
+
+int
+js_load_file(duk_context *ctx, char *filename)
+{
+    int err = -ENOEXIST;
+    
+    debug_js("load %s ...", filename);
+    if (os_file_exist(filename)) {
+        err = duk_peval_file_noresult(ctx, filename);
+    }
+    debug_js("load %s %s.", filename, __ok_string(0==err));
+
+    return err;
+}
+
+int
+js_load_code(duk_context *ctx, char *tag, char *code)
+{
+    int err = 0;
+    
+    debug_js("load %s ...", tag);
+    err = duk_peval_string_noresult(ctx, code);
+    debug_js("load %s %s.", tag, __ok_string(0==err));
+
+    return err;
+}
+
+int
+js_register(duk_context *ctx, js_register_f *cb)
+{
+    static js_register_f *registers[] = {
+        js_global_register,
+        js_my_register,
+        js_libc_register,
+#if js_LIBZ
+        js_libz_register,
+#endif
+#if js_LIBBZ
+        js_libbz_register,
+#endif
+#if js_LIBLZ
+        js_liblz_register,
+#endif
+#if js_LIBCURL
+        js_libcurl_register,
+#endif
+        /*keep below last*/
+        js_buildin_register,
+        js_auto_register,
+    };
+    int i, err;
+
+    if (NULL==cb) {
+        for (i=0; i<os_count_of(registers); i++) {
+            err = (*registers[i])(ctx);
+            if (err<0) {
+                return err;
+            }
+        }
+
+        return 0;
+    } else {
+        return (*cb)(ctx);
+    }
+}
+
+void
+__js_priv_fini(js_priv_t *priv)
+{
+    int i;
+
+    if (priv) {
+        os_free(priv->cache);
+        os_free(priv->name);
+        os_free(priv->atexit_name);
+        
+        for (i=0; i<NSIG; i++) {
+            if (priv->sig[i].is_func) {
+                os_free(priv->sig[i].name);
+            }
+        }
+    }
+}
+
+js_priv_t *
+js_priv_init(char *name, char *cache, int argc, char **argv)
+{
+    js_priv_t *priv = (js_priv_t *)os_zalloc(sizeof(*priv));
+    if (NULL==priv) {
+        return NULL;
+    }
+
+    priv->argc = argc;
+    priv->argv = argv;
+    priv->name = os_strdup(name);
+    priv->cache= os_strdup(cache);
+    
+    if (1==argc) {
+        priv->mode = JS_EVAL_STREAM;
+    } else if (argc > 1) {
+        priv->mode = JS_EVAL_SHABANG;
+    } else {
+        priv->mode = JS_EVAL_BUILDIN;
+    }
+    
+    return priv;
+}
+
+void
+__js_fini(duk_context *ctx)
+{
+    if (ctx) {
+        js_priv_t *priv = js_priv(ctx);
+        
+        debug_js("before destroy duk heap(%s)", priv->name);
+        duk_destroy_heap(ctx);
+        debug_js("after  destroy duk heap(%s)", priv->name);
+        
+        js_priv_fini(priv);
+    }
+}
+
+duk_context *
+js_init(char *name, char *cache, int argc, char **argv)
+{
+    duk_context *ctx = NULL;
+    int err = 0;
+
+    ctx = duk_create_heap_default();
+    if (NULL==ctx) {
+        goto error;
+    }
+    js_ctx_save(ctx);
+    
+    js_priv_t *priv = js_priv_init(name, cache, argc, argv);
+    if (NULL==priv) {
+        goto error;
+    }
+    duk_set_priv(ctx, priv);
+    
+    err = js_register(ctx, NULL);
+    if (err<0) {
+        goto error;
+    }
+
+    return ctx;
+error:
+    js_fini(ctx);
+    
+    return NULL;
+}
+
+int
+js_eval(duk_context *ctx, char *jsfile)
+{
+    js_priv_t *priv = js_priv(ctx);
+    char *script = NULL;
+    
+    switch(priv->mode) {
+        case JS_EVAL_SHABANG:
+            script = priv->argv[1];
+            /*
+            * argv[1] is script name
+            */
+            duk_peval_file(ctx, script);
+            
+            break;
+        case JS_EVAL_STREAM:
+            script = os_readfd(0, 4096);
+
+            /*
+            * cat SCRIPT  | js
+            * echo SCRIPT | js
+            */
+            duk_peval_string(ctx, script); free(script);
+            
+            break;
+        case JS_EVAL_BUILDIN:
+            script = jsfile;
+            /*
+            * jsfile is script name
+            */
+            duk_peval_file(ctx, script);
+            
+            break;
+        default:
+            return -ENOSUPPORT;
+    }
+    
+    duk_pop(ctx);
+
+    return 0;
+}
+
 /******************************************************************************/
