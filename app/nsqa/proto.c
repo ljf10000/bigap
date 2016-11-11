@@ -162,8 +162,16 @@ nsq_recver(struct loop_watcher *watcher, time_t now)
         case NSQ_FSM_HANDSHAKED:/* down */
         case NSQ_FSM_IDENTIFIED:/* down */
         case NSQ_FSM_SUBSCRIBED:
+            debug_proto("instance[%s] not support recv @fsm[%s]",
+                instance->name, 
+                nsq_fsm_string(instance->fsm));
+            
             return -EBADFSM;
         default:
+            debug_proto("instance[%s] not support recv @fsm[%d]",
+                instance->name, 
+                instance->fsm);
+                
             return -EBADFSM;
     }
 
@@ -180,6 +188,7 @@ nsq_recver(struct loop_watcher *watcher, time_t now)
         case NSQ_FSM_IDENTIFYING:
             err = identifying_recver(instance, now);
 
+            break;
         case NSQ_FSM_SUBSCRIBING:
             err = subscribing_recver(instance, now);
             
