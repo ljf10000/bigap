@@ -64,9 +64,45 @@ subscrib_timer(nsq_instance_t *instance, time_t now)
     return mv2_ok;
 }
 
+static inline bool
+is_fsm_timeout(time_t fsm_time, time_t now)
+{
+    return  fsm_time && 
+            now && 
+            fsm_time < now && 
+            (now-fsm_time) >= os_second(NSQ_MSG_TIMEOUT);
+}
+
 static mv_t
 fsm_timeout(nsq_instance_t *instance, time_t now)
 {
+    int err;
+    
+    switch(instance->fsm) {
+        case NSQ_FSM_HANDSHAKING:
+            if (is_fsm_timeout(instance->fsm_time, now)) {
+                err = nsq_handshake(instance);
+            }
+            
+            break;
+        case NSQ_FSM_IDENTIFYING:
+            if (is_fsm_timeout(instance->fsm_time, now)) {
+                err = nsq_identify(instance);
+            }
+            
+            break;
+        case NSQ_FSM_SUBSCRIBING:
+            if (is_fsm_timeout(instance->fsm_time, now)) {
+                err = nsq_subscrib(instance);
+            }
+            
+            break;
+        case NSQ_FSM_RUN:
+            // todo
+            
+            break;
+    }
+    
     return mv2_ok;
 }
 

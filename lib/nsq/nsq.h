@@ -75,32 +75,6 @@
 #define NSQ_MSG_TIMEOUT             (10*1000)
 #endif
 
-static inline int
-get_nsq_timeout_env(void) 
-{
-    return env_geti(ENV_NSQ_TIMEOUT, CLI_TIMEOUT);
-}
-
-static inline int
-get_nsqc_path_env(sockaddr_un_t *addr) 
-{
-    char path[1+OS_LINE_LEN] = {0};
-
-    os_saprintf(path, NSQC_UNIX, getpid());
-    
-    return __env_copy(ENV_NSQC_UNIX, path, 
-                get_abstract_path(addr),
-                abstract_path_size);
-}
-
-static inline int
-get_nsqa_path_env(sockaddr_un_t *addr) 
-{
-    return __env_copy(ENV_NSQA_UNIX, NSQA_UNIX, 
-                get_abstract_path(addr),
-                abstract_path_size);
-}
-
 enum { 
     NSQ_MSGID_SIZE = 16,
     NSQ_NAME_SIZE = 64,

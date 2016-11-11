@@ -23,11 +23,6 @@ handshaked_recver(nsq_instance_t *instance, time_t now)
 {
     int err;
 
-    err = nsqb_recv(instance->fd, &instance->brecver);
-    if (err<0) {
-        return err;
-    }
-
     
     return 0;
 }
@@ -35,18 +30,24 @@ handshaked_recver(nsq_instance_t *instance, time_t now)
 static int
 identifying_recver(nsq_instance_t *instance, time_t now)
 {
+    int err;
+    
     return 0;
 }
 
 static int
 subscribing_recver(nsq_instance_t *instance, time_t now)
 {
+    int err;
+    
     return 0;
 }
 
 static int
 run_recver(nsq_instance_t *instance, time_t now)
 {
+    int err;
+    
     return 0;
 }
 
