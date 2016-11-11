@@ -175,18 +175,18 @@ nsq_recver(loop_watcher_t *watcher)
     
     switch(instance->fsm) {
         case NSQ_FSM_HANDSHAKING:
-            err = handshaked_recver(instance);
+            err = handshaked_recver(instance, now);
             
             break;
         case NSQ_FSM_IDENTIFYING:
-            err = identifying_recver(instance);
+            err = identifying_recver(instance, now);
 
         case NSQ_FSM_SUBSCRIBING:
-            err = subscribing_recver(instance);
+            err = subscribing_recver(instance, now);
             
             break;
         case NSQ_FSM_RUN:
-            err = run_recver(instance);
+            err = run_recver(instance, now);
             
             break;
     }
