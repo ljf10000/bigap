@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-typedef mv_t um_timer_handle_t(struct um_user *user, time_t now);
+typedef int um_timer_handle_t(struct um_user *user, time_t now);
 
 static inline void 
 __try_aging(struct um_user *user, int type)
@@ -30,7 +30,7 @@ __try_aging(struct um_user *user, int type)
     }
 }
 
-static mv_t 
+static int 
 online_aging(struct um_user *user, time_t now)
 {
     (void)now;
@@ -40,7 +40,7 @@ online_aging(struct um_user *user, time_t now)
         __try_aging(user, um_flow_type_lan);
     }
     
-    return mv2_ok;
+    return 0;
 }
 
 static inline bool
@@ -60,7 +60,7 @@ __is_gc(struct um_user *user, time_t now)
     return is;
 }
 
-mv_t umd_gc(struct um_user *user)
+int umd_gc(struct um_user *user)
 {
     if (is_user_noused(user)) {
         um_user_debug("gc", user, __is_ak_debug_gc);
@@ -68,16 +68,17 @@ mv_t umd_gc(struct um_user *user)
         user_delete(user);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
-mv_t umd_gc_auto(struct um_user *user, time_t now)
+static int
+gc_auto(struct um_user *user, time_t now)
 {
     if (__is_gc(user, now)) {
         umd_gc(user);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
 static inline bool
@@ -106,7 +107,7 @@ is_online_timeout(struct um_user *user, time_t now)
         || __is_online_timeout(user, now, um_flow_type_lan);
 }
 
-static mv_t 
+static int 
 online_timeout(struct um_user *user, time_t now)
 {
     /*
@@ -117,7 +118,7 @@ online_timeout(struct um_user *user, time_t now)
         user_deauth(user, UM_DEAUTH_ONLINETIME);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
 static inline bool
@@ -146,7 +147,7 @@ is_online_reauth(struct um_user *user, time_t now)
         || __is_online_reauth(user, now, um_flow_type_lan);
 }
 
-static mv_t 
+static int 
 online_reauth(struct um_user *user, time_t now)
 {
     /*
@@ -159,7 +160,7 @@ online_reauth(struct um_user *user, time_t now)
         user_reauth(user);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
 static inline bool
@@ -179,14 +180,14 @@ is_fake_timeout(struct um_user *user, time_t now)
     return is;
 }
 
-static mv_t 
+static int 
 fake_timeout(struct um_user *user, time_t now)
 {
     if (is_user_fake(user) && is_fake_timeout(user, now)) {        
         user_unfake(user, UM_DEAUTH_ONLINETIME);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
 static mv_t
@@ -198,17 +199,13 @@ timer_handle(struct um_user *user, time_t now)
         online_timeout,
         online_aging,
         
-        umd_gc_auto, /* must last */
+        gc_auto, // keep last
     };
     
-    mv_u mv;
     int i;
 
     for (i=0; i<os_count_of(handler); i++) {
-        mv.v = (*handler[i])(user, now);
-        if (is_mv2_break(mv)) {
-            return mv.v;
-        }
+        (*handler[i])(user, now);
     }
 
     return mv2_ok;

@@ -12,56 +12,56 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-typedef mv_t nsq_timer_handle_f(nsq_instance_t *instance, time_t now);
+typedef int nsq_timer_handle_f(nsq_instance_t *instance, time_t now);
 
-static mv_t
+static int
 resolve_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_init(instance)) {
         nsq_resolve(instance);
     }
     
-    return mv2_ok;
+    return 0;
 }
 
-static mv_t
+static int
 connect_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_resolved(instance)) {
         nsq_connect(instance);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
-static mv_t
+static int
 handshake_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_connected(instance)) {
         nsq_handshake(instance);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
-static mv_t
+static int
 identify_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_handshaked(instance)) {
         nsq_identify(instance);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
-static mv_t
+static int
 subscrib_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_identified(instance)) {
         nsq_subscrib(instance);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
 static inline bool
@@ -73,7 +73,7 @@ is_fsm_timeout(time_t fsm_time, time_t now)
             (now-fsm_time) >= os_second(NSQ_MSG_TIMEOUT);
 }
 
-static mv_t
+static int
 fsm_timeout(nsq_instance_t *instance, time_t now)
 {
     int err;
@@ -103,29 +103,26 @@ fsm_timeout(nsq_instance_t *instance, time_t now)
             break;
     }
     
-    return mv2_ok;
+    return 0;
 }
 
 static mv_t 
 timer_handle(nsq_instance_t *instance, time_t now)
 {
     static nsq_timer_handle_f *handler[] = {
-        resolve_timer,
-        connect_timer,
-        handshake_timer,
-        identify_timer,
-        subscrib_timer,
-        fsm_timeout,
+        resolve_timer,  // keep sort
+        connect_timer,  // keep sort
+        handshake_timer,// keep sort
+        identify_timer, // keep sort
+        subscrib_timer, // keep sort
+        
+        fsm_timeout,    // keep last
     };
     
-    mv_u mv;
     int i;
 
     for (i=0; i<os_count_of(handler); i++) {
-        mv.v = (*handler[i])(instance, now);
-        if (is_mv2_break(mv)) {
-            return mv.v;
-        }
+        (*handler[i])(instance, now);
     }
 
     return mv2_ok;
