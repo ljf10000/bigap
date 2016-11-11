@@ -41,7 +41,7 @@ __hash(char *name)
 static bool
 __is_dns_ok(nsq_instance_t *instance)
 {
-    return INADDR_NONE != instance->addr.sin_addr.s_addr;
+    return INADDR_NONE != instance->server.sin_addr.s_addr;
 }
 
 static int
@@ -50,14 +50,14 @@ __dns(nsq_instance_t *instance)
     if (false==__is_dns_ok(instance)) {
         in_addr_t ip = inet_addr(instance->domain);
         if (INADDR_NONE != ip) {
-            instance->addr.sin_addr.s_addr = ip;
+            instance->server.sin_addr.s_addr = ip;
         } else {
             struct hostent *p = gethostbyname(instance->domain);
             if (NULL==p) {
                 return -EDNS;
             }
 
-            instance->addr.sin_addr.s_addr = p->h_addr;
+            instance->server.sin_addr.s_addr = p->h_addr;
         }
     }
 }
@@ -71,9 +71,10 @@ __create(char *name, jobj_t jobj)
     if (NULL==instance) {
         return NULL;
     }
-    os_asprintf(&instance->cache, "%s/%s", nsqa.cache, name);
-    instance->jobj      = jobj;
+    instance->jinstance = jobj;
+    
     instance->name      = os_strdup(name);
+    os_asprintf(&instance->cache, "%s/%s", nsqa.cache, name);
 
     jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
     instance->domain    = os_strdup(jobj_get_string(jval));
@@ -86,15 +87,16 @@ __create(char *name, jobj_t jobj)
 
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
     int port = jobj_get_bool(jval);
-    sockaddr_in_t *server   = &instance->addr;
+    sockaddr_in_t *server   = &instance->server;
     server->sin_family      = AF_INET;
     server->sin_port        = htons(port);
     server->sin_addr.s_addr = INADDR_NONE;
+
+    sockaddr_in_t *client   = &instance->client;
+    client->sin_family      = AF_INET;
     
-    nsqb_init(&instance->recver, NSQ_SEND_BUFFER_SIZE);
-    nsqb_init(&instance->sender, NSQ_RECV_BUFFER_SIZE);
-    
-    __dns(instance);
+    nsqb_init(&instance->brecver, NSQ_SEND_BUFFER_SIZE);
+    nsqb_init(&instance->bsender, NSQ_RECV_BUFFER_SIZE);
     
     return instance;
 }
@@ -111,10 +113,10 @@ ____destroy(nsq_instance_t *instance)
         os_free(instance->topic);
         os_free(instance->identify);
 
-        jobj_put(instance->jobj);
+        jobj_put(instance->jinstance);
         
-        nsqb_fini(&instance->recver);
-        nsqb_fini(&instance->sender);
+        nsqb_fini(&instance->brecver);
+        nsqb_fini(&instance->bsender);
 
     }
 }

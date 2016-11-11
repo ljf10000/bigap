@@ -41,7 +41,7 @@ typedef struct {
     uint32 mask;
 } loop_inotify_t;
 
-typedef int loop_timer_f(struct loop_watcher *watcher, uint32 times);
+typedef int loop_timer_f(struct loop_watcher *watcher, time_t now);
 typedef int loop_signal_f(struct loop_watcher *watcher, struct signalfd_siginfo *siginfo);
 typedef int loop_normal_f(struct loop_watcher *watcher);
 typedef int loop_son_f(struct loop_watcher *watcher);
@@ -449,11 +449,12 @@ __loop_signal_handle(loop_watcher_t *watcher)
 static inline void
 __loop_timer_handle(loop_watcher_t *watcher)
 {
-    uint64 val = 0;
-    
-    int len = read(watcher->fd, &val, sizeof(val));
-    if (len==sizeof(val)) {
-        (*watcher->cb.timer)(watcher, (uint32)val);
+    uint32 times = tm_fd_read(watcher->fd);
+    time_t now = time(NULL);
+    int i;
+
+    for (i=0; i<times; i++) {
+        (*watcher->cb.timer)(watcher, now);
     }
 }
 

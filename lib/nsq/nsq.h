@@ -101,6 +101,42 @@ get_nsqa_path_env(sockaddr_un_t *addr)
                 abstract_path_size);
 }
 
+enum { 
+    NSQ_MSGID_SIZE = 16,
+    NSQ_NAME_SIZE = 64,
+};
+
+#if 1
+#define NSQ_FSM_INIT_NAME           "init"
+#define NSQ_FSM_RESOLVED_NAME       "resolved"
+#define NSQ_FSM_CONNECTED_NAME      "connected"
+#define NSQ_FSM_HANDSHAKED_NAME     "handshaked"
+#define NSQ_FSM_IDENTIFY_NAME       "identify"
+#define NSQ_FSM_RUN_NAME            "run"
+
+#define NSQ_FSM_ENUM_MAPPER(_)                              \
+    _(NSQ_FSM_INIT,         0,  NSQ_FSM_INIT_NAME),         \
+    _(NSQ_FSM_RESOLVED,     1,  NSQ_FSM_RESOLVED_NAME),     \
+    _(NSQ_FSM_CONNECTED,    2,  NSQ_FSM_CONNECTED_NAME),    \
+    _(NSQ_FSM_HANDSHAKED,   3,  NSQ_FSM_HANDSHAKED_NAME),   \
+    _(NSQ_FSM_IDENTIFY,     4,  NSQ_FSM_IDENTIFY_NAME),     \
+    _(NSQ_FSM_RUN,          5,  NSQ_FSM_RUN_NAME),          \
+    /* end */
+DECLARE_ENUM(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
+
+static inline bool is_good_nsq_fsm(int id);
+static inline char *nsq_fsm_string(int id);
+static inline int nsq_fsm_idx(char *name);
+
+#define NSQ_FSM_INIT            NSQ_FSM_INIT
+#define NSQ_FSM_RESOLVED        NSQ_FSM_RESOLVED
+#define NSQ_FSM_CONNECTED       NSQ_FSM_CONNECTED
+#define NSQ_FSM_HANDSHAKED      NSQ_FSM_HANDSHAKED
+#define NSQ_FSM_IDENTIFY        NSQ_FSM_IDENTIFY
+#define NSQ_FSM_RUN             NSQ_FSM_RUN
+#define NSQ_FSM_END             NSQ_FSM_END
+#endif
+
 #if 1
 #define NSQ_IDENTIFY_CLIENT_ID_NAME                 "client_id"
 #define NSQ_IDENTIFY_HOSTNAME_NAME                  "hostname"
@@ -395,11 +431,6 @@ static inline int nsq_frame_idx(char *name);
 #define NSQ_FRAME_MESSAGE   NSQ_FRAME_MESSAGE
 #define NSQ_FRAME_END       NSQ_FRAME_END     
 #endif
-
-enum { 
-    NSQ_MSGID_SIZE = 16,
-    NSQ_NAME_SIZE = 64,
-};
 
 typedef struct {
     uint32 size;

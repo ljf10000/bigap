@@ -565,10 +565,10 @@ duke_loop(duk_context *ctx)
         return 0;
     }
 
-    int __timer_handle(loop_watcher_t *watcher, uint32 times)
+    int __timer_handle(loop_watcher_t *watcher, time_t now)
     {
         int push_timer(void) {
-            return duk_push_int(ctx, (int)times), 1;
+            return duk_push_uint(ctx, now), 1;
         }
     
         __loop_pcall(ctx, idx, &objs[LOOP_TYPE_TIMER], push_timer);

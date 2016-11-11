@@ -33,14 +33,11 @@ static struct {
 
 static loop_t loop = LOOP_INITER;
 
-static int timer_cb(loop_watcher_t *watcher, uint32 times)
+static int timer_cb(loop_watcher_t *watcher, time now)
 {
     static uint32 count = 0;
-    int i;
 
-    for (i=0; i<times; i++) {
-        os_println("timer %u", count++);
-    }
+    os_println("timer:%u time:%u", count++, now);
     
     return 0;
 }

@@ -28,21 +28,29 @@ typedef struct {
 }   /* end */
 
 typedef struct {
+    int fd;
+    int fsm;
+    int fsm_error;
+    
     char *name;
     char *domain;
     char *topic;
     char *identify; // json
     
     char *cache;
-
-    jobj_t jobj;
     
-    nsq_buffer_t    sender;
-    nsq_buffer_t    recver;
-    sockaddr_in_t   addr;
+    byte msgid[NSQ_MSGID_SIZE]; // last message id
     
+    nsq_buffer_t    bsender;
+    nsq_buffer_t    brecver;
+    
+    sockaddr_in_t   server;
+    sockaddr_in_t   client;
+    
+    jobj_t          jinstance;
     h1_node_t       node;
-} nsq_instance_t;
+} 
+nsq_instance_t;
 
 typedef mv_t nsq_foreach_f(nsq_instance_t *instance);
 typedef mv_t nsq_get_f(nsq_instance_t *instance);
