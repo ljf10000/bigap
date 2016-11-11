@@ -113,7 +113,7 @@ extern int
 nsq_fsm_change(nsq_instance_t *instance, int fsm);
 
 extern int 
-nsq_recver(loop_watcher_t *watcher);
+nsq_recver(struct loop_watcher *watcher, time_t now);
 /******************************************************************************/
 extern int
 nsq_resolve(nsq_instance_t *instance);

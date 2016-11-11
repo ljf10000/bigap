@@ -150,7 +150,7 @@ nsq_subscrib(nsq_instance_t *instance)
 }
 
 int 
-nsq_recver(loop_watcher_t *watcher)
+nsq_recver(struct loop_watcher *watcher, time_t now)
 {
     nsq_instance_t *instance = (nsq_instance_t *)watcher->user;
     int err;
