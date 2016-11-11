@@ -19,7 +19,7 @@ __nsq_timer(time_t now)
 }
 
 static int
-nsq_timer(loop_watcher_t *watcher, time now)
+nsq_timer(loop_watcher_t *watcher, time_t now)
 {
     __nsq_timer(now);
     

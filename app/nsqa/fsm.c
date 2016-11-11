@@ -38,13 +38,4 @@ int nsq_fsm_resolved(nsq_instance_t *instance)
     return 0;
 }
 
-int nsq_fsm_resolved(nsq_instance_t *instance)
-{
-    instance->fsm = NSQ_FSM_RESOLVED;
-
-
-    return 0;
-}
-
-
 /******************************************************************************/
