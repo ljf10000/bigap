@@ -125,17 +125,11 @@
 #endif
 
 #ifndef ntohll
-#if __BYTE_ORDER==__LITTLE_ENDIAN
-#   define ntohll_high(_val)    (((uint64)htonl(val)) << 32)
-#   define ntohll_low(_val)     ((uint64)htonl((val) >> 32))
-#   define ntohll(_val)         (ntohll_high(_val) + ntohll_low(_val))
-#elif __BYTE_ORDER==__BIG_ENDIAN
-#   define ntohll(_val)         (_val)
-#endif
+#define ntohll(_val)        __bswap_64(_val)
 #endif
 
 #ifndef htonll
-#define htonll(_val)            ntohll(_val)
+#define htonll(_val)        ntohll(_val)
 #endif
 
 #define os_swap_value(_a, _b) do {  \
