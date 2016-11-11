@@ -1,88 +1,11 @@
 #ifndef __LIBC_H_46966fd8100c4718872a30b740b9561d__
 #define __LIBC_H_46966fd8100c4718872a30b740b9561d__
 /******************************************************************************/
-static inline int
-__get_sockaddr(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
-{
-    os_sockaddr_t *p = (os_sockaddr_t *)obj; os_objzero(p);
-    
-    p->c.sa_family = js_get_obj_int(ctx, idx, "family");
-    
-    switch(p->c.sa_family) {
-        case AF_INET:
-            p->in.sin_addr.s_addr = js_get_obj_uint(ctx, idx, "ip");
-            p->in.sin_port = js_get_obj_int(ctx, idx, "port");
+extern int
+libc_get_sockaddr(duk_context *ctx, duk_idx_t idx, duk_object_t obj);
 
-            break;
-        case AF_UNIX: {
-            bool abstract = js_get_obj_bool(ctx, idx, "abstract");
-            
-            js_copy_obj_string(ctx, idx, "path",
-                p->un.sun_path + !!abstract,
-                sizeof(p->un.sun_path) - !!abstract);
-        }   break;
-        case AF_PACKET:
-            p->ll.sll_protocol  = js_get_obj_int(ctx, idx, "protocol");
-            p->ll.sll_ifindex   = js_get_obj_int(ctx, idx, "ifindex");
-            p->ll.sll_hatype    = js_get_obj_int(ctx, idx, "hatype");
-            p->ll.sll_pkttype   = js_get_obj_int(ctx, idx, "pkttype");
-            p->ll.sll_halen     = js_get_obj_int(ctx, idx, "halen");
-
-            js_copy_obj_buffer(ctx, idx, "addr", (char *)p->ll.sll_addr, 8);
-
-            break;
-        case AF_NETLINK:
-            p->nl.nl_pid = js_get_obj_int(ctx, idx, "pid");
-            p->nl.nl_groups = js_get_obj_int(ctx, idx, "groups");
-
-            break;
-        default:
-            return -ENOSUPPORT;
-    }
-
-    return 0;
-}
-
-static inline int
-__set_sockaddr(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
-{
-    os_sockaddr_t *p = (os_sockaddr_t *)obj;
-    
-    js_set_obj_int(ctx, idx, "family", p->c.sa_family);
-    
-    switch(p->c.sa_family) {
-        case AF_INET:
-            js_set_obj_uint(ctx, idx, "ip", p->in.sin_addr.s_addr);
-            js_set_obj_uint(ctx, idx, "port", p->in.sin_port);
-            
-            break;
-        case AF_UNIX: {
-            bool abstract = is_abstract_sockaddr(&p->un);
-
-            js_set_obj_bool(ctx, idx, "abstract", abstract);
-            js_set_obj_string(ctx, idx, "path", p->un.sun_path + !!abstract);
-            
-        }   break;
-        case AF_PACKET:
-            js_set_obj_int(ctx, idx, "protocol", p->ll.sll_protocol);
-            js_set_obj_uint(ctx, idx, "ifindex", p->ll.sll_ifindex);
-            js_set_obj_int(ctx, idx, "hatype", p->ll.sll_hatype);
-            js_set_obj_int(ctx, idx, "pkttype", p->ll.sll_pkttype);
-            js_set_obj_int(ctx, idx, "halen", p->ll.sll_halen);
-            js_set_obj_buffer(ctx, idx, "addr", p->ll.sll_addr, 8);
-            
-            break;
-        case AF_NETLINK:
-            js_set_obj_int(ctx, idx, "pid", p->nl.nl_pid);
-            js_set_obj_uint(ctx, idx, "groups", p->nl.nl_groups);
-            
-            break;
-        default:
-            return -ENOSUPPORT;
-    }
-
-    return 0;
-}
+extern int
+libc_set_sockaddr(duk_context *ctx, duk_idx_t idx, duk_object_t obj);
 
 static inline int
 __get_linger(duk_context *ctx, duk_idx_t idx, duk_object_t obj)

@@ -1881,7 +1881,7 @@ duke_bind(duk_context *ctx)
     os_sockaddr_t sa = OS_SOCKADDR_ZERO();
     int fd = duk_require_int(ctx, 0);
 
-    int err = __get_sockaddr(ctx, 1, &sa);
+    int err = libc_get_sockaddr(ctx, 1, &sa);
     if (err<0) {
         __js_seterrno(ctx, err);
         
@@ -1910,7 +1910,7 @@ duke_getsockname(duk_context *ctx)
     
     int err = getsockname(fd, &sa.c, &len);
     if (0==err) { // 0 is ok
-        __set_sockaddr(ctx, 1, &sa);
+        libc_set_sockaddr(ctx, 1, &sa);
     }
     
     return js_push_error(ctx, err), 1;
@@ -2296,7 +2296,7 @@ duke_connect(duk_context *ctx)
     os_sockaddr_t sa = OS_SOCKADDR_ZERO();
     
     int fd = duk_require_int(ctx, 0);
-    int err = __get_sockaddr(ctx, 1, &sa);
+    int err = libc_get_sockaddr(ctx, 1, &sa);
     if (err<0) {
         goto error;
     }
@@ -2330,7 +2330,7 @@ duke_accept(duk_context *ctx)
     
     int err = accept(fd, &sa.c, &len);
     if (0==err) {
-        __set_sockaddr(ctx, 1, &sa);
+        libc_set_sockaddr(ctx, 1, &sa);
     }
     
     return js_push_error(ctx, err), 1;
@@ -2347,7 +2347,7 @@ duke_getpeername(duk_context *ctx)
     
     int err = getpeername(fd, &sa.c, &len);
     if (0==err) { // 0 is ok
-        __set_sockaddr(ctx, 1, &sa);
+        libc_set_sockaddr(ctx, 1, &sa);
     }
 
     return js_push_error(ctx, err), 1;
@@ -2405,7 +2405,7 @@ duke_sendto(duk_context *ctx)
         __js_seterrno(ctx, err); goto error;
     }
     int flag    = duk_require_int(ctx, 2);
-    err = __get_sockaddr(ctx, 3, &sa);
+    err = libc_get_sockaddr(ctx, 3, &sa);
     if (err<0) {
         goto error;
     }
@@ -2435,7 +2435,7 @@ duke_recvfrom(duk_context *ctx)
     if (err<0) {
         js_seterrno(ctx);
     } else {
-        __set_sockaddr(ctx, 3, &sa);
+        libc_set_sockaddr(ctx, 3, &sa);
     }
 
 error:
