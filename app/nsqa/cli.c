@@ -35,7 +35,7 @@ handle_insert(char *args)
 }
 
 static mv_t
-show_user(struct um_user *user)
+show_user(nsq_instance_t *instance)
 {
 #if 0
     jobj_t obj = um_juser(user);
@@ -144,6 +144,8 @@ handle_show(char *args)
         return -EFORMAT;
     }
 #endif
+
+    return 0;
 }
 
 static cli_table_t cli_table[] = {

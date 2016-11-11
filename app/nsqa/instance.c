@@ -163,7 +163,7 @@ __nsqi_insert(jobj_t jobj)
     }
     
     if (nsqi_get(name)) {
-        debug_entry("instance %s exist." name);
+        debug_entry("instance %s exist.", name);
         
         return -EEXIST;
     }

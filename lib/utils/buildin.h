@@ -124,6 +124,18 @@
 #define os_yesno(_yesno)    ((_yesno)?"yes":"no")
 #endif
 
+#ifndef ntohll
+#if __BYTE_ORDER==__LITTLE_ENDIAN
+#   define ntohll(_val)         ((uint64)htonl(val) << 32) + htonl((val) >> 32)
+#elif __BYTE_ORDER==__BIG_ENDIAN
+#   define ntohll(_val)         (_val)
+#endif
+#endif
+
+#ifndef htonll
+#define htonll(_val)            ntohll(_val)
+#endif
+
 #define os_swap_value(_a, _b) do {  \
     typeof(_a) tmp_in_os_swap_value = (_a); \
     (_a) = (_b);                    \
