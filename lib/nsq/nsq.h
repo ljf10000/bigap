@@ -110,17 +110,25 @@ enum {
 #define NSQ_FSM_INIT_NAME           "init"
 #define NSQ_FSM_RESOLVED_NAME       "resolved"
 #define NSQ_FSM_CONNECTED_NAME      "connected"
+#define NSQ_FSM_HANDSHAKING_NAME    "handshaking"
 #define NSQ_FSM_HANDSHAKED_NAME     "handshaked"
-#define NSQ_FSM_IDENTIFY_NAME       "identify"
+#define NSQ_FSM_IDENTIFYING_NAME    "identifying"
+#define NSQ_FSM_IDENTIFIED_NAME     "identified"
+#define NSQ_FSM_SUBSCRIBING_NAME    "subscribing"
+#define NSQ_FSM_SUBSCRIBED_NAME     "subscribed"
 #define NSQ_FSM_RUN_NAME            "run"
 
 #define NSQ_FSM_ENUM_MAPPER(_)                              \
     _(NSQ_FSM_INIT,         0,  NSQ_FSM_INIT_NAME),         \
     _(NSQ_FSM_RESOLVED,     1,  NSQ_FSM_RESOLVED_NAME),     \
     _(NSQ_FSM_CONNECTED,    2,  NSQ_FSM_CONNECTED_NAME),    \
-    _(NSQ_FSM_HANDSHAKED,   3,  NSQ_FSM_HANDSHAKED_NAME),   \
-    _(NSQ_FSM_IDENTIFY,     4,  NSQ_FSM_IDENTIFY_NAME),     \
-    _(NSQ_FSM_RUN,          5,  NSQ_FSM_RUN_NAME),          \
+    _(NSQ_FSM_HANDSHAKING,  3,  NSQ_FSM_HANDSHAKING_NAME),  \
+    _(NSQ_FSM_HANDSHAKED,   4,  NSQ_FSM_HANDSHAKED_NAME),   \
+    _(NSQ_FSM_IDENTIFYING,  5,  NSQ_FSM_IDENTIFYING_NAME),  \
+    _(NSQ_FSM_IDENTIFIED,   6,  NSQ_FSM_IDENTIFIED_NAME),   \
+    _(NSQ_FSM_SUBSCRIBING,  7,  NSQ_FSM_SUBSCRIBING_NAME),  \
+    _(NSQ_FSM_SUBSCRIBED,   8,  NSQ_FSM_SUBSCRIBED_NAME),   \
+    _(NSQ_FSM_RUN,          9,  NSQ_FSM_RUN_NAME),          \
     /* end */
 DECLARE_ENUM(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
 
@@ -131,8 +139,12 @@ static inline int nsq_fsm_idx(char *name);
 #define NSQ_FSM_INIT            NSQ_FSM_INIT
 #define NSQ_FSM_RESOLVED        NSQ_FSM_RESOLVED
 #define NSQ_FSM_CONNECTED       NSQ_FSM_CONNECTED
+#define NSQ_FSM_HANDSHAKING     NSQ_FSM_HANDSHAKING
 #define NSQ_FSM_HANDSHAKED      NSQ_FSM_HANDSHAKED
-#define NSQ_FSM_IDENTIFY        NSQ_FSM_IDENTIFY
+#define NSQ_FSM_IDENTIFYING     NSQ_FSM_IDENTIFYING
+#define NSQ_FSM_IDENTIFIED      NSQ_FSM_IDENTIFIED
+#define NSQ_FSM_SUBSCRIBING     NSQ_FSM_SUBSCRIBING
+#define NSQ_FSM_SUBSCRIBED      NSQ_FSM_SUBSCRIBED
 #define NSQ_FSM_RUN             NSQ_FSM_RUN
 #define NSQ_FSM_END             NSQ_FSM_END
 #endif
@@ -443,6 +455,16 @@ typedef struct {
     char body[0];
 } nsq_msg_t;
 
+static inline void
+nsq_msg_ntoh(nsq_msg_t *msg)
+{
+    msg->size       = ntohl(msg->size);
+    msg->type       = ntohl(msg->type);
+    msg->timestamp  = ntohll(msg->timestamp);
+    msg->attempts   = ntohs(msg->attempts);
+}
+#define nsq_msg_hton(_msg)  nsq_msg_ntoh(_msg)
+
 typedef simple_buffer_t nsq_buffer_t;
 
 #define NSQ_MAGIC       "  V2"
@@ -751,6 +773,44 @@ nsqb_AUTH(nsq_buffer_t *b, char *secret, uint32 len)
         return err;
     }
 
+    return 0;
+}
+
+static inline int
+nsqb_send(int fd, nsq_buffer_t *b)
+{
+    return io_send(fd, b->buf, b->len);
+}
+
+static inline int
+nsqb_recv(int fd, nsq_buffer_t *b)
+{
+    nsq_msg_t *msg;
+    int err, len;
+
+    nsqb_clean(b);
+    
+    err = len = __io_recv(fd, b->buf, sizeof(nsq_msg_t), 0);
+    if (err<0) {
+        return err;
+    }
+    if (len!=sizeof(nsq_msg_t)) {
+        return -ETOOSMALL;
+    }
+    b->len += len;
+    msg = (nsq_msg_t *)b->buf;
+    nsq_msg_ntoh(msg);
+
+    // todo: what is msg->size ???
+    err = len = __io_recv(fd, b->buf + b->len, msg->size, 0);
+    if (err<0) {
+        return err;
+    }
+    if (len!=msg->size) {
+        return -ETOOSMALL;
+    }
+    b->len += len;
+    
     return 0;
 }
 /******************************************************************************/

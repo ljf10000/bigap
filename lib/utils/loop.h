@@ -62,16 +62,19 @@ typedef struct loop_watcher {
         
         void *cb;
     } cb;
+
+    void *user;
 } loop_watcher_t;
 
 static inline void
-__loop_watcher_initer(loop_watcher_t *watcher, int fd, int type, void *cb)
+__loop_watcher_initer(loop_watcher_t *watcher, int fd, int type, void *cb, void *user)
 {
     watcher->fd     = fd;
     watcher->father = INVALID_FD;
     watcher->type   = type;
     watcher->flag   = 0;
     watcher->cb.cb  = cb;
+    watcher->user   = user;
 }
 
 typedef struct {
@@ -238,7 +241,7 @@ __loop_watcher(loop_t *loop, int fd)
 }
 
 static inline loop_watcher_t *
-__loop_watcher_add(loop_t *loop, int fd, int type, void *cb)
+__loop_watcher_add(loop_t *loop, int fd, int type, void *cb, void *user)
 {
     int err;
     char *watchname = loop_type_string(type);
@@ -257,7 +260,7 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb)
         return NULL;
     }
 
-    __loop_watcher_initer(watcher, fd, type, cb);
+    __loop_watcher_initer(watcher, fd, type, cb, user);
     
     err = __loop_fd_add(loop, fd);
     if (err<0) {
@@ -306,7 +309,7 @@ __loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], i
         }
     }
 
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_INOTIFY, cb);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_INOTIFY, cb, NULL);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -338,7 +341,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
         return -errno;
     }
 
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_TIMER, cb);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_TIMER, cb, NULL);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -366,7 +369,7 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
         return -errno;
     }
 
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SIGNAL, cb);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SIGNAL, cb, NULL);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -375,9 +378,9 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
 }
 
 static inline int
-__loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
+__loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user)
 {
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_NORMAL, cb);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_NORMAL, cb, user);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -386,9 +389,9 @@ __loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
 }
 
 static inline int
-__loop_add_father(loop_t *loop, int fd, loop_son_f *cb)
+__loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
 {    
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_FATHER, cb);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_FATHER, cb, user);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -398,9 +401,9 @@ __loop_add_father(loop_t *loop, int fd, loop_son_f *cb)
 }
 
 static inline int
-__loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father)
+__loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, void *user)
 {
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SON, cb);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SON, cb, user);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -474,7 +477,7 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher)
     fd = accept(watcher->fd, &addr.c, &addrlen);
     os_println("accept new fd=%d from %d, errno=%d", fd, watcher->fd, -errno);
     if (is_good_fd(watcher->fd)) {
-        __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd);
+        __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd, watcher->user);
     }
 }
 
@@ -531,80 +534,121 @@ __loop_handle(loop_t *loop)
 static inline int
 os_loop_del_watcher(loop_t *loop, int fd)
 {
-    if (loop) {
-        return __loop_watcher_del(loop, fd);
-    } else {
+    if (NULL==loop) {
         return -EINVAL0;
+    }
+    else if (false==is_good_fd(fd)) {
+        return -EINVAL1;
+    }
+    else {
+        return __loop_watcher_del(loop, fd);
     }
 }
 
 static inline int
 os_loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], int count)
 {
-    if (loop) {
-        return __loop_add_inotify(loop, cb, inotify, count);
-    } else {
+    if (NULL==loop) {
         return -EINVAL0;
+    }
+    else if (NULL==cb) {
+        return -EINVAL1;
+    }
+    else if (NULL==inotify) {
+        return -EINVAL2;
+    }
+    else if (count<=0) {
+        return -EINVAL3;
+    }
+    else {
+        return __loop_add_inotify(loop, cb, inotify, count);
     }
 }
 
 static inline int
 os_loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
 {
-    if (loop) {
-        return __loop_add_timer(loop, cb, timer);
-    } else {
+    if (NULL==loop) {
         return -EINVAL0;
+    }
+    else if (NULL==cb) {
+        return -EINVAL1;
+    }
+    else if (NULL==timer) {
+        return -EINVAL2;
+    }
+    else {
+        return __loop_add_timer(loop, cb, timer);
     }
 }
 
 static inline int
 os_loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
 {
-    if (loop) {
+    if (NULL==loop) {
+        return -EINVAL0;
+    }
+    else if (NULL==cb) {
+        return -EINVAL1;
+    }
+    else if (NULL==sigs) {
+        return -EINVAL2;
+    }
+    else if (count<=0) {
+        return -EINVAL3;
+    }
+    else {
         return __loop_add_signal(loop, cb, sigs, count);
-    } else {
-        return -EINVAL0;
     }
 }
 
 static inline int
-os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb)
+os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user)
 {
-    if (false==is_good_fd(fd)) {
+    if (NULL==loop) {
+        return -EINVAL0;
+    }
+    else if (NULL==cb) {
+        return -EINVAL1;
+    }
+    else if (false==is_good_fd(fd)) {
         return -EBADF;
     }
-    
-    if (loop) {
-        return __loop_add_normal(loop, fd, cb);
-    } else {
-        return -EINVAL0;
+    else {
+        return __loop_add_normal(loop, fd, cb, user);
     }
 }
 
 static inline int
-os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb)
+os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
 {
-    if (false==is_good_fd(fd)) {
+    if (NULL==loop) {
+        return -EINVAL0;
+    }
+    else if (NULL==cb) {
+        return -EINVAL1;
+    }
+    else if (false==is_good_fd(fd)) {
         return -EBADF;
     }
-    
-    if (loop) {
-        return __loop_add_father(loop, fd, cb);
-    } else {
-        return -EINVAL0;
+    else {
+        return __loop_add_father(loop, fd, cb, user);
     }
 }
 
 #if __CLI_TCP__
-#define os_loop_add_CLI(_loop, _name, _cb)  os_loop_add_father(_loop, __clis_FD(_name), _cb)
+#define os_loop_add_CLI(_loop, _name, _cb)  os_loop_add_father(_loop, __clis_FD(_name), _cb, NULL)
 #else
-#define os_loop_add_CLI(_loop, _name, _cb)  os_loop_add_normal(_loop, __clis_FD(_name), _cb)
+#define os_loop_add_CLI(_loop, _name, _cb)  os_loop_add_normal(_loop, __clis_FD(_name), _cb, NULL)
 #endif
 
 static inline int
 os_loop(loop_t *loop)
 {
+    if (NULL==loop) {
+        return -EINVAL0;
+    }
+    
     while(1) {
         int err = __loop_handle(loop);
         if (err<0) {

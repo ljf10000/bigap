@@ -27,9 +27,9 @@ init_nsq_table(void)
 static int
 init_nsq_env(void)
 {
-    nsqa.conf   = env_gets(OS_ENV(CONFIG),  NSQ_CONF);
-    nsqa.ticks  = env_geti(OS_ENV(TICKS),   NSQ_TICKS);
-    nsqa.cache  = env_gets(OS_ENV(CACHE),   js_CACHE);
+    nsqa.env.conf   = env_gets(OS_ENV(CONFIG),  NSQ_CONF);
+    nsqa.env.ticks  = env_geti(OS_ENV(TICKS),   NSQ_TICKS);
+    nsqa.env.cache  = env_gets(OS_ENV(CACHE),   js_CACHE);
     
     return 0;
 }
@@ -55,7 +55,6 @@ __init(void)
         INIT_ENTRY("cli",       init_nsq_cli),
         INIT_ENTRY("cfg",       init_nsq_cfg),
         INIT_ENTRY("instance",  init_nsq_instance),
-        INIT_ENTRY("msg",       init_nsq_msg),
     };
 
     return os_initer(map, os_count_of(map));

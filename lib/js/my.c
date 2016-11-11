@@ -481,7 +481,7 @@ __normal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_n
     for (i=0; i<count; i++) {
         fd = js_get_array_int(ctx, -1, i);
 
-        err = os_loop_add_normal(loop, fd, cb);
+        err = os_loop_add_normal(loop, fd, cb, NULL);
         if (err<0) {
             duk_pop_n(ctx, level); return 0;
         }
@@ -519,7 +519,7 @@ __father_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_s
     for (i=0; i<count; i++) {
         fd = js_get_array_int(ctx, -1, i);
 
-        err = os_loop_add_father(loop, fd, cb);
+        err = os_loop_add_father(loop, fd, cb, NULL);
         if (err<0) {
             duk_pop_n(ctx, level); return 0;
         }
@@ -543,7 +543,7 @@ duke_loop(duk_context *ctx)
         __js_seterrno(ctx, -EFORMAT); goto error;
     }
 
-    int __inotify_handle(struct loop_watcher *watcher, struct inotify_event *ev)
+    int __inotify_handle(loop_watcher_t *watcher, struct inotify_event *ev)
     {
         int push_inotify(void) {
             return js_obj_push(ctx, __set_inotify_event, ev), 1;

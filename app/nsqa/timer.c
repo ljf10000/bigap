@@ -12,16 +12,100 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-static void
-__nsq_timer(time_t now)
-{
+typedef mv_t nsq_timer_handle_f(nsq_instance_t *instance, time_t now);
 
+static mv_t
+resolve_timer(nsq_instance_t *instance, time_t now)
+{
+    if (is_nsq_fsm_init(instance)) {
+        nsq_resolve(instance);
+    }
+    
+    return mv2_ok;
+}
+
+static mv_t
+connect_timer(nsq_instance_t *instance, time_t now)
+{
+    if (is_nsq_fsm_resolved(instance)) {
+        nsq_connect(instance);
+    }
+
+    return mv2_ok;
+}
+
+static mv_t
+handshake_timer(nsq_instance_t *instance, time_t now)
+{
+    if (is_nsq_fsm_connected(instance)) {
+        nsq_handshake(instance);
+    }
+
+    return mv2_ok;
+}
+
+static mv_t
+identify_timer(nsq_instance_t *instance, time_t now)
+{
+    if (is_nsq_fsm_handshaked(instance)) {
+        nsq_identify(instance);
+    }
+
+    return mv2_ok;
+}
+
+static mv_t
+subscrib_timer(nsq_instance_t *instance, time_t now)
+{
+    if (is_nsq_fsm_identified(instance)) {
+        nsq_subscrib(instance);
+    }
+
+    return mv2_ok;
+}
+
+static mv_t
+fsm_timeout(nsq_instance_t *instance, time_t now)
+{
+    return mv2_ok;
+}
+
+static mv_t 
+timer_handle(nsq_instance_t *instance, time_t now)
+{
+    static nsq_timer_handle_f *handler[] = {
+        resolve_timer,
+        connect_timer,
+        handshake_timer,
+        identify_timer,
+        subscrib_timer,
+        fsm_timeout,
+    };
+    
+    mv_u mv;
+    int i;
+
+    for (i=0; i<os_count_of(handler); i++) {
+        mv.v = (*handler[i])(instance, now);
+        if (is_mv2_break(mv)) {
+            return mv.v;
+        }
+    }
+
+    return mv2_ok;
 }
 
 static int
 nsq_timer(loop_watcher_t *watcher, time_t now)
 {
-    __nsq_timer(now);
+    mv_t cb(nsq_instance_t *instance)
+    {
+        return timer_handle(instance, now);
+    }
+    
+    nsqi_foreach(cb, true);
+    
+    nsqa.st.ticks++;
     
     return 0;
 }
@@ -29,7 +113,7 @@ nsq_timer(loop_watcher_t *watcher, time_t now)
 int
 init_nsq_timer(void)
 {
-    struct itimerspec iticks = OS_ITIMESPEC_INITER(os_second(nsqa.ticks), os_usecond(nsqa.ticks));
+    struct itimerspec iticks = OS_ITIMESPEC_INITER(os_second(nsqa.env.ticks), os_usecond(nsqa.env.ticks));
     int err;
     
     err = os_loop_add_timer(&nsqa.loop, nsq_timer, &iticks);

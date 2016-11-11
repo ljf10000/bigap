@@ -188,6 +188,7 @@ enum {
     EBADREASON  = ERRNO(25),
     EBADJSON    = ERRNO(26),
     EBADSTATE   = ERRNO(27),
+    EBADFSM     = ERRNO(27), /* yes, same as state */
     EBADHEX     = ERRNO(28),
     EBADCFG     = ERRNO(29),
     EBADPROTO   = ERRNO(30),

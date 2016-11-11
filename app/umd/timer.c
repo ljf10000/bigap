@@ -192,7 +192,7 @@ fake_timeout(struct um_user *user, time_t now)
 static mv_t
 timer_handle(struct um_user *user, time_t now)
 {
-    static um_timer_handle_t *table[] = {
+    static um_timer_handle_t *handler[] = {
         fake_timeout,
         online_reauth,
         online_timeout,
@@ -200,11 +200,12 @@ timer_handle(struct um_user *user, time_t now)
         
         umd_gc_auto, /* must last */
     };
+    
     mv_u mv;
     int i;
 
-    for (i=0; i<os_count_of(table); i++) {
-        mv.v = (*table[i])(user, now);
+    for (i=0; i<os_count_of(handler); i++) {
+        mv.v = (*handler[i])(user, now);
         if (is_mv2_break(mv)) {
             return mv.v;
         }

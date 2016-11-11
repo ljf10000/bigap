@@ -220,6 +220,20 @@ enum {
 #define is_mv2_break(_mv)       (__MV_BREAK==mv2_control(_mv))
 #define is_mv2_go(_mv)          (__MV_GO==mv2_control(_mv))
 
+#define mv_handle_table(_handler, _args)             ({ \
+    mv_u __mv = MV_INITER;                              \
+    int __i;                                            \
+                                                        \
+    for (__i=0; __i<os_count_of(_handler); __i++) {     \
+        __mv.v = (*_handler[__i]) _args;                \
+        if (is_mv2_break(__mv)) {                       \
+            break;                                      \
+        }                                               \
+    }                                                   \
+                                                        \
+    __mv.v;                                             \
+})  /* end */
+
 #define SZERO1      "0"
 #define SZERO2      SZERO1  SZERO1
 #define SZERO4      SZERO2  SZERO2

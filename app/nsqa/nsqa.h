@@ -30,12 +30,15 @@ typedef struct {
 typedef struct {
     int fd;
     int fsm;
-    int fsm_error;
+    time_t fsm_time;
+    
+    bool loop;
     
     char *name;
     char *domain;
     char *topic;
     char *identify; // json
+    char *channel;
     
     char *cache;
     
@@ -52,13 +55,30 @@ typedef struct {
 } 
 nsq_instance_t;
 
+#define is_nsq_fsm_init(_instance)          (NSQ_FSM_INIT==(_instance)->fsm)
+#define is_nsq_fsm_resolved(_instance)      (NSQ_FSM_RESOLVED==(_instance)->fsm)
+#define is_nsq_fsm_connected(_instance)     (NSQ_FSM_CONNECTED==(_instance)->fsm)
+#define is_nsq_fsm_handshaking(_instance)   (NSQ_FSM_HANDSHAKING==(_instance)->fsm)
+#define is_nsq_fsm_handshaked(_instance)    (NSQ_FSM_HANDSHAKED==(_instance)->fsm)
+#define is_nsq_fsm_identifying(_instance)   (NSQ_FSM_IDENTIFYING==(_instance)->fsm)
+#define is_nsq_fsm_identified(_instance)    (NSQ_FSM_IDENTIFIED==(_instance)->fsm)
+#define is_nsq_fsm_subscribing(_instance)   (NSQ_FSM_SUBSCRIBING==(_instance)->fsm)
+#define is_nsq_fsm_subscribed(_instance)    (NSQ_FSM_SUBSCRIBED==(_instance)->fsm)
+#define is_nsq_fsm_run(_instance)           (NSQ_FSM_RUN==(_instance)->fsm)
+
 typedef mv_t nsq_foreach_f(nsq_instance_t *instance);
 typedef mv_t nsq_get_f(nsq_instance_t *instance);
 
 typedef struct {
-    int ticks;
-    char *conf;
-    char *cache;
+    struct {
+        uint32 ticks;
+    } st;
+    
+    struct {
+        uint32 ticks;
+        char *conf;
+        char *cache;
+    } env;
     
     nsq_config_t cfg;
     
@@ -90,6 +110,27 @@ extern int
 nsqi_identify(nsq_instance_t *instance, char *json);
 /******************************************************************************/
 extern int
+nsq_fsm_change(nsq_instance_t *instance, int fsm);
+
+extern int 
+nsq_recver(loop_watcher_t *watcher);
+/******************************************************************************/
+extern int
+nsq_resolve(nsq_instance_t *instance);
+
+extern int
+nsq_connect(nsq_instance_t *instance);
+
+extern int
+nsq_handshake(nsq_instance_t *instance);
+
+extern int
+nsq_identify(nsq_instance_t *instance);
+
+extern int
+nsq_subscrib(nsq_instance_t *instance);
+/******************************************************************************/
+extern int
 init_nsq_timer(void);
 
 extern int
@@ -100,9 +141,5 @@ init_nsq_cfg(void);
 
 extern int
 init_nsq_instance(void);
-
-extern int
-init_nsq_msg(void);
-
 /******************************************************************************/
 #endif /* __NSQA_H_138838ae69b44e039c63875789ba5889__ */

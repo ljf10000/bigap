@@ -38,71 +38,6 @@ __hash(char *name)
     return hash_bybuf(name, os_strlen(name), NSQ_HASHMASK);
 }
 
-static bool
-__is_dns_ok(nsq_instance_t *instance)
-{
-    return INADDR_NONE != instance->server.sin_addr.s_addr;
-}
-
-static int
-__dns(nsq_instance_t *instance)
-{
-    if (false==__is_dns_ok(instance)) {
-        in_addr_t ip = inet_addr(instance->domain);
-        if (INADDR_NONE != ip) {
-            instance->server.sin_addr.s_addr = ip;
-        } else {
-            struct hostent *p = gethostbyname(instance->domain);
-            if (NULL==p) {
-                return -EDNS;
-            }
-
-            instance->server.sin_addr.s_addr = *(uint32 *)(p->h_addr);
-        }
-    }
-
-    return 0;
-}
-
-static nsq_instance_t *
-__create(char *name, jobj_t jobj)
-{
-    jobj_t jval;
-    
-    nsq_instance_t *instance = (nsq_instance_t *)os_zalloc(sizeof(nsq_instance_t));
-    if (NULL==instance) {
-        return NULL;
-    }
-    instance->jinstance = jobj;
-    
-    instance->name      = os_strdup(name);
-    os_asprintf(&instance->cache, "%s/%s", nsqa.cache, name);
-
-    jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
-    instance->domain    = os_strdup(jobj_get_string(jval));
-
-    jval = jobj_get(jobj, NSQ_INSTANCE_TOPIC_NAME);
-    instance->topic     = os_strdup(jobj_get_string(jval));
-    
-    jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
-    instance->identify  = os_strdup(jobj_json(jval));
-
-    jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
-    int port = jobj_get_bool(jval);
-    sockaddr_in_t *server   = &instance->server;
-    server->sin_family      = AF_INET;
-    server->sin_port        = htons(port);
-    server->sin_addr.s_addr = INADDR_NONE;
-
-    sockaddr_in_t *client   = &instance->client;
-    client->sin_family      = AF_INET;
-    
-    nsqb_init(&instance->brecver, NSQ_SEND_BUFFER_SIZE);
-    nsqb_init(&instance->bsender, NSQ_RECV_BUFFER_SIZE);
-    
-    return instance;
-}
-
 static void
 ____destroy(nsq_instance_t *instance)
 {
@@ -120,6 +55,14 @@ ____destroy(nsq_instance_t *instance)
         nsqb_fini(&instance->brecver);
         nsqb_fini(&instance->bsender);
 
+        if (instance->loop) {
+            os_loop_del_watcher(&nsqa.loop, instance->fd);
+            instance->loop = false;
+        }
+        
+        os_close(instance->fd);
+        
+        os_free(instance);
     }
 }
 
@@ -127,6 +70,68 @@ ____destroy(nsq_instance_t *instance)
     ____destroy(_instance);         \
     _instance = NULL;               \
 }while(0)
+
+static nsq_instance_t *
+__create(char *name, jobj_t jobj)
+{
+    nsq_instance_t *instance = NULL;
+    jobj_t jval;
+    int fd, port, err;
+    
+    instance = (nsq_instance_t *)os_zalloc(sizeof(nsq_instance_t));
+    if (NULL==instance) {
+        goto error;
+    }
+    
+    fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (fd<0) {
+        debug_error("instance %s socket error:%d", instance->name, -errno);
+        
+        goto error;
+    }
+    instance->fd        = fd;
+
+    err = os_loop_add_normal(&nsqa.loop, fd, nsq_recver, instance);
+    if (err<0) {
+        goto error;
+    }
+    instance->loop      = true;
+    
+    instance->fsm       = NSQ_FSM_INIT;
+    instance->jinstance = jobj;
+    
+    instance->name      = os_strdup(name);
+    os_asprintf(&instance->cache, "%s/%s", nsqa.env.cache, name);
+
+    jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
+    instance->domain    = os_strdup(jobj_get_string(jval));
+
+    jval = jobj_get(jobj, NSQ_INSTANCE_TOPIC_NAME);
+    instance->topic     = os_strdup(jobj_get_string(jval));
+    instance->channel   = nsqa.cfg.hostname;
+    
+    jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
+    instance->identify  = os_strdup(jobj_json(jval));
+
+    jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
+    port = jobj_get_bool(jval);
+    sockaddr_in_t *server   = &instance->server;
+    server->sin_family      = AF_INET;
+    server->sin_port        = htons(port);
+    server->sin_addr.s_addr = INADDR_NONE;
+
+    sockaddr_in_t *client   = &instance->client;
+    client->sin_family      = AF_INET;
+    
+    nsqb_init(&instance->brecver, NSQ_SEND_BUFFER_SIZE);
+    nsqb_init(&instance->bsender, NSQ_RECV_BUFFER_SIZE);
+    
+    return instance;
+error:
+    __destroy(instance);
+
+    return NULL;
+}
 
 static int
 __insert(nsq_instance_t *instance)
@@ -145,37 +150,6 @@ __remove(nsq_instance_t *instance)
     return h1_del(&nsqa.table, &instance->node);
 }
 
-static nsq_instance_t *
-__get(char *name)
-{
-    hash_idx_t dhash(void)
-    {
-        return __hash(name);
-    }
-    
-    bool eq(hash_node_t *node)
-    {
-        return os_streq(name, __entry(node)->name);
-    }
-
-    return __hentry(h1_find(&nsqa.table, dhash, eq));
-}
-
-static int
-__foreach(nsq_foreach_f *foreach, bool safe)
-{
-    mv_t node_foreach(h1_node_t *node)
-    {
-        return (*foreach)(__hentry(node));
-    }
-
-    if (safe) {
-        return h1_foreach_safe(&nsqa.table, node_foreach);
-    } else {
-        return h1_foreach(&nsqa.table, node_foreach);
-    }
-}
-
 static int
 __nsqi_insert(jobj_t jobj)
 {
@@ -188,8 +162,8 @@ __nsqi_insert(jobj_t jobj)
         return -EBADJSON;
     }
     
-    if (__get(name)) {
-        debug_cli("instance %s exist." name);
+    if (nsqi_get(name)) {
+        debug_entry("instance %s exist." name);
         
         return -EEXIST;
     }
@@ -201,7 +175,8 @@ __nsqi_insert(jobj_t jobj)
 
     err = __insert(instance);
     if (err<0) {
-        os_println("insert error:%d", err);
+        debug_entry("insert %s error:%d", name, err);
+        
         return err;
     }
     
@@ -241,7 +216,7 @@ nsqi_remove(char *name)
         return -EINVAL0;
     }
 
-    nsq_instance_t *instance = __get(name);
+    nsq_instance_t *instance = nsqi_get(name);
     if (NULL==instance) {
         return -ENOEXIST;
     }
@@ -254,6 +229,37 @@ nsqi_remove(char *name)
     __destroy(instance);
 
     return 0;
+}
+
+int
+nsqi_foreach(nsq_foreach_f *foreach, bool safe)
+{
+    mv_t node_foreach(h1_node_t *node)
+    {
+        return (*foreach)(__hentry(node));
+    }
+
+    if (safe) {
+        return h1_foreach_safe(&nsqa.table, node_foreach);
+    } else {
+        return h1_foreach(&nsqa.table, node_foreach);
+    }
+}
+
+nsq_instance_t *
+nsqi_get(char *name)
+{
+    hash_idx_t dhash(void)
+    {
+        return __hash(name);
+    }
+    
+    bool eq(hash_node_t *node)
+    {
+        return os_streq(name, __entry(node)->name);
+    }
+
+    return __hentry(h1_find(&nsqa.table, dhash, eq));
 }
 
 int

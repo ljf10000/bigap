@@ -19,7 +19,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 int
 init_nsq_cfg(void)
 {
-    jobj_t jobj = JOBJ_MAPF(nsqa.conf, NSQ_JMAPPER);
+    jobj_t jobj = JOBJ_MAPF(nsqa.env.conf, NSQ_JMAPPER);
     if (NULL==jobj) {
         return -EBADCONF;
     }

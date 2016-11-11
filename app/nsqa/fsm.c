@@ -12,30 +12,28 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-int nsq_fsm_change(nsq_instance_t *instance, int fsm)
+int
+nsq_fsm_change(nsq_instance_t *instance, int fsm)
 {
-    instance->fsm = fsm;
-
-    return 0;
-}
-
-int nsq_fsm_init(nsq_instance_t *instance)
-{
-    int err;
+    int old = instance->fsm;
     
-    instance->fsm = NSQ_FSM_INIT;
+    if (is_good_nsq_fsm(fsm)) {
+        instance->fsm = fsm;
+        instance->fsm_time = time(NULL);
+        
+        debug_entry("change instance(%s)'fsm from %s to %s",
+            instance->name,
+            nsq_fsm_string(old),
+            nsq_fsm_string(fsm));
 
-    // todo: fsm timer
+        return 0;
+    } else {
+        debug_error("try change instance(%s)'fsm from %s to invalid %d",
+            instance->name,
+            nsq_fsm_string(old),
+            fsm);
 
-    return 0;
+        return -EBADFSM;
+    }
 }
-
-int nsq_fsm_resolved(nsq_instance_t *instance)
-{
-    instance->fsm = NSQ_FSM_RESOLVED;
-
-
-    return 0;
-}
-
 /******************************************************************************/

@@ -219,14 +219,14 @@ __main(int argc, char *argv[])
         return err;
     }
     
-    err = os_loop_add_normal(&loop, loops.udp.fd, normal_cb);
+    err = os_loop_add_normal(&loop, loops.udp.fd, normal_cb, NULL);
     if (err<0) {
         debug_error("add loop normal error:%d", err);
         
         return err;
     }
     
-    err = os_loop_add_father(&loop, loops.tcp.fd, son_cb);
+    err = os_loop_add_father(&loop, loops.tcp.fd, son_cb, NULL);
     if (err<0) {
         debug_error("add loop father error:%d", err);
         
