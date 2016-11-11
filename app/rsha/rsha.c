@@ -148,7 +148,7 @@ load_slot(jobj_t jslot, int slot)
             return 0;
         }
 
-        ip = ((struct in_addr *)h->h_addr)->s_addr;
+        ip = *(uint32 *)(h->h_addr);
     }
     rsh_slot_ip(slot) = ip;
     rsh_slot_ipstring(slot) = os_strdup(os_ipstring(ip));

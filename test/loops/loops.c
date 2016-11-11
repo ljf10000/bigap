@@ -37,7 +37,7 @@ static int timer_cb(loop_watcher_t *watcher, time_t now)
 {
     static uint32 count = 0;
 
-    os_println("timer:%u time:%u", count++, now);
+    os_println("timer:%u time:%u", count++, (uint32)now);
     
     return 0;
 }

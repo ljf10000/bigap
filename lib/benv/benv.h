@@ -614,7 +614,7 @@ benv_ops_write(benv_ops_t *ops, char *value)
 }
 
 #define __benv_ops_selfcheck(_idx, _obj) do{ \
-    if ((uintptr)benv_ops(_idx)->_obj > BENV_LINK_ADDRESS) { \
+    if ((uintptr)benv_ops(_idx)->_obj > (uintptr)BENV_LINK_ADDRESS) { \
         os_println("benv ops[%d:%s] " #_obj " is %p", \
             _idx,                       \
             benv_ops(_idx)->path,       \
@@ -3003,7 +3003,7 @@ benv_cmd_hiden_selfcheck(benv_cmd_t *cmd, int count)
     int i;
     
     for (i=0; i<count; i++) {
-        if (cmd[i].handle < BENV_LINK_ADDRESS) {
+        if ((uintptr)cmd[i].handle < (uintptr)BENV_LINK_ADDRESS) {
             os_println("benv cmd[%d] handle is %p", i, cmd[i].handle);
         }
     }

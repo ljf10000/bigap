@@ -57,7 +57,7 @@ __dns(nsq_instance_t *instance)
                 return -EDNS;
             }
 
-            instance->server.sin_addr.s_addr = p->h_addr;
+            instance->server.sin_addr.s_addr = *(uint32 *)(p->h_addr);
         }
     }
 }

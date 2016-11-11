@@ -202,23 +202,22 @@ static inline int
 __set_hostent(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     struct hostent *p = (struct hostent *)obj;
-    char *a;
     int i;
     
     js_set_obj_string(ctx, idx, "name", p->h_name);
     js_set_obj_int(ctx, idx, "addrtype", p->h_addrtype);
     js_set_obj_int(ctx, idx, "length", p->h_length);
-    js_set_obj_string(ctx, idx, "addr", p->h_addr);
+    js_set_obj_uint(ctx, idx, "addr", *(uint32 *)(p->h_addr));
     
     duk_push_object(ctx);
-    for (i=0, a=p->h_aliases[0];a; i++, a++) {
-        js_set_array_string(ctx, -1, i, a);
+    for (i=0; p->h_aliases[i]; i++) {
+        js_set_array_string(ctx, -1, i, p->h_aliases[i]);
     }
     duk_put_prop_string(ctx, idx, "aliases");
     
     duk_push_object(ctx);
-    for (i=0, a=p->h_addr_list[0];a; i++, a++) {
-        js_set_array_string(ctx, -1, i, a);
+    for (i=0; p->h_addr_list[0]; i++) {
+        js_set_array_uint(ctx, -1, i, *(uint32 *)p->h_addr_list[i]);
     }
     duk_put_prop_string(ctx, idx, "addr_list");
 
