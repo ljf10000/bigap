@@ -60,6 +60,8 @@ __dns(nsq_instance_t *instance)
             instance->server.sin_addr.s_addr = *(uint32 *)(p->h_addr);
         }
     }
+
+    return 0;
 }
 
 static nsq_instance_t *
@@ -181,10 +183,12 @@ __nsqi_insert(jobj_t jobj)
 
     char *name = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_NAME_NAME));
     if (NULL==name) {
+        os_println("no-found name");
         return -EBADJSON;
     }
     
     if (__get(name)) {
+        os_println("exist %s", name);
         return -EEXIST;
     }
 
@@ -195,6 +199,7 @@ __nsqi_insert(jobj_t jobj)
 
     err = __insert(instance);
     if (err<0) {
+        os_println("insert error:%d", err);
         return err;
     }
     
@@ -209,6 +214,7 @@ nsqi_insert(char *json)
     
     jobj = jobj_byjson(json);
     if (jobj) {
+        os_println("insert bad josn:%s", json);
         err = -EBADJSON; goto error;
     }
 
