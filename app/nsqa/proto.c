@@ -171,7 +171,6 @@ nsq_recver(struct loop_watcher *watcher, time_t now)
     if (err<0) {
         return err;
     }
-    time_t now = time(NULL);
     
     switch(instance->fsm) {
         case NSQ_FSM_HANDSHAKING:
