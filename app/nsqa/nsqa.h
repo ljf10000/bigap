@@ -28,11 +28,11 @@ typedef struct {
 }   /* end */
 
 typedef struct {
-    int fd;
-    int fsm;
-    time_t fsm_time;
-    
-    bool loop;
+    int     fd;
+    int     fsm;
+    uint32  rdy;
+    time_t  fsm_time;
+    bool    loop;
     
     char *name;
     char *domain;
@@ -125,13 +125,106 @@ nsqi_foreach(nsq_foreach_f *foreach, bool safe);
 
 extern int
 nsqi_identify(nsq_instance_t *instance, char *json);
-/******************************************************************************/
+
 extern int
-nsq_fsm_change(nsq_instance_t *instance, int fsm);
+nsqi_rdy(nsq_instance_t *instance, int val);
+
+extern int
+nsqi_fsm(nsq_instance_t *instance, int fsm);
+/******************************************************************************/
+static inline int 
+nsq_send(nsq_instance_t *instance)
+{
+    return nsqb_send(instance->fd, &instance->bsender);
+}
+
+static inline int 
+nsq_recv(nsq_instance_t *instance)
+{
+    return nsqb_recv(instance->fd, &instance->brecver);
+}
+
+static inline int 
+nsq_MAGIC(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_MAGIC(&instance->bsender);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+static inline int
+nsq_IDENTIFY(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_IDENTIFY(&instance->bsender, instance->identify);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+static inline int
+nsq_SUB(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_SUB(&instance->bsender, instance->topic, instance->channel);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+static inline int
+nsq_RDY(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_RDY(&instance->bsender, instance->rdy);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+static inline int
+nsq_FIN(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_FIN(&instance->bsender, nsq_recver_msg(instance)->id);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+static inline int
+nsq_NOP(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_NOP(&instance->bsender, nsq_recver_msg(instance)->id);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
 
 extern int 
 nsq_recver(struct loop_watcher *watcher, time_t now);
-/******************************************************************************/
+
 extern int
 nsq_resolve(nsq_instance_t *instance);
 
@@ -146,6 +239,9 @@ nsq_identify(nsq_instance_t *instance);
 
 extern int
 nsq_subscrib(nsq_instance_t *instance);
+
+extern int
+nsq_confuse(nsq_instance_t *instance);
 /******************************************************************************/
 extern int
 init_nsq_timer(void);

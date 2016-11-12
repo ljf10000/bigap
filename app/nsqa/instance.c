@@ -98,7 +98,8 @@ __create(char *name, jobj_t jobj)
         goto error;
     }
     instance->loop      = true;
-    
+
+    instance->rdy       = NSQ_RDY;
     instance->fsm       = NSQ_FSM_INIT;
     instance->jinstance = jobj;
     
@@ -183,6 +184,37 @@ __nsqi_insert(jobj_t jobj)
     }
     
     return 0;
+}
+
+int
+nsqi_rdy(nsq_instance_t *instance, int val)
+{
+    instance->rdy += val;
+}
+
+int
+nsqi_fsm(nsq_instance_t *instance, int fsm)
+{
+    int old = instance->fsm;
+    
+    if (is_good_nsq_fsm(fsm)) {
+        instance->fsm = fsm;
+        instance->fsm_time = time(NULL);
+        
+        debug_entry("change instance(%s)'fsm from %s to %s",
+            instance->name,
+            nsq_fsm_string(old),
+            nsq_fsm_string(fsm));
+
+        return 0;
+    } else {
+        debug_error("try change instance(%s)'fsm from %s to invalid %d",
+            instance->name,
+            nsq_fsm_string(old),
+            fsm);
+
+        return -EBADFSM;
+    }
 }
 
 int

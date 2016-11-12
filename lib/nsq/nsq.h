@@ -31,6 +31,10 @@
 #define NSQ_TOPIC           "weos.nsq.topic.default"
 #endif
 
+#ifndef NSQ_RDY
+#define NSQ_RDY                     PC_VAL(128, 32)
+#endif
+
 #ifndef NSQ_NEGOTIATION
 #define NSQ_NEGOTIATION             false
 #endif
@@ -394,7 +398,11 @@ static inline int nsq_frame_idx(char *name);
 #define NSQ_FRAME_RESPONSE  NSQ_FRAME_RESPONSE
 #define NSQ_FRAME_ERROR     NSQ_FRAME_ERROR
 #define NSQ_FRAME_MESSAGE   NSQ_FRAME_MESSAGE
-#define NSQ_FRAME_END       NSQ_FRAME_END     
+#define NSQ_FRAME_END       NSQ_FRAME_END
+
+#define is_nsq_frame_response(_code)    (NSQ_FRAME_RESPONSE==(_code))
+#define is_nsq_frame_error(_code)       (NSQ_FRAME_ERROR==(_code))
+#define is_nsq_frame_message(_code)     (NSQ_FRAME_MESSAGE==(_code))
 #endif
 
 typedef struct {
@@ -428,6 +436,22 @@ nsq_msg_body_size(nsq_msg_t *msg)
 {
     return msg->size - (sizeof(nsq_msg_t) - sizeof(uint32));
 }
+
+static inline bool
+is_nsq_msg_heartbeat(nsq_msg_t *msg)
+{
+    return is_nsq_frame_response(msg->type)
+        && os_streq(msg->body, NSQ_MSG_HEARTBEAT);
+}
+
+#define nsq_msg_dump(_msg, _dump) \
+    _dump("size=%d, type=%s, timestamp=%llu, attempts=%d, body=%s", \
+        (_msg)->size,       \
+        nsq_frame_string((_msg)->type), \
+        (_msg)->timestamp,  \
+        (_msg)->attempts,   \
+        (_msg)->body)       \
+        /* end */
 
 typedef simple_buffer_t nsq_buffer_t;
 
@@ -631,7 +655,7 @@ nsqb_RDY(nsq_buffer_t *b, uint32 count)
 }
 
 static inline int
-nsqb_FIN(nsq_buffer_t *b, char *msg_id)
+nsqb_FIN(nsq_buffer_t *b, byte *msg_id)
 {
     int err;
     
@@ -775,6 +799,8 @@ nsqb_recv(int fd, nsq_buffer_t *b)
     }
     b->len += len;
     b->buf[b->len] = 0;
+
+    nsq_msg_dump(msg, debug_proto);
     
     return 0;
 }
