@@ -684,6 +684,8 @@ fd_socket(int domain, int type, int protocol)
 
     fd = socket(domain, type, protocol);
     if (is_good_fd(fd)) {
+        os_closexec(fd);
+        
         fd = __fd_create(fd, FD_F_SOCK);
     }
     if (fd<0) {

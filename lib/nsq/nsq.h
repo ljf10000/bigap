@@ -399,6 +399,11 @@ static inline int nsq_frame_idx(char *name);
 #endif
 
 typedef struct {
+    /*
+    * msg size
+    *   include body size
+    *   not include the 'size' self
+    */
     uint32 size;
     uint32 type;
 
@@ -418,6 +423,12 @@ nsq_msg_ntoh(nsq_msg_t *msg)
     msg->attempts   = ntohs(msg->attempts);
 }
 #define nsq_msg_hton(_msg)  nsq_msg_ntoh(_msg)
+
+static inline uint32
+nsq_msg_body_size(nsq_msg_t *msg)
+{
+    return msg->size - (sizeof(nsq_msg_t) - sizeof(uint32));
+}
 
 typedef simple_buffer_t nsq_buffer_t;
 
@@ -743,20 +754,20 @@ nsqb_recv(int fd, nsq_buffer_t *b)
     int err, len;
 
     nsqb_clean(b);
-    
+
     err = len = __io_recv(fd, b->buf, sizeof(nsq_msg_t), 0);
     if (err<0) {
         return err;
     }
-    if (len!=sizeof(nsq_msg_t)) {
+    else if (len!=msg->size) {
         return -ETOOSMALL;
     }
+
     b->len += len;
     msg = (nsq_msg_t *)b->buf;
     nsq_msg_ntoh(msg);
 
-    // todo: what is msg->size ???
-    err = len = __io_recv(fd, b->buf + b->len, msg->size, 0);
+    err = len = __io_recv(fd, b->buf + b->len, nsq_msg_body_size(msg), 0);
     if (err<0) {
         return err;
     }

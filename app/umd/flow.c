@@ -732,9 +732,9 @@ flow_server_init(sock_server_t *server)
 
         return -errno;
     }
-    
-    fcntl(fd, F_SETFL, O_NONBLOCK);
-    
+    os_closexec(fd);
+    os_noblock(fd);
+
     struct um_intf *intf = get_intf_by_server(server);
 
     sockaddr_ll_t addr = {

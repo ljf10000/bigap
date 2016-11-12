@@ -275,6 +275,7 @@ __clic_fd(cli_client_t *clic)
         debug_error("socket error:%d", -errno);
         return -errno;
     }
+    os_closexec(fd);
     
     struct timeval timeout = OS_TIMEVAL_INITER(os_second(clic->timeout), os_usecond(clic->timeout));
     err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));

@@ -294,7 +294,8 @@ __loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], i
         
         return -errno;
     }
-
+    os_closexec(fd);
+    
     for (i=0; i<count; i++) {
         err = inotify_add_watch(fd, inotify[i].path, inotify[i].mask);
         if (err<0) {
@@ -324,6 +325,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
         
         return -errno;
     }
+    os_closexec(fd);
     
     if (0==tm.it_value.tv_sec && 0==tm.it_value.tv_nsec) {
         tm.it_value.tv_nsec = 1;
@@ -363,7 +365,8 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
         
         return -errno;
     }
-
+    os_closexec(fd);
+    
     loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SIGNAL, cb, NULL);
     if (NULL==watcher) {
         return -ENOEXIST;
@@ -471,8 +474,10 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     socklen_t addrlen = sizeof(addr);
     
     fd = accept(watcher->fd, &addr.c, &addrlen);
-    os_println("accept new fd=%d from %d, errno=%d", fd, watcher->fd, -errno);
+    debug_io("accept new fd=%d from %d, errno=%d", fd, watcher->fd, -errno);
     if (is_good_fd(watcher->fd)) {
+        os_closexec(fd);
+        
         __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd, watcher->user);
     }
 }

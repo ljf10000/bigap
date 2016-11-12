@@ -66,6 +66,12 @@ nsq_instance_t;
 #define is_nsq_fsm_subscribed(_instance)    (NSQ_FSM_SUBSCRIBED==(_instance)->fsm)
 #define is_nsq_fsm_run(_instance)           (NSQ_FSM_RUN==(_instance)->fsm)
 
+static inline bool
+is_nsq_resolve_ok(nsq_instance_t *instance)
+{
+    return INADDR_NONE != instance->server.sin_addr.s_addr;
+}
+
 typedef mv_t nsq_foreach_f(nsq_instance_t *instance);
 typedef mv_t nsq_get_f(nsq_instance_t *instance);
 

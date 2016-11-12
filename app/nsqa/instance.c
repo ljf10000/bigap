@@ -89,6 +89,8 @@ __create(char *name, jobj_t jobj)
         
         goto error;
     }
+    os_noblock(fd);
+    os_closexec(fd);
     instance->fd        = fd;
 
     err = os_loop_add_normal(&nsqa.loop, fd, nsq_recver, instance);

@@ -12,17 +12,11 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-static bool
-is_resolve_ok(nsq_instance_t *instance)
-{
-    return INADDR_NONE != instance->server.sin_addr.s_addr;
-}
-
 static int
 handshaked_recver(nsq_instance_t *instance, time_t now)
 {
     int err;
-
+    
     
     return 0;
 }
@@ -54,7 +48,7 @@ run_recver(nsq_instance_t *instance, time_t now)
 int
 nsq_resolve(nsq_instance_t *instance)
 {
-    if (is_resolve_ok(instance)) {
+    if (is_nsq_resolve_ok(instance)) {
         return 0;
     }
     

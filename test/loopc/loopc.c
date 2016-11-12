@@ -34,6 +34,7 @@ client(int type, char *path, char *msg)
         
         return -errno;
     }
+    os_closexec(fd);
     
     err = bind(fd, (sockaddr_t *)&loopc.client.c, get_abstract_sockaddr_len(&loopc.client.un));
     if (err<0) {
