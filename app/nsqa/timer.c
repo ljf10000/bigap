@@ -12,56 +12,46 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-typedef int nsq_timer_handle_f(nsq_instance_t *instance, time_t now);
+typedef void nsq_timer_handle_f(nsq_instance_t *instance, time_t now);
 
-static int
+static void
 resolve_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_init(instance)) {
         nsq_resolve(instance);
     }
-    
-    return 0;
 }
 
-static int
+static void
 connect_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_resolved(instance)) {
         nsq_connect(instance);
     }
-
-    return 0;
 }
 
-static int
+static void
 handshake_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_connected(instance)) {
         nsq_handshake(instance);
     }
-
-    return 0;
 }
 
-static int
+static void
 identify_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_handshaked(instance)) {
         nsq_identify(instance);
     }
-
-    return 0;
 }
 
-static int
+static void
 subscrib_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_identified(instance)) {
         nsq_subscrib(instance);
     }
-
-    return 0;
 }
 
 static inline bool
@@ -73,7 +63,7 @@ is_fsm_timeout(time_t fsm_time, time_t now)
             (now-fsm_time) >= os_second(NSQ_MSG_TIMEOUT);
 }
 
-static int
+static void
 fsm_timeout(nsq_instance_t *instance, time_t now)
 {
     int err;
@@ -102,11 +92,9 @@ fsm_timeout(nsq_instance_t *instance, time_t now)
             
             break;
     }
-    
-    return 0;
 }
 
-static int 
+static void 
 timer_handle(nsq_instance_t *instance, time_t now)
 {
     static nsq_timer_handle_f *handler[] = {
@@ -124,8 +112,6 @@ timer_handle(nsq_instance_t *instance, time_t now)
     for (i=0; i<os_count_of(handler); i++) {
         (*handler[i])(instance, now);
     }
-
-    return 0;
 }
 
 static int

@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-typedef int um_timer_handle_t(struct um_user *user, time_t now);
+typedef void um_timer_handle_t(struct um_user *user, time_t now);
 
 static inline void 
 __try_aging(struct um_user *user, int type)
@@ -30,7 +30,7 @@ __try_aging(struct um_user *user, int type)
     }
 }
 
-static int 
+static void 
 online_aging(struct um_user *user, time_t now)
 {
     (void)now;
@@ -39,8 +39,6 @@ online_aging(struct um_user *user, time_t now)
         __try_aging(user, um_flow_type_wan);
         __try_aging(user, um_flow_type_lan);
     }
-    
-    return 0;
 }
 
 static inline bool
@@ -71,14 +69,12 @@ int umd_gc(struct um_user *user)
     return 0;
 }
 
-static int
+static void
 gc_auto(struct um_user *user, time_t now)
 {
     if (__is_gc(user, now)) {
         umd_gc(user);
     }
-
-    return 0;
 }
 
 static inline bool
@@ -107,7 +103,7 @@ is_online_timeout(struct um_user *user, time_t now)
         || __is_online_timeout(user, now, um_flow_type_lan);
 }
 
-static int 
+static void 
 online_timeout(struct um_user *user, time_t now)
 {
     /*
@@ -117,8 +113,6 @@ online_timeout(struct um_user *user, time_t now)
     if (is_user_auth(user) && is_online_timeout(user, now)) {        
         user_deauth(user, UM_DEAUTH_ONLINETIME);
     }
-
-    return 0;
 }
 
 static inline bool
@@ -147,7 +141,7 @@ is_online_reauth(struct um_user *user, time_t now)
         || __is_online_reauth(user, now, um_flow_type_lan);
 }
 
-static int 
+static void 
 online_reauth(struct um_user *user, time_t now)
 {
     /*
@@ -159,8 +153,6 @@ online_reauth(struct um_user *user, time_t now)
             && is_online_reauth(user, now)) {        
         user_reauth(user);
     }
-
-    return 0;
 }
 
 static inline bool
@@ -180,17 +172,15 @@ is_fake_timeout(struct um_user *user, time_t now)
     return is;
 }
 
-static int 
+static void 
 fake_timeout(struct um_user *user, time_t now)
 {
     if (is_user_fake(user) && is_fake_timeout(user, now)) {        
         user_unfake(user, UM_DEAUTH_ONLINETIME);
     }
-
-    return 0;
 }
 
-static int
+static void
 timer_handle(struct um_user *user, time_t now)
 {
     static um_timer_handle_t *handler[] = {
@@ -207,8 +197,6 @@ timer_handle(struct um_user *user, time_t now)
     for (i=0; i<os_count_of(handler); i++) {
         (*handler[i])(user, now);
     }
-
-    return 0;
 }
 
 static int
