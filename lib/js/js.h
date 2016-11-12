@@ -161,8 +161,8 @@ typedef struct {
 } dukc_pointer_entry_t;
 
 #define JS_PARAM_VERSION_DEFT       1
-#define JS_PARAM_NUMBER(x)          duke_##__THIS_FILE##x##_param_number
-#define JS_PARAM_VERSION(x)         duke_##__THIS_FILE##x##_version
+#define JS_PARAM_NUMBER(x)          duke_##x##_param_number
+#define JS_PARAM_VERSION(x)         duke_##x##_version
 #define JS_PARAM_API(x, n, v)       enum{ JS_PARAM_NUMBER(x) = n, JS_PARAM_VERSION(x) = v }
 #define JS_PARAM(x, n)              JS_PARAM_API(x, n, JS_PARAM_VERSION_DEFT)
 #define JS_FUNC(x)                  {#x, duke_##x, JS_PARAM_NUMBER(x), JS_PARAM_VERSION(x)}
