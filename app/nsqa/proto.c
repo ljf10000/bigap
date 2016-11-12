@@ -13,33 +13,57 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "nsqa.h"
 /******************************************************************************/
 static int
-handshaked_recver(nsq_instance_t *instance, time_t now)
+normal_recver(nsq_msg_t *msg)
 {
-    int err;
+    int id;
     
-    
+    id = nsq_error_idx(msg->body);
+    if (false==is_good_nsq_error(id)) {
+        return -EPROTO;
+    }
+    else if (NSQ_E_OK!=id) {
+        return -EPROTO;
+    }
+
     return 0;
 }
 
 static int
 identifying_recver(nsq_instance_t *instance, time_t now)
 {
+    nsq_msg_t *msg = nsq_recver_msg(instance);
     int err;
-    
+
+    err = normal_recver(msg);
+    if (err<0) {
+        return err;
+    }
+
+    nsq_fsm_change(instance, NSQ_FSM_IDENTIFIED);
+
     return 0;
 }
 
 static int
 subscribing_recver(nsq_instance_t *instance, time_t now)
 {
+    nsq_msg_t *msg = nsq_recver_msg(instance);
     int err;
-    
+
+    err = normal_recver(msg);
+    if (err<0) {
+        return err;
+    }
+
+    nsq_fsm_change(instance, NSQ_FSM_SUBSCRIBED);
+
     return 0;
 }
 
 static int
 run_recver(nsq_instance_t *instance, time_t now)
 {
+    nsq_msg_t *msg = nsq_recver_msg(instance);
     int err;
     
     return 0;
@@ -111,7 +135,7 @@ nsq_handshake(nsq_instance_t *instance)
         return err;
     }
 
-    nsq_fsm_change(instance, NSQ_FSM_HANDSHAKING);
+    nsq_fsm_change(instance, NSQ_FSM_HANDSHAKED);
 
     debug_proto("instance[%s] handshaking ok.", instance->name);
     
@@ -166,12 +190,9 @@ nsq_subscrib(nsq_instance_t *instance)
     return 0;
 }
 
-int 
-nsq_recver(struct loop_watcher *watcher, time_t now)
+static int
+recver_fsm_check(nsq_instance_t *instance)
 {
-    nsq_instance_t *instance = (nsq_instance_t *)watcher->user;
-    int err;
-    
     switch(instance->fsm) {
         case NSQ_FSM_INIT:      /* down */
         case NSQ_FSM_RESOLVED:  /* down */
@@ -191,29 +212,90 @@ nsq_recver(struct loop_watcher *watcher, time_t now)
                 
             return -EBADFSM;
     }
+}
 
-    err = nsqb_recv(instance->fd, &instance->brecver);
-    if (err<0) {
-        return err;
+static int
+recver_msg_check(nsq_instance_t *instance)
+{
+    nsq_msg_t *msg = nsq_recver_msg(instance);
+    int err;
+
+    if (false==is_good_nsq_frame(msg->type)) {
+        return -EPROTO;
     }
     
     switch(instance->fsm) {
-        case NSQ_FSM_HANDSHAKING:
-            err = handshaked_recver(instance, now);
+        case NSQ_FSM_IDENTIFYING: // down
+        case NSQ_FSM_SUBSCRIBING:
+            if (NSQ_FRAME_MESSAGE==msg->type) {
+                return -EPROTO;
+            }
+
+            break;
+        case NSQ_FSM_RUN:
+            
             
             break;
+        default:
+            err = -EBADFSM;
+
+            break;
+    }
+
+    return err;
+}
+
+static int 
+recver_handle(nsq_instance_t *instance, time_t now)
+{
+    int err;
+    
+    switch(instance->fsm) {
         case NSQ_FSM_IDENTIFYING:
             err = identifying_recver(instance, now);
 
             break;
         case NSQ_FSM_SUBSCRIBING:
             err = subscribing_recver(instance, now);
-            
+
             break;
         case NSQ_FSM_RUN:
             err = run_recver(instance, now);
-            
+
             break;
+        default:
+            err = -EBADFSM;
+
+            break;
+    }
+
+    return err;
+}
+
+int 
+nsq_recver(struct loop_watcher *watcher, time_t now)
+{
+    nsq_instance_t *instance = (nsq_instance_t *)watcher->user;
+    int err;
+
+    err = recver_fsm_check(instance);
+    if (err<0) {
+        return 0;
+    }
+    
+    err = nsqb_recv(instance->fd, &instance->brecver);
+    if (err<0) {
+        return err;
+    }
+
+    err = recver_msg_check(instance);
+    if (err<0) {
+        return 0;
+    }
+
+    err = recver_handle(instance, now);
+    if (err<0) {
+        return err;
     }
     
     return 0;

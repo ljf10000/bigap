@@ -18,7 +18,7 @@ static void
 resolve_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_init(instance)) {
-        nsq_resolve(instance);
+        nsq_resolve(instance);      // ==> resolved
     }
 }
 
@@ -26,7 +26,7 @@ static void
 connect_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_resolved(instance)) {
-        nsq_connect(instance);
+        nsq_connect(instance);      // ==> connected
     }
 }
 
@@ -34,7 +34,7 @@ static void
 handshake_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_connected(instance)) {
-        nsq_handshake(instance);
+        nsq_handshake(instance);    // ==> handshaked
     }
 }
 
@@ -42,7 +42,7 @@ static void
 identify_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_handshaked(instance)) {
-        nsq_identify(instance);
+        nsq_identify(instance);     // ==> identifying
     }
 }
 
@@ -50,7 +50,7 @@ static void
 subscrib_timer(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_identified(instance)) {
-        nsq_subscrib(instance);
+        nsq_subscrib(instance);     // ==> subscribing
     }
 }
 
@@ -69,7 +69,7 @@ fsm_timeout(nsq_instance_t *instance, time_t now)
     int err;
     
     switch(instance->fsm) {
-        case NSQ_FSM_HANDSHAKING:
+        case NSQ_FSM_HANDSHAKED:
             if (is_fsm_timeout(instance->fsm_time, now)) {
                 err = nsq_handshake(instance);
             }

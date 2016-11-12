@@ -58,7 +58,6 @@ nsq_instance_t;
 #define is_nsq_fsm_init(_instance)          (NSQ_FSM_INIT==(_instance)->fsm)
 #define is_nsq_fsm_resolved(_instance)      (NSQ_FSM_RESOLVED==(_instance)->fsm)
 #define is_nsq_fsm_connected(_instance)     (NSQ_FSM_CONNECTED==(_instance)->fsm)
-#define is_nsq_fsm_handshaking(_instance)   (NSQ_FSM_HANDSHAKING==(_instance)->fsm)
 #define is_nsq_fsm_handshaked(_instance)    (NSQ_FSM_HANDSHAKED==(_instance)->fsm)
 #define is_nsq_fsm_identifying(_instance)   (NSQ_FSM_IDENTIFYING==(_instance)->fsm)
 #define is_nsq_fsm_identified(_instance)    (NSQ_FSM_IDENTIFIED==(_instance)->fsm)
@@ -70,6 +69,18 @@ static inline bool
 is_nsq_resolve_ok(nsq_instance_t *instance)
 {
     return INADDR_NONE != instance->server.sin_addr.s_addr;
+}
+
+static inline nsq_msg_t *
+nsq_recver_msg(nsq_instance_t *instance)
+{
+    return (nsq_msg_t *)instance->brecver.buf;
+}
+
+static inline nsq_msg_t *
+nsq_sender_msg(nsq_instance_t *instance)
+{
+    return (nsq_msg_t *)instance->bsender.buf;
 }
 
 typedef mv_t nsq_foreach_f(nsq_instance_t *instance);

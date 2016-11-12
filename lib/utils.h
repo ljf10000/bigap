@@ -261,21 +261,28 @@ lib_init(void)
 {
     int err;
 
+    os_println("lib_init 1");
+
 #ifdef __APP__
     srand(time(NULL));
     
     os_env_init();
 #endif
 
+    os_println("lib_init 2");
+
     err = ak_init();
     if (err<0) {
         os_println("libjs ak init error:%d", err);
     }
     
+    os_println("lib_init 3");
     err = jlog_init();
     if (err<0) {
         os_println("libjs jlog init error:%d", err);
     }
+
+    os_println("lib_init 4");
 
     return 0;
 }
@@ -294,10 +301,14 @@ os_init(void)
 {
     int err;
 
+    os_println("os_init 1");
+
     err = lib_init();
     if (err<0) {
         return err;
     }
+
+    os_println("os_init 2");
 
 #ifdef __APP__
     err = os_deamon_check();
@@ -305,6 +316,8 @@ os_init(void)
         return err;
     }
 #endif
+
+    os_println("os_init 3");
 
     return 0;
 }

@@ -55,6 +55,8 @@
 #define NSQ_MSG_TIMEOUT             PC_VAL(5*1000, 10*1000)
 #endif
 
+#define NSQ_MSG_HEARTBEAT           "_heartbeat_"
+
 enum { 
     NSQ_MSGID_SIZE  = 16,
     NSQ_NAME_SIZE   = 64,
@@ -64,7 +66,6 @@ enum {
 #define NSQ_FSM_INIT_NAME           "init"
 #define NSQ_FSM_RESOLVED_NAME       "resolved"
 #define NSQ_FSM_CONNECTED_NAME      "connected"
-#define NSQ_FSM_HANDSHAKING_NAME    "handshaking"
 #define NSQ_FSM_HANDSHAKED_NAME     "handshaked"
 #define NSQ_FSM_IDENTIFYING_NAME    "identifying"
 #define NSQ_FSM_IDENTIFIED_NAME     "identified"
@@ -76,13 +77,12 @@ enum {
     _(NSQ_FSM_INIT,         0,  NSQ_FSM_INIT_NAME),         \
     _(NSQ_FSM_RESOLVED,     1,  NSQ_FSM_RESOLVED_NAME),     \
     _(NSQ_FSM_CONNECTED,    2,  NSQ_FSM_CONNECTED_NAME),    \
-    _(NSQ_FSM_HANDSHAKING,  3,  NSQ_FSM_HANDSHAKING_NAME),  \
-    _(NSQ_FSM_HANDSHAKED,   4,  NSQ_FSM_HANDSHAKED_NAME),   \
-    _(NSQ_FSM_IDENTIFYING,  5,  NSQ_FSM_IDENTIFYING_NAME),  \
-    _(NSQ_FSM_IDENTIFIED,   6,  NSQ_FSM_IDENTIFIED_NAME),   \
-    _(NSQ_FSM_SUBSCRIBING,  7,  NSQ_FSM_SUBSCRIBING_NAME),  \
-    _(NSQ_FSM_SUBSCRIBED,   8,  NSQ_FSM_SUBSCRIBED_NAME),   \
-    _(NSQ_FSM_RUN,          9,  NSQ_FSM_RUN_NAME),          \
+    _(NSQ_FSM_HANDSHAKED,   3,  NSQ_FSM_HANDSHAKED_NAME),   \
+    _(NSQ_FSM_IDENTIFYING,  4,  NSQ_FSM_IDENTIFYING_NAME),  \
+    _(NSQ_FSM_IDENTIFIED,   5,  NSQ_FSM_IDENTIFIED_NAME),   \
+    _(NSQ_FSM_SUBSCRIBING,  6,  NSQ_FSM_SUBSCRIBING_NAME),  \
+    _(NSQ_FSM_SUBSCRIBED,   7,  NSQ_FSM_SUBSCRIBED_NAME),   \
+    _(NSQ_FSM_RUN,          8,  NSQ_FSM_RUN_NAME),          \
     /* end */
 DECLARE_ENUM(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
 
@@ -93,7 +93,6 @@ static inline int nsq_fsm_idx(char *name);
 #define NSQ_FSM_INIT            NSQ_FSM_INIT
 #define NSQ_FSM_RESOLVED        NSQ_FSM_RESOLVED
 #define NSQ_FSM_CONNECTED       NSQ_FSM_CONNECTED
-#define NSQ_FSM_HANDSHAKING     NSQ_FSM_HANDSHAKING
 #define NSQ_FSM_HANDSHAKED      NSQ_FSM_HANDSHAKED
 #define NSQ_FSM_IDENTIFYING     NSQ_FSM_IDENTIFYING
 #define NSQ_FSM_IDENTIFIED      NSQ_FSM_IDENTIFIED
@@ -775,6 +774,7 @@ nsqb_recv(int fd, nsq_buffer_t *b)
         return -ETOOSMALL;
     }
     b->len += len;
+    b->buf[b->len] = 0;
     
     return 0;
 }

@@ -243,7 +243,7 @@ static const dukc_number_entry_t libc_number[] = {
     JS_VALUE(EFILTER),
     JS_VALUE(EBADREASON),
     JS_VALUE(EBADJSON),
-    JS_VALUE(EBADSTATE),
+    JS_VALUE(EBADFSM),
     JS_VALUE(ENOMATCH),
     JS_VALUE(EFORK),
     JS_VALUE(EDEAMON),
