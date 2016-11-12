@@ -39,7 +39,7 @@ os_get_pid(void)
     int pid = 0;
 
     os_fgeti(&pid, __THIS_PIDFILE);
-    os_println("pid=%d", pid);
+
     return pid;
 }
 
