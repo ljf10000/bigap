@@ -138,8 +138,5 @@ init_nsq_cli(void);
 
 extern int
 init_nsq_cfg(void);
-
-extern int
-init_nsq_instance(void);
 /******************************************************************************/
 #endif /* __NSQA_H_138838ae69b44e039c63875789ba5889__ */

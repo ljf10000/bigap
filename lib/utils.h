@@ -242,11 +242,25 @@
     OS_EXT_REAL_INITER          \
     /* end */
 
+#ifdef __ALLINONE__
+#define LIB_INITER  os_fake_declare
+#else
+#define LIB_INITER              \
+    static os_constructor void  \
+    __lib_constructor(void)     \
+    {                           \
+        lib_init();             \
+    }                           \
+                                \
+    OS_INITER                   \
+    /* end */
+#endif
+
 static inline int
-os_init(void)
+lib_init(void)
 {
     int err;
-
+    
 #ifdef __APP__
     srand(time(NULL));
     
@@ -255,10 +269,32 @@ os_init(void)
 
     err = ak_init();
     if (err<0) {
-        return err;
+        os_println("libjs ak init error:%d", err);
+    }
+    
+    err = jlog_init();
+    if (err<0) {
+        os_println("libjs jlog init error:%d", err);
     }
 
-    err = jlog_init();
+    return 0;
+}
+
+static inline int
+lib_fini(void)
+{
+    jlog_fini();
+    ak_fini();
+
+    return 0;
+}
+
+static inline int
+os_init(void)
+{
+    int err;
+
+    err = lib_init();
     if (err<0) {
         return err;
     }
@@ -276,10 +312,12 @@ os_init(void)
 static inline int
 os_fini(void)
 {
+#ifdef __APP__
     os_deamon_exit();
-    jlog_fini();
-    ak_fini();
+#endif
 
+    lib_fini();
+    
     return 0;
 }
 

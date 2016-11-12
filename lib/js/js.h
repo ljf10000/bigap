@@ -524,8 +524,6 @@ typedef struct {
         char *name;
         int is_func;
     } sig[NSIG];
-
-    dlist_t list;
 } js_priv_t;
 
 extern void *duk_get_priv(duk_context *ctx);

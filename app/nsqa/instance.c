@@ -261,11 +261,4 @@ nsqi_get(char *name)
 
     return __hentry(h1_find(&nsqa.table, dhash, eq));
 }
-
-int
-init_nsq_instance(void)
-{
-   return 0;
-}
-
 /******************************************************************************/

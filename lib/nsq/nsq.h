@@ -7,32 +7,12 @@
 #define NSQ_NAMESIZE        64
 #endif
 
-#ifndef ENV_NSQA_UNIX
-#define ENV_NSQA_UNIX       "__NSQA_UNIX__"
-#endif
-
-#ifndef ENV_NSQC_UNIX
-#define ENV_NSQC_UNIX       "__NSQC_UNIX__"
-#endif
-
-#ifndef ENV_NSQ_TIMEOUT
-#define ENV_NSQ_TIMEOUT     "__NSQ_TIMEOUT__"
-#endif
-
-#ifndef NSQA_UNIX
-#define NSQA_UNIX           "/tmp/.nsqa.unix"
-#endif
-
-#ifndef NSQC_UNIX
-#define NSQC_UNIX           "/tmp/.nsqc.%d.unix"
-#endif
-
 #ifndef NSQ_PORT
 #define NSQ_PORT            4151
 #endif
 
 #ifndef NSQ_TICKS
-#define NSQ_TICKS           PC_VAL(5000, 5000)  /* second */
+#define NSQ_TICKS           PC_VAL(5000, 5000)  // ms
 #endif
 
 #ifndef NSQ_CONF
@@ -60,24 +40,24 @@
 #endif
 
 #ifndef NSQ_RECV_BUFFER_SIZE
-#define NSQ_RECV_BUFFER_SIZE        (4*1024)    /* for nsqd */
+#define NSQ_RECV_BUFFER_SIZE        (4*1024)    // for nsqd
 #endif
 
 #ifndef NSQ_SEND_BUFFER_SIZE
-#define NSQ_SEND_BUFFER_SIZE        (16*1024)   /* for nsqd */
+#define NSQ_SEND_BUFFER_SIZE        (16*1024)   // for nsqd
 #endif
 
 #ifndef NSQ_SEND_BUFFER_TIMEOUT
-#define NSQ_SEND_BUFFER_TIMEOUT     250         /* for nsqd */
+#define NSQ_SEND_BUFFER_TIMEOUT     250         // for nsqd
 #endif
 
 #ifndef NSQ_MSG_TIMEOUT
-#define NSQ_MSG_TIMEOUT             (10*1000)
+#define NSQ_MSG_TIMEOUT             PC_VAL(5*1000, 10*1000)
 #endif
 
 enum { 
-    NSQ_MSGID_SIZE = 16,
-    NSQ_NAME_SIZE = 64,
+    NSQ_MSGID_SIZE  = 16,
+    NSQ_NAME_SIZE   = 64,
 };
 
 #if 1

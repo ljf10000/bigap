@@ -13,6 +13,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 #include "js.h"
+
+LIB_INITER;
 /******************************************************************************/
 int
 duk_require_buffer_or_lstring(duk_context *ctx, duk_idx_t idx, duk_buffer_t *pbuf, duk_size_t *psize)
@@ -653,28 +655,4 @@ js_eval(duk_context *ctx, char *jsfile)
 
     return 0;
 }
-/******************************************************************************/
-#ifndef __BUSYBOX__
-OS_INITER;
-
-static os_constructor void
-libjs_constructor(void)
-{
-    int err;
-
-    srand(time(NULL));
-    
-    os_env_init();
-    
-    err = ak_init();
-    if (err<0) {
-        os_println("libjs ak init error:%d", err);
-    }
-    
-    err = jlog_init();
-    if (err<0) {
-        os_println("libjs jlog init error:%d", err);
-    }
-}
-#endif
 /******************************************************************************/

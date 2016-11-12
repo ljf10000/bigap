@@ -54,7 +54,6 @@ __init(void)
         INIT_ENTRY("timer",     init_nsq_timer),
         INIT_ENTRY("cli",       init_nsq_cli),
         INIT_ENTRY("cfg",       init_nsq_cfg),
-        INIT_ENTRY("instance",  init_nsq_instance),
     };
 
     return os_initer(map, os_count_of(map));
