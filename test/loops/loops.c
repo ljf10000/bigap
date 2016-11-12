@@ -187,7 +187,6 @@ udp(void)
 static int
 __main(int argc, char *argv[])
 {
-    os_println("__main");
     struct itimerspec tm = OS_ITIMESPEC_INITER(5, 0);
     int sigs[] = {
         os_signal_user_list,
