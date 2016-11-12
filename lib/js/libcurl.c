@@ -17,7 +17,84 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #if js_LIBCURL
 #include <curl/curl.h>
 #include "libcurl.h"
+/******************************************************************************/
+#define __LIB_VERSION(A, B, C)  ((A)<<16 | (B)<<8 | (C))
+#define __LIB_VERSION_CURRENT   __LIB_VERSION(LIBCURL_VERSION_MAJOR, LIBCURL_VERSION_MINOR, LIBCURL_VERSION_PATCH)
+#define LIB_VERSION(A, B, C)    (__LIB_VERSION_CURRENT >= __LIB_VERSION(A, B, C))
 
+int
+libcurl_get_curl_forms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct curl_forms *p = (struct curl_forms *)obj; os_objzero(p);
+    
+    p->option   = js_get_obj_int(ctx, idx, "option");
+    p->value    = js_get_obj_string(ctx, idx, "value", NULL);
+
+    return 0;
+}
+
+int
+libcurl_set_curl_forms(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct curl_forms *p = (struct curl_forms *)obj;
+    
+    js_set_obj_int(ctx, idx, "option", p->option);
+    js_set_obj_string(ctx, idx, "value", (char *)p->value);
+
+    return 0;
+}
+
+struct curl_httppost_obj {
+    struct curl_httppost *post;
+    struct curl_httppost *last;
+};
+
+int
+libcurl_get_curl_httppost_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct curl_httppost_obj *p = (struct curl_httppost_obj *)obj; os_objzero(p);
+    
+    p->post = (struct curl_httppost *)js_get_obj_pointer(ctx, idx, "post");
+    p->last = (struct curl_httppost *)js_get_obj_pointer(ctx, idx, "last");
+
+    return 0;
+}
+
+int
+libcurl_set_curl_httppost_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct curl_httppost_obj *p = (struct curl_httppost_obj *)obj;
+    
+    js_set_obj_pointer(ctx, idx, "post", p->post);
+    js_set_obj_pointer(ctx, idx, "last", p->last);
+
+    return 0;
+}
+
+struct curl_slist_obj {
+    struct curl_slist *list;
+};
+
+int
+libcurl_get_curl_slist_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct curl_slist_obj *p = (struct curl_slist_obj *)obj; os_objzero(p);
+    
+    p->list = (struct curl_slist *)js_get_obj_pointer(ctx, idx, "list");
+
+    return 0;
+}
+
+int
+libcurl_set_curl_slist_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    struct curl_slist_obj *p = (struct curl_slist_obj *)obj;
+    
+    js_set_obj_pointer(ctx, idx, "list", p->list);
+
+    return 0;
+}
+/******************************************************************************/
 JS_PARAM(curl_easy_init, 0);
 static duk_ret_t
 duke_curl_easy_init(duk_context *ctx)
@@ -469,7 +546,7 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_HTTPPOST: {
             struct curl_httppost_obj obj;
 
-            __get_curl_httppost_obj(ctx, 2, &obj);
+            libcurl_get_curl_httppost_obj(ctx, 2, &obj);
 
             err = curl_easy_setopt(p, opt, obj.post);
         }   break;
@@ -498,7 +575,7 @@ duke_curl_easy_setopt(duk_context *ctx)
         case CURLOPT_TELNETOPTIONS: {
             struct curl_slist_obj obj;
             
-            __get_curl_slist_obj(ctx, 2, &obj);
+            libcurl_get_curl_slist_obj(ctx, 2, &obj);
             
             err = curl_easy_setopt(p, opt, obj.list);
         }   break;
@@ -574,7 +651,7 @@ duke_curl_formadd(duk_context *ctx)
     struct curl_httppost_obj obj;
     int i, err;
     
-    __get_curl_httppost_obj(ctx, 0, &obj);
+    libcurl_get_curl_httppost_obj(ctx, 0, &obj);
     
     int argc = duk_get_argc(ctx);
     if (argc < (1+2*1) || argc > (1+2*32) || 1!=(argc%2)) {
@@ -755,7 +832,7 @@ duke_curl_formadd(duk_context *ctx)
 #undef params_32
 #undef params_case
 
-    __set_curl_httppost_obj(ctx, 0, &obj);
+    libcurl_set_curl_httppost_obj(ctx, 0, &obj);
 
     return duk_push_int(ctx, err), 1;
 }
@@ -765,10 +842,10 @@ static duk_ret_t
 duke_curl_formfree(duk_context *ctx)
 {
     struct curl_httppost_obj obj;
-    __get_curl_httppost_obj(ctx, 0, &obj);
+    libcurl_get_curl_httppost_obj(ctx, 0, &obj);
     curl_formfree(obj.post);
     os_objzero(&obj);
-    __set_curl_httppost_obj(ctx, 0, &obj);
+    libcurl_set_curl_httppost_obj(ctx, 0, &obj);
     
     return 0;
 }
@@ -778,7 +855,7 @@ static duk_ret_t
 duke_curl_slist_append(duk_context *ctx)
 {
     struct curl_slist_obj obj;
-    __get_curl_slist_obj(ctx, 0, &obj);
+    libcurl_get_curl_slist_obj(ctx, 0, &obj);
     char *string = (char *)duk_require_string(ctx, 1);
     
     struct curl_slist *list = curl_slist_append(obj.list, string);
@@ -787,7 +864,7 @@ duke_curl_slist_append(duk_context *ctx)
     }
 
     obj.list = list;
-    __set_curl_slist_obj(ctx, 0, &obj);
+    libcurl_set_curl_slist_obj(ctx, 0, &obj);
     
     return duk_push_true(ctx), 1;
 }
@@ -797,10 +874,10 @@ static duk_ret_t
 duke_curl_slist_free_all(duk_context *ctx)
 {
     struct curl_slist_obj obj;
-    __get_curl_slist_obj(ctx, 0, &obj);
+    libcurl_get_curl_slist_obj(ctx, 0, &obj);
     curl_slist_free_all(obj.list);
     os_objzero(&obj);
-    __set_curl_slist_obj(ctx, 0, &obj);
+    libcurl_set_curl_slist_obj(ctx, 0, &obj);
     
     return 0;
 }

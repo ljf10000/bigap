@@ -475,15 +475,19 @@ extern int js_buildin_register(duk_context *ctx);
 extern int js_global_register(duk_context *ctx);
 extern int js_my_register(duk_context *ctx);
 extern int js_libc_register(duk_context *ctx);
+
 #if js_LIBZ
 extern int js_libz_register(duk_context *ctx);
 #endif
+
 #if js_LIBBZ
 extern int js_libbz_register(duk_context *ctx);
 #endif
+
 #if js_LIBLZ
 extern int js_liblz_register(duk_context *ctx);
 #endif
+
 #if js_LIBCURL
 extern int js_libcurl_register(duk_context *ctx);
 #endif

@@ -18,7 +18,25 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include <zlib.h>
 #include "libz.h"
 #include "libxz.h"
+/******************************************************************************/
+int
+libz_get_gz_header(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    gz_header *p = (gz_header *)obj; os_objzero(p);
+    
+    return 0;
+}
 
+int
+libz_set_gz_header(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+{
+    gz_header *p = (gz_header *)obj;
+    
+    return 0;
+}
+
+
+/******************************************************************************/
 JS_PARAM(zlibVersion, 0);
 static duk_ret_t
 duke_zlibVersion(duk_context *ctx)
@@ -291,7 +309,7 @@ duke_deflateSetHeader(duk_context *ctx)
     gz_header header;
     
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
-    __get_gz_header(ctx, 1, &header);
+    libz_get_gz_header(ctx, 1, &header);
     
     int err = deflateSetHeader(f, &header);
     
@@ -425,7 +443,7 @@ duke_inflateGetHeader(duk_context *ctx)
 
     int err = inflateGetHeader(f, &header);
     
-    return js_obj_push(ctx, __set_gz_header, &header), 1;
+    return js_obj_push(ctx, libz_set_gz_header, &header), 1;
 }
 
 JS_PARAM(inflateBackInit, 2);
