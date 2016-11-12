@@ -190,7 +190,7 @@ fake_timeout(struct um_user *user, time_t now)
     return 0;
 }
 
-static mv_t
+static int
 timer_handle(struct um_user *user, time_t now)
 {
     static um_timer_handle_t *handler[] = {
@@ -208,7 +208,7 @@ timer_handle(struct um_user *user, time_t now)
         (*handler[i])(user, now);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
 static int
@@ -234,7 +234,9 @@ timer_server_handle(sock_server_t *server)
     
     mv_t cb(struct um_user *user)
     {
-        return timer_handle(user, now);
+        timer_handle(user, now);
+
+        return mv2_ok;
     }
     
     for (i=0; i<times; i++) {

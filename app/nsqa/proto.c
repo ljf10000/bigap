@@ -58,6 +58,8 @@ nsq_resolve(nsq_instance_t *instance)
         return 0;
     }
     
+    debug_proto("instance[%s] resolve ...", instance->name);
+    
     uint32 ip = inet_addr(instance->domain);
     if (INADDR_NONE != ip) {
         instance->server.sin_addr.s_addr = ip;
@@ -72,6 +74,8 @@ nsq_resolve(nsq_instance_t *instance)
 
     nsq_fsm_change(instance, NSQ_FSM_RESOLVED);
 
+    debug_proto("instance[%s] resolve ok.", instance->name);
+
     return 0;
 }
 
@@ -79,6 +83,8 @@ int
 nsq_connect(nsq_instance_t *instance)
 {
     int err;
+    
+    debug_proto("instance[%s] connect ...", instance->name);
     
     err = connect(instance->fd, (sockaddr_t *)&instance->server, sizeof(instance->server));
     if (instance->fd<0) {
@@ -89,6 +95,8 @@ nsq_connect(nsq_instance_t *instance)
 
     nsq_fsm_change(instance, NSQ_FSM_CONNECTED);
 
+    debug_proto("instance[%s] connect ok.", instance->name);
+
     return 0;
 }
 
@@ -96,6 +104,8 @@ int
 nsq_handshake(nsq_instance_t *instance)
 {
     int err;
+
+    debug_proto("instance[%s] handshaking ...", instance->name);
     
     err = nsqb_MAGIC(&instance->bsender);
     if (err<0) {
@@ -108,6 +118,8 @@ nsq_handshake(nsq_instance_t *instance)
     }
 
     nsq_fsm_change(instance, NSQ_FSM_HANDSHAKING);
+
+    debug_proto("instance[%s] handshaking ok.", instance->name);
     
     return 0;
 }
@@ -116,6 +128,8 @@ int
 nsq_identify(nsq_instance_t *instance)
 {
     int err;
+    
+    debug_proto("instance[%s] identifying ...", instance->name);
     
     err = nsqb_IDENTIFY(&instance->bsender, instance->identify);
     if (err<0) {
@@ -128,6 +142,8 @@ nsq_identify(nsq_instance_t *instance)
     }
 
     nsq_fsm_change(instance, NSQ_FSM_IDENTIFYING);
+    
+    debug_proto("instance[%s] identifying ok.", instance->name);
 
     return 0;
 }
@@ -136,6 +152,8 @@ int
 nsq_subscrib(nsq_instance_t *instance)
 {
     int err;
+    
+    debug_proto("instance[%s] subscribing ...", instance->name);
     
     err = nsqb_SUB(&instance->bsender, instance->topic, instance->channel);
     if (err<0) {
@@ -148,6 +166,8 @@ nsq_subscrib(nsq_instance_t *instance)
     }
 
     nsq_fsm_change(instance, NSQ_FSM_SUBSCRIBING);
+    
+    debug_proto("instance[%s] subscribing ok.", instance->name);
     
     return 0;
 }

@@ -106,7 +106,7 @@ fsm_timeout(nsq_instance_t *instance, time_t now)
     return 0;
 }
 
-static mv_t 
+static int 
 timer_handle(nsq_instance_t *instance, time_t now)
 {
     static nsq_timer_handle_f *handler[] = {
@@ -125,7 +125,7 @@ timer_handle(nsq_instance_t *instance, time_t now)
         (*handler[i])(instance, now);
     }
 
-    return mv2_ok;
+    return 0;
 }
 
 static int
@@ -133,7 +133,9 @@ nsq_timer(loop_watcher_t *watcher, time_t now)
 {
     mv_t cb(nsq_instance_t *instance)
     {
-        return timer_handle(instance, now);
+        timer_handle(instance, now);
+
+        return mv2_ok;
     }
     
     nsqi_foreach(cb, true);

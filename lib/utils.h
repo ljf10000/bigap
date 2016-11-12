@@ -260,7 +260,7 @@ static inline int
 lib_init(void)
 {
     int err;
-    
+
 #ifdef __APP__
     srand(time(NULL));
     
