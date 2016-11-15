@@ -181,7 +181,7 @@ extern int
 nsq_REQ(nsq_instance_t *instance);
 
 extern int
-nsq_rdy(nsq_instance_t *instance);
+ndq_try_rdy(nsq_instance_t *instance);
 
 extern int 
 nsq_recver(struct loop_watcher *watcher, time_t now);
