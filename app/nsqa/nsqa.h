@@ -43,6 +43,7 @@ typedef struct {
     char *cache;
     
     byte msgid[NSQ_MSGID_SIZE]; // last message id
+    int  error;                 // last error
     
     nsq_buffer_t    bsender;
     nsq_buffer_t    brecver;
@@ -141,7 +142,16 @@ nsq_send(nsq_instance_t *instance)
 static inline int 
 nsq_recv(nsq_instance_t *instance)
 {
-    return nsqb_recv(instance->fd, &instance->brecver);
+    nsq_msg_t *msg = nsq_recver_msg(instance);
+
+    int err = nsqb_recv(instance->fd, &instance->brecver);
+    
+    debug_proto("instance[%s] recv frame-%s @%s",
+        instance->name, 
+        nsq_frame_string(msg->type),
+        nsq_fsm_string(instance->fsm));
+        
+    return err;
 }
 
 static inline int 
@@ -214,7 +224,7 @@ nsq_NOP(nsq_instance_t *instance)
 {
     int err;
 
-    err = nsqb_NOP(&instance->bsender, nsq_recver_msg(instance)->id);
+    err = nsqb_NOP(&instance->bsender);
     if (err<0) {
         return err;
     }

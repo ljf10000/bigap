@@ -153,7 +153,7 @@ static inline int nsq_identify_idx(char *name);
         os_getbasemac),                             \
     J_RULE(NSQ_IDENTIFY_FEATURE_NEGOTIATION,        \
         jtype_bool,                                 \
-        0,                                          \
+        JRULE_CONST,                                \
         NSQ_NEGOTIATION),                           \
     J_RULE(NSQ_IDENTIFY_HEARBEAT_INTERVAL,          \
         jtype_int,                                  \
@@ -335,7 +335,7 @@ static inline int nsq_auth_idx(char *name);
 #define NSQ_E_TOUCH_FAILED_NAME   "E_TOUCH_FAILED"
 #define NSQ_E_AUTH_FAILED_NAME    "E_AUTH_FAILED "
 #define NSQ_E_UNAUTHORIZED_NAME   "E_UNAUTHORIZED"
-    
+
 #define NSQ_ERROR_ENUM_MAPPER(_)                            \
     _(NSQ_E_OK,             0,  NSQ_E_OK_NAME),             \
     _(NSQ_E_CLOSE_WAIT,     1,  NSQ_E_CLOSE_WAIT_NAME),     \
@@ -361,7 +361,7 @@ static inline int nsq_error_idx(char *name);
 
 static inline bool is_valid_nsq_error(int id)
 {
-    return is_good_nsq_error(id) && id>=NSQ_E_ERROR;
+    return IS_GOOD_VALUE(id, NSQ_E_ERROR, NSQ_E_END);
 }
 
 #define NSQ_E_OK            NSQ_E_OK
@@ -438,10 +438,25 @@ nsq_msg_body_size(nsq_msg_t *msg)
 }
 
 static inline bool
-is_nsq_msg_heartbeat(nsq_msg_t *msg)
+is_nsq_response_heartbeat(nsq_msg_t *msg)
 {
-    return is_nsq_frame_response(msg->type)
-        && os_streq(msg->body, NSQ_MSG_HEARTBEAT);
+    return os_streq(msg->body, NSQ_MSG_HEARTBEAT);
+}
+
+static inline bool
+is_nsq_response_ok(nsq_msg_t *msg)
+{
+    int error = nsq_error_idx(msg->body);
+
+    return is_good_nsq_error(error) && NSQ_E_OK==error;
+}
+
+static inline bool
+is_nsq_response_error(nsq_msg_t *msg)
+{
+    int error = nsq_error_idx(msg->body);
+
+    return is_good_nsq_error(error) && NSQ_E_OK!=error;
 }
 
 #define nsq_msg_dump(_msg, _dump) \
