@@ -223,7 +223,7 @@ os_fwriteline(STREAM stream, const char *line)
 
 
 static inline int
-os_readfile(char *filename, char *buf, int size)
+os_readfile(char *filename, void *buf, int size)
 {
     STREAM f = NULL;
     int err = 0;
@@ -291,7 +291,7 @@ error:
 }
 
 static inline int
-os_writefile(char *filename, byte *buf, int size, bool append, bool bin)
+os_writefile(char *filename, void *buf, int size, bool append, bool bin)
 {
     STREAM f = NULL;
     int err = 0;
