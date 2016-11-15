@@ -581,8 +581,6 @@ os_fsearch_path(char *file, char *path, int (*handle)(char *filename, void *user
         return -ENOEXIST;
     }
     
-    debug_js("search %s at %s ...", file, path);
-    
     /*
     * path last char is '/'
     */
