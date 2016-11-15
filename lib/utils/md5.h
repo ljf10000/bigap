@@ -316,13 +316,13 @@ error:
 }
 
 static inline void
-md5_hex2bin(char *hex, byte md5[])
+md5_hex2bin(char *hex, byte md5[OS_MD5_SIZE])
 {
     os_hex2bin(hex, md5, OS_MD5_SIZE);
 }
 
 static inline void
-md5_bin2hex(char *hex, byte md5)
+md5_bin2hex(char *hex, byte md5[OS_MD5_SIZE])
 {
     os_bin2hex(hex, OS_MD5_STRING_LEN, md5, OS_MD5_SIZE);
 }

@@ -610,7 +610,7 @@ os_fsearch_paths(char *file, char *PATH, int (*handle)(char *filename, void *use
     }
 
     os_strtok_foreach(path, paths, ":") {
-        err = os_fsearch_path(file, path, handle);
+        err = os_fsearch_path(file, path, handle, user);
         if (0==err) {
             goto error;
         }
