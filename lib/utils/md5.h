@@ -303,7 +303,7 @@ md5_file(char *filename, byte md5[OS_MD5_SIZE])
         return -ENOMEM;
     }
 
-    err = os_fgetb(&content, len, filename);
+    err = os_fgetb(content, len, filename);
     if (err<0) {
         goto error;
     }

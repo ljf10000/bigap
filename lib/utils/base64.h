@@ -111,12 +111,12 @@ b64_decode_ex(const char *src, size_t len, size_t *decsize)
 	int j = 0;
 	int l = 0;
 	size_t size = 0;
-	byte *dec = NULL;
-	byte buf[3];
-	byte tmp[4];
+	char *dec = NULL;
+	char buf[3];
+	char tmp[4];
 
 	// alloc
-	dec = (byte *)os_malloc(0);
+	dec = (char *)os_malloc(0);
 	if (NULL == dec) {
 		return NULL;
 	}
@@ -151,7 +151,7 @@ b64_decode_ex(const char *src, size_t len, size_t *decsize)
 			buf[2] = ((tmp[2] & 0x3) << 6) + tmp[3];
 
 			// write decoded buffer to `dec'
-			dec = (byte *)os_realloc(dec, size + 3);
+			dec = (char *)os_realloc(dec, size + 3);
 			for (i = 0; i < 3; ++i) {
 				dec[size++] = buf[i];
 			}
@@ -185,13 +185,13 @@ b64_decode_ex(const char *src, size_t len, size_t *decsize)
 		buf[2] = ((tmp[2] & 0x3) << 6) + tmp[3];
 
 		// write remainer decoded buffer to `dec'
-		dec = (byte *)os_realloc(dec, size + (i - 1));
+		dec = (char *)os_realloc(dec, size + (i - 1));
 		for (j = 0; (j < i - 1); ++j) {
 			dec[size++] = buf[j];
 		}
 	}
 	// Make sure we have enough space to add '\0' character at end.
-	dec = (byte *)os_realloc(dec, size + 1);
+	dec = (char *)os_realloc(dec, size + 1);
 	dec[size] = '\0';
 
 	// Return back the size of decoded string if demanded.
