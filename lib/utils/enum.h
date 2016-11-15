@@ -140,7 +140,7 @@ static inline int xxx_jrepair(jobj_t jobj);
     static inline jrule_ops_t *     \
     _mod##_jrule_ops(void)          \
     {                               \
-        static jrule_t rule[NSQ_IDENTIFY_END] = { \
+        static jrule_t rule[_end] = { \
             _mapper(__JENUM_MAP_RULE)   \
         };                          \
         static jrule_ops_t ops = JRULE_OPS_INITER(rule, \
