@@ -46,7 +46,6 @@ ____destroy(nsq_instance_t *instance)
     if (instance) {
         os_free(instance->name);
         os_free(instance->domain);
-        os_free(instance->cache);
         os_free(instance->topic);
         os_free(instance->identify);
 
@@ -105,7 +104,6 @@ __create(char *name, jobj_t jobj)
     instance->jinstance = jobj;
 
     instance->name      = os_strdup(name);
-    os_asprintf(&instance->cache, "%s/%s", nsqa.env.cache, name);
 
     jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
     instance->domain    = os_strdup(jobj_get_string(jval));

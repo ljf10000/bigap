@@ -48,7 +48,8 @@ static int
 run_response_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
-    int err;
+
+    os_do_nothing();
     
     return 0;
 }
@@ -57,26 +58,14 @@ static int
 run_message_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
-    int err = 0;
-
-    err = nsq_script_init(&instance->script, msg->body);
-    if (err<0) {
-        goto error;
-    }
+    int err;
     
-    err = nsq_script_exec(&instance->script);
-    if (err<0) {
-        goto error;
-    }
-
     nsq_FIN(instance);
     ndq_try_rdy(instance);
-    
+
+    nsq_script(instance, msg->body);
+
     return 0;
-error:
-    nsq_REQ(instance);
-    
-    return err;
 }
 
 static int

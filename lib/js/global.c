@@ -35,7 +35,11 @@ search_env(duk_context *ctx, char *file, char *env, char *deft)
 static int
 search_CURRENT(duk_context *ctx, char *file)
 {
-    return os_fsearch_path(file, "./", eval_file, ctx);
+    char current[1+OS_LINE_LEN] = {0};
+    
+    getcwd(current, OS_LINE_LEN);
+    
+    return os_fsearch_path(file, current, eval_file, ctx);
 }
 
 static int

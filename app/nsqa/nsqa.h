@@ -27,6 +27,27 @@ typedef struct {
     .script = NSQ_SCRIPT,   \
 }   /* end */
 
+/*
+{
+    "type": "sh/js",
+    "content": "content",
+    "filename": "filename",
+    "url": "url",
+    "md5": "md5 string",
+    "argument": "arg1 arg2 arg3 ...",
+    "cache": "none/memory/forever",
+    "scope": "global/topic",
+    "id": "GUID",
+    "reply": "COMMAND",
+
+    "instance": {
+        "name": "name",
+        "cache": "global cache",
+        "topic": "topic"
+    }
+}
+*/
+
 typedef struct {
     int     fd;
     int     fsm;
@@ -40,9 +61,7 @@ typedef struct {
     char *topic;
     char *identify; // json
     char *channel;
-    
-    char *cache;
-    
+        
     byte msgid[NSQ_MSGID_SIZE]; // last message id
     int  error;                 // last error
     
@@ -56,8 +75,6 @@ typedef struct {
     jobj_t          jauth;
     jobj_t          jscript;
 
-    nsq_script_t    script;
-    
     h1_node_t       node;
 } 
 nsq_instance_t;
@@ -139,13 +156,7 @@ extern int
 nsqi_fsm(nsq_instance_t *instance, int fsm);
 /******************************************************************************/
 extern int
-nsq_script_fini(nsq_script_t *script);
-
-extern int
-nsq_script_init(nsq_script_t *script, char *json);
-
-extern int
-nsq_script_exec(nsq_script_t *script);
+nsq_script_init(nsq_instance_t *instance, char *json);
 /******************************************************************************/
 static inline int 
 nsq_send(nsq_instance_t *instance)
