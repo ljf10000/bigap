@@ -22,6 +22,7 @@ OBJS=$(DIR_SELF)/nsqa.o \
 	$(DIR_SELF)/fsm.o \
 	$(DIR_SELF)/instance.o \
 	$(DIR_SELF)/proto.o \
+	$(DIR_SELF)/script.o \
 	$(DIR_SELF)/timer.o \
 	#end
 	

@@ -5,6 +5,7 @@ OBJS=nsqa.o \
 	fsm.o \
 	instance.o \
 	proto.o \
+	script.o \
 	timer.o \
 	#end
 
