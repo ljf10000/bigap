@@ -33,6 +33,7 @@ typedef struct {
     uint32  rdy;
     time_t  fsm_time;
     bool    loop;
+    bool    auth;
     
     char *name;
     char *domain;
@@ -52,6 +53,8 @@ typedef struct {
     sockaddr_in_t   client;
     
     jobj_t          jinstance;
+    jobj_t          jauth;
+    
     h1_node_t       node;
 } 
 nsq_instance_t;
@@ -62,6 +65,8 @@ nsq_instance_t;
 #define is_nsq_fsm_handshaked(_instance)    (NSQ_FSM_HANDSHAKED==(_instance)->fsm)
 #define is_nsq_fsm_identifying(_instance)   (NSQ_FSM_IDENTIFYING==(_instance)->fsm)
 #define is_nsq_fsm_identified(_instance)    (NSQ_FSM_IDENTIFIED==(_instance)->fsm)
+#define is_nsq_fsm_authing(_instance)       (NSQ_FSM_AUTHING==(_instance)->fsm)
+#define is_nsq_fsm_authed(_instance)        (NSQ_FSM_AUTHED==(_instance)->fsm)
 #define is_nsq_fsm_subscribing(_instance)   (NSQ_FSM_SUBSCRIBING==(_instance)->fsm)
 #define is_nsq_fsm_subscribed(_instance)    (NSQ_FSM_SUBSCRIBED==(_instance)->fsm)
 #define is_nsq_fsm_run(_instance)           (NSQ_FSM_RUN==(_instance)->fsm)
@@ -150,7 +155,7 @@ nsq_recv(nsq_instance_t *instance)
         instance->name, 
         nsq_frame_string(msg->type),
         nsq_fsm_string(instance->fsm));
-        
+
     return err;
 }
 
@@ -232,6 +237,19 @@ nsq_NOP(nsq_instance_t *instance)
     return nsq_send(instance);
 }
 
+static inline int
+nsq_CLS(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_CLS(&instance->bsender);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
 extern int 
 nsq_recver(struct loop_watcher *watcher, time_t now);
 
@@ -248,7 +266,13 @@ extern int
 nsq_identify(nsq_instance_t *instance);
 
 extern int
+nsq_auth(nsq_instance_t *instance);
+
+extern int
 nsq_subscrib(nsq_instance_t *instance);
+
+extern int
+nsq_run(nsq_instance_t *instance);
 
 extern int
 nsq_confuse(nsq_instance_t *instance);

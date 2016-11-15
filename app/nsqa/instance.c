@@ -115,6 +115,7 @@ __create(char *name, jobj_t jobj)
     
     jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
     instance->identify  = os_strdup(jobj_json(jval));
+    instance->auth      = jobj_get_bool(jobj_get(jval, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME));
 
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
     port = jobj_get_bool(jval);
@@ -228,6 +229,11 @@ nsqi_insert(char *json)
         err = -EBADJSON; goto error;
     }
 
+    err = nsq_instance_jrepair(jobj);
+    if (err<0) {
+        goto error;
+    }
+    
     err = __nsqi_insert(jobj);
     if (err<0) {
         goto error;

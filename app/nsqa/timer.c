@@ -15,7 +15,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 typedef void nsq_timer_handle_f(nsq_instance_t *instance, time_t now);
 
 static void
-resolve_timer(nsq_instance_t *instance, time_t now)
+init_tigger(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_init(instance)) {
         nsq_resolve(instance);      // ==> resolved
@@ -23,7 +23,7 @@ resolve_timer(nsq_instance_t *instance, time_t now)
 }
 
 static void
-connect_timer(nsq_instance_t *instance, time_t now)
+resolved_tigger(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_resolved(instance)) {
         nsq_connect(instance);      // ==> connected
@@ -31,7 +31,7 @@ connect_timer(nsq_instance_t *instance, time_t now)
 }
 
 static void
-handshake_timer(nsq_instance_t *instance, time_t now)
+connected_tigger(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_connected(instance)) {
         nsq_handshake(instance);    // ==> handshaked
@@ -39,7 +39,7 @@ handshake_timer(nsq_instance_t *instance, time_t now)
 }
 
 static void
-identify_timer(nsq_instance_t *instance, time_t now)
+handshaked_tigger(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_handshaked(instance)) {
         nsq_identify(instance);     // ==> identifying
@@ -47,10 +47,26 @@ identify_timer(nsq_instance_t *instance, time_t now)
 }
 
 static void
-subscrib_timer(nsq_instance_t *instance, time_t now)
+identified_tigger(nsq_instance_t *instance, time_t now)
 {
     if (is_nsq_fsm_identified(instance)) {
+        nsq_auth(instance);         // ==> authing
+    }
+}
+
+static void
+authed_tigger(nsq_instance_t *instance, time_t now)
+{
+    if (is_nsq_fsm_authed(instance)) {
         nsq_subscrib(instance);     // ==> subscribing
+    }
+}
+
+static void
+subscribed_tigger(nsq_instance_t *instance, time_t now)
+{
+    if (is_nsq_fsm_subscribed(instance)) {
+        nsq_run(instance);          // ==> run
     }
 }
 
@@ -64,47 +80,36 @@ is_fsm_timeout(time_t fsm_time, time_t now)
 }
 
 static void
-fsm_timeout(nsq_instance_t *instance, time_t now)
+identifying_timeout(nsq_instance_t *instance, time_t now)
 {
-    int err;
-    
-    switch(instance->fsm) {
-        case NSQ_FSM_HANDSHAKED:
-            if (is_fsm_timeout(instance->fsm_time, now)) {
-                err = nsq_handshake(instance);
-            }
-            
-            break;
-        case NSQ_FSM_IDENTIFYING:
-            if (is_fsm_timeout(instance->fsm_time, now)) {
-                err = nsq_identify(instance);
-            }
-            
-            break;
-        case NSQ_FSM_SUBSCRIBING:
-            if (is_fsm_timeout(instance->fsm_time, now)) {
-                err = nsq_subscrib(instance);
-            }
-            
-            break;
-        case NSQ_FSM_RUN:
-            // todo
-            
-            break;
+    if (is_nsq_fsm_identifying(instance) && is_fsm_timeout(instance->fsm_time, now)) {
+        nsq_identify(instance); // re-send identify
+    }
+}
+
+static void
+subscribing_timeout(nsq_instance_t *instance, time_t now)
+{
+    if (is_nsq_fsm_subscribing(instance) && is_fsm_timeout(instance->fsm_time, now)) {
+        nsq_subscrib(instance); // re-send sub
     }
 }
 
 static void 
 timer_handle(nsq_instance_t *instance, time_t now)
 {
+    // keep sort
     static nsq_timer_handle_f *handler[] = {
-        resolve_timer,  // keep sort
-        connect_timer,  // keep sort
-        handshake_timer,// keep sort
-        identify_timer, // keep sort
-        subscrib_timer, // keep sort
+        init_tigger,
+        resolved_tigger,
+        connected_tigger,
+        handshaked_tigger,
+        identified_tigger,
+        authed_tigger,
+        subscribed_tigger,
         
-        fsm_timeout,    // keep last
+        identifying_timeout,
+        subscribing_timeout,
     };
     
     int i;

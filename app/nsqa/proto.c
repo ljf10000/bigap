@@ -13,27 +13,19 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "nsqa.h"
 /******************************************************************************/
 static int
-normal_recver(nsq_msg_t *msg)
-{
-    int id;
-
-    if (is_nsq_frame_error(msg->type)) {
-        int id = nsq_error_idx(msg->body);
-        if (false==is_good_nsq_error(id)) {
-            return -EPROTO;
-        }
-        else if (NSQ_E_OK!=id) {
-            return -EPROTO;
-        }
-    }
-    
-    return 0;
-}
-
-static int
 identifying_response_handle(nsq_instance_t *instance, time_t now)
 {
+    nsq_msg_t *msg = nsq_recver_msg(instance);
+    
     if (NSQ_E_OK==instance->error) {
+        nsqi_fsm(instance, NSQ_FSM_IDENTIFIED);
+    }
+    else if (instance->auth) {
+        instance->jauth = jobj_byjson(msg->body);
+        if (NULL==instance->jauth) {
+            return -EPROTO;
+        }
+
         nsqi_fsm(instance, NSQ_FSM_IDENTIFIED);
     }
     
@@ -59,6 +51,7 @@ run_response_handle(nsq_instance_t *instance, time_t now)
     return 0;
 }
 
+
 static int
 run_message_handle(nsq_instance_t *instance, time_t now)
 {
@@ -66,6 +59,155 @@ run_message_handle(nsq_instance_t *instance, time_t now)
     int err;
     
     return 0;
+}
+
+static int
+pre_handle(nsq_instance_t *instance)
+{
+    switch(instance->fsm) {
+        case NSQ_FSM_INIT:      // down
+        case NSQ_FSM_RESOLVED:  // down
+        case NSQ_FSM_CONNECTED: // down
+            debug_proto("instance[%s] not support recv @fsm[%s]",
+                instance->name, 
+                nsq_fsm_string(instance->fsm));
+
+            return -EPROTO;
+    }
+
+    return 0;
+}
+
+static int 
+frame_error_handle(nsq_instance_t *instance, time_t now)
+{
+    return -EPROTO;
+}
+
+static int 
+frame_response_handle(nsq_instance_t *instance, time_t now)
+{
+    nsq_msg_t *msg = nsq_recver_msg(instance);
+    int err;
+    
+    if (is_nsq_response_heartbeat(msg)) {
+        return nsq_NOP(instance);
+    }
+
+    instance->error = nsq_error_idx(msg->body);
+    if (is_valid_nsq_error(instance->error)) {
+        return -EPROTO;
+    }
+
+    switch(instance->fsm) {
+        case NSQ_FSM_HANDSHAKED: // down
+        case NSQ_FSM_IDENTIFIED: // down
+        case NSQ_FSM_AUTHING:    // down
+        case NSQ_FSM_AUTHED:     // down
+        case NSQ_FSM_SUBSCRIBED: // down
+            debug_proto("instance[%s] not support recv @fsm[%s]",
+                instance->name, 
+                nsq_fsm_string(instance->fsm));
+            
+            err = -EPROTO;
+
+            break;
+        case NSQ_FSM_IDENTIFYING:
+            err = identifying_response_handle(instance, now);
+
+            break;
+        case NSQ_FSM_SUBSCRIBING:
+            err = subscribing_response_handle(instance, now);
+
+            break;
+        case NSQ_FSM_RUN:
+            err = run_response_handle(instance, now);
+            
+            break;
+        default:
+            err = -EPROTO;
+
+            break;
+    }
+
+    return -EPROTO;
+}
+
+static int 
+frame_message_handle(nsq_instance_t *instance, time_t now)
+{
+    nsq_msg_t *msg = nsq_recver_msg(instance);
+    int err;
+
+    if (NSQ_FSM_RUN != instance->fsm) {
+        debug_proto("instance[%s] not support recv @fsm[%s]",
+            instance->name, 
+            nsq_fsm_string(instance->fsm));
+
+        return -EPROTO;
+    }
+    
+    err = run_message_handle(instance, now);
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
+}
+
+static int 
+frame_handle(nsq_instance_t *instance, time_t now)
+{
+    nsq_msg_t *msg = nsq_recver_msg(instance);
+    int err;
+
+    switch(msg->type) {
+        case NSQ_FRAME_ERROR:
+            err = frame_error_handle(instance, now);
+
+            break;
+        case NSQ_FRAME_RESPONSE:
+            err = frame_response_handle(instance, now);
+            
+            break;
+        case NSQ_FRAME_MESSAGE:
+            err = frame_message_handle(instance, now);
+            
+            break;
+        default:
+            err = -EPROTO;
+
+            break;
+    }
+
+    return err;
+}
+
+int 
+nsq_recver(struct loop_watcher *watcher, time_t now)
+{
+    nsq_instance_t *instance = (nsq_instance_t *)watcher->user;
+    int err;
+
+    err = pre_handle(instance);
+    if (err<0) {
+        goto confused;
+    }
+
+    err = nsq_recv(instance);
+    if (err<0) {
+        goto confused;
+    }
+
+    err = frame_handle(instance, now);
+    if (err<0) {
+        goto confused;
+    }
+
+confused:
+    nsq_confuse(instance);
+    
+    return err;
 }
 
 int
@@ -157,6 +299,16 @@ nsq_identify(nsq_instance_t *instance)
 }
 
 int
+nsq_auth(nsq_instance_t *instance)
+{
+    // support auth later, 
+    // just authed, now
+    nsqi_fsm(instance, NSQ_FSM_AUTHED);
+
+    return 0;
+}
+
+int
 nsq_subscrib(nsq_instance_t *instance)
 {
     int err;
@@ -176,9 +328,30 @@ nsq_subscrib(nsq_instance_t *instance)
 }
 
 int
+nsq_run(nsq_instance_t *instance)
+{
+    int err;
+    
+    debug_proto("instance[%s] run ...", instance->name);
+    
+    err = nsq_RDY(instance);
+    if (err<0) {
+        return err;
+    }
+    
+    debug_proto("instance[%s] run ok.", instance->name);
+
+    nsqi_fsm(instance, NSQ_FSM_RUN);
+    
+    return 0;
+}
+
+int
 nsq_confuse(nsq_instance_t *instance)
 {
     if (is_good_fd(instance->fd)) {
+        nsq_CLS(instance);
+        
         os_close(instance->fd);
 
         nsqi_fsm(instance, NSQ_FSM_INIT);
@@ -186,155 +359,6 @@ nsq_confuse(nsq_instance_t *instance)
     }
     
     return -EPROTO;
-}
-
-static int
-pre_handle(nsq_instance_t *instance)
-{
-    switch(instance->fsm) {
-        case NSQ_FSM_INIT:      // down
-        case NSQ_FSM_RESOLVED:  // down
-        case NSQ_FSM_CONNECTED:
-            debug_proto("instance[%s] not support recv @fsm[%s]",
-                instance->name, 
-                nsq_fsm_string(instance->fsm));
-
-            return -EBADFSM;
-        case NSQ_FSM_HANDSHAKED:    // down
-        case NSQ_FSM_IDENTIFYING:   // down
-        case NSQ_FSM_IDENTIFIED:    // down
-        case NSQ_FSM_SUBSCRIBING:   // down
-        case NSQ_FSM_SUBSCRIBED:    // down
-        case NSQ_FSM_RUN:
-            return 0;
-        default:
-            debug_proto("instance[%s] not support recv @fsm[%d]",
-                instance->name, 
-                instance->fsm);
-
-            return -EBADFSM;
-    }
-}
-
-static int 
-frame_response_handle(nsq_instance_t *instance, time_t now)
-{
-    nsq_msg_t *msg = nsq_recver_msg(instance);
-    int err;
-    
-    if (is_nsq_response_heartbeat(msg)) {
-        return nsq_NOP(instance);
-    }
-
-    instance->error = nsq_error_idx(msg->body);
-    if (is_valid_nsq_error(instance->error)) {
-        return -EPROTO;
-    }
-
-    switch(instance->fsm) {
-        case NSQ_FSM_HANDSHAKED: // down
-        case NSQ_FSM_IDENTIFIED: // down
-        case NSQ_FSM_SUBSCRIBED:
-            debug_proto("instance[%s] not support recv @fsm[%s]",
-                instance->name, 
-                nsq_fsm_string(instance->fsm));
-            
-            err = -EPROTO;
-
-            break;
-        case NSQ_FSM_IDENTIFYING:
-            err = identifying_response_handle(instance, now);
-
-            break;
-        case NSQ_FSM_SUBSCRIBING:
-            err = subscribing_response_handle(instance, now);
-
-            break;
-        case NSQ_FSM_RUN:
-            err = run_response_handle(instance, now);
-            
-            break;
-        default:
-            err = -EBADFSM;
-
-            break;
-    }
-
-    return -EPROTO;
-}
-
-static int 
-frame_message_handle(nsq_instance_t *instance, time_t now)
-{
-    nsq_msg_t *msg = nsq_recver_msg(instance);
-    int err;
-
-    if (NSQ_FSM_RUN != instance->fsm) {
-        debug_proto("instance[%s] not support recv @fsm[%s]",
-            instance->name, 
-            nsq_fsm_string(instance->fsm));
-
-        return -EPROTO;
-    }
-    
-    err = run_message_handle(instance, now);
-    if (err<0) {
-        return err;
-    }
-    
-    return 0;
-}
-
-static int 
-frame_handle(nsq_instance_t *instance, time_t now)
-{
-    nsq_msg_t *msg = nsq_recver_msg(instance);
-    int err;
-
-    switch(msg->type) {
-        case NSQ_FRAME_RESPONSE:
-            err = frame_response_handle(instance, now);
-            
-            break;
-        case NSQ_FRAME_MESSAGE:
-            err = frame_message_handle(instance, now);
-            
-            break;
-        case NSQ_FRAME_ERROR: // down
-        default:
-            err = -EPROTO;
-
-            break;
-    }
-
-    return err;
-}
-
-int 
-nsq_recver(struct loop_watcher *watcher, time_t now)
-{
-    nsq_instance_t *instance = (nsq_instance_t *)watcher->user;
-    int err;
-
-    err = pre_handle(instance);
-    if (err<0) {
-        goto confused;
-    }
-
-    err = nsq_recv(instance);
-    if (err<0) {
-        goto confused;
-    }
-
-    err = frame_handle(instance, now);
-    if (err<0) {
-        goto confused;
-    }
-
-confused:
-    nsq_confuse(instance);
-    
-    return err;
 }
 
 /******************************************************************************/

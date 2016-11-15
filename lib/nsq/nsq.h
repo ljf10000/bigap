@@ -73,6 +73,8 @@ enum {
 #define NSQ_FSM_HANDSHAKED_NAME     "handshaked"
 #define NSQ_FSM_IDENTIFYING_NAME    "identifying"
 #define NSQ_FSM_IDENTIFIED_NAME     "identified"
+#define NSQ_FSM_AUTHING_NAME        "authing"
+#define NSQ_FSM_AUTHED_NAME         "authed"
 #define NSQ_FSM_SUBSCRIBING_NAME    "subscribing"
 #define NSQ_FSM_SUBSCRIBED_NAME     "subscribed"
 #define NSQ_FSM_RUN_NAME            "run"
@@ -84,9 +86,11 @@ enum {
     _(NSQ_FSM_HANDSHAKED,   3,  NSQ_FSM_HANDSHAKED_NAME),   \
     _(NSQ_FSM_IDENTIFYING,  4,  NSQ_FSM_IDENTIFYING_NAME),  \
     _(NSQ_FSM_IDENTIFIED,   5,  NSQ_FSM_IDENTIFIED_NAME),   \
-    _(NSQ_FSM_SUBSCRIBING,  6,  NSQ_FSM_SUBSCRIBING_NAME),  \
-    _(NSQ_FSM_SUBSCRIBED,   7,  NSQ_FSM_SUBSCRIBED_NAME),   \
-    _(NSQ_FSM_RUN,          8,  NSQ_FSM_RUN_NAME),          \
+    _(NSQ_FSM_AUTHING,      6,  NSQ_FSM_AUTHING_NAME),      \
+    _(NSQ_FSM_AUTHED,       7,  NSQ_FSM_AUTHED_NAME),       \
+    _(NSQ_FSM_SUBSCRIBING,  8,  NSQ_FSM_SUBSCRIBING_NAME),  \
+    _(NSQ_FSM_SUBSCRIBED,   9,  NSQ_FSM_SUBSCRIBED_NAME),   \
+    _(NSQ_FSM_RUN,         10,  NSQ_FSM_RUN_NAME),          \
     /* end */
 DECLARE_ENUM(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
 
@@ -100,6 +104,8 @@ static inline int nsq_fsm_idx(char *name);
 #define NSQ_FSM_HANDSHAKED      NSQ_FSM_HANDSHAKED
 #define NSQ_FSM_IDENTIFYING     NSQ_FSM_IDENTIFYING
 #define NSQ_FSM_IDENTIFIED      NSQ_FSM_IDENTIFIED
+#define NSQ_FSM_AUTHING         NSQ_FSM_AUTHING
+#define NSQ_FSM_AUTHED          NSQ_FSM_AUTHED
 #define NSQ_FSM_SUBSCRIBING     NSQ_FSM_SUBSCRIBING
 #define NSQ_FSM_SUBSCRIBED      NSQ_FSM_SUBSCRIBED
 #define NSQ_FSM_RUN             NSQ_FSM_RUN
