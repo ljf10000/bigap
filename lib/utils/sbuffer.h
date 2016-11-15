@@ -127,7 +127,7 @@ simple_buffer_cursor(simple_buffer_t *sb)
 })
 
 static inline int
-simple_buffer_append_buffer(simple_buffer_t *sb, char *buf, uint32 len)
+simple_buffer_append_buffer(simple_buffer_t *sb, void *buf, uint32 len)
 {
     if (simple_buffer_left(sb) >= len || 0==simple_buffer_expand(sb, len)) {
         os_memcpy(sb->buf, buf, len);
