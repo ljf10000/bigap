@@ -167,10 +167,13 @@ script_init(nsq_script_t *script, jobj_t jscript)
     }
     
     if (script->content) {
-        script->content = b64_decode_ex(script->content, os_strlen(script->content), &script->content_len);
+        size_t len;
+        
+        script->content = b64_decode_ex(script->content, os_strlen(script->content), &len);
         if (NULL==script->content) {
             return -EBASE64;
         }
+        script->content_len = len;
     }
 
     if (script->argument) {
@@ -218,7 +221,7 @@ nsq_script_init(nsq_script_t *script, char *json)
 
     nsq_script_fini(script);
     
-    jobj_t jscript = jobj_byjson(json);
+    jscript = jobj_byjson(json);
     if (NULL==jscript) {
         return -EBADJSON;
     }
