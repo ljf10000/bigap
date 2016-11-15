@@ -51,7 +51,7 @@ file_md5_check_helper(char *filename, void *user)
 static int
 file_md5_check(nsq_script_t *script)
 {
-    int err = 0
+    int err = 0;
 
     if (os_file_absolute(script->filename)) {
         if (os_file_exist(script->filename)) {

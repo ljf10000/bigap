@@ -271,7 +271,7 @@ md5_fini(md5_content_t *ctx, byte md5[16])
 }
 
 static inline void
-md5_encode(byte md5[OS_MD5_SIZE], byte *buf, uint32 len)
+md5_encode(byte md5[OS_MD5_SIZE], void *buf, uint32 len)
 {
     md5_content_t ctx;
     
