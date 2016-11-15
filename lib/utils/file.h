@@ -23,13 +23,13 @@ os_file_exist(const char *file)
 static inline bool
 os_file_absolute(char *file)
 {
-    return is_good_string(file) && '/'==file[0];
+    return is_good_str(file) && '/'==file[0];
 }
 
 static inline bool
 os_file_relative(char *file)
 {
-    if (is_good_string(file)) {
+    if (is_good_str(file)) {
         int len = os_strlen(file);
         
         if (len>2 && '.'==file[0] && '/'==file[1]) {
