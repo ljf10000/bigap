@@ -316,6 +316,8 @@ nsq_script_exec(nsq_script_t *script)
         if (script->filename) {
             save_file(script);
         }
+
+        return 0;
     } else {
         return exec_file(script);
     }
