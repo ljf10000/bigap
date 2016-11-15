@@ -70,10 +70,9 @@ typedef struct {
     
     sockaddr_in_t   server;
     sockaddr_in_t   client;
-    
+
     jobj_t          jinstance;
     jobj_t          jauth;
-    jobj_t          jscript;
 
     h1_node_t       node;
 } 
@@ -156,7 +155,7 @@ extern int
 nsqi_fsm(nsq_instance_t *instance, int fsm);
 /******************************************************************************/
 extern int
-nsq_script_init(nsq_instance_t *instance, char *json);
+nsq_script(nsq_instance_t *instance, char *json);
 /******************************************************************************/
 static inline int 
 nsq_send(nsq_instance_t *instance)

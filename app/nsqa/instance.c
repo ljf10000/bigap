@@ -50,7 +50,6 @@ ____destroy(nsq_instance_t *instance)
         os_free(instance->identify);
 
         jobj_put(instance->jinstance);
-        nsq_script_fini(&instance->script);
         
         nsqb_fini(&instance->brecver);
         nsqb_fini(&instance->bsender);
