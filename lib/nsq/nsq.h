@@ -470,18 +470,18 @@ is_nsq_response_error(nsq_msg_t *msg)
 
 typedef simple_buffer_t nsq_buffer_t;
 
-#define NSQ_MAGIC       "  V2"
-#define NSQ_IDENTIFY    "IDENTIFY\n"
-#define NSQ_AUTH        "AUTH\n"
-#define NSQ_NOP         "NOP\n"
-#define NSQ_CLS         "CLS\n"
-#define NSQ_SUB         "SUB "
-#define NSQ_PUB         "PUB "
-#define NSQ_MPUB        "MPUB "
-#define NSQ_RDY         "RDY "
-#define NSQ_FIN         "FIN "
-#define NSQ_REQ         "REQ "
-#define NSQ_TOUCH       "TOUCH "
+#define NSQ_INSTRUCTION_MAGIC       "  V2"
+#define NSQ_INSTRUCTION_IDENTIFY    "IDENTIFY\n"
+#define NSQ_INSTRUCTION_AUTH        "AUTH\n"
+#define NSQ_INSTRUCTION_NOP         "NOP\n"
+#define NSQ_INSTRUCTION_CLS         "CLS\n"
+#define NSQ_INSTRUCTION_SUB         "SUB "
+#define NSQ_INSTRUCTION_PUB         "PUB "
+#define NSQ_INSTRUCTION_MPUB        "MPUB "
+#define NSQ_INSTRUCTION_RDY         "RDY "
+#define NSQ_INSTRUCTION_FIN         "FIN "
+#define NSQ_INSTRUCTION_REQ         "REQ "
+#define NSQ_INSTRUCTION_TOUCH       "TOUCH "
 
 #define nsqb_init(_b, _size)    simple_buffer_init(_b, _size)
 #define nsqb_fini(_b)           simple_buffer_fini(_b)
@@ -548,7 +548,7 @@ nsqb_MAGIC(nsq_buffer_t *b)
     
     nsqb_clean(b);
 
-    err = nsqb_command(b, NSQ_MAGIC);
+    err = nsqb_command(b, NSQ_INSTRUCTION_MAGIC);
     if (err<0) {
         return err;
     }
@@ -563,7 +563,7 @@ nsqb_CLS(nsq_buffer_t *b)
     
     nsqb_clean(b);
     
-    err = nsqb_command(b, NSQ_CLS);
+    err = nsqb_command(b, NSQ_INSTRUCTION_CLS);
     if (err<0) {
         return err;
     }
@@ -578,7 +578,7 @@ nsqb_IDENTIFY(nsq_buffer_t *b, char *json)
     
     nsqb_clean(b);
 
-    err = nsqb_command(b, NSQ_IDENTIFY);
+    err = nsqb_command(b, NSQ_INSTRUCTION_IDENTIFY);
     if (err<0) {
         return err;
     }
@@ -598,7 +598,7 @@ nsqb_SUB(nsq_buffer_t *b, char *topic, char *channel)
     
     nsqb_clean(b);
     
-    err = nsqb_sprintf(b, NSQ_SUB "%s %s\n", topic, channel);
+    err = nsqb_sprintf(b, NSQ_INSTRUCTION_SUB "%s %s\n", topic, channel);
     if (err<0) {
         return err;
     }
@@ -613,7 +613,7 @@ nsqb_PUB(nsq_buffer_t *b, char *topic, char *data, uint32 len)
     
     nsqb_clean(b);
 
-    err = nsqb_sprintf(b, NSQ_PUB "%s\n", topic);
+    err = nsqb_sprintf(b, NSQ_INSTRUCTION_PUB "%s\n", topic);
     if (err<0) {
         return err;
     }
@@ -634,7 +634,7 @@ nsqb_MPUB(nsq_buffer_t *b, char *topic, struct iovec *iov, uint32 count)
     
     nsqb_clean(b);
 
-    err = nsqb_sprintf(b, NSQ_MPUB "%s\n", topic);
+    err = nsqb_sprintf(b, NSQ_INSTRUCTION_MPUB "%s\n", topic);
     if (err<0) {
         return err;
     }
@@ -661,7 +661,7 @@ nsqb_RDY(nsq_buffer_t *b, uint32 count)
     
     nsqb_clean(b);
     
-    err = nsqb_sprintf(b, NSQ_RDY "%u\n", count);
+    err = nsqb_sprintf(b, NSQ_INSTRUCTION_RDY "%u\n", count);
     if (err<0) {
         return err;
     }
@@ -676,7 +676,7 @@ nsqb_FIN(nsq_buffer_t *b, byte *msg_id)
     
     nsqb_clean(b);
 
-    err = nsqb_command(b, NSQ_FIN);
+    err = nsqb_command(b, NSQ_INSTRUCTION_FIN);
     if (err<0) {
         return err;
     }
@@ -701,7 +701,7 @@ nsqb_REQ(nsq_buffer_t *b, char *msg_id, int timeout)
     
     nsqb_clean(b);
 
-    err = nsqb_command(b, NSQ_REQ);
+    err = nsqb_command(b, NSQ_INSTRUCTION_REQ);
     if (err<0) {
         return err;
     }
@@ -726,7 +726,7 @@ nsqb_TOUCH(nsq_buffer_t *b, char *msg_id)
     
     nsqb_clean(b);
 
-    err = nsqb_command(b, NSQ_REQ);
+    err = nsqb_command(b, NSQ_INSTRUCTION_REQ);
     if (err<0) {
         return err;
     }
@@ -751,7 +751,7 @@ nsqb_NOP(nsq_buffer_t *b)
     
     nsqb_clean(b);
     
-    err = nsqb_command(b, NSQ_NOP);
+    err = nsqb_command(b, NSQ_INSTRUCTION_NOP);
     if (err<0) {
         return err;
     }
@@ -766,7 +766,7 @@ nsqb_AUTH(nsq_buffer_t *b, char *secret, uint32 len)
     
     nsqb_clean(b);
 
-    err = nsqb_command(b, NSQ_AUTH);
+    err = nsqb_command(b, NSQ_INSTRUCTION_AUTH);
     if (err<0) {
         return err;
     }
