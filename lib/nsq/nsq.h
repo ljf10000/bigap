@@ -830,7 +830,7 @@ nsqb_FIN(nsq_buffer_t *b, byte *msg_id)
 }
 
 static inline int
-nsqb_REQ(nsq_buffer_t *b, char *msg_id, int timeout)
+nsqb_REQ(nsq_buffer_t *b, byte *msg_id, int timeout)
 {
     int err;
     
@@ -932,13 +932,12 @@ nsqb_recv(int fd, nsq_buffer_t *b)
     if (err<0) {
         return err;
     }
-    else if (len!=msg->size) {
-        return -ETOOSMALL;
-    }
-
-    b->len += len;
     msg = (nsq_msg_t *)b->buf;
     nsq_msg_ntoh(msg);
+    if (len!=msg->size) {
+        return -ETOOSMALL;
+    }
+    b->len += len;
 
     err = len = __io_recv(fd, b->buf + b->len, nsq_msg_body_size(msg), 0);
     if (err<0) {
