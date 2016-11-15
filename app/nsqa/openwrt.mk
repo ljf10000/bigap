@@ -2,10 +2,8 @@
 OBJS=nsqa.o \
 	cfg.o \
 	cli.o \
-	fsm.o \
 	instance.o \
 	proto.o \
-	script.o \
 	timer.o \
 	#end
 

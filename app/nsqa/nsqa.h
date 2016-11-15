@@ -154,9 +154,6 @@ nsqi_identify(nsq_instance_t *instance, char *json);
 extern int
 nsqi_fsm(nsq_instance_t *instance, int fsm);
 /******************************************************************************/
-extern int
-nsq_script(nsq_instance_t *instance, char *json);
-/******************************************************************************/
 static inline int 
 nsq_send(nsq_instance_t *instance)
 {
@@ -219,6 +216,9 @@ nsq_run(nsq_instance_t *instance);
 
 extern int
 nsq_confuse(nsq_instance_t *instance);
+
+extern int
+nsq_script(nsq_instance_t *instance, char *json);
 /******************************************************************************/
 extern int
 init_nsq_timer(void);
