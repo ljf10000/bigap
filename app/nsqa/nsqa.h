@@ -54,6 +54,9 @@ typedef struct {
     
     jobj_t          jinstance;
     jobj_t          jauth;
+    jobj_t          jscript;
+
+    nsq_script_t    script;
     
     h1_node_t       node;
 } 
@@ -133,10 +136,16 @@ extern int
 nsqi_identify(nsq_instance_t *instance, char *json);
 
 extern int
-nsqi_rdy(nsq_instance_t *instance, int val);
+nsqi_fsm(nsq_instance_t *instance, int fsm);
+/******************************************************************************/
+extern int
+nsq_script_fini(nsq_script_t *script);
 
 extern int
-nsqi_fsm(nsq_instance_t *instance, int fsm);
+nsq_script_init(nsq_script_t *script, char *json);
+
+extern int
+nsq_script_exec(nsq_script_t *script);
 /******************************************************************************/
 static inline int 
 nsq_send(nsq_instance_t *instance)
@@ -144,111 +153,35 @@ nsq_send(nsq_instance_t *instance)
     return nsqb_send(instance->fd, &instance->bsender);
 }
 
-static inline int 
-nsq_recv(nsq_instance_t *instance)
-{
-    nsq_msg_t *msg = nsq_recver_msg(instance);
+extern int 
+nsq_recv(nsq_instance_t *instance);
 
-    int err = nsqb_recv(instance->fd, &instance->brecver);
-    
-    debug_proto("instance[%s] recv frame-%s @%s",
-        instance->name, 
-        nsq_frame_string(msg->type),
-        nsq_fsm_string(instance->fsm));
+extern int 
+nsq_MAGIC(nsq_instance_t *instance);
 
-    return err;
-}
+extern int
+nsq_IDENTIFY(nsq_instance_t *instance);
 
-static inline int 
-nsq_MAGIC(nsq_instance_t *instance)
-{
-    int err;
+extern int
+nsq_SUB(nsq_instance_t *instance);
 
-    err = nsqb_MAGIC(&instance->bsender);
-    if (err<0) {
-        return err;
-    }
+extern int
+nsq_RDY(nsq_instance_t *instance);
 
-    return nsq_send(instance);
-}
+extern int
+nsq_FIN(nsq_instance_t *instance);
 
-static inline int
-nsq_IDENTIFY(nsq_instance_t *instance)
-{
-    int err;
+extern int
+nsq_NOP(nsq_instance_t *instance);
 
-    err = nsqb_IDENTIFY(&instance->bsender, instance->identify);
-    if (err<0) {
-        return err;
-    }
+extern int
+nsq_CLS(nsq_instance_t *instance);
 
-    return nsq_send(instance);
-}
+extern int
+nsq_REQ(nsq_instance_t *instance);
 
-static inline int
-nsq_SUB(nsq_instance_t *instance)
-{
-    int err;
-
-    err = nsqb_SUB(&instance->bsender, instance->topic, instance->channel);
-    if (err<0) {
-        return err;
-    }
-
-    return nsq_send(instance);
-}
-
-static inline int
-nsq_RDY(nsq_instance_t *instance)
-{
-    int err;
-
-    err = nsqb_RDY(&instance->bsender, instance->rdy);
-    if (err<0) {
-        return err;
-    }
-
-    return nsq_send(instance);
-}
-
-static inline int
-nsq_FIN(nsq_instance_t *instance)
-{
-    int err;
-
-    err = nsqb_FIN(&instance->bsender, nsq_recver_msg(instance)->id);
-    if (err<0) {
-        return err;
-    }
-
-    return nsq_send(instance);
-}
-
-static inline int
-nsq_NOP(nsq_instance_t *instance)
-{
-    int err;
-
-    err = nsqb_NOP(&instance->bsender);
-    if (err<0) {
-        return err;
-    }
-
-    return nsq_send(instance);
-}
-
-static inline int
-nsq_CLS(nsq_instance_t *instance)
-{
-    int err;
-
-    err = nsqb_CLS(&instance->bsender);
-    if (err<0) {
-        return err;
-    }
-
-    return nsq_send(instance);
-}
+extern int
+nsq_rdy(nsq_instance_t *instance);
 
 extern int 
 nsq_recver(struct loop_watcher *watcher, time_t now);

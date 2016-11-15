@@ -665,7 +665,7 @@ __ak_load(void)
     
     DIR *dir = opendir(AK_PATH);
     if (dir) {
-        closedir(dir);
+        os_closedir(dir);
 
         path = AK_PATH;
     } else {

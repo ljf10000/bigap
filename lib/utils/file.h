@@ -12,6 +12,37 @@
 #define file_println(_fmt, _args...)    os_do_nothing()
 #endif
 
+static inline bool
+os_file_exist(const char *file)
+{
+    int fd = open(file, O_RDONLY, S_IRUSR | S_IRGRP);
+
+    return fd<0?false:(close(fd), true);
+}
+
+static inline bool
+os_file_absolute(char *file)
+{
+    return is_good_string(file) && '/'==file[0];
+}
+
+static inline bool
+os_file_relative(char *file)
+{
+    if (is_good_string(file)) {
+        int len = os_strlen(file);
+        
+        if (len>2 && '.'==file[0] && '/'==file[1]) {
+            return true;
+        }
+        else if (len>3 && '.'==file[0] && '.'==file[1] && '/'==file[2]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 #define __v_xopen(_type, _func, _mod, _fmt, _args...) ({  \
     char *__line = NULL;                    \
     _type __v = (_type)0;                   \
@@ -455,7 +486,7 @@ os_fscan_dir
 )
 {
     DIR *dir = NULL;
-    struct dirent *file = NULL;
+    struct dirent *d = NULL;
     struct stat st;
     mv_u mv;
     int err = 0;
@@ -468,35 +499,40 @@ os_fscan_dir
     
     dir = opendir(path);
     if (NULL == dir) {
-        err = -errno;
-
         file_println("open dir %s error:%d", path, -errno);
         
-        goto error;
+        err = -errno; goto error;
     }
     
-    while (NULL != (file=readdir(dir))) {
-        char *filename = file->d_name; /* just name, not include path */
-
-        file_println("scan %s/%s", path, filename);
+    while (NULL != (d=readdir(dir))) {
+        /* 
+        * d->d_name
+        *   just name, not include path 
+        */
+        file_println("scan %s/%s", path, d->d_name);
 
         /*
         * skip . and ..
         */
-        if (is_current_dir(filename) || is_father_dir(filename)) {
-            file_println("skip %s/%s", path, filename);
+        if (is_current_dir(d->d_name) || is_father_dir(d->d_name)) {
+            file_println("skip %s/%s", path, d->d_name);
             
+            continue;
+        }
+
+        err = stat(d->d_name, &st);
+        if (err<0) {
             continue;
         }
         
         /*
         * dir
         */
-        if (stat(filename, &st) >= 0 && S_ISDIR(st.st_mode)) {
+        if (S_ISDIR(st.st_mode)) {
             if (recur) {
                 char line[1+OS_LINE_LEN];
 
-                os_sprintf(line, "%s/%s", path, filename);
+                os_sprintf(line, "%s/%s", path, d->d_name);
                 
                 err = os_fscan_dir(line, recur, file_filter, file_handle, line_handle);
                 if (err<0) {
@@ -510,8 +546,8 @@ os_fscan_dir
         /*
         * file filter
         */
-        if (file_filter && (*file_filter)(path, filename)) {
-            file_println("filter %s/%s", path, filename);
+        if (file_filter && (*file_filter)(path, d->d_name)) {
+            file_println("filter %s/%s", path, d->d_name);
             
             continue;
         }
@@ -519,11 +555,11 @@ os_fscan_dir
         /*
         * file handle
         */
-        mv.v = __os_fscan_file_handle(path, filename, file_handle, line_handle);
+        mv.v = __os_fscan_file_handle(path, d->d_name, file_handle, line_handle);
         if (is_mv2_break(mv)) {
             err = mv2_error(mv);
 
-            file_println("handle %s/%s error:%d", path, filename, err);
+            file_println("handle %s/%s error:%d", path, d->d_name, err);
             
             goto error;
         }
@@ -531,9 +567,60 @@ os_fscan_dir
 
     file_println("end scan %s error:%d", path, err);
 error:
-    if (dir) {
-        closedir(dir);
+    os_closedir(dir);
+
+    return err;
+}
+
+static inline int
+os_fsearch_path(char *file, char *path, int (*handle)(char *filename, void *user), void *user)
+{
+    char fullname[1+OS_LINE_LEN] = {0};
+    
+    if (NULL==path) {
+        return -ENOEXIST;
     }
+    
+    debug_js("search %s at %s ...", file, path);
+    
+    /*
+    * path last char is '/'
+    */
+    int len = os_strlen(path);
+    if (len>1 && '/'==path[len-1]) {
+        os_saprintf(fullname, "%s%s", path, file);
+    } else {
+        os_saprintf(fullname, "%s/%s", path, file);
+    }
+
+    if (os_file_exist(fullname)) {
+        return (*handle)(fullname, user);
+    } else {
+        return -ENOEXIST;
+    }
+}
+
+static inline int
+os_fsearch_paths(char *file, char *PATH, int (*handle)(char *filename, void *user), void *user)
+{
+    char *paths = NULL, *path;
+    int err = 0;
+
+    paths = (char *)os_strdup(PATH);
+    if (NULL==paths) {
+        return -ENOMEM;
+    }
+
+    os_strtok_foreach(path, paths, ":") {
+        err = os_fsearch_path(file, path, handle);
+        if (0==err) {
+            goto error;
+        }
+    }
+
+    err = -ENOEXIST;
+error:
+    os_free(paths);
 
     return err;
 }
@@ -811,14 +898,6 @@ __os_file_unlock(char *file, int fd)
     __os_file_unlock(__THIS_LOCKFILE, __THIS_LOCKFD); \
     __THIS_LOCKFD = INVALID_FD;     \
 })
-
-static inline bool
-os_file_exist(const char *file)
-{
-    int fd = open(file, O_RDONLY, S_IRUSR | S_IRGRP);
-
-    return fd<0?false:(close(fd), true);
-}
 
 static inline int
 os_fgeti_ex(char *file, int max, int min, int deft)

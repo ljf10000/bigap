@@ -19,6 +19,10 @@
 #define NSQ_CONF            PC_FILE("/tmp/config", "nsqa.conf")
 #endif
 
+#ifndef NSQ_CACHE
+#define NSQ_CACHE           "/tmp/cache"
+#endif
+
 #ifndef NSQ_SCRIPT
 #define NSQ_SCRIPT          PC_FILE("/lib/script", "nsq.script")
 #endif
@@ -33,6 +37,10 @@
 
 #ifndef NSQ_RDY
 #define NSQ_RDY                     PC_VAL(128, 32)
+#endif
+
+#ifndef NSQ_RDY_MIN
+#define NSQ_RDY_MIN                 PC_VAL(32, 8)
 #endif
 
 #ifndef NSQ_NEGOTIATION
@@ -67,30 +75,18 @@ enum {
 };
 
 #if 1
-#define NSQ_FSM_INIT_NAME           "init"
-#define NSQ_FSM_RESOLVED_NAME       "resolved"
-#define NSQ_FSM_CONNECTED_NAME      "connected"
-#define NSQ_FSM_HANDSHAKED_NAME     "handshaked"
-#define NSQ_FSM_IDENTIFYING_NAME    "identifying"
-#define NSQ_FSM_IDENTIFIED_NAME     "identified"
-#define NSQ_FSM_AUTHING_NAME        "authing"
-#define NSQ_FSM_AUTHED_NAME         "authed"
-#define NSQ_FSM_SUBSCRIBING_NAME    "subscribing"
-#define NSQ_FSM_SUBSCRIBED_NAME     "subscribed"
-#define NSQ_FSM_RUN_NAME            "run"
-
-#define NSQ_FSM_ENUM_MAPPER(_)                              \
-    _(NSQ_FSM_INIT,         0,  NSQ_FSM_INIT_NAME),         \
-    _(NSQ_FSM_RESOLVED,     1,  NSQ_FSM_RESOLVED_NAME),     \
-    _(NSQ_FSM_CONNECTED,    2,  NSQ_FSM_CONNECTED_NAME),    \
-    _(NSQ_FSM_HANDSHAKED,   3,  NSQ_FSM_HANDSHAKED_NAME),   \
-    _(NSQ_FSM_IDENTIFYING,  4,  NSQ_FSM_IDENTIFYING_NAME),  \
-    _(NSQ_FSM_IDENTIFIED,   5,  NSQ_FSM_IDENTIFIED_NAME),   \
-    _(NSQ_FSM_AUTHING,      6,  NSQ_FSM_AUTHING_NAME),      \
-    _(NSQ_FSM_AUTHED,       7,  NSQ_FSM_AUTHED_NAME),       \
-    _(NSQ_FSM_SUBSCRIBING,  8,  NSQ_FSM_SUBSCRIBING_NAME),  \
-    _(NSQ_FSM_SUBSCRIBED,   9,  NSQ_FSM_SUBSCRIBED_NAME),   \
-    _(NSQ_FSM_RUN,         10,  NSQ_FSM_RUN_NAME),          \
+#define NSQ_FSM_ENUM_MAPPER(_)                  \
+    _(NSQ_FSM_INIT,         0,  "init"),        \
+    _(NSQ_FSM_RESOLVED,     1,  "resolved"),    \
+    _(NSQ_FSM_CONNECTED,    2,  "connected"),   \
+    _(NSQ_FSM_HANDSHAKED,   3,  "handshaked"),  \
+    _(NSQ_FSM_IDENTIFYING,  4,  "identifying"), \
+    _(NSQ_FSM_IDENTIFIED,   5,  "identified"),  \
+    _(NSQ_FSM_AUTHING,      6,  "authing"),     \
+    _(NSQ_FSM_AUTHED,       7,  "authed"),      \
+    _(NSQ_FSM_SUBSCRIBING,  8,  "subscribing"), \
+    _(NSQ_FSM_SUBSCRIBED,   9,  "subscribed"),  \
+    _(NSQ_FSM_RUN,         10,  "run"),         \
     /* end */
 DECLARE_ENUM(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
 
@@ -113,24 +109,17 @@ static inline int nsq_fsm_idx(char *name);
 #endif
 
 #if 1
-#define NSQ_IDENTIFY_CLIENT_ID_NAME                 "client_id"
-#define NSQ_IDENTIFY_HOSTNAME_NAME                  "hostname"
-#define NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME       "feature_negotiation"
-#define NSQ_IDENTIFY_HEARBEAT_INTERVAL_NAME         "heartbeat_interval"
-#define NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_NAME        "output_buffer_size"
-#define NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_NAME     "output_buffer_timeout"
-#define NSQ_IDENTIFY_USER_AGENT_NAME                "user_agent"
-#define NSQ_IDENTIFY_MSG_TIMEOUT_NAME               "msg_timeout"
+#define NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME   "feature_negotiation"
 
-#define NSQ_IDENTIFY_ENUM_MAPPER(_)                                                         \
-    _(NSQ_IDENTIFY_CLIENT_ID,               0,  NSQ_IDENTIFY_CLIENT_ID_NAME),               \
-    _(NSQ_IDENTIFY_HOSTNAME,                1,  NSQ_IDENTIFY_HOSTNAME_NAME),                \
-    _(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     2,  NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME),     \
-    _(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       3,  NSQ_IDENTIFY_HEARBEAT_INTERVAL_NAME),       \
-    _(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      4,  NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE_NAME),      \
-    _(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,   5,  NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT_NAME),   \
-    _(NSQ_IDENTIFY_USER_AGENT,              6,  NSQ_IDENTIFY_USER_AGENT_NAME),              \
-    _(NSQ_IDENTIFY_MSG_TIMEOUT,             7,  NSQ_IDENTIFY_MSG_TIMEOUT_NAME),             \
+#define NSQ_IDENTIFY_ENUM_MAPPER(_)                                         \
+    _(NSQ_IDENTIFY_CLIENT_ID,               0,  "client_id"),               \
+    _(NSQ_IDENTIFY_HOSTNAME,                1,  "hostname"),                \
+    _(NSQ_IDENTIFY_FEATURE_NEGOTIATION,     2,  NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME), \
+    _(NSQ_IDENTIFY_HEARBEAT_INTERVAL,       3,  "heartbeat_interval"),      \
+    _(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,      4,  "output_buffer_size"),      \
+    _(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,   5,  "output_buffer_timeout"),   \
+    _(NSQ_IDENTIFY_USER_AGENT,              6,  "user_agent"),              \
+    _(NSQ_IDENTIFY_MSG_TIMEOUT,             7,  "msg_timeout"),             \
     /* end */
 DECLARE_ENUM(nsq_identify, NSQ_IDENTIFY_ENUM_MAPPER, NSQ_IDENTIFY_END);
 
@@ -307,7 +296,7 @@ nsq_instance_jrepair(jobj_t jobj)
 #define NSQ_AUTH_IDENTIFY_NAME            "identity"
 #define NSQ_AUTH_IDENTIFY_URL_NAME        "identity_url"
 #define NSQ_AUTH_PERMISSION_COUNT_NAME    "permission_count"
-    
+
 #define NSQ_AUTH_ENUM_MAPPER(_)                                             \
     _(NSQ_AUTH_IDENTIFY,            0,  NSQ_AUTH_IDENTIFY_NAME),            \
     _(NSQ_AUTH_IDENTIFY_URL ,       1,  NSQ_AUTH_IDENTIFY_URL_NAME),        \
@@ -410,6 +399,146 @@ static inline int nsq_frame_idx(char *name);
 #define is_nsq_frame_error(_code)       (NSQ_FRAME_ERROR==(_code))
 #define is_nsq_frame_message(_code)     (NSQ_FRAME_MESSAGE==(_code))
 #endif
+
+#if 1
+#define NSQ_SCRIPT_TYPE_ENUM_MAPPER(_)  \
+    _(NSQ_SCRIPT_TYPE_SH,   0,  "sh"),  \
+    _(NSQ_SCRIPT_TYPE_JS,   1,  "js"),  \
+    /* end */
+DECLARE_ENUM(nsq_script_type, NSQ_SCRIPT_TYPE_ENUM_MAPPER, NSQ_SCRIPT_TYPE_END);
+
+static inline bool is_good_nsq_script_type(int id);
+static inline char *nsq_script_type_string(int id);
+static inline int nsq_script_type_idx(char *name);
+
+#define NSQ_SCRIPT_TYPE_SH          NSQ_SCRIPT_TYPE_SH
+#define NSQ_SCRIPT_TYPE_JS          NSQ_SCRIPT_TYPE_JS
+#define NSQ_SCRIPT_TYPE_END         NSQ_SCRIPT_TYPE_END
+#endif
+
+#if 1
+#define NSQ_SCRIPT_CACHE_ENUM_MAPPER(_)         \
+    _(NSQ_SCRIPT_CACHE_NONE,    0,  "none"),    \
+    _(NSQ_SCRIPT_CACHE_MEMORY,  1,  "memory"),  \
+    _(NSQ_SCRIPT_CACHE_FOREVER, 2,  "forever"), \
+    /* end */
+DECLARE_ENUM(nsq_script_cache, NSQ_SCRIPT_CACHE_ENUM_MAPPER, NSQ_SCRIPT_CACHE_END);
+
+static inline bool is_good_nsq_script_cache(int id);
+static inline char *nsq_script_cache_string(int id);
+static inline int nsq_script_cache_idx(char *name);
+
+#define NSQ_SCRIPT_CACHE_NONE      NSQ_SCRIPT_CACHE_NONE
+#define NSQ_SCRIPT_CACHE_MEMORY    NSQ_SCRIPT_CACHE_MEMORY
+#define NSQ_SCRIPT_CACHE_FOREVER   NSQ_SCRIPT_CACHE_FOREVER
+#define NSQ_SCRIPT_CACHE_END       NSQ_SCRIPT_CACHE_END
+#endif
+
+#if 1
+#define NSQ_SCRIPT_SCOPE_ENUM_MAPPER(_)         \
+    _(NSQ_SCRIPT_SCOPE_GLOBAL,  0,  "global"),  \
+    _(NSQ_SCRIPT_SCOPE_TOPIC,   1,  "topic"),   \
+    /* end */
+DECLARE_ENUM(nsq_script_scope, NSQ_SCRIPT_SCOPE_ENUM_MAPPER, NSQ_SCRIPT_SCOPE_END);
+
+static inline bool is_good_nsq_script_scope(int id);
+static inline char *nsq_script_scope_string(int id);
+static inline int nsq_script_scope_idx(char *name);
+
+#define NSQ_SCRIPT_SCOPE_GLOBAL     NSQ_SCRIPT_SCOPE_GLOBAL
+#define NSQ_SCRIPT_SCOPE_TOPIC      NSQ_SCRIPT_SCOPE_TOPIC
+#define NSQ_SCRIPT_SCOPE_END        NSQ_SCRIPT_SCOPE_END
+#endif
+
+#if 1
+#define NSQ_SCRIPT_EXEC_ENUM_MAPPER(_)          \
+    _(NSQ_SCRIPT_EXEC_SHELL,    0,  "shell"),   \
+    _(NSQ_SCRIPT_EXEC_EMBED,    1,  "embed"),   \
+    /* end */
+DECLARE_ENUM(nsq_script_exec, NSQ_SCRIPT_EXEC_ENUM_MAPPER, NSQ_SCRIPT_EXEC_END);
+
+static inline bool is_good_nsq_script_exec(int id);
+static inline char *nsq_script_exec_string(int id);
+static inline int nsq_script_exec_idx(char *name);
+
+#define NSQ_SCRIPT_EXEC_SHELL      NSQ_SCRIPT_EXEC_SHELL
+#define NSQ_SCRIPT_EXEC_EMBED      NSQ_SCRIPT_EXEC_EMBED
+#define NSQ_SCRIPT_EXEC_END        NSQ_SCRIPT_EXEC_END
+#endif
+
+#if 1
+#define NSQ_SCRIPT_JENUM_MAPPER(_) \
+    _(NSQ_SCRIPT_FILENAME,  0,  "filename", jtype_string,   0,  NULL), \
+    _(NSQ_SCRIPT_URL,       1,  "url",      jtype_string,   0,  NULL), \
+    _(NSQ_SCRIPT_MD5,       2,  "md5",      jtype_string,   0,  NULL), \
+    _(NSQ_SCRIPT_CONTENT,   3,  "content",  jtype_string,   0,  NULL), \
+    _(NSQ_SCRIPT_ARGUMENT,  4,  "argument", jtype_string,   0,  NULL), \
+    _(NSQ_SCRIPT_TYPE,      6,  "type",     jtype_string,   JRULE_MUST, NULL), \
+    _(NSQ_SCRIPT_CACHE,     7,  "cache",    jtype_string,   JRULE_MUST, NULL), \
+    _(NSQ_SCRIPT_SCOPE,     8,  "scope",    jtype_string,   JRULE_MUST, NULL), \
+    _(NSQ_SCRIPT_EXEC,      9,  "exec",     jtype_string,   JRULE_MUST, NULL), \
+    _(NSQ_SCRIPT_ID,        10, "id",       jtype_string,   JRULE_MUST, NULL), \
+    _(NSQ_SCRIPT_REPLY,     11, "reply",    jtype_string,   0,  NULL), \
+    /* end */
+
+DECLARE_JENUM(nsq_script, NSQ_SCRIPT_JENUM_MAPPER, NSQ_SCRIPT_END);
+
+static inline bool is_good_nsq_script(int id);
+static inline char *nsq_script_string(int id);
+static inline int nsq_script_idx(char *name);
+
+static inline jrule_ops_t *nsq_script_jrule_ops(void);
+static inline int nsq_script_jcheck(jobj_t jobj);
+static inline int nsq_script_jrepair(jobj_t jobj);
+
+#define NSQ_SCRIPT_FILENAME     NSQ_SCRIPT_FILENAME
+#define NSQ_SCRIPT_URL          NSQ_SCRIPT_URL
+#define NSQ_SCRIPT_MD5          NSQ_SCRIPT_MD5
+#define NSQ_SCRIPT_CONTENT      NSQ_SCRIPT_CONTENT
+#define NSQ_SCRIPT_ARGUMENT     NSQ_SCRIPT_ARGUMENT
+#define NSQ_SCRIPT_TYPE         NSQ_SCRIPT_TYPE
+#define NSQ_SCRIPT_CACHE        NSQ_SCRIPT_CACHE
+#define NSQ_SCRIPT_SCOPE        NSQ_SCRIPT_SCOPE
+#define NSQ_SCRIPT_EXEC         NSQ_SCRIPT_EXEC
+#define NSQ_SCRIPT_ID           NSQ_SCRIPT_ID
+#define NSQ_SCRIPT_REPLY        NSQ_SCRIPT_REPLY
+#define NSQ_SCRIPT_END          NSQ_SCRIPT_END
+#endif
+/*
+{
+    "type": "sh/js",
+    "content": "content",
+    "filename": "filename",
+    "url": "url",
+    "md5": "md5 string",
+    "argument": "arg1 arg2 arg3 ...",
+    "cache": "none/memory/forever",
+    "scope": "global/topic",
+    "exec": "shell/embed",
+    "id": "GUID",
+    "reply": "COMMAND"
+}
+*/
+typedef struct {
+    char *content;
+    char *filename;
+    char *url;
+    char *md5;
+    char *argument;
+
+    int type;
+    int cache;
+    int scope;
+    int exec;
+    
+    char *id;
+    char *reply;
+
+    byte md5bin[OS_MD5_SIZE];
+    int content_len;
+    
+    jobj_t jscript;
+} nsq_script_t;
 
 typedef struct {
     /*

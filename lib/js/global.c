@@ -15,71 +15,33 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "js.h"
 
 static int
-search_path(duk_context *ctx, char *file, char *path)
+eval_file(char *filename, void *user)
 {
-    char fullname[1+OS_LINE_LEN] = {0};
+    duk_context *ctx = (duk_context *)user;
 
-    if (NULL==path) {
-        return -ENOEXIST;
-    }
-    
-    debug_js("search %s at %s ...", file, path);
-    
-    /*
-    * path last char is '/'
-    */
-    int len = os_strlen(path);
-    if (len>1 && '/'==path[len-1]) {
-        os_saprintf(fullname, "%s%s", path, file);
-    } else {
-        os_saprintf(fullname, "%s/%s", path, file);
-    }
+    duk_push_string_file(ctx, filename);
 
-    if (os_file_exist(fullname)) {
-        duk_push_string_file(ctx, fullname);
+    debug_js("eval %s OK.", filename);
 
-        debug_js("search %s at %s OK.", file, path);
-
-        return 0;
-    }
-
-    return -ENOEXIST;
-}
-
-static int
-search_paths(duk_context *ctx, char *file, char *paths)
-{
-    char *path = NULL;
-
-    os_strtok_foreach(path, paths, ":") {
-        if (0==search_path(ctx, file, path)) {
-            return 0;
-        }
-    }
-
-    return -ENOEXIST;
+    return 0;
 }
 
 static int
 search_env(duk_context *ctx, char *file, char *env, char *deft)
 {
-    char *paths = os_strdup(env_gets(env, deft));
-    int err = search_paths(ctx, file, paths);
-    os_free(paths);
-
-    return err;
+    return os_fsearch_paths(file, env_gets(env, deft), eval_file, ctx);
 }
 
 static int
 search_CURRENT(duk_context *ctx, char *file)
 {
-    return search_path(ctx, file, "./");
+    return os_fsearch_path(file, "./", eval_file, ctx);
 }
 
 static int
 search_JCACHE(duk_context *ctx, char *file)
 {
-    return search_paths(ctx, file, js_priv(ctx)->cache);
+    return os_fsearch_paths(file, js_priv(ctx)->cache, eval_file, ctx);
 }
 
 static int
@@ -98,13 +60,24 @@ duke_modSearch(duk_context *ctx)
     
     char file[1+OS_LINE_LEN] = {0};
     os_snprintf(file, OS_LINE_LEN, "%s.js", id);
+
+    if (os_file_absolute(file)) {
+        if (os_file_exist(file)) {
+            return eval_file(file, ctx);
+        } else {
+            return -1;
+        }
+    }
+    else if (os_file_relative(file)) {
+        return -ENOSUPPORT;
+    }
     
     /*
     * 1. try file.js
     * 2. try JCACHE/file.js
     * 3. try JPATH/file.js
     */
-    if (0==search_CURRENT(ctx, file) ||
+    if (0==search_CURRENT(ctx, file)||
         0==search_JCACHE(ctx, file) ||
         0==search_JPATH(ctx, file)) {
         return 1;

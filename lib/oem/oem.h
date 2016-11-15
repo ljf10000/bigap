@@ -94,7 +94,9 @@ enum {
     OEM_APP_LMS,
     OEM_APP_LSS,
     OEM_APP_UMS,
-
+#if 0
+    OEM_APP_NSQ,
+#endif
     OEM_APP_END
 };
 

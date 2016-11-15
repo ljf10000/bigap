@@ -199,6 +199,7 @@ enum {
     EBADJOBJ    = ERRNO(36),
     EBADJTYPE   = ERRNO(37),
     EBADRULE    = ERRNO(38),
+    EBADMD5     = ERRNO(39),
     
     ETOOBIG     = ERRNO(40),
     ETOOSMALL   = ERRNO(41),
@@ -244,6 +245,9 @@ enum {
     EDLLRESULTSIZE  = ERRNO(84),
 
     ENOPERM         = ERRNO(90),
+    EBADFILE        = ERRNO(91),
+    EBASE64         = ERRNO(92),
+    
 };
 
 static inline int

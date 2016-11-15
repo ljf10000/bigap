@@ -2,6 +2,8 @@
 #define __MD5_H_46af656ba80c4a0c9dc59106b11551a0__
 /******************************************************************************/
 // https://github.com/leimingshan/MD5
+enum { OS_MD5_SIZE = 16 };
+enum { OS_MD5_STRING_LEN = 2*OS_MD5_SIZE };
 
 /* MD5 ctx. */
 typedef struct {
@@ -240,7 +242,7 @@ md5_update(md5_content_t *ctx, byte *input, uint32 inputLen)
   the message digest and zeroizing the ctx.
  */
 static inline void
-md5_fini(md5_content_t *ctx, byte digest[16])
+md5_fini(md5_content_t *ctx, byte md5[16])
 {
 	byte bits[8];
 	uint32 index, padLen;
@@ -262,24 +264,67 @@ md5_fini(md5_content_t *ctx, byte digest[16])
 	/* Append length (before padding) */
 	md5_update(ctx, bits, 8);
 	/* Store state in digest */
-	__md5_encode(digest, ctx->state, 16);
+	__md5_encode(md5, ctx->state, 16);
 
 	/* Zeroize sensitive information. */
 	os_memset((byte *) ctx, 0, sizeof(*ctx));
 }
 
 static inline void
-md5_encode(md5_content_t *ctx, byte digest[16], byte *input, uint32 inputLen)
+md5_encode(byte md5[OS_MD5_SIZE], byte *buf, uint32 len)
 {
-    md5_init(ctx);
-    md5_update(ctx, input, inputLen);
-    md5_fini(ctx, digest);
+    md5_content_t ctx;
+    
+    md5_init(&ctx);
+    md5_update(&ctx, buf, len);
+    md5_fini(&ctx, md5);
 }
 
 static inline bool
-md5_eq(byte a[16], byte b[16])
+md5_eq(byte a[OS_MD5_SIZE], byte b[OS_MD5_SIZE])
 {
-    return os_memeq(a, b, 16);
+    return os_memeq(a, b, OS_MD5_SIZE);
+}
+
+static inline int
+md5_file(char *filename, byte md5[OS_MD5_SIZE])
+{
+    void *content = NULL;
+    md5_content_t ctx;
+    int err, len;
+    
+    len = os_fsize(filename);
+    if (len<0) {
+        return -EBADFILE;
+    }
+
+    content = os_malloc(len);
+    if (content) {
+        return -ENOMEM;
+    }
+
+    err = os_fgetb(&content, len, filename);
+    if (err<0) {
+        goto error;
+    }
+
+    md5_encode(md5, content, len);
+error:
+    os_free(content);
+
+    return err;
+}
+
+static inline void
+md5_hex2bin(char *hex, byte md5[])
+{
+    os_hex2bin(hex, md5, OS_MD5_SIZE);
+}
+
+static inline void
+md5_bin2hex(char *hex, byte md5)
+{
+    os_bin2hex(hex, OS_MD5_STRING_LEN, md5, OS_MD5_SIZE);
 }
 
 #define MD5_SZERO   SZERO32

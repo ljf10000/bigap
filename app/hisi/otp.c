@@ -32,7 +32,7 @@ cmd_otp_private_write(int argc, char *argv[])
     byte otp[OTP_SIZE];
     int count;
     
-    count = os_hextobin(argv[2], otp, OTP_SIZE);
+    count = os_hex2bin(argv[2], otp, OTP_SIZE);
     if (OTP_SIZE!=count) {
         return -EFORMAT;
     }
@@ -67,12 +67,12 @@ cmd_otp_bcookie_write(int argc, char *argv[])
     int count;
     struct bcookie_otp botp = BCOOKIE_OBJ(BCOOKIE_OTP);
     
-    count = os_hextobin(argv[2], botp.custom, OTP_SIZE);
+    count = os_hex2bin(argv[2], botp.custom, OTP_SIZE);
     if (count<0) {
         return count;
     }
     
-    count = os_hextobin(argv[3], botp.private, OTP_SIZE);
+    count = os_hex2bin(argv[3], botp.private, OTP_SIZE);
     if (count<0) {
         return count;
     }

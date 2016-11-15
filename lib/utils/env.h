@@ -23,11 +23,11 @@
 #endif
 
 #ifndef js_CACHE
-#define js_CACHE            "/tmp/js"
+#define js_CACHE            "/tmp/jcache"
 #endif
 
 #ifndef js_PATH
-#define js_PATH             "/lib/js:" js_CACHE
+#define js_PATH             "/tmp/js:/lib/js"
 #endif
 
 static inline char *

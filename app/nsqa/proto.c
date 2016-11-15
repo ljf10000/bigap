@@ -21,6 +21,8 @@ identifying_response_handle(nsq_instance_t *instance, time_t now)
         nsqi_fsm(instance, NSQ_FSM_IDENTIFIED);
     }
     else if (instance->auth) {
+        jobj_put(instance->jauth);
+        
         instance->jauth = jobj_byjson(msg->body);
         if (NULL==instance->jauth) {
             return -EPROTO;
@@ -51,14 +53,30 @@ run_response_handle(nsq_instance_t *instance, time_t now)
     return 0;
 }
 
-
 static int
 run_message_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
-    int err;
+    int err = 0;
+
+    err = nsq_script_init(&instance->script, msg->body);
+    if (err<0) {
+        goto error;
+    }
+    
+    err = nsq_script_exec(&instance->script);
+    if (err<0) {
+        goto error;
+    }
+
+    nsq_FIN(instance);
+    ndq_try_rdy(instance);
     
     return 0;
+error:
+    nsq_REQ(instance);
+    
+    return err;
 }
 
 static int
@@ -359,6 +377,139 @@ nsq_confuse(nsq_instance_t *instance)
     }
     
     return -EPROTO;
+}
+
+int 
+nsq_recv(nsq_instance_t *instance)
+{
+    nsq_msg_t *msg = nsq_recver_msg(instance);
+
+    int err = nsqb_recv(instance->fd, &instance->brecver);
+    
+    debug_proto("instance[%s] recv frame-%s @%s",
+        instance->name, 
+        nsq_frame_string(msg->type),
+        nsq_fsm_string(instance->fsm));
+
+    return err;
+}
+
+int 
+nsq_MAGIC(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_MAGIC(&instance->bsender);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+int
+nsq_IDENTIFY(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_IDENTIFY(&instance->bsender, instance->identify);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+int
+nsq_SUB(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_SUB(&instance->bsender, instance->topic, instance->channel);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+int
+nsq_RDY(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_RDY(&instance->bsender, instance->rdy);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+int
+nsq_FIN(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_FIN(&instance->bsender, nsq_recver_msg(instance)->id);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+int
+nsq_NOP(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_NOP(&instance->bsender);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+int
+nsq_CLS(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_CLS(&instance->bsender);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+int
+nsq_REQ(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_REQ(&instance->bsender, nsq_recver_msg(instance)->id, 0);
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
+int
+ndq_try_rdy(nsq_instance_t *instance)
+{
+    instance->rdy--;
+    
+    if (instance->rdy > NSQ_RDY_MIN) {
+        return 0;
+    } else {
+        instance->rdy = NSQ_RDY;
+        
+        return nsq_RDY(instance);
+    }
 }
 
 /******************************************************************************/

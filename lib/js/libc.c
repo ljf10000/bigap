@@ -2621,7 +2621,7 @@ __rmdir_r(duk_context *ctx, char *path)
         }
     }
     
-    closedir(dir);
+    os_closedir(dir);
 
     rmdir(path);
     

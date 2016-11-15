@@ -51,6 +51,7 @@ ____destroy(nsq_instance_t *instance)
         os_free(instance->identify);
 
         jobj_put(instance->jinstance);
+        nsq_script_fini(&instance->script);
         
         nsqb_fini(&instance->brecver);
         nsqb_fini(&instance->bsender);
@@ -102,7 +103,7 @@ __create(char *name, jobj_t jobj)
     instance->rdy       = NSQ_RDY;
     instance->fsm       = NSQ_FSM_INIT;
     instance->jinstance = jobj;
-    
+
     instance->name      = os_strdup(name);
     os_asprintf(&instance->cache, "%s/%s", nsqa.env.cache, name);
 
@@ -185,12 +186,6 @@ __nsqi_insert(jobj_t jobj)
     }
     
     return 0;
-}
-
-int
-nsqi_rdy(nsq_instance_t *instance, int val)
-{
-    instance->rdy += val;
 }
 
 int

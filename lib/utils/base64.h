@@ -104,7 +104,7 @@ b64_encode(const byte *src, size_t len)
  * Dencode `char *' source with `size_t' size.
  * Returns a `unsigned char *' base64 decoded string + size of decoded string.
  */
-static inline byte *
+static inline char *
 b64_decode_ex(const char *src, size_t len, size_t *decsize)
 {
 	int i = 0;
@@ -205,7 +205,7 @@ b64_decode_ex(const char *src, size_t len, size_t *decsize)
  * Dencode `char *' source with `size_t' size.
  * Returns a `unsigned char *' base64 decoded string.
  */
-static inline byte *
+static inline char *
 b64_decode(const char *src, size_t len)
 {
 	return b64_decode_ex(src, len, NULL);

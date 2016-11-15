@@ -29,7 +29,7 @@ init_nsq_env(void)
 {
     nsqa.env.conf   = env_gets(OS_ENV(CONFIG),  NSQ_CONF);
     nsqa.env.ticks  = env_geti(OS_ENV(TICKS),   NSQ_TICKS);
-    nsqa.env.cache  = env_gets(OS_ENV(CACHE),   js_CACHE);
+    nsqa.env.cache  = env_gets(OS_ENV(CACHE),   NSQ_CACHE);
     
     return 0;
 }

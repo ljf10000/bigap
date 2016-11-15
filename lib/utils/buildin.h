@@ -174,6 +174,13 @@ static inline bool is_good_common_id(int id)
     err_in_os_close;                    \
 })  /* end */
 
+#define os_closedir(_dir) do {  \
+    if (_dir) {                 \
+        closedir(_dir);         \
+        _dir = NULL;            \
+    }                           \
+}while(0)  /* end */
+
 /*
 * check value with [begin, end)
 */

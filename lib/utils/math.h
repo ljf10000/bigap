@@ -30,7 +30,7 @@ os_chex2int(int ch)
 })
 
 static inline int
-os_hextobin(char *hex, byte *buf, int size)
+os_hex2bin(char *hex, byte *buf, int size)
 {
     int i;
     int len = strlen(hex);
@@ -54,7 +54,7 @@ os_hextobin(char *hex, byte *buf, int size)
 * space NOT include '\0'
 */
 static inline int
-os_bintohex(char *hex, int space, byte *buf, int size)
+os_bin2hex(char *hex, int space, byte *buf, int size)
 {
     int i, len = size+size;
     

@@ -17,7 +17,7 @@ cmd_hex(int argc, char *argv[])
     byte bin[1+OS_HUGE_LEN];
     int len;
     
-    len = os_hextobin(hex, bin, sizeof(bin));
+    len = os_hex2bin(hex, bin, sizeof(bin));
     if (len<0) {
         os_eprintln("too long hex");
 

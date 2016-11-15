@@ -785,6 +785,7 @@ jobj_get_leaf(jobj_t obj, ...)
 #define jj_ip(_obj, _jobj, _member)         jj_byeq(_obj, _jobj, _member, inet_addr)
 #define jj_time(_obj, _jobj, _member)       jj_byeq(_obj, _jobj, _member, os_fulltime)
 #define jj_string(_obj, _jobj, _member)     jj_byeq(_obj, _jobj, _member, os_strdup)
+#define jj_string_unsafe(_obj, _jobj, _member)  jj_byeq(_obj, _jobj, _member, os_map_nothing)
 
 #define jj_mac(_obj, _jobj, _member)        jj_bymap(_obj, _jobj, _member, os_mac, os_maccpy)
 #define jj_strcpy(_obj, _jobj, _member)     jj_bymap(_obj, _jobj, _member, os_map_nothing, os_strcpy)
