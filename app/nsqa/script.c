@@ -223,7 +223,7 @@ nsq_script_init(nsq_script_t *script, char *json)
         return -EBADJSON;
     }
     
-    err = script_init(jscript, jscript);
+    err = script_init(script, jscript);
     if (err<0) {
         nsq_script_fini(script);
 
