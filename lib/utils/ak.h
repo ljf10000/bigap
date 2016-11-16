@@ -570,7 +570,7 @@ __ak_load_line_app(struct akinfo *info)
     
     int len = os_strlen(info->app);
     if (len >= OS_APPNAMELEN) {
-        ak_println("app(%s) length(%d) > %d", info->app, len, OS_APPNAMELEN);
+        ak_println("app(%s) length(%d) > %d", info->app, len, (int)OS_APPNAMELEN);
         
         return -ETOOBIG;
     }
