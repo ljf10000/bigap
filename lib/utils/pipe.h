@@ -353,7 +353,6 @@ error:
     return err;
 }
 
-
 static inline int
 os_vpexec(pipinfo_t *info, const char *fmt, va_list args)
 {

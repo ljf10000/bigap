@@ -18,11 +18,11 @@ static char *genv[] = {
 static char *gargv[1024];
 
 static int 
-callback(int err, simple_buffer_t *sbout, simple_buffer_t *sberr)
+callback(int error, char *outsring, char *errstring)
 {
-    os_println("stdout:%s", sbout->buf);
-    os_println("stderr:%s", sberr->buf);
-    os_println("errno:%d", err);
+    os_println("stdout:%s", outsring);
+    os_println("stderr:%s", errstring);
+    os_println("errno:%d", error);
 
     return 0;
 }
