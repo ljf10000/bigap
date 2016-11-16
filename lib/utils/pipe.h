@@ -403,25 +403,24 @@ os_pexec(pipinfo_t *info, const char *fmt, ...)
 static inline int
 os_pexecline(pipinfo_t *info, char *line)
 {
-    int err, count = 0;
+    int err, count = os_strcount(line, ' ');
     char *input = os_strdup(line);
-
-    count = os_strcount(line, ' ');
-    char *argv[1+count] = { NULL };
+    char *argv[1+count];
     char *p;
     
     count = 0;
     os_strtok_foreach(p, input, " ") {
         argv[count++] = p;
     }
-
+    argv[count] = NULL;
+    
     if (os_file_exist(argv[0])) {
-        info.file = argv[0];
-        info.argv = &argv[1];
+        info->file = argv[0];
+        info->argv = &argv[1];
         
         err = os_pexecv(info);
     } else {
-        info.content = line;
+        info->content = line;
         
         err = os_pexec(info, "%s", line);
     }
