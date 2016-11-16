@@ -302,7 +302,6 @@ __p_son_handle(pipexec_t *pe)
         execvpe("/bin/bash", argv, info->env);
     }
     else if (info->file) {
-#if 0
         char *argv[] = {os_basename(info->file), NULL};
 
         if (info->argv) {
@@ -312,7 +311,7 @@ __p_son_handle(pipexec_t *pe)
         
         info->argv = envs_merge(info->argv, argv);
         envs_dump("current argv", info->argv, os_println);
-#endif
+
         execvpe(info->file, info->argv, info->env);
     }
     else {
