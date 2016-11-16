@@ -413,6 +413,8 @@ os_pexecline(pipinfo_t *info, char *line)
         info->file = argv[0];
         if (count>1) {
             info->argv = &argv[1];
+
+            envs_dump("pre argv", info->argv, os_println);
         }
         
         err = os_pexecv(info);
@@ -426,7 +428,6 @@ os_pexecline(pipinfo_t *info, char *line)
 
     return 0;
 }
-
 /******************************************************************************/
 #endif
 #endif /* __PIPE_H_0cb88994d86a4261ad2f10f1e0525dcf__ */
