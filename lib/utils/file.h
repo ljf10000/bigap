@@ -22,6 +22,10 @@ os_basename(char *filename)
         p--;
     }
 
+    if (*p == '/') {
+        p++;
+    }
+    
     return p;
 }
 
