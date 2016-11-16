@@ -150,12 +150,12 @@ __pipexec_init(pipexec_t *pe, pipinfo_t *info)
     
     os_objcpy(&pe->info, info);
     
-    err = sb_init(pe->std[1].sb, 0, 0, 0, 0);
+    err = sb_init(&pe->std[1].sb, 0, 0, 0, 0);
     if (err<0) {
         return err;
     }
 
-    err = sb_init(pe->std[2].sb, 0, 0, 0, 0);
+    err = sb_init(&pe->std[2].sb, 0, 0, 0, 0);
     if (err<0) {
         return err;
     }
@@ -311,10 +311,10 @@ __p_son_handle(pipexec_t *pe)
     info->env = __p_info_insert(info->env, environ);
 
     if (info->content) {
-        info->argv = __p_info_insert_list(info->argv, {"bash", "-c", NULL});
+        info->argv = __p_info_insert_list(info->argv, {"bash","-c",NULL});
     }
     else if (info->file) {
-        info->argv = __p_info_insert_list(info->argv, {os_basename(info->file), NULL});
+        info->argv = __p_info_insert_list(info->argv, {os_basename(info->file),NULL});
     }
     else {
         return -ENOSUPPORT;
