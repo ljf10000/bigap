@@ -404,15 +404,18 @@ os_pexecline(pipinfo_t *info, char *line)
         argv[count++] = p;
     }
     argv[count] = NULL;
+    envs_dump("argv", argv);
     
     if (os_file_exist(argv[0])) {
         info->file = argv[0];
         info->argv = &argv[1];
-        
+
+        os_println("os_pexecv");
         err = os_pexecv(info);
     } else {
         info->content = line;
         
+        os_println("os_pexec %s", line);
         err = os_pexec(info, "%s", line);
     }
     
