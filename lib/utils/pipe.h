@@ -303,8 +303,10 @@ __p_son_handle(pipexec_t *pe)
     }
     else if (info->file) {
         char *argv[] = {os_basename(info->file), NULL};
-        
-        envs_dump("old argv", info->argv, os_println);
+
+        if (info->argv) {
+            envs_dump("old argv", info->argv, os_println);
+        }
         envs_dump("new argv", argv, os_println);
         
         info->argv = envs_merge(info->argv, argv);
