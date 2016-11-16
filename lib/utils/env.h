@@ -31,7 +31,7 @@
 #endif
 
 static inline int
-env_count(char *env[])
+envs_count(char *env[])
 {
     int count;
 
@@ -47,9 +47,9 @@ env_count(char *env[])
 }
 
 static inline void
-env_append(char *dst[], char *src[])
+envs_append(char *dst[], char *src[])
 {
-    int i, count = env_count(dst);
+    int i, count = envs_count(dst);
 
     for (i=0; src[i]; i++) {
         dst[i+count] = src[i];
@@ -57,35 +57,40 @@ env_append(char *dst[], char *src[])
 }
 
 static inline void
-env_clone(char *env[])
+envs_clone(char *env[])
 {
-    env_append(env, environ);
-}
-
-static inline int
-env_global_count(void)
-{
-    return env_count(environ);
+    envs_append(env, environ);
 }
 
 /*
 * new first
 */
-#define env_merge(_old, _new)          ({   \
+#define envs_merge(_old, _new)          ({  \
     char **__array = NULL;                  \
-    int __count = env_count(_old);          \
+    int __count = envs_count(_old);         \
     if (__count) {                          \
-        __count += 1 + env_count(_new);     \
+        __count += 1 + envs_count(_new);    \
         __array = (char **)os_zalloc(sizeof(char *) * __count); \
         if (__array) {                      \
-            env_append(__array, _new);      \
-            env_append(__array, _old);      \
+            envs_append(__array, _new);     \
+            envs_append(__array, _old);     \
         }                                   \
     } else {                                \
         __array = _new;                     \
     }                                       \
     __array;                                \
 })  /* end */
+
+static inline void
+envs_dump(char *tag, char *env[])
+{
+    int i;
+    char *p;
+    
+    for (i=0; env[i]; i++)
+        os_println("%s[%d]:%s", tag, i, env[i]);
+    }
+}
 
 static inline char *
 env_gets(char *envname, char *deft) 

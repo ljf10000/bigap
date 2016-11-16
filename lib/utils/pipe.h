@@ -291,19 +291,22 @@ __p_son_handle(pipexec_t *pe)
 
     // append env(private + global)
     
-    info->env = env_merge(environ, info->env);
+    info->env = envs_merge(environ, info->env);
+    envs_dump("env", info->env);
     
     if (info->content) {
-        char *argv[] = {"bash","-c",NULL};
+        char *argv[] = {"bash", "-c", NULL};
 
-        info->argv = env_merge(info->argv, argv);
-
+        info->argv = envs_merge(info->argv, argv);
+        envs_dump("argv", info->argv);
+        
         execvpe("/bin/bash", info->argv, info->env);
     }
     else if (info->file) {
-        char *argv[] = {os_basename(info->file),NULL};
+        char *argv[] = {os_basename(info->file), NULL};
         
-        info->argv = env_merge(info->argv, argv);
+        info->argv = envs_merge(info->argv, argv);
+        envs_dump("argv", info->argv);
 
         execvpe(info->file, info->argv, info->env);
     }
