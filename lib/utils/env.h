@@ -68,6 +68,25 @@ env_global_count(void)
     return env_count(environ);
 }
 
+/*
+* new first
+*/
+#define env_merge(_old, _new)          ({   \
+    char **__array = NULL;                  \
+    int __count = env_count(_old);          \
+    if (__count) {                          \
+        __count += 1 + env_count(_new);     \
+        __array = (char **)os_zalloc(sizeof(char *) * __count); \
+        if (__array) {                      \
+            env_append(__array, _new);      \
+            env_append(__array, _old);      \
+        }                                   \
+    } else {                                \
+        __array = _new;                     \
+    }                                       \
+    __array;                                \
+})  /* end */
+
 static inline char *
 env_gets(char *envname, char *deft) 
 {

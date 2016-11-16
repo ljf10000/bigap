@@ -271,31 +271,12 @@ error:
     return err;
 }
 
-/*
-* new first
-*/
-#define __p_info_insert(_old, _new)         ({ \
-    char **__array = NULL;                      \
-    int __count = env_count(_old);              \
-    if (__count) {                              \
-        __count += 1 + env_count(_new);         \
-        __array = (char **)os_zalloc(sizeof(char *) * __count); \
-        if (__array) {                              \
-            env_append(__array, _new);              \
-            env_append(__array, _old);              \
-        }                                           \
-    } else {                                    \
-        __array = _new;                         \
-    }                                           \
-    __array;                                    \
-})  /* end */
-
 static inline int
 __p_son_handle(pipexec_t *pe)
 {
     pipinfo_t *info = &pe->info;
-    int err;
-    
+    int err, count;
+
     // re-link 1/2
     close(1);
     close(2);
@@ -309,19 +290,20 @@ __p_son_handle(pipexec_t *pe)
     os_close(pe->std[2].fd[__pipe_son]);
 
     // append env(private + global)
-    info->env = __p_info_insert(info->env, environ);
-
+    
+    info->env = env_merge(environ, info->env);
+    
     if (info->content) {
         char *argv[] = {"bash","-c",NULL};
-        
-        info->argv = __p_info_insert(info->argv, argv);
+
+        info->argv = env_merge(info->argv, argv);
 
         execvpe("/bin/bash", info->argv, info->env);
     }
     else if (info->file) {
         char *argv[] = {os_basename(info->file),NULL};
         
-        info->argv = __p_info_insert(info->argv, argv);
+        info->argv = env_merge(info->argv, argv);
 
         execvpe(info->file, info->argv, info->env);
     }
