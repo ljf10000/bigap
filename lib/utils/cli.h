@@ -276,13 +276,16 @@ __clic_fd(cli_client_t *clic)
         return -errno;
     }
     os_closexec(fd);
-    
+
+#if __CLI_TCP__
     struct timeval timeout = OS_TIMEVAL_INITER(os_second(clic->timeout), os_usecond(clic->timeout));
+    
     err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (err<0) {
         debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
         return -errno;
     }
+#endif
 
     err = bind(fd, (sockaddr_t *)client, get_abstract_sockaddr_len(client));
     if (err<0) {
@@ -302,7 +305,7 @@ __clic_fd(cli_client_t *clic)
 
 #if __CLI_TCP__
 static inline int
-__clic_recv(int fd)
+__clic_recv(int fd, int timeout)
 {
     cli_t *cli = __this_cli();
     int err = 0, len;
@@ -354,43 +357,25 @@ error:
 }
 #else
 static inline int
-__clic_recv(int fd)
+__clic_recv(int fd, int timeout)
 {
     cli_t *cli = __this_cli();
     int err = 0;
 
-again:
-    err = __io_recv(fd, __clib(), CLI_BUFFER_LEN, 0);
+    err = io_recv(fd, __clib(), CLI_BUFFER_LEN, timeout);
     // err > hdr
-    if (err > (int)sizeof(cli_header_t)) {
+    if (err >= (int)sizeof(cli_header_t)) {
         __clib_cut(err - sizeof(cli_header_t));
         
-        return __clib_show();
-    }
-    // err = hdr
-    else if (err == sizeof(cli_header_t)) {
         return __clib_show();
     }
     // 0 < err < hdr
     else if (err > 0) {
         return -ETOOSMALL;
     }
-    // err = 0
-    else if (0==err) {
-        return 0;
-    }
     // err < 0
-    else if (EINTR==errno) {
-        goto again;
-    }
-    else if (EAGAIN==errno) {
-        /*
-        * timeout
-        */
-        return -ETIMEOUT;
-    }
     else {
-        return -errno;
+        return err;
     }
 }
 #endif
@@ -416,7 +401,7 @@ __clic_handle(bool syn, char *buf, cli_client_t *clic)
         err = 0; goto error;
     }
 
-    err = __clic_recv(fd);
+    err = __clic_recv(fd, clic->timeout);
     if (err<0) {
         goto error;
     }

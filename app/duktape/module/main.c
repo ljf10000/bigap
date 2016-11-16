@@ -21,7 +21,7 @@ __main(int argc, char *argv[])
 {
     int err = 0;
     duk_context *ctx = NULL;
-    char *cache = env_gets(ENV_JCACHE, NULL);
+    char *cache = env_gets(ENV_JCACHE, js_CACHE);
     
     ctx = js_init("main", cache, argc, argv);
     if (NULL==ctx) {

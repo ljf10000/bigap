@@ -42,9 +42,10 @@ typedef struct {
         "arg3",
         ...
     ],
-    "cache": "none/memory/forever",     #default: none
+    "cache": "none/cache/flash",        #default: none
     "scope": "global/instance/topic",   #default: topic
-    "slot": SLOT-NUMBER                 #default: 0
+    "board": "BOARD",                   #option
+    "slot": SLOT-NUMBER,                #default: 0
     "seq": SEQ,                         #must exist
     "id": "GUID",                       #must exist
     "reply": "COMMAND",                 #option
@@ -52,6 +53,7 @@ typedef struct {
     "instance": {
         "name": "instance name",        #must exist
         "cache": "global cache path",   #must exist
+        "flash": "global flash path",   #must exist
         "topic": "topic"                #must exist
     }
 }
@@ -129,6 +131,7 @@ typedef struct {
         uint32 ticks;
         char *conf;
         char *cache;
+        char *flash;
     } env;
     
     nsq_config_t cfg;

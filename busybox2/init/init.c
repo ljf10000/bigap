@@ -997,7 +997,10 @@ int init_main(int argc UNUSED_PARAM, char **argv)
 	putenv((char *) "PEER=1.0.0.5");/* PEER is ap-board */
 	putenv((char *) "PEERTYPE=ap");
 	putenv((char *) "BOARDTYPE=md");
-	putenv((char *) "JPATH=/lib/js");
+	putenv((char *) "JPATH=/tmp/js:/lib/js");
+	putenv((char *) "JCACHE=/tmp/jcache");
+	putenv((char *) "CACHE=/tmp/cache");
+	putenv((char *) "SLOT=0");
 	
 	printf("%s\n", bb_PATH_root_path);
 	printf("%s\n", bb_PATH_root_path);

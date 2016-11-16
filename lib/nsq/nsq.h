@@ -20,7 +20,11 @@
 #endif
 
 #ifndef NSQ_CACHE
-#define NSQ_CACHE           "/tmp/cache"
+#define NSQ_CACHE           "/tmp/cache/nsq"
+#endif
+
+#ifndef NSQ_FLASH
+#define NSQ_FLASH           "/data/cache/nsq"
 #endif
 
 #ifndef NSQ_SCRIPT

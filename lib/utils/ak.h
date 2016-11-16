@@ -34,7 +34,7 @@ enum {
 };
 
 #ifndef AK_DPRINT
-#define AK_DPRINT               0
+#define AK_DPRINT               1
 #endif
 
 #if AK_DPRINT
@@ -337,7 +337,7 @@ ak_init(void)
 
     return 0;
 }
-#else /* defined(__APP__) && !defined(__COMMAND__) */
+#else /* app unknow/deamon */
 /*
 * app deamon
 */
