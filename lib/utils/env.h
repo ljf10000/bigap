@@ -83,7 +83,7 @@ envs_clone(char *env[])
 
 #define envs_dump(_tag, _env, _dump)    do{ \
     int __i;                                \
-                                            \    
+                                            \
     for (__i=0; _env[__i]; __i++) {         \
         _dump("%s[%d]:%s", _tag, __i, _env[__i]); \
     }                                       \
