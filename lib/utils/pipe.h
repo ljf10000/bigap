@@ -298,12 +298,12 @@ __p_son_handle(pipexec_t *pe)
     // append env(private + global)
     
     info->env = envs_merge(environ, info->env);
-    envs_dump("env", info->env, os_println);
+    envs_dump("env", info->env, debug_trace);
     
     if (info->content) {
         char *argv[] = {"bash", "-c", info->content, NULL};
 
-        envs_dump("current argv", argv, os_println);
+        envs_dump("current argv", argv, debug_trace);
 
         __p_son_init(pe);
         
@@ -313,12 +313,12 @@ __p_son_handle(pipexec_t *pe)
         char *argv[] = {os_basename(info->file), NULL};
 
         if (info->argv) {
-            envs_dump("old argv", info->argv, os_println);
+            envs_dump("old argv", info->argv, debug_trace);
         }
-        envs_dump("new argv", argv, os_println);
+        envs_dump("new argv", argv, debug_trace);
         
         info->argv = envs_merge(info->argv, argv);
-        envs_dump("current argv", info->argv, os_println);
+        envs_dump("current argv", info->argv, debug_trace);
 
         __p_son_init(pe);
 
@@ -424,7 +424,7 @@ os_pexecline(pipinfo_t *info, char *line)
         if (count>1) {
             info->argv = &argv[1];
 
-            envs_dump("pre argv", info->argv, os_println);
+            envs_dump("pre argv", info->argv, debug_trace);
         }
         
         err = os_pexecv(info);
