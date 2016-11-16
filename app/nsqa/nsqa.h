@@ -28,22 +28,31 @@ typedef struct {
 }   /* end */
 
 /*
+1. if content:exist, filename:exist, then
+        cache must memory/forever
 {
-    "type": "sh/js",
-    "content": "content",
+    "type": "sh/js",                    #default: sh
+    "content": "content",               #must base64 encode
     "filename": "filename",
-    "url": "url",
+    "url": "file url for get",
     "md5": "md5 string",
-    "argument": "arg1 arg2 arg3 ...",
-    "cache": "none/memory/forever",
-    "scope": "global/topic",
-    "id": "GUID",
-    "reply": "COMMAND",
+    "argument": [                       #option
+        "arg1",
+        "arg2",
+        "arg3",
+        ...
+    ],
+    "cache": "none/memory/forever",     #default: none
+    "scope": "global/instance/topic",   #default: topic
+    "slot": SLOT-NUMBER                 #default: 0
+    "seq": SEQ,                         #must exist
+    "id": "GUID",                       #must exist
+    "reply": "COMMAND",                 #option
 
     "instance": {
-        "name": "name",
-        "cache": "global cache",
-        "topic": "topic"
+        "name": "instance name",        #must exist
+        "cache": "global cache path",   #must exist
+        "topic": "topic"                #must exist
     }
 }
 */

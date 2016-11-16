@@ -3003,7 +3003,7 @@ benv_cmd_hiden_selfcheck(benv_cmd_t *cmd, int count)
     int i;
     
     for (i=0; i<count; i++) {
-        if ((uintptr)cmd[i].handle < (uintptr)BENV_LINK_ADDRESS) {
+        if ((uintptr)cmd[i].handle > (uintptr)BENV_LINK_ADDRESS) {
             os_println("benv cmd[%d] handle is %p", i, cmd[i].handle);
         }
     }
