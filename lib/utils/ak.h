@@ -37,12 +37,10 @@
 #define JS_DEBUG_NAME           "jdebug"
 #endif
 
-enum {
-    INVALID_AKID    = 0,
-};
+enum { INVALID_AKID = 0};
 
 #ifndef AK_DPRINT
-#define AK_DPRINT               1
+#define AK_DPRINT               0
 #endif
 
 #if AK_DPRINT
