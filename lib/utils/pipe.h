@@ -32,7 +32,7 @@
 #define PIPE_EXPAND(_expand)        \
     OS_SAFE_VALUE_DEFT(_expand, PIPE_EXPAND_MIN, PIPE_EXPAND_MAX, PIPE_EXPAND_DEFT)
 
-typedef int os_pexec_callback_f(int err, simple_buffer_t *sbout, simple_buffer_t *sberr);
+typedef int os_pexec_callback_f(int error, char *outsring, char *errstring);
 
 typedef struct {
     simple_buffer_t sb;
@@ -340,7 +340,7 @@ os_pexecv(pipinfo_t *info)
     else if (pid>0) { // father
         err = __p_father_handle(&pe, pid);
         if (0==err) {
-            (*info->cb)(&pe);
+            (*info->cb)(pe.err, pe.std[1].sb.buf, pe.std[2].sb.buf);
         }
     }
     else { // child

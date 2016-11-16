@@ -111,15 +111,15 @@ duke_pipe(duk_context *ctx)
     int err;
     char *line = (char *)duk_require_string(ctx, 0);
     
-    int cb(int ret, simple_buffer_t *sbout, simple_buffer_t *sberr)
+    int cb(int error, char *outsring, char *errstring)
     {
-        pipexec_t pe;
+        pipexec_cache pc;
 
-        os_objcpy(&pe.std[1].sb, sbout);
-        os_objcpy(&pe.std[2].sb, sberr);
-        pe.err = ret;
+        pc.outstring = outstring;
+        pc.errstring = errstring;
+        pc.error = error;
 
-        return js_obj_push(ctx, __set_pipexec_t, &pe);
+        return js_obj_push(ctx, __set_pipexec_cache, &pc);
     }
     
     pipinfo_t info = PIPEINFO_INITER(NULL, cb);

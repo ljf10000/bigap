@@ -1,14 +1,20 @@
 #ifndef __MY_H_86ec299bb02d4b26b31952dd31eef107__
 #define __MY_H_86ec299bb02d4b26b31952dd31eef107__
 /******************************************************************************/
+struct pipexec_cache {
+    char *outstring;
+    char *errstring;
+    int error;
+};
+
 static inline int
-__set_pipexec_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+__set_pipexec_cache(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
-    pipexec_t *p = (pipexec_t *)obj;
+    pipexec_cache *p = (pipexec_cache *)obj;
     
-    js_set_obj_string(ctx, idx, "stdout", p->std[1].sb.buf);
-    js_set_obj_string(ctx, idx, "stderr", p->std[2].sb.buf);
-    js_set_obj_int(ctx, idx, "errno", p->err);
+    js_set_obj_string(ctx, idx, "stdout", p->outstring);
+    js_set_obj_string(ctx, idx, "stderr", p->errstring);
+    js_set_obj_int(ctx, idx, "errno", p->error);
 
     return 0;
 }
