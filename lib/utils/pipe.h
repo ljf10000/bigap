@@ -297,7 +297,7 @@ __p_son_handle(pipexec_t *pe)
     if (info->content) {
         char *argv[] = {"bash", "-c", info->content, NULL};
 
-        envs_dump("current argv", info->argv, os_println);
+        envs_dump("current argv", argv, os_println);
         
         execvpe("/bin/bash", argv, info->env);
     }
