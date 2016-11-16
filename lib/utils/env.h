@@ -87,7 +87,7 @@ envs_dump(char *tag, char *env[])
     int i;
     char *p;
     
-    for (i=0; env[i]; i++)
+    for (i=0; env[i]; i++) {
         os_println("%s[%d]:%s", tag, i, env[i]);
     }
 }
