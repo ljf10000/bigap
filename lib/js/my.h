@@ -6,8 +6,8 @@ __set_pipexec_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
     pipexec_t *p = (pipexec_t *)obj;
     
-    js_set_obj_string(ctx, idx, "stdout", p->std[1].buf);
-    js_set_obj_string(ctx, idx, "stderr", p->std[2].buf);
+    js_set_obj_string(ctx, idx, "stdout", p->std[1].sb.buf);
+    js_set_obj_string(ctx, idx, "stderr", p->std[2].sb.buf);
     js_set_obj_int(ctx, idx, "errno", p->err);
 
     return 0;

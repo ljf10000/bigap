@@ -176,13 +176,13 @@ __pipexec_init(pipexec_t *pe, pipeinfo_t *info)
 static inline void
 __pipexec_fini(pipexec_t *pe)
 {
-    if (info) {
-#if 0
-        os_close(info->std[1].fd[__pipe_father]);
-        os_close(info->std[2].fd[__pipe_father]);
+    if (pe) {
+#if 1
+        os_close(pe->std[1].fd[__pipe_father]);
+        os_close(pe->std[2].fd[__pipe_father]);
         
-        os_close(info->std[1].fd[__pipe_son]);
-        os_close(info->std[2].fd[__pipe_son]);
+        os_close(pe->std[1].fd[__pipe_son]);
+        os_close(pe->std[2].fd[__pipe_son]);
 #endif
         sb_fini(&pe->std[1].sb);
         sb_fini(&pe->std[2].sb);
