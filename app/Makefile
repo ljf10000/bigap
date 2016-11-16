@@ -32,7 +32,7 @@ SUB_SYSTEM=ak \
 		tmd \
 		umc \
 		umd \
-		pexec \
+		#pexec \
 		#end
 
 #
