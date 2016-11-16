@@ -1,8 +1,4 @@
-
-
-#ifndef AK_LIMIT
-#define AK_LIMIT                1023
-#endif#ifndef __AK_H_2e420d20ac8a47b188d92ef8448db5fa__
+#ifndef __AK_H_2e420d20ac8a47b188d92ef8448db5fa__
 #define __AK_H_2e420d20ac8a47b188d92ef8448db5fa__
 /******************************************************************************/
 #ifndef OS_APPNAMELEN
