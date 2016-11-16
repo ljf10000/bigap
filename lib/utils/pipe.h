@@ -411,8 +411,10 @@ os_pexecline(pipinfo_t *info, char *line)
     
     if (os_file_exist(argv[0])) {
         info->file = argv[0];
-        info->argv = &argv[1];
-
+        if (count>1) {
+            info->argv = &argv[1];
+        }
+        
         err = os_pexecv(info);
     } else {
         info->content = line;
