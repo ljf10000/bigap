@@ -81,16 +81,13 @@ envs_clone(char *env[])
     __array;                                \
 })  /* end */
 
-static inline void
-envs_dump(char *tag, char *env[])
-{
-    int i;
-    char *p;
-    
-    for (i=0; env[i]; i++) {
-        os_println("%s[%d]:%s", tag, i, env[i]);
-    }
-}
+#define envs_dump(_tag, _env, _dump)    do{ \
+    int __i;                                \
+                                            \    
+    for (__i=0; _env[__i]; __i++) {         \
+        _dump("%s[%d]:%s", _tag, __i, _env[__i]); \
+    }                                       \
+}while(0)
 
 static inline char *
 env_gets(char *envname, char *deft) 

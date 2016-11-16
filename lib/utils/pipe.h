@@ -292,21 +292,26 @@ __p_son_handle(pipexec_t *pe)
     // append env(private + global)
     
     info->env = envs_merge(environ, info->env);
-    envs_dump("env", info->env);
+    envs_dump("env", info->env, os_println);
     
     if (info->content) {
-        char *argv[] = {"bash", "-c", NULL};
+        char *argv[] = {"bash", "-c", info->content, NULL};
+        envs_dump("old argv", info->argv, os_println);
+        envs_dump("new argv", argv, os_println);
 
         info->argv = envs_merge(info->argv, argv);
-        envs_dump("argv", info->argv);
+        envs_dump("current argv", info->argv, os_println);
         
         execvpe("/bin/bash", info->argv, info->env);
     }
     else if (info->file) {
         char *argv[] = {os_basename(info->file), NULL};
         
+        envs_dump("old argv", info->argv, os_println);
+        envs_dump("new argv", argv, os_println);
+        
         info->argv = envs_merge(info->argv, argv);
-        envs_dump("argv", info->argv);
+        envs_dump("current argv", info->argv, os_println);
 
         execvpe(info->file, info->argv, info->env);
     }
@@ -404,18 +409,15 @@ os_pexecline(pipinfo_t *info, char *line)
         argv[count++] = p;
     }
     argv[count] = NULL;
-    envs_dump("argv", argv);
     
     if (os_file_exist(argv[0])) {
         info->file = argv[0];
         info->argv = &argv[1];
 
-        os_println("os_pexecv");
         err = os_pexecv(info);
     } else {
         info->content = line;
         
-        os_println("os_pexec %s", line);
         err = os_pexec(info, "%s", line);
     }
     
