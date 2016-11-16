@@ -403,8 +403,10 @@ os_pexec(pipinfo_t *info, const char *fmt, ...)
 static inline int
 os_pexecline(pipinfo_t *info, char *line)
 {
-    int err, count = os_strcount(line, ' ');
+    int err, count = 0;
     char *input = os_strdup(line);
+
+    count = os_strcount(line, ' ');
     char *argv[1+count] = { NULL };
     char *p;
     
