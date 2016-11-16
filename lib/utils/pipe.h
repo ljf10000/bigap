@@ -296,13 +296,10 @@ __p_son_handle(pipexec_t *pe)
     
     if (info->content) {
         char *argv[] = {"bash", "-c", info->content, NULL};
-        envs_dump("old argv", info->argv, os_println);
-        envs_dump("new argv", argv, os_println);
 
-        info->argv = envs_merge(info->argv, argv);
         envs_dump("current argv", info->argv, os_println);
         
-        execvpe("/bin/bash", info->argv, info->env);
+        execvpe("/bin/bash", argv, info->env);
     }
     else if (info->file) {
         char *argv[] = {os_basename(info->file), NULL};
