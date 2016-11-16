@@ -1,4 +1,8 @@
-#ifndef __AK_H_2e420d20ac8a47b188d92ef8448db5fa__
+
+
+#ifndef AK_LIMIT
+#define AK_LIMIT                1023
+#endif#ifndef __AK_H_2e420d20ac8a47b188d92ef8448db5fa__
 #define __AK_H_2e420d20ac8a47b188d92ef8448db5fa__
 /******************************************************************************/
 #ifndef OS_APPNAMELEN
@@ -19,6 +23,14 @@
 
 #ifndef AK_LIMIT
 #define AK_LIMIT                1023
+#endif
+
+#ifndef ENV_AK_DEBUG
+#define ENV_AK_DEBUG            "__AK_DEBUG__"
+#endif
+
+#ifndef ENV_JS_DEBUG
+#define ENV_JS_DEBUG            "__JS_DEBUG__"
 #endif
 
 #ifndef AK_DEBUG_NAME
@@ -807,11 +819,11 @@ __ak_init_command()
 {
     char *value;
     
-    value = env_gets(OS_ENV(AK_DEBUG), __ak_debug_string_default);
+    value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
     __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
     ak_println("__THIS_DEBUG=%s==>0x%x", value, __THIS_DEBUG);
 
-    value = env_gets(OS_ENV(JS_DEBUG), __js_debug_string_default);
+    value = env_gets(ENV_JS_DEBUG, __js_debug_string_default);
     __THIS_JDEBUG = __ak_get_value(JS_DEBUG_NAME, value);
     ak_println("__THIS_JDEBUG=%s==>0x%x", value, __THIS_JDEBUG);
 }
