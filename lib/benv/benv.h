@@ -625,7 +625,7 @@ benv_ops_write(benv_ops_t *ops, char *value)
 static inline void
 benv_ops_selfcheck(void)
 {
-#ifdef BENV_SBBUG
+#if BENV_SBBUG
     int i;
     
     for (i=0; i<__benv_ops_count; i++) {
@@ -2999,7 +2999,7 @@ typedef struct {
 static inline void
 benv_cmd_hiden_selfcheck(benv_cmd_t *cmd, int count)
 {
-#ifdef BENV_SBBUG
+#if BENV_SBBUG
     int i;
     
     for (i=0; i<count; i++) {
