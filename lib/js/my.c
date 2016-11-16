@@ -113,7 +113,7 @@ duke_pipe(duk_context *ctx)
     
     int cb(int error, char *outsring, char *errstring)
     {
-        pipexec_cache pc;
+        struct pipexec_cache pc;
 
         pc.outstring = outstring;
         pc.errstring = errstring;

@@ -10,7 +10,7 @@ struct pipexec_cache {
 static inline int
 __set_pipexec_cache(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
-    pipexec_cache *p = (pipexec_cache *)obj;
+    struct pipexec_cache *p = (struct pipexec_cache *)obj;
     
     js_set_obj_string(ctx, idx, "stdout", p->outstring);
     js_set_obj_string(ctx, idx, "stderr", p->errstring);
