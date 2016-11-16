@@ -143,7 +143,7 @@ __pipe_std_read(pipe_std_t *std)
 }
 
 static inline int
-__pipexec_init(pipexec_t *pe, pipeinfo_t *info)
+__pipexec_init(pipexec_t *pe, pipinfo_t *info)
 {
     int err;
     char **env;
@@ -215,8 +215,8 @@ static inline int
 __p_father_handle(pipexec_t *pe, int son)
 {
     struct timeval tv = {
-        .tv_sec     = os_second(pe->timeout),
-        .tv_usec    = os_usecond(pe->timeout),
+        .tv_sec     = os_second(pe->info.timeout),
+        .tv_usec    = os_usecond(pe->info.timeout),
     };
     fd_set rset;
     
@@ -311,10 +311,10 @@ __p_son_handle(pipexec_t *pe)
     info->env = __p_info_insert(info->env, environ);
 
     if (info->content) {
-        info->argv = __p_info_insert_list(info->argv, { "bash", "-c", NULL });
+        info->argv = __p_info_insert_list(info->argv, {"bash", "-c", NULL});
     }
     else if (info->file) {
-        info->argv = __p_info_insert_list(info->argv, { os_basename(info->file), NULL });
+        info->argv = __p_info_insert_list(info->argv, {os_basename(info->file), NULL});
     }
     else {
         return -ENOSUPPORT;
