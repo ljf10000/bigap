@@ -123,10 +123,8 @@ duke_pipe(duk_context *ctx)
     }
     
     pipinfo_t info = PIPEINFO_INITER(NULL, cb);
-
-    info.content = line;
     
-    err = os_pexecv(&info);
+    err = os_pexecline(&info, line);
     if (err<0) {
         return err;
     }

@@ -400,6 +400,35 @@ os_pexec(pipinfo_t *info, const char *fmt, ...)
     return err;
 }
 
+static inline int
+os_pexecline(pipinfo_t *info, char *line)
+{
+    int err, count = os_strcount(line, ' ');
+    char *input = os_strdup(line);
+    char *argv[1+count] = { NULL };
+    char *p;
+    
+    count = 0;
+    os_strtok_foreach(p, input, " ") {
+        argv[count++] = p;
+    }
+
+    if (os_file_exist(argv[0])) {
+        info.file = argv[0];
+        info.argv = &argv[1];
+        
+        err = os_pexecv(info);
+    } else {
+        info.content = line;
+        
+        err = os_pexec(info, "%s", line);
+    }
+    
+    os_free(input);
+
+    return 0;
+}
+
 /******************************************************************************/
 #endif
 #endif /* __PIPE_H_0cb88994d86a4261ad2f10f1e0525dcf__ */

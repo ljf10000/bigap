@@ -31,27 +31,8 @@ static int
 run(char *line)
 {
     pipinfo_t info = PIPEINFO_INITER(genv, callback);
-    char *p;
-    int err, count = 0;
-    char *input = os_strdup(line);
-    
-    os_strtok_foreach(p, input, " ") {
-        gargv[count++] = p;
-    }
 
-    if (os_file_exist(gargv[0])) {
-        info.file = gargv[0];
-
-        err = os_pexecv(info);
-    } else {
-        info.content = line;
-        
-        err = os_pexec(info, "%s", line);
-    }
-    
-    os_free(input);
-
-    return 0;
+    return os_pexecline(&info, line);
 }
 
 int main(int argc, char *argv[])

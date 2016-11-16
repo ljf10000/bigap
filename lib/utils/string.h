@@ -120,6 +120,21 @@ os_safe_str(const char *s)
 }
 
 static inline int
+os_strcount(const char *s, int ch)
+{
+    char *p = (char *)s;
+    int count = 0;
+
+    while(*p) {
+        if (*p++ == ch) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+static inline int
 os_strlen(const char *s)
 {
     return s?strlen(s):0;
