@@ -2,8 +2,7 @@
 
 main() {
 	echo "stdout"
-	echo "stderr" > 2
-
+	echo "stderr" >&2
 }
 
 main "$@"
