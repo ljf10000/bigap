@@ -272,11 +272,8 @@ error:
 }
 
 static inline int
-__p_son_handle(pipexec_t *pe)
+__p_son_init(pipexec_t *pe)
 {
-    pipinfo_t *info = &pe->info;
-    int err, count;
-
     // re-link 1/2
     close(1);
     close(2);
@@ -289,6 +286,15 @@ __p_son_handle(pipexec_t *pe)
     os_close(pe->std[1].fd[__pipe_son]);
     os_close(pe->std[2].fd[__pipe_son]);
 
+    return 0;
+}
+
+static inline int
+__p_son_handle(pipexec_t *pe)
+{
+    pipinfo_t *info = &pe->info;
+    int err, count;
+
     // append env(private + global)
     
     info->env = envs_merge(environ, info->env);
@@ -298,6 +304,8 @@ __p_son_handle(pipexec_t *pe)
         char *argv[] = {"bash", "-c", info->content, NULL};
 
         envs_dump("current argv", argv, os_println);
+
+        __p_son_init(pe);
         
         execvpe("/bin/bash", argv, info->env);
     }
@@ -311,6 +319,8 @@ __p_son_handle(pipexec_t *pe)
         
         info->argv = envs_merge(info->argv, argv);
         envs_dump("current argv", info->argv, os_println);
+
+        __p_son_init(pe);
 
         execvpe(info->file, info->argv, info->env);
     }
