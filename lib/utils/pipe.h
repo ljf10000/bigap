@@ -321,7 +321,7 @@ __p_son_handle(pipexec_t *pe)
     else if (info->file) {
         char *argv[] = {os_basename(info->file),NULL};
         
-        info->argv = __p_info_insert_list(info->argv, argv);
+        info->argv = __p_info_insert(info->argv, argv);
 
         execvpe(info->file, info->argv, info->env);
     }
