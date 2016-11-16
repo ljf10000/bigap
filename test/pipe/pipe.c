@@ -51,8 +51,6 @@ int main(int argc, char *argv[])
 
         os_str_strim_both(line, NULL);
         
-        os_println("get-line:%s", line);
-        
         run(line);
     }
 
