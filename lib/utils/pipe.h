@@ -72,7 +72,7 @@ typedef struct {
     .size   = PIPE_EXPAND(_size),       \
     .minsize= PIPE_EXPAND(_minsize),    \
     .expand = PIPE_EXPAND(_expand),     \
-}while(0)
+}   /* end */
 
 #define PIPEINFO_INITER(_env, _cb) \
     __PIPEINFO_INITER(_env, 0, _cb, 0, 0, 0)

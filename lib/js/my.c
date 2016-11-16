@@ -111,7 +111,7 @@ duke_pipe(duk_context *ctx)
     int err;
     char *line = (char *)duk_require_string(ctx, 0);
     
-    int cb(int error, char *outsring, char *errstring)
+    int cb(int error, char *outstring, char *errstring)
     {
         struct pipexec_cache pc;
 
