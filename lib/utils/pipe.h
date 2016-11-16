@@ -275,19 +275,20 @@ error:
 * new first
 */
 #define __p_info_insert(_old, _new)         ({ \
-    int __count = 1 + env_count(_old) + env_count(_new); \
-    char **__array = (char **)os_zalloc(sizeof(char *) * __count); \
-    if (__array) {                              \
-        env_append(__array, _new);              \
-        env_append(__array, _old);              \
+    char **__array = NULL;                      \
+    int __count = env_count(_old);              \
+    if (__count) {                              \
+        __count += 1 + env_count(_new);         \
+        __array = (char **)os_zalloc(sizeof(char *) * __count); \
+        if (__array) {                              \
+            env_append(__array, _new);              \
+            env_append(__array, _old);              \
+        }                                           \
+    } else {                                    \
+        __array = _new;                         \
     }                                           \
     __array;                                    \
 })  /* end */
-
-#define __p_info_insert_list(_old, _list)   ({  \
-    char *__new[] = _list;                      \
-    __p_info_insert(_old, __new);               \
-})
 
 static inline int
 __p_son_handle(pipexec_t *pe)
@@ -311,16 +312,22 @@ __p_son_handle(pipexec_t *pe)
     info->env = __p_info_insert(info->env, environ);
 
     if (info->content) {
-        info->argv = __p_info_insert_list(info->argv, {"bash","-c",NULL});
+        char *argv[] = {"bash","-c",NULL};
+        
+        info->argv = __p_info_insert(info->argv, argv);
+
+        execvpe("/bin/bash", info->argv, info->env);
     }
     else if (info->file) {
-        info->argv = __p_info_insert_list(info->argv, {os_basename(info->file),NULL});
+        char *argv[] = {os_basename(info->file),NULL};
+        
+        info->argv = __p_info_insert_list(info->argv, argv);
+
+        execvpe(info->file, info->argv, info->env);
     }
     else {
         return -ENOSUPPORT;
     }
-    
-    execvpe(info->file, info->argv, info->env);
     
     // go here is error
     return -errno;
@@ -351,7 +358,7 @@ os_pexecv(pipinfo_t *info)
     else if (pid>0) { // father
         err = __p_father_handle(&pe, pid);
         if (0==err) {
-            (*cb)(&pe);
+            (*info->cb)(&pe);
         }
     }
     else { // child
