@@ -157,12 +157,6 @@ enum {
 };
 
 enum {
-    __fd_stdin          = 0,
-    __fd_stdout         = 1,
-    __fd_stderr         = 2,
-};
-
-enum {
     __MV_GO             = 0,
     __MV_BREAK          = 1,
 };

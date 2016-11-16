@@ -400,7 +400,7 @@ nsq_script(nsq_instance_t *instance, char *json)
     jobj_add(jinstance, "flash", jobj_new_string(nsqa.env.flash));
     jobj_add(jscript, "instance", jinstance);
     
-    os_p_system(NSQ_SCRIPT " '%s'", jobj_json(jscript));
+    os_shell(NSQ_SCRIPT " '%s'", jobj_json(jscript));
 
     jobj_put(jscript);
     

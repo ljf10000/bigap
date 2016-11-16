@@ -2,155 +2,170 @@
 #define __PIPE_H_0cb88994d86a4261ad2f10f1e0525dcf__
 #ifdef __APP__
 /******************************************************************************/
+#ifndef PIPE_EXPAND_MIN
+#define PIPE_EXPAND_MIN         (4*1024)
+#endif
+
+#ifndef PIPE_EXPAND_MAX
+#define PIPE_EXPAND_MAX         (256*1024)
+#endif
+
+#ifndef PIPE_EXPAND_DEFT
+#define PIPE_EXPAND_DEFT        (32*1024)
+#endif
+
+#ifndef PIPE_TIMEOUT_MIN
+#define PIPE_TIMEOUT_MIN        PC_VAL(2000, 3000)  // 3s
+#endif
+
+#ifndef PIPE_TIMEOUT_MAX
+#define PIPE_TIMEOUT_MAX        PC_VAL(5000, 30000) // 30s
+#endif
+
+#ifndef PIPE_TIMEOUT_DEFT
+#define PIPE_TIMEOUT_DEFT       PC_VAL(3000, 10000) // 10s
+#endif
+
+#define PIPE_TIMEOUT(_timeout)  \
+    OS_SAFE_VALUE_DEFT(_timeout, PIPE_TIMEOUT_MIN, PIPE_TIMEOUT_MAX, PIPE_TIMEOUT_DEFT)
+
+#define PIPE_EXPAND(_expand)        \
+    OS_SAFE_VALUE_DEFT(_expand, PIPE_EXPAND_MIN, PIPE_EXPAND_MAX, PIPE_EXPAND_DEFT)
+
+typedef int os_pexec_callback_f(int err, simple_buffer_t *sbout, simple_buffer_t *sberr);
+
 typedef struct {
-    uint32 grow, size, len;
-    char *buf;
-    
+    simple_buffer_t sb;
+
     int fd[2];      /* father/son */
 } pipe_std_t;
 
+#define PIPE_STD_INITER(_size, _minsize, _expand) { \
+    .sb = SB_INITER(_size, _minsize, _expand, SB_F_EXPAND_AUTO), \
+    .fd     = {INVALID_FD, INVALID_FD}, \
+}   /* end */
+
+/*
+* 1. use file+argv or content
+* 2. use env or NULL
+* 3. use file or content
+*/
 typedef struct {
-    pipe_std_t std[3]; /* std in/out/err */
+    char **env;     // new env, not include sys env
+    char **argv;    // like shell, just argument, not include appname
+    char *file;     
+    char *content;
+    
+    int timeout;        // ms
+
+    uint32 size;
+    uint32 minsize;
+    uint32 expand;
+
+    os_pexec_callback_f *cb;
+} pipinfo_t;
+
+#define __PIPEINFO_INITER(_env, _timeout, _cb, _size, _minsize, _expand) { \
+    .env    = _env,                     \
+    .timeout= PIPE_TIMEOUT(_timeout),   \
+    .cb     = _cb,                      \
+    .size   = PIPE_EXPAND(_size),       \
+    .minsize= PIPE_EXPAND(_minsize),    \
+    .expand = PIPE_EXPAND(_expand),     \
+}while(0)
+
+#define PIPEINFO_INITER(_env, _cb) \
+    __PIPEINFO_INITER(_env, 0, _cb, 0, 0, 0)
+
+typedef struct {
+    pipe_std_t std[3];  // std in/out/err
+    pipinfo_t info;
     
     int err;
-    int timeout;    /* ms */
-} pipe_info_t;
+} pipexec_t;
+
+#define PIPEXEC_INITER(_size, _minsize, _expand) {   \
+    .std = {                    \
+        [1]  = PIPE_STD_INITER(_size, _minsize, _expand), \
+        [2]  = PIPE_STD_INITER(_size, _minsize, _expand), \
+    },                          \
+    .err = 0,                   \
+}   /* end */
 
 enum {
     __pipe_father   = 0,
     __pipe_son      = 1,
 };
 
-#ifndef PIPE_GROW_MIN
-#define PIPE_GROW_MIN           (1*1024)
-#endif
-
-#ifndef PIPE_GROW_MAX
-#define PIPE_GROW_MAX           (32*1024)
-#endif
-
-#ifndef PIPE_GROW_DEFT
-#define PIPE_GROW_DEFT          (4*1024)
-#endif
-
-#ifndef PIPE_STDOUT_GROW
-#define PIPE_STDOUT_GROW        PIPE_GROW_DEFT
-#endif
-
-#ifndef PIPE_STDERR_GROW
-#define PIPE_STDERR_GROW        PIPE_GROW_DEFT
-#endif
-
-#ifndef PIPE_TIMEOUT_MIN
-#define PIPE_TIMEOUT_MIN        3000    // 3s
-#endif
-
-#ifndef PIPE_TIMEOUT_MAX
-#define PIPE_TIMEOUT_MAX        30000   // 30s
-#endif
-
-#ifndef PIPE_TIMEOUT_DEFT
-#define PIPE_TIMEOUT_DEFT       10000   // 10s
-#endif
-
-#define PIPE_TIMEOUT(_timeout)  \
-    OS_SAFE_VALUE_DEFT(_timeout, PIPE_TIMEOUT_MIN, PIPE_TIMEOUT_MAX, PIPE_TIMEOUT_DEFT)
-
-#define PIPE_GROW(_grow)        \
-    OS_SAFE_VALUE_DEFT(_grow, PIPE_GROW_MIN, PIPE_GROW_MAX, PIPE_GROW_DEFT)
-
-#define PIPE_STD_INITER(_buf, _grow)    {   \
-    .buf    = (_buf)?(_buf):(char *)os_zalloc(PIPE_GROW(_grow)), \
-    .grow   = PIPE_GROW(_grow),             \
-    .size   = PIPE_GROW(_grow),             \
-    .fd     = {INVALID_FD, INVALID_FD},     \
-}
-
-static inline void
-__pipe_std_init(pipe_std_t *std, char *buf, int grow)
+static inline char *
+__pipe_std_cursor(pipe_std_t *std)
 {
-    std->buf    = buf?buf:(char *)os_zalloc(PIPE_GROW(grow));
-    std->grow   = PIPE_GROW(grow);
-    std->size   = PIPE_GROW(grow);
-    std->fd[0]  = INVALID_FD;
-    std->fd[1]  = INVALID_FD;
+    return sb_cursor(&std->sb);
 }
 
-#define PIPE_INFO_INITER(_input, _align_out, _align_err, _timeout) {  \
-    .std = {                                                \
-        [__fd_stdin]   = PIPE_STD_INITER(_input, 0),        \
-        [__fd_stdout]  = PIPE_STD_INITER(NULL, _align_out), \
-        [__fd_stderr]  = PIPE_STD_INITER(NULL, _align_err), \
-    },                                                      \
-    .timeout = PIPE_TIMEOUT(_timeout),                      \
+static inline uint32
+__pipe_std_left(pipe_std_t *std)
+{
+    return sb_left(&std->sb);
 }
-
-#define __pipe_std_buf(_std)    ((_std)->buf + (_std)->len)
-#define __pipe_std_size(_std)   ((_std)->size - 1)
-#define __pipe_std_space(_std)  (__pipe_std_size(_std) - (_std)->len)
 
 static inline int
-__pipe_std_grow(pipe_std_t *std)
+__pipe_std_expand(pipe_std_t *std)
 {
-    if (NULL==std->buf) {
-        return -EKEYNULL;
-    }
-    else if (std->len < __pipe_std_size(std)) {
-        return 0;
-    }
-
-    char *info = (char *)os_realloc(std->buf, std->size + std->grow);
-    if (NULL==info) {
-        return -ENOMEM;
-    }
-    os_memzero(std->buf + std->size, std->grow);
-    std->size += std->grow;
-
-    return 0;
+    return sb_expand(&std->sb, 0);
 }
 
 static inline int
 __pipe_std_read(pipe_std_t *std)
 {
-    int err, len;
-    int space = __pipe_std_space(std);
+    int err, len, left;
+
+    while(1) {
+        left = __pipe_std_left(std);
+        
+        len = read(std->fd[__pipe_father], __pipe_std_cursor(std), left);
+        if (len<0) {
+            return -errno;
+        }
+        else if (len < left) {
+            std->sb.len += len;
+            
+            return len;
+        }
+
+        err = __pipe_std_expand(std);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return -ENOMEM;
+}
+
+static inline int
+__pipexec_init(pipexec_t *pe, pipeinfo_t *info)
+{
+    int err;
+    char **env;
     
-    len = read(std->fd[__pipe_father], __pipe_std_buf(std), space);
-    if (len<0) {
-        return -errno;
-    }
-    else if (len < space) {
-        std->len += len;
-
-        return len;
-    }
-
-    err = __pipe_std_grow(std);
+    os_objcpy(&pe->info, info);
+    
+    err = sb_init(pe->std[1].sb, 0, 0, 0, 0);
     if (err<0) {
         return err;
     }
 
-    return __pipe_std_read(std);
-}
-
-static inline int
-__pipe_info_init(pipe_info_t *info, char *input, int align_out, int align_err, int timeout)
-{
-    int err;
-
-    os_objzero(info);
-    info->timeout = PIPE_TIMEOUT(timeout);
-
-    __pipe_std_init(&info->std[__fd_stdin], input, 0);
-    __pipe_std_init(&info->std[__fd_stdout], NULL, align_out);
-    __pipe_std_init(&info->std[__fd_stderr], NULL, align_err);
-
-    err = pipe(info->std[__fd_stdout].fd);
+    err = sb_init(pe->std[2].sb, 0, 0, 0, 0);
+    if (err<0) {
+        return err;
+    }
+    
+    err = pipe(pe->std[1].fd);
     if (err<0) {
         return -errno;
     }
     
-    err = pipe(info->std[__fd_stderr].fd);
+    err = pipe(pe->std[2].fd);
     if (err<0) {
         return -errno;
     }
@@ -159,35 +174,35 @@ __pipe_info_init(pipe_info_t *info, char *input, int align_out, int align_err, i
 }
 
 static inline void
-__pipe_info_release(pipe_info_t *info)
+__pipexec_fini(pipexec_t *pe)
 {
     if (info) {
 #if 0
-        os_close(info->std[__fd_stdout].fd[__pipe_father]);
-        os_close(info->std[__fd_stderr].fd[__pipe_father]);
+        os_close(info->std[1].fd[__pipe_father]);
+        os_close(info->std[2].fd[__pipe_father]);
         
-        os_close(info->std[__fd_stdout].fd[__pipe_son]);
-        os_close(info->std[__fd_stderr].fd[__pipe_son]);
+        os_close(info->std[1].fd[__pipe_son]);
+        os_close(info->std[2].fd[__pipe_son]);
 #endif
-        os_free(info->std[__fd_stderr].buf);
-        os_free(info->std[__fd_stdout].buf);
+        sb_fini(&pe->std[1].sb);
+        sb_fini(&pe->std[2].sb);
     }
 }
 
 static inline bool
-__pipe_father_wait(pipe_info_t *info, int son)
+__p_father_wait(pipexec_t *pe, int son)
 {
     int err, status = 0;
     int pid = waitpid(son, &status, WNOHANG);
-        
-    if (pid==son) {
-        err = info->err = __os_wait_error(status);
-        
-        os_noblock(info->std[__fd_stdout].fd[__pipe_father]);
-        __pipe_std_read(&info->std[__fd_stdout]);
 
-        os_noblock(info->std[__fd_stderr].fd[__pipe_father]);
-        __pipe_std_read(&info->std[__fd_stderr]);
+    if (pid==son) {
+        err = pe->err = __os_wait_error(status);
+
+        os_noblock(pe->std[1].fd[__pipe_father]);
+        __pipe_std_read(&pe->std[1]);
+
+        os_noblock(pe->std[2].fd[__pipe_father]);
+        __pipe_std_read(&pe->std[2]);
 
         return true;
     }
@@ -197,23 +212,24 @@ __pipe_father_wait(pipe_info_t *info, int son)
 }
 
 static inline int
-__pipe_father_handle(pipe_info_t *info, int son)
+__p_father_handle(pipexec_t *pe, int son)
 {
     struct timeval tv = {
-        .tv_sec     = os_second(info->timeout),
-        .tv_usec    = os_usecond(info->timeout),
+        .tv_sec     = os_second(pe->timeout),
+        .tv_usec    = os_usecond(pe->timeout),
     };
     fd_set rset;
+    
+    int max = OS_MAX(pe->std[1].fd[__pipe_father], pe->std[2].fd[__pipe_father]);
     int err = 0;
-    int max = OS_MAX(info->std[__fd_stdout].fd[__pipe_father], info->std[__fd_stderr].fd[__pipe_father]);
 
-    os_close(info->std[__fd_stdout].fd[__pipe_son]);
-    os_close(info->std[__fd_stderr].fd[__pipe_son]);
+    os_close(pe->std[1].fd[__pipe_son]);
+    os_close(pe->std[2].fd[__pipe_son]);
     
     while(1) {        
         FD_ZERO(&rset);
-        FD_SET(info->std[__fd_stdout].fd[__pipe_father], &rset);
-        FD_SET(info->std[__fd_stderr].fd[__pipe_father], &rset);
+        FD_SET(pe->std[1].fd[__pipe_father], &rset);
+        FD_SET(pe->std[2].fd[__pipe_father], &rset);
 
         int err = select(1+max, &rset, NULL, NULL, &tv);
         switch(err) {
@@ -229,106 +245,161 @@ __pipe_father_handle(pipe_info_t *info, int son)
                 break;
         }
 
-        if (FD_ISSET(info->std[__fd_stdout].fd[__pipe_father], &rset)) {
-            err = __pipe_std_read(&info->std[__fd_stdout]);
+        if (FD_ISSET(pe->std[1].fd[__pipe_father], &rset)) {
+            err = __pipe_std_read(&pe->std[1]);
             if (err<0) {
                 goto error;
             }
         }
         
-        if (FD_ISSET(info->std[__fd_stderr].fd[__pipe_father], &rset)) {
-            err = __pipe_std_read(&info->std[__fd_stderr]);
+        if (FD_ISSET(pe->std[2].fd[__pipe_father], &rset)) {
+            err = __pipe_std_read(&pe->std[2]);
             if (err<0) {
                 goto error;
             }
         }
 
-        if (__pipe_father_wait(info, son)) {
+        if (__p_father_wait(pe, son)) {
             err = 0; goto error;
         }
     }
 
 error:
-    os_close(info->std[__fd_stdout].fd[__pipe_father]);
-    os_close(info->std[__fd_stderr].fd[__pipe_father]);
+    os_close(pe->std[1].fd[__pipe_father]);
+    os_close(pe->std[2].fd[__pipe_father]);
 
     return err;
 }
 
+/*
+* new first
+*/
+#define __p_info_insert(_old, _new)         ({ \
+    int __count = 1 + env_count(_old) + env_count(_new); \
+    char **__array = (char **)os_zalloc(sizeof(char *) * __count); \
+    if (__array) {                              \
+        env_append(__array, _new);              \
+        env_append(__array, _old);              \
+    }                                           \
+    __array;                                    \
+})  /* end */
+
+#define __p_info_insert_list(_old, _list)   ({  \
+    char *__new[] = _list;                      \
+    __p_info_insert(_old, __new);               \
+})
+
 static inline int
-__pipe_son_handle(pipe_info_t *info)
-{   
-    // re-link __fd_stdout/__fd_stderr
-    close(__fd_stdout);
-    close(__fd_stderr);
-    dup2(info->std[__fd_stdout].fd[__pipe_son], __fd_stdout);
-    dup2(info->std[__fd_stderr].fd[__pipe_son], __fd_stderr);
+__p_son_handle(pipexec_t *pe)
+{
+    pipinfo_t *info = &pe->info;
+    int err;
     
-    os_close(info->std[__fd_stdout].fd[__pipe_father]);
-    os_close(info->std[__fd_stderr].fd[__pipe_father]);
-    os_close(info->std[__fd_stdout].fd[__pipe_son]);
-    os_close(info->std[__fd_stderr].fd[__pipe_son]);
+    // re-link 1/2
+    close(1);
+    close(2);
 
-    execl("/bin/sh", "sh", "-c", info->std[__fd_stdin].buf, NULL);
+    dup2(pe->std[1].fd[__pipe_son], 1);
+    dup2(pe->std[2].fd[__pipe_son], 2);
+    
+    os_close(pe->std[1].fd[__pipe_father]);
+    os_close(pe->std[2].fd[__pipe_father]);
+    os_close(pe->std[1].fd[__pipe_son]);
+    os_close(pe->std[2].fd[__pipe_son]);
 
+    // append env(private + global)
+    info->env = __p_info_insert(info->env, environ);
+
+    if (info->content) {
+        info->argv = __p_info_insert_list(info->argv, { "bash", "-c", NULL });
+    }
+    else if (info->file) {
+        info->argv = __p_info_insert_list(info->argv, { os_basename(info->file), NULL });
+    }
+    else {
+        return -ENOSUPPORT;
+    }
+    
+    execvpe(info->file, info->argv, info->env);
+    
     // go here is error
     return -errno;
 }
 
-typedef int os_pipe_system_callback_t(pipe_info_t *info);
-
+/*
+* use file and argv, ignore content
+*/
 static inline int
-__os_pipe_system(uint32 timeout, os_pipe_system_callback_t *cb, char *cmd)
+os_pexecv(pipinfo_t *info)
 {
-    pipe_info_t info;
+    pipexec_t pe = PIPEXEC_INITER(info->size, info->minsize, info->expand);
     int err = 0, pid = 0;
-
-    __pipe_info_init(&info, cmd, PIPE_STDOUT_GROW, PIPE_STDERR_GROW, timeout);
+    
+    if (NULL==info) {
+        return -EINVAL0;
+    }
+    else if (NULL==info->cb) {
+        return -EINVAL1;
+    }
+    
+    __pipexec_init(&pe, info);
     
     pid = fork();
     if (pid<0) {
         err = -errno;
     }
     else if (pid>0) { // father
-        err = __pipe_father_handle(&info, pid);
+        err = __p_father_handle(&pe, pid);
         if (0==err) {
-            (*cb)(&info);
+            (*cb)(&pe);
         }
     }
     else { // child
-        err = __pipe_son_handle(&info);
+        err = __p_son_handle(&pe);
     }
 
 error:
-    __pipe_info_release(&info);
+    __pipexec_fini(&pe);
 
     return err;
 }
+
 
 static inline int
-__os_pipe_vsystem(uint32 timeout, os_pipe_system_callback_t *cb, char *fmt, ...)
+os_vpexec(pipinfo_t *info, const char *fmt, va_list args)
 {
-    va_list args;
-    char *cmd = NULL;
     int err = 0;
-    
-    va_start(args, fmt);
-    err = os_vasprintf(&cmd, fmt, args);
-    va_end(args);
-    if (err<0) {
-        goto error;
-    } else {
-        err = __os_pipe_system(timeout, cb, cmd);
-    }
+    char *cmd = NULL;
+    pipinfo_t clone;
 
-error:
+    err = os_vasprintf(&cmd, fmt, args);
+    if (err>0) {
+        os_objcpy(&clone, info);
+
+        clone.content = cmd;
+
+        err = os_pexecv(&clone);
+    }
     os_free(cmd);
-    
+
     return err;
 }
 
-#define os_pipe_vsystem(_cb, _fmt, _args...)    __os_pipe_vsystem(PIPE_TIMEOUT_DEFT, _cb, _fmt, ##_args)
-#define os_pipe_system(_cb, _cmd)              __os_pipe_system(PIPE_TIMEOUT_DEFT, _cb, _cmd)
+/*
+* auto create content, ignore file and argv
+*/
+static inline int
+os_pexec(pipinfo_t *info, const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, (char *)fmt);
+    int err = os_vpexec(info, fmt, args);
+    va_end(args);
+
+    return err;
+}
+
 /******************************************************************************/
 #endif
 #endif /* __PIPE_H_0cb88994d86a4261ad2f10f1e0525dcf__ */

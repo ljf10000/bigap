@@ -189,7 +189,7 @@ get_clock_manual(byte data[])
 static int 
 clock2date(byte data[CLOCK_END])
 {
-    return os_p_system("date -s '%04d-%02d-%02d %02d:%02d:%02d'", 
+    return os_shell("date -s '%04d-%02d-%02d %02d:%02d:%02d'", 
             GET_CLOCK_YEAR(data) + 2000,
             GET_CLOCK_MONTH(data), 
             GET_CLOCK_DATE(data),

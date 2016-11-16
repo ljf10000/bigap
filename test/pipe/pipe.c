@@ -9,218 +9,49 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-#if 1
+static char *genv[] = {
+    "SB=SBSBSBSBSBSBSBSBSBSB",
+    "SB=SB",
+    NULL,
+};
 
-static int
-father(char *line, int fd_in[2], int fd_out[2], int fd_err[2])
+static char *gargv[1024];
+
+static int 
+callback(int err, simple_buffer_t *sbout, simple_buffer_t *sberr)
 {
-    char buf[1024*1024];
-    fd_set rset, eset;
-    int err = 0, max, len;
-    
-    close(fd_out[1]);
-    close(fd_err[1]);
+    os_println("stdout:%s", sbout->buf);
+    os_println("stderr:%s", sberr->buf);
+    os_println("errno:%d", err);
 
-    max = os_max(fd_out[0], fd_err[0]);
-    
-    while(1) {
-        struct timeval tv = {
-            .tv_sec     = 3,
-            .tv_usec    = 0,
-        };
-        
-        FD_ZERO(&rset);
-        FD_SET(fd_out[0], &rset);
-        FD_SET(fd_err[0], &rset);
-
-        int err = select(max+1, &rset, NULL, NULL, &tv);
-        switch(err) {
-            case -1:/* error */
-                if (EINTR==errno) {
-                    // is breaked
-                    
-                } else {
-                    os_println("select error:%d", -errno);
-                }
-                break;
-            case 0: /* timeout, retry */
-                os_println("select timeout");
-                
-                break;
-            default: /* to accept */
-                os_println("select ok");
-                
-                break;
-        }
-
-        if (FD_ISSET(fd_out[0], &rset)) {
-            os_memzero(buf, sizeof(buf));
-            
-            len = read(fd_out[0], buf, sizeof(buf)-1);
-            if (len<0) {
-                os_println("read fd_out error:%d", -errno);
-            } else {
-                os_println("read fd_out: %s", buf);
-            }
-        }
-
-        if (FD_ISSET(fd_err[0], &rset)) {
-            os_memzero(buf, sizeof(buf));
-            
-            len = read(fd_err[0], buf, sizeof(buf)-1);
-            if (len<0) {
-                os_println("read fd_err error:%d", -errno);
-            } else {
-                os_println("read fd_err: %s", buf);
-            }
-        }
-
-        int status = 0;
-        int pid = waitpid(-1, &status, WNOHANG);
-        
-        if (pid>0) {
-            err = __os_wait_error(status);
-
-            os_noblock(fd_out[0]);
-            os_noblock(fd_err[0]);
-    
-            os_memzero(buf, sizeof(buf));
-            
-            len = read(fd_out[0], buf, sizeof(buf)-1);
-            if (len<0) {
-                os_println("read fd_out error:%d", -errno);
-            } else {
-                os_println("read fd_out: %s", buf);
-            }
-
-            os_memzero(buf, sizeof(buf));
-            
-            len = read(fd_err[0], buf, sizeof(buf)-1);
-            if (len<0) {
-                os_println("read fd_err error:%d", -errno);
-            } else {
-                os_println("read fd_err: %s", buf);
-            }
-            
-            os_println("wait pid:%d, error:%d", pid, err);
-            
-            break;
-        }
-    }
-
-    close(fd_out[0]);
-    close(fd_err[0]);
-
-    return err;
-}
-#else
-
-static int
-father(char *line, int fd_in[2], int fd_out[2], int fd_err[2])
-{
-    char buf[1024*1024];
-    fd_set rset, eset;
-    int err = 0, max, len;
-    
-    close(fd_out[1]);
-    close(fd_err[1]);
-
-    os_noblock(fd_out[0]);
-    os_noblock(fd_err[0]);
-
-    int status = 0;
-    int pid = waitpid(-1, &status, 0);
-    
-    if (pid>0) {
-        err = __os_wait_error(status);
-        
-        os_println("wait pid:%d, error:%d", pid, err);
-    }
-    
-    os_memzero(buf, sizeof(buf));
-    
-    len = read(fd_out[0], buf, sizeof(buf)-1);
-    if (len<0) {
-        os_println("read fd_out error:%d", -errno);
-    } else {
-        os_println("read fd_out: %s", buf);
-    }
-
-    os_memzero(buf, sizeof(buf));
-    
-    len = read(fd_err[0], buf, sizeof(buf)-1);
-    if (len<0) {
-        os_println("read fd_err error:%d", -errno);
-    } else {
-        os_println("read fd_err: %s", buf);
-    }
-
-    close(fd_out[0]);
-    close(fd_err[0]);
-
-    return err;
-}
-
-#endif
-
-static int
-son(char *line, int fd_in[2], int fd_out[2], int fd_err[2])
-{
-    close(1); dup2(fd_out[1], 1); close(fd_out[0]); close(fd_out[1]);
-    close(2); dup2(fd_err[1], 2); close(fd_err[0]); close(fd_err[1]);
-    
-    execl("/bin/sh", "sh", "-c", line, NULL);
-
-    os_println("execl(/bin/sh, sh, -c, %s, NULL) error:%d", line, -errno);
-    
-    return -errno;
+    return 0;
 }
 
 static int
 run(char *line)
 {
-    int fd_in[2]    = {INVALID_FD, INVALID_FD};
-    int fd_out[2]   = {INVALID_FD, INVALID_FD};
-    int fd_err[2]   = {INVALID_FD, INVALID_FD};
-    int err = 0;
-    int pid = 0;
+    pipinfo_t info = PIPEINFO_INITER(genv, callback);
+    char *p;
+    int err, count = 0;
+    char *input = os_strdup(line);
     
-    /*
-    * father: read,  close 1
-    *    son: write, close 0
-    */
-    err = pipe(fd_out);
-    if (err) {
-        return err;
+    os_strtok_foreach(p, input, " ") {
+        gargv[count++] = p;
     }
 
-    /*
-    * father: read,  close 1
-    *    son: write, close 0
-    */
-    err = pipe(fd_err);
-    if (err) {
-        return err;
-    }
+    if (os_file_exist(gargv[0])) {
+        info.file = gargv[0];
 
-    pid = fork();
-    if (pid<0) {
-        os_println("fork error:%d", -errno);
+        err = os_pexecv(info);
+    } else {
+        info.content = line;
         
-        err = -errno;
+        err = os_pexec(info, "%s", line);
     }
-    else if (pid>0) { // father
-        os_println("father");
-        
-        err = father(line, fd_in, fd_out, fd_err);
-    }
-    else { // child
-        os_println("son");
-        
-        err = son(line, fd_in, fd_out, fd_err);
-    }
+    
+    os_free(input);
 
-    return err;
+    return 0;
 }
 
 int main(int argc, char *argv[])

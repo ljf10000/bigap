@@ -36,7 +36,7 @@ voltage_script(char *action, char *time)
         * $5: low
         * $6: high
         */
-        os_p_system("%s %s '%s' '%s' " VOLTAGE_FORMAT " %d %d &", 
+        os_shell("%s %s '%s' '%s' " VOLTAGE_FORMAT " %d %d &", 
             voltage.script, 
             action,
             voltage.time,

@@ -2,12 +2,12 @@
 #define __MY_H_86ec299bb02d4b26b31952dd31eef107__
 /******************************************************************************/
 static inline int
-__set___info_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
+__set_pipexec_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 {
-    pipe_info_t *p = (pipe_info_t *)obj;
+    pipexec_t *p = (pipexec_t *)obj;
     
-    js_set_obj_string(ctx, idx, "stdout", p->std[__fd_stdout].buf);
-    js_set_obj_string(ctx, idx, "stderr", p->std[__fd_stderr].buf);
+    js_set_obj_string(ctx, idx, "stdout", p->std[1].buf);
+    js_set_obj_string(ctx, idx, "stderr", p->std[2].buf);
     js_set_obj_int(ctx, idx, "errno", p->err);
 
     return 0;

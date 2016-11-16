@@ -12,6 +12,19 @@
 #define file_println(_fmt, _args...)    os_do_nothing()
 #endif
 
+static inline char *
+os_basename(char *filename)
+{
+    int len = strlen(filename);
+    char *p = filename + len - 1;
+
+    while(p>filename && *p && *p != '/') {
+        p--;
+    }
+
+    return p;
+}
+
 static inline bool
 os_file_exist(const char *file)
 {
@@ -915,7 +928,7 @@ os_fgeti_ex(char *file, int max, int min, int deft)
 #define SCRIPT_SHELL_SYSTEM     SCRIPT_FILE("system.script")
 #endif
 
-#define os_p_system(_fmt, _args...) ({  \
+#define os_shell(_fmt, _args...)    ({  \
     int __os_p_system_err = 0;          \
     int __os_p_system_code = 0;         \
                                         \

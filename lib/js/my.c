@@ -111,12 +111,12 @@ duke_pipe(duk_context *ctx)
     int err;
     char *line = (char *)duk_require_string(ctx, 0);
     
-    int cb(pipe_info_t *info)
+    int cb(pipexec_t *info)
     {
-        return js_obj_push(ctx, __set___info_t, info);
+        return js_obj_push(ctx, __set_pipexec_t, info);
     }
 
-    err = os_pipe_system(cb, line);
+    err = os_pexec(cb, line);
     if (err<0) {
         return err;
     }

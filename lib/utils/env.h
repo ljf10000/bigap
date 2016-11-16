@@ -30,6 +30,44 @@
 #define js_PATH             "/tmp/js:/lib/js"
 #endif
 
+static inline int
+env_count(char *env[])
+{
+    int count;
+
+    if (NULL==env) {
+        return 0;
+    }
+    
+    for (count=0; env[count]; count++) {
+        os_do_nothing();
+    }
+
+    return count;
+}
+
+static inline void
+env_append(char *dst[], char *src[])
+{
+    int i, count = env_count(dst);
+
+    for (i=0; src[i]; i++) {
+        dst[i+count] = src[i];
+    }
+}
+
+static inline void
+env_clone(char *env[])
+{
+    env_append(env, environ);
+}
+
+static inline int
+env_global_count(void)
+{
+    return env_count(environ);
+}
+
 static inline char *
 env_gets(char *envname, char *deft) 
 {

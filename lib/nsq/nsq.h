@@ -482,14 +482,14 @@ typedef simple_buffer_t nsq_buffer_t;
 #define NSQ_INSTRUCTION_REQ         "REQ "
 #define NSQ_INSTRUCTION_TOUCH       "TOUCH "
 
-#define nsqb_init(_b, _size)    simple_buffer_init(_b, _size)
-#define nsqb_fini(_b)           simple_buffer_fini(_b)
-#define nsqb_clean(_b)          simple_buffer_clean(_b)
+#define nsqb_init(_b, _size)    sb_init(_b, _size, 0, 0, SB_F_EXPAND_AUTO)
+#define nsqb_fini(_b)           sb_fini(_b)
+#define nsqb_clean(_b)          sb_clean(_b)
 
-#define nsqb_number(_b, _number)            simple_buffer_append_number(_b, _number)
-#define nsqb_buffer(_b, _buf, _len)         simple_buffer_append_buffer(_b, _buf, _len)
-#define nsqb_string(_b, _string)            simple_buffer_append_string(_b, _string)
-#define nsqb_sprintf(_b, _fmt, _args...)    simple_buffer_sprintf(_b, _fmt, ##_args)
+#define nsqb_number(_b, _number)            sb_append_number(_b, _number)
+#define nsqb_buffer(_b, _buf, _len)         sb_append_buffer(_b, _buf, _len)
+#define nsqb_string(_b, _string)            sb_append_string(_b, _string)
+#define nsqb_sprintf(_b, _fmt, _args...)    sb_sprintf(_b, _fmt, ##_args)
 #define nsqb_command(_b, _COMMAND)          nsqb_buffer(_b, _COMMAND, sizeof(_COMMAND)-1)
 
 static inline bool

@@ -36,7 +36,7 @@ static inline void
 xcc_script(xcc_t *xcc, char *action)
 {
     if (xcc->script) {
-        os_p_system("%s %s &", xcc->script, action);
+        os_shell("%s %s &", xcc->script, action);
     }
 }
 
@@ -124,7 +124,7 @@ init_xcc_env(xcc_t *xcc)
         xcc->path = env;
     }
     if (false==os_file_exist(xcc->path)) {
-        os_p_system("mkdir -p %s", xcc->path);
+        os_shell("mkdir -p %s", xcc->path);
     }
 
     env = env_gets(OS_ENV(SCRIPT), NULL);

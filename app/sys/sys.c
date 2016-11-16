@@ -218,7 +218,7 @@ __reboot(void)
 static int
 __dd(char *dst, char *src)
 {
-    return os_p_system("dd if=%s of=%s bs=4096", src, dst);
+    return os_shell("dd if=%s of=%s bs=4096", src, dst);
 }
 
 static char *
@@ -254,7 +254,7 @@ __rsync(int idx, benv_version_t *version)
     benv_version_itoa(version, new);
     benv_version_itoa(&sys.old_version, old);
 
-    err = os_p_system("rsync"
+    err = os_shell("rsync"
             " -acz --delete-after --stats --partial"
             " --exclude=/dev/*"
             " --timeout=%s"
@@ -292,7 +292,7 @@ __xcopy(char *dst, char *src)
     int err = 0;
     
     sys_println("before sync %s==>%s", src, dst);
-    err = os_p_system(SCRIPT_XCOPY " %s %s", src, dst);
+    err = os_shell(SCRIPT_XCOPY " %s %s", src, dst);
     sys_println("after  sync %s==>%s", src, dst);
     
     return err;
@@ -328,7 +328,7 @@ __rcopy(int idx, char *dir, benv_version_t *version)
 static int
 __umount(char *dir)
 {
-    return os_p_system(SCRIPT_UMOUNT " %s", dir);
+    return os_shell(SCRIPT_UMOUNT " %s", dir);
 }
 
 #if 0
@@ -349,7 +349,7 @@ __remount(char *dir, bool readonly)
     int err = 0;
     
     if (__is_readonly_default()) {
-        err = os_p_system("mount -o remount" ROOTFS_MOUNT_MODE ",%s %s &> /dev/null",
+        err = os_shell("mount -o remount" ROOTFS_MOUNT_MODE ",%s %s &> /dev/null",
                     readonly?"ro":"rw",
                     dir);
     }
@@ -372,7 +372,7 @@ do_umount(char *dir)
 static int
 do_mount(char *dev, char *dir, bool check, bool readonly, bool repair)
 {
-    return os_p_system(SCRIPT_MOUNT " %s %s %s %s %s", 
+    return os_shell(SCRIPT_MOUNT " %s %s %s %s %s", 
                 dev, 
                 dir,
                 os_yesno(check),
@@ -1077,7 +1077,7 @@ is_rootfs_need_repair(int idx)
 
         return true;
     }
-    else if (0!=os_p_system(SCRIPT_FIRMWARE " %d", idx)) {
+    else if (0!=os_shell(SCRIPT_FIRMWARE " %d", idx)) {
         jcrit("%d%s%s",
             "rootfs", idx,
             "check", "failed",
@@ -1762,7 +1762,7 @@ cmd_reset(int argc, char *argv[])
         
         switch_to(first);
         
-        return os_p_system("sysreboot &");
+        return os_shell("sysreboot &");
     }
     
 	return 0;
