@@ -122,7 +122,11 @@ duke_pipe(duk_context *ctx)
         return js_obj_push(ctx, __set_pipexec_t, &pe);
     }
     
-    err = os_pexec(cb, line);
+    pipinfo_t info = PIPEINFO_INITER(NULL, cb);
+
+    info.content = line;
+    
+    err = os_pexecv(&info);
     if (err<0) {
         return err;
     }
