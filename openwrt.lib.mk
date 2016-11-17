@@ -72,7 +72,7 @@ define Package/libjs
   SECTION:=libs
   CATEGORY:=bigap-lib
   TITLE:=SuperWalle Basic Lib
-  DEPENDS:=+netifd +json-c +weos
+  DEPENDS:=+netifd +json-c +libweos
 endef
 
 define Package/libjs/install
