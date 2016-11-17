@@ -9,9 +9,14 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
+/*
+* not care memory leak
+*/
 static int 
 jcallback(int error, char *outsring, char *errstring)
 {
+
+    
     os_println("stdout:%s", outsring);
     os_println("stderr:%s", errstring);
     os_println("errno:%d",  error);
@@ -33,9 +38,64 @@ jcallback(int error, char *outsring, char *errstring)
 */
 static pipinfo_t jinfo = PIPINFO_INITER(NULL, jcallback);
 
+/*
+* not care memory leak
+*/
 static int
 jmap(char *json)
 {
+    jobj_t jobj, jvar, jargument;
+    int i, count, err = 0;
+    
+    jobj = jobj_byjson(json);
+    if (NULL==jobj) {
+        return -EBADJSON;
+    }
+
+    jvar = jobj_get(jobj, "content");
+    if (jvar) {
+        if (jtype_string != jobj_type(jvar)) {
+            return -EBADJSON;
+        }
+        
+        jinfo.content = jobj_get_string(jvar);
+        jinfo.content = b64_decode(jinfo.content, os_strlen(jinfo.content));
+        if (NULL==jinfo.content) {
+            return -EBASE64;
+        }
+    }
+
+    jvar = jobj_get(jobj, "filename");
+    if (jvar) {
+        if (jtype_string != jobj_type(jvar)) {
+            return -EBADJSON;
+        }
+        
+        jinfo.file = jobj_get_string(jvar);
+    }
+
+    jargument = jobj_get(jobj, "argument");
+    if (jargument) {
+        if (jtype_array != jobj_type(jargument)) {
+            return -EBADJSON;
+        }
+
+        count = jarray_length(jargument);
+        jinfo.argv = (char **)os_zalloc((1+count) * sizeof(char *));
+        if (NULL==jinfo.argv) {
+            return -ENOMEM;
+        }
+
+        for (i=0; i<count; i++) {
+            jvar = jarray_get(jargument, i);
+            if (jtype_string != jobj_type(jvar)) {
+                return -EBADJSON;
+            }
+
+            jinfo.argv[i] = jobj_get_string(jvar);
+        }
+    }
+    
     return 0;
 }
 
