@@ -33,12 +33,13 @@ __hentry(h1_node_t *node)
 }
 
 static hash_idx_t
-__hash(char *name, char *topic)
+__hash(char *name, char *topic, char *channel)
 {
     bkdr_t bkdr = 0;
 
     bkdr = os_str_bkdr_push(bkdr, name);
     bkdr = os_str_bkdr_push(bkdr, topic);
+    bkdr = os_str_bkdr_push(bkdr, channel);
 
     return (hash_idx_t)bkdr & NSQ_HASHMASK;
 }
@@ -144,7 +145,7 @@ __insert(nsq_instance_t *instance)
     {
         nsq_instance_t *instance = __entry(node);
         
-        return __hash(instance->name, instance->topic);
+        return __hash(instance->name, instance->topic, instance->channel);
     }
     
     return h1_add(&nsqa.table, &instance->node, nhash);
