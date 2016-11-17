@@ -24,18 +24,6 @@ jcallback(int error, char *outsring, char *errstring)
     return 0;
 }
 
-/*
-{
-    "content": "content",               #must base64 encode
-    "filename": "filename",
-    "argument": [                       #option
-        "arg1",
-        "arg2",
-        "arg3",
-        ...
-    ]
-}
-*/
 static pipinfo_t jinfo = PIPINFO_INITER(NULL, jcallback);
 
 /*
@@ -99,10 +87,34 @@ jmap(char *json)
     return 0;
 }
 
+/*
+{
+    "content": "content",       #must base64 encode
+    "filename": "filename",
+    "argument": [               #option
+        "arg1",
+        "arg2",
+        "arg3",
+        ...
+    ]
+}
+*/
+
 static int
 usage(int error)
 {
     os_eprintln(__THIS_APPNAME " json");
+    os_eprintln(__tab   "json format");
+    os_eprintln(__tab   "{");
+    os_eprintln(__tab __tab "\"content\": \"content\",       #must base64 encode");
+    os_eprintln(__tab __tab "\"filename\": \"filename\",");
+    os_eprintln(__tab __tab "\"argument\": [               #option");
+    os_eprintln(__tab __tab __tab "\"arg1\",");
+    os_eprintln(__tab __tab __tab "\"arg2\",");
+    os_eprintln(__tab __tab __tab "\"arg3\",");
+    os_eprintln(__tab __tab __tab "...");
+    os_eprintln(__tab __tab "]");
+    os_eprintln(__tab   "}");
 
     return error;
 }
