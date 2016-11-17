@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#ifdef __APP__
+#if defined(__APP__) && !defined(__UCLIBC__)
 
 typedef struct {
     coroutine_t *idle;
