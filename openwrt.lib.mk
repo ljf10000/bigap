@@ -68,6 +68,33 @@ define Package/libjs/compile
 	$(CP) $(PKG_LIB_BUILD_DIR)/js/libjs.so $(STAGING_DIR)/usr/lib
 endef
 ####################################################################
+define Package/libweos
+  SECTION:=libs
+  CATEGORY:=bigap-lib
+  TITLE:=SuperWalle Basic Lib
+  DEPENDS:=+netifd +json-c +js
+endef
+
+define Package/libweos/install
+	$(Package/bigap-lib/install/common)
+	
+	$(INSTALL_DATA) $(PKG_LIB_BUILD_DIR)/weos/libweos.so $(1)/usr/lib
+endef
+
+define Package/libweos/compile
+	$(MAKE) -C $(PKG_LIB_BUILD_DIR)/weos \
+		CC="$(TARGET_CC)" \
+		CFLAGS=" \
+			$(TARGET_CFLAGS) \
+			$(TARGET_CPPFLAGS) \
+			$(BIGAP_LIB_CFLAGS) \
+			" \
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		OS_TYPE=openwrt \
+		#end
+	$(CP) $(PKG_LIB_BUILD_DIR)/weos/libweos.so $(STAGING_DIR)/usr/lib
+endef
+####################################################################
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 	$(CP) ./* $(PKG_BUILD_DIR)
@@ -78,6 +105,8 @@ endef
 
 define Build/Compile
 	$(Package/libjs/compile)
+	$(Package/libweos/compile)
 endef
 ####################################################################
 $(eval $(call BuildPackage,libjs))
+$(eval $(call BuildPackage,libweos))
