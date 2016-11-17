@@ -634,7 +634,7 @@ js_content(int argc, char *argv[])
         sum += 1 + os_strlen(argv[i]);
     }
 
-    content = (char *)os_malloc(1+sum);
+    content = (char *)os_zalloc(1+sum);
     if (NULL==content) {
         return NULL;
     }
@@ -643,10 +643,10 @@ js_content(int argc, char *argv[])
     for (i=2; i<argc; i++) {
         len = os_strlen(argv[i]);
         os_memcpy(content + sum, argv[i], len);
-        content[sum] = ' ';
-        sum += 1 + len;
+        sum += len;
+        content[sum++] = ' ';
+        os_println("argv[%d]=%s content=%s", i, argv[i], content);
     }
-    content[sum] = 0;
 
     os_println("content=%s", content);
     
