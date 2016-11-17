@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 
-OS_REAL_INITER;
+OS_INITER;
 
 static int 
 cmd_reload(int argc, char *argv[])
