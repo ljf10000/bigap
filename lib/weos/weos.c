@@ -10,7 +10,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #include "utils.h"
-#include "js.h"
 
 LIB_INITER;
 /******************************************************************************/
