@@ -13,7 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "nsqa.h"
 /******************************************************************************/
 static nsq_instance_t *
-__entry(hash_node_t *node)
+__nsqi_entry(hash_node_t *node)
 {
     if (node) {
         return h1_entry(node, nsq_instance_t, node);
@@ -23,7 +23,7 @@ __entry(hash_node_t *node)
 }
 
 static nsq_instance_t *
-__hentry(h1_node_t *node)
+__nsqi_hentry(h1_node_t *node)
 {
     if (node) {
         return h1_entry(node, nsq_instance_t, node);
@@ -33,7 +33,7 @@ __hentry(h1_node_t *node)
 }
 
 static hash_idx_t
-__hash(char *name, char *topic)
+__nsqi_hash(char *name, char *topic)
 {
     bkdr_t bkdr = 0;
 
@@ -44,7 +44,7 @@ __hash(char *name, char *topic)
 }
 
 static int
-____destroy(nsq_instance_t *instance)
+__nsqi_destroy(nsq_instance_t *instance)
 {
     int i;
     
@@ -72,13 +72,8 @@ ____destroy(nsq_instance_t *instance)
     return 0;
 }
 
-#define __destroy(_instance)    do{ \
-    ____destroy(_instance);         \
-    _instance = NULL;               \
-}while(0)
-
 static nsq_instance_t *
-__create(char *name, char *topic, char *channel, jobj_t jobj)
+__nsqi_create(char *name, char *topic, char *channel, jobj_t jobj)
 {
     nsq_instance_t *instance = NULL;
     jobj_t jval;
@@ -137,32 +132,32 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
     
     return instance;
 error:
-    __destroy(instance);
+    __nsqi_destroy(instance);
 
     return NULL;
 }
 
 static int
-__insert(nsq_instance_t *instance)
+__nsqi_insert(nsq_instance_t *instance)
 {
     hash_idx_t nhash(hash_node_t *node)
     {
-        nsq_instance_t *instance = __entry(node);
+        nsq_instance_t *instance = __nsqi_entry(node);
         
-        return __hash(instance->name, instance->topic);
+        return __nsqi_hash(instance->name, instance->topic);
     }
     
     return h1_add(&nsqa.table, &instance->node, nhash);
 }
 
 static int
-__remove(nsq_instance_t *instance)
+__nsqi_remove(nsq_instance_t *instance)
 {
     return h1_del(&nsqa.table, &instance->node);
 }
 
 static int
-__show(nsq_instance_t *instance)
+__nsqi_show(nsq_instance_t *instance)
 {
     return 0;
 }
@@ -199,12 +194,12 @@ __nsqi_insert(jobj_t jobj)
         return -EEXIST;
     }
 
-    nsq_instance_t *instance = __create(name, topic, channel, jobj);
+    nsq_instance_t *instance = __nsqi_create(name, topic, channel, jobj);
     if (NULL==instance) {
         return -ENOMEM;
     }
 
-    err = __insert(instance);
+    err = __nsqi_insert(instance);
     if (err<0) {
         debug_entry("insert %s error:%d", name, err);
         
@@ -300,7 +295,7 @@ static int
 remove_by_special(char *name, char *topic, char *channel)
 {
     return handle_name_topic_channel_by_special(
-                NULL, __remove, ____destroy,
+                NULL, __nsqi_remove, __nsqi_destroy,
                 name, topic, channel);
 }
 
@@ -319,7 +314,7 @@ remove_by_wildcard(char *name, char *topic, char *channel)
     }
     
     return handle_name_topic_channel_by_wildcard(
-                __remove, notify, ____destroy,
+                __nsqi_remove, notify, __nsqi_destroy,
                 name, topic, channel);
 }
 
@@ -327,7 +322,7 @@ static int
 show_by_special(char *name, char *topic, char *channel)
 {
     return handle_name_topic_channel_by_special(
-                NULL, __show, NULL,
+                NULL, __nsqi_show, NULL,
                 name, topic, channel);
 }
 
@@ -336,7 +331,7 @@ show_by_wildcard(char *name, char *topic, char *channel)
 {
     int notify(nsq_instance_t *instance, int pre_error)
     {
-        return __show(instance);
+        return __nsqi_show(instance);
     }
     
     return handle_name_topic_channel_by_wildcard(
@@ -413,7 +408,7 @@ nsqi_foreach(nsq_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h1_node_t *node)
     {
-        return (*foreach)(__hentry(node));
+        return (*foreach)(__nsqi_hentry(node));
     }
 
     if (safe) {
@@ -428,15 +423,15 @@ nsqi_get(char *name, char *topic, char *channel)
 {
     hash_idx_t dhash(void)
     {
-        return __hash(name);
+        return __nsqi_hash(name, topic, channel);
     }
     
     bool eq(hash_node_t *node)
     {
-        return os_streq(name, __entry(node)->name);
+        return os_streq(name, __nsqi_entry(node)->name);
     }
 
-    return __hentry(h1_find(&nsqa.table, dhash, eq));
+    return __nsqi_hentry(h1_find(&nsqa.table, dhash, eq));
 }
 
 int
