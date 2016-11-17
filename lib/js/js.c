@@ -645,10 +645,7 @@ js_content(int argc, char *argv[])
         os_memcpy(content + sum, argv[i], len);
         sum += len;
         content[sum++] = ' ';
-        os_println("argv[%d]=%s content=%s", i, argv[i], content);
     }
-
-    os_println("content=%s", content);
     
     return content;
 }
