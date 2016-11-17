@@ -11,7 +11,7 @@ include $(DIR_ROOT)/mk/define.mk
 #
 #changed me, append sub-system
 #
-SUB_SYSTEM=js weos
+SUB_SYSTEM=weos js
 
 #
 #don't change it
