@@ -193,13 +193,10 @@ __pipe_son_exec(pipexec_t *pe, char *path, char *argv[], char *env[])
     os_close(pe->std[1].fd[__pipe_son]);
     os_close(pe->std[2].fd[__pipe_son]);
 
-    execve(path, argv, env);
-#if 0
 #ifdef __UCLIBC__
     execvp(path, argv);
 #else
     execvpe(path, argv, env);
-#endif
 #endif
 }
 
