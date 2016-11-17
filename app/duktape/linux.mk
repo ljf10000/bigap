@@ -23,7 +23,7 @@ OBJS=$(DIR_SELF)/module/main.o
 TARGET_NAME=js
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c m json-c js
+LIB_DEPEND=c m json-c weos js
 CFLAGS+= -std=gnu99 \
 	-Os -fomit-frame-pointer \
 	-fstrict-aliasing \

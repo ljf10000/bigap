@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/fcookie.o
 TARGET_NAME=fcookie
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c json-c
+LIB_DEPEND=c json-c weos
 CFLAGS+=
 
 #

@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/btt.o
 TARGET_NAME=btt
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c json-c
+LIB_DEPEND=c json-c weos
 CFLAGS+=
 
 #

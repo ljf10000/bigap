@@ -2,7 +2,7 @@
 OBJS=benv.o
 __TARGET=benv
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lm -ljson-c
+LIBS_DEPEND=-lm -ljson-c -lweos
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace

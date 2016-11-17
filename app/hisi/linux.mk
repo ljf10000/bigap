@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/hisi.o
 TARGET_NAME=hisi
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c json-c
+LIB_DEPEND=c json-c weos
 CFLAGS+=
 
 #

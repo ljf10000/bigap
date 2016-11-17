@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/zlib.o
 TARGET_NAME=zlib
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=test
-LIB_DEPEND=c json-c z
+LIB_DEPEND=c json-c z weos
 CFLAGS+=-D__TEST__
 
 #

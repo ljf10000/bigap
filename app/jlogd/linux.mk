@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/jlogd.o
 TARGET_NAME=jlogd
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c json-c
+LIB_DEPEND=c json-c weos
 CFLAGS+=
 
 #

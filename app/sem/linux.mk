@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/sem.o
 TARGET_NAME=sem
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c json-c
+LIB_DEPEND=c json-c weos
 CFLAGS+=
 
 #

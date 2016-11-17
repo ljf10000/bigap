@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/mac.o
 TARGET_NAME=mac
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=test
-LIB_DEPEND=c json-c
+LIB_DEPEND=c json-c weos
 CFLAGS+=-D__TEST__
 
 #

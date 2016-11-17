@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/loopc.o
 TARGET_NAME=loopc
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=test
-LIB_DEPEND=c json-c
+LIB_DEPEND=c json-c weos
 CFLAGS+=-D__TEST__ 
 
 #
