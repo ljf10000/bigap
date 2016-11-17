@@ -38,12 +38,21 @@ usage(int error)
 static int 
 jcallback(int error, char *outsring, char *errstring)
 {
-
+    char *string = NULL;
     
-    os_println("stdout:%s", outsring);
-    os_println("stderr:%s", errstring);
-    os_println("errno:%d",  error);
+    jobj_t jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return -ENOMEM;
+    }
 
+    jobj_add_string(jobj, "stdout", b64_encode(outsring, os_strlen(outsring)));
+    jobj_add_string(jobj, "stderr", b64_encode(errstring, os_strlen(errstring)));
+    jobj_add_i32(jobj, "errno", error);
+
+    os_println("%s", jobj_json(jobj));
+
+    jobj_put(jobj);
+    
     return 0;
 }
 
