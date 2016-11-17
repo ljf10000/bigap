@@ -254,11 +254,8 @@ co_name(co_id_t id);
 /*
 * CAN call in main
 */
-static inline char *
-co_self_name(void)
-{
-    return co_name(co_self());
-}
+extern char *
+co_self_name(void);
 
 extern int
 co_signal(co_id_t id, enum co_event ev);

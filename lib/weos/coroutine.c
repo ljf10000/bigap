@@ -895,6 +895,12 @@ co_name(co_id_t id)
     return co->name;
 }
 
+char *
+co_self_name(void)
+{
+    return co_name(co_self());
+}
+
 int
 co_signal(co_id_t id, enum co_event ev)
 {
