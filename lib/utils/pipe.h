@@ -87,6 +87,25 @@ typedef struct {
 #define PIPINFO_INITER(_env, _cb)       \
     __PIPINFO_INITER(_env, 0, _cb, 0, 0, 0)
 
+#define dump_pipinfo(_info, _dump)          do{ \
+    _dump("size=%u", (_info)->size);            \
+    _dump("minsize=%u", (_info)->minsize);      \
+    _dump("expand=%u", (_info)->expand);        \
+    _dump("timeout=%d", (_info)->timeout);      \
+    if ((_info)->content) {                     \
+        _dump("content=%d", (_info)->content);  \
+    }                                           \
+    if ((_info)->file) {                        \
+        _dump("file=%d", (_info)->file);        \
+    }                                           \
+    if ((_info)->env) {                         \
+        envs_dump((_info)->env _dump);          \
+    }                                           \
+    if ((_info)->argv) {                        \
+        envs_dump((_info)->argv _dump);         \
+    }                                           \
+}while(0)
+
 typedef struct {
     pipe_std_t std[3];  // std in/out/err
     pipinfo_t info;
@@ -356,6 +375,8 @@ os_pexecv(pipinfo_t *info)
     else if (NULL==info->cb) {
         return -EINVAL1;
     }
+
+    dump_pipinfo(info, debug_trace);
     
     __pipexec_init(&pe, info);
     
