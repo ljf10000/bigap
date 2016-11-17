@@ -271,8 +271,8 @@ error:
     return err;
 }
 
-static inline int
-__p_son_init(pipexec_t *pe)
+static inline void
+__p_son_exec(pipexec_t *pe, char *path, char *argv[], char *env[])
 {
     // re-link 1/2
     close(1);
@@ -285,14 +285,6 @@ __p_son_init(pipexec_t *pe)
     os_close(pe->std[2].fd[__pipe_father]);
     os_close(pe->std[1].fd[__pipe_son]);
     os_close(pe->std[2].fd[__pipe_son]);
-
-    return 0;
-}
-
-static inline void
-__p_son_exec(pipexec_t *pe, char *path, char *argv[], char *env[])
-{
-    __p_son_init(pe);
 
     execvpe(path, argv, env);
 }
