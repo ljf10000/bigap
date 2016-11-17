@@ -5,7 +5,12 @@
 
 #define js_UCLIBC           1
 #define js_GLIBC            2
+
+#ifdef __UCLIBC__
 #define js_LIBC             js_UCLIBC
+#else
+#define js_LIBC             js_GLIBC
+#endif
 
 #ifndef js_LIGHT_FUNC
 #define js_LIGHT_FUNC       0

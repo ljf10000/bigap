@@ -15,7 +15,12 @@
 #define __ALLINONE__
 #endif
 
+#if !defined(__GLIBC__) && !defined(__UCLIBC__)
+#define __UCLIBC__
+#endif
+
 #ifdef __BOOT__
+#   define __UCLIBC__
 #   include <malloc.h>
 #   include <common.h>
 #   include <command.h>

@@ -21,6 +21,7 @@ ifndef MK_DEFINE
 	export UBACKTRACE=1
 	export CFLAGS+=-D_GNU_SOURCE \
 		-D$(shell $(SCRIPT_PATH)/64) \
+		-D__GLIBC__ \
 		-D__PC__ \
 		-DLINUX \
 		-D__BACKTRACE__=$(UBACKTRACE) \
