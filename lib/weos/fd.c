@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#if defined(__APP__) && defined(__EXTEND__)
+#ifdef __APP__
 
 typedef struct {
     bool init;

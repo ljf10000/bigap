@@ -1,6 +1,5 @@
 #ifndef __CHANNEL_H_91835dac42e940458282784927bce6fd__
 #define __CHANNEL_H_91835dac42e940458282784927bce6fd__
-#ifdef __EXTEND__
 /******************************************************************************/
 enum channel_type {
     CHANNEL_OBJECT,
@@ -194,5 +193,4 @@ os_pch_write(channel_t *ch, void *pointer)
     return os_ch_write(ch, (void *)&pointer);
 }
 /******************************************************************************/
-#endif
 #endif /* __CHANNEL_H_91835dac42e940458282784927bce6fd__ */

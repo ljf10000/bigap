@@ -1,7 +1,7 @@
 #ifndef __COROUTINE_H_5d8fd5ee4fd14fdaa141fc278df9d147__
 #define __COROUTINE_H_5d8fd5ee4fd14fdaa141fc278df9d147__
 /******************************************************************************/
-#if defined(__APP__) && defined(__EXTEND__)
+#ifdef __APP__
 #ifndef CO_STACK_DEFAULT
 #define CO_STACK_DEFAULT        (1024*8)
 #endif

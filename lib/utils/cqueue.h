@@ -1,6 +1,5 @@
 #ifndef __CQUEUE_H_04b4815f18564b8799c9ffda96d7e97d__
 #define __CQUEUE_H_04b4815f18564b8799c9ffda96d7e97d__
-#ifdef __EXTEND__
 /******************************************************************************/
 typedef struct {
     uint32 flag;
@@ -31,5 +30,4 @@ cq_read(cqueue_t *cq, void **pointer);
 extern int
 cq_write(cqueue_t *cq, void *pointer);
 /******************************************************************************/
-#endif
 #endif /* __CQUEUE_H_04b4815f18564b8799c9ffda96d7e97d__ */

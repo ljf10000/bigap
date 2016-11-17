@@ -1,7 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#ifdef __EXTEND__
 static int
 __ch_align(channel_t *ch, uint32 number)
 {
@@ -373,5 +372,4 @@ os_ch_write(channel_t *ch, void *obj)
         return __ch_write(ch, obj);
     }
 }
-#endif
 /******************************************************************************/
