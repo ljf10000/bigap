@@ -99,10 +99,10 @@ typedef struct {
         _dump("file=%d", (_info)->file);        \
     }                                           \
     if ((_info)->env) {                         \
-        envs_dump((_info)->env _dump);          \
+        envs_dump("old", (_info)->env _dump);   \
     }                                           \
     if ((_info)->argv) {                        \
-        envs_dump((_info)->argv _dump);         \
+        envs_dump("old", (_info)->argv _dump);  \
     }                                           \
 }while(0)
 
@@ -303,6 +303,9 @@ error:
 static inline void
 __p_son_exec(pipexec_t *pe, char *path, char *argv[], char *env[])
 {
+    envs_dump("exec argv", argv, debug_trace);
+    envs_dump("exec env",  env,  debug_trace);
+    
     // re-link 1/2
     close(1);
     close(2);
@@ -325,9 +328,7 @@ __p_son_handle(pipexec_t *pe)
     int err, count;
 
     // append env(private + global)
-    envs_dump("new env", info->env, debug_trace);
     info->env = envs_merge(environ, info->env);
-    envs_dump("current env", info->env, debug_trace);
 
     if (info->content) {
         /*
@@ -338,21 +339,13 @@ __p_son_handle(pipexec_t *pe)
         char *shell = env_gets("SHELL", "/bin/bash");
         char *argv[] = {os_basename(shell), "-c", info->content, NULL};
 
-        envs_dump("current argv", argv, debug_trace);
-
         __p_son_exec(pe, shell, argv, info->env);
     }
     else if (info->file) {
         char *argv[] = {os_basename(info->file), NULL};
 
-        if (info->argv) {
-            envs_dump("old argv", info->argv, debug_trace);
-        }
-        envs_dump("new argv", argv, debug_trace);
-        
         info->argv = envs_merge(info->argv, argv);
-        envs_dump("current argv", info->argv, debug_trace);
-
+        
         __p_son_exec(pe, info->file, info->argv, info->env);
     }
     else {
@@ -453,8 +446,6 @@ os_pexecline(pipinfo_t *info, char *line)
         info->file = argv[0];
         if (count>1) {
             info->argv = &argv[1];
-
-            envs_dump("pre argv", info->argv, debug_trace);
         }
         
         err = os_pexecv(info);
