@@ -10,8 +10,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #include "utils.h"
-OS_REAL_INITER;
-
 LIB_INITER;
 /******************************************************************************/
 #include "pipe.c"

@@ -255,7 +255,6 @@
     OS_EXT_FAKE_INITER          \
     /* end */
 
-#if 0
 #define OS_INITER           \
     DECLARE_COMMAND;        \
     /* DECLARE_HAENV; */    \
@@ -272,9 +271,6 @@
                             \
     OS_EXT_INITER           \
     /* end */
-#else
-#define OS_INITER   OS_FAKE_INITER
-#endif
 
 #ifdef __ALLINONE__
 #define LIB_INITER  os_fake_declare
