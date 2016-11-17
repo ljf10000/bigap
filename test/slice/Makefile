@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/slice.o
 TARGET_NAME=slice
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=test
-LIB_DEPEND=c json-c weos
+LIB_DEPEND=c m json-c weos
 CFLAGS+=-D__TEST__
 
 #
