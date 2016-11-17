@@ -195,40 +195,31 @@
 #include "oem/oem.h"
 /******************************************************************************/
 #ifdef __EXTEND__
-#define OS_EXT_INITER       \
-    DECLARE_COROUTINE;      \
-    DECLARE_FD;             \
-                            \
-    os_fake_declare         \
-    /* end */
-
 #define OS_EXT_REAL_INITER  \
     DECLARE_REAL_COROUTINE; \
     DECLARE_REAL_FD;        \
                             \
     os_fake_declare         \
     /* end */
-#else
-#define OS_EXT_INITER       os_fake_declare
-#define OS_EXT_REAL_INITER  os_fake_declare
-#endif
 
-#define OS_INITER           \
-    DECLARE_COMMAND;        \
-    /* DECLARE_HAENV; */    \
-    DECLARE_DEAMON;         \
-    DECLARE_FLOCK;          \
-    DECLARE_JLOG;           \
-    DECLARE_OEM;            \
-    DECLARE_AK;             \
-    DECLARE_TIMER;          \
-    DECLARE_CLI;            \
-    DECLARE_DEBUGGER;       \
-    DECLARE_JDEBUGGER;      \
-    DECLARE_ENV;            \
+#define OS_EXT_FAKE_INITER  \
+    DECLARE_FAKE_COROUTINE; \
+    DECLARE_FAKE_FD;        \
                             \
-    OS_EXT_INITER           \
+    os_fake_declare         \
     /* end */
+
+#define OS_EXT_INITER       \
+    DECLARE_COROUTINE;      \
+    DECLARE_FD;             \
+                            \
+    os_fake_declare         \
+    /* end */
+#else
+#define OS_EXT_REAL_INITER  os_fake_declare
+#define OS_EXT_FAKE_INITER  os_fake_declare
+#define OS_EXT_INITER       os_fake_declare
+#endif
 
 #define OS_REAL_INITER          \
     DECLARE_REAL_COMMAND;       \
@@ -246,6 +237,44 @@
                                 \
     OS_EXT_REAL_INITER          \
     /* end */
+
+#define OS_FAKE_INITER          \
+    DECLARE_FAKE_COMMAND;       \
+    /* DECLARE_FAKE_HAENV; */   \
+    DECLARE_FAKE_DEAMON;        \
+    DECLARE_FAKE_FLOCK;         \
+    DECLARE_FAKE_JLOG;          \
+    DECLARE_FAKE_OEM;           \
+    DECLARE_FAKE_AK;            \
+    DECLARE_FAKE_TIMER;         \
+    DECLARE_FAKE_CLI;           \
+    DECLARE_FAKE_DEBUGGER;      \
+    DECLARE_FAKE_JDEBUGGER;     \
+    DECLARE_FAKE_ENV;           \
+                                \
+    OS_EXT_FAKE_INITER          \
+    /* end */
+
+#if 0
+#define OS_INITER           \
+    DECLARE_COMMAND;        \
+    /* DECLARE_HAENV; */    \
+    DECLARE_DEAMON;         \
+    DECLARE_FLOCK;          \
+    DECLARE_JLOG;           \
+    DECLARE_OEM;            \
+    DECLARE_AK;             \
+    DECLARE_TIMER;          \
+    DECLARE_CLI;            \
+    DECLARE_DEBUGGER;       \
+    DECLARE_JDEBUGGER;      \
+    DECLARE_ENV;            \
+                            \
+    OS_EXT_INITER           \
+    /* end */
+#else
+#define OS_INITER   OS_FAKE_INITER
+#endif
 
 #ifdef __ALLINONE__
 #define LIB_INITER  os_fake_declare
