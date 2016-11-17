@@ -78,26 +78,8 @@ typedef struct {
     uint64      removed;
 } tm_clock_t;
 
-#define DECLARE_REAL_TIMER  tm_clock_t *__THIS_TIMER
-#define DECLARE_FAKE_TIMER  extern tm_clock_t *__THIS_TIMER
-
-#ifdef __ALLINONE__
-#   define DECLARE_TIMER    DECLARE_FAKE_TIMER
-#else
-#   define DECLARE_TIMER    DECLARE_REAL_TIMER
-#endif
-
-DECLARE_FAKE_TIMER;
-
-static inline tm_clock_t *
-__this_timer(void)
-{
-    if (NULL==__THIS_TIMER) {
-        __THIS_TIMER = (tm_clock_t *)os_zalloc(sizeof(tm_clock_t));
-    }
-    
-    return __THIS_TIMER;
-}
+extern tm_clock_t *
+__this_timer(void);
 
 static inline tm_ring_t *
 __tm_ring(int idx)

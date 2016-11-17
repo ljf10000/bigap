@@ -8,7 +8,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 
 OS_INITER;
-DECLARE_TIMER;
 
 #define TEST_TIMER_BYFD    1
 

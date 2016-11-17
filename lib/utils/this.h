@@ -59,10 +59,6 @@
 #define __THIS_JLOGGER          __SYMBOL_TO_THIS(_jlogger)
 #endif
 
-#ifndef __THIS_TIMER
-#define __THIS_TIMER            __SYMBOL_TO_THIS(_timer)
-#endif
-
 #ifndef __THIS_COROUTINE
 #define __THIS_COROUTINE        __SYMBOL_TO_THIS(_coroutine)
 #endif
