@@ -690,8 +690,6 @@ __bkdr_pop(bkdr_t a, bkdr_t b)
 static inline bkdr_t
 os_str_BKDR_push(bkdr_t bkdr, const char *s, uint32 *plen)
 {
-    bkdr_t bkdr = 0;
-    
     if (s) {
         const char *p = s;
         uint32 len = 0;
@@ -748,7 +746,6 @@ os_bin_bkdr_push(bkdr_t bkdr, const void *binary, uint32 len)
     
     return bkdr;
 }
-
 
 static inline bkdr_t
 os_bin_bkdr(const void *binary, uint32 len)
