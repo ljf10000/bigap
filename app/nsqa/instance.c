@@ -429,7 +429,11 @@ nsqi_get(char *name, char *topic, char *channel)
     
     bool eq(hash_node_t *node)
     {
-        return os_streq(name, __entry(node)->name);
+        nsq_instance_t *instance = __entry(node);
+        
+        return os_streq(name, instance->name)
+            && os_streq(topic, instance->topic)
+            && os_streq(channel, instance->channel);
     }
 
     return __hentry(h1_find(&nsqa.table, dhash, eq));
