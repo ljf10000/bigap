@@ -634,7 +634,7 @@ js_content(int argc, char *argv[])
         sum += 1 + os_strlen(argv[i]);
     }
 
-    content = (char *)os_zalloc(1+sum);
+    content = (char *)os_malloc(1+sum);
     if (NULL==content) {
         return NULL;
     }
@@ -646,6 +646,7 @@ js_content(int argc, char *argv[])
         sum += len;
         content[sum++] = ' ';
     }
+    content[sum] = 0;
     
     return content;
 }
