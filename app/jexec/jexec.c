@@ -9,6 +9,29 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
+#define JSON_FORMAT                                     \
+    __tab   "json format"                       __crlf  \
+    __tab   "{"                                 __crlf  \
+    __tab2      "\"content\": \"content\","     __crlf  \
+    __tab2      "\"filename\": \"filename\","   __crlf  \
+    __tab2      "\"argument\": ["               __crlf  \
+    __tab3          "\"arg1\","                 __crlf  \
+    __tab3          "\"arg2\","                 __crlf  \
+    __tab3          "\"arg3\","                 __crlf  \
+    __tab3          "..."                       __crlf  \
+    __tab2      "]"                             __crlf  \
+    __tab   "}"                                 __crlf  \
+    /* end */
+
+static int
+usage(int error)
+{
+    os_eprintln(__THIS_APPNAME " json");
+    os_eprintln(JSON_FORMAT);
+
+    return error;
+}
+
 /*
 * not care memory leak
 */
@@ -24,7 +47,18 @@ jcallback(int error, char *outsring, char *errstring)
     return 0;
 }
 
-static pipinfo_t jinfo = PIPINFO_INITER(NULL, jcallback);
+#if 1
+static char *jenv[] = {
+    "SB:SB",
+    "SB:SBSB",
+    "SB:SBSBSB",
+    NULL,
+};
+#else
+#defien jenv NULL
+#endif
+
+static pipinfo_t jinfo = PIPINFO_INITER(jenv, jcallback);
 
 /*
 * not care memory leak
@@ -85,29 +119,6 @@ jmap(char *json)
     }
     
     return 0;
-}
-
-#define JSON_FORMAT                                     \
-    __tab   "json format"                       __crlf  \
-    __tab   "{"                                 __crlf  \
-    __tab2      "\"content\": \"content\","     __crlf  \
-    __tab2      "\"filename\": \"filename\","   __crlf  \
-    __tab2      "\"argument\": ["               __crlf  \
-    __tab3          "\"arg1\","                 __crlf  \
-    __tab3          "\"arg2\","                 __crlf  \
-    __tab3          "\"arg3\","                 __crlf  \
-    __tab3          "..."                       __crlf  \
-    __tab2      "]"                             __crlf  \
-    __tab   "}"                                 __crlf  \
-    /* end */
-
-static int
-usage(int error)
-{
-    os_eprintln(__THIS_APPNAME " json");
-    os_eprintln(JSON_FORMAT);
-
-    return error;
 }
 
 static int
