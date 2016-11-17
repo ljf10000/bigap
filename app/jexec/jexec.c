@@ -117,6 +117,8 @@ jmap(char *json)
             jinfo.argv[i] = jobj_get_string(jvar);
         }
     }
+
+    debug_trace("input json=%s", jobj_json(jobj));
     
     return 0;
 }

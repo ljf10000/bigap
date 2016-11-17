@@ -32,6 +32,16 @@
 #define PIPE_EXPAND(_expand)        \
     OS_SAFE_VALUE_DEFT(_expand, PIPE_EXPAND_MIN, PIPE_EXPAND_MAX, PIPE_EXPAND_DEFT)
 
+#ifndef PIPE_DPRINT
+#define PIPE_DPRINT             1
+#endif
+
+#if FILE_DPRINT
+#define pipe_println(_fmt, _args...)    os_println(_fmt, ##_args)
+#else
+#define pipe_println(_fmt, _args...)    os_do_nothing()
+#endif
+
 typedef int os_pexec_callback_f(int error, char *outsring, char *errstring);
 
 typedef struct {
@@ -346,21 +356,31 @@ os_pexecv(pipinfo_t *info)
     else if (NULL==info->cb) {
         return -EINVAL1;
     }
+
+    pipe_println("os_pexecv 1");
     
     __pipexec_init(&pe, info);
+    pipe_println("os_pexecv 2");
     
     pid = fork();
     if (pid<0) {
+        pipe_println("os_pexecv 2.1");
         err = -errno;
     }
     else if (pid>0) { // father
+        pipe_println("os_pexecv 2.2.1");
         err = __p_father_handle(&pe, pid);
+        pipe_println("os_pexecv 2.2.2");
         if (0==err) {
+        pipe_println("os_pexecv 2.2.3");
             (*info->cb)(pe.err, pe.std[1].sb.buf, pe.std[2].sb.buf);
+        pipe_println("os_pexecv 2.2.4");
         }
     }
     else { // child
+        pipe_println("os_pexecv 2.3.1");
         err = __p_son_handle(&pe);
+        pipe_println("os_pexecv 2.3.2");
     }
 
 error:
