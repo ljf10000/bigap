@@ -8,7 +8,7 @@
 #endif
 
 #ifndef NSQ_PORT
-#define NSQ_PORT            4151
+#define NSQ_PORT            4150
 #endif
 
 #ifndef NSQ_TICKS
@@ -219,6 +219,7 @@ nsq_identify_jrepair(jobj_t jobj)
 #define NSQ_INSTANCE_DOMAIN_NAME    "domain"
 #define NSQ_INSTANCE_PORT_NAME      "port"
 #define NSQ_INSTANCE_TOPIC_NAME     "topic"
+#define NSQ_INSTANCE_CHANNEL_NAME   "channel"
 #define NSQ_INSTANCE_IDENTIFY_NAME  "identify"
 
 #define NSQ_INSTANCE_ENUM_MAPPER(_)                                 \
@@ -226,7 +227,8 @@ nsq_identify_jrepair(jobj_t jobj)
     _(NSQ_INSTANCE_DOMAIN,      1,  NSQ_INSTANCE_DOMAIN_NAME),      \
     _(NSQ_INSTANCE_PORT,        2,  NSQ_INSTANCE_PORT_NAME),        \
     _(NSQ_INSTANCE_TOPIC,       3,  NSQ_INSTANCE_TOPIC_NAME),       \
-    _(NSQ_INSTANCE_IDENTIFY,    4,  NSQ_INSTANCE_IDENTIFY_NAME),    \
+    _(NSQ_INSTANCE_CHANNEL,     4,  NSQ_INSTANCE_CHANNEL_NAME),     \
+    _(NSQ_INSTANCE_IDENTIFY,    5,  NSQ_INSTANCE_IDENTIFY_NAME),    \
     /* end */
 DECLARE_ENUM(nsq_instance, NSQ_INSTANCE_ENUM_MAPPER, NSQ_INSTANCE_END);
 
@@ -238,6 +240,7 @@ static inline int nsq_instance_idx(char *name);
 #define NSQ_INSTANCE_DOMAIN     NSQ_INSTANCE_DOMAIN
 #define NSQ_INSTANCE_PORT       NSQ_INSTANCE_PORT
 #define NSQ_INSTANCE_TOPIC      NSQ_INSTANCE_TOPIC
+#define NSQ_INSTANCE_CHANNEL    NSQ_INSTANCE_CHANNEL
 #define NSQ_INSTANCE_IDENTIFY   NSQ_INSTANCE_IDENTIFY
 #define NSQ_INSTANCE_END        NSQ_INSTANCE_END
 
@@ -256,8 +259,12 @@ static inline int nsq_instance_idx(char *name);
         NSQ_PORT),                  \
     J_RULE(NSQ_INSTANCE_TOPIC,      \
         jtype_string,               \
-        0,                          \
-        NSQ_TOPIC),                 \
+        JRULE_MUST,                 \
+        NULL),                      \
+    J_RULE(NSQ_INSTANCE_CHANNEL,    \
+        jtype_string,               \
+        JRULE_MUST,                 \
+        NULL),                      \
     J_RULE(NSQ_INSTANCE_IDENTIFY,   \
         jtype_object,               \
         JRULE_MUST,                 \

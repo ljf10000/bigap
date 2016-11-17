@@ -382,8 +382,22 @@ iscrlf(int ch)
     return '\r'==ch || '\n'==ch;
 }
 
+static inline bool
+__iswildcard(int ch)
+{
+    return '*'==ch || '-'==ch || '_'==ch || '.'==ch;
+}
+
+static inline bool
+os_str_is_wildcard(char *s, char_is_f *is)
+{
+    return s \
+        && (is?(*is)(s[0]):('*'==s[0]))
+        && 0==s[1];
+}
+
 static inline bool 
-__char_is(int ch, char_is_f *is)
+os_char_is(int ch, char_is_f *is)
 {
     return is?(*is)(ch):(isblank(ch) || iscrlf(ch));
 }
@@ -393,7 +407,7 @@ os_str_skip(char *s, char_is_f *is)
 {
     char *p = s;
 
-    while(*p && __char_is(*p, is)) {
+    while(*p && os_char_is(*p, is)) {
         p++;
     }
 
@@ -411,7 +425,7 @@ os_str_replace(char *s, char_is_f *is, int new)
     char *p = s;
 
     while(*p) {
-        if (__char_is(*p, is)) {
+        if (os_char_is(*p, is)) {
             *p++ = new;
         } else {
             p++;
@@ -434,7 +448,7 @@ os_str_reduce(char *str, char_is_f *is)
     bool in_reduce = false; /* reduce 模式 */
     
     while(*s) {
-        if (__char_is(*s, is)) {
+        if (os_char_is(*s, is)) {
             /*
             * 扫描到 去重字符, 则记录之
             *
@@ -483,7 +497,7 @@ os_str_strim(char *str, char_is_f *is)
     char *s = str; /* 扫描指针 */
 
     while(*s) {
-        if (__char_is(*s, is)) {
+        if (os_char_is(*s, is)) {
             s++;
         } else {
             *p++ = *s++;
@@ -505,9 +519,9 @@ os_str_lstrim(char *str, char_is_f *is)
     char *s = str; /* 扫描指针 */
 
     // begin with is
-    if (__char_is(*p, is)) {
+    if (os_char_is(*p, is)) {
         /* find first no-match is */
-        while(*s && __char_is(*s, is)) {
+        while(*s && os_char_is(*s, is)) {
             s++;
         }
 
@@ -534,7 +548,7 @@ __os_str_rstrim(char *s, int len, char_is_f *is)
     char *p = ____os_strlast(s, len);
 
     /* scan, from last char to begin */
-    while(p>=s && __char_is(*p, is)) {
+    while(p>=s && os_char_is(*p, is)) {
         p--;
     }
 
@@ -631,7 +645,7 @@ os_str_next(char *s, char_is_f *is)
         return NULL;
     }
     
-    while(*p && false==__char_is(*p, is)) {
+    while(*p && false==os_char_is(*p, is)) {
         p++;
     }
     
@@ -674,7 +688,7 @@ __bkdr_pop(bkdr_t a, bkdr_t b)
 }
 
 static inline bkdr_t
-os_str_BKDR(const char *s, uint32 *plen)
+os_str_BKDR_push(bkdr_t bkdr, const char *s, uint32 *plen)
 {
     bkdr_t bkdr = 0;
     
@@ -688,7 +702,7 @@ os_str_BKDR(const char *s, uint32 *plen)
         }
 
         if (plen) {
-            *plen = len;
+            *plen += len;
         }
     }
     
@@ -696,10 +710,14 @@ os_str_BKDR(const char *s, uint32 *plen)
 }
 
 static inline bkdr_t
-os_str_bkdr(const char *s)
+os_str_BKDR(const char *s, uint32 *plen)
 {
-    bkdr_t bkdr = 0;
+    return os_str_BKDR_push(0, s, plen);
+}
 
+static inline bkdr_t
+os_str_bkdr_push(bkdr_t bkdr, const char *s)
+{
     if (s) {
         const char *p = s;
 
@@ -712,10 +730,14 @@ os_str_bkdr(const char *s)
 }
 
 static inline bkdr_t
-os_bin_bkdr(const void *binary, uint32 len)
+os_str_bkdr(const char *s)
 {
-    bkdr_t bkdr = 0;
+    return os_str_bkdr_push(0, s);
+}
 
+static inline bkdr_t
+os_bin_bkdr_push(bkdr_t bkdr, const void *binary, uint32 len)
+{
     if (binary && len) {
         int i;
         
@@ -725,6 +747,13 @@ os_bin_bkdr(const void *binary, uint32 len)
     }
     
     return bkdr;
+}
+
+
+static inline bkdr_t
+os_bin_bkdr(const void *binary, uint32 len)
+{
+    return os_bin_bkdr_push(0, binary, len);
 }
 /******************************************************************************/
 #endif /* __STRING_H_433874baec1b41d58eef119d11851217__ */

@@ -33,12 +33,17 @@ __hentry(h1_node_t *node)
 }
 
 static hash_idx_t
-__hash(char *name)
+__hash(char *name, char *topic)
 {
-    return hash_bybuf(name, os_strlen(name), NSQ_HASHMASK);
+    bkdr_t bkdr = 0;
+
+    bkdr = os_str_bkdr_push(bkdr, name);
+    bkdr = os_str_bkdr_push(bkdr, topic);
+
+    return (hash_idx_t)bkdr & NSQ_HASHMASK;
 }
 
-static void
+static int
 ____destroy(nsq_instance_t *instance)
 {
     int i;
@@ -63,6 +68,8 @@ ____destroy(nsq_instance_t *instance)
         
         os_free(instance);
     }
+
+    return 0;
 }
 
 #define __destroy(_instance)    do{ \
@@ -71,7 +78,7 @@ ____destroy(nsq_instance_t *instance)
 }while(0)
 
 static nsq_instance_t *
-__create(char *name, jobj_t jobj)
+__create(char *name, char *topic, char *channel, jobj_t jobj)
 {
     nsq_instance_t *instance = NULL;
     jobj_t jval;
@@ -88,9 +95,9 @@ __create(char *name, jobj_t jobj)
         
         goto error;
     }
-    os_noblock(fd);
+    // os_noblock(fd);
     os_closexec(fd);
-    instance->fd        = fd;
+    instance->fd = fd;
 
     err = os_loop_add_normal(&nsqa.loop, fd, nsq_recver, instance);
     if (err<0) {
@@ -103,17 +110,17 @@ __create(char *name, jobj_t jobj)
     instance->jinstance = jobj;
 
     instance->name      = os_strdup(name);
+    instance->topic     = os_strdup(topic);
+    instance->channel   = os_strdup(channel);
 
     jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
     instance->domain    = os_strdup(jobj_get_string(jval));
 
-    jval = jobj_get(jobj, NSQ_INSTANCE_TOPIC_NAME);
-    instance->topic     = os_strdup(jobj_get_string(jval));
-    instance->channel   = nsqa.cfg.hostname;
-    
     jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
     instance->identify  = os_strdup(jobj_json(jval));
-    instance->auth      = jobj_get_bool(jobj_get(jval, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME));
+
+    jval = jobj_get(jval, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME);
+    instance->auth      = jobj_get_bool(jval);
 
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
     port = jobj_get_bool(jval);
@@ -140,7 +147,9 @@ __insert(nsq_instance_t *instance)
 {
     hash_idx_t nhash(hash_node_t *node)
     {
-        return __hash(__entry(node)->name);
+        nsq_instance_t *instance = __entry(node);
+        
+        return __hash(instance->name, instance->topic);
     }
     
     return h1_add(&nsqa.table, &instance->node, nhash);
@@ -153,24 +162,44 @@ __remove(nsq_instance_t *instance)
 }
 
 static int
+__show(nsq_instance_t *instance)
+{
+    return 0;
+}
+
+static int
 __nsqi_insert(jobj_t jobj)
 {
     int err;
 
     char *name = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_NAME_NAME));
     if (NULL==name) {
-        debug_cli("no-found key " NSQ_INSTANCE_NAME_NAME);
+        debug_cli("no-found " NSQ_INSTANCE_NAME_NAME);
+        
+        return -EBADJSON;
+    }
+
+    char *topic = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_TOPIC_NAME));
+    if (NULL==name) {
+        debug_cli("no-found " NSQ_INSTANCE_TOPIC_NAME);
+        
+        return -EBADJSON;
+    }
+
+    char *channel = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_CHANNEL_NAME));
+    if (NULL==name) {
+        debug_cli("no-found " NSQ_INSTANCE_CHANNEL_NAME);
         
         return -EBADJSON;
     }
     
-    if (nsqi_get(name)) {
-        debug_entry("instance %s exist.", name);
+    if (nsqi_get(name, topic, channel)) {
+        debug_entry("instance %s.%s.%s exist.", name, topic, channel);
         
         return -EEXIST;
     }
 
-    nsq_instance_t *instance = __create(name, jobj);
+    nsq_instance_t *instance = __create(name, topic, channel, jobj);
     if (NULL==instance) {
         return -ENOMEM;
     }
@@ -183,6 +212,136 @@ __nsqi_insert(jobj_t jobj)
     }
     
     return 0;
+}
+
+static int
+handle_name_topic_channel_by_special(
+    int (*pre)(nsq_instance_t *instance),
+    int (*handle)(nsq_instance_t *instance),
+    int (*post)(nsq_instance_t *instance),
+    char *name, char *topic, char *channel
+)
+{
+    int err;
+    
+    nsq_instance_t *instance = nsqi_get(name, topic, channel);
+    if (NULL==instance) {
+        return -ENOEXIST;
+    }
+
+    if (pre) {
+        err = (*pre)(instance);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    if (handle) {
+        err = (*handle)(instance);
+        if (err<0) {
+            return err;
+        }
+    }
+    
+    if (post) {
+        err = (*post)(instance);
+        if (err<0) {
+            return err;
+        }
+    }
+    
+    return 0;
+}
+
+static int
+handle_name_topic_channel_by_wildcard(
+    int (*pre)(nsq_instance_t *instance),
+    int (*handle)(nsq_instance_t *instance, int pre_error),
+    int (*post)(nsq_instance_t *instance),
+    char *name, char *topic, char *channel
+)
+{
+    mv_t foreach(nsq_instance_t *instance)
+    {
+        int err = 0;
+        
+        if ((NULL==name || os_streq(name, instance->name)) &&
+            (NULL==topic || os_streq(topic, instance->topic)) &&
+            (NULL==channel || os_streq(channel, instance->channel))) {
+            if (pre) {
+                err = (*pre)(instance);
+                if (err<0) {
+                    return mv2_go(err);
+                }
+            }
+            
+            if (handle) {
+                err = (*handle)(instance, err);
+                if (err<0) {
+                    return mv2_go(err);
+                }
+            }
+            
+            if (post) {
+                err = (*post)(instance);
+                if (err<0) {
+                    return mv2_go(err);
+                }
+            }
+        }
+
+        return mv2_ok;
+    }
+    
+    return nsqi_foreach(foreach, true);
+}
+
+static int
+remove_by_special(char *name, char *topic, char *channel)
+{
+    return handle_name_topic_channel_by_special(
+                NULL, __remove, ____destroy,
+                name, topic, channel);
+}
+
+static int
+remove_by_wildcard(char *name, char *topic, char *channel)
+{
+    int notify(nsq_instance_t *instance, int pre_error)
+    {
+        cli_sprintf("instance %s.%s.%s remove %s\n",
+            instance->name,
+            instance->topic,
+            instance->channel,
+            __ok_string(0==pre_error));
+
+        return 0;
+    }
+    
+    return handle_name_topic_channel_by_wildcard(
+                __remove, notify, ____destroy,
+                name, topic, channel);
+}
+
+static int
+show_by_special(char *name, char *topic, char *channel)
+{
+    return handle_name_topic_channel_by_special(
+                NULL, __show, NULL,
+                name, topic, channel);
+}
+
+static int
+show_by_wildcard(char *name, char *topic, char *channel)
+{
+    int notify(nsq_instance_t *instance, int pre_error)
+    {
+        return __show(instance);
+    }
+    
+    return handle_name_topic_channel_by_wildcard(
+                NULL, notify, NULL,
+                name, topic, channel);
 }
 
 int
@@ -240,27 +399,13 @@ error:
 }
 
 int
-nsqi_remove(char *name)
+nsqi_remove(char *name, char *topic, char *channel)
 {
-    int err;
-    
-    if (NULL==name) {
-        return -EINVAL0;
+    if (name && topic && channel) {
+        return remove_by_special(name, topic, channel);
+    } else {
+        return remove_by_wildcard(name, topic, channel);
     }
-
-    nsq_instance_t *instance = nsqi_get(name);
-    if (NULL==instance) {
-        return -ENOEXIST;
-    }
-
-    err = __remove(instance);
-    if (err<0) {
-        return err;
-    }
-
-    __destroy(instance);
-
-    return 0;
 }
 
 int
@@ -279,7 +424,7 @@ nsqi_foreach(nsq_foreach_f *foreach, bool safe)
 }
 
 nsq_instance_t *
-nsqi_get(char *name)
+nsqi_get(char *name, char *topic, char *channel)
 {
     hash_idx_t dhash(void)
     {
@@ -292,5 +437,15 @@ nsqi_get(char *name)
     }
 
     return __hentry(h1_find(&nsqa.table, dhash, eq));
+}
+
+int
+nsqi_show(char *name, char *topic, char *channel)
+{
+    if (name && topic && channel) {
+        return show_by_special(name, topic, channel);
+    } else {
+        return show_by_wildcard(name, topic, channel);
+    }
 }
 /******************************************************************************/

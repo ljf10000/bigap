@@ -13,14 +13,41 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "nsqa.h"
 /******************************************************************************/
 /*
+* handle {mac} {json}
+*/
+static int
+handle_name_topic_channel(int(*handle)(char *name, char *topic, char *channel), char *args)
+{
+    char *name      = args;             cli_shift(args);
+    char *topic     = name?args:NULL;   cli_shift(args);
+    char *channel   = topic?args:NULL;
+
+    if (os_str_is_wildcard(name, __iswildcard)) {
+        name = NULL;
+    }
+    
+    if (os_str_is_wildcard(topic, __iswildcard)) {
+        topic = NULL;
+    }
+    
+    if (os_str_is_wildcard(channel, __iswildcard)) {
+        channel = NULL;
+    }
+    
+    if (NULL==name && NULL==topic && NULL==channel) {
+        return -EFORMAT;
+    }
+
+    return (*handle)(name, topic, channel);
+}
+
+/*
 * remove {name}
 */
 static int
 handle_remove(char *args)
 {
-    char *name = args;
-    
-    return nsqi_remove(name);
+    return handle_name_topic_channel(nsqi_remove, args);
 }
 
 /*
@@ -37,78 +64,12 @@ handle_insert(char *args)
 static mv_t
 show_user(nsq_instance_t *instance)
 {
-#if 0
-    jobj_t obj = um_juser(user);
-    
-    if (obj) {
-        cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
-
-        jobj_put(obj);
-    }
-#endif
-
     return mv2_ok;
-}
-
-static int
-show_user_byjson(char *json)
-{
-    jobj_t obj      = NULL;
-    jobj_t jmac     = NULL;
-    jobj_t juser    = NULL;
-    int err = 0;
-#if 0
-    obj = jobj_byjson(json);
-    if (NULL==obj) {
-        err = -EFILTER; goto error;
-    }
-    
-    jmac = jobj_get(obj, "mac");
-    if (NULL==obj) {
-        err = -EFILTER; goto error;
-    }
-    
-    char *macstring = jobj_get_string(jmac);
-    if (false==is_good_macstring(macstring)) {
-        err = -EBADMAC; goto error;
-    }
-
-    struct um_user *user = um_user_get(os_mac(macstring));
-    if (NULL==user) {
-        err = -ENOEXIST; goto error;
-    }
-
-    juser = um_juser(user);
-    if (NULL==juser) {
-        err = -ENOEXIST; goto error;
-    }
-    
-    cli_sprintf(__tab "%s" __crlf, jobj_json(juser));
-error:
-    jobj_put(juser);
-    jobj_put(obj);
-#endif
-
-    return err;
 }
 
 static int
 show_stat(void)
 {
-    jobj_t obj = jobj_new_object();
-    if (NULL==obj) {
-        return -ENOMEM;
-    }
-#if 0
-    jobj_add_string(obj, "mac", os_macstring(umd.basemac));
-    jobj_add_i32(obj, "user", h1_count(&umd.table));
-    jobj_add(obj, "flow", um_jflow());
-
-    cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
-    
-    jobj_put(obj);
-#endif
-
     return 0;
 }
 
@@ -126,26 +87,7 @@ show_count(void)
 static int
 handle_show(char *args)
 {
-    char *json = args; /* json maybe include space, not shift */
-#if 0
-    if (NULL==json) {
-        return um_user_foreach(show_user, false);
-    }
-    else if (os_streq("stat", json)) {
-        return show_stat();
-    }
-    else if (os_streq("count", json)) {
-        return show_count();
-    }
-    else if (is_good_json(json)) {
-        return show_user_byjson(json);
-    }
-    else {
-        return -EFORMAT;
-    }
-#endif
-
-    return 0;
+    return handle_name_topic_channel(nsqi_show, args);
 }
 
 static cli_table_t cli_table[] = {

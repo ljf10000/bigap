@@ -152,10 +152,13 @@ extern int
 nsqi_insert(char *json);
 
 extern int
-nsqi_remove(char *name);
+nsqi_remove(char *name, char *topic, char *channel);
 
 extern nsq_instance_t *
-nsqi_get(char *name);
+nsqi_get(char *name, char *topic, char *channel);
+
+extern int
+nsqi_show(char *name, char *topic, char *channel);
 
 extern int
 nsqi_foreach(nsq_foreach_f *foreach, bool safe);

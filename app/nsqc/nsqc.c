@@ -18,10 +18,56 @@ static int
 usage(int error)
 {
     os_eprintln(__THIS_APPNAME " insert {json}");
-    os_eprintln(__THIS_APPNAME " remove {name}");
-    os_eprintln(__THIS_APPNAME " show [name]");
+    os_eprintln(__THIS_APPNAME " remove {name|*} {topic|*} {channel|*}");
+    os_eprintln(__THIS_APPNAME " show [{name|*} {topic|*} {channel|*}]");
 
     return error;
+}
+
+/*
+* ACTION name topic channel
+*/
+static int
+nsqc_handle_name_topic_channel(char *action, int argc, char *argv[], bool allow_all_empty)
+{
+    if (argc < 1) {
+        return usage(-EINVAL0);
+    }
+    else if (argc > 3) {
+        return usage(-EINVAL1);
+    }
+
+    char *name      = argv[0];
+    char *topic     = (argc>1)?argv[1]:NULL;
+    char *channel   = (argc>2)?argv[2]:NULL;
+
+    if (os_str_is_wildcard(name, __iswildcard)) {
+        name = NULL;
+    }
+    
+    if (os_str_is_wildcard(topic, __iswildcard)) {
+        topic = NULL;
+    }
+    
+    if (os_str_is_wildcard(channel, __iswildcard)) {
+        channel = NULL;
+    }
+
+    if (false==allow_all_empty && NULL==name && NULL==topic && NULL==channel) {
+        return usage(-EINVAL2);
+    }
+    else if (os_strlen(name) > NSQ_NAMESIZE) {
+        return usage(-ETOOBIG);
+    }
+    else if (os_strlen(topic) > NSQ_NAMESIZE) {
+        return usage(-ETOOBIG);
+    }
+    else if (os_strlen(channel) > NSQ_NAMESIZE) {
+        return usage(-ETOOBIG);
+    }
+    else {
+        return nsqc_handle(action, argc, argv);
+    }
 }
 
 static int
@@ -42,33 +88,13 @@ cmd_insert(int argc, char *argv[])
 static int
 cmd_remove(int argc, char *argv[])
 {
-    char *name = argv[0];
-    
-    if (1!=argc) {
-        return usage(-EINVAL1);
-    }
-    else if (os_strlen(name) > NSQ_NAMESIZE) {
-        return usage(-ETOOBIG);
-    }
-    else {
-        return nsqc_handle("remove", argc, argv);
-    }
+    return nsqc_handle_name_topic_channel("remove", argc, argv, false);
 }
 
 static int
 cmd_show(int argc, char *argv[])
 {
-    char *name = argv[0];
-    
-    if (0!=argc && 1!=argc) {
-        return usage(-EINVAL2);
-    }
-    else if (name && os_strlen(name) > NSQ_NAMESIZE) {
-        return usage(-ETOOBIG);
-    }
-    else {
-        return nsqc_handle("show", argc, argv);
-    }
+    return nsqc_handle_name_topic_channel("remove", argc, argv, true);
 }
 
 static cli_table_t nsqc_table[] = {
