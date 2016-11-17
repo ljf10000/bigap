@@ -41,38 +41,11 @@ define Package/bigap-lib/install/common
 	$(INSTALL_DIR) $(1)/$(AK_PATH)/
 endef
 ####################################################################
-define Package/libjs
-  SECTION:=libs
-  CATEGORY:=bigap-lib
-  TITLE:=SuperWalle Basic Lib
-  DEPENDS:=+netifd +json-c
-endef
-
-define Package/libjs/install
-	$(Package/bigap-lib/install/common)
-	
-	$(INSTALL_DATA) $(PKG_LIB_BUILD_DIR)/js/libjs.so $(1)/usr/lib
-endef
-
-define Package/libjs/compile
-	$(MAKE) -C $(PKG_LIB_BUILD_DIR)/js \
-		CC="$(TARGET_CC)" \
-		CFLAGS=" \
-			$(TARGET_CFLAGS) \
-			$(TARGET_CPPFLAGS) \
-			$(BIGAP_LIB_CFLAGS) \
-			" \
-		LDFLAGS="$(TARGET_LDFLAGS)" \
-		OS_TYPE=openwrt \
-		#end
-	$(CP) $(PKG_LIB_BUILD_DIR)/js/libjs.so $(STAGING_DIR)/usr/lib
-endef
-####################################################################
 define Package/libweos
   SECTION:=libs
   CATEGORY:=bigap-lib
   TITLE:=SuperWalle Basic Lib
-  DEPENDS:=+netifd +json-c +js
+  DEPENDS:=+netifd +json-c
 endef
 
 define Package/libweos/install
@@ -95,6 +68,33 @@ define Package/libweos/compile
 	$(CP) $(PKG_LIB_BUILD_DIR)/weos/libweos.so $(STAGING_DIR)/usr/lib
 endef
 ####################################################################
+define Package/libjs
+  SECTION:=libs
+  CATEGORY:=bigap-lib
+  TITLE:=SuperWalle Basic Lib
+  DEPENDS:=+netifd +json-c +weos
+endef
+
+define Package/libjs/install
+	$(Package/bigap-lib/install/common)
+	
+	$(INSTALL_DATA) $(PKG_LIB_BUILD_DIR)/js/libjs.so $(1)/usr/lib
+endef
+
+define Package/libjs/compile
+	$(MAKE) -C $(PKG_LIB_BUILD_DIR)/js \
+		CC="$(TARGET_CC)" \
+		CFLAGS=" \
+			$(TARGET_CFLAGS) \
+			$(TARGET_CPPFLAGS) \
+			$(BIGAP_LIB_CFLAGS) \
+			" \
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		OS_TYPE=openwrt \
+		#end
+	$(CP) $(PKG_LIB_BUILD_DIR)/js/libjs.so $(STAGING_DIR)/usr/lib
+endef
+####################################################################
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 	$(CP) ./* $(PKG_BUILD_DIR)
@@ -104,9 +104,9 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(Package/libjs/compile)
 	$(Package/libweos/compile)
+	$(Package/libjs/compile)
 endef
 ####################################################################
-$(eval $(call BuildPackage,libjs))
 $(eval $(call BuildPackage,libweos))
+$(eval $(call BuildPackage,libjs))

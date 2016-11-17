@@ -11,7 +11,7 @@ OBJS=duktape.o \
 	#end
 __TARGET=libjs
 TARGET=$(__TARGET).so
-LIBS_DEPEND=-lc -lm -ljson-c
+LIBS_DEPEND=-lc -lm -ljson-c -lweos
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace
