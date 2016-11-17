@@ -18,6 +18,7 @@ SUB_SYSTEM=ak \
 		fcookie \
 		guard \
 		hisi \
+		jexec \
 		jlogger \
 		jlogd \
 		nsqa \
