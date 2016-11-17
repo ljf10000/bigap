@@ -290,7 +290,7 @@ __p_son_init(pipexec_t *pe)
 }
 
 static inline void
-__p_son_exec(pipexec_t, *pe, char *path, char *argv[], char *env[])
+__p_son_exec(pipexec_t *pe, char *path, char *argv[], char *env[])
 {
     __p_son_init(pe);
 
