@@ -1,6 +1,8 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+#if defined(__APP__) && defined(__EXTEND__)
+
 typedef struct {
     coroutine_t *idle;
     coroutine_t *running;
@@ -986,5 +988,5 @@ co_mail_recv(union co_mail *mail)
 
     return __co_mail_recv(__this_coroutine()->running, CO_EV_MAIL, mail);
 }
-
+#endif
 /******************************************************************************/

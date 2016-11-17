@@ -188,9 +188,18 @@
 #ifdef __EXTEND__
 #include "utils/channel.h"
 #include "utils/cqueue.h"
+#include "utils/fd.h"
+#endif /* __EXTEND__ */
+
+#include "utils/coroutine.h"
+
+#if 0
+#include "utils/channel.h"
+#include "utils/cqueue.h"
 #include "utils/coroutine.h"
 #include "utils/fd.h"
 #endif /* __EXTEND__ */
+
 
 #include "oem/oem.h"
 /******************************************************************************/
