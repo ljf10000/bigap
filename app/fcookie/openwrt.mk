@@ -2,7 +2,7 @@
 OBJS=fcookie.o
 __TARGET=fcookie
 TARGET=$(__TARGET)
-LIBS_DEPEND=-lm -ljson-c -lweos
+LIBS_DEPEND=-lc -lm -ljson-c -lweos
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace

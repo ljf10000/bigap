@@ -21,7 +21,7 @@ OBJS=$(DIR_SELF)/umc.o
 TARGET_NAME=umc
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c json-c weos
+LIB_DEPEND=c m json-c weos
 CFLAGS+=
 
 #

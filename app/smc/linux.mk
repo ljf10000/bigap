@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/smc.o
 TARGET_NAME=smc
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c json-c weos
+LIB_DEPEND=c m json-c weos
 CFLAGS+=
 
 #

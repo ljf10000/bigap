@@ -20,7 +20,7 @@ OBJS=$(DIR_SELF)/partool.o
 TARGET_NAME=partool
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
-LIB_DEPEND=c json-c weos
+LIB_DEPEND=c m json-c weos
 CFLAGS+= -DPART_RW_CP
 
 #
