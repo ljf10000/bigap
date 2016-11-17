@@ -99,10 +99,10 @@ typedef struct {
         _dump("file=%d", (_info)->file);        \
     }                                           \
     if ((_info)->env) {                         \
-        envs_dump("old", (_info)->env _dump);   \
+        envs_dump("old", (_info)->env, _dump);  \
     }                                           \
     if ((_info)->argv) {                        \
-        envs_dump("old", (_info)->argv _dump);  \
+        envs_dump("old", (_info)->argv, _dump); \
     }                                           \
 }while(0)
 
