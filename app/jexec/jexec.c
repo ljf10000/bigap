@@ -45,8 +45,8 @@ jcallback(int error, char *outsring, char *errstring)
         return -ENOMEM;
     }
 
-    jobj_add_string(jobj, "stdout", b64_encode(outsring, os_strlen(outsring)));
-    jobj_add_string(jobj, "stderr", b64_encode(errstring, os_strlen(errstring)));
+    jobj_add_string(jobj, "stdout", b64_encode((byte *)outsring, os_strlen(outsring)));
+    jobj_add_string(jobj, "stderr", b64_encode((byte *)errstring, os_strlen(errstring)));
     jobj_add_i32(jobj, "errno", error);
 
     os_println("%s", jobj_json(jobj));
@@ -90,7 +90,7 @@ jmap(char *json)
         }
         
         jinfo.content = jobj_get_string(jvar);
-        jinfo.content = b64_decode(jinfo.content, os_strlen(jinfo.content));
+        jinfo.content = b64_decode((byte *)jinfo.content, os_strlen(jinfo.content));
         if (NULL==jinfo.content) {
             return -EBASE64;
         }

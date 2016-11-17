@@ -25,7 +25,7 @@ b64_table(int v)
  * Returns a `char *' base64 encoded string.
  */
 static inline char *
-b64_encode(const byte *src, size_t len)
+b64_encode(byte *src, size_t len)
 {
 	int i = 0;
 	int j = 0;
@@ -105,7 +105,7 @@ b64_encode(const byte *src, size_t len)
  * Returns a `unsigned char *' base64 decoded string + size of decoded string.
  */
 static inline char *
-b64_decode_ex(const char *src, size_t len, size_t *decsize)
+b64_decode_ex(byte *src, size_t len, size_t *decsize)
 {
 	int i = 0;
 	int j = 0;
@@ -206,7 +206,7 @@ b64_decode_ex(const char *src, size_t len, size_t *decsize)
  * Returns a `unsigned char *' base64 decoded string.
  */
 static inline char *
-b64_decode(const char *src, size_t len)
+b64_decode(byte *src, size_t len)
 {
 	return b64_decode_ex(src, len, NULL);
 }
