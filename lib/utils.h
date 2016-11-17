@@ -196,21 +196,18 @@
 /******************************************************************************/
 #ifdef __EXTEND__
 #define OS_EXT_REAL_INITER  \
-    DECLARE_REAL_COROUTINE; \
     DECLARE_REAL_FD;        \
                             \
     os_fake_declare         \
     /* end */
 
 #define OS_EXT_FAKE_INITER  \
-    DECLARE_FAKE_COROUTINE; \
     DECLARE_FAKE_FD;        \
                             \
     os_fake_declare         \
     /* end */
 
 #define OS_EXT_INITER       \
-    DECLARE_COROUTINE;      \
     DECLARE_FD;             \
                             \
     os_fake_declare         \
