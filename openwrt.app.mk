@@ -44,7 +44,7 @@ define Package/ak
   SECTION:=apps
   CATEGORY:=bigap
   TITLE:=SuperWalle Basic App
-  DEPENDS:=+netifd +json-c
+  DEPENDS:=+netifd +json-c +libweos
 endef
 
 define Package/ak/install
