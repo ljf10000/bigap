@@ -89,6 +89,10 @@ typedef struct {
 
 DECLARE_FAKE_TIMER;
 
+#if 1
+extern tm_clock_t *
+__this_timer(void);
+#else
 static inline tm_clock_t *
 __this_timer(void)
 {
@@ -98,6 +102,7 @@ __this_timer(void)
     
     return __THIS_TIMER;
 }
+#endif
 
 static inline tm_ring_t *
 __tm_ring(int idx)
