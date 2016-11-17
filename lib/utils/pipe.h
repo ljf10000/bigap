@@ -301,21 +301,17 @@ __p_son_handle(pipexec_t *pe)
     envs_dump("current env", info->env, debug_trace);
 
     if (info->content) {
-        char *sh = env_gets(OS_ENV(SHELL), "sh");
-        
-        if (os_streq(sh, "js")) {
-            char *argv[] = {"js", info->content, NULL};
+        /*
+        * SHELL:
+        *   /bin/bash
+        *   /bin/js
+        */
+        char *shell = env_gets("SHELL", "/bin/bash");
+        char *argv[] = {os_basename(shell), "-c", info->content, NULL};
 
-            envs_dump("current argv", argv, debug_trace);
+        envs_dump("current argv", argv, debug_trace);
 
-            __p_son_exec(pe, "/bin/js", argv, info->env);
-        } else {
-            char *argv[] = {"bash", "-c", info->content, NULL};
-
-            envs_dump("current argv", argv, debug_trace);
-
-            __p_son_exec(pe, "/bin/bash", argv, info->env);
-        }
+        __p_son_exec(pe, shell, argv, info->env);
     }
     else if (info->file) {
         char *argv[] = {os_basename(info->file), NULL};

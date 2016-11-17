@@ -505,6 +505,7 @@ js_register(duk_context *ctx, js_register_f *cb);
 
 enum {
     JS_EVAL_SHABANG,
+    JS_EVAL_CONTENT,
     JS_EVAL_STREAM,
     JS_EVAL_BUILDIN,
 

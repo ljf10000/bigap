@@ -562,7 +562,11 @@ js_priv_init(char *name, char *cache, int argc, char **argv)
     if (1==argc) {
         priv->mode = JS_EVAL_STREAM;
     } else if (argc > 1) {
-        priv->mode = JS_EVAL_SHABANG;
+        if (os_streq("-c", argv[1])) {
+            priv->mode = JS_EVAL_CONTENT;
+        } else {
+            priv->mode = JS_EVAL_SHABANG;
+        }
     } else {
         priv->mode = JS_EVAL_BUILDIN;
     }
@@ -614,6 +618,41 @@ error:
     return NULL;
 }
 
+static char *
+js_content(int argc, char *argv[])
+{
+    int i, len, sum;
+    char *content = NULL;
+    
+    /*
+    * skip argv[0] and argv[1]
+    *   argv[0] is appname
+    *   argv[1] is "-c"
+    */
+    sum = 0;
+    for (i=2; i<argc; i++) {
+        sum += 1 + os_strlen(argv[i]);
+    }
+
+    content = (char *)os_malloc(1+sum);
+    if (NULL==content) {
+        return NULL;
+    }
+
+    sum = 0;
+    for (i=2; i<argc; i++) {
+        len = os_strlen(argv[i]);
+        os_memcpy(content + sum, argv[i], len);
+        content[sum] = ' ';
+        sum += 1 + len;
+    }
+    content[sum] = 0;
+
+    os_println("content=%s", content);
+    
+    return content;
+}
+
 int
 js_eval(duk_context *ctx, char *jsfile)
 {
@@ -629,14 +668,23 @@ js_eval(duk_context *ctx, char *jsfile)
             duk_peval_file(ctx, script);
             
             break;
+        case JS_EVAL_CONTENT:
+            /*
+            * js -c CONTENT
+            */
+            script = js_content(priv->argc, priv->argv);
+            duk_peval_string(ctx, script);
+            free(script);
+            
+            break;
         case JS_EVAL_STREAM:
-            script = os_readfd(0, 4096);
-
             /*
             * cat SCRIPT  | js
             * echo SCRIPT | js
             */
-            duk_peval_string(ctx, script); free(script);
+            script = os_readfd(0, 4096);
+            duk_peval_string(ctx, script);
+            free(script);
             
             break;
         case JS_EVAL_BUILDIN:
