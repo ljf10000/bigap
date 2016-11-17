@@ -356,31 +356,21 @@ os_pexecv(pipinfo_t *info)
     else if (NULL==info->cb) {
         return -EINVAL1;
     }
-
-    pipe_println("os_pexecv 1");
     
     __pipexec_init(&pe, info);
-    pipe_println("os_pexecv 2");
     
     pid = fork();
     if (pid<0) {
-        pipe_println("os_pexecv 2.1");
         err = -errno;
     }
     else if (pid>0) { // father
-        pipe_println("os_pexecv 2.2.1");
         err = __p_father_handle(&pe, pid);
-        pipe_println("os_pexecv 2.2.2");
         if (0==err) {
-        pipe_println("os_pexecv 2.2.3");
             (*info->cb)(pe.err, pe.std[1].sb.buf, pe.std[2].sb.buf);
-        pipe_println("os_pexecv 2.2.4");
         }
     }
     else { // child
-        pipe_println("os_pexecv 2.3.1");
         err = __p_son_handle(&pe);
-        pipe_println("os_pexecv 2.3.2");
     }
 
 error:
