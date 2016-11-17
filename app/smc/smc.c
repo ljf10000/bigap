@@ -132,6 +132,8 @@ __main(int argc, char *argv[])
         return usage(-EHELP);
     }
 
+    smc.timeout = env_geti(OS_ENV(TIMEOUT), smc.timeout);
+    
     err = command(argc-1, argv+1);
     if (err<0) {
         /* just log, NOT return */

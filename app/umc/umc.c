@@ -360,6 +360,8 @@ __main(int argc, char *argv[])
     if (1==argc) {
         return usage(-EHELP);
     }
+
+    umc.timeout = env_geti(OS_ENV(TIMEOUT), umc.timeout);
     
     err = command(argc-1, argv+1);
     if (err<0) {

@@ -16,7 +16,7 @@
 #endif
 
 #ifndef CLI_TIMEOUT
-#define CLI_TIMEOUT         3000 /* ms */
+#define CLI_TIMEOUT         5000 /* ms */
 #endif
 
 #if defined(__APP__) || defined(__BOOT__)
