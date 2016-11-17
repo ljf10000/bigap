@@ -7,6 +7,32 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __tm_foreach_ring(_ring)    for((_ring)=__tm_ring0; (_ring)<=__tm_ringmax; (_ring)++)
 #define __tm_foreach_slot(_slot)    for((_slot)=0; (_slot)<TM_SLOT; (_slot)++)
 /******************************************************************************/
+typedef struct {
+    struct {
+        struct list_head list;
+        uint32 count;
+    } slot[TM_SLOT];
+    
+    uint32 current;
+    uint32 count;
+} tm_ring_t;
+
+typedef struct {
+    bool        init;
+    uint32      r;
+    uint32      count;
+    uint32      unit; // how much ms per tick
+    uint64      ticks;
+    tm_ring_t   ring[TM_RING];
+
+    uint64      triggered_safe;
+    uint64      triggered_unsafe;
+    uint64      triggered_error;
+    uint64      triggered_ok;
+    uint64      inserted;
+    uint64      removed;
+} tm_clock_t;
+
 static tm_clock_t *
 __this_timer(void)
 {

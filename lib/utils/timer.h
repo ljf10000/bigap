@@ -37,10 +37,10 @@ enum {
 #define tm_is_safe(_tmu)        (TM_SAFE==mv2_control(_tmu))
 #define tm_is_unsafe(_tmu)      (TM_UNSAFE==mv2_control(_tmu))
 
-struct __tm_node;
-typedef mv_t tm_callback_f(struct __tm_node *timer);
+struct tm_node_s;
+typedef mv_t tm_callback_f(struct tm_node_s *timer);
 
-typedef struct __tm_node {
+typedef struct tm_node_s {
     struct list_head node;
     tm_callback_f *cb;
 
@@ -51,32 +51,6 @@ typedef struct __tm_node {
     
     uint64      create;
 } tm_node_t;
-
-typedef struct {
-    struct {
-        struct list_head list;
-        uint32 count;
-    } slot[TM_SLOT];
-    
-    uint32 current;
-    uint32 count;
-} tm_ring_t;
-
-typedef struct {
-    bool        init;
-    uint32      r;
-    uint32      count;
-    uint32      unit; // how much ms per tick
-    uint64      ticks;
-    tm_ring_t   ring[TM_RING];
-
-    uint64      triggered_safe;
-    uint64      triggered_unsafe;
-    uint64      triggered_error;
-    uint64      triggered_ok;
-    uint64      inserted;
-    uint64      removed;
-} tm_clock_t;
 
 /*
 * return
