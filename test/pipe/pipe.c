@@ -30,7 +30,7 @@ callback(int error, char *outsring, char *errstring)
 static int
 run(char *line)
 {
-    pipinfo_t info = PIPEINFO_INITER(genv, callback);
+    pipinfo_t info = PIPINFO_INITER(genv, callback);
 
     return os_pexecline(&info, line);
 }

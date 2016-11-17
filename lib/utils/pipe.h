@@ -65,7 +65,7 @@ typedef struct {
     os_pexec_callback_f *cb;
 } pipinfo_t;
 
-#define __PIPEINFO_INITER(_env, _timeout, _cb, _size, _minsize, _expand) { \
+#define __PIPINFO_INITER(_env, _timeout, _cb, _size, _minsize, _expand) { \
     .env    = _env,                     \
     .timeout= PIPE_TIMEOUT(_timeout),   \
     .cb     = _cb,                      \
@@ -74,8 +74,8 @@ typedef struct {
     .expand = PIPE_EXPAND(_expand),     \
 }   /* end */
 
-#define PIPEINFO_INITER(_env, _cb) \
-    __PIPEINFO_INITER(_env, 0, _cb, 0, 0, 0)
+#define PIPINFO_INITER(_env, _cb)       \
+    __PIPINFO_INITER(_env, 0, _cb, 0, 0, 0)
 
 typedef struct {
     pipe_std_t std[3];  // std in/out/err
@@ -289,6 +289,14 @@ __p_son_init(pipexec_t *pe)
     return 0;
 }
 
+static inline void
+__p_son_exec(pipexec_t, *pe, char *path, char *argv[], char *env[])
+{
+    __p_son_init(pe);
+
+    execvpe(path, argv, env);
+}
+
 static inline int
 __p_son_handle(pipexec_t *pe)
 {
@@ -296,18 +304,26 @@ __p_son_handle(pipexec_t *pe)
     int err, count;
 
     // append env(private + global)
-    
+    envs_dump("new env", info->env, debug_trace);
     info->env = envs_merge(environ, info->env);
-    envs_dump("env", info->env, debug_trace);
-    
+    envs_dump("current env", info->env, debug_trace);
+
     if (info->content) {
-        char *argv[] = {"bash", "-c", info->content, NULL};
-
-        envs_dump("current argv", argv, debug_trace);
-
-        __p_son_init(pe);
+        char *sh = env_gets(OS_ENV(SHELL), "sh");
         
-        execvpe("/bin/bash", argv, info->env);
+        if (os_streq(sh, "js")) {
+            char *argv[] = {"js", info->content, NULL};
+
+            envs_dump("current argv", argv, debug_trace);
+
+            __p_son_exec(pe, "/bin/js", argv, info->env);
+        } else {
+            char *argv[] = {"bash", "-c", info->content, NULL};
+
+            envs_dump("current argv", argv, debug_trace);
+
+            __p_son_exec(pe, "/bin/bash", argv, info->env);
+        }
     }
     else if (info->file) {
         char *argv[] = {os_basename(info->file), NULL};
@@ -320,9 +336,7 @@ __p_son_handle(pipexec_t *pe)
         info->argv = envs_merge(info->argv, argv);
         envs_dump("current argv", info->argv, debug_trace);
 
-        __p_son_init(pe);
-
-        execvpe(info->file, info->argv, info->env);
+        __p_son_exec(pe, info->file, info->argv, info->env);
     }
     else {
         return -ENOSUPPORT;
@@ -332,9 +346,6 @@ __p_son_handle(pipexec_t *pe)
     return -errno;
 }
 
-/*
-* use file and argv, ignore content
-*/
 static inline int
 os_pexecv(pipinfo_t *info)
 {
