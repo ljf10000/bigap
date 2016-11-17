@@ -1,7 +1,7 @@
 #ifndef __FD_H_9a5aee0aa8d54fa2b8054102fd51ec21__
 #define __FD_H_9a5aee0aa8d54fa2b8054102fd51ec21__
+#if defined(__APP__) && !defined(__UCLIBC__)
 /******************************************************************************/
-#ifdef __APP__
 #ifndef FD_INIT_COUNT
 #define FD_INIT_COUNT       1024
 #endif
