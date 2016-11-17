@@ -185,48 +185,16 @@
 #include "utils/md5.h"
 #include "utils/base64.h"
 
-#ifdef __EXTEND__
-#include "utils/channel.h"
-#include "utils/cqueue.h"
-#include "utils/fd.h"
-#endif /* __EXTEND__ */
-
-#include "utils/coroutine.h"
-
-#if 0
+#if 1   /* __EXTEND__ */
 #include "utils/channel.h"
 #include "utils/cqueue.h"
 #include "utils/coroutine.h"
 #include "utils/fd.h"
-#endif /* __EXTEND__ */
+#endif  /* __EXTEND__ */
 
 
 #include "oem/oem.h"
 /******************************************************************************/
-#ifdef __EXTEND__
-#define OS_EXT_REAL_INITER  \
-    DECLARE_REAL_FD;        \
-                            \
-    os_fake_declare         \
-    /* end */
-
-#define OS_EXT_FAKE_INITER  \
-    DECLARE_FAKE_FD;        \
-                            \
-    os_fake_declare         \
-    /* end */
-
-#define OS_EXT_INITER       \
-    DECLARE_FD;             \
-                            \
-    os_fake_declare         \
-    /* end */
-#else
-#define OS_EXT_REAL_INITER  os_fake_declare
-#define OS_EXT_FAKE_INITER  os_fake_declare
-#define OS_EXT_INITER       os_fake_declare
-#endif
-
 #define OS_REAL_INITER          \
     DECLARE_REAL_COMMAND;       \
     /* DECLARE_REAL_HAENV; */   \
@@ -240,7 +208,7 @@
     DECLARE_REAL_JDEBUGGER;     \
     DECLARE_REAL_ENV;           \
                                 \
-    OS_EXT_REAL_INITER          \
+    os_fake_declare             \
     /* end */
 
 #define OS_FAKE_INITER          \
@@ -256,7 +224,7 @@
     DECLARE_FAKE_JDEBUGGER;     \
     DECLARE_FAKE_ENV;           \
                                 \
-    OS_EXT_FAKE_INITER          \
+    os_fake_declare             \
     /* end */
 
 #define OS_INITER           \
@@ -272,7 +240,7 @@
     DECLARE_JDEBUGGER;      \
     DECLARE_ENV;            \
                             \
-    OS_EXT_INITER           \
+    os_fake_declare         \
     /* end */
 
 #ifdef __ALLINONE__
