@@ -56,6 +56,8 @@ envs_append(char *dst[], char *src[])
     }
 }
 
+extern char **environ;
+
 static inline void
 envs_clone(char *env[])
 {

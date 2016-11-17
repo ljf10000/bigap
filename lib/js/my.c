@@ -696,7 +696,6 @@ duke_libcall(duk_context *ctx)
 static void 
 env_register(duk_context *ctx)
 {
-    extern char **environ;
     char *env = *environ;
     char *k, *v;
     int i;
