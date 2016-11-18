@@ -3,6 +3,13 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifdef __APP__
 
+typedef struct {
+    int family;
+    int fd;
+
+    os_sockaddr_t server;
+} jlog_control_t;
+
 #define JLOG_CONTROL_INITER   { \
     .family = INVALID_VALUE,    \
     .fd     = INVALID_FD,       \
@@ -11,7 +18,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 static jlog_control_t *
 __this_jlogger(void)
 {
-    jlog_control_t control = JLOG_CONTROL_INITER;
+    static jlog_control_t control = JLOG_CONTROL_INITER;
     
     return &control;
 }

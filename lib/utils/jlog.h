@@ -123,13 +123,6 @@ __jlog_header(
     __jlog_printf(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #ifdef __APP__
-typedef struct {
-    int family;
-    int fd;
-
-    os_sockaddr_t server;
-} jlog_control_t;
-
 /*
 * v: as vsprintf
 */
