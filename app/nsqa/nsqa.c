@@ -40,7 +40,7 @@ __fini(void)
 {
     os_fini();
 
-    __loop_fini(&nsqa.loop);
+    os_loop_fini(&nsqa.loop);
     
     return 0;
 }
