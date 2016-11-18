@@ -6,8 +6,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 BENV_MAIN_INITER;
 
-DECLARE_REAL_DEBUGGER;
-DECLARE_REAL_JDEBUGGER;
+akid_t *__THIS_DEBUG;
+akid_t *__THIS_JDEBUG;
 
 /*
 * bootargs/bootcmd is dirty???

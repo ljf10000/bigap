@@ -198,23 +198,14 @@
 #include "oem/oem.h"
 /******************************************************************************/
 #define OS_REAL_INITER          \
-    DECLARE_REAL_DEBUGGER;      \
-    DECLARE_REAL_JDEBUGGER;     \
-                                \
     os_fake_declare             \
     /* end */
 
 #define OS_FAKE_INITER          \
-    DECLARE_FAKE_DEBUGGER;      \
-    DECLARE_FAKE_JDEBUGGER;     \
-                                \
     os_fake_declare             \
     /* end */
 
 #define OS_INITER           \
-    DECLARE_DEBUGGER;       \
-    DECLARE_JDEBUGGER;      \
-                            \
     os_fake_declare         \
     /* end */
 

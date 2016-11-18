@@ -36,6 +36,8 @@ LIB_INITER;
 #ifdef __APP__
 
 bool __THIS_COMMAND;
+akid_t __THIS_DEBUG;
+akid_t __THIS_JDEBUG;
 
 int
 __os_system(char *cmd)

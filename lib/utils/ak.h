@@ -52,29 +52,11 @@ enum { INVALID_AKID = 0};
 typedef uint32 akid_t;
 
 #if defined(__BOOT__)
-#    define DECLARE_FAKE_DEBUGGER       extern akid_t *__THIS_DEBUG
-#    define DECLARE_REAL_DEBUGGER       akid_t *__THIS_DEBUG
-#    define DECLARE_DEBUGGER            DECLARE_REAL_DEBUGGER
-
-#    define DECLARE_FAKE_JDEBUGGER      extern akid_t *__THIS_JDEBUG
-#    define DECLARE_REAL_JDEBUGGER      akid_t *__THIS_JDEBUG
-#    define DECLARE_JDEBUGGER           DECLARE_REAL_JDEBUGGER
+extern akid_t *__THIS_DEBUG;
+extern akid_t *__THIS_JDEBUG;
 #else
-#    define DECLARE_FAKE_DEBUGGER       extern akid_t __THIS_DEBUG
-#    define DECLARE_REAL_DEBUGGER       akid_t __THIS_DEBUG
-#    define DECLARE_FAKE_JDEBUGGER      extern akid_t __THIS_JDEBUG
-#    define DECLARE_REAL_JDEBUGGER      akid_t __THIS_JDEBUG
-#    ifdef __ALLINONE__
-#        define DECLARE_DEBUGGER        DECLARE_FAKE_DEBUGGER
-#        define DECLARE_JDEBUGGER       DECLARE_FAKE_JDEBUGGER
-#    else
-#        define DECLARE_DEBUGGER        DECLARE_REAL_DEBUGGER
-#        define DECLARE_JDEBUGGER       DECLARE_REAL_JDEBUGGER
-#    endif
-#endif
-
-DECLARE_FAKE_DEBUGGER;
-DECLARE_FAKE_JDEBUGGER;
+extern akid_t __THIS_DEBUG;
+extern akid_t __THIS_JDEBUG;
 /******************************************************************************/
 #define AK_DEBUG_ENUM_MAPPER(_)                 \
     _(____ak_debug_ok,          0, "ok"),       \
