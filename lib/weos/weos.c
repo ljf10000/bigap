@@ -12,7 +12,13 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 LIB_INITER;
 /******************************************************************************/
+
+/******************************************************************************/
 #include "pipe.c"
 #include "timer.c"
+#include "channel.c"
+#include "cqueue.c"
+#include "coroutine.c"
+#include "fd.c"
 /******************************************************************************/
 
