@@ -224,14 +224,16 @@ lib_init(void)
 
     err = ak_init();
     if (err<0) {
-        os_println("lib ak init error:%d", err);
+        os_println(__THIS_APPNAME " ak init error:%d", err);
     }
+    os_println(__THIS_APPNAME " ak init ok");
     
     err = jlog_init();
     if (err<0) {
-        os_println("lib jlog init error:%d", err);
+        os_println(__THIS_APPNAME "jlog init error:%d", err);
     }
-
+    os_println(__THIS_APPNAME "jlog init ok");
+    
     return 0;
 }
 
