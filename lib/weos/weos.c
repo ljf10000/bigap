@@ -22,5 +22,7 @@ LIB_INITER;
 #include "fd.c"
 #include "json.c"
 #include "loop.c"
+#include "blob.c"
+#include "slice.c"
 /******************************************************************************/
 

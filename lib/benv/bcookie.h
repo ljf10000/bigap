@@ -255,7 +255,7 @@ __bcookie_load(char *file, int fsize, struct bcookie *obj, int osize)
     os_memcpy(obj, mem + offset, osize);
     
 error:
-    __os_file_unlock(file, fd);
+    __os_file_unlock(fd);
     if (mem) {
         os_free(mem);
     }
