@@ -2,7 +2,7 @@
 OBJS=weos.o
 __TARGET=libweos
 TARGET=$(__TARGET).so
-LIBS_DEPEND=-lc -lm -ljson-c
+LIBS_DEPEND=-lc -lm -ldl -ljson-c
 
 ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace
