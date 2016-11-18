@@ -350,15 +350,14 @@ lan_offline(struct um_user *user)
 STATIC void
 wan_offline(struct um_user *user)
 {
+    os_println("user[%s]=%p", os_macstring(user->mac), user);
+    
     /*
     * wan, online==>offline
     *   1. update wan downtime
     *   2. clear  lan downtime
     *      and keep others
     */
-    //__online_downtime(user, um_flow_type_wan)   = time(NULL);
-
-    os_println("user[%s]=%p", os_macstring(user->mac), user);
     __online_downtime(user, um_flow_type_wan)   = time(NULL);
     __online_downtime(user, um_flow_type_lan)   = 0;
     
@@ -535,6 +534,7 @@ __user_delete(struct um_user *user, event_cb_t *ev)
         ev_call(ev, user);
         tag_clear(user);
         __user_remove(user);
+        os_println("delete user[%s]=%p", os_macstring(user->mac), user);
         os_free(user);
     });
 
@@ -551,7 +551,7 @@ __user_create(byte mac[], event_cb_t *ev)
         return NULL;
     }
     os_maccpy(user->mac, mac);
-    os_println("user[%s]=%p", os_macstring(mac), user);
+    os_println("create user[%s]=%p", os_macstring(user->mac), user);
     INIT_LIST_HEAD(&user->head.tag);
 
     user_debug_tail_call("create", user, {
