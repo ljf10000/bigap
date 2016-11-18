@@ -596,7 +596,7 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
     else if (false==is_user_fake(user)) {
         return 0;
     }
-
+#if 0
     // fake==>bind
     user_debug_call("unfake", user, {
         __set_reason(user, reason);
@@ -605,6 +605,7 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
         __set_state(user, UM_STATE_BIND);
         wan_offline(user);
     });
+#endif
 
     return 0;
 }
