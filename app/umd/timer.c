@@ -188,7 +188,7 @@ timer_handle(struct um_user *user, time_t now)
         online_timeout,
         online_aging,
         
-        gc_auto, // keep last
+        // gc_auto, // keep last
     };
     
     int i;
