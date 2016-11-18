@@ -599,11 +599,11 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
 
     // fake==>bind
     user_debug_call("unfake", user, {
-        __set_reason(user, reason);
+        /* __set_reason(user, reason); */
         ev_call(ev, user);
         
         __set_state(user, UM_STATE_BIND);
-        /* wan_offline(user); */
+        wan_offline(user);
     });
 
     return 0;
