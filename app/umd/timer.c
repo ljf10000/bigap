@@ -11,7 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #include "umd.h"
-
+#define static
 typedef void um_timer_handle_t(struct um_user *user, time_t now);
 
 static inline void 
