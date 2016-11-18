@@ -14,14 +14,17 @@ LIB_INITER;
 /******************************************************************************/
 
 /******************************************************************************/
-#include "pipe.c"
-#include "timer.c"
+#include "blob.c"
 #include "channel.c"
-#include "cqueue.c"
 #include "coroutine.c"
+#include "cqueue.c"
+#include "dll.c"
 #include "fd.c"
-#include "loop.c"
-#include "json.c"
 #include "file.c"
+#include "json.c"
+#include "loop.c"
+#include "pipe.c"
+#include "slice.c"
+#include "timer.c"
 /******************************************************************************/
 
