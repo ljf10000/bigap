@@ -24,5 +24,6 @@ LIB_INITER;
 #include "loop.c"
 #include "blob.c"
 #include "slice.c"
+#include "file.c"
 /******************************************************************************/
 
