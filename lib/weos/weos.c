@@ -9,6 +9,12 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     libweos
 #endif
 
+/*
+* for ak: run as deamon
+*       but not define __DEAMON__
+*/
+#define __RUNAS__   1 
+
 #include "utils.h"
 LIB_INITER;
 /******************************************************************************/
