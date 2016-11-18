@@ -26,4 +26,19 @@ LIB_INITER;
 #include "dll.c"
 #include "jlog.c"
 /******************************************************************************/
+int
+__os_system(char *cmd)
+{
+    int err;
 
+    err = system(cmd);
+        debug_shell("%s error:%d", cmd, err);
+    if (127==err || -1==err) {
+        return -ESYSTEM;
+	} else {
+        return __os_wait_error(err);
+	}
+}
+
+
+/******************************************************************************/

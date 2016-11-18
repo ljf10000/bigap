@@ -130,8 +130,6 @@ typedef struct {
     os_sockaddr_t server;
 } jlog_control_t;
 
-extern jlog_control_t *
-__this_jlogger(void);
 /*
 * v: as vsprintf
 */
@@ -218,9 +216,7 @@ __jformat(
 
 extern int
 __os_system(char *cmd);
-
 #else
-
 #define __jvlogger(_app, _sub, _file, _func, _line, _PRI, _fmt, _args) \
         __jlog_vprintf(_app, _sub, _file, _func, _line, _PRI, _fmt, _args)
 
@@ -466,35 +462,17 @@ __os_system(char *cmd);
 #define error_assertV(_value, _fmt, _args...)   \
     __debug_assertV(_value, debug_error, _fmt, ##_args)
 
+#ifdef __APP__
 extern int
-__jlog_env_init(void);
+jlog_init(void);
 
-static inline int
-jlog_init(void)
-{
-#ifdef __APP__
-    int fd, err;
-    int family;
-    
-    err = __jlog_env_init();
-    if (err<0) {
-        return err;
-    }
-#endif /* __APP__ */
-
-    return 0;
-}
-
-static inline int
-jlog_fini(void)
-{
-#ifdef __APP__
-#ifndef __JLOGD__
-    os_close(__this_jlogger()->fd);
-#endif
+extern int
+jlog_fini(void);
+#else
+#define jlog_init   0
+#define jlog_fini   0
 #endif
 
-    return 0;
-}
+
 /******************************************************************************/
 #endif /* __JLOG_H_c174923fabe845e980f9379209210cc3__ */

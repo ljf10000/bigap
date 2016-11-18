@@ -8,7 +8,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
     .fd     = INVALID_FD,       \
 }   /* end */
 
-jlog_control_t *
+static jlog_control_t *
 __this_jlogger(void)
 {
     jlog_control_t control = JLOG_CONTROL_INITER;
@@ -463,8 +463,8 @@ error:
     return err;
 }
 
-int
-__jlog_env_init(void)
+static int
+__jlog_init(void)
 {
     int family, err;
     
@@ -515,17 +515,25 @@ __jlog_env_init(void)
 }
 
 int
-__os_system(char *cmd)
+jlog_init(void)
 {
-    int err;
+    int fd, err;
+    int family;
+    
+    err = __jlog_init();
+    if (err<0) {
+        return err;
+    }
 
-    err = system(cmd);
-        debug_shell("%s error:%d", cmd, err);
-    if (127==err || -1==err) {
-        return -ESYSTEM;
-	} else {
-        return __os_wait_error(err);
-	}
+    return 0;
+}
+
+int
+jlog_fini(void)
+{
+    os_close(__this_jlogger()->fd);
+
+    return 0;
 }
 
 #endif

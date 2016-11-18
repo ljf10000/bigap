@@ -5,7 +5,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_APP      jlogd
 #endif
 
-#define __JLOGD__
 #define __DEAMON__
 
 #include "utils.h"
@@ -141,11 +140,11 @@ jcut(jlog_server_t *server, int cut)
     if (NULL==server->cache.stream) {
         server->cache.stream = os_fopen(server->cache.envar->value, "a+");
         if (NULL==server->cache.stream) {
-        	debug_error("open file:%s error:%d", server->cache.envar->value, -errno);
+        	__debug_error("open file:%s error:%d", server->cache.envar->value, -errno);
             return -errno;
         }
 
-        debug_trace("open %s", server->cache.envar->value);
+        __debug_trace("open %s", server->cache.envar->value);
     }
     
     /*
@@ -155,7 +154,7 @@ jcut(jlog_server_t *server, int cut)
         os_fclose(server->log.stream);
         
         os_system(SCRIPT_CUT " %s %d", server->log.envar->value, server->log.count);
-        debug_trace("cut %s", server->log.envar->value);
+        __debug_trace("cut %s", server->log.envar->value);
 
         os_fclean(server->log.envar->value);
         server->log.count = 0;
@@ -167,11 +166,11 @@ jcut(jlog_server_t *server, int cut)
     if (NULL==server->log.stream) {
         server->log.stream = os_fopen(server->log.envar->value, "a+");
         if (NULL==server->log.stream) {
-        	debug_error("open file:%s error:%d", server->log.envar->value, -errno);
+        	__debug_error("open file:%s error:%d", server->log.envar->value, -errno);
             return -errno;
         }
 
-        debug_trace("open %s", server->log.envar->value);
+        __debug_trace("open %s", server->log.envar->value);
     }
 
     return 0;
@@ -263,18 +262,18 @@ jhandle(jlog_server_t *server)
     
     len = __io_recvfrom(server->fd, jlogb, sizeof(jlogb), 0, &client.c, &addrlen);
     if (len<0) {
-        debug_error("read error:%d", len);
+        __debug_error("read error:%d", len);
         return len;
     }
 
     if (is_abstract_sockaddr(&client.c)) {
         set_abstract_sockaddr_len(&client.un, addrlen);
 
-        debug_trace("recv from:%s", get_abstract_path(&client.un));
+        __debug_trace("recv from:%s", get_abstract_path(&client.un));
     }
     
     jlogb[len] = 0;
-    debug_trace("read:%s, len:%d", jlogb, len);
+    __debug_trace("read:%s, len:%d", jlogb, len);
 
     err = jadd(server);
     if (err<0) { /* yes, <0 */
@@ -287,9 +286,9 @@ jhandle(jlog_server_t *server)
     jlogb[len] = 0;
 
     err = os_fwrite(server->log.stream, jlogb, len);
-        debug_trace_error(err, "write %s", server->log.envar->value);
+        __debug_trace_error(err, "write %s", server->log.envar->value);
     err = os_fwrite(server->cache.stream, jlogb, len);
-        debug_trace_error(err, "write %s", server->cache.envar->value);
+        __debug_trace_error(err, "write %s", server->cache.envar->value);
 
     server->log.count++;
     server->cache.count++;
@@ -346,17 +345,17 @@ server_handle(void)
             case -1:/* error */
                 if (EINTR==errno) {
                     // is breaked
-                    debug_event("select breaked");
+                    __debug_event("select breaked");
 
                     jtrycut();
                     
                     continue;
                 } else {
-                    debug_error("select error:%d", -errno);
+                    __debug_error("select error:%d", -errno);
                     return -errno;
                 }
             case 0: /* timeout, retry */
-                debug_timeout("select timeout");
+                __debug_timeout("select timeout");
                 return -ETIMEOUT;
             default: /* to read */
                 return __server_handle(&rset);
@@ -434,14 +433,14 @@ init_server(jlog_server_t *server)
     
     fd = socket(server->family, SOCK_DGRAM, protocol);
     if (false==is_good_fd(fd)) {
-    	debug_error("server %s create socket error:%d", server->name, -errno);
+    	__debug_error("server %s create socket error:%d", server->name, -errno);
         return -errno;
     }
     os_closexec(fd);
 
     err = bind(fd, &server->addr.c, addrlen);
     if (err<0) {
-        debug_error("server %s bind error:%d", server->name, -errno);
+        __debug_error("server %s bind error:%d", server->name, -errno);
         return -errno;
     }
     
@@ -458,7 +457,7 @@ init_all_server(void)
 
     foreach_server(server) {
         err = init_server(server);
-            debug_trace_error(err, "init %s", server->name);
+            __debug_trace_error(err, "init %s", server->name);
         if (err < 0) {
             return err;
         }
@@ -471,7 +470,7 @@ init_all_server(void)
 static void
 usr1(int sig)
 {
-    debug_signal("recv USR1");
+    __debug_signal("recv USR1");
     
     if (false==os_hasbit(jlogd.event, SIGUSR1)) {
         os_setbit(jlogd.event, SIGUSR1);
@@ -497,7 +496,7 @@ __main(int argc, char *argv[])
     __os_system("mkdir -p " JLOG_LPATH " " JLOG_RPATH);
 
     err = init_env();
-        debug_trace_error(err, "init env");
+        __debug_trace_error(err, "init env");
     if (err<0) {
         return err;
     }
