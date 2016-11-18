@@ -350,6 +350,7 @@ os_fscan_dir
     DIR *dir = NULL;
     struct dirent *d = NULL;
     struct stat st;
+    char fullname[1+OS_LINE_LEN];
     mv_u mv;
     int err = 0;
 
@@ -382,9 +383,10 @@ os_fscan_dir
             continue;
         }
 
-        err = stat(d->d_name, &st);
+        os_saprintf(fullname, "%s/%s", path, d->d_name);
+        err = stat(fullname, &st);
         if (err<0) {
-            file_println("stat %s error:%d", d->d_name, err);
+            file_println("stat %s error:%d", fullname, -errno);
             
             continue;
         }
