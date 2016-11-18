@@ -23,13 +23,9 @@ typedef struct {
 static fd_control_t *
 __this_fd(void)
 {
-    static fd_control_t *control;
+    static fd_control_t control;
 
-    if (NULL==control) {
-        control = (fd_control_t *)os_zalloc(sizeof(fd_control_t)); 
-    }
-    
-    return control;
+    return &control;
 }
 
 static void

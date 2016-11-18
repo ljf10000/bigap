@@ -26,13 +26,9 @@ typedef struct {
 static co_control_t *
 __this_coroutine(void)
 {
-    static co_control_t *control;
+    static co_control_t control;
 
-    if (NULL==control) {
-        control = (co_control_t *)os_zalloc(sizeof(co_control_t));
-    }
-    
-    return control;
+    return &control;
 }
 
 static void

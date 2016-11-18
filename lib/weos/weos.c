@@ -20,5 +20,7 @@ LIB_INITER;
 #include "cqueue.c"
 #include "coroutine.c"
 #include "fd.c"
+#include "json.c"
+#include "loop.c"
 /******************************************************************************/
 
