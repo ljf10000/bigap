@@ -439,7 +439,7 @@ md_boot_init(void)
 static void
 benv_boot(void)
 {
-    __THIS_BENV = NULL;
+    ____benv_control = NULL;
     
     benv_init();
     md_boot_init();

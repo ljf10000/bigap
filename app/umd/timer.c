@@ -11,6 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #include "umd.h"
+
 typedef void um_timer_handle_t(struct um_user *user, time_t now);
 
 STATIC void 
@@ -218,11 +219,9 @@ timer_server_handle(sock_server_t *server)
     uint32 times = tm_fd_read(server->fd);
     time_t now = time(NULL);
     int i;
-
+    
     mv_t cb(struct um_user *user)
     {
-        //os_println("timer user[%s]=%p", os_macstring(user->mac), user);
-        
         timer_handle(user, now);
 
         return mv2_ok;

@@ -16,6 +16,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #error "just support ltefi md/pc board"
 #endif
 
+OS_INITER;
+
 static int fd_boot      = INVALID_FD;
 static int fd_bootenv   = INVALID_FD;
 static int fd_cmdline   = INVALID_FD;

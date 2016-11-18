@@ -11,6 +11,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #include "umd.h"
+
+OS_INITER;
+
 struct um_control umd = UMD_INITER;
 
 static int

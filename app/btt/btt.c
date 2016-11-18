@@ -7,6 +7,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 
+OS_INITER;
+
 enum {
     BT_DIV_0,
     BT_DESTROY_STACK_FOREVER,

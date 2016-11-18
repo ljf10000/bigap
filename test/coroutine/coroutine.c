@@ -5,7 +5,11 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_APP      coroutine
 #endif
 
+#define __EXTEND__
+
 #include "utils.h"
+
+OS_INITER;
 
 #define DELAY   (1000*100)
 #define COUNT   1000

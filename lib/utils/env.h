@@ -221,8 +221,26 @@ typedef struct {
     char *env[OS_ENV_END];
 } os_env_cache_t;
 
-extern os_env_cache_t *
-__this_env(void);
+#define DECLARE_FAKE_ENV    extern os_env_cache_t *__THIS_ENV
+#define DECLARE_REAL_ENV    os_env_cache_t *__THIS_ENV
+
+#ifdef __ALLINONE__
+#   define DECLARE_ENV      DECLARE_FAKE_ENV
+#else
+#   define DECLARE_ENV      DECLARE_REAL_ENV
+#endif
+
+DECLARE_FAKE_ENV;
+
+static inline os_env_cache_t *
+__this_env(void)
+{
+    if (NULL==__THIS_ENV) {
+        __THIS_ENV = (os_env_cache_t *)os_zalloc(sizeof(os_env_cache_t));
+    }
+
+    return __THIS_ENV;
+}
 
 static inline void
 os_env_init(void)

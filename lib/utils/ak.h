@@ -40,7 +40,7 @@
 enum { INVALID_AKID = 0};
 
 #ifndef AK_DPRINT
-#define AK_DPRINT               1
+#define AK_DPRINT               0
 #endif
 
 #if AK_DPRINT
@@ -52,12 +52,29 @@ enum { INVALID_AKID = 0};
 typedef uint32 akid_t;
 
 #if defined(__BOOT__)
-    extern akid_t *__THIS_DEBUG;
-    extern akid_t *__THIS_JDEBUG;
+#    define DECLARE_FAKE_DEBUGGER       extern akid_t *__THIS_DEBUG
+#    define DECLARE_REAL_DEBUGGER       akid_t *__THIS_DEBUG
+#    define DECLARE_DEBUGGER            DECLARE_REAL_DEBUGGER
+
+#    define DECLARE_FAKE_JDEBUGGER      extern akid_t *__THIS_JDEBUG
+#    define DECLARE_REAL_JDEBUGGER      akid_t *__THIS_JDEBUG
+#    define DECLARE_JDEBUGGER           DECLARE_REAL_JDEBUGGER
 #else
-    extern akid_t __THIS_DEBUG;
-    extern akid_t __THIS_JDEBUG;
+#    define DECLARE_FAKE_DEBUGGER       extern akid_t __THIS_DEBUG
+#    define DECLARE_REAL_DEBUGGER       akid_t __THIS_DEBUG
+#    define DECLARE_FAKE_JDEBUGGER      extern akid_t __THIS_JDEBUG
+#    define DECLARE_REAL_JDEBUGGER      akid_t __THIS_JDEBUG
+#    ifdef __ALLINONE__
+#        define DECLARE_DEBUGGER        DECLARE_FAKE_DEBUGGER
+#        define DECLARE_JDEBUGGER       DECLARE_FAKE_JDEBUGGER
+#    else
+#        define DECLARE_DEBUGGER        DECLARE_REAL_DEBUGGER
+#        define DECLARE_JDEBUGGER       DECLARE_REAL_JDEBUGGER
+#    endif
 #endif
+
+DECLARE_FAKE_DEBUGGER;
+DECLARE_FAKE_JDEBUGGER;
 /******************************************************************************/
 #define AK_DEBUG_ENUM_MAPPER(_)                 \
     _(____ak_debug_ok,          0, "ok"),       \
@@ -290,9 +307,24 @@ __ak_get_value(char *key, char *value)
 }
 
 /******************************************************************************/
+#define DECLARE_FAKE_COMMAND  extern bool __THIS_COMMAND
+#define DECLARE_REAL_COMMAND  bool __THIS_COMMAND;
+
+#ifdef __ALLINONE__
+#   define DECLARE_COMMAND  DECLARE_FAKE_COMMAND
+#else
+#   define DECLARE_COMMAND  DECLARE_REAL_COMMAND
+#endif
+
+DECLARE_FAKE_COMMAND;
+
 static inline int __ak_init(void);
 
 #if !defined(__APP__) || __RUNAS__==RUN_AS_COMMAND
+#define DECLARE_FAKE_AK     os_fake_declare
+#define DECLARE_REAL_AK     os_fake_declare
+#define DECLARE_AK          os_fake_declare
+DECLARE_FAKE_AK;
 /*
 * kernel/boot/(app cmd)
 */
@@ -377,7 +409,22 @@ __ak_offset(akid_t akid)
     + sizeof(uint32)          \
 )   /* end */
 
-extern os_shm_t *__this_ak(void);
+#define DECLARE_FAKE_AK  extern os_shm_t __THIS_AK
+#define DECLARE_REAL_AK  os_shm_t __THIS_AK = OS_SHM_INITER(OS_AK_SHM_ID)
+
+#ifdef __ALLINONE__
+#   define DECLARE_AK   DECLARE_FAKE_AK
+#else
+#   define DECLARE_AK   DECLARE_REAL_AK
+#endif
+
+DECLARE_FAKE_AK;
+
+static inline os_shm_t *
+__this_ak(void)
+{
+    return &__THIS_AK;
+}
 #define __ak_address    __this_ak()->address
 
 static inline ak_hdr_t *
@@ -661,8 +708,6 @@ __ak_show(void)
             ak->v);
     }
 }
-
-extern bool __THIS_COMMAND;
 
 static inline akid_t 
 ak_getbyname(char *k)

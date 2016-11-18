@@ -11,6 +11,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 #include "utils.h"
 
+OS_INITER;
+
 #ifndef PART_BLOCK_CACHE_SIZE
 #define PART_BLOCK_CACHE_SIZE   (64*1024)
 #endif

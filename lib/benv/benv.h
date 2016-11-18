@@ -507,24 +507,31 @@ typedef struct {
 #endif
 } benv_control_t;
 
-extern benv_control_t *__THIS_BENV;
+#if !defined(__ALLINONE__) && (IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B)
+#   define BENV_INITER      benv_control_t *____benv_control = NULL
+#else
+#   define BENV_INITER      os_fake_declare
+#endif
+#define BENV_MAIN_INITER    benv_control_t *____benv_control = NULL
+
+extern benv_control_t *____benv_control;
 
 #if BENV_USE_SEM
-#define __benv_sem              (&__THIS_BENV->sem)
+#define __benv_sem              (&____benv_control->sem)
 #endif
-#define __benv_shm              (&__THIS_BENV->shm)
+#define __benv_shm              (&____benv_control->shm)
 #define __benv_shm_address      __benv_shm->address
 #define __benv_shm_env          ((benv_env_t *)__benv_shm_address)
-#define __benv_errno            __THIS_BENV->error
-#define __benv_fd               __THIS_BENV->fd
-#define __benv_mirror           __THIS_BENV->mirror
+#define __benv_errno            ____benv_control->error
+#define __benv_fd               ____benv_control->fd
+#define __benv_mirror           ____benv_control->mirror
 #define __benv_env(_env)        (&__benv_shm_env[_env])
-#define __benv_ops              __THIS_BENV->ops
-#define __benv_ops_count        __THIS_BENV->ops_count
-#define __benv_show_count       __THIS_BENV->show_count
-#define __benv_show_empty       __THIS_BENV->show_empty
-#define __benv_self             __THIS_BENV->self
-#define __benv_cache            __THIS_BENV->cache
+#define __benv_ops              ____benv_control->ops
+#define __benv_ops_count        ____benv_control->ops_count
+#define __benv_show_count       ____benv_control->show_count
+#define __benv_show_empty       ____benv_control->show_empty
+#define __benv_self             ____benv_control->self
+#define __benv_cache            ____benv_control->cache
 #define __benv_cookie(_env)     (&__benv_env(_env)->cookie)
 #define __benv_os(_env)         (&__benv_env(_env)->os)
 #define __benv_current          __benv_os(0)->current
@@ -1758,12 +1765,12 @@ enum {
 static inline int
 benv_control_init(void)
 {
-    if (NULL==__THIS_BENV) {
+    if (NULL==____benv_control) {
         benv_ops_t ops[] = BENV_DEFT_OPS;
         int i, count = os_count_of(ops);
 
-        __THIS_BENV = (benv_control_t *)os_zalloc(sizeof(benv_control_t));
-        if (NULL==__THIS_BENV) {
+        ____benv_control = (benv_control_t *)os_zalloc(sizeof(benv_control_t));
+        if (NULL==____benv_control) {
             return -ENOMEM;
         }
         __benv_ops_count = count;
@@ -2225,7 +2232,7 @@ benv_open(void)
 static inline int
 benv_close(void)
 {
-    if (__THIS_BENV) {
+    if (____benv_control) {
 #ifdef __APP__
         os_close(__benv_fd);
         os_shm_destroy(__benv_shm);

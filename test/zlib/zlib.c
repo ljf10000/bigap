@@ -7,6 +7,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 #include "zlib.h"
+
+OS_INITER;
+
 #include "zlib.pacp.c"
 
 struct pktinfo {

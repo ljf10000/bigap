@@ -113,17 +113,34 @@ typedef struct {
     cli_buffer_t    *b;
 } cli_t;
 
-#define CLI_INITER                      {   \
-    .fd     = INVALID_FD,                   \
-    .addr   = OS_SOCKADDR_UNIX(__empty),    \
-    .addrlen= sizeof(sockaddr_un_t),        \
-    .b      = NULL,                         \
-}   /* end */
-
 #define DECLARE_FAKE_CLI        extern cli_t __THIS_CLI
 #define DECLARE_REAL_CLI        cli_t __THIS_CLI;
 
-extern cli_t *__this_cli(void);
+#ifdef __ALLINONE__
+#   define DECLARE_CLI          DECLARE_FAKE_CLI
+#else
+#   define DECLARE_CLI          DECLARE_REAL_CLI
+#endif
+
+DECLARE_FAKE_CLI;
+
+static inline cli_t *
+__this_cli(void)
+{
+    cli_t *cli = &__THIS_CLI;
+    
+    if (NULL==cli->b) {
+        cli->b = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
+        if (NULL==cli->b) {
+            return NULL;
+        }
+        
+        cli->addr.sun_family = AF_UNIX;
+        cli->addrlen = sizeof(sockaddr_un_t);
+    }
+    
+    return cli;
+}
 
 static inline cli_buffer_t *
 __clib(void)
@@ -191,7 +208,7 @@ cli_vsprintf(const char *fmt, va_list args)
     int vsize = os_vsprintf_size((char *)fmt, copy);
     va_end(copy);
 
-#if __CLI_TCP__
+#if CLI_MULTI
     if (__clib_left < vsize) {
         __cli_reply(0);
     }

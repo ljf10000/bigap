@@ -7,6 +7,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 
+OS_INITER;
+
 static slice_t BS;
 static slice_t *bs = &BS;
 

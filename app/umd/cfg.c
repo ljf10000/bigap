@@ -11,6 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #include "umd.h"
+
 extern sock_server_t um_cli_server;
 extern sock_server_t um_flow_server;
 extern sock_server_t um_timer_server;
@@ -199,8 +200,6 @@ int init_cfg(void)
         return -EBADCONF;
     }
 
-    umd.cfg.autouser = env_geti(OS_ENV(AUTOUSER), UMD_AUTOUSER);
-    
     int err = init_cfg_instance(jobj);
     if (err<0) {
         return err;

@@ -5,13 +5,13 @@
 #define __BOOT__
 #endif
 
-#define STATIC
-
 #ifdef __OPENWRT__
 #   ifndef LINUX
 #       define LINUX
 #   endif
 #endif
+
+#define STATIC
 
 #ifdef __BUSYBOX__
 #define __ALLINONE__
@@ -49,17 +49,15 @@
 #   ifdef __BUSYBOX__
 #       include "libbb.h"
 #   endif
-#   define RUN_AS_DEAMON        1
-#   define RUN_AS_COMMAND       2
-#   define RUN_AS_UNKNOW        (RUN_AS_DEAMON|RUN_AS_COMMAND)
-#   ifndef __RUNAS__
-#       ifdef __RUNAS_UNKNOW__
-#           define __RUNAS__    RUN_AS_UNKNOW
-#       elif defined(__DEAMON__)
-#           define __RUNAS__    RUN_AS_DEAMON
-#       else
-#           define __RUNAS__    RUN_AS_COMMAND
-#       endif
+#   define RUN_AS_DEAMON    1
+#   define RUN_AS_COMMAND   2
+#   define RUN_AS_UNKNOW    (RUN_AS_DEAMON|RUN_AS_COMMAND)
+#   ifdef __RUNAS_UNKNOW__
+#       define __RUNAS__    RUN_AS_UNKNOW
+#   elif defined(__DEAMON__)
+#       define __RUNAS__    RUN_AS_DEAMON
+#   else
+#       define __RUNAS__    RUN_AS_COMMAND
 #   endif
 #   include <stdint.h>
 #   include <stdarg.h>
@@ -189,16 +187,90 @@
 #include "utils/md5.h"
 #include "utils/base64.h"
 
-#if 1   /* __EXTEND__ */
+#ifdef __EXTEND__
 #include "utils/channel.h"
 #include "utils/cqueue.h"
 #include "utils/coroutine.h"
 #include "utils/fd.h"
-#endif  /* __EXTEND__ */
-
+#endif /* __EXTEND__ */
 
 #include "oem/oem.h"
 /******************************************************************************/
+#ifdef __EXTEND__
+#define OS_EXT_REAL_INITER  \
+    DECLARE_REAL_COROUTINE; \
+    DECLARE_REAL_FD;        \
+                            \
+    os_fake_declare         \
+    /* end */
+
+#define OS_EXT_FAKE_INITER  \
+    DECLARE_FAKE_COROUTINE; \
+    DECLARE_FAKE_FD;        \
+                            \
+    os_fake_declare         \
+    /* end */
+
+#define OS_EXT_INITER       \
+    DECLARE_COROUTINE;      \
+    DECLARE_FD;             \
+                            \
+    os_fake_declare         \
+    /* end */
+#else
+#define OS_EXT_REAL_INITER  os_fake_declare
+#define OS_EXT_FAKE_INITER  os_fake_declare
+#define OS_EXT_INITER       os_fake_declare
+#endif
+
+#define OS_REAL_INITER          \
+    DECLARE_REAL_COMMAND;       \
+    /* DECLARE_REAL_HAENV; */   \
+    DECLARE_REAL_DEAMON;        \
+    DECLARE_REAL_FLOCK;         \
+    DECLARE_REAL_JLOG;          \
+    DECLARE_REAL_OEM;           \
+    DECLARE_REAL_AK;            \
+    DECLARE_REAL_CLI;           \
+    DECLARE_REAL_DEBUGGER;      \
+    DECLARE_REAL_JDEBUGGER;     \
+    DECLARE_REAL_ENV;           \
+                                \
+    OS_EXT_REAL_INITER          \
+    /* end */
+
+#define OS_FAKE_INITER          \
+    DECLARE_FAKE_COMMAND;       \
+    /* DECLARE_FAKE_HAENV; */   \
+    DECLARE_FAKE_DEAMON;        \
+    DECLARE_FAKE_FLOCK;         \
+    DECLARE_FAKE_JLOG;          \
+    DECLARE_FAKE_OEM;           \
+    DECLARE_FAKE_AK;            \
+    DECLARE_FAKE_CLI;           \
+    DECLARE_FAKE_DEBUGGER;      \
+    DECLARE_FAKE_JDEBUGGER;     \
+    DECLARE_FAKE_ENV;           \
+                                \
+    OS_EXT_FAKE_INITER          \
+    /* end */
+
+#define OS_INITER           \
+    DECLARE_COMMAND;        \
+    /* DECLARE_HAENV; */    \
+    DECLARE_DEAMON;         \
+    DECLARE_FLOCK;          \
+    DECLARE_JLOG;           \
+    DECLARE_OEM;            \
+    DECLARE_AK;             \
+    DECLARE_CLI;            \
+    DECLARE_DEBUGGER;       \
+    DECLARE_JDEBUGGER;      \
+    DECLARE_ENV;            \
+                            \
+    OS_EXT_INITER           \
+    /* end */
+
 #ifdef __ALLINONE__
 #define LIB_INITER  os_fake_declare
 #else
@@ -209,7 +281,7 @@
         lib_init();             \
     }                           \
                                 \
-    os_fake_declare             \
+    OS_INITER                   \
     /* end */
 #endif
 
@@ -226,14 +298,14 @@ lib_init(void)
 
     err = ak_init();
     if (err<0) {
-        os_println(__THIS_APPNAME " ak init error:%d", err);
+        os_println("libjs ak init error:%d", err);
     }
     
     err = jlog_init();
     if (err<0) {
-        os_println(__THIS_APPNAME " jlog init error:%d", err);
+        os_println("libjs jlog init error:%d", err);
     }
-    
+
     return 0;
 }
 

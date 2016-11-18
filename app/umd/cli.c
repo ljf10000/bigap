@@ -258,6 +258,7 @@ STATIC mv_t
 show_user(struct um_user *user)
 {
     jobj_t obj = um_juser(user);
+    
     if (obj) {
         cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
 

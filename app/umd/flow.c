@@ -11,6 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #include "umd.h"
+
 static struct um_flow   flow;
 
 static inline bool
@@ -649,7 +650,6 @@ flow_handle(sock_server_t *server)
         return -ENOEXIST;
     }
 
-    //os_println("flow user[%s]=%p", os_macstring(user->mac), user);
     user->hitime = time(NULL);
 
     if (is_user_have_bind(user)) {

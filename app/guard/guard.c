@@ -14,6 +14,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #error "just support ltefi md/pc board"
 #endif
 
+OS_INITER;
+BENV_INITER;
+
 enum { HACKED_CUSTOM = 1 };
 
 #define SERVICE_REGISTER    "service1"

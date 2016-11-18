@@ -1,6 +1,12 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+#define __tm_ring0                  __tm_ring(0)
+#define __tm_ringx(_x)              __tm_ring(_x)
+#define __tm_ringmax                __tm_ring(TM_RINGMAX)
+#define __tm_foreach_ring(_ring)    for((_ring)=__tm_ring0; (_ring)<=__tm_ringmax; (_ring)++)
+#define __tm_foreach_slot(_slot)    for((_slot)=0; (_slot)<TM_SLOT; (_slot)++)
+/******************************************************************************/
 typedef struct {
     struct {
         struct list_head list;
@@ -30,9 +36,13 @@ typedef struct {
 static tm_clock_t *
 __this_timer(void)
 {
-    static tm_clock_t clock;
+    static tm_clock_t *clock;
     
-    return &clock;
+    if (NULL==clock) {
+        clock = (tm_clock_t *)os_zalloc(sizeof(tm_clock_t));
+    }
+    
+    return clock;
 }
 
 static tm_ring_t *
@@ -40,12 +50,6 @@ __tm_ring(int idx)
 {
     return &__this_timer()->ring[idx];
 }
-
-#define __tm_ring0                  __tm_ring(0)
-#define __tm_ringx(_x)              __tm_ring(_x)
-#define __tm_ringmax                __tm_ring(TM_RINGMAX)
-#define __tm_foreach_ring(_ring)    for((_ring)=__tm_ring0; (_ring)<=__tm_ringmax; (_ring)++)
-#define __tm_foreach_slot(_slot)    for((_slot)=0; (_slot)<TM_SLOT; (_slot)++)
 
 static struct list_head *
 __tm_slot(tm_ring_t *ring, int idx)

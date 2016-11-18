@@ -8,6 +8,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "utils.h"
 
+OS_INITER;
+
 struct server {
     int fd;
     int type;

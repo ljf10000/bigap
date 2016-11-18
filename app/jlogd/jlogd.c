@@ -5,9 +5,12 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_APP      jlogd
 #endif
 
+#define __JLOGD__
 #define __DEAMON__
 
 #include "utils.h"
+
+OS_INITER;
 
 #ifndef JLOGD_BUFSIZE
 #define JLOGD_BUFSIZE       (1*1024*1024-1)

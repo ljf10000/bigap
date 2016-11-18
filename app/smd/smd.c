@@ -11,6 +11,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "sm/sm.h"
 
+OS_INITER;
+
 #ifndef SM_NORMAL_SLEEP
 #define SM_NORMAL_SLEEP       500 /* ms */
 #endif

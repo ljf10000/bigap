@@ -4,9 +4,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define _LINUX_LIST_H
 #include <environment.h>
 
-benv_control_t *__THIS_BENV = NULL;
-akid_t *__THIS_DEBUG    = NULL;
-akid_t *__THIS_JDEBUG   = NULL;
+BENV_MAIN_INITER;
+
+DECLARE_REAL_DEBUGGER;
+DECLARE_REAL_JDEBUGGER;
 
 /*
 * bootargs/bootcmd is dirty???

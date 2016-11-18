@@ -46,5 +46,57 @@
 #else
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)
 #endif
+
+#ifndef __THIS_ENV
+#define __THIS_ENV              __SYMBOL_TO_THIS(_env)
+#endif
+
+#ifndef __THIS_COMMAND
+#define __THIS_COMMAND          __SYMBOL_TO_THIS(_command)
+#endif
+
+#ifndef __THIS_JLOGGER
+#define __THIS_JLOGGER          __SYMBOL_TO_THIS(_jlogger)
+#endif
+
+#ifndef __THIS_COROUTINE
+#define __THIS_COROUTINE        __SYMBOL_TO_THIS(_coroutine)
+#endif
+
+#ifndef __THIS_FD
+#define __THIS_FD               __SYMBOL_TO_THIS(_fd)
+#endif
+
+#ifndef __THIS_DEBUG
+#define __THIS_DEBUG            __SYMBOL_TO_THIS(_debugger)
+#endif
+
+#ifndef __THIS_JDEBUG
+#define __THIS_JDEBUG           __SYMBOL_TO_THIS(_js_debugger)
+#endif
+
+#ifndef __THIS_LOCKFD
+#define __THIS_LOCKFD           __SYMBOL_TO_THIS(_lock_fd)
+#endif
+
+#ifndef __THIS_DEAMON
+#define __THIS_DEAMON           __SYMBOL_TO_THIS(_deamon)
+#endif
+
+#ifndef __THIS_OEM
+#define __THIS_OEM              __SYMBOL_TO_THIS(_oem)
+#endif
+
+#ifndef __THIS_AK
+#define __THIS_AK               __SYMBOL_TO_THIS(_ak)
+#endif
+
+#ifndef __THIS_CLI
+#define __THIS_CLI              __SYMBOL_TO_THIS(_cli)
+#endif
+
+#ifndef __THIS_HAENV
+#define __THIS_HAENV            __SYMBOL_TO_THIS(_haenv)
+#endif
 /******************************************************************************/
 #endif /* __THIS_H_bb55b32c2226479dab1f126ea1ba1e9f__ */

@@ -10,9 +10,13 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "benv/benv.h"
 
+OS_INITER;
+
 #if !(IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
 #error "just support ltefi md/pc board"
 #endif
+
+BENV_INITER;
 
 enum {
     RT_SAVECYCLE = 3141,
