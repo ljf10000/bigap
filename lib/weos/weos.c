@@ -32,6 +32,8 @@ LIB_INITER;
 #include "dll.c"
 #include "jlog.c"
 /******************************************************************************/
+#ifdef __APP__
+
 int
 __os_system(char *cmd)
 {
@@ -57,9 +59,9 @@ __this_deamon(void)
 int
 __oem_type(void)
 {
-    static int type = OEM_T_END;
+    static int type = -1;
 
-    if (OEM_T_END==type) {
+    if (false==is_good_enum(type, OEM_T_END)) {
         char vendor[1+OEM_NAME_LEN] = {0};
 
         if (os_file_exist(OEM_FILE)) {
@@ -76,11 +78,9 @@ __oem_type(void)
         os_v_pgets(vendor, OEM_NAME_LEN, "benv infos/product/vendor");
 #endif
         type = oem_type_idx(vendor);
-        if (is_good_oem_type(type)) {
-            return type;
+        if (false==is_good_oem_type(type)) {
+            type = OEM_T_DEFT;
         }
-
-        type = OEM_T_DEFT;
     }
     
     return type;
@@ -89,9 +89,17 @@ __oem_type(void)
 oem_t *
 __this_oem(void)
 {
-    oem_t oem[OEM_T_END] = __THIS_OEM_INITER;
+    static oem_t oem[OEM_T_END];
+    static bool inited = false;
+
+    if (false==inited) {
+        oem_t tmp[OEM_T_END] = __THIS_OEM_INITER;
+
+        os_memcpy(oem, tmp, sizeof(oem_t) * OEM_T_END);
+    }
     
     return &oem[__oem_type()];
 }
 
+#endif
 /******************************************************************************/

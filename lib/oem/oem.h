@@ -148,16 +148,6 @@ static inline int oem_type_idx(char *type);
     [OEM_T_2]     = OEM2_INITER,  \
 }   /* end */
 
-#define DECLARE_FAKE_OEM    extern oem_t *__THIS_OEM
-#define DECLARE_REAL_OEM    oem_t *__THIS_OEM
-
-#ifdef __ALLINONE__
-#   define DECLARE_OEM      DECLARE_FAKE_OEM
-#else
-#   define DECLARE_OEM      DECLARE_REAL_OEM
-#endif
-
-DECLARE_FAKE_OEM;
 /******************************************************************************/
 #ifndef OEM_FILE
 #define OEM_FILE    "/etc/.oem"

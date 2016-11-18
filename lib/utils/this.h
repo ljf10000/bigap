@@ -63,10 +63,6 @@
 #define __THIS_JDEBUG           __SYMBOL_TO_THIS(_js_debugger)
 #endif
 
-#ifndef __THIS_OEM
-#define __THIS_OEM              __SYMBOL_TO_THIS(_oem)
-#endif
-
 #ifndef __THIS_CLI
 #define __THIS_CLI              __SYMBOL_TO_THIS(_cli)
 #endif
