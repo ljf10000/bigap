@@ -5,6 +5,8 @@
 #define __BOOT__
 #endif
 
+#define STATIC
+
 #ifdef __OPENWRT__
 #   ifndef LINUX
 #       define LINUX

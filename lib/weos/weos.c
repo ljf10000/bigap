@@ -34,7 +34,6 @@ LIB_INITER;
 #include "dll.c"
 #include "jlog.c"
 /******************************************************************************/
-#define static
 #ifdef __APP__
 bool __THIS_COMMAND;
 akid_t __THIS_DEBUG;

@@ -13,11 +13,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __CLI_TCP__     0
 #include "umd.h"
 
-#define static
 /*
 * handle {mac} {json}
 */
-static int
+STATIC int
 handle_mac_json(struct um_user *(*handle)(byte mac[], jobj_t obj), char *args)
 {
     char *mac   = args; cli_shift(args);
@@ -52,7 +51,7 @@ error:
 /*
 * handle {mac} {ip}
 */
-static int
+STATIC int
 handle_mac_ip(struct um_user *(*handle)(byte mac[], uint32 ip), char *args)
 {
     char *mac   = args; cli_shift(args);
@@ -80,7 +79,7 @@ handle_mac_ip(struct um_user *(*handle)(byte mac[], uint32 ip), char *args)
 /*
 * handle {mac}
 */
-static int
+STATIC int
 handle_mac(int (*handle)(byte mac[]), char *args)
 {
     char *mac = args; cli_shift(args);
@@ -97,7 +96,7 @@ handle_mac(int (*handle)(byte mac[]), char *args)
 /*
 * create {mac}
 */
-static int
+STATIC int
 handle_create(char *args)
 {
     int create(byte mac[])
@@ -113,7 +112,7 @@ handle_create(char *args)
 /*
 * delete {mac}
 */
-static int
+STATIC int
 handle_delete(char *args)
 {
     return handle_mac(um_user_delete, args);
@@ -122,7 +121,7 @@ handle_delete(char *args)
 /*
 * block {mac}
 */
-static int
+STATIC int
 handle_block(char *args)
 {
     int block(byte mac[])
@@ -138,7 +137,7 @@ handle_block(char *args)
 /*
 * unblock {mac}
 */
-static int
+STATIC int
 handle_unblock(char *args)
 {
     return handle_mac(um_user_unblock, args);
@@ -147,7 +146,7 @@ handle_unblock(char *args)
 /*
 * bind {mac} {ip}
 */
-static int
+STATIC int
 handle_bind(char *args)
 {
     return handle_mac_ip(um_user_bind, args);
@@ -156,7 +155,7 @@ handle_bind(char *args)
 /*
 * unbind {mac}
 */
-static int
+STATIC int
 handle_unbind(char *args)
 {
     return handle_mac(um_user_unbind, args);
@@ -165,7 +164,7 @@ handle_unbind(char *args)
 /*
 * fake {mac} {ip}
 */
-static int
+STATIC int
 handle_fake(char *args)
 {
     if (UM_AUTO_FAKE==umd.cfg.autouser) {
@@ -178,7 +177,7 @@ handle_fake(char *args)
 /*
 * unfake {mac}
 */
-static int
+STATIC int
 handle_unfake(char *args)
 {
     if (UM_AUTO_FAKE==umd.cfg.autouser) {
@@ -191,7 +190,7 @@ handle_unfake(char *args)
 /*
 * auth {mac} {group} {json}
 */
-static int
+STATIC int
 handle_auth(char *args)
 {
     char *mac   = args; cli_shift(args);
@@ -229,7 +228,7 @@ error:
 /*
 * deauth {mac}
 */
-static int
+STATIC int
 handle_deauth(char *args)
 {
     int deauth(byte mac[])
@@ -245,7 +244,7 @@ handle_deauth(char *args)
 /*
 * reauth {mac}
 */
-static int
+STATIC int
 handle_reauth(char *args)
 {
     if (umd.cfg.reauthable) {
@@ -255,7 +254,7 @@ handle_reauth(char *args)
     }
 }
 
-static mv_t
+STATIC mv_t
 show_user(struct um_user *user)
 {
     jobj_t obj = um_juser(user);
@@ -269,7 +268,7 @@ show_user(struct um_user *user)
     return mv2_ok;
 }
 
-static int
+STATIC int
 show_user_byjson(char *json)
 {
     jobj_t obj      = NULL;
@@ -322,7 +321,7 @@ error:
     return err;
 }
 
-static int
+STATIC int
 show_stat(void)
 {
     jobj_t obj = jobj_new_object();
@@ -341,7 +340,7 @@ show_stat(void)
     return 0;
 }
 
-static int
+STATIC int
 show_count(void)
 {
     cli_sprintf("%d" __crlf, h2_count(&umd.table));
@@ -352,7 +351,7 @@ show_count(void)
 /*
 * show [json]
 */
-static int
+STATIC int
 handle_show(char *args)
 {
     char *json = args; /* json maybe include space, not shift */
@@ -380,7 +379,7 @@ handle_show(char *args)
 /*
 * sync {mac} {json}
 */
-static int
+STATIC int
 handle_sync(char *args)
 {
     if (umd.cfg.syncable) {
@@ -393,7 +392,7 @@ handle_sync(char *args)
 /*
 * tag {mac} {key} [value]
 */
-static int
+STATIC int
 handle_tag(char *args)
 {
     char *mac   = args; cli_shift(args);
@@ -422,7 +421,7 @@ handle_tag(char *args)
 /*
 * gc
 */
-static int
+STATIC int
 handle_gc(char *args)
 {
     if (umd.cfg.gc) {
@@ -432,7 +431,7 @@ handle_gc(char *args)
     }
 }
 
-static cli_table_t cli_table[] = {
+STATIC cli_table_t cli_table[] = {
     CLI_ENTRY("create", handle_create),
     CLI_ENTRY("delete", handle_delete),
     
@@ -455,13 +454,13 @@ static cli_table_t cli_table[] = {
     CLI_ENTRY("gc",     handle_gc),
 };
 
-static int
+STATIC int
 cli_handle(sock_server_t *server)
 {
     return clis_handle(server->fd, cli_table);
 }
 
-static int
+STATIC int
 cli_init(sock_server_t *server)
 {
     int fd;

@@ -11,10 +11,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #include "umd.h"
-#define static
 typedef void um_timer_handle_t(struct um_user *user, time_t now);
 
-static inline void 
+STATIC void 
 __try_aging(struct um_user *user, int type)
 {
     if (__online_idle(user, type)) {
@@ -30,7 +29,7 @@ __try_aging(struct um_user *user, int type)
     }
 }
 
-static void 
+STATIC void 
 online_aging(struct um_user *user, time_t now)
 {
     (void)now;
@@ -41,7 +40,7 @@ online_aging(struct um_user *user, time_t now)
     }
 }
 
-static inline bool
+STATIC bool
 __is_gc(struct um_user *user, time_t now)
 {
     time_t noused = user->noused;
@@ -69,7 +68,7 @@ int umd_gc(struct um_user *user)
     return 0;
 }
 
-static void
+STATIC void
 gc_auto(struct um_user *user, time_t now)
 {
     if (__is_gc(user, now)) {
@@ -77,7 +76,7 @@ gc_auto(struct um_user *user, time_t now)
     }
 }
 
-static inline bool
+STATIC bool
 __is_online_timeout(struct um_user *user, time_t now, int type)
 {
     time_t max      = __online_max(user, type);
@@ -96,14 +95,14 @@ __is_online_timeout(struct um_user *user, time_t now, int type)
     return is;
 }
 
-static inline bool
+STATIC bool
 is_online_timeout(struct um_user *user, time_t now)
 {
     return __is_online_timeout(user, now, um_flow_type_wan)
         || __is_online_timeout(user, now, um_flow_type_lan);
 }
 
-static void 
+STATIC void 
 online_timeout(struct um_user *user, time_t now)
 {
     /*
@@ -115,7 +114,7 @@ online_timeout(struct um_user *user, time_t now)
     }
 }
 
-static inline bool
+STATIC bool
 __is_online_reauth(struct um_user *user, time_t now, int type)
 {
     time_t uptime   = __online_uptime(user, type);
@@ -134,14 +133,14 @@ __is_online_reauth(struct um_user *user, time_t now, int type)
     return is;
 }
 
-static inline bool
+STATIC bool
 is_online_reauth(struct um_user *user, time_t now)
 {
     return __is_online_reauth(user, now, um_flow_type_wan)
         || __is_online_reauth(user, now, um_flow_type_lan);
 }
 
-static void 
+STATIC void 
 online_reauth(struct um_user *user, time_t now)
 {
     /*
@@ -155,7 +154,7 @@ online_reauth(struct um_user *user, time_t now)
     }
 }
 
-static inline bool
+STATIC bool
 is_fake_timeout(struct um_user *user, time_t now)
 {
     time_t faketime = user->faketime;
@@ -172,7 +171,7 @@ is_fake_timeout(struct um_user *user, time_t now)
     return is;
 }
 
-static void 
+STATIC void 
 fake_timeout(struct um_user *user, time_t now)
 {
     if (is_user_fake(user) && is_fake_timeout(user, now)) {        
@@ -180,7 +179,7 @@ fake_timeout(struct um_user *user, time_t now)
     }
 }
 
-static void
+STATIC void
 timer_handle(struct um_user *user, time_t now)
 {
     static um_timer_handle_t *handler[] = {
@@ -199,7 +198,7 @@ timer_handle(struct um_user *user, time_t now)
     }
 }
 
-static int
+STATIC int
 timer_server_init(sock_server_t *server)
 {    
     int fd = tm_fd(os_second(1000*umd.cfg.ticks), os_nsecond(1000*umd.cfg.ticks));
@@ -213,7 +212,7 @@ timer_server_init(sock_server_t *server)
     return 0;
 }
 
-static int
+STATIC int
 timer_server_handle(sock_server_t *server)
 {
     uint32 times = tm_fd_read(server->fd);
