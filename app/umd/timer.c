@@ -218,6 +218,8 @@ timer_server_handle(sock_server_t *server)
     uint32 times = tm_fd_read(server->fd);
     time_t now = time(NULL);
     int i;
+
+    return 0;
     
     mv_t cb(struct um_user *user)
     {
