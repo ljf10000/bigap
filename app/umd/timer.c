@@ -183,8 +183,8 @@ STATIC void
 timer_handle(struct um_user *user, time_t now)
 {
     static um_timer_handle_t *handler[] = {
-        fake_timeout,
-        online_reauth,
+        //fake_timeout,
+        //online_reauth,
         online_timeout,
         online_aging,
         
