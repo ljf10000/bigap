@@ -120,5 +120,25 @@ __this_env(void)
     return &env;
 }
 
+cli_t *
+__this_cli(void)
+{
+    static cli_t cli = CLI_INITER;
+    
+    if (NULL==cli->b) {
+        cli->b = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
+    }
+    
+    return &cli;
+}
+
+os_shm_t *
+__this_ak(void)
+{
+    os_shm_t ak = OS_SHM_INITER(OS_AK_SHM_ID);
+    
+    return &ak;
+}
+
 #endif
 /******************************************************************************/

@@ -310,10 +310,6 @@ __ak_get_value(char *key, char *value)
 static inline int __ak_init(void);
 
 #if !defined(__APP__) || __RUNAS__==RUN_AS_COMMAND
-#define DECLARE_FAKE_AK     os_fake_declare
-#define DECLARE_REAL_AK     os_fake_declare
-#define DECLARE_AK          os_fake_declare
-DECLARE_FAKE_AK;
 /*
 * kernel/boot/(app cmd)
 */
@@ -398,22 +394,7 @@ __ak_offset(akid_t akid)
     + sizeof(uint32)          \
 )   /* end */
 
-#define DECLARE_FAKE_AK  extern os_shm_t __THIS_AK
-#define DECLARE_REAL_AK  os_shm_t __THIS_AK = OS_SHM_INITER(OS_AK_SHM_ID)
-
-#ifdef __ALLINONE__
-#   define DECLARE_AK   DECLARE_FAKE_AK
-#else
-#   define DECLARE_AK   DECLARE_REAL_AK
-#endif
-
-DECLARE_FAKE_AK;
-
-static inline os_shm_t *
-__this_ak(void)
-{
-    return &__THIS_AK;
-}
+extern os_shm_t *__this_ak(void);
 #define __ak_address    __this_ak()->address
 
 static inline ak_hdr_t *
