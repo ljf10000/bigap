@@ -67,10 +67,6 @@
 #define __THIS_JDEBUG           __SYMBOL_TO_THIS(_js_debugger)
 #endif
 
-#ifndef __THIS_LOCKFD
-#define __THIS_LOCKFD           __SYMBOL_TO_THIS(_lock_fd)
-#endif
-
 #ifndef __THIS_DEAMON
 #define __THIS_DEAMON           __SYMBOL_TO_THIS(_deamon)
 #endif

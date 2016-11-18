@@ -491,7 +491,6 @@ error:
 
 int __THIS_LOCKFD = INVALID_FD;
 
-    
 int
 __os_file_lock(char *file, int open_mode, int permit, bool block)
 {
