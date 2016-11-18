@@ -2,13 +2,6 @@
 #define __PID_H_53a6199d588c428b864c8a1bdca07622__
 #ifdef __APP__
 /******************************************************************************/
-typedef struct {
-    bool running;
-} deamon_t;
-
-extern deamon_t *
-__this_deamon(void);
-
 static inline int
 __os_get_pid(char *pidfile)
 {
@@ -53,31 +46,13 @@ __os_deamon_exist(void)
     return os_pid_exist(os_get_pid());
 }
 
-static inline int
-os_deamon_check(void)
-{
 #ifdef __DEAMON__
-    if (__os_deamon_exist()) {
-        return -EDEAMON;
-    }
-    
-    __this_deamon()->running = true;
-    
-    os_set_pid();
+    extern int  os_deamon_check(void);
+    extern void os_deamon_exit(void);
+#else
+    #define os_deamon_check()   0
+    #define os_deamon_exit()    os_do_nothing()
 #endif
-
-    return 0;
-}
-
-static inline void
-os_deamon_exit(void)
-{
-#ifdef __DEAMON__
-    if (__this_deamon()->running) {
-        unlink(__THIS_PIDFILE);
-    }
-#endif
-}
 /******************************************************************************/
 #endif
 #endif /* __PID_H_53a6199d588c428b864c8a1bdca07622__ */

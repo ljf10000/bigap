@@ -13,6 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __CLI_TCP__     0
 #include "umd.h"
 
+#define static
 /*
 * handle {mac} {json}
 */

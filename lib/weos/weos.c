@@ -35,33 +35,12 @@ LIB_INITER;
 #include "jlog.c"
 /******************************************************************************/
 #ifdef __APP__
-
 bool __THIS_COMMAND;
 akid_t __THIS_DEBUG;
 akid_t __THIS_JDEBUG;
 benv_control_t *__THIS_BENV;
 
-int
-__os_system(char *cmd)
-{
-    int err;
-
-    err = system(cmd);
-        debug_shell("%s error:%d", cmd, err);
-    if (127==err || -1==err) {
-        return -ESYSTEM;
-	} else {
-        return __os_wait_error(err);
-	}
-}
-
-deamon_t *
-__this_deamon(void)
-{
-    static deamon_t deamon;
-    
-    return &deamon;
-}
+static bool __THIS_DEAMON;
 
 int
 __oem_type(void)
@@ -142,6 +121,42 @@ __this_ak(void)
     static os_shm_t ak = OS_SHM_INITER(OS_AK_SHM_ID);
     
     return &ak;
+}
+
+int
+__os_system(char *cmd)
+{
+    int err;
+
+    err = system(cmd);
+        debug_shell("%s error:%d", cmd, err);
+    if (127==err || -1==err) {
+        return -ESYSTEM;
+	} else {
+        return __os_wait_error(err);
+	}
+}
+
+int
+os_deamon_check(void)
+{
+    if (__os_deamon_exist()) {
+        return -EDEAMON;
+    }
+    
+    __THIS_DEAMON = true;
+    
+    os_set_pid();
+
+    return 0;
+}
+
+void
+os_deamon_exit(void)
+{
+    if (__THIS_DEAMON) {
+        unlink(__THIS_PIDFILE);
+    }
 }
 
 #endif
