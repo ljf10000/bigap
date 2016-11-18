@@ -463,8 +463,8 @@ __os_system(char *cmd);
     extern int jlog_init(void);
     extern int jlog_fini(void);
 #else
-#   define jlog_init    0
-#   define jlog_fini    0
+#   define jlog_init()  0
+#   define jlog_fini()  0
 #endif
 /******************************************************************************/
 #endif /* __JLOG_H_c174923fabe845e980f9379209210cc3__ */
