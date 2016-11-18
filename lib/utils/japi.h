@@ -132,30 +132,8 @@ jobj_string_len(jobj_t obj)
 
 #define jobj_del(_jobj, _k)     json_object_object_del(_jobj, _k)
 
-static inline void
-jobj_add(jobj_t obj, char *k, jobj_t v)
-{
-    if (obj && v) {
-        switch(jobj_type(obj)) {
-            case jtype_object:
-                if (k) {
-                    json_object_object_add(obj, k, v);
-                }
-
-                break;
-            case jtype_array:
-                if (NULL==k) {
-                    json_object_array_add(obj, v);
-                } else {
-                    json_object_array_put_idx(obj, (int)(uintptr_t)k, v);
-                }
-                
-                break;
-            default:
-                break;
-        }       
-    }
-}
+extern void
+jobj_add(jobj_t obj, char *k, jobj_t v);
 
 #define jobj_get_bool(_obj)             json_object_get_boolean(_obj)
 #define jobj_get_i32(_obj)              json_object_get_int(_obj)
@@ -280,42 +258,11 @@ __jobj_add_string(jobj_t obj, char *key, char *value)
 #define jobj_add_string(_obj, _key, _value) __jobj_add_string(_obj, (char *)_key, (char *)_value)
 #define jobj_add_binary(_obj, _key, _value) __jobj_add_string(_obj, (char *)_key, (char *)_value)
 
-static inline int
-jobj_vsprintf(jobj_t obj, const char *key, const char *fmt, va_list args)
-{
-    int len, err = 0;
-    char *line = (char *)os_zalloc(1+OS_BIG_LEN);
-    if (NULL==line) {
-        err = -ENOMEM; goto error;
-    }
+extern int
+jobj_vsprintf(jobj_t obj, const char *key, const char *fmt, va_list args);
 
-    len = os_vsnprintf(line, OS_BIG_LEN, fmt, args);
-    if (os_snprintf_is_full(OS_BIG_LEN, len)) {
-        err = -ENOSPACE;
-    } else {
-        err = jobj_add_string(obj, key, line);
-	}
-
-error:
-    if (line) {
-        os_free(line);
-    }
-
-    return err;
-}
-
-static inline int
-jobj_sprintf(jobj_t obj, const char *key, const char *fmt, ...)
-{
-    va_list args;
-    int err;
-    
-    va_start(args, fmt);
-    err = jobj_vsprintf(obj, key, fmt, args);
-    va_end(args);
-    
-    return err;    
-}
+extern int
+jobj_sprintf(jobj_t obj, const char *key, const char *fmt, ...);
 
 static inline jobj_t
 jobj_byfile(char *file)
@@ -339,426 +286,44 @@ jobj_byfd(int fd)
     return obj;
 }
 
-static inline jobj_t
-jobj_byjson(char *json)
-{
-    int err = 0;
-    jtok_t tok = NULL;
-    jobj_t obj = NULL;
+extern jobj_t
+jobj_byjson(char *json);
 
-    if (false==is_good_str(json)) {
-        return NULL;
-    }
-    
-    tok = jtok_new();
-    if (NULL==tok) {
-        japi_println("create tok error");
-        
-        err = -ENOMEM; goto error;
-    }
-    
-    jtok_set_flags(tok, JSON_TOKENER_STRICT);
-    
-    obj = jtok_parse_ex(tok, json, os_strlen(json));
-    if (NULL==tok) {
-        japi_println("tok parase error");
-        
-        err = -ENOMEM; goto error;
-    }
-    
-error:
-    jtok_free(tok);
+extern int
+jobj_add_json(jobj_t obj, char *key, char *value);
 
-    return obj;
-}
+extern jobj_t
+jarray_clone(jobj_t jobj, bool keepsort);
 
-static inline int
-jobj_add_json(jobj_t obj, char *key, char *value)
-{
-    int err = 0;
-    jobj_t new = NULL;
+extern jobj_t
+jobj_clone(jobj_t jobj, bool keepsort);
 
-    if (NULL==key) {
-        return -EKEYNULL;
-    }
-    else if (false==is_good_str(value)) {
-        return 0;
-    }
+extern bool
+jobj_format_is_valid(int c, int valid[], int count);
 
-    new = jobj_byjson(value);
-    if (NULL==new) {
-        return -EBADJSON;
-    }
+extern int
+jobj_exec(jobj_t obj, const char *fmt, int argc, char *argv[]);
 
-    /*
-    * new is add to obj,
-    *   needn't to free new
-    */
-    jobj_add(obj, key, new);
+extern int
+jobj_vprintf(jobj_t obj, const char *fmt, va_list args);
 
-    return 0;
-}
+extern int
+jobj_printf(jobj_t obj, const char *fmt, ...);
 
-static inline jobj_t jobj_clone(jobj_t jobj, bool keepsort);
+extern jobj_t
+jobj_voprintf(const char *fmt, va_list args);
 
-static inline jobj_t
-jarray_clone(jobj_t jobj, bool keepsort)
-{
-    int i, count = jarray_length(jobj);
-    jobj_t jsub;
-    jobj_t jnew = jobj_new_array();
-    
-    for (i=0; i<count; i++) {
-        jsub = jarray_get(jobj, i);
-        if (jsub) {
-            if (keepsort) {
-                jarray_set(jnew, i, jobj_clone(jsub, keepsort));
-            }
-            else if (jtype_null!=jobj_type(jsub)) {
-                jarray_add(jnew, jobj_clone(jsub, keepsort));
-            }
-        }
-    }
+extern jobj_t
+jobj_oprintf(const char *fmt, ...);
 
-    return jnew;
-}
+extern bool
+is_good_json(char *json);
 
-static inline jobj_t
-jobj_clone(jobj_t jobj, bool keepsort)
-{
-    jobj_t jv;
-    jobj_t jnew = jobj_new_object();
-    if (NULL==jnew) {
-        return NULL;
-    }
+extern jobj_t
+jobj_get_vleaf(jobj_t obj, va_list args);
 
-    jobj_foreach(jobj, k, v) {
-        switch(jobj_type(v)) {
-            case jtype_bool:
-                jobj_add_bool(jnew, k, jobj_get_bool(v));
-                
-                break;
-            case jtype_double:
-                jobj_add_f64(jnew, k, jobj_get_f64(v));
-                
-                break;
-            case jtype_int:
-                jobj_add_i32(jnew, k, jobj_get_i32(v));
-                
-                break;
-            case jtype_string:
-                jobj_add_string(jnew, k, jobj_get_string(v));
-                
-                break;
-            case jtype_object:
-                jv = jobj_clone(v, keepsort);
-
-                jobj_add(jnew, k, jv);
-                
-                break;
-            case jtype_array:
-                jv = jarray_clone(v, keepsort);
-
-                jobj_add(jnew, k, jv);
-                
-                break;
-            case jtype_null:
-            default:
-                goto error;
-        }
-
-        
-    }
-
-    return jnew;
-error:
-    jobj_put(jnew);
-    
-    return NULL;
-}
-
-static inline bool
-jobj_format_is_valid(int c, int valid[], int count)
-{
-    int i;
-
-    for (i=0; i<count; i++) {
-        if (c!=valid[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-static inline int
-jobj_exec(jobj_t obj, const char *fmt, int argc, char *argv[])
-{
-    char *key;
-    jvar_t var;
-    int err = 0, idx = 0, count = 0;
-
-    if (os_strlen(fmt)%2) {
-        japi_println("bad format:%s", fmt);
-        
-        return -EFORMAT;
-    }
-    
-    char *p = (char *)fmt;
-    while(*p) {
-        if ('%' == *p++) {
-            key = argv[idx++];
-        } else {
-            japi_println("bad format:%s", fmt);
-            
-            return -EFORMAT;
-        }
-
-        switch(*p++) {
-            case jfmt_bool:
-                var.b = os_atoi(argv[idx++]);
-                japi_println("bool=%d", var.d);
-                err = jobj_add_bool(obj, key, var.b);
-                
-                break;
-            case jfmt_int:
-                var.d = os_atoi(argv[idx++]);
-                japi_println("int=%d", var.d);
-                err = jobj_add_i32(obj, key, var.d);
-
-                break;
-            case jfmt_long:
-                var.l = os_atoll(argv[idx++]);
-                japi_println("int64=%lld", var.l);
-                err = jobj_add_i64(obj, key, var.l);
-                
-                break;
-            case jfmt_double:
-                var.f = os_atof(argv[idx++]);
-                japi_println("float64=%lf", var.f);
-                err = jobj_add_f64(obj, key, var.f);
-                
-                break;
-            case jfmt_string:
-                var.s = argv[idx++];
-                if (NULL==var.s) {
-                    var.s = __empty;
-                }
-                japi_println("string=%s", var.s);
-                err = jobj_add_string(obj, key, var.s);
-                
-                break;
-            case jfmt_json:
-                var.j = argv[idx++];
-                if (NULL==var.j) {
-                    var.j = "{}";
-                }
-                japi_println("json=%s", var.j);
-                jobj_add_json(obj, key, var.j);
-
-                break;
-            default:
-                japi_println("no support format:%s", fmt);
-                
-                return -ENOSUPPORT;
-        }
-
-        if (err<0) {
-            return err;
-        }
-
-        count++;
-    }
-
-    if (2*count != argc) {
-        japi_println("bad format:%s", fmt);
-        
-        return -EFORMAT;
-    }
-    
-    return 0;
-}
-
-static inline int
-jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
-{
-    char *key, *p;
-    jvar_t var;
-    int err = 0;
-
-    if (os_strlen(fmt)%2) {
-        japi_println("bad format:%s", fmt);
-        
-        return -EFORMAT;
-    }
-    
-    p = (char *)fmt;
-    while(*p) {
-        if ('%' == *p++) {
-            key = va_arg(args, char *);
-        } else {
-            japi_println("bad format:%s", fmt);
-            
-            return -EFORMAT;
-        }
-
-        switch(*p++) {
-            case jfmt_bool:
-                var.b = va_arg(args, bool);
-                japi_println("bool=%d", var.b);
-                err = jobj_add_bool(obj, key, var.b);
-                
-                break;
-            case jfmt_int:
-                var.d = va_arg(args, int32);
-                japi_println("int=%d", var.d);
-                err = jobj_add_i32(obj, key, var.d);
-
-                break;
-            case jfmt_long:
-                var.l = va_arg(args, int64);
-                japi_println("int64=%lld", var.l);
-                err = jobj_add_i64(obj, key, var.l);
-                
-                break;
-            case jfmt_double:
-                var.f = va_arg(args, float64);
-                japi_println("float64=%lf", var.f);
-                err = jobj_add_f64(obj, key, var.f);
-                
-                break;
-            case jfmt_string:
-                var.s = va_arg(args, char *);
-                if (NULL==var.s) {
-                    var.s = __empty;
-                }
-                japi_println("string=%s", var.s);
-                err = jobj_add_string(obj, key, var.s);
-                
-                break;
-            case jfmt_array:
-                var.a = va_arg(args, jobj_t);
-                if (NULL==var.a) {
-                    var.a = jobj_new_object();
-                }
-                japi_println("array=%s", jobj_json(var.a));
-                jobj_add(obj, key, var.a);
-
-                break;
-            case jfmt_object:
-                var.o = va_arg(args, jobj_t);
-                if (NULL==var.o) {
-                    var.o = jobj_new_object();
-                }
-                japi_println("object=%s", jobj_json(var.o));
-                jobj_add(obj, key, var.o);
-
-                break;
-            case jfmt_json:
-                var.j = va_arg(args, char *);
-                if (NULL==var.j) {
-                    var.j = "{}";
-                }
-                japi_println("json=%s", var.j);
-                jobj_add_json(obj, key, var.j);
-
-                break;
-            default:
-                japi_println("no support format:%s", fmt);
-                
-                return -ENOSUPPORT;
-        }
-
-        if (err<0) {
-            return err;
-        }
-    }
-
-    return 0;
-}
-
-static inline int
-jobj_printf(jobj_t obj, const char *fmt, ...)
-{
-    int err = 0;
-    va_list args;
-    
-    va_start(args, (char *)fmt);
-    err = jobj_vprintf(obj, fmt, args);
-    va_end(args);
-    
-    return err;
-}
-
-static inline jobj_t
-jobj_voprintf(const char *fmt, va_list args)
-{
-    jobj_t obj = jobj_new_object();
-    if (NULL==obj) {
-        return NULL;
-    }
-
-    int err = jobj_vprintf(obj, fmt, args);
-    if (err<0) {
-        return obj;
-    }
-    
-    return obj;
-}
-
-static inline jobj_t
-jobj_oprintf(const char *fmt, ...)
-{
-    jobj_t obj;
-    va_list args;
-    
-    va_start(args, (char *)fmt);
-    obj = jobj_voprintf(fmt, args);
-    va_end(args);
-    
-    return obj;
-}
-
-static inline bool
-is_good_json(char *json)
-{
-    jobj_t obj = jobj_byjson(json);
-    if (obj) {
-        jobj_put(obj);
-
-        return true;
-    } else {
-        return false;
-    }
-}
-
-static inline jobj_t
-jobj_get_vleaf(jobj_t obj, va_list args)
-{
-    jobj_t root = obj, leaf = NULL;
-    char *key = va_arg(args, char *);
-    
-    while(key) {
-        root = leaf = jobj_get(root, key);
-
-        key = va_arg(args, char *);
-    }
-    
-    return leaf;
-}
-
-static inline jobj_t
-jobj_get_leaf(jobj_t obj, ...)
-{
-    jobj_t leaf;
-    va_list args;
-    
-    va_start(args, (char *)obj);
-    leaf = jobj_get_vleaf(obj, args);
-    va_end(args);
-    
-    return leaf;
-}
+extern jobj_t
+jobj_get_leaf(jobj_t obj, ...);
 /******************************************************************************/
 #define jj_byvar(_obj, _jobj, _member, _type, _format) ({ \
     jobj_t __tmp = jobj_get(_jobj, #_member); \
@@ -809,22 +374,9 @@ int __jobj_map_##_member(jobj_t jobj)           \
 #define __JOBJ_MAP_ENTRY(_obj, _type, _member)  __jobj_map_##_member,
 #define JOBJ_MAP_INITER(_mapper)                { _mapper(__JOBJ_MAP_ENTRY) }
 
-static inline jobj_t 
-__jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count)
-{
-    int i, err = 0;
+extern jobj_t 
+__jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count);
 
-    if (jobj) {
-        for (i=0; i<count; i++) {
-            err = (*map[i])(jobj);
-            if (err<0) {
-                return NULL;
-            }
-        }
-    }
-    
-    return jobj;
-}
 #define jobj_map(_jobj, _map)               __jobj_map(_jobj, _map, os_count_of(_map))
 
 #define __jobj_mapf(_file, _map, _count)    __jobj_map(jobj_byfile(_file), _map, _count)
@@ -891,103 +443,11 @@ typedef struct {
 
 typedef int jrule_apply_f(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval);
 
-static inline int
-__jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval)
-{
-    int err = 0;
-    
-    switch(rule->type) {
-        case jtype_bool: {
-            bool vb = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fb)():rule->deft.b;
-            
-            err = jobj_add_bool(jobj, name, vb);
-            
-        }   break;
-        case jtype_int: {
-            int32 vi = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fi)():rule->deft.i;
-            
-            err = jobj_add_i32(jobj, name, vi);
-            
-        }   break;
-        case jtype_string: {
-            char *vs = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fs)():rule->deft.s;
-            
-            err = jobj_add_string(jobj, name, vs);
-            
-        }   break;
-        case jtype_object: /* down */
-        case jtype_array: {
-            err = (*rule->deft.fo)(jval);
-            
-        }   break;
-        default:
-            err = -ENOSUPPORT;
-    }
+extern int
+jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval);
 
-    return err;
-}
-
-static inline int
-jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval)
-{
-    /*
-    * dynamic/const, 
-    *   delete it from jobj
-    *   set default
-    */
-    if ((JRULE_CONST | JRULE_DYNAMIC) & rule->flag) {
-        jobj_del(jobj, name);
-        
-        return __jrule_repair(jobj, rule, name, jval);
-    }
-    /*
-    * no value, set default
-    */
-    else if (NULL==jval) {
-        return __jrule_repair(jobj, rule, name, jval);
-    }
-
-    return 0;
-}
-
-static inline int
-jrule_apply(jobj_t jobj, jrule_ops_t *ops, jrule_apply_f *apply)
-{
-    int id, err;
-    char *name;
-    jobj_t jval;
-    jrule_t *rule;
-    
-    for (id=0; id<ops->count; id++) {
-        if (false==(*ops->is_good_id)(id)) {
-            return -EBADRULE;
-        }
-        
-        name = (*ops->getnamebyid)(id);
-        if (NULL==name) {
-            return -EBADRULE;
-        }
-        rule = &ops->rule[id];
-        
-        jval = jobj_get(jobj, name);
-        if (NULL==jval) {
-            if (os_hasflag(rule->flag, JRULE_MUST)) {
-                return -ENOMUST;
-            }
-        }
-        else if (jobj_type(jval) != rule->type) {
-            return -EBADJTYPE;
-        }
-        else if (apply) {
-            err = (*apply)(jobj, rule, name, jval);
-            if (err<0) {
-                return err;
-            }
-        }
-    }
-
-    return 0;
-}
+extern int
+jrule_apply(jobj_t jobj, jrule_ops_t *ops, jrule_apply_f *apply);
 
 #endif /* __APP__ */
 /******************************************************************************/
