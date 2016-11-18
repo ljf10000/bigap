@@ -52,11 +52,12 @@ enum { INVALID_AKID = 0};
 typedef uint32 akid_t;
 
 #if defined(__BOOT__)
-extern akid_t *__THIS_DEBUG;
-extern akid_t *__THIS_JDEBUG;
+    extern akid_t *__THIS_DEBUG;
+    extern akid_t *__THIS_JDEBUG;
 #else
-extern akid_t __THIS_DEBUG;
-extern akid_t __THIS_JDEBUG;
+    extern akid_t __THIS_DEBUG;
+    extern akid_t __THIS_JDEBUG;
+#endif
 /******************************************************************************/
 #define AK_DEBUG_ENUM_MAPPER(_)                 \
     _(____ak_debug_ok,          0, "ok"),       \
