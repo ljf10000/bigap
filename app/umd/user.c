@@ -357,6 +357,16 @@ wan_offline(struct um_user *user)
     *      and keep others
     */
     //__online_downtime(user, um_flow_type_wan)   = time(NULL);
+    os_println( "user=%p,"
+                "user->limit=%p,"
+                "user->limit[um_flow_type_wan]=%p,"
+                "user->limit[um_flow_type_wan].online=%p,"
+                "user->limit[um_flow_type_wan].online.downtime=%p,",
+                user,
+                user->limit,
+                &user->limit[um_flow_type_wan],
+                &user->limit[um_flow_type_wan].online,
+                user->limit[um_flow_type_wan].online.downtime);
     user->limit[um_flow_type_wan].online.downtime = time(NULL);
     __online_downtime(user, um_flow_type_lan)   = 0;
     
