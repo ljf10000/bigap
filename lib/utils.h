@@ -230,9 +230,9 @@ lib_init(void)
     
     err = jlog_init();
     if (err<0) {
-        os_println(__THIS_APPNAME "jlog init error:%d", err);
+        os_println(__THIS_APPNAME " jlog init error:%d", err);
     }
-    os_println(__THIS_APPNAME "jlog init ok");
+    os_println(__THIS_APPNAME " jlog init ok");
     
     return 0;
 }
