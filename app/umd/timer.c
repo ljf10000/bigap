@@ -219,8 +219,6 @@ timer_server_handle(sock_server_t *server)
     time_t now = time(NULL);
     int i;
 
-    return 0;
-    
     mv_t cb(struct um_user *user)
     {
         timer_handle(user, now);
