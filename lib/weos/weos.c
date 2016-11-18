@@ -25,7 +25,6 @@ LIB_INITER;
 #include "file.c"
 #include "dll.c"
 #include "jlog.c"
-#include "ak.c"
 /******************************************************************************/
 int
 __os_system(char *cmd)
