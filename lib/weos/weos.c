@@ -22,5 +22,6 @@ LIB_INITER;
 #include "fd.c"
 #include "loop.c"
 #include "json.c"
+#include "file.c"
 /******************************************************************************/
 
