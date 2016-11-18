@@ -367,7 +367,7 @@ wan_offline(struct um_user *user)
                 &user->limit[um_flow_type_wan],
                 &user->limit[um_flow_type_wan].online,
                 &user->limit[um_flow_type_wan].online.downtime);
-
+    __online_downtime(user, um_flow_type_wan)   = 0;
     __online_downtime(user, um_flow_type_lan)   = 0;
     
     debug_event("user %s wan offline", os_macstring(user->mac));
