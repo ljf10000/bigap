@@ -113,11 +113,11 @@ typedef struct {
     cli_buffer_t    *b;
 } cli_t;
 
-#define CLI_INITER                          {   \
-    .fd     = INVALID_FD,                       \
-    .addr   = OS_SOCKADDR_UN_INITER(__empty),   \
-    .addrlen= sizeof(sockaddr_un_t),            \
-    .b      = NULL,                             \
+#define CLI_INITER                      {   \
+    .fd     = INVALID_FD,                   \
+    .addr   = OS_SOCKADDR_UNIX(__empty),    \
+    .addrlen= sizeof(sockaddr_un_t),        \
+    .b      = NULL,                         \
 }   /* end */
 
 #define DECLARE_FAKE_CLI        extern cli_t __THIS_CLI
