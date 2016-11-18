@@ -106,6 +106,9 @@ os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user);
 #define os_loop_add_CLI(_loop, _name, _cb)  os_loop_add_normal(_loop, __clis_FD(_name), _cb, NULL)
 #endif
 
+extern void 
+os_loop_fini(loop_t *loop);
+
 extern int
 os_loop(loop_t *loop);
 #endif

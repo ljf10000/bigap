@@ -107,10 +107,13 @@ __loop_watcher_init(loop_t *loop, uint32 limit)
     return 0;
 }
 
-#define __loop_fini(_loop)  do{ \
-    __loop_watcher_fini(_loop); \
-    os_close((_loop)->efd);     \
-}while(0)
+void 
+os_loop_fini(loop_t *loop)
+{
+    __loop_watcher_fini(loop);
+
+    os_close(loop->efd);
+}
 
 static int
 __loop_init(loop_t *loop)
@@ -571,7 +574,7 @@ os_loop(loop_t *loop)
         }
     }
 
-    __loop_fini(loop);
+    os_loop_fini(loop);
     
     return 0;
 }
