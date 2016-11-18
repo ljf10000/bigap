@@ -221,7 +221,7 @@ timer_server_handle(sock_server_t *server)
 
     mv_t cb(struct um_user *user)
     {
-        os_println("timer user[%s]=%p", os_macstring(user->mac), user);
+        //os_println("timer user[%s]=%p", os_macstring(user->mac), user);
         
         timer_handle(user, now);
 
