@@ -208,7 +208,7 @@ cli_vsprintf(const char *fmt, va_list args)
     int vsize = os_vsprintf_size((char *)fmt, copy);
     va_end(copy);
 
-#if CLI_MULTI
+#if __CLI_TCP__
     if (__clib_left < vsize) {
         __cli_reply(0);
     }
