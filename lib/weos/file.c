@@ -267,9 +267,8 @@ __os_fscan_file_handle
         mv.v = (*file_handle)(path, filename, line_handle);
         file_println("user file handle %s/%s %d", path, filename, mv2_error(mv));
 
-        return mv.v
-    }
-    else if (NULL==line_handle) {
+        return mv.v;
+    } else if (NULL==line_handle) {
         file_println("no line handle !!!");
         
         return mv2_go(-ENOSUPPORT);
