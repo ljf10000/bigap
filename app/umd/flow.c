@@ -649,7 +649,7 @@ flow_handle(sock_server_t *server)
         return -ENOEXIST;
     }
 
-    os_println("flow user[%s]=%p", os_macstring(user->mac), user);
+    //os_println("flow user[%s]=%p", os_macstring(user->mac), user);
     user->hitime = time(NULL);
 
     if (is_user_have_bind(user)) {
