@@ -245,12 +245,12 @@ lib_init(void)
 
     err = ak_init();
     if (err<0) {
-        os_println("libjs ak init error:%d", err);
+        os_println("lib ak init error:%d", err);
     }
     
     err = jlog_init();
     if (err<0) {
-        os_println("libjs jlog init error:%d", err);
+        os_println("lib jlog init error:%d", err);
     }
 
     return 0;
