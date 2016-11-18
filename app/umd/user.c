@@ -9,6 +9,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     user
 #endif
 
+int sbsbsb(void)
+{
+    return 0;
+}
 #define __DEAMON__
 #include "umd.h"
 #define __update_online(_user, _obj, _TYPE, _field)         do{ \
