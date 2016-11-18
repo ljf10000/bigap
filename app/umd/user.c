@@ -366,7 +366,7 @@ wan_offline(struct um_user *user)
                 user->limit,
                 &user->limit[um_flow_type_wan],
                 &user->limit[um_flow_type_wan].online,
-                user->limit[um_flow_type_wan].online.downtime);
+                &user->limit[um_flow_type_wan].online.downtime);
 
     __online_downtime(user, um_flow_type_lan)   = 0;
     
