@@ -1078,21 +1078,31 @@ juser_online(struct um_user *user, int type)
 {
     jobj_t obj = jobj_new_object();
     time_t time;
+    os_println("juser_online 1");
 
     jobj_add_u32(obj, "max",            __online_max(user, type));
+    os_println("juser_online 2");
     jobj_add_u32(obj, "idle",           __online_idle(user, type));
+    os_println("juser_online 3");
     jobj_add_i32(obj, "aging",          __online_aging(user, type));
+    os_println("juser_online 4");
     jobj_add_u32(obj, "numerator",      __online_numerator(user, type));
+    os_println("juser_online 5");
     jobj_add_u32(obj, "denominator",    __online_denominator(user, type));
+    os_println("juser_online 6");
     
     time = __online_uptime(user, type);
+    os_println("juser_online 7");
     if (time) {
         jobj_add_string(obj, "uptime", os_fulltime_string(&time));
+    os_println("juser_online 8");
     }
 
     time = __online_downtime(user, type);
+    os_println("juser_online 9");
     if (time) {
         jobj_add_string(obj, "downtime", os_fulltime_string(&time));
+    os_println("juser_online 10");
     }
     
     return obj;
@@ -1103,10 +1113,15 @@ __juser_flow(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
+    os_println("__juser_flow 1");
     jobj_add_u64(obj, "max",          __flow_max(user, type, dir));
+    os_println("__juser_flow 2");
     jobj_add_u64(obj, "now",          __flow_now(user, type, dir));
+    os_println("__juser_flow 3");
     jobj_add_u64(obj, "numerator",    __flow_numerator(user, type, dir));
+    os_println("__juser_flow 4");
     jobj_add_u64(obj, "denominator",  __flow_denominator(user, type, dir));
+    os_println("__juser_flow 5");
 
     return obj;
 }
@@ -1117,9 +1132,13 @@ juser_flow(struct um_user *user, int type)
     jobj_t obj = jobj_new_object();
     int dir;
 
+    os_println("juser_flow 1");
+
     for (dir=0; dir<um_flow_dir_end; dir++) {
+        os_println("juser_flow 1x");
         jobj_add(obj, flow_dir_string(dir), __juser_flow(user, type, dir));
     }
+    os_println("juser_flow 2");
 
     return obj;
 }
@@ -1128,9 +1147,11 @@ static jobj_t
 __juser_rate(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
-    
+    os_println("__juser_rate 1");
     jobj_add_u32(obj, "max", __rate_max(user, type, dir));
+    os_println("__juser_rate 2");
     jobj_add_u32(obj, "avg", __rate_avg(user, type, dir));
+    os_println("__juser_rate 3");
 
     return obj;
 }
@@ -1141,9 +1162,13 @@ juser_rate(struct um_user *user, int type)
     jobj_t obj = jobj_new_object();
     int dir;
 
+    os_println("juser_rate 1");
+
     for (dir=0; dir<um_flow_dir_end; dir++) {
+    os_println("juser_rate 1x");
         jobj_add(obj, flow_dir_string(dir), __juser_rate(user, type, dir));
     }
+    os_println("juser_rate 2");
 
     return obj;
 }
@@ -1152,10 +1177,14 @@ static jobj_t
 __juser_limit(struct um_user *user, int type)
 {
     jobj_t obj = jobj_new_object();
+    os_println("__juser_limit 1");
 
     jobj_add(obj, "online", juser_online(user, type));
+    os_println("__juser_limit 2");
     jobj_add(obj, "flow", juser_flow(user, type));
+    os_println("__juser_limit 3");
     jobj_add(obj, "rate", juser_rate(user, type));
+    os_println("__juser_limit 4");
 
     return obj;
 }
@@ -1165,8 +1194,11 @@ juser_limit(struct um_user *user)
 {
     jobj_t obj = jobj_new_object();
 
+    os_println("juser_limit 1");
     jobj_add(obj, flow_type_string(um_flow_type_lan), __juser_limit(user, um_flow_type_lan));
+    os_println("juser_limit 2");
     jobj_add(obj, flow_type_string(um_flow_type_wan), __juser_limit(user, um_flow_type_wan));
+    os_println("juser_limit 3");
     
     return obj;
 }
@@ -1177,9 +1209,12 @@ juser_tag(struct um_user *user)
     jobj_t obj = jobj_new_object();
     struct um_tag *tag;
     
+    os_println("juser_tag 1");
     list_for_each_entry(tag, &user->head.tag, tag) {
+        os_println("juser_tag 1.x");
         jobj_add_string(obj, tag->k, tag->v);
     }
+    os_println("juser_tag 2");
 
     return obj;
 }
@@ -1188,23 +1223,38 @@ jobj_t um_juser(struct um_user *user)
 {
     jobj_t obj = jobj_new_object();
 
+    os_println("um_juser 1");
     jobj_add_string(obj, "mac",             os_macstring(user->mac));
+    os_println("um_juser 2");
     jobj_add_string(obj, "bssid_first",     os_macstring(user->bssid_first));
+    os_println("um_juser 3");
     jobj_add_string(obj, "bssid_current",   os_macstring(user->bssid_current));
+    os_println("um_juser 4");
     jobj_add_string(obj, "ssid",    user->ssid);
+    os_println("um_juser 5");
     jobj_add_string(obj, "ip",      os_ipstring(user->ip));
+    os_println("um_juser 6");
     jobj_add_string(obj, "state",   user_state_string(user->state));
+    os_println("um_juser 7");
     jobj_add_string(obj, "reason",  deauth_reason_string(user->reason));
+    os_println("um_juser 8");
     
     jobj_add_string(obj, "create",  os_fulltime_string(&user->create));
+    os_println("um_juser 9");
     jobj_add_string(obj, "noused",  os_fulltime_string(&user->noused));
+    os_println("um_juser 10");
     jobj_add_string(obj, "faketime",os_fulltime_string(&user->faketime));
+    os_println("um_juser 11");
     jobj_add_string(obj, "hitime",  os_fulltime_string(&user->hitime));
+    os_println("um_juser 12");
     
     jobj_add_i32(obj,   "group",    user->group);
+    os_println("um_juser 13");
 
     jobj_add(obj, "tag",    juser_tag(user));
+    os_println("um_juser 14");
     jobj_add(obj, "limit",  juser_limit(user));
+    os_println("um_juser 15");
 
     return obj;
 }
