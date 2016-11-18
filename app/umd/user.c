@@ -356,7 +356,7 @@ wan_offline(struct um_user *user)
     *   2. clear  lan downtime
     *      and keep others
     */
-    // __online_downtime(user, um_flow_type_wan)   = time(NULL);
+    __online_downtime(user, um_flow_type_wan)   = time(NULL);
     __online_downtime(user, um_flow_type_lan)   = 0;
     
     debug_event("user %s wan offline", os_macstring(user->mac));
