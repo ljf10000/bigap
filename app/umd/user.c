@@ -359,7 +359,7 @@ wan_offline(struct um_user *user)
     // __online_downtime(user, um_flow_type_wan)   = time(NULL);
     // __online_downtime(user, um_flow_type_lan)   = 0;
     
-    // debug_event("user %s wan offline", os_macstring(user->mac));
+    debug_event("user %s wan offline", os_macstring(user->mac));
 }
 
 STATIC struct um_user *
