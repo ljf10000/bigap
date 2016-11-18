@@ -197,10 +197,6 @@
 
 #include "oem/oem.h"
 /******************************************************************************/
-#define OS_INITER           \
-    os_fake_declare         \
-    /* end */
-
 #ifdef __ALLINONE__
 #define LIB_INITER  os_fake_declare
 #else

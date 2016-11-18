@@ -41,7 +41,7 @@ int __benv_read(int env, bool mirror)
 static void
 benv_boot(void)
 {
-    ____benv_control = NULL;
+    __THIS_BENV = NULL;
     
     benv_init();
 //    md_boot_init();//md only now

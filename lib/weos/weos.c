@@ -38,6 +38,7 @@ LIB_INITER;
 bool __THIS_COMMAND;
 akid_t __THIS_DEBUG;
 akid_t __THIS_JDEBUG;
+benv_control_t *__THIS_BENV;
 
 int
 __os_system(char *cmd)
