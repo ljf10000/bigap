@@ -262,6 +262,21 @@ __os_fscan_file_handle
         return os_assertV(mv2_go(-EINVAL2));
     }
 
+    if (file_handle) {
+        file_println("user file handle %s/%s ...", path, filename);
+        mv.v = (*file_handle)(path, filename, line_handle);
+        file_println("user file handle %s/%s %d", path, filename, mv2_error(mv));
+
+        return mv.v
+    }
+    else if (NULL==line_handle) {
+        file_println("no line handle !!!");
+        
+        return mv2_go(-ENOSUPPORT);
+    }
+    
+    file_println("inline file handle %s/%s ...", path, filename);
+    
     stream = os_v_fopen("r", "%s/%s", path, filename);
     if (NULL==stream) {
         file_println("open %s/%s error:%d", path, filename, -errno);
@@ -270,53 +285,55 @@ __os_fscan_file_handle
         
         goto error;
     }
-
-    if (file_handle) {
-        mv.v = (*file_handle)(path, filename, line_handle);
-    } else if (line_handle) {
-        while(!os_feof(stream)) {
-            line[0] = 0;
-            os_freadline(stream, line, OS_LINE_LEN);
+    
+    while(!os_feof(stream)) {
+        line[0] = 0;
+        os_freadline(stream, line, OS_LINE_LEN);
+        
+        /*
+        * strim left/right blank
+        */
+        os_str_strim_both(line, NULL);
+        
+        /*
+        * replace blank("\t \r\n") to ' '
+        */
+        os_str_replace(line, NULL, ' ');
+        
+        /*
+        * reduce ' '
+        */
+        os_str_reduce(line, NULL);
+        
+        /*
+        * skip blank line
+        */
+        if (__is_blank_line(line)) {
+            file_println("skip blank line");
             
-            /*
-            * strim left/right blank
-            */
-            os_str_strim_both(line, NULL);
+            continue;
+        }
+        
+        /*
+        * skip notes line
+        */
+        if (__is_notes_line_deft(line)) {
+            file_println("skip notes line");
             
-            /*
-            * replace blank("\t \r\n") to ' '
-            */
-            os_str_replace(line, NULL, ' ');
-            
-            /*
-            * reduce ' '
-            */
-            os_str_reduce(line, NULL);
-            
-            /*
-            * skip blank line
-            */
-            if (__is_blank_line(line)) {
-                continue;
-            }
-            
-            /*
-            * skip notes line
-            */
-            if (__is_notes_line_deft(line)) {
-                continue;
-            }
-            
-            mv.v = (*line_handle)(filename, line);
-            if (is_mv2_break(mv)) {
-                goto error;
-            }
+            continue;
+        }
+        
+        mv.v = (*line_handle)(filename, line);
+        file_println("line handle %s:%s error:%d", filename, line, mv2_error(mv));
+        if (is_mv2_break(mv)) {
+            goto error;
         }
     }
-    
+
     mv.v = mv2_ok;
 error:
     os_fclose(stream);
+    file_println("inline file handle %s/%s error:%d", path, filename, mv2_error(mv));
     
     return mv.v;
 }
@@ -368,6 +385,8 @@ os_fscan_dir
 
         err = stat(d->d_name, &st);
         if (err<0) {
+            file_println("stat %s error:%d", d->d_name, err);
+            
             continue;
         }
         
