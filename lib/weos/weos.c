@@ -21,5 +21,6 @@ LIB_INITER;
 #include "coroutine.c"
 #include "fd.c"
 #include "loop.c"
+#include "json.c"
 /******************************************************************************/
 
