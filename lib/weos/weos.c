@@ -105,7 +105,7 @@ __this_oem(void)
 }
 
 haenv_file_t *
-haenv(void)
+__this_haenv(void)
 {
     static haenv_file_t env;
 
