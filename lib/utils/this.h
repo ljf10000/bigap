@@ -71,10 +71,6 @@
 #define __THIS_OEM              __SYMBOL_TO_THIS(_oem)
 #endif
 
-#ifndef __THIS_AK
-#define __THIS_AK               __SYMBOL_TO_THIS(_ak)
-#endif
-
 #ifndef __THIS_CLI
 #define __THIS_CLI              __SYMBOL_TO_THIS(_cli)
 #endif
