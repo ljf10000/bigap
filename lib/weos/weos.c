@@ -46,5 +46,52 @@ __os_system(char *cmd)
 	}
 }
 
+deamon_t *
+__this_deamon(void)
+{
+    static deamon_t deamon;
+    
+    return &deamon;
+}
+
+int
+__oem_type(void)
+{
+    static int type = OEM_T_END;
+
+    if (OEM_T_END==type) {
+        char vendor[1+OEM_NAME_LEN] = {0};
+
+        if (os_file_exist(OEM_FILE)) {
+            os_v_fgets(vendor, OEM_NAME_LEN, OEM_FILE);
+            type = oem_type_idx(vendor);
+            if (is_good_oem_type(type)) {
+                return type;
+            }
+        }
+        
+#if IS_PRODUCT_LTEFI_MD1
+        os_v_pgets(vendor, OEM_NAME_LEN, "bootm product.vendor");
+#elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
+        os_v_pgets(vendor, OEM_NAME_LEN, "benv infos/product/vendor");
+#endif
+        type = oem_type_idx(vendor);
+        if (is_good_oem_type(type)) {
+            return type;
+        }
+
+        type = OEM_T_DEFT;
+    }
+    
+    return type;
+}
+
+oem_t *
+__this_oem(void)
+{
+    oem_t oem[OEM_T_END] = __THIS_OEM_INITER;
+    
+    return &oem[__oem_type()];
+}
 
 /******************************************************************************/

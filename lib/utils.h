@@ -200,7 +200,6 @@
 #define OS_REAL_INITER          \
     DECLARE_REAL_COMMAND;       \
     /* DECLARE_REAL_HAENV; */   \
-    DECLARE_REAL_DEAMON;        \
     DECLARE_REAL_AK;            \
     DECLARE_REAL_OEM;           \
     DECLARE_REAL_CLI;           \
@@ -214,7 +213,6 @@
 #define OS_FAKE_INITER          \
     DECLARE_FAKE_COMMAND;       \
     /* DECLARE_FAKE_HAENV; */   \
-    DECLARE_FAKE_DEAMON;        \
     DECLARE_FAKE_AK;            \
     DECLARE_FAKE_OEM;           \
     DECLARE_FAKE_CLI;           \
@@ -228,7 +226,6 @@
 #define OS_INITER           \
     DECLARE_COMMAND;        \
     /* DECLARE_HAENV; */    \
-    DECLARE_DEAMON;         \
     DECLARE_AK;             \
     DECLARE_OEM;            \
     DECLARE_CLI;            \
