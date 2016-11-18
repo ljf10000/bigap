@@ -299,6 +299,7 @@ __os_system(char *cmd);
 /*
 * use for logger inline function (__JLOGGER__/__JLOGD__/__BOOT__)
 */
+#if 1
 #define __vdebug_ok(_fmt, _args)        jvdlogger(jlog_vprintf, __ak_debug_ok, _fmt, _args)
 #define __vdebug_bug(_fmt, _args)       jvdlogger(jlog_vprintf, __ak_debug_bug, _fmt, _args)
 #define __vdebug_error(_fmt, _args)     jvdlogger(jlog_vprintf, __ak_debug_error, _fmt, _args)
@@ -349,9 +350,50 @@ __os_system(char *cmd);
 #define __debug_cli(_fmt, _args...)     jdlogger(jlog_printf, __ak_debug_cli, _fmt, ##_args)
 #define __debug_test(_fmt, _args...)    jdlogger(jlog_printf, __ak_debug_test, _fmt, ##_args)
 
+#define __trace_error(_err, _trace_ok, _trace_error, _fmt, _args...) do{    \
+    if (_err<0) {                                     \
+        _trace_error("[ERROR:%d]" _fmt, _err, ##_args); \
+    } else {                                        \
+        _trace_ok("[OK]" _fmt, ##_args);            \
+    }                                               \
+}while(0)
+
+#define __debug_ok_error(_err, _fmt, _args...)      \
+    __trace_error(_err, __debug_ok, __debug_error, _fmt, ##_args)
+
+#define __debug_trace_error(_err, _fmt, _args...)   \
+    __trace_error(_err, __debug_trace, __debug_error, _fmt, ##_args)
+
+#define __debug_assert(_condition, _debug, _fmt, _args...) do{ \
+    bool __cond = _condition;   \
+    if (!__cond) {              \
+        _debug(_fmt, ##_args);  \
+        os_assert(0);           \
+    }                           \
+}while(0)
+
+#define __trace_assert(_condition, _fmt, _args...)  \
+    __debug_assert(_condition, __debug_trace, _fmt, ##_args)
+
+#define __error_assert(_condition, _fmt, _args...)  \
+    __debug_assert(_condition, __debug_error, _fmt, ##_args)
+
+#define __debug_assertV(_value, _debug, _fmt, _args...) ({ \
+    _debug(_fmt, ##_args);  \
+    os_assertV(_value);     \
+})  /* end */
+
+#define __trace_assertV(_value, _fmt, _args...) \
+    __debug_assertV(_value, __debug_trace, _fmt, ##_args)
+
+#define __error_assertV(_value, _fmt, _args...) \
+    __debug_assertV(_value, __debug_error, _fmt, ##_args)
+#endif
+
 /*
 * use for others
 */
+#if 1
 #define vdebug_ok(_fmt, _args)          jvdlogger(dvlogger, __ak_debug_ok, _fmt, _args)
 #define vdebug_bug(_fmt, _args)         jvdlogger(dvlogger, __ak_debug_bug, _fmt, _args)
 #define vdebug_error(_fmt, _args)       jvdlogger(dvlogger, __ak_debug_error, _fmt, _args)
@@ -401,78 +443,35 @@ __os_system(char *cmd);
 #define debug_format(_fmt, _args...)    jdlogger(dlogger, __ak_debug_format, _fmt, ##_args)
 #define debug_cli(_fmt, _args...)       jdlogger(dlogger, __ak_debug_cli, _fmt, ##_args)
 #define debug_test(_fmt, _args...)      jdlogger(dlogger, __ak_debug_test, _fmt, ##_args)
-
-#define __trace_error(_err, _trace_ok, _trace_error, _fmt, _args...) do{    \
-    if (_err<0) {                                     \
-        _trace_error("[ERROR:%d]" _fmt, _err, ##_args); \
-    } else {                                        \
-        _trace_ok("[OK]" _fmt, ##_args);            \
-    }                                               \
-}while(0)
+#endif
 
 #define trace_error(_err, _fmt, _args...)           \
-        __trace_error(_err, os_eprintln, os_eprintln, _fmt, ##_args)
-
-#define __debug_ok_error(_err, _fmt, _args...)      \
-    __trace_error(_err, __debug_ok, __debug_error, _fmt, ##_args)
+    __trace_error(_err, os_eprintln, os_eprintln, _fmt, ##_args)
 
 #define debug_ok_error(_err, _fmt, _args...)        \
     __trace_error(_err, debug_ok, debug_error, _fmt, ##_args)
 
-#define __debug_trace_error(_err, _fmt, _args...)   \
-    __trace_error(_err, __debug_trace, __debug_error, _fmt, ##_args)
-
 #define debug_trace_error(_err, _fmt, _args...)     \
     __trace_error(_err, debug_trace, debug_error, _fmt, ##_args)
-
-#define __debug_assert(_condition, _debug, _fmt, _args...) do{ \
-    bool __cond = _condition;   \
-    if (!__cond) {              \
-        _debug(_fmt, ##_args);  \
-        os_assert(0);           \
-    }                           \
-}while(0)
-
-#define __trace_assert(_condition, _fmt, _args...)  \
-    __debug_assert(_condition, __debug_trace, _fmt, ##_args)
 
 #define trace_assert(_condition, _fmt, _args...)    \
     __debug_assert(_condition, debug_trace, _fmt, ##_args)
 
-#define __error_assert(_condition, _fmt, _args...)  \
-    __debug_assert(_condition, __debug_error, _fmt, ##_args)
-
 #define error_assert(_condition, _fmt, _args...)    \
     __debug_assert(_condition, debug_error, _fmt, ##_args)
 
-#define __debug_assertV(_value, _debug, _fmt, _args...) ({ \
-    _debug(_fmt, ##_args);  \
-    os_assertV(_value);     \
-})  /* end */
-
-#define __trace_assertV(_value, _fmt, _args...) \
-    __debug_assertV(_value, __debug_trace, _fmt, ##_args)
-
 #define trace_assertV(_value, _fmt, _args...)   \
     __debug_assertV(_value, debug_trace, _fmt, ##_args)
-
-#define __error_assertV(_value, _fmt, _args...) \
-    __debug_assertV(_value, __debug_error, _fmt, ##_args)
 
 #define error_assertV(_value, _fmt, _args...)   \
     __debug_assertV(_value, debug_error, _fmt, ##_args)
 
 #ifdef __APP__
-extern int
-jlog_init(void);
-
-extern int
-jlog_fini(void);
+    extern int jlog_init(void);
+    extern int jlog_fini(void);
 #else
-#define jlog_init   0
-#define jlog_fini   0
+#   define jlog_init    0
+#   define jlog_fini    0
 #endif
-
-
 /******************************************************************************/
 #endif /* __JLOG_H_c174923fabe845e980f9379209210cc3__ */
