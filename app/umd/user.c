@@ -413,7 +413,7 @@ __user_insert(struct um_user *user)
 }
 
 STATIC void
-libc_set_group(struct um_user *user, int group)
+__set_group(struct um_user *user, int group)
 {
     if (NULL==user) {
         debug_bug("user nil");
@@ -580,7 +580,7 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *ev)
         ev_call(ev, user);
         
         __set_state(user, UM_STATE_BIND);
-        libc_set_group(user, 0);
+        __set_group(user, 0);
         wan_offline(user);
     });
 
@@ -810,7 +810,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
     
     user_debug_call("auth", user, {
         __set_state(user, UM_STATE_AUTH);
-        libc_set_group(user, group);
+        __set_group(user, group);
         __set_reason(user, UM_DEAUTH_NONE);
         update_limit(user, obj);
         wan_online(user);
