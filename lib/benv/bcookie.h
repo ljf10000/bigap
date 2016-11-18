@@ -310,7 +310,7 @@ __bcookie_save(char *file, int fsize, struct bcookie *obj, int osize)
     }
     
 error:
-    __os_file_unlock(file, fd);
+    __os_file_unlock(fd);
     if (mem) {
         os_free(mem);
     }
