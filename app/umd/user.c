@@ -350,6 +350,7 @@ lan_offline(struct um_user *user)
 STATIC void
 wan_offline(struct um_user *user)
 {
+    time_t t = time(NULL);
     /*
     * wan, online==>offline
     *   1. update wan downtime
@@ -367,7 +368,7 @@ wan_offline(struct um_user *user)
                 &user->limit[um_flow_type_wan],
                 &user->limit[um_flow_type_wan].online,
                 &user->limit[um_flow_type_wan].online.downtime);
-    __online_downtime(user, um_flow_type_wan)   = time(NULL);
+    __online_downtime(user, um_flow_type_wan)   = t;
     __online_downtime(user, um_flow_type_lan)   = 0;
     
     debug_event("user %s wan offline", os_macstring(user->mac));
