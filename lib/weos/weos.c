@@ -24,5 +24,6 @@ LIB_INITER;
 #include "slice.c"
 #include "file.c"
 #include "dll.c"
+#include "jlog.c"
 /******************************************************************************/
 

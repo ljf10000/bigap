@@ -199,7 +199,6 @@
     DECLARE_REAL_COMMAND;       \
     /* DECLARE_REAL_HAENV; */   \
     DECLARE_REAL_DEAMON;        \
-    DECLARE_REAL_JLOG;          \
     DECLARE_REAL_OEM;           \
     DECLARE_REAL_AK;            \
     DECLARE_REAL_CLI;           \
@@ -214,7 +213,6 @@
     DECLARE_FAKE_COMMAND;       \
     /* DECLARE_FAKE_HAENV; */   \
     DECLARE_FAKE_DEAMON;        \
-    DECLARE_FAKE_JLOG;          \
     DECLARE_FAKE_OEM;           \
     DECLARE_FAKE_AK;            \
     DECLARE_FAKE_CLI;           \
@@ -229,7 +227,6 @@
     DECLARE_COMMAND;        \
     /* DECLARE_HAENV; */    \
     DECLARE_DEAMON;         \
-    DECLARE_JLOG;           \
     DECLARE_OEM;            \
     DECLARE_AK;             \
     DECLARE_CLI;            \
