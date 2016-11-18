@@ -20,5 +20,6 @@ LIB_INITER;
 #include "cqueue.c"
 #include "coroutine.c"
 #include "fd.c"
+#include "loop.c"
 /******************************************************************************/
 
