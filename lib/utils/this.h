@@ -46,13 +46,5 @@
 #else
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)
 #endif
-
-#ifndef __THIS_DEBUG
-#define __THIS_DEBUG            __SYMBOL_TO_THIS(_debugger)
-#endif
-
-#ifndef __THIS_JDEBUG
-#define __THIS_JDEBUG           __SYMBOL_TO_THIS(_js_debugger)
-#endif
 /******************************************************************************/
 #endif /* __THIS_H_bb55b32c2226479dab1f126ea1ba1e9f__ */
