@@ -173,7 +173,7 @@ nodehaship(hash_node_t *node)
     return haship(user->ip);
 }
 
-STATIC inline void
+STATIC void
 tag_free(struct um_tag *tag)
 {
     if (tag) {
@@ -1378,7 +1378,7 @@ struct um_user *um_touser(struct um_user *user, jobj_t juser)
     return user;
 }
 
-STATIC inline bool
+STATIC bool
 match_mac(byte umac[], byte fmac[], byte mask[])
 {
     if (is_good_mac(fmac)) {
@@ -1408,7 +1408,7 @@ match_mac(byte umac[], byte fmac[], byte mask[])
     return true;
 }
 
-STATIC inline bool
+STATIC bool
 match_ip(uint32 uip, uint32 fip, uint32 mask)
 {
     if (fip) {
