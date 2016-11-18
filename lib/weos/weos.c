@@ -135,7 +135,7 @@ __this_cli(void)
 os_shm_t *
 __this_ak(void)
 {
-    os_shm_t ak = OS_SHM_INITER(OS_AK_SHM_ID);
+    static os_shm_t ak = OS_SHM_INITER(OS_AK_SHM_ID);
     
     return &ak;
 }
