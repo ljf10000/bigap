@@ -530,11 +530,13 @@ __user_delete(struct um_user *user, event_cb_t *ev)
         return -ENOEXIST;
     }
 
+    os_println("delete user[%s]=%p ...", os_macstring(user->mac), user);
+    
     user_debug_head_call("delete", user, {
         ev_call(ev, user);
         tag_clear(user);
         __user_remove(user);
-        os_println("delete user[%s]=%p", os_macstring(user->mac), user);
+        os_println("delete user[%s]=%p ok.", os_macstring(user->mac), user);
         os_free(user);
     });
 
@@ -551,7 +553,7 @@ __user_create(byte mac[], event_cb_t *ev)
         return NULL;
     }
     os_maccpy(user->mac, mac);
-    os_println("create user[%s]=%p", os_macstring(user->mac), user);
+    os_println("create user[%s]=%p ...", os_macstring(user->mac), user);
     INIT_LIST_HEAD(&user->head.tag);
 
     user_debug_tail_call("create", user, {
@@ -561,6 +563,7 @@ __user_create(byte mac[], event_cb_t *ev)
         __user_insert(user);
         ev_call(ev, user);
     });
+    os_println("create user[%s]=%p ok", os_macstring(user->mac), user);
     
     return user;
 }
@@ -576,6 +579,7 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *ev)
         return 0;
     }
 
+    os_println("deauth user[%s]=%p ...", os_macstring(user->mac), user);
     // auth==>bind
     user_debug_call("deauth", user, {
         __set_reason(user, reason);
@@ -585,7 +589,8 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *ev)
         libc_set_group(user, 0);
         wan_offline(user);
     });
-
+    os_println("deauth user[%s]=%p ok.", os_macstring(user->mac), user);
+    
     return 0;
 }
 
@@ -600,6 +605,7 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
         return 0;
     }
 
+    os_println("unfake user[%s]=%p ...", os_macstring(user->mac), user);
     // fake==>bind
     user_debug_call("unfake", user, {
         __set_reason(user, reason);
@@ -608,7 +614,8 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
         __set_state(user, UM_STATE_BIND);
         wan_offline(user);
     });
-
+    os_println("unfake user[%s]=%p ok.", os_macstring(user->mac), user);
+    
     return 0;
 }
 
@@ -628,6 +635,7 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
         return 0;
     }
 
+    os_println("unbind user[%s]=%p ...", os_macstring(user->mac), user);
     // bind==>none
     user_debug_call("unbind", user, {
         __set_reason(user, reason);
@@ -637,7 +645,8 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
         __set_state(user, UM_STATE_NONE);
         lan_offline(user);
     });
-
+    os_println("unbind user[%s]=%p ok.", os_macstring(user->mac), user);
+    
     return 0;
 }
 
@@ -656,6 +665,7 @@ __user_block(struct um_user *user, event_cb_t *ev)
         return NULL;
     }
 
+    os_println("block user[%s]=%p ...", os_macstring(user->mac), user);
     // none==>block
     user_debug_call("block", user, {
         __set_reason(user, UM_DEAUTH_BLOCK);
@@ -663,6 +673,7 @@ __user_block(struct um_user *user, event_cb_t *ev)
         
         __set_state(user, UM_STATE_BLOCK);
     });
+    os_println("block user[%s]=%p ok.", os_macstring(user->mac), user);
 
     return user;
 }
@@ -678,12 +689,15 @@ __user_unblock(struct um_user *user, event_cb_t *ev)
         return NULL;
     }
 
+    os_println("unblock user[%s]=%p ...", os_macstring(user->mac), user);
+
     // block==>none
     user_debug_call("unblock", user, {
         __set_state(user, UM_STATE_NONE);
         
         ev_call(ev, user);
     });
+    os_println("unblock user[%s]=%p ok.", os_macstring(user->mac), user);
 
     return user;
 }
@@ -713,6 +727,7 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
         return NULL;
     }
     
+    os_println("bind user[%s]=%p ...", os_macstring(user->mac), user);
     // none==>bind
     user_debug_call("bind", user, {
         __set_ip(user, ip);
@@ -721,6 +736,7 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
         update_aging(user, true);
         ev_call(ev, user);
     });
+    os_println("bind user[%s]=%p ok.", os_macstring(user->mac), user);
 
     return user;
 }
@@ -744,6 +760,8 @@ __user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
             __user_unbind(user, UM_DEAUTH_AUTO, __ev);
         }
     }
+
+    os_println("fake user[%s]=%p ...", os_macstring(user->mac), user);
     
     user_debug_call("fake", user, {
         __set_ip(user, ip);
@@ -753,6 +771,7 @@ __user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
         user->faketime = time(NULL);
         ev_call(ev, user);
     });
+    os_println("fake user[%s]=%p ok.", os_macstring(user->mac), user);
 
     return user;
 }
@@ -772,9 +791,11 @@ __user_reauth(struct um_user *user, event_cb_t *ev)
         return NULL;
     }
     
+    os_println("reauth user[%s]=%p ...", os_macstring(user->mac), user);
     user_debug_call("reauth", user, {
         ev_call(ev, user);
     });
+    os_println("reauth user[%s]=%p ok.", os_macstring(user->mac), user);
 
     return user;
 }
@@ -810,6 +831,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
         return NULL;
     }
     
+    os_println("auth user[%s]=%p ...", os_macstring(user->mac), user);
     user_debug_call("auth", user, {
         __set_state(user, UM_STATE_AUTH);
         libc_set_group(user, group);
@@ -819,6 +841,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
         update_aging(user, true);
         ev_call(ev, user);
     });
+    os_println("auth user[%s]=%p ok.", os_macstring(user->mac), user);
 
     return user;
 }
@@ -830,11 +853,13 @@ __user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
         return NULL;
     }
     
+    os_println("sync user[%s]=%p ...", os_macstring(user->mac), user);
     user_debug_call("sync", user, {
         um_touser(user, obj);
         
         ev_call(ev, user);
     });
+    os_println("sync user[%s]=%p ok.", os_macstring(user->mac), user);
 
     return user;
 }
