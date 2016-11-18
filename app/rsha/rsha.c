@@ -9,8 +9,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 #include "rsh/rsh.h"
-
-OS_INITER;
 /******************************************************************************/
 typedef struct {
     char *ipstring;

@@ -197,14 +197,6 @@
 
 #include "oem/oem.h"
 /******************************************************************************/
-#define OS_REAL_INITER          \
-    os_fake_declare             \
-    /* end */
-
-#define OS_FAKE_INITER          \
-    os_fake_declare             \
-    /* end */
-
 #define OS_INITER           \
     os_fake_declare         \
     /* end */
@@ -219,7 +211,7 @@
         lib_init();             \
     }                           \
                                 \
-    OS_INITER                   \
+    os_fake_declare             \
     /* end */
 #endif
 

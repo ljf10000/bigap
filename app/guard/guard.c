@@ -13,8 +13,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #if !(IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC)
 #error "just support ltefi md/pc board"
 #endif
-
-OS_INITER;
 BENV_INITER;
 
 enum { HACKED_CUSTOM = 1 };

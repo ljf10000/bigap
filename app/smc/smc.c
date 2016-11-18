@@ -9,8 +9,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "sm/sm.h"
 
-OS_INITER;
-
 static cli_client_t smc = CLI_CLIENT_INITER("smd");
 
 #define smc_handle(_action, _argc, _argv) \

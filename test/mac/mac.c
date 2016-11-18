@@ -7,8 +7,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 
-OS_INITER;
-
 #define MAC0        ((byte *)"\x00\x11\x22\xaa\xbb\xcc")
 #define MAC1        ((byte *)"\xff\xee\xdd\xcc\xbb\xaa")
 

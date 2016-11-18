@@ -7,8 +7,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 
-OS_INITER;
-
 #define JSON_FORMAT                                     \
     __tab   "json format"                       __crlf  \
     __tab   "{"                                 __crlf  \

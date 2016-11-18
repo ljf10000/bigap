@@ -7,8 +7,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 
-OS_INITER;
-
 #define SERVER "server"
 #define CLIENT "client"
 

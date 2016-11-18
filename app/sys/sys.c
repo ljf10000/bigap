@@ -13,7 +13,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #error "just support ltefi md2/md3/pc board"
 #endif
 
-OS_INITER;
 BENV_INITER;
 
 #define DIR_USB_UPGRADE             PRODUCT_DIR_USB "/upgrade"

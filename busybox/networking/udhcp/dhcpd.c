@@ -24,7 +24,6 @@
 #endif
 
 #include "utils.h"
-OS_INITER;
 #endif
 
 #include <syslog.h>

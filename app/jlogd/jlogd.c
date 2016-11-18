@@ -9,8 +9,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 
-OS_INITER;
-
 #ifndef JLOGD_BUFSIZE
 #define JLOGD_BUFSIZE       (1*1024*1024-1)
 #endif

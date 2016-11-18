@@ -11,8 +11,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "tm/tm.h"
 
-OS_INITER;
-
 static struct {    
     struct {
         int fd;

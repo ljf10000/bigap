@@ -7,8 +7,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 
-OS_INITER;
-
 #ifndef MAX_SCRIPT
 #define MAX_SCRIPT      127
 #endif

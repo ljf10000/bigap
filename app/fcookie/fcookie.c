@@ -8,8 +8,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "fcookie/fcookie.h"
 
-OS_INITER;
-
 /*
 * cmd have enabled when boot
 */

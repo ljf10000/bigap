@@ -6,9 +6,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #include "utils.h"
-
-OS_INITER;
-
 #define TEST_TIMER_BYFD    1
 
 struct test {
