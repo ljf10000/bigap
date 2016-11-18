@@ -350,7 +350,7 @@ lan_offline(struct um_user *user)
 STATIC void
 wan_offline(struct um_user *user)
 {
-    os_println("user[%s]=%p", os_macstring(user->mac), user);
+    os_println("wan offline user[%s]=%p", os_macstring(user->mac), user);
     
     /*
     * wan, online==>offline
