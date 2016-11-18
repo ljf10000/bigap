@@ -101,5 +101,13 @@ __this_oem(void)
     return &oem[__oem_type()];
 }
 
+haenv_file_t *
+haenv(void)
+{
+    static haenv_file_t env;
+
+    return &env;
+}
+
 #endif
 /******************************************************************************/

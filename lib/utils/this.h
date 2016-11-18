@@ -66,9 +66,5 @@
 #ifndef __THIS_CLI
 #define __THIS_CLI              __SYMBOL_TO_THIS(_cli)
 #endif
-
-#ifndef __THIS_HAENV
-#define __THIS_HAENV            __SYMBOL_TO_THIS(_haenv)
-#endif
 /******************************************************************************/
 #endif /* __THIS_H_bb55b32c2226479dab1f126ea1ba1e9f__ */

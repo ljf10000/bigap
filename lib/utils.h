@@ -199,7 +199,6 @@
 /******************************************************************************/
 #define OS_REAL_INITER          \
     DECLARE_REAL_COMMAND;       \
-    /* DECLARE_REAL_HAENV; */   \
     DECLARE_REAL_AK;            \
     DECLARE_REAL_CLI;           \
     DECLARE_REAL_DEBUGGER;      \
@@ -211,7 +210,6 @@
 
 #define OS_FAKE_INITER          \
     DECLARE_FAKE_COMMAND;       \
-    /* DECLARE_FAKE_HAENV; */   \
     DECLARE_FAKE_AK;            \
     DECLARE_FAKE_CLI;           \
     DECLARE_FAKE_DEBUGGER;      \
@@ -223,7 +221,6 @@
 
 #define OS_INITER           \
     DECLARE_COMMAND;        \
-    /* DECLARE_HAENV; */    \
     DECLARE_AK;             \
     DECLARE_CLI;            \
     DECLARE_DEBUGGER;       \
