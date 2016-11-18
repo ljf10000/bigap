@@ -82,7 +82,7 @@ static inline int user_auto_idx(char *name);
 #endif
 
 #ifndef UMD_AUTOUSER
-#define UMD_AUTOUSER    UM_AUTO_FAKE
+#define UMD_AUTOUSER    UM_AUTO_BIND
 #endif
 
 #if 1
