@@ -34,6 +34,8 @@ LIB_INITER;
 /******************************************************************************/
 #ifdef __APP__
 
+bool __THIS_COMMAND;
+
 int
 __os_system(char *cmd)
 {
@@ -106,6 +108,14 @@ haenv(void)
 {
     static haenv_file_t env;
 
+    return &env;
+}
+
+os_env_cache_t *
+__this_env(void)
+{
+    static os_env_cache_t env;
+    
     return &env;
 }
 
