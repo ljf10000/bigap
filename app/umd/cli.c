@@ -260,16 +260,12 @@ show_user(struct um_user *user)
     os_println("show_user 1");
     jobj_t obj = um_juser(user);
     os_println("show_user 2");
-    
     if (obj) {
-    os_println("show_user 3");
         cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
-    os_println("show_user 4");
 
         jobj_put(obj);
-    os_println("show_user 5");
     }
-    os_println("show_user 6");
+    os_println("show_user 3");
     
     return mv2_ok;
 }
