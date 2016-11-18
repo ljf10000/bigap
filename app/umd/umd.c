@@ -33,7 +33,7 @@ init_pre(void)
     }
 
     umd.conf = env_gets(OS_ENV(CONF), UMD_CONF);
-    umd.cfg.autouser = env_geti(OS_ENV(AUTOUSER), UM_AUTO_FAKE);
+    umd.cfg.autouser = env_geti(OS_ENV(AUTOUSER), UMD_AUTOUSER);
     
     return 0;
 }
