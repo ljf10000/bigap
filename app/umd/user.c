@@ -15,6 +15,8 @@ int sbsbsb(void)
 }
 #define __DEAMON__
 #include "umd.h"
+
+
 #define __update_online(_user, _obj, _TYPE, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "online", #_field, NULL); \
                                                                 \
