@@ -44,7 +44,7 @@
 #endif
 
 #ifndef UMD_IDLE
-#define UMD_IDLE                PC_VAL(30, 300) /* second */
+#define UMD_IDLE                PC_VAL(3, 300) /* second */
 #endif
 
 #ifndef UMD_FAKE
