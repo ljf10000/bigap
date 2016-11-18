@@ -36,11 +36,11 @@ LIB_INITER;
 /******************************************************************************/
 #ifdef __APP__
 bool __THIS_COMMAND;
+bool __THIS_DEAMON;
 akid_t __THIS_DEBUG;
 akid_t __THIS_JDEBUG;
 benv_control_t *__THIS_BENV;
 
-static bool __THIS_DEAMON;
 
 int
 __oem_type(void)
@@ -136,28 +136,5 @@ __os_system(char *cmd)
         return __os_wait_error(err);
 	}
 }
-
-int
-os_deamon_check(void)
-{
-    if (__os_deamon_exist()) {
-        return -EDEAMON;
-    }
-    
-    __THIS_DEAMON = true;
-    
-    os_set_pid();
-
-    return 0;
-}
-
-void
-os_deamon_exit(void)
-{
-    if (__THIS_DEAMON) {
-        unlink(__THIS_PIDFILE);
-    }
-}
-
 #endif
 /******************************************************************************/
