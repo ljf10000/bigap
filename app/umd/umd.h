@@ -40,19 +40,19 @@
 #endif
 
 #ifndef UMD_TICKS
-#define UMD_TICKS               PC_VAL(5, 10)   /* second */
+#define UMD_TICKS               PC_VAL(1, 10)   /* second */
 #endif
 
 #ifndef UMD_IDLE
-#define UMD_IDLE                PC_VAL(60, 300) /* second */
+#define UMD_IDLE                PC_VAL(30, 300) /* second */
 #endif
 
 #ifndef UMD_FAKE
-#define UMD_FAKE                PC_VAL(10, 30)  /* second */
+#define UMD_FAKE                PC_VAL(2, 30)  /* second */
 #endif
 
 #ifndef UMD_GC
-#define UMD_GC                  PC_VAL(30, 0)   /* second */
+#define UMD_GC                  PC_VAL(5, 0)   /* second */
 #endif
 
 #ifndef UMD_SNIFF_COUNT
