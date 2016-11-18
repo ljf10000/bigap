@@ -52,7 +52,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
     __update_rate(_user, _obj, wan, all, _field);   \
 }while(0)
 
-static void
+STATIC void
 update_limit(struct um_user *user, jobj_t obj)
 {
     update_online(user, obj, max);
@@ -100,7 +100,7 @@ void update_limit_test(void)
 
 typedef int event_cb_t(struct um_user *user, char *action);
 
-static int
+STATIC int
 __ev(struct um_user *user, char *action)
 {
     jobj_t juser = um_juser(user);
@@ -117,7 +117,7 @@ __ev(struct um_user *user, char *action)
     return 0;
 }
 
-static int
+STATIC int
 __ev_call(event_cb_t *ev, struct um_user *user, char *action)
 {
     int err = 0;
@@ -129,19 +129,19 @@ __ev_call(event_cb_t *ev, struct um_user *user, char *action)
     return err;
 }
 
-static inline hash_idx_t
+STATIC hash_idx_t
 hashmac(byte mac[])
 {
     return hash_bybuf(mac, OS_MACSIZE, umd.cfg.machashsize - 1);
 }
 
-static inline hash_idx_t
+STATIC hash_idx_t
 haship(uint32 ip)
 {
     return hash_bybuf((byte *)&ip, sizeof(ip), umd.cfg.iphashsize - 1);
 }
 
-static inline struct um_user *
+STATIC struct um_user *
 user_hx_entry(h2_node_t *node)
 {
     if (node) {
@@ -151,13 +151,13 @@ user_hx_entry(h2_node_t *node)
     }
 }
 
-static inline struct um_user *
+STATIC struct um_user *
 user_entry(hash_node_t *node, hash_idx_t nidx)
 {
     return hx_entry(node, struct um_user, node, nidx);
 }
 
-static hash_idx_t
+STATIC hash_idx_t
 nodehashmac(hash_node_t *node)
 {
     struct um_user *user = user_entry(node, UM_USER_NIDX_MAC);
@@ -165,7 +165,7 @@ nodehashmac(hash_node_t *node)
     return hashmac(user->mac);
 }
 
-static hash_idx_t
+STATIC hash_idx_t
 nodehaship(hash_node_t *node)
 {
     struct um_user *user = user_entry(node, UM_USER_NIDX_IP);
@@ -173,7 +173,7 @@ nodehaship(hash_node_t *node)
     return haship(user->ip);
 }
 
-static inline void
+STATIC inline void
 tag_free(struct um_tag *tag)
 {
     if (tag) {
@@ -183,7 +183,7 @@ tag_free(struct um_tag *tag)
     }
 }
 
-static inline struct um_tag *
+STATIC struct um_tag *
 tag_new(char *k, char *v)
 {
     struct um_tag *tag = (struct um_tag *)os_malloc(sizeof(*tag));
@@ -204,7 +204,7 @@ tag_new(char *k, char *v)
     return tag;
 }
 
-static inline struct um_tag *
+STATIC struct um_tag *
 tag_get(struct um_user *user, char *k)
 {
     struct um_tag *tag;
@@ -222,7 +222,7 @@ tag_get(struct um_user *user, char *k)
     return NULL;
 }
 
-static inline struct um_tag *
+STATIC struct um_tag *
 tag_insert(struct um_user *user, char *k, char *v, bool update_if_exist)
 {
     struct um_tag *tag = NULL;
@@ -253,13 +253,13 @@ tag_insert(struct um_user *user, char *k, char *v, bool update_if_exist)
     return tag;
 }
 
-static inline struct um_tag *
+STATIC struct um_tag *
 tag_set(struct um_user *user, char *k, char *v)
 {
     return tag_insert(user, k, v, true);
 }
 
-static inline void
+STATIC void
 tag_clear(struct um_user *user)
 {
     struct um_tag *p, *n;
@@ -269,7 +269,7 @@ tag_clear(struct um_user *user)
     }
 }
 
-static void
+STATIC void
 flow_reset(struct um_user *user, int type)
 {
     int i;
@@ -279,7 +279,7 @@ flow_reset(struct um_user *user, int type)
     }
 }
 
-static void
+STATIC void
 lan_online(struct um_user *user)
 {
     /*
@@ -308,7 +308,7 @@ lan_online(struct um_user *user)
     debug_event("user %s lan online", os_macstring(user->mac));
 }
 
-static void
+STATIC void
 wan_online(struct um_user *user)
 {
     /*
@@ -330,7 +330,7 @@ wan_online(struct um_user *user)
     debug_event("user %s wan online", os_macstring(user->mac));
 }
 
-static void
+STATIC void
 lan_offline(struct um_user *user)
 {
     /*
@@ -347,7 +347,7 @@ lan_offline(struct um_user *user)
     debug_event("user %s lan offline", os_macstring(user->mac));
 }
 
-static void
+STATIC void
 wan_offline(struct um_user *user)
 {
     /*
@@ -362,7 +362,7 @@ wan_offline(struct um_user *user)
     debug_event("user %s wan offline", os_macstring(user->mac));
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_remove(struct um_user *user)
 {
     if (NULL==user) {
@@ -384,7 +384,7 @@ __user_remove(struct um_user *user)
     return user;
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_insert(struct um_user *user)
 {
     static hash_node_calc_f *nhash[UM_USER_NIDX_END] = {
@@ -411,7 +411,7 @@ __user_insert(struct um_user *user)
     return user;
 }
 
-static void
+STATIC void
 libc_set_group(struct um_user *user, int group)
 {
     if (NULL==user) {
@@ -428,7 +428,7 @@ libc_set_group(struct um_user *user, int group)
     user->group = group;
 }
 
-static void
+STATIC void
 __set_reason(struct um_user *user, int reason)
 {
     if (NULL==user) {
@@ -451,7 +451,7 @@ __set_reason(struct um_user *user, int reason)
     user->reason = reason;
 }
 
-static void
+STATIC void
 __set_ip(struct um_user *user, uint32 ip)
 {
     if (NULL==user) {
@@ -470,7 +470,7 @@ __set_ip(struct um_user *user, uint32 ip)
     __user_insert(user);
 }
 
-static void
+STATIC void
 __set_state(struct um_user *user, int state)
 {
     if (NULL==user) {
@@ -493,7 +493,7 @@ __set_state(struct um_user *user, int state)
 }
 
 
-static void
+STATIC void
 __user_debug(char *tag, struct um_user *user)
 {
     um_user_debug(tag, user, __is_ak_debug_entry && __is_ak_debug_event);
@@ -521,7 +521,7 @@ __user_debug(char *tag, struct um_user *user)
 #define user_debug_call(_tag, _user, _body) \
     __user_debug_call(OS_POSITION_ALL, _tag, _user, _body)
 
-static int
+STATIC int
 __user_delete(struct um_user *user, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -538,7 +538,7 @@ __user_delete(struct um_user *user, event_cb_t *ev)
     return 0;
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_create(byte mac[], event_cb_t *ev)
 {
     struct um_user *user;
@@ -562,7 +562,7 @@ __user_create(byte mac[], event_cb_t *ev)
     return user;
 }
 
-static int
+STATIC int
 __user_deauth(struct um_user *user, int reason, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -586,7 +586,7 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *ev)
     return 0;
 }
 
-static int
+STATIC int
 __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -609,7 +609,7 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
     return 0;
 }
 
-static int
+STATIC int
 __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -638,7 +638,7 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
     return 0;
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_block(struct um_user *user, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -664,7 +664,7 @@ __user_block(struct um_user *user, event_cb_t *ev)
     return user;
 }
 /******************************************************************************/
-static struct um_user *
+STATIC struct um_user *
 __user_unblock(struct um_user *user, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -685,7 +685,7 @@ __user_unblock(struct um_user *user, event_cb_t *ev)
     return user;
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -722,7 +722,7 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
     return user;
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -754,7 +754,7 @@ __user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
     return user;
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_reauth(struct um_user *user, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -776,7 +776,7 @@ __user_reauth(struct um_user *user, event_cb_t *ev)
     return user;
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -820,7 +820,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
     return user;
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
 {
     if (NULL==user) {
@@ -836,7 +836,7 @@ __user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
     return user;
 }
 
-static struct um_user *
+STATIC struct um_user *
 __user_get(byte mac[])
 {
     hash_idx_t dhash(void)
@@ -854,7 +854,7 @@ __user_get(byte mac[])
     return user_hx_entry(h2_find(&umd.table, UM_USER_NIDX_MAC, dhash, eq));
 }
 
-static struct um_user *
+STATIC struct um_user *
 user_get(byte mac[])
 {
     struct um_user *user = __user_get(mac);
@@ -865,7 +865,7 @@ user_get(byte mac[])
     return user;
 }
 
-static struct um_user *
+STATIC struct um_user *
 user_create(byte mac[])
 {
     return __user_create(mac, __ev);
@@ -876,7 +876,7 @@ int user_delete(struct um_user *user)
     return __user_delete(user, __ev);
 }
 
-static struct um_user *
+STATIC struct um_user *
 user_block(struct um_user *user)
 {
     return __user_block(user, __ev);
@@ -887,7 +887,7 @@ int user_unblock(struct um_user *user)
     return __user_unblock(user, __ev)?0:-ENOPERM;
 }
 
-static struct um_user *
+STATIC struct um_user *
 user_bind(struct um_user *user, uint32 ip)
 {
     return __user_bind(user, ip, __ev);
@@ -902,7 +902,7 @@ int user_unbind(struct um_user *user, int reason)
     }
 }
 
-static struct um_user *
+STATIC struct um_user *
 user_fake(struct um_user *user, uint32 ip)
 {
     return __user_fake(user, ip, __ev);
@@ -917,7 +917,7 @@ int user_unfake(struct um_user *user, int reason)
     }
 }
 
-static struct um_user *
+STATIC struct um_user *
 user_auth(struct um_user *user, int group, jobj_t obj)
 {
     return __user_auth(user, group, obj, __ev);
@@ -938,13 +938,13 @@ user_reauth(struct um_user *user)
     return __user_reauth(user, __ev);
 }
 
-static struct um_user *
+STATIC struct um_user *
 user_sync(struct um_user *user, jobj_t obj)
 {
     return __user_sync(user, obj, __ev);
 }
 
-static int
+STATIC int
 user_foreach(um_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h2_node_t *node)
@@ -1073,7 +1073,7 @@ int um_user_delbyip(uint32 ip)
     return user_delete(um_user_getbyip(ip));
 }
 
-static jobj_t
+STATIC jobj_t
 juser_online(struct um_user *user, int type)
 {
     jobj_t obj = jobj_new_object();
@@ -1108,7 +1108,7 @@ juser_online(struct um_user *user, int type)
     return obj;
 }
 
-static jobj_t
+STATIC jobj_t
 __juser_flow(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
@@ -1126,7 +1126,7 @@ __juser_flow(struct um_user *user, int type, int dir)
     return obj;
 }
 
-static jobj_t
+STATIC jobj_t
 juser_flow(struct um_user *user, int type)
 {
     jobj_t obj = jobj_new_object();
@@ -1143,7 +1143,7 @@ juser_flow(struct um_user *user, int type)
     return obj;
 }
 
-static jobj_t
+STATIC jobj_t
 __juser_rate(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
@@ -1156,7 +1156,7 @@ __juser_rate(struct um_user *user, int type, int dir)
     return obj;
 }
 
-static jobj_t
+STATIC jobj_t
 juser_rate(struct um_user *user, int type)
 {
     jobj_t obj = jobj_new_object();
@@ -1173,7 +1173,7 @@ juser_rate(struct um_user *user, int type)
     return obj;
 }
 
-static jobj_t
+STATIC jobj_t
 __juser_limit(struct um_user *user, int type)
 {
     jobj_t obj = jobj_new_object();
@@ -1189,7 +1189,7 @@ __juser_limit(struct um_user *user, int type)
     return obj;
 }
 
-static jobj_t
+STATIC jobj_t
 juser_limit(struct um_user *user)
 {
     jobj_t obj = jobj_new_object();
@@ -1203,7 +1203,7 @@ juser_limit(struct um_user *user)
     return obj;
 }
 
-static jobj_t
+STATIC jobj_t
 juser_tag(struct um_user *user)
 {
     jobj_t obj = jobj_new_object();
@@ -1259,7 +1259,7 @@ jobj_t um_juser(struct um_user *user)
     return obj;
 }
 
-static void
+STATIC void
 touser_base(struct um_user *user, jobj_t juser)
 {
     jj_mac(user, juser, mac);
@@ -1276,7 +1276,7 @@ touser_base(struct um_user *user, jobj_t juser)
     jj_i32(user, juser, group);
 }
 
-static void
+STATIC void
 touser_tag(struct um_user *user, jobj_t juser)
 {
     jobj_t jtag;
@@ -1291,7 +1291,7 @@ touser_tag(struct um_user *user, jobj_t juser)
     }
 }
 
-static void
+STATIC void
 touser_flow(struct um_limit_flow *flow, jobj_t jflow)
 {
     jj_u64(flow, jflow, max);
@@ -1300,14 +1300,14 @@ touser_flow(struct um_limit_flow *flow, jobj_t jflow)
     jj_u64(flow, jflow, denominator);
 }
 
-static void
+STATIC void
 touser_rate(struct um_limit_rate *rate, jobj_t jrate)
 {
     jj_u32(rate, jrate, max);
     jj_u32(rate, jrate, avg);
 }
 
-static void
+STATIC void
 touser_online(struct um_limit_online *online, jobj_t jonline)
 {
     jj_u32(online, jonline, max);
@@ -1321,7 +1321,7 @@ touser_online(struct um_limit_online *online, jobj_t jonline)
     jj_time(online, jonline, downtime);
 }
 
-static void
+STATIC void
 touser_intf(struct um_limit *intf, jobj_t jintf)
 {
     jobj_t jobj;
@@ -1353,7 +1353,7 @@ touser_intf(struct um_limit *intf, jobj_t jintf)
     }
 }
 
-static void
+STATIC void
 touser_limit(struct um_user *user, jobj_t juser)
 {
     int type;
@@ -1378,7 +1378,7 @@ struct um_user *um_touser(struct um_user *user, jobj_t juser)
     return user;
 }
 
-static inline bool
+STATIC inline bool
 match_mac(byte umac[], byte fmac[], byte mask[])
 {
     if (is_good_mac(fmac)) {
@@ -1408,7 +1408,7 @@ match_mac(byte umac[], byte fmac[], byte mask[])
     return true;
 }
 
-static inline bool
+STATIC inline bool
 match_ip(uint32 uip, uint32 fip, uint32 mask)
 {
     if (fip) {
@@ -1438,7 +1438,7 @@ match_ip(uint32 uip, uint32 fip, uint32 mask)
     return true;
 }
 
-static bool
+STATIC bool
 match_user(struct um_user *user, struct um_user_filter *filter)
 {
     if (__is_user_have_bind(filter->state) && filter->state != user->state) {
