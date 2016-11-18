@@ -15,7 +15,7 @@ typedef struct {
     .fd     = INVALID_FD,       \
 }   /* end */
 
-static jlog_control_t *
+jlog_control_t *
 __this_jlogger(void)
 {
     jlog_control_t control = JLOG_CONTROL_INITER;
