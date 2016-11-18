@@ -358,19 +358,8 @@ wan_offline(struct um_user *user)
     *      and keep others
     */
     //__online_downtime(user, um_flow_type_wan)   = time(NULL);
-#if 0
-    os_println( "user=%p,"
-                "user->limit=%p,"
-                "user->limit[um_flow_type_wan]=%p,"
-                "user->limit[um_flow_type_wan].online=%p,"
-                "user->limit[um_flow_type_wan].online.downtime=%p,",
-                user,
-                user->limit,
-                &user->limit[um_flow_type_wan],
-                &user->limit[um_flow_type_wan].online,
-                &user->limit[um_flow_type_wan].online.downtime);
-#endif
 
+    os_println("user[%s]=%p", os_macstring(user->mac), user);
     __online_downtime(user, um_flow_type_wan)   = t;
     //__online_downtime(user, um_flow_type_lan)   = 0;
     
@@ -563,7 +552,7 @@ __user_create(byte mac[], event_cb_t *ev)
         return NULL;
     }
     os_maccpy(user->mac, mac);
-    
+    os_println("user[%s]=%p", os_macstring(mac), user);
     INIT_LIST_HEAD(&user->head.tag);
 
     user_debug_tail_call("create", user, {
