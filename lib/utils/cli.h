@@ -115,7 +115,7 @@ typedef struct {
 
 #define CLI_INITER                          {   \
     .fd         = INVALID_FD,                   \
-    .add        = OS_SOCKADDR_UNIX(__empty),    \
+    .addr       = OS_SOCKADDR_UNIX(__empty),    \
     .addrlen    = sizeof(sockaddr_un_t),        \
     .b          = NULL,                         \
 }   /* end */
