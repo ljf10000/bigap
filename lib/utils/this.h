@@ -43,8 +43,10 @@
 
 #if defined(__ALLINONE__) || defined(__BOOT__)
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(_, _name)
-#else
+#elif defined (__APP__) || defined(__LIB__)
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)
+#else
+#   error "error !!!"
 #endif
 
 #ifndef __THIS_ENV
@@ -77,10 +79,6 @@
 
 #ifndef __THIS_AK
 #define __THIS_AK               __SYMBOL_TO_THIS(_ak)
-#endif
-
-#ifndef __THIS_CLI
-#define __THIS_CLI              __SYMBOL_TO_THIS(_cli)
 #endif
 
 #ifndef __THIS_HAENV
