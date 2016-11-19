@@ -33,8 +33,8 @@ __this_cli(void)
 {
     static cli_t cli = CLI_INITER;
     
-    if (NULL==cli->b) {
-        cli->b = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
+    if (NULL==cli.b) {
+        cli.b = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
     }
     
     return &cli;
