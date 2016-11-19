@@ -221,35 +221,11 @@ typedef struct {
     int deft_count;
 } haenv_file_t;
 
-#   define DECLARE_REAL_HAENV       haenv_file_t *__THIS_HAENV
-#   define DECLARE_FAKE_HAENV       extern haenv_file_t *__THIS_HAENV
+extern haenv_file_t *
+__this_haenv(void);
 
-#if defined(__BOOT__)
-#   define DECLARE_HAENV            DECLARE_REAL_HAENV
-#else
-#   ifdef __ALLINONE__
-#       define DECLARE_HAENV        DECLARE_FAKE_HAENV
-#   else
-#       define DECLARE_HAENV        DECLARE_REAL_HAENV
-#   endif
-#endif
-
-DECLARE_FAKE_HAENV;
-
-static inline haenv_file_t *
-haenv(void)
-{
-#ifdef __APP__
-    if (NULL==__THIS_HAENV) {
-        __THIS_HAENV = (haenv_file_t *)os_zalloc(sizeof(haenv_file_t));
-    }
-#endif
-
-    return __THIS_HAENV;
-}
-
-#define haenv_seq       haenv()->seq
-#define haenv_env(_id)  (&haenv()->env[_id])
+#define haenv_seq       __this_haenv()->seq
+#define haenv_env(_id)  (&__this_haenv()->env[_id])
 #define haenv_first()   haenv_env(0)
 
 /*
@@ -945,12 +921,12 @@ static inline void
 haenv_lock(void)
 {
 #ifdef __APP__
-    if (false==haenv()->locked) {
+    if (false==__this_haenv()->locked) {
         haenv_println("...");
-        os_sem_lock(&haenv()->sem);
+        os_sem_lock(&__this_haenv()->sem);
         haenv_println("ok");
         
-        haenv()->locked = true;
+        __this_haenv()->locked = true;
     }
 #endif
 }
@@ -959,12 +935,12 @@ static inline void
 haenv_unlock(void)
 {
 #ifdef __APP__
-    if (haenv()->locked) {
+    if (__this_haenv()->locked) {
         haenv_println("...");
-        os_sem_unlock(&haenv()->sem);
+        os_sem_unlock(&__this_haenv()->sem);
         haenv_println("ok");
 
-        haenv()->locked = false;
+        __this_haenv()->locked = false;
     }
 #endif
 }
@@ -1053,8 +1029,8 @@ haenv_deft(void)
         hae_clean(env);
     }
     
-    for (i=0; i<haenv()->deft_count; i++) {
-        haenv_deft_t *deft = haenv()->deft;
+    for (i=0; i<__this_haenv()->deft_count; i++) {
+        haenv_deft_t *deft = __this_haenv()->deft;
         
         haenv_append(deft[i].k, deft[i].v);
     }
@@ -1193,11 +1169,11 @@ haenv_init(void)
 
     haenv_println("open " HAENV_FILE);
 
-    err = os_sem_create(&haenv()->sem, OS_HAENV_SEM_ID);
+    err = os_sem_create(&__this_haenv()->sem, OS_HAENV_SEM_ID);
     if (err<0) {
         return err;
     }
-    haenv()->locked = false;
+    __this_haenv()->locked = false;
     haenv_println("create sem");
 #else /* __BOOT__ */
     __THIS_HAENV = (haenv_file_t *)os_zalloc(haenv_file_t);
@@ -1205,8 +1181,8 @@ haenv_init(void)
         return -ENOMEM;
     }
 #endif
-    haenv()->deft = deft;
-    haenv()->deft_count = os_count_of(deft);
+    __this_haenv()->deft = deft;
+    __this_haenv()->deft_count = os_count_of(deft);
     
     haenv_foreach(i, env) {
         env->f      = f;

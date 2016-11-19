@@ -71,7 +71,21 @@ __this_oem(void)
     return &oem[__oem_type()];
 }
 
+haenv_file_t *
+__this_haenv(void)
+{
+    static haenv_file_t env;
 
+    return &env;
+}
+
+os_env_cache_t *
+__this_env(void)
+{
+    static os_env_cache_t env;
+    
+    return &env;
+}
 
 
 /******************************************************************************/
