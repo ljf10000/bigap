@@ -396,12 +396,13 @@ nsq_script(nsq_instance_t *instance, char *json)
     jobj_t jinstance = jobj_new_object();
     jobj_add(jinstance, NSQ_INSTANCE_NAME_NAME,     jobj_new_string(instance->name));
     jobj_add(jinstance, NSQ_INSTANCE_TOPIC_NAME,    jobj_new_string(instance->topic));
+    jobj_add(jinstance, NSQ_INSTANCE_CHANNEL_NAME,  jobj_new_string(instance->channel));
     jobj_add(jinstance, "cache", jobj_new_string(nsqa.env.cache));
     jobj_add(jinstance, "flash", jobj_new_string(nsqa.env.flash));
     jobj_add(jscript, "instance", jinstance);
     
     os_shell(NSQ_SCRIPT " '%s'", jobj_json(jscript));
-
+    
     jobj_put(jscript);
     
     return 0;

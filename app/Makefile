@@ -21,6 +21,7 @@ SUB_SYSTEM=ak \
 		jexec \
 		jlogger \
 		jlogd \
+		jscript \
 		nsqa \
 		nsqc \
 		rsha \

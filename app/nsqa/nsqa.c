@@ -16,7 +16,28 @@ OS_INITER;
 /******************************************************************************/
 nsqa_control_t nsqa = NSQA_INITER;
 
-static int
+#define NSQ_JMAPPER(_)                  \
+    _(&nsqa.cfg, string, script)        \
+    /* end */
+
+STATIC int
+init_nsq_cfg(void)
+{
+    jobj_t jobj = JOBJ_MAPF(nsqa.env.conf, NSQ_JMAPPER);
+    if (NULL==jobj) {
+        return -EBADCONF;
+    }
+
+    char *mac = os_getbasemac();
+    os_strdcpy(nsqa.cfg.hostname, mac);
+    os_strdcpy(nsqa.cfg.client_id, mac);
+
+    jobj_put(jobj);
+    
+    return 0;
+}
+
+STATIC int
 init_nsq_table(void)
 {
     int hashsize = env_geti(OS_ENV(HASHSIZE), NSQ_HASHSIZE);
@@ -24,7 +45,7 @@ init_nsq_table(void)
     return h1_init(&nsqa.table, hashsize);
 }
 
-static int
+STATIC int
 init_nsq_env(void)
 {
     nsqa.env.conf   = env_gets(OS_ENV(CONFIG),  NSQ_CONF);

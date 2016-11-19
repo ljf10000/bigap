@@ -16,18 +16,12 @@ include $(DIR_ROOT)/mk/define.mk
 #
 #changed me, append obj
 #
-OBJS=$(DIR_SELF)/nsqa.o \
-	$(DIR_SELF)/cli.o \
-	$(DIR_SELF)/instance.o \
-	$(DIR_SELF)/proto.o \
-	$(DIR_SELF)/timer.o \
-	#end
-	
-TARGET_NAME=nsqa
+OBJS=$(DIR_SELF)/jscript.o
+TARGET_NAME=jscript
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
 LIB_DEPEND=c m json-c weos
-CFLAGS+=
+CFLAGS+=-DTM_TICKS=1000 -DTM_TIMEOUT=5000
 
 #
 #don't change it

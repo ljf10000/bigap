@@ -27,38 +27,6 @@ typedef struct {
     .script = NSQ_SCRIPT,   \
 }   /* end */
 
-/*
-1. if content:exist, filename:exist, then
-        cache must memory/forever
-{
-    "type": "sh/js",                    #default: sh
-    "content": "content",               #must base64 encode
-    "filename": "filename",
-    "url": "file url for get",
-    "md5": "md5 string",
-    "argument": [                       #option
-        "arg1",
-        "arg2",
-        "arg3",
-        ...
-    ],
-    "cache": "none/cache/flash",        #default: none
-    "scope": "global/instance/topic",   #default: topic
-    "board": "BOARD",                   #option
-    "slot": SLOT-NUMBER,                #default: 0
-    "seq": SEQ,                         #must exist
-    "id": "GUID",                       #must exist
-    "reply": "COMMAND",                 #option
-
-    "instance": {
-        "name": "instance name",        #must exist
-        "cache": "global cache path",   #must exist
-        "flash": "global flash path",   #must exist
-        "topic": "topic"                #must exist
-    }
-}
-*/
-
 typedef struct {
     int     fd;
     int     fsm;
@@ -72,7 +40,9 @@ typedef struct {
     char *topic;
     char *identify; // json
     char *channel;
-        
+
+    char *script;   // self exec script
+
     byte msgid[NSQ_MSGID_SIZE]; // last message id
     int  error;                 // last error
     
@@ -240,8 +210,5 @@ init_nsq_timer(void);
 
 extern int
 init_nsq_cli(void);
-
-extern int
-init_nsq_cfg(void);
 /******************************************************************************/
 #endif /* __NSQA_H_138838ae69b44e039c63875789ba5889__ */

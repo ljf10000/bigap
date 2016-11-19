@@ -1,12 +1,6 @@
 
-OBJS=nsqa.o \
-	cli.o \
-	instance.o \
-	proto.o \
-	timer.o \
-	#end
-
-__TARGET=nsqa
+OBJS=jscript.o
+__TARGET=jscript
 TARGET=$(__TARGET)
 LIBS_DEPEND=-lc -lm -ljson-c -lweos
 
