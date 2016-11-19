@@ -71,6 +71,7 @@ __this_oem(void)
     return &oem[__oem_type()];
 }
 
+#if 0
 haenv_file_t *
 __this_haenv(void)
 {
@@ -78,6 +79,7 @@ __this_haenv(void)
 
     return &env;
 }
+#endif
 
 os_env_cache_t *
 __this_env(void)
