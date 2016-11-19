@@ -453,6 +453,101 @@ jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval);
 extern int
 jrule_apply(jobj_t jobj, jrule_ops_t *ops, jrule_apply_f *apply);
 
+#if 0
+/*
+* JOBJ: c magic enum macro for json
+*
+*/
+#define XXX_JOBJ_MAPPER(_) \
+    _(KEY_A, VALUE_A, "NAME_A", TYPE_A, FLAG_A, DEFT_A), \
+    _(KEY_B, VALUE_B, "NBME-B", TYPE_B, FLBG_B, DEFT_B), \
+    _(KEY_C, VALUE_C, "NCME-C", TYPE_C, FLCG_C, DEFT_C), \
+    /* end */
+DECLARE_JOBJ(xxx, XXX_JOBJ_MAPPER, KEY_END);
+
+static inline bool is_good_xxx(int id);
+static inline char *xxx_string(int id);
+static inline int xxx_idx(char *name);
+
+static inline jrule_ops_t *xxx_jrule_ops(void);
+static inline int xxx_jcheck(jobj_t jobj);
+static inline int xxx_jrepair(jobj_t jobj);
+
+#define KEY_A       KEY_A
+#define KEY_B       KEY_B
+#define KEY_C       KEY_C
+#define KEY_END     KEY_END
+#endif
+
+#define __JOBJ_MAP_VALUE(_key, _value, _name, _type, _flag, _deft)  _key = _value
+#define __JOBJ_MAP_NAME(_key, _value, _name, _type, _flag, _deft)   [_key] = _name
+#define __JOBJ_MAP_RULE(_key, _value, _name, _type, _flag, _deft)   J_RULE(_key, _type, _flag, _deft)
+
+#define DECLARE_JOBJ(_mod, _mapper, _end) \
+    enum {                          \
+        _mapper(__JOBJ_MAP_VALUE)   \
+                                    \
+        _end                        \
+    };                              \
+                                    \
+    static inline bool              \
+    is_good_##_mod(int id)          \
+    {                               \
+        return IS_GOOD_ENUM(id, _end); \
+    }                               \
+                                    \
+    static inline char **           \
+    __##_mod##_strings(void)        \
+    {                               \
+        static char *array[_end] = { _mapper(__JOBJ_MAP_NAME) }; \
+                                    \
+        return array;               \
+    }                               \
+                                    \
+    static inline char *            \
+    _mod##_string(int id)           \
+    {                               \
+        char **array = __##_mod##_strings(); \
+                                    \
+        return is_good_##_mod(id)?array[id]:__unknow; \
+    }                               \
+                                    \
+    static inline int               \
+    _mod##_idx(char *s)             \
+    {                               \
+        char **array = __##_mod##_strings(); \
+                                    \
+        return os_array_search_str(array, s, 0, _end); \
+    }                               \
+                                    \
+    static inline jrule_ops_t *     \
+    _mod##_jrule_ops(void)          \
+    {                               \
+        static jrule_t rule[_end] = {   \
+            _mapper(__JOBJ_MAP_RULE)    \
+        };                          \
+        static jrule_ops_t ops = JRULE_OPS_INITER(rule, \
+            is_good_##_mod,         \
+            _mod##_string,          \
+            _mod##_idx);            \
+        return &ops;                \
+    }                               \
+                                    \
+    static inline int               \
+    _mod##_jcheck(jobj_t jobj)      \
+    {                               \
+        return jrule_apply(jobj, _mod##_jrule_ops(), NULL); \
+    }                               \
+                                    \
+    static inline int               \
+    _mod##_jrepair(jobj_t jobj)     \
+    {                               \
+        return jrule_apply(jobj, _mod##_jrule_ops(), jrule_repair); \
+    }                               \
+                                    \
+    os_fake_declare                 \
+    /* end */
+
 #endif /* __APP__ */
 /******************************************************************************/
 #endif /* __JAPI_H_82b58c7daf6248b381aac0f6971b0d3d__ */
