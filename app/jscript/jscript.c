@@ -28,7 +28,7 @@ if content:exist, filename:exist, then
 
     "sendtime": "1900-01-01 00:00:00",  #must, the message time, utc format
     "recvtime": "1900-01-01 00:00:00",  #if run:next, append and save it
-    "mustbefore":"1900-01-01 00:00:00", #option, just for run:this
+    "before":"1900-01-01 00:00:00",     #option, just for run:this
     "run": "this/next",                 #default: this
                                         #   this: run at this period
                                         #   next: run at next period
@@ -174,55 +174,11 @@ typedef struct {
     
     time_t sendtime;
     time_t recvtime;
-    time_t mustbefore;
+    time_t before;
     
     jinstance_t instance;
 }
 jscript_t;
-/*
-if content:exist, filename:exist, then
-        cache must cache/flash
-{
-    "type": "sh/js",                    #default: sh, just for content
-    "content": "content",               #must base64 encode
-    
-    "filename": "filename",
-    "url": "file url for get",          #option with filename
-    "md5": "md5 string",                #must with filename
-    "argument": [                       #option
-        "arg1",
-        "arg2",
-        "arg3",
-        ...
-    ],
-
-    "sendtime": "1900-01-01 00:00:00",  #must, the message time, utc format
-    "recvtime": "1900-01-01 00:00:00",  #if run:next, append and save it
-    "mustbefore":"1900-01-01 00:00:00", #option, just for run:this
-    "run": "this/next",                 #default: this
-                                        #   this: run at this period
-                                        #   next: run at next period
-
-    "cache": "none/cache/flash",        #default: none
-    "scope": "global/instance",         #default: instance
-
-    "board": "BOARD",                   #option
-    "slot": SLOT-NUMBER,                #default: 0
-    "seq": SEQ-NUMBER,                  #must exist
-    "id": "GUID",                       #must exist
-    "reply": "COMMAND",                 #option
-    "script": "script file"             #default: /bin/jscript
-
-    "instance": {
-        "name": "instance name",        #must exist
-        "topic": "topic",               #must exist
-        "channel:" "channel",           #must exist
-        
-        "cache": "global cache path",   #must exist
-        "flash": "global flash path"    #must exist
-    }
-}
-*/
 
 #define JSCRIPT_SCRIPT_DEFAULT          "/bin/jscript"
 
@@ -242,7 +198,10 @@ if content:exist, filename:exist, then
     _(JSCRIPT_ID,       13, "id",       jtype_string,   JRULE_MUST, NULL),      \
     _(JSCRIPT_REPLY,    14, "reply",    jtype_string,   0,          NULL),      \
     _(JSCRIPT_SCRIPT,   15, "script",   jtype_string,   0,          JSCRIPT_SCRIPT_DEFAULT), \
-    _(JSCRIPT_INSTANCE, 16, "instance", jtype_object,   JRULE_MUST, jinstance_jrepair), \
+    _(JSCRIPT_SENDTIME, 16, "sendtime", jtype_string,   JRULE_MUST, NULL),      \
+    _(JSCRIPT_RECVTIME, 17, "recvtime", jtype_string,   JRULE_MUST, NULL),      \
+    _(JSCRIPT_BEFORE,   18, "before",   jtype_string,   JRULE_MUST, NULL),      \
+    _(JSCRIPT_INSTANCE, 19, "instance", jtype_object,   JRULE_MUST, jinstance_jrepair), \
     /* end */
 DECLARE_JENUM(jscript, JSCRIPT_JENUM_MAPPER, JSCRIPT_END);
 
@@ -269,6 +228,9 @@ static inline int jscript_jrepair(jobj_t jobj);
 #define JSCRIPT_ID          JSCRIPT_ID
 #define JSCRIPT_REPLY       JSCRIPT_REPLY
 #define JSCRIPT_SCRIPT      JSCRIPT_SCRIPT
+#define JSCRIPT_SENDTIME    JSCRIPT_SENDTIME
+#define JSCRIPT_RECVTIME    JSCRIPT_RECVTIME
+#define JSCRIPT_BEFORE      JSCRIPT_BEFORE
 #define JSCRIPT_INSTANCE    JSCRIPT_INSTANCE
 #define JSCRIPT_END         JSCRIPT_END
 #endif

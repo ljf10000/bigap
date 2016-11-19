@@ -405,6 +405,7 @@ typedef struct {
         void   *(*fv)(void);
         bool    (*fb)(void);
         int     (*fi)(void);
+        int     (*fa)(jobj_t jobj);
         int     (*fo)(jobj_t jobj);
     } deft;
 } jrule_t;
@@ -442,6 +443,9 @@ typedef struct {
 }   /* end */
 
 typedef int jrule_apply_f(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval);
+
+extern int
+jrule_check(jrule_ops_t *ops);
 
 extern int
 jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval);

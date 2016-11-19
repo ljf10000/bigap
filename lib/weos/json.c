@@ -510,8 +510,6 @@ __jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval)
         case jtype_bool: {
             bool vb = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fb)():rule->deft.b;
             
-            err = jobj_add_bool(jobj, name, vb);
-            
         }   break;
         case jtype_int: {
             int32 vi = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fi)():rule->deft.i;
@@ -525,9 +523,16 @@ __jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval)
             err = jobj_add_string(jobj, name, vs);
             
         }   break;
-        case jtype_object: /* down */
+        case jtype_object: {
+            if (rule->deft.fo) {
+                err = (*rule->deft.fo)(jval);
+            }
+            
+        }   break;
         case jtype_array: {
-            err = (*rule->deft.fo)(jval);
+            if (rule->deft.fa) {
+                err = (*rule->deft.fa)(jval);
+            }
             
         }   break;
         default:
@@ -535,6 +540,47 @@ __jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval)
     }
 
     return err;
+}
+
+int
+jrule_check(jrule_ops_t *ops)
+{
+    int id, err;
+    char *name;
+    jobj_t jval;
+    jrule_t *rule;
+    
+    for (id=0; id<ops->count; id++) {
+        rule = &ops->rule[id];
+
+        if (os_hasflag(rule->flag, JRULE_CONST | JRULE_DYNAMIC)) {
+            return -EBADRULE;
+        }
+        
+        switch(rule->type) {
+            case jtype_object:
+            case jtype_array:
+                if (NULL==rule->deft.v) {
+                    return -EBADRULE;
+                }
+
+                break;
+            case jtype_bool:
+            case jtype_int:
+            case jtype_string:
+                if (os_hasflag(rule->flag, JRULE_DYNAMIC) && NULL==rule->deft.v) {
+                    return -EBADRULE;
+                }
+                
+                break;
+            case jtype_null
+            case jtype_double:
+            default:
+                return -EBADRULE;
+        }
+    }
+
+    return 0;
 }
 
 int
@@ -598,11 +644,6 @@ jrule_apply(jobj_t jobj, jrule_ops_t *ops, jrule_apply_f *apply)
 
     return 0;
 }
-
-
-
-
-
 
 #endif
 /******************************************************************************/
