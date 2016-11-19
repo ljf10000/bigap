@@ -26,6 +26,8 @@ LIB_INITER;
 #include "slice.c"
 #include "timer.c"
 /******************************************************************************/
+bool __THIS_DEAMON;
+
 int
 __oem_type(void)
 {

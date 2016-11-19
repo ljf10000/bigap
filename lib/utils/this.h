@@ -65,10 +65,6 @@
 #define __THIS_JDEBUG           __SYMBOL_TO_THIS(_js_debugger)
 #endif
 
-#ifndef __THIS_DEAMON
-#define __THIS_DEAMON           __SYMBOL_TO_THIS(_deamon)
-#endif
-
 #ifndef __THIS_AK
 #define __THIS_AK               __SYMBOL_TO_THIS(_ak)
 #endif
