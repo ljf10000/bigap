@@ -52,12 +52,14 @@
 #   define RUN_AS_DEAMON    1
 #   define RUN_AS_COMMAND   2
 #   define RUN_AS_UNKNOW    (RUN_AS_DEAMON|RUN_AS_COMMAND)
-#   ifdef __RUNAS_UNKNOW__
-#       define __RUNAS__    RUN_AS_UNKNOW
-#   elif defined(__DEAMON__)
-#       define __RUNAS__    RUN_AS_DEAMON
-#   else
-#       define __RUNAS__    RUN_AS_COMMAND
+#   infdef __RUNAS__
+#       ifdef __RUNAS_UNKNOW__
+#           define __RUNAS__    RUN_AS_UNKNOW
+#       elif defined(__DEAMON__)
+#           define __RUNAS__    RUN_AS_DEAMON
+#       else
+#           define __RUNAS__    RUN_AS_COMMAND
+#       endif
 #   endif
 #   include <stdint.h>
 #   include <stdarg.h>
@@ -199,7 +201,6 @@
 /******************************************************************************/
 #define OS_REAL_INITER          \
     DECLARE_REAL_COMMAND;       \
-    DECLARE_REAL_DEAMON;        \
     DECLARE_REAL_JLOG;          \
     DECLARE_REAL_AK;            \
     DECLARE_REAL_CLI;           \
@@ -211,7 +212,6 @@
 
 #define OS_FAKE_INITER          \
     DECLARE_FAKE_COMMAND;       \
-    DECLARE_FAKE_DEAMON;        \
     DECLARE_FAKE_JLOG;          \
     DECLARE_FAKE_AK;            \
     DECLARE_FAKE_CLI;           \
@@ -223,7 +223,6 @@
 
 #define OS_INITER           \
     DECLARE_COMMAND;        \
-    DECLARE_DEAMON;         \
     DECLARE_JLOG;           \
     DECLARE_AK;             \
     DECLARE_CLI;            \

@@ -9,6 +9,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_FILE     libweos
 #endif
 
+#define __RUNAS__       1 
 #define __LIB__
 #include "utils.h"
 LIB_INITER;
