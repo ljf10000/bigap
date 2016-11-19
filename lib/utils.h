@@ -204,6 +204,7 @@
     DECLARE_REAL_JLOG;          \
     DECLARE_REAL_OEM;           \
     DECLARE_REAL_AK;            \
+    DECLARE_REAL_CLI;           \
     DECLARE_REAL_DEBUGGER;      \
     DECLARE_REAL_JDEBUGGER;     \
     DECLARE_REAL_ENV;           \
@@ -218,6 +219,7 @@
     DECLARE_FAKE_JLOG;          \
     DECLARE_FAKE_OEM;           \
     DECLARE_FAKE_AK;            \
+    DECLARE_FAKE_CLI;           \
     DECLARE_FAKE_DEBUGGER;      \
     DECLARE_FAKE_JDEBUGGER;     \
     DECLARE_FAKE_ENV;           \
@@ -232,6 +234,7 @@
     DECLARE_JLOG;           \
     DECLARE_OEM;            \
     DECLARE_AK;             \
+    DECLARE_CLI;            \
     DECLARE_DEBUGGER;       \
     DECLARE_JDEBUGGER;      \
     DECLARE_ENV;            \

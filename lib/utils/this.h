@@ -81,6 +81,10 @@
 #define __THIS_AK               __SYMBOL_TO_THIS(_ak)
 #endif
 
+#ifndef __THIS_CLI
+#define __THIS_CLI              __SYMBOL_TO_THIS(_cli)
+#endif
+
 #ifndef __THIS_HAENV
 #define __THIS_HAENV            __SYMBOL_TO_THIS(_haenv)
 #endif

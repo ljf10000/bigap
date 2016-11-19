@@ -28,17 +28,6 @@ LIB_INITER;
 #include "slice.c"
 #include "timer.c"
 /******************************************************************************/
-cli_t *
-__this_cli(void)
-{
-    static cli_t cli = CLI_INITER;
-    
-    if (NULL==cli.b) {
-        cli.b = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
-    }
-    
-    return &cli;
-}
 
 
 
