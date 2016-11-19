@@ -558,22 +558,22 @@ jrule_check(jrule_ops_t *ops)
         }
         
         switch(rule->type) {
-            case jtype_object:
+            case jtype_object:  // down
             case jtype_array:
                 if (NULL==rule->deft.v) {
                     return -EBADRULE;
                 }
 
                 break;
-            case jtype_bool:
-            case jtype_int:
+            case jtype_bool:    // down
+            case jtype_int:     // down
             case jtype_string:
                 if (os_hasflag(rule->flag, JRULE_DYNAMIC) && NULL==rule->deft.v) {
                     return -EBADRULE;
                 }
                 
                 break;
-            case jtype_null
+            case jtype_null:    // down
             case jtype_double:
             default:
                 return -EBADRULE;
