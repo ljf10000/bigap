@@ -147,70 +147,16 @@ static inline int oem_type_idx(char *type);
     [OEM_T_1]     = OEM1_INITER,  \
     [OEM_T_2]     = OEM2_INITER,  \
 }   /* end */
-
-#define DECLARE_FAKE_OEM    extern oem_t *__THIS_OEM
-#define DECLARE_REAL_OEM    oem_t *__THIS_OEM
-
-#ifdef __ALLINONE__
-#   define DECLARE_OEM      DECLARE_FAKE_OEM
-#else
-#   define DECLARE_OEM      DECLARE_REAL_OEM
-#endif
-
-DECLARE_FAKE_OEM;
 /******************************************************************************/
 #ifndef OEM_FILE
 #define OEM_FILE    "/etc/.oem"
 #endif
 
-static inline int
-__oem_type(void)
-{
-    int type;
-    char vendor[1+OEM_NAME_LEN] = {0};
+extern int
+__oem_type(void);
 
-    if (os_file_exist(OEM_FILE)) {
-        os_v_fgets(vendor, OEM_NAME_LEN, OEM_FILE);
-        type = oem_type_idx(vendor);
-        if (is_good_oem_type(type)) {
-            return type;
-        }
-    }
-    
-#if IS_PRODUCT_LTEFI_MD1
-    os_v_pgets(vendor, OEM_NAME_LEN, "bootm product.vendor");
-#elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
-    os_v_pgets(vendor, OEM_NAME_LEN, "benv infos/product/vendor");
-#endif
-    type = oem_type_idx(vendor);
-    if (is_good_oem_type(type)) {
-        return type;
-    }
-
-    return OEM_T_DEFT;
-}
-
-static inline oem_t *
-__this_oem(void)
-{
-    static int type = OEM_T_END;
-
-    if (OEM_T_END==type) {
-        type = __oem_type();
-    }
-
-    if (NULL==__THIS_OEM) {
-        oem_t oem[OEM_T_END] = __THIS_OEM_INITER;
-        int size = sizeof(oem_t) * OEM_T_END;
-        
-        __THIS_OEM = (oem_t *)os_zalloc(size);
-
-        os_memcpy(__THIS_OEM, oem, size);
-    }
-    
-    return &__THIS_OEM[type];
-
-}
+extern oem_t *
+__this_oem(void);
 
 static inline char *
 oem_vendor(void)
