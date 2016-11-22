@@ -484,7 +484,7 @@ union jrule_var_u {
     enum_ops_t *(*get_enum_ops)(void);
 
     int (*array_create)(jrule_t *rule, void *obj);
-    uint32 (*get_array_count_address)(void *obj);
+    uint32 *(*get_array_count_address)(void *obj);
 };
 
 #define JRULE_VAR_INITER(_member, _value)   {._member = _value }
