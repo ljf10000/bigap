@@ -44,17 +44,17 @@ typedef struct {
 #define NSQ_IDENTIFY_JRULE_MAPPER(_) \
     _(offsetof(nsq_identify_t, client_id), client_id, "client_id", \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_identify_t, hostname), hostname, "hostname", \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_identify_t, user_agent), user_agent, "user_agent", \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_POINTER_INITER(NSQ_USER_AGENT)),  \
     _(offsetof(nsq_identify_t, feature_negotiation), feature_negotiation, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME, \
@@ -134,30 +134,30 @@ nsq_instance_t;
 #define NSQ_INSTANCE_JRULE_MAPPER(_) \
     _(offsetof(nsq_instance_t, name), name, NSQ_INSTANCE_NAME_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(nsq_instance_t, domain), domain, NSQ_INSTANCE_DOMAIN, \
+    _(offsetof(nsq_instance_t, domain), domain, NSQ_INSTANCE_DOMAIN_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(nsq_instance_t, topic), topic, NSQ_INSTANCE_TOPIC, \
+    _(offsetof(nsq_instance_t, topic), topic, NSQ_INSTANCE_TOPIC_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(nsq_instance_t, channel), channel, NSQ_INSTANCE_CHANNEL, \
+    _(offsetof(nsq_instance_t, channel), channel, NSQ_INSTANCE_CHANNEL_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(nsq_instance_t, port), port, NSQ_INSTANCE_PORT, \
+    _(offsetof(nsq_instance_t, port), port, NSQ_INSTANCE_PORT_NAME, \
             int, sizeof(int), 0,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_INT_INITER(NSQ_PORT)),            \
-    _(offsetof(nsq_instance_t, port), port, NSQ_INSTANCE_PORT, \
+    _(offsetof(nsq_instance_t, port), port, NSQ_INSTANCE_PORT_NAME, \
             object, sizeof(nsq_identify_t), JRULE_MUST, \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
