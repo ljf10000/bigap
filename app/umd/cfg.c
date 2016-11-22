@@ -195,7 +195,7 @@ init_cfg_instance(jobj_t jcfg)
 
 int init_cfg(void)
 {
-    jobj_t jobj = JOBJ_MAPF(umd.conf, UMD_JMAPPER);
+    jobj_t jobj = JOBJ_MAPFILE(umd.conf, UMD_JMAPPER);
     if (NULL==jobj) {
         return -EBADCONF;
     }

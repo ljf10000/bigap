@@ -435,7 +435,7 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count);
     jobj_map(_jobj, __map);         \
 })
 
-#define JOBJ_MAPF(_file, _mapper)           JOBJ_MAP(jobj_byfile(_file), _mapper)
+#define JOBJ_MAPFILE(_file, _mapper)        JOBJ_MAP(jobj_byfile(_file), _mapper)
 /******************************************************************************/
 #define USE_JRULE       0
 
