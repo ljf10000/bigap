@@ -100,6 +100,7 @@ static inline jrule_t *nsq_identify_jrules(void);
 typedef struct {
     int     fd;
     int     fsm;
+    int     port;
     uint32  rdy;
     time_t  fsm_time;
     bool    loop;
@@ -157,7 +158,7 @@ nsq_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_INT(NSQ_PORT)),                   \
-    _(offsetof(nsq_instance_t, port), port, NSQ_INSTANCE_PORT_NAME, \
+    _(offsetof(nsq_instance_t, identify), identify, NSQ_INSTANCE_IDENTIFY_NAME, \
             object, sizeof(nsq_identify_t), JRULE_MUST, \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
