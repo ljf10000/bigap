@@ -488,14 +488,23 @@ union jrule_var_u {
 };
 
 #define JRULE_VAR_INITER(_member, _value)   {._member = _value }
-#define JRULE_VAR_BOOL_INITER(_value)       JRULE_VAR_INITER(b, _value)
-#define JRULE_VAR_ENUM_INITER(_value)       JRULE_VAR_INITER(i, _value)
-#define JRULE_VAR_INT_INITER(_value)        JRULE_VAR_INITER(i, _value)
-#define JRULE_VAR_DOUBLE_INITER(_value)     JRULE_VAR_INITER(d, _value)
-#define JRULE_VAR_INT32_INITER(_value)      JRULE_VAR_INITER(i32, _value)
-#define JRULE_VAR_INT64_INITER(_value)      JRULE_VAR_INITER(i64, _value)
-#define JRULE_VAR_POINTER_INITER(_value)    JRULE_VAR_INITER(v, _value)
-#define JRULE_VAR_NULL                      JRULE_VAR_POINTER_INITER(NULL)
+#define JRULE_VAR_BOOL(_value)              JRULE_VAR_INITER(b, _value)
+#define JRULE_VAR_INT(_value)               JRULE_VAR_INITER(i, _value)
+#define JRULE_VAR_DOUBLE(_value)            JRULE_VAR_INITER(d, _value)
+#define JRULE_VAR_INT32(_value)             JRULE_VAR_INITER(i32, _value)
+#define JRULE_VAR_INT64(_value)             JRULE_VAR_INITER(i64, _value)
+#define JRULE_VAR_POINTER(_value)           JRULE_VAR_INITER(v, _value)
+
+#define JRULE_VAR_STRING(_value)            JRULE_VAR_POINTER(_value)
+#define JRULE_VAR_ENUM(_value)              JRULE_VAR_POINTER(_value)
+#define JRULE_VAR_RULES(_value)             JRULE_VAR_POINTER(_value)
+#define JRULE_VAR_ARRAY_CREATE(_value)      JRULE_VAR_POINTER(_value)
+#define JRULE_VAR_ARRAY_COUNT(_value)       JRULE_VAR_POINTER(_value)
+
+#define JRULE_VAR_STRDUP                    JRULE_VAR_POINTER(jrule_strdup)
+#define JRULE_VAR_STRCPY                    JRULE_VAR_POINTER(jrule_strcpy)
+#define JRULE_VAR_STRASSIGN                 JRULE_VAR_POINTER(jrule_strassign)
+#define JRULE_VAR_NULL                      JRULE_VAR_POINTER(NULL)
 
 struct jrule_s {
     char *name;

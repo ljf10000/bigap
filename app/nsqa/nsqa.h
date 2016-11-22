@@ -44,44 +44,44 @@ typedef struct {
 #define NSQ_IDENTIFY_JRULE_MAPPER(_) \
     _(offsetof(nsq_identify_t, client_id), client_id, "client_id", \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_identify_t, hostname), hostname, "hostname", \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_identify_t, user_agent), user_agent, "user_agent", \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_POINTER_INITER(NSQ_USER_AGENT)),  \
+            JRULE_VAR_STRING(NSQ_USER_AGENT)),          \
     _(offsetof(nsq_identify_t, feature_negotiation), feature_negotiation, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME, \
             bool, sizeof(bool), 0,                      \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_BOOL_INITER(NSQ_NEGOTIATION)),    \
+            JRULE_VAR_BOOL(NSQ_NEGOTIATION)),           \
     _(offsetof(nsq_identify_t, feature_negotiation), feature_negotiation, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME, \
             int, sizeof(int), 0,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT_INITER(NSQ_HEARBEAT_INTERVAL)), \
+            JRULE_VAR_INT(NSQ_HEARBEAT_INTERVAL)),      \
     _(offsetof(nsq_identify_t, output_buffer_size), output_buffer_size, "output_buffer_size", \
             int, sizeof(int), 0,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT_INITER(NSQ_SEND_BUFFER_SIZE)), \
+            JRULE_VAR_INT(NSQ_SEND_BUFFER_SIZE)),       \
     _(offsetof(nsq_identify_t, output_buffer_timeout), output_buffer_timeout, "output_buffer_timeout", \
             int, sizeof(int), 0,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT_INITER(NSQ_SEND_BUFFER_TIMEOUT)), \
+            JRULE_VAR_INT(NSQ_SEND_BUFFER_TIMEOUT)),    \
     _(offsetof(nsq_identify_t, msg_timeout), msg_timeout, "msg_timeout", \
             int, sizeof(int), 0,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_POINTER_INITER(NSQ_MSG_TIMEOUT)), \
+            JRULE_VAR_INT(NSQ_MSG_TIMEOUT)),            \
     /* end */
 
 DECLARE_JRULER(nsq_identify, NSQ_IDENTIFY_JRULE_MAPPER);
@@ -134,34 +134,34 @@ nsq_instance_t;
 #define NSQ_INSTANCE_JRULE_MAPPER(_) \
     _(offsetof(nsq_instance_t, name), name, NSQ_INSTANCE_NAME_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, domain), domain, NSQ_INSTANCE_DOMAIN_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, topic), topic, NSQ_INSTANCE_TOPIC_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, channel), channel, NSQ_INSTANCE_CHANNEL_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
-            JRULE_VAR_POINTER_INITER(jrule_strassign),  \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, port), port, NSQ_INSTANCE_PORT_NAME, \
             int, sizeof(int), 0,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT_INITER(NSQ_PORT)),            \
+            JRULE_VAR_INT(NSQ_PORT)),                   \
     _(offsetof(nsq_instance_t, port), port, NSQ_INSTANCE_PORT_NAME, \
             object, sizeof(nsq_identify_t), JRULE_MUST, \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_POINTER_INITER(nsq_identify_jrules)), \
+            JRULE_VAR_RULES(nsq_identify_jrules)),      \
     /* end */
 
 DECLARE_JRULER(nsq_instance, NSQ_INSTANCE_JRULE_MAPPER);
