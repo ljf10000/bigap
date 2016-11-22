@@ -23,27 +23,15 @@ enum { FULLTIME_STRING_LEN = sizeof(__os_fulltime_format) - 1 };
 
 #ifdef __APP__
 static inline struct tm *
-os_localtime(time_t *c)
+os_localtime(time_t t)
 {
-    if (c) {
-        return localtime(c);
-    } else {
-        time_t t = time(NULL);
-
-        return localtime(&t);
-    }
+    return localtime(&t);
 }
 
 static inline struct tm *
-os_gmtime(time_t *c)
+os_gmtime(time_t t)
 {
-    if (c) {
-        return gmtime(c);
-    } else {
-        time_t t = time(NULL);
-
-        return gmtime(&t);
-    }
+    return gmtime(&t);
 }
 
 #if OS_USE_UTC_TIME
@@ -64,7 +52,7 @@ __date_string(struct tm *tm, int ifs)
 }
 
 static inline char *
-os_date_string(time_t *t)
+os_date_string(time_t t)
 {
     return __date_string(os_gettm(t), '-');
 }
@@ -81,7 +69,7 @@ __time_string(struct tm *tm, int ifs)
 }
 
 static inline char *
-os_time_string(time_t *t)
+os_time_string(time_t t)
 {
     return __time_string(os_gettm(t), ':');
 }
@@ -100,13 +88,13 @@ __fulltime_string(struct tm *tm, char ifs[3])
 }
 
 static inline char *
-os_fulltime_string(time_t *t)
+os_fulltime_string(time_t t)
 {
     return __fulltime_string(os_gettm(t), __os_fulltime_ifs);
 }
 
 static inline char *
-os_fulltime_string_link(time_t *t)
+os_fulltime_string_link(time_t t)
 {
     return __fulltime_string(os_gettm(t), __os_fulltime_ifs_link);
 }

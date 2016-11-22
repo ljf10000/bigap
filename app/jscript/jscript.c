@@ -55,68 +55,60 @@ if content:exist, filename:exist, then
 */
 #if 1
 #define SCRIPT_TYPE_ENUM_MAPPER(_)      \
-        _(SCRIPT_TYPE_JS,   0,  "js"),  \
-        _(SCRIPT_TYPE_SH,   1,  "sh"),  \
-        /* end */
-    DECLARE_ENUM(script_type, SCRIPT_TYPE_ENUM_MAPPER, SCRIPT_TYPE_END);
-    
-    static inline bool is_good_script_type(int id);
-    static inline char *script_type_string(int id);
-    static inline int script_type_idx(char *name);
+    _(SCRIPT_TYPE_JS,   0,  "js"),  \
+    _(SCRIPT_TYPE_SH,   1,  "sh"),  \
+    /* end */
+DECLARE_ENUM(script_type, SCRIPT_TYPE_ENUM_MAPPER, SCRIPT_TYPE_END);
     
 #define SCRIPT_TYPE_JS      SCRIPT_TYPE_JS
 #define SCRIPT_TYPE_SH      SCRIPT_TYPE_SH
 #define SCRIPT_TYPE_END     SCRIPT_TYPE_END
+
+static inline enum_ops_t *script_type_ops_getter(void);
 #endif
     
 #if 1
 #define SCRIPT_RUN_ENUM_MAPPER(_)           \
-        _(SCRIPT_RUN_THIS,  0,  "this"),    \
-        _(SCRIPT_RUN_NEXT,  1,  "next"),    \
-        /* end */
-    DECLARE_ENUM(script_run, SCRIPT_RUN_ENUM_MAPPER, SCRIPT_RUN_END);
-    
-    static inline bool is_good_script_run(int id);
-    static inline char *script_run_string(int id);
-    static inline int script_run_idx(char *name);
+    _(SCRIPT_RUN_THIS,  0,  "this"),    \
+    _(SCRIPT_RUN_NEXT,  1,  "next"),    \
+    /* end */
+DECLARE_ENUM(script_run, SCRIPT_RUN_ENUM_MAPPER, SCRIPT_RUN_END);
     
 #define SCRIPT_RUN_THIS     SCRIPT_RUN_THIS
 #define SCRIPT_RUN_NEXT     SCRIPT_RUN_NEXT
 #define SCRIPT_RUN_END      SCRIPT_RUN_END
+
+static inline enum_ops_t *script_run_ops_getter(void);
 #endif
     
 #if 1
 #define SCRIPT_CACHE_ENUM_MAPPER(_)         \
-        _(SCRIPT_CACHE_NONE,    0,  "none"),    \
-        _(SCRIPT_CACHE_CACHE,   1,  "cache"),   \
-        _(SCRIPT_CACHE_FLASH,   2,  "flash"),   \
-        /* end */
-    DECLARE_ENUM(script_cache, SCRIPT_CACHE_ENUM_MAPPER, SCRIPT_CACHE_END);
-    
-    static inline bool is_good_script_cache(int id);
-    static inline char *script_cache_string(int id);
-    static inline int script_cache_idx(char *name);
-    
+    _(SCRIPT_CACHE_NONE,    0,  "none"),    \
+    _(SCRIPT_CACHE_CACHE,   1,  "cache"),   \
+    _(SCRIPT_CACHE_FLASH,   2,  "flash"),   \
+    /* end */
+DECLARE_ENUM(script_cache, SCRIPT_CACHE_ENUM_MAPPER, SCRIPT_CACHE_END);
+
 #define SCRIPT_CACHE_NONE       SCRIPT_CACHE_NONE
 #define SCRIPT_CACHE_CACHE      SCRIPT_CACHE_CACHE
 #define SCRIPT_CACHE_FLASH      SCRIPT_CACHE_FLASH
 #define SCRIPT_CACHE_END        SCRIPT_CACHE_END
+
+static inline enum_ops_t *script_cache_ops_getter(void);
 #endif
     
 #if 1
 #define SCRIPT_SCOPE_ENUM_MAPPER(_)                 \
-        _(SCRIPT_SCOPE_GLOBAL,      0,  "global"),      \
-        _(SCRIPT_SCOPE_INSTANCE,    1,  "instance"),    \
-        /* end */
-    DECLARE_ENUM(script_scope, SCRIPT_SCOPE_ENUM_MAPPER, SCRIPT_SCOPE_END);
-    
-    static inline bool is_good_script_scope(int id);
-    static inline char *script_scope_string(int id);
-    static inline int script_scope_idx(char *name);
-    
+    _(SCRIPT_SCOPE_GLOBAL,      0,  "global"),      \
+    _(SCRIPT_SCOPE_INSTANCE,    1,  "instance"),    \
+    /* end */
+DECLARE_ENUM(script_scope, SCRIPT_SCOPE_ENUM_MAPPER, SCRIPT_SCOPE_END);
+
 #define SCRIPT_SCOPE_GLOBAL     SCRIPT_SCOPE_GLOBAL
 #define SCRIPT_SCOPE_INSTANCE   SCRIPT_SCOPE_INSTANCE
 #define SCRIPT_SCOPE_END        SCRIPT_SCOPE_END
+
+static inline enum_ops_t *script_scope_ops_getter(void);
 #endif
 
 #if 1
@@ -128,29 +120,38 @@ typedef struct {
     char *flash;
 } jinstance_t;
 
-#define JINSTANCE_JENUM_MAPPER(_) \
-    _(JINSTANCE_NAME,   0,  "name",     jtype_string,   JRULE_MUST, NULL), \
-    _(JINSTANCE_TOPIC,  1,  "topic",    jtype_string,   JRULE_MUST, NULL), \
-    _(JINSTANCE_CHANNEL,2,  "channel",  jtype_string,   JRULE_MUST, NULL), \
-    _(JINSTANCE_CACHE,  3,  "cache",    jtype_string,   JRULE_MUST, NULL), \
-    _(JINSTANCE_FLASH,  4,  "flash",    jtype_string,   JRULE_MUST, NULL), \
+#define JINSTANCE_JRULE_MAPPER(_) \
+    _(offset_of(jinstance_t, name), name, "name",   \
+            string, sizeof(char *), JRULE_MUST,     \
+            JRULE_VAR_POINTER_INITER(jrule_strdup), \
+            JRULE_VAR_NULL,                         \
+            JRULE_VAR_NULL),                        \
+    _(offset_of(jinstance_t, topic), topic, "topic",\
+            string, sizeof(char *), JRULE_MUST,     \
+            JRULE_VAR_POINTER_INITER(jrule_strdup), \
+            JRULE_VAR_NULL,                         \
+            JRULE_VAR_NULL),                        \
+    _(offset_of(jinstance_t, channel), channel, "channel",  \
+            string, sizeof(char *), JRULE_MUST,     \
+            JRULE_VAR_POINTER_INITER(jrule_strdup), \
+            JRULE_VAR_NULL,                         \
+            JRULE_VAR_NULL),                        \
+    _(offset_of(jinstance_t, cache), cache, "cache",\
+            string, sizeof(char *), JRULE_MUST,     \
+            JRULE_VAR_POINTER_INITER(jrule_strdup), \
+            JRULE_VAR_NULL,                         \
+            JRULE_VAR_NULL),                        \
+    _(offset_of(jinstance_t, flash), flash, "flash",\
+            string, sizeof(char *), JRULE_MUST,     \
+            JRULE_VAR_POINTER_INITER(jrule_strdup), \
+            JRULE_VAR_NULL,                         \
+            JRULE_VAR_NULL),                        \
     /* end */
-DECLARE_JENUM(jinstance, JINSTANCE_JENUM_MAPPER, JINSTANCE_END);
+DECLARE_JRULER(jinstance, JINSTANCE_JRULE_MAPPER);
 
-static inline bool is_good_jinstance(int id);
-static inline char *jinstance_string(int id);
-static inline int jinstance_idx(char *name);
-
-static inline jrule_ops_t *jinstance_jrule_ops(void);
-static inline int jinstance_jcheck(jobj_t jobj);
-static inline int jinstance_jrepair(jobj_t jobj);
-
-#define JINSTANCE_NAME      JINSTANCE_NAME
-#define JINSTANCE_TOPIC     JINSTANCE_TOPIC
-#define JINSTANCE_CHANNEL   JINSTANCE_CHANNEL
-#define JINSTANCE_CACHE     JINSTANCE_CACHE
-#define JINSTANCE_FLASH     JINSTANCE_FLASH
-#define JINSTANCE_END       JINSTANCE_END
+static inline jrule_t *jinstance_jrules(void);
+static inline int jinstance_o2j(jobj_t jobj);
+static inline int jinstance_j2o(jobj_t jobj);
 #endif
 
 #if 1
@@ -174,7 +175,7 @@ typedef struct {
     
     time_t sendtime;
     time_t recvtime;
-    time_t before;
+    uint32 period;
     
     jinstance_t instance;
 }
@@ -182,57 +183,108 @@ jscript_t;
 
 #define JSCRIPT_SCRIPT_DEFAULT          "/bin/jscript"
 
-#define JSCRIPT_JENUM_MAPPER(_) \
-    _(JSCRIPT_TYPE,     0,  "type",     jtype_string,   0,          "sh"),      \
-    _(JSCRIPT_RUN,      1,  "run",      jtype_string,   0,          "this"),    \
-    _(JSCRIPT_CACHE,    2,  "cache",    jtype_string,   0,          "none"),    \
-    _(JSCRIPT_SCOPE,    4,  "scope",    jtype_string,   0,          "instance"),\
-    _(JSCRIPT_SLOT,     5,  "slot",     jtype_int,      0,          0),         \
-    _(JSCRIPT_SEQ,      6,  "seq",      jtype_int,      JRULE_MUST, 0),         \
-    _(JSCRIPT_ARGUMENT, 7,  "argument", jtype_array,    0,          NULL),      \
-    _(JSCRIPT_FILENAME, 8,  "filename", jtype_string,   0,          NULL),      \
-    _(JSCRIPT_CONTENT,  9,  "content",  jtype_string,   0,          NULL),      \
-    _(JSCRIPT_URL,      10, "url",      jtype_string,   0,          NULL),      \
-    _(JSCRIPT_MD5,      11, "md5",      jtype_string,   0,          NULL),      \
-    _(JSCRIPT_BOARD,    12, "board",    jtype_string,   0,          NULL),      \
-    _(JSCRIPT_ID,       13, "id",       jtype_string,   JRULE_MUST, NULL),      \
-    _(JSCRIPT_REPLY,    14, "reply",    jtype_string,   0,          NULL),      \
-    _(JSCRIPT_SCRIPT,   15, "script",   jtype_string,   0,          JSCRIPT_SCRIPT_DEFAULT), \
-    _(JSCRIPT_SENDTIME, 16, "sendtime", jtype_string,   JRULE_MUST, NULL),      \
-    _(JSCRIPT_RECVTIME, 17, "recvtime", jtype_string,   JRULE_MUST, NULL),      \
-    _(JSCRIPT_BEFORE,   18, "before",   jtype_string,   JRULE_MUST, NULL),      \
-    _(JSCRIPT_INSTANCE, 19, "instance", jtype_object,   JRULE_MUST, jinstance_jrepair), \
+#define JSCRIPT_JRULE_MAPPER(_) \
+    _(offset_of(jscript_t, type), type, "type",         \
+            enum, sizeof(int), 0,                       \
+            JRULE_VAR_POINTER_INITER(script_type_ops_getter), \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM_INITER(SCRIPT_TYPE_SH)),     \
+    _(offset_of(jscript_t, run), run, "run",            \
+            enum, sizeof(int), 0,                       \
+            JRULE_VAR_POINTER_INITER(script_run_ops_getter), \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM_INITER(SCRIPT_RUN_THIS)),    \
+    _(offset_of(jscript_t, cache), cache, "cache",      \
+            enum, sizeof(int), 0,                       \
+            JRULE_VAR_POINTER_INITER(script_cache_ops_getter), \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM_INITER(SCRIPT_CACHE_NONE)),  \
+    _(offset_of(jscript_t, scope), scope, "scope",      \
+            enum, sizeof(int), 0,                       \
+            JRULE_VAR_POINTER_INITER(script_scope_ops_getter), \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM_INITER(SCRIPT_SCOPE_GLOBAL)),\
+    _(offset_of(jscript_t, slot), slot, "slot",         \
+            int, sizeof(int), JRULE_BORDER,             \
+            JRULE_VAR_INT_INITER(0),                    \
+            JRULE_VAR_INT_INITER(1),                    \
+            JRULE_VAR_INT_INITER(0)),                   \
+    _(offset_of(jscript_t, seq), seq, "seq",            \
+            u64, sizeof(uint64), JRULE_MUST,            \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, filename), filename, "filename", \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, content), content, "content",\
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, url), url, "url",            \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, md5), md5, "md5",            \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, board), board, "board",      \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, id), id, "id",               \
+            string, sizeof(char *), JRULE_MUST,         \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, reply), reply, "reply",      \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, script), script, "script",   \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_POINTER_INITER(JSCRIPT_SCRIPT_DEFAULT)), \
+    _(offset_of(jscript_t, sendtime), sendtime, "sendtime", \
+            time, sizeof(time_t), JRULE_MUST,           \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, recvtime), recvtime, "recvtime", \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, period), period, "period",   \
+            u32, sizeof(uint32), JRULE_MUST | JRULE_BORDER, \
+            JRULE_VAR_INT32_INITER(0),                  \
+            JRULE_VAR_INT32_INITER(3600),               \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, argument), argument, "argument", \
+            array, sizeof(char *), 0,                   \
+            JRULE_VAR_INT32_INITER(0),                  \
+            JRULE_VAR_INT32_INITER(3600),               \
+            JRULE_VAR_NULL),                            \
+    _(offset_of(jscript_t, instance), instance, "instance", \
+            object, sizeof(jinstance_t), 0,             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_POINTER_INITER(jinstance_jrules)), \
     /* end */
-DECLARE_JENUM(jscript, JSCRIPT_JENUM_MAPPER, JSCRIPT_END);
+DECLARE_JRULER(jscript, JSCRIPT_JENUM_MAPPER);
 
-static inline bool is_good_jscript(int id);
-static inline char *jscript_string(int id);
-static inline int jscript_idx(char *name);
-
-static inline jrule_ops_t *jscript_jrule_ops(void);
-static inline int jscript_jcheck(jobj_t jobj);
-static inline int jscript_jrepair(jobj_t jobj);
-
-#define JSCRIPT_TYPE        JSCRIPT_TYPE
-#define JSCRIPT_RUN         JSCRIPT_RUN
-#define JSCRIPT_CACHE       JSCRIPT_CACHE
-#define JSCRIPT_SCOPE       JSCRIPT_SCOPE
-#define JSCRIPT_SLOT        JSCRIPT_SLOT
-#define JSCRIPT_SEQ         JSCRIPT_SEQ
-#define JSCRIPT_ARGUMENT    JSCRIPT_ARGUMENT
-#define JSCRIPT_FILENAME    JSCRIPT_FILENAME
-#define JSCRIPT_CONTENT     JSCRIPT_CONTENT
-#define JSCRIPT_URL         JSCRIPT_URL
-#define JSCRIPT_MD5         JSCRIPT_MD5
-#define JSCRIPT_BOARD       JSCRIPT_BOARD
-#define JSCRIPT_ID          JSCRIPT_ID
-#define JSCRIPT_REPLY       JSCRIPT_REPLY
-#define JSCRIPT_SCRIPT      JSCRIPT_SCRIPT
-#define JSCRIPT_SENDTIME    JSCRIPT_SENDTIME
-#define JSCRIPT_RECVTIME    JSCRIPT_RECVTIME
-#define JSCRIPT_BEFORE      JSCRIPT_BEFORE
-#define JSCRIPT_INSTANCE    JSCRIPT_INSTANCE
-#define JSCRIPT_END         JSCRIPT_END
+static inline jrule_t *jscript_jrules(void);
+static inline int jscript_o2j(void *obj, jobj_t jobj);
+static inline int jscript_j2o(void *obj, jobj_t jobj);
 #endif
 
 static jscript_t script;

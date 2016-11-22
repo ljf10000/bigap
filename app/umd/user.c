@@ -15,7 +15,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __update_online(_user, _obj, _TYPE, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "online", #_field, NULL); \
                                                                 \
-    limit_online(_user, _TYPE)->_field = o?jobj_get_i32(o):0;   \
+    limit_online(_user, _TYPE)->_field = o?jobj_get_int32(o):0;   \
 }while(0)
 
 #define update_online(_user, _obj, _field)  do{ \
@@ -26,7 +26,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __update_flow(_user, _obj, _TYPE, _DIR, _field) do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "flow", #_DIR, #_field, NULL); \
                                                             \
-    limit_flow(_user, _TYPE, _DIR)->_field = o?jobj_get_i64(o):0; \
+    limit_flow(_user, _TYPE, _DIR)->_field = o?jobj_get_int64(o):0; \
 }while(0)
 
 #define updata_flow(_user, _obj, _field)        do{ \
@@ -41,7 +41,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __update_rate(_user, _obj, _TYPE, _DIR, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "rate", #_DIR, #_field, NULL); \
                                                                     \
-    limit_rate(_user, _TYPE, _DIR)->_field = o?jobj_get_i32(o):0;   \
+    limit_rate(_user, _TYPE, _DIR)->_field = o?jobj_get_int32(o):0;   \
 }while(0)
 
 #define updata_rate(_user, _obj, _field)        do{ \
@@ -1080,20 +1080,20 @@ juser_online(struct um_user *user, int type)
     jobj_t obj = jobj_new_object();
     time_t time;
 
-    jobj_add_u32(obj, "max",            __online_max(user, type));
-    jobj_add_u32(obj, "idle",           __online_idle(user, type));
-    jobj_add_i32(obj, "aging",          __online_aging(user, type));
-    jobj_add_u32(obj, "numerator",      __online_numerator(user, type));
-    jobj_add_u32(obj, "denominator",    __online_denominator(user, type));
+    jobj_add_uint32(obj, "max",            __online_max(user, type));
+    jobj_add_uint32(obj, "idle",           __online_idle(user, type));
+    jobj_add_int32(obj, "aging",          __online_aging(user, type));
+    jobj_add_uint32(obj, "numerator",      __online_numerator(user, type));
+    jobj_add_uint32(obj, "denominator",    __online_denominator(user, type));
     
     time = __online_uptime(user, type);
     if (time) {
-        jobj_add_string(obj, "uptime", os_fulltime_string(&time));
+        jobj_add_string(obj, "uptime", os_fulltime_string(time));
     }
 
     time = __online_downtime(user, type);
     if (time) {
-        jobj_add_string(obj, "downtime", os_fulltime_string(&time));
+        jobj_add_string(obj, "downtime", os_fulltime_string(time));
     }
     
     return obj;
@@ -1104,10 +1104,10 @@ __juser_flow(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
-    jobj_add_u64(obj, "max",          __flow_max(user, type, dir));
-    jobj_add_u64(obj, "now",          __flow_now(user, type, dir));
-    jobj_add_u64(obj, "numerator",    __flow_numerator(user, type, dir));
-    jobj_add_u64(obj, "denominator",  __flow_denominator(user, type, dir));
+    jobj_add_uint64(obj, "max",          __flow_max(user, type, dir));
+    jobj_add_uint64(obj, "now",          __flow_now(user, type, dir));
+    jobj_add_uint64(obj, "numerator",    __flow_numerator(user, type, dir));
+    jobj_add_uint64(obj, "denominator",  __flow_denominator(user, type, dir));
 
     return obj;
 }
@@ -1130,8 +1130,8 @@ __juser_rate(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
-    jobj_add_u32(obj, "max", __rate_max(user, type, dir));
-    jobj_add_u32(obj, "avg", __rate_avg(user, type, dir));
+    jobj_add_uint32(obj, "max", __rate_max(user, type, dir));
+    jobj_add_uint32(obj, "avg", __rate_avg(user, type, dir));
 
     return obj;
 }
@@ -1197,12 +1197,12 @@ jobj_t um_juser(struct um_user *user)
     jobj_add_string(obj, "state",   user_state_string(user->state));
     jobj_add_string(obj, "reason",  deauth_reason_string(user->reason));
     
-    jobj_add_string(obj, "create",  os_fulltime_string(&user->create));
-    jobj_add_string(obj, "noused",  os_fulltime_string(&user->noused));
-    jobj_add_string(obj, "faketime",os_fulltime_string(&user->faketime));
-    jobj_add_string(obj, "hitime",  os_fulltime_string(&user->hitime));
+    jobj_add_string(obj, "create",  os_fulltime_string(user->create));
+    jobj_add_string(obj, "noused",  os_fulltime_string(user->noused));
+    jobj_add_string(obj, "faketime",os_fulltime_string(user->faketime));
+    jobj_add_string(obj, "hitime",  os_fulltime_string(user->hitime));
     
-    jobj_add_i32(obj,   "group",    user->group);
+    jobj_add_int32(obj,   "group",    user->group);
 
     jobj_add(obj, "tag",    juser_tag(user));
     jobj_add(obj, "limit",  juser_limit(user));
@@ -1224,7 +1224,7 @@ touser_base(struct um_user *user, jobj_t juser)
     jj_time(user, juser, noused);
     jj_time(user, juser, hitime);
     
-    jj_i32(user, juser, group);
+    jj_int32(user, juser, group);
 }
 
 STATIC void
@@ -1245,28 +1245,28 @@ touser_tag(struct um_user *user, jobj_t juser)
 STATIC void
 touser_flow(struct um_limit_flow *flow, jobj_t jflow)
 {
-    jj_u64(flow, jflow, max);
-    jj_u64(flow, jflow, now);
-    jj_u64(flow, jflow, numerator);
-    jj_u64(flow, jflow, denominator);
+    jj_uint64(flow, jflow, max);
+    jj_uint64(flow, jflow, now);
+    jj_uint64(flow, jflow, numerator);
+    jj_uint64(flow, jflow, denominator);
 }
 
 STATIC void
 touser_rate(struct um_limit_rate *rate, jobj_t jrate)
 {
-    jj_u32(rate, jrate, max);
-    jj_u32(rate, jrate, avg);
+    jj_uint32(rate, jrate, max);
+    jj_uint32(rate, jrate, avg);
 }
 
 STATIC void
 touser_online(struct um_limit_online *online, jobj_t jonline)
 {
-    jj_u32(online, jonline, max);
-    jj_u32(online, jonline, idle);
-    jj_u32(online, jonline, numerator);
-    jj_u32(online, jonline, denominator);
+    jj_uint32(online, jonline, max);
+    jj_uint32(online, jonline, idle);
+    jj_uint32(online, jonline, numerator);
+    jj_uint32(online, jonline, denominator);
     
-    jj_i32(online, jonline, aging);
+    jj_int32(online, jonline, aging);
 
     jj_time(online, jonline, uptime);
     jj_time(online, jonline, downtime);

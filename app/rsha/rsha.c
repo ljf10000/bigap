@@ -154,7 +154,7 @@ load_slot(jobj_t jslot, int slot)
     rsh_slot_ipstring(slot) = os_strdup(os_ipstring(ip));
 
     jobj_t jport = jobj_get(jslot, "port");
-    int port = jport?jobj_get_i32(jport):RSH_PORT;
+    int port = jport?jobj_get_int32(jport):RSH_PORT;
     rsh_slot_port(slot) = htons(port);
 
     debug_config("rsh.config.slot[%d].ip=%s", slot, ipstring);
@@ -195,12 +195,12 @@ __load_config(jobj_t jcfg)
     if (jecho) {
         jobj_t jtimes = jobj_get(jecho, "times");
         if (jtimes) {
-            rsh_echo_times = jobj_get_i32(jtimes);
+            rsh_echo_times = jobj_get_int32(jtimes);
         }
         
         jobj_t jinterval = jobj_get(jecho, "interval");
         if (jinterval) {
-            rsh_echo_interval = jobj_get_i32(jinterval);
+            rsh_echo_interval = jobj_get_int32(jinterval);
         }
     }
     
@@ -396,7 +396,7 @@ __command(jobj_t jrequest, char *cmd)
         
         return -EBADPROTO;
     }
-    int slot = jobj_get_i32(jslot);
+    int slot = jobj_get_int32(jslot);
     if (false==is_local_rsh_slot(slot)) {
         debug_proto("invalid request.slot:%d", slot);
         
@@ -455,7 +455,7 @@ __proto(jobj_t jrequest)
         
         return -EBADPROTO;
     }
-    int version = jobj_get_i32(jversion);
+    int version = jobj_get_int32(jversion);
     if (version!=RSH_VERSION) {
         debug_proto("invalid request.version:%d, proto.version=%d", version, RSH_VERSION);
         

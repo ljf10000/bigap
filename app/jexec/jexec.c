@@ -75,7 +75,7 @@ static pipinfo_t jinfo = PIPINFO_INITER(jenv, jcallback);
 static int
 jmap(char *json)
 {
-    jobj_t jobj, jvar, jargument;
+    jobj_t jobj, jval, jargument;
     int i, count, err = 0;
     
     jobj = jobj_byjson(json);
@@ -83,26 +83,26 @@ jmap(char *json)
         return -EBADJSON;
     }
 
-    jvar = jobj_get(jobj, "content");
-    if (jvar) {
-        if (jtype_string != jobj_type(jvar)) {
+    jval = jobj_get(jobj, "content");
+    if (jval) {
+        if (jtype_string != jobj_type(jval)) {
             return -EBADJSON;
         }
         
-        jinfo.content = jobj_get_string(jvar);
+        jinfo.content = jobj_get_string(jval);
         jinfo.content = b64_decode((byte *)jinfo.content, os_strlen(jinfo.content));
         if (NULL==jinfo.content) {
             return -EBASE64;
         }
     }
 
-    jvar = jobj_get(jobj, "filename");
-    if (jvar) {
-        if (jtype_string != jobj_type(jvar)) {
+    jval = jobj_get(jobj, "filename");
+    if (jval) {
+        if (jtype_string != jobj_type(jval)) {
             return -EBADJSON;
         }
         
-        jinfo.file = jobj_get_string(jvar);
+        jinfo.file = jobj_get_string(jval);
     }
 
     jargument = jobj_get(jobj, "argument");
@@ -118,12 +118,12 @@ jmap(char *json)
         }
 
         for (i=0; i<count; i++) {
-            jvar = jarray_get(jargument, i);
-            if (jtype_string != jobj_type(jvar)) {
+            jval = jarray_get(jargument, i);
+            if (jtype_string != jobj_type(jval)) {
                 return -EBADJSON;
             }
 
-            jinfo.argv[i] = jobj_get_string(jvar);
+            jinfo.argv[i] = jobj_get_string(jval);
         }
     }
 

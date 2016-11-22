@@ -30,25 +30,45 @@ enum {
 
 typedef union {
     bool    b;
-    int32   d;
+    int     d;
     int64   l;
     float64 f;
     char    *s;
     char    *j;
     jobj_t  a;
     jobj_t  o;
+    void    *v;
 } jvar_t;
 
 #ifdef __APP__
 
+#define json_type_end   (1+json_type_string)    // 7
+
 enum {
-    jtype_null    = json_type_null,
-    jtype_bool    = json_type_boolean,
-    jtype_double  = json_type_double,
-    jtype_int     = json_type_int,
-    jtype_object  = json_type_object,
-    jtype_array   = json_type_array,
-    jtype_string  = json_type_string,
+    jtype_null      = json_type_null,
+    jtype_bool      = json_type_boolean,
+    jtype_double    = json_type_double,
+    jtype_int       = json_type_int,
+    jtype_object    = json_type_object,
+    jtype_array     = json_type_array,
+    jtype_string    = json_type_string,
+    jtype_number    = jtype_double,
+    
+    jtype_int32     = json_type_end,    // 7
+    jtype_uint32,                       // 8
+    jtype_float32,                      // 9
+    jtype_int64,                        // 10
+    jtype_uint64,                       // 11
+    jtype_float64,                      // 12
+    
+    jtype_enum,                         // 13
+    jtype_time,                         // 14
+    jtype_ip,                           // 15
+    jtype_mac,                          // 16
+    
+    jtype_end,
+
+    jtype_bits      = 8
 };
 
 typedef struct {
@@ -67,12 +87,19 @@ typedef struct {
 }   /* end */
 
 #define jobj_new_bool(_v)       json_object_new_boolean(_v)
-#define jobj_new_i32(_v)        json_object_new_int(_v)
-#define jobj_new_u32(_v)        json_object_new_int(_v)
-#define jobj_new_f32(_v)        json_object_new_double(_v)
-#define jobj_new_i64(_v)        json_object_new_int64(_v)
-#define jobj_new_u64(_v)        json_object_new_int64(_v)
-#define jobj_new_f64(_v)        json_object_new_double(_v)
+#define jobj_new_int(_v)        json_object_new_int(_v)
+#define jobj_new_uint(_v)       json_object_new_int(_v)
+#define jobj_new_double(_v)     json_object_new_double(_v)
+#define jobj_new_number(_v)     json_object_new_double(_v)
+
+#define jobj_new_int32(_v)      json_object_new_int(_v)
+#define jobj_new_uint32(_v)     json_object_new_int(_v)
+#define jobj_new_float32(_v)    json_object_new_double(_v)
+
+#define jobj_new_int64(_v)      json_object_new_int64(_v)
+#define jobj_new_uint64(_v)     json_object_new_int64(_v)
+#define jobj_new_float64(_v)    json_object_new_double(_v)
+
 #define jobj_new_string(_v)     json_object_new_string(_v)
 #define jobj_new_object()       json_object_new_object()
 #define jobj_new_array()        json_object_new_array()
@@ -136,12 +163,19 @@ extern void
 jobj_add(jobj_t obj, char *k, jobj_t v);
 
 #define jobj_get_bool(_obj)             json_object_get_boolean(_obj)
-#define jobj_get_i32(_obj)              json_object_get_int(_obj)
-#define jobj_get_u32(_obj)              ((uint32)json_object_get_int(_obj))
-#define jobj_get_f32(_obj)              ((float32)json_object_get_double(_obj))
-#define jobj_get_i64(_obj)              json_object_get_int64(_obj)
-#define jobj_get_u64(_obj)              ((uint64)json_object_get_int64(_obj))
-#define jobj_get_f64(_obj)              json_object_get_double(_obj)
+#define jobj_get_int(_obj)              json_object_get_int(_obj)
+#define jobj_get_uint(_obj)             json_object_get_int(_obj)
+#define jobj_get_double(_obj)           json_object_get_double(_obj)
+#define jobj_get_number(_obj)           json_object_get_double(_obj)
+
+#define jobj_get_int32(_obj)            ((int32)json_object_get_int(_obj))
+#define jobj_get_uint32(_obj)           ((uint32)json_object_get_int(_obj))
+#define jobj_get_float32(_obj)          ((float32)json_object_get_double(_obj))
+
+#define jobj_get_int64(_obj)            ((int64)json_object_get_int64(_obj))
+#define jobj_get_uint64(_obj)           ((uint64)json_object_get_int64(_obj))
+#define jobj_get_float64(_obj)          ((float64)json_object_get_double(_obj))
+
 #define jobj_get_string(_obj)           ((char *)json_object_get_string(_obj))
 #define jobj_get_string_len(_obj)       json_object_get_string_len(_obj)
 #define jobj_get_binary(_obj)           ((byte *)json_object_get_string(_obj))
@@ -202,49 +236,64 @@ __jobj_add_bool(jobj_t obj, char *key, bool value)
 {
     return jobj_add_value(obj, key, value, jobj_new_bool);
 }
-#define jobj_add_bool(_obj, _key, _value)   __jobj_add_bool(_obj, (char *)_key, (bool)_value)
+#define jobj_add_bool(_obj, _key, _value)       __jobj_add_bool(_obj, (char *)_key, (bool)_value)
 
 static inline int
-__jobj_add_i32(jobj_t obj, char *key, int32 value)
+__jobj_add_int(jobj_t obj, char *key, int value)
 {
-    return jobj_add_value(obj, key, value, jobj_new_i32);
+    return jobj_add_value(obj, key, value, jobj_new_int);
 }
-#define jobj_add_i32(_obj, _key, _value)    __jobj_add_i32(_obj, (char *)_key, (int32)_value)
+#define jobj_add_int(_obj, _key, _value)        __jobj_add_int(_obj, (char *)_key, (int)_value)
 
 static inline int
-__jobj_add_u32(jobj_t obj, char *key, uint32 value)
+__jobj_add_double(jobj_t obj, char *key, double value)
 {
-    return jobj_add_value(obj, key, value, jobj_new_u32);
+    return jobj_add_value(obj, key, value, jobj_new_double);
 }
-#define jobj_add_u32(_obj, _key, _value)    __jobj_add_u32(_obj, (char *)_key, (uint32)_value)
+#define jobj_add_double(_obj, _key, _value)     __jobj_add_double(_obj, (char *)_key, (double)_value)
+#define jobj_add_number(_obj, _key, _value)     jobj_add_double(_obj, _key, _value)
 
 static inline int
-__jobj_add_f32(jobj_t obj, char *key, float32 value)
+__jobj_add_int32(jobj_t obj, char *key, int32 value)
 {
-    return jobj_add_value(obj, key, value, jobj_new_f32);
+    return jobj_add_value(obj, key, value, jobj_new_int32);
 }
-#define jobj_add_f32(_obj, _key, _value) __jobj_add_f32(_obj, (char *)_key, (float32)_value)
+#define jobj_add_int32(_obj, _key, _value)      __jobj_add_int32(_obj, (char *)_key, (int32)_value)
 
 static inline int
-__jobj_add_i64(jobj_t obj, char *key, int64 value)
+__jobj_add_uint32(jobj_t obj, char *key, uint32 value)
 {
-    return jobj_add_value(obj, key, value, jobj_new_i64);
+    return jobj_add_value(obj, key, value, jobj_new_uint32);
 }
-#define jobj_add_i64(_obj, _key, _value)  __jobj_add_i64(_obj, (char *)_key, (int64)_value)
+#define jobj_add_uint32(_obj, _key, _value)     __jobj_add_uint32(_obj, (char *)_key, (uint32)_value)
 
 static inline int
-__jobj_add_u64(jobj_t obj, char *key, uint64 value)
+__jobj_add_float32(jobj_t obj, char *key, float32 value)
 {
-    return jobj_add_value(obj, key, value, jobj_new_u64);
+    return jobj_add_value(obj, key, value, jobj_new_float32);
 }
-#define jobj_add_u64(_obj, _key, _value)  __jobj_add_u64(_obj, (char *)_key, (uint64)_value)
+#define jobj_add_float32(_obj, _key, _value)    __jobj_add_float32(_obj, (char *)_key, (float32)_value)
 
 static inline int
-__jobj_add_f64(jobj_t obj, char *key, float64 value)
+__jobj_add_int64(jobj_t obj, char *key, int64 value)
 {
-    return jobj_add_value(obj, key, value, jobj_new_f64);
+    return jobj_add_value(obj, key, value, jobj_new_int64);
 }
-#define jobj_add_f64(_obj, _key, _value) __jobj_add_f64(_obj, (char *)_key, (float64)_value)
+#define jobj_add_int64(_obj, _key, _value)      __jobj_add_int64(_obj, (char *)_key, (int64)_value)
+
+static inline int
+__jobj_add_uint64(jobj_t obj, char *key, uint64 value)
+{
+    return jobj_add_value(obj, key, value, jobj_new_uint64);
+}
+#define jobj_add_uint64(_obj, _key, _value)     __jobj_add_uint64(_obj, (char *)_key, (uint64)_value)
+
+static inline int
+__jobj_add_float64(jobj_t obj, char *key, float64 value)
+{
+    return jobj_add_value(obj, key, value, jobj_new_float64);
+}
+#define jobj_add_float64(_obj, _key, _value)    __jobj_add_float64(_obj, (char *)_key, (float64)_value)
 
 static inline int
 __jobj_add_string(jobj_t obj, char *key, char *value)
@@ -334,7 +383,7 @@ jobj_get_leaf(jobj_t obj, ...);
     0; \
 })  /* end */
 
-#define jj_bymap(_obj, _jobj, _member, _mapper, _op) ({ \
+#define jj_bymapper(_obj, _jobj, _member, _mapper, _op) ({ \
     jobj_t __tmp = jobj_get(_jobj, #_member); \
     if (__tmp) { \
         char *string = jobj_get_string(__tmp); \
@@ -345,21 +394,26 @@ jobj_get_leaf(jobj_t obj, ...);
 })  /* end */
 
 #define jj_byeq(_obj, _jobj, _member, _mapper) \
-        jj_bymap(_obj, _jobj, _member, _mapper, os_eq_buildin)
-        
+        jj_bymapper(_obj, _jobj, _member, _mapper, os_eq_buildin)
+
 #define jj_ip(_obj, _jobj, _member)         jj_byeq(_obj, _jobj, _member, inet_addr)
 #define jj_time(_obj, _jobj, _member)       jj_byeq(_obj, _jobj, _member, os_fulltime)
 #define jj_string(_obj, _jobj, _member)     jj_byeq(_obj, _jobj, _member, os_strdup)
 #define jj_string_unsafe(_obj, _jobj, _member)  jj_byeq(_obj, _jobj, _member, os_map_nothing)
 
-#define jj_mac(_obj, _jobj, _member)        jj_bymap(_obj, _jobj, _member, os_mac, os_maccpy)
-#define jj_strcpy(_obj, _jobj, _member)     jj_bymap(_obj, _jobj, _member, os_map_nothing, os_strcpy)
+#define jj_mac(_obj, _jobj, _member)        jj_bymapper(_obj, _jobj, _member, os_mac, os_maccpy)
+#define jj_strcpy(_obj, _jobj, _member)     jj_bymapper(_obj, _jobj, _member, os_map_nothing, os_strcpy)
 
-#define jj_u64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, u64, "%llu")
-#define jj_i64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i64, "%lld")
-#define jj_u32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, u32, "%u")
-#define jj_i32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i32, "%d")
 #define jj_bool(_obj, _jobj, _member)       jj_byvar(_obj, _jobj, _member, bool, "%d")
+#define jj_int(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, int, "%d")
+#define jj_double(_obj, _jobj, _member)     jj_byvar(_obj, _jobj, _member, double, "%f")
+#define jj_number(_obj, _jobj, _member)     jj_double(_obj, _jobj, _member)
+#define jj_int32(_obj, _jobj, _member)      jj_byvar(_obj, _jobj, _member, int32, "%d")
+#define jj_uint32(_obj, _jobj, _member)     jj_byvar(_obj, _jobj, _member, uint32, "%u")
+#define jj_float32(_obj, _jobj, _member)    jj_byvar(_obj, _jobj, _member, float32, "%f")
+#define jj_int64(_obj, _jobj, _member)      jj_byvar(_obj, _jobj, _member, int64, "%lld")
+#define jj_uint64(_obj, _jobj, _member)     jj_byvar(_obj, _jobj, _member, uint64, "%llu")
+#define jj_float64(_obj, _jobj, _member)    jj_byvar(_obj, _jobj, _member, float64, "%llu")
 
 typedef int jobj_mapper_f(jobj_t jobj);
 
@@ -390,159 +444,297 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count);
 
 #define JOBJ_MAPF(_file, _mapper)           JOBJ_MAP(jobj_byfile(_file), _mapper)
 /******************************************************************************/
-typedef struct {
-    int type;
-    
-    uint32 flag;
-    
-    union {
-        char *s;
-        void *v;
-        bool  b;
-        int   i;
-        
-        char   *(*fs)(void);
-        void   *(*fv)(void);
-        bool    (*fb)(void);
-        int     (*fi)(void);
-        int     (*fa)(jobj_t jobj);
-        int     (*fo)(jobj_t jobj);
-    } deft;
-} jrule_t;
-
 enum {
-    JRULE_MUST      = 0x01,
-    JRULE_DYNAMIC   = 0x02,
-    JRULE_CONST     = 0x04,
+    JRULE_MUST      = 0x0001,
+    JRULE_DROP      = 0x0002,
+
+    JRULE_CHECKER   = 0x0010,
+    JRULE_BORDER    = 0x0020,
 };
 
-#define J_RULE(_id, _type, _flag, _deft) [_id] = { \
-    .type   = _type,            \
+#define JURLE_VALID_FLAGS       \
+    JRULE_MUST,                 \
+    JRULE_DROP,                 \
+    JRULE_CHECKER,              \
+    JRULE_CHECKER | JRULE_MUST, \
+    JRULE_BORDER,               \
+    JRULE_BORDER | JRULE_MUST,  \
+    /* end */
+
+extern bool
+is_good_jrule_flag(int flag);
+
+typedef struct jrule_s jrule_t;
+typedef union jrule_var_u jrule_var_t;
+
+union jrule_var_u {
+    void    *v;
+    char    *s;
+    
+    bool    b;
+    int     i;
+    double  d;
+    
+    int32   i32;
+    uint32  u32;
+    float32 f32;
+
+    int64   i64;
+    uint64  u64;
+    float64 f64;
+
+    jrule_t *rules;
+    get_enum_ops_f *get_enum_ops;
+
+    int (*o2j)(jrule_t *rule, void *obj, jobj_t jobj);
+    int (*j2o)(jrule_t *rule, void *obj, jobj_t jobj);
+    int (*check)(jrule_t *rule, jobj_t jobj);
+
+    int (*array_create)(jrule_t *rule, void *obj)
+    uint32 (*get_array_count_address)(void *obj);
+};
+
+#define JRULE_VAR_INITER(_member, _value)   {._member = _value }
+#define JRULE_VAR_BOOL_INITER(_value)       JRULE_VAR_INITER(b, _value)
+#define JRULE_VAR_ENUM_INITER(_value)       JRULE_VAR_INITER(i, _value)
+#define JRULE_VAR_INT_INITER(_value)        JRULE_VAR_INITER(i, _value)
+#define JRULE_VAR_DOUBLE_INITER(_value)     JRULE_VAR_INITER(d, _value)
+#define JRULE_VAR_INT32_INITER(_value)      JRULE_VAR_INITER(i32, _value)
+#define JRULE_VAR_INT64_INITER(_value)      JRULE_VAR_INITER(i64, _value)
+#define JRULE_VAR_POINTER_INITER(_value)    JRULE_VAR_INITER(v, _value)
+#define JRULE_VAR_NULL                      JRULE_VAR_POINTER_INITER(v, NULL)
+
+struct jrule_s {
+    char *name;
+    
+    int offset;
+    int size;
+    
+    int type;
+    uint32 flag;
+
+    /*
+    * serializer:   obj==>jobj
+    * unserializer: obj<==jobj
+    *
+    *
+    * 1. type is atomic (bool/int/double/...)
+    *       deft as default value
+    *   if JRULE_CHECKER
+    *       serialize as checker
+    *       unserialize not-used
+    *   else if JRULE_BORDER
+    *       serialize/unserialize as min/max
+    *   else
+    *       serialize/unserialize not-used
+    * 2. type is enum
+    *       not support JRULE_CHECKER/JRULE_BORDER
+    *       serialize as get_enum_ops
+    *       unserialize not-used
+    *       deft as default value
+    * 3. type is string
+    *       serialize not-used
+    *       unserialize as j2o
+    *       deft as default value
+    * 4. type is object
+    *       only support JRULE_MUST
+    *       serialize/unserialize not-used
+    *       deft as rules
+    * 5. type is array
+    *       only support JRULE_MUST
+    *       serialize as array_create
+    *       unserialize as get_array_count_address
+    *       deft as rules
+    */
+    jrule_var_t serialize, unserialize, deft;
+};
+
+#define JRULER(_offset, _member, _name, \
+            _type, _size, _flag,\
+            _serialize_initer,  \
+            _unserialize_initer,\
+            _deft_initer) {     \
+    .name   = _name,            \
+    .offset = _offset,          \
+    .size   = _size,            \
+    .type   = jtype_##_type,    \
     .flag   = _flag,            \
-    .deft   = {                 \
-        .v  = (void *)(_deft),  \
-    },                          \
-}   /* end */
-  
-typedef struct {
-    int count;
-    jrule_t *rule;
-
-    is_good_enum_f  *is_good_id;
-    getnamebyid_f   *getnamebyid;
-    getidbyname_f   *getidbyname;
-} jrule_ops_t;
-
-#define JRULE_OPS_INITER(_rule, _is_good_id, _getnamebyid, _getidbyname) { \
-    .rule = _rule,                  \
-    .count = os_count_of(_rule),    \
-                                    \
-    .is_good_id     = _is_good_id,  \
-    .getnamebyid    = _getnamebyid, \
-    .getidbyname    = _getidbyname, \
+    .serialize  = _serialize_initer,    \
+    .unserialize= _unserialize_initer,  \
+    .deft       = _deft_initer,         \
 }   /* end */
 
-typedef int jrule_apply_f(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval);
+#define JRULER_END  { .offset = -1 }
+
+#define JRULE_FOREACH(_rule, _rules) \
+    for (_rule=&_rules[0]; _rule->offset >= 0; _rule++)
+
+#define JRULE_OBJ_MEMBER_ADDRESS(_rule, _obj) \
+    ((char *)(_obj) + (_rule)->offset)
+
+#define JRULE_BORDER_CHECK(_v, _rule, _member)  ({  \
+    int err = 0;                                    \
+                                                    \
+    if (_v < _rule->serialize._member) {            \
+        err = -ETOOSMALL;                           \
+    }                                               \
+    else (_v > _rule->serialize._member) {          \
+        err = -ETOOBIG;                             \
+    }                                               \
+                                                    \
+    err;                                            \
+})  /* end */
+
+static inline int
+jrule_strassign(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    
+    *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = jobj_get_string(jval);
+
+    return 0;
+}
+
+static inline int
+jrule_strdup(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    
+    *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = os_strdup(jobj_get_string(jval));
+
+    return 0;
+}
+
+static inline int
+jrule_strcpy(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    
+    os_strcpy(JRULE_OBJ_MEMBER_ADDRESS(rule, obj), jobj_get_string(jval));
+
+    return 0;
+}
+
+static inline int
+jrule_time_o2j(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    time_t *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    
+    jobj_add_string(jobj, rule->name, os_fulltime_string(*member));
+
+    return 0;
+}
+
+static inline int
+jrule_time_j2o(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    time_t *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+
+    *member = os_fulltime(jobj_get_string(jval));
+
+    return 0;
+}
+
+static inline int
+jrule_ip_o2j(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    
+    jobj_add_string(jobj, rule->name, os_ipstring(*member));
+
+    return 0;
+}
+
+static inline int
+jrule_ip_j2o(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+
+    *member = inet_addr(jobj_get_string(jval));
+
+    return 0;
+}
+
+static inline int
+jrule_mac_o2j(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    
+    jobj_add_string(jobj, rule->name, os_macstring(member));
+
+    return 0;
+}
+
+static inline int
+jrule_mac_j2o(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    
+    os_getmac_bystring(member, jobj_get_string(jval));
+
+    return 0;
+}
+
+extern jrule_t *
+jrule_getbyname(jrule_t *rules, char *name);
 
 extern int
-jrule_check(jrule_ops_t *ops);
+jrule_selfcheck(jrule_t *rules);
 
 extern int
-jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval);
+jrule_o2j(jrule_t *rules, void *obj, jobj_t jobj);
 
 extern int
-jrule_apply(jobj_t jobj, jrule_ops_t *ops, jrule_apply_f *apply);
+jrule_j2o(jrule_t *rules, void *obj, jobj_t jobj);
 
 #if 0
 /*
 * JOBJ: c magic enum macro for json
 *
 */
-#define XXX_JOBJ_MAPPER(_) \
-    _(KEY_A, VALUE_A, "NAME_A", TYPE_A, FLAG_A, DEFT_A), \
-    _(KEY_B, VALUE_B, "NBME-B", TYPE_B, FLBG_B, DEFT_B), \
-    _(KEY_C, VALUE_C, "NCME-C", TYPE_C, FLCG_C, DEFT_C), \
+#define XXX_JRULE_MAPPER(_) \
+    _(OFFSET_A, MEMVER_A, "NAME_A", TYPE_A, SIZE_A, FLAG_A, \
+        SERIALIZE_INITER_A, UNSERIALIZE_INITER_A, DEFT_INITER_A),
+    _(OFFSET_B, MEMVER_B, "NAME_B", TYPE_B, SIZE_B, FLAG_B, \
+        SERIALIZE_INITER_B, UNSERIALIZE_INITER_B, DEFT_INITER_B),
+    _(OFFSET_C, MEMVER_C, "NAME_C", TYPE_C, SIZE_C, FLAG_C, \
+        SERIALIZE_INITER_C, UNSERIALIZE_INITER_C, DEFT_INITER_C),
     /* end */
-DECLARE_JOBJ(xxx, XXX_JOBJ_MAPPER, KEY_END);
+DECLARE_JRULER(xxx, XXX_JRULE_MAPPER);
 
-static inline bool is_good_xxx(int id);
-static inline char *xxx_string(int id);
-static inline int xxx_idx(char *name);
-
-static inline jrule_ops_t *xxx_jrule_ops(void);
-static inline int xxx_jcheck(jobj_t jobj);
-static inline int xxx_jrepair(jobj_t jobj);
-
-#define KEY_A       KEY_A
-#define KEY_B       KEY_B
-#define KEY_C       KEY_C
-#define KEY_END     KEY_END
+static inline jrule_t *xxx_jrules(void);
+static inline int xxx_o2j(void *obj, jobj_t jobj);
+static inline int xxx_j2o(void *obj, jobj_t jobj);
 #endif
 
-#define __JOBJ_MAP_VALUE(_key, _value, _name, _type, _flag, _deft)  _key = _value
-#define __JOBJ_MAP_NAME(_key, _value, _name, _type, _flag, _deft)   [_key] = _name
-#define __JOBJ_MAP_RULE(_key, _value, _name, _type, _flag, _deft)   J_RULE(_key, _type, _flag, _deft)
-
-#define DECLARE_JOBJ(_mod, _mapper, _end) \
-    enum {                          \
-        _mapper(__JOBJ_MAP_VALUE)   \
-                                    \
-        _end                        \
-    };                              \
-                                    \
-    static inline bool              \
-    is_good_##_mod(int id)          \
+#define DECLARE_JRULER(_mod, _mapper) \
+    static inline jrule_t *         \
+    _mod##_jrules(void)             \
     {                               \
-        return IS_GOOD_ENUM(id, _end); \
-    }                               \
-                                    \
-    static inline char **           \
-    __##_mod##_strings(void)        \
-    {                               \
-        static char *array[_end] = { _mapper(__JOBJ_MAP_NAME) }; \
-                                    \
-        return array;               \
-    }                               \
-                                    \
-    static inline char *            \
-    _mod##_string(int id)           \
-    {                               \
-        char **array = __##_mod##_strings(); \
-                                    \
-        return is_good_##_mod(id)?array[id]:__unknow; \
-    }                               \
-                                    \
-    static inline int               \
-    _mod##_idx(char *s)             \
-    {                               \
-        char **array = __##_mod##_strings(); \
-                                    \
-        return os_array_search_str(array, s, 0, _end); \
-    }                               \
-                                    \
-    static inline jrule_ops_t *     \
-    _mod##_jrule_ops(void)          \
-    {                               \
-        static jrule_t rule[_end] = {   \
-            _mapper(__JOBJ_MAP_RULE)    \
+        static jrule_t rule[] = {   \
+            _mapper(JRULER)         \
+            JRULER_END,             \
         };                          \
-        static jrule_ops_t ops = JRULE_OPS_INITER(rule, \
-            is_good_##_mod,         \
-            _mod##_string,          \
-            _mod##_idx);            \
-        return &ops;                \
+                                    \
+        return rule;                \
     }                               \
                                     \
     static inline int               \
-    _mod##_jcheck(jobj_t jobj)      \
+    _mod##_o2j(void *obj, jobj_t jobj)  \
     {                               \
-        return jrule_apply(jobj, _mod##_jrule_ops(), NULL); \
+        return jrule_o2j(_mod##_jrules, obj, jobj); \
     }                               \
                                     \
     static inline int               \
-    _mod##_jrepair(jobj_t jobj)     \
+    _mod##_jto(void *obj, jobj_t jobj)  \
     {                               \
-        return jrule_apply(jobj, _mod##_jrule_ops(), jrule_repair); \
+        return jrule_j2o(_mod##_jrules, obj, jobj); \
     }                               \
                                     \
     os_fake_declare                 \

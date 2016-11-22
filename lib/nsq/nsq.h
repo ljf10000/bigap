@@ -142,36 +142,36 @@ static inline int nsq_identify_idx(char *name);
 #define NSQ_IDENTIFY_END                    NSQ_IDENTIFY_END   
 
 #define NSQ_IDENTIFY_RULE_INITER {                  \
-    J_RULE(NSQ_IDENTIFY_CLIENT_ID,                  \
-        jtype_string,                               \
+    JRULER(NSQ_IDENTIFY_CLIENT_ID,                  \
+        string,                                     \
         JRULE_DYNAMIC,                              \
         os_getbasemac),                             \
-    J_RULE(NSQ_IDENTIFY_HOSTNAME,                   \
-        jtype_string,                               \
+    JRULER(NSQ_IDENTIFY_HOSTNAME,                   \
+        string,                                     \
         JRULE_DYNAMIC,                              \
         os_getbasemac),                             \
-    J_RULE(NSQ_IDENTIFY_FEATURE_NEGOTIATION,        \
-        jtype_bool,                                 \
+    JRULER(NSQ_IDENTIFY_FEATURE_NEGOTIATION,        \
+        bool,                                       \
         JRULE_CONST,                                \
         NSQ_NEGOTIATION),                           \
-    J_RULE(NSQ_IDENTIFY_HEARBEAT_INTERVAL,          \
-        jtype_int,                                  \
+    JRULER(NSQ_IDENTIFY_HEARBEAT_INTERVAL,          \
+        i32,                                        \
         0,                                          \
         NSQ_HEARBEAT_INTERVAL),                     \
-    J_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,         \
-        jtype_int,                                  \
+    JRULER(NSQ_IDENTIFY_OUTPUT_BUFFER_SIZE,         \
+        i32,                                        \
         0,                                          \
         NSQ_SEND_BUFFER_SIZE),                      \
-    J_RULE(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,      \
-        jtype_int,                                  \
+    JRULER(NSQ_IDENTIFY_OUTPUT_BUFFER_TIMEOUT,      \
+        i32,                                        \
         0,                                          \
         NSQ_SEND_BUFFER_TIMEOUT),                   \
-    J_RULE(NSQ_IDENTIFY_USER_AGENT,                 \
-        jtype_string,                               \
+    JRULER(NSQ_IDENTIFY_USER_AGENT,                 \
+        string,                                     \
         JRULE_CONST,                                \
         NSQ_USER_AGENT),                            \
-    J_RULE(NSQ_IDENTIFY_MSG_TIMEOUT,                \
-        jtype_int,                                  \
+    JRULER(NSQ_IDENTIFY_MSG_TIMEOUT,                \
+        i32,                                        \
         0,                                          \
         NSQ_MSG_TIMEOUT),                           \
 }   /* end */
@@ -199,7 +199,7 @@ nsq_identify_jrepair(jobj_t jobj)
 {
     int err;
 
-    err = jrule_apply(jobj, nsq_identify_jrule_ops(), jrule_repair);
+    err = jrule_apply(jobj, nsq_identify_jrule_ops(), jrule_applier);
     if (err<0) {
         return err;
     }
@@ -245,27 +245,27 @@ static inline int nsq_instance_idx(char *name);
 #define NSQ_INSTANCE_END        NSQ_INSTANCE_END
 
 #define NSQ_INSTANCE_RULE_INITER {  \
-    J_RULE(NSQ_INSTANCE_NAME,       \
-        jtype_string,               \
+    JRULER(NSQ_INSTANCE_NAME,       \
+        string,                     \
         JRULE_MUST,                 \
         NULL),                      \
-    J_RULE(NSQ_INSTANCE_DOMAIN,     \
-        jtype_string,               \
+    JRULER(NSQ_INSTANCE_DOMAIN,     \
+        string,                     \
         JRULE_MUST,                 \
         NULL),                      \
-    J_RULE(NSQ_INSTANCE_PORT,       \
-        jtype_int,                  \
+    JRULER(NSQ_INSTANCE_PORT,       \
+        i32,                        \
         0,                          \
         NSQ_PORT),                  \
-    J_RULE(NSQ_INSTANCE_TOPIC,      \
-        jtype_string,               \
+    JRULER(NSQ_INSTANCE_TOPIC,      \
+        string,                     \
         JRULE_MUST,                 \
         NULL),                      \
-    J_RULE(NSQ_INSTANCE_CHANNEL,    \
-        jtype_string,               \
+    JRULER(NSQ_INSTANCE_CHANNEL,    \
+        string,                     \
         JRULE_MUST,                 \
         NULL),                      \
-    J_RULE(NSQ_INSTANCE_IDENTIFY,   \
+    JRULER(NSQ_INSTANCE_IDENTIFY,   \
         jtype_object,               \
         JRULE_MUST,                 \
         nsq_identify_jrepair),      \
@@ -294,7 +294,7 @@ nsq_instance_jrepair(jobj_t jobj)
 {
     int err;
 
-    err = jrule_apply(jobj, nsq_instance_jrule_ops(), jrule_repair);
+    err = jrule_apply(jobj, nsq_instance_jrule_ops(), jrule_applier);
     if (err<0) {
         return err;
     }

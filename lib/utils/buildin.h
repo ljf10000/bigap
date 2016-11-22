@@ -100,6 +100,13 @@
 #   endif
 #endif
 
+typedef char *string_to_string_mapper_f(char *);
+static inline char *
+string_to_string_mapper(char *s)
+{
+    return s;
+}
+
 #ifndef os_do_nothing 
 #define os_do_nothing()         do{}while(0)
 #endif

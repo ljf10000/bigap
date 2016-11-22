@@ -241,7 +241,7 @@ jobj_exec(jobj_t obj, const char *fmt, int argc, char *argv[])
         switch(*p++) {
             case jfmt_bool:
                 var.b = os_atoi(argv[idx++]);
-                japi_println("bool=%d", var.d);
+                japi_println("bool=%d", var.b);
                 err = jobj_add_bool(obj, key, var.b);
                 
                 break;
@@ -501,148 +501,316 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count)
     return jobj;
 }
 
-static int
-__jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval)
+STATIC int
+jrule_object_assign(jrule_t *rule, void *obj, jobj_t jval)
 {
+    void *member = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    
+    return 0;
+}
+
+STATIC int
+jrule_array_assign(jrule_t *rule, void *obj, jobj_t jval)
+{
+    return 0;
+}
+
+int
+jrule_assign(jrule_t *rule, void *obj, jobj_t jval)
+{
+    void *member = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    jrule_t *rules;
     int err = 0;
     
     switch(rule->type) {
-        case jtype_bool: {
-            bool vb = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fb)():rule->deft.b;
-            
-        }   break;
-        case jtype_int: {
-            int32 vi = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fi)():rule->deft.i;
-            
-            err = jobj_add_i32(jobj, name, vi);
-            
-        }   break;
-        case jtype_string: {
-            char *vs = (rule->flag & JRULE_DYNAMIC)?(*rule->deft.fs)():rule->deft.s;
-            
-            err = jobj_add_string(jobj, name, vs);
-            
-        }   break;
-        case jtype_object: {
-            if (rule->deft.fo) {
-                err = (*rule->deft.fo)(jval);
+        case jtype_bool:
+            *(bool *)member     = jobj_get_bool(jval);
+            break;
+        case jtype_double:
+            *(float64 *)member  = jobj_get_f64(jval);
+            break;
+        case jtype_string:
+            if (rule->assign) {
+                err = (*rule->assign)(rule, obj, jval);
+            } else {
+                err = jrule_strassign(rule, obj, jval);
             }
             
-        }   break;
-        case jtype_array: {
-            if (rule->deft.fa) {
-                err = (*rule->deft.fa)(jval);
-            }
-            
-        }   break;
+            break;
+        case jtype_int:     // down
+        case jtype_i32:
+            *(int32 *)member    = jobj_get_i32(jval);
+            break;
+        case jtype_u32:
+            *(uint32 *)member   = jobj_get_u32(jval);
+            break;
+        case jtype_f32:
+            *(float32 *)member  = jobj_get_f32(jval);
+            break;
+        case jtype_i64:
+            *(int64 *)member    = jobj_get_i64(jval);
+            break;
+        case jtype_u64:
+            *(uint64 *)member   = jobj_get_u64(jval);
+            break;
+        case jtype_double:
+        case jtype_f64:
+            *(float64 *)member  = jobj_get_f64(jval);
+            break;
+        case jtype_object:
+            err = jrule_object_assign(rule, obj, jval);
+            break;
+        case jtype_array:
+            err = jrule_array_assign(rule, obj, jval);
+            break;
+        case jtype_null:    // down
         default:
-            err = -ENOSUPPORT;
+            return -EBADRULE;
     }
 
     return err;
 }
 
-int
-jrule_check(jrule_ops_t *ops)
+jrule_t *
+jrule_getbyname(jrule_t *rules, char *name)
 {
-    int id, err;
-    char *name;
-    jobj_t jval;
     jrule_t *rule;
-    
-    for (id=0; id<ops->count; id++) {
-        rule = &ops->rule[id];
 
-        if (os_hasflag(rule->flag, JRULE_CONST | JRULE_DYNAMIC)) {
-            return -EBADRULE;
+    JRULE_FOREACH(rule, rules) {
+        if (os_streq(name, rule->name)) {
+            return rule;
         }
-        
-        switch(rule->type) {
-            case jtype_object:  // down
-            case jtype_array:
-                if (NULL==rule->deft.v) {
-                    return -EBADRULE;
-                }
+    }
 
-                break;
-            case jtype_bool:    // down
-            case jtype_int:     // down
-            case jtype_string:
-                if (os_hasflag(rule->flag, JRULE_DYNAMIC) && NULL==rule->deft.v) {
-                    return -EBADRULE;
-                }
-                
-                break;
-            case jtype_null:    // down
-            case jtype_double:
-            default:
+    return NULL;
+}
+
+bool
+is_good_jrule_flag(int flag)
+{
+    static int flags[] = { JURLE_VALID_FLAGS };
+    int i;
+
+    for (i=0; i<os_count_of(flags); i++) {
+        if (os_hasflag(flag, flags[i])) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+STATIC int
+__jrule_selfcheck(jrule_t *rule)
+{
+    if (false==is_good_jrule_flag(rule->flag)) {
+        return -EBADRULE;
+    }
+
+    switch(rule->type) {
+        case jtype_bool:    // down
+        case jtype_int:     // down
+        case jtype_double:  // down
+        case jtype_i32:     // down
+        case jtype_u32:     // down
+        case jtype_f32:     // down
+        case jtype_i64:     // down
+        case jtype_u64:     // down
+        case jtype_f64:
+            if (os_hasflag(rule->flag, JRULE_CHECKER) && NULL==rule->serialize.check) {
                 return -EBADRULE;
-        }
+            }
+            
+            break;
+        case jtype_enum:
+            if (NULL==rule->serialize.get_enum_ops) {
+                return -EBADRULE;
+            }
+            
+            break;
+        case jtype_string:
+            if (NULL==rule->unserialize.j2o) {
+                return -EBADRULE;
+            }
+
+            break;
+        case jtype_object:
+            if (NULL==rule->deft.rules) {
+                return -EBADRULE;
+            }
+            
+            break;
+        case jtype_array:
+            if (NULL==rule->serialize.array_create ||
+                NULL==rule->unserialize.get_array_count_address ||
+                NULL==rule->deft.rules) {
+                return -EBADRULE;
+            }
+
+            break;
+        case jtype_null: // down
+        default:
+            return -EBADRULE;
     }
 
     return 0;
 }
 
 int
-jrule_repair(jobj_t jobj, jrule_t *rule, char *name, jobj_t jval)
+jrule_selfcheck(jrule_t *rules)
 {
-    /*
-    * dynamic/const, 
-    *   delete it from jobj
-    *   set default
-    */
-    if ((JRULE_CONST | JRULE_DYNAMIC) & rule->flag) {
-        jobj_del(jobj, name);
-        
-        return __jrule_repair(jobj, rule, name, jval);
-    }
-    /*
-    * no value, set default
-    */
-    else if (NULL==jval) {
-        return __jrule_repair(jobj, rule, name, jval);
-    }
-
-    return 0;
-}
-
-int
-jrule_apply(jobj_t jobj, jrule_ops_t *ops, jrule_apply_f *apply)
-{
-    int id, err;
-    char *name;
-    jobj_t jval;
     jrule_t *rule;
+    int err;
     
-    for (id=0; id<ops->count; id++) {
-        if (false==(*ops->is_good_id)(id)) {
-            return -EBADRULE;
-        }
-        
-        name = (*ops->getnamebyid)(id);
-        if (NULL==name) {
-            return -EBADRULE;
-        }
-        rule = &ops->rule[id];
-        
-        jval = jobj_get(jobj, name);
-        if (NULL==jval) {
-            if (os_hasflag(rule->flag, JRULE_MUST)) {
-                return -ENOMUST;
-            }
-        }
-        else if (jobj_type(jval) != rule->type) {
-            return -EBADJTYPE;
-        }
-        else if (apply) {
-            err = (*apply)(jobj, rule, name, jval);
-            if (err<0) {
-                return err;
-            }
+    JRULE_FOREACH(rule, rules) {
+        err = __jrule_selfcheck(rule);
+        if (err<0) {
+            return err;
         }
     }
 
     return 0;
+}
+
+STATIC int
+__jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    
+}
+
+STATIC int
+__jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    int err;
+    
+    if (os_hasflag(rule->flag, JRULE_DROP)) {
+        debug_trace("drop json key %s", rule->name);
+        
+        jobj_del(jobj, rule->name);
+        
+        return 0;
+    }
+    else if (os_hasflag(rule->flag, JRULE_MUST)) {
+        debug_trace("no-found json key %s", rule->name);
+        
+        return -ENOEXIST;
+    }
+    else if (os_hasflag(rule->flag, JRULE_CHECKER)) {
+        err = (*rule->serialize.check)(rule, jobj);
+        if (err<0) {
+            return 0;
+        }
+    }
+    
+    bool border = os_hasflag(rule->flag, JRULE_BORDER);
+    char *member = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    
+    switch(rule->type) {
+        case jtype_bool: {
+            *(bool *)member = jobj_get_bool(jval);
+        }   break;
+        case jtype_int: {
+            int v = jobj_get_int(jval);
+
+            if (border) {
+                err = JRULE_BORDER_CHECK(v, rule, i);
+                if (err<0) {
+                    return err;
+                }
+            }
+            
+            *(int *)member = v;
+        }   break;
+        case jtype_double: {
+            double v = jobj_get_double(jval);
+
+            if (border) {
+                err = JRULE_BORDER_CHECK(v, rule, d);
+                if (err<0) {
+                    return err;
+                }
+            }
+            
+            *(double *)member = v;
+        }   break;
+        case jtype_i32: {
+            int32 v = jobj_get_i32(jval);
+
+            if (border) {
+                err = JRULE_BORDER_CHECK(v, rule, d);
+                if (err<0) {
+                    return err;
+                }
+            }
+            
+            *(double *)member = v;
+        }   break;
+        case jtype_u32:     // down
+        case jtype_f32:     // down
+        case jtype_i64:     // down
+        case jtype_u64:     // down
+        case jtype_f64:
+
+            break;
+        case jtype_enum:
+            if (NULL==rule->serialize.get_enum_ops) {
+                return -EBADRULE;
+            }
+            
+            break;
+        case jtype_string:
+            if (NULL==rule->unserialize.j2o) {
+                return -EBADRULE;
+            }
+
+            break;
+        case jtype_object:
+            if (NULL==rule->deft.rules) {
+                return -EBADRULE;
+            }
+            
+            break;
+        case jtype_array:
+            if (NULL==rule->serialize.array_create ||
+                NULL==rule->unserialize.get_array_count_address ||
+                NULL==rule->deft.rules) {
+                return -EBADRULE;
+            }
+
+            break;
+        case jtype_null: // down
+        default:
+            return -EBADRULE;
+    }
+}
+
+STATIC int
+jrules_apply(jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(jrule_t *rule, void *obj, jobj_t jobj))
+{
+    jrule_t *rule;
+    int err;
+
+    JRULE_FOREACH(rule, rules) {
+        err = (*apply)(rule, obj, jobj);
+        if (err<0) {
+            return 0;
+        }
+    }
+    
+    return 0;
+}
+
+int
+jrule_o2j(jrule_t *rules, void *obj, jobj_t jobj)
+{
+    return jrules_apply(rules, obj, jobj, __jrule_o2j);
+}
+
+int
+jrule_j2o(jrule_t *rules, void *obj, jobj_t jobj)
+{
+    return jrules_apply(rules, obj, jobj, __jrule_j2o);
 }
 
 #endif
