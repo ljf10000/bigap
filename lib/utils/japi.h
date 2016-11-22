@@ -619,7 +619,7 @@ static inline int
 jrule_time_o2j(jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
-    time_t *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
     
     jobj_add_string(jobj, rule->name, os_fulltime_string(*member));
 
@@ -630,7 +630,7 @@ static inline int
 jrule_time_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
-    time_t *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
 
     *member = os_fulltime(jobj_get_string(jval));
 

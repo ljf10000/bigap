@@ -670,8 +670,8 @@ __um_jflow_st(struct um_flowst *st)
 {
     jobj_t jst = jobj_new_object();
 
-    jobj_add_i32(jst, "packets", st->packets);
-    jobj_add_i64(jst, "bytes", st->bytes);
+    jobj_add_int32(jst, "packets", st->packets);
+    jobj_add_int64(jst, "bytes", st->bytes);
 
     return jst;
 }
