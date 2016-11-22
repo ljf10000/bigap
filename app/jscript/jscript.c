@@ -278,7 +278,7 @@ jscript_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_POINTER_INITER(jinstance_jrules)), \
     /* end */
-DECLARE_JRULER(jscript, JSCRIPT_JENUM_MAPPER);
+DECLARE_JRULER(jscript, JSCRIPT_JRULE_MAPPER);
 
 static inline jrule_t *jscript_jrules(void);
 #endif
