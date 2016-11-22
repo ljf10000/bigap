@@ -134,6 +134,26 @@ nsq_instance_t;
 
 #if USE_JRULE
 #define NSQ_INSTANCE_JRULE_MAPPER(_) \
+    _(offsetof(nsq_instance_t, fsm), fsm, "fsm",        \
+            enum, sizeof(int), 0,                       \
+            JRULE_VAR_ENUM(nsq_fsm_ops_getter),         \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(nsq_instance_t, rdy), rdy, "rdy",        \
+            u32, sizeof(uint), 0,                       \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(nsq_instance_t, fsm_time), fsm_time, "fsm_time", \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(nsq_instance_t, auth), auth, "auth",     \
+            bool, sizeof(bool), 0,                      \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, name), name, NSQ_INSTANCE_NAME_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
             JRULE_VAR_STRASSIGN,                        \
@@ -151,6 +171,11 @@ nsq_instance_t;
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, channel), channel, NSQ_INSTANCE_CHANNEL_NAME, \
             string, sizeof(char *), JRULE_MUST,         \
+            JRULE_VAR_STRASSIGN,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(nsq_instance_t, script), script, NSQ_INSTANCE_SCRIPT_NAME, \
+            string, sizeof(char *), 0,                  \
             JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \

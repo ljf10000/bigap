@@ -3,7 +3,7 @@
 /******************************************************************************/
 #if 0
 /*
-* ENUM: c magic enum macro
+* ENUM: c enum macro
 *
 */
 #define XXX_ENUM_MAPPER(_) \
@@ -13,9 +13,6 @@
     /* end */
 DECLARE_ENUM(xxx, XXX_ENUM_MAPPER, KEY_END);
 
-static inline bool is_good_xxx(int id);
-static inline char *xxx_string(int id);
-static inline int xxx_idx(char *name);
 static inline enum_ops_t *xxx_ops_getter(void);
 
 #define KEY_A       KEY_A
@@ -31,8 +28,6 @@ typedef struct {
     char *(*getname)(int id);
     int (*getid)(char *name);
 } enum_ops_t;
-
-typedef enum_ops_t *get_enum_ops_f(void);
 
 #define __ENUM_MAP_VALUE(_key, _value, _name)   _key = _value
 #define __ENUM_MAP_NAME(_key, _value, _name)    [_key] = _name
@@ -89,9 +84,5 @@ typedef enum_ops_t *get_enum_ops_f(void);
                                     \
     os_fake_declare                 \
     /* end */
-
-typedef bool is_good_enum_f(int id);
-typedef char *getnamebyid_f(int id);
-typedef int getidbyname_f(char *name);
 /******************************************************************************/
 #endif /* __ENUM_H_1b2ec28c4a404b41b1508c4effa0487d__ */

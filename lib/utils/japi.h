@@ -697,8 +697,7 @@ jrule_j2o(jrule_t *rules, void *obj, jobj_t jobj);
 
 #if 0
 /*
-* JOBJ: c magic enum macro for json
-*
+* JRULE: json rule macro
 */
 #define XXX_JRULE_MAPPER(_) \
     _(OFFSET_A, MEMVER_A, "NAME_A", TYPE_A, SIZE_A, FLAG_A, \

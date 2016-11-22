@@ -867,7 +867,7 @@ jrules_apply(jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(jrule_t *rule,
             return 0;
         }
     }
-    
+
     return 0;
 }
 
@@ -883,7 +883,7 @@ jrule_o2j(jrule_t *rules, void *obj, jobj_t jobj)
     else if (NULL==jobj) {
         return -EINVAL2;
     }
-    
+
     return jrules_apply(rules, obj, jobj, __jrule_o2j);
 }
 
@@ -896,7 +896,7 @@ jrule_j2o(jrule_t *rules, void *obj, jobj_t jobj)
     else if (NULL==jobj) {
         return -EINVAL4;
     }
-    
+
     return jrules_apply(rules, obj, jobj, __jrule_j2o);
 }
 #endif /* USE_JRULE */

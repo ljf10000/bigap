@@ -81,7 +81,7 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
 {
     nsq_instance_t *instance = NULL;
     jobj_t jval, jidentify;
-    int fd, port, err;
+    int fd, err;
     
     instance = (nsq_instance_t *)os_zalloc(sizeof(nsq_instance_t));
     if (NULL==instance) {
@@ -119,10 +119,10 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
     instance->script    = os_strdup(jobj_get_string(jval));
 
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
-    port = jobj_get_bool(jval);
+    instance->port = jobj_get_int(jval);
     sockaddr_in_t *server   = &instance->server;
     server->sin_family      = AF_INET;
-    server->sin_port        = htons(port);
+    server->sin_port        = htons(instance->port);
     server->sin_addr.s_addr = INADDR_NONE;
 
     sockaddr_in_t *client   = &instance->client;
