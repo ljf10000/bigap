@@ -150,8 +150,6 @@ typedef struct {
 DECLARE_JRULER(jinstance, JINSTANCE_JRULE_MAPPER);
 
 static inline jrule_t *jinstance_jrules(void);
-static inline int jinstance_o2j(jobj_t jobj);
-static inline int jinstance_j2o(jobj_t jobj);
 #endif
 
 #if 1
@@ -283,8 +281,6 @@ jscript_t;
 DECLARE_JRULER(jscript, JSCRIPT_JENUM_MAPPER);
 
 static inline jrule_t *jscript_jrules(void);
-static inline int jscript_o2j(void *obj, jobj_t jobj);
-static inline int jscript_j2o(void *obj, jobj_t jobj);
 #endif
 
 static jscript_t script;

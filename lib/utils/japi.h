@@ -476,7 +476,7 @@ union jrule_var_u {
     uint64  u64;
     float64 f64;
 
-    jrule_t *rules;
+    jrule_t *(*rules)(void);
     get_enum_ops_f *get_enum_ops;
 
     int (*o2j)(jrule_t *rule, void *obj, jobj_t jobj);
@@ -716,18 +716,6 @@ static inline int xxx_j2o(void *obj, jobj_t jobj);
         };                          \
                                     \
         return rule;                \
-    }                               \
-                                    \
-    static inline int               \
-    _mod##_o2j(void *obj, jobj_t jobj)  \
-    {                               \
-        return jrule_o2j(_mod##_jrules, obj, jobj); \
-    }                               \
-                                    \
-    static inline int               \
-    _mod##_jto(void *obj, jobj_t jobj)  \
-    {                               \
-        return jrule_j2o(_mod##_jrules, obj, jobj); \
     }                               \
                                     \
     os_fake_declare                 \
