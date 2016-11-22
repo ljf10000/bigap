@@ -426,8 +426,8 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count);
 
 #define jobj_map(_jobj, _map)               __jobj_map(_jobj, _map, os_count_of(_map))
 
-#define __jobj_mapf(_file, _map, _count)    __jobj_map(jobj_byfile(_file), _map, _count)
-#define jobj_mapf(_file, _map)              __jobj_mapf(_file, _map, os_count_of(_map))
+#define __jobj_mapfile(_file, _map, _count) __jobj_map(jobj_byfile(_file), _map, _count)
+#define jobj_mapfile(_file, _map)           __jobj_mapfile(_file, _map, os_count_of(_map))
 
 #define JOBJ_MAP(_jobj, _mapper) ({ \
     DECLARE_JOBJ_MAPPER(_mapper);   \
