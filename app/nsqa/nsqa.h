@@ -86,7 +86,7 @@ typedef struct {
 
 DECLARE_JRULER(nsq_identify, NSQ_IDENTIFY_JRULE_MAPPER);
 
-static inline int nsq_identify_jrules(void);
+static inline jrule_t *nsq_identify_jrules(void);
 #endif
 
 #if 1
@@ -166,7 +166,7 @@ nsq_instance_t;
 
 DECLARE_JRULER(nsq_instance, NSQ_INSTANCE_JRULE_MAPPER);
 
-static inline int nsq_instance_jrules(void);
+static inline jrule_t *nsq_instance_jrules(void);
 #endif
 
 #define is_nsq_fsm_init(_instance)          (NSQ_FSM_INIT==(_instance)->fsm)
