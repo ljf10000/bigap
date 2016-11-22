@@ -286,8 +286,34 @@ static inline jrule_t *jscript_jrules(void);
 static jscript_t script;
 
 static int
+usage(int argc, char *argv[])
+{
+    os_eprintln(__THIS_APPNAME);
+    os_eprintln(__tab __THIS_APPNAME " json [args1 args2 args3]");
+
+    return -EINVAL;
+}
+
+static int
 __main(int argc, char *argv[])
 {
+    int err;
+    
+    if (argc < 2) {
+        return usage(argc, argv);
+    }
+    
+    char *json = argv[1];
+    jobj_t jobj = jobj_byjson(json);
+    if (NULL==jobj) {
+        return -EBADJSON;
+    }
+
+    err = jrule_j2o(jscript_jrules(), &script, jobj);
+    if (err<0) {
+        return err;
+    }
+    
     return 0;
 }
 
