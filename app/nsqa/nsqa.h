@@ -27,6 +27,74 @@ typedef struct {
     .script = NSQ_SCRIPT,   \
 }   /* end */
 
+#if 1
+typedef struct {
+    char *client_id;
+    char *hostname;
+    char *user_agent;
+    bool feature_negotiation;
+    int msg_timeout;
+    int heartbeat_interval;
+    int output_buffer_size;
+    int output_buffer_timeout;
+} nsq_identify_t;
+
+#define NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME   "feature_negotiation"
+
+#define NSQ_IDENTIFY_JRULE_MAPPER(_) \
+    _(offsetof(nsq_identify_t, client_id), client_id, "client_id", \
+            string, sizeof(char *), JRULE_MUST,         \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(nsq_identify_t, hostname), hostname, "hostname", \
+            string, sizeof(char *), JRULE_MUST,         \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(nsq_identify_t, user_agent), user_agent, "user_agent", \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_POINTER_INITER(jrule_strdup),     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_POINTER_INITER(NSQ_USER_AGENT)),  \
+    _(offsetof(nsq_identify_t, feature_negotiation), feature_negotiation, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME, \
+            bool, sizeof(bool), 0,                      \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_BOOL_INITER(NSQ_NEGOTIATION)),    \
+    _(offsetof(nsq_identify_t, feature_negotiation), feature_negotiation, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME, \
+            int, sizeof(int), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_INT_INITER(NSQ_HEARBEAT_INTERVAL)), \
+    _(offsetof(nsq_identify_t, output_buffer_size), output_buffer_size, "output_buffer_size", \
+            int, sizeof(int), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_INT_INITER(NSQ_SEND_BUFFER_SIZE)), \
+    _(offsetof(nsq_identify_t, output_buffer_timeout), output_buffer_timeout, "output_buffer_timeout", \
+            int, sizeof(int), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_INT_INITER(NSQ_SEND_BUFFER_TIMEOUT)), \
+    _(offsetof(nsq_identify_t, msg_timeout), msg_timeout, "msg_timeout", \
+            int, sizeof(int), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_POINTER_INITER(NSQ_MSG_TIMEOUT)), \
+    /* end */
+
+static inline int nsq_identify_rules(void);
+#endif
+
+#if 1
+#define NSQ_INSTANCE_NAME_NAME      "name"
+#define NSQ_INSTANCE_DOMAIN_NAME    "domain"
+#define NSQ_INSTANCE_PORT_NAME      "port"
+#define NSQ_INSTANCE_TOPIC_NAME     "topic"
+#define NSQ_INSTANCE_CHANNEL_NAME   "channel"
+#define NSQ_INSTANCE_IDENTIFY_NAME  "identify"
+
 typedef struct {
     int     fd;
     int     fsm;
@@ -38,26 +106,109 @@ typedef struct {
     char *name;
     char *domain;
     char *topic;
-    char *identify; // json
     char *channel;
 
     char *script;   // self exec script
 
     byte msgid[NSQ_MSGID_SIZE]; // last message id
     int  error;                 // last error
-    
+
+    nsq_identify_t  identify;
+
     nsq_buffer_t    bsender;
     nsq_buffer_t    brecver;
     
     sockaddr_in_t   server;
     sockaddr_in_t   client;
 
+    jobj_t          jidentify;
     jobj_t          jinstance;
     jobj_t          jauth;
 
     h1_node_t       node;
 } 
 nsq_instance_t;
+
+#define NSQ_INSTANCE_ENUM_MAPPER(_)                                 \
+    _(NSQ_INSTANCE_NAME,        0,  NSQ_INSTANCE_NAME_NAME),        \
+    _(NSQ_INSTANCE_DOMAIN,      1,  NSQ_INSTANCE_DOMAIN_NAME),      \
+    _(NSQ_INSTANCE_PORT,        2,  NSQ_INSTANCE_PORT_NAME),        \
+    _(NSQ_INSTANCE_TOPIC,       3,  NSQ_INSTANCE_TOPIC_NAME),       \
+    _(NSQ_INSTANCE_CHANNEL,     4,  NSQ_INSTANCE_CHANNEL_NAME),     \
+    _(NSQ_INSTANCE_IDENTIFY,    5,  NSQ_INSTANCE_IDENTIFY_NAME),    \
+    /* end */
+DECLARE_ENUM(nsq_instance, NSQ_INSTANCE_ENUM_MAPPER, NSQ_INSTANCE_END);
+
+static inline bool is_good_nsq_instance(int id);
+static inline char *nsq_instance_string(int id);
+static inline int nsq_instance_idx(char *name);
+
+#define NSQ_INSTANCE_NAME       NSQ_INSTANCE_NAME
+#define NSQ_INSTANCE_DOMAIN     NSQ_INSTANCE_DOMAIN
+#define NSQ_INSTANCE_PORT       NSQ_INSTANCE_PORT
+#define NSQ_INSTANCE_TOPIC      NSQ_INSTANCE_TOPIC
+#define NSQ_INSTANCE_CHANNEL    NSQ_INSTANCE_CHANNEL
+#define NSQ_INSTANCE_IDENTIFY   NSQ_INSTANCE_IDENTIFY
+#define NSQ_INSTANCE_END        NSQ_INSTANCE_END
+
+#define NSQ_INSTANCE_RULE_INITER {  \
+    JRULER(NSQ_INSTANCE_NAME,       \
+        string,                     \
+        JRULE_MUST,                 \
+        NULL),                      \
+    JRULER(NSQ_INSTANCE_DOMAIN,     \
+        string,                     \
+        JRULE_MUST,                 \
+        NULL),                      \
+    JRULER(NSQ_INSTANCE_PORT,       \
+        i32,                        \
+        0,                          \
+        NSQ_PORT),                  \
+    JRULER(NSQ_INSTANCE_TOPIC,      \
+        string,                     \
+        JRULE_MUST,                 \
+        NULL),                      \
+    JRULER(NSQ_INSTANCE_CHANNEL,    \
+        string,                     \
+        JRULE_MUST,                 \
+        NULL),                      \
+    JRULER(NSQ_INSTANCE_IDENTIFY,   \
+        jtype_object,               \
+        JRULE_MUST,                 \
+        nsq_identify_rules),      \
+}   /* end */
+
+static inline jrule_ops_t *
+nsq_instance_jrule_ops(void)
+{
+    static jrule_t rule[NSQ_INSTANCE_END] = NSQ_INSTANCE_RULE_INITER;
+    static jrule_ops_t ops = JRULE_OPS_INITER(rule,
+                                is_good_nsq_instance, 
+                                nsq_instance_string, 
+                                nsq_instance_idx);
+
+    return &ops;
+}
+
+static inline int
+nsq_instance_jcheck(jobj_t jobj)
+{
+    return jrule_apply(jobj, nsq_instance_jrule_ops(), NULL);
+}
+
+static inline int
+nsq_instance_jrepair(jobj_t jobj)
+{
+    int err;
+
+    err = jrule_apply(jobj, nsq_instance_jrule_ops(), jrule_applier);
+    if (err<0) {
+        return err;
+    }
+
+    return 0;
+}
+#endif
 
 #define is_nsq_fsm_init(_instance)          (NSQ_FSM_INIT==(_instance)->fsm)
 #define is_nsq_fsm_resolved(_instance)      (NSQ_FSM_RESOLVED==(_instance)->fsm)

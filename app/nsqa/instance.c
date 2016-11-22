@@ -53,7 +53,6 @@ __destroy(nsq_instance_t *instance)
         os_free(instance->name);
         os_free(instance->domain);
         os_free(instance->topic);
-        os_free(instance->identify);
 
         jobj_put(instance->jinstance);
         
@@ -104,6 +103,7 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
     instance->rdy       = NSQ_RDY;
     instance->fsm       = NSQ_FSM_INIT;
     instance->jinstance = jobj;
+    instance->jidentify = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
 
     instance->name      = os_strdup(name);
     instance->topic     = os_strdup(topic);
@@ -111,9 +111,6 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
 
     jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
     instance->domain    = os_strdup(jobj_get_string(jval));
-
-    jval = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
-    instance->identify  = os_strdup(jobj_json(jval));
 
     jval = jobj_get(jval, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME);
     instance->auth      = jobj_get_bool(jval);

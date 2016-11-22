@@ -426,7 +426,7 @@ nsq_IDENTIFY(nsq_instance_t *instance)
 {
     int err;
 
-    err = nsqb_IDENTIFY(&instance->bsender, instance->identify);
+    err = nsqb_IDENTIFY(&instance->bsender, jobj_json(instance->jidentify));
     if (err<0) {
         return err;
     }
