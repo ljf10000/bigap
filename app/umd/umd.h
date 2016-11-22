@@ -133,7 +133,7 @@ static inline enum_ops_t *user_state_ops_getter(void);
     /* end */
 DECLARE_ENUM(deauth_reason, UM_DEAUTH_ENUM_MAPPER, UM_DEAUTH_END);
 
-static inline enum_ops_t *deauth_ops_getter(void);
+static inline enum_ops_t *deauth_reason_ops_getter(void);
 
 #define UM_DEAUTH_NONE          UM_DEAUTH_NONE
 #define UM_DEAUTH_AUTO          UM_DEAUTH_AUTO
