@@ -495,7 +495,7 @@ union jrule_var_u {
 #define JRULE_VAR_INT32_INITER(_value)      JRULE_VAR_INITER(i32, _value)
 #define JRULE_VAR_INT64_INITER(_value)      JRULE_VAR_INITER(i64, _value)
 #define JRULE_VAR_POINTER_INITER(_value)    JRULE_VAR_INITER(v, _value)
-#define JRULE_VAR_NULL                      JRULE_VAR_POINTER_INITER(v, NULL)
+#define JRULE_VAR_NULL                      JRULE_VAR_POINTER_INITER(NULL)
 
 struct jrule_s {
     char *name;
