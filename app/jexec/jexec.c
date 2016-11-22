@@ -47,7 +47,7 @@ jcallback(int error, char *outsring, char *errstring)
 
     jobj_add_string(jobj, "stdout", b64_encode((byte *)outsring, os_strlen(outsring)));
     jobj_add_string(jobj, "stderr", b64_encode((byte *)errstring, os_strlen(errstring)));
-    jobj_add_int32(jobj, "errno", error);
+    jobj_add_i32(jobj, "errno", error);
 
     os_println("%s", jobj_json(jobj));
 

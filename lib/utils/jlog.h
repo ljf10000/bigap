@@ -559,7 +559,7 @@ __jlog_add_header(
     }
     
     if (line) {
-        err = jobj_add_uint32(header, JLOG_KEY_LINE, line);
+        err = jobj_add_u32(header, JLOG_KEY_LINE, line);
         if (err<0) {
             __debug_error("add line %d error", line);
             
@@ -578,7 +578,7 @@ __jlog_add_header(
         }
     }
     
-    err = jobj_add_uint32(header, JLOG_KEY_PRI, pri);
+    err = jobj_add_u32(header, JLOG_KEY_PRI, pri);
     if (err<0) {
         __debug_error("add pri %d error", pri);
         
