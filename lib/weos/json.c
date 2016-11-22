@@ -657,15 +657,13 @@ __jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
             }
             
             break;
-        case jtype_array: {
-            int i, count;
+        case jtype_array:
+            err = rule->serialize.o2j(rule, obj, jobj);
+            if (err<0) {
+                return err;
+            }
 
-            jval = jobj_new_array();
-            jobj_add(jobj, rule->name, jval);
-
-            count = *(rule->serialize.get_array_count_address(obj));
-
-        }   break;
+            break;
         case jtype_null: // down
         default:
             return -EBADRULE;
@@ -684,7 +682,9 @@ __jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
         }                                           \
     }                                               \
                                                     \
-    *(_long_type *)member = v;                      \
+    if (obj) {                                      \
+        *(_long_type *)member = v;                  \
+    }                                               \
 } while(0)
 
 STATIC int
@@ -712,7 +712,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             return 0;
         }
     }
-    
+
     bool border = os_hasflag(rule->flag, JRULE_BORDER);
     char *member = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
 
@@ -732,9 +732,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
                 return -EBADJSON;
             }
             
-            if (obj) {
-                JRULE_AUTOMIC_J2O(int, int, i);
-            }
+            JRULE_AUTOMIC_J2O(int, int, i);
             
             break;
         case jtype_double:
@@ -742,9 +740,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
                 return -EBADJSON;
             }
             
-            if (obj) {
-                JRULE_AUTOMIC_J2O(double, double, d);
-            }
+            JRULE_AUTOMIC_J2O(double, double, d);
             
             break;
         case jtype_i32:
@@ -752,9 +748,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
                 return -EBADJSON;
             }
             
-            if (obj) {
-                JRULE_AUTOMIC_J2O(int32, i32, i32);
-            }
+            JRULE_AUTOMIC_J2O(int32, i32, i32);
             
             break;
         case jtype_u32:
@@ -762,9 +756,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
                 return -EBADJSON;
             }
             
-            if (obj) {
-                JRULE_AUTOMIC_J2O(uint32, u32, u32);
-            }
+            JRULE_AUTOMIC_J2O(uint32, u32, u32);
             
             break;
         case jtype_f32:
@@ -772,9 +764,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
                 return -EBADJSON;
             }
             
-            if (obj) {
-                JRULE_AUTOMIC_J2O(float32, f32, f32);
-            }
+            JRULE_AUTOMIC_J2O(float32, f32, f32);
             
             break;
         case jtype_i64:
@@ -782,9 +772,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
                 return -EBADJSON;
             }
             
-            if (obj) {
-                JRULE_AUTOMIC_J2O(int64, i64, i64);
-            }
+            JRULE_AUTOMIC_J2O(int64, i64, i64);
             
             break;
         case jtype_u64:
@@ -792,9 +780,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
                 return -EBADJSON;
             }
             
-            if (obj) {
-                JRULE_AUTOMIC_J2O(uint64, u64, u64);
-            }
+            JRULE_AUTOMIC_J2O(uint64, u64, u64);
             
             break;
         case jtype_f64:
@@ -802,9 +788,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
                 return -EBADJSON;
             }
             
-            if (obj) {
-                JRULE_AUTOMIC_J2O(float64, f64, f64);
-            }
+            JRULE_AUTOMIC_J2O(float64, f64, f64);
             
             break;
         case jtype_enum: {
