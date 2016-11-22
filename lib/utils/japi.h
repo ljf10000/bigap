@@ -401,12 +401,12 @@ jobj_get_leaf(jobj_t obj, ...);
 #define jj_bool(_obj, _jobj, _member)       jj_byvar(_obj, _jobj, _member, bool, "%d")
 #define jj_int(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, int, "%d")
 #define jj_double(_obj, _jobj, _member)     jj_byvar(_obj, _jobj, _member, double, "%f")
-#define jj_i32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, int32, "%d")
-#define jj_u32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, uint32, "%u")
-#define jj_f32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, float32, "%f")
-#define jj_i64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, int64, "%lld")
-#define jj_u64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, uint64, "%llu")
-#define jj_f64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, float64, "%llu")
+#define jj_i32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i32, "%d")
+#define jj_u32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, u32, "%u")
+#define jj_f32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, f32, "%f")
+#define jj_i64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i64, "%lld")
+#define jj_u64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, u64, "%llu")
+#define jj_f64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, f64, "%llu")
 
 typedef int jobj_mapper_f(jobj_t jobj);
 
