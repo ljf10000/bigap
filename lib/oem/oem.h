@@ -132,9 +132,7 @@ typedef struct {
     /* end */
 DECLARE_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
 
-static inline bool is_good_oem_type(int id);
-static inline char *oem_type_string(int id);
-static inline int oem_type_idx(char *type);
+static inline enum_ops_t *oem_type_ops_getter(void);
 
 #define OEM_T_DEFT  OEM_T_DEFT
 #define OEM_T_1     OEM_T_1
@@ -164,7 +162,7 @@ oem_vendor(void)
     static char *vendor;
 
     if (NULL==vendor) {
-        vendor = oem_type_string(__oem_type());
+        vendor = oem_type_ops_getter()->getname(__oem_type());
     }
 
     return vendor;

@@ -219,9 +219,7 @@ syn: rshc==(syn-request)==>xinetd==(syn-response)==>rshc
     /* end */
 DECLARE_ENUM(rsh_cmd, RSH_CMD_ENUM_MAPPER, RSH_CMD_END);
 
-static inline bool is_good_rsh_cmd(int cmd);
-static inline char *rsh_cmd_string(int cmd);
-static inline int rsh_cmd_idx(char *cmd_string);
+static inline enum_ops_t *rsh_cmd_ops_getter(void);
 
 #define RSH_CMD_COMMAND     RSH_CMD_COMMAND
 #define RSH_CMD_ECHO        RSH_CMD_ECHO
@@ -237,9 +235,7 @@ static inline int rsh_cmd_idx(char *cmd_string);
     /* end */
 DECLARE_ENUM(rsh_mode, RSH_MODE_ENUM_MAPPER, RSH_MODE_END);
 
-static inline bool is_good_rsh_mode(int mode);
-static inline char *rsh_mode_string(int mode);
-static inline int rsh_mode_idx(char *mode_string);
+static inline enum_ops_t *rsh_mode_ops_getter(void);
 
 #define RSH_MODE_SYN        RSH_MODE_SYN
 #define RSH_MODE_ACK        RSH_MODE_ACK

@@ -438,16 +438,16 @@ __set_reason(struct um_user *user, int reason)
         return;
     }
     else if (reason==user->reason) {
-        debug_bug("same reason %s", deauth_reason_string(reason));
+        debug_bug("same reason %s", deauth_ops_getter()->getname(reason));
         
         return;
     }
 
     debug_trace("user(%s) state(%s) reason change %s==>%s", 
         os_macstring(user->mac),
-        user_state_string(user->state),
-        deauth_reason_string(user->reason), 
-        deauth_reason_string(reason));
+        user_state_ops_getter()->getname(user->state),
+        deauth_ops_getter()->getname(user->reason), 
+        deauth_ops_getter()->getname(reason));
     
     user->reason = reason;
 }
@@ -480,15 +480,15 @@ __set_state(struct um_user *user, int state)
         return;
     }
     else if (state==user->state) {
-        debug_bug("same state %s", user_state_string(state));
+        debug_bug("same state %s", user_state_ops_getter()->getname(state));
         
         return;
     }
 
     debug_trace("user %s state change %s==>%s", 
         os_macstring(user->mac), 
-        user_state_string(user->state), 
-        user_state_string(state));
+        user_state_ops_getter()->getname(user->state), 
+        user_state_ops_getter()->getname(state));
 
     user->state = state;
 }
@@ -1119,7 +1119,7 @@ juser_flow(struct um_user *user, int type)
     int dir;
 
     for (dir=0; dir<um_flow_dir_end; dir++) {
-        jobj_add(obj, flow_dir_string(dir), __juser_flow(user, type, dir));
+        jobj_add(obj, flow_dir_ops_getter()->getname(dir), __juser_flow(user, type, dir));
     }
 
     return obj;
@@ -1143,7 +1143,7 @@ juser_rate(struct um_user *user, int type)
     int dir;
 
     for (dir=0; dir<um_flow_dir_end; dir++) {
-        jobj_add(obj, flow_dir_string(dir), __juser_rate(user, type, dir));
+        jobj_add(obj, flow_dir_ops_getter()->getname(dir), __juser_rate(user, type, dir));
     }
 
     return obj;
@@ -1166,8 +1166,8 @@ juser_limit(struct um_user *user)
 {
     jobj_t obj = jobj_new_object();
 
-    jobj_add(obj, flow_type_string(um_flow_type_lan), __juser_limit(user, um_flow_type_lan));
-    jobj_add(obj, flow_type_string(um_flow_type_wan), __juser_limit(user, um_flow_type_wan));
+    jobj_add(obj, flow_type_ops_getter()->getname(um_flow_type_lan), __juser_limit(user, um_flow_type_lan));
+    jobj_add(obj, flow_type_ops_getter()->getname(um_flow_type_wan), __juser_limit(user, um_flow_type_wan));
     
     return obj;
 }
@@ -1194,8 +1194,8 @@ jobj_t um_juser(struct um_user *user)
     jobj_add_string(obj, "bssid_current",   os_macstring(user->bssid_current));
     jobj_add_string(obj, "ssid",    user->ssid);
     jobj_add_string(obj, "ip",      os_ipstring(user->ip));
-    jobj_add_string(obj, "state",   user_state_string(user->state));
-    jobj_add_string(obj, "reason",  deauth_reason_string(user->reason));
+    jobj_add_string(obj, "state",   user_state_ops_getter()->getname(user->state));
+    jobj_add_string(obj, "reason",  deauth_ops_getter()->getname(user->reason));
     
     jobj_add_string(obj, "create",  os_fulltime_string(user->create));
     jobj_add_string(obj, "noused",  os_fulltime_string(user->noused));
@@ -1217,8 +1217,8 @@ touser_base(struct um_user *user, jobj_t juser)
     jj_mac(user, juser, bssid_first);
     jj_ip(user, juser, ip);
 
-    jj_byeq(user, juser, state, user_state_idx);
-    jj_byeq(user, juser, reason, deauth_reason_idx);
+    jj_byeq(user, juser, state, user_state_ops_getter()->getid);
+    jj_byeq(user, juser, reason, deauth_ops_getter()->getid);
 
     jj_time(user, juser, create);
     jj_time(user, juser, noused);
@@ -1286,7 +1286,7 @@ touser_intf(struct um_limit *intf, jobj_t jintf)
     jobj = jobj_get(jintf, "flow");
     if (jobj) {
         for (dir=0; dir<um_flow_dir_end; dir++) {
-            jobj_t jflow = jobj_get(jobj, flow_dir_string(dir));
+            jobj_t jflow = jobj_get(jobj, flow_dir_ops_getter()->getname(dir));
             if (jflow) {
                 touser_flow(&intf->flow[dir], jflow);
             }
@@ -1296,7 +1296,7 @@ touser_intf(struct um_limit *intf, jobj_t jintf)
     jobj = jobj_get(jintf, "rate");
     if (jobj) {
         for (dir=0; dir<um_flow_dir_end; dir++) {
-            jobj_t jrate = jobj_get(jobj, flow_dir_string(dir));
+            jobj_t jrate = jobj_get(jobj, flow_dir_ops_getter()->getname(dir));
             if (jrate) {
                 touser_rate(&intf->rate[dir], jrate);
             }
@@ -1312,7 +1312,7 @@ touser_limit(struct um_user *user, jobj_t juser)
     jobj_t jlimit = jobj_get(juser, "limit");
     if (jlimit) {
         for (type=0; type<um_flow_type_end; type++) {
-            jobj_t jintf = jobj_get(jlimit, flow_type_string(type));
+            jobj_t jintf = jobj_get(jlimit, flow_type_ops_getter()->getname(type));
             if (jintf) {
                 touser_intf(&user->limit[type], jintf);
             }

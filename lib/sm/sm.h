@@ -39,9 +39,7 @@
     /* end */
 DECLARE_ENUM(sm_state, SM_STATE_ENUM_MAPPER, SM_STATE_END);
 
-static inline bool is_good_sm_state(int id);
-static inline char *sm_state_string(int id);
-static inline int sm_state_idx(char *name);
+static inline enum_ops_t *sm_state_ops_getter(void);
 
 #define SM_STATE_INIT   SM_STATE_INIT
 #define SM_STATE_FORK   SM_STATE_FORK

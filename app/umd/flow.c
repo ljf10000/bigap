@@ -508,8 +508,8 @@ __ip_handle(sock_server_t *server, bool first)
             sipstring,
             dipstring,
             iph->ip_p,
-            flow_dir_string(flow.dir),
-            flow_type_string(flow.type),
+            flow_dir_ops_getter()->getname(flow.dir),
+            flow_type_ops_getter()->getname(flow.type),
             ipstring,
             macstring);
     }
@@ -546,8 +546,8 @@ __is_flow_reauth(struct um_user *user, int type, int dir)
     if (is) {
         debug_flow("user(%s) type(%s) dir(%s) flow reauth(%llu) > now(%llu)",
             os_macstring(user->mac),
-            flow_type_string(type),
-            flow_dir_string(dir),
+            flow_type_ops_getter()->getname(type),
+            flow_dir_ops_getter()->getname(dir),
             reauth,
             now);
     }
@@ -583,8 +583,8 @@ __is_overflow(struct um_user *user, int type, int dir)
     if (is) {
         debug_flow("user(%s) type(%s) dir(%s) flow max(%llu) > now(%llu)",
             os_macstring(user->mac),
-            flow_type_string(type),
-            flow_dir_string(dir),
+            flow_type_ops_getter()->getname(type),
+            flow_dir_ops_getter()->getname(dir),
             max,
             now);
     }
@@ -701,9 +701,9 @@ um_jflow(void)
         jtype = jobj_new_object();
         for (j=0; j<um_pkt_check_end; j++) {
             jst = um_jflow_total(i, j);
-            jobj_add(jtype, pkt_check_string(j), jst);
+            jobj_add(jtype, pkt_check_ops_getter()->getname(j), jst);
         }
-        jobj_add(jtotal, pkt_type_string(i), jtype);
+        jobj_add(jtotal, pkt_check_ops_getter()->getname(i), jtype);
     }
     jobj_add(jflow, "total", jtotal);
     
@@ -712,9 +712,9 @@ um_jflow(void)
         jtype = jobj_new_object();
         for (j=0; j<um_flow_dir_end; j++) {
             jst = um_jflow_dev(i, j);
-            jobj_add(jtype, flow_dir_string(j), jst);
+            jobj_add(jtype, flow_dir_ops_getter()->getname(j), jst);
         }
-        jobj_add(jdev, flow_type_string(i), jtype);
+        jobj_add(jdev, flow_type_ops_getter()->getname(i), jtype);
     }
     jobj_add(jflow, "dev", jdev);
     

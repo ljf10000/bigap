@@ -9,9 +9,7 @@
     /* end */
 DECLARE_ENUM(string_type, STRING_TYPE_ENUM_MAPPER, STRING_T_END);
 
-static inline bool is_good_string_type(int type);
-static inline char *string_type_string(int type);
-static inline int string_type_idx(char *type_string);
+static inline enum_ops_t *string_ops_getter(void);
 
 #define STRING_T_GLOBAL     STRING_T_GLOBAL
 #define STRING_T_CONST      STRING_T_CONST

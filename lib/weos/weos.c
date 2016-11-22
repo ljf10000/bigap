@@ -39,8 +39,8 @@ __oem_type(void)
 
         if (os_file_exist(OEM_FILE)) {
             os_v_fgets(vendor, OEM_NAME_LEN, OEM_FILE);
-            type = oem_type_idx(vendor);
-            if (is_good_oem_type(type)) {
+            type = oem_type_ops_getter()->getid(vendor);
+            if (oem_type_ops_getter()->is_good(type)) {
                 return type;
             }
         }
@@ -50,8 +50,8 @@ __oem_type(void)
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B || IS_PRODUCT_PC
         os_v_pgets(vendor, OEM_NAME_LEN, "benv infos/product/vendor");
 #endif
-        type = oem_type_idx(vendor);
-        if (false==is_good_oem_type(type)) {
+        type = oem_type_ops_getter()->getid(vendor);
+        if (false==oem_type_ops_getter()->is_good(type)) {
             type = OEM_T_DEFT;
         }
     }

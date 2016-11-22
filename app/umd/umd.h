@@ -71,9 +71,7 @@
     /* end */
 DECLARE_ENUM(user_auto, UM_AUTO_ENUM_MAPPER, UM_AUTO_END);
 
-static inline bool is_good_user_auto(int id);
-static inline char *user_auto_string(int id);
-static inline int user_auto_idx(char *name);
+static inline enum_ops_t *user_auto_ops_getter(void);
 
 #define UM_AUTO_NONE    UM_AUTO_NONE
 #define UM_AUTO_BIND    UM_AUTO_BIND
@@ -95,9 +93,7 @@ static inline int user_auto_idx(char *name);
     /* end */
 DECLARE_ENUM(user_state, UM_STATE_ENUM_MAPPER, UM_STATE_END);
 
-static inline bool is_good_user_state(int id);
-static inline char *user_state_string(int id);
-static inline int user_state_idx(char *name);
+static inline enum_ops_t *user_state_ops_getter(void);
 
 #define UM_STATE_NONE   UM_STATE_NONE
 #define UM_STATE_BIND   UM_STATE_BIND
@@ -137,9 +133,7 @@ static inline int user_state_idx(char *name);
     /* end */
 DECLARE_ENUM(deauth_reason, UM_DEAUTH_ENUM_MAPPER, UM_DEAUTH_END);
 
-static inline bool is_good_deauth_reason(int id);
-static inline char *deauth_reason_string(int id);
-static inline int deauth_reason_idx(char *name);
+static inline enum_ops_t *deauth_ops_getter(void);
 
 #define UM_DEAUTH_NONE          UM_DEAUTH_NONE
 #define UM_DEAUTH_AUTO          UM_DEAUTH_AUTO
@@ -165,9 +159,7 @@ is_valid_deauth_reason(int reason)
     /* end */
 DECLARE_ENUM(flow_type, UM_FLOW_TYPE_ENUM_MAPPER, um_flow_type_end);
 
-static inline bool is_good_flow_type(int id);
-static inline char *flow_type_string(int id);
-static inline int flow_type_idx(char *name);
+static inline enum_ops_t *flow_type_ops_getter(void);
 
 #define um_flow_type_lan    um_flow_type_lan
 #define um_flow_type_wan    um_flow_type_wan
@@ -182,9 +174,7 @@ static inline int flow_type_idx(char *name);
     /* end */
 DECLARE_ENUM(flow_dir, UM_FLOW_DIR_ENUM_MAPPER, um_flow_dir_end);
 
-static inline bool is_good_flow_dir(int id);
-static inline char *flow_dir_string(int id);
-static inline int flow_dir_idx(char *name);
+static inline enum_ops_t *flow_dir_ops_getter(void);
 
 #define um_flow_dir_up      um_flow_dir_up
 #define um_flow_dir_down    um_flow_dir_down
@@ -326,7 +316,7 @@ __update_aging(struct um_user *user, int type, bool debug)
 
     if (debug) {
         debug_aging("update %s aging to %d",
-            flow_type_string(type),
+            flow_type_ops_getter()->getname(type),
             __online_aging(user, type));
     }
 }
@@ -370,9 +360,7 @@ struct um_intf {
     /* end */
 DECLARE_ENUM(forward_mode, UM_FORWARD_MODE_ENUM_MAPPER, um_forward_mode_end);
 
-static inline bool is_good_forward_mode(int id);
-static inline char *forward_mode_string(int id);
-static inline int forward_mode_idx(char *name);
+static inline enum_ops_t *forward_mode_ops_getter(void);
 
 #define um_forward_mode_br  um_forward_mode_br
 #define um_forward_mode_rt  um_forward_mode_rt
@@ -518,9 +506,7 @@ struct vlan_header {
     /* end */
 DECLARE_ENUM(pkt_type, UM_PKT_TYPE_ENUM_MAPPER, um_pkt_type_end);
 
-static inline bool is_good_pkt_type(int id);
-static inline char *pkt_type_string(int id);
-static inline int pkt_type_idx(char *name);
+static inline enum_ops_t *pkt_type_ops_getter(void);
 
 #define um_pkt_type_eth     um_pkt_type_eth
 #define um_pkt_type_vlan    um_pkt_type_vlan
@@ -536,9 +522,7 @@ static inline int pkt_type_idx(char *name);
     /* end */
 DECLARE_ENUM(pkt_check, UM_PKT_CHECK_ENUM_MAPPER, um_pkt_check_end);
 
-static inline bool is_good_pkt_check(int id);
-static inline char *pkt_check_string(int id);
-static inline int pkt_check_idx(char *name);
+static inline enum_ops_t *pkt_check_ops_getter(void);
 
 #define um_pkt_check_good   um_pkt_check_good
 #define um_pkt_check_bad    um_pkt_check_bad

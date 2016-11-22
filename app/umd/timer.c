@@ -23,7 +23,7 @@ __try_aging(struct um_user *user, int type)
         if (__online_aging(user, type) <= 0) {
             debug_timeout("user(%s) type(%s) online aging",
                 os_macstring(user->mac),
-                flow_type_string(type));
+                flow_type_ops_getter()->getname(type));
             
             user_unbind(user, UM_DEAUTH_AGING);
         }
@@ -87,7 +87,7 @@ __is_online_timeout(struct um_user *user, time_t now, int type)
     if (is) {
         debug_timeout("user(%s) type(%s) max(%u) uptime(%u) now(%u) online timeout",
             os_macstring(user->mac),
-            flow_type_string(type),
+            flow_type_ops_getter()->getname(type),
             max,
             uptime,
             now);
@@ -125,7 +125,7 @@ __is_online_reauth(struct um_user *user, time_t now, int type)
     if (is) {
         debug_timeout("user(%s) type(%s) reauth(%u) uptime(%u) now(%u) online reauth",
             os_macstring(user->mac),
-            flow_type_string(type),
+            flow_type_ops_getter()->getname(type),
             reauth,
             uptime,
             now);

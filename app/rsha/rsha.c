@@ -429,7 +429,7 @@ __command(jobj_t jrequest, char *cmd)
         return -EBADPROTO;
     }
     
-    int mode = rsh_mode_idx(modestring);
+    int mode = rsh_mode_ops_getter()->getid(modestring);
     switch(mode) {
         case RSH_MODE_ASYN: /* down */
         case RSH_MODE_REFLECT:

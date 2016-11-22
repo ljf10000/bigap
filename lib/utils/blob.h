@@ -25,9 +25,7 @@ enum {
     /* end */
 DECLARE_ENUM(blob_type, BLOB_TYPE_ENUM_MAPPER, BLOB_T_END);
 
-static inline bool is_good_blob_type(int type);
-static inline char *blob_type_string(int type);
-static inline int blob_type_idx(char *type_string);
+static inline enum_ops_t *blob_type_ops_getter(void);
 
 #define BLOB_T_OBJECT   BLOB_T_OBJECT
 #define BLOB_T_ARRAY    BLOB_T_ARRAY
@@ -492,7 +490,7 @@ __blob_dump_header(const blob_t *blob, char *tag)
         blob_ksize(blob),
         blob_vlen(blob),
         blob_vsize(blob),
-        blob_type_string(blob_type(blob)));
+        blob_type_ops_getter()->getname(blob_type(blob)));
 }
 
 static inline void
@@ -573,7 +571,7 @@ __blob_dump_slice(slice_t *slice, char *tag)
         slice_remain(slice),
         slice_offset(slice),
         blob_key(blob_root(slice)),
-        blob_type_string(blob_type(blob_root(slice))),
+        blob_type_ops_getter()->getname(blob_type(blob_root(slice))),
         blob_vlen(blob_root(slice)));
 }
 
@@ -664,7 +662,7 @@ blob_check(uint32 type, const void *value, uint32 len)
         },
     };
     
-    if (false==is_good_blob_type(type)) {
+    if (false==blob_type_ops_getter()->is_good(type)) {
         return false;
     }
     
@@ -721,7 +719,7 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32 count
 
     blob_foreach(blob, p, i, left) {
         type = blob_type(p);
-        if (false==is_good_blob_type(type)) {
+        if (false==blob_type_ops_getter()->is_good(type)) {
             continue;
         }
 
@@ -809,7 +807,7 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
             slice_size(slice),
             (uint32)pointer_offsetof(slice_tail(slice), slice_data(slice)),
             slice_remain(slice),
-            blob_type_string(type), 
+            blob_type_ops_getter()->getname(type), 
             name, 
             payload, 
             size);
