@@ -215,9 +215,9 @@ jadd(jlog_server_t *server)
         
         len = -EFORMAT; goto error;
     }
-    pri = LOG_PRI(jobj_get_int32(opri));
+    pri = LOG_PRI(jobj_get_i32(opri));
     
-    err = jobj_add_uint64(header, JLOG_KEY_SEQ, ++jlogd.seq);
+    err = jobj_add_u64(header, JLOG_KEY_SEQ, ++jlogd.seq);
     if (err<0) {
         __debug_error("add seq error");
         

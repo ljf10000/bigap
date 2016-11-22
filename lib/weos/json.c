@@ -675,7 +675,7 @@ jrule_selfcheck(jrule_t *rules)
 STATIC int
 __jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
 {
-    
+    return 0;
 }
 
 STATIC int
@@ -738,7 +738,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             int32 v = jobj_get_int32(jval);
 
             if (border) {
-                err = JRULE_BORDER_CHECK(v, rule, d);
+                err = JRULE_BORDER_CHECK(v, rule, i32);
                 if (err<0) {
                     return err;
                 }
@@ -783,6 +783,8 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
         default:
             return -EBADRULE;
     }
+
+    return 0;
 }
 
 STATIC int
