@@ -112,9 +112,9 @@ static inline int nsq_fsm_idx(char *name);
 #define NSQ_FSM_END             NSQ_FSM_END
 #endif
 
-#if 1
 #define NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME   "feature_negotiation"
 
+#if 0
 #define NSQ_IDENTIFY_ENUM_MAPPER(_)                                         \
     _(NSQ_IDENTIFY_CLIENT_ID,               0,  "client_id"),               \
     _(NSQ_IDENTIFY_HOSTNAME,                1,  "hostname"),                \
@@ -140,6 +140,24 @@ static inline int nsq_identify_idx(char *name);
 #define NSQ_IDENTIFY_USER_AGENT             NSQ_IDENTIFY_USER_AGENT
 #define NSQ_IDENTIFY_MSG_TIMEOUT            NSQ_IDENTIFY_MSG_TIMEOUT
 #define NSQ_IDENTIFY_END                    NSQ_IDENTIFY_END   
+
+typedef struct {
+    char *client_id;
+    char *hostname;
+    char *user_agent;
+    bool feature_negotiation;
+    int msg_timeout;
+    int heartbeat_interval;
+    int output_buffer_size;
+    int output_buffer_timeout;
+} nsq_identify_t;
+
+#define NSQ_IDENTIFY_JRULE_MAPPER(_) \
+    _(offsetof(nsq_identify_t, client_id), client_id, "client_id", \
+            string, sizeof(char *), JRULE_DROP,         \
+            JRULE_VAR_POINTER_INITER(script_type_ops_getter), \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM_INITER(SCRIPT_TYPE_SH)),     \
 
 #define NSQ_IDENTIFY_RULE_INITER {                  \
     JRULER(NSQ_IDENTIFY_CLIENT_ID,                  \
@@ -214,7 +232,7 @@ nsq_identify_jrepair(jobj_t jobj)
 }
 #endif
 
-#if 1
+#if 0
 #define NSQ_INSTANCE_NAME_NAME      "name"
 #define NSQ_INSTANCE_DOMAIN_NAME    "domain"
 #define NSQ_INSTANCE_PORT_NAME      "port"
