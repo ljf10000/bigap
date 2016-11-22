@@ -565,7 +565,7 @@ __jrule_selfcheck(jrule_t *rule)
 
             break;
         case jtype_object:
-            if (NULL==rule->deft.rules) {
+            if (NULL==rule->deft.get_rules) {
                 return -EBADRULE;
             }
             
@@ -573,7 +573,7 @@ __jrule_selfcheck(jrule_t *rule)
         case jtype_array:
             if (NULL==rule->serialize.array_create ||
                 NULL==rule->unserialize.get_array_count_address ||
-                NULL==rule->deft.rules) {
+                NULL==rule->deft.get_rules) {
                 return -EBADRULE;
             }
 
