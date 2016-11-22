@@ -163,11 +163,11 @@ jobj_clone(jobj_t jobj, bool keepsort)
                 
                 break;
             case jtype_double:
-                jobj_add_f64(jnew, k, jobj_get_f64(v));
+                jobj_add_float64(jnew, k, jobj_get_float64(v));
                 
                 break;
             case jtype_int:
-                jobj_add_i32(jnew, k, jobj_get_i32(v));
+                jobj_add_int32(jnew, k, jobj_get_int32(v));
                 
                 break;
             case jtype_string:
@@ -248,19 +248,19 @@ jobj_exec(jobj_t obj, const char *fmt, int argc, char *argv[])
             case jfmt_int:
                 var.d = os_atoi(argv[idx++]);
                 japi_println("int=%d", var.d);
-                err = jobj_add_i32(obj, key, var.d);
+                err = jobj_add_int32(obj, key, var.d);
 
                 break;
             case jfmt_long:
                 var.l = os_atoll(argv[idx++]);
                 japi_println("int64=%lld", var.l);
-                err = jobj_add_i64(obj, key, var.l);
+                err = jobj_add_int64(obj, key, var.l);
                 
                 break;
             case jfmt_double:
                 var.f = os_atof(argv[idx++]);
                 japi_println("float64=%lf", var.f);
-                err = jobj_add_f64(obj, key, var.f);
+                err = jobj_add_float64(obj, key, var.f);
                 
                 break;
             case jfmt_string:
@@ -336,19 +336,19 @@ jobj_vprintf(jobj_t obj, const char *fmt, va_list args)
             case jfmt_int:
                 var.d = va_arg(args, int32);
                 japi_println("int=%d", var.d);
-                err = jobj_add_i32(obj, key, var.d);
+                err = jobj_add_int32(obj, key, var.d);
 
                 break;
             case jfmt_long:
                 var.l = va_arg(args, int64);
                 japi_println("int64=%lld", var.l);
-                err = jobj_add_i64(obj, key, var.l);
+                err = jobj_add_int64(obj, key, var.l);
                 
                 break;
             case jfmt_double:
                 var.f = va_arg(args, float64);
                 japi_println("float64=%lf", var.f);
-                err = jobj_add_f64(obj, key, var.f);
+                err = jobj_add_float64(obj, key, var.f);
                 
                 break;
             case jfmt_string:
@@ -527,7 +527,7 @@ jrule_assign(jrule_t *rule, void *obj, jobj_t jval)
             *(bool *)member     = jobj_get_bool(jval);
             break;
         case jtype_double:
-            *(float64 *)member  = jobj_get_f64(jval);
+            *(float64 *)member  = jobj_get_float64(jval);
             break;
         case jtype_string:
             if (rule->assign) {
@@ -538,24 +538,24 @@ jrule_assign(jrule_t *rule, void *obj, jobj_t jval)
             
             break;
         case jtype_int:     // down
-        case jtype_i32:
-            *(int32 *)member    = jobj_get_i32(jval);
+        case jtype_int32:
+            *(int32 *)member    = jobj_get_int32(jval);
             break;
-        case jtype_u32:
-            *(uint32 *)member   = jobj_get_u32(jval);
+        case jtype_uint32:
+            *(uint32 *)member   = jobj_get_uint32(jval);
             break;
-        case jtype_f32:
-            *(float32 *)member  = jobj_get_f32(jval);
+        case jtype_float32:
+            *(float32 *)member  = jobj_get_float32(jval);
             break;
-        case jtype_i64:
-            *(int64 *)member    = jobj_get_i64(jval);
+        case jtype_int64:
+            *(int64 *)member    = jobj_get_int64(jval);
             break;
-        case jtype_u64:
-            *(uint64 *)member   = jobj_get_u64(jval);
+        case jtype_uint64:
+            *(uint64 *)member   = jobj_get_uint64(jval);
             break;
         case jtype_double:
-        case jtype_f64:
-            *(float64 *)member  = jobj_get_f64(jval);
+        case jtype_float64:
+            *(float64 *)member  = jobj_get_float64(jval);
             break;
         case jtype_object:
             err = jrule_object_assign(rule, obj, jval);
@@ -611,12 +611,12 @@ __jrule_selfcheck(jrule_t *rule)
         case jtype_bool:    // down
         case jtype_int:     // down
         case jtype_double:  // down
-        case jtype_i32:     // down
-        case jtype_u32:     // down
-        case jtype_f32:     // down
-        case jtype_i64:     // down
-        case jtype_u64:     // down
-        case jtype_f64:
+        case jtype_int32:     // down
+        case jtype_uint32:     // down
+        case jtype_float32:     // down
+        case jtype_int64:     // down
+        case jtype_uint64:     // down
+        case jtype_float64:
             if (os_hasflag(rule->flag, JRULE_CHECKER) && NULL==rule->serialize.check) {
                 return -EBADRULE;
             }
@@ -734,8 +734,8 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             
             *(double *)member = v;
         }   break;
-        case jtype_i32: {
-            int32 v = jobj_get_i32(jval);
+        case jtype_int32: {
+            int32 v = jobj_get_int32(jval);
 
             if (border) {
                 err = JRULE_BORDER_CHECK(v, rule, d);
@@ -746,11 +746,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             
             *(double *)member = v;
         }   break;
-        case jtype_u32:     // down
-        case jtype_f32:     // down
-        case jtype_i64:     // down
-        case jtype_u64:     // down
-        case jtype_f64:
+        case jtype_uint32:     // down
+        case jtype_float32:     // down
+        case jtype_int64:     // down
+        case jtype_uint64:     // down
+        case jtype_float64:
 
             break;
         case jtype_enum:

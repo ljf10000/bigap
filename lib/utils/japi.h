@@ -490,7 +490,7 @@ union jrule_var_u {
     int (*j2o)(jrule_t *rule, void *obj, jobj_t jobj);
     int (*check)(jrule_t *rule, jobj_t jobj);
 
-    int (*array_create)(jrule_t *rule, void *obj)
+    int (*array_create)(jrule_t *rule, void *obj);
     uint32 (*get_array_count_address)(void *obj);
 };
 
