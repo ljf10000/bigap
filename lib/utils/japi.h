@@ -571,7 +571,7 @@ struct jrule_s {
     if (_v < _rule->serialize._member) {            \
         err = -ETOOSMALL;                           \
     }                                               \
-    else (_v > _rule->serialize._member) {          \
+    else if (_v > _rule->serialize._member) {       \
         err = -ETOOBIG;                             \
     }                                               \
                                                     \
