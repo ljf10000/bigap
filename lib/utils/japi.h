@@ -702,8 +702,6 @@ jrule_j2o(jrule_t *rules, void *obj, jobj_t jobj);
 DECLARE_JRULER(xxx, XXX_JRULE_MAPPER);
 
 static inline jrule_t *xxx_jrules(void);
-static inline int xxx_o2j(void *obj, jobj_t jobj);
-static inline int xxx_j2o(void *obj, jobj_t jobj);
 #endif
 
 #define DECLARE_JRULER(_mod, _mapper) \

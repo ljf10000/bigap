@@ -373,11 +373,6 @@ nsqi_insert(char *json)
         err = -EBADJSON; goto error;
     }
 
-    err = nsq_instance_jrepair(jobj);
-    if (err<0) {
-        goto error;
-    }
-    
     err = __nsqi_insert(jobj);
     if (err<0) {
         goto error;
