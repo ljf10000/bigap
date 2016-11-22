@@ -51,10 +51,14 @@ __destroy(nsq_instance_t *instance)
     
     if (instance) {
         os_free(instance->name);
-        os_free(instance->domain);
         os_free(instance->topic);
+        os_free(instance->channel);
+
+        os_free(instance->domain);
+        os_free(instance->script);
 
         jobj_put(instance->jinstance);
+        jobj_put(instance->jauth);
         
         nsqb_fini(&instance->brecver);
         nsqb_fini(&instance->bsender);
@@ -110,6 +114,9 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
 
     jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
     instance->domain    = os_strdup(jobj_get_string(jval));
+
+    jval = jobj_get(jobj, NSQ_INSTANCE_SCRIPT_NAME);
+    instance->script    = os_strdup(jobj_get_string(jval));
 
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
     port = jobj_get_bool(jval);

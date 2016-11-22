@@ -40,7 +40,7 @@ typedef struct {
     int output_buffer_timeout;
 } nsq_identify_t;
 
-#if 0
+#if USE_JRULE
 #define NSQ_IDENTIFY_JRULE_MAPPER(_) \
     _(offsetof(nsq_identify_t, client_id), client_id, "client_id", \
             string, sizeof(char *), JRULE_MUST,         \
@@ -94,6 +94,7 @@ static inline jrule_t *nsq_identify_jrules(void);
 #define NSQ_INSTANCE_PORT_NAME      "port"
 #define NSQ_INSTANCE_TOPIC_NAME     "topic"
 #define NSQ_INSTANCE_CHANNEL_NAME   "channel"
+#define NSQ_INSTANCE_SCRIPT_NAME    "script"
 #define NSQ_INSTANCE_IDENTIFY_NAME  "identify"
 
 typedef struct {
@@ -131,7 +132,7 @@ typedef struct {
 } 
 nsq_instance_t;
 
-#if 0
+#if USE_JRULE
 #define NSQ_INSTANCE_JRULE_MAPPER(_) \
     _(offsetof(nsq_instance_t, name), name, NSQ_INSTANCE_NAME_NAME, \
             string, sizeof(char *), JRULE_MUST,         \

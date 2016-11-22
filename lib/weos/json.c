@@ -655,7 +655,7 @@ __jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
             if (err<0) {
                 return err;
             }
-            
+
             break;
         case jtype_array:
             err = rule->serialize.o2j(rule, obj, jobj);
@@ -796,13 +796,13 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
                 return -EBADJSON;
             }
             
+            enum_ops_t *ops = rule->serialize.get_enum_ops();
+            int id = ops->getid(jobj_get_string(jval));
+            if (false==ops->is_good(id)) {
+                return -EBADENUM;
+            }
+                
             if (obj) {
-                enum_ops_t *ops = rule->serialize.get_enum_ops();
-                int id = ops->getid(jobj_get_string(jval));
-                if (false==ops->is_good(id)) {
-                    return -EBADENUM;
-                }
-
                 *(int *)member = id;
             }
             
@@ -874,12 +874,29 @@ jrules_apply(jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(jrule_t *rule,
 int
 jrule_o2j(jrule_t *rules, void *obj, jobj_t jobj)
 {
+    if (NULL==rules) {
+        return -EINVAL0;
+    }
+    else if (NULL==obj) {
+        return -EINVAL1;
+    }
+    else if (NULL==jobj) {
+        return -EINVAL2;
+    }
+    
     return jrules_apply(rules, obj, jobj, __jrule_o2j);
 }
 
 int
 jrule_j2o(jrule_t *rules, void *obj, jobj_t jobj)
 {
+    if (NULL==rules) {
+        return -EINVAL3;
+    }
+    else if (NULL==jobj) {
+        return -EINVAL4;
+    }
+    
     return jrules_apply(rules, obj, jobj, __jrule_j2o);
 }
 #endif /* USE_JRULE */
