@@ -111,7 +111,6 @@ DECLARE_ENUM(script_scope, SCRIPT_SCOPE_ENUM_MAPPER, SCRIPT_SCOPE_END);
 static inline enum_ops_t *script_scope_ops_getter(void);
 #endif
 
-#if 1
 typedef struct {
     char *name;
     char *topic;
@@ -120,6 +119,7 @@ typedef struct {
     char *flash;
 } jinstance_t;
 
+#if USE_JRULE
 #define JINSTANCE_JRULE_MAPPER(_) \
     _(offsetof(jinstance_t, name), name, "name",    \
             string, sizeof(char *), JRULE_MUST,     \
@@ -152,7 +152,8 @@ DECLARE_JRULER(jinstance, JINSTANCE_JRULE_MAPPER);
 static inline jrule_t *jinstance_jrules(void);
 #endif
 
-#if 1
+#define JSCRIPT_SCRIPT_DEFAULT          "/bin/jscript"
+
 typedef struct {
     int type;
     int run;
@@ -179,8 +180,7 @@ typedef struct {
 }
 jscript_t;
 
-#define JSCRIPT_SCRIPT_DEFAULT          "/bin/jscript"
-
+#if USE_JRULE
 #define JSCRIPT_JRULE_MAPPER(_) \
     _(offsetof(jscript_t, type), type, "type",          \
             enum, sizeof(int), 0,                       \
