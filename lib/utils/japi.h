@@ -574,19 +574,6 @@ struct jrule_s {
 #define JRULE_OBJ_MEMBER_ADDRESS(_rule, _obj) \
     ((char *)(_obj) + (_rule)->offset)
 
-#define JRULE_BORDER_CHECK(_v, _rule, _member)  ({  \
-    int err = 0;                                    \
-                                                    \
-    if (_v < _rule->serialize._member) {            \
-        err = -ETOOSMALL;                           \
-    }                                               \
-    else if (_v > _rule->serialize._member) {       \
-        err = -ETOOBIG;                             \
-    }                                               \
-                                                    \
-    err;                                            \
-})  /* end */
-
 static inline int
 jrule_strassign(jrule_t *rule, void *obj, jobj_t jobj)
 {

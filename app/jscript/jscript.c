@@ -264,7 +264,7 @@ jscript_t;
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, period), period, "period",    \
             u32, sizeof(uint32), JRULE_MUST | JRULE_BORDER, \
-            JRULE_VAR_INT32(0),                         \
+            JRULE_VAR_INT32(1),                         \
             JRULE_VAR_INT32(3600),                      \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, argument), argument, "argument", \

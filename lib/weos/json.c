@@ -676,9 +676,11 @@ __jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
     _long_type v = jobj_get_##_short_type(jval);    \
                                                     \
     if (border) {                                   \
-        err = JRULE_BORDER_CHECK(v, rule, _member); \
-        if (err<0) {                                \
-            return err;                             \
+        if (v < rule->serialize._member) {          \
+            v = rule->serialize._member;            \
+        }                                           \
+        else if (v > rule->unserialize._member) {   \
+            v = rule->unserialize._member;          \
         }                                           \
     }                                               \
                                                     \
