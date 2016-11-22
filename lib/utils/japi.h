@@ -436,7 +436,7 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count);
 
 #define JOBJ_MAPFILE(_file, _mapper)        JOBJ_MAP(jobj_byfile(_file), _mapper)
 /******************************************************************************/
-#define USE_JRULE       0
+#define USE_JRULE       1
 
 #if USE_JRULE
 enum {
@@ -481,12 +481,9 @@ union jrule_var_u {
     int (*o2j)(jrule_t *rule, void *obj, jobj_t jobj);
     int (*j2o)(jrule_t *rule, void *obj, jobj_t jobj);
     int (*check)(jrule_t *rule, jobj_t jobj);
-
+    
     jrule_t *(*get_rules)(void);
     enum_ops_t *(*get_enum_ops)(void);
-
-    int (*array_create)(jrule_t *rule, void *obj);
-    uint32 *(*get_array_count_address)(void *obj);
 };
 
 #define JRULE_VAR_INITER(_member, _value)   {._member = _value }
@@ -500,8 +497,9 @@ union jrule_var_u {
 #define JRULE_VAR_STRING(_value)            JRULE_VAR_POINTER(_value)
 #define JRULE_VAR_ENUM(_value)              JRULE_VAR_POINTER(_value)
 #define JRULE_VAR_RULES(_value)             JRULE_VAR_POINTER(_value)
-#define JRULE_VAR_ARRAY_CREATE(_value)      JRULE_VAR_POINTER(_value)
-#define JRULE_VAR_ARRAY_COUNT(_value)       JRULE_VAR_POINTER(_value)
+#define JRULE_VAR_CHECKER(_value)           JRULE_VAR_POINTER(_value)
+#define JRULE_VAR_O2J(_value)               JRULE_VAR_POINTER(_value)
+#define JRULE_VAR_J2O(_value)               JRULE_VAR_POINTER(_value)
 
 #define JRULE_VAR_STRDUP                    JRULE_VAR_POINTER(jrule_strdup)
 #define JRULE_VAR_STRCPY                    JRULE_VAR_POINTER(jrule_strcpy)
@@ -546,8 +544,8 @@ struct jrule_s {
     *       deft as rules
     * 5. type is array
     *       only support JRULE_MUST
-    *       serialize as array_create
-    *       unserialize as get_array_count_address
+    *       serialize as o2j
+    *       unserialize as j2o
     *       deft as rules
     */
     jrule_var_t serialize, unserialize, deft;

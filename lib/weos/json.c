@@ -572,8 +572,8 @@ __jrule_selfcheck(jrule_t *rule)
             
             break;
         case jtype_array:
-            if (NULL==rule->serialize.array_create ||
-                NULL==rule->unserialize.get_array_count_address ||
+            if (NULL==rule->serialize.o2j ||
+                NULL==rule->unserialize.j2o ||
                 NULL==rule->deft.get_rules) {
                 return -EBADRULE;
             }
@@ -691,6 +691,7 @@ STATIC int
 __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
+    int jtype = jobj_type(jval);
     int err;
     
     if (os_hasflag(rule->flag, JRULE_DROP)) {
@@ -717,65 +718,148 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 
     switch(rule->type) {
         case jtype_bool:
-            *(bool *)member = jobj_get_bool(jval);
+            if (jtype_bool != jtype) {
+                return -EBADJSON;
+            }
+
+            if (obj) {
+                *(bool *)member = jobj_get_bool(jval);
+            }
+            
             break;
         case jtype_int:
-            JRULE_AUTOMIC_J2O(int, int, i);
+            if (jtype_int != jtype) {
+                return -EBADJSON;
+            }
+            
+            if (obj) {
+                JRULE_AUTOMIC_J2O(int, int, i);
+            }
+            
             break;
         case jtype_double:
-            JRULE_AUTOMIC_J2O(double, double, d);
+            if (jtype_double != jtype) {
+                return -EBADJSON;
+            }
+            
+            if (obj) {
+                JRULE_AUTOMIC_J2O(double, double, d);
+            }
+            
             break;
         case jtype_i32:
-            JRULE_AUTOMIC_J2O(int32, i32, i32);
+            if (jtype_int != jtype) {
+                return -EBADJSON;
+            }
+            
+            if (obj) {
+                JRULE_AUTOMIC_J2O(int32, i32, i32);
+            }
+            
             break;
         case jtype_u32:
-            JRULE_AUTOMIC_J2O(uint32, u32, u32);
+            if (jtype_int != jtype) {
+                return -EBADJSON;
+            }
+            
+            if (obj) {
+                JRULE_AUTOMIC_J2O(uint32, u32, u32);
+            }
+            
             break;
         case jtype_f32:
-            JRULE_AUTOMIC_J2O(float32, f32, f32);
+            if (jtype_double != jtype) {
+                return -EBADJSON;
+            }
+            
+            if (obj) {
+                JRULE_AUTOMIC_J2O(float32, f32, f32);
+            }
+            
             break;
         case jtype_i64:
-            JRULE_AUTOMIC_J2O(int64, i64, i64);
+            if (jtype_int != jtype) {
+                return -EBADJSON;
+            }
+            
+            if (obj) {
+                JRULE_AUTOMIC_J2O(int64, i64, i64);
+            }
+            
             break;
         case jtype_u64:
-            JRULE_AUTOMIC_J2O(uint64, u64, u64);
+            if (jtype_int != jtype) {
+                return -EBADJSON;
+            }
+            
+            if (obj) {
+                JRULE_AUTOMIC_J2O(uint64, u64, u64);
+            }
+            
             break;
         case jtype_f64:
-            JRULE_AUTOMIC_J2O(float64, f64, f64);
+            if (jtype_double != jtype) {
+                return -EBADJSON;
+            }
+            
+            if (obj) {
+                JRULE_AUTOMIC_J2O(float64, f64, f64);
+            }
+            
             break;
         case jtype_enum: {
-            enum_ops_t *ops = rule->serialize.get_enum_ops();
-            int id = ops->getid(jobj_get_string(jval));
-            if (false==ops->is_good(id)) {
-                return -EBADENUM;
+            if (jtype_string != jtype) {
+                return -EBADJSON;
             }
+            
+            if (obj) {
+                enum_ops_t *ops = rule->serialize.get_enum_ops();
+                int id = ops->getid(jobj_get_string(jval));
+                if (false==ops->is_good(id)) {
+                    return -EBADENUM;
+                }
 
-            *(int *)member = id;
+                *(int *)member = id;
+            }
+            
         }   break;
         case jtype_string:
-            err = rule->serialize.j2o(rule, obj, jobj);
-            if (err<0) {
-                return err;
+            if (jtype_string != jtype) {
+                return -EBADJSON;
             }
-
+            
+            if (obj) {
+                err = rule->serialize.j2o(rule, obj, jobj);
+                if (err<0) {
+                    return err;
+                }
+            }
+            
             break;
         case jtype_object:
-            err = jrule_j2o(rule->deft.get_rules(), member, jval);
-            if (err<0) {
-                return err;
+            if (jtype_object != jtype) {
+                return -EBADJSON;
+            }
+            
+            if (obj) {
+                err = jrule_j2o(rule->deft.get_rules(), member, jval);
+                if (err<0) {
+                    return err;
+                }
             }
             
             break;
         case jtype_array:
-            err = rule->serialize.array_create(rule, obj);
-            if (err<0) {
-                return err;
+            if (jtype_array != jtype) {
+                return -EBADJSON;
             }
             
-            err = jrule_j2o(rule->deft.get_rules(), JRULE_OBJ_MEMBER_ADDRESS(rule, obj), jval);
-            if (err<0) {
-                return err;
-            }
+            if (obj) {
+                err = rule->unserialize.j2o(rule, obj, jobj);
+                if (err<0) {
+                    return err;
+                }
+            }
             
             break;
         case jtype_null: // down
