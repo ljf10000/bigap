@@ -476,12 +476,12 @@ union jrule_var_u {
     uint64  u64;
     float64 f64;
 
-    jrule_t *(*get_rules)(void);
-    enum_ops_t *(*get_enum_ops)(void);
-
     int (*o2j)(jrule_t *rule, void *obj, jobj_t jobj);
     int (*j2o)(jrule_t *rule, void *obj, jobj_t jobj);
     int (*check)(jrule_t *rule, jobj_t jobj);
+
+    jrule_t *(*get_rules)(void);
+    enum_ops_t *(*get_enum_ops)(void);
 
     int (*array_create)(jrule_t *rule, void *obj);
     uint32 (*get_array_count_address)(void *obj);

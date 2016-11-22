@@ -696,7 +696,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 
             break;
         case jtype_object:
-            if (NULL==rule->deft.rules) {
+            if (NULL==rule->deft.get_rules) {
                 return -EBADRULE;
             }
             
@@ -704,7 +704,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
         case jtype_array:
             if (NULL==rule->serialize.array_create ||
                 NULL==rule->unserialize.get_array_count_address ||
-                NULL==rule->deft.rules) {
+                NULL==rule->deft.get_rules) {
                 return -EBADRULE;
             }
 
