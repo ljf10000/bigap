@@ -83,6 +83,8 @@ typedef enum_ops_t *get_enum_ops_f(void);
             .getname = _mod##_string, \
             .getid = _mod##_idx,    \
         };                          \
+                                    \
+        return &ops;                \
     }                               \
                                     \
     os_fake_declare                 \
