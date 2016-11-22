@@ -438,7 +438,7 @@ __set_reason(struct um_user *user, int reason)
         return;
     }
     else if (reason==user->reason) {
-        debug_bug("same reason %s", deauth_ops_getter()->getname(reason));
+        debug_bug("same reason %s", deauth_reason_ops_getter()->getname(reason));
         
         return;
     }
@@ -446,8 +446,8 @@ __set_reason(struct um_user *user, int reason)
     debug_trace("user(%s) state(%s) reason change %s==>%s", 
         os_macstring(user->mac),
         user_state_ops_getter()->getname(user->state),
-        deauth_ops_getter()->getname(user->reason), 
-        deauth_ops_getter()->getname(reason));
+        deauth_reason_ops_getter()->getname(user->reason), 
+        deauth_reason_ops_getter()->getname(reason));
     
     user->reason = reason;
 }
@@ -1195,7 +1195,7 @@ jobj_t um_juser(struct um_user *user)
     jobj_add_string(obj, "ssid",    user->ssid);
     jobj_add_string(obj, "ip",      os_ipstring(user->ip));
     jobj_add_string(obj, "state",   user_state_ops_getter()->getname(user->state));
-    jobj_add_string(obj, "reason",  deauth_ops_getter()->getname(user->reason));
+    jobj_add_string(obj, "reason",  deauth_reason_ops_getter()->getname(user->reason));
     
     jobj_add_string(obj, "create",  os_fulltime_string(user->create));
     jobj_add_string(obj, "noused",  os_fulltime_string(user->noused));
@@ -1218,7 +1218,7 @@ touser_base(struct um_user *user, jobj_t juser)
     jj_ip(user, juser, ip);
 
     jj_byeq(user, juser, state, user_state_ops_getter()->getid);
-    jj_byeq(user, juser, reason, deauth_ops_getter()->getid);
+    jj_byeq(user, juser, reason, deauth_reason_ops_getter()->getid);
 
     jj_time(user, juser, create);
     jj_time(user, juser, noused);
