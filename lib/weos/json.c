@@ -608,6 +608,19 @@ __jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
     return 0;
 }
 
+#define JRULE_AUTOMIC_J2O(_long_type, _short_type, _member) do{ \
+    _long_type v = jobj_get_##_short_type(jval);    \
+                                                    \
+    if (border) {                                   \
+        err = JRULE_BORDER_CHECK(v, rule, _member); \
+        if (err<0) {                                \
+            return err;                             \
+        }                                           \
+    }                                               \
+                                                    \
+    *(_long_type *)member = v;                      \
+} while(0)
+
 STATIC int
 __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 {
@@ -635,79 +648,69 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
     
     bool border = os_hasflag(rule->flag, JRULE_BORDER);
     char *member = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-    
+
     switch(rule->type) {
-        case jtype_bool: {
+        case jtype_bool:
             *(bool *)member = jobj_get_bool(jval);
-        }   break;
-        case jtype_int: {
-            int v = jobj_get_int(jval);
-
-            if (border) {
-                err = JRULE_BORDER_CHECK(v, rule, i);
-                if (err<0) {
-                    return err;
-                }
-            }
-            
-            *(int *)member = v;
-        }   break;
-        case jtype_double: {
-            double v = jobj_get_double(jval);
-
-            if (border) {
-                err = JRULE_BORDER_CHECK(v, rule, d);
-                if (err<0) {
-                    return err;
-                }
-            }
-            
-            *(double *)member = v;
-        }   break;
-        case jtype_i32: {
-            int32 v = jobj_get_i32(jval);
-
-            if (border) {
-                err = JRULE_BORDER_CHECK(v, rule, i32);
-                if (err<0) {
-                    return err;
-                }
-            }
-            
-            *(double *)member = v;
-        }   break;
-        case jtype_u32:     // down
-        case jtype_f32:     // down
-        case jtype_i64:     // down
-        case jtype_u64:     // down
+            break;
+        case jtype_int:
+            JRULE_AUTOMIC_J2O(int, int, i);
+            break;
+        case jtype_double:
+            JRULE_AUTOMIC_J2O(double, double, d);
+            break;
+        case jtype_i32:
+            JRULE_AUTOMIC_J2O(int32, i32, i32);
+            break;
+        case jtype_u32:
+            JRULE_AUTOMIC_J2O(uint32, u32, u32);
+            break;
+        case jtype_f32:
+            JRULE_AUTOMIC_J2O(float32, f32, f32);
+            break;
+        case jtype_i64:
+            JRULE_AUTOMIC_J2O(int64, i64, i64);
+            break;
+        case jtype_u64:
+            JRULE_AUTOMIC_J2O(uint64, u64, u64);
+            break;
         case jtype_f64:
-
+            JRULE_AUTOMIC_J2O(float64, f64, f64);
             break;
-        case jtype_enum:
-            if (NULL==rule->serialize.get_enum_ops) {
-                return -EBADRULE;
+        case jtype_enum: {
+            enum_ops_t *ops = rule->serialize.get_enum_ops();
+            int id = ops->getid(jobj_get_string(jval));
+            if (false==ops->is_good(id)) {
+                return -EBADENUM;
             }
-            
-            break;
+
+            *(int *)member = id;
+        }   break;
         case jtype_string:
-            if (NULL==rule->unserialize.j2o) {
-                return -EBADRULE;
+            err = rule->serialize.j2o(rule, obj, jobj);
+            if (err<0) {
+                return err;
             }
 
             break;
         case jtype_object:
-            if (NULL==rule->deft.get_rules) {
-                return -EBADRULE;
+            err = jrule_j2o(rule->deft.get_rules(), member, jval);
+            if (err<0) {
+                return err;
             }
             
             break;
         case jtype_array:
-            if (NULL==rule->serialize.array_create ||
-                NULL==rule->unserialize.get_array_count_address ||
-                NULL==rule->deft.get_rules) {
-                return -EBADRULE;
+            err = rule->serialize.array_create(rule, obj);
+            if (err<0) {
+                return err;
             }
-
+            
+            err = jrule_j2o(rule->deft.get_rules(), JRULE_OBJ_MEMBER_ADDRESS(rule, obj), jval);
+            if (err<0) {
+                return err;
+            }
+            
             break;
         case jtype_null: // down
         default:
@@ -716,6 +719,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 
     return 0;
 }
+#undef JRULE_AUTOMIC_J2O
 
 STATIC int
 jrules_apply(jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(jrule_t *rule, void *obj, jobj_t jobj))

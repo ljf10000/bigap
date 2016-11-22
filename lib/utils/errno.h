@@ -247,6 +247,7 @@ enum {
     ENOPERM         = ERRNO(90),
     EBADFILE        = ERRNO(91),
     EBASE64         = ERRNO(92),
+    EBADENUM        = ERRNO(93),
     
 };
 

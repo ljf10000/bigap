@@ -27,7 +27,8 @@ typedef struct {
     .script = NSQ_SCRIPT,   \
 }   /* end */
 
-#if 1
+#define NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME   "feature_negotiation"
+
 typedef struct {
     char *client_id;
     char *hostname;
@@ -39,8 +40,7 @@ typedef struct {
     int output_buffer_timeout;
 } nsq_identify_t;
 
-#define NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME   "feature_negotiation"
-
+#if 0
 #define NSQ_IDENTIFY_JRULE_MAPPER(_) \
     _(offsetof(nsq_identify_t, client_id), client_id, "client_id", \
             string, sizeof(char *), JRULE_MUST,         \
@@ -89,7 +89,6 @@ DECLARE_JRULER(nsq_identify, NSQ_IDENTIFY_JRULE_MAPPER);
 static inline jrule_t *nsq_identify_jrules(void);
 #endif
 
-#if 1
 #define NSQ_INSTANCE_NAME_NAME      "name"
 #define NSQ_INSTANCE_DOMAIN_NAME    "domain"
 #define NSQ_INSTANCE_PORT_NAME      "port"
@@ -132,6 +131,7 @@ typedef struct {
 } 
 nsq_instance_t;
 
+#if 0
 #define NSQ_INSTANCE_JRULE_MAPPER(_) \
     _(offsetof(nsq_instance_t, name), name, NSQ_INSTANCE_NAME_NAME, \
             string, sizeof(char *), JRULE_MUST,         \

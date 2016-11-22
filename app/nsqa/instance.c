@@ -76,7 +76,7 @@ static nsq_instance_t *
 __create(char *name, char *topic, char *channel, jobj_t jobj)
 {
     nsq_instance_t *instance = NULL;
-    jobj_t jval;
+    jobj_t jval, jidentify;
     int fd, port, err;
     
     instance = (nsq_instance_t *)os_zalloc(sizeof(nsq_instance_t));
@@ -103,7 +103,6 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
     instance->rdy       = NSQ_RDY;
     instance->fsm       = NSQ_FSM_INIT;
     instance->jinstance = jobj;
-    instance->jidentify = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
 
     instance->name      = os_strdup(name);
     instance->topic     = os_strdup(topic);
@@ -111,9 +110,6 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
 
     jval = jobj_get(jobj, NSQ_INSTANCE_DOMAIN_NAME);
     instance->domain    = os_strdup(jobj_get_string(jval));
-
-    jval = jobj_get(jval, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME);
-    instance->auth      = jobj_get_bool(jval);
 
     jval = jobj_get(jobj, NSQ_INSTANCE_PORT_NAME);
     port = jobj_get_bool(jval);
@@ -124,7 +120,13 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
 
     sockaddr_in_t *client   = &instance->client;
     client->sin_family      = AF_INET;
-    
+
+    jidentify = jobj_get(jobj, NSQ_INSTANCE_IDENTIFY_NAME);
+    instance->jidentify = jidentify;
+
+    jval = jobj_get(jidentify, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME);
+    instance->auth      = jobj_get_bool(jval);
+
     nsqb_init(&instance->brecver, NSQ_SEND_BUFFER_SIZE);
     nsqb_init(&instance->bsender, NSQ_RECV_BUFFER_SIZE);
     
@@ -185,13 +187,13 @@ __nsqi_insert(jobj_t jobj)
         
         return -EBADJSON;
     }
-    
+
     if (nsqi_get(name, topic, channel)) {
         debug_entry("instance %s.%s.%s exist.", name, topic, channel);
         
         return -EEXIST;
     }
-
+    
     nsq_instance_t *instance = __create(name, topic, channel, jobj);
     if (NULL==instance) {
         return -ENOMEM;
