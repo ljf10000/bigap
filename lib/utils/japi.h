@@ -437,6 +437,9 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count);
 
 #define JOBJ_MAPF(_file, _mapper)           JOBJ_MAP(jobj_byfile(_file), _mapper)
 /******************************************************************************/
+#define USE_JRULE       0
+
+#if USE_JRULE
 enum {
     JRULE_MUST      = 0x0001,
     JRULE_DROP      = 0x0002,
@@ -727,6 +730,7 @@ static inline jrule_t *xxx_jrules(void);
                                     \
     os_fake_declare                 \
     /* end */
+#endif /* USE_JRULE */
 
 #endif /* __APP__ */
 /******************************************************************************/

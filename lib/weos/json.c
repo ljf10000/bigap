@@ -501,6 +501,7 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count)
     return jobj;
 }
 
+#if USE_JRULE
 jrule_t *
 jrule_getbyname(jrule_t *rules, char *name)
 {
@@ -813,6 +814,7 @@ jrule_j2o(jrule_t *rules, void *obj, jobj_t jobj)
 {
     return jrules_apply(rules, obj, jobj, __jrule_j2o);
 }
+#endif /* USE_JRULE */
 
 #endif
 /******************************************************************************/
