@@ -121,27 +121,27 @@ typedef struct {
 } jinstance_t;
 
 #define JINSTANCE_JRULE_MAPPER(_) \
-    _(offset_of(jinstance_t, name), name, "name",   \
+    _(offsetof(jinstance_t, name), name, "name",    \
             string, sizeof(char *), JRULE_MUST,     \
             JRULE_VAR_POINTER_INITER(jrule_strdup), \
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
-    _(offset_of(jinstance_t, topic), topic, "topic",\
+    _(offsetof(jinstance_t, topic), topic, "topic", \
             string, sizeof(char *), JRULE_MUST,     \
             JRULE_VAR_POINTER_INITER(jrule_strdup), \
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
-    _(offset_of(jinstance_t, channel), channel, "channel",  \
+    _(offsetof(jinstance_t, channel), channel, "channel",  \
             string, sizeof(char *), JRULE_MUST,     \
             JRULE_VAR_POINTER_INITER(jrule_strdup), \
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
-    _(offset_of(jinstance_t, cache), cache, "cache",\
+    _(offsetof(jinstance_t, cache), cache, "cache", \
             string, sizeof(char *), JRULE_MUST,     \
             JRULE_VAR_POINTER_INITER(jrule_strdup), \
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
-    _(offset_of(jinstance_t, flash), flash, "flash",\
+    _(offsetof(jinstance_t, flash), flash, "flash", \
             string, sizeof(char *), JRULE_MUST,     \
             JRULE_VAR_POINTER_INITER(jrule_strdup), \
             JRULE_VAR_NULL,                         \
@@ -184,97 +184,97 @@ jscript_t;
 #define JSCRIPT_SCRIPT_DEFAULT          "/bin/jscript"
 
 #define JSCRIPT_JRULE_MAPPER(_) \
-    _(offset_of(jscript_t, type), type, "type",         \
+    _(offsetof(jscript_t, type), type, "type",          \
             enum, sizeof(int), 0,                       \
             JRULE_VAR_POINTER_INITER(script_type_ops_getter), \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_ENUM_INITER(SCRIPT_TYPE_SH)),     \
-    _(offset_of(jscript_t, run), run, "run",            \
+    _(offsetof(jscript_t, run), run, "run",             \
             enum, sizeof(int), 0,                       \
             JRULE_VAR_POINTER_INITER(script_run_ops_getter), \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_ENUM_INITER(SCRIPT_RUN_THIS)),    \
-    _(offset_of(jscript_t, cache), cache, "cache",      \
+    _(offsetof(jscript_t, cache), cache, "cache",       \
             enum, sizeof(int), 0,                       \
             JRULE_VAR_POINTER_INITER(script_cache_ops_getter), \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_ENUM_INITER(SCRIPT_CACHE_NONE)),  \
-    _(offset_of(jscript_t, scope), scope, "scope",      \
+    _(offsetof(jscript_t, scope), scope, "scope",       \
             enum, sizeof(int), 0,                       \
             JRULE_VAR_POINTER_INITER(script_scope_ops_getter), \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_ENUM_INITER(SCRIPT_SCOPE_GLOBAL)),\
-    _(offset_of(jscript_t, slot), slot, "slot",         \
+    _(offsetof(jscript_t, slot), slot, "slot",          \
             int, sizeof(int), JRULE_BORDER,             \
             JRULE_VAR_INT_INITER(0),                    \
             JRULE_VAR_INT_INITER(1),                    \
             JRULE_VAR_INT_INITER(0)),                   \
-    _(offset_of(jscript_t, seq), seq, "seq",            \
+    _(offsetof(jscript_t, seq), seq, "seq",             \
             u64, sizeof(uint64), JRULE_MUST,            \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, filename), filename, "filename", \
+    _(offsetof(jscript_t, filename), filename, "filename", \
             string, sizeof(char *), 0,                  \
             JRULE_VAR_POINTER_INITER(jrule_strdup),     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, content), content, "content",\
+    _(offsetof(jscript_t, content), content, "content", \
             string, sizeof(char *), 0,                  \
             JRULE_VAR_POINTER_INITER(jrule_strdup),     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, url), url, "url",            \
+    _(offsetof(jscript_t, url), url, "url",             \
             string, sizeof(char *), 0,                  \
             JRULE_VAR_POINTER_INITER(jrule_strdup),     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, md5), md5, "md5",            \
+    _(offsetof(jscript_t, md5), md5, "md5",             \
             string, sizeof(char *), 0,                  \
             JRULE_VAR_POINTER_INITER(jrule_strdup),     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, board), board, "board",      \
+    _(offsetof(jscript_t, board), board, "board",       \
             string, sizeof(char *), 0,                  \
             JRULE_VAR_POINTER_INITER(jrule_strdup),     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, id), id, "id",               \
+    _(offsetof(jscript_t, id), id, "id",                \
             string, sizeof(char *), JRULE_MUST,         \
             JRULE_VAR_POINTER_INITER(jrule_strdup),     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, reply), reply, "reply",      \
+    _(offsetof(jscript_t, reply), reply, "reply",       \
             string, sizeof(char *), 0,                  \
             JRULE_VAR_POINTER_INITER(jrule_strdup),     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, script), script, "script",   \
+    _(offsetof(jscript_t, script), script, "script",    \
             string, sizeof(char *), 0,                  \
             JRULE_VAR_POINTER_INITER(jrule_strdup),     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_POINTER_INITER(JSCRIPT_SCRIPT_DEFAULT)), \
-    _(offset_of(jscript_t, sendtime), sendtime, "sendtime", \
+    _(offsetof(jscript_t, sendtime), sendtime, "sendtime", \
             time, sizeof(time_t), JRULE_MUST,           \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, recvtime), recvtime, "recvtime", \
+    _(offsetof(jscript_t, recvtime), recvtime, "recvtime", \
             time, sizeof(time_t), 0,                    \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, period), period, "period",   \
+    _(offsetof(jscript_t, period), period, "period",    \
             u32, sizeof(uint32), JRULE_MUST | JRULE_BORDER, \
             JRULE_VAR_INT32_INITER(0),                  \
             JRULE_VAR_INT32_INITER(3600),               \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, argument), argument, "argument", \
+    _(offsetof(jscript_t, argument), argument, "argument", \
             array, sizeof(char *), 0,                   \
             JRULE_VAR_INT32_INITER(0),                  \
             JRULE_VAR_INT32_INITER(3600),               \
             JRULE_VAR_NULL),                            \
-    _(offset_of(jscript_t, instance), instance, "instance", \
+    _(offsetof(jscript_t, instance), instance, "instance", \
             object, sizeof(jinstance_t), 0,             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
