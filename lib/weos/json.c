@@ -503,7 +503,7 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count)
 
 #if USE_JRULE
 jrule_t *
-jrule_getbyname(jrule_t *rules, char *name)
+jrule_getbyname(const jrule_t *rules, char *name)
 {
     jrule_t *rule;
 
@@ -532,7 +532,7 @@ is_good_jrule_flag(int flag)
 }
 
 STATIC int
-__jrule_selfcheck(jrule_t *rule)
+__jrule_selfcheck(const jrule_t *rule)
 {
     if (false==is_good_jrule_flag(rule->flag)) {
         debug_json("bad rule[%s], invalid flag:%u", rule->name, rule->flag);
@@ -610,7 +610,7 @@ __jrule_selfcheck(jrule_t *rule)
 }
 
 int
-jrule_selfcheck(jrule_t *rules)
+jrule_selfcheck(const jrule_t *rules)
 {
     jrule_t *rule;
     int err;
@@ -626,7 +626,7 @@ jrule_selfcheck(jrule_t *rules)
 }
 
 STATIC int
-__jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
+__jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     char *member = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
     jobj_t jval;
@@ -714,7 +714,7 @@ __jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
 } while(0)
 
 STATIC int
-__jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
+__jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     int jtype = jobj_type(jval);
@@ -949,7 +949,7 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 #undef JRULE_AUTOMIC_J2O
 
 STATIC int
-jrules_apply(jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(jrule_t *rule, void *obj, jobj_t jobj))
+jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(jrule_t *rule, void *obj, jobj_t jobj))
 {
     jrule_t *rule;
     int err;
@@ -965,7 +965,7 @@ jrules_apply(jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(jrule_t *rule,
 }
 
 int
-jrule_o2j(jrule_t *rules, void *obj, jobj_t jobj)
+jrule_o2j(const jrule_t *rules, void *obj, jobj_t jobj)
 {
     if (NULL==rules) {
         return -EINVAL0;
@@ -981,7 +981,7 @@ jrule_o2j(jrule_t *rules, void *obj, jobj_t jobj)
 }
 
 int
-jrule_j2o(jrule_t *rules, void *obj, jobj_t jobj)
+jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj)
 {
     if (NULL==rules) {
         return -EINVAL3;

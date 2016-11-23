@@ -504,9 +504,9 @@ union jrule_var_u {
     uint64  u64;
     float64 f64;
 
-    int (*o2j)(jrule_t *rule, void *obj, jobj_t jobj);
-    int (*j2o)(jrule_t *rule, void *obj, jobj_t jobj);
-    int (*check)(jrule_t *rule, jobj_t jobj);
+    int (*o2j)(const jrule_t *rule, void *obj, jobj_t jobj);
+    int (*j2o)(const jrule_t *rule, void *obj, jobj_t jobj);
+    int (*check)(const jrule_t *rule, jobj_t jobj);
     
     jrule_t *(*get_rules)(void);
     enum_ops_t *(*get_enum_ops)(void);
@@ -601,7 +601,7 @@ struct jrule_s {
     ((char *)(_obj) + (_rule)->offset)
 
 static inline int
-jrule_strassign(jrule_t *rule, void *obj, jobj_t jobj)
+jrule_strassign(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     
@@ -611,7 +611,7 @@ jrule_strassign(jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 static inline int
-jrule_strdup(jrule_t *rule, void *obj, jobj_t jobj)
+jrule_strdup(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     
@@ -621,7 +621,7 @@ jrule_strdup(jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 static inline int
-jrule_strcpy(jrule_t *rule, void *obj, jobj_t jobj)
+jrule_strcpy(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     
@@ -631,7 +631,7 @@ jrule_strcpy(jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 static inline int
-jrule_time_o2j(jrule_t *rule, void *obj, jobj_t jobj)
+jrule_time_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
@@ -642,7 +642,7 @@ jrule_time_o2j(jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 static inline int
-jrule_time_j2o(jrule_t *rule, void *obj, jobj_t jobj)
+jrule_time_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
@@ -653,7 +653,7 @@ jrule_time_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 static inline int
-jrule_ip_o2j(jrule_t *rule, void *obj, jobj_t jobj)
+jrule_ip_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
@@ -664,7 +664,7 @@ jrule_ip_o2j(jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 static inline int
-jrule_ip_j2o(jrule_t *rule, void *obj, jobj_t jobj)
+jrule_ip_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
@@ -675,7 +675,7 @@ jrule_ip_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 static inline int
-jrule_mac_o2j(jrule_t *rule, void *obj, jobj_t jobj)
+jrule_mac_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
@@ -686,7 +686,7 @@ jrule_mac_o2j(jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 static inline int
-jrule_mac_j2o(jrule_t *rule, void *obj, jobj_t jobj)
+jrule_mac_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
@@ -697,16 +697,16 @@ jrule_mac_j2o(jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 extern jrule_t *
-jrule_getbyname(jrule_t *rules, char *name);
+jrule_getbyname(const jrule_t *rules, char *name);
 
 extern int
-jrule_selfcheck(jrule_t *rules);
+jrule_selfcheck(const jrule_t *rules);
 
 extern int
-jrule_o2j(jrule_t *rules, void *obj, jobj_t jobj);
+jrule_o2j(const jrule_t *rules, void *obj, jobj_t jobj);
 
 extern int
-jrule_j2o(jrule_t *rules, void *obj, jobj_t jobj);
+jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj);
 
 #if 0
 /*
