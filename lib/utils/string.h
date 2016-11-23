@@ -141,7 +141,7 @@ os_strlen(const char *s)
 }
 
 static inline char *
-os_strdup(char *s)
+os_strdup(const char *s)
 {
     return s?strdup(s):NULL;
 }
@@ -389,7 +389,7 @@ __iswildcard(int ch)
 }
 
 static inline bool
-os_str_is_wildcard(char *s, char_is_f *is)
+os_str_is_wildcard(const char *s, char_is_f *is)
 {
     return s \
         && (is?(*is)(s[0]):('*'==s[0]))
@@ -403,7 +403,7 @@ os_char_is(int ch, char_is_f *is)
 }
 
 static inline char *
-os_str_skip(char *s, char_is_f *is)
+os_str_skip(const char *s, char_is_f *is)
 {
     char *p = s;
 
@@ -571,7 +571,7 @@ os_str_strim_both(char *s, char_is_f *is)
 }
 
 static inline bool
-os_str_is_end_by(char *s, char *end)
+os_str_is_end_by(const char *s, char *end)
 {
     uint32 slen = os_strlen(s);
     uint32 elen = os_strlen(end);

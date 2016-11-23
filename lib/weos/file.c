@@ -30,7 +30,7 @@ char *
 os_basename(const char *file)
 {
     int len = strlen(file);
-    char *p = file + len - 1;
+    char *p = (char *)file + len - 1;
 
     while(p>file && *p && *p != '/') {
         p--;
