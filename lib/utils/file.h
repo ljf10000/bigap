@@ -13,10 +13,10 @@
 #endif
 
 extern char *
-os_vfilename(const char *fmt, va_list args);
+os_vfmtline(const char *fmt, va_list args);
 
 extern char *
-os_filename(const char *fmt, ...);
+os_fmtline(const char *fmt, ...);
 
 extern char *
 os_basename(const char *file);

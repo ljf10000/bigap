@@ -4,7 +4,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #ifdef __APP__
 
 char *
-os_vfilename(const char *fmt, va_list args)
+os_vfmtline(const char *fmt, va_list args)
 {
     static char filename[1+OS_LINE_LEN];
 
@@ -14,13 +14,13 @@ os_vfilename(const char *fmt, va_list args)
 }
 
 char *
-os_filename(const char *fmt, ...)
+os_fmtline(const char *fmt, ...)
 {
     va_list args;
     char *file;
     
     va_start(args, (char *)fmt);
-    file = os_vfilename(fmt, args);
+    file = os_vfmtline(fmt, args);
     va_end(args);
     
     return file;

@@ -17,6 +17,14 @@ OS_INITER;
 #define JSCRIPT_EXEC        PC_VAL("../jexec/jexec", "/bin/jexec")
 #endif
 
+#ifndef JSCRIPT_STARTUP
+#define JSCRIPT_STARTUP     PC_VAL("./startup", "/tmp/startup")
+#endif
+
+#ifndef JSCRIPT_CACHE
+#define JSCRIPT_CACHE       PC_VAL("./cache", "/tmp/cache")
+#endif
+
 /*
 if content:exist, filename:exist, then
         cache must cache/flash
@@ -332,6 +340,8 @@ static inline jrule_t *jscript_jrules(void);
 #endif
 
 static jscript_t J;
+static bool is_startup;
+static bool is_remote;
 
 static int
 usage(int argc, char *argv[])
@@ -342,26 +352,10 @@ usage(int argc, char *argv[])
     return -EINVAL;
 }
 
-static bool
-__is_startup(void)
-{
-    int startup = env_geti(OS_ENV(STARTUP), 0);
-
-    return !!startup;
-}
-
 static int
 __startup(void)
 {
     return 0;
-}
-
-static bool
-__is_remote(void)
-{
-    int slot = env_geti("SLOT", 0);
-    
-    return (slot==J.slot);
 }
 
 static int
@@ -376,10 +370,32 @@ __exec(void)
     return os_system(JSCRIPT_EXEC " '%s'", J.json);
 }
 
+static char *
+__dir(void)
+{
+    if (is_startup) {
+        return JSCRIPT_STARTUP;
+    } else {
+        return JSCRIPT_CACHE;
+    }
+}
+
+static char *
+__filename(void)
+{
+    static char filename[1+OS_LINE_LEN];
+    
+    if (false==is_good_str(filename)) {
+        os_saprintf(filename, "%s/%s", __dir(), J.filename);
+    }
+
+    return filename;
+}
+
 static int
 __handle_file(void)
 {
-    bool exist = os_file_exist(NULL);
+    bool exist = os_file_exist(__filename());
     
     if (J.content) {
         
@@ -440,21 +456,19 @@ __main(int argc, char *argv[])
     if (err<0) {
         return err;
     }
-
-    if (__is_remote()) {
+    
+    is_startup = !!env_geti(OS_ENV(STARTUP), 0);
+    is_remote  = env_geti("SLOT", 0)==J.slot;
+    
+    if (is_remote) {
         return __remote();
     }
-    
-    if (__is_startup()) {
+    else if (is_startup) {
         return __startup();
     }
-
-    err = __handle();
-    if (err<0) {
-        return err;
+    else {
+        return __handle();
     }
-
-    return 0;
 }
 
 int allinone_main(int argc, char *argv[])
