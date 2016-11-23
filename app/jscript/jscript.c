@@ -378,13 +378,15 @@ __exec(void)
 static int
 __handle_file(void)
 {
-    bool exist = os_file_exist();
+    bool exist = os_file_exist(NULL);
     
     if (J.content) {
         
     } else {
 
     }
+
+    return 0;
 }
 
 static int
