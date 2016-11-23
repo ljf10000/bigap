@@ -16,7 +16,7 @@ DECLARE_ENUM(xxx, XXX_ENUM_MAPPER, KEY_END);
 static inline enum_ops_t *xxx_ops(void);
 static inline bool is_good_xxx(int id);
 static inline char *xxx_getnamebyid(int id);
-static inline int xxx_getidbyname(char *name);
+static inline int xxx_getidbyname(const char *name);
 
 #define KEY_A       KEY_A
 #define KEY_B       KEY_B
@@ -29,7 +29,7 @@ typedef struct {
     
     bool (*is_good)(int id);
     char *(*getname)(int id);
-    int (*getid)(char *name);
+    int (*getid)(const char *name);
 } enum_ops_t;
 
 #define __ENUM_MAP_VALUE(_key, _value, _name)   _key = _value
@@ -65,7 +65,7 @@ typedef struct {
     }                               \
                                     \
     static inline int               \
-    _mod##_getidbyname(char *s)     \
+    _mod##_getidbyname(const char *s) \
     {                               \
         char **array = __##_mod##_strings(); \
                                     \

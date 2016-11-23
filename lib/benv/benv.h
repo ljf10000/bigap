@@ -90,7 +90,7 @@ DECLARE_ENUM(benv_fsm, BENV_FSM_ENUM_MAPPER, BENV_FSM_END);
 static inline enum_ops_t *benv_fsm_ops(void);
 static inline bool is_good_benv_fsm(int id);
 static inline char *benv_fsm_getnamebyid(int id);
-static inline int benv_fsm_getidbyname(char *name);
+static inline int benv_fsm_getidbyname(const char *name);
 
 #define BENV_FSM_FAIL   BENV_FSM_FAIL
 #define BENV_FSM_UNKNOW BENV_FSM_UNKNOW

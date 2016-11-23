@@ -74,7 +74,7 @@ DECLARE_ENUM(jtype, JTYPE_ENUM_MAPPER, jtype_end);
 static inline enum_ops_t *jtype_ops(void);
 static inline bool is_good_jtype(int id);
 static inline char *jtype_getnamebyid(int id);
-static inline int jtype_getidbyname(char *name);
+static inline int jtype_getidbyname(const char *name);
 
 #define jtype_null      jtype_null
 #define jtype_bool      jtype_bool

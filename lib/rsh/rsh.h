@@ -222,7 +222,7 @@ DECLARE_ENUM(rsh_cmd, RSH_CMD_ENUM_MAPPER, RSH_CMD_END);
 static inline enum_ops_t *rsh_cmd_ops(void);
 static inline bool is_good_rsh_cmd(int id);
 static inline char *rsh_cmd_getnamebyid(int id);
-static inline int rsh_cmd_getidbyname(char *name);
+static inline int rsh_cmd_getidbyname(const char *name);
 
 #define RSH_CMD_COMMAND     RSH_CMD_COMMAND
 #define RSH_CMD_ECHO        RSH_CMD_ECHO
@@ -241,7 +241,7 @@ DECLARE_ENUM(rsh_mode, RSH_MODE_ENUM_MAPPER, RSH_MODE_END);
 static inline enum_ops_t *rsh_mode_ops(void);
 static inline bool is_good_rsh_mode(int id);
 static inline char *rsh_mode_getnamebyid(int id);
-static inline int rsh_mode_getidbyname(char *name);
+static inline int rsh_mode_getidbyname(const char *name);
 
 #define RSH_MODE_SYN        RSH_MODE_SYN
 #define RSH_MODE_ACK        RSH_MODE_ACK
