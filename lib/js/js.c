@@ -681,7 +681,7 @@ js_eval(duk_context *ctx, char *jsfile)
             * cat SCRIPT  | js
             * echo SCRIPT | js
             */
-            script = os_readfd(0, 4096);
+            script = os_readfd(0);
             duk_peval_string(ctx, script);
             free(script);
             

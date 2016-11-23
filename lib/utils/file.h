@@ -13,7 +13,13 @@
 #endif
 
 extern char *
-os_basename(char *filename);
+os_vfilename(const char *fmt, va_list args);
+
+extern char *
+os_filename(const char *fmt, ...);
+
+extern char *
+os_basename(const char *file);
 
 static inline bool
 os_file_exist(const char *file)
@@ -24,13 +30,13 @@ os_file_exist(const char *file)
 }
 
 static inline bool
-os_file_absolute(char *file)
+os_file_absolute(const char *file)
 {
     return is_good_str(file) && '/'==file[0];
 }
 
 static inline bool
-os_file_relative(char *file)
+os_file_relative(const char *file)
 {
     if (is_good_str(file)) {
         int len = os_strlen(file);
@@ -70,7 +76,7 @@ os_file_relative(char *file)
 * get file size by full filename(include path)
 */
 extern int
-os_fsize(char *filename);
+os_fsize(const char *file);
 
 extern int
 os_v_fsize(const char *fmt, ...);
@@ -165,35 +171,37 @@ os_fwriteline(STREAM stream, const char *line)
 }
 
 extern int
-os_readfile(char *filename, void *buf, int size);
+os_readfile(const char *file, void *buf, int size);
 
 extern int
-os_readfileall(char *filename, char **content, uint32 *filesize, bool bin);
+os_readfileall(const char *file, char **content, uint32 *filesize, bool bin);
 
 extern int
-os_writefile(char *filename, void *buf, int size, bool append, bool bin);
+os_writefile(const char *file, void *buf, int size, bool append, bool bin);
 
 extern char *
-os_readfd(int fd, int block) ;
+__os_readfd(int fd, int block) ;
+
+#define os_readfd(_fd)      __os_readfd(_fd, 32*1024)
 
 static inline bool
-is_current_dir(char *filename/* not include path */)
+is_current_dir(const char *file/* not include path */)
 {
-    return '.'==filename[0] && 0==filename[1];
+    return '.'==file[0] && 0==file[1];
 }
 
 static inline bool
-is_father_dir(char *filename/* not include path */)
+is_father_dir(const char *file/* not include path */)
 {
-    return '.'==filename[0] && '.'==filename[1] && 0==filename[2];
+    return '.'==file[0] && '.'==file[1] && 0==file[2];
 }
 
 /*
 * @filename: not include path
 */
-typedef mv_t os_fscan_line_handle_f(char *filename, char *line);
-typedef mv_t os_fscan_file_handle_f(char *path, char *filename, os_fscan_line_handle_f *line_handle);
-typedef bool os_fscan_file_filter_f(char *path, char *filename);
+typedef mv_t os_fscan_line_handle_f(const char *file, char *line);
+typedef mv_t os_fscan_file_handle_f(const char *path, const char *file, os_fscan_line_handle_f *line_handle);
+typedef bool os_fscan_file_filter_f(const char *path, const char *file);
 
 /*
 * @filefilter: if return true, ignore file
@@ -201,7 +209,7 @@ typedef bool os_fscan_file_filter_f(char *path, char *filename);
 extern int 
 os_fscan_dir
 (
-    char *path, 
+    const char *path, 
     bool recur,
     os_fscan_file_filter_f *file_filter,
     os_fscan_file_handle_f *file_handle,
@@ -209,10 +217,10 @@ os_fscan_dir
 );
 
 extern int
-os_fsearch_path(char *file, char *path, int (*handle)(char *filename, void *user), void *user);
+os_fsearch_path(const char *file, const char *path, int (*handle)(const char *file, void *user), void *user);
 
 extern int
-os_fsearch_paths(char *file, char *PATH, int (*handle)(char *filename, void *user), void *user);
+os_fsearch_paths(const char *file, const char *PATH, int (*handle)(const char *file, void *user), void *user);
 /******************************************************************************/
 #define ____os_xgetv(_prefix, _stream, _vfmt, _pv) ({ \
     int __err = 0;          \

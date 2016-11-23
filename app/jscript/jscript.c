@@ -9,6 +9,14 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 /******************************************************************************/
+#ifndef JSCRIPT_REMOTE
+#define JSCRIPT_REMOTE      PC_FILE("tmp/script", "jremote.script")
+#endif
+
+#ifndef JSCRIPT_EXEC
+#define JSCRIPT_EXEC        PC_VAL("../jexec/jexec", "/bin/jexec")
+#endif
+
 /*
 if content:exist, filename:exist, then
         cache must cache/flash
@@ -29,10 +37,10 @@ if content:exist, filename:exist, then
     "sendtime": "1900-01-01 00:00:00",  #must, the message time, utc format
     "recvtime": "1900-01-01 00:00:00",  #if run:next, append and save it
     "before":"1900-01-01 00:00:00",     #option, just for run:this
-    "run": "this/next",                 #default: this
+    "run": "this/next/every",           #default: this
                                         #   this: run at this period
                                         #   next: run at next period
-
+    "from": "cloud/cache",              #default: cloud
     "cache": "none/cache/flash",        #default: none
     "scope": "global/instance",         #default: instance
 
@@ -74,11 +82,13 @@ static inline int script_type_getidbyname(char *name);
 #define SCRIPT_RUN_ENUM_MAPPER(_)       \
     _(SCRIPT_RUN_THIS,  0,  "this"),    \
     _(SCRIPT_RUN_NEXT,  1,  "next"),    \
+    _(SCRIPT_RUN_EVERY, 2,  "every"),   \
     /* end */
 DECLARE_ENUM(script_run, SCRIPT_RUN_ENUM_MAPPER, SCRIPT_RUN_END);
-    
+
 #define SCRIPT_RUN_THIS     SCRIPT_RUN_THIS
 #define SCRIPT_RUN_NEXT     SCRIPT_RUN_NEXT
+#define SCRIPT_RUN_EVERY    SCRIPT_RUN_EVERY
 #define SCRIPT_RUN_END      SCRIPT_RUN_END
 
 static inline enum_ops_t *script_run_ops(void);
@@ -86,7 +96,24 @@ static inline bool is_good_script_run(int id);
 static inline char *script_run_getnamebyid(int id);
 static inline int script_run_getidbyname(char *name);
 #endif
-    
+
+#if 1
+#define SCRIPT_FROM_ENUM_MAPPER(_)      \
+    _(SCRIPT_FROM_CLOUD,  0,  "cloud"), \
+    _(SCRIPT_FROM_CACHE,  1,  "cache"), \
+    /* end */
+DECLARE_ENUM(script_from, SCRIPT_FROM_ENUM_MAPPER, SCRIPT_FROM_END);
+
+#define SCRIPT_FROM_CLOUD   SCRIPT_FROM_CLOUD
+#define SCRIPT_FROM_CACHE   SCRIPT_FROM_CACHE
+#define SCRIPT_FROM_END     SCRIPT_FROM_END
+
+static inline enum_ops_t *script_from_ops(void);
+static inline bool is_good_script_from(int id);
+static inline char *script_from_getnamebyid(int id);
+static inline int script_from_getidbyname(char *name);
+#endif
+
 #if 1
 #define SCRIPT_CACHE_ENUM_MAPPER(_)         \
     _(SCRIPT_CACHE_NONE,    0,  "none"),    \
@@ -164,7 +191,7 @@ DECLARE_JRULER(jinstance, JINSTANCE_JRULE_MAPPER);
 static inline jrule_t *jinstance_jrules(void);
 #endif
 
-#define JSCRIPT_SCRIPT_DEFAULT          "/bin/jscript"
+#define JSCRIPT_REMOTE_DEFAULT          "/bin/jscript"
 
 typedef struct {
     int type;
@@ -189,6 +216,9 @@ typedef struct {
     uint32 period;
     
     jinstance_t instance;
+
+    char *json;
+    jobj_t jobj;
 }
 jscript_t;
 
@@ -204,6 +234,11 @@ jscript_t;
             JRULE_VAR_ENUM(script_run_ops),             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_INT(SCRIPT_RUN_THIS)),            \
+    _(offsetof(jscript_t, from), from, "from",          \
+            enum, sizeof(int), 0,                       \
+            JRULE_VAR_ENUM(script_from_ops),            \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_INT(SCRIPT_FROM_CLOUD)),          \
     _(offsetof(jscript_t, cache), cache, "cache",       \
             enum, sizeof(int), 0,                       \
             JRULE_VAR_ENUM(script_cache_ops),           \
@@ -263,7 +298,7 @@ jscript_t;
             string, sizeof(char *), 0,                  \
             JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_STRING(JSCRIPT_SCRIPT_DEFAULT)),  \
+            JRULE_VAR_STRING(JSCRIPT_REMOTE_DEFAULT)),  \
     _(offsetof(jscript_t, sendtime), sendtime, "sendtime", \
             time, sizeof(time_t), JRULE_MUST,           \
             JRULE_VAR_NULL,                             \
@@ -295,7 +330,7 @@ DECLARE_JRULER(jscript, JSCRIPT_JRULE_MAPPER);
 static inline jrule_t *jscript_jrules(void);
 #endif
 
-static jscript_t script;
+static jscript_t J;
 
 static int
 usage(int argc, char *argv[])
@@ -306,26 +341,116 @@ usage(int argc, char *argv[])
     return -EINVAL;
 }
 
+static bool
+__is_startup(void)
+{
+    int startup = env_geti(OS_ENV(STARTUP), 0);
+
+    return !!startup;
+}
+
+static int
+__startup(void)
+{
+    return 0;
+}
+
+static bool
+__is_remote(void)
+{
+    int slot = env_geti("SLOT", 0);
+    
+    return (slot==J.slot);
+}
+
+static int
+__remote(void)
+{
+    return os_system(JSCRIPT_REMOTE " %d '%s'", J.slot, J.json);
+}
+
+static int
+__exec(void)
+{
+    return os_system(JSCRIPT_EXEC " '%s'", J.json);
+}
+
+static int
+__handle_file(void)
+{
+    bool exist = os_file_exist();
+    
+    if (J.content) {
+        
+    } else {
+
+    }
+}
+
+static int
+__handle(void)
+{
+    if (J.filename) {
+        return __handle_file();
+    }
+    else if (J.content) {
+        return __exec();
+    }
+    else {
+        return -EBADJSON;
+    }
+}
+
+static int
+__cache(void)
+{
+    return 0;
+}
+
 static int
 __main(int argc, char *argv[])
 {
     int err;
     
-    if (argc < 2) {
-        return usage(argc, argv);
+    switch(argc) {
+        case 1:
+            J.json = os_readfd(0);
+            if (NULL==J.json) {
+                return -ENOMEM;
+            }
+            
+            break;
+        case 2:
+            J.json = argv[1];
+            
+            break;
+        default:
+            return usage(argc, argv);
     }
-    
-    char *json = argv[1];
-    jobj_t jobj = jobj_byjson(json);
-    if (NULL==jobj) {
+
+    J.jobj = jobj_byjson(J.json);
+    if (NULL==J.jobj) {
         return -EBADJSON;
     }
 
-    err = jrule_j2o(jscript_jrules(), &script, jobj);
+    err = jrule_j2o(jscript_jrules(), &J, J.jobj);
     if (err<0) {
         return err;
     }
+
+    if (__is_remote()) {
+        return __remote();
+    }
     
+    if (__is_startup()) {
+        return __startup();
+    }
+
+    err = __handle();
+    if (err<0) {
+        return err;
+    }
+
     return 0;
 }
 

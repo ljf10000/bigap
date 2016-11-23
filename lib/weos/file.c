@@ -4,12 +4,35 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #ifdef __APP__
 
 char *
-os_basename(char *filename)
+os_vfilename(const char *fmt, va_list args)
 {
-    int len = strlen(filename);
-    char *p = filename + len - 1;
+    static char filename[1+OS_LINE_LEN];
 
-    while(p>filename && *p && *p != '/') {
+    os_vsnprintf(filename, OS_LINE_LEN, fmt, args);
+
+    return filename;
+}
+
+char *
+os_filename(const char *fmt, ...)
+{
+    va_list args;
+    char *file;
+    
+    va_start(args, (char *)fmt);
+    file = os_vfilename(fmt, args);
+    va_end(args);
+    
+    return file;
+}
+
+char *
+os_basename(char *file)
+{
+    int len = strlen(file);
+    char *p = file + len - 1;
+
+    while(p>file && *p && *p != '/') {
         p--;
     }
 
@@ -21,12 +44,12 @@ os_basename(char *filename)
 }
 
 int
-os_fsize(char *filename)
+os_fsize(char *file)
 {
     struct stat st;
     int err;
     
-    err = stat(filename, &st);
+    err = stat(file, &st);
     if (err<0) {
         return -errno;
     } else {
@@ -91,12 +114,12 @@ os_system(const char *fmt, ...)
 }
 
 int
-os_readfile(char *filename, void *buf, int size)
+os_readfile(const char *file, void *buf, int size)
 {
     STREAM f = NULL;
     int err = 0;
 
-    f = os_fopen(filename, "r");
+    f = os_fopen(file, "r");
     if (NULL==f) {
         err = -errno; goto error;
     }
@@ -113,13 +136,13 @@ error:
 }
 
 int
-os_readfileall(char *filename, char **content, uint32 *filesize, bool bin)
+os_readfileall(const char *file, char **content, uint32 *filesize, bool bin)
 {
     char *buf = NULL;
     int pad = bin?0:1;
     int size, err = 0;
     
-    size = os_fsize(filename);
+    size = os_fsize(file);
     if (size<0) {
         goto error;
     }
@@ -129,7 +152,7 @@ os_readfileall(char *filename, char **content, uint32 *filesize, bool bin)
         goto error;
     }
     
-    err = os_readfile(filename, buf, size);
+    err = os_readfile(file, buf, size);
     if (err<0) {
         goto error;
     }
@@ -159,12 +182,12 @@ error:
 }
 
 int
-os_writefile(char *filename, void *buf, int size, bool append, bool bin)
+os_writefile(const char *file, void *buf, int size, bool append, bool bin)
 {
     STREAM f = NULL;
     int err = 0;
 
-    f = os_fopen(filename, append?"a":"w");
+    f = os_fopen(file, append?"a":"w");
     if (NULL==f) {
         err = -errno; goto error;
     }
@@ -185,7 +208,7 @@ error:
 }
 
 char *
-os_readfd(int fd, int block) 
+__os_readfd(int fd, int block) 
 {
 	FILE *f = NULL;
 	char *buf = NULL;
@@ -245,8 +268,8 @@ error:
 static mv_t 
 __os_fscan_file_handle
 (
-    char *path,
-    char *filename,
+    const char *path,
+    const char *file,
     os_fscan_file_handle_f *file_handle,
     os_fscan_line_handle_f *line_handle
 )
@@ -258,14 +281,14 @@ __os_fscan_file_handle
     if (NULL==path) {
         return os_assertV(mv2_go(-EINVAL1));
     }
-    else if (NULL==filename) {
+    else if (NULL==file) {
         return os_assertV(mv2_go(-EINVAL2));
     }
 
     if (file_handle) {
-        file_println("user file handle %s/%s ...", path, filename);
-        mv.v = (*file_handle)(path, filename, line_handle);
-        file_println("user file handle %s/%s %d", path, filename, mv2_error(mv));
+        file_println("user file handle %s/%s ...", path, file);
+        mv.v = (*file_handle)(path, file, line_handle);
+        file_println("user file handle %s/%s %d", path, file, mv2_error(mv));
 
         return mv.v;
     } else if (NULL==line_handle) {
@@ -274,11 +297,11 @@ __os_fscan_file_handle
         return mv2_go(-ENOSUPPORT);
     }
     
-    file_println("inline file handle %s/%s ...", path, filename);
+    file_println("inline file handle %s/%s ...", path, file);
     
-    stream = os_v_fopen("r", "%s/%s", path, filename);
+    stream = os_v_fopen("r", "%s/%s", path, file);
     if (NULL==stream) {
-        file_println("open %s/%s error:%d", path, filename, -errno);
+        file_println("open %s/%s error:%d", path, file, -errno);
         
         mv2_error(mv) = -errno;
         
@@ -322,8 +345,8 @@ __os_fscan_file_handle
             continue;
         }
         
-        mv.v = (*line_handle)(filename, line);
-        file_println("line handle %s:%s error:%d", filename, line, mv2_error(mv));
+        mv.v = (*line_handle)(file, line);
+        file_println("line handle %s:%s error:%d", file, line, mv2_error(mv));
         if (is_mv2_break(mv)) {
             goto error;
         }
@@ -332,7 +355,7 @@ __os_fscan_file_handle
     mv.v = mv2_ok;
 error:
     os_fclose(stream);
-    file_println("inline file handle %s/%s error:%d", path, filename, mv2_error(mv));
+    file_println("inline file handle %s/%s error:%d", path, file, mv2_error(mv));
     
     return mv.v;
 }
@@ -340,7 +363,7 @@ error:
 int 
 os_fscan_dir
 (
-    char *path, 
+    const char *path, 
     bool recur,
     os_fscan_file_filter_f *file_filter,
     os_fscan_file_handle_f *file_handle,
@@ -439,7 +462,7 @@ error:
 }
 
 int
-os_fsearch_path(char *file, char *path, int (*handle)(char *filename, void *user), void *user)
+os_fsearch_path(const char *file, const char *path, int (*handle)(const char *file, void *user), void *user)
 {
     char fullname[1+OS_LINE_LEN] = {0};
     
@@ -465,7 +488,7 @@ os_fsearch_path(char *file, char *path, int (*handle)(char *filename, void *user
 }
 
 int
-os_fsearch_paths(char *file, char *PATH, int (*handle)(char *filename, void *user), void *user)
+os_fsearch_paths(const char *file, const char *PATH, int (*handle)(const char *file, void *user), void *user)
 {
     char *paths = NULL, *path;
     int err = 0;

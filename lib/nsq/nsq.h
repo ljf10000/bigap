@@ -28,7 +28,7 @@
 #endif
 
 #ifndef NSQ_SCRIPT
-#define NSQ_SCRIPT          PC_FILE("/lib/script", "nsq.script")
+#define NSQ_SCRIPT          PC_FILE("/tmp/script", "nsq.script")
 #endif
 
 #ifndef NSQ_USER_AGENT
