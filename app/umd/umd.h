@@ -140,9 +140,9 @@ static inline int user_state_getidbyname(char *name);
 DECLARE_ENUM(deauth_reason, UM_DEAUTH_ENUM_MAPPER, UM_DEAUTH_END);
 
 static inline enum_ops_t *deauth_reason_ops(void);
-static inline bool is_good_deauth(int id);
-static inline char *deauth_getnamebyid(int id);
-static inline int deauth_getidbyname(char *name);
+static inline bool is_good_deauth_reason(int id);
+static inline char *deauth_reason_getnamebyid(int id);
+static inline int deauth_reason_getidbyname(char *name);
 
 #define UM_DEAUTH_NONE          UM_DEAUTH_NONE
 #define UM_DEAUTH_AUTO          UM_DEAUTH_AUTO
@@ -331,7 +331,7 @@ __update_aging(struct um_user *user, int type, bool debug)
 
     if (debug) {
         debug_aging("update %s aging to %d",
-            flow_type_ops()->getname(type),
+            flow_type_getnamebyid(type),
             __online_aging(user, type));
     }
 }

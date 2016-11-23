@@ -347,9 +347,9 @@ typedef struct {
     os_println("%s%c %-7d %-7d %-7s %-7s %-7s %-15s %s",    \
         #_obj, _idx==os->current?'*':' ',                   \
         _idx, os->firmware[_idx]._obj.error,                \
-        benv_fsm_ops()->getname(os->firmware[_idx]._obj.upgrade),   \
-        benv_fsm_ops()->getname(os->firmware[_idx]._obj.self),      \
-        benv_fsm_ops()->getname(os->firmware[_idx]._obj.other),     \
+        benv_fsm_getnamebyid(os->firmware[_idx]._obj.upgrade),   \
+        benv_fsm_getnamebyid(os->firmware[_idx]._obj.self),      \
+        benv_fsm_getnamebyid(os->firmware[_idx]._obj.other),     \
         benv_version_itoa(&os->firmware[_idx]._obj.version, version_string), \
         os->firmware[_idx]._obj.cookie);                    \
     }while(0)
@@ -1319,7 +1319,7 @@ __benv_check_fsm(benv_ops_t * ops, char *value)
          * clear fsm(to unknow)
          */
         return 0;
-    } else if (benv_fsm_ops()->is_good(benv_fsm_ops()->getid(value))) {
+    } else if (is_good_benv_fsm(benv_fsm_getidbyname(value))) {
         return 0;
     } else {
         debug_error("bad fsm:%s", value);
@@ -1338,7 +1338,7 @@ __benv_show_fsm(benv_ops_t * ops)
 
     __benv_show_header(ops);
 
-    os_println("%s", benv_fsm_ops()->getname(fsm));
+    os_println("%s", benv_fsm_getnamebyid(fsm));
 }
 
 static inline void
@@ -1347,7 +1347,7 @@ __benv_set_fsm(benv_ops_t * ops, char *value)
     uint32 fsm;
 
     if (value[0]) {
-        fsm = benv_fsm_ops()->getid(value);
+        fsm = benv_fsm_getidbyname(value);
     } else {
         fsm = BENV_FSM_UNKNOW;
     }

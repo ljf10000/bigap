@@ -265,23 +265,23 @@ is_nsq_response_heartbeat(nsq_msg_t *msg)
 static inline bool
 is_nsq_response_ok(nsq_msg_t *msg)
 {
-    int error = nsq_error_ops()->getid(msg->body);
+    int error = nsq_error_getidbyname(msg->body);
 
-    return nsq_error_ops()->is_good(error) && NSQ_E_OK==error;
+    return is_good_nsq_error(error) && NSQ_E_OK==error;
 }
 
 static inline bool
 is_nsq_response_error(nsq_msg_t *msg)
 {
-    int error = nsq_error_ops()->getid(msg->body);
+    int error = nsq_error_getidbyname(msg->body);
 
-    return nsq_error_ops()->is_good(error) && NSQ_E_OK!=error;
+    return is_good_nsq_error(error) && NSQ_E_OK!=error;
 }
 
 #define nsq_msg_dump(_msg, _dump) \
     _dump("size=%d, type=%s, timestamp=%llu, attempts=%d, body=%s", \
         (_msg)->size,       \
-        nsq_frame_ops()->getname((_msg)->type), \
+        nsq_frame_getnamebyid((_msg)->type), \
         (_msg)->timestamp,  \
         (_msg)->attempts,   \
         (_msg)->body)       \

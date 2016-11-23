@@ -242,7 +242,7 @@ os_env_init(void)
 static inline char *
 os_env_get(int idx)
 {
-    if (os_env_ops()->is_good(idx)) {
+    if (is_good_os_env(idx)) {
         return __this_env()->env[idx];
     } else {
         return NULL;
@@ -252,7 +252,7 @@ os_env_get(int idx)
 static inline char *
 os_env_set(int idx, char *env)
 {
-    if (os_env_ops()->is_good(idx)) {
+    if (is_good_os_env(idx)) {
         return (__this_env()->env[idx] = env);
     } else {
         return NULL;
@@ -262,7 +262,7 @@ os_env_set(int idx, char *env)
 static inline char *
 os_env_deft(int idx, char *deft)
 {
-    if (os_env_ops()->is_good(idx)) {
+    if (is_good_os_env(idx)) {
         char *env = os_env_get(idx);
         
         if (false==is_good_env(env)) {

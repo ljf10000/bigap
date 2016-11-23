@@ -118,7 +118,7 @@ __set_oem_t(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
     (void)obj;
 
     idx = duk_normalize_index(ctx, idx);
-    js_set_obj_string(ctx, idx, "type",   oem_type_ops()->getname(__oem_type()));
+    js_set_obj_string(ctx, idx, "type",   oem_type_getnamebyid(__oem_type()));
     
 #if 0
     duk_push_object(ctx);

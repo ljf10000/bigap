@@ -77,7 +77,7 @@ pre_handle(nsq_instance_t *instance)
         case NSQ_FSM_CONNECTED: // down
             debug_proto("instance[%s] not support recv @fsm[%s]",
                 instance->name, 
-                nsq_fsm_ops()->getname(instance->fsm));
+                nsq_fsm_getnamebyid(instance->fsm));
 
             return -EPROTO;
     }
@@ -101,7 +101,7 @@ frame_response_handle(nsq_instance_t *instance, time_t now)
         return nsq_NOP(instance);
     }
 
-    instance->error = nsq_error_ops()->getid(msg->body);
+    instance->error = nsq_error_getidbyname(msg->body);
     if (is_valid_nsq_error(instance->error)) {
         return -EPROTO;
     }
@@ -114,7 +114,7 @@ frame_response_handle(nsq_instance_t *instance, time_t now)
         case NSQ_FSM_SUBSCRIBED: // down
             debug_proto("instance[%s] not support recv @fsm[%s]",
                 instance->name, 
-                nsq_fsm_ops()->getname(instance->fsm));
+                nsq_fsm_getnamebyid(instance->fsm));
             
             err = -EPROTO;
 
@@ -149,7 +149,7 @@ frame_message_handle(nsq_instance_t *instance, time_t now)
     if (NSQ_FSM_RUN != instance->fsm) {
         debug_proto("instance[%s] not support recv @fsm[%s]",
             instance->name, 
-            nsq_fsm_ops()->getname(instance->fsm));
+            nsq_fsm_getnamebyid(instance->fsm));
 
         return -EPROTO;
     }
@@ -377,8 +377,8 @@ nsq_recv(nsq_instance_t *instance)
     
     debug_proto("instance[%s] recv frame-%s @%s",
         instance->name, 
-        nsq_frame_ops()->getname(msg->type),
-        nsq_fsm_ops()->getname(instance->fsm));
+        nsq_frame_getnamebyid(msg->type),
+        nsq_fsm_getnamebyid(instance->fsm));
 
     return err;
 }

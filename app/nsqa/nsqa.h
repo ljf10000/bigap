@@ -136,7 +136,7 @@ nsq_instance_t;
 #define NSQ_INSTANCE_JRULE_MAPPER(_) \
     _(offsetof(nsq_instance_t, fsm), fsm, "fsm",        \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(nsq_fsm_ops),         \
+            JRULE_VAR_ENUM(nsq_fsm_ops),                \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, rdy), rdy, "rdy",        \

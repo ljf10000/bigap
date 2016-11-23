@@ -165,7 +165,7 @@ oem_vendor(void)
     static char *vendor;
 
     if (NULL==vendor) {
-        vendor = oem_type_ops()->getname(__oem_type());
+        vendor = oem_type_getnamebyid(__oem_type());
     }
 
     return vendor;

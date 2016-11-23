@@ -164,7 +164,7 @@ enum {
 static inline uint32
 __ak_debug_getbyname(char *name)
 {
-    int idx = ak_DEBUG_ops()->getid(name);
+    int idx = ak_DEBUG_getidbyname(name);
 
     return os_bit(idx);
 }
@@ -174,7 +174,7 @@ __ak_debug_getname(uint32 level)
 {
     int idx = os_bitshift(level);
 
-    return ak_DEBUG_ops()->getname(idx);
+    return ak_DEBUG_getnamebyid(idx);
 }
 
 #if defined(__BOOT__)
@@ -300,9 +300,9 @@ __ak_get_value(char *key, char *value)
     /*
     * not digit string, try sys
     */
-    sys = ak_sys_ops()->getid(key);
+    sys = ak_sys_getidbyname(key);
     
-    if (ak_sys_ops()->is_good(sys)) {
+    if (is_good_ak_sys(sys)) {
         return __ak_sys_value(sys, value);
     } else {
         return __ak_debug_default;
