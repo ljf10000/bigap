@@ -376,7 +376,7 @@ __dir(void)
     if (is_startup) {
         return JSCRIPT_STARTUP;
     }
-    else (SCRIPT_SCOPE_INSTANCE==J.scope) {
+    else if (SCRIPT_SCOPE_INSTANCE==J.scope) {
         static char dir[1+OS_LINE_LEN];
         
         if (false==is_good_str(dir)) {
