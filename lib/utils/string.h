@@ -122,7 +122,7 @@ os_safe_str(const char *s)
 static inline int
 os_strcount(const char *s, int ch)
 {
-    char *p = (char *)s;
+    const char *p = s;
     int count = 0;
 
     while(*p) {
@@ -405,7 +405,7 @@ os_char_is(int ch, char_is_f *is)
 static inline char *
 os_str_skip(const char *s, char_is_f *is)
 {
-    char *p = s;
+    const char *p = s;
 
     while(*p && os_char_is(*p, is)) {
         p++;
