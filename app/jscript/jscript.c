@@ -375,7 +375,20 @@ __dir(void)
 {
     if (is_startup) {
         return JSCRIPT_STARTUP;
-    } else {
+    }
+    else (SCRIPT_SCOPE_INSTANCE==J.scope) {
+        static char dir[1+OS_LINE_LEN];
+        
+        if (false==is_good_str(dir)) {
+            os_saprintf(dir, JSCRIPT_CACHE "/%s/%s/%s",
+                J.instance.name,
+                J.instance.topic,
+                J.instance.channel);
+        }
+
+        return dir;
+    }
+    else {
         return JSCRIPT_CACHE;
     }
 }
