@@ -83,7 +83,7 @@ DECLARE_FAKE_JDEBUGGER;
     _(____ak_debug_trace,       3, "trace"),    \
     _(____ak_debug_init,        4, "init"),     \
     _(____ak_debug_config,      5, "config"),   \
-    _(____ak_debug_lib,         6, "lib"),      \
+    _(____ak_debug_json,        6, "json"),     \
     _(____ak_debug_io,          7, "io"),       \
     _(____ak_debug_timer,       8, "timer"),    \
     _(____ak_debug_timeout,     9, "timeout"),  \
@@ -120,7 +120,7 @@ enum {
     __ak_debug_trace        = os_bit(____ak_debug_trace),
     __ak_debug_init         = os_bit(____ak_debug_init),
     __ak_debug_config       = os_bit(____ak_debug_config),
-    __ak_debug_lib          = os_bit(____ak_debug_lib),
+    __ak_debug_json         = os_bit(____ak_debug_json),
     __ak_debug_io           = os_bit(____ak_debug_io),
     __ak_debug_timer        = os_bit(____ak_debug_timer),
     __ak_debug_timeout      = os_bit(____ak_debug_timeout),
@@ -202,7 +202,7 @@ __ak_debug_getname(uint32 level)
 #define __is_ak_debug_trace     __is_ak_debug(__ak_debug_trace)
 #define __is_ak_debug_init      __is_ak_debug(__ak_debug_init)
 #define __is_ak_debug_config    __is_ak_debug(__ak_debug_config)
-#define __is_ak_debug_lib       __is_ak_debug(__ak_debug_lib)
+#define __is_ak_debug_json      __is_ak_debug(__ak_debug_json)
 #define __is_ak_debug_io        __is_ak_debug(__ak_debug_io)
 #define __is_ak_debug_timer     __is_ak_debug(__ak_debug_timer)
 #define __is_ak_debug_timeout   __is_ak_debug(__ak_debug_timeout)

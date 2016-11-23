@@ -43,32 +43,55 @@ typedef union {
 #ifdef __APP__
 
 #define json_type_end   (1+json_type_string)    // 7
+#define jtype_bits      8
 
-enum {
-    jtype_null      = json_type_null,
-    jtype_bool      = json_type_boolean,
-    jtype_double    = json_type_double,
-    jtype_int       = json_type_int,
-    jtype_object    = json_type_object,
-    jtype_array     = json_type_array,
-    jtype_string    = json_type_string,
-    
-    jtype_i32       = json_type_end,    // 7
-    jtype_u32,                          // 8
-    jtype_f32,                          // 9
-    jtype_i64,                          // 10
-    jtype_u64,                          // 11
-    jtype_f64,                          // 12
-    
-    jtype_enum,                         // 13
-    jtype_time,                         // 14
-    jtype_ip,                           // 15
-    jtype_mac,                          // 16
-    
-    jtype_end,
+#if 1
+/*
+* ENUM: c enum macro
+*
+*/
+#define JTYPE_ENUM_MAPPER(_) \
+    _(jtype_null,   json_type_null,     "null"),    \
+    _(jtype_bool,   json_type_boolean,  "bool"),    \
+    _(jtype_double, json_type_double,   "double"),  \
+    _(jtype_int,    json_type_int,      "int"),     \
+    _(jtype_object, json_type_object,   "object"),  \
+    _(jtype_array,  json_type_array,    "array"),   \
+    _(jtype_string, json_type_string,   "string"),  \
+    _(jtype_i32,    json_type_end+0,    "int32"),   \
+    _(jtype_u32,    json_type_end+1,    "uint32"),  \
+    _(jtype_f32,    json_type_end+2,    "float32"), \
+    _(jtype_i64,    json_type_end+3,    "int64"),   \
+    _(jtype_u64,    json_type_end+4,    "uint64"),  \
+    _(jtype_f64,    json_type_end+5,    "float64"), \
+    _(jtype_enum,   json_type_end+6,    "enum"),    \
+    _(jtype_time,   json_type_end+7,    "time"),    \
+    _(jtype_ip,     json_type_end+8,    "ip"),      \
+    _(jtype_mac,    json_type_end+9,    "mac"),     \
+    /* end */
+DECLARE_ENUM(jtype, JTYPE_ENUM_MAPPER, jtype_end);
 
-    jtype_bits      = 8
-};
+static inline enum_ops_t *jtype_ops_getter(void);
+
+#define jtype_null      jtype_null
+#define jtype_bool      jtype_bool
+#define jtype_double    jtype_double
+#define jtype_int       jtype_int
+#define jtype_object    jtype_object
+#define jtype_array     jtype_array
+#define jtype_string    jtype_string
+#define jtype_i32       jtype_i32
+#define jtype_u32       jtype_u32
+#define jtype_f32       jtype_f32
+#define jtype_i64       jtype_i64
+#define jtype_u64       jtype_u64
+#define jtype_f64       jtype_f64
+#define jtype_enum      jtype_enum
+#define jtype_time      jtype_time
+#define jtype_ip        jtype_ip
+#define jtype_mac       jtype_mac
+#define jtype_end       jtype_end
+#endif
 
 typedef struct {
     char **node;

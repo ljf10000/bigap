@@ -83,48 +83,44 @@ jmap(char *json)
         return -EBADJSON;
     }
 
+
     jval = jobj_get(jobj, "content");
-    if (jval) {
-        if (jtype_string != jobj_type(jval)) {
-            return -EBADJSON;
-        }
-        
-        jinfo.content = jobj_get_string(jval);
-        jinfo.content = b64_decode((byte *)jinfo.content, os_strlen(jinfo.content));
-        if (NULL==jinfo.content) {
-            return -EBASE64;
-        }
+    if (NULL==jval || jtype_string != jobj_type(jval)) {
+        return -EBADJSON;
     }
+    
+    char *content = jobj_get_string(jval);
+    jinfo.content = b64_decode((byte *)content, os_strlen(content));
+    if (NULL==jinfo.content) {
+        return -EBASE64;
+    }
+
 
     jval = jobj_get(jobj, "filename");
-    if (jval) {
+    if (NULL==jval || jtype_string != jobj_type(jval)) {
+        return -EBADJSON;
+    }
+    jinfo.file = jobj_get_string(jval);
+
+
+    jargument = jobj_get(jobj, "argument");
+    if (NULL==jargument || jtype_array != jobj_type(jargument)) {
+        return -EBADJSON;
+    }
+    
+    count = jarray_length(jargument);
+    jinfo.argv = (char **)os_zalloc((1+count) * sizeof(char *));
+    if (NULL==jinfo.argv) {
+        return -ENOMEM;
+    }
+    
+    for (i=0; i<count; i++) {
+        jval = jarray_get(jargument, i);
         if (jtype_string != jobj_type(jval)) {
             return -EBADJSON;
         }
-        
-        jinfo.file = jobj_get_string(jval);
-    }
 
-    jargument = jobj_get(jobj, "argument");
-    if (jargument) {
-        if (jtype_array != jobj_type(jargument)) {
-            return -EBADJSON;
-        }
-
-        count = jarray_length(jargument);
-        jinfo.argv = (char **)os_zalloc((1+count) * sizeof(char *));
-        if (NULL==jinfo.argv) {
-            return -ENOMEM;
-        }
-
-        for (i=0; i<count; i++) {
-            jval = jarray_get(jargument, i);
-            if (jtype_string != jobj_type(jval)) {
-                return -EBADJSON;
-            }
-
-            jinfo.argv[i] = jobj_get_string(jval);
-        }
+        jinfo.argv[i] = jobj_get_string(jval);
     }
 
     debug_trace("input json=%s", jobj_json(jobj));

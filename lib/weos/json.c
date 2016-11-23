@@ -535,6 +535,8 @@ STATIC int
 __jrule_selfcheck(jrule_t *rule)
 {
     if (false==is_good_jrule_flag(rule->flag)) {
+        debug_json("bad rule[%s], invalid flag:%u", rule->name, rule->flag);
+
         return -EBADRULE;
     }
 
@@ -549,35 +551,53 @@ __jrule_selfcheck(jrule_t *rule)
         case jtype_u64:     // down
         case jtype_f64:
             if (os_hasflag(rule->flag, JRULE_CHECKER) && NULL==rule->serialize.check) {
+                debug_json("bad int rule[%s], flag:%u", rule->name, rule->flag);
+
                 return -EBADRULE;
             }
             
             break;
         case jtype_enum:
             if (NULL==rule->serialize.get_enum_ops) {
+                debug_json("bad enum rule[%s], no-found ops", rule->name);
+
                 return -EBADRULE;
             }
             
             break;
         case jtype_string:
             if (NULL==rule->unserialize.j2o) {
+                debug_json("bad string rule[%s], no-found j2o", rule->name);
+
                 return -EBADRULE;
             }
 
             break;
         case jtype_object:
             if (NULL==rule->deft.get_rules) {
+                debug_json("bad object rule[%s], no-found rules", rule->name);
+
                 return -EBADRULE;
             }
             
             break;
         case jtype_array:
-            if (NULL==rule->serialize.o2j ||
-                NULL==rule->unserialize.j2o ||
-                NULL==rule->deft.get_rules) {
+            if (NULL==rule->serialize.o2j) {
+                debug_json("bad array rule[%s], no-found o2j", rule->name);
+
                 return -EBADRULE;
             }
+            else if (NULL==rule->unserialize.j2os) {
+                debug_json("bad array rule[%s], no-found j2o", rule->name);
 
+                return -EBADRULE;
+            }
+            else if NULL==rule->deft.get_rules) {
+                debug_json("bad array rule[%s], no-found rules", rule->name);
+
+                return -EBADRULE;
+            }
+            
             break;
         case jtype_null: // down
         default:
