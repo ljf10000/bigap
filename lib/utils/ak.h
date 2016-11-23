@@ -610,12 +610,12 @@ __ak_load_line_kv(struct akinfo *info)
 }
 
 static inline mv_t 
-__ak_load_line(char *filename/* not include path */, char *line)
+__ak_load_line(const char *file/* not include path */, char *line)
 {
-    struct akinfo info = AKINFO_INITER(filename, line);
+    struct akinfo info = AKINFO_INITER(file, line);
     int err;
 
-    ak_println("load file(%s) line(%s)", filename, line);
+    ak_println("load file(%s) line(%s)", file, line);
     
     err = __ak_load_line_app(&info);
     if (err<0) {
@@ -653,14 +653,14 @@ __ak_load_line(char *filename/* not include path */, char *line)
 * just handle file "*.key"
 */
 static inline bool 
-__ak_file_filter(char *path, char *filename)
+__ak_file_filter(const char *path, const char *file)
 {
-    char *p = os_strchr(filename, '.');
+    char *p = os_strchr(file, '.');
     
     if (p && os_streq(p, ".key")) {
         return false;
     } else {
-        ak_println("ignore %s", filename);
+        ak_println("ignore %s", file);
         
         return true;
     }

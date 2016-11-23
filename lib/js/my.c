@@ -787,23 +787,23 @@ int js_auto_register(duk_context *ctx)
     char *env = os_strdup(env_gets(ENV_JPATH, js_PATH));
     char *sub;
     
-    bool __filter(char *path, char *filename)
+    bool __filter(const char *path, const char *file)
     {
         /*
         * NOT js file, skip it
         */
-        return false==os_str_is_end_by(filename, ".js");
+        return false==os_str_is_end_by(file, ".js");
     }
     
-    mv_t __handler(char *path, char *filename, os_fscan_line_handle_f *line_handle)
+    mv_t __handler(const char *path, const char *file, os_fscan_line_handle_f *line_handle)
     {
         (void)line_handle;
         
-        char file[1+OS_LINE_LEN] = {0};
+        char filename[1+OS_LINE_LEN] = {0};
 
-        os_saprintf(file, "%s/%s", path, filename);
+        os_saprintf(filename, "%s/%s", path, file);
 
-        int err = js_load_file(ctx, file);
+        int err = js_load_file(ctx, filename);
         if (err<0) {
             return mv2_go(err);
         }
