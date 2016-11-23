@@ -405,7 +405,7 @@ os_char_is(int ch, char_is_f *is)
 static inline char *
 os_str_skip(const char *s, char_is_f *is)
 {
-    const char *p = s;
+    char *p = (char *)s;
 
     while(*p && os_char_is(*p, is)) {
         p++;
