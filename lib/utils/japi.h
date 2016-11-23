@@ -595,7 +595,7 @@ struct jrule_s {
 #define JRULER_END  { .offset = -1 }
 
 #define JRULE_FOREACH(_rule, _rules) \
-    for (_rule=&_rules[0]; _rule->offset >= 0; _rule++)
+    for (_rule=(jrule_t *)&_rules[0]; _rule->offset >= 0; _rule++)
 
 #define JRULE_OBJ_MEMBER_ADDRESS(_rule, _obj) \
     ((char *)(_obj) + (_rule)->offset)

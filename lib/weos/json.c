@@ -505,7 +505,7 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count)
 jrule_t *
 jrule_getbyname(const jrule_t *rules, char *name)
 {
-    const jrule_t *rule;
+    jrule_t *rule;
 
     JRULE_FOREACH(rule, rules) {
         if (os_streq(name, rule->name)) {
@@ -612,7 +612,7 @@ __jrule_selfcheck(const jrule_t *rule)
 int
 jrule_selfcheck(const jrule_t *rules)
 {
-    const jrule_t *rule;
+    jrule_t *rule;
     int err;
     
     JRULE_FOREACH(rule, rules) {
@@ -951,7 +951,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 STATIC int
 jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jrule_t *rule, void *obj, jobj_t jobj))
 {
-    const jrule_t *rule;
+    jrule_t *rule;
     int err;
 
     JRULE_FOREACH(rule, rules) {
