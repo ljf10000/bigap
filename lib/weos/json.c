@@ -587,7 +587,7 @@ __jrule_selfcheck(jrule_t *rule)
 
                 return -EBADRULE;
             }
-            else if (NULL==rule->unserialize.j2os) {
+            else if (NULL==rule->unserialize.j2o) {
                 debug_json("bad array rule[%s], no-found j2o", rule->name);
 
                 return -EBADRULE;
