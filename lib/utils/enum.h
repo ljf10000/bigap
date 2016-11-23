@@ -54,7 +54,7 @@ typedef struct {
     }                               \
                                     \
     static inline char *            \
-    _mod##_string(int id)           \
+    _mod##getnamebyid(int id)       \
     {                               \
         char **array = __##_mod##_strings(); \
                                     \
@@ -62,7 +62,7 @@ typedef struct {
     }                               \
                                     \
     static inline int               \
-    _mod##_idx(char *s)             \
+    _mod##getidbyname(char *s)      \
     {                               \
         char **array = __##_mod##_strings(); \
                                     \
@@ -75,8 +75,8 @@ typedef struct {
         static enum_ops_t ops = {   \
             .end = _end,            \
             .is_good = is_good_##_mod, \
-            .getname = _mod##_string, \
-            .getid = _mod##_idx,    \
+            .getname = _mod##getnamebyid, \
+            .getid = _mod##getidbyname, \
         };                          \
                                     \
         return &ops;                \
