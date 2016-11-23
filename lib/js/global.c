@@ -15,25 +15,25 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "js.h"
 
 static int
-eval_file(char *filename, void *user)
+eval_file(const char *file, void *user)
 {
     duk_context *ctx = (duk_context *)user;
 
-    duk_push_string_file(ctx, filename);
+    duk_push_string_file(ctx, file);
 
-    debug_js("eval %s OK.", filename);
+    debug_js("eval %s OK.", file);
 
     return 0;
 }
 
 static int
-search_env(duk_context *ctx, char *file, char *env, char *deft)
+search_env(duk_context *ctx, const char *file, char *env, char *deft)
 {
     return os_fsearch_paths(file, env_gets(env, deft), eval_file, ctx);
 }
 
 static int
-search_CURRENT(duk_context *ctx, char *file)
+search_CURRENT(duk_context *ctx, const char *file)
 {
     char current[1+OS_LINE_LEN] = {0};
     
@@ -43,13 +43,13 @@ search_CURRENT(duk_context *ctx, char *file)
 }
 
 static int
-search_JCACHE(duk_context *ctx, char *file)
+search_JCACHE(duk_context *ctx, const char *file)
 {
     return os_fsearch_paths(file, js_priv(ctx)->cache, eval_file, ctx);
 }
 
 static int
-search_JPATH(duk_context *ctx, char *file)
+search_JPATH(duk_context *ctx, const char *file)
 {
     return search_env(ctx, file, ENV_JPATH, js_PATH);
 }

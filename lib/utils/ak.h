@@ -560,7 +560,7 @@ struct akinfo {
     uint32 v;
 };
 #define AKINFO_INITER(_filename, _line) {  \
-    .filename = _filename, \
+    .filename = (char *)_filename, \
     .line = _line, \
 }
 

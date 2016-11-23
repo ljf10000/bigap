@@ -207,6 +207,7 @@ typedef struct {
     char *url;
     char *md5;
     char *board;
+    char *from;
     char *id;
     char *reply;
     char *script;
