@@ -551,7 +551,7 @@ __jrule_selfcheck(jrule_t *rule)
         case jtype_u64:     // down
         case jtype_f64:
             if (os_hasflag(rule->flag, JRULE_CHECKER) && NULL==rule->serialize.check) {
-                debug_json("bad int rule[%s], flag:%u", rule->name, rule->flag);
+                debug_json("bad %s rule[%s], flag:%u", jtype_getnamebyid(rule->type), rule->name, rule->flag);
 
                 return -EBADRULE;
             }
@@ -601,6 +601,8 @@ __jrule_selfcheck(jrule_t *rule)
             break;
         case jtype_null: // down
         default:
+            debug_json("not support %s rule[%s]", jtype_getnamebyid(rule->type), rule->name);
+            
             return -EBADRULE;
     }
 
@@ -686,6 +688,8 @@ __jrule_o2j(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_null: // down
         default:
+            debug_json("not support %s rule[%s]", jtype_getnamebyid(rule->type), rule->name);
+            
             return -EBADRULE;
     }
 
@@ -717,20 +721,22 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
     int err;
     
     if (os_hasflag(rule->flag, JRULE_DROP)) {
-        debug_trace("drop json key %s", rule->name);
+        debug_json("drop json key %s", rule->name);
         
         jobj_del(jobj, rule->name);
         
         return 0;
     }
     else if (os_hasflag(rule->flag, JRULE_MUST)) {
-        debug_trace("no-found json key %s", rule->name);
+        debug_json("no-found json key %s", rule->name);
         
         return -ENOEXIST;
     }
     else if (os_hasflag(rule->flag, JRULE_CHECKER)) {
         err = (*rule->serialize.check)(rule, jobj);
         if (err<0) {
+            debug_json("rule[%s] check error %d", rule->name, err);
+            
             return 0;
         }
     }
@@ -741,6 +747,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
     switch(rule->type) {
         case jtype_bool:
             if (jtype_bool != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                
                 return -EBADJSON;
             }
 
@@ -751,6 +762,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_int:
             if (jtype_int != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -759,6 +775,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_double:
             if (jtype_double != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -767,6 +788,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_i32:
             if (jtype_int != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -775,6 +801,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_u32:
             if (jtype_int != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -783,6 +814,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_f32:
             if (jtype_double != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -791,6 +827,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_i64:
             if (jtype_int != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -799,6 +840,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_u64:
             if (jtype_int != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -807,6 +853,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_f64:
             if (jtype_double != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -815,6 +866,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_enum: {
             if (jtype_string != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -831,6 +887,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
         }   break;
         case jtype_string:
             if (jtype_string != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -844,6 +905,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_object:
             if (jtype_object != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
@@ -857,6 +923,11 @@ __jrule_j2o(jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_array:
             if (jtype_array != jtype) {
+                debug_json("rule[%s] type[%s] not match json type[%s]", 
+                    rule->name, 
+                    jtype_getnamebyid(rule->type), 
+                    jtype_getnamebyid(jtype));
+                    
                 return -EBADJSON;
             }
             
