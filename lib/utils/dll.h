@@ -17,7 +17,7 @@
     /* end */
 DECLARE_ENUM(libval_type, LIBVAL_TYPE_ENUM_MAPPER, LIBVAL_END);
 
-static inline enum_ops_t *libval_type_ops_getter(void);
+static inline enum_ops_t *libval_type_ops(void);
 
 #define LIBVAL_F32  LIBVAL_F32
 #define LIBVAL_I32  LIBVAL_I32

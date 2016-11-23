@@ -21,7 +21,7 @@
     /* end */
 DECLARE_ENUM(loop_type, LOOP_TYPE_ENUM_MAPPER, LOOP_TYPE_END);
 
-static inline enum_ops_t *loop_type_ops_getter(void);
+static inline enum_ops_t *loop_type_ops(void);
 
 #define LOOP_TYPE_INOTIFY   LOOP_TYPE_INOTIFY
 #define LOOP_TYPE_SIGNAL    LOOP_TYPE_SIGNAL

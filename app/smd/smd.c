@@ -155,7 +155,7 @@ __set_time(struct sm *entry, char *prefix)
     debug_trace("%s: set entry(%s) state(%s) time(%d)",
         prefix,
         entry->name, 
-        sm_state_ops_getter()->getname(entry->state),
+        sm_state_ops()->getname(entry->state),
         entry->time[entry->state]);
 }
 
@@ -166,8 +166,8 @@ __change(struct sm *entry, int state, int normal, int deamon, char *prefix)
         debug_trace("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d), deamon pid(%d==>%d)",
             prefix,
             entry->name, 
-            sm_state_ops_getter()->getname(entry->state),
-            sm_state_ops_getter()->getname(state),
+            sm_state_ops()->getname(entry->state),
+            sm_state_ops()->getname(state),
             entry->normal, normal,
             entry->deamon, deamon);
         
@@ -178,8 +178,8 @@ __change(struct sm *entry, int state, int normal, int deamon, char *prefix)
         debug_trace("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d)",
             prefix,
             entry->name, 
-            sm_state_ops_getter()->getname(entry->state),
-            sm_state_ops_getter()->getname(state),
+            sm_state_ops()->getname(entry->state),
+            sm_state_ops()->getname(state),
             entry->normal, normal);
         
         entry->normal = normal;
@@ -189,8 +189,8 @@ __change(struct sm *entry, int state, int normal, int deamon, char *prefix)
         debug_trace("%s: set entry(%s) state(%s==>%s), deamon pid(%d==>%d)",
             prefix,
             entry->name, 
-            sm_state_ops_getter()->getname(entry->state),
-            sm_state_ops_getter()->getname(state),
+            sm_state_ops()->getname(entry->state),
+            sm_state_ops()->getname(state),
             entry->deamon, deamon);
         
         entry->deamon = deamon;
@@ -326,7 +326,7 @@ __kill(struct sm *entry)
                     "normal",   entry->normal,
                     "deamon",   entry->deamon,
                     "forks",    entry->forks,
-                    "state",    sm_state_ops_getter()->getname(entry->state)));
+                    "state",    sm_state_ops()->getname(entry->state)));
                     
     __die(entry, "in kill");
 
@@ -347,14 +347,14 @@ __wait_error(struct sm *entry)
     
     os_snprintf(prefix, OS_LINE_SHORT, "int wait %s(%s)",
         __type(entry),
-        sm_state_ops_getter()->getname(entry->state));
+        sm_state_ops()->getname(entry->state));
     
     jerror("%o", 
         "wait-error", jobj_oprintf("%s%d%d%s",
                             "name",     entry->name,
                             __type(entry),  pid,
                             "forks",    entry->forks,
-                            "state",    sm_state_ops_getter()->getname(entry->state)));
+                            "state",    sm_state_ops()->getname(entry->state)));
 
     __kill_deamon(entry);
     __run(entry, prefix);
@@ -375,7 +375,7 @@ __wait_ok(struct sm *entry)
     
     os_snprintf(prefix, OS_LINE_SHORT, "int wait %s(%s)",
         __type(entry),
-        sm_state_ops_getter()->getname(entry->state));
+        sm_state_ops()->getname(entry->state));
 
     if (os_pid_exist(pid)) {
         __change(entry, SM_STATE_RUN, normal, deamon, prefix);
@@ -385,7 +385,7 @@ __wait_ok(struct sm *entry)
                                     "name",     entry->name,
                                     __type(entry),  pid,
                                     "forks",    entry->forks,
-                                    "state",    sm_state_ops_getter()->getname(entry->state)));
+                                    "state",    sm_state_ops()->getname(entry->state)));
 
         __kill_deamon(entry);
         __die(entry, prefix);
@@ -411,7 +411,7 @@ __wait_son(int pid)
                             "name",     entry->name,
                             "normal",   entry->normal,
                             "forks",    entry->forks,
-                            "state",    sm_state_ops_getter()->getname(entry->state)));
+                            "state",    sm_state_ops()->getname(entry->state)));
         char *prefix = "in wait son(normal)";
         
         __die(entry, prefix);
@@ -669,7 +669,7 @@ show(struct sm *entry)
         entry->normal,
         entry->deamon,
         entry->forks,
-        sm_state_ops_getter()->getname(entry->state),
+        sm_state_ops()->getname(entry->state),
         entry->command);
 }
 

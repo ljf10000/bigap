@@ -351,20 +351,20 @@ nsqi_fsm(nsq_instance_t *instance, int fsm)
 {
     int old = instance->fsm;
     
-    if (nsq_fsm_ops_getter()->is_good(fsm)) {
+    if (nsq_fsm_ops()->is_good(fsm)) {
         instance->fsm = fsm;
         instance->fsm_time = time(NULL);
         
         debug_entry("change instance(%s)'fsm from %s to %s",
             instance->name,
-            nsq_fsm_ops_getter()->getname(old),
-            nsq_fsm_ops_getter()->getname(fsm));
+            nsq_fsm_ops()->getname(old),
+            nsq_fsm_ops()->getname(fsm));
 
         return 0;
     } else {
         debug_error("try change instance(%s)'fsm from %s to invalid %d",
             instance->name,
-            nsq_fsm_ops_getter()->getname(old),
+            nsq_fsm_ops()->getname(old),
             fsm);
 
         return -EBADFSM;

@@ -64,7 +64,7 @@ DECLARE_ENUM(script_type, SCRIPT_TYPE_ENUM_MAPPER, SCRIPT_TYPE_END);
 #define SCRIPT_TYPE_SH      SCRIPT_TYPE_SH
 #define SCRIPT_TYPE_END     SCRIPT_TYPE_END
 
-static inline enum_ops_t *script_type_ops_getter(void);
+static inline enum_ops_t *script_type_ops(void);
 #endif
     
 #if 1
@@ -78,7 +78,7 @@ DECLARE_ENUM(script_run, SCRIPT_RUN_ENUM_MAPPER, SCRIPT_RUN_END);
 #define SCRIPT_RUN_NEXT     SCRIPT_RUN_NEXT
 #define SCRIPT_RUN_END      SCRIPT_RUN_END
 
-static inline enum_ops_t *script_run_ops_getter(void);
+static inline enum_ops_t *script_run_ops(void);
 #endif
     
 #if 1
@@ -94,7 +94,7 @@ DECLARE_ENUM(script_cache, SCRIPT_CACHE_ENUM_MAPPER, SCRIPT_CACHE_END);
 #define SCRIPT_CACHE_FLASH      SCRIPT_CACHE_FLASH
 #define SCRIPT_CACHE_END        SCRIPT_CACHE_END
 
-static inline enum_ops_t *script_cache_ops_getter(void);
+static inline enum_ops_t *script_cache_ops(void);
 #endif
     
 #if 1
@@ -108,7 +108,7 @@ DECLARE_ENUM(script_scope, SCRIPT_SCOPE_ENUM_MAPPER, SCRIPT_SCOPE_END);
 #define SCRIPT_SCOPE_INSTANCE   SCRIPT_SCOPE_INSTANCE
 #define SCRIPT_SCOPE_END        SCRIPT_SCOPE_END
 
-static inline enum_ops_t *script_scope_ops_getter(void);
+static inline enum_ops_t *script_scope_ops(void);
 #endif
 
 typedef struct {

@@ -13,7 +13,7 @@
     /* end */
 DECLARE_ENUM(xxx, XXX_ENUM_MAPPER, KEY_END);
 
-static inline enum_ops_t *xxx_ops_getter(void);
+static inline enum_ops_t *xxx_ops(void);
 
 #define KEY_A       KEY_A
 #define KEY_B       KEY_B
@@ -70,7 +70,7 @@ typedef struct {
     }                               \
                                     \
     static inline enum_ops_t *      \
-    _mod##_ops_getter(void)         \
+    _mod##_ops(void)                \
     {                               \
         static enum_ops_t ops = {   \
             .end = _end,            \

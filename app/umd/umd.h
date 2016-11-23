@@ -71,7 +71,7 @@
     /* end */
 DECLARE_ENUM(user_auto, UM_AUTO_ENUM_MAPPER, UM_AUTO_END);
 
-static inline enum_ops_t *user_auto_ops_getter(void);
+static inline enum_ops_t *user_auto_ops(void);
 
 #define UM_AUTO_NONE    UM_AUTO_NONE
 #define UM_AUTO_BIND    UM_AUTO_BIND
@@ -93,7 +93,7 @@ static inline enum_ops_t *user_auto_ops_getter(void);
     /* end */
 DECLARE_ENUM(user_state, UM_STATE_ENUM_MAPPER, UM_STATE_END);
 
-static inline enum_ops_t *user_state_ops_getter(void);
+static inline enum_ops_t *user_state_ops(void);
 
 #define UM_STATE_NONE   UM_STATE_NONE
 #define UM_STATE_BIND   UM_STATE_BIND
@@ -133,7 +133,7 @@ static inline enum_ops_t *user_state_ops_getter(void);
     /* end */
 DECLARE_ENUM(deauth_reason, UM_DEAUTH_ENUM_MAPPER, UM_DEAUTH_END);
 
-static inline enum_ops_t *deauth_reason_ops_getter(void);
+static inline enum_ops_t *deauth_reason_ops(void);
 
 #define UM_DEAUTH_NONE          UM_DEAUTH_NONE
 #define UM_DEAUTH_AUTO          UM_DEAUTH_AUTO
@@ -159,7 +159,7 @@ is_valid_deauth_reason(int reason)
     /* end */
 DECLARE_ENUM(flow_type, UM_FLOW_TYPE_ENUM_MAPPER, um_flow_type_end);
 
-static inline enum_ops_t *flow_type_ops_getter(void);
+static inline enum_ops_t *flow_type_ops(void);
 
 #define um_flow_type_lan    um_flow_type_lan
 #define um_flow_type_wan    um_flow_type_wan
@@ -174,7 +174,7 @@ static inline enum_ops_t *flow_type_ops_getter(void);
     /* end */
 DECLARE_ENUM(flow_dir, UM_FLOW_DIR_ENUM_MAPPER, um_flow_dir_end);
 
-static inline enum_ops_t *flow_dir_ops_getter(void);
+static inline enum_ops_t *flow_dir_ops(void);
 
 #define um_flow_dir_up      um_flow_dir_up
 #define um_flow_dir_down    um_flow_dir_down
@@ -316,7 +316,7 @@ __update_aging(struct um_user *user, int type, bool debug)
 
     if (debug) {
         debug_aging("update %s aging to %d",
-            flow_type_ops_getter()->getname(type),
+            flow_type_ops()->getname(type),
             __online_aging(user, type));
     }
 }
@@ -360,7 +360,7 @@ struct um_intf {
     /* end */
 DECLARE_ENUM(forward_mode, UM_FORWARD_MODE_ENUM_MAPPER, um_forward_mode_end);
 
-static inline enum_ops_t *forward_mode_ops_getter(void);
+static inline enum_ops_t *forward_mode_ops(void);
 
 #define um_forward_mode_br  um_forward_mode_br
 #define um_forward_mode_rt  um_forward_mode_rt
@@ -506,7 +506,7 @@ struct vlan_header {
     /* end */
 DECLARE_ENUM(pkt_type, UM_PKT_TYPE_ENUM_MAPPER, um_pkt_type_end);
 
-static inline enum_ops_t *pkt_type_ops_getter(void);
+static inline enum_ops_t *pkt_type_ops(void);
 
 #define um_pkt_type_eth     um_pkt_type_eth
 #define um_pkt_type_vlan    um_pkt_type_vlan
@@ -522,7 +522,7 @@ static inline enum_ops_t *pkt_type_ops_getter(void);
     /* end */
 DECLARE_ENUM(pkt_check, UM_PKT_CHECK_ENUM_MAPPER, um_pkt_check_end);
 
-static inline enum_ops_t *pkt_check_ops_getter(void);
+static inline enum_ops_t *pkt_check_ops(void);
 
 #define um_pkt_check_good   um_pkt_check_good
 #define um_pkt_check_bad    um_pkt_check_bad

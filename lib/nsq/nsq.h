@@ -94,7 +94,7 @@ enum {
     /* end */
 DECLARE_ENUM(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
 
-static inline enum_ops_t *nsq_fsm_ops_getter(void);
+static inline enum_ops_t *nsq_fsm_ops(void);
 
 #define NSQ_FSM_INIT            NSQ_FSM_INIT
 #define NSQ_FSM_RESOLVED        NSQ_FSM_RESOLVED
@@ -122,7 +122,7 @@ static inline enum_ops_t *nsq_fsm_ops_getter(void);
     /* end */
 DECLARE_ENUM(nsq_auth, NSQ_AUTH_ENUM_MAPPER, NSQ_AUTH_END);
 
-static inline enum_ops_t *nsq_auth_ops_getter(void);
+static inline enum_ops_t *nsq_auth_ops(void);
 
 #define NSQ_AUTH_IDENTIFY           NSQ_AUTH_IDENTIFY
 #define NSQ_AUTH_IDENTIFY_URL       NSQ_AUTH_IDENTIFY_URL
@@ -166,7 +166,7 @@ static inline enum_ops_t *nsq_auth_ops_getter(void);
     /* end */
 DECLARE_ENUM(nsq_error, NSQ_ERROR_ENUM_MAPPER, NSQ_E_END);
 
-static inline enum_ops_t *nsq_error_ops_getter(void);
+static inline enum_ops_t *nsq_error_ops(void);
 
 static inline bool is_valid_nsq_error(int id)
 {
@@ -200,7 +200,7 @@ static inline bool is_valid_nsq_error(int id)
     /* end */
 DECLARE_ENUM(nsq_frame, NSQ_FRAME_ENUM_MAPPER, NSQ_FRAME_END);
 
-static inline enum_ops_t *nsq_frame_ops_getter(void);
+static inline enum_ops_t *nsq_frame_ops(void);
 
 #define NSQ_FRAME_RESPONSE  NSQ_FRAME_RESPONSE
 #define NSQ_FRAME_ERROR     NSQ_FRAME_ERROR
@@ -253,23 +253,23 @@ is_nsq_response_heartbeat(nsq_msg_t *msg)
 static inline bool
 is_nsq_response_ok(nsq_msg_t *msg)
 {
-    int error = nsq_error_ops_getter()->getid(msg->body);
+    int error = nsq_error_ops()->getid(msg->body);
 
-    return nsq_error_ops_getter()->is_good(error) && NSQ_E_OK==error;
+    return nsq_error_ops()->is_good(error) && NSQ_E_OK==error;
 }
 
 static inline bool
 is_nsq_response_error(nsq_msg_t *msg)
 {
-    int error = nsq_error_ops_getter()->getid(msg->body);
+    int error = nsq_error_ops()->getid(msg->body);
 
-    return nsq_error_ops_getter()->is_good(error) && NSQ_E_OK!=error;
+    return nsq_error_ops()->is_good(error) && NSQ_E_OK!=error;
 }
 
 #define nsq_msg_dump(_msg, _dump) \
     _dump("size=%d, type=%s, timestamp=%llu, attempts=%d, body=%s", \
         (_msg)->size,       \
-        nsq_frame_ops_getter()->getname((_msg)->type), \
+        nsq_frame_ops()->getname((_msg)->type), \
         (_msg)->timestamp,  \
         (_msg)->attempts,   \
         (_msg)->body)       \

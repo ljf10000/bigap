@@ -111,7 +111,7 @@ DECLARE_FAKE_JDEBUGGER;
 
 DECLARE_ENUM(ak_DEBUG, AK_DEBUG_ENUM_MAPPER, ____ak_debug_end);
 
-static inline enum_ops_t *ak_DEBUG_ops_getter(void);
+static inline enum_ops_t *ak_DEBUG_ops(void);
 
 enum {
     __ak_debug_ok           = os_bit(____ak_debug_ok),
@@ -161,7 +161,7 @@ enum {
 static inline uint32
 __ak_debug_getbyname(char *name)
 {
-    int idx = ak_DEBUG_ops_getter()->getid(name);
+    int idx = ak_DEBUG_ops()->getid(name);
 
     return os_bit(idx);
 }
@@ -171,7 +171,7 @@ __ak_debug_getname(uint32 level)
 {
     int idx = os_bitshift(level);
 
-    return ak_DEBUG_ops_getter()->getname(idx);
+    return ak_DEBUG_ops()->getname(idx);
 }
 
 #if defined(__BOOT__)
@@ -228,7 +228,7 @@ __ak_debug_getname(uint32 level)
     /* end */
 DECLARE_ENUM(ak_sys, AK_SYS_ENUM_MAPPER, __AK_SYS_END);
 
-static inline enum_ops_t *ak_sys_ops_getter(void);
+static inline enum_ops_t *ak_sys_ops(void);
 
 #define __AK_SYS_DEBUG  __AK_SYS_DEBUG
 #define __AK_SYS_JDEBUG __AK_SYS_JDEBUG
@@ -294,9 +294,9 @@ __ak_get_value(char *key, char *value)
     /*
     * not digit string, try sys
     */
-    sys = ak_sys_ops_getter()->getid(key);
+    sys = ak_sys_ops()->getid(key);
     
-    if (ak_sys_ops_getter()->is_good(sys)) {
+    if (ak_sys_ops()->is_good(sys)) {
         return __ak_sys_value(sys, value);
     } else {
         return __ak_debug_default;

@@ -9,7 +9,7 @@
     /* end */
 DECLARE_ENUM(string_type, STRING_TYPE_ENUM_MAPPER, STRING_T_END);
 
-static inline enum_ops_t *string_ops_getter(void);
+static inline enum_ops_t *string_ops(void);
 
 #define STRING_T_GLOBAL     STRING_T_GLOBAL
 #define STRING_T_CONST      STRING_T_CONST

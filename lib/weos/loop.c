@@ -160,7 +160,7 @@ static loop_watcher_t *
 __loop_watcher_add(loop_t *loop, int fd, int type, void *cb, void *user)
 {
     int err;
-    char *watchname = loop_type_ops_getter()->getname(type);
+    char *watchname = loop_type_ops()->getname(type);
     
     __loop_init(loop);
     
@@ -422,7 +422,7 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev, time_t now)
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-    else if (false==loop_type_ops_getter()->is_good(watcher->type)) {
+    else if (false==loop_type_ops()->is_good(watcher->type)) {
         return -EBADFD;
     }
     else {

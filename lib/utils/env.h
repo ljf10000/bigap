@@ -186,7 +186,7 @@ env_geti(char *envname, int deft)
     /* end */
 DECLARE_ENUM(os_env, OS_ENV_ENUM_MAPPER, OS_ENV_END);
 
-static inline enum_ops_t *os_env_ops_getter(void);
+static inline enum_ops_t *os_env_ops(void);
 
 #define ENV_TIMEOUT     ENV_TIMEOUT
 #define ENV_INTERVAL    ENV_INTERVAL
@@ -239,7 +239,7 @@ os_env_init(void)
 static inline char *
 os_env_get(int idx)
 {
-    if (os_env_ops_getter()->is_good(idx)) {
+    if (os_env_ops()->is_good(idx)) {
         return __this_env()->env[idx];
     } else {
         return NULL;
@@ -249,7 +249,7 @@ os_env_get(int idx)
 static inline char *
 os_env_set(int idx, char *env)
 {
-    if (os_env_ops_getter()->is_good(idx)) {
+    if (os_env_ops()->is_good(idx)) {
         return (__this_env()->env[idx] = env);
     } else {
         return NULL;
@@ -259,7 +259,7 @@ os_env_set(int idx, char *env)
 static inline char *
 os_env_deft(int idx, char *deft)
 {
-    if (os_env_ops_getter()->is_good(idx)) {
+    if (os_env_ops()->is_good(idx)) {
         char *env = os_env_get(idx);
         
         if (false==is_good_env(env)) {

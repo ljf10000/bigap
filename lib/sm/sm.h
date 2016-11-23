@@ -39,7 +39,7 @@
     /* end */
 DECLARE_ENUM(sm_state, SM_STATE_ENUM_MAPPER, SM_STATE_END);
 
-static inline enum_ops_t *sm_state_ops_getter(void);
+static inline enum_ops_t *sm_state_ops(void);
 
 #define SM_STATE_INIT   SM_STATE_INIT
 #define SM_STATE_FORK   SM_STATE_FORK
