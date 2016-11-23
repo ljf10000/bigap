@@ -22,6 +22,9 @@
 DECLARE_ENUM(loop_type, LOOP_TYPE_ENUM_MAPPER, LOOP_TYPE_END);
 
 static inline enum_ops_t *loop_type_ops(void);
+static inline bool is_good_loop_type(int id);
+static inline char *loop_type_getnamebyid(int id);
+static inline int loop_type_getidbyname(char *name);
 
 #define LOOP_TYPE_INOTIFY   LOOP_TYPE_INOTIFY
 #define LOOP_TYPE_SIGNAL    LOOP_TYPE_SIGNAL

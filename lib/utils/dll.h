@@ -18,6 +18,9 @@
 DECLARE_ENUM(libval_type, LIBVAL_TYPE_ENUM_MAPPER, LIBVAL_END);
 
 static inline enum_ops_t *libval_type_ops(void);
+static inline bool is_good_libval_type(int id);
+static inline char *libval_type_getnamebyid(int id);
+static inline int libval_type_getidbyname(char *name);
 
 #define LIBVAL_F32  LIBVAL_F32
 #define LIBVAL_I32  LIBVAL_I32

@@ -26,6 +26,9 @@ enum {
 DECLARE_ENUM(blob_type, BLOB_TYPE_ENUM_MAPPER, BLOB_T_END);
 
 static inline enum_ops_t *blob_type_ops(void);
+static inline bool is_good_blob_type(int id);
+static inline char *blob_type_getnamebyid(int id);
+static inline int blob_type_getidbyname(char *name);
 
 #define BLOB_T_OBJECT   BLOB_T_OBJECT
 #define BLOB_T_ARRAY    BLOB_T_ARRAY

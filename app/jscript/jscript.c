@@ -54,7 +54,7 @@ if content:exist, filename:exist, then
 }
 */
 #if 1
-#define SCRIPT_TYPE_ENUM_MAPPER(_)      \
+#define SCRIPT_TYPE_ENUM_MAPPER(_)  \
     _(SCRIPT_TYPE_JS,   0,  "js"),  \
     _(SCRIPT_TYPE_SH,   1,  "sh"),  \
     /* end */
@@ -65,10 +65,13 @@ DECLARE_ENUM(script_type, SCRIPT_TYPE_ENUM_MAPPER, SCRIPT_TYPE_END);
 #define SCRIPT_TYPE_END     SCRIPT_TYPE_END
 
 static inline enum_ops_t *script_type_ops(void);
+static inline bool is_good_script_type(int id);
+static inline char *script_type_getnamebyid(int id);
+static inline int script_type_getidbyname(char *name);
 #endif
     
 #if 1
-#define SCRIPT_RUN_ENUM_MAPPER(_)           \
+#define SCRIPT_RUN_ENUM_MAPPER(_)       \
     _(SCRIPT_RUN_THIS,  0,  "this"),    \
     _(SCRIPT_RUN_NEXT,  1,  "next"),    \
     /* end */
@@ -79,6 +82,9 @@ DECLARE_ENUM(script_run, SCRIPT_RUN_ENUM_MAPPER, SCRIPT_RUN_END);
 #define SCRIPT_RUN_END      SCRIPT_RUN_END
 
 static inline enum_ops_t *script_run_ops(void);
+static inline bool is_good_script_run(int id);
+static inline char *script_run_getnamebyid(int id);
+static inline int script_run_getidbyname(char *name);
 #endif
     
 #if 1
@@ -95,6 +101,9 @@ DECLARE_ENUM(script_cache, SCRIPT_CACHE_ENUM_MAPPER, SCRIPT_CACHE_END);
 #define SCRIPT_CACHE_END        SCRIPT_CACHE_END
 
 static inline enum_ops_t *script_cache_ops(void);
+static inline bool is_good_script_cache(int id);
+static inline char *script_cache_getnamebyid(int id);
+static inline int script_cache_getidbyname(char *name);
 #endif
     
 #if 1
@@ -109,6 +118,9 @@ DECLARE_ENUM(script_scope, SCRIPT_SCOPE_ENUM_MAPPER, SCRIPT_SCOPE_END);
 #define SCRIPT_SCOPE_END        SCRIPT_SCOPE_END
 
 static inline enum_ops_t *script_scope_ops(void);
+static inline bool is_good_script_scope(int id);
+static inline char *script_scope_getnamebyid(int id);
+static inline int script_scope_getidbyname(char *name);
 #endif
 
 typedef struct {

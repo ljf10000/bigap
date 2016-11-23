@@ -133,6 +133,9 @@ typedef struct {
 DECLARE_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
 
 static inline enum_ops_t *oem_type_ops(void);
+static inline bool is_good_oem_type(int id);
+static inline char *oem_type_getnamebyid(int id);
+static inline int oem_type_getidbyname(char *name);
 
 #define OEM_T_DEFT  OEM_T_DEFT
 #define OEM_T_1     OEM_T_1

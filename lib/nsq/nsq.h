@@ -95,6 +95,9 @@ enum {
 DECLARE_ENUM(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
 
 static inline enum_ops_t *nsq_fsm_ops(void);
+static inline bool is_good_nsq_fsm(int id);
+static inline char *nsq_fsm_getnamebyid(int id);
+static inline int nsq_fsm_getidbyname(char *name);
 
 #define NSQ_FSM_INIT            NSQ_FSM_INIT
 #define NSQ_FSM_RESOLVED        NSQ_FSM_RESOLVED
@@ -123,6 +126,9 @@ static inline enum_ops_t *nsq_fsm_ops(void);
 DECLARE_ENUM(nsq_auth, NSQ_AUTH_ENUM_MAPPER, NSQ_AUTH_END);
 
 static inline enum_ops_t *nsq_auth_ops(void);
+static inline bool is_good_nsq_auth(int id);
+static inline char *nsq_auth_getnamebyid(int id);
+static inline int nsq_auth_getidbyname(char *name);
 
 #define NSQ_AUTH_IDENTIFY           NSQ_AUTH_IDENTIFY
 #define NSQ_AUTH_IDENTIFY_URL       NSQ_AUTH_IDENTIFY_URL
@@ -167,6 +173,9 @@ static inline enum_ops_t *nsq_auth_ops(void);
 DECLARE_ENUM(nsq_error, NSQ_ERROR_ENUM_MAPPER, NSQ_E_END);
 
 static inline enum_ops_t *nsq_error_ops(void);
+static inline bool is_good_nsq_error(int id);
+static inline char *nsq_error_getnamebyid(int id);
+static inline int nsq_error_getidbyname(char *name);
 
 static inline bool is_valid_nsq_error(int id)
 {
@@ -201,6 +210,9 @@ static inline bool is_valid_nsq_error(int id)
 DECLARE_ENUM(nsq_frame, NSQ_FRAME_ENUM_MAPPER, NSQ_FRAME_END);
 
 static inline enum_ops_t *nsq_frame_ops(void);
+static inline bool is_good_nsq_frame(int id);
+static inline char *nsq_frame_getnamebyid(int id);
+static inline int nsq_frame_getidbyname(char *name);
 
 #define NSQ_FRAME_RESPONSE  NSQ_FRAME_RESPONSE
 #define NSQ_FRAME_ERROR     NSQ_FRAME_ERROR

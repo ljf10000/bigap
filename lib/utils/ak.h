@@ -112,6 +112,9 @@ DECLARE_FAKE_JDEBUGGER;
 DECLARE_ENUM(ak_DEBUG, AK_DEBUG_ENUM_MAPPER, ____ak_debug_end);
 
 static inline enum_ops_t *ak_DEBUG_ops(void);
+static inline bool is_good_ak_DEBUG(int id);
+static inline char *ak_DEBUG_getnamebyid(int id);
+static inline int ak_DEBUG_getidbyname(char *name);
 
 enum {
     __ak_debug_ok           = os_bit(____ak_debug_ok),
@@ -229,6 +232,9 @@ __ak_debug_getname(uint32 level)
 DECLARE_ENUM(ak_sys, AK_SYS_ENUM_MAPPER, __AK_SYS_END);
 
 static inline enum_ops_t *ak_sys_ops(void);
+static inline bool is_good_ak_sys(int id);
+static inline char *ak_sys_getnamebyid(int id);
+static inline int ak_sys_getidbyname(char *name);
 
 #define __AK_SYS_DEBUG  __AK_SYS_DEBUG
 #define __AK_SYS_JDEBUG __AK_SYS_JDEBUG

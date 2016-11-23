@@ -14,6 +14,9 @@
 DECLARE_ENUM(xxx, XXX_ENUM_MAPPER, KEY_END);
 
 static inline enum_ops_t *xxx_ops(void);
+static inline bool is_good_xxx(int id);
+static inline char *xxx_getnamebyid(int id);
+static inline int xxx_getidbyname(char *name);
 
 #define KEY_A       KEY_A
 #define KEY_B       KEY_B
