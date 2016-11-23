@@ -592,7 +592,7 @@ __jrule_selfcheck(jrule_t *rule)
 
                 return -EBADRULE;
             }
-            else if NULL==rule->deft.get_rules) {
+            else if (NULL==rule->deft.get_rules) {
                 debug_json("bad array rule[%s], no-found rules", rule->name);
 
                 return -EBADRULE;
