@@ -416,7 +416,7 @@ os_fsearch_paths(const char *file, const char *PATH, int (*handle)(const char *f
 #define os_v_fsetll(_vll, _fmt, _args...)       __os_v_xsetll(f, _vll, _fmt, ##_args)
 
 static inline int
-os_file_open(char *file, int open_mode, int permit)
+os_file_open(const char *file, int open_mode, int permit)
 {
     int deft_permit = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
     int deft_mode   = O_RDONLY | O_CREAT;
@@ -433,7 +433,7 @@ extern int
 __os_file_unlock(int fd);
 
 extern int
-__os_file_lock(char *file, int open_mode, int permit, bool block);
+__os_file_lock(const char *file, int open_mode, int permit, bool block);
 
 extern int __THIS_LOCKFD;
 
@@ -451,7 +451,7 @@ os_file_lock(bool block)
 })
 
 extern int
-os_fgeti_ex(char *file, int max, int min, int deft);
+os_fgeti_ex(const char *file, int max, int min, int deft);
 
 #ifndef SCRIPT_SHELL_SYSTEM
 #define SCRIPT_SHELL_SYSTEM     SCRIPT_FILE("system.script")

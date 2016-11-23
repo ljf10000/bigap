@@ -27,7 +27,7 @@ os_filename(const char *fmt, ...)
 }
 
 char *
-os_basename(char *file)
+os_basename(const char *file)
 {
     int len = strlen(file);
     char *p = file + len - 1;
@@ -44,7 +44,7 @@ os_basename(char *file)
 }
 
 int
-os_fsize(char *file)
+os_fsize(const char *file)
 {
     struct stat st;
     int err;
@@ -515,7 +515,7 @@ error:
 int __THIS_LOCKFD = INVALID_FD;
 
 int
-__os_file_lock(char *file, int open_mode, int permit, bool block)
+__os_file_lock(const char *file, int open_mode, int permit, bool block)
 {
     int fd = os_file_open(file, open_mode, permit);
     if (fd<0) {
@@ -553,7 +553,7 @@ __os_file_unlock(int fd)
 }
 
 int
-os_fgeti_ex(char *file, int max, int min, int deft)
+os_fgeti_ex(const char *file, int max, int min, int deft)
 {
     if (os_file_exist(file)) {
         int val = deft;
