@@ -184,22 +184,22 @@ jscript_t;
 #define JSCRIPT_JRULE_MAPPER(_) \
     _(offsetof(jscript_t, type), type, "type",          \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(script_type_ops_getter),     \
+            JRULE_VAR_ENUM(script_type_ops),            \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_INT(SCRIPT_TYPE_SH)),             \
     _(offsetof(jscript_t, run), run, "run",             \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(script_run_ops_getter),      \
+            JRULE_VAR_ENUM(script_run_ops),             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_INT(SCRIPT_RUN_THIS)),            \
     _(offsetof(jscript_t, cache), cache, "cache",       \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(script_cache_ops_getter),    \
+            JRULE_VAR_ENUM(script_cache_ops),           \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_INT(SCRIPT_CACHE_NONE)),          \
     _(offsetof(jscript_t, scope), scope, "scope",       \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(script_scope_ops_getter),    \
+            JRULE_VAR_ENUM(script_scope_ops),           \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_INT(SCRIPT_SCOPE_GLOBAL)),        \
     _(offsetof(jscript_t, slot), slot, "slot",          \
