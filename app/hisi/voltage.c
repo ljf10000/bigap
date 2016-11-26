@@ -56,27 +56,27 @@ voltage_report(void)
 static void
 voltage_high(void)
 {
-    static char time[1+FULLTIME_STRING_LEN];
+    static char high[1+FULLTIME_STRING_LEN];
 
-    if (0==time[0]) {
-        os_strcpy(time, os_fulltime_string(time(NULL)));
+    if (0==high[0]) {
+        os_strcpy(high, os_fulltime_string(time(NULL)));
     }
     
-    voltage_script("high", time);
+    voltage_script("high", high);
 }
 
 static void
 voltage_low(void)
 {
-    static char time[1+FULLTIME_STRING_LEN];
+    static char low[1+FULLTIME_STRING_LEN];
 
     gpio_write(voltage.gpio_delay, 0);
 
-    if (0==time[0]) {
-        os_strcpy(time, os_fulltime_string(time(NULL)));
+    if (0==low[0]) {
+        os_strcpy(low, os_fulltime_string(time(NULL)));
     }
 
-    voltage_script("low", time);
+    voltage_script("low", low);
 }
 
 static void
