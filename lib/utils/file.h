@@ -179,6 +179,12 @@ os_readfileall(const char *file, char **content, uint32 *filesize, bool bin);
 extern int
 os_writefile(const char *file, void *buf, int size, bool append, bool bin);
 
+static inline int
+os_getfile_byurl(const char *file, const char *url)
+{
+    return os_system("curl %s -o %s --create-dirs", url, file);
+}
+
 extern char *
 __os_readfd(int fd, int block) ;
 
