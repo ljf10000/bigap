@@ -31,26 +31,24 @@ if content:exist, filename:exist, then
 {
     "type": "sh/js",                    #default: sh, just for content
     "content": "content",               #must base64 encode
-    
-    "filename": "filename",
-    "url": "file url for get",          #option with filename
-    "md5": "md5 string",                #must with filename
     "argument": [                       #option
         "arg1",
         "arg2",
         "arg3",
         ...
     ],
+    
+    "filename": "filename",
+    "url": "file url for get",          #option with filename
+    "md5": "md5 string",                #must with filename
 
     "sendtime": "1900-01-01 00:00:00",  #must, the message time, utc format
     "recvtime": "1900-01-01 00:00:00",  #if run:next, append and save it
-    "term": SECOND,                     #option, just for run:this
-    "run": "this/next/every",           #default: this
-                                        #   this: run at this period
-                                        #   next: run at next period
-                                        #   every:run at every period, not include this period
-    "from": "cloud/cache",              #default: cloud
-    "cache": "none/cache/flash",        #default: none
+    "period": SECOND,                   #option, just for run:this
+    "run": "this/next",                 #default: this
+                                        #   this: run at this
+                                        #   next: run at next
+    "cache": "none/cache",              #default: none
     "scope": "global/instance",         #default: instance
 
     "board": "BOARD",                   #option
@@ -67,6 +65,20 @@ if content:exist, filename:exist, then
         
         "cache": "global cache path",   #must exist
         "flash": "global flash path"    #must exist
+    }
+}
+
+{
+    "mac": "MAC",
+    "recvtime": "1900-01-01 00:00:00",
+    "exectime": "1900-01-01 00:00:00",
+    "seq": SEQ-NUMBER,
+    "id": "GUID",
+    "ack": "error/reply",
+    "reply": {
+        "stdout": "STDOUT",
+        "stderr": "STDERR",
+        "errno": error-number
     }
 }
 */
@@ -340,7 +352,11 @@ __remote(void)
 static int
 __exec(void)
 {
-    return os_system(JSCRIPT_EXEC " '%s'", G.json);
+    time_t now = time(NULL);
+
+    if (0==J.term || now < (J.sendtime + J.term)) {
+        return os_system(JSCRIPT_EXEC " '%s'", G.json);
+    }
 }
 
 static char *
@@ -417,14 +433,14 @@ __handle(void)
         * no filename
         *   needn't save, just exec
         */
-        goto exec;
+        return __exec();
     }
     else if (SCRIPT_CACHE_NONE==J.cache) {
         /*
         * no cache
         *   needn't save, just exec
         */
-        goto exec;
+        return __exec();
     }
 
     char *filename = __filename();
@@ -451,12 +467,7 @@ __handle(void)
         }
     }
 
-exec:
-    if (SCRIPT_RUN_THIS==J.run) {
-        return __exec();
-    }
-
-    return 0;
+    return __exec();
 }
 
 static int
