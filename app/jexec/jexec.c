@@ -38,13 +38,15 @@ usage(int error)
 static int 
 jcallback(int error, char *outstring, char *errstring)
 {
+    bool encode = env_geti(OS_ENV(ENCODE), 1);
+    
     os_println( "{"
                     "\"stdout\":\"%s\","
                     "\"stderr\":\"%s\","
                     "\"errno\":%d"
                 "}", 
-        b64_encode(outstring, os_strlen(outstring)),
-        b64_encode(errstring, os_strlen(errstring)),
+        encode?b64_encode(outstring, os_strlen(outstring)):outstring,
+        encode?b64_encode(errstring, os_strlen(errstring)):errstring,
         error);
 
     return 0;
