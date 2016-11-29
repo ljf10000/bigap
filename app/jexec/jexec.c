@@ -44,7 +44,7 @@ jcallback(int error, char *outstring, char *errstring)
                     "\"errno\":%d"
                 "}", 
         b64_encode(outstring, os_strlen(outstring)),
-        b64_encode(errstring, os_strlen(errstring),
+        b64_encode(errstring, os_strlen(errstring)),
         error);
 
     return 0;
