@@ -1,0 +1,25 @@
+{
+    "type": "sh/js",
+    "content": "content",
+    "argument": [],
+    "filename": "filename",
+    "url": "file url for get",
+    "md5": "md5 string",
+    "sendtime": "1900-01-01 00:00:00",
+    "recvtime": "1900-01-01 00:00:00",
+    "period": 300, 
+    "run": "this",
+    "cache": "none",
+    "scope": "instance",
+    "board": "md",
+    "slot": 0,
+    "seq": 100,
+    "id": "GUID",
+    "reply": "COMMAND",
+    "instance": {
+        "name": "default",
+        "topic": "default",
+        "channel":"default",
+        "cache": "/tmp/liujingfei/cache"
+    }
+}
