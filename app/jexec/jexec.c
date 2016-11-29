@@ -36,15 +36,15 @@ usage(int error)
 * not care memory leak
 */
 static int 
-jcallback(int error, char *outsring, char *errstring)
+jcallback(int error, char *outstring, char *errstring)
 {
     os_println( "{"
                     "\"stdout\":\"%s\","
                     "\"stderr\":\"%s\","
                     "\"errno\":%d"
                 "}", 
-        outsring,
-        errstring,
+        b64_encode(outstring, os_strlen(outstring)),
+        b64_encode(errstring, os_strlen(errstring)),
         error);
 
     return 0;
