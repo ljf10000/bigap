@@ -1,5 +1,9 @@
 #!/bin/bash
 
+now() {
+    date '+%F %H:%M:%S'
+}
+
 declare -A ARGS
 declare -A RSH=(
     [type]=sh
@@ -7,22 +11,22 @@ declare -A RSH=(
     [filename]=
     [url]=
     [md5]=
-    [sendtime]=
+    [sendtime]=$(now)
     [period]=300
     [run]=this
     [cache]=none
     [scope]=instance
     [board]='md'
     [slot]=${SLOT}
-    [seq]=
-    [id]=
-    [reply]=
+    [seq]=1000
+    [id]=GUID
+    [reply]="echo reply"
 )
 
 readonly -A RSH_TYPE=(
-    [seq]=number
-    [slot]=number
-    [period]=number
+    [seq]=numbers
+    [slot]=numbers
+    [period]=numbers
 )
 
 declare jrsh
@@ -56,10 +60,6 @@ basemac() {
     ip link show eth0 | grep link | awk '{print $2}'
 }
 
-now() {
-    date '+%F %H:%M:%S'
-}
-
 setup_args() {
     local args=" $@"
     local kv k v
@@ -79,7 +79,7 @@ setup_json() {
         [[ -n "${ARGS[${field}]}" ]] && RSH[${field}]="${ARGS[${field}]}"
 
         [[ -n "${RSH[${field}]}" ]] && {
-            if [[ 'number' == "${RSH_TYPE[${field}]}" ]]; then
+            if [[ 'numbers' == "${RSH_TYPE[${field}]}" ]]; then
                 format='{"%s":%s}'
             else
                 format='{"%s":"%s"}'

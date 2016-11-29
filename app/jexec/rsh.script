@@ -1,0 +1,382 @@
+#!/bin/bash
+
+declare jrsh
+declare jinstance
+PC=${PC:-0}
+
+if ((PC)); then
+    DIR_STARTUP=/tmp/$(whoami)/startup/next
+    DIR_CACHE=/tmp/$(whoami)/cache
+    JEXEC=./jexec
+    SLOT=0
+else
+    DIR_STARTUP=/data/startup/next
+    DIR_CACHE=/tmp/cache
+    JEXEC=jexec
+fi
+
+readonly RSH_SCRIPT=/tmp/script/rsh.script
+readonly RPC_SCRIPT=/tmp/script/rpc.script
+readonly RSH_MUST="sendtime seq id"
+
+readonly -A RSH_TYPE=(
+    [seq]=numbers
+    [slot]=numbers
+    [period]=numbers
+)
+
+readonly -A RSH_ENUM=(
+    [type]="sh js"
+    [cache]="none cache flash"
+    [scope]="global instance topic"
+    [run]="this next"
+)
+
+declare -A RSH=(
+    [type]=sh
+    [content]=
+    [filename]=
+    [url]=
+    [md5]=
+    [sendtime]=
+    [period]=300
+    [run]=this
+    [cache]=none
+    [scope]=instance
+    [board]='md'
+    [slot]=${SLOT}
+    [seq]=
+    [id]=
+    [reply]=
+)
+
+declare -A INSTANCE=(
+    [name]=default
+    [topic]=default
+    [channel]=default
+    [cache]=${DIR_CACHE}
+)
+
+failed() {
+    local err="$1"; shift
+
+    echo "${err}"
+
+    if ((PC)); then
+        echo "$@" >&2
+    fi
+}
+
+infos() {
+    if ((PC)); then
+        echo "$@"
+    fi
+}
+
+#
+#$1:json a
+#$2:json b
+#
+json_merge() {
+	local a="$1"; shift
+	local b="$*"
+
+	if [[ -z "${a}" ]]; then
+		echo "${b}"
+	elif [[ -z "${b}" ]]; then
+		echo "${a}"
+	else
+		echo "${a}" | jq -jc ". * ${b}"
+	fi
+}
+
+basemac() {
+    ip link show eth0 | grep link | awk '{print $2}'
+}
+
+now() {
+    date '+%F %H:%M:%S'
+}
+
+report() {
+    local ack="$1"; shift
+    local json="$*"
+    local jreply
+
+    [[ -z "${RSH[reply]}" ]] && return 0
+
+    jreply=$(printf '{"mac":"%s","recvtime":"%s","exectime":"%s","seq":%d,"id":"%s","ack":"%s"}' \
+        "$(basemac)"        \
+        "${RSH[recvtime]}"  \
+        "$(now)"            \
+        "${RSH[seq]}"       \
+        "${RSH[id]}"        \
+        "${ack}")
+    jreply=$(json_merge "${jreply}" "${json}")
+    #
+    # todo: use message queue
+    #
+    ${RSH[reply]} "${jreply}" >&2
+}
+
+error() {
+    local errno="$1"; shift
+    local stderr="$*"
+    local jreply
+
+    jreply=$(printf '{"reply":{"stderr":"%s","errno":%s}}' \
+        "${stderr}" \
+        "${errno}")
+
+    report error "${jreply}"
+
+    echo ${errno}; return ${errno}
+}
+
+ipc() {
+    local json jreply err stdout stderr
+
+    json=$(${JEXEC} "${jrsh}"); err=$?
+    ((err)) && return $(error ${err} "jexec error")
+
+    jreply=$(printf '{"reply":%s}' "${json}")
+
+    report reply "${jreply}"
+
+    return ${err}
+}
+
+rpc() {
+    if [[ -x "${RPC_SCRIPT}" ]]; then
+        ${RPC_SCRIPT} "${RSH[slot]}" "${jrsh}"
+
+        return $(error 0)
+    else
+        return $(error 1 "no rpc script")
+    fi
+}
+
+get_dir() {
+    local dir
+
+    case ${RSH[scope]} in
+    global)
+        dir=${INSTANCE[cache]}
+        ;;
+    instance|*)
+        dir=${INSTANCE[cache]}/${INSTANCE[name]}
+        ;;
+    esac
+
+    mkdir -p ${dir}
+
+    echo ${dir}
+}
+
+get_file() {
+    echo $(get_dir)/${RSH[filename]}
+}
+
+save_content() {
+    local md5=$(echo ${RSH[content]} | base64 -d | md5sum | awk '{print $1}')
+
+    [[ -z "${RSH[md5]}" || "${md5}" != "${RSH[md5]}" ]] && {
+        echo ${RSH[content]} | base64 -d > $(get_file)
+    }
+
+    error 0
+}
+
+download() {
+    local file="$1"
+    local info
+
+    if [[ -z "${RSH[url]}" ]]; then
+        info="file not exist and no url"; err=1
+    else
+        curl -o ${file} ${RSH[url]} &> /dev/null; err=$?
+        info="download"
+    fi
+
+    error ${err} ${info}
+}
+
+save_file() {
+    #
+    # have content, no filenames
+    #   needn't save
+    #
+    [[ -z "${RSH[filename]}" ]] && return $(error 0)
+    #
+    # have filename, but not cache
+    #   needn't save
+    #
+    [[ "none" == "${RSH[cache]}" ]] && return $(error 0)
+
+    #
+    # have content, just save content
+    #
+    [[ -n "${RSH[content]}" ]] && return $(save_content)
+
+    #
+    # here, just have filename
+    #
+
+    local file=$(get_file)
+    #
+    # file not exist, download it
+    #
+    [[ ! -f "${file}" ]] && return $(download)
+
+    #
+    # file exist, check md5
+    #
+    local md5=$(md5sum ${file} 2>/dev/null | awk '{print $1}')
+
+    #
+    # diff md5, download it
+    #
+    if [[ "${md5}" == "${RSH[md5]}" ]]; then
+        return $(error 0)
+    else
+        return $(download)
+    fi
+}
+
+save_json() {
+    local file=${DIR_STARTUP}/${INSTANCE[name]}.${RSH[seq]}.json
+
+    echo "${json}" > ${file}
+}
+
+handle() {
+    save_file
+
+    case ${RSH[run]} in
+    next)
+        #
+        # just save json for next startup
+        #
+        save_json
+        ;;
+    this|*)
+        ipc
+        ;;
+    esac
+}
+
+check_rsh_must() {
+    local field
+
+    #
+    # must exist
+    #
+    for field in ${RSH_MUST}; do
+        if [[ -z "${RSH[${field}]}" ]]; then
+            return $(error 1 "must ${field}")
+        fi
+    done
+}
+
+check_rsh_enum() {
+    local field var match
+
+    for field in ${!RSH_ENUM[@]}; do
+        match=0
+        for var in ${RSH_ENUM[${field}]}; do
+            [[ "${RSH[${field}]}" == "${var}" ]] && {
+                match=1; break
+            }
+        done
+
+        if ((0==match)); then
+            return $(error 1 "invalid ${field}: ${RSH[${field}]}")
+        fi
+    done
+}
+
+check_rsh() {
+    if [[ -z "${RSH[filename]}" && -z "${RSH[content]}" ]]; then
+        return $(error 1 "no filename and content")
+    fi
+}
+
+setup_rsh() {
+    local var field type err
+
+    for field in ${!RSH[@]}; do
+        type=${RSH_TYPE[${field}]}; type=${type:-strings}
+
+        var=$(echo "${jrsh}" | jq -jc ".${field}|${type}")
+
+        if [[ -n "${var}" ]]; then
+            RSH[${field}]="${var}"
+        fi
+    done
+}
+
+setup_instance() {
+    local var field
+
+    jinstance=$(echo "${jrsh}" | jq -jc '.instance|objects')
+
+    for field in ${!INSTANCE[@]}; do
+        var=$(echo "${jinstance}" | jq -jc ".${field}|strings")
+        [[ -z "${var}" ]] && {
+            return $(error 1 "invalid instance.${field}")
+        }
+
+        INSTANCE[${field}]="${var}"
+    done
+}
+
+main() {
+    local script recvtime err
+
+    jrsh="$*"
+
+    echo ${jrsh} | jq '.|objects' &> /dev/null; err=$?
+    ((err)) && return $(failed 1 "bad input json")
+
+    #
+    # try jrsh's script(not default script)
+    #
+    script=$(echo "${jrsh}" | jq -jc '.script|strings')
+    [[ -n "${script}" && "${script}" != "${RSH_SCRIPT}" && -x "${script}" ]] && {
+        ${script} "${jrsh}"; err=$?
+
+        return $(failed ${err} "not-buildin script")
+    }
+
+    recvtime=$(echo "${jrsh}" | jq -jc '.recvtime|strings')
+    #
+    # have recvtime, it is startup from NEXT
+    #   just run it
+    #
+    [[ -n "${recvtime}" ]] && {
+        ipc; err=$?
+
+        return $(failed ${err} "startup from NEXT")
+    }
+
+    #
+    # first recv from cloud, append recvtime
+    #
+    recvtime=$(printf '{"recvtime":"%s"}' "$(now)")
+    jrsh=$(json_merge "${jrsh}" "${recvtime}")
+
+    setup_instance  || return $(failed 1 "setup instance failed")
+    setup_rsh       || return $(failed 1 "setup rsh failed")
+    check_rsh_must  || return $(failed 1 "check rsh must failed")
+    check_rsh_enum  || return $(failed 1 "check rsh enum failed")
+    check_rsh       || return $(failed 1 "check rsh failed")
+
+    if ((${RSH[slot]} == ${SLOT})); then
+        handle
+    else
+        rpc
+    fi
+}
+
+main "$@"
+
