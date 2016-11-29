@@ -61,7 +61,7 @@ if content:exist, filename:exist, then
     "instance": {
         "name": "instance name",        #must exist
         "topic": "topic",               #must exist
-        "channel:" "channel",           #must exist
+        "channel": "channel",           #must exist
         
         "cache": "global cache path",   #must exist
         "flash": "global flash path"    #must exist
