@@ -14,12 +14,13 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 LIB_INITER;
 /******************************************************************************/
+#include "autoarray.c"
 #include "blob.c"
 #include "channel.c"
-#include "common.c"
 #include "coroutine.c"
 #include "cqueue.c"
 #include "dll.c"
+#include "env.c"
 #include "fd.c"
 #include "file.c"
 #include "json.c"
@@ -27,6 +28,8 @@ LIB_INITER;
 #include "pipe.c"
 #include "slice.c"
 #include "timer.c"
+
+#include "boot.c"
 /******************************************************************************/
 bool __THIS_DEAMON;
 
