@@ -43,18 +43,6 @@
 #endif
 
 typedef int os_pexec_callback_f(int error, char *outsring, char *errstring);
-
-typedef struct {
-    simple_buffer_t sb;
-
-    int fd[2];      /* father/son */
-} pipe_std_t;
-
-#define PIPE_STD_INITER(_size, _minsize, _expand) { \
-    .sb = SB_INITER(_size, _minsize, _expand, SB_F_EXPAND_AUTO), \
-    .fd     = {INVALID_FD, INVALID_FD}, \
-}   /* end */
-
 /*
 * 1. use file+argv or content
 * 2. use env or NULL
@@ -105,26 +93,6 @@ typedef struct {
         envs_dump("old", (_info)->argv, _dump); \
     }                                           \
 }while(0)
-
-typedef struct {
-    pipe_std_t std[3];  // std in/out/err
-    pipinfo_t info;
-    
-    int err;
-} pipexec_t;
-
-#define PIPEXEC_INITER(_size, _minsize, _expand) {   \
-    .std = {                    \
-        [1]  = PIPE_STD_INITER(_size, _minsize, _expand), \
-        [2]  = PIPE_STD_INITER(_size, _minsize, _expand), \
-    },                          \
-    .err = 0,                   \
-}   /* end */
-
-enum {
-    __pipe_father   = 0,
-    __pipe_son      = 1,
-};
 
 extern int
 os_pexecv(pipinfo_t *info);

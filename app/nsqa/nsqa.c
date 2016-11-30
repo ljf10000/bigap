@@ -28,7 +28,7 @@ init_nsq_cfg(void)
         return -EBADCONF;
     }
 
-    char *mac = os_getbasemac();
+    char *mac = os_getmacby(SCRIPT_GETBASEMAC);
     os_strdcpy(nsqa.cfg.hostname, mac);
     os_strdcpy(nsqa.cfg.client_id, mac);
 

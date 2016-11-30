@@ -20,7 +20,7 @@ static int
 init_pre(void)
 {
     int i;
-    char *basemac = os_getbasemac();
+    char *basemac = os_getmacby(SCRIPT_GETBASEMAC);
     if (NULL==basemac) {
         return -EBADBASEMAC;
     }

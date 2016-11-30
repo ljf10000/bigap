@@ -507,12 +507,12 @@ os_macstring(byte mac[])
 * todo: md1 or md3 handle
 */
 static inline char *
-os_getbasemac(void)
+os_getmacby(char *script)
 {
     static char line[1+OS_LINE_LEN];
 
     if (0==line[0]) {
-        int err = os_pgets(line, OS_LINE_LEN, SCRIPT_GETBASEMAC);
+        int err = os_pgets(line, OS_LINE_LEN, script);
         if (err) {
             return NULL;
         }
@@ -523,7 +523,6 @@ os_getbasemac(void)
 
     return line;
 }
-
 /******************************************************************************/
 enum {
     OS_IPSTRINGLEN = sizeof("255.255.255.255") - 1,

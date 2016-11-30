@@ -224,7 +224,7 @@ jadd(jlog_server_t *server)
         len = err; goto error;
     }
 
-    char *mac = os_getbasemac();
+    char *mac = os_getmacby(SCRIPT_GETBASEMAC);
     if (mac) {
         err = jobj_add_string(header, JLOG_KEY_MAC, mac);
         if (err<0) {

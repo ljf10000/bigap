@@ -1,6 +1,37 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+typedef struct {
+    simple_buffer_t sb;
+
+    int fd[2];      /* father/son */
+} pipe_std_t;
+
+#define PIPE_STD_INITER(_size, _minsize, _expand) { \
+    .sb = SB_INITER(_size, _minsize, _expand, SB_F_EXPAND_AUTO), \
+    .fd     = {INVALID_FD, INVALID_FD}, \
+}   /* end */
+
+typedef struct {
+    pipe_std_t std[3];  // std in/out/err
+    pipinfo_t info;
+    
+    int err;
+} pipexec_t;
+
+#define PIPEXEC_INITER(_size, _minsize, _expand) {   \
+    .std = {                    \
+        [1]  = PIPE_STD_INITER(_size, _minsize, _expand), \
+        [2]  = PIPE_STD_INITER(_size, _minsize, _expand), \
+    },                          \
+    .err = 0,                   \
+}   /* end */
+
+enum {
+    __pipe_father   = 0,
+    __pipe_son      = 1,
+};
+
 static inline char *
 __pipe_std_cursor(pipe_std_t *std)
 {

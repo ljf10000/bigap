@@ -285,7 +285,7 @@ init_cfg(void)
     /*
     * get basemac
     */
-    char *basemac = os_getbasemac();
+    char *basemac = os_getmacby(SCRIPT_GETBASEMAC);
     if (NULL==basemac) {
         debug_error("get basemac error");
         

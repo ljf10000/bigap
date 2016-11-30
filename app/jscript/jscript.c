@@ -9,6 +9,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 /******************************************************************************/
+#ifndef JSCRIPT_BUILDIN
+#define JSCRIPT_BUILDIN     1
+#endif
+
 #ifndef JSCRIPT_REMOTE
 #define JSCRIPT_REMOTE      PC_FILE("tmp/script", "jremote.script")
 #endif
@@ -353,7 +357,7 @@ __exec(void)
 
     if (0==J.period || now < (J.sendtime + J.period)) {
         char *json = jobj_json(G.jobj);
-#if 1
+#if JSCRIPT_BUILDIN
         return os_pexec_json(json);
 #else
         return os_system(JSCRIPT_EXEC " '%s'", json);
