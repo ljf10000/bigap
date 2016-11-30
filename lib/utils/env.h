@@ -30,10 +30,10 @@
 #define js_PATH             "/tmp/js:/lib/js"
 #endif
 
-extern int
+EXTERN int
 envs_count(char *env[]);
 
-extern void
+EXTERN void
 envs_append(char *dst[], char *src[]);
 
 extern char **environ;
@@ -71,10 +71,10 @@ envs_clone(char *env[])
     }                                       \
 }while(0)
 
-extern char *
+EXTERN char *
 env_gets(char *envname, char *deft) ;
 
-extern int
+EXTERN int
 __env_copy(char *envname, char *deft, char s[], int size) ;
 
 #define env_copy(_envname, _deft, _string)              ({  \
@@ -82,7 +82,7 @@ __env_copy(char *envname, char *deft, char s[], int size) ;
     __env_copy(_envname, _deft, _string, sizeof(_string));  \
 })
 
-extern int
+EXTERN int
 env_geti(char *envname, int deft) ;
 /******************************************************************************/
 #define use_THIS_ENV    0

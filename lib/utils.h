@@ -11,8 +11,6 @@
 #   endif
 #endif
 
-#define STATIC
-
 #ifdef __BUSYBOX__
 #define __ALLINONE__
 #endif
@@ -23,6 +21,9 @@
 
 #ifdef __BOOT__
 #   define __UCLIBC__
+#   define STATIC static
+#   define INLINE inline
+#   define EXTERN static inline
 #   include <malloc.h>
 #   include <common.h>
 #   include <command.h>
@@ -46,6 +47,9 @@
 #   include <net/sock.h>
 #else /* __APP__ */
 #   define __APP__
+#   define STATIC
+#   define INLINE
+#   define EXTERN extern
 #   ifdef __BUSYBOX__
 #       include "libbb.h"
 #   endif

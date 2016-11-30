@@ -430,7 +430,7 @@ b64_decode_ex(byte *src, size_t len, size_t *decsize)
 /* Encodes input (uint32) into output (byte). Assumes len is
   a multiple of 4.
  */
-STATIC void
+STATIC INLINE void
 __md5_encode(byte *output, uint32 *input, uint32 len)
 {
 	uint32 i, j;
@@ -446,7 +446,7 @@ __md5_encode(byte *output, uint32 *input, uint32 len)
 /* Decodes input (byte) into output (uint32). Assumes len is
   a multiple of 4.
  */
-STATIC void
+STATIC INLINE void
 __md5_decode(uint32 *output, byte *input, uint32 len)
 {
 	uint32 i, j;
@@ -460,7 +460,7 @@ __md5_decode(uint32 *output, byte *input, uint32 len)
 
 /* MD5 basic transformation. Transforms state based on block.
  */
-STATIC void
+STATIC INLINE void
 __md5_transfrom(uint32 state[4], byte block[64])
 {
 	uint32 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
@@ -665,7 +665,7 @@ error:
 #endif
 }
 
-STATIC void *
+STATIC INLINE void *
 __os_aa_item(autoarray_t *aa, uint32 idx)
 {
     if (is_good_enum(idx, aa->count)) {
@@ -675,7 +675,7 @@ __os_aa_item(autoarray_t *aa, uint32 idx)
     }
 }
 
-STATIC int
+STATIC INLINE int
 __os_aa_grow_to(autoarray_t *aa, uint32 count)
 {
     int old  = aa->count;
@@ -708,7 +708,7 @@ __os_aa_grow_to(autoarray_t *aa, uint32 count)
     return 0;
 }
 
-STATIC int
+STATIC INLINE int
 __os_aa_grow(autoarray_t *aa)
 {
     int count;
@@ -919,7 +919,7 @@ __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line)
     os_dump_line(line, raw + i * __DUMP_LINE_BYTES, tail, dump_line);
 }
 
-STATIC bool
+STATIC INLINE bool
 __is_good_macstring_L(char *macstring)
 {
     /*
@@ -951,7 +951,7 @@ __is_good_macstring_L(char *macstring)
         && __is_good_macchar(macstring[16]);
 }
 
-STATIC bool
+STATIC INLINE bool
 __is_good_macstring_M(char *macstring)
 {
     /*
@@ -977,7 +977,7 @@ __is_good_macstring_M(char *macstring)
         && __is_good_macchar(macstring[13]);
 }
 
-STATIC bool
+STATIC INLINE bool
 __is_good_macstring_S(char *macstring)
 {
     /*
@@ -1009,7 +1009,7 @@ __is_good_macstring(char *macstring)
     }
 }
 
-STATIC byte *
+STATIC INLINE byte *
 __os_getmac_bystring_L(byte mac[], char macstring[])
 {
     int i;
@@ -1021,7 +1021,7 @@ __os_getmac_bystring_L(byte mac[], char macstring[])
     return mac;
 }
 
-STATIC byte *
+STATIC INLINE byte *
 __os_getmac_bystring_M(byte mac[], char macstring[])
 {
     int i;
@@ -1034,7 +1034,7 @@ __os_getmac_bystring_M(byte mac[], char macstring[])
     return mac;
 }
 
-STATIC byte *
+STATIC INLINE byte *
 __os_getmac_bystring_S(byte mac[], char macstring[])
 {
     int i;
@@ -1071,7 +1071,7 @@ os_getmac_bystring(byte mac[], char macstring[])
     }
 }
 
-STATIC int
+STATIC INLINE int
 __os_macsnprintf_L(byte mac[], char macstring[], int size, int sep)
 {
     return os_snprintf(macstring, size,
@@ -1089,7 +1089,7 @@ __os_macsnprintf_L(byte mac[], char macstring[], int size, int sep)
         mac[5]);
 }
 
-STATIC int
+STATIC INLINE int
 __os_macsnprintf_M(byte mac[], char macstring[], int size, int sep)
 {
     return os_snprintf(macstring, size,
@@ -1101,7 +1101,7 @@ __os_macsnprintf_M(byte mac[], char macstring[], int size, int sep)
         mac[4], mac[5]);
 }
 
-STATIC int
+STATIC INLINE int
 __os_macsnprintf_S(byte mac[], char macstring[], int size, int sep)
 {
     return os_snprintf(macstring, size,
