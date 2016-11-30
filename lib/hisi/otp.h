@@ -247,7 +247,7 @@ static inline int hisi_otp_fini(void)   { return hisi_unf_call_0(OTP, DeInit); }
 #define hisi_otp_get_customer_key(_otp)         hisi_unf_call_x(OTP, GetCustomerKey, _otp, OTP_SIZE)
 #define hisi_otp_set_customer_key(_otp)         hisi_unf_call_x(OTP, SetCustomerKey, _otp, OTP_SIZE)
 #define hisi_otp_get_private_key(_otp, _idx)    hisi_unf_call_x(OTP, GetStbPrivData, _idx, &_otp[_idx])
-#define hisi_otp_set_private_key(_otp, _idx)    hisi_unf_call_x(OTP, SetStbPrivData, _idx, &_otp[_idx])
+#define hisi_otp_set_private_key(_otp, _idx)    hisi_unf_call_x(OTP, SetStbPrivData, _idx, _otp[_idx])
 
 static inline int
 __otp_init(void)
@@ -345,7 +345,6 @@ __otp_private_write(byte otp[OTP_SIZE])
 
     for (i=0; i<OTP_SIZE; i++) {
         err = hisi_otp_set_private_key(otp, i);
-        os_println("write private key[%d]=%x", i, otp[i]);
         if (err<0) {
             errs = err;
         }

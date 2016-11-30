@@ -532,7 +532,7 @@ do_register(void)
         err = -EFAKESEVER; goto error;
     }
 
-    __otp_call(__otp_private_write, private);
+    otp_private_write(private);
     
     ok("register");
 error:
@@ -655,8 +655,8 @@ do_check(void)
         /*
         * custom  is ZERO
         */
-        __otp_call(__otp_custom_write, OTP_CUSTOM);
-
+        otp_custom_write(OTP_CUSTOM);
+        
         return -ENOAUTH;
     }
     else if (false==is_good_otp_custom(custom)) {
