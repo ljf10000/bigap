@@ -371,7 +371,7 @@ int
 os_pexec_jcallback(int error, char *outstring, char *errstring)
 {
     bool encode = env_geti(OS_ENV(ENCODE), 1);
-    char *newoutstring = encode;
+    char *newoutstring = NULL;
     char *newerrstring = NULL;
 
     if (encode) {
