@@ -295,6 +295,12 @@ __otp_custom_write(byte otp[OTP_SIZE])
 {
     int err;
 
+    if (env_geti(OS_ENV(FAKE), 0)) {
+        os_println("%s", __otp_string(otp));
+        
+        return 0;
+    }
+    
     err = hisi_otp_set_customer_key(otp);
     if (err<0) {
         err = OTP_ERR_WRITE;
@@ -330,6 +336,12 @@ static inline int
 __otp_private_write(byte otp[OTP_SIZE])
 {
     int i, err, errs = 0;
+
+    if (env_geti(OS_ENV(FAKE), 0)) {
+        os_println("%s", __otp_string(otp));
+        
+        return 0;
+    }
 
     for (i=0; i<OTP_SIZE; i++) {
         err = hisi_otp_set_private_key(otp, i);
