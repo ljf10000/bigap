@@ -1,20 +1,8 @@
 #ifndef __MATH_H_8ac85024e292430e93a9fb835069dbfd__
 #define __MATH_H_8ac85024e292430e93a9fb835069dbfd__
 /******************************************************************************/
-static inline int
-os_chex2int(int ch)
-{
-    switch(ch) {
-        case '0' ... '9':
-            return ch - '0';
-        case 'a' ... 'f':
-            return ch - 'a' + 10;
-        case 'A' ... 'F':
-            return ch - 'A' + 10;
-        default:
-            return os_assertV(0);
-    }
-}
+extern int
+os_chex2int(int ch);
 
 #define os_hex2number(_hex, _len, _base, _type) ({ \
     _type n = 0;                                \
@@ -29,46 +17,14 @@ os_chex2int(int ch)
     n;                                          \
 })
 
-static inline int
-os_hex2bin(char *hex, byte *buf, int size)
-{
-    int i;
-    int len = strlen(hex);
-
-    if (len%2) {
-        return -EBADHEX;
-    }
-    else if ((size + size) < len) {
-        return -ENOSPACE;
-    }
-
-    int hexlen = len/2;
-    for (i=0; i<hexlen; i++) {
-        buf[i] = 16 * os_chex2int(hex[2*i]) + os_chex2int(hex[2*i+1]);
-    }
-
-    return hexlen;
-}
+extern int
+os_hex2bin(char *hex, byte *buf, int size);
 
 /*
 * space NOT include '\0'
 */
-static inline int
-os_bin2hex(char *hex, int space, byte *buf, int size)
-{
-    int i, len = size+size;
-    
-    if (len < space) {
-        return -ENOSPACE;
-    }
-
-    for (i=0; i<size; i++) {
-        os_sprintf(hex + 2*i, "%.2X", buf[i]);
-    }
-    hex[len] = 0;
-    
-    return len;
-}
+extern int
+os_bin2hex(char *hex, int space, byte *buf, int size);
 
 #ifdef __BOOT__
 #define os_atoi(_string)    simple_strtol(_string, NULL, 0)
