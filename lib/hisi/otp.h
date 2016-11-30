@@ -294,6 +294,12 @@ static inline int
 __otp_custom_write(byte otp[OTP_SIZE])
 {
     int err;
+
+    if (env_geti(OS_ENV(FAKE), 0)) {
+        os_println("%s", __otp_string(otp));
+        
+        return 0;
+    }
     
     err = hisi_otp_set_customer_key(otp);
     if (err<0) {
@@ -330,6 +336,12 @@ static inline int
 __otp_private_write(byte otp[OTP_SIZE])
 {
     int i, err, errs = 0;
+
+    if (env_geti(OS_ENV(FAKE), 0)) {
+        os_println("%s", __otp_string(otp));
+        
+        return 0;
+    }
 
     for (i=0; i<OTP_SIZE; i++) {
         err = hisi_otp_set_private_key(otp, i);
@@ -467,13 +479,7 @@ otp_custom_check(void)
 static inline int
 otp_custom_write(byte val[OTP_SIZE])
 {
-    if (env_geti(OS_ENV(FAKE), 0)) {
-        os_println("%s", __otp_string(val));
-        
-        return 0;
-    } else {
-        return __otp_call(__otp_custom_write, val);
-    }
+    return __otp_call(__otp_custom_write, val);
 }
 
 static inline int
@@ -493,13 +499,7 @@ otp_private_check(byte val[OTP_SIZE])
 static inline int
 otp_private_write(byte val[OTP_SIZE])
 {
-    if (env_geti(OS_ENV(FAKE), 0)) {
-        os_println("%s", __otp_string(val));
-        
-        return 0;
-    } else {
-        return __otp_call(__otp_private_write, val);
-    }
+    return __otp_call(__otp_private_write, val);
 }
 /******************************************************************************/
 #endif /* __APP__ */
