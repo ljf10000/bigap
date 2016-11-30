@@ -16,6 +16,7 @@ LIB_INITER;
 /******************************************************************************/
 #include "blob.c"
 #include "channel.c"
+#include "common.c"
 #include "coroutine.c"
 #include "cqueue.c"
 #include "dll.c"

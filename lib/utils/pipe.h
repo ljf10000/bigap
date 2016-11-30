@@ -140,6 +140,51 @@ os_pexec(pipinfo_t *info, const char *fmt, ...);
 
 extern int
 os_pexecline(pipinfo_t *info, char *line);
+
+extern int 
+os_pexec_jcallback(int error, char *outstring, char *errstring);
+
+extern int
+os_pexec_jmap(pipinfo_t *info, char *json);
+
+static inline void
+os_pexec_clean(pipinfo_t *info)
+{
+    os_free(info->content);
+    os_free(info->file);
+    
+    if (info->argv) {
+        char *args;
+
+        for (args = info->argv[0]; args; args++) {
+            free(args); // NOT os_free
+        }
+
+        os_free(info->argv);
+    }
+}
+
+static inline int
+os_pexec_json(char *json)
+{
+    pipinfo_t info = PIPINFO_INITER(NULL, os_pexec_jcallback);
+    int err;
+
+    err = os_pexec_jmap(&info, json);
+    if (err<0) {
+        goto error;
+    }
+
+    err = os_pexecv(&info);
+    if (err>0) {
+        goto error;
+    }
+
+error:
+    os_pexec_clean(&info);
+    
+    return err;
+}
 /******************************************************************************/
 #endif
 #endif /* __PIPE_H_0cb88994d86a4261ad2f10f1e0525dcf__ */

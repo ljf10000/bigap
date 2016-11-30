@@ -62,9 +62,7 @@ if content:exist, filename:exist, then
         "name": "instance name",        #must exist
         "topic": "topic",               #must exist
         "channel": "channel",           #must exist
-        
-        "cache": "global cache path",   #must exist
-        "flash": "global flash path"    #must exist
+        "cache": "global cache path"    #must exist
     }
 }
 
@@ -217,7 +215,7 @@ typedef struct {
     
     time_t sendtime;
     time_t recvtime;
-    uint32 term;
+    uint32 period;
     
     jinstance_t instance;
 }
@@ -305,7 +303,7 @@ jscript_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(jscript_t, term), term, "term",          \
+    _(offsetof(jscript_t, period), period, "period",    \
             u32, sizeof(uint32), JRULE_MUST,            \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
@@ -325,7 +323,6 @@ static jscript_t J;
 
 static struct {
     int slot;
-    char *json;
     jobj_t jobj;
     
     bool is_startup;
@@ -344,9 +341,9 @@ usage(int argc, char *argv[])
 }
 
 static int
-__remote(void)
+__rpc(void)
 {
-    return os_system(JSCRIPT_REMOTE " %d '%s'", G.slot, G.json);
+    return os_system(JSCRIPT_REMOTE " %d '%s'", G.slot, jobj_json(G.jobj));
 }
 
 static int
@@ -354,9 +351,16 @@ __exec(void)
 {
     time_t now = time(NULL);
 
-    if (0==J.term || now < (J.sendtime + J.term)) {
-        return os_system(JSCRIPT_EXEC " '%s'", G.json);
+    if (0==J.period || now < (J.sendtime + J.period)) {
+        char *json = jobj_json(G.jobj);
+#if 1
+        return os_pexec_json(json);
+#else
+        return os_system(JSCRIPT_EXEC " '%s'", json);
+#endif
     }
+
+    return 0;
 }
 
 static char *
@@ -473,36 +477,57 @@ __handle(void)
 static int
 __main(int argc, char *argv[])
 {
+    char *json = NULL;
     int err;
     
+    G.slot = env_geti("SLOT", 0);
+    /*
+    * get input json
+    */
     switch(argc) {
         case 1:
-            G.json = os_readfd(0);
-            if (NULL==G.json) {
+            json = os_readfd(0);
+            if (NULL==json) {
                 return -ENOMEM;
             }
             
             break;
         case 2:
-            G.json = argv[1];
+            json = argv[1];
             
             break;
         default:
             return usage(argc, argv);
     }
-    G.slot = env_geti("SLOT", 0);
     
-    G.jobj = jobj_byjson(G.json);
+    G.jobj = jobj_byjson(json);
     if (NULL==G.jobj) {
         return -EBADJSON;
     }
 
+    /*
+    * use buildin script
+    */
+    jobj_t jval = jobj_get(G.jobj, "script");
+    if (jval) {
+        if (jtype_string != jobj_type(jval)) {
+            return -EBADJSON;
+        }
+        
+        char *script = jobj_get_string(jval);
+        if (os_strneq("/bin/" __THIS_APPNAME, script)) {
+            return os_system("%s '%s'", script, json);
+        }
+    }
+    
+    /*
+    * append recvtime
+    */
     if (NULL==jobj_get(G.jobj, "recvtime")) {
         char *now = os_fulltime_string(time(NULL));
         
         jobj_add(G.jobj, "recvtime", jobj_new_string(now));
-        
-        G.json = jobj_json(G.jobj);
+
         G.is_startup = false;
     }
     
@@ -516,14 +541,14 @@ __main(int argc, char *argv[])
         return err;
     }
     
-    if (G.slot != J.slot) {
-        return __remote();
-    }
-    else if (G.is_startup) {
+    if (G.is_startup) {
         return __exec();
     }
-    else {
+    else if (G.slot == J.slot) {
         return __handle();
+    }
+    else {
+        return __rpc();
     }
 }
 

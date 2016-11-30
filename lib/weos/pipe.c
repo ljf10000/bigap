@@ -335,5 +335,104 @@ os_pexecline(pipinfo_t *info, char *line)
 
     return 0;
 }
+
+int 
+os_pexec_jcallback(int error, char *outstring, char *errstring)
+{
+    bool encode = env_geti(OS_ENV(ENCODE), 1);
+    char *newoutstring = encode;
+    char *newerrstring = NULL;
+
+    if (encode) {
+        newoutstring = b64_encode(outstring, os_strlen(outstring));
+        newerrstring = b64_encode(errstring, os_strlen(errstring));
+    } else {
+        newoutstring = outstring;
+        newerrstring = errstring;
+    }
+    
+    os_println( "{"
+                    "\"stdout\":\"%s\","
+                    "\"stderr\":\"%s\","
+                    "\"errno\":%d"
+                "}", 
+        newoutstring,
+        newerrstring,
+        error);
+
+    if (encode) {
+        os_free(newoutstring);
+        os_free(newerrstring);
+    }
+    
+    return 0;
+}
+
+int
+os_pexec_jmap(pipinfo_t *info, char *json)
+{
+    jobj_t jobj = NULL, jval, jargument;
+    int i, count = 0, err = 0;
+    
+    jobj = jobj_byjson(json);
+    if (NULL==jobj) {
+        return -EBADJSON;
+    }
+
+    jval = jobj_get(jobj, "content");
+    if (jval) {
+        if (jtype_string != jobj_type(jval)) {
+            err = -EBADJSON; goto error;
+        }
+        
+        char *content = jobj_get_string(jval);
+        info->content = b64_decode((byte *)content, os_strlen(content));
+        if (NULL==info->content) {
+            err = -EBASE64; goto error;
+        }
+    }
+
+    jval = jobj_get(jobj, "filename");
+    if (jval) {
+        if (jtype_string != jobj_type(jval)) {
+            err = -EBADJSON; goto error;
+        }
+        
+        info->file = os_strdup(jobj_get_string(jval));
+    }
+
+    if (NULL==info->file && NULL==info->content) {
+        err = -EBADJSON; goto error;
+    }
+
+    jargument = jobj_get(jobj, "argument");
+    if (jargument) {
+        if (jtype_array != jobj_type(jargument)) {
+            err = -EBADJSON; goto error;
+        }
+        
+        count = jarray_length(jargument);
+        info->argv = (char **)os_zalloc((1+count) * sizeof(char *));
+        if (NULL==info->argv) {
+            err = -ENOMEM; goto error;
+        }
+        
+        for (i=0; i<count; i++) {
+            jval = jarray_get(jargument, i);
+            if (jtype_string != jobj_type(jval)) {
+                err = -EBADJSON; goto error;
+            }
+
+            info->argv[i] = os_strdup(jobj_get_string(jval));
+        }
+    }
+    
+    return 0;
+error:
+    jobj_put(jobj);
+
+    return err;
+}
+
 /******************************************************************************/
 

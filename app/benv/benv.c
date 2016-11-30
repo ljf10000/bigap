@@ -13,11 +13,12 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #ifdef __BOOT__
-#     if IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC
+#   if IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC
 #       include "benv_boot_md.c"
 #   elif IS_PRODUCT_LTEFI_AP
 #       include "benv_boot_ap.c"
 #   endif
+#   include "weos/common.c"
 #elif defined(__APP__)
 #   include "benv_app.c"
 #endif

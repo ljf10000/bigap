@@ -32,121 +32,14 @@ usage(int error)
     return error;
 }
 
-/*
-* not care memory leak
-*/
-static int 
-jcallback(int error, char *outstring, char *errstring)
-{
-    bool encode = env_geti(OS_ENV(ENCODE), 1);
-    
-    os_println( "{"
-                    "\"stdout\":\"%s\","
-                    "\"stderr\":\"%s\","
-                    "\"errno\":%d"
-                "}", 
-        encode?b64_encode(outstring, os_strlen(outstring)):outstring,
-        encode?b64_encode(errstring, os_strlen(errstring)):errstring,
-        error);
-
-    return 0;
-}
-
-#if 1
-static char *JENV[] = {
-    "SB:SB",
-    "SB:SBSB",
-    "SB:SBSBSB",
-    NULL,
-};
-#else
-#defien JENV NULL
-#endif
-
-static pipinfo_t JINFO = PIPINFO_INITER(JENV, jcallback);
-
-/*
-* not care memory leak
-*/
-static int
-jmap(char *json)
-{
-    jobj_t jobj, jval, jargument;
-    int i, count, err = 0;
-    
-    jobj = jobj_byjson(json);
-    if (NULL==jobj) {
-        return -EBADJSON;
-    }
-
-    jval = jobj_get(jobj, "content");
-    if (jval) {
-        if (jtype_string != jobj_type(jval)) {
-            return -EBADJSON;
-        }
-        
-        char *content = jobj_get_string(jval);
-        JINFO.content = b64_decode((byte *)content, os_strlen(content));
-        if (NULL==JINFO.content) {
-            return -EBASE64;
-        }
-    }
-
-    jval = jobj_get(jobj, "filename");
-    if (jval) {
-        if (jtype_string != jobj_type(jval)) {
-            return -EBADJSON;
-        }
-        
-        JINFO.file = jobj_get_string(jval);
-    }
-
-    if (NULL==JINFO.file && NULL==JINFO.content) {
-        return -EBADJSON;
-    }
-
-    jargument = jobj_get(jobj, "argument");
-    if (jargument) {
-        if (jtype_array != jobj_type(jargument)) {
-            return -EBADJSON;
-        }
-        
-        count = jarray_length(jargument);
-        JINFO.argv = (char **)os_zalloc((1+count) * sizeof(char *));
-        if (NULL==JINFO.argv) {
-            return -ENOMEM;
-        }
-        
-        for (i=0; i<count; i++) {
-            jval = jarray_get(jargument, i);
-            if (jtype_string != jobj_type(jval)) {
-                return -EBADJSON;
-            }
-
-            JINFO.argv[i] = jobj_get_string(jval);
-        }
-    }
-
-    debug_trace("input json=%s", jobj_json(jobj));
-    
-    return 0;
-}
-
 static int
 __main(int argc, char *argv[])
 {
-    int err;
-
     if (2!=argc) {
         return usage(-EHELP);
     }
-    
-    err = jmap(argv[1]);
-    if (err<0) {
-        return err;
-    }
-    
-    return os_pexecv(&JINFO);
+
+    return os_pexec_json(argv[1]);
 }
 
 int allinone_main(int argc, char *argv[])
