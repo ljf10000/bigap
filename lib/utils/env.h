@@ -30,31 +30,11 @@
 #define js_PATH             "/tmp/js:/lib/js"
 #endif
 
-static inline int
-envs_count(char *env[])
-{
-    int count;
+extern int
+envs_count(char *env[]);
 
-    if (NULL==env) {
-        return 0;
-    }
-    
-    for (count=0; env[count]; count++) {
-        os_do_nothing();
-    }
-
-    return count;
-}
-
-static inline void
-envs_append(char *dst[], char *src[])
-{
-    int i, count = envs_count(dst);
-
-    for (i=0; src[i]; i++) {
-        dst[i+count] = src[i];
-    }
-}
+extern void
+envs_append(char *dst[], char *src[]);
 
 extern char **environ;
 
@@ -91,69 +71,19 @@ envs_clone(char *env[])
     }                                       \
 }while(0)
 
-static inline char *
-env_gets(char *envname, char *deft) 
-{
-    if (envname) {
-        char *env = getenv(envname);
-        
-        if (is_good_env(env)) {
-            env_println("get env:%s=%s", envname, env);
-            
-            return env;
-        } else {
-            env_println("no-found env:%s, use default:%s", envname, deft);
+extern char *
+env_gets(char *envname, char *deft) ;
 
-            return deft;
-        }
-    } else {
-        env_println("empty env, use default:%s", deft);
-
-        return deft;
-    }
-}
-
-static inline int
-__env_copy(char *envname, char *deft, char s[], int size) 
-{
-    char *env = env_gets(envname, deft);
-    if (NULL==env) {
-        return 0;
-    }
-    else if (os_strlen(env) > size - 1) {
-        return os_assertV(-ETOOBIG);
-    }
-    
-    os_strlcpy(s, env, size);
-    
-    return 0;
-}
+extern int
+__env_copy(char *envname, char *deft, char s[], int size) ;
 
 #define env_copy(_envname, _deft, _string)              ({  \
     BUILD_BUG_NOT_ARRAY(_string);                           \
     __env_copy(_envname, _deft, _string, sizeof(_string));  \
 })
 
-static inline int
-env_geti(char *envname, int deft) 
-{
-    if (NULL==envname) {
-        return os_assertV(deft);
-    }
-    
-    char *env = getenv(envname);
-    if (false==is_good_env(env)) {
-        env_println("no-found env:%s, use default:%d", envname, deft);
-        
-        return deft;
-    } else {
-        int value = os_atoi(env);
-
-        env_println("get env:%s=%d", envname, value);
-
-        return value;
-    }
-}
+extern int
+env_geti(char *envname, int deft) ;
 /******************************************************************************/
 #define use_THIS_ENV    0
 

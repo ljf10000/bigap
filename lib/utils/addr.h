@@ -130,10 +130,14 @@ os_sockaddr_len(sockaddr_t *addr)
         default: return sizeof(sockaddr_t);
     }
 }
+#endif
+
 /******************************************************************************/
 enum {
     OS_OUISIZE      = 3,
     OS_MACSIZE      = 6,
+    
+    OS_IPSTRINGLEN  = sizeof("255.255.255.255") - 1,
 };
 
 enum {
@@ -244,157 +248,14 @@ __is_good_macchar(int ch)
         || (ch >= 'A' && ch <= 'F');
 }
 
-static inline bool
-__is_good_macstring_L(char *macstring)
-{
-    /*
-    * long  macstring is "XX:XX:XX:XX:XX:XX" or "XX-XX-XX-XX-XX-XX"
-    */
-    int ifs = macstring[2];
-    
-    return (':'==ifs || '-'==ifs)
-        && macstring[5] ==ifs
-        && macstring[8] ==ifs
-        && macstring[11]==ifs
-        && macstring[14]==ifs
-        && __is_good_macchar(macstring[0])
-        && __is_good_macchar(macstring[1])
-        /* macstring[2] is ifs */
-        && __is_good_macchar(macstring[3])
-        && __is_good_macchar(macstring[4])
-        /* macstring[5] is ifs */
-        && __is_good_macchar(macstring[6])
-        && __is_good_macchar(macstring[7])
-        /* macstring[8] is ifs */
-        && __is_good_macchar(macstring[9])
-        && __is_good_macchar(macstring[10])
-        /* macstring[11] is ifs */
-        && __is_good_macchar(macstring[12])
-        && __is_good_macchar(macstring[13])
-        /* macstring[14] is ifs */
-        && __is_good_macchar(macstring[15])
-        && __is_good_macchar(macstring[16]);
-}
+extern bool
+__is_good_macstring(char *macstring);
 
-static inline bool
-__is_good_macstring_M(char *macstring)
-{
-    /*
-    * middle  macstring is "XXXX:XXXX:XXXX" or "XXXX-XXXX-XXXX"
-    */
-    int ifs = macstring[4];
-    
-    return (':'==ifs || '-'==ifs)
-        && macstring[9] ==ifs
-        && __is_good_macchar(macstring[0])
-        && __is_good_macchar(macstring[1])
-        && __is_good_macchar(macstring[2])
-        && __is_good_macchar(macstring[3])
-        /* macstring[4] is ifs */
-        && __is_good_macchar(macstring[5])
-        && __is_good_macchar(macstring[6])
-        && __is_good_macchar(macstring[7])
-        && __is_good_macchar(macstring[8])
-        /* macstring[9] is ifs */
-        && __is_good_macchar(macstring[10])
-        && __is_good_macchar(macstring[11])
-        && __is_good_macchar(macstring[12])
-        && __is_good_macchar(macstring[13]);
-}
+extern byte *
+__os_getmac_bystring(byte mac[], char macstring[]);
 
-static inline bool
-__is_good_macstring_S(char *macstring)
-{
-    /*
-    * short macstring is "XXXXXXXXXXXX"
-    */
-    return __is_good_macchar(macstring[0])
-        && __is_good_macchar(macstring[1])
-        && __is_good_macchar(macstring[2])
-        && __is_good_macchar(macstring[3])
-        && __is_good_macchar(macstring[4])
-        && __is_good_macchar(macstring[5])
-        && __is_good_macchar(macstring[6])
-        && __is_good_macchar(macstring[7])
-        && __is_good_macchar(macstring[8])
-        && __is_good_macchar(macstring[9])
-        && __is_good_macchar(macstring[10])
-        && __is_good_macchar(macstring[11]);
-
-}
-
-static inline bool
-__is_good_macstring(char *macstring)
-{
-    switch(os_strlen(macstring)) {
-        case MACSTRINGLEN_L: return __is_good_macstring_L(macstring);
-        case MACSTRINGLEN_M: return __is_good_macstring_M(macstring);
-        case MACSTRINGLEN_S: return __is_good_macstring_S(macstring);
-        default: return false;
-    }
-}
-
-static inline byte *
-__os_getmac_bystring_L(byte mac[], char macstring[])
-{
-    int i;
-    
-    for (i=0; i<OS_MACSIZE; i++) {
-        mac[i] = os_hex2number(macstring + 3*i, 2, 16, int);
-    }
-
-    return mac;
-}
-
-static inline byte *
-__os_getmac_bystring_M(byte mac[], char macstring[])
-{
-    int i;
-    
-    for (i=0; i<OS_MACSIZE/2; i++) {
-        mac[i]  = os_hex2number(macstring + 5*i,     2, 16, int);
-        mac[i+1]= os_hex2number(macstring + 5*i + 2, 2, 16, int);
-    }
-
-    return mac;
-}
-
-static inline byte *
-__os_getmac_bystring_S(byte mac[], char macstring[])
-{
-    int i;
-    
-    for (i=0; i<OS_MACSIZE; i++) {
-        mac[i] = os_hex2number(macstring + 2*i, 2, 16, int);
-    }
-
-    return mac;
-}
-
-static inline byte *
-__os_getmac_bystring(byte mac[], char macstring[])
-{
-    switch(os_strlen(macstring)) {
-        case MACSTRINGLEN_L: return __os_getmac_bystring_L(mac, macstring);
-        case MACSTRINGLEN_M: return __os_getmac_bystring_M(mac, macstring);
-        case MACSTRINGLEN_S: return __os_getmac_bystring_S(mac, macstring);
-        default: return OS_2BMAC;
-    }
-}
-
-static inline byte *
-os_getmac_bystring(byte mac[], char macstring[])
-{
-    byte tmp[6];
-    
-    if (__is_good_macstring(macstring) && 
-        __os_getmac_bystring(tmp, macstring) &&
-        is_good_mac(tmp)) {
-        return os_maccpy(mac, tmp);
-    } else {
-        return NULL;
-    }
-}
+extern byte *
+os_getmac_bystring(byte mac[], char macstring[]);
 
 static inline bool
 is_good_macstring(char *macstring)
@@ -415,57 +276,8 @@ os_mac(char *macstring)
     return __is_good_macstring(macstring)?__os_getmac_bystring(mac, macstring):OS_ZEROMAC;
 }
 
-static inline int
-__os_macsnprintf_L(byte mac[], char macstring[], int size, int sep)
-{
-    return os_snprintf(macstring, size,
-        "%.2x"  "%c"
-        "%.2x"  "%c"
-        "%.2x"  "%c"
-        "%.2x"  "%c"
-        "%.2x"  "%c"
-        "%.2x",
-        mac[0], sep,
-        mac[1], sep,
-        mac[2], sep,
-        mac[3], sep,
-        mac[4], sep,
-        mac[5]);
-}
-
-static inline int
-__os_macsnprintf_M(byte mac[], char macstring[], int size, int sep)
-{
-    return os_snprintf(macstring, size,
-        "%.2x%.2x"  "%c"
-        "%.2x%.2x"  "%c"
-        "%.2x%.2x",
-        mac[0], mac[1], sep,
-        mac[2], mac[3], sep,
-        mac[4], mac[5]);
-}
-
-static inline int
-__os_macsnprintf_S(byte mac[], char macstring[], int size, int sep)
-{
-    return os_snprintf(macstring, size,
-        "%.2x%.2x"
-        "%.2x%.2x"
-        "%.2x%.2x",
-        mac[0], mac[1],
-        mac[2], mac[3],
-        mac[4], mac[5]);
-}
-
-static inline int
-os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep)
-{
-    switch(type) {
-        case MACSTRINGLEN_L: return __os_macsnprintf_L(mac, macstring, size, sep);
-        case MACSTRINGLEN_M: return __os_macsnprintf_M(mac, macstring, size, sep);
-        case MACSTRINGLEN_S: default: return __os_macsnprintf_S(mac, macstring, size, sep);
-    }
-}
+extern int
+os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep);
 
 #define os_macsaprintf(_mac, _macstring, _type, _sep)   ({  \
     BUILD_BUG_NOT_ARRAY(_macstring);                        \
@@ -494,6 +306,13 @@ os_macstring(byte mac[])
     return os_getmacstring(mac, MACSTRINGLEN_L, ':');
 }
 
+static inline bool
+os_ipmatch(uint32 ipa, uint32 ipb, uint32 mask)
+{
+    return (ipa & mask)==(ipb & mask);
+}
+
+#ifdef __APP__
 #ifndef SCRIPT_GETMAC
 #define SCRIPT_GETMAC       PC_VAL( "ip link show eth0 | grep link | awk '{print $2}'", \
                                     "ifconfig | grep 'eth0 ' | awk '{print $5}'")
@@ -506,30 +325,9 @@ os_macstring(byte mac[])
 /*
 * todo: md1 or md3 handle
 */
-static inline char *
-os_getmacby(char *script)
-{
-    static char line[1+OS_LINE_LEN];
-
-    if (0==line[0]) {
-        int err = os_pgets(line, OS_LINE_LEN, script);
-        if (err) {
-            return NULL;
-        }
-        else if (false==is_good_macstring(line)) {
-            return NULL;
-        }
-    }
-
-    return line;
-}
+extern char *
+os_getmacby(char *script);
 /******************************************************************************/
-enum {
-    OS_IPSTRINGLEN = sizeof("255.255.255.255") - 1,
-};
-
-#ifdef __APP__
-
 /*
 * just for single-thread, unsafe for multi-thread
 *
@@ -549,12 +347,6 @@ is_good_ipstring(char *ip)
     return is_good_str(ip) && INADDR_NONE!=inet_addr(ip);
 }
 #endif
-
-static inline bool
-os_ipmatch(uint32 ipa, uint32 ipb, uint32 mask)
-{
-    return (ipa & mask)==(ipb & mask);
-}
 /******************************************************************************/
 #endif
 #endif /* __ADDR_H_a60fcc799b2f44c38dcbf510eb97f0c6__ */

@@ -87,6 +87,7 @@ cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 
     return -ENOEXIST;
 }
+
 #endif /* defined(__APP__) || defined(__BOOT__) */
 /******************************************************************************/
 #ifdef __APP__

@@ -67,87 +67,22 @@
         ((_snprintf_return_value) >= (_buffer_space))
 
 #ifdef __BOOT__
-#ifndef BOOT_SNPRINTF_BUFSIZE
-#define BOOT_SNPRINTF_BUFSIZE   4096
-#endif
 
-static inline int
-os_vsnprintf(char *buf, int size, const char *fmt, va_list args)
-{
-    int bsize = size?size-1:0;
-    int len = 0;
-    
-    char *p = (char *)os_zalloc(BOOT_SNPRINTF_BUFSIZE);
-    if (NULL==p) {
-        return -ENOMEM;
-    }
+extern int
+os_vsnprintf(char *buf, int size, const char *fmt, va_list args);
 
-    len = os_vsprintf(p, fmt, args);
+extern int
+os_snprintf(char *buf, int size, const char *fmt, ...);
 
-    if (len <= bsize) {
-        strcpy(buf, p);
-    } else {
-        len = bsize;
-        os_memcpy(buf, p, len);
-    }
+extern int
+os_vasprintf(char **buf, const char *fmt, va_list args);
 
-error:
-    os_free(p);
+extern int
+os_asprintf(char **buf, const char *fmt, ...);
 
-    return len;
-}
+extern int
+os_rsprintf(char **buf, int resv, const char *fmt, ...);
 
-static inline int
-os_snprintf(char *buf, int size, const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, (char *)fmt);
-    int len = os_vsnprintf(buf, size, fmt, args);
-    va_end(args);
-
-    return len;
-}
-
-static inline int
-os_vasprintf(char **buf, const char *fmt, va_list args)
-{
-    int len = 0;
-    
-    char *p = (char *)os_zalloc(BOOT_SNPRINTF_BUFSIZE);
-    if (NULL==p) {
-        return -ENOMEM;
-    }
-
-    len = os_vsprintf(p, fmt, args);
-    *buf = p;
-
-    return len;
-}
-
-static inline int
-os_asprintf(char **buf, const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, (char *)fmt);
-    int len = os_vasprintf(buf, fmt, args);
-    va_end(args);
-
-    return len;
-}
-
-static inline int
-os_rsprintf(char **buf, int resv, const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, (char *)fmt);
-    int len = os_vrsprintf(buf, resv, fmt, args);
-    va_end(args);
-
-    return len;
-}
 #else
 #define os_snprintf(_buf, _size, _fmt,_args...) snprintf(_buf, _size, _fmt, ##_args)
 #define os_vsnprintf(_buf, _size, _fmt, _args)  vsnprintf(_buf, _size, _fmt, _args)
