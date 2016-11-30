@@ -345,6 +345,7 @@ __otp_private_write(byte otp[OTP_SIZE])
 
     for (i=0; i<OTP_SIZE; i++) {
         err = hisi_otp_set_private_key(otp, i);
+        os_println("write private key[%d]=%x", i, otp[i]);
         if (err<0) {
             errs = err;
         }
