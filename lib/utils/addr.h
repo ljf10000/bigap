@@ -130,7 +130,41 @@ os_sockaddr_len(sockaddr_t *addr)
         default: return sizeof(sockaddr_t);
     }
 }
+
+#ifndef SCRIPT_GETMAC
+#define SCRIPT_GETMAC       PC_VAL( "ip link show eth0 | grep link | awk '{print $2}'", \
+                                    "ifconfig | grep 'eth0 ' | awk '{print $5}'")
 #endif
+
+#ifndef SCRIPT_GETBASEMAC
+#define SCRIPT_GETBASEMAC   PC_VAL(SCRIPT_GETMAC, "/usr/sbin/getbasemac")
+#endif
+
+/*
+* todo: md1 or md3 handle
+*/
+extern char *
+os_getmacby(char *script);
+/******************************************************************************/
+/*
+* just for single-thread, unsafe for multi-thread
+*
+* @ip: network sort
+*/
+static inline char *
+os_ipstring(uint32 ip)
+{
+    struct in_addr in = {.s_addr = ip};
+    
+    return (char *)inet_ntoa(in);
+}
+
+static inline bool
+is_good_ipstring(char *ip)
+{
+    return is_good_str(ip) && INADDR_NONE!=inet_addr(ip);
+}
+#endif /* __APP__ */
 
 /******************************************************************************/
 enum {
@@ -311,42 +345,5 @@ os_ipmatch(uint32 ipa, uint32 ipb, uint32 mask)
 {
     return (ipa & mask)==(ipb & mask);
 }
-
-#ifdef __APP__
-#ifndef SCRIPT_GETMAC
-#define SCRIPT_GETMAC       PC_VAL( "ip link show eth0 | grep link | awk '{print $2}'", \
-                                    "ifconfig | grep 'eth0 ' | awk '{print $5}'")
-#endif
-
-#ifndef SCRIPT_GETBASEMAC
-#define SCRIPT_GETBASEMAC   PC_VAL(SCRIPT_GETMAC, "/usr/sbin/getbasemac")
-#endif
-
-/*
-* todo: md1 or md3 handle
-*/
-extern char *
-os_getmacby(char *script);
 /******************************************************************************/
-/*
-* just for single-thread, unsafe for multi-thread
-*
-* @ip: network sort
-*/
-static inline char *
-os_ipstring(uint32 ip)
-{
-    struct in_addr in = {.s_addr = ip};
-    
-    return (char *)inet_ntoa(in);
-}
-
-static inline bool
-is_good_ipstring(char *ip)
-{
-    return is_good_str(ip) && INADDR_NONE!=inet_addr(ip);
-}
-#endif
-/******************************************************************************/
-#endif
 #endif /* __ADDR_H_a60fcc799b2f44c38dcbf510eb97f0c6__ */
