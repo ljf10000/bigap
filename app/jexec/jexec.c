@@ -39,7 +39,7 @@ __main(int argc, char *argv[])
         return usage(-EHELP);
     }
 
-    return os_pexec_json(argv[1]);
+    return os_pexec_json(argv[1], NULL);
 }
 
 int allinone_main(int argc, char *argv[])

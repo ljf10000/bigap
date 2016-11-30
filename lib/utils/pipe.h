@@ -133,9 +133,9 @@ os_pexec_clean(pipinfo_t *info)
 }
 
 static inline int
-os_pexec_json(char *json)
+os_pexec_json(char *json, os_pexec_callback_f *cb)
 {
-    pipinfo_t info = PIPINFO_INITER(NULL, os_pexec_jcallback);
+    pipinfo_t info = PIPINFO_INITER(NULL, cb?cb:os_pexec_jcallback);
     int err;
 
     err = os_pexec_jmap(&info, json);

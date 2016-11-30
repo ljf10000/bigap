@@ -105,13 +105,11 @@ static inline int script_type_getidbyname(const char *name);
 #define SCRIPT_RUN_ENUM_MAPPER(_)       \
     _(SCRIPT_RUN_THIS,  0,  "this"),    \
     _(SCRIPT_RUN_NEXT,  1,  "next"),    \
-    _(SCRIPT_RUN_EVERY, 2,  "every"),   \
     /* end */
 DECLARE_ENUM(script_run, SCRIPT_RUN_ENUM_MAPPER, SCRIPT_RUN_END);
 
 #define SCRIPT_RUN_THIS     SCRIPT_RUN_THIS
 #define SCRIPT_RUN_NEXT     SCRIPT_RUN_NEXT
-#define SCRIPT_RUN_EVERY    SCRIPT_RUN_EVERY
 #define SCRIPT_RUN_END      SCRIPT_RUN_END
 
 static inline enum_ops_t *script_run_ops(void);
@@ -124,13 +122,11 @@ static inline int script_run_getidbyname(const char *name);
 #define SCRIPT_CACHE_ENUM_MAPPER(_)         \
     _(SCRIPT_CACHE_NONE,    0,  "none"),    \
     _(SCRIPT_CACHE_CACHE,   1,  "cache"),   \
-    _(SCRIPT_CACHE_FLASH,   2,  "flash"),   \
     /* end */
 DECLARE_ENUM(script_cache, SCRIPT_CACHE_ENUM_MAPPER, SCRIPT_CACHE_END);
 
 #define SCRIPT_CACHE_NONE       SCRIPT_CACHE_NONE
 #define SCRIPT_CACHE_CACHE      SCRIPT_CACHE_CACHE
-#define SCRIPT_CACHE_FLASH      SCRIPT_CACHE_FLASH
 #define SCRIPT_CACHE_END        SCRIPT_CACHE_END
 
 static inline enum_ops_t *script_cache_ops(void);
@@ -161,7 +157,6 @@ typedef struct {
     char *topic;
     char *channel;
     char *cache;
-    char *flash;
 } jinstance_t;
 
 #if USE_JRULE
@@ -182,11 +177,6 @@ typedef struct {
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
     _(offsetof(jinstance_t, cache), cache, "cache", \
-            string, sizeof(char *), JRULE_MUST,     \
-            JRULE_VAR_STRDUP,                       \
-            JRULE_VAR_NULL,                         \
-            JRULE_VAR_NULL),                        \
-    _(offsetof(jinstance_t, flash), flash, "flash", \
             string, sizeof(char *), JRULE_MUST,     \
             JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL,                         \
@@ -327,7 +317,11 @@ static jscript_t J;
 
 static struct {
     int slot;
+    char *mac;
+    
     jobj_t jobj;
+    jobj_t jstd;
+    jobj_t jreply;
     
     bool is_startup;
 
@@ -342,57 +336,6 @@ usage(int argc, char *argv[])
     os_eprintln(__tab __THIS_APPNAME " json [args1 args2 args3]");
 
     return -EINVAL;
-}
-
-static int
-__rpc(void)
-{
-    return os_system(JSCRIPT_REMOTE " %d '%s'", G.slot, jobj_json(G.jobj));
-}
-
-static int
-__exec(void)
-{
-    time_t now = time(NULL);
-
-    if (0==J.period || now < (J.sendtime + J.period)) {
-        char *json = jobj_json(G.jobj);
-#if JSCRIPT_BUILDIN
-        return os_pexec_json(json);
-#else
-        return os_system(JSCRIPT_EXEC " '%s'", json);
-#endif
-    }
-
-    return 0;
-}
-
-static char *
-__dir(void)
-{
-    if (G.is_startup) {
-        return JSCRIPT_STARTUP;
-    }
-    else if (SCRIPT_SCOPE_INSTANCE==J.scope) {
-        if (false==is_good_str(G.dir)) {
-            os_saprintf(G.dir, JSCRIPT_CACHE "/%s", J.instance.name);
-        }
-
-        return G.dir;
-    }
-    else {
-        return JSCRIPT_CACHE;
-    }
-}
-
-static char *
-__filename(void)
-{
-    if (false==is_good_str(G.filename)) {
-        os_saprintf(G.filename, "%s/%s", __dir(), J.filename);
-    }
-
-    return G.filename;
 }
 
 static bool
@@ -422,60 +365,225 @@ __md5eqc(char *content)
 }
 
 static int
-__check(void)
+__report(char *ack, jobj_t jreply)
 {
-    if (NULL==J.filename && NULL==J.content) {
-        return -EBADJSON;
+    int err = 0;
+    
+    if (NULL==J.reply) {
+        return 0;
+    }
+
+    jobj_t jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return -ENOMEM;
+    }
+    time_t now = time(NULL);
+
+    jobj_add_string(jobj, "mac", G.mac);
+    jobj_add_string(jobj, "recvtime", os_fulltime_string(J.recvtime));
+    jobj_add_string(jobj, "exectime", os_fulltime_string(now));
+    jobj_add_string(jobj, "id", J.id);
+    jobj_add_string(jobj, "ack", ack);
+    jobj_add_u64(jobj, "seq", J.seq);
+
+    jobj_add(jobj, "reply", jreply);
+
+    err = os_system("%s '%s'", J.reply, jobj_json(jobj));
+    jobj_put(jobj);
+
+    return err;
+}
+
+static jobj_t 
+__jreply(int error, char *outstring, char *errstring)
+{
+    jobj_t jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return NULL;
+    }
+
+    jobj_add_int(jobj, "errno", error);
+    if (outstring) {
+        jobj_add_string(jobj, "stdout", outstring);
+    }
+    if (errstring) {
+        jobj_add_string(jobj, "stderr", errstring);
+    }
+
+    return jobj;
+}
+
+static int
+__error(int error, char *errstring)
+{
+    __report("error", __jreply(error, NULL, errstring));
+
+    return error;
+}
+
+static int 
+__callback(int error, char *outstring, char *errstring)
+{
+    __report("reply", __jreply(error, outstring, errstring));
+
+    return 0;
+}
+
+static int
+__exec(void)
+{
+    int err;
+    
+    time_t now = time(NULL);
+
+    if (0==J.period || now < (J.sendtime + J.period)) {
+        char *json = jobj_json(G.jobj);
+
+        if (G.slot == J.slot) {
+            // ipc
+            err = os_pexec_json(json, __callback);
+            if (err<0) {
+                return __error(err, "jexec error");
+            }
+        } else {
+            // rpc
+            err = os_system(JSCRIPT_REMOTE " %d '%s'", G.slot, jobj_json(G.jobj));
+
+            return __error(err, 0==err?"jremote ok":"jremote error");
+        }
+    }
+
+    return 0;
+}
+
+static char *
+__dir(void)
+{
+    if (false==is_good_str(G.dir)) {
+        switch(J.scope) {
+            case SCRIPT_SCOPE_INSTANCE:
+                os_saprintf(G.dir, "%s/%s", J.instance.cache, J.instance.name);
+                
+                break;
+            case SCRIPT_SCOPE_GLOBAL:
+            default:
+                os_saprintf(G.dir, "%s", J.instance.cache);
+                
+                break;
+        }
     }
     
-    return 0;
+    return G.dir;
+}
+
+static char *
+__filename(void)
+{
+    if (false==is_good_str(G.filename)) {
+        if ('/'==J.filename[0]) {
+            os_saprintf(G.filename, "%s", J.filename);
+        } else {
+            os_saprintf(G.filename, "%s/%s", __dir(), J.filename);
+        }
+    }
+
+    return G.filename;
+}
+
+static int
+__save_content(void)
+{
+    int err = 0;
+    char *content = b64_decode((byte *)J.content, os_strlen(J.content));
+    if (NULL==content) {
+        return -ENOMEM;
+    }
+    
+    if (NULL==J.md5 || false==__md5eqc(content)) {
+        err = os_writefile(__filename(), content, os_strlen(content), false, false);
+    }
+
+    os_free(content);
+    
+    return __error(0, NULL);
+}
+
+static int
+__download(char *file)
+{
+    if (NULL==J.url) {
+        return __error(1, "file not exist and no url");
+    } else {
+        int err = os_system("curl -o %s %s &> /dev/null", file, J.url);
+
+        return __error(err, "download");
+    }
+}
+
+static int
+__save_file(void)
+{
+    if (NULL==J.filename) {
+        /*
+        * no filename, needn't save
+        */
+        return __error(0, NULL);
+    }
+    else if (SCRIPT_CACHE_NONE==J.cache) {
+        /*
+        * no cache, needn't save
+        */
+        return __error(0, NULL);
+    }
+    else if (J.content) {
+        return __save_content();
+    }
+
+    char *file = __filename();
+    if (false==os_file_exist(file)) {
+        return __download(file);
+    }
+
+    if (__md5eqf(file)) {
+        return __error(0, NULL);
+    } else {
+        return __download(file);
+    }
+}
+
+static int
+__save_json(void)
+{
+    char file[1+OS_LINE_LEN];
+    char *json = jobj_json(G.jobj);
+    
+    os_saprintf(file, "/tmp/startup/next/%s.%llu.json",
+        J.instance.name,
+        J.seq);
+
+    return os_writefile(file, json, os_strlen(json), false, false);
 }
 
 static int
 __handle(void)
 {
-    int err;
+    __save_file();
+
+    if (SCRIPT_RUN_NEXT==J.run) {
+        return __save_json();
+    } else {
+        return __exec();
+    }
+}
+
+static int
+__check(void)
+{
+    if (NULL==J.filename && NULL==J.content) {
+        return __error(1, "no filename and content");
+    }
     
-    if (NULL==J.filename) {
-        /*
-        * no filename
-        *   needn't save, just exec
-        */
-        return __exec();
-    }
-    else if (SCRIPT_CACHE_NONE==J.cache) {
-        /*
-        * no cache
-        *   needn't save, just exec
-        */
-        return __exec();
-    }
-
-    char *filename = __filename();
-    bool exist  = os_file_exist(filename);
-
-    if (J.content) {
-        if (false==exist || (J.md5 && false==__md5eqc(J.content))) {
-            /*
-            * file not-exist
-            * file exist, diff md5
-            *   save it
-            */
-            os_writefile(filename, J.content, os_strlen(J.content), false, false);
-        }
-    }
-    else if (J.url) {
-        if (false==exist || (J.md5 && false==__md5eqf(filename))) {
-            /*
-            * file not-exist
-            * file exist, diff md5
-            *   re-get it
-            */
-            os_getfile_byurl(filename, J.url);
-        }
-    }
-
-    return __exec();
+    return 0;
 }
 
 static int
@@ -484,7 +592,9 @@ __main(int argc, char *argv[])
     char *json = NULL;
     int err;
     
-    G.slot = env_geti("SLOT", 0);
+    G.slot  = env_geti("SLOT", 0);
+    G.mac   = os_getmacby(SCRIPT_GETBASEMAC);
+
     /*
     * get input json
     */
@@ -515,7 +625,7 @@ __main(int argc, char *argv[])
     jobj_t jval = jobj_get(G.jobj, "script");
     if (jval) {
         if (jtype_string != jobj_type(jval)) {
-            return -EBADJSON;
+            return __error(-EBADJSON, "bad json");
         }
         
         char *script = jobj_get_string(jval);
@@ -528,16 +638,17 @@ __main(int argc, char *argv[])
     * append recvtime
     */
     if (NULL==jobj_get(G.jobj, "recvtime")) {
-        char *now = os_fulltime_string(time(NULL));
+        J.recvtime = time(NULL);
         
+        char *now = os_fulltime_string(J.recvtime);
         jobj_add(G.jobj, "recvtime", jobj_new_string(now));
-
-        G.is_startup = false;
+    } else {
+        G.is_startup = true;
     }
     
     err = jrule_j2o(jscript_jrules(), &J, G.jobj);
     if (err<0) {
-        return err;
+        return __error(err, "bad json");
     }
     
     err = __check();
@@ -545,15 +656,7 @@ __main(int argc, char *argv[])
         return err;
     }
     
-    if (G.is_startup) {
-        return __exec();
-    }
-    else if (G.slot == J.slot) {
-        return __handle();
-    }
-    else {
-        return __rpc();
-    }
+    return __handle();
 }
 
 int allinone_main(int argc, char *argv[])
