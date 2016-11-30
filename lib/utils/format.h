@@ -80,9 +80,6 @@ os_vasprintf(char **buf, const char *fmt, va_list args);
 extern int
 os_asprintf(char **buf, const char *fmt, ...);
 
-extern int
-os_rsprintf(char **buf, int resv, const char *fmt, ...);
-
 #else
 #define os_snprintf(_buf, _size, _fmt,_args...) snprintf(_buf, _size, _fmt, ##_args)
 #define os_vsnprintf(_buf, _size, _fmt, _args)  vsnprintf(_buf, _size, _fmt, _args)

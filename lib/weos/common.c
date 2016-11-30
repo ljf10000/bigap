@@ -105,7 +105,6 @@ os_getmacby(char *script)
 
     return line;
 }
-
 #elif defined(__BOOT__)
 #ifndef BOOT_SNPRINTF_BUFSIZE
 #define BOOT_SNPRINTF_BUFSIZE   4096
@@ -176,19 +175,6 @@ os_asprintf(char **buf, const char *fmt, ...)
 
     return len;
 }
-
-int
-os_rsprintf(char **buf, int resv, const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, (char *)fmt);
-    int len = os_vrsprintf(buf, resv, fmt, args);
-    va_end(args);
-
-    return len;
-}
-
 #endif
 
 uint32 
