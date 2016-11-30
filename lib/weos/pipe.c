@@ -375,8 +375,8 @@ os_pexec_jcallback(int error, char *outstring, char *errstring)
     char *newerrstring = NULL;
 
     if (encode) {
-        newoutstring = b64_encode(outstring, os_strlen(outstring));
-        newerrstring = b64_encode(errstring, os_strlen(errstring));
+        newoutstring = b64_encode((byte *)outstring, os_strlen(outstring));
+        newerrstring = b64_encode((byte *)errstring, os_strlen(errstring));
     } else {
         newoutstring = outstring;
         newerrstring = errstring;
