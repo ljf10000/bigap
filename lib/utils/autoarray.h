@@ -12,10 +12,10 @@ typedef struct {
     void (*clean)(void *item);
 } autoarray_t;
 
-EXTERN void
+extern void
 os_aa_clean(autoarray_t *aa);
 
-EXTERN int
+extern int
 os_aa_init(
     autoarray_t *aa, 
     uint32 size, 
@@ -26,7 +26,7 @@ os_aa_init(
     void (*clean)(void *item)
 );
 
-EXTERN void *
+extern void *
 os_aa_get(autoarray_t *aa, int idx, bool grow);
 
 static inline uint32

@@ -69,10 +69,10 @@ typedef void os_dump_line_f(char *line);
 #define os_dump_printf(_fmt, _args...)  os_printf(_fmt, ##_args)
 #endif
 
-EXTERN void
+extern void
 os_dump_line(int line, byte *raw, int len, os_dump_line_f *dump_line);
 
-EXTERN void
+extern void
 __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line);
 
 #define os_dump_buffer(_is_dump, _buffer, _len, _dump_line) do{ \

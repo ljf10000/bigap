@@ -143,7 +143,7 @@ os_sockaddr_len(sockaddr_t *addr)
 /*
 * todo: md1 or md3 handle
 */
-EXTERN char *
+extern char *
 os_getmacby(char *script);
 /******************************************************************************/
 /*
@@ -282,13 +282,13 @@ __is_good_macchar(int ch)
         || (ch >= 'A' && ch <= 'F');
 }
 
-EXTERN bool
+extern bool
 __is_good_macstring(char *macstring);
 
-EXTERN byte *
+extern byte *
 __os_getmac_bystring(byte mac[], char macstring[]);
 
-EXTERN byte *
+extern byte *
 os_getmac_bystring(byte mac[], char macstring[]);
 
 static inline bool
@@ -310,7 +310,7 @@ os_mac(char *macstring)
     return __is_good_macstring(macstring)?__os_getmac_bystring(mac, macstring):OS_ZEROMAC;
 }
 
-EXTERN int
+extern int
 os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep);
 
 #define os_macsaprintf(_mac, _macstring, _type, _sep)   ({  \

@@ -68,16 +68,16 @@
 
 #ifdef __BOOT__
 
-EXTERN int
+extern int
 os_vsnprintf(char *buf, int size, const char *fmt, va_list args);
 
-EXTERN int
+extern int
 os_snprintf(char *buf, int size, const char *fmt, ...);
 
-EXTERN int
+extern int
 os_vasprintf(char **buf, const char *fmt, va_list args);
 
-EXTERN int
+extern int
 os_asprintf(char **buf, const char *fmt, ...);
 
 #else

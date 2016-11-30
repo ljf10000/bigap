@@ -6,10 +6,10 @@
 /*
 * https://github.com/ETrun/crc32
 */
-EXTERN uint32 
+extern uint32 
 __crc32(uint32 crc_in, const void *buf, uint32 size);
 
-EXTERN uint32
+extern uint32
 os_crc32(const void *buf, uint32 size);
 
 #define OS_CRC32_STRINGLEN      8
