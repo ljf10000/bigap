@@ -8,6 +8,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "hisi/hisi.h"
 
 OS_INITER;
+BENV_INITER;
 
 #include "clock.c"
 #include "otp.c"

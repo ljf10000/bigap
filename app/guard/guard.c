@@ -15,6 +15,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 OS_INITER;
+BENV_INITER;
 
 enum { HACKED_CUSTOM = 1 };
 
