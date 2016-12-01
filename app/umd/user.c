@@ -187,7 +187,7 @@ umd_tag_free(umd_tag_t *tag)
 STATIC umd_tag_t *
 umd_tag_new(char *k, char *v)
 {
-    umd_tag_t *tag = (struct um_tag *)os_malloc(sizeof(*tag));
+    umd_tag_t *tag = (umd_tag_t *)os_malloc(sizeof(*tag));
     if (NULL==tag) {
         return NULL;
     }
