@@ -1,6 +1,20 @@
 #ifndef __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 #define __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 /******************************************************************************/
+#ifndef OS_CERT_COUNT
+#define OS_CERT_COUNT           100
+#endif
+
+typedef struct {
+    char *cert;
+    char *key;
+} os_cert_t;
+
+#define __OS_CERT_INITER(_cert, _key)  { \
+    .cert       = _cert,    \
+    .key        = _key,     \
+}   /* end */
+
 typedef struct {
     char *user;
     char *pwdfile;
