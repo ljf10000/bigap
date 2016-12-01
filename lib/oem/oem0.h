@@ -8,8 +8,8 @@
 #define OEM_LSS_SERVER          "lms4." PRODUCT_VENDOR ".com"
 #define OEM_LSS_PORT            "9999"
 
-#include "cert/deft/lss/client.key.c"
-#include "cert/deft/lss/client.crt.c"
+#include "oem/cert/deft/lss/client.key.c"
+#include "oem/cert/deft/lss/client.crt.c"
 
 #define OEM_LSS_INITER __OEM_LSS_INITER( \
     OEM_LSS_USER,   \

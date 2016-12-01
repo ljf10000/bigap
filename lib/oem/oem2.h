@@ -5,8 +5,8 @@
 
 #define OEM2_LSS_SERVER         "lms4." OEM2_NAME ".com"
 
-#include "cert/autelan/lss/client.key.c"
-#include "cert/autelan/lss/client.crt.c"
+#include "oem/cert/autelan/lss/client.key.c"
+#include "oem/cert/autelan/lss/client.crt.c"
 
 #define OEM2_LSS_INITER __OEM_LSS_INITER( \
     OEM_LSS_USER,   \

@@ -5,8 +5,8 @@
 
 #define OEM1_LSS_SERVER         "its." OEM1_NAME" .com"
 
-#include "cert/raytight/lss/client.key.c"
-#include "cert/raytight/lss/client.crt.c"
+#include "oem/cert/raytight/lss/client.key.c"
+#include "oem/cert/raytight/lss/client.crt.c"
 
 #define OEM1_LSS_INITER __OEM_LSS_INITER( \
     OEM_LSS_USER,   \
