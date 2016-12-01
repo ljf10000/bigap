@@ -22,7 +22,7 @@ struct pktinfo {
     .len = sizeof(pkt##x),  \
 }
 
-static struct pktinfo pkt[] = {
+STATIC struct pktinfo zlib_pkt[] = {
     PKT(1), PKT(2), PKT(3), PKT(4), PKT(5), PKT(6), PKT(7), PKT(8), PKT(9), 
     PKT(10), PKT(11), PKT(12), PKT(13), PKT(14), PKT(15), PKT(16), PKT(17), PKT(18), PKT(19), 
     PKT(20), PKT(21), PKT(22), PKT(23), PKT(24), PKT(25), PKT(26), PKT(27), PKT(28), PKT(29), 
@@ -41,14 +41,14 @@ zlib_main_helper(int argc, char *argv[])
     byte output[2048];
     int i, level, err = 0;
 
-    for (i=0; i<os_count_of(pkt); i++) {
+    for (i=0; i<os_count_of(zlib_pkt); i++) {
         for (level=Z_BEST_SPEED; level<=Z_BEST_COMPRESSION; level++) {
             unsigned long output_len = sizeof(output);
-            err = compress2(output, &output_len, (const Bytef *)pkt[i].pkt, pkt[i].len, level);
+            err = compress2(output, &output_len, (const Bytef *)zlib_pkt[i].pkt, zlib_pkt[i].len, level);
 
             os_println("index:%d, input:%d, level:%d, output:%lu",
                 i,
-                pkt[i].len,
+                zlib_pkt[i].len,
                 level, 
                 output_len);
         }

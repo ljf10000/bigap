@@ -10,8 +10,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static int
-__load(bool check)
+STATIC int
+haenv_load_helper(bool check)
 {
     int err;
     
@@ -37,13 +37,12 @@ __load(bool check)
     return 0;
 }
 
-
-static int
-cmd_init(int argc, char *argv[])
+STATIC int
+haenv_cmd_init(int argc, char *argv[])
 {
     int err;
 
-    err = __load(true);
+    err = haenv_load_helper(true);
     if (err<0) {
         return err;
     }
@@ -65,12 +64,12 @@ cmd_init(int argc, char *argv[])
     return 0;
 }
 
-static int
-cmd_gc(int argc, char *argv[])
+STATIC int
+haenv_cmd_gc(int argc, char *argv[])
 {
     int err;
     
-    err = __load(true);
+    err = haenv_load_helper(true);
     if (err<0) {
         return err;
     }
@@ -78,13 +77,13 @@ cmd_gc(int argc, char *argv[])
     return haenv_gc(true);
 }
 
-static int
-cmd_get(int argc, char *argv[])
+STATIC int
+haenv_cmd_get(int argc, char *argv[])
 {
     char *k = argv[1];
     int err = 0;
     
-    err = __load(true);
+    err = haenv_load_helper(true);
     if (err<0) {
         return err;
     }
@@ -99,14 +98,14 @@ cmd_get(int argc, char *argv[])
     return 0;
 }
 
-static int
-cmd_set(int argc, char *argv[])
+STATIC int
+haenv_cmd_set(int argc, char *argv[])
 {
     char *k = argv[1];
     char *v = argv[2];
     int err = 0;
     
-    err = __load(true);
+    err = haenv_load_helper(true);
     if (err<0) {
         return err;
     }
@@ -145,12 +144,12 @@ cmd_set(int argc, char *argv[])
     return err;
 }
 
-static int
-cmd_clean(int argc, char *argv[])
+STATIC int
+haenv_cmd_clean(int argc, char *argv[])
 {
     int err;
     
-    err = __load(false);
+    err = haenv_load_helper(false);
     if (err<0) {
         return err;
     }
@@ -165,12 +164,12 @@ cmd_clean(int argc, char *argv[])
     return 0;
 }
 
-static int
-cmd_deft(int argc, char *argv[])
+STATIC int
+haenv_cmd_deft(int argc, char *argv[])
 {
     int err;
     
-    err = __load(false);
+    err = haenv_load_helper(false);
     if (err<0) {
         return err;
     }
@@ -185,13 +184,13 @@ cmd_deft(int argc, char *argv[])
     return 0;
 }
 
-static cmd_table_t cmd[] = {
-    CMD_TABLE_ENTRY(cmd_set, 3, "set", NULL, NULL),
-    CMD_TABLE_ENTRY(cmd_get, 2, "get", NULL),
-    CMD_TABLE_ENTRY(cmd_init, 1, "init"),
-    CMD_TABLE_ENTRY(cmd_gc, 1, "gc"),
-    CMD_TABLE_ENTRY(cmd_clean, 1, "clean"),
-    CMD_TABLE_ENTRY(cmd_deft, 1, "deft"),
+STATIC cmd_table_t haenv_cmd[] = {
+    CMD_TABLE_ENTRY(haenv_cmd_set, 3, "set", NULL, NULL),
+    CMD_TABLE_ENTRY(haenv_cmd_get, 2, "get", NULL),
+    CMD_TABLE_ENTRY(haenv_cmd_init, 1, "init"),
+    CMD_TABLE_ENTRY(haenv_cmd_gc, 1, "gc"),
+    CMD_TABLE_ENTRY(haenv_cmd_clean, 1, "clean"),
+    CMD_TABLE_ENTRY(haenv_cmd_deft, 1, "deft"),
 };
 
 STATIC int
@@ -203,8 +202,8 @@ haenv_usage(void)
     return -EFORMAT;
 }
 
-static void 
-__exit(int signo)
+STATIC void 
+haenv_exit_helper(int signo)
 {
     int err;
 
@@ -215,13 +214,13 @@ __exit(int signo)
     exit(err);
 }
 
-static inline int
-__init(void)
+STATIC int
+haenv_init_helper(void)
 {
     int err = 0;
     
-    setup_signal_exit(__exit);
-    setup_signal_callstack(__exit);
+    setup_signal_exit(haenv_exit_helper);
+    setup_signal_callstack(haenv_exit_helper);
     
     err = os_init();
     if (err<0) {
@@ -236,8 +235,8 @@ __init(void)
     return 0;
 }
 
-static inline int
-__fini(void)
+STATIC int
+haenv_fini_helper(void)
 {
     haenv_fini();
 
@@ -253,7 +252,7 @@ haenv_main_helper(int argc, char *argv[])
     int err;
 
     haenv_lock();
-    err = cmd_handle(cmd, argc, argv, haenv_usage);
+    err = cmd_handle(haenv_cmd, argc, argv, haenv_usage);
     haenv_unlock();
     
     return err;
@@ -261,7 +260,7 @@ haenv_main_helper(int argc, char *argv[])
 
 int allinone_main(int argc, char *argv[])
 {
-    int err = os_call(__init, __fini, haenv_main_helper, argc, argv);
+    int err = os_call(haenv_init_helper, haenv_fini_helper, haenv_main_helper, argc, argv);
 
     return shell_error(err);
 }
