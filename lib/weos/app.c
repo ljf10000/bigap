@@ -10,6 +10,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "app/env.c"
 #include "app/fd.c"
 #include "app/file.c"
+#include "app/jlog.c"
 #include "app/json.c"
 #include "app/loop.c"
 #include "app/pipe.c"
