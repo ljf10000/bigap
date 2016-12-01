@@ -31,12 +31,12 @@ enum {
     FCOOKIE_LSS_KEY         = 3,
 
     FCOOKIE_CERT_BEGIN      = 4,
-    FCOOKIE_CERT_END        = FCOOKIE_CERT_BEGIN + OS_CERT_COUNT,
+    FCOOKIE_CERT_END        = FCOOKIE_CERT_BEGIN + OS_CERT_COUNT,   // 4+32=36
     
-    FCOOKIE_KEY_BEGIN       = FCOOKIE_CERT_END,
-    FCOOKIE_KEY_END         = FCOOKIE_KEY_BEGIN + OS_CERT_COUNT,
+    FCOOKIE_KEY_BEGIN       = FCOOKIE_CERT_END,                     // 36
+    FCOOKIE_KEY_END         = FCOOKIE_KEY_BEGIN + OS_CERT_COUNT,    // 36+32=68
     
-    FCOOKIE_FILE_END        = FCOOKIE_KEY_END,
+    FCOOKIE_FILE_END        = FCOOKIE_KEY_END,                      // 68
 };
 
 static inline bool
