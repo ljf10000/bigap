@@ -74,7 +74,7 @@ __this_oem(void)
 os_cert_t *
 __this_cert(int idx)
 {
-    static os_cert_t cert[OS_CERT_COUNT] = __THIS_CERT_INITER;
+    static os_cert_t cert[OS_CERT_COUNT] = __THIS_CERT_INITERS;
 
     if (is_good_enum(idx, OS_CERT_COUNT)) {
         return &cert[idx];

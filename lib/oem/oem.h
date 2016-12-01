@@ -2,7 +2,7 @@
 #define __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 /******************************************************************************/
 #ifndef OS_CERT_COUNT
-#define OS_CERT_COUNT           100
+#define OS_CERT_COUNT           128
 #endif
 
 typedef struct {
@@ -93,101 +93,9 @@ static inline int oem_type_getidbyname(const char *name);
     [OEM_T_2]     = OEM2_INITER,  \
 }   /* end */
 /******************************************************************************/
-#include "cert/deft/lss/client.key.c"
-#include "cert/deft/lss/client.crt.c"
-
-#define __THIS_CERT_INITER      { \
-    [0]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [1]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [2]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [3]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [4]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [5]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [6]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [7]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [8]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [9]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [20]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [21]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [22]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [23]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [24]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [25]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [26]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [27]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [28]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [29]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [30]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [31]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [32]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [33]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [34]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [35]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [36]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [37]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [38]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [39]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [40]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [41]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [42]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [43]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [44]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [45]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [46]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [47]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [48]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [49]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [40]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [51]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [52]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [53]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [54]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [55]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [56]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [57]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [58]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [59]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [60]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [61]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [62]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [63]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [64]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [65]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [66]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [67]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [68]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [69]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [70]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [71]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [72]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [73]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [74]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [75]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [76]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [77]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [78]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [79]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [80]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [81]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [82]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [83]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [84]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [85]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [86]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [87]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [88]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [89]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [90]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [91]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [92]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [93]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [94]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [95]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [96]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [97]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [98]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-    [99]    = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
-}   /* end */
+#include "cert/weos/client.key.c"
+#include "cert/weos/client.crt.c"
+#include "cert/weos/this_cert_initer.c"
 /******************************************************************************/
 #ifndef OEM_FILE
 #define OEM_FILE    "/etc/.oem"
