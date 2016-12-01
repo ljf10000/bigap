@@ -11,8 +11,8 @@ typedef struct {
 } os_cert_t;
 
 #define __OS_CERT_INITER(_cert, _key)  { \
-    .cert       = _cert,    \
-    .key        = _key,     \
+    .cert   = _cert,    \
+    .key    = _key,     \
 }   /* end */
 
 typedef struct {
@@ -96,7 +96,7 @@ static inline int oem_type_getidbyname(const char *name);
 #include "cert/deft/lss/client.key.c"
 #include "cert/deft/lss/client.crt.c"
 
-#define __THIS_CERT_INITER      {
+#define __THIS_CERT_INITER      { \
     [0]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
     [1]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
     [2]     = __OS_CERT_INITER(OEM_client_crt, OEM_client_key),    \
