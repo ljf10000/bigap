@@ -200,7 +200,7 @@ extern oem_t *
 __this_oem(void);
 
 extern os_cert_t *
-__this_cert(void);
+__this_cert(int idx);
 
 static inline char *
 oem_vendor(void)
