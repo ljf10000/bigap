@@ -24,8 +24,8 @@ is_good_fcookie_id(int id)
 
 enum {
     FCOOKIE_INVALID         = 0,
-
     FCOOKIE_FILE_BEGIN      = 1,
+    
     FCOOKIE_RSYNC_PWDFILE   = FCOOKIE_FILE_BEGIN,
     FCOOKIE_LSS_CERT        = 2,
     FCOOKIE_LSS_KEY         = 3,
@@ -35,9 +35,8 @@ enum {
     
     FCOOKIE_KEY_BEGIN       = FCOOKIE_CERT_END,
     FCOOKIE_KEY_END         = FCOOKIE_KEY_BEGIN + OS_CERT_COUNT,
-    FCOOKIE_FILE_END        = FCOOKIE_KEY_END,
     
-    FCOOKIE_END             = FCOOKIE_FILE_END,
+    FCOOKIE_FILE_END        = FCOOKIE_KEY_END,
 };
 
 static inline bool
@@ -141,7 +140,7 @@ __fcookie_file(int id, char *tmp_file)
     * mktemp reutrn it, must static
     */
     int err;
-    fcookie_file_t cookie[FCOOKIE_END] = FCOOKIE_INITER;
+    fcookie_file_t cookie[FCOOKIE_FILE_END] = FCOOKIE_INITER;
 
     if (false==is_good_fcookie_file_id(id)) {
         return NULL;
