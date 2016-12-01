@@ -156,7 +156,7 @@ static inline int umd_deauth_reason_getidbyname(const char *name);
 #endif
 
 static inline bool
-is_valid_deauth_reason(int reason)
+is_valid_umd_deauth_reason(int reason)
 {
     return IS_GOOD_VALUE(reason, UMD_DEAUTH_NONE+1, UMD_DEAUTH_END);
 }
@@ -197,7 +197,7 @@ static inline int umd_flow_dir_getidbyname(const char *name);
 #define umd_flow_dir_end    umd_flow_dir_end
 #endif
 
-struct um_limit_online {
+typedef struct {
     uint32 max;         /* config */
     uint32 idle;        /* config */
     uint32 numerator;   /* config */
@@ -206,37 +206,37 @@ struct um_limit_online {
     int aging;          /* run data */
     time_t uptime;      /* run data */
     time_t downtime;    /* run data */
-};
+} umd_limit_online_t;
 
-struct um_limit_flow {
+typedef struct {
     uint64 max;         /* config */
     uint64 now;         /* run data */
     
     uint64 numerator;   /* config */
     uint64 denominator; /* config */
-};
+} umd_limit_flow_t;
 
-struct um_limit_rate {
+typedef struct {
     uint32 max;   /* config */
     uint32 avg;   /* config */
-};
+} umd_limit_rate_t;
 
-struct um_limit {
-    struct um_limit_online online;
-    struct um_limit_flow flow[umd_flow_dir_end];
-    struct um_limit_rate rate[umd_flow_dir_end];
-};
+typedef struct {
+    umd_limit_online_t online;
+    umd_limit_flow_t flow[umd_flow_dir_end];
+    umd_limit_rate_t rate[umd_flow_dir_end];
+} umd_limit_t;
 
-struct um_tag {
+typedef struct {
     struct list_head tag;
 
     char *k;
     char *v;
-};
+} umd_tag_t;
 
 #define UM_F_SYNC       0x01
 
-struct um_user {
+typedef struct {
     byte mac[OS_MACSIZE], __r0[2];
     byte bssid_first[OS_MACSIZE], 
          bssid_current[OS_MACSIZE];
@@ -255,35 +255,36 @@ struct um_user {
     time_t noused;
     time_t hitime;
     
-    struct um_limit limit[umd_flow_type_end];
+    umd_limit_t limit[umd_flow_type_end];
 
     h2_node_t node;
     
     struct {
         struct list_head tag;
     } head;
-};
+}
+umd_user_t;
 
-static inline struct um_limit *
-umd_limit_get(struct um_user *user, int type)
+static inline umd_limit_t *
+umd_limit_get(umd_user_t *user, int type)
 {
     return &user->limit[type];
 }
 
-static inline struct um_limit_online *
-umd_limit_onliner(struct um_user *user, int type)
+static inline umd_limit_online_t *
+umd_limit_onliner(umd_user_t *user, int type)
 {
     return &umd_limit_get(user, type)->online;
 }
 
-static inline struct um_limit_flow *
-umd_limit_flower(struct um_user *user, int type, int dir)
+static inline umd_limit_flow_t *
+umd_limit_flower(umd_user_t *user, int type, int dir)
 {
     return &umd_limit_get(user, type)->flow[dir];
 }
 
-static inline struct um_limit_rate *
-umd_limit_rater(struct um_user *user, int type, int dir)
+static inline umd_limit_rate_t *
+umd_limit_rater(umd_user_t *user, int type, int dir)
 {
     return &umd_limit_get(user, type)->rate[dir];
 }
@@ -325,7 +326,7 @@ umd_limit_rater(struct um_user *user, int type, int dir)
 #define umd_limit_rate(_user, _TYPE, _DIR)      umd_limit_rater(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
 
 static inline void
-umd_update_aging_helper(struct um_user *user, int type, bool debug)
+umd_update_aging_helper(umd_user_t *user, int type, bool debug)
 {
     umd_online_aging(user, type) = umd_online_idle(user, type);
 
@@ -337,27 +338,27 @@ umd_update_aging_helper(struct um_user *user, int type, bool debug)
 }
 
 static inline void
-umd_update_aging(struct um_user *user, bool debug)
+umd_update_aging(umd_user_t *user, bool debug)
 {
     umd_update_aging_helper(user, umd_flow_type_wan, debug);
     umd_update_aging_helper(user, umd_flow_type_lan, debug);
 }
 
-typedef mv_t um_foreach_f(struct um_user *user);
-typedef mv_t um_get_f(struct um_user *user);
+typedef mv_t um_foreach_f(umd_user_t *user);
+typedef mv_t um_get_f(umd_user_t *user);
 
 enum {
-    UM_SERVER_TIMER,    /* must first */
-    UM_SERVER_CLI,
+    UMD_SERVER_TIMER,    /* must first */
+    UMD_SERVER_CLI,
     
-    UM_SERVER_FLOW,
-    UM_SERVER_END = UM_SERVER_FLOW
+    UMD_SERVER_FLOW,
+    UMD_SERVER_END = UMD_SERVER_FLOW
 };
 
-#define um_intf_id(_server_id)  (_server_id - UM_SERVER_END)
-#define um_server_id(_intf_id)  (_intf_id + UM_SERVER_END)
+#define umd_intf_id(_server_id)  (_server_id - UMD_SERVER_END)
+#define umd_server_id(_intf_id)  (_intf_id + UMD_SERVER_END)
 
-struct um_intf {
+typedef struct {
     char name[1+OS_IFNAME_LEN];
     byte mac[OS_MACSIZE], __r0[2];
     uint32 id;
@@ -366,7 +367,7 @@ struct um_intf {
     uint32 ip;
     uint32 mask;
     uint32 flag;
-};
+} umd_intf_t;
 
 #if 1
 #define UM_FORWARD_MODE_ENUM_MAPPER(_)  \
@@ -385,10 +386,10 @@ static inline int flow_mode_getidbyname(const char *name);
 #define um_forward_mode_end um_forward_mode_end
 #endif
 
-struct um_config {
+typedef struct {
     struct {
         int count;
-        struct um_intf *intf;
+        umd_intf_t *intf;
     } instance;
     
     char *script_event;
@@ -405,7 +406,8 @@ struct um_config {
     uint32 fake;
     uint32 machashsize;
     uint32 iphashsize;
-};
+}
+umd_config_t;
 
 #define UMD_CFG_INITER                  {   \
     .syncable = UMD_SYNCABLE,               \
@@ -426,12 +428,12 @@ struct um_config {
 
 #define UM_LAN_COUNT    3
 
-struct um_lan {
+typedef struct {
     uint32 ip;
     uint32 mask;
     char *ipstring;
     char *maskstring;
-};
+} umd_lan_t;
 #define __UMD_LAN_INITER(_ipstring, _maskstring) { \
     .ipstring   = _ipstring,    \
     .maskstring = _maskstring,  \
@@ -449,7 +451,7 @@ enum {
     UM_USER_NIDX_END
 };
 
-struct um_control {
+typedef struct {
     byte basemac[OS_MACSIZE]; /* local ap's base mac */
     uint16 ether_type_ip;   /* network sort */
     uint16 ether_type_vlan; /* network sort */
@@ -458,13 +460,13 @@ struct um_control {
     uint32 ticks;
     bool deinit;
 
-    struct um_lan lan[UM_LAN_COUNT];
-    struct um_config cfg;
+    umd_lan_t lan[UM_LAN_COUNT];
+    umd_config_t cfg;
     char *conf;
     sock_server_t **server;
     int server_count;
     h2_table_t table;
-};
+} umd_control_t;
 
 #define UMD_INITER          {   \
     .lan    = UMD_LAN_INITER,   \
@@ -472,27 +474,27 @@ struct um_control {
     .conf   = UMD_CONF,         \
 }   /* end */
 
-extern struct um_control umd;
+extern umd_control_t umd;
 
 static inline sock_server_t *
-umd_get_server_by_intf(struct um_intf *intf)
+umd_get_server_by_intf(umd_intf_t *intf)
 {
-    return umd.server[um_server_id(intf->id)];
+    return umd.server[umd_server_id(intf->id)];
 }
 
-static inline struct um_intf *
+static inline umd_intf_t *
 umd_get_intf_by_id(int intf_id)
 {
     return &umd.cfg.instance.intf[intf_id];
 }
 
-static inline struct um_intf *
+static inline umd_intf_t *
 umd_get_intf_by_server(sock_server_t *server)
 {
-    return umd_get_intf_by_id(um_intf_id(server->id));
+    return umd_get_intf_by_id(umd_intf_id(server->id));
 }
 
-struct um_user_filter {
+typedef struct {
     int state;
     
     byte mac[OS_MACSIZE];
@@ -500,7 +502,7 @@ struct um_user_filter {
     
     uint32 ip; /* network */
     uint32 ipmask;/* network. zero, not use ip as filter */
-};
+} umd_user_filter_t;
 
 struct vlan_header {
 #if __BYTE_ORDER == __BIG_ENDIAN
@@ -554,13 +556,13 @@ static inline int pkt_check_getidbyname(const char *name);
 #define um_pkt_check_end    um_pkt_check_end
 #endif
 
-struct um_flowst {
+typedef struct {
     uint32 packets;
     uint64 bytes;
-};
+} umd_flowst_t;
 
-struct um_flow {
-    struct um_intf *intf;
+typedef struct {
+    umd_intf_t *intf;
     
     byte packet[2048];
     int len;
@@ -580,19 +582,20 @@ struct um_flow {
     int type;   /* umd_flow_type_lan/umd_flow_type_wan */
     int dir;    /* umd_flow_dir_up/umd_flow_dir_down/umd_flow_dir_all */
 
-    struct um_flowst    total[um_pkt_type_end][um_pkt_check_end],
-                        dev[umd_flow_type_end][umd_flow_dir_end];
-};
+    umd_flowst_t    total[um_pkt_type_end][um_pkt_check_end],
+                    dev[umd_flow_type_end][umd_flow_dir_end];
+}
+umd_flow_t;
 
 /******************************************************************************/
 extern jobj_t
-umd_juser(struct um_user *user);
+umd_juser(umd_user_t *user);
 
-extern struct um_user *
-umd_touser(struct um_user *user, jobj_t obj);
+extern umd_user_t *
+umd_touser(umd_user_t *user, jobj_t obj);
 
 static inline void
-umd_user_dump(char *tag, struct um_user *user)
+umd_user_dump(char *tag, umd_user_t *user)
 {
     jobj_t obj = umd_juser(user);
 
@@ -602,7 +605,7 @@ umd_user_dump(char *tag, struct um_user *user)
 }
 
 static inline void
-umd_user_debug(char *tag, struct um_user *user, bool debug)
+umd_user_debug(char *tag, umd_user_t *user, bool debug)
 {
     if (debug) {
         jobj_t obj = umd_juser(user);
@@ -617,51 +620,51 @@ extern jobj_t
 umd_jflow(void);
 
 extern int
-user_delete(struct um_user *user);
+user_delete(umd_user_t *user);
 
 extern int
-user_unbind(struct um_user *user, int reason);
+user_unbind(umd_user_t *user, int reason);
 
 extern int
-user_unfake(struct um_user *user, int reason);
+user_unfake(umd_user_t *user, int reason);
 
-extern struct um_user *
-user_reauth(struct um_user *user);
+extern umd_user_t *
+user_reauth(umd_user_t *user);
 
 extern int
-user_deauth(struct um_user *user, int reason);
+user_deauth(umd_user_t *user, int reason);
 
-extern struct um_tag *
+extern umd_tag_t *
 umd_user_tag_get(byte mac[], char *k);
 
-extern struct um_tag *
+extern umd_tag_t *
 umd_user_tag_set(byte mac[], char *k, char *v);
 
-extern struct um_user *
+extern umd_user_t *
 umd_user_create(byte mac[]);
 
 extern int
 umd_user_delete(byte mac[]);
 
-extern struct um_user *
+extern umd_user_t *
 umd_user_block(byte mac[]);
 
 extern int
 umd_user_unblock(byte mac[]);
 
-extern struct um_user *
+extern umd_user_t *
 umd_user_bind(byte mac[], uint32 ip);
 
 extern int
 umd_user_unbind(byte mac[]);
 
-extern struct um_user *
+extern umd_user_t *
 umd_user_fake(byte mac[], uint32 ip);
 
 extern int
 umd_user_unfake(byte mac[]);
 
-extern struct um_user *
+extern umd_user_t *
 umd_user_auth(byte mac[], int group, jobj_t obj);
 
 extern int
@@ -670,26 +673,26 @@ umd_user_deauth(byte mac[], int reason);
 extern int
 umd_user_reauth(byte mac[]);
 
-extern struct um_user *
+extern umd_user_t *
 umd_user_sync(byte mac[], jobj_t obj);
 
 extern int
 umd_user_foreach(um_foreach_f *foreach, bool safe);
 
-extern struct um_user *
+extern umd_user_t *
 umd_user_get(byte mac[]);
 
-extern struct um_user *
+extern umd_user_t *
 umd_user_getbyip(uint32 ip);
 
 extern int
-umd_user_getby(struct um_user_filter *filter, um_get_f *get);
+umd_user_getby(umd_user_filter_t *filter, um_get_f *get);
 
 extern int
 umd_user_delbyip(uint32 ip);
 
 extern int
-umd_user_delby(struct um_user_filter *filter);
+umd_user_delby(umd_user_filter_t *filter);
 
 #define UM_TEST_JSON    0x01
 
@@ -701,6 +704,6 @@ extern void
 umd_update_limit_test(void);
 
 extern int 
-umd_gc(struct um_user *user);
+umd_gc(umd_user_t *user);
 /******************************************************************************/
 #endif /* __UM_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__ */

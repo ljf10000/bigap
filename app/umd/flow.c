@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-STATIC struct um_flow umd_flow;
+STATIC umd_flow_t umd_flow;
 
 STATIC bool
 umd_is_dev_mac(byte mac[])
@@ -45,7 +45,7 @@ umd_is_dev_ip(uint32 ip)
 STATIC bool
 umd_is_user_ip(uint32 ip)
 {
-    struct um_intf *intf = umd_flow.intf;
+    umd_intf_t *intf = umd_flow.intf;
     
     return (ip & intf->mask)==(intf->ip & intf->mask);
 }
@@ -56,7 +56,7 @@ umd_is_lan_ip(uint32 ip)
     int i;
     
     for (i=0; i<os_count_of(umd.lan); i++) {
-        struct um_lan *lan = &umd.lan[i];
+        umd_lan_t *lan = &umd.lan[i];
 
         if ((ip & lan->mask)==(lan->ip & lan->mask)) {
             return true;
@@ -67,7 +67,7 @@ umd_is_lan_ip(uint32 ip)
 }
 
 STATIC void
-umd_add_flowst(struct um_flowst *st)
+umd_add_flowst(umd_flowst_t *st)
 {
     st->packets++;
     st->bytes += umd_flow.len;
@@ -537,7 +537,7 @@ umd_ip_handle(sock_server_t *server)
 }
 
 STATIC bool
-umd_is_flow_reauth_helper(struct um_user *user, int type, int dir)
+umd_is_flow_reauth_helper(umd_user_t *user, int type, int dir)
 {
     uint64 reauth = umd_flow_reauthor(user, type, dir);
     uint64 now    = umd_flow_now(user, type, dir);
@@ -556,14 +556,14 @@ umd_is_flow_reauth_helper(struct um_user *user, int type, int dir)
 }
 
 STATIC bool
-umd_is_flow_reauth(struct um_user *user, int type, int dir)
+umd_is_flow_reauth(umd_user_t *user, int type, int dir)
 {
     return umd_is_flow_reauth_helper(user, type, dir)
         || umd_is_flow_reauth_helper(user, type, umd_flow_dir_all);
 }
 
 STATIC void
-umd_flow_reauth(struct um_user *user, int type, int dir)
+umd_flow_reauth(umd_user_t *user, int type, int dir)
 {
     if (umd.cfg.reauthable
             && umd_flow_type_wan==type
@@ -574,7 +574,7 @@ umd_flow_reauth(struct um_user *user, int type, int dir)
 }
 
 STATIC bool
-umd_is_overflow_helper(struct um_user *user, int type, int dir)
+umd_is_overflow_helper(umd_user_t *user, int type, int dir)
 {
     uint64 max    = umd_flow_max(user, type, dir);
     uint64 now    = umd_flow_now(user, type, dir);
@@ -593,14 +593,14 @@ umd_is_overflow_helper(struct um_user *user, int type, int dir)
 }
 
 STATIC bool
-umd_is_overflow(struct um_user *user, int type, int dir)
+umd_is_overflow(umd_user_t *user, int type, int dir)
 {
     return umd_is_overflow_helper(user, type, dir)
         || umd_is_overflow_helper(user, type, umd_flow_dir_all);
 }
 
 STATIC void
-umd_overflow(struct um_user *user, int type, int dir)
+umd_overflow(umd_user_t *user, int type, int dir)
 {
     if (umd_flow_type_wan==type && is_user_auth(user) && umd_is_overflow(user, type, dir)) {
         user_deauth(user, UMD_DEAUTH_FLOWLIMIT);
@@ -615,7 +615,7 @@ umd_overflow(struct um_user *user, int type, int dir)
 }
 
 STATIC void
-umd_flow_update(struct um_user *user, int type, int dir)
+umd_flow_update(umd_user_t *user, int type, int dir)
 {
     if (umd_flow_dir_all!=dir) {
         umd_flow_now(user, type, dir) += umd_flow.len;
@@ -633,7 +633,7 @@ umd_flow_update(struct um_user *user, int type, int dir)
 STATIC int
 umd_flow_handle(sock_server_t *server)
 {
-    struct um_user *user;
+    umd_user_t *user;
 
     user = umd_user_get(umd_flow.usermac);
     if (umd.cfg.autouser && NULL==user) {
@@ -666,7 +666,7 @@ umd_flow_handle(sock_server_t *server)
 }
 
 STATIC jobj_t
-umd_jflow_st(struct um_flowst *st)
+umd_jflow_st(umd_flowst_t *st)
 {
     jobj_t jst = jobj_new_object();
 
@@ -735,7 +735,7 @@ umd_flow_server_init(sock_server_t *server)
     os_closexec(fd);
     os_noblock(fd);
 
-    struct um_intf *intf = umd_get_intf_by_server(server);
+    umd_intf_t *intf = umd_get_intf_by_server(server);
 
     sockaddr_ll_t addr = {
         .sll_family     = AF_PACKET,
@@ -794,6 +794,6 @@ umd_flow_server_handle(sock_server_t *server)
     return 0;
 }
 
-sock_server_t um_flow_server = 
-    SOCK_SERVER_INITER(UM_SERVER_FLOW, AF_PACKET, umd_flow_server_init, umd_flow_server_handle);
+sock_server_t umd_flow_server = 
+    SOCK_SERVER_INITER(UMD_SERVER_FLOW, AF_PACKET, umd_flow_server_init, umd_flow_server_handle);
 /******************************************************************************/

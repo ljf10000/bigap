@@ -12,17 +12,17 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-extern sock_server_t um_cli_server;
-extern sock_server_t um_flow_server;
-extern sock_server_t um_timer_server;
+extern sock_server_t umd_cli_server;
+extern sock_server_t umd_flow_server;
+extern sock_server_t umd_timer_server;
 
 STATIC int
 umd_init_cfg_intf_pre(int count)
 {
-    struct um_intf *intf;
+    umd_intf_t *intf;
     int i;
     
-    intf = (struct um_intf *)os_zalloc(count*sizeof(struct um_intf));
+    intf = (umd_intf_t *)os_zalloc(count*sizeof(umd_intf_t));
     if (NULL==intf) {
         return -ENOMEM;
     }
@@ -44,7 +44,7 @@ STATIC int
 umd_init_cfg_intf_post(void)
 {
     int i, err;
-    struct um_intf *intf;
+    umd_intf_t *intf;
 
     for (i=0; i<umd.cfg.instance.count; i++) {
         intf = &umd.cfg.instance.intf[i];
@@ -83,27 +83,27 @@ umd_init_cfg_server(int count)
     sock_server_t **server;
     int i;
     
-    umd.server_count = count + UM_SERVER_FLOW;
+    umd.server_count = count + UMD_SERVER_FLOW;
     debug_config("server count %d", umd.server_count);
     
     server = (sock_server_t **)os_zalloc(umd.server_count*sizeof(sock_server_t *));
     if (NULL==server) {
         return -ENOMEM;
     }
-    server[UM_SERVER_TIMER] = &um_timer_server;
-    server[UM_SERVER_TIMER]->id = UM_SERVER_TIMER;
+    server[UMD_SERVER_TIMER] = &umd_timer_server;
+    server[UMD_SERVER_TIMER]->id = UMD_SERVER_TIMER;
     debug_config("setup timer server");
     
-    server[UM_SERVER_CLI]   = &um_cli_server;
-    server[UM_SERVER_CLI]->id = UM_SERVER_CLI;
+    server[UMD_SERVER_CLI]   = &umd_cli_server;
+    server[UMD_SERVER_CLI]->id = UMD_SERVER_CLI;
     debug_config("setup cli server");
     
-    for (i=UM_SERVER_FLOW; i<umd.server_count; i++) {
+    for (i=UMD_SERVER_FLOW; i<umd.server_count; i++) {
         server[i] = (sock_server_t *)os_zalloc(sizeof(sock_server_t));
         if (NULL==server[i]) {
             return -ENOMEM;
         }
-        os_objcpy(server[i], &um_flow_server);
+        os_objcpy(server[i], &umd_flow_server);
         server[i]->id = i;
         debug_config("setup flow server[%d]", i);
     }
@@ -116,7 +116,7 @@ umd_init_cfg_server(int count)
 STATIC int
 umd_init_cfg_instance_one(jobj_t jinstance, int id)
 {
-    struct um_intf *intf = &umd.cfg.instance.intf[id];
+    umd_intf_t *intf = &umd.cfg.instance.intf[id];
     
     jobj_t jobj = jobj_get(jinstance, "ingress");
     if (jobj) {
@@ -133,7 +133,7 @@ umd_init_cfg_instance_one(jobj_t jinstance, int id)
 STATIC int
 umd_init_cfg_instance(jobj_t jcfg)
 {
-    struct um_intf *intf;
+    umd_intf_t *intf;
     int i, err, count;
     
     jobj_t jarray = jobj_get(jcfg, "instance");

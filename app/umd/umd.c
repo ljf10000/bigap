@@ -14,7 +14,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-struct um_control umd = UMD_INITER;
+umd_control_t umd = UMD_INITER;
 
 STATIC int
 umd_init_pre(void)

@@ -12,10 +12,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-typedef void um_timer_handle_t(struct um_user *user, time_t now);
+typedef void um_timer_handle_t(umd_user_t *user, time_t now);
 
 STATIC void 
-__try_aging(struct um_user *user, int type)
+__try_aging(umd_user_t *user, int type)
 {
     if (umd_online_idle(user, type)) {
         umd_online_aging(user, type) -= umd.cfg.ticks;
@@ -31,7 +31,7 @@ __try_aging(struct um_user *user, int type)
 }
 
 STATIC void 
-online_aging(struct um_user *user, time_t now)
+online_aging(umd_user_t *user, time_t now)
 {
     (void)now;
     
@@ -42,7 +42,7 @@ online_aging(struct um_user *user, time_t now)
 }
 
 STATIC bool
-__is_gc(struct um_user *user, time_t now)
+__is_gc(umd_user_t *user, time_t now)
 {
     time_t noused = user->noused;
 
@@ -58,7 +58,7 @@ __is_gc(struct um_user *user, time_t now)
     return is;
 }
 
-int umd_gc(struct um_user *user)
+int umd_gc(umd_user_t *user)
 {
     if (is_user_noused(user)) {
         umd_user_debug("gc", user, __is_ak_debug_gc);
@@ -70,7 +70,7 @@ int umd_gc(struct um_user *user)
 }
 
 STATIC void
-gc_auto(struct um_user *user, time_t now)
+gc_auto(umd_user_t *user, time_t now)
 {
     if (__is_gc(user, now)) {
         umd_gc(user);
@@ -78,7 +78,7 @@ gc_auto(struct um_user *user, time_t now)
 }
 
 STATIC bool
-__is_online_timeout(struct um_user *user, time_t now, int type)
+__is_online_timeout(umd_user_t *user, time_t now, int type)
 {
     time_t max      = umd_online_max(user, type);
     time_t uptime   = umd_online_uptime(user, type);
@@ -97,14 +97,14 @@ __is_online_timeout(struct um_user *user, time_t now, int type)
 }
 
 STATIC bool
-is_online_timeout(struct um_user *user, time_t now)
+is_online_timeout(umd_user_t *user, time_t now)
 {
     return __is_online_timeout(user, now, umd_flow_type_wan)
         || __is_online_timeout(user, now, umd_flow_type_lan);
 }
 
 STATIC void 
-online_timeout(struct um_user *user, time_t now)
+online_timeout(umd_user_t *user, time_t now)
 {
     /*
     * online timeout
@@ -116,7 +116,7 @@ online_timeout(struct um_user *user, time_t now)
 }
 
 STATIC bool
-__is_online_reauth(struct um_user *user, time_t now, int type)
+__is_online_reauth(umd_user_t *user, time_t now, int type)
 {
     time_t uptime   = umd_online_uptime(user, type);
     time_t reauth   = umd_online_reauthor(user, type);
@@ -135,14 +135,14 @@ __is_online_reauth(struct um_user *user, time_t now, int type)
 }
 
 STATIC bool
-is_online_reauth(struct um_user *user, time_t now)
+is_online_reauth(umd_user_t *user, time_t now)
 {
     return __is_online_reauth(user, now, umd_flow_type_wan)
         || __is_online_reauth(user, now, umd_flow_type_lan);
 }
 
 STATIC void 
-online_reauth(struct um_user *user, time_t now)
+online_reauth(umd_user_t *user, time_t now)
 {
     /*
     * online reauth
@@ -156,7 +156,7 @@ online_reauth(struct um_user *user, time_t now)
 }
 
 STATIC bool
-is_fake_timeout(struct um_user *user, time_t now)
+is_fake_timeout(umd_user_t *user, time_t now)
 {
     time_t faketime = user->faketime;
     uint32 fake = umd.cfg.fake;
@@ -173,7 +173,7 @@ is_fake_timeout(struct um_user *user, time_t now)
 }
 
 STATIC void 
-fake_timeout(struct um_user *user, time_t now)
+fake_timeout(umd_user_t *user, time_t now)
 {
     if (is_user_fake(user) && is_fake_timeout(user, now)) {        
         user_unfake(user, UMD_DEAUTH_ONLINETIME);
@@ -181,7 +181,7 @@ fake_timeout(struct um_user *user, time_t now)
 }
 
 STATIC void
-timer_handle(struct um_user *user, time_t now)
+timer_handle(umd_user_t *user, time_t now)
 {
     static um_timer_handle_t *handler[] = {
         fake_timeout,
@@ -220,7 +220,7 @@ timer_server_handle(sock_server_t *server)
     time_t now = time(NULL);
     int i;
     
-    mv_t cb(struct um_user *user)
+    mv_t cb(umd_user_t *user)
     {
         timer_handle(user, now);
 
@@ -236,6 +236,6 @@ timer_server_handle(sock_server_t *server)
     return 0;
 }
 
-sock_server_t um_timer_server = 
-    SOCK_SERVER_INITER(UM_SERVER_TIMER, 0, timer_server_init, timer_server_handle);
+sock_server_t umd_timer_server = 
+    SOCK_SERVER_INITER(UMD_SERVER_TIMER, 0, timer_server_init, timer_server_handle);
 /******************************************************************************/

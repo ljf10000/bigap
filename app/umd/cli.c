@@ -17,7 +17,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 * handle {mac} {json}
 */
 STATIC int
-umd_handle_mac_json(struct um_user *(*handle)(byte mac[], jobj_t obj), char *args)
+umd_handle_mac_json(umd_user_t *(*handle)(byte mac[], jobj_t obj), char *args)
 {
     char *mac   = args; cli_shift(args);
     char *json  = args; cli_shift(args);
@@ -37,7 +37,7 @@ umd_handle_mac_json(struct um_user *(*handle)(byte mac[], jobj_t obj), char *arg
         err = -EFORMAT; goto error;
     }
 
-    struct um_user *user = (*handle)(os_mac(mac), obj);
+    umd_user_t *user = (*handle)(os_mac(mac), obj);
     if (NULL==user) {
         err = -EFORMAT; goto error;
     }
@@ -52,7 +52,7 @@ error:
 * handle {mac} {ip}
 */
 STATIC int
-umd_handle_mac_ip(struct um_user *(*handle)(byte mac[], uint32 ip), char *args)
+umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), char *args)
 {
     char *mac   = args; cli_shift(args);
     char *ip    = args; cli_shift(args);
@@ -68,7 +68,7 @@ umd_handle_mac_ip(struct um_user *(*handle)(byte mac[], uint32 ip), char *args)
         return -EFORMAT;
     }
 
-    struct um_user *user = (*handle)(os_mac(mac), inet_addr(ip));
+    umd_user_t *user = (*handle)(os_mac(mac), inet_addr(ip));
     if (NULL==user) {
         return -ENOEXIST;
     }
@@ -101,7 +101,7 @@ umd_handle_create(char *args)
 {
     int create(byte mac[])
     {
-        struct um_user *user = umd_user_create(mac);
+        umd_user_t *user = umd_user_create(mac);
         
         return user?0:-ENOMEM;
     }
@@ -126,7 +126,7 @@ umd_handle_block(char *args)
 {
     int block(byte mac[])
     {
-        struct um_user *user = umd_user_block(mac);
+        umd_user_t *user = umd_user_block(mac);
 
         return user?0:-ENOMEM;
     }
@@ -214,7 +214,7 @@ umd_handle_auth(char *args)
         err = -EBADJSON; goto error;
     }
 
-    struct um_user *user = umd_user_auth(os_mac(mac), groupid, obj);
+    umd_user_t *user = umd_user_auth(os_mac(mac), groupid, obj);
     if (NULL==user) {
         err = -ENOEXIST; goto error;
     }
@@ -255,7 +255,7 @@ umd_handle_reauth(char *args)
 }
 
 STATIC mv_t
-umd_show_user(struct um_user *user)
+umd_show_user(umd_user_t *user)
 {
     jobj_t obj = umd_juser(user);
     
@@ -276,7 +276,7 @@ umd_show_user_byjson(char *json)
     jobj_t jip      = NULL;
     jobj_t juser    = NULL;
     char *string    = NULL;
-    struct um_user *user = NULL;
+    umd_user_t *user = NULL;
     int err = 0;
     
     obj = jobj_byjson(json);
@@ -405,7 +405,7 @@ umd_handle_tag(char *args)
         return -EFORMAT;
     }
 
-    struct um_tag *tag = NULL;
+    umd_tag_t *tag = NULL;
     if (NULL==v) {
         tag = umd_user_tag_get(os_mac(mac), k);
         if (tag) {
@@ -476,6 +476,6 @@ umd_cli_init(sock_server_t *server)
     return 0;
 }
 
-sock_server_t um_cli_server = 
-    SOCK_USERVER_INITER(UM_SERVER_CLI, "umd", umd_cli_init, umd_cli_handle);
+sock_server_t umd_cli_server = 
+    SOCK_USERVER_INITER(UMD_SERVER_CLI, "umd", umd_cli_init, umd_cli_handle);
 /******************************************************************************/
