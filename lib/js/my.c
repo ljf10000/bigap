@@ -106,7 +106,7 @@ duke_debug(duk_context *ctx)
 
 JS_PARAM(pipe, 1);
 STATIC duk_ret_t
-duke_pipe(duk_context *ctx)
+duke_pexec(duk_context *ctx)
 {
     int err;
     char *line = (char *)duk_require_string(ctx, 0);
@@ -750,7 +750,7 @@ STATIC const dukc_func_entry_t js_my_func[] = {
     JS_FUNC(ak_reload),
     JS_FUNC(is_debug),
     JS_FUNC(debug),
-    JS_FUNC(pipe),
+    JS_FUNC(pexec),
     JS_FUNC(shell),
     JS_FUNC(readtxt),
     JS_FUNC(readbin),
