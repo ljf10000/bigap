@@ -102,7 +102,7 @@ inc() {
 
         > ${file}
         for ((i=0; i<CERT_COUNT; i++)); do
-                echo "#include \"cert/weos/${service}${i}.${type}.c\"" >> ${file}
+                echo "#include \"oem/cert/weos/${service}${i}.${type}.c\"" >> ${file}
         done
 }
 
