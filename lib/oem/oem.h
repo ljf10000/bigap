@@ -2,7 +2,7 @@
 #define __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 /******************************************************************************/
 #ifndef OS_CERT_COUNT
-#define OS_CERT_COUNT           128
+#define OS_CERT_COUNT           32
 #endif
 
 typedef struct {
