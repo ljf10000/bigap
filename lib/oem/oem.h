@@ -68,7 +68,7 @@ typedef struct {
 #endif
 
 #ifndef OEM_CERT_COUNT
-#define OEM_CERT_COUNT          256
+#define OEM_CERT_COUNT          100
 #endif
 
 enum {
@@ -159,6 +159,9 @@ __oem_type(void);
 
 extern oem_t *
 __this_oem(void);
+
+extern oem_cert_t *
+__this_cert(void);
 
 static inline char *
 oem_vendor(void)

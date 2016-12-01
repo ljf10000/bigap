@@ -33,23 +33,8 @@
     OEM_RSYNC_PORT,     \
     OEM_RSYNC_TIMEOUT)
 
-#include "cert/deft/lss/client.key.c"
-#include "cert/deft/lss/client.crt.c"
-
-#define OEM_CERT_LSS_INITER {               \
-    [OEM_CERT_KEY]    = OEM_client_key,   \
-    [OEM_CERT_CERT]   = OEM_client_crt,   \
-}   /* end */
-
-#define OEM_CERT_INITER                     {   \
-    .cert = {                                   \
-        [OEM_APP_LSS] = OEM_CERT_LSS_INITER,    \
-    },                                          \
-}   /* end */
-
 #define OEM_INITER __OEM_INITER( \
     OEM_RSYNC_INITER,   \
-    OEM_LSS_INITER,     \
-    OEM_CERT_INITER)
+    OEM_LSS_INITER)
 /******************************************************************************/
 #endif /* __OEM0_H_1ff3b93b24154b88bca8102eee0e5eb7__ */
