@@ -66,15 +66,8 @@ __oem_type(void)
 oem_t *
 __this_oem(void)
 {
-    static oem_t oem[OEM_T_END];
-    static bool inited = false;
+    static oem_t oem[OEM_T_END] = __THIS_OEM_INITER;
 
-    if (false==inited) {
-        oem_t tmp[OEM_T_END] = __THIS_OEM_INITER;
-
-        os_memcpy(oem, tmp, sizeof(oem_t) * OEM_T_END);
-    }
-    
     return &oem[__oem_type()];
 }
 
