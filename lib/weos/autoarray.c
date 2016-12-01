@@ -4,7 +4,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 STATIC void *
 __os_aa_item(autoarray_t *aa, uint32 idx)
 {
-    if (is_good_enum(idx, aa->count)) {
+    if (IS_GOOD_ENUM(idx, aa->count)) {
         return (void *)(aa->base + idx * aa->size);
     } else {
         return NULL;

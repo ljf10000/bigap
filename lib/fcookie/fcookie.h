@@ -8,7 +8,7 @@
 */
 
 enum {
-    FCOOKIE_BEGIN,
+    FCOOKIE_BEGIN   = 0,
     
     FCOOKIE_FILE    = FCOOKIE_BEGIN,
     FCOOKIE_DOMAIN,
@@ -19,29 +19,31 @@ enum {
 static inline bool
 is_good_fcookie_id(int id)
 {
-    return id >= FCOOKIE_BEGIN && id < FCOOKIE_END;
+    return IS_GOOD_VALUE(id, FCOOKIE_BEGIN, FCOOKIE_END);
 }
 
 enum {
-    FCOOKIE_CERT_INVALID    = 0,
+    FCOOKIE_INVALID         = 0,
 
-    FCOOKIE_RSYNC_PWDFILE   = 1,
+    FCOOKIE_FILE_BEGIN      = 1,
+    FCOOKIE_RSYNC_PWDFILE   = FCOOKIE_FILE_BEGIN,
     FCOOKIE_LSS_CERT        = 2,
     FCOOKIE_LSS_KEY         = 3,
-    
+
     FCOOKIE_CERT_BEGIN      = 4,
     FCOOKIE_CERT_END        = FCOOKIE_CERT_BEGIN + OS_CERT_COUNT,
     
     FCOOKIE_KEY_BEGIN       = FCOOKIE_CERT_END,
     FCOOKIE_KEY_END         = FCOOKIE_KEY_BEGIN + OS_CERT_COUNT,
+    FCOOKIE_FILE_END        = FCOOKIE_KEY_END,
     
-    FCOOKIE_END             = FCOOKIE_KEY_END,
+    FCOOKIE_END             = FCOOKIE_FILE_END,
 };
 
 static inline bool
 is_good_fcookie_file_id(int id)
 {
-    return id >= FCOOKIE_FILE_BEGIN && id < FCOOKIE_END;
+    return IS_GOOD_VALUE(id, FCOOKIE_FILE_BEGIN, FCOOKIE_FILE_END);
 }
 
 typedef struct {

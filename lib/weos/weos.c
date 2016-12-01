@@ -38,7 +38,7 @@ __oem_type(void)
 {
     static int type = -1;
 
-    if (false==is_good_enum(type, OEM_T_END)) {
+    if (false==IS_GOOD_ENUM(type, OEM_T_END)) {
         char vendor[1+OEM_NAME_LEN] = {0};
 
         if (os_file_exist(OEM_FILE)) {
@@ -77,7 +77,7 @@ __this_cert(int idx)
 {
     static os_cert_t cert[OS_CERT_COUNT] = __THIS_CERT_INITERS;
 
-    if (is_good_enum(idx, OS_CERT_COUNT)) {
+    if (IS_GOOD_ENUM(idx, OS_CERT_COUNT)) {
         return &cert[idx];
     } else {
         return &cert[0];
