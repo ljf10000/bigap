@@ -36,7 +36,7 @@ STATIC cmd_table_t ak_cmd[] = {
 };
 
 STATIC int
-__ak_main(int argc, char *argv[])
+ak_main_helper(int argc, char *argv[])
 {
     return cmd_handle(ak_cmd, argc, argv, ak_usage);
 }
@@ -46,7 +46,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__ak_main, argc, argv);
+    return os_main(ak_main_helper, argc, argv);
 }
 
 /******************************************************************************/ 

@@ -87,8 +87,8 @@ client(int type, char *path, char *msg)
     return 0;
 }
 
-static int
-__main(int argc, char *argv[])
+STATIC int
+loopc_main_helper(int argc, char *argv[])
 {
     int err;
     
@@ -114,7 +114,7 @@ __main(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 { 
-    int err = os_main(__main, argc, argv);
+    int err = os_main(loopc_main_helper, argc, argv);
 
     return shell_error(err);
 }

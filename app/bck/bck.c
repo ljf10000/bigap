@@ -201,7 +201,7 @@ bck_check_partition(void)
 * cmd have enabled when boot
 */
 STATIC int
-__bck_main(int argc, char *argv[])
+bck_main_helper(int argc, char *argv[])
 {
     static int (*check[])(void) = {
         bck_check_boot,
@@ -229,7 +229,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    int err = os_call(bck_init, bck_fini, __bck_main, argc, argv);
+    int err = os_call(bck_init, bck_fini, bck_main_helper, argc, argv);
 
     return shell_error(err);
 }

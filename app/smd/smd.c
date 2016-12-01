@@ -856,8 +856,8 @@ __exit(int sig)
     exit(sig);
 }
 
-static int 
-__main(int argc, char *argv[])
+STATIC int 
+smd_main_helper(int argc, char *argv[])
 {
     load();
     
@@ -875,7 +875,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_timer(__timer);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(__init, __fini, smd_main_helper, argc, argv);
 
     return shell_error(err);
 }

@@ -16,8 +16,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static int
-__main(int argc, char *argv[])
+STATIC int
+js_main_helper(int argc, char *argv[])
 {
     int err = 0;
     duk_context *ctx = NULL;
@@ -41,6 +41,6 @@ error:
 
 int allinone_main(int argc, char *argv[])
 {
-    return os_main(__main, argc, argv);
+    return os_main(js_main_helper, argc, argv);
 }
 

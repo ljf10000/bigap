@@ -19,8 +19,8 @@ usage(int error)
     return error;
 }
 
-static int
-__main(int argc, char *argv[])
+STATIC int
+pexec_main_helper(int argc, char *argv[])
 {
     int err;
     
@@ -41,6 +41,6 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_main(pexec_main_helper, argc, argv);
 }
 /******************************************************************************/

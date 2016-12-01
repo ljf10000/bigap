@@ -85,7 +85,7 @@ dll_tm(void)
 }
 
 STATIC int
-dll_main(int argc, char *argv[])
+dll_main_helper(int argc, char *argv[])
 {
     int i, err = 0;
 
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(dll_main, argc, argv);
+    return os_main(dll_main_helper, argc, argv);
 }
 
 /******************************************************************************/

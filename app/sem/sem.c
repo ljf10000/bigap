@@ -52,8 +52,8 @@ static cmd_table_t cmd[] = {
     CMD_TABLE_ENTRY(cmd_unlock, 2, "unlock", NULL),
 };
 
-static int
-usage(void)
+STATIC int
+sem_usage(void)
 {
     os_eprintln(__THIS_APPNAME " lock {key} {wait}");
     os_eprintln(__THIS_APPNAME " unlock {key}");
@@ -64,18 +64,18 @@ usage(void)
 /*
 * cmd have enabled when boot
 */
-static int
-__main(int argc, char *argv[])
+STATIC int
+sem_main_helper(int argc, char *argv[])
 {
     int err;
 
-    err = cmd_handle(cmd, argc, argv, usage);
+    err = cmd_handle(cmd, argc, argv, sem_usage);
     
     return err;
 }
 
 int allinone_main(int argc, char *argv[])
 {
-    return os_main(__main, argc, argv);
+    return os_main(sem_main_helper, argc, argv);
 }
 /******************************************************************************/

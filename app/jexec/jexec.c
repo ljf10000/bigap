@@ -32,8 +32,8 @@ usage(int error)
     return error;
 }
 
-static int
-__main(int argc, char *argv[])
+STATIC int
+jexec_main_helper(int argc, char *argv[])
 {
     if (2!=argc) {
         return usage(-EHELP);
@@ -47,6 +47,6 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_main(jexec_main_helper, argc, argv);
 }
 /******************************************************************************/

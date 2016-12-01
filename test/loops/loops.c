@@ -184,8 +184,8 @@ udp(void)
     return 0;
 }
 
-static int
-__main(int argc, char *argv[])
+STATIC int
+loops_main_helper(int argc, char *argv[])
 {
     struct itimerspec tm = OS_ITIMESPEC_INITER(5, 0);
     int sigs[] = {
@@ -246,7 +246,7 @@ __main(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     os_println("main");
-    int err = os_main(__main, argc, argv);
+    int err = os_main(loops_main_helper, argc, argv);
 
     return shell_error(err);
 }

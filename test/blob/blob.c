@@ -142,7 +142,7 @@ __blob_object_btoj(void)
 }
 
 STATIC int
-__blob_main(int argc, char *argv[])
+blob_main_helper(int argc, char *argv[])
 {
     jobj_t obj;
     char *json;
@@ -176,6 +176,6 @@ int main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__blob_main, argc, argv);
+    return os_main(blob_main_helper, argc, argv);
 }
 /******************************************************************************/

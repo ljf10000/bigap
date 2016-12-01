@@ -14,7 +14,7 @@ OS_INITER;
 * cmd have enabled when boot
 */
 STATIC int
-__fcookie_main(int argc, char *argv[])
+fcookie_main_helper(int argc, char *argv[])
 {
     int type;
 
@@ -53,6 +53,6 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__fcookie_main, argc, argv);
+    return os_main(fcookie_main_helper, argc, argv);
 }
 /******************************************************************************/

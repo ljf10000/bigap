@@ -16,8 +16,8 @@ static cli_client_t tmc = CLI_CLIENT_INITER("tmd");
 #define tmc_handle(_action, _argc, _argv) \
     clic_sync_handle(&tmc, _action, _argc, _argv)
 
-static int
-usage(int error)
+STATIC int
+tmc_usage(int error)
 {
     os_eprintln(__THIS_APPNAME " insert {name} delay(second) interval(second) limit command");
     os_eprintln(__THIS_APPNAME " remove {name}");
@@ -36,13 +36,13 @@ cmd_insert(int argc, char *argv[])
     char *command   = argv[4];
     
     if (5!=argc) {
-        return usage(-EINVAL0);
+        return tmc_usage(-EINVAL0);
     }
     else if (os_strlen(name) > TM_NAMESIZE) {
-        return usage(-ETOOBIG);
+        return tmc_usage(-ETOOBIG);
     }
     else if (os_strlen(command) > TM_CMDSIZE) {
-        return usage(-ETOOBIG);
+        return tmc_usage(-ETOOBIG);
     }
     
     int i_delay     = os_atoi(delay);
@@ -50,7 +50,7 @@ cmd_insert(int argc, char *argv[])
     int i_limit     = os_atoi(limit);
     
     if (false==is_good_tm_args(i_delay, i_interval, i_limit)) {
-        return usage(-EINVAL);
+        return tmc_usage(-EINVAL);
     }
     
     return tmc_handle("insert", argc, argv);
@@ -62,10 +62,10 @@ cmd_remove(int argc, char *argv[])
     char *name = argv[0];
     
     if (1!=argc) {
-        return usage(-EINVAL1);
+        return tmc_usage(-EINVAL1);
     }
     else if (os_strlen(name) > TM_NAMESIZE) {
-        return usage(-ETOOBIG);
+        return tmc_usage(-ETOOBIG);
     }
     else {
         return tmc_handle("remove", argc, argv);
@@ -76,7 +76,7 @@ static int
 cmd_clean(int argc, char *argv[])
 {
     if (0!=argc) {
-        return usage(-EINVAL1);
+        return tmc_usage(-EINVAL1);
     }
     else {
         return tmc_handle("clean", argc, argv);
@@ -89,10 +89,10 @@ cmd_show(int argc, char *argv[])
     char *name = argv[0];
     
     if (0!=argc && 1!=argc) {
-        return usage(-EINVAL2);
+        return tmc_usage(-EINVAL2);
     }
     else if (name && os_strlen(name) > TM_NAMESIZE) {
-        return usage(-ETOOBIG);
+        return tmc_usage(-ETOOBIG);
     }
     else {
         return tmc_handle("show", argc, argv);
@@ -120,13 +120,13 @@ command(int argc, char *argv[])
     return 0;
 }
 
-static int
-__main(int argc, char *argv[])
+STATIC int
+tmc_main_helper(int argc, char *argv[])
 {
     int err;
     
     if (1==argc) {
-        return usage(-EHELP);
+        return tmc_usage(-EHELP);
     }
 
     tmc.timeout = env_geti(OS_ENV(TIMEOUT), tmc.timeout);
@@ -144,6 +144,6 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_main(tmc_main_helper, argc, argv);
 }
 /******************************************************************************/

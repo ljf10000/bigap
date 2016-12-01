@@ -1718,8 +1718,8 @@ __exit(int sig)
     exit(sig);
 }
 
-static int
-usage(void)
+STATIC int
+sys_usage(void)
 {
     os_eprintln(__THIS_APPNAME " startup");
     os_eprintln(__THIS_APPNAME " upgrade");
@@ -1954,10 +1954,10 @@ static cmd_table_t cmd[] = {
 /*
 * otp have enabled when boot
 */
-static int
-__main(int argc, char *argv[])
+STATIC int
+sys_main_helper(int argc, char *argv[])
 {
-    return cmd_handle(cmd, argc, argv, usage);
+    return cmd_handle(cmd, argc, argv, sys_usage);
 }
 
 /*
@@ -1965,7 +1965,7 @@ __main(int argc, char *argv[])
 */
 int allinone_main(int argc, char *argv[])
 {
-    int err = os_call(__init_lock_with_block, __fini, __main, argc, argv);
+    int err = os_call(__init_lock_with_block, __fini, sys_main_helper, argc, argv);
 
     return shell_error(err);
 }

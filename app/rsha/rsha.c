@@ -628,7 +628,8 @@ __service(void)
     return __handle(&client);
 }
 
-int __main(int argc, char *argv[])
+STATIC int
+rsha_main_helper(int argc, char *argv[])
 {
     __echo();
     
@@ -648,7 +649,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_user(__signal);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(__init, __fini, rsha_main_helper, argc, argv);
 
     return shell_error(err);
 }

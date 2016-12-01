@@ -329,8 +329,8 @@ static struct {
     char filename[1+OS_LINE_LEN];
 } G;
 
-static int
-usage(int argc, char *argv[])
+STATIC int
+jscript_usage(int argc, char *argv[])
 {
     os_eprintln(__THIS_APPNAME);
     os_eprintln(__tab __THIS_APPNAME " json [args1 args2 args3]");
@@ -586,8 +586,8 @@ __check(void)
     return 0;
 }
 
-static int
-__main(int argc, char *argv[])
+STATIC int
+jscript_main_helper(int argc, char *argv[])
 {
     char *json = NULL;
     int err;
@@ -611,7 +611,7 @@ __main(int argc, char *argv[])
             
             break;
         default:
-            return usage(argc, argv);
+            return jscript_usage(argc, argv);
     }
     
     G.jobj = jobj_byjson(json);
@@ -664,6 +664,6 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_main(jscript_main_helper, argc, argv);
 }
 /******************************************************************************/

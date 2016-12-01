@@ -60,7 +60,7 @@ bkdr_usage(void)
 * cmd have enabled when boot
 */
 STATIC int
-__bkdr_main(int argc, char *argv[])
+bkdr_main_helper(int argc, char *argv[])
 {
     int err;
 
@@ -71,6 +71,6 @@ __bkdr_main(int argc, char *argv[])
 
 int allinone_main(int argc, char *argv[])
 {
-    return os_main(__bkdr_main, argc, argv);
+    return os_main(bkdr_main_helper, argc, argv);
 }
 /******************************************************************************/

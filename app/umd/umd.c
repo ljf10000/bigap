@@ -116,8 +116,8 @@ __init(void)
     return 0;
 }
 
-static int
-__main(int argc, char **argv)
+STATIC int
+umd_main_helper(int argc, char **argv)
 {
     int err = 0;
 
@@ -135,7 +135,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(__exit);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(__init, __fini, umd_main_helper, argc, argv);
 
     return shell_error(err);
 }

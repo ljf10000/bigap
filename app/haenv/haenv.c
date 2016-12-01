@@ -194,8 +194,8 @@ static cmd_table_t cmd[] = {
     CMD_TABLE_ENTRY(cmd_deft, 1, "deft"),
 };
 
-static int
-usage(void)
+STATIC int
+haenv_usage(void)
 {
     os_eprintln(__THIS_APPNAME " set {key}");
     os_eprintln(__THIS_APPNAME " get {key} {value}");
@@ -247,13 +247,13 @@ __fini(void)
 /*
 * cmd have enabled when boot
 */
-static int
-__main(int argc, char *argv[])
+STATIC int
+haenv_main_helper(int argc, char *argv[])
 {
     int err;
 
     haenv_lock();
-    err = cmd_handle(cmd, argc, argv, usage);
+    err = cmd_handle(cmd, argc, argv, haenv_usage);
     haenv_unlock();
     
     return err;
@@ -261,7 +261,7 @@ __main(int argc, char *argv[])
 
 int allinone_main(int argc, char *argv[])
 {
-    int err = os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(__init, __fini, haenv_main_helper, argc, argv);
 
     return shell_error(err);
 }

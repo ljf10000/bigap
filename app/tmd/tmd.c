@@ -575,8 +575,8 @@ __init(void)
     return 0;
 }
 
-static int 
-__main(int argc, char *argv[])
+STATIC int 
+tmd_main_helper(int argc, char *argv[])
 {
     while (1) {
         server_handle();
@@ -590,7 +590,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(__init, __fini, tmd_main_helper, argc, argv);
 
     return shell_error(err);
 }

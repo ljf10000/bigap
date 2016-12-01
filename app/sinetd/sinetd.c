@@ -367,8 +367,8 @@ usage(int argc, char *argv[])
 /*
 * sinetd ip port script
 */
-static int
-__main(int argc, char *argv[])
+STATIC int
+sinetd_main_helper(int argc, char *argv[])
 {
     char *ip    = argv[1];
     char *port  = argv[2];
@@ -432,7 +432,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_main(sinetd_main_helper, argc, argv);
 }
 
 /******************************************************************************/

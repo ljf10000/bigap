@@ -489,8 +489,8 @@ setup(void)
     setup_signal_callstack(NULL);
 }
 
-static int 
-__main(int argc, char *argv[])
+STATIC int 
+jlogd_main_helper(int argc, char *argv[])
 {
     int err;
 
@@ -518,6 +518,6 @@ int allinone_main(int argc, char *argv[])
 {
     setup();
     
-    return os_main(__main, argc, argv);
+    return os_main(jlogd_main_helper, argc, argv);
 }
 /******************************************************************************/

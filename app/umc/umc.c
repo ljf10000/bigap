@@ -16,8 +16,8 @@ static cli_client_t umc = CLI_CLIENT_INITER("umd");
 #define umc_handle(_action, _argc, _argv) \
     clic_sync_handle(&umc, _action, _argc, _argv)
 
-static int
-usage(int error)
+STATIC int
+umc_usage(int error)
 {
     os_eprintln(__THIS_APPNAME " bind   {mac} {ip}");
     os_eprintln(__THIS_APPNAME " unbind {mac}");
@@ -282,7 +282,7 @@ cmd_show(int argc, char *argv[])
             }
         }
         default:
-            return usage(-EHELP);
+            return umc_usage(-EHELP);
     }
 }
 
@@ -352,13 +352,13 @@ command(int argc, char *argv[])
     return 0;
 }
 
-static int 
-__main(int argc, char *argv[])
+STATIC int 
+umc_main_helper(int argc, char *argv[])
 {
     int err;
         
     if (1==argc) {
-        return usage(-EHELP);
+        return umc_usage(-EHELP);
     }
 
     umc.timeout = env_geti(OS_ENV(TIMEOUT), umc.timeout);
@@ -376,7 +376,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_main(umc_main_helper, argc, argv);
 }
 
 /******************************************************************************/

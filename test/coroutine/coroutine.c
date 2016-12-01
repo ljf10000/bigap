@@ -14,14 +14,14 @@ OS_INITER;
 #define TIMES   10
 
 STATIC int
-__coroutine_something(void *data)
+coroutine_something(void *data)
 {
     char name[1+CO_NAME_LEN];
     int i;
 
     for (i=0; i<TIMES; i++) {
         os_saprintf(name, "%s.%d", co_self_name(), i);
-        co_new(name, __coroutine_something, NULL, 0, 128, 0, false);
+        co_new(name, coroutine_something, NULL, 0, 128, 0, false);
     }
     
     co_yield();
@@ -30,7 +30,7 @@ __coroutine_something(void *data)
 }
 
 STATIC int 
-__coroutine_fini(void) 
+coroutine_fini(void) 
 {
     co_fini();
 
@@ -38,7 +38,7 @@ __coroutine_fini(void)
 }
 
 STATIC int 
-__coroutine_init(void) 
+coroutine_init(void) 
 {
     co_init();
 
@@ -46,12 +46,12 @@ __coroutine_init(void)
 }
 
 STATIC int 
-__coroutine_main(int argc, char *argv[])
+coroutine_main_helper(int argc, char *argv[])
 {
     co_id_t one;
     int i = 0;
     
-    one = co_new("1", __coroutine_something, NULL, 0, 128, 0, false);
+    one = co_new("1", coroutine_something, NULL, 0, 128, 0, false);
 
     debug_ok("MAIN start idle");
     co_idle();
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__coroutine_init, __coroutine_fini, __coroutine_main, argc, argv);
+    int err = os_call(coroutine_init, coroutine_fini, coroutine_main_helper, argc, argv);
 
     return shell_error(err);
 }

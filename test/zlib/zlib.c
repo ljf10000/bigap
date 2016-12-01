@@ -35,8 +35,8 @@ static struct pktinfo pkt[] = {
     PKT(90), PKT(91), PKT(92), PKT(93), PKT(94), PKT(95), PKT(96), PKT(97), PKT(98), PKT(99), 
 };
 
-static int 
-__main(int argc, char *argv[])
+STATIC int 
+zlib_main_helper(int argc, char *argv[])
 {
     byte output[2048];
     int i, level, err = 0;
@@ -57,12 +57,11 @@ __main(int argc, char *argv[])
     return 0;
 }
 
-
 int main(int argc, char *argv[])
 {
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_main(zlib_main_helper, argc, argv);
 }
 /******************************************************************************/

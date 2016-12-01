@@ -260,7 +260,8 @@ env_read(STREAM f)
     return 0;
 }
 
-void usage(int argc, char *argv[])
+STATIC void
+bootm_usage(int argc, char *argv[])
 {
     println("%s ==> show all env", argv[0]);
     println("%s name ==> show env by name", argv[0]);
@@ -341,7 +342,7 @@ int bootm_main(int argc, char *argv[])
         * help
         */
         if (0==strcmp("-h", name) || 0==strcmp("--help", name)) {
-            usage(argc, argv);
+            bootm_usage(argc, argv);
             err = 0; goto exit;
         }
         /*
