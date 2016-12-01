@@ -64,56 +64,56 @@
 #endif
 
 #if 1
-#define UM_AUTO_ENUM_MAPPER(_)      \
-    _(UM_AUTO_NONE, 0, "none"),     \
-    _(UM_AUTO_BIND, 1, "bind"),     \
-    _(UM_AUTO_FAKE, 2, "fake"),     \
+#define UMD_AUTO_ENUM_MAPPER(_)     \
+    _(UMD_AUTO_NONE, 0, "none"),    \
+    _(UMD_AUTO_BIND, 1, "bind"),    \
+    _(UMD_AUTO_FAKE, 2, "fake"),    \
     /* end */
-DECLARE_ENUM(user_auto, UM_AUTO_ENUM_MAPPER, UM_AUTO_END);
+DECLARE_ENUM(umd_user_auto, UMD_AUTO_ENUM_MAPPER, UMD_AUTO_END);
 
-static inline enum_ops_t *user_auto_ops(void);
-static inline bool is_good_user_auto(int id);
-static inline char *user_auto_getnamebyid(int id);
-static inline int user_auto_getidbyname(const char *name);
+static inline enum_ops_t *umd_user_auto_ops(void);
+static inline bool is_good_umd_user_auto(int id);
+static inline char *umd_user_auto_getnamebyid(int id);
+static inline int umd_user_auto_getidbyname(const char *name);
 
-#define UM_AUTO_NONE    UM_AUTO_NONE
-#define UM_AUTO_BIND    UM_AUTO_BIND
-#define UM_AUTO_FAKE    UM_AUTO_FAKE
-#define UM_AUTO_END     UM_AUTO_END
+#define UMD_AUTO_NONE   UMD_AUTO_NONE
+#define UMD_AUTO_BIND   UMD_AUTO_BIND
+#define UMD_AUTO_FAKE   UMD_AUTO_FAKE
+#define UMD_AUTO_END    UMD_AUTO_END
 #endif
 
 #ifndef UMD_AUTOUSER
-#define UMD_AUTOUSER    UM_AUTO_FAKE
+#define UMD_AUTOUSER    UMD_AUTO_FAKE
 #endif
 
 #if 1
-#define UM_STATE_ENUM_MAPPER(_)     \
-    _(UM_STATE_NONE, 0, "none"),    \
-    _(UM_STATE_BIND, 1, "bind"),    \
-    _(UM_STATE_FAKE, 2, "fake"),    \
-    _(UM_STATE_AUTH, 3, "auth"),    \
-    _(UM_STATE_BLOCK,4, "block"),   \
+#define UMD_STATE_ENUM_MAPPER(_)    \
+    _(UMD_STATE_NONE, 0, "none"),   \
+    _(UMD_STATE_BIND, 1, "bind"),   \
+    _(UMD_STATE_FAKE, 2, "fake"),   \
+    _(UMD_STATE_AUTH, 3, "auth"),   \
+    _(UMD_STATE_BLOCK,4, "block"),  \
     /* end */
-DECLARE_ENUM(user_state, UM_STATE_ENUM_MAPPER, UM_STATE_END);
+DECLARE_ENUM(umd_user_state, UMD_STATE_ENUM_MAPPER, UMD_STATE_END);
 
-static inline enum_ops_t *user_state_ops(void);
-static inline bool is_good_user_state(int id);
-static inline char *user_state_getnamebyid(int id);
-static inline int user_state_getidbyname(const char *name);
+static inline enum_ops_t *umd_user_state_ops(void);
+static inline bool is_good_umd_user_state(int id);
+static inline char *umd_user_state_getnamebyid(int id);
+static inline int umd_user_state_getidbyname(const char *name);
 
-#define UM_STATE_NONE   UM_STATE_NONE
-#define UM_STATE_BIND   UM_STATE_BIND
-#define UM_STATE_FAKE   UM_STATE_FAKE
-#define UM_STATE_AUTH   UM_STATE_AUTH
-#define UM_STATE_BLOCK  UM_STATE_BLOCK
-#define UM_STATE_END    UM_STATE_END
+#define UMD_STATE_NONE  UMD_STATE_NONE
+#define UMD_STATE_BIND  UMD_STATE_BIND
+#define UMD_STATE_FAKE  UMD_STATE_FAKE
+#define UMD_STATE_AUTH  UMD_STATE_AUTH
+#define UMD_STATE_BLOCK UMD_STATE_BLOCK
+#define UMD_STATE_END   UMD_STATE_END
 #endif
 
-#define __is_user_none(_state)      (UM_STATE_NONE==(_state))
-#define __is_user_bind(_state)      (UM_STATE_BIND==(_state))
-#define __is_user_fake(_state)      (UM_STATE_FAKE==(_state))
-#define __is_user_auth(_state)      (UM_STATE_AUTH==(_state))
-#define __is_user_block(_state)     (UM_STATE_BLOCK==(_state))
+#define __is_user_none(_state)      (UMD_STATE_NONE==(_state))
+#define __is_user_bind(_state)      (UMD_STATE_BIND==(_state))
+#define __is_user_fake(_state)      (UMD_STATE_FAKE==(_state))
+#define __is_user_auth(_state)      (UMD_STATE_AUTH==(_state))
+#define __is_user_block(_state)     (UMD_STATE_BLOCK==(_state))
 #define __is_user_have_auth(_state) (__is_user_fake(_state) || __is_user_auth(_state))
 #define __is_user_have_bind(_state) (__is_user_bind(_state) || __is_user_have_auth(_state))
 
@@ -127,74 +127,74 @@ static inline int user_state_getidbyname(const char *name);
 #define is_user_have_bind(_user)    __is_user_have_bind((_user)->state)
 
 #if 1
-#define UM_DEAUTH_ENUM_MAPPER(_)                \
-    _(UM_DEAUTH_NONE,       0, "none"),         \
-    _(UM_DEAUTH_AUTO,       1, "auto"),         \
-    _(UM_DEAUTH_ONLINETIME, 2, "onlinetime"),   \
-    _(UM_DEAUTH_FLOWLIMIT,  3, "flowlimit"),    \
-    _(UM_DEAUTH_ADMIN,      4, "admin"),        \
-    _(UM_DEAUTH_AGING,      5, "aging"),        \
-    _(UM_DEAUTH_INITIATIVE, 6, "initiative"),   \
-    _(UM_DEAUTH_BLOCK,      7, "block"),        \
+#define UMD_DEAUTH_ENUM_MAPPER(_)                \
+    _(UMD_DEAUTH_NONE,       0, "none"),         \
+    _(UMD_DEAUTH_AUTO,       1, "auto"),         \
+    _(UMD_DEAUTH_ONLINETIME, 2, "onlinetime"),   \
+    _(UMD_DEAUTH_FLOWLIMIT,  3, "flowlimit"),    \
+    _(UMD_DEAUTH_ADMIN,      4, "admin"),        \
+    _(UMD_DEAUTH_AGING,      5, "aging"),        \
+    _(UMD_DEAUTH_INITIATIVE, 6, "initiative"),   \
+    _(UMD_DEAUTH_BLOCK,      7, "block"),        \
     /* end */
-DECLARE_ENUM(deauth_reason, UM_DEAUTH_ENUM_MAPPER, UM_DEAUTH_END);
+DECLARE_ENUM(umd_deauth_reason, UMD_DEAUTH_ENUM_MAPPER, UMD_DEAUTH_END);
 
-static inline enum_ops_t *deauth_reason_ops(void);
-static inline bool is_good_deauth_reason(int id);
-static inline char *deauth_reason_getnamebyid(int id);
-static inline int deauth_reason_getidbyname(const char *name);
+static inline enum_ops_t *umd_deauth_reason_ops(void);
+static inline bool is_good_umd_deauth_reason(int id);
+static inline char *umd_deauth_reason_getnamebyid(int id);
+static inline int umd_deauth_reason_getidbyname(const char *name);
 
-#define UM_DEAUTH_NONE          UM_DEAUTH_NONE
-#define UM_DEAUTH_AUTO          UM_DEAUTH_AUTO
-#define UM_DEAUTH_ONLINETIME    UM_DEAUTH_ONLINETIME
-#define UM_DEAUTH_FLOWLIMIT     UM_DEAUTH_FLOWLIMIT
-#define UM_DEAUTH_ADMIN         UM_DEAUTH_ADMIN
-#define UM_DEAUTH_AGING         UM_DEAUTH_AGING
-#define UM_DEAUTH_INITIATIVE    UM_DEAUTH_INITIATIVE
-#define UM_DEAUTH_BLOCK         UM_DEAUTH_BLOCK
-#define UM_DEAUTH_END           UM_DEAUTH_END
+#define UMD_DEAUTH_NONE         UMD_DEAUTH_NONE
+#define UMD_DEAUTH_AUTO         UMD_DEAUTH_AUTO
+#define UMD_DEAUTH_ONLINETIME   UMD_DEAUTH_ONLINETIME
+#define UMD_DEAUTH_FLOWLIMIT    UMD_DEAUTH_FLOWLIMIT
+#define UMD_DEAUTH_ADMIN        UMD_DEAUTH_ADMIN
+#define UMD_DEAUTH_AGING        UMD_DEAUTH_AGING
+#define UMD_DEAUTH_INITIATIVE   UMD_DEAUTH_INITIATIVE
+#define UMD_DEAUTH_BLOCK        UMD_DEAUTH_BLOCK
+#define UMD_DEAUTH_END          UMD_DEAUTH_END
 #endif
 
 static inline bool
 is_valid_deauth_reason(int reason)
 {
-    return IS_GOOD_VALUE(reason, UM_DEAUTH_NONE+1, UM_DEAUTH_END);
+    return IS_GOOD_VALUE(reason, UMD_DEAUTH_NONE+1, UMD_DEAUTH_END);
 }
 
 #if 1
-#define UM_FLOW_TYPE_ENUM_MAPPER(_) \
-    _(um_flow_type_lan, 0, "lan"),  \
-    _(um_flow_type_wan, 1, "wan"),  \
+#define UMD_FLOW_TYPE_ENUM_MAPPER(_) \
+    _(umd_flow_type_lan, 0, "lan"), \
+    _(umd_flow_type_wan, 1, "wan"), \
     /* end */
-DECLARE_ENUM(flow_type, UM_FLOW_TYPE_ENUM_MAPPER, um_flow_type_end);
+DECLARE_ENUM(umd_flow_type, UMD_FLOW_TYPE_ENUM_MAPPER, umd_flow_type_end);
 
-static inline enum_ops_t *flow_type_ops(void);
-static inline bool is_good_flow_type(int id);
-static inline char *flow_type_getnamebyid(int id);
-static inline int flow_type_getidbyname(const char *name);
+static inline enum_ops_t *umd_flow_type_ops(void);
+static inline bool is_good_umd_flow_type(int id);
+static inline char *umd_flow_type_getnamebyid(int id);
+static inline int umd_flow_type_getidbyname(const char *name);
 
-#define um_flow_type_lan    um_flow_type_lan
-#define um_flow_type_wan    um_flow_type_wan
-#define um_flow_type_end    um_flow_type_end
+#define umd_flow_type_lan   umd_flow_type_lan
+#define umd_flow_type_wan   umd_flow_type_wan
+#define umd_flow_type_end   umd_flow_type_end
 #endif
 
 #if 1
-#define UM_FLOW_DIR_ENUM_MAPPER(_)  \
-    _(um_flow_dir_up,   0, "up"),   \
-    _(um_flow_dir_down, 1, "down"), \
-    _(um_flow_dir_all,  2, "all"),  \
+#define UMD_FLOW_DIR_ENUM_MAPPER(_) \
+    _(umd_flow_dir_up,   0, "up"),  \
+    _(umd_flow_dir_down, 1, "down"),\
+    _(umd_flow_dir_all,  2, "all"), \
     /* end */
-DECLARE_ENUM(flow_dir, UM_FLOW_DIR_ENUM_MAPPER, um_flow_dir_end);
+DECLARE_ENUM(umd_flow_dir, UMD_FLOW_DIR_ENUM_MAPPER, umd_flow_dir_end);
 
-static inline enum_ops_t *flow_dir_ops(void);
-static inline bool is_good_flow_dir(int id);
-static inline char *flow_dir_getnamebyid(int id);
-static inline int flow_dir_getidbyname(const char *name);
+static inline enum_ops_t *umd_flow_dir_ops(void);
+static inline bool is_good_umd_flow_dir(int id);
+static inline char *umd_flow_dir_getnamebyid(int id);
+static inline int umd_flow_dir_getidbyname(const char *name);
 
-#define um_flow_dir_up      um_flow_dir_up
-#define um_flow_dir_down    um_flow_dir_down
-#define um_flow_dir_all     um_flow_dir_all
-#define um_flow_dir_end     um_flow_dir_end
+#define umd_flow_dir_up     umd_flow_dir_up
+#define umd_flow_dir_down   umd_flow_dir_down
+#define umd_flow_dir_all    umd_flow_dir_all
+#define umd_flow_dir_end    umd_flow_dir_end
 #endif
 
 struct um_limit_online {
@@ -223,8 +223,8 @@ struct um_limit_rate {
 
 struct um_limit {
     struct um_limit_online online;
-    struct um_limit_flow flow[um_flow_dir_end];
-    struct um_limit_rate rate[um_flow_dir_end];
+    struct um_limit_flow flow[umd_flow_dir_end];
+    struct um_limit_rate rate[umd_flow_dir_end];
 };
 
 struct um_tag {
@@ -255,7 +255,7 @@ struct um_user {
     time_t noused;
     time_t hitime;
     
-    struct um_limit limit[um_flow_type_end];
+    struct um_limit limit[umd_flow_type_end];
 
     h2_node_t node;
     
@@ -331,7 +331,7 @@ umd_update_aging_helper(struct um_user *user, int type, bool debug)
 
     if (debug) {
         debug_aging("update %s aging to %d",
-            flow_type_getnamebyid(type),
+            umd_flow_type_getnamebyid(type),
             umd_online_aging(user, type));
     }
 }
@@ -339,8 +339,8 @@ umd_update_aging_helper(struct um_user *user, int type, bool debug)
 static inline void
 umd_update_aging(struct um_user *user, bool debug)
 {
-    umd_update_aging_helper(user, um_flow_type_wan, debug);
-    umd_update_aging_helper(user, um_flow_type_lan, debug);
+    umd_update_aging_helper(user, umd_flow_type_wan, debug);
+    umd_update_aging_helper(user, umd_flow_type_lan, debug);
 }
 
 typedef mv_t um_foreach_f(struct um_user *user);
@@ -577,11 +577,11 @@ struct um_flow {
     byte *smac;
     byte *dmac;
     
-    int type;   /* um_flow_type_lan/um_flow_type_wan */
-    int dir;    /* um_flow_dir_up/um_flow_dir_down/um_flow_dir_all */
+    int type;   /* umd_flow_type_lan/umd_flow_type_wan */
+    int dir;    /* umd_flow_dir_up/umd_flow_dir_down/umd_flow_dir_all */
 
     struct um_flowst    total[um_pkt_type_end][um_pkt_check_end],
-                        dev[um_flow_type_end][um_flow_dir_end];
+                        dev[umd_flow_type_end][umd_flow_dir_end];
 };
 
 /******************************************************************************/

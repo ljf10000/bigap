@@ -167,7 +167,7 @@ umd_handle_unbind(char *args)
 STATIC int
 umd_handle_fake(char *args)
 {
-    if (UM_AUTO_FAKE==umd.cfg.autouser) {
+    if (UMD_AUTO_FAKE==umd.cfg.autouser) {
         return umd_handle_mac_ip(umd_user_fake, args);
     } else {
         return -ENOSUPPORT;
@@ -180,7 +180,7 @@ umd_handle_fake(char *args)
 STATIC int
 umd_handle_unfake(char *args)
 {
-    if (UM_AUTO_FAKE==umd.cfg.autouser) {
+    if (UMD_AUTO_FAKE==umd.cfg.autouser) {
         return umd_handle_mac(umd_user_unfake, args);
     } else {
         return -ENOSUPPORT;
@@ -233,7 +233,7 @@ umd_handle_deauth(char *args)
 {
     int deauth(byte mac[])
     {
-        umd_user_deauth(mac, UM_DEAUTH_ADMIN);
+        umd_user_deauth(mac, UMD_DEAUTH_ADMIN);
 
         return 0;
     }

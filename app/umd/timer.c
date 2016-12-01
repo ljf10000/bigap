@@ -23,9 +23,9 @@ __try_aging(struct um_user *user, int type)
         if (umd_online_aging(user, type) <= 0) {
             debug_timeout("user(%s) type(%s) online aging",
                 os_macstring(user->mac),
-                flow_type_getnamebyid(type));
+                umd_flow_type_getnamebyid(type));
             
-            user_unbind(user, UM_DEAUTH_AGING);
+            user_unbind(user, UMD_DEAUTH_AGING);
         }
     }
 }
@@ -36,8 +36,8 @@ online_aging(struct um_user *user, time_t now)
     (void)now;
     
     if (is_user_have_bind(user)) {
-        __try_aging(user, um_flow_type_wan);
-        __try_aging(user, um_flow_type_lan);
+        __try_aging(user, umd_flow_type_wan);
+        __try_aging(user, umd_flow_type_lan);
     }
 }
 
@@ -87,7 +87,7 @@ __is_online_timeout(struct um_user *user, time_t now, int type)
     if (is) {
         debug_timeout("user(%s) type(%s) max(%u) uptime(%u) now(%u) online timeout",
             os_macstring(user->mac),
-            flow_type_getnamebyid(type),
+            umd_flow_type_getnamebyid(type),
             max,
             uptime,
             now);
@@ -99,8 +99,8 @@ __is_online_timeout(struct um_user *user, time_t now, int type)
 STATIC bool
 is_online_timeout(struct um_user *user, time_t now)
 {
-    return __is_online_timeout(user, now, um_flow_type_wan)
-        || __is_online_timeout(user, now, um_flow_type_lan);
+    return __is_online_timeout(user, now, umd_flow_type_wan)
+        || __is_online_timeout(user, now, umd_flow_type_lan);
 }
 
 STATIC void 
@@ -111,7 +111,7 @@ online_timeout(struct um_user *user, time_t now)
     *   just for auth user
     */
     if (is_user_auth(user) && is_online_timeout(user, now)) {        
-        user_deauth(user, UM_DEAUTH_ONLINETIME);
+        user_deauth(user, UMD_DEAUTH_ONLINETIME);
     }
 }
 
@@ -125,7 +125,7 @@ __is_online_reauth(struct um_user *user, time_t now, int type)
     if (is) {
         debug_timeout("user(%s) type(%s) reauth(%u) uptime(%u) now(%u) online reauth",
             os_macstring(user->mac),
-            flow_type_getnamebyid(type),
+            umd_flow_type_getnamebyid(type),
             reauth,
             uptime,
             now);
@@ -137,8 +137,8 @@ __is_online_reauth(struct um_user *user, time_t now, int type)
 STATIC bool
 is_online_reauth(struct um_user *user, time_t now)
 {
-    return __is_online_reauth(user, now, um_flow_type_wan)
-        || __is_online_reauth(user, now, um_flow_type_lan);
+    return __is_online_reauth(user, now, umd_flow_type_wan)
+        || __is_online_reauth(user, now, umd_flow_type_lan);
 }
 
 STATIC void 
@@ -176,7 +176,7 @@ STATIC void
 fake_timeout(struct um_user *user, time_t now)
 {
     if (is_user_fake(user) && is_fake_timeout(user, now)) {        
-        user_unfake(user, UM_DEAUTH_ONLINETIME);
+        user_unfake(user, UMD_DEAUTH_ONLINETIME);
     }
 }
 

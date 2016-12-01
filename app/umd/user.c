@@ -275,7 +275,7 @@ flow_reset(struct um_user *user, int type)
 {
     int i;
 
-    for (i=0; i<um_flow_dir_end; i++) {
+    for (i=0; i<umd_flow_dir_end; i++) {
         umd_flow_now(user, type, i) = 0;
     }
 }
@@ -292,17 +292,17 @@ lan_online(struct um_user *user)
     *   5. reset lan/wan flow
     *   6. reset tag
     */
-    umd_online_uptime(user, um_flow_type_lan)     = time(NULL);
-    umd_online_uptime(user, um_flow_type_wan)     = 0;
+    umd_online_uptime(user, umd_flow_type_lan)     = time(NULL);
+    umd_online_uptime(user, umd_flow_type_wan)     = 0;
     
-    umd_online_downtime(user, um_flow_type_lan)   = 0;
-    umd_online_downtime(user, um_flow_type_wan)   = 0;
+    umd_online_downtime(user, umd_flow_type_lan)   = 0;
+    umd_online_downtime(user, umd_flow_type_wan)   = 0;
 
-    umd_online_idle(user, um_flow_type_lan) = umd.cfg.idle;
-    umd_online_idle(user, um_flow_type_wan) = umd.cfg.idle;
+    umd_online_idle(user, umd_flow_type_lan) = umd.cfg.idle;
+    umd_online_idle(user, umd_flow_type_wan) = umd.cfg.idle;
     
-    flow_reset(user, um_flow_type_lan);
-    flow_reset(user, um_flow_type_wan);
+    flow_reset(user, umd_flow_type_lan);
+    flow_reset(user, umd_flow_type_wan);
 
     tag_clear(user);
     
@@ -319,12 +319,12 @@ wan_online(struct um_user *user)
     *   3. reset wan flow
     *   4. reset tag
     */
-    umd_online_uptime(user, um_flow_type_wan)     = time(NULL);
+    umd_online_uptime(user, umd_flow_type_wan)     = time(NULL);
     
-    umd_online_downtime(user, um_flow_type_lan)   = 0;
-    umd_online_downtime(user, um_flow_type_wan)   = 0;
+    umd_online_downtime(user, umd_flow_type_lan)   = 0;
+    umd_online_downtime(user, umd_flow_type_wan)   = 0;
 
-    flow_reset(user, um_flow_type_wan);
+    flow_reset(user, umd_flow_type_wan);
 
     tag_clear(user);
     
@@ -339,7 +339,7 @@ lan_offline(struct um_user *user)
     *   1. update lan downtime
     *      and keep others
     */
-    umd_online_downtime(user, um_flow_type_lan)   = time(NULL);
+    umd_online_downtime(user, umd_flow_type_lan)   = time(NULL);
 
     if (is_user_noused(user)) {
         user->noused = time(NULL);
@@ -357,8 +357,8 @@ wan_offline(struct um_user *user)
     *   2. clear  lan downtime
     *      and keep others
     */
-    umd_online_downtime(user, um_flow_type_wan)   = time(NULL);
-    umd_online_downtime(user, um_flow_type_lan)   = 0;
+    umd_online_downtime(user, umd_flow_type_wan)   = time(NULL);
+    umd_online_downtime(user, umd_flow_type_lan)   = 0;
     
     debug_event("user %s wan offline", os_macstring(user->mac));
 }
@@ -438,16 +438,16 @@ __set_reason(struct um_user *user, int reason)
         return;
     }
     else if (reason==user->reason) {
-        debug_bug("same reason %s", deauth_reason_getnamebyid(reason));
+        debug_bug("same reason %s", umd_deauth_reason_getnamebyid(reason));
         
         return;
     }
 
     debug_trace("user(%s) state(%s) reason change %s==>%s", 
         os_macstring(user->mac),
-        user_state_getnamebyid(user->state),
-        deauth_reason_getnamebyid(user->reason), 
-        deauth_reason_getnamebyid(reason));
+        umd_user_state_getnamebyid(user->state),
+        umd_deauth_reason_getnamebyid(user->reason), 
+        umd_deauth_reason_getnamebyid(reason));
     
     user->reason = reason;
 }
@@ -480,15 +480,15 @@ __set_state(struct um_user *user, int state)
         return;
     }
     else if (state==user->state) {
-        debug_bug("same state %s", user_state_getnamebyid(state));
+        debug_bug("same state %s", umd_user_state_getnamebyid(state));
         
         return;
     }
 
     debug_trace("user %s state change %s==>%s", 
         os_macstring(user->mac), 
-        user_state_getnamebyid(user->state), 
-        user_state_getnamebyid(state));
+        umd_user_state_getnamebyid(user->state), 
+        umd_user_state_getnamebyid(state));
 
     user->state = state;
 }
@@ -553,7 +553,7 @@ __user_create(byte mac[], event_cb_t *ev)
     INIT_LIST_HEAD(&user->head.tag);
 
     user_debug_tail_call("create", user, {
-        __set_state(user, UM_STATE_NONE);
+        __set_state(user, UMD_STATE_NONE);
         lan_online(user);
         user->create = user->noused = time(NULL);
         __user_insert(user);
@@ -579,7 +579,7 @@ __user_deauth(struct um_user *user, int reason, event_cb_t *ev)
         __set_reason(user, reason);
         ev_call(ev, user);
         
-        __set_state(user, UM_STATE_BIND);
+        __set_state(user, UMD_STATE_BIND);
         __set_group(user, 0);
         wan_offline(user);
     });
@@ -603,7 +603,7 @@ __user_unfake(struct um_user *user, int reason, event_cb_t *ev)
         __set_reason(user, reason);
         ev_call(ev, user);
         
-        __set_state(user, UM_STATE_BIND);
+        __set_state(user, UMD_STATE_BIND);
         wan_offline(user);
     });
 
@@ -632,7 +632,7 @@ __user_unbind(struct um_user *user, int reason, event_cb_t *ev)
         ev_call(ev, user);
         
         __set_ip(user, 0);
-        __set_state(user, UM_STATE_NONE);
+        __set_state(user, UMD_STATE_NONE);
         lan_offline(user);
     });
 
@@ -647,7 +647,7 @@ __user_block(struct um_user *user, event_cb_t *ev)
     }
 
     // try auth/fake/bind==>none
-    __user_unbind(user, UM_DEAUTH_BLOCK, __ev);
+    __user_unbind(user, UMD_DEAUTH_BLOCK, __ev);
 
     // must @none
     if (false==is_user_none(user)) {
@@ -656,10 +656,10 @@ __user_block(struct um_user *user, event_cb_t *ev)
 
     // none==>block
     user_debug_call("block", user, {
-        __set_reason(user, UM_DEAUTH_BLOCK);
+        __set_reason(user, UMD_DEAUTH_BLOCK);
         ev_call(ev, user);
         
-        __set_state(user, UM_STATE_BLOCK);
+        __set_state(user, UMD_STATE_BLOCK);
     });
 
     return user;
@@ -678,7 +678,7 @@ __user_unblock(struct um_user *user, event_cb_t *ev)
 
     // block==>none
     user_debug_call("unblock", user, {
-        __set_state(user, UM_STATE_NONE);
+        __set_state(user, UMD_STATE_NONE);
         
         ev_call(ev, user);
     });
@@ -702,7 +702,7 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
             return user;
         } else {
             // diff ip @bind/auth/fake, first unbind user(==>none)
-            __user_unbind(user, UM_DEAUTH_AUTO, __ev);
+            __user_unbind(user, UMD_DEAUTH_AUTO, __ev);
         }
     }
 
@@ -714,7 +714,7 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
     // none==>bind
     user_debug_call("bind", user, {
         __set_ip(user, ip);
-        __set_state(user, UM_STATE_BIND);
+        __set_state(user, UMD_STATE_BIND);
         lan_online(user);
         umd_update_aging(user, true);
         ev_call(ev, user);
@@ -739,13 +739,13 @@ __user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
             return user;
         } else {
             // diff ip @bind/auth/fake, first unbind user(==>none)
-            __user_unbind(user, UM_DEAUTH_AUTO, __ev);
+            __user_unbind(user, UMD_DEAUTH_AUTO, __ev);
         }
     }
     
     user_debug_call("fake", user, {
         __set_ip(user, ip);
-        __set_state(user, UM_STATE_FAKE);
+        __set_state(user, UMD_STATE_FAKE);
         lan_online(user);
         umd_update_aging(user, true);
         user->faketime = time(NULL);
@@ -809,9 +809,9 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
     }
     
     user_debug_call("auth", user, {
-        __set_state(user, UM_STATE_AUTH);
+        __set_state(user, UMD_STATE_AUTH);
         __set_group(user, group);
-        __set_reason(user, UM_DEAUTH_NONE);
+        __set_reason(user, UMD_DEAUTH_NONE);
         update_limit(user, obj);
         wan_online(user);
         umd_update_aging(user, true);
@@ -1004,7 +1004,7 @@ umd_user_bind(byte mac[], uint32 ip)
 
 int umd_user_unbind(byte mac[])
 {
-    return user_unbind(user_get(mac), UM_DEAUTH_INITIATIVE);
+    return user_unbind(user_get(mac), UMD_DEAUTH_INITIATIVE);
 }
 
 struct um_user *
@@ -1015,7 +1015,7 @@ umd_user_fake(byte mac[], uint32 ip)
 
 int umd_user_unfake(byte mac[])
 {
-    return user_unfake(user_get(mac), UM_DEAUTH_INITIATIVE);
+    return user_unfake(user_get(mac), UMD_DEAUTH_INITIATIVE);
 }
 
 struct um_user *
@@ -1118,8 +1118,8 @@ juser_flow(struct um_user *user, int type)
     jobj_t obj = jobj_new_object();
     int dir;
 
-    for (dir=0; dir<um_flow_dir_end; dir++) {
-        jobj_add(obj, flow_dir_getnamebyid(dir), __juser_flow(user, type, dir));
+    for (dir=0; dir<umd_flow_dir_end; dir++) {
+        jobj_add(obj, umd_flow_dir_getnamebyid(dir), __juser_flow(user, type, dir));
     }
 
     return obj;
@@ -1142,8 +1142,8 @@ juser_rate(struct um_user *user, int type)
     jobj_t obj = jobj_new_object();
     int dir;
 
-    for (dir=0; dir<um_flow_dir_end; dir++) {
-        jobj_add(obj, flow_dir_getnamebyid(dir), __juser_rate(user, type, dir));
+    for (dir=0; dir<umd_flow_dir_end; dir++) {
+        jobj_add(obj, umd_flow_dir_getnamebyid(dir), __juser_rate(user, type, dir));
     }
 
     return obj;
@@ -1166,8 +1166,8 @@ juser_limit(struct um_user *user)
 {
     jobj_t obj = jobj_new_object();
 
-    jobj_add(obj, flow_type_getnamebyid(um_flow_type_lan), __juser_limit(user, um_flow_type_lan));
-    jobj_add(obj, flow_type_getnamebyid(um_flow_type_wan), __juser_limit(user, um_flow_type_wan));
+    jobj_add(obj, umd_flow_type_getnamebyid(umd_flow_type_lan), __juser_limit(user, umd_flow_type_lan));
+    jobj_add(obj, umd_flow_type_getnamebyid(umd_flow_type_wan), __juser_limit(user, umd_flow_type_wan));
     
     return obj;
 }
@@ -1194,8 +1194,8 @@ jobj_t umd_juser(struct um_user *user)
     jobj_add_string(obj, "bssid_current",   os_macstring(user->bssid_current));
     jobj_add_string(obj, "ssid",    user->ssid);
     jobj_add_string(obj, "ip",      os_ipstring(user->ip));
-    jobj_add_string(obj, "state",   user_state_getnamebyid(user->state));
-    jobj_add_string(obj, "reason",  deauth_reason_getnamebyid(user->reason));
+    jobj_add_string(obj, "state",   umd_user_state_getnamebyid(user->state));
+    jobj_add_string(obj, "reason",  umd_deauth_reason_getnamebyid(user->reason));
     
     jobj_add_string(obj, "create",  os_fulltime_string(user->create));
     jobj_add_string(obj, "noused",  os_fulltime_string(user->noused));
@@ -1217,8 +1217,8 @@ touser_base(struct um_user *user, jobj_t juser)
     jj_mac(user, juser, bssid_first);
     jj_ip(user, juser, ip);
 
-    jj_byeq(user, juser, state, user_state_getidbyname);
-    jj_byeq(user, juser, reason, deauth_reason_getidbyname);
+    jj_byeq(user, juser, state, umd_user_state_getidbyname);
+    jj_byeq(user, juser, reason, umd_deauth_reason_getidbyname);
 
     jj_time(user, juser, create);
     jj_time(user, juser, noused);
@@ -1285,8 +1285,8 @@ touser_intf(struct um_limit *intf, jobj_t jintf)
     
     jobj = jobj_get(jintf, "flow");
     if (jobj) {
-        for (dir=0; dir<um_flow_dir_end; dir++) {
-            jobj_t jflow = jobj_get(jobj, flow_dir_getnamebyid(dir));
+        for (dir=0; dir<umd_flow_dir_end; dir++) {
+            jobj_t jflow = jobj_get(jobj, umd_flow_dir_getnamebyid(dir));
             if (jflow) {
                 touser_flow(&intf->flow[dir], jflow);
             }
@@ -1295,8 +1295,8 @@ touser_intf(struct um_limit *intf, jobj_t jintf)
     
     jobj = jobj_get(jintf, "rate");
     if (jobj) {
-        for (dir=0; dir<um_flow_dir_end; dir++) {
-            jobj_t jrate = jobj_get(jobj, flow_dir_getnamebyid(dir));
+        for (dir=0; dir<umd_flow_dir_end; dir++) {
+            jobj_t jrate = jobj_get(jobj, umd_flow_dir_getnamebyid(dir));
             if (jrate) {
                 touser_rate(&intf->rate[dir], jrate);
             }
@@ -1311,8 +1311,8 @@ touser_limit(struct um_user *user, jobj_t juser)
     
     jobj_t jlimit = jobj_get(juser, "limit");
     if (jlimit) {
-        for (type=0; type<um_flow_type_end; type++) {
-            jobj_t jintf = jobj_get(jlimit, flow_type_getnamebyid(type));
+        for (type=0; type<umd_flow_type_end; type++) {
+            jobj_t jintf = jobj_get(jlimit, umd_flow_type_getnamebyid(type));
             if (jintf) {
                 touser_intf(&user->limit[type], jintf);
             }

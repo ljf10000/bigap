@@ -232,8 +232,8 @@ umd_ip_source_dev(uint32 sip, uint32 dip)
         *
         * lan down for user
         */
-        umd_flow.dir    = um_flow_dir_down;
-        umd_flow.type   = um_flow_type_lan;
+        umd_flow.dir    = umd_flow_dir_down;
+        umd_flow.type   = umd_flow_type_lan;
         
         umd_set_flow_duser();
     }
@@ -243,8 +243,8 @@ umd_ip_source_dev(uint32 sip, uint32 dip)
         *
         * lan up for dev
         */
-        umd_flow.dir    = um_flow_dir_up;
-        umd_flow.type   = um_flow_type_lan;
+        umd_flow.dir    = umd_flow_dir_up;
+        umd_flow.type   = umd_flow_type_lan;
 
         umd_set_flow_dev();
     }
@@ -254,8 +254,8 @@ umd_ip_source_dev(uint32 sip, uint32 dip)
         *
         * wan up for dev
         */
-        umd_flow.dir    = um_flow_dir_up;
-        umd_flow.type   = um_flow_type_wan;
+        umd_flow.dir    = umd_flow_dir_up;
+        umd_flow.type   = umd_flow_type_wan;
 
         umd_set_flow_dev();
     }
@@ -272,8 +272,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
         *
         * lan up for user
         */
-        umd_flow.dir    = um_flow_dir_up;
-        umd_flow.type   = um_flow_type_lan;
+        umd_flow.dir    = umd_flow_dir_up;
+        umd_flow.type   = umd_flow_type_lan;
 
         umd_set_flow_suser();
     }
@@ -288,8 +288,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
             *
             * first, lan up for {user}
             */
-            umd_flow.dir    = um_flow_dir_up;
-            umd_flow.type   = um_flow_type_lan;
+            umd_flow.dir    = umd_flow_dir_up;
+            umd_flow.type   = umd_flow_type_lan;
 
             umd_set_flow_suser();
 
@@ -300,8 +300,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
             *
             * again, lan down for {user}
             */
-            umd_flow.dir    = um_flow_dir_down;
-            umd_flow.type   = um_flow_type_lan;
+            umd_flow.dir    = umd_flow_dir_down;
+            umd_flow.type   = umd_flow_type_lan;
 
             umd_set_flow_duser();
 
@@ -314,8 +314,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
         *
         * lan up for user
         */
-        umd_flow.dir    = um_flow_dir_up;
-        umd_flow.type   = um_flow_type_lan;
+        umd_flow.dir    = umd_flow_dir_up;
+        umd_flow.type   = umd_flow_type_lan;
 
         umd_set_flow_suser();
     }
@@ -325,8 +325,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
         *
         * wan up for user
         */
-        umd_flow.dir    = um_flow_dir_up;
-        umd_flow.type   = um_flow_type_wan;
+        umd_flow.dir    = umd_flow_dir_up;
+        umd_flow.type   = umd_flow_type_wan;
 
         umd_set_flow_suser();
     }
@@ -343,8 +343,8 @@ umd_ip_source_lan(uint32 sip, uint32 dip)
         *
         * lan down for dev
         */
-        umd_flow.dir    = um_flow_dir_down;
-        umd_flow.type   = um_flow_type_lan;
+        umd_flow.dir    = umd_flow_dir_down;
+        umd_flow.type   = umd_flow_type_lan;
 
         umd_set_flow_dev();
     }
@@ -354,8 +354,8 @@ umd_ip_source_lan(uint32 sip, uint32 dip)
         *
         * lan down for user
         */
-        umd_flow.dir    = um_flow_dir_down;
-        umd_flow.type   = um_flow_type_lan;
+        umd_flow.dir    = umd_flow_dir_down;
+        umd_flow.type   = umd_flow_type_lan;
 
         umd_set_flow_duser();
     }
@@ -384,8 +384,8 @@ umd_ip_source_wan(uint32 sip, uint32 dip)
         *
         * wan down for dev
         */
-        umd_flow.dir    = um_flow_dir_down;
-        umd_flow.type   = um_flow_type_wan;
+        umd_flow.dir    = umd_flow_dir_down;
+        umd_flow.type   = umd_flow_type_wan;
 
         umd_set_flow_dev();
     }
@@ -395,8 +395,8 @@ umd_ip_source_wan(uint32 sip, uint32 dip)
         *
         * wan down for user
         */
-        umd_flow.dir    = um_flow_dir_down;
-        umd_flow.type   = um_flow_type_wan;
+        umd_flow.dir    = umd_flow_dir_down;
+        umd_flow.type   = umd_flow_type_wan;
         
         umd_set_flow_duser();
     }
@@ -508,8 +508,8 @@ umd_ip_handle_helper(sock_server_t *server, bool first)
             sipstring,
             dipstring,
             iph->ip_p,
-            flow_dir_getnamebyid(umd_flow.dir),
-            flow_type_getnamebyid(umd_flow.type),
+            umd_flow_dir_getnamebyid(umd_flow.dir),
+            umd_flow_type_getnamebyid(umd_flow.type),
             ipstring,
             macstring);
     }
@@ -546,8 +546,8 @@ umd_is_flow_reauth_helper(struct um_user *user, int type, int dir)
     if (is) {
         debug_flow("user(%s) type(%s) dir(%s) flow reauth(%llu) > now(%llu)",
             os_macstring(user->mac),
-            flow_type_getnamebyid(type),
-            flow_dir_getnamebyid(dir),
+            umd_flow_type_getnamebyid(type),
+            umd_flow_dir_getnamebyid(dir),
             reauth,
             now);
     }
@@ -559,14 +559,14 @@ STATIC bool
 umd_is_flow_reauth(struct um_user *user, int type, int dir)
 {
     return umd_is_flow_reauth_helper(user, type, dir)
-        || umd_is_flow_reauth_helper(user, type, um_flow_dir_all);
+        || umd_is_flow_reauth_helper(user, type, umd_flow_dir_all);
 }
 
 STATIC void
 umd_flow_reauth(struct um_user *user, int type, int dir)
 {
     if (umd.cfg.reauthable
-            && um_flow_type_wan==type
+            && umd_flow_type_wan==type
             && is_user_auth(user)
             && umd_is_flow_reauth(user, type, dir)) {
         user_reauth(user);
@@ -583,8 +583,8 @@ umd_is_overflow_helper(struct um_user *user, int type, int dir)
     if (is) {
         debug_flow("user(%s) type(%s) dir(%s) flow max(%llu) > now(%llu)",
             os_macstring(user->mac),
-            flow_type_getnamebyid(type),
-            flow_dir_getnamebyid(dir),
+            umd_flow_type_getnamebyid(type),
+            umd_flow_dir_getnamebyid(dir),
             max,
             now);
     }
@@ -596,37 +596,37 @@ STATIC bool
 umd_is_overflow(struct um_user *user, int type, int dir)
 {
     return umd_is_overflow_helper(user, type, dir)
-        || umd_is_overflow_helper(user, type, um_flow_dir_all);
+        || umd_is_overflow_helper(user, type, umd_flow_dir_all);
 }
 
 STATIC void
 umd_overflow(struct um_user *user, int type, int dir)
 {
-    if (um_flow_type_wan==type && is_user_auth(user) && umd_is_overflow(user, type, dir)) {
-        user_deauth(user, UM_DEAUTH_FLOWLIMIT);
+    if (umd_flow_type_wan==type && is_user_auth(user) && umd_is_overflow(user, type, dir)) {
+        user_deauth(user, UMD_DEAUTH_FLOWLIMIT);
     }
 
     /*
     * lan's flow include wan's flow
     */
-    if (umd_is_overflow(user, um_flow_type_lan, dir)) {
-        user_unbind(user, UM_DEAUTH_FLOWLIMIT);
+    if (umd_is_overflow(user, umd_flow_type_lan, dir)) {
+        user_unbind(user, UMD_DEAUTH_FLOWLIMIT);
     }
 }
 
 STATIC void
 umd_flow_update(struct um_user *user, int type, int dir)
 {
-    if (um_flow_dir_all!=dir) {
+    if (umd_flow_dir_all!=dir) {
         umd_flow_now(user, type, dir) += umd_flow.len;
     }
-    umd_flow_now(user, type, um_flow_dir_all) += umd_flow.len;
+    umd_flow_now(user, type, umd_flow_dir_all) += umd_flow.len;
     
     /*
     * lan' flow include wan's flow
     */
-    if (um_flow_type_wan==type) {
-        umd_flow_update(user, um_flow_type_lan, dir);
+    if (umd_flow_type_wan==type) {
+        umd_flow_update(user, umd_flow_type_lan, dir);
     }
 }
 
@@ -638,10 +638,10 @@ umd_flow_handle(sock_server_t *server)
     user = umd_user_get(umd_flow.usermac);
     if (umd.cfg.autouser && NULL==user) {
         switch(umd.cfg.autouser) {
-            case UM_AUTO_BIND:
+            case UMD_AUTO_BIND:
                 user = umd_user_bind(umd_flow.usermac, umd_flow.userip);
                 break;
-            case UM_AUTO_FAKE:
+            case UMD_AUTO_FAKE:
                 user = umd_user_fake(umd_flow.usermac, umd_flow.userip);
                 break;
         }
@@ -708,13 +708,13 @@ umd_jflow(void)
     jobj_add(jflow, "total", jtotal);
     
     jdev = jobj_new_object();
-    for (i=0; i<um_flow_type_end; i++) {
+    for (i=0; i<umd_flow_type_end; i++) {
         jtype = jobj_new_object();
-        for (j=0; j<um_flow_dir_end; j++) {
+        for (j=0; j<umd_flow_dir_end; j++) {
             jst = umd_jflow_dev(i, j);
-            jobj_add(jtype, flow_dir_getnamebyid(j), jst);
+            jobj_add(jtype, umd_flow_dir_getnamebyid(j), jst);
         }
-        jobj_add(jdev, flow_type_getnamebyid(i), jtype);
+        jobj_add(jdev, umd_flow_type_getnamebyid(i), jtype);
     }
     jobj_add(jflow, "dev", jdev);
     
