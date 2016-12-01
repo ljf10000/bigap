@@ -502,7 +502,7 @@ umd_user_debug(char *tag, umd_user_t *user)
 
 #define umd_ev_call(_ev, _user)     umd_ev_call_helper(_ev, _user, __user_debug_call_tag)
 
-#define umd_user_debug_call(_pos, _tag, _user, _body)   do{ \
+#define umd_user_debug_call_helper(_pos, _tag, _user, _body)   do{ \
     char *__user_debug_call_tag = _tag;             \
     if (is_position_head(_pos)) {                   \
         umd_user_debug("before-user-" _tag, _user); \
@@ -514,13 +514,13 @@ umd_user_debug(char *tag, umd_user_t *user)
 }while(0)
 
 #define umd_user_debug_head_call(_tag, _user, _body) \
-    umd_user_debug_call(OS_POSITION_HEAD, _tag, _user, _body)
+    umd_user_debug_call_helper(OS_POSITION_HEAD, _tag, _user, _body)
 
 #define umd_user_debug_tail_call(_tag, _user, _body) \
-    umd_user_debug_call(OS_POSITION_TAIL, _tag, _user, _body)
+    umd_user_debug_call_helper(OS_POSITION_TAIL, _tag, _user, _body)
 
 #define umd_user_debug_call(_tag, _user, _body) \
-    umd_user_debug_call(OS_POSITION_ALL, _tag, _user, _body)
+    umd_user_debug_call_helper(OS_POSITION_ALL, _tag, _user, _body)
 
 STATIC int
 __umduser_delete(umd_user_t *user, umd_event_cb_t *ev)
