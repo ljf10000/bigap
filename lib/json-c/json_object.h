@@ -184,16 +184,16 @@ flags);
  * is converted to a string by json_object_to_json_string.
  *
  * If a custom serializer is already set on this object, any existing
- * user_delete function is called before the new one is set.
+ * umduser_delete function is called before the new one is set.
  *
  * If to_string_func is NULL, the other parameters are ignored
  * and the default behaviour is reset.
  *
  * The userdata parameter is optional and may be passed as NULL.  If provided,
  * it is passed to to_string_func as-is.  This parameter may be NULL even
- * if user_delete is non-NULL.
+ * if umduser_delete is non-NULL.
  *
- * The user_delete parameter is optional and may be passed as NULL, even if
+ * The umduser_delete parameter is optional and may be passed as NULL, even if
  * the userdata parameter is non-NULL.  It will be called just before the
  * json_object is deleted, after it's reference count goes to zero
  * (see json_object_put()).
@@ -203,12 +203,12 @@ flags);
  * @param jso the object to customize
  * @param to_string_func the custom serialization function
  * @param userdata an optional opaque cookie
- * @param user_delete an optional function from freeing userdata
+ * @param umduser_delete an optional function from freeing userdata
  */
 extern void json_object_set_serializer(json_object *jso,
 	json_object_to_json_string_fn to_string_func,
 	void *userdata,
-	json_object_delete_fn *user_delete);
+	json_object_delete_fn *umduser_delete);
 
 /**
  * Simply call free on the userdata pointer.

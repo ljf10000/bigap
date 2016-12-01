@@ -12,61 +12,61 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-#define __update_online(_user, _obj, _TYPE, _field)         do{ \
-    jobj_t o = jobj_get_leaf(_obj, #_TYPE, "online", #_field, NULL); \
-                                                                \
+#define umd_update_online_helper(_user, _obj, _TYPE, _field)    do{ \
+    jobj_t o = jobj_get_leaf(_obj, #_TYPE, "online", #_field, NULL);\
+                                                                    \
     umd_limit_online(_user, _TYPE)->_field = o?jobj_get_i32(o):0;   \
 }while(0)
 
-#define update_online(_user, _obj, _field)  do{ \
-    __update_online(_user, _obj, lan, _field);  \
-    __update_online(_user, _obj, wan, _field);  \
+#define umd_update_online(_user, _obj, _field)      do{ \
+    umd_update_online_helper(_user, _obj, lan, _field); \
+    umd_update_online_helper(_user, _obj, wan, _field); \
 }while(0)
 
-#define __update_flow(_user, _obj, _TYPE, _DIR, _field) do{ \
-    jobj_t o = jobj_get_leaf(_obj, #_TYPE, "flow", #_DIR, #_field, NULL); \
-                                                            \
-    umd_limit_flow(_user, _TYPE, _DIR)->_field = o?jobj_get_i64(o):0; \
+#define umd_update_flow_helper(_user, _obj, _TYPE, _DIR, _field)    do{     \
+    jobj_t o = jobj_get_leaf(_obj, #_TYPE, "flow", #_DIR, #_field, NULL);   \
+                                                                            \
+    umd_limit_flow(_user, _TYPE, _DIR)->_field = o?jobj_get_i64(o):0;       \
 }while(0)
 
-#define updata_flow(_user, _obj, _field)        do{ \
-    __update_flow(_user, _obj, lan, up, _field);    \
-    __update_flow(_user, _obj, wan, up, _field);    \
-    __update_flow(_user, _obj, lan, down, _field);  \
-    __update_flow(_user, _obj, wan, down, _field);  \
-    __update_flow(_user, _obj, lan, all, _field);   \
-    __update_flow(_user, _obj, wan, all, _field);   \
+#define umd_updata_flow(_user, _obj, _field)    do{ \
+    umd_update_flow_helper(_user, _obj, lan, up, _field);    \
+    umd_update_flow_helper(_user, _obj, wan, up, _field);    \
+    umd_update_flow_helper(_user, _obj, lan, down, _field);  \
+    umd_update_flow_helper(_user, _obj, wan, down, _field);  \
+    umd_update_flow_helper(_user, _obj, lan, all, _field);   \
+    umd_update_flow_helper(_user, _obj, wan, all, _field);   \
 }while(0)
 
-#define __update_rate(_user, _obj, _TYPE, _DIR, _field)         do{ \
-    jobj_t o = jobj_get_leaf(_obj, #_TYPE, "rate", #_DIR, #_field, NULL); \
-                                                                    \
-    umd_limit_rate(_user, _TYPE, _DIR)->_field = o?jobj_get_i32(o):0;   \
+#define umd_update_rate_helper(_user, _obj, _TYPE, _DIR, _field)    do{     \
+    jobj_t o = jobj_get_leaf(_obj, #_TYPE, "rate", #_DIR, #_field, NULL);   \
+                                                                            \
+    umd_limit_rate(_user, _TYPE, _DIR)->_field = o?jobj_get_i32(o):0;       \
 }while(0)
 
-#define updata_rate(_user, _obj, _field)        do{ \
-    __update_rate(_user, _obj, lan, up, _field);    \
-    __update_rate(_user, _obj, wan, up, _field);    \
-    __update_rate(_user, _obj, lan, down, _field);  \
-    __update_rate(_user, _obj, wan, down, _field);  \
-    __update_rate(_user, _obj, lan, all, _field);   \
-    __update_rate(_user, _obj, wan, all, _field);   \
+#define umd_updata_rate(_user, _obj, _field)    do{ \
+    umd_update_rate_helper(_user, _obj, lan, up, _field);    \
+    umd_update_rate_helper(_user, _obj, wan, up, _field);    \
+    umd_update_rate_helper(_user, _obj, lan, down, _field);  \
+    umd_update_rate_helper(_user, _obj, wan, down, _field);  \
+    umd_update_rate_helper(_user, _obj, lan, all, _field);   \
+    umd_update_rate_helper(_user, _obj, wan, all, _field);   \
 }while(0)
 
 STATIC void
-update_limit(umd_user_t *user, jobj_t obj)
+umd_update_limit(umd_user_t *user, jobj_t obj)
 {
-    update_online(user, obj, max);
-    update_online(user, obj, idle);
-    update_online(user, obj, numerator);
-    update_online(user, obj, denominator);
+    umd_update_online(user, obj, max);
+    umd_update_online(user, obj, idle);
+    umd_update_online(user, obj, numerator);
+    umd_update_online(user, obj, denominator);
     
-    updata_flow(user, obj, max);
-    updata_flow(user, obj, numerator);
-    updata_flow(user, obj, denominator);
+    umd_updata_flow(user, obj, max);
+    umd_updata_flow(user, obj, numerator);
+    umd_updata_flow(user, obj, denominator);
     
-    updata_rate(user, obj, max);
-    updata_rate(user, obj, avg);
+    umd_updata_rate(user, obj, max);
+    umd_updata_rate(user, obj, avg);
 }
 
 void umd_update_limit_test(void)
@@ -88,7 +88,7 @@ void umd_update_limit_test(void)
         exit(1);
     }
     
-    update_limit(&user, obj);
+    umd_update_limit(&user, obj);
     umd_update_aging(&user, true);
     jobj_put(obj);
 
@@ -99,10 +99,10 @@ void umd_update_limit_test(void)
 #endif
 }
 
-typedef int event_cb_t(umd_user_t *user, char *action);
+typedef int umd_event_cb_t(umd_user_t *user, char *action);
 
 STATIC int
-__ev(umd_user_t *user, char *action)
+umd_ev(umd_user_t *user, char *action)
 {
     jobj_t juser = umd_juser(user);
     if (NULL==juser) {
@@ -119,7 +119,7 @@ __ev(umd_user_t *user, char *action)
 }
 
 STATIC int
-__ev_call(event_cb_t *ev, umd_user_t *user, char *action)
+umd_ev_call_helper(umd_event_cb_t *ev, umd_user_t *user, char *action)
 {
     int err = 0;
     
@@ -131,19 +131,19 @@ __ev_call(event_cb_t *ev, umd_user_t *user, char *action)
 }
 
 STATIC hash_idx_t
-hashmac(byte mac[])
+umd_hashmac(byte mac[])
 {
     return hash_bybuf(mac, OS_MACSIZE, umd.cfg.machashsize - 1);
 }
 
 STATIC hash_idx_t
-haship(uint32 ip)
+umd_haship(uint32 ip)
 {
     return hash_bybuf((byte *)&ip, sizeof(ip), umd.cfg.iphashsize - 1);
 }
 
 STATIC umd_user_t *
-user_hx_entry(h2_node_t *node)
+umd_user_hx_entry(h2_node_t *node)
 {
     if (node) {
         return hash_entry(node, umd_user_t, node);
@@ -153,29 +153,29 @@ user_hx_entry(h2_node_t *node)
 }
 
 STATIC umd_user_t *
-user_entry(hash_node_t *node, hash_idx_t nidx)
+umd_user_entry(hash_node_t *node, hash_idx_t nidx)
 {
     return hx_entry(node, umd_user_t, node, nidx);
 }
 
 STATIC hash_idx_t
-nodehashmac(hash_node_t *node)
+umd_nodehashmac(hash_node_t *node)
 {
-    umd_user_t *user = user_entry(node, UM_USER_NIDX_MAC);
+    umd_user_t *user = umd_user_entry(node, UM_USER_NIDX_MAC);
 
-    return hashmac(user->mac);
+    return umd_hashmac(user->mac);
 }
 
 STATIC hash_idx_t
-nodehaship(hash_node_t *node)
+umd_nodehaship(hash_node_t *node)
 {
-    umd_user_t *user = user_entry(node, UM_USER_NIDX_IP);
+    umd_user_t *user = umd_user_entry(node, UM_USER_NIDX_IP);
 
-    return haship(user->ip);
+    return umd_haship(user->ip);
 }
 
 STATIC void
-tag_free(umd_tag_t *tag)
+umd_tag_free(umd_tag_t *tag)
 {
     if (tag) {
         os_free(tag->k);
@@ -185,7 +185,7 @@ tag_free(umd_tag_t *tag)
 }
 
 STATIC umd_tag_t *
-tag_new(char *k, char *v)
+umd_tag_new(char *k, char *v)
 {
     umd_tag_t *tag = (struct um_tag *)os_malloc(sizeof(*tag));
     if (NULL==tag) {
@@ -197,7 +197,7 @@ tag_new(char *k, char *v)
     tag->v = strdup(v);
 
     if (NULL==tag->k || NULL==tag->v) {
-        tag_free(tag); 
+        umd_tag_free(tag); 
 
         return NULL;
     }
@@ -206,7 +206,7 @@ tag_new(char *k, char *v)
 }
 
 STATIC umd_tag_t *
-tag_get(umd_user_t *user, char *k)
+umd_tag_get(umd_user_t *user, char *k)
 {
     umd_tag_t *tag;
 
@@ -224,7 +224,7 @@ tag_get(umd_user_t *user, char *k)
 }
 
 STATIC umd_tag_t *
-tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
+umd_tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
 {
     umd_tag_t *tag = NULL;
 
@@ -232,9 +232,9 @@ tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
         return NULL;
     }
 
-    tag = tag_get(user, k);
+    tag = umd_tag_get(user, k);
     if (NULL==tag) {
-        tag = tag_new(k, v);
+        tag = umd_tag_new(k, v);
         if (NULL==tag) {
             return NULL;
         }
@@ -255,23 +255,23 @@ tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
 }
 
 STATIC umd_tag_t *
-tag_set(umd_user_t *user, char *k, char *v)
+umd_tag_set(umd_user_t *user, char *k, char *v)
 {
-    return tag_insert(user, k, v, true);
+    return umd_tag_insert(user, k, v, true);
 }
 
 STATIC void
-tag_clear(umd_user_t *user)
+umd_tag_clear(umd_user_t *user)
 {
     umd_tag_t *p, *n;
     
     list_for_each_entry_safe(p, n, &user->head.tag, tag) {
-        tag_free(p);
+        umd_tag_free(p);
     }
 }
 
 STATIC void
-flow_reset(umd_user_t *user, int type)
+umd_flow_reset(umd_user_t *user, int type)
 {
     int i;
 
@@ -281,7 +281,7 @@ flow_reset(umd_user_t *user, int type)
 }
 
 STATIC void
-lan_online(umd_user_t *user)
+umd_lan_online(umd_user_t *user)
 {
     /*
     * lan, offline==>online
@@ -301,16 +301,16 @@ lan_online(umd_user_t *user)
     umd_online_idle(user, umd_flow_type_lan) = umd.cfg.idle;
     umd_online_idle(user, umd_flow_type_wan) = umd.cfg.idle;
     
-    flow_reset(user, umd_flow_type_lan);
-    flow_reset(user, umd_flow_type_wan);
+    umd_flow_reset(user, umd_flow_type_lan);
+    umd_flow_reset(user, umd_flow_type_wan);
 
-    tag_clear(user);
+    umd_tag_clear(user);
     
     debug_event("user %s lan online", os_macstring(user->mac));
 }
 
 STATIC void
-wan_online(umd_user_t *user)
+umd_wan_online(umd_user_t *user)
 {
     /*
     * wan, offline==>online
@@ -324,15 +324,15 @@ wan_online(umd_user_t *user)
     umd_online_downtime(user, umd_flow_type_lan)   = 0;
     umd_online_downtime(user, umd_flow_type_wan)   = 0;
 
-    flow_reset(user, umd_flow_type_wan);
+    umd_flow_reset(user, umd_flow_type_wan);
 
-    tag_clear(user);
+    umd_tag_clear(user);
     
     debug_event("user %s wan online", os_macstring(user->mac));
 }
 
 STATIC void
-lan_offline(umd_user_t *user)
+umd_lan_offline(umd_user_t *user)
 {
     /*
     * lan, online==>offline
@@ -349,7 +349,7 @@ lan_offline(umd_user_t *user)
 }
 
 STATIC void
-wan_offline(umd_user_t *user)
+umd_wan_offline(umd_user_t *user)
 {
     /*
     * wan, online==>offline
@@ -364,7 +364,7 @@ wan_offline(umd_user_t *user)
 }
 
 STATIC umd_user_t *
-__user_remove(umd_user_t *user)
+__umduser_remove(umd_user_t *user)
 {
     if (NULL==user) {
         debug_bug("user nil");
@@ -386,11 +386,11 @@ __user_remove(umd_user_t *user)
 }
 
 STATIC umd_user_t *
-__user_insert(umd_user_t *user)
+__umduser_insert(umd_user_t *user)
 {
     static hash_node_calc_f *nhash[UM_USER_NIDX_END] = {
-        [UM_USER_NIDX_MAC]  = nodehashmac, 
-        [UM_USER_NIDX_IP]   = nodehaship
+        [UM_USER_NIDX_MAC]  = umd_nodehashmac, 
+        [UM_USER_NIDX_IP]   = umd_nodehaship
     };
     
     if (NULL==user) {
@@ -404,7 +404,7 @@ __user_insert(umd_user_t *user)
     else if (in_hx_table(&user->node)) {
         debug_bug("user have in list");
         
-        __user_remove(user);
+        __umduser_remove(user);
     }
 
     h2_add(&umd.table, &user->node, nhash);
@@ -413,7 +413,7 @@ __user_insert(umd_user_t *user)
 }
 
 STATIC void
-__set_group(umd_user_t *user, int group)
+umd_set_group(umd_user_t *user, int group)
 {
     if (NULL==user) {
         debug_bug("user nil");
@@ -430,7 +430,7 @@ __set_group(umd_user_t *user, int group)
 }
 
 STATIC void
-__set_reason(umd_user_t *user, int reason)
+umd_set_reason(umd_user_t *user, int reason)
 {
     if (NULL==user) {
         debug_bug("user nil");
@@ -453,7 +453,7 @@ __set_reason(umd_user_t *user, int reason)
 }
 
 STATIC void
-__set_ip(umd_user_t *user, uint32 ip)
+umd_set_ip(umd_user_t *user, uint32 ip)
 {
     if (NULL==user) {
         debug_bug("user nil");
@@ -466,13 +466,13 @@ __set_ip(umd_user_t *user, uint32 ip)
         return;
     }
     
-    __user_remove(user);
+    __umduser_remove(user);
     user->ip = ip;
-    __user_insert(user);
+    __umduser_insert(user);
 }
 
 STATIC void
-__set_state(umd_user_t *user, int state)
+umd_set_state(umd_user_t *user, int state)
 {
     if (NULL==user) {
         debug_bug("user nil");
@@ -495,44 +495,44 @@ __set_state(umd_user_t *user, int state)
 
 
 STATIC void
-__user_debug(char *tag, umd_user_t *user)
+umd_user_debug(char *tag, umd_user_t *user)
 {
-    umd_user_debug(tag, user, __is_ak_debug_entry && __is_ak_debug_event);
+    umd_user_debug_helper(tag, user, __is_ak_debug_entry && __is_ak_debug_event);
 }
 
-#define ev_call(_ev, _user)     __ev_call(_ev, _user, __user_debug_call_tag)
+#define umd_ev_call(_ev, _user)     umd_ev_call_helper(_ev, _user, __user_debug_call_tag)
 
-#define __user_debug_call(_pos, _tag, _user, _body)   do{ \
+#define umd_user_debug_call(_pos, _tag, _user, _body)   do{ \
     char *__user_debug_call_tag = _tag;             \
     if (is_position_head(_pos)) {                   \
-        __user_debug("before-user-" _tag, _user);   \
+        umd_user_debug("before-user-" _tag, _user); \
     }                                               \
     _body                                           \
     if (is_position_tail(_pos)) {                   \
-        __user_debug("after-user-" _tag, _user);    \
+        umd_user_debug("after-user-" _tag, _user);  \
     }                                               \
 }while(0)
 
-#define user_debug_head_call(_tag, _user, _body) \
-    __user_debug_call(OS_POSITION_HEAD, _tag, _user, _body)
+#define umd_user_debug_head_call(_tag, _user, _body) \
+    umd_user_debug_call(OS_POSITION_HEAD, _tag, _user, _body)
 
-#define user_debug_tail_call(_tag, _user, _body) \
-    __user_debug_call(OS_POSITION_TAIL, _tag, _user, _body)
+#define umd_user_debug_tail_call(_tag, _user, _body) \
+    umd_user_debug_call(OS_POSITION_TAIL, _tag, _user, _body)
 
-#define user_debug_call(_tag, _user, _body) \
-    __user_debug_call(OS_POSITION_ALL, _tag, _user, _body)
+#define umd_user_debug_call(_tag, _user, _body) \
+    umd_user_debug_call(OS_POSITION_ALL, _tag, _user, _body)
 
 STATIC int
-__user_delete(umd_user_t *user, event_cb_t *ev)
+__umduser_delete(umd_user_t *user, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return -ENOEXIST;
     }
 
-    user_debug_head_call("delete", user, {
-        ev_call(ev, user);
-        tag_clear(user);
-        __user_remove(user);
+    umd_user_debug_head_call("delete", user, {
+        umd_ev_call(ev, user);
+        umd_tag_clear(user);
+        __umduser_remove(user);
         os_free(user);
     });
 
@@ -540,7 +540,7 @@ __user_delete(umd_user_t *user, event_cb_t *ev)
 }
 
 STATIC umd_user_t *
-__user_create(byte mac[], event_cb_t *ev)
+__umduser_create(byte mac[], umd_event_cb_t *ev)
 {
     umd_user_t *user;
 
@@ -552,19 +552,19 @@ __user_create(byte mac[], event_cb_t *ev)
     
     INIT_LIST_HEAD(&user->head.tag);
 
-    user_debug_tail_call("create", user, {
-        __set_state(user, UMD_STATE_NONE);
-        lan_online(user);
+    umd_user_debug_tail_call("create", user, {
+        umd_set_state(user, UMD_STATE_NONE);
+        umd_lan_online(user);
         user->create = user->noused = time(NULL);
-        __user_insert(user);
-        ev_call(ev, user);
+        __umduser_insert(user);
+        umd_ev_call(ev, user);
     });
     
     return user;
 }
 
 STATIC int
-__user_deauth(umd_user_t *user, int reason, event_cb_t *ev)
+__umduser_deauth(umd_user_t *user, int reason, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return -ENOEXIST;
@@ -575,20 +575,20 @@ __user_deauth(umd_user_t *user, int reason, event_cb_t *ev)
     }
 
     // auth==>bind
-    user_debug_call("deauth", user, {
-        __set_reason(user, reason);
-        ev_call(ev, user);
+    umd_user_debug_call("deauth", user, {
+        umd_set_reason(user, reason);
+        umd_ev_call(ev, user);
         
-        __set_state(user, UMD_STATE_BIND);
-        __set_group(user, 0);
-        wan_offline(user);
+        umd_set_state(user, UMD_STATE_BIND);
+        umd_set_group(user, 0);
+        umd_wan_offline(user);
     });
 
     return 0;
 }
 
 STATIC int
-__user_unfake(umd_user_t *user, int reason, event_cb_t *ev)
+__umduser_unfake(umd_user_t *user, int reason, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return -ENOEXIST;
@@ -599,27 +599,27 @@ __user_unfake(umd_user_t *user, int reason, event_cb_t *ev)
     }
 
     // fake==>bind
-    user_debug_call("unfake", user, {
-        __set_reason(user, reason);
-        ev_call(ev, user);
+    umd_user_debug_call("unfake", user, {
+        umd_set_reason(user, reason);
+        umd_ev_call(ev, user);
         
-        __set_state(user, UMD_STATE_BIND);
-        wan_offline(user);
+        umd_set_state(user, UMD_STATE_BIND);
+        umd_wan_offline(user);
     });
 
     return 0;
 }
 
 STATIC int
-__user_unbind(umd_user_t *user, int reason, event_cb_t *ev)
+__umduser_unbind(umd_user_t *user, int reason, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return -ENOEXIST;
     }
 
     // try auth/fake==>bind
-    __user_deauth(user, reason, __ev);
-    __user_unfake(user, reason, __ev);
+    __umduser_deauth(user, reason, umd_ev);
+    __umduser_unfake(user, reason, umd_ev);
 
     // must @bind
     if (false==is_user_bind(user)) {
@@ -627,27 +627,27 @@ __user_unbind(umd_user_t *user, int reason, event_cb_t *ev)
     }
 
     // bind==>none
-    user_debug_call("unbind", user, {
-        __set_reason(user, reason);
-        ev_call(ev, user);
+    umd_user_debug_call("unbind", user, {
+        umd_set_reason(user, reason);
+        umd_ev_call(ev, user);
         
-        __set_ip(user, 0);
-        __set_state(user, UMD_STATE_NONE);
-        lan_offline(user);
+        umd_set_ip(user, 0);
+        umd_set_state(user, UMD_STATE_NONE);
+        umd_lan_offline(user);
     });
 
     return 0;
 }
 
 STATIC umd_user_t *
-__user_block(umd_user_t *user, event_cb_t *ev)
+__umduser_block(umd_user_t *user, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
     }
 
     // try auth/fake/bind==>none
-    __user_unbind(user, UMD_DEAUTH_BLOCK, __ev);
+    __umduser_unbind(user, UMD_DEAUTH_BLOCK, umd_ev);
 
     // must @none
     if (false==is_user_none(user)) {
@@ -655,18 +655,18 @@ __user_block(umd_user_t *user, event_cb_t *ev)
     }
 
     // none==>block
-    user_debug_call("block", user, {
-        __set_reason(user, UMD_DEAUTH_BLOCK);
-        ev_call(ev, user);
+    umd_user_debug_call("block", user, {
+        umd_set_reason(user, UMD_DEAUTH_BLOCK);
+        umd_ev_call(ev, user);
         
-        __set_state(user, UMD_STATE_BLOCK);
+        umd_set_state(user, UMD_STATE_BLOCK);
     });
 
     return user;
 }
 /******************************************************************************/
 STATIC umd_user_t *
-__user_unblock(umd_user_t *user, event_cb_t *ev)
+__umduser_unblock(umd_user_t *user, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
@@ -677,17 +677,17 @@ __user_unblock(umd_user_t *user, event_cb_t *ev)
     }
 
     // block==>none
-    user_debug_call("unblock", user, {
-        __set_state(user, UMD_STATE_NONE);
+    umd_user_debug_call("unblock", user, {
+        umd_set_state(user, UMD_STATE_NONE);
         
-        ev_call(ev, user);
+        umd_ev_call(ev, user);
     });
 
     return user;
 }
 
 STATIC umd_user_t *
-__user_bind(umd_user_t *user, uint32 ip, event_cb_t *ev)
+__umduser_bind(umd_user_t *user, uint32 ip, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
@@ -702,7 +702,7 @@ __user_bind(umd_user_t *user, uint32 ip, event_cb_t *ev)
             return user;
         } else {
             // diff ip @bind/auth/fake, first unbind user(==>none)
-            __user_unbind(user, UMD_DEAUTH_AUTO, __ev);
+            __umduser_unbind(user, UMD_DEAUTH_AUTO, umd_ev);
         }
     }
 
@@ -712,19 +712,19 @@ __user_bind(umd_user_t *user, uint32 ip, event_cb_t *ev)
     }
     
     // none==>bind
-    user_debug_call("bind", user, {
-        __set_ip(user, ip);
-        __set_state(user, UMD_STATE_BIND);
-        lan_online(user);
+    umd_user_debug_call("bind", user, {
+        umd_set_ip(user, ip);
+        umd_set_state(user, UMD_STATE_BIND);
+        umd_lan_online(user);
         umd_update_aging(user, true);
-        ev_call(ev, user);
+        umd_ev_call(ev, user);
     });
 
     return user;
 }
 
 STATIC umd_user_t *
-__user_fake(umd_user_t *user, uint32 ip, event_cb_t *ev)
+__umduser_fake(umd_user_t *user, uint32 ip, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
@@ -739,24 +739,24 @@ __user_fake(umd_user_t *user, uint32 ip, event_cb_t *ev)
             return user;
         } else {
             // diff ip @bind/auth/fake, first unbind user(==>none)
-            __user_unbind(user, UMD_DEAUTH_AUTO, __ev);
+            __umduser_unbind(user, UMD_DEAUTH_AUTO, umd_ev);
         }
     }
     
-    user_debug_call("fake", user, {
-        __set_ip(user, ip);
-        __set_state(user, UMD_STATE_FAKE);
-        lan_online(user);
+    umd_user_debug_call("fake", user, {
+        umd_set_ip(user, ip);
+        umd_set_state(user, UMD_STATE_FAKE);
+        umd_lan_online(user);
         umd_update_aging(user, true);
         user->faketime = time(NULL);
-        ev_call(ev, user);
+        umd_ev_call(ev, user);
     });
 
     return user;
 }
 
 STATIC umd_user_t *
-__user_reauth(umd_user_t *user, event_cb_t *ev)
+__umduser_reauth(umd_user_t *user, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
@@ -770,15 +770,15 @@ __user_reauth(umd_user_t *user, event_cb_t *ev)
         return NULL;
     }
     
-    user_debug_call("reauth", user, {
-        ev_call(ev, user);
+    umd_user_debug_call("reauth", user, {
+        umd_ev_call(ev, user);
     });
 
     return user;
 }
 
 STATIC umd_user_t *
-__user_auth(umd_user_t *user, int group, jobj_t obj, event_cb_t *ev)
+__umduser_auth(umd_user_t *user, int group, jobj_t obj, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
@@ -799,7 +799,7 @@ __user_auth(umd_user_t *user, int group, jobj_t obj, event_cb_t *ev)
             return NULL;
         } else {
             // bind user @none
-            __user_bind(user, inet_addr(ipaddress), __ev);
+            __umduser_bind(user, inet_addr(ipaddress), umd_ev);
         }
     }
     
@@ -808,57 +808,57 @@ __user_auth(umd_user_t *user, int group, jobj_t obj, event_cb_t *ev)
         return NULL;
     }
     
-    user_debug_call("auth", user, {
-        __set_state(user, UMD_STATE_AUTH);
-        __set_group(user, group);
-        __set_reason(user, UMD_DEAUTH_NONE);
-        update_limit(user, obj);
-        wan_online(user);
+    umd_user_debug_call("auth", user, {
+        umd_set_state(user, UMD_STATE_AUTH);
+        umd_set_group(user, group);
+        umd_set_reason(user, UMD_DEAUTH_NONE);
+        umd_update_limit(user, obj);
+        umd_wan_online(user);
         umd_update_aging(user, true);
-        ev_call(ev, user);
+        umd_ev_call(ev, user);
     });
 
     return user;
 }
 
 STATIC umd_user_t *
-__user_sync(umd_user_t *user, jobj_t obj, event_cb_t *ev)
+__umduser_sync(umd_user_t *user, jobj_t obj, umd_event_cb_t *ev)
 {
     if (NULL==user) {
         return NULL;
     }
     
-    user_debug_call("sync", user, {
+    umd_user_debug_call("sync", user, {
         umd_touser(user, obj);
         
-        ev_call(ev, user);
+        umd_ev_call(ev, user);
     });
 
     return user;
 }
 
 STATIC umd_user_t *
-__user_get(byte mac[])
+__umduser_get(byte mac[])
 {
     hash_idx_t dhash(void)
     {
-        return hashmac(mac);
+        return umd_hashmac(mac);
     }
     
     bool eq(hash_node_t *node)
     {
-        umd_user_t *user = user_entry(node, UM_USER_NIDX_MAC);
+        umd_user_t *user = umd_user_entry(node, UM_USER_NIDX_MAC);
         
         return os_maceq(user->mac, mac);
     }
     
-    return user_hx_entry(h2_find(&umd.table, UM_USER_NIDX_MAC, dhash, eq));
+    return umd_user_hx_entry(h2_find(&umd.table, UM_USER_NIDX_MAC, dhash, eq));
 }
 
 STATIC umd_user_t *
-user_get(byte mac[])
+umduser_get(byte mac[])
 {
-    umd_user_t *user = __user_get(mac);
+    umd_user_t *user = __umduser_get(mac);
     if (NULL==user) {
         debug_trace("no-found user %s", os_macstring(mac));
     }
@@ -867,90 +867,90 @@ user_get(byte mac[])
 }
 
 STATIC umd_user_t *
-user_create(byte mac[])
+umduser_create(byte mac[])
 {
-    return __user_create(mac, __ev);
+    return __umduser_create(mac, umd_ev);
 }
 
-int user_delete(umd_user_t *user)
+int umduser_delete(umd_user_t *user)
 {
-    return __user_delete(user, __ev);
-}
-
-STATIC umd_user_t *
-user_block(umd_user_t *user)
-{
-    return __user_block(user, __ev);
-}
-
-int user_unblock(umd_user_t *user)
-{
-    return __user_unblock(user, __ev)?0:-ENOPERM;
+    return __umduser_delete(user, umd_ev);
 }
 
 STATIC umd_user_t *
-user_bind(umd_user_t *user, uint32 ip)
+umduser_block(umd_user_t *user)
 {
-    return __user_bind(user, ip, __ev);
+    return __umduser_block(user, umd_ev);
 }
 
-int user_unbind(umd_user_t *user, int reason)
+int umduser_unblock(umd_user_t *user)
+{
+    return __umduser_unblock(user, umd_ev)?0:-ENOPERM;
+}
+
+STATIC umd_user_t *
+umduser_bind(umd_user_t *user, uint32 ip)
+{
+    return __umduser_bind(user, ip, umd_ev);
+}
+
+int umduser_unbind(umd_user_t *user, int reason)
 {
     if (is_valid_umd_deauth_reason(reason)) {
-        return __user_unbind(user, reason, __ev);
+        return __umduser_unbind(user, reason, umd_ev);
     } else {
         return -EBADREASON;
     }
 }
 
 STATIC umd_user_t *
-user_fake(umd_user_t *user, uint32 ip)
+umduser_fake(umd_user_t *user, uint32 ip)
 {
-    return __user_fake(user, ip, __ev);
+    return __umduser_fake(user, ip, umd_ev);
 }
 
-int user_unfake(umd_user_t *user, int reason)
+int umduser_unfake(umd_user_t *user, int reason)
 {
     if (is_valid_umd_deauth_reason(reason)) {
-        return __user_unfake(user, reason, __ev);
+        return __umduser_unfake(user, reason, umd_ev);
     } else {
         return -EBADREASON;
     }
 }
 
 STATIC umd_user_t *
-user_auth(umd_user_t *user, int group, jobj_t obj)
+umduser_auth(umd_user_t *user, int group, jobj_t obj)
 {
-    return __user_auth(user, group, obj, __ev);
+    return __umduser_auth(user, group, obj, umd_ev);
 }
 
-int user_deauth(umd_user_t *user, int reason)
+int umduser_deauth(umd_user_t *user, int reason)
 {
     if (is_valid_umd_deauth_reason(reason)) {
-        return __user_deauth(user, reason, __ev);
+        return __umduser_deauth(user, reason, umd_ev);
     } else {
         return -EBADREASON;
     }
 }
 
 umd_user_t *
-user_reauth(umd_user_t *user)
+umduser_reauth(umd_user_t *user)
 {
-    return __user_reauth(user, __ev);
+    return __umduser_reauth(user, umd_ev);
 }
 
 STATIC umd_user_t *
-user_sync(umd_user_t *user, jobj_t obj)
+umduser_sync(umd_user_t *user, jobj_t obj)
 {
-    return __user_sync(user, obj, __ev);
+    return __umduser_sync(user, obj, umd_ev);
 }
 
 STATIC int
-user_foreach(um_foreach_f *foreach, bool safe)
+umduser_foreach(um_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h2_node_t *node)
     {
-        return (*foreach)(user_hx_entry(node));
+        return (*foreach)(umd_user_hx_entry(node));
     }
 
     if (safe) {
@@ -963,92 +963,92 @@ user_foreach(um_foreach_f *foreach, bool safe)
 umd_tag_t *
 umd_user_tag_get(byte mac[], char *k)
 {
-    return tag_get(__user_get(mac), k);
+    return umd_tag_get(__umduser_get(mac), k);
 }
 
 umd_tag_t *
 umd_user_tag_set(byte mac[], char *k, char *v)
 {
-    return tag_set(__user_get(mac), k, v);
+    return umd_tag_set(__umduser_get(mac), k, v);
 }
 
 int umd_user_delete(byte mac[])
 {
-    return user_delete(__user_get(mac));
+    return umduser_delete(__umduser_get(mac));
 }
 
 umd_user_t *
 umd_user_create(byte mac[])
 {
-    umd_user_t *user = __user_get(mac);
+    umd_user_t *user = __umduser_get(mac);
 
-    return user?user:user_create(mac);
+    return user?user:umduser_create(mac);
 }
 
 umd_user_t *
 umd_user_block(byte mac[])
 {
-    return user_block(umd_user_create(mac));
+    return umduser_block(umd_user_create(mac));
 }
 
 int umd_user_unblock(byte mac[])
 {
-    return user_unblock(user_get(mac));
+    return umduser_unblock(umduser_get(mac));
 }
 
 umd_user_t *
 umd_user_bind(byte mac[], uint32 ip)
 {
-    return user_bind(umd_user_create(mac), ip);
+    return umduser_bind(umd_user_create(mac), ip);
 }
 
 int umd_user_unbind(byte mac[])
 {
-    return user_unbind(user_get(mac), UMD_DEAUTH_INITIATIVE);
+    return umduser_unbind(umduser_get(mac), UMD_DEAUTH_INITIATIVE);
 }
 
 umd_user_t *
 umd_user_fake(byte mac[], uint32 ip)
 {
-    return user_fake(umd_user_create(mac), ip);
+    return umduser_fake(umd_user_create(mac), ip);
 }
 
 int umd_user_unfake(byte mac[])
 {
-    return user_unfake(user_get(mac), UMD_DEAUTH_INITIATIVE);
+    return umduser_unfake(umduser_get(mac), UMD_DEAUTH_INITIATIVE);
 }
 
 umd_user_t *
 umd_user_auth(byte mac[], int group, jobj_t obj)
 {
-    return user_auth(umd_user_create(mac), group, obj);
+    return umduser_auth(umd_user_create(mac), group, obj);
 }
 
 int umd_user_deauth(byte mac[], int reason)
 {
-    return user_deauth(user_get(mac), reason);
+    return umduser_deauth(umduser_get(mac), reason);
 }
 
 int umd_user_reauth(byte mac[])
 {
-    return user_reauth(user_get(mac))?0:-ENOPERM;
+    return umduser_reauth(umduser_get(mac))?0:-ENOPERM;
 }
 
 umd_user_t *
 umd_user_sync(byte mac[], jobj_t obj)
 {
-    return user_sync(umd_user_create(mac), obj);
+    return umduser_sync(umd_user_create(mac), obj);
 }
 
 int umd_user_foreach(um_foreach_f *foreach, bool safe)
 {
-    return user_foreach(foreach, safe);
+    return umduser_foreach(foreach, safe);
 }
 
 umd_user_t *
 umd_user_get(byte mac[])
 {
-    return __user_get(mac);
+    return __umduser_get(mac);
 }
 
 umd_user_t *
@@ -1056,26 +1056,26 @@ umd_user_getbyip(uint32 ip)
 {
     hash_idx_t dhash(void)
     {
-        return haship(ip);
+        return umd_haship(ip);
     }
     
     bool eq(hash_node_t *node)
     {
-        umd_user_t *user = user_entry(node, UM_USER_NIDX_IP);
+        umd_user_t *user = umd_user_entry(node, UM_USER_NIDX_IP);
 
         return ip==user->ip;
     }
     
-    return user_hx_entry(h2_find(&umd.table, UM_USER_NIDX_IP, dhash, eq));
+    return umd_user_hx_entry(h2_find(&umd.table, UM_USER_NIDX_IP, dhash, eq));
 }
 
 int umd_user_delbyip(uint32 ip)
 {
-    return user_delete(umd_user_getbyip(ip));
+    return umduser_delete(umd_user_getbyip(ip));
 }
 
 STATIC jobj_t
-juser_online(umd_user_t *user, int type)
+umd_juser_online(umd_user_t *user, int type)
 {
     jobj_t obj = jobj_new_object();
     time_t time;
@@ -1100,7 +1100,7 @@ juser_online(umd_user_t *user, int type)
 }
 
 STATIC jobj_t
-__juser_flow(umd_user_t *user, int type, int dir)
+umd_juser_flow_helper(umd_user_t *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
@@ -1113,20 +1113,20 @@ __juser_flow(umd_user_t *user, int type, int dir)
 }
 
 STATIC jobj_t
-juser_flow(umd_user_t *user, int type)
+umd_juser_flow(umd_user_t *user, int type)
 {
     jobj_t obj = jobj_new_object();
     int dir;
 
     for (dir=0; dir<umd_flow_dir_end; dir++) {
-        jobj_add(obj, umd_flow_dir_getnamebyid(dir), __juser_flow(user, type, dir));
+        jobj_add(obj, umd_flow_dir_getnamebyid(dir), umd_juser_flow_helper(user, type, dir));
     }
 
     return obj;
 }
 
 STATIC jobj_t
-__juser_rate(umd_user_t *user, int type, int dir)
+umd_juser_rate_helper(umd_user_t *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
@@ -1137,43 +1137,43 @@ __juser_rate(umd_user_t *user, int type, int dir)
 }
 
 STATIC jobj_t
-juser_rate(umd_user_t *user, int type)
+umd_juser_rate(umd_user_t *user, int type)
 {
     jobj_t obj = jobj_new_object();
     int dir;
 
     for (dir=0; dir<umd_flow_dir_end; dir++) {
-        jobj_add(obj, umd_flow_dir_getnamebyid(dir), __juser_rate(user, type, dir));
+        jobj_add(obj, umd_flow_dir_getnamebyid(dir), umd_juser_rate_helper(user, type, dir));
     }
 
     return obj;
 }
 
 STATIC jobj_t
-__juser_limit(umd_user_t *user, int type)
+umd_juser_limit_helper(umd_user_t *user, int type)
 {
     jobj_t obj = jobj_new_object();
 
-    jobj_add(obj, "online", juser_online(user, type));
-    jobj_add(obj, "flow", juser_flow(user, type));
-    jobj_add(obj, "rate", juser_rate(user, type));
+    jobj_add(obj, "online", umd_juser_online(user, type));
+    jobj_add(obj, "flow", umd_juser_flow(user, type));
+    jobj_add(obj, "rate", umd_juser_rate(user, type));
 
     return obj;
 }
 
 STATIC jobj_t
-juser_limit(umd_user_t *user)
+umd_juser_limit(umd_user_t *user)
 {
     jobj_t obj = jobj_new_object();
 
-    jobj_add(obj, umd_flow_type_getnamebyid(umd_flow_type_lan), __juser_limit(user, umd_flow_type_lan));
-    jobj_add(obj, umd_flow_type_getnamebyid(umd_flow_type_wan), __juser_limit(user, umd_flow_type_wan));
+    jobj_add(obj, umd_flow_type_getnamebyid(umd_flow_type_lan), umd_juser_limit_helper(user, umd_flow_type_lan));
+    jobj_add(obj, umd_flow_type_getnamebyid(umd_flow_type_wan), umd_juser_limit_helper(user, umd_flow_type_wan));
     
     return obj;
 }
 
 STATIC jobj_t
-juser_tag(umd_user_t *user)
+umd_juser_tag(umd_user_t *user)
 {
     jobj_t obj = jobj_new_object();
     umd_tag_t *tag;
@@ -1204,14 +1204,14 @@ jobj_t umd_juser(umd_user_t *user)
     
     jobj_add_i32(obj,   "group",    user->group);
 
-    jobj_add(obj, "tag",    juser_tag(user));
-    jobj_add(obj, "limit",  juser_limit(user));
+    jobj_add(obj, "tag",    umd_juser_tag(user));
+    jobj_add(obj, "limit",  umd_juser_limit(user));
 
     return obj;
 }
 
 STATIC void
-touser_base(umd_user_t *user, jobj_t juser)
+umd_touser_base(umd_user_t *user, jobj_t juser)
 {
     jj_mac(user, juser, mac);
     jj_mac(user, juser, bssid_first);
@@ -1228,7 +1228,7 @@ touser_base(umd_user_t *user, jobj_t juser)
 }
 
 STATIC void
-touser_tag(umd_user_t *user, jobj_t juser)
+umd_touser_tag(umd_user_t *user, jobj_t juser)
 {
     jobj_t jtag;
     
@@ -1236,14 +1236,14 @@ touser_tag(umd_user_t *user, jobj_t juser)
     if (jtag) {
         jobj_foreach(jtag, k, v) {
             if (jtype_string==jobj_type(v)) {
-                tag_set(user, k, jobj_get_string(v));
+                umd_tag_set(user, k, jobj_get_string(v));
             }
         }
     }
 }
 
 STATIC void
-touser_flow(umd_limit_flow_t *flow, jobj_t jflow)
+umd_touser_flow(umd_limit_flow_t *flow, jobj_t jflow)
 {
     jj_u64(flow, jflow, max);
     jj_u64(flow, jflow, now);
@@ -1252,14 +1252,14 @@ touser_flow(umd_limit_flow_t *flow, jobj_t jflow)
 }
 
 STATIC void
-touser_rate(umd_limit_rate_t *rate, jobj_t jrate)
+umd_touser_rate(umd_limit_rate_t *rate, jobj_t jrate)
 {
     jj_u32(rate, jrate, max);
     jj_u32(rate, jrate, avg);
 }
 
 STATIC void
-touser_online(umd_limit_online_t *online, jobj_t jonline)
+umd_touser_online(umd_limit_online_t *online, jobj_t jonline)
 {
     jj_u32(online, jonline, max);
     jj_u32(online, jonline, idle);
@@ -1273,14 +1273,14 @@ touser_online(umd_limit_online_t *online, jobj_t jonline)
 }
 
 STATIC void
-touser_intf(umd_limit_t *intf, jobj_t jintf)
+umd_touser_intf(umd_limit_t *intf, jobj_t jintf)
 {
     jobj_t jobj;
     int dir;
     
     jobj_t jonline = jobj_get(jintf, "online");
     if (jonline) {
-        touser_online(&intf->online, jonline);
+        umd_touser_online(&intf->online, jonline);
     }
     
     jobj = jobj_get(jintf, "flow");
@@ -1288,7 +1288,7 @@ touser_intf(umd_limit_t *intf, jobj_t jintf)
         for (dir=0; dir<umd_flow_dir_end; dir++) {
             jobj_t jflow = jobj_get(jobj, umd_flow_dir_getnamebyid(dir));
             if (jflow) {
-                touser_flow(&intf->flow[dir], jflow);
+                umd_touser_flow(&intf->flow[dir], jflow);
             }
         }
     }
@@ -1298,14 +1298,14 @@ touser_intf(umd_limit_t *intf, jobj_t jintf)
         for (dir=0; dir<umd_flow_dir_end; dir++) {
             jobj_t jrate = jobj_get(jobj, umd_flow_dir_getnamebyid(dir));
             if (jrate) {
-                touser_rate(&intf->rate[dir], jrate);
+                umd_touser_rate(&intf->rate[dir], jrate);
             }
         }
     }
 }
 
 STATIC void
-touser_limit(umd_user_t *user, jobj_t juser)
+umd_touser_limit(umd_user_t *user, jobj_t juser)
 {
     int type;
     
@@ -1314,7 +1314,7 @@ touser_limit(umd_user_t *user, jobj_t juser)
         for (type=0; type<umd_flow_type_end; type++) {
             jobj_t jintf = jobj_get(jlimit, umd_flow_type_getnamebyid(type));
             if (jintf) {
-                touser_intf(&user->limit[type], jintf);
+                umd_touser_intf(&user->limit[type], jintf);
             }
         }
     }
@@ -1322,15 +1322,15 @@ touser_limit(umd_user_t *user, jobj_t juser)
 
 umd_user_t *umd_touser(umd_user_t *user, jobj_t juser)
 {
-    touser_base(user, juser);
-    touser_tag(user, juser);
-    touser_limit(user, juser);
+    umd_touser_base(user, juser);
+    umd_touser_tag(user, juser);
+    umd_touser_limit(user, juser);
     
     return user;
 }
 
 STATIC bool
-match_mac(byte umac[], byte fmac[], byte mask[])
+umd_match_mac(byte umac[], byte fmac[], byte mask[])
 {
     if (is_good_mac(fmac)) {
         if (is_zero_mac(mask)) {
@@ -1360,7 +1360,7 @@ match_mac(byte umac[], byte fmac[], byte mask[])
 }
 
 STATIC bool
-match_ip(uint32 uip, uint32 fip, uint32 mask)
+umd_match_ip(uint32 uip, uint32 fip, uint32 mask)
 {
     if (fip) {
         if (0==mask) {
@@ -1390,17 +1390,17 @@ match_ip(uint32 uip, uint32 fip, uint32 mask)
 }
 
 STATIC bool
-match_user(umd_user_t *user, umd_user_filter_t *filter)
+umd_match_user(umd_user_t *user, umd_user_filter_t *filter)
 {
     if (__is_user_have_bind(filter->state) && filter->state != user->state) {
         return false;
     }
     
-    if (false==match_mac(user->mac, filter->mac, filter->macmask)) {
+    if (false==umd_match_mac(user->mac, filter->mac, filter->macmask)) {
         return false;
     }
     
-    if (false==match_ip(user->ip, filter->ip, filter->ipmask)) {
+    if (false==umd_match_ip(user->ip, filter->ip, filter->ipmask)) {
         return false;
     }
     
@@ -1412,8 +1412,8 @@ int umd_user_delby(umd_user_filter_t *filter)
 {
     mv_t cb(umd_user_t *user)
     {
-        if (match_user(user, filter)) {
-            user_delete(user);
+        if (umd_match_user(user, filter)) {
+            umduser_delete(user);
         }
 
         return mv2_ok;
@@ -1426,7 +1426,7 @@ int umd_user_getby(umd_user_filter_t *filter, um_get_f *get)
 {
     mv_t cb(umd_user_t *user)
     {
-        if (match_user(user, filter)) {
+        if (umd_match_user(user, filter)) {
             return (*get)(user);
         } else {
             return mv2_ok;

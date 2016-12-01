@@ -605,7 +605,7 @@ umd_user_dump(char *tag, umd_user_t *user)
 }
 
 static inline void
-umd_user_debug(char *tag, umd_user_t *user, bool debug)
+umd_user_debug_helper(char *tag, umd_user_t *user, bool debug)
 {
     if (debug) {
         jobj_t obj = umd_juser(user);
