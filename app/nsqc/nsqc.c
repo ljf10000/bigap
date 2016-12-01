@@ -9,13 +9,13 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t nsqc = CLI_CLIENT_INITER("nsqa");
+STATIC cli_client_t nsqc = CLI_CLIENT_INITER("nsqa");
 
 #define nsqc_handle(_action, _argc, _argv) \
     clic_sync_handle(&nsqc, _action, _argc, _argv)
 
-static int
-usage(int error)
+STATIC int
+nsqc_usage(int error)
 {
     os_eprintln(__THIS_APPNAME " insert {json}");
     os_eprintln(__THIS_APPNAME " remove {name|*} {topic|*} {channel|*}");
@@ -27,14 +27,14 @@ usage(int error)
 /*
 * ACTION name topic channel
 */
-static int
+STATIC int
 nsqc_handle_name_topic_channel(char *action, int argc, char *argv[], bool allow_all_empty)
 {
     if (argc < 1) {
-        return usage(-EINVAL0);
+        return nsqc_usage(-EINVAL0);
     }
     else if (argc > 3) {
-        return usage(-EINVAL1);
+        return nsqc_usage(-EINVAL1);
     }
 
     char *name      = argv[0];
@@ -54,57 +54,57 @@ nsqc_handle_name_topic_channel(char *action, int argc, char *argv[], bool allow_
     }
 
     if (false==allow_all_empty && NULL==name && NULL==topic && NULL==channel) {
-        return usage(-EINVAL2);
+        return nsqc_usage(-EINVAL2);
     }
     else if (os_strlen(name) > NSQ_NAMESIZE) {
-        return usage(-ETOOBIG);
+        return nsqc_usage(-ETOOBIG);
     }
     else if (os_strlen(topic) > NSQ_NAMESIZE) {
-        return usage(-ETOOBIG);
+        return nsqc_usage(-ETOOBIG);
     }
     else if (os_strlen(channel) > NSQ_NAMESIZE) {
-        return usage(-ETOOBIG);
+        return nsqc_usage(-ETOOBIG);
     }
     else {
         return nsqc_handle(action, argc, argv);
     }
 }
 
-static int
-cmd_insert(int argc, char *argv[])
+STATIC int
+nsqc_cmd_insert(int argc, char *argv[])
 {
     char *json = argv[0];
     
     if (1!=argc) {
-        return usage(-EINVAL0);
+        return nsqc_usage(-EINVAL0);
     }
     else if (false==is_good_json(json)) {
-        return usage(-EBADJSON);
+        return nsqc_usage(-EBADJSON);
     }
     
     return nsqc_handle("insert", argc, argv);
 }
 
-static int
-cmd_remove(int argc, char *argv[])
+STATIC int
+nsqc_cmd_remove(int argc, char *argv[])
 {
     return nsqc_handle_name_topic_channel("remove", argc, argv, false);
 }
 
-static int
-cmd_show(int argc, char *argv[])
+STATIC int
+nsqc_cmd_show(int argc, char *argv[])
 {
     return nsqc_handle_name_topic_channel("remove", argc, argv, true);
 }
 
-static cli_table_t nsqc_table[] = {
-    CLI_ENTRY("insert", cmd_insert),
-    CLI_ENTRY("remove", cmd_remove),
-    CLI_ENTRY("show",   cmd_show),
+STATIC cli_table_t nsqc_table[] = {
+    CLI_ENTRY("insert", nsqc_cmd_insert),
+    CLI_ENTRY("remove", nsqc_cmd_remove),
+    CLI_ENTRY("show",   nsqc_cmd_show),
 };
 
-static int
-command(int argc, char *argv[])
+STATIC int
+nsqc_command(int argc, char *argv[])
 {
     int err;
 
@@ -124,10 +124,10 @@ nsqc_main_helper(int argc, char *argv[])
     int err;
     
     if (1==argc) {
-        return usage(-EHELP);
+        return nsqc_usage(-EHELP);
     }
     
-    err = command(argc-1, argv+1);
+    err = nsqc_command(argc-1, argv+1);
     if (err<0) {
         /* just log, NOT return */
     }

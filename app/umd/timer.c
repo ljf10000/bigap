@@ -42,7 +42,7 @@ umd_timer_online_aging(umd_user_t *user, time_t now)
 }
 
 STATIC bool
-is_umd_timer_gc(umd_user_t *user, time_t now)
+is_umd_gc(umd_user_t *user, time_t now)
 {
     time_t noused = user->noused;
 
@@ -72,7 +72,7 @@ int umd_gc(umd_user_t *user)
 STATIC void
 umd_timer_gc_auto(umd_user_t *user, time_t now)
 {
-    if (is_umd_timer_gc(user, now)) {
+    if (is_umd_gc(user, now)) {
         umd_gc(user);
     }
 }

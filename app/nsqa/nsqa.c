@@ -102,7 +102,7 @@ nsqa_exit(int sig)
 }
 
 STATIC int
-__nsqa_main(int argc, char *argv[])
+nsqa_main_helper(int argc, char *argv[])
 {
 #if 0
     duk_context *ctx = js_init("main", argc, argv);
@@ -120,7 +120,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_user(nsqa_signal);
     setup_signal_callstack(NULL);
     
-    int err = os_call(nsqa_init, nsqa_fini, __nsqa_main, argc, argv);
+    int err = os_call(nsqa_init, nsqa_fini, nsqa_main_helper, argc, argv);
 
     return shell_error(err);
 }
