@@ -2,7 +2,6 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #include "app/autoarray.c"
-#include "app/benv.c"
 #include "app/blob.c"
 #include "app/channel.c"
 #include "app/coroutine.c"
