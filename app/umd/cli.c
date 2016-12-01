@@ -17,7 +17,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 * handle {mac} {json}
 */
 STATIC int
-handle_mac_json(struct um_user *(*handle)(byte mac[], jobj_t obj), char *args)
+umd_handle_mac_json(struct um_user *(*handle)(byte mac[], jobj_t obj), char *args)
 {
     char *mac   = args; cli_shift(args);
     char *json  = args; cli_shift(args);
@@ -52,7 +52,7 @@ error:
 * handle {mac} {ip}
 */
 STATIC int
-handle_mac_ip(struct um_user *(*handle)(byte mac[], uint32 ip), char *args)
+umd_handle_mac_ip(struct um_user *(*handle)(byte mac[], uint32 ip), char *args)
 {
     char *mac   = args; cli_shift(args);
     char *ip    = args; cli_shift(args);
@@ -80,7 +80,7 @@ handle_mac_ip(struct um_user *(*handle)(byte mac[], uint32 ip), char *args)
 * handle {mac}
 */
 STATIC int
-handle_mac(int (*handle)(byte mac[]), char *args)
+umd_handle_mac(int (*handle)(byte mac[]), char *args)
 {
     char *mac = args; cli_shift(args);
 
@@ -97,78 +97,78 @@ handle_mac(int (*handle)(byte mac[]), char *args)
 * create {mac}
 */
 STATIC int
-handle_create(char *args)
+umd_handle_create(char *args)
 {
     int create(byte mac[])
     {
-        struct um_user *user = um_user_create(mac);
+        struct um_user *user = umd_user_create(mac);
         
         return user?0:-ENOMEM;
     }
     
-    return handle_mac(create, args);
+    return umd_handle_mac(create, args);
 }
 
 /*
 * delete {mac}
 */
 STATIC int
-handle_delete(char *args)
+umd_handle_delete(char *args)
 {
-    return handle_mac(um_user_delete, args);
+    return umd_handle_mac(umd_user_delete, args);
 }
 
 /*
 * block {mac}
 */
 STATIC int
-handle_block(char *args)
+umd_handle_block(char *args)
 {
     int block(byte mac[])
     {
-        struct um_user *user = um_user_block(mac);
+        struct um_user *user = umd_user_block(mac);
 
         return user?0:-ENOMEM;
     }
     
-    return handle_mac(block, args);
+    return umd_handle_mac(block, args);
 }
 
 /*
 * unblock {mac}
 */
 STATIC int
-handle_unblock(char *args)
+umd_handle_unblock(char *args)
 {
-    return handle_mac(um_user_unblock, args);
+    return umd_handle_mac(umd_user_unblock, args);
 }
 
 /*
 * bind {mac} {ip}
 */
 STATIC int
-handle_bind(char *args)
+umd_handle_bind(char *args)
 {
-    return handle_mac_ip(um_user_bind, args);
+    return umd_handle_mac_ip(umd_user_bind, args);
 }
 
 /*
 * unbind {mac}
 */
 STATIC int
-handle_unbind(char *args)
+umd_handle_unbind(char *args)
 {
-    return handle_mac(um_user_unbind, args);
+    return umd_handle_mac(umd_user_unbind, args);
 }
 
 /*
 * fake {mac} {ip}
 */
 STATIC int
-handle_fake(char *args)
+umd_handle_fake(char *args)
 {
     if (UM_AUTO_FAKE==umd.cfg.autouser) {
-        return handle_mac_ip(um_user_fake, args);
+        return umd_handle_mac_ip(umd_user_fake, args);
     } else {
         return -ENOSUPPORT;
     }
@@ -178,10 +178,10 @@ handle_fake(char *args)
 * unfake {mac}
 */
 STATIC int
-handle_unfake(char *args)
+umd_handle_unfake(char *args)
 {
     if (UM_AUTO_FAKE==umd.cfg.autouser) {
-        return handle_mac(um_user_unfake, args);
+        return umd_handle_mac(umd_user_unfake, args);
     } else {
         return -ENOSUPPORT;
     }
@@ -191,7 +191,7 @@ handle_unfake(char *args)
 * auth {mac} {group} {json}
 */
 STATIC int
-handle_auth(char *args)
+umd_handle_auth(char *args)
 {
     char *mac   = args; cli_shift(args);
     char *group = args; cli_shift(args);
@@ -214,7 +214,7 @@ handle_auth(char *args)
         err = -EBADJSON; goto error;
     }
 
-    struct um_user *user = um_user_auth(os_mac(mac), groupid, obj);
+    struct um_user *user = umd_user_auth(os_mac(mac), groupid, obj);
     if (NULL==user) {
         err = -ENOEXIST; goto error;
     }
@@ -229,35 +229,35 @@ error:
 * deauth {mac}
 */
 STATIC int
-handle_deauth(char *args)
+umd_handle_deauth(char *args)
 {
     int deauth(byte mac[])
     {
-        um_user_deauth(mac, UM_DEAUTH_ADMIN);
+        umd_user_deauth(mac, UM_DEAUTH_ADMIN);
 
         return 0;
     }
     
-    return handle_mac(deauth, args);
+    return umd_handle_mac(deauth, args);
 }
 
 /*
 * reauth {mac}
 */
 STATIC int
-handle_reauth(char *args)
+umd_handle_reauth(char *args)
 {
     if (umd.cfg.reauthable) {
-        return handle_mac(um_user_reauth, args);
+        return umd_handle_mac(umd_user_reauth, args);
     } else {
         return -ENOSUPPORT;
     }
 }
 
 STATIC mv_t
-show_user(struct um_user *user)
+umd_show_user(struct um_user *user)
 {
-    jobj_t obj = um_juser(user);
+    jobj_t obj = umd_juser(user);
     
     if (obj) {
         cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
@@ -269,7 +269,7 @@ show_user(struct um_user *user)
 }
 
 STATIC int
-show_user_byjson(char *json)
+umd_show_user_byjson(char *json)
 {
     jobj_t obj      = NULL;
     jobj_t jmac     = NULL;
@@ -290,7 +290,7 @@ show_user_byjson(char *json)
             err = -EBADMAC; goto error;
         }
 
-        user = um_user_get(os_mac(string));
+        user = umd_user_get(os_mac(string));
     }
     else if (NULL!=(jip = jobj_get(obj, "ip"))) {
         string = jobj_get_string(jip);
@@ -298,7 +298,7 @@ show_user_byjson(char *json)
             err = -EBADIP; goto error;
         }
 
-        user = um_user_getbyip(inet_addr(string));
+        user = umd_user_getbyip(inet_addr(string));
     }
     else {
         err = -EFILTER; goto error;
@@ -308,7 +308,7 @@ show_user_byjson(char *json)
         err = -ENOEXIST; goto error;
     }
     
-    juser = um_juser(user);
+    juser = umd_juser(user);
     if (NULL==juser) {
         err = -ENOEXIST; goto error;
     }
@@ -322,7 +322,7 @@ error:
 }
 
 STATIC int
-show_stat(void)
+umd_show_stat(void)
 {
     jobj_t obj = jobj_new_object();
     if (NULL==obj) {
@@ -331,7 +331,7 @@ show_stat(void)
 
     jobj_add_string(obj, "mac", os_macstring(umd.basemac));
     jobj_add_i32(obj, "user", h2_count(&umd.table));
-    jobj_add(obj, "flow", um_jflow());
+    jobj_add(obj, "flow", umd_jflow());
 
     cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
     
@@ -341,7 +341,7 @@ show_stat(void)
 }
 
 STATIC int
-show_count(void)
+umd_show_count(void)
 {
     cli_sprintf("%d" __crlf, h2_count(&umd.table));
     
@@ -352,7 +352,7 @@ show_count(void)
 * show [json]
 */
 STATIC int
-handle_show(char *args)
+umd_handle_show(char *args)
 {
     char *json = args; /* json maybe include space, not shift */
     
@@ -360,16 +360,16 @@ handle_show(char *args)
         /*
         * TODO: unix socket, 数据报方式, 无法传送大量数据，需要修改机制
         */
-        return um_user_foreach(show_user, false);
+        return umd_user_foreach(umd_show_user, false);
     }
     else if (os_streq("stat", json)) {
-        return show_stat();
+        return umd_show_stat();
     }
     else if (os_streq("count", json)) {
-        return show_count();
+        return umd_show_count();
     }
     else if (is_good_json(json)) {
-        return show_user_byjson(json);
+        return umd_show_user_byjson(json);
     }
     else {
         return -EFORMAT;
@@ -380,10 +380,10 @@ handle_show(char *args)
 * sync {mac} {json}
 */
 STATIC int
-handle_sync(char *args)
+umd_handle_sync(char *args)
 {
     if (umd.cfg.syncable) {
-        return handle_mac_json(um_user_sync, args);
+        return umd_handle_mac_json(umd_user_sync, args);
     } else {
         return -ENOSUPPORT;
     }
@@ -393,7 +393,7 @@ handle_sync(char *args)
 * tag {mac} {key} [value]
 */
 STATIC int
-handle_tag(char *args)
+umd_handle_tag(char *args)
 {
     char *mac   = args; cli_shift(args);
     char *k     = args; cli_shift(args);
@@ -407,12 +407,12 @@ handle_tag(char *args)
 
     struct um_tag *tag = NULL;
     if (NULL==v) {
-        tag = um_tag_get(os_mac(mac), k);
+        tag = umd_user_tag_get(os_mac(mac), k);
         if (tag) {
             cli_sprintf("%s" __crlf, tag->v);
         }
     } else {
-        tag = um_tag_set(os_mac(mac), k, v);
+        tag = umd_user_tag_set(os_mac(mac), k, v);
     }
     
     return tag?0:-ENOEXIST;
@@ -422,46 +422,46 @@ handle_tag(char *args)
 * gc
 */
 STATIC int
-handle_gc(char *args)
+umd_handle_gc(char *args)
 {
     if (umd.cfg.gc) {
-        return um_user_foreach(umd_gc, true);
+        return umd_user_foreach(umd_gc, true);
     } else {
         return -ENOSUPPORT;
     }
 }
 
-STATIC cli_table_t cli_table[] = {
-    CLI_ENTRY("create", handle_create),
-    CLI_ENTRY("delete", handle_delete),
+STATIC cli_table_t umd_cli_table[] = {
+    CLI_ENTRY("create", umd_handle_create),
+    CLI_ENTRY("delete", umd_handle_delete),
     
-    CLI_ENTRY("block",  handle_block),
-    CLI_ENTRY("unblock",handle_unblock),
+    CLI_ENTRY("block",  umd_handle_block),
+    CLI_ENTRY("unblock",umd_handle_unblock),
     
-    CLI_ENTRY("bind",   handle_bind),
-    CLI_ENTRY("unbind", handle_unbind),
+    CLI_ENTRY("bind",   umd_handle_bind),
+    CLI_ENTRY("unbind", umd_handle_unbind),
     
-    CLI_ENTRY("fake",   handle_fake),
-    CLI_ENTRY("unfake", handle_unfake),
+    CLI_ENTRY("fake",   umd_handle_fake),
+    CLI_ENTRY("unfake", umd_handle_unfake),
     
-    CLI_ENTRY("auth",   handle_auth),
-    CLI_ENTRY("deauth", handle_deauth),
-    CLI_ENTRY("reauth", handle_reauth),
+    CLI_ENTRY("auth",   umd_handle_auth),
+    CLI_ENTRY("deauth", umd_handle_deauth),
+    CLI_ENTRY("reauth", umd_handle_reauth),
     
-    CLI_ENTRY("sync",   handle_sync),
-    CLI_ENTRY("show",   handle_show),
-    CLI_ENTRY("tag",    handle_tag),
-    CLI_ENTRY("gc",     handle_gc),
+    CLI_ENTRY("sync",   umd_handle_sync),
+    CLI_ENTRY("show",   umd_handle_show),
+    CLI_ENTRY("tag",    umd_handle_tag),
+    CLI_ENTRY("gc",     umd_handle_gc),
 };
 
 STATIC int
-cli_handle(sock_server_t *server)
+umd_cli_handle(sock_server_t *server)
 {
-    return clis_handle(server->fd, cli_table);
+    return clis_handle(server->fd, umd_cli_table);
 }
 
 STATIC int
-cli_init(sock_server_t *server)
+umd_cli_init(sock_server_t *server)
 {
     int fd;
     
@@ -477,5 +477,5 @@ cli_init(sock_server_t *server)
 }
 
 sock_server_t um_cli_server = 
-    SOCK_USERVER_INITER(UM_SERVER_CLI, "umd", cli_init, cli_handle);
+    SOCK_USERVER_INITER(UM_SERVER_CLI, "umd", umd_cli_init, umd_cli_handle);
 /******************************************************************************/

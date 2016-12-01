@@ -17,10 +17,10 @@ typedef void um_timer_handle_t(struct um_user *user, time_t now);
 STATIC void 
 __try_aging(struct um_user *user, int type)
 {
-    if (__online_idle(user, type)) {
-        __online_aging(user, type) -= umd.cfg.ticks;
+    if (umd_online_idle(user, type)) {
+        umd_online_aging(user, type) -= umd.cfg.ticks;
         
-        if (__online_aging(user, type) <= 0) {
+        if (umd_online_aging(user, type) <= 0) {
             debug_timeout("user(%s) type(%s) online aging",
                 os_macstring(user->mac),
                 flow_type_getnamebyid(type));
@@ -61,7 +61,7 @@ __is_gc(struct um_user *user, time_t now)
 int umd_gc(struct um_user *user)
 {
     if (is_user_noused(user)) {
-        um_user_debug("gc", user, __is_ak_debug_gc);
+        umd_user_debug("gc", user, __is_ak_debug_gc);
         
         user_delete(user);
     }
@@ -80,8 +80,8 @@ gc_auto(struct um_user *user, time_t now)
 STATIC bool
 __is_online_timeout(struct um_user *user, time_t now, int type)
 {
-    time_t max      = __online_max(user, type);
-    time_t uptime   = __online_uptime(user, type);
+    time_t max      = umd_online_max(user, type);
+    time_t uptime   = umd_online_uptime(user, type);
 
     bool is = max && (uptime < now) && (now - uptime > max);
     if (is) {
@@ -118,8 +118,8 @@ online_timeout(struct um_user *user, time_t now)
 STATIC bool
 __is_online_reauth(struct um_user *user, time_t now, int type)
 {
-    time_t uptime   = __online_uptime(user, type);
-    time_t reauth   = __online_reauth(user, type);
+    time_t uptime   = umd_online_uptime(user, type);
+    time_t reauth   = umd_online_reauth(user, type);
     
     bool is = reauth && (uptime < now) && (now - uptime > reauth);
     if (is) {
@@ -230,7 +230,7 @@ timer_server_handle(sock_server_t *server)
     for (i=0; i<times; i++) {
         umd.ticks++;
         
-        um_user_foreach(cb, true);
+        umd_user_foreach(cb, true);
     }
 
     return 0;

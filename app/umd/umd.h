@@ -265,30 +265,30 @@ struct um_user {
 };
 
 static inline struct um_limit *
-__limit(struct um_user *user, int type)
+umd_limit_get(struct um_user *user, int type)
 {
     return &user->limit[type];
 }
 
 static inline struct um_limit_online *
-__limit_online(struct um_user *user, int type)
+umd_limit_online_get(struct um_user *user, int type)
 {
-    return &__limit(user, type)->online;
+    return &umd_limit_get(user, type)->online;
 }
 
 static inline struct um_limit_flow *
-__limit_flow(struct um_user *user, int type, int dir)
+umd_limit_flow_get(struct um_user *user, int type, int dir)
 {
-    return &__limit(user, type)->flow[dir];
+    return &umd_limit_get(user, type)->flow[dir];
 }
 
 static inline struct um_limit_rate *
-__limit_rate(struct um_user *user, int type, int dir)
+umd_limit_rate_get(struct um_user *user, int type, int dir)
 {
-    return &__limit(user, type)->rate[dir];
+    return &umd_limit_get(user, type)->rate[dir];
 }
 
-#define __limit_reauth(_max, _numerator, _denominator) ({ \
+#define umd_limit_reauth_get(_max, _numerator, _denominator) ({ \
     typeof(_max) _m_in___limit_reauth = (_max);                   \
     typeof(_numerator) _n_in___limit_reauth = (_numerator);       \
     typeof(_denominator) _d_in___limit_reauth = (_denominator);   \
@@ -300,47 +300,47 @@ __limit_rate(struct um_user *user, int type, int dir)
         0; \
 })
 
-#define __online_max(_user, _type)          __limit_online(_user, _type)->max
-#define __online_idle(_user, _type)         __limit_online(_user, _type)->idle
-#define __online_aging(_user, _type)        __limit_online(_user, _type)->aging
-#define __online_uptime(_user, _type)       __limit_online(_user, _type)->uptime
-#define __online_downtime(_user, _type)     __limit_online(_user, _type)->downtime
-#define __online_numerator(_user, _type)    __limit_online(_user, _type)->numerator
-#define __online_denominator(_user, _type)  __limit_online(_user, _type)->denominator
-#define __online_reauth(_user, _type)       \
-    __limit_reauth(__online_max(_user, _type), __online_numerator(_user, _type), __online_denominator(_user, _type))
+#define umd_online_max(_user, _type)            umd_limit_online_get(_user, _type)->max
+#define umd_online_idle(_user, _type)           umd_limit_online_get(_user, _type)->idle
+#define umd_online_aging(_user, _type)          umd_limit_online_get(_user, _type)->aging
+#define umd_online_uptime(_user, _type)         umd_limit_online_get(_user, _type)->uptime
+#define umd_online_downtime(_user, _type)       umd_limit_online_get(_user, _type)->downtime
+#define umd_online_numerator(_user, _type)      umd_limit_online_get(_user, _type)->numerator
+#define umd_online_denominator(_user, _type)    umd_limit_online_get(_user, _type)->denominator
+#define umd_online_reauth(_user, _type)       \
+    umd_limit_reauth_get(umd_online_max(_user, _type), umd_online_numerator(_user, _type), umd_online_denominator(_user, _type))
 
-#define __flow_max(_user, _type, _dir)          __limit_flow(_user, _type, _dir)->max
-#define __flow_now(_user, _type, _dir)          __limit_flow(_user, _type, _dir)->now
-#define __flow_numerator(_user, _type, _dir)    __limit_flow(_user, _type, _dir)->numerator
-#define __flow_denominator(_user, _type, _dir)  __limit_flow(_user, _type, _dir)->denominator
-#define __flow_reauth(_user, _type, _dir)       \
-    __limit_reauth(__flow_max(_user, _type, _dir), __flow_numerator(_user, _type, _dir), __flow_denominator(_user, _type, _dir))
+#define umd_flow_max(_user, _type, _dir)            umd_limit_flow_get(_user, _type, _dir)->max
+#define umd_flow_now(_user, _type, _dir)            umd_limit_flow_get(_user, _type, _dir)->now
+#define umd_flow_numerator(_user, _type, _dir)      umd_limit_flow_get(_user, _type, _dir)->numerator
+#define umd_flow_denominator(_user, _type, _dir)    umd_limit_flow_get(_user, _type, _dir)->denominator
+#define umd_flow_reauth(_user, _type, _dir)     \
+    umd_limit_reauth_get(umd_flow_max(_user, _type, _dir), umd_flow_numerator(_user, _type, _dir), umd_flow_denominator(_user, _type, _dir))
 
-#define __rate_max(_user, _type, _dir)          __limit_rate(_user, _type, _dir)->max
-#define __rate_avg(_user, _type, _dir)          __limit_rate(_user, _type, _dir)->avg
+#define umd_rate_max(_user, _type, _dir)        umd_limit_rate_get(_user, _type, _dir)->max
+#define umd_rate_avg(_user, _type, _dir)        umd_limit_rate_get(_user, _type, _dir)->avg
 
-#define limit_online(_user, _TYPE)          __limit_online(_user, um_flow_type_##_TYPE)
-#define limit_flow(_user, _TYPE, _DIR)      __limit_flow(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
-#define limit_rate(_user, _TYPE, _DIR)      __limit_rate(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
+#define umd_limit_online(_user, _TYPE)          umd_limit_online_get(_user, um_flow_type_##_TYPE)
+#define umd_limit_flow(_user, _TYPE, _DIR)      umd_limit_flow_get(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
+#define umd_limit_rate(_user, _TYPE, _DIR)      umd_limit_rate_get(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
 
 static inline void
-__update_aging(struct um_user *user, int type, bool debug)
+umd_update_aging_helper(struct um_user *user, int type, bool debug)
 {
-    __online_aging(user, type) = __online_idle(user, type);
+    umd_online_aging(user, type) = umd_online_idle(user, type);
 
     if (debug) {
         debug_aging("update %s aging to %d",
             flow_type_getnamebyid(type),
-            __online_aging(user, type));
+            umd_online_aging(user, type));
     }
 }
 
 static inline void
-update_aging(struct um_user *user, bool debug)
+umd_update_aging(struct um_user *user, bool debug)
 {
-    __update_aging(user, um_flow_type_wan, debug);
-    __update_aging(user, um_flow_type_lan, debug);
+    umd_update_aging_helper(user, um_flow_type_wan, debug);
+    umd_update_aging_helper(user, um_flow_type_lan, debug);
 }
 
 typedef mv_t um_foreach_f(struct um_user *user);
@@ -475,21 +475,21 @@ struct um_control {
 extern struct um_control umd;
 
 static inline sock_server_t *
-get_server_by_intf(struct um_intf *intf)
+umd_get_server_by_intf(struct um_intf *intf)
 {
     return umd.server[um_server_id(intf->id)];
 }
 
 static inline struct um_intf *
-get_intf_by_id(int intf_id)
+umd_get_intf_by_id(int intf_id)
 {
     return &umd.cfg.instance.intf[intf_id];
 }
 
 static inline struct um_intf *
-get_intf_by_server(sock_server_t *server)
+umd_get_intf_by_server(sock_server_t *server)
 {
-    return get_intf_by_id(um_intf_id(server->id));
+    return umd_get_intf_by_id(um_intf_id(server->id));
 }
 
 struct um_user_filter {
@@ -586,15 +586,15 @@ struct um_flow {
 
 /******************************************************************************/
 extern jobj_t
-um_juser(struct um_user *user);
+umd_juser(struct um_user *user);
 
 extern struct um_user *
-um_touser(struct um_user *user, jobj_t obj);
+umd_touser(struct um_user *user, jobj_t obj);
 
 static inline void
-um_user_dump(char *tag, struct um_user *user)
+umd_user_dump(char *tag, struct um_user *user)
 {
-    jobj_t obj = um_juser(user);
+    jobj_t obj = umd_juser(user);
 
     os_println("\t%s:%s", tag, jobj_json(obj));
 
@@ -602,10 +602,10 @@ um_user_dump(char *tag, struct um_user *user)
 }
 
 static inline void
-um_user_debug(char *tag, struct um_user *user, bool debug)
+umd_user_debug(char *tag, struct um_user *user, bool debug)
 {
     if (debug) {
-        jobj_t obj = um_juser(user);
+        jobj_t obj = umd_juser(user);
         
         jdebug("%o", tag, obj);
 
@@ -614,7 +614,7 @@ um_user_debug(char *tag, struct um_user *user, bool debug)
 }
 
 extern jobj_t
-um_jflow(void);
+umd_jflow(void);
 
 extern int
 user_delete(struct um_user *user);
@@ -632,64 +632,64 @@ extern int
 user_deauth(struct um_user *user, int reason);
 
 extern struct um_tag *
-um_tag_get(byte mac[], char *k);
+umd_user_tag_get(byte mac[], char *k);
 
 extern struct um_tag *
-um_tag_set(byte mac[], char *k, char *v);
+umd_user_tag_set(byte mac[], char *k, char *v);
 
 extern struct um_user *
-um_user_create(byte mac[]);
+umd_user_create(byte mac[]);
 
 extern int
-um_user_delete(byte mac[]);
+umd_user_delete(byte mac[]);
 
 extern struct um_user *
-um_user_block(byte mac[]);
+umd_user_block(byte mac[]);
 
 extern int
-um_user_unblock(byte mac[]);
+umd_user_unblock(byte mac[]);
 
 extern struct um_user *
-um_user_bind(byte mac[], uint32 ip);
+umd_user_bind(byte mac[], uint32 ip);
 
 extern int
-um_user_unbind(byte mac[]);
+umd_user_unbind(byte mac[]);
 
 extern struct um_user *
-um_user_fake(byte mac[], uint32 ip);
+umd_user_fake(byte mac[], uint32 ip);
 
 extern int
-um_user_unfake(byte mac[]);
+umd_user_unfake(byte mac[]);
 
 extern struct um_user *
-um_user_auth(byte mac[], int group, jobj_t obj);
+umd_user_auth(byte mac[], int group, jobj_t obj);
 
 extern int
-um_user_deauth(byte mac[], int reason);
+umd_user_deauth(byte mac[], int reason);
 
 extern int
-um_user_reauth(byte mac[]);
+umd_user_reauth(byte mac[]);
 
 extern struct um_user *
-um_user_sync(byte mac[], jobj_t obj);
+umd_user_sync(byte mac[], jobj_t obj);
 
 extern int
-um_user_foreach(um_foreach_f *foreach, bool safe);
+umd_user_foreach(um_foreach_f *foreach, bool safe);
 
 extern struct um_user *
-um_user_get(byte mac[]);
+umd_user_get(byte mac[]);
 
 extern struct um_user *
-um_user_getbyip(uint32 ip);
+umd_user_getbyip(uint32 ip);
 
 extern int
-um_user_getby(struct um_user_filter *filter, um_get_f *get);
+umd_user_getby(struct um_user_filter *filter, um_get_f *get);
 
 extern int
-um_user_delbyip(uint32 ip);
+umd_user_delbyip(uint32 ip);
 
 extern int
-um_user_delby(struct um_user_filter *filter);
+umd_user_delby(struct um_user_filter *filter);
 
 #define UM_TEST_JSON    0x01
 
@@ -698,7 +698,7 @@ um_user_delby(struct um_user_filter *filter);
 #endif
 
 extern void
-update_limit_test(void);
+umd_update_limit_test(void);
 
 extern int 
 umd_gc(struct um_user *user);

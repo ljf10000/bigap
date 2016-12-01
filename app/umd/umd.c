@@ -121,7 +121,7 @@ umd_main_helper(int argc, char **argv)
 {
     int err = 0;
 
-    update_limit_test();
+    umd_update_limit_test();
 
     while(1) {
         sock_servers_run(umd.server, umd.server_count);

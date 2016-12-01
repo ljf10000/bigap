@@ -15,7 +15,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __update_online(_user, _obj, _TYPE, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "online", #_field, NULL); \
                                                                 \
-    limit_online(_user, _TYPE)->_field = o?jobj_get_i32(o):0;   \
+    umd_limit_online(_user, _TYPE)->_field = o?jobj_get_i32(o):0;   \
 }while(0)
 
 #define update_online(_user, _obj, _field)  do{ \
@@ -26,7 +26,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __update_flow(_user, _obj, _TYPE, _DIR, _field) do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "flow", #_DIR, #_field, NULL); \
                                                             \
-    limit_flow(_user, _TYPE, _DIR)->_field = o?jobj_get_i64(o):0; \
+    umd_limit_flow(_user, _TYPE, _DIR)->_field = o?jobj_get_i64(o):0; \
 }while(0)
 
 #define updata_flow(_user, _obj, _field)        do{ \
@@ -41,7 +41,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __update_rate(_user, _obj, _TYPE, _DIR, _field)         do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "rate", #_DIR, #_field, NULL); \
                                                                     \
-    limit_rate(_user, _TYPE, _DIR)->_field = o?jobj_get_i32(o):0;   \
+    umd_limit_rate(_user, _TYPE, _DIR)->_field = o?jobj_get_i32(o):0;   \
 }while(0)
 
 #define updata_rate(_user, _obj, _field)        do{ \
@@ -69,7 +69,7 @@ update_limit(struct um_user *user, jobj_t obj)
     updata_rate(user, obj, avg);
 }
 
-void update_limit_test(void)
+void umd_update_limit_test(void)
 {
 #if UM_TEST & UM_TEST_JSON
     struct um_intf *intf = &umd.cfg.instance.intf[0];
@@ -89,10 +89,10 @@ void update_limit_test(void)
     }
     
     update_limit(&user, obj);
-    update_aging(&user, true);
+    umd_update_aging(&user, true);
     jobj_put(obj);
 
-    obj = um_juser(&user);
+    obj = umd_juser(&user);
     os_println("%s", jobj_json(obj));
     os_system("echo '%s' | jq .", jobj_json(obj));
     jobj_put(obj);
@@ -104,7 +104,7 @@ typedef int event_cb_t(struct um_user *user, char *action);
 STATIC int
 __ev(struct um_user *user, char *action)
 {
-    jobj_t juser = um_juser(user);
+    jobj_t juser = umd_juser(user);
     if (NULL==juser) {
         return -ENOEXIST;
     }
@@ -276,7 +276,7 @@ flow_reset(struct um_user *user, int type)
     int i;
 
     for (i=0; i<um_flow_dir_end; i++) {
-        __flow_now(user, type, i) = 0;
+        umd_flow_now(user, type, i) = 0;
     }
 }
 
@@ -292,14 +292,14 @@ lan_online(struct um_user *user)
     *   5. reset lan/wan flow
     *   6. reset tag
     */
-    __online_uptime(user, um_flow_type_lan)     = time(NULL);
-    __online_uptime(user, um_flow_type_wan)     = 0;
+    umd_online_uptime(user, um_flow_type_lan)     = time(NULL);
+    umd_online_uptime(user, um_flow_type_wan)     = 0;
     
-    __online_downtime(user, um_flow_type_lan)   = 0;
-    __online_downtime(user, um_flow_type_wan)   = 0;
+    umd_online_downtime(user, um_flow_type_lan)   = 0;
+    umd_online_downtime(user, um_flow_type_wan)   = 0;
 
-    __online_idle(user, um_flow_type_lan) = umd.cfg.idle;
-    __online_idle(user, um_flow_type_wan) = umd.cfg.idle;
+    umd_online_idle(user, um_flow_type_lan) = umd.cfg.idle;
+    umd_online_idle(user, um_flow_type_wan) = umd.cfg.idle;
     
     flow_reset(user, um_flow_type_lan);
     flow_reset(user, um_flow_type_wan);
@@ -319,10 +319,10 @@ wan_online(struct um_user *user)
     *   3. reset wan flow
     *   4. reset tag
     */
-    __online_uptime(user, um_flow_type_wan)     = time(NULL);
+    umd_online_uptime(user, um_flow_type_wan)     = time(NULL);
     
-    __online_downtime(user, um_flow_type_lan)   = 0;
-    __online_downtime(user, um_flow_type_wan)   = 0;
+    umd_online_downtime(user, um_flow_type_lan)   = 0;
+    umd_online_downtime(user, um_flow_type_wan)   = 0;
 
     flow_reset(user, um_flow_type_wan);
 
@@ -339,7 +339,7 @@ lan_offline(struct um_user *user)
     *   1. update lan downtime
     *      and keep others
     */
-    __online_downtime(user, um_flow_type_lan)   = time(NULL);
+    umd_online_downtime(user, um_flow_type_lan)   = time(NULL);
 
     if (is_user_noused(user)) {
         user->noused = time(NULL);
@@ -357,8 +357,8 @@ wan_offline(struct um_user *user)
     *   2. clear  lan downtime
     *      and keep others
     */
-    __online_downtime(user, um_flow_type_wan)   = time(NULL);
-    __online_downtime(user, um_flow_type_lan)   = 0;
+    umd_online_downtime(user, um_flow_type_wan)   = time(NULL);
+    umd_online_downtime(user, um_flow_type_lan)   = 0;
     
     debug_event("user %s wan offline", os_macstring(user->mac));
 }
@@ -497,7 +497,7 @@ __set_state(struct um_user *user, int state)
 STATIC void
 __user_debug(char *tag, struct um_user *user)
 {
-    um_user_debug(tag, user, __is_ak_debug_entry && __is_ak_debug_event);
+    umd_user_debug(tag, user, __is_ak_debug_entry && __is_ak_debug_event);
 }
 
 #define ev_call(_ev, _user)     __ev_call(_ev, _user, __user_debug_call_tag)
@@ -716,7 +716,7 @@ __user_bind(struct um_user *user, uint32 ip, event_cb_t *ev)
         __set_ip(user, ip);
         __set_state(user, UM_STATE_BIND);
         lan_online(user);
-        update_aging(user, true);
+        umd_update_aging(user, true);
         ev_call(ev, user);
     });
 
@@ -747,7 +747,7 @@ __user_fake(struct um_user *user, uint32 ip, event_cb_t *ev)
         __set_ip(user, ip);
         __set_state(user, UM_STATE_FAKE);
         lan_online(user);
-        update_aging(user, true);
+        umd_update_aging(user, true);
         user->faketime = time(NULL);
         ev_call(ev, user);
     });
@@ -814,7 +814,7 @@ __user_auth(struct um_user *user, int group, jobj_t obj, event_cb_t *ev)
         __set_reason(user, UM_DEAUTH_NONE);
         update_limit(user, obj);
         wan_online(user);
-        update_aging(user, true);
+        umd_update_aging(user, true);
         ev_call(ev, user);
     });
 
@@ -829,7 +829,7 @@ __user_sync(struct um_user *user, jobj_t obj, event_cb_t *ev)
     }
     
     user_debug_call("sync", user, {
-        um_touser(user, obj);
+        umd_touser(user, obj);
         
         ev_call(ev, user);
     });
@@ -961,24 +961,24 @@ user_foreach(um_foreach_f *foreach, bool safe)
 }
 
 struct um_tag *
-um_tag_get(byte mac[], char *k)
+umd_user_tag_get(byte mac[], char *k)
 {
     return tag_get(__user_get(mac), k);
 }
 
 struct um_tag *
-um_tag_set(byte mac[], char *k, char *v)
+umd_user_tag_set(byte mac[], char *k, char *v)
 {
     return tag_set(__user_get(mac), k, v);
 }
 
-int um_user_delete(byte mac[])
+int umd_user_delete(byte mac[])
 {
     return user_delete(__user_get(mac));
 }
 
 struct um_user *
-um_user_create(byte mac[])
+umd_user_create(byte mac[])
 {
     struct um_user *user = __user_get(mac);
 
@@ -986,73 +986,73 @@ um_user_create(byte mac[])
 }
 
 struct um_user *
-um_user_block(byte mac[])
+umd_user_block(byte mac[])
 {
-    return user_block(um_user_create(mac));
+    return user_block(umd_user_create(mac));
 }
 
-int um_user_unblock(byte mac[])
+int umd_user_unblock(byte mac[])
 {
     return user_unblock(user_get(mac));
 }
 
 struct um_user *
-um_user_bind(byte mac[], uint32 ip)
+umd_user_bind(byte mac[], uint32 ip)
 {
-    return user_bind(um_user_create(mac), ip);
+    return user_bind(umd_user_create(mac), ip);
 }
 
-int um_user_unbind(byte mac[])
+int umd_user_unbind(byte mac[])
 {
     return user_unbind(user_get(mac), UM_DEAUTH_INITIATIVE);
 }
 
 struct um_user *
-um_user_fake(byte mac[], uint32 ip)
+umd_user_fake(byte mac[], uint32 ip)
 {
-    return user_fake(um_user_create(mac), ip);
+    return user_fake(umd_user_create(mac), ip);
 }
 
-int um_user_unfake(byte mac[])
+int umd_user_unfake(byte mac[])
 {
     return user_unfake(user_get(mac), UM_DEAUTH_INITIATIVE);
 }
 
 struct um_user *
-um_user_auth(byte mac[], int group, jobj_t obj)
+umd_user_auth(byte mac[], int group, jobj_t obj)
 {
-    return user_auth(um_user_create(mac), group, obj);
+    return user_auth(umd_user_create(mac), group, obj);
 }
 
-int um_user_deauth(byte mac[], int reason)
+int umd_user_deauth(byte mac[], int reason)
 {
     return user_deauth(user_get(mac), reason);
 }
 
-int um_user_reauth(byte mac[])
+int umd_user_reauth(byte mac[])
 {
     return user_reauth(user_get(mac))?0:-ENOPERM;
 }
 
 struct um_user *
-um_user_sync(byte mac[], jobj_t obj)
+umd_user_sync(byte mac[], jobj_t obj)
 {
-    return user_sync(um_user_create(mac), obj);
+    return user_sync(umd_user_create(mac), obj);
 }
 
-int um_user_foreach(um_foreach_f *foreach, bool safe)
+int umd_user_foreach(um_foreach_f *foreach, bool safe)
 {
     return user_foreach(foreach, safe);
 }
 
 struct um_user *
-um_user_get(byte mac[])
+umd_user_get(byte mac[])
 {
     return __user_get(mac);
 }
 
 struct um_user *
-um_user_getbyip(uint32 ip)
+umd_user_getbyip(uint32 ip)
 {
     hash_idx_t dhash(void)
     {
@@ -1069,9 +1069,9 @@ um_user_getbyip(uint32 ip)
     return user_hx_entry(h2_find(&umd.table, UM_USER_NIDX_IP, dhash, eq));
 }
 
-int um_user_delbyip(uint32 ip)
+int umd_user_delbyip(uint32 ip)
 {
-    return user_delete(um_user_getbyip(ip));
+    return user_delete(umd_user_getbyip(ip));
 }
 
 STATIC jobj_t
@@ -1080,18 +1080,18 @@ juser_online(struct um_user *user, int type)
     jobj_t obj = jobj_new_object();
     time_t time;
 
-    jobj_add_u32(obj, "max",            __online_max(user, type));
-    jobj_add_u32(obj, "idle",           __online_idle(user, type));
-    jobj_add_i32(obj, "aging",          __online_aging(user, type));
-    jobj_add_u32(obj, "numerator",      __online_numerator(user, type));
-    jobj_add_u32(obj, "denominator",    __online_denominator(user, type));
+    jobj_add_u32(obj, "max",            umd_online_max(user, type));
+    jobj_add_u32(obj, "idle",           umd_online_idle(user, type));
+    jobj_add_i32(obj, "aging",          umd_online_aging(user, type));
+    jobj_add_u32(obj, "numerator",      umd_online_numerator(user, type));
+    jobj_add_u32(obj, "denominator",    umd_online_denominator(user, type));
     
-    time = __online_uptime(user, type);
+    time = umd_online_uptime(user, type);
     if (time) {
         jobj_add_string(obj, "uptime", os_fulltime_string(time));
     }
 
-    time = __online_downtime(user, type);
+    time = umd_online_downtime(user, type);
     if (time) {
         jobj_add_string(obj, "downtime", os_fulltime_string(time));
     }
@@ -1104,10 +1104,10 @@ __juser_flow(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
-    jobj_add_u64(obj, "max",          __flow_max(user, type, dir));
-    jobj_add_u64(obj, "now",          __flow_now(user, type, dir));
-    jobj_add_u64(obj, "numerator",    __flow_numerator(user, type, dir));
-    jobj_add_u64(obj, "denominator",  __flow_denominator(user, type, dir));
+    jobj_add_u64(obj, "max",          umd_flow_max(user, type, dir));
+    jobj_add_u64(obj, "now",          umd_flow_now(user, type, dir));
+    jobj_add_u64(obj, "numerator",    umd_flow_numerator(user, type, dir));
+    jobj_add_u64(obj, "denominator",  umd_flow_denominator(user, type, dir));
 
     return obj;
 }
@@ -1130,8 +1130,8 @@ __juser_rate(struct um_user *user, int type, int dir)
 {
     jobj_t obj = jobj_new_object();
     
-    jobj_add_u32(obj, "max", __rate_max(user, type, dir));
-    jobj_add_u32(obj, "avg", __rate_avg(user, type, dir));
+    jobj_add_u32(obj, "max", umd_rate_max(user, type, dir));
+    jobj_add_u32(obj, "avg", umd_rate_avg(user, type, dir));
 
     return obj;
 }
@@ -1185,7 +1185,7 @@ juser_tag(struct um_user *user)
     return obj;
 }
 
-jobj_t um_juser(struct um_user *user)
+jobj_t umd_juser(struct um_user *user)
 {
     jobj_t obj = jobj_new_object();
 
@@ -1320,7 +1320,7 @@ touser_limit(struct um_user *user, jobj_t juser)
     }
 }
 
-struct um_user *um_touser(struct um_user *user, jobj_t juser)
+struct um_user *umd_touser(struct um_user *user, jobj_t juser)
 {
     touser_base(user, juser);
     touser_tag(user, juser);
@@ -1408,7 +1408,7 @@ match_user(struct um_user *user, struct um_user_filter *filter)
     return true;
 }
 
-int um_user_delby(struct um_user_filter *filter)
+int umd_user_delby(struct um_user_filter *filter)
 {
     mv_t cb(struct um_user *user)
     {
@@ -1419,10 +1419,10 @@ int um_user_delby(struct um_user_filter *filter)
         return mv2_ok;
     }
     
-    return um_user_foreach(cb, true);
+    return umd_user_foreach(cb, true);
 }
 
-int um_user_getby(struct um_user_filter *filter, um_get_f *get)
+int umd_user_getby(struct um_user_filter *filter, um_get_f *get)
 {
     mv_t cb(struct um_user *user)
     {
@@ -1433,6 +1433,6 @@ int um_user_getby(struct um_user_filter *filter, um_get_f *get)
         }
     }
     
-    return um_user_foreach(cb, false);
+    return umd_user_foreach(cb, false);
 }
 /******************************************************************************/
