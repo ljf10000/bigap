@@ -2,6 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #include "boot/addr.c"
+#include "boot/ak.c"
 #include "boot/base64.c"
 #include "boot/benv.c"
 #include "boot/cmd.c"
