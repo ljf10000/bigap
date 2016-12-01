@@ -202,6 +202,8 @@
 #include "oem/oem.h"
 /******************************************************************************/
 #define OS_REAL_INITER          \
+    BENV_INITER;                \
+                                \
     DECLARE_REAL_COMMAND;       \
     DECLARE_REAL_JLOG;          \
     DECLARE_REAL_AK;            \
@@ -224,6 +226,8 @@
     /* end */
 
 #define OS_INITER           \
+    BENV_INITER;            \
+                            \
     DECLARE_COMMAND;        \
     DECLARE_JLOG;           \
     DECLARE_AK;             \

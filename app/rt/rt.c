@@ -16,8 +16,6 @@ OS_INITER;
 #error "just support ltefi md/pc board"
 #endif
 
-BENV_INITER;
-
 enum {
     RT_SAVECYCLE = 3141,
 };

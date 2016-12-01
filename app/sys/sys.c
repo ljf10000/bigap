@@ -14,7 +14,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 OS_INITER;
-BENV_INITER;
 
 #define DIR_USB_UPGRADE             PRODUCT_DIR_USB "/upgrade"
 #define DIR_USB_ROOTFS              DIR_USB_UPGRADE "/rootfs"
