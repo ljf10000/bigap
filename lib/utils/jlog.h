@@ -244,20 +244,6 @@ __jformat(
 
 extern int
 __jlog_env_init(void);
-
-static inline int
-__os_system(char *cmd)
-{
-    int err;
-
-    err = system(cmd);
-        debug_shell("%s error:%d", cmd, err);
-    if (127==err || -1==err) {
-        return -ESYSTEM;
-	} else {
-        return __os_wait_error(err);
-	}
-}
 #else
 #define DECLARE_JLOG        os_fake_declare
 
@@ -533,5 +519,21 @@ jlog_fini(void)
 
     return 0;
 }
+
+#ifdef __APP__
+static inline int
+__os_system(char *cmd)
+{
+    int err;
+
+    err = system(cmd);
+        debug_shell("%s error:%d", cmd, err);
+    if (127==err || -1==err) {
+        return -ESYSTEM;
+	} else {
+        return __os_wait_error(err);
+	}
+}
+#endif
 /******************************************************************************/
 #endif /* __JLOG_H_c174923fabe845e980f9379209210cc3__ */
