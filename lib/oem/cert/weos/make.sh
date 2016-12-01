@@ -1,6 +1,10 @@
 #!/bin/bash
 
-CERT_COUNT=${CERT_COUNT:-128}
+CERT_COUNT=${CERT_COUNT:-32}
+CERT_SERVER_DOMAIN=${CERT_SERVER_DOMAIN:-superwalle.com}
+CERT_CLIENT_DOMAIN=${CERT_CLIENT_DOMAIN:-weos.com}
+CERT_DAYS=${CERT_DAYS:-7300}
+CERT_BITS=${CERT_BITS:-8192}
 
 do_help() {
         echo "$0 begin [end]"
@@ -17,18 +21,18 @@ prepare() {
 cert() {
 	local i="$1"
 
-	openssl genrsa -out ca${i}.key ${bits}
-	openssl req -x509 -new -nodes -key ca${i}.key -subj "/CN=*.${domain}" -days ${days} -out ca${i}.crt
-	openssl genrsa -out server${i}.key ${bits}
-	openssl req -new -key server${i}.key -subj "/CN=*.${domain}" -out server${i}.csr
-	openssl x509 -req -in server${i}.csr -CA ca${i}.crt -CAkey ca${i}.key -CAcreateserial -out server${i}.crt -days ${days}
+	openssl genrsa -out ca${i}.key ${CERT_BITS}
+	openssl req -x509 -new -nodes -key ca${i}.key -subj "/CN=*.${CERT_SERVER_DOMAIN}" -days ${CERT_DAYS} -out ca${i}.crt
+	openssl genrsa -out server${i}.key ${CERT_BITS}
+	openssl req -new -key server${i}.key -subj "/CN=*.${CERT_SERVER_DOMAIN}" -out server${i}.csr
+	openssl x509 -req -in server${i}.csr -CA ca${i}.crt -CAkey ca${i}.key -CAcreateserial -out server${i}.crt -days ${CERT_DAYS}
 
-	openssl genrsa -out client${i}.key ${bits}
-	openssl req -new -key client${i}.key -subj "/CN=*.ltefi.com" -out client${i}.csr
+	openssl genrsa -out client${i}.key ${CERT_BITS}
+	openssl req -new -key client${i}.key -subj "/CN=*.${CERT_CLIENT_DOMAIN}" -out client${i}.csr
 #	openssl x509 -req -in client${i}.csr -CA ca${i}.crt -CAkey ca${i}.key -CAcreateserial -out client${i}.crt -days 5000
 	echo extendedKeyUsage=clientAuth > client${i}.ext
 	openssl x509 -req -in client${i}.csr -CA ca${i}.crt -CAkey ca${i}.key \
-		-CAcreateserial -extfile client${i}.ext -out client${i}.crt -days ${days}
+		-CAcreateserial -extfile client${i}.ext -out client${i}.crt -days ${CERT_DAYS}
 }
 
 cert_all() {
@@ -151,10 +155,6 @@ main() {
 		do_help
 		return 1
 	fi
-
-	local domain=superwalle.com
-	local days=7300
-	local bits=4096
 
 	cert_all ${begin} ${end}
 	b64_all ${begin} ${end}
