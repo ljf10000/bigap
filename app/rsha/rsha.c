@@ -96,7 +96,7 @@ static char rsh_buffer[64*1024];
 #define rsh_cloud_port              rsh_slot_port(RSH_SLOT_CLOUD)
 #define RSH_CLOUD_ADDR              RSH_SLOT_ADDR(RSH_SLOT_CLOUD)
 
-static inline bool
+static bool
 is_cloud_ready(void)
 {
     return rsh_cloud && rsh_cloud_ip && rsh_cloud_ipstring && rsh_cloud_port;
@@ -123,7 +123,7 @@ is_cloud_ready(void)
 }
 */
 
-static inline int
+static int
 load_slot(jobj_t jslot, int slot)
 {
     int err;
@@ -163,7 +163,7 @@ load_slot(jobj_t jslot, int slot)
     return 0;
 }
 
-static inline int
+static int
 __load_config(jobj_t jcfg)
 {
     int err, slot, count;
@@ -210,7 +210,7 @@ __load_config(jobj_t jcfg)
     return 0;
 }
 
-static inline int
+static int
 load_config(void)
 {
     int err;
@@ -230,7 +230,7 @@ error:
     return err;
 }
 
-static inline int
+static int
 load_cloud(void)
 {
     int err = 0;
@@ -254,7 +254,7 @@ error:
     return err;
 }
 
-STATIC inline int
+STATIC int
 rsha_init_cfg(void)
 {
     int err;
