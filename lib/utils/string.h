@@ -9,10 +9,6 @@
 #define __zero          "\0"
 #endif
 
-#ifndef __
-#define __(x)           #x
-#endif
-
 #ifndef __space
 #define __space         " "
 #endif

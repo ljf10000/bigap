@@ -246,83 +246,35 @@ js_get_v_prop_string(
 extern int
 js_get_prop_string(duk_context *ctx, bool auto_create, duk_idx_t idx, int *level, ...);
 
-#define js_get_obj_field(_ctx, _idx, _type, _key) ({ \
-    duk_##_type##_t v = (duk_##_type##_t)0;         \
-                                                    \
-    duk_get_prop_string(_ctx, _idx, _key);          \
-    if (duk_is_##_type(_ctx, -1)) {                 \
-        v = duk_get_##_type(_ctx, -1);              \
-    }                                               \
-    duk_pop(ctx);                                   \
-                                                    \
-    v;                                              \
-})
+extern bool
+js_get_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k);
 
-#define js_set_obj_field(_ctx, _idx, _type, _key, _v)   do{ \
-    duk_idx_t __idx = duk_normalize_index(_ctx, _idx);      \
-    duk_push_##_type(_ctx, _v);                             \
-    duk_put_prop_string(_ctx, __idx, _key);                 \
-}while(0)
+extern void
+js_set_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_bool_t v);
 
-static inline bool
-js_get_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k)
-{
-    return js_get_obj_field(ctx, idx, bool, k);
-}
+extern int
+js_get_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k);
 
-static inline void
-js_set_obj_bool(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_bool_t v)
-{
-    js_set_obj_field(ctx, idx, bool, k, v);
-}
+extern void
+js_set_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_int_t v);
 
-static inline int
-js_get_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k)
-{
-    return js_get_obj_field(ctx, idx, int, k);
-}
+extern duk_uint_t
+js_get_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k);
 
-static inline void
-js_set_obj_int(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_int_t v)
-{
-    js_set_obj_field(ctx, idx, int, k, v);
-}
+extern void
+js_set_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_uint_t v);
 
-static inline duk_uint_t
-js_get_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k)
-{
-    return js_get_obj_field(ctx, idx, uint, k);
-}
+extern duk_number_t
+js_get_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k);
 
-static inline void
-js_set_obj_uint(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_uint_t v)
-{
-    js_set_obj_field(ctx, idx, uint, k, v);
-}
+extern void
+js_set_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_number_t v);
 
-static inline duk_number_t
-js_get_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k)
-{
-    return js_get_obj_field(ctx, idx, number, k);
-}
+extern duk_pointer_t
+js_get_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k);
 
-static inline void
-js_set_obj_number(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_number_t v)
-{
-    js_set_obj_field(ctx, idx, number, k, v);
-}
-
-static inline duk_pointer_t
-js_get_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k)
-{
-    return js_get_obj_field(ctx, idx, pointer, k);
-}
-
-static inline void
-js_set_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_pointer_t v)
-{
-    js_set_obj_field(ctx, idx, pointer, k, v);
-}
+extern void
+js_set_obj_pointer(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_pointer_t v);
 
 extern char *
 js_get_obj_string(duk_context *ctx, duk_idx_t idx, duk_string_t k, duk_size_t *plen);
@@ -348,83 +300,35 @@ js_get_array_length(duk_context *ctx, duk_idx_t idx)
     return js_get_obj_int(ctx, idx, "length");
 }
 
-#define js_get_array_field(_ctx, _idx, _type, _aidx) ({ \
-    duk_##_type##_t v = (duk_##_type##_t)0;             \
-                                                        \
-    duk_get_prop_index(_ctx, _idx, _aidx);              \
-    if (duk_is_##_type(_ctx, -1)) {                     \
-        v = duk_get_##_type(_ctx, -1);                  \
-    }                                                   \
-    duk_pop(_ctx);                                      \
-                                                        \
-    v;                                                  \
-})
+extern bool
+js_get_array_bool(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx);
 
-#define js_set_array_field(_ctx, _idx, _type, _aidx, _v)  do{   \
-    duk_idx_t __idx = duk_normalize_index(_ctx, _idx);          \
-    duk_push_##_type(_ctx, _v);                                 \
-    duk_put_prop_index(_ctx, __idx, _aidx);                     \
-}while(0)
+extern void
+js_set_array_bool(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_bool_t v);
 
-static inline bool
-js_get_array_bool(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
-{
-    return js_get_array_field(ctx, idx, bool, aidx);
-}
+extern int
+js_get_array_int(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx);
 
-static inline void
-js_set_array_bool(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_bool_t v)
-{
-    js_set_array_field(ctx, idx, bool, aidx, v);
-}
+extern void
+js_set_array_int(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_int_t v);
 
-static inline int
-js_get_array_int(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
-{
-    return js_get_array_field(ctx, idx, int, aidx);
-}
+extern duk_uint_t
+js_get_array_uint(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx);
 
-static inline void
-js_set_array_int(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_int_t v)
-{
-    js_set_array_field(ctx, idx, int, aidx, v);
-}
+extern void
+js_set_array_uint(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_uint_t v);
 
-static inline duk_uint_t
-js_get_array_uint(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
-{
-    return js_get_array_field(ctx, idx, uint, aidx);
-}
+extern duk_number_t
+js_get_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx);
 
-static inline void
-js_set_array_uint(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_uint_t v)
-{
-    js_set_array_field(ctx, idx, uint, aidx, v);
-}
+extern void
+js_set_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_number_t v);
 
-static inline duk_number_t
-js_get_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
-{
-    return js_get_array_field(ctx, idx, number, aidx);
-}
+extern duk_pointer_t
+js_get_array_pointer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx);
 
-static inline void
-js_set_array_number(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_number_t v)
-{
-    js_set_array_field(ctx, idx, number, aidx, v);
-}
-
-static inline duk_pointer_t
-js_get_array_pointer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx)
-{
-    return js_get_array_field(ctx, idx, pointer, aidx);
-}
-
-static inline void
-js_set_array_pointer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_pointer_t v)
-{
-    js_set_array_field(ctx, idx, pointer, aidx, v);
-}
+extern void
+js_set_array_pointer(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_pointer_t v);
 
 extern char *
 js_get_array_string(duk_context *ctx, duk_idx_t idx, duk_idx_t aidx, duk_size_t *plen);
