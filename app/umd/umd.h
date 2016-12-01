@@ -321,9 +321,9 @@ umd_limit_rater(umd_user_t *user, int type, int dir)
 #define umd_rate_max(_user, _type, _dir)        umd_limit_rater(_user, _type, _dir)->max
 #define umd_rate_avg(_user, _type, _dir)        umd_limit_rater(_user, _type, _dir)->avg
 
-#define umd_limit_online(_user, _TYPE)          umd_limit_onliner(_user, um_flow_type_##_TYPE)
-#define umd_limit_flow(_user, _TYPE, _DIR)      umd_limit_flower(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
-#define umd_limit_rate(_user, _TYPE, _DIR)      umd_limit_rater(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
+#define umd_limit_online(_user, _TYPE)          umd_limit_onliner(_user, umd_flow_type_##_TYPE)
+#define umd_limit_flow(_user, _TYPE, _DIR)      umd_limit_flower(_user, umd_flow_type_##_TYPE, umd_flow_dir_##_DIR)
+#define umd_limit_rate(_user, _TYPE, _DIR)      umd_limit_rater(_user, umd_flow_type_##_TYPE, umd_flow_dir_##_DIR)
 
 static inline void
 umd_update_aging_helper(umd_user_t *user, int type, bool debug)
