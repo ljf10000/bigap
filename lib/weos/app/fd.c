@@ -20,7 +20,7 @@ typedef struct {
     autoarray_t evs; /* struct epoll_event */
 } fd_control_t;
 
-static fd_control_t *
+STATIC fd_control_t *
 __this_fd(void)
 {
     static fd_control_t *control;
@@ -32,7 +32,7 @@ __this_fd(void)
     return control;
 }
 
-static void
+STATIC void
 __fd_control_init(void)
 {
     __this_fd()->epfd = INVALID_FD;
@@ -44,13 +44,13 @@ __fd_control_init(void)
 #define ____fd_epfd         __this_fd()->epfd
 #define ____fd_looper       __this_fd()->looper
 /******************************************************************************/
-static struct epoll_event *
+STATIC struct epoll_event *
 __fd_evs(int idx) 
 { 
     return (struct epoll_event *)os_aa_get(____fd_evs, idx, false); 
 }
 
-static fd_map_t *
+STATIC fd_map_t *
 __fd_map(int fd, bool grow)
 {
     if (grow) {
@@ -63,7 +63,7 @@ __fd_map(int fd, bool grow)
     return (fd_map_t *)os_aa_get(____fd_map, fd, grow);
 }
 
-static fd_map_t *
+STATIC fd_map_t *
 __fd_get(int fd)
 {
     fd_map_t *map = __fd_map(fd, false);
@@ -71,13 +71,13 @@ __fd_get(int fd)
     return (map && map->flag)?map:NULL;
 }
 
-static bool
+STATIC bool
 __fd_is_sock(fd_map_t *map)
 {
     return os_hasflag(map->flag, FD_F_SOCK);
 }
 
-static int 
+STATIC int 
 __fd_watcher(int fd, int event, loop_node_t *node)
 {
     fd_map_t *map = container_of(node, fd_map_t, loop);
@@ -94,7 +94,7 @@ __fd_watcher(int fd, int event, loop_node_t *node)
     return 0;
 }
 
-static int
+STATIC int
 __fd_create(int fd, int flag)
 {
     fd_map_t *map;
@@ -125,7 +125,7 @@ __fd_create(int fd, int flag)
     return fd;
 }
 
-static void
+STATIC void
 __fd_loop_handle(void)
 {
     co_mask_t mask = co_evmask_read_and_zero();
@@ -145,7 +145,7 @@ __fd_loop_handle(void)
     }
 }
 
-static int 
+STATIC int 
 __fd_epoll_create(int size)
 {
     int fd;
@@ -158,13 +158,13 @@ __fd_epoll_create(int size)
     return fd;
 }
 
-static int
+STATIC int
 __fd_epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 {
     return epoll_wait(epfd, events, maxevents, timeout);
 }
 
-static void
+STATIC void
 __fd_loop_once(void)
 {
     int i, count;
@@ -218,7 +218,7 @@ __fd_loop_once(void)
     }
 }
 
-static int
+STATIC int
 __fd_loop_main(void *no_used)
 {
     (void)no_used;
@@ -238,7 +238,7 @@ __fd_loop_main(void *no_used)
     return 0;
 }
 
-static int
+STATIC int
 __fd_add_watcher(int fd, int events, loop_node_t *node)
 {
     int err;
@@ -268,7 +268,7 @@ __fd_add_watcher(int fd, int events, loop_node_t *node)
     return 0;
 }
 
-static int
+STATIC int
 __fd_mod_watcher(int fd, int events)
 {
     int err;
@@ -300,7 +300,7 @@ __fd_mod_watcher(int fd, int events)
     return 0;
 }
 
-static int
+STATIC int
 __fd_del_watcher(int fd)
 {
     int err;
@@ -336,31 +336,31 @@ __fd_del_watcher(int fd)
     }                                   \
 }while(0)
 
-static void
+STATIC void
 __fd_close(int fd)
 {
     __fd_op(fd, =, 0);
 }
 
-static void
+STATIC void
 __fd_bind(int fd)
 {
     __fd_op(fd, |=, FD_F_BIND);
 }
 
-static void
+STATIC void
 __fd_listen(int fd)
 {
     __fd_op(fd, |=, FD_F_LISTEN);
 }
 
-static void
+STATIC void
 __fd_connect(int fd)
 {
     __fd_op(fd, |=, FD_F_CONNECT);
 }
 
-static int
+STATIC int
 ____fd_read(int fd)
 {
     fd_map_t *map;
@@ -380,7 +380,7 @@ ____fd_read(int fd)
     return co_suspend(map->read_timeout, map->cred);
 }
 
-static int
+STATIC int
 __fd_getopt(int fd, int level, int optname, void *optval, socklen_t *optlen)
 {
     fd_map_t *map;
@@ -415,7 +415,7 @@ __fd_getopt(int fd, int level, int optname, void *optval, socklen_t *optlen)
     return 0;
 }
 
-static int
+STATIC int
 __fd_setopt(int fd, int level, int optname, const void *optval, socklen_t optlen)
 {
     fd_map_t *map;

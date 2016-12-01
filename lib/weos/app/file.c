@@ -57,7 +57,7 @@ os_fsize(const char *file)
     }
 }
 
-static int
+STATIC int
 __v_fsize(const char *fmt, va_list args)
 {
     int err = 0;
@@ -265,7 +265,7 @@ error:
     return NULL;
 }
 
-static mv_t 
+STATIC mv_t 
 __os_fscan_file_handle
 (
     const char *path,

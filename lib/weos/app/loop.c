@@ -5,19 +5,19 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 typedef void loop_watcher_handle_f(loop_t *loop, loop_watcher_t *watcher, time_t now);
 
-static bool
+STATIC bool
 __is_good_loop(loop_t *loop)
 {
     return loop && is_good_fd(loop->efd);
 }
 
-static bool
+STATIC bool
 __is_good_loop_watcher(loop_watcher_t *watcher)
 {
     return watcher && is_good_fd(watcher->fd);
 }
 
-static int
+STATIC int
 __loop_fd_add(loop_t *loop, int fd)
 {
     struct epoll_event ev;
@@ -28,13 +28,13 @@ __loop_fd_add(loop_t *loop, int fd)
     return epoll_ctl(loop->efd, EPOLL_CTL_ADD, fd, &ev);
 }
 
-static int
+STATIC int
 __loop_fd_del(loop_t *loop, int fd)
 {
     return epoll_ctl(loop->efd, EPOLL_CTL_DEL, fd, NULL);
 }
 
-static int
+STATIC int
 __loop_master_init(loop_t *loop)
 {
     if (false==is_good_fd(loop->efd)) {
@@ -49,7 +49,7 @@ __loop_master_init(loop_t *loop)
     return 0;
 }
 
-static void
+STATIC void
 __loop_watcher_constructor(void *item)
 {
     loop_watcher_t *watcher = (loop_watcher_t *)item;
@@ -58,7 +58,7 @@ __loop_watcher_constructor(void *item)
     watcher->fd = INVALID_FD;
 }
 
-static void
+STATIC void
 __loop_watcher_destructor(void *item)
 {
     loop_watcher_t *watcher = (loop_watcher_t *)item;
@@ -70,7 +70,7 @@ __loop_watcher_destructor(void *item)
     __loop_watcher_constructor(watcher);
 }
 
-static int
+STATIC int
 __loop_watcher_fini(loop_t *loop)
 {
     if (loop->watcher.base) {
@@ -80,7 +80,7 @@ __loop_watcher_fini(loop_t *loop)
     return 0;
 }
 
-static int
+STATIC int
 __loop_watcher_init(loop_t *loop, uint32 limit)
 {   
     if (NULL==loop->watcher.base) {
@@ -115,7 +115,7 @@ os_loop_fini(loop_t *loop)
     os_close(loop->efd);
 }
 
-static int
+STATIC int
 __loop_init(loop_t *loop)
 {
     int err;
@@ -133,7 +133,7 @@ __loop_init(loop_t *loop)
     return 0;
 }
 
-static loop_watcher_t *
+STATIC loop_watcher_t *
 __loop_watcher_take(loop_t *loop, int fd)
 {
     if (false==is_good_fd(fd)) {
@@ -145,7 +145,7 @@ __loop_watcher_take(loop_t *loop, int fd)
     return watcher;
 }
 
-static loop_watcher_t *
+STATIC loop_watcher_t *
 __loop_watcher(loop_t *loop, int fd)
 {
     loop_watcher_t *watcher = __loop_watcher_take(loop, fd);
@@ -156,7 +156,7 @@ __loop_watcher(loop_t *loop, int fd)
     }
 }
 
-static loop_watcher_t *
+STATIC loop_watcher_t *
 __loop_watcher_add(loop_t *loop, int fd, int type, void *cb, void *user)
 {
     int err;
@@ -195,7 +195,7 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb, void *user)
     return watcher;
 }
 
-static int
+STATIC int
 __loop_watcher_del(loop_t *loop, int fd)
 {
     loop_watcher_t *watcher = __loop_watcher(loop, fd);
@@ -209,7 +209,7 @@ __loop_watcher_del(loop_t *loop, int fd)
     return 0;
 }
 
-static int
+STATIC int
 __loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], int count)
 {
     int i, fd, err;
@@ -239,7 +239,7 @@ __loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], i
     return 0;
 }
 
-static int
+STATIC int
 __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
 {
     int err;
@@ -273,7 +273,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
     return 0;
 }
 
-static int
+STATIC int
 __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
 {
     int i, err;
@@ -301,7 +301,7 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
     return 0;
 }
 
-static int
+STATIC int
 __loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user)
 {
     loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_NORMAL, cb, user);
@@ -312,7 +312,7 @@ __loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user)
     return 0;
 }
 
-static int
+STATIC int
 __loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
 {    
     loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_FATHER, cb, user);
@@ -324,7 +324,7 @@ __loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
     return 0;
 }
 
-static int
+STATIC int
 __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, void *user)
 {
     loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SON, cb, user);
@@ -337,7 +337,7 @@ __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, void *user)
     return 0;
 }
 
-static void
+STATIC void
 __loop_inotify_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     char buf[1+OS_PAGE_LEN] = {0};
@@ -360,7 +360,7 @@ __loop_inotify_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     }
 }
 
-static void
+STATIC void
 __loop_signal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     struct signalfd_siginfo siginfo;
@@ -373,7 +373,7 @@ __loop_signal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     }
 }
 
-static void
+STATIC void
 __loop_timer_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     uint32 times = tm_fd_read(watcher->fd);
@@ -384,13 +384,13 @@ __loop_timer_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     }
 }
 
-static void
+STATIC void
 __loop_normal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     (*watcher->cb.normal)(watcher, now);
 }
 
-static void
+STATIC void
 __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     int fd;
@@ -406,7 +406,7 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     }
 }
 
-static int
+STATIC int
 __loop_handle_ev(loop_t *loop, struct epoll_event *ev, time_t now)
 {
     static loop_watcher_handle_f *map[LOOP_TYPE_END] = {
@@ -432,7 +432,7 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev, time_t now)
     return 0;
 }
 
-static int
+STATIC int
 __loop_handle(loop_t *loop)
 {
     struct epoll_event evs[32];

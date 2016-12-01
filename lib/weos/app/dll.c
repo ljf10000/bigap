@@ -14,8 +14,8 @@ LIBCALLv(void *f, libproto_t *proto)
     }
 }
 
-static int
-__libcall(void *f, libproto_t *proto)
+STATIC int
+__os_libcall(void *f, libproto_t *proto)
 {
     switch(proto->count) {
         case 0: return LIBCALLv(f, proto);
@@ -103,7 +103,7 @@ os_libcall(const char *lib, const char *sym, libproto_t *proto)
     }
     debug_trace("load %s:%s=%p", lib, sym, f);
 
-    err = __libcall(f, proto);
+    err = __os_libcall(f, proto);
     if (err<0) {
         goto error;
     }

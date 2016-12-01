@@ -23,7 +23,7 @@ typedef struct {
 
 #define CO_ARRAY(_id)       __this_coroutine()->array[_id]
 
-static co_control_t *
+STATIC co_control_t *
 __this_coroutine(void)
 {
     static co_control_t *control;
@@ -35,7 +35,7 @@ __this_coroutine(void)
     return control;
 }
 
-static void
+STATIC void
 __co_control_init(void)
 {
     int i;
@@ -45,25 +45,25 @@ __co_control_init(void)
     }
 }
 
-static coroutine_t *
+STATIC coroutine_t *
 __co_getbyid(co_id_t id)
 {
     return CO_ARRAY(id);
 }
 
-static bool
+STATIC bool
 __is_god_coev(int ev)
 {
     return IS_GOOD_ENUM(ev, CO_EV_END);
 }
 
-static bool
+STATIC bool
 is_good_id(co_id_t id)
 {
     return IS_GOOD_ENUM(id, __this_coroutine()->size);
 }
 
-static void
+STATIC void
 __co_dump(coroutine_t *co)
 {
     if (co) {
@@ -75,7 +75,7 @@ __co_dump(coroutine_t *co)
     }
 }
 
-static void
+STATIC void
 __co_dump_all(void)
 {
     coroutine_t *co;
@@ -96,7 +96,7 @@ __co_dump_all(void)
     os_printf(__crlf);
 }
 
-static bool
+STATIC bool
 __co_check(coroutine_t *co)
 {
     bool check = 
@@ -114,25 +114,25 @@ __co_check(coroutine_t *co)
     return check;
 }
 
-static bool
+STATIC bool
 __is_good_co(coroutine_t *co)
 {
     return co && __co_check(co) && is_good_id(co->id) && co==__co_getbyid(co->id);
 }
 
-static bool
+STATIC bool
 __is_good_co_running(void)
 {
     return __is_good_co(__this_coroutine()->running);
 }
 
-static bool
+STATIC bool
 __is_good_coid(co_id_t id)
 {
     return is_good_id(id) && __is_good_co(__co_getbyid(id));
 }
 
-static int // return 0 or error
+STATIC int // return 0 or error
 __co_a_grow(int grow)
 {
     int size = __this_coroutine()->size;
@@ -148,7 +148,7 @@ __co_a_grow(int grow)
     return 0;
 }
 
-static int // return old size or error
+STATIC int // return old size or error
 __co_aa_grow(void)
 {
     int grow = CO_GROW;
@@ -160,7 +160,7 @@ __co_aa_grow(void)
     return __co_a_grow(grow);
 }
 
-static void
+STATIC void
 ____co_a_bind(coroutine_t *co, co_id_t id)
 {
     CO_ARRAY(id) = co;
@@ -169,7 +169,7 @@ ____co_a_bind(coroutine_t *co, co_id_t id)
     //debug_trace("__a_bind %s:%d", co->name, id);
 }
 
-static void
+STATIC void
 ____co_a_unbind(coroutine_t *co, co_id_t id)
 {
     //debug_trace("__a_unbind %s:%d", co->name, id);
@@ -178,7 +178,7 @@ ____co_a_unbind(coroutine_t *co, co_id_t id)
     co->id = INVALID_COMMON_ID;
 }
 
-static int
+STATIC int
 __co_a_bind(coroutine_t *co, co_id_t id)
 {
     int i, err, found = INVALID_COMMON_ID;
@@ -241,7 +241,7 @@ again:
     return 0;
 }
 
-static void
+STATIC void
 __co_a_unbind(coroutine_t *co, co_id_t id)
 {
     if (co) {
@@ -263,19 +263,19 @@ __co_a_unbind(coroutine_t *co, co_id_t id)
     }
 }
 
-static int
+STATIC int
 __co_aa_bind(coroutine_t *co)
 {
     return __co_a_bind(co, INVALID_COMMON_ID);
 }
 
-static void
+STATIC void
 __co_aa_unbind(coroutine_t *co)
 {
     __co_a_unbind(co, co->id);
 }
 
-static void
+STATIC void
 __co_fsm_insert(coroutine_t *co, bool first)
 {
     if (CO_READY==co->fsm.state || CO_SUSPEND==co->fsm.state) {
@@ -288,7 +288,7 @@ __co_fsm_insert(coroutine_t *co, bool first)
     }
 }
 
-static void
+STATIC void
 __co_fsm_remove(coroutine_t *co)
 {
     if (CO_READY==co->fsm.state || CO_SUSPEND==co->fsm.state) {
@@ -297,7 +297,7 @@ __co_fsm_remove(coroutine_t *co)
     }
 }
 
-static void
+STATIC void
 ____co_fsm_change(coroutine_t *co, enum co_fsm fsm, bool first)
 {
     __co_fsm_remove(co);
@@ -308,7 +308,7 @@ ____co_fsm_change(coroutine_t *co, enum co_fsm fsm, bool first)
     __co_fsm_insert(co, first);
 }
 
-static void
+STATIC void
 __co_fsm_change(coroutine_t *co, enum co_fsm fsm)
 {
     if (co) {
@@ -316,7 +316,7 @@ __co_fsm_change(coroutine_t *co, enum co_fsm fsm)
     }
 }
 
-static coroutine_t *
+STATIC coroutine_t *
 __co_schedule(void)
 {
     struct list_head *head;
@@ -334,13 +334,13 @@ __co_schedule(void)
     return co;
 }
 
-static void
+STATIC void
 __co_ev_clean(coroutine_t *co)
 {
     os_ch_free(co->ev.box[CO_EV_MAIL]);
 }
 
-static void
+STATIC void
 ____co_destroy(coroutine_t *co)
 {
     if (co) {
@@ -359,7 +359,7 @@ ____co_destroy(coroutine_t *co)
     }                           \
 }while(0)
 
-static void
+STATIC void
 __co_main(uint32 L32, uint32 H32)
 {
     int err = 0;
@@ -392,7 +392,7 @@ __co_main(uint32 L32, uint32 H32)
     debug_trace("CO(%s) exit(set CO.dead=(CO(%s):%p))", co->name, __this_coroutine()->dead->name, __this_coroutine()->dead);
 }
 
-static int
+STATIC int
 __co_ev_init(coroutine_t *co)
 {
     co->ev.box[CO_EV_MAIL] = os_och_new(co->ev.mail_limit, sizeof(union co_mail));
@@ -403,7 +403,7 @@ __co_ev_init(coroutine_t *co)
     return 0;
 }
 
-static int
+STATIC int
 __co_init(coroutine_t *co)
 {
     int err;
@@ -446,7 +446,7 @@ __co_init(coroutine_t *co)
     return 0;
 }
 
-static coroutine_t *
+STATIC coroutine_t *
 __co_create(
     const char *name,
     co_main_f *main, 
@@ -502,13 +502,13 @@ __co_create(
     return co;
 }
 
-static co_mask_t
+STATIC co_mask_t
 __co_evmask_read(coroutine_t *co)
 {
     return co->ev.mask;
 }
 
-static co_mask_t
+STATIC co_mask_t
 __co_evmask_read_and_zero(coroutine_t *co)
 {
     co_mask_t mask = co->ev.mask;
@@ -518,13 +518,13 @@ __co_evmask_read_and_zero(coroutine_t *co)
     return mask;
 }
 
-static bool
+STATIC bool
 __co_ev_read(coroutine_t *co, enum co_event ev)
 {
     return os_hasbit(co->ev.mask, ev); 
 }
 
-static bool
+STATIC bool
 __co_ev_read_and_zero(coroutine_t *co, enum co_event ev)
 {
     bool is_set = os_hasbit(co->ev.mask, ev);
@@ -534,7 +534,7 @@ __co_ev_read_and_zero(coroutine_t *co, enum co_event ev)
     return is_set;
 }
 
-static int
+STATIC int
 __co_signal(coroutine_t *co, enum co_event ev)
 {
     os_setbit(co->ev.mask, ev);
@@ -542,7 +542,7 @@ __co_signal(coroutine_t *co, enum co_event ev)
     return 0;
 }
 
-static int
+STATIC int
 __co_mail_send(coroutine_t *co, enum co_event ev, union co_mail *mail)
 {
     trace_assert(NULL!=co->ev.box[ev], "co send mail when empty");
@@ -552,7 +552,7 @@ __co_mail_send(coroutine_t *co, enum co_event ev, union co_mail *mail)
     return os_och_write(co->ev.box[ev], mail);
 }
 
-static int
+STATIC int
 __co_mail_recv(coroutine_t *co, enum co_event ev, union co_mail *mail)
 {
     trace_assert(NULL!=co->ev.box[ev], "co recv mail when not empty");
@@ -562,7 +562,7 @@ __co_mail_recv(coroutine_t *co, enum co_event ev, union co_mail *mail)
     return os_och_read(co->ev.box[ev], mail);
 }
 
-static int
+STATIC int
 __co_ready(coroutine_t *co, co_cred_t cred, bool immediately)
 {
     if (cred && cred==co->suspend.cred) {
@@ -576,7 +576,7 @@ __co_ready(coroutine_t *co, co_cred_t cred, bool immediately)
     }
 }
 
-static int
+STATIC int
 __co_resume(coroutine_t *create, bool suspend_old)
 {
     int err;
@@ -613,7 +613,7 @@ __co_resume(coroutine_t *create, bool suspend_old)
     return 0;
 }
 
-static mv_t 
+STATIC mv_t 
 __co_suspend_timeout(tm_node_t *timer)
 {
     coroutine_t *co = container_of(timer, coroutine_t, suspend.timer);
@@ -625,7 +625,7 @@ __co_suspend_timeout(tm_node_t *timer)
     return tm_SAFE(0);
 }
 
-static int
+STATIC int
 __co_suspend(int timeout/* ms */, co_cred_t cred)
 {
     int err, after = 0;
@@ -669,7 +669,7 @@ __co_suspend(int timeout/* ms */, co_cred_t cred)
     return timeouted?1:0;
 }
 
-static int
+STATIC int
 __co_yield(void)
 {
     return __co_resume(__co_schedule(), false);

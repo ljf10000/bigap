@@ -27,7 +27,7 @@ typedef struct {
     uint64      removed;
 } tm_clock_t;
 
-static tm_clock_t *
+STATIC tm_clock_t *
 __this_timer(void)
 {
     static tm_clock_t *clock;
@@ -39,7 +39,7 @@ __this_timer(void)
     return clock;
 }
 
-static tm_ring_t *
+STATIC tm_ring_t *
 __tm_ring(int idx)
 {
     return &__this_timer()->ring[idx];
@@ -51,26 +51,26 @@ __tm_ring(int idx)
 #define __tm_foreach_ring(_ring)    for((_ring)=__tm_ring0; (_ring)<=__tm_ringmax; (_ring)++)
 #define __tm_foreach_slot(_slot)    for((_slot)=0; (_slot)<TM_SLOT; (_slot)++)
 
-static struct list_head *
+STATIC struct list_head *
 __tm_slot(tm_ring_t *ring, int idx)
 {
     return &ring->slot[idx].list;
 }
 
-static bool
+STATIC bool
 __tm_is_once(tm_node_t *timer)
 {
     return os_hasflag(timer->flags, TM_ONCE);
 }
 #define __tm_is_cycle(_timer)   (false==__tm_is_once(_timer))
 
-static bool
+STATIC bool
 __tm_is_pending(tm_node_t *timer)
 {
     return os_hasflag(timer->flags, TM_PENDING);
 }
 
-static uint32
+STATIC uint32
 __tm_left(tm_node_t *timer)
 {
     uint64 timeout = timer->create + (uint64)timer->expires;
@@ -82,7 +82,7 @@ __tm_left(tm_node_t *timer)
     }
 }
 
-static tm_ring_t *
+STATIC tm_ring_t *
 __tm_find_ring(tm_node_t *timer, int *slot)
 {
     int idx;
@@ -110,7 +110,7 @@ __tm_find_ring(tm_node_t *timer, int *slot)
     return ring;
 }
 
-static void
+STATIC void
 __tm_insert(tm_node_t *timer)
 {
     int slot = 0;
@@ -131,7 +131,7 @@ __tm_insert(tm_node_t *timer)
     }
 }
 
-static void
+STATIC void
 __tm_remove(tm_node_t *timer)
 {
     tm_ring_t *ring = __tm_ringx(timer->ring_idx);
@@ -148,7 +148,7 @@ __tm_remove(tm_node_t *timer)
     timer->flags &= ~TM_PENDING;
 }
 
-static void
+STATIC void
 __tm_slot_dump(tm_ring_t *ring, int slot)
 {
     struct list_head *head = __tm_slot(ring, slot);
@@ -161,7 +161,7 @@ __tm_slot_dump(tm_ring_t *ring, int slot)
     }
 }
 
-static void
+STATIC void
 __tm_ring_dump(tm_ring_t *ring)
 {
     int i;
@@ -178,7 +178,7 @@ __tm_ring_dump(tm_ring_t *ring)
     }
 }
 
-static void
+STATIC void
 __tm_dump(void)
 {
     if (__is_ak_debug(__ak_debug_timer|__ak_debug_trace|__ak_debug_test)) {
@@ -193,7 +193,7 @@ __tm_dump(void)
     }
 }
 
-static int
+STATIC int
 __tm_ring_trigger(tm_ring_t *ring)
 {
     struct list_head *head = __tm_slot(ring, ring->current);
@@ -254,7 +254,7 @@ __tm_ring_trigger(tm_ring_t *ring)
 * return
 *   success trigger nodes
 */
-static int
+STATIC int
 __tm_trigger(tm_ring_t *ring)
 {
     int count = 0;

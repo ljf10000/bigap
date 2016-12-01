@@ -3,7 +3,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifdef __APP__
 
-static void
+STATIC void
 __blob_byteorder(blob_t *blob, bool ntoh)
 {
     
@@ -64,7 +64,7 @@ blob_hton(blob_t *blob)
     __blob_byteorder(blob, false);
 }
 
-static jobj_t
+STATIC jobj_t
 __blob_jobj(blob_t *blob)
 {
     switch(blob_type(blob)) {
@@ -74,7 +74,7 @@ __blob_jobj(blob_t *blob)
     }
 }
 
-static jobj_t
+STATIC jobj_t
 __blob_btoj(blob_t *blob, jobj_t root, int level)
 {
     char *name      = blob_key(blob);
@@ -148,7 +148,7 @@ blob_btoj(blob_t *blob)
 /*
 * blob to json
 */
-static blob_t *
+STATIC blob_t *
 __blob_bobj(slice_t *slice, jobj_t obj)
 {
     switch(jobj_type(obj)) {
@@ -161,7 +161,7 @@ __blob_bobj(slice_t *slice, jobj_t obj)
 static void
 __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level);
 
-static void
+STATIC void
 ____blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 {
     int type = jobj_type(obj);
@@ -179,7 +179,7 @@ ____blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
     }
 }
 
-static void
+STATIC void
 __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 {
     int type = jobj_type(obj);

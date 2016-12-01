@@ -3,7 +3,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifdef __APP__
 
-static void 
+STATIC void 
 __slice_to_msg
 (
     slice_t    *slice, 

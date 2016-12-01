@@ -32,25 +32,25 @@ enum {
     __pipe_son      = 1,
 };
 
-static inline char *
+STATIC char *
 __pipe_std_cursor(pipe_std_t *std)
 {
     return sb_cursor(&std->sb);
 }
 
-static inline uint32
+STATIC uint32
 __pipe_std_left(pipe_std_t *std)
 {
     return sb_left(&std->sb);
 }
 
-static inline int
+STATIC int
 __pipe_std_expand(pipe_std_t *std)
 {
     return sb_expand(&std->sb, 0);
 }
 
-static int
+STATIC int
 __pipe_std_read(pipe_std_t *std)
 {
     int err, len, left;
@@ -77,7 +77,7 @@ __pipe_std_read(pipe_std_t *std)
     return -ENOMEM;
 }
 
-static int
+STATIC int
 __pipe_init(pipexec_t *pe, pipinfo_t *info)
 {
     int err;
@@ -108,7 +108,7 @@ __pipe_init(pipexec_t *pe, pipinfo_t *info)
     return 0;
 }
 
-static void
+STATIC void
 __pipe_fini(pipexec_t *pe)
 {
     if (pe) {
@@ -124,7 +124,7 @@ __pipe_fini(pipexec_t *pe)
     }
 }
 
-static bool
+STATIC bool
 __pipe_father_wait(pipexec_t *pe, int son)
 {
     int err, status = 0;
@@ -146,7 +146,7 @@ __pipe_father_wait(pipexec_t *pe, int son)
     }
 }
 
-static int
+STATIC int
 __pipe_father_handle(pipexec_t *pe, int son)
 {
     struct timeval tv = {
@@ -206,7 +206,7 @@ error:
     return err;
 }
 
-static void
+STATIC void
 __pipe_son_exec(pipexec_t *pe, char *path, char *argv[], char *env[])
 {
     envs_dump("exec argv", argv, debug_trace);
@@ -231,7 +231,7 @@ __pipe_son_exec(pipexec_t *pe, char *path, char *argv[], char *env[])
 #endif
 }
 
-static int
+STATIC int
 __pipe_son_handle(pipexec_t *pe)
 {
     pipinfo_t *info = &pe->info;
