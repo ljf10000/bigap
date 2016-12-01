@@ -104,7 +104,7 @@ duke_debug(duk_context *ctx)
     return 0;
 }
 
-JS_PARAM(pipe, 1);
+JS_PARAM(pexec, 1);
 STATIC duk_ret_t
 duke_pexec(duk_context *ctx)
 {
