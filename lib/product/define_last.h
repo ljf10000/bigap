@@ -96,11 +96,19 @@
 #define PRODUCT_IDIR_DATA(_idx)         PRODUCT_IDIR(PRODUCT_DIR_DATA,   _idx)
 
 #ifndef PRODUCT_DEV_BOOT
+#if IS_PRODUCT_LTEFI_AP
+#define PRODUCT_DEV_BOOT                PRODUCT_IDEV_FLASH(0) /* boot */
+#else
 #define PRODUCT_DEV_BOOT                PRODUCT_IDEV_FLASH(1) /* boot */
+#endif
 #endif
 
 #ifndef PRODUCT_DEV_BOOTENV
+#if IS_PRODUCT_LTEFI_AP
+#define PRODUCT_DEV_BOOTENV             PRODUCT_IDEV_FLASH(1) /* boot env */
+#else
 #define PRODUCT_DEV_BOOTENV             PRODUCT_IDEV_FLASH(2) /* boot env */
+#endif
 #endif
 
 #ifndef PRODUCT_DEV_BASEPARAM
