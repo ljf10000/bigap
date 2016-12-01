@@ -9,7 +9,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static int
+STATIC int
 dll_printf(void)
 {
     libval_t params[] = {
@@ -22,7 +22,7 @@ dll_printf(void)
     return os_libcall("libc.so.6", "printf", &proto);
 }
 
-static int
+STATIC int
 dll_memory(void)
 {
     void *pointer = NULL;
@@ -51,7 +51,7 @@ dll_memory(void)
     return 0;
 }
 
-static int
+STATIC int
 dll_tm(void)
 {
     time_t t;
@@ -84,8 +84,8 @@ dll_tm(void)
     return 0;
 }
 
-static int
-__main(int argc, char *argv[])
+STATIC int
+dll_main(int argc, char *argv[])
 {
     int i, err = 0;
 
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_main(dll_main, argc, argv);
 }
 
 /******************************************************************************/

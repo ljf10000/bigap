@@ -30,8 +30,8 @@ static int fd_cmdline   = INVALID_FD;
 #define bck_println(_fmt, _args...)    os_do_nothing()
 #endif
 
-static int
-__fini(void)
+STATIC int
+bck_fini(void)
 {
     os_close(fd_cmdline);
     os_close(fd_bootenv);
@@ -42,8 +42,8 @@ __fini(void)
     return 0;
 }
 
-static int
-__init(void)
+STATIC int
+bck_init(void)
 {
     int fd, err;
     int permit = S_IRUSR | S_IRGRP;
@@ -82,8 +82,8 @@ __init(void)
     return 0;
 }
 
-static inline int
-hacked(int obj, int reason)
+STATIC int
+bck_hacked(int obj, int reason)
 {
     os_println("system is hacked(%d.%d), reboot...", obj, reason);
     
@@ -92,8 +92,8 @@ hacked(int obj, int reason)
     return -EHACKED;
 }
 
-static int
-check_boot(void)
+STATIC int
+bck_check_boot(void)
 {
 #if IS_PRODUCT_LTEFI_MD_PARTITION_B
     os_reg_t dog_enable[] = OS_DOG_ENABLE;
@@ -138,7 +138,7 @@ check_boot(void)
     for (i=0; i<os_count_of(cookie); i++) {
         p = os_memmem(p, end - p, cookie[i].addr, cookie[i].size);
         if (NULL==p) {
-            return hacked(1, i);
+            return bck_hacked(1, i);
         }
     }
     bck_println("after  check boot");
@@ -146,8 +146,8 @@ check_boot(void)
     return 0;
 }
 
-static int
-check_bootenv(void)
+STATIC int
+bck_check_bootenv(void)
 {
 #if IS_PRODUCT_LTEFI_MD_PARTITION_A
     struct {
@@ -171,7 +171,7 @@ check_bootenv(void)
     }
     
     if (false==os_memeq(&cookie, &deft, BENV_COOKIE_FIXED)) {
-        return hacked(2, 0);
+        return bck_hacked(2, 0);
     }
 
     bck_println("after  check bootenv");
@@ -179,8 +179,8 @@ check_bootenv(void)
     return 0;
 }
 
-static int
-check_partition(void)
+STATIC int
+bck_check_partition(void)
 {
     char line[1+OS_LINE_LEN] = {0};
     
@@ -189,7 +189,7 @@ check_partition(void)
     read(fd_cmdline, line, OS_LINE_LEN);
     
     if (NULL==os_strstr(line, PRODUCT_BOOTARGS_BODY)) {
-        return hacked(3, 0);
+        return bck_hacked(3, 0);
     }
 
     bck_println("after  check partition");
@@ -200,13 +200,13 @@ check_partition(void)
 /*
 * cmd have enabled when boot
 */
-static int
-__main(int argc, char *argv[])
+STATIC int
+__bck_main(int argc, char *argv[])
 {
     static int (*check[])(void) = {
-        check_boot,
-        check_bootenv,
-        check_partition,
+        bck_check_boot,
+        bck_check_bootenv,
+        bck_check_partition,
     };
     
     int i, err;
@@ -229,7 +229,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__init, __fini, __main, argc, argv);
+    int err = os_call(bck_init, bck_fini, __bck_main, argc, argv);
 
     return shell_error(err);
 }

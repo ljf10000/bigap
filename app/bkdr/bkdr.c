@@ -9,8 +9,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static int
-cmd_hex(int argc, char *argv[])
+STATIC int
+bkdr_cmd_hex(int argc, char *argv[])
 {
     char *hex   = argv[1];
     char *mod   = argv[2];
@@ -31,8 +31,8 @@ cmd_hex(int argc, char *argv[])
     return 0;
 }
 
-static int
-cmd_str(int argc, char *argv[])
+STATIC int
+bkdr_cmd_str(int argc, char *argv[])
 {
     char *str   = argv[1];
     char *mod   = argv[2];
@@ -42,13 +42,13 @@ cmd_str(int argc, char *argv[])
     return 0;
 }
 
-static cmd_table_t cmd[] = {
-    CMD_TABLE_ENTRY(cmd_hex, 3, "hex", NULL, NULL),
-    CMD_TABLE_ENTRY(cmd_str, 3, "str", NULL, NULL),
+STATIC cmd_table_t bkdr_cmd[] = {
+    CMD_TABLE_ENTRY(bkdr_cmd_hex, 3, "hex", NULL, NULL),
+    CMD_TABLE_ENTRY(bkdr_cmd_str, 3, "str", NULL, NULL),
 };
 
-static int
-usage(void)
+STATIC int
+bkdr_usage(void)
 {
     os_eprintln(__THIS_APPNAME " hex {hex} {MOD}");
     os_eprintln(__THIS_APPNAME " str {str} {MOD}");
@@ -59,18 +59,18 @@ usage(void)
 /*
 * cmd have enabled when boot
 */
-static int
-__main(int argc, char *argv[])
+STATIC int
+__bkdr_main(int argc, char *argv[])
 {
     int err;
 
-    err = cmd_handle(cmd, argc, argv, usage);
+    err = cmd_handle(bkdr_cmd, argc, argv, bkdr_usage);
     
     return err;
 }
 
 int allinone_main(int argc, char *argv[])
 {
-    return os_main(__main, argc, argv);
+    return os_main(__bkdr_main, argc, argv);
 }
 /******************************************************************************/

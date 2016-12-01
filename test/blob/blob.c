@@ -25,8 +25,8 @@ int COUNT = 2;
 #define tprintln(_fmt, _args...)    os_do_nothing()
 #endif
 
-static void
-put_somthing(char *name)
+STATIC void
+__blob_put_somthing(char *name)
 {
     void *obj = NULL;
     
@@ -50,8 +50,8 @@ put_somthing(char *name)
     }
 }
 
-static jobj_t
-array_btoj(void)
+STATIC jobj_t
+__blob_array_btoj(void)
 {
     char *name;
     void *arr, *obj;
@@ -62,7 +62,7 @@ array_btoj(void)
     
     name = "FIRST";
     tprintln("%s begin", name);
-    put_somthing(name);
+    __blob_put_somthing(name);
     tprintln("%s end", name);
 
     name = tmp;
@@ -70,13 +70,13 @@ array_btoj(void)
         os_sprintf(name, "object-%d", i);
         
         tprintln("%s begin", name);
-        put_somthing(name);
+        __blob_put_somthing(name);
         tprintln("%s end", name);
     }
     
     name = "LAST";
     tprintln("%s begin", name);
-    put_somthing(name);
+    __blob_put_somthing(name);
     tprintln("%s end", name);
 
     blob_t *root = blob_root(bs);
@@ -85,8 +85,8 @@ array_btoj(void)
     return blob_btoj(root);
 }
 
-static jobj_t
-object_btoj(void)
+STATIC jobj_t
+__blob_object_btoj(void)
 {
     char *name;
     void *arr, *obj;
@@ -95,11 +95,11 @@ object_btoj(void)
     
     blob_root_object(bs);
 
-    put_somthing(NULL);
+    __blob_put_somthing(NULL);
     
     name = "FIRST";
     tprintln("%s begin", name);
-    put_somthing(name);
+    __blob_put_somthing(name);
     tprintln("%s end", name);
     
     name = "OBJ";
@@ -110,7 +110,7 @@ object_btoj(void)
         
         tprintln("%s.%s begin", name, tmp);
         arr = blob_array_start(bs, tmp);
-        put_somthing("sb");
+        __blob_put_somthing("sb");
         blob_array_end(bs, arr);
         tprintln("%s.%s end", name, tmp);
     }
@@ -124,7 +124,7 @@ object_btoj(void)
         os_sprintf(tmp, "obj-%d", i);
         
         tprintln("%s.%s begin", name, tmp);
-        put_somthing(tmp);
+        __blob_put_somthing(tmp);
         tprintln("%s.%s end", name, tmp);
     }
     blob_array_end(bs, arr);
@@ -132,7 +132,7 @@ object_btoj(void)
 
     name = "LAST";
     tprintln("%s begin", name);
-    put_somthing(name);
+    __blob_put_somthing(name);
     tprintln("%s end", name);
 
     blob_t *root = blob_root(bs);
@@ -141,7 +141,8 @@ object_btoj(void)
     return blob_btoj(root);
 }
 
-int __main(int argc, char *argv[])
+STATIC int
+__blob_main(int argc, char *argv[])
 {
     jobj_t obj;
     char *json;
@@ -149,7 +150,7 @@ int __main(int argc, char *argv[])
     COUNT = env_geti("__BLOB_COUNT__", 2);
     
     slice_alloc(bs, BUFFER_SIZE);
-    obj = array_btoj();
+    obj = __blob_array_btoj();
     json = jobj_json(obj);
     os_println(__tab "%s", json);
 #if 1
@@ -158,7 +159,7 @@ int __main(int argc, char *argv[])
 #endif
     jobj_put(obj);
 
-    obj = object_btoj();
+    obj = __blob_object_btoj();
     json = jobj_json(obj);
     os_println(__tab "%s", json);
 #if 1
@@ -175,6 +176,6 @@ int main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    return os_main(__main, argc, argv);
+    return os_main(__blob_main, argc, argv);
 }
 /******************************************************************************/
