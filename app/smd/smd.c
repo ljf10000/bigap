@@ -73,45 +73,45 @@ struct sm {
     .flags  = SM_F_STATIC,    \
 }   /* end */
 
-static struct sm daemons[] = {
+STATIC struct sm smd_daemons[] = {
 #if 1
     /* insert static daemon */
 #endif
 };
 
-static inline bool
-__is_normal(struct sm *entry)
+STATIC bool
+smd_is_normal(struct sm *entry)
 {
     return NULL==entry->pidfile;
 }
-#define __is_deamon(_entry)     (false==__is_normal(_entry))
+#define smd_is_deamon(_entry)     (false==smd_is_normal(_entry))
 
-static inline bool
-__is_timeout(struct sm *entry)
+STATIC bool
+smd_is_timeout(struct sm *entry)
 {
     return smd.time - entry->time[entry->state] > SM_DEAMON_WAIT;
 }
 
-static inline char *
-__type(struct sm *entry)
+STATIC char *
+smd_type(struct sm *entry)
 {
-    return __is_normal(entry)?"normal":"deamon";
+    return smd_is_normal(entry)?"normal":"deamon";
 }
 
-static inline bool
-__is_run(struct sm *entry)
+STATIC bool
+smd_is_run(struct sm *entry)
 {
     return SM_STATE_RUN==entry->state;
 }
 
-static inline bool
-__have_pid(struct sm *entry)
+STATIC bool
+smd_have_pid(struct sm *entry)
 {
     return SM_STATE_FORK==entry->state || SM_STATE_RUN==entry->state;
 }
 
-static int
-__get_normal_pid(struct sm *entry)
+STATIC int
+smd_get_normal_pid(struct sm *entry)
 {
     int i, pid = 0;
 
@@ -137,8 +137,8 @@ __get_normal_pid(struct sm *entry)
     return pid;
 }
 
-static inline int
-__get_deamon_pid(struct sm *entry)
+STATIC int
+smd_get_deamon_pid(struct sm *entry)
 {
     int pid = __os_get_pid(entry->pidfile);
 
@@ -147,8 +147,8 @@ __get_deamon_pid(struct sm *entry)
     return pid;
 }
 
-static inline void
-__set_time(struct sm *entry, char *prefix)
+STATIC void
+smd_set_time(struct sm *entry, char *prefix)
 {
     entry->time[entry->state] = smd.time;
 
@@ -159,8 +159,8 @@ __set_time(struct sm *entry, char *prefix)
         entry->time[entry->state]);
 }
 
-static void
-__change(struct sm *entry, int state, int normal, int deamon, char *prefix)
+STATIC void
+smd_change(struct sm *entry, int state, int normal, int deamon, char *prefix)
 {
     if (normal!=entry->normal && deamon!=entry->deamon) {
         debug_trace("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d), deamon pid(%d==>%d)",
@@ -198,12 +198,12 @@ __change(struct sm *entry, int state, int normal, int deamon, char *prefix)
 
     if (state!=entry->state) {
         entry->state = state;
-        __set_time(entry, prefix);
+        smd_set_time(entry, prefix);
     }
 }
 
-static void
-__dump_all(char *name)
+STATIC void
+smd_dump_all(char *name)
 {
     struct sm *entry;
 
@@ -218,8 +218,8 @@ __dump_all(char *name)
     }
 }
 
-static struct sm *
-__get_byname(char *name)
+STATIC struct sm *
+smd_getbyname(char *name)
 {
     struct sm *entry;
     
@@ -236,8 +236,8 @@ __get_byname(char *name)
     return NULL;
 }
 
-static struct sm *
-__get_bynormal(int pid)
+STATIC struct sm *
+smd_getbynormal(int pid)
 {
     struct sm *entry;
 
@@ -250,8 +250,8 @@ __get_bynormal(int pid)
     return NULL;
 }
 
-static int
-__run(struct sm *entry, char *prefix)
+STATIC int
+smd_run(struct sm *entry, char *prefix)
 {
     int err, pid;
     
@@ -264,7 +264,7 @@ __run(struct sm *entry, char *prefix)
     else if (pid>0) { // father
         entry->forks++;
 
-        __change(entry, SM_STATE_FORK, pid, 0, prefix);
+        smd_change(entry, SM_STATE_FORK, pid, 0, prefix);
 
         jinfo("%o", 
             "exec", jobj_oprintf("%s%d%d%s",
@@ -286,39 +286,39 @@ __run(struct sm *entry, char *prefix)
     }
 }
 
-static inline void
-__die(struct sm *entry, char *prefix)
+STATIC void
+smd_die(struct sm *entry, char *prefix)
 {
-    __change(entry, SM_STATE_DIE, 0, 0, prefix);
+    smd_change(entry, SM_STATE_DIE, 0, 0, prefix);
 }
 
-static inline void
-__killall(struct sm *entry)
+STATIC void
+smd_killall(struct sm *entry)
 {
     os_system("killall '%s'", entry->name);
 }
 
-static inline void
-__kill_deamon(struct sm *entry)
+STATIC void
+smd_kill_deamon(struct sm *entry)
 {
-    if (__is_deamon(entry)) {
-        __killall(entry);
+    if (smd_is_deamon(entry)) {
+        smd_killall(entry);
     }
 }
 
-static int
-__kill(struct sm *entry)
+STATIC int
+smd_kill(struct sm *entry)
 {
-    if (false==__have_pid(entry)) {
+    if (false==smd_have_pid(entry)) {
         return 0;
     }
     
-    int pid = __is_normal(entry)?entry->normal:entry->deamon;
+    int pid = smd_is_normal(entry)?entry->normal:entry->deamon;
     if (os_pid_exist(pid)) {
         kill(pid, SIGKILL);
     }
     
-    __kill_deamon(entry);
+    smd_kill_deamon(entry);
     
     jinfo("%o", 
         "kill", jobj_oprintf("%s%d%d%d%s",
@@ -328,84 +328,84 @@ __kill(struct sm *entry)
                     "forks",    entry->forks,
                     "state",    sm_state_getnamebyid(entry->state)));
                     
-    __die(entry, "in kill");
+    smd_die(entry, "in kill");
 
     return 0;
 }
 
-static void
-__wait_error(struct sm *entry)
+STATIC void
+smd_wait_error(struct sm *entry)
 {
     char prefix[1+OS_LINE_SHORT] = {0};
     int pid;
 
-    if (__is_normal(entry)) {
+    if (smd_is_normal(entry)) {
         pid = entry->normal;
     } else {
         pid = entry->deamon;
     }
     
     os_snprintf(prefix, OS_LINE_SHORT, "int wait %s(%s)",
-        __type(entry),
+        smd_type(entry),
         sm_state_getnamebyid(entry->state));
     
     jerror("%o", 
         "wait-error", jobj_oprintf("%s%d%d%s",
                             "name",     entry->name,
-                            __type(entry),  pid,
+                            smd_type(entry),  pid,
                             "forks",    entry->forks,
                             "state",    sm_state_getnamebyid(entry->state)));
 
-    __kill_deamon(entry);
-    __run(entry, prefix);
+    smd_kill_deamon(entry);
+    smd_run(entry, prefix);
 }
 
-static void
-__wait_ok(struct sm *entry)
+STATIC void
+smd_wait_ok(struct sm *entry)
 {
     char prefix[1+OS_LINE_SHORT] = {0};
     int pid = 0, normal = 0, deamon = 0;
     
-    if (__is_normal(entry)) {
+    if (smd_is_normal(entry)) {
         pid = normal = entry->normal;
     }
     else {
-        pid = deamon = __is_run(entry)?entry->deamon:__get_deamon_pid(entry);
+        pid = deamon = smd_is_run(entry)?entry->deamon:smd_get_deamon_pid(entry);
     }
     
     os_snprintf(prefix, OS_LINE_SHORT, "int wait %s(%s)",
-        __type(entry),
+        smd_type(entry),
         sm_state_getnamebyid(entry->state));
 
     if (os_pid_exist(pid)) {
-        __change(entry, SM_STATE_RUN, normal, deamon, prefix);
+        smd_change(entry, SM_STATE_RUN, normal, deamon, prefix);
     } else {
         jinfo("%o", 
             "wait-ok", jobj_oprintf("%s%d%d%s",
                                     "name",     entry->name,
-                                    __type(entry),  pid,
+                                    smd_type(entry),  pid,
                                     "forks",    entry->forks,
                                     "state",    sm_state_getnamebyid(entry->state)));
 
-        __kill_deamon(entry);
-        __die(entry, prefix);
-        __run(entry, prefix);
+        smd_kill_deamon(entry);
+        smd_die(entry, prefix);
+        smd_run(entry, prefix);
     }
 }
 
-static void
-__wait_son(int pid)
+STATIC void
+smd_wait_son(int pid)
 {
     debug_trace("wait son:%d", pid);
     
-    struct sm *entry = __get_bynormal(pid);
+    struct sm *entry = smd_getbynormal(pid);
     if (NULL==entry) {
         debug_trace("wait son:%d, but no-found entry, maybe have been removed", pid);
 
         return;
     }
 
-    if (__is_normal(entry)) {
+    if (smd_is_normal(entry)) {
         jinfo("%o", 
             "wait-son", jobj_oprintf("%s%d%d%s",
                             "name",     entry->name,
@@ -414,27 +414,27 @@ __wait_son(int pid)
                             "state",    sm_state_getnamebyid(entry->state)));
         char *prefix = "in wait son(normal)";
         
-        __die(entry, prefix);
-        __run(entry, prefix);
+        smd_die(entry, prefix);
+        smd_run(entry, prefix);
     } else {
         /*
         * deamon fake die, just clear normal pid
         *
         * check deamon real die in __wait_fork
         */
-        __change(entry, entry->state, 0, 0, "in wait son(deamon)");
+        smd_change(entry, entry->state, 0, 0, "in wait son(deamon)");
     }
 }
 
-static int
-__wait(void)
+STATIC int
+smd_wait(void)
 {
     int pid;
     struct sm *entry;
     char *prefix;
 
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
-        __wait_son(pid);
+        smd_wait_son(pid);
     }
     
     /*
@@ -444,17 +444,17 @@ __wait(void)
         switch(entry->state) {
             case SM_STATE_DIE:    /* down */
             case SM_STATE_INIT:
-                __wait_error(entry);
+                smd_wait_error(entry);
                 
                 break;
             case SM_STATE_FORK:
-                if (__is_timeout(entry)) {
-                    __wait_ok(entry);
+                if (smd_is_timeout(entry)) {
+                    smd_wait_ok(entry);
                 }
                 
                 break;
             case SM_STATE_RUN:
-                __wait_ok(entry);
+                smd_wait_ok(entry);
                 
                 break;
             default:
@@ -465,8 +465,8 @@ __wait(void)
     return 0;
 }
 
-static int
-__insert(struct sm *entry)
+STATIC int
+smd_insert(struct sm *entry)
 {
     int err, pid = 0;
     
@@ -480,8 +480,8 @@ __insert(struct sm *entry)
     * maybe smd is re-start
     *   check the app is run?
     */
-    if (__is_normal(entry)) {
-        pid = __get_normal_pid(entry);
+    if (smd_is_normal(entry)) {
+        pid = smd_get_normal_pid(entry);
     } else {
         os_v_fgeti(&pid, "%s", entry->pidfile);
         
@@ -494,7 +494,7 @@ __insert(struct sm *entry)
         /*
         * no-found the app is run
         */
-        err = __run(entry, "in insert(not exist)");
+        err = smd_run(entry, "in insert(not exist)");
         if (err<0) {
             return err;
         }
@@ -502,18 +502,18 @@ __insert(struct sm *entry)
         /*
         * re-init, just change state and save pid, needn't run it
         */
-        if (__is_normal(entry)) {
-            __change(entry, SM_STATE_RUN, pid, 0, "in insert(normal exist)");
+        if (smd_is_normal(entry)) {
+            smd_change(entry, SM_STATE_RUN, pid, 0, "in insert(normal exist)");
         } else {
-            __change(entry, SM_STATE_RUN, 0, pid, "in insert(deamon exist)");
+            smd_change(entry, SM_STATE_RUN, 0, pid, "in insert(deamon exist)");
         }
     }
     
     return 0;
 }
 
-static void
-__destroy(struct sm *entry)
+STATIC void
+smd_destroy(struct sm *entry)
 {
     if (entry) {
         os_free(entry->name);
@@ -524,8 +524,8 @@ __destroy(struct sm *entry)
     }
 }
 
-static int
-__remove(struct sm *entry)
+STATIC int
+smd_remove(struct sm *entry)
 {
     if (os_hasflag(entry->flags, SM_F_STATIC)) {
         return 0;
@@ -537,14 +537,14 @@ __remove(struct sm *entry)
     debug_trace("remove %s:%s", entry->name, entry->command);
     
     list_del(&entry->node);
-    __kill(entry);
-    __destroy(entry);
+    smd_kill(entry);
+    smd_destroy(entry);
     
     return 0;
 }
 
-static struct sm *
-__create(char *name, char *command, char *pidfile)
+STATIC struct sm *
+smd_create(char *name, char *command, char *pidfile)
 {
     struct sm *entry = (struct sm *)os_zalloc(sizeof(*entry));
     if (NULL==entry) {            
@@ -557,13 +557,13 @@ __create(char *name, char *command, char *pidfile)
         entry->pidfile  = strdup(pidfile);
     }
 
-    __set_time(entry, "in create");
+    smd_set_time(entry, "in create");
     
     return entry;
 }
 
-static int
-handle_insert(char *args)
+STATIC int
+smd_handle_insert(char *args)
 {
     char *type      = args; cli_shift(args);
     char *name      = args; cli_shift(args);
@@ -605,7 +605,7 @@ handle_insert(char *args)
         return -EINVAL4;
     }
     
-    struct sm *entry = __get_byname(name);
+    struct sm *entry = smd_getbyname(name);
     if (entry) {
         /*
         * have exist, do nothing
@@ -615,14 +615,14 @@ handle_insert(char *args)
         return 0;
     }
     
-    entry = __create(name, command, pidfile);
+    entry = smd_create(name, command, pidfile);
     if (NULL==entry) {
         return -ENOMEM;
     }
 
-    err = __insert(entry);
+    err = smd_insert(entry);
     if (err<0) {
-        __destroy(entry);
+        smd_destroy(entry);
 
         return err;
     }
@@ -630,8 +630,8 @@ handle_insert(char *args)
     return 0;
 }
 
-static int
-handle_remove(char *args)
+STATIC int
+smd_handle_remove(char *args)
 {
     char *name = args; cli_shift(args);
     if (NULL==name) {
@@ -640,28 +640,28 @@ handle_remove(char *args)
         return -EINVAL5;
     }
     
-    struct sm *entry = __get_byname(name);
+    struct sm *entry = smd_getbyname(name);
     if (NULL==entry) {
         return -ENOEXIST;
     }
 
-    return __remove(entry);
+    return smd_remove(entry);
 }
 
-static int
-handle_clean(char *args)
+STATIC int
+smd_handle_clean(char *args)
 {
     struct sm *entry, *tmp;
 
     list_for_each_entry_safe(entry, tmp, &smd.list, node) {
-        __remove(entry);
+        smd_remove(entry);
     }
 
     return 0;
 }
 
-static void
-show(struct sm *entry)
+STATIC void
+smd_show(struct sm *entry)
 {
     cli_sprintf("%s %c%d/%d %d %s '%s'" __crlf,
         entry->name,
@@ -673,8 +673,8 @@ show(struct sm *entry)
         entry->command);
 }
 
-static int
-handle_show(char *args)
+STATIC int
+smd_handle_show(char *args)
 {
     char *name = args; cli_shift(args);
     struct sm *entry;
@@ -684,7 +684,7 @@ handle_show(char *args)
 
     list_for_each_entry(entry, &smd.list, node) {
         if (NULL==name || os_streq(entry->name, name)) {
-            show(entry);
+            smd_show(entry);
 
             empty = false;
         }
@@ -702,14 +702,14 @@ handle_show(char *args)
     return 0;
 }
 
-static int
-__server_handle(fd_set *r)
+STATIC int
+smd_server_handle_one(fd_set *r)
 {
     static cli_table_t table[] = {
-        CLI_ENTRY("insert", handle_insert),
-        CLI_ENTRY("remove", handle_remove),
-        CLI_ENTRY("clean",  handle_clean),
-        CLI_ENTRY("show",   handle_show),
+        CLI_ENTRY("insert", smd_handle_insert),
+        CLI_ENTRY("remove", smd_handle_remove),
+        CLI_ENTRY("clean",  smd_handle_clean),
+        CLI_ENTRY("show",   smd_handle_show),
     };
     int err = 0;
 
@@ -720,8 +720,8 @@ __server_handle(fd_set *r)
     return err;
 }
 
-static int
-server_handle(void)
+STATIC int
+smd_server_handle(void)
 {
     fd_set rset;
     struct timeval tv = {
@@ -749,15 +749,15 @@ server_handle(void)
                 debug_timeout("select timeout");
                 return -ETIMEOUT;
             default: /* to accept */
-                return __server_handle(&rset);
+                return smd_server_handle_one(&rset);
         }
     }
 
     return 0;
 }
 
-static int
-init_server(void)
+STATIC int
+smd_init_server(void)
 {
     int fd;
     int err;
@@ -782,24 +782,24 @@ init_server(void)
     return 0;
 }
 
-static int 
-init_timer(void)
+STATIC int 
+smd_init_timer(void)
 {
     return setup_timer(SM_TIMER, 0);
 }
 
-static int
-load(void)
+STATIC int
+smd_load(void)
 {
     int i;
 
     /*
     * load static
     */
-    for (i=0; i<os_count_of(daemons); i++) {
-        debug_trace("load static %s", daemons[i].name);
+    for (i=0; i<os_count_of(smd_daemons); i++) {
+        debug_trace("load static %s", smd_daemons[i].name);
         
-        __insert(&daemons[i]);
+        smd_insert(&smd_daemons[i]);
     }
 
     if (os_file_exist(SCRIPT_SMD_INIT)) {
@@ -811,16 +811,16 @@ load(void)
     return 0;
 }
 
-static int
-__fini(void)
+STATIC int
+smd_fini(void)
 {
     os_fini();
 
     return 0;
 }
 
-static int
-__init(void)
+STATIC int
+smd_init(void)
 {
     int err;
     
@@ -829,12 +829,12 @@ __init(void)
         return err;
     }
 
-    err = init_timer();
+    err = smd_init_timer();
     if (err<0) {
         return err;
     }
     
-    err = init_server();
+    err = smd_init_server();
     if (err<0) {
         return err;
     }
@@ -842,16 +842,16 @@ __init(void)
     return 0;
 }
 
-static void
-__timer(int sig)
+STATIC void
+smd_timer(int sig)
 {
     smd.time++;
 }
 
-static void
-__exit(int sig)
+STATIC void
+smd_exit(int sig)
 {
-    __fini();
+    smd_fini();
     
     exit(sig);
 }
@@ -859,11 +859,11 @@ __exit(int sig)
 STATIC int 
 smd_main_helper(int argc, char *argv[])
 {
-    load();
+    smd_load();
     
     while (1) {
-        server_handle();
-        __wait();
+        smd_server_handle();
+        smd_wait();
     }
     
     return 0;
@@ -871,11 +871,11 @@ smd_main_helper(int argc, char *argv[])
 
 int allinone_main(int argc, char *argv[])
 {
-    setup_signal_exit(__exit);
-    setup_signal_timer(__timer);
+    setup_signal_exit(smd_exit);
+    setup_signal_timer(smd_timer);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__init, __fini, smd_main_helper, argc, argv);
+    int err = os_call(smd_init, smd_fini, smd_main_helper, argc, argv);
 
     return shell_error(err);
 }
