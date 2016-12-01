@@ -1,37 +1,13 @@
 #ifndef __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 #define __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 /******************************************************************************/
-#ifndef OEM_RSYNC_USER_LEN
-#define OEM_RSYNC_USER_LEN      31
-#endif
-
-#ifndef OEM_RSYNC_PWDFILE_LEN
-#define OEM_RSYNC_PWDFILE_LEN   127
-#endif
-
-#ifndef OEM_RSYNC_PATH_LEN
-#define OEM_RSYNC_PATH_LEN      127
-#endif
-
-#ifndef OEM_RSYNC_SERVER_LEN
-#define OEM_RSYNC_SERVER_LEN    31
-#endif
-
-#ifndef OEM_RSYNC_PORT_LEN
-#define OEM_RSYNC_PORT_LEN      15
-#endif
-
-#ifndef OEM_RSYNC_TIMEOUT_LEN
-#define OEM_RSYNC_TIMEOUT_LEN   15
-#endif
-
 typedef struct {
-    char user[1+OEM_RSYNC_USER_LEN];
-    char pwdfile[1+OEM_RSYNC_PWDFILE_LEN];
-    char path[1+OEM_RSYNC_PATH_LEN];
-    char server[1+OEM_RSYNC_SERVER_LEN];
-    char port[1+OEM_RSYNC_PORT_LEN];
-    char timeout[1+OEM_RSYNC_TIMEOUT_LEN];
+    char *user;
+    char *pwdfile;
+    char *path;
+    char *server;
+    char *port;
+    char *timeout;
 } oem_rsync_t;
 
 #define __OEM_RSYNC_INITER(_user, _pwdfile, _path, _server, _port, _timeout) { \
@@ -43,31 +19,15 @@ typedef struct {
     .timeout= _timeout, \
 }
 
-#ifndef OEM_LSS_USER_LEN
-#define OEM_LSS_USER_LEN        31
-#endif
-
-#ifndef OEM_LSS_PASSWORD_LEN
-#define OEM_LSS_PASSWORD_LEN    127
-#endif
-
-#ifndef OEM_LSS_SERVER_LEN
-#define OEM_LSS_SERVER_LEN      31
-#endif
-
-#ifndef OEM_LSS_PORT_LEN
-#define OEM_LSS_PORT_LEN        15
-#endif
-
 #ifndef OEM_NAME_LEN
 #define OEM_NAME_LEN            31
 #endif
 
 typedef struct {
-    char user[1+OEM_LSS_USER_LEN];
-    char password[1+OEM_LSS_PASSWORD_LEN];
-    char server[1+OEM_LSS_SERVER_LEN];
-    char port[1+OEM_LSS_PORT_LEN];
+    char *user;
+    char *password;
+    char *server;
+    char *port;
 
     os_cert_t cert;
 } oem_lss_t;
