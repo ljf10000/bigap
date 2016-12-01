@@ -135,7 +135,7 @@ initer() {
 	for ((i=0; i<CERT_COUNT; i++)); do
 		echo "    FCOOKIE_CERT_INITER(${i}), \\" >> ${fcookie}
 	done
-	echo "} /* end */" >> ${fcookie}
+	echo "/* end */" >> ${fcookie}
 }
 
 main() {
