@@ -15,7 +15,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 typedef void um_timer_handle_t(umd_user_t *user, time_t now);
 
 STATIC void 
-__try_aging(umd_user_t *user, int type)
+umd_try_aging(umd_user_t *user, int type)
 {
     if (umd_online_idle(user, type)) {
         umd_online_aging(user, type) -= umd.cfg.ticks;
@@ -31,18 +31,18 @@ __try_aging(umd_user_t *user, int type)
 }
 
 STATIC void 
-online_aging(umd_user_t *user, time_t now)
+umd_timer_online_aging(umd_user_t *user, time_t now)
 {
     (void)now;
     
     if (is_user_have_bind(user)) {
-        __try_aging(user, umd_flow_type_wan);
-        __try_aging(user, umd_flow_type_lan);
+        umd_try_aging(user, umd_flow_type_wan);
+        umd_try_aging(user, umd_flow_type_lan);
     }
 }
 
 STATIC bool
-__is_gc(umd_user_t *user, time_t now)
+is_umd_timer_gc(umd_user_t *user, time_t now)
 {
     time_t noused = user->noused;
 
@@ -70,15 +70,15 @@ int umd_gc(umd_user_t *user)
 }
 
 STATIC void
-gc_auto(umd_user_t *user, time_t now)
+umd_timer_gc_auto(umd_user_t *user, time_t now)
 {
-    if (__is_gc(user, now)) {
+    if (is_umd_timer_gc(user, now)) {
         umd_gc(user);
     }
 }
 
 STATIC bool
-__is_online_timeout(umd_user_t *user, time_t now, int type)
+__is_umd_timer_online_timeout(umd_user_t *user, time_t now, int type)
 {
     time_t max      = umd_online_max(user, type);
     time_t uptime   = umd_online_uptime(user, type);
@@ -97,26 +97,26 @@ __is_online_timeout(umd_user_t *user, time_t now, int type)
 }
 
 STATIC bool
-is_online_timeout(umd_user_t *user, time_t now)
+is_umd_timer_online_timeout(umd_user_t *user, time_t now)
 {
-    return __is_online_timeout(user, now, umd_flow_type_wan)
-        || __is_online_timeout(user, now, umd_flow_type_lan);
+    return __is_umd_timer_online_timeout(user, now, umd_flow_type_wan)
+        || __is_umd_timer_online_timeout(user, now, umd_flow_type_lan);
 }
 
 STATIC void 
-online_timeout(umd_user_t *user, time_t now)
+umd_timer_online_timeout(umd_user_t *user, time_t now)
 {
     /*
     * online timeout
     *   just for auth user
     */
-    if (is_user_auth(user) && is_online_timeout(user, now)) {        
+    if (is_user_auth(user) && is_umd_timer_online_timeout(user, now)) {        
         umduser_deauth(user, UMD_DEAUTH_ONLINETIME);
     }
 }
 
 STATIC bool
-__is_online_reauth(umd_user_t *user, time_t now, int type)
+__is_umd_timer_online_reauth(umd_user_t *user, time_t now, int type)
 {
     time_t uptime   = umd_online_uptime(user, type);
     time_t reauth   = umd_online_reauthor(user, type);
@@ -135,14 +135,14 @@ __is_online_reauth(umd_user_t *user, time_t now, int type)
 }
 
 STATIC bool
-is_online_reauth(umd_user_t *user, time_t now)
+is_umd_timer_online_reauth(umd_user_t *user, time_t now)
 {
-    return __is_online_reauth(user, now, umd_flow_type_wan)
-        || __is_online_reauth(user, now, umd_flow_type_lan);
+    return __is_umd_timer_online_reauth(user, now, umd_flow_type_wan)
+        || __is_umd_timer_online_reauth(user, now, umd_flow_type_lan);
 }
 
 STATIC void 
-online_reauth(umd_user_t *user, time_t now)
+umd_timer_online_reauth(umd_user_t *user, time_t now)
 {
     /*
     * online reauth
@@ -150,13 +150,13 @@ online_reauth(umd_user_t *user, time_t now)
     */
     if (umd.cfg.reauthable 
             && is_user_auth(user) 
-            && is_online_reauth(user, now)) {        
+            && is_umd_timer_online_reauth(user, now)) {        
         umduser_reauth(user);
     }
 }
 
 STATIC bool
-is_fake_timeout(umd_user_t *user, time_t now)
+is_umd_timer_fake_timeout(umd_user_t *user, time_t now)
 {
     time_t faketime = user->faketime;
     uint32 fake = umd.cfg.fake;
@@ -173,23 +173,23 @@ is_fake_timeout(umd_user_t *user, time_t now)
 }
 
 STATIC void 
-fake_timeout(umd_user_t *user, time_t now)
+umd_timer_fake_timeout(umd_user_t *user, time_t now)
 {
-    if (is_user_fake(user) && is_fake_timeout(user, now)) {        
+    if (is_user_fake(user) && is_umd_timer_fake_timeout(user, now)) {        
         umduser_unfake(user, UMD_DEAUTH_ONLINETIME);
     }
 }
 
 STATIC void
-timer_handle(umd_user_t *user, time_t now)
+umd_timer_handle(umd_user_t *user, time_t now)
 {
     static um_timer_handle_t *handler[] = {
-        fake_timeout,
-        online_reauth,
-        online_timeout,
-        online_aging,
+        umd_timer_fake_timeout,
+        umd_timer_online_reauth,
+        umd_timer_online_timeout,
+        umd_timer_online_aging,
         
-        gc_auto, // keep last
+        umd_timer_gc_auto, // keep last
     };
     
     int i;
@@ -200,7 +200,7 @@ timer_handle(umd_user_t *user, time_t now)
 }
 
 STATIC int
-timer_server_init(sock_server_t *server)
+umd_timer_server_init(sock_server_t *server)
 {    
     int fd = tm_fd(os_second(1000*umd.cfg.ticks), os_nsecond(1000*umd.cfg.ticks));
     if (fd<0) {
@@ -214,7 +214,7 @@ timer_server_init(sock_server_t *server)
 }
 
 STATIC int
-timer_server_handle(sock_server_t *server)
+umd_timer_server_handle(sock_server_t *server)
 {
     uint32 times = tm_fd_read(server->fd);
     time_t now = time(NULL);
@@ -222,7 +222,7 @@ timer_server_handle(sock_server_t *server)
     
     mv_t cb(umd_user_t *user)
     {
-        timer_handle(user, now);
+        umd_timer_handle(user, now);
 
         return mv2_ok;
     }
@@ -237,5 +237,5 @@ timer_server_handle(sock_server_t *server)
 }
 
 sock_server_t umd_timer_server = 
-    SOCK_SERVER_INITER(UMD_SERVER_TIMER, 0, timer_server_init, timer_server_handle);
+    SOCK_SERVER_INITER(UMD_SERVER_TIMER, 0, umd_timer_server_init, umd_timer_server_handle);
 /******************************************************************************/
