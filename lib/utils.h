@@ -355,7 +355,6 @@ Blob.h (lib\utils):    static blob_rule_t rule[BLOB_T_END] = {
 Cmd.h (lib\utils):    static char line[1+OS_LINE_LEN];
 Cmd.h (lib\utils):    static cmd_table_t cmd;
 Coroutine.h (lib\utils):    static char *reserved_name[] = {
-Crc32.h (lib\utils):    static uint32 table[256] = {
 Enum.h (lib\utils):        static char *array[_end] = { _mapper(__ENUM_MAP_NAME) }; \
 Fcookie.h (lib\fcookie):    static char tmp_file[1+FCOOKIE_FILE_LEN];
 Fcookie.h (lib\fcookie):    static char *domains[] = {
@@ -365,8 +364,6 @@ Js.h (lib\js):    static js_register_f *registers[] = {
 Loop.h (lib\utils):    static void (*map[LOOP_TYPE_END])(loop_watcher_t *watcher) = {
 Md5.h (lib\utils):    static byte padding[64] = {
 Nsq.h (lib\nsq):    static jrule_t rule[NSQ_IDENTIFY_END] = NSQ_IDENTIFY_RULE_INITER;
-Oem.h (lib\oem):    static int type = OEM_T_END;
-Oem.h (lib\oem):    static char *vendor;
 Otp.h (lib\hisi):    static char string[2*OTP_SIZE+1];
 Otp.h (lib\hisi):    static int otp_offset = 0;
 Time.h (lib\utils):    static char current[1+FULLTIME_STRING_LEN];
