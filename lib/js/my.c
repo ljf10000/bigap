@@ -17,7 +17,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "my.h"
 
 JS_PARAM(ak_getbyname, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_ak_getbyname(duk_context *ctx)
 {
     char *app = (char *)duk_require_string(ctx, 0);
@@ -27,7 +27,7 @@ duke_ak_getbyname(duk_context *ctx)
 }
 
 JS_PARAM(ak_get, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_ak_get(duk_context *ctx)
 {
     uint32 akid = duk_require_uint(ctx, 0);
@@ -37,7 +37,7 @@ duke_ak_get(duk_context *ctx)
 }
 
 JS_PARAM(ak_set, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_ak_set(duk_context *ctx)
 {
     uint32 akid = duk_require_uint(ctx, 0);
@@ -47,7 +47,7 @@ duke_ak_set(duk_context *ctx)
 }
 
 JS_PARAM(ak_reload, 0);
-static duk_ret_t
+STATIC duk_ret_t
 duke_ak_reload(duk_context *ctx)
 {
     return duk_push_int(ctx, ak_reload()), 1;
@@ -85,7 +85,7 @@ duke_is_debug_mod(duk_context *ctx)
 */
 
 JS_PARAM(is_debug, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_is_debug(duk_context *ctx)
 {
     bool is = __is_js_debug(duk_require_uint(ctx, 0));
@@ -94,7 +94,7 @@ duke_is_debug(duk_context *ctx)
 }
 
 JS_PARAM(debug, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_debug(duk_context *ctx)
 {
     const char *string = duk_require_string(ctx, 0);
@@ -105,7 +105,7 @@ duke_debug(duk_context *ctx)
 }
 
 JS_PARAM(pipe, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_pipe(duk_context *ctx)
 {
     int err;
@@ -133,7 +133,7 @@ duke_pipe(duk_context *ctx)
 }
 
 JS_PARAM(shell, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_shell(duk_context *ctx)
 {
     char *line = (char *)duk_require_string(ctx, 0);
@@ -144,7 +144,7 @@ duke_shell(duk_context *ctx)
 }
 
 JS_PARAM(readtxt, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_readtxt(duk_context *ctx)
 {
     char *buf = NULL;
@@ -159,7 +159,7 @@ duke_readtxt(duk_context *ctx)
 }
 
 JS_PARAM(readbin, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_readbin(duk_context *ctx)
 {
     char *filename = (char *)duk_require_string(ctx, 0);
@@ -179,8 +179,8 @@ duke_readbin(duk_context *ctx)
     return 1;
 }
 
-static duk_ret_t
-__writefile(duk_context *ctx, bool append)
+STATIC duk_ret_t
+my_writefile(duk_context *ctx, bool append)
 {
     duk_buffer_t buf = NULL;
     duk_size_t bsize = 0;
@@ -202,21 +202,21 @@ error:
 }
 
 JS_PARAM(writefile, DUK_VARARGS);
-static duk_ret_t
+STATIC duk_ret_t
 duke_writefile(duk_context *ctx)
 {
-    return __writefile(ctx, false);
+    return my_writefile(ctx, false);
 }
 
 JS_PARAM(appendfile, DUK_VARARGS);
-static duk_ret_t
+STATIC duk_ret_t
 duke_appendfile(duk_context *ctx)
 {
-    return __writefile(ctx, true);
+    return my_writefile(ctx, true);
 }
 
 JS_PARAM(cleanfile, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_cleanfile(duk_context *ctx)
 {
     char *filename = (char *)duk_require_string(ctx, 0);
@@ -225,7 +225,7 @@ duke_cleanfile(duk_context *ctx)
 }
 
 JS_PARAM(readline, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_readline(duk_context *ctx)
 {
     int err = 0, len;
@@ -304,8 +304,8 @@ typedef struct {
     [LOOP_TYPE_FATHER]  = LOOP_OBJ("father"),   \
 }   /* end */
 
-static inline void
-__loop_pcall(duk_context *ctx, duk_idx_t idx, loop_obj_t *obj, int (*push)(void))
+STATIC void
+js_my_loop_pcall(duk_context *ctx, duk_idx_t idx, loop_obj_t *obj, int (*push)(void))
 {
     int iobj = duk_get_prop_string(ctx, idx, obj->name);
     duk_push_string(ctx, LOOP_HANDLE);
@@ -313,8 +313,8 @@ __loop_pcall(duk_context *ctx, duk_idx_t idx, loop_obj_t *obj, int (*push)(void)
     duk_pop_2(ctx);
 }
 
-static int
-__watcher_initer(duk_context *ctx, int idx, loop_obj_t *obj, int *level)
+STATIC int
+js_my_loop_watcher_initer(duk_context *ctx, int idx, loop_obj_t *obj, int *level)
 {
     bool ok;
 
@@ -349,15 +349,15 @@ __watcher_initer(duk_context *ctx, int idx, loop_obj_t *obj, int *level)
     return 0;
 }
 
-static int
-__inotify_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_inotify_f *cb)
+STATIC int
+js_my_loop_inotify_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_inotify_f *cb)
 {
     int err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, idx, obj, &level);
+    err = js_my_loop_watcher_initer(ctx, idx, obj, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -397,15 +397,15 @@ __inotify_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_
     duk_pop_n(ctx, level); return err;
 }
 
-static int
-__signal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_signal_f *cb)
+STATIC int
+js_my_loop_signal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_signal_f *cb)
 {
     int err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, idx, obj, &level);
+    err = js_my_loop_watcher_initer(ctx, idx, obj, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -433,15 +433,15 @@ __signal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_s
     duk_pop_n(ctx, level); return err;
 }
 
-static int
-__timer_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_timer_f *cb)
+STATIC int
+js_my_loop_timer_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_timer_f *cb)
 {
     int err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, idx, obj, &level);
+    err = js_my_loop_watcher_initer(ctx, idx, obj, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -460,15 +460,15 @@ __timer_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_ti
     duk_pop_n(ctx, level); return err;
 }
 
-static int
-__normal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_normal_f *cb)
+STATIC int
+js_my_loop_normal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_normal_f *cb)
 {
     int fd, err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, idx, obj, &level);
+    err = js_my_loop_watcher_initer(ctx, idx, obj, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -498,15 +498,15 @@ __normal_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_n
     duk_pop_n(ctx, level); return err;
 }
 
-static int
-__father_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_son_f *cb)
+STATIC int
+js_my_loop_father_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_son_f *cb)
 {
     int fd, err = 0, level = 0;
 
     // push obj
     // push handle
     // push param
-    err = __watcher_initer(ctx, idx, obj, &level);
+    err = js_my_loop_watcher_initer(ctx, idx, obj, &level);
     if (err<0) {
         duk_pop_n(ctx, level); return 0;
     }
@@ -538,7 +538,7 @@ __father_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int idx, loop_s
 
 // TODO: inotify on loop
 JS_PARAM(loop, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_loop(duk_context *ctx)
 {
     int err = 0;
@@ -557,7 +557,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, libc_set_inotify_event, ev), 1;
         }
         
-        __loop_pcall(ctx, idx, &objs[LOOP_TYPE_INOTIFY], push_inotify);
+        js_my_loop_pcall(ctx, idx, &objs[LOOP_TYPE_INOTIFY], push_inotify);
     
         return 0;
     }
@@ -568,7 +568,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, libc_set_signalfd_siginfo, siginfo), 1;
         }
     
-        __loop_pcall(ctx, idx, &objs[LOOP_TYPE_SIGNAL], push_signal);
+        js_my_loop_pcall(ctx, idx, &objs[LOOP_TYPE_SIGNAL], push_signal);
     
         return 0;
     }
@@ -579,7 +579,7 @@ duke_loop(duk_context *ctx)
             return duk_push_uint(ctx, now), 1;
         }
     
-        __loop_pcall(ctx, idx, &objs[LOOP_TYPE_TIMER], push_timer);
+        js_my_loop_pcall(ctx, idx, &objs[LOOP_TYPE_TIMER], push_timer);
     
         return 0;
     }
@@ -590,7 +590,7 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, libc_set_watcher_event, watcher), 1;
         }
     
-        __loop_pcall(ctx, idx, &objs[LOOP_TYPE_NORMAL], push_normal);
+        js_my_loop_pcall(ctx, idx, &objs[LOOP_TYPE_NORMAL], push_normal);
     
         return 0;
     }
@@ -601,32 +601,32 @@ duke_loop(duk_context *ctx)
             return js_obj_push(ctx, libc_set_watcher_event, watcher), 1;
         }
 
-        __loop_pcall(ctx, idx, &objs[LOOP_TYPE_FATHER], push_father);
+        js_my_loop_pcall(ctx, idx, &objs[LOOP_TYPE_FATHER], push_father);
     
         return 0;
     }
     
-    err = __inotify_initer(&loop, &objs[LOOP_TYPE_INOTIFY], ctx, idx, __inotify_handle);
+    err = js_my_loop_inotify_initer(&loop, &objs[LOOP_TYPE_INOTIFY], ctx, idx, __inotify_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __signal_initer(&loop, &objs[LOOP_TYPE_SIGNAL], ctx, idx, __signal_handle);
+    err = js_my_loop_signal_initer(&loop, &objs[LOOP_TYPE_SIGNAL], ctx, idx, __signal_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __timer_initer(&loop, &objs[LOOP_TYPE_TIMER], ctx, idx, __timer_handle);
+    err = js_my_loop_timer_initer(&loop, &objs[LOOP_TYPE_TIMER], ctx, idx, __timer_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __normal_initer(&loop, &objs[LOOP_TYPE_NORMAL], ctx, idx, __normal_handle);
+    err = js_my_loop_normal_initer(&loop, &objs[LOOP_TYPE_NORMAL], ctx, idx, __normal_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
     
-    err = __father_initer(&loop, &objs[LOOP_TYPE_FATHER], ctx, idx, __father_handle);
+    err = js_my_loop_father_initer(&loop, &objs[LOOP_TYPE_FATHER], ctx, idx, __father_handle);
     if (err<0) {
         __js_seterrno(ctx, err); goto error;
     }
@@ -638,8 +638,8 @@ error:
 }
 
 #if js_LIBCALL
-static duk_ret_t
-__libcall(duk_context *ctx)
+STATIC duk_ret_t
+js_my_libcall(duk_context *ctx)
 {
     int err = 0;
     duk_string_t lib = (duk_string_t)duk_require_string(ctx, 0);
@@ -686,15 +686,15 @@ __libcall(duk_context *ctx)
 }
 
 JS_PARAM(libcall, 4);
-static duk_ret_t
+STATIC duk_ret_t
 duke_libcall(duk_context *ctx)
 {
-    return duk_push_int(ctx, __libcall(ctx)), 1;
+    return duk_push_int(ctx, js_my_libcall(ctx)), 1;
 }
 #endif
 
-static void 
-env_register(duk_context *ctx)
+STATIC void 
+js_my_env_register(duk_context *ctx)
 {
     char *env = *environ;
     char *k, *v;
@@ -716,8 +716,8 @@ env_register(duk_context *ctx)
     duk_put_prop_string(ctx, -2, "env");
 }
 
-static void 
-arg_register(duk_context *ctx)
+STATIC void 
+js_my_arg_register(duk_context *ctx)
 {
     js_priv_t *priv = js_priv(ctx);
 
@@ -743,7 +743,7 @@ arg_register(duk_context *ctx)
     }
 }
 
-static const dukc_func_entry_t my_func[] = {
+STATIC const dukc_func_entry_t js_my_func[] = {
     JS_FUNC(ak_getbyname),
     JS_FUNC(ak_get),
     JS_FUNC(ak_set),
@@ -766,7 +766,7 @@ static const dukc_func_entry_t my_func[] = {
     JS_FUNC_END
 };
 
-static const dukc_number_entry_t my_static_number[] = {
+STATIC const dukc_number_entry_t js_my_static_number[] = {
     JS_VALUE_END
 };
 
@@ -841,12 +841,12 @@ int js_my_register(duk_context *ctx)
     
     duk_push_global_object(ctx);
         duk_push_object(ctx);
-            js_put_functions(ctx, -1, my_func);
-            duk_put_number_list(ctx, -1, my_static_number);
+            js_put_functions(ctx, -1, js_my_func);
+            duk_put_number_list(ctx, -1, js_my_static_number);
             duk_put_number_list(ctx, -1, my_dynamic_number);
             
-            env_register(ctx);
-            arg_register(ctx);
+            js_my_env_register(ctx);
+            js_my_arg_register(ctx);
         duk_put_prop_string(ctx, -2, js_MOD_MY);
     duk_pop(ctx);
 

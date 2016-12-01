@@ -1,4 +1,4 @@
-static const dukc_func_entry_t libcurl_func[] = {
+STATIC const dukc_func_entry_t js_libcurl_func[] = {
     JS_FUNC(curl_easy_init),
     JS_FUNC(curl_easy_cleanup),
     JS_FUNC(curl_easy_perform),
@@ -11,8 +11,8 @@ static const dukc_func_entry_t libcurl_func[] = {
     JS_FUNC_END
 };
 
-static void
-libcurlf_register(duk_context *ctx, duk_idx_t idx)
+STATIC void
+js_libcurlf_register(duk_context *ctx, duk_idx_t idx)
 {
-    js_put_functions(ctx, idx, libcurl_func);
+    js_put_functions(ctx, idx, js_libcurl_func);
 }

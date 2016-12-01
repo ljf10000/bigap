@@ -38,14 +38,14 @@ libz_set_gz_header(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 
 /******************************************************************************/
 JS_PARAM(zlibVersion, 0);
-static duk_ret_t
+STATIC duk_ret_t
 duke_zlibVersion(duk_context *ctx)
 {
     return js_push_string(ctx, zlibVersion()), 1;
 }
 
 JS_PARAM(deflateInit, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateInit(duk_context *ctx)
 {
     int level = duk_require_int(ctx, 0);
@@ -67,7 +67,7 @@ error:
 }
 
 JS_PARAM(deflateInit2, 5);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateInit2(duk_context *ctx)
 {
     int level       = duk_require_int(ctx, 0);
@@ -94,7 +94,7 @@ error:
 }
 
 JS_PARAM(deflate, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflate(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -106,7 +106,7 @@ duke_deflate(duk_context *ctx)
 }
 
 JS_PARAM(deflateEnd, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateEnd(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -117,7 +117,7 @@ duke_deflateEnd(duk_context *ctx)
 }
 
 JS_PARAM(inflateInit, 0);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateInit(duk_context *ctx)
 {
     z_streamp f = (z_streamp)os_malloc(sizeof(*f));
@@ -138,7 +138,7 @@ error:
 }
 
 JS_PARAM(inflateInit2, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateInit2(duk_context *ctx)
 {
     int windowBits  = duk_require_int(ctx, 0);
@@ -161,7 +161,7 @@ error:
 }
 
 JS_PARAM(inflate, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflate(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -173,7 +173,7 @@ duke_inflate(duk_context *ctx)
 }
 
 JS_PARAM(inflateEnd, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateEnd(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -184,7 +184,7 @@ duke_inflateEnd(duk_context *ctx)
 }
 
 JS_PARAM(deflateSetDictionary, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateSetDictionary(duk_context *ctx)
 {
     duk_buffer_t buf = NULL;
@@ -204,7 +204,7 @@ error:
 }
 
 JS_PARAM(deflateCopy, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateCopy(duk_context *ctx)
 {
     z_streamp dst = (z_streamp)duk_require_pointer(ctx, 0);
@@ -216,7 +216,7 @@ duke_deflateCopy(duk_context *ctx)
 }
 
 JS_PARAM(deflateReset, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateReset(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -227,7 +227,7 @@ duke_deflateReset(duk_context *ctx)
 }
 
 JS_PARAM(deflateParams, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateParams(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -240,7 +240,7 @@ duke_deflateParams(duk_context *ctx)
 }
 
 JS_PARAM(deflateTune, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateTune(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -255,7 +255,7 @@ duke_deflateTune(duk_context *ctx)
 }
 
 JS_PARAM(deflateBound, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateBound(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -269,7 +269,7 @@ duke_deflateBound(duk_context *ctx)
 
 #if ZLIB_VERNUM >= 0x1251
 JS_PARAM(deflatePending, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflatePending(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -290,7 +290,7 @@ duke_deflatePending(duk_context *ctx)
 #endif
 
 JS_PARAM(deflatePrime, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflatePrime(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -303,7 +303,7 @@ duke_deflatePrime(duk_context *ctx)
 }
 
 JS_PARAM(deflateSetHeader, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_deflateSetHeader(duk_context *ctx)
 {
     gz_header header;
@@ -317,7 +317,7 @@ duke_deflateSetHeader(duk_context *ctx)
 }
 
 JS_PARAM(inflateSetDictionary, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateSetDictionary(duk_context *ctx)
 {
     duk_buffer_t buf = NULL;
@@ -338,7 +338,7 @@ error:
 
 #if ZLIB_VERNUM >= 0x1271
 JS_PARAM(inflateGetDictionary, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateGetDictionary(duk_context *ctx)
 {
     int err = 0;
@@ -364,7 +364,7 @@ error:
 #endif
 
 JS_PARAM(inflateSync, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateSync(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -375,7 +375,7 @@ duke_inflateSync(duk_context *ctx)
 }
 
 JS_PARAM(inflateCopy, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateCopy(duk_context *ctx)
 {
     z_streamp dst = (z_streamp)duk_require_pointer(ctx, 0);
@@ -387,7 +387,7 @@ duke_inflateCopy(duk_context *ctx)
 }
 
 JS_PARAM(inflateReset, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateReset(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -398,7 +398,7 @@ duke_inflateReset(duk_context *ctx)
 }
 
 JS_PARAM(inflateReset2, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateReset2(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -410,7 +410,7 @@ duke_inflateReset2(duk_context *ctx)
 }
 
 JS_PARAM(inflatePrime, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflatePrime(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -423,7 +423,7 @@ duke_inflatePrime(duk_context *ctx)
 }
 
 JS_PARAM(inflateMark, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateMark(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -434,7 +434,7 @@ duke_inflateMark(duk_context *ctx)
 }
 
 JS_PARAM(inflateGetHeader, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateGetHeader(duk_context *ctx)
 {
     gz_header header;
@@ -447,7 +447,7 @@ duke_inflateGetHeader(duk_context *ctx)
 }
 
 JS_PARAM(inflateBackInit, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateBackInit(duk_context *ctx)
 {
     int windowBits  = duk_require_int(ctx, 0);
@@ -471,7 +471,7 @@ error:
 }
 
 JS_PARAM(inflateBackEnd, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_inflateBackEnd(duk_context *ctx)
 {
     z_streamp f = (z_streamp)duk_require_pointer(ctx, 0);
@@ -482,7 +482,7 @@ duke_inflateBackEnd(duk_context *ctx)
 }
 
 JS_PARAM(zlibCompileFlags, 0);
-static duk_ret_t
+STATIC duk_ret_t
 duke_zlibCompileFlags(duk_context *ctx)
 {
     duk_uint_t flag = zlibCompileFlags();
@@ -491,7 +491,7 @@ duke_zlibCompileFlags(duk_context *ctx)
 }
 
 JS_PARAM(compress, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_compress(duk_context *ctx)
 {
     int err = 0;
@@ -517,7 +517,7 @@ error:
 }
 
 JS_PARAM(compressEx, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_compressEx(duk_context *ctx)
 {
     int err = 0;
@@ -541,7 +541,7 @@ error:
 }
 
 JS_PARAM(compress2, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_compress2(duk_context *ctx)
 {
     int err = 0;
@@ -568,7 +568,7 @@ error:
 }
 
 JS_PARAM(compress2Ex, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_compress2Ex(duk_context *ctx)
 {
     int err = 0;
@@ -594,7 +594,7 @@ error:
 }
 
 JS_PARAM(compressBound, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_compressBound(duk_context *ctx)
 {
     duk_uint_t sourceLen = duk_require_uint(ctx, 0);
@@ -605,7 +605,7 @@ duke_compressBound(duk_context *ctx)
 }
 
 JS_PARAM(uncompress, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_uncompress(duk_context *ctx)
 {
     int err = 0;
@@ -631,7 +631,7 @@ error:
 }
 
 JS_PARAM(uncompressEx, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_uncompressEx(duk_context *ctx)
 {
     int err = 0;
@@ -659,21 +659,21 @@ error:
 #define HFILE   gzFile
 
 JS_PARAM(gzopen, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzopen(duk_context *ctx)
 {
     return xzopen(ctx, gzopen);
 }
 
 JS_PARAM(gzdopen, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzdopen(duk_context *ctx)
 {
     return xzdopen(ctx, gzdopen);
 }
 
 JS_PARAM(gzsetparams, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzsetparams(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -686,28 +686,28 @@ duke_gzsetparams(duk_context *ctx)
 }
 
 JS_PARAM(gzread, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzread(duk_context *ctx)
 {
     return xzread(ctx, gzread);
 }
 
 JS_PARAM(gzreadEx, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzreadEx(duk_context *ctx)
 {
     return xzreadEx(ctx, gzread);
 }
 
 JS_PARAM(gzwrite, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzwrite(duk_context *ctx)
 {
     return xzwrite(ctx, gzwrite);
 }
 
 JS_PARAM(gzputs, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzputs(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -719,7 +719,7 @@ duke_gzputs(duk_context *ctx)
 }
 
 JS_PARAM(gzgets, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzgets(duk_context *ctx)
 {
     duk_size_t bsize = 0;
@@ -734,7 +734,7 @@ duke_gzgets(duk_context *ctx)
 }
 
 JS_PARAM(gzputc, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzputc(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -746,7 +746,7 @@ duke_gzputc(duk_context *ctx)
 }
 
 JS_PARAM(gzgetc, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzgetc(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -757,7 +757,7 @@ duke_gzgetc(duk_context *ctx)
 }
 
 JS_PARAM(gzungetc, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzungetc(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -769,7 +769,7 @@ duke_gzungetc(duk_context *ctx)
 }
 
 JS_PARAM(gzflush, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzflush(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -781,7 +781,7 @@ duke_gzflush(duk_context *ctx)
 }
 
 JS_PARAM(gzrewind, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzrewind(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -792,7 +792,7 @@ duke_gzrewind(duk_context *ctx)
 }
 
 JS_PARAM(gzseek, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzseek(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -805,7 +805,7 @@ duke_gzseek(duk_context *ctx)
 }
 
 JS_PARAM(gztell, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gztell(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -816,7 +816,7 @@ duke_gztell(duk_context *ctx)
 }
 
 JS_PARAM(gzeof, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzeof(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -827,7 +827,7 @@ duke_gzeof(duk_context *ctx)
 }
 
 JS_PARAM(gzdirect, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzdirect(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -838,7 +838,7 @@ duke_gzdirect(duk_context *ctx)
 }
 
 JS_PARAM(gzclose, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzclose(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -850,7 +850,7 @@ duke_gzclose(duk_context *ctx)
 
 #if ZLIB_VERNUM >= 0x1235
 JS_PARAM(gzbuffer, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzbuffer(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -862,7 +862,7 @@ duke_gzbuffer(duk_context *ctx)
 }
 
 JS_PARAM(gzoffset, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzoffset(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -873,7 +873,7 @@ duke_gzoffset(duk_context *ctx)
 }
 
 JS_PARAM(gzclose_r, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzclose_r(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -884,7 +884,7 @@ duke_gzclose_r(duk_context *ctx)
 }
 
 JS_PARAM(gzclose_w, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzclose_w(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -896,14 +896,14 @@ duke_gzclose_w(duk_context *ctx)
 #endif
 
 JS_PARAM(gzerror, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzerror(duk_context *ctx)
 {
     return xzerror(ctx, gzerror);
 }
 
 JS_PARAM(gzclearerr, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_gzclearerr(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -912,7 +912,7 @@ duke_gzclearerr(duk_context *ctx)
 }
 
 JS_PARAM(adler32, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_adler32(duk_context *ctx)
 {
     duk_size_t bsize = 0;
@@ -933,7 +933,7 @@ error:
 }
 
 JS_PARAM(crc32, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_crc32(duk_context *ctx)
 {
     duk_size_t bsize = 0;
@@ -960,8 +960,8 @@ int js_libz_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);
-            libzf_register(ctx, -1);
-            libzn_register(ctx, -1);
+            js_libzf_register(ctx, -1);
+            js_libzn_register(ctx, -1);
         duk_put_prop_string(ctx, -2, js_MOD_LIBZ);
     duk_pop(ctx);
 

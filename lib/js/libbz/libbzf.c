@@ -1,4 +1,4 @@
-static const dukc_func_entry_t libbz_func[] = {
+STATIC const dukc_func_entry_t js_libbz_func[] = {
     JS_FUNC(bzCompressInit),
     JS_FUNC(bzCompress),
     JS_FUNC(bzCompressEnd),
@@ -25,8 +25,8 @@ static const dukc_func_entry_t libbz_func[] = {
     JS_FUNC_END
 };
 
-static void
-libbzf_register(duk_context *ctx, duk_idx_t idx)
+STATIC void
+js_libbzf_register(duk_context *ctx, duk_idx_t idx)
 {
-    js_put_functions(ctx, idx, libbz_func);
+    js_put_functions(ctx, idx, js_libbz_func);
 }

@@ -1,4 +1,4 @@
-static const dukc_number_entry_t libcurl_number[] = {
+STATIC const dukc_number_entry_t js_libcurl_number[] = {
     // BEHAVIOR OPTIONS
     JS_VALUE(CURLOPT_VERBOSE),
     JS_VALUE(CURLOPT_HEADER),
@@ -684,9 +684,9 @@ static const dukc_number_entry_t libcurl_number[] = {
     JS_VALUE_END
 };
 
-static void
-libcurln_register(duk_context *ctx, duk_idx_t idx)
+STATIC void
+js_libcurln_register(duk_context *ctx, duk_idx_t idx)
 {
-    duk_put_number_list(ctx, idx, libcurl_number);
+    duk_put_number_list(ctx, idx, js_libcurl_number);
 }
 

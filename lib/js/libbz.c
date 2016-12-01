@@ -20,7 +20,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "libxz.h"
 
 JS_PARAM(bzCompressInit, 4);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzCompressInit(duk_context *ctx)
 {
     duk_pointer_t f = duk_require_pointer(ctx, 0);
@@ -34,7 +34,7 @@ duke_bzCompressInit(duk_context *ctx)
 }
 
 JS_PARAM(bzCompress, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzCompress(duk_context *ctx)
 {
     duk_pointer_t f = duk_require_pointer(ctx, 0);
@@ -46,7 +46,7 @@ duke_bzCompress(duk_context *ctx)
 }
 
 JS_PARAM(bzCompressEnd, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzCompressEnd(duk_context *ctx)
 {
     duk_pointer_t f = duk_require_pointer(ctx, 0);
@@ -57,7 +57,7 @@ duke_bzCompressEnd(duk_context *ctx)
 }
 
 JS_PARAM(bzDecompressInit, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzDecompressInit(duk_context *ctx)
 {
     duk_pointer_t f = duk_require_pointer(ctx, 0);
@@ -70,7 +70,7 @@ duke_bzDecompressInit(duk_context *ctx)
 }
 
 JS_PARAM(bzDecompress, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzDecompress(duk_context *ctx)
 {
     duk_pointer_t f = duk_require_pointer(ctx, 0);
@@ -81,7 +81,7 @@ duke_bzDecompress(duk_context *ctx)
 }
 
 JS_PARAM(bzDecompressEnd, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzDecompressEnd(duk_context *ctx)
 {
     duk_pointer_t f = duk_require_pointer(ctx, 0);
@@ -92,7 +92,7 @@ duke_bzDecompressEnd(duk_context *ctx)
 }
 
 JS_PARAM(compress, 5);
-static duk_ret_t
+STATIC duk_ret_t
 duke_compress(duk_context *ctx)
 {
     int err = 0;
@@ -118,7 +118,7 @@ error:
 }
 
 JS_PARAM(compressEx, 4);
-static duk_ret_t
+STATIC duk_ret_t
 duke_compressEx(duk_context *ctx)
 {
     int err = 0;
@@ -146,7 +146,7 @@ error:
 }
 
 JS_PARAM(uncompress, 4);
-static duk_ret_t
+STATIC duk_ret_t
 duke_uncompress(duk_context *ctx)
 {
     int err = 0;
@@ -171,7 +171,7 @@ error:
 }
 
 JS_PARAM(uncompressEx, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_uncompressEx(duk_context *ctx)
 {
     int err = 0;
@@ -198,7 +198,7 @@ error:
 }
 
 JS_PARAM(bzlibVersion, 0);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzlibVersion(duk_context *ctx)
 {
     return js_push_string(ctx, BZ2_bzlibVersion()), 1;
@@ -208,42 +208,42 @@ duke_bzlibVersion(duk_context *ctx)
 #define HFILE   BZFILE*
 
 JS_PARAM(bzopen, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzopen(duk_context *ctx)
 {
     return xzopen(ctx, BZ2_bzopen);
 }
 
 JS_PARAM(bzdopen, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzdopen(duk_context *ctx)
 {
     return xzdopen(ctx, BZ2_bzdopen);
 }
 
 JS_PARAM(bzread, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzread(duk_context *ctx)
 {
     return xzread(ctx, BZ2_bzread);
 }
 
 JS_PARAM(bzreadEx, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzreadEx(duk_context *ctx)
 {
     return xzreadEx(ctx, BZ2_bzread);
 }
 
 JS_PARAM(bzwrite, 2);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzwrite(duk_context *ctx)
 {
     return xzwrite(ctx, BZ2_bzwrite);
 }
 
 JS_PARAM(bzflush, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzflush(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -254,7 +254,7 @@ duke_bzflush(duk_context *ctx)
 }
 
 JS_PARAM(bzclose, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzclose(duk_context *ctx)
 {
     HFILE f = (HFILE)duk_require_pointer(ctx, 0);
@@ -265,7 +265,7 @@ duke_bzclose(duk_context *ctx)
 }
 
 JS_PARAM(bzerror, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_bzerror(duk_context *ctx)
 {
     return xzerror(ctx, BZ2_bzerror);
@@ -279,8 +279,8 @@ int js_libbz_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);
-            libbzf_register(ctx, -1);
-            libbzn_register(ctx, -1);
+            js_libbzf_register(ctx, -1);
+            js_libbzn_register(ctx, -1);
         duk_put_prop_string(ctx, -2, js_MOD_LIBBZ);
     duk_pop(ctx);
 

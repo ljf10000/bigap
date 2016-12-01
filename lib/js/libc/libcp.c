@@ -1,5 +1,5 @@
-static void
-libcp_register(duk_context *ctx, duk_idx_t idx)
+STATIC void
+js_libcp_register(duk_context *ctx, duk_idx_t idx)
 {
     dukc_pointer_entry_t *p;
     dukc_pointer_entry_t libc_pointer[] = {

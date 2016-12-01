@@ -1,4 +1,4 @@
-static const dukc_func_entry_t libc_func[] = {
+STATIC const dukc_func_entry_t js_libc_func[] = {
 #if js_LIBC_LINUX
     JS_FUNC(timerfd_create),
     JS_FUNC(timerfd_settime),
@@ -623,8 +623,8 @@ static const dukc_func_entry_t libc_func[] = {
     JS_FUNC_END
 };
 
-static void
-libcf_register(duk_context *ctx, duk_idx_t idx)
+STATIC void
+js_libcf_register(duk_context *ctx, duk_idx_t idx)
 {
-    js_put_functions(ctx, idx, libc_func);
+    js_put_functions(ctx, idx, js_libc_func);
 }

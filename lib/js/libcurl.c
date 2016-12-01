@@ -96,7 +96,7 @@ libcurl_set_curl_slist_obj(duk_context *ctx, duk_idx_t idx, duk_object_t obj)
 }
 /******************************************************************************/
 JS_PARAM(curl_easy_init, 0);
-static duk_ret_t
+STATIC duk_ret_t
 duke_curl_easy_init(duk_context *ctx)
 {
     CURL *p = curl_easy_init();
@@ -105,7 +105,7 @@ duke_curl_easy_init(duk_context *ctx)
 }
 
 JS_PARAM(curl_easy_cleanup, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_curl_easy_cleanup(duk_context *ctx)
 {
     CURL *p = (CURL *)duk_require_pointer(ctx, 0);
@@ -114,7 +114,7 @@ duke_curl_easy_cleanup(duk_context *ctx)
 }
 
 JS_PARAM(curl_easy_perform, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_curl_easy_perform(duk_context *ctx)
 {
     CURL *p = (CURL *)duk_require_pointer(ctx, 0);
@@ -125,7 +125,7 @@ duke_curl_easy_perform(duk_context *ctx)
 }
 
 JS_PARAM(curl_easy_setopt, 3);
-static duk_ret_t
+STATIC duk_ret_t
 duke_curl_easy_setopt(duk_context *ctx)
 {
     CURL *p = (CURL *)duk_require_pointer(ctx, 0);
@@ -645,7 +645,7 @@ error:
 }
     
 JS_PARAM(curl_formadd, DUK_VARARGS);
-static duk_ret_t
+STATIC duk_ret_t
 duke_curl_formadd(duk_context *ctx)
 {
     struct curl_httppost_obj obj;
@@ -838,7 +838,7 @@ duke_curl_formadd(duk_context *ctx)
 }
 
 JS_PARAM(curl_formfree, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_curl_formfree(duk_context *ctx)
 {
     struct curl_httppost_obj obj;
@@ -851,7 +851,7 @@ duke_curl_formfree(duk_context *ctx)
 }
 
 JS_PARAM(curl_slist_append, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_curl_slist_append(duk_context *ctx)
 {
     struct curl_slist_obj obj;
@@ -870,7 +870,7 @@ duke_curl_slist_append(duk_context *ctx)
 }
 
 JS_PARAM(curl_slist_free_all, 1);
-static duk_ret_t
+STATIC duk_ret_t
 duke_curl_slist_free_all(duk_context *ctx)
 {
     struct curl_slist_obj obj;
@@ -889,8 +889,8 @@ int js_libcurl_register(duk_context *ctx)
 {
     duk_push_global_object(ctx);
         duk_push_object(ctx);
-            libcurlf_register(ctx, -1);
-            libcurln_register(ctx, -1);
+            js_libcurlf_register(ctx, -1);
+            js_libcurln_register(ctx, -1);
         duk_put_prop_string(ctx, -2, js_MOD_LIBCURL);
     duk_pop(ctx);
 

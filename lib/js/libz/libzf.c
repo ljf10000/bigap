@@ -1,4 +1,4 @@
-static const dukc_func_entry_t libz_func[] = {
+STATIC const dukc_func_entry_t js_libz_func[] = {
     JS_FUNC(zlibVersion),
     JS_FUNC(deflateInit),
     JS_FUNC(deflateInit2),
@@ -72,8 +72,8 @@ static const dukc_func_entry_t libz_func[] = {
     JS_FUNC_END
 };
 
-static void
-libzf_register(duk_context *ctx, duk_idx_t idx)
+STATIC void
+js_libzf_register(duk_context *ctx, duk_idx_t idx)
 {
-    js_put_functions(ctx, idx, libz_func);
+    js_put_functions(ctx, idx, js_libz_func);
 }

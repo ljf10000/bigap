@@ -1,4 +1,4 @@
-static const dukc_number_entry_t libc_number[] = {
+STATIC const dukc_number_entry_t js_libc_number[] = {
 #if js_LIBC_LINUX
     JS_VALUE(CLOCK_REALTIME),
     JS_VALUE(CLOCK_MONOTONIC),
@@ -1084,9 +1084,9 @@ static const dukc_number_entry_t libc_number[] = {
     JS_VALUE_END
 };
 
-static void
-libcn_register(duk_context *ctx, duk_idx_t idx)
+STATIC void
+js_libcn_register(duk_context *ctx, duk_idx_t idx)
 {
-    duk_put_number_list(ctx, idx, libc_number);
+    duk_put_number_list(ctx, idx, js_libc_number);
 }
 
