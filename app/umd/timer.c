@@ -25,7 +25,7 @@ __try_aging(umd_user_t *user, int type)
                 os_macstring(user->mac),
                 umd_flow_type_getnamebyid(type));
             
-            user_unbind(user, UMD_DEAUTH_AGING);
+            umduser_unbind(user, UMD_DEAUTH_AGING);
         }
     }
 }
@@ -61,9 +61,9 @@ __is_gc(umd_user_t *user, time_t now)
 int umd_gc(umd_user_t *user)
 {
     if (is_user_noused(user)) {
-        umd_user_debug("gc", user, __is_ak_debug_gc);
+        umd_user_debug_helper("gc", user, __is_ak_debug_gc);
         
-        user_delete(user);
+        umduser_delete(user);
     }
 
     return 0;
@@ -111,7 +111,7 @@ online_timeout(umd_user_t *user, time_t now)
     *   just for auth user
     */
     if (is_user_auth(user) && is_online_timeout(user, now)) {        
-        user_deauth(user, UMD_DEAUTH_ONLINETIME);
+        umduser_deauth(user, UMD_DEAUTH_ONLINETIME);
     }
 }
 
@@ -151,7 +151,7 @@ online_reauth(umd_user_t *user, time_t now)
     if (umd.cfg.reauthable 
             && is_user_auth(user) 
             && is_online_reauth(user, now)) {        
-        user_reauth(user);
+        umduser_reauth(user);
     }
 }
 
@@ -176,7 +176,7 @@ STATIC void
 fake_timeout(umd_user_t *user, time_t now)
 {
     if (is_user_fake(user) && is_fake_timeout(user, now)) {        
-        user_unfake(user, UMD_DEAUTH_ONLINETIME);
+        umduser_unfake(user, UMD_DEAUTH_ONLINETIME);
     }
 }
 

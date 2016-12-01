@@ -620,19 +620,19 @@ extern jobj_t
 umd_jflow(void);
 
 extern int
-user_delete(umd_user_t *user);
+umduser_delete(umd_user_t *user);
 
 extern int
-user_unbind(umd_user_t *user, int reason);
+umduser_unbind(umd_user_t *user, int reason);
 
 extern int
-user_unfake(umd_user_t *user, int reason);
+umduser_unfake(umd_user_t *user, int reason);
 
 extern umd_user_t *
-user_reauth(umd_user_t *user);
+umduser_reauth(umd_user_t *user);
 
 extern int
-user_deauth(umd_user_t *user, int reason);
+umduser_deauth(umd_user_t *user, int reason);
 
 extern umd_tag_t *
 umd_user_tag_get(byte mac[], char *k);

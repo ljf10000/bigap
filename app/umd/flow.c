@@ -569,7 +569,7 @@ umd_flow_reauth(umd_user_t *user, int type, int dir)
             && umd_flow_type_wan==type
             && is_user_auth(user)
             && umd_is_flow_reauth(user, type, dir)) {
-        user_reauth(user);
+        umduser_reauth(user);
     }
 }
 
@@ -603,14 +603,14 @@ STATIC void
 umd_overflow(umd_user_t *user, int type, int dir)
 {
     if (umd_flow_type_wan==type && is_user_auth(user) && umd_is_overflow(user, type, dir)) {
-        user_deauth(user, UMD_DEAUTH_FLOWLIMIT);
+        umduser_deauth(user, UMD_DEAUTH_FLOWLIMIT);
     }
 
     /*
     * lan's flow include wan's flow
     */
     if (umd_is_overflow(user, umd_flow_type_lan, dir)) {
-        user_unbind(user, UMD_DEAUTH_FLOWLIMIT);
+        umduser_unbind(user, UMD_DEAUTH_FLOWLIMIT);
     }
 }
 
@@ -654,7 +654,7 @@ umd_flow_handle(sock_server_t *server)
 
     if (is_user_have_bind(user)) {
         umd_flow_update(user, umd_flow.type, umd_flow.dir);
-        umd_user_debug("user-flow-update", user, __is_ak_debug_flow);
+        umd_user_debug_helper("user-flow-update", user, __is_ak_debug_flow);
 
         umd_flow_reauth(user, umd_flow.type, umd_flow.dir);
         umd_overflow(user, umd_flow.type, umd_flow.dir);
