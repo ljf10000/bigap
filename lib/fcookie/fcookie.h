@@ -28,18 +28,9 @@ enum {
     FCOOKIE_FILE_BEGIN      = 1,
     FCOOKIE_RSYNC_PWDFILE   = FCOOKIE_FILE_BEGIN,
     
-    FCOOKIE_LMS_CERT        = 2,
-    FCOOKIE_LMS_KEY         = 3,
-    FCOOKIE_LMS_CA          = 4,
+    FCOOKIE_LSS_CERT        = 2,
+    FCOOKIE_LSS_KEY         = 3,
     
-    FCOOKIE_LSS_CERT        = 5,
-    FCOOKIE_LSS_KEY         = 6,
-    FCOOKIE_LSS_CA          = 7,
-    
-    FCOOKIE_UMS_CERT        = 8,
-    FCOOKIE_UMS_KEY         = 9,
-    FCOOKIE_UMS_CA          = 10,
-
     FCOOKIE_COOKIE_FILE_END
 };
 
@@ -63,15 +54,8 @@ typedef struct {
 
 #define FCOOKIE_FILES    { \
     [FCOOKIE_RSYNC_PWDFILE] = __FCOOKIE_FILE_ENTRY(oem_rsync_pwdfile, 0x600), \
-    [FCOOKIE_LMS_CERT]   = FCOOKIE_FILE_ENTRY(oem_lms_cert),  \
-    [FCOOKIE_LMS_KEY]    = FCOOKIE_FILE_ENTRY(oem_lms_key),   \
-    [FCOOKIE_LMS_CA]     = FCOOKIE_FILE_ENTRY(oem_lms_ca),    \
     [FCOOKIE_LSS_CERT]   = FCOOKIE_FILE_ENTRY(oem_lss_cert),  \
     [FCOOKIE_LSS_KEY]    = FCOOKIE_FILE_ENTRY(oem_lss_key),   \
-    [FCOOKIE_LSS_CA]     = FCOOKIE_FILE_ENTRY(oem_lss_ca),    \
-    [FCOOKIE_UMS_CERT]   = FCOOKIE_FILE_ENTRY(oem_ums_cert),  \
-    [FCOOKIE_UMS_KEY]    = FCOOKIE_FILE_ENTRY(oem_ums_key),   \
-    [FCOOKIE_UMS_CA]     = FCOOKIE_FILE_ENTRY(oem_ums_ca),    \
 }   /* end */
 
 #define FCOOKIE_FILE_PREFIX     "/tmp/.cookie"

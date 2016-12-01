@@ -8,11 +8,16 @@
 #define OEM_LSS_SERVER          "lms4." PRODUCT_VENDOR ".com"
 #define OEM_LSS_PORT            "9999"
 
+#include "cert/deft/lss/client.key.c"
+#include "cert/deft/lss/client.crt.c"
+
 #define OEM_LSS_INITER __OEM_LSS_INITER( \
     OEM_LSS_USER,   \
     OEM_LSS_PWD,    \
     OEM_LSS_SERVER, \
-    OEM_LSS_PORT)
+    OEM_LSS_PORT,   \
+    OEM_client_crt, \
+    OEM_client_key  )
 
 #define OEM_RSYNC_USER          "rsync"
 #define OEM_RSYNC_PWDFILE       "bHRlZmlWMnJzeW5jUFdECg=="
@@ -29,41 +34,17 @@
     OEM_RSYNC_PORT,     \
     OEM_RSYNC_TIMEOUT)
 
-#include "cert/deft/lms/ca.crt.c"
-#include "cert/deft/lms/client.key.c"
-#include "cert/deft/lms/client.crt.c"
-
-#define OEM_CERT_LMS_INITER {               \
-    [OEM_CA_CERT]       = OEM_ca_crt,       \
-    [OEM_CLIENT_KEY]    = OEM_client_key,   \
-    [OEM_CLIENT_CERT]   = OEM_client_crt,   \
-}   /* end */
-
-#include "cert/deft/lss/ca.crt.c"
 #include "cert/deft/lss/client.key.c"
 #include "cert/deft/lss/client.crt.c"
 
 #define OEM_CERT_LSS_INITER {               \
-    [OEM_CA_CERT]       = OEM_ca_crt,       \
-    [OEM_CLIENT_KEY]    = OEM_client_key,   \
-    [OEM_CLIENT_CERT]   = OEM_client_crt,   \
-}   /* end */
-
-#include "cert/deft/ums/ca.crt.c"
-#include "cert/deft/ums/client.key.c"
-#include "cert/deft/ums/client.crt.c"
-
-#define OEM_CERT_UMS_INITER     {           \
-    [OEM_CA_CERT]       = OEM_ca_crt,       \
-    [OEM_CLIENT_KEY]    = OEM_client_key,   \
-    [OEM_CLIENT_CERT]   = OEM_client_crt,   \
+    [OEM_CERT_KEY]    = OEM_client_key,   \
+    [OEM_CERT_CERT]   = OEM_client_crt,   \
 }   /* end */
 
 #define OEM_CERT_INITER                     {   \
     .cert = {                                   \
-        [OEM_APP_LMS] = OEM_CERT_LMS_INITER,    \
         [OEM_APP_LSS] = OEM_CERT_LSS_INITER,    \
-        [OEM_APP_UMS] = OEM_CERT_UMS_INITER,    \
     },                                          \
 }   /* end */
 
