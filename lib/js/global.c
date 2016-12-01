@@ -15,7 +15,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "js.h"
 
 STATIC int
-js_global_search_JPATH(const char *file, void *user)
+js_global_eval_file(const char *file, void *user)
 {
     duk_context *ctx = (duk_context *)user;
 
@@ -29,7 +29,7 @@ js_global_search_JPATH(const char *file, void *user)
 STATIC int
 js_global_search_env(duk_context *ctx, const char *file, char *env, char *deft)
 {
-    return os_fsearch_paths(file, env_gets(env, deft), js_global_search_JPATH, ctx);
+    return os_fsearch_paths(file, env_gets(env, deft), js_global_eval_file, ctx);
 }
 
 STATIC int
@@ -39,13 +39,13 @@ js_global_search_CURRENT(duk_context *ctx, const char *file)
     
     getcwd(current, OS_LINE_LEN);
     
-    return os_fsearch_path(file, current, js_global_search_JPATH, ctx);
+    return os_fsearch_path(file, current, js_global_eval_file, ctx);
 }
 
 STATIC int
 js_global_search_JCACHE(duk_context *ctx, const char *file)
 {
-    return os_fsearch_paths(file, js_priv(ctx)->cache, js_global_search_JPATH, ctx);
+    return os_fsearch_paths(file, js_priv(ctx)->cache, js_global_eval_file, ctx);
 }
 
 STATIC int
@@ -67,7 +67,7 @@ duke_modSearch(duk_context *ctx)
 
     if (os_file_absolute(file)) {
         if (os_file_exist(file)) {
-            return js_global_search_JPATH(file, ctx);
+            return js_global_eval_file(file, ctx);
         } else {
             return -1;
         }
