@@ -11,7 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static cli_client_t umc = CLI_CLIENT_INITER("umd");
+STATIC cli_client_t umc = CLI_CLIENT_INITER("umd");
 
 #define umc_handle(_action, _argc, _argv) \
     clic_sync_handle(&umc, _action, _argc, _argv)
@@ -33,7 +33,7 @@ umc_usage(int error)
     return error;
 }
 
-static int
+STATIC int
 umc_handle_none(char *action, int argc, char *argv[])
 {
     if (0!=argc) {
@@ -47,7 +47,7 @@ umc_handle_none(char *action, int argc, char *argv[])
 /*
 * ACTION {mac} {ip}
 */
-static int
+STATIC int
 umc_handle_mac_ip(char *action, int argc, char *argv[])
 {
     char *mac= argv[0];
@@ -73,7 +73,7 @@ umc_handle_mac_ip(char *action, int argc, char *argv[])
 /*
 * ACTION {mac} {json}
 */
-static int
+STATIC int
 umc_handle_mac_json(char *action, int argc, char *argv[])
 {
     char *mac   = argv[0];
@@ -99,7 +99,7 @@ umc_handle_mac_json(char *action, int argc, char *argv[])
 /*
 * ACTION {mac}
 */
-static int
+STATIC int
 umc_handle_mac(char *action, int argc, char *argv[])
 {
     char *mac= argv[0];
@@ -119,8 +119,8 @@ umc_handle_mac(char *action, int argc, char *argv[])
 /*
 * create {mac}
 */
-static int
-cmd_create(int argc, char *argv[])
+STATIC int
+umc_cmd_create(int argc, char *argv[])
 {
     return umc_handle_mac("create", argc, argv);
 }
@@ -128,8 +128,8 @@ cmd_create(int argc, char *argv[])
 /*
 * delete {mac}
 */
-static int
-cmd_delete(int argc, char *argv[])
+STATIC int
+umc_cmd_delete(int argc, char *argv[])
 {
     return umc_handle_mac("delete", argc, argv);
 }
@@ -137,8 +137,8 @@ cmd_delete(int argc, char *argv[])
 /*
 * block {mac}
 */
-static int
-cmd_block(int argc, char *argv[])
+STATIC int
+umc_cmd_block(int argc, char *argv[])
 {
     return umc_handle_mac("block", argc, argv);
 }
@@ -146,8 +146,8 @@ cmd_block(int argc, char *argv[])
 /*
 * unblock {mac}
 */
-static int
-cmd_unblock(int argc, char *argv[])
+STATIC int
+umc_cmd_unblock(int argc, char *argv[])
 {
     return umc_handle_mac("unblock", argc, argv);
 }
@@ -155,8 +155,8 @@ cmd_unblock(int argc, char *argv[])
 /*
 * bind {mac} {ip}
 */
-static int
-cmd_bind(int argc, char *argv[])
+STATIC int
+umc_cmd_bind(int argc, char *argv[])
 {
     return umc_handle_mac_ip("bind", argc, argv);
 }
@@ -164,8 +164,8 @@ cmd_bind(int argc, char *argv[])
 /*
 * unbind {mac}
 */
-static int
-cmd_unbind(int argc, char *argv[])
+STATIC int
+umc_cmd_unbind(int argc, char *argv[])
 {
     return umc_handle_mac("unbind", argc, argv);
 }
@@ -173,8 +173,8 @@ cmd_unbind(int argc, char *argv[])
 /*
 * fake {mac} {ip}
 */
-static int
-cmd_fake(int argc, char *argv[])
+STATIC int
+umc_cmd_fake(int argc, char *argv[])
 {
     return umc_handle_mac_ip("fake", argc, argv);
 }
@@ -182,8 +182,8 @@ cmd_fake(int argc, char *argv[])
 /*
 * unfake {mac}
 */
-static int
-cmd_unfake(int argc, char *argv[])
+STATIC int
+umc_cmd_unfake(int argc, char *argv[])
 {
     return umc_handle_mac("unfake", argc, argv);
 }
@@ -191,8 +191,8 @@ cmd_unfake(int argc, char *argv[])
 /*
 * auth {mac} {group} {json}
 */
-static int
-cmd_auth(int argc, char *argv[])
+STATIC int
+umc_cmd_auth(int argc, char *argv[])
 {
     char *mac   = argv[0];
     char *group = argv[1];
@@ -218,8 +218,8 @@ cmd_auth(int argc, char *argv[])
 /*
 * deauth {mac}
 */
-static int
-cmd_deauth(int argc, char *argv[])
+STATIC int
+umc_cmd_deauth(int argc, char *argv[])
 {
     return umc_handle_mac("deauth", argc, argv);
 }
@@ -227,14 +227,14 @@ cmd_deauth(int argc, char *argv[])
 /*
 * reauth {mac}
 */
-static int
-cmd_reauth(int argc, char *argv[])
+STATIC int
+umc_cmd_reauth(int argc, char *argv[])
 {
     return umc_handle_mac("reauth", argc, argv);
 }
 
-static int
-show_by(int argc, char *argv[])
+STATIC int
+umc_show_by(int argc, char *argv[])
 {
     char *json = argv[0];
 
@@ -251,8 +251,8 @@ show_by(int argc, char *argv[])
 /*
 * sync {mac} {json}
 */
-static int
-cmd_sync(int argc, char *argv[])
+STATIC int
+umc_cmd_sync(int argc, char *argv[])
 {
     
     return umc_handle_mac_json("sync", argc, argv);
@@ -261,8 +261,8 @@ cmd_sync(int argc, char *argv[])
 /*
 * show {mac} {json}
 */
-static int
-cmd_show(int argc, char *argv[])
+STATIC int
+umc_cmd_show(int argc, char *argv[])
 {
     switch(argc) {
         case 0:
@@ -289,8 +289,8 @@ cmd_show(int argc, char *argv[])
 /*
 * tag {mac} {key} [value]
 */
-static int
-cmd_tag(int argc, char *argv[])
+STATIC int
+umc_cmd_tag(int argc, char *argv[])
 {
     char *mac = argv[0];
 
@@ -310,35 +310,35 @@ cmd_tag(int argc, char *argv[])
 * gc
 */
 static int
-cmd_gc(int argc, char *argv[])
+umc_cmd_gc(int argc, char *argv[])
 {
     return umc_handle_none("gc", argc, argv);
 }
 
-static int
-command(int argc, char *argv[])
+STATIC int
+umc_command(int argc, char *argv[])
 {
     static cli_table_t table[] = {
-        CLI_ENTRY("create", cmd_create),
-        CLI_ENTRY("delete", cmd_delete),
+        CLI_ENTRY("create", umc_cmd_create),
+        CLI_ENTRY("delete", umc_cmd_delete),
         
-        CLI_ENTRY("block",  cmd_block),
-        CLI_ENTRY("unblock",cmd_unblock),
+        CLI_ENTRY("block",  umc_cmd_block),
+        CLI_ENTRY("unblock",umc_cmd_unblock),
         
-        CLI_ENTRY("bind",   cmd_bind),
-        CLI_ENTRY("unbind", cmd_unbind),
+        CLI_ENTRY("bind",   umc_cmd_bind),
+        CLI_ENTRY("unbind", umc_cmd_unbind),
         
-        CLI_ENTRY("fake",   cmd_fake),
-        CLI_ENTRY("unfake", cmd_unfake),
+        CLI_ENTRY("fake",   umc_cmd_fake),
+        CLI_ENTRY("unfake", umc_cmd_unfake),
         
-        CLI_ENTRY("auth",   cmd_auth),
-        CLI_ENTRY("reauth", cmd_reauth),
-        CLI_ENTRY("deauth", cmd_deauth),
+        CLI_ENTRY("auth",   umc_cmd_auth),
+        CLI_ENTRY("reauth", umc_cmd_reauth),
+        CLI_ENTRY("deauth", umc_cmd_deauth),
         
-        CLI_ENTRY("show",   cmd_show),
-        CLI_ENTRY("sync",   cmd_sync),
-        CLI_ENTRY("tag",    cmd_tag),
-        CLI_ENTRY("gc",     cmd_gc),
+        CLI_ENTRY("show",   umc_cmd_show),
+        CLI_ENTRY("sync",   umc_cmd_sync),
+        CLI_ENTRY("tag",    umc_cmd_tag),
+        CLI_ENTRY("gc",     umc_cmd_gc),
     };
     int err;
 
@@ -363,7 +363,7 @@ umc_main_helper(int argc, char *argv[])
 
     umc.timeout = env_geti(OS_ENV(TIMEOUT), umc.timeout);
     
-    err = command(argc-1, argv+1);
+    err = umc_command(argc-1, argv+1);
     if (err<0) {
         /* just log, NOT return */
     }

@@ -254,8 +254,8 @@ error:
     return err;
 }
 
-static inline int
-init_cfg(void)
+STATIC inline int
+rsha_init_cfg(void)
 {
     int err;
     jobj_t jcfg = NULL;
@@ -552,7 +552,7 @@ __init(void)
         return err;
     }
 
-    err = init_cfg();
+    err = rsha_init_cfg();
     if (err<0) {
         debug_error("init config error:%d", err);
         

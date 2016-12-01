@@ -16,8 +16,8 @@ OS_INITER;
 
 struct um_control umd = UMD_INITER;
 
-static int
-init_pre(void)
+STATIC int
+umd_init_pre(void)
 {
     int i;
     char *basemac = os_getmacby(SCRIPT_GETBASEMAC);
@@ -40,8 +40,8 @@ init_pre(void)
     return 0;
 }
 
-static int
-init_post(void)
+STATIC int
+umd_init_post(void)
 {
     int err;
     int hash_size[UM_USER_NIDX_END] = {
@@ -64,8 +64,8 @@ init_post(void)
     return 0;
 }
 
-static int
-__fini(void)
+STATIC int
+umd_fini(void)
 {
     if (false==umd.deinit) {
         umd.deinit = true;
@@ -78,18 +78,18 @@ __fini(void)
     return 0;
 }
 
-static void 
-__exit(int sig)
+STATIC void 
+umd_exit(int sig)
 {
-    __fini();
+    umd_fini();
     
     exit(sig);
 }
 
-extern int init_cfg(void);
+extern int umd_init_cfg(void);
 
-static int
-__init(void)
+STATIC int
+umd_init(void)
 {
     int err;
 
@@ -98,17 +98,17 @@ __init(void)
         return err;
     }
 
-    err = init_pre();
+    err = umd_init_pre();
     if (err<0) {
         return err;
     }
 
-    err = init_cfg();
+    err = umd_init_cfg();
     if (err<0) {
         return err;
     }
 
-    err = init_post();
+    err = umd_init_post();
     if (err<0) {
         return err;
     }
@@ -132,10 +132,10 @@ umd_main_helper(int argc, char **argv)
 
 int allinone_main(int argc, char *argv[])
 {
-    setup_signal_exit(__exit);
+    setup_signal_exit(umd_exit);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__init, __fini, umd_main_helper, argc, argv);
+    int err = os_call(umd_init, umd_fini, umd_main_helper, argc, argv);
 
     return shell_error(err);
 }

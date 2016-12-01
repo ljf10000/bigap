@@ -16,8 +16,8 @@ extern sock_server_t um_cli_server;
 extern sock_server_t um_flow_server;
 extern sock_server_t um_timer_server;
 
-static int
-init_cfg_intf_pre(int count)
+STATIC int
+umd_init_cfg_intf_pre(int count)
 {
     struct um_intf *intf;
     int i;
@@ -40,9 +40,8 @@ init_cfg_intf_pre(int count)
     return 0;
 }
 
-
-static int
-init_cfg_intf_post(void)
+STATIC int
+umd_init_cfg_intf_post(void)
 {
     int i, err;
     struct um_intf *intf;
@@ -78,8 +77,8 @@ init_cfg_intf_post(void)
     return 0;
 }
 
-static int
-init_cfg_server(int count)
+STATIC int
+umd_init_cfg_server(int count)
 {
     sock_server_t **server;
     int i;
@@ -114,8 +113,8 @@ init_cfg_server(int count)
     return 0;
 }
 
-static int
-__init_cfg_instance(jobj_t jinstance, int id)
+STATIC int
+umd_init_cfg_instance_one(jobj_t jinstance, int id)
 {
     struct um_intf *intf = &umd.cfg.instance.intf[id];
     
@@ -131,8 +130,8 @@ __init_cfg_instance(jobj_t jinstance, int id)
     return 0;
 }
 
-static int
-init_cfg_instance(jobj_t jcfg)
+STATIC int
+umd_init_cfg_instance(jobj_t jcfg)
 {
     struct um_intf *intf;
     int i, err, count;
@@ -147,7 +146,7 @@ init_cfg_instance(jobj_t jcfg)
         return -EBADCONF;
     }
     
-    err = init_cfg_intf_pre(count);
+    err = umd_init_cfg_intf_pre(count);
     if (err<0) {
         return err;
     }
@@ -158,18 +157,18 @@ init_cfg_instance(jobj_t jcfg)
             return -EBADCONF;
         }
         
-        err = __init_cfg_instance(jinstance, i);
+        err = umd_init_cfg_instance_one(jinstance, i);
         if (err<0) {
             return err;
         }
     }
     
-    err = init_cfg_intf_post();
+    err = umd_init_cfg_intf_post();
     if (err<0) {
         return err;
     }
     
-    err = init_cfg_server(count);
+    err = umd_init_cfg_server(count);
     if (err<0) {
         return err;
     }
@@ -193,14 +192,14 @@ init_cfg_instance(jobj_t jcfg)
     _(&umd.cfg, u32,    autouser)       \
     /* end */
 
-int init_cfg(void)
+int umd_init_cfg(void)
 {
     jobj_t jobj = JOBJ_MAPFILE(umd.conf, UMD_JMAPPER);
     if (NULL==jobj) {
         return -EBADCONF;
     }
 
-    int err = init_cfg_instance(jobj);
+    int err = umd_init_cfg_instance(jobj);
     if (err<0) {
         return err;
     }

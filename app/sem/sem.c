@@ -10,46 +10,46 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static os_sem_t sem;
+STATIC os_sem_t sem_control;
 
-static int
-cmd_lock(int argc, char *argv[])
+STATIC int
+sem_cmd_lock(int argc, char *argv[])
 {
     char *key   = argv[1];
     char *wait  = argv[2];
     int err;
     
-    err = os_sem_create(&sem, os_atoi(key));
+    err = os_sem_create(&sem_control, os_atoi(key));
     if (err<0) {
         return err;
     }
     
-    os_sem_lock(&sem);
+    os_sem_lock(&sem_control);
 
     sleep(os_atoi(wait));
 
     return 0;
 }
 
-static int
-cmd_unlock(int argc, char *argv[])
+STATIC int
+sem_cmd_unlock(int argc, char *argv[])
 {
     char *key   = argv[1];
     int err;
     
-    err = os_sem_create(&sem, os_atoi(key));
+    err = os_sem_create(&sem_control, os_atoi(key));
     if (err<0) {
         return err;
     }
     
-    os_sem_unlock(&sem);
+    os_sem_unlock(&sem_control);
 
     return 0;
 }
 
-static cmd_table_t cmd[] = {
-    CMD_TABLE_ENTRY(cmd_lock, 3, "lock", NULL, NULL),
-    CMD_TABLE_ENTRY(cmd_unlock, 2, "unlock", NULL),
+STATIC cmd_table_t sem_cmd[] = {
+    CMD_TABLE_ENTRY(sem_cmd_lock, 3, "lock", NULL, NULL),
+    CMD_TABLE_ENTRY(sem_cmd_unlock, 2, "unlock", NULL),
 };
 
 STATIC int
@@ -69,7 +69,7 @@ sem_main_helper(int argc, char *argv[])
 {
     int err;
 
-    err = cmd_handle(cmd, argc, argv, sem_usage);
+    err = cmd_handle(sem_cmd, argc, argv, sem_usage);
     
     return err;
 }

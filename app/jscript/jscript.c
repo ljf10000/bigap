@@ -338,8 +338,8 @@ jscript_usage(int argc, char *argv[])
     return -EINVAL;
 }
 
-static bool
-__md5eqf(char *filename)
+STATIC bool
+jscript_md5eqf(char *filename)
 {
     byte md5[OS_MD5_SIZE];
     char md5string[1+OS_MD5_SIZE] = {0};
@@ -351,8 +351,8 @@ __md5eqf(char *filename)
     return os_streq(md5string, J.md5);
 }
 
-static bool
-__md5eqc(char *content)
+STATIC bool
+jscript_md5eqc(char *content)
 {
     byte md5[OS_MD5_SIZE];
     char md5string[1+OS_MD5_SIZE] = {0};
@@ -364,8 +364,8 @@ __md5eqc(char *content)
     return os_streq(md5string, J.md5);
 }
 
-static int
-__report(char *ack, jobj_t jreply)
+STATIC int
+jscript_report(char *ack, jobj_t jreply)
 {
     int err = 0;
     
@@ -394,8 +394,8 @@ __report(char *ack, jobj_t jreply)
     return err;
 }
 
-static jobj_t 
-__jreply(int error, char *outstring, char *errstring)
+STATIC jobj_t 
+jscript_jreply(int error, char *outstring, char *errstring)
 {
     jobj_t jobj = jobj_new_object();
     if (NULL==jobj) {
@@ -413,24 +413,24 @@ __jreply(int error, char *outstring, char *errstring)
     return jobj;
 }
 
-static int
-__error(int error, char *errstring)
+STATIC int
+jscript_error(int error, char *errstring)
 {
-    __report("error", __jreply(error, NULL, errstring));
+    jscript_report("error", jscript_jreply(error, NULL, errstring));
 
     return error;
 }
 
-static int 
-__callback(int error, char *outstring, char *errstring)
+STATIC int 
+jscript_callback(int error, char *outstring, char *errstring)
 {
-    __report("reply", __jreply(error, outstring, errstring));
+    jscript_report("reply", jscript_jreply(error, outstring, errstring));
 
     return 0;
 }
 
-static int
-__exec(void)
+STATIC int
+jscript_exec(void)
 {
     int err;
     
@@ -441,23 +441,23 @@ __exec(void)
 
         if (G.slot == J.slot) {
             // ipc
-            err = os_pexec_json(json, __callback);
+            err = os_pexec_json(json, jscript_callback);
             if (err<0) {
-                return __error(err, "jexec error");
+                return jscript_error(err, "jexec error");
             }
         } else {
             // rpc
             err = os_system(JSCRIPT_REMOTE " %d '%s'", G.slot, jobj_json(G.jobj));
 
-            return __error(err, 0==err?"jremote ok":"jremote error");
+            return jscript_error(err, 0==err?"jremote ok":"jremote error");
         }
     }
 
     return 0;
 }
 
-static char *
-__dir(void)
+STATIC char *
+jscript_dir(void)
 {
     if (false==is_good_str(G.dir)) {
         switch(J.scope) {
@@ -476,22 +476,22 @@ __dir(void)
     return G.dir;
 }
 
-static char *
-__filename(void)
+STATIC char *
+jscript_filename(void)
 {
     if (false==is_good_str(G.filename)) {
         if ('/'==J.filename[0]) {
             os_saprintf(G.filename, "%s", J.filename);
         } else {
-            os_saprintf(G.filename, "%s/%s", __dir(), J.filename);
+            os_saprintf(G.filename, "%s/%s", jscript_dir(), J.filename);
         }
     }
 
     return G.filename;
 }
 
-static int
-__save_content(void)
+STATIC int
+jscript_save_content(void)
 {
     int err = 0;
     char *content = b64_decode((byte *)J.content, os_strlen(J.content));
@@ -499,60 +499,60 @@ __save_content(void)
         return -ENOMEM;
     }
     
-    if (NULL==J.md5 || false==__md5eqc(content)) {
-        err = os_writefile(__filename(), content, os_strlen(content), false, false);
+    if (NULL==J.md5 || false==jscript_md5eqc(content)) {
+        err = os_writefile(jscript_filename(), content, os_strlen(content), false, false);
     }
 
     os_free(content);
     
-    return __error(0, NULL);
+    return jscript_error(0, NULL);
 }
 
-static int
-__download(char *file)
+STATIC int
+jscript_download(char *file)
 {
     if (NULL==J.url) {
-        return __error(1, "file not exist and no url");
+        return jscript_error(1, "file not exist and no url");
     } else {
         int err = os_system("curl -o %s %s &> /dev/null", file, J.url);
 
-        return __error(err, "download");
+        return jscript_error(err, "download");
     }
 }
 
-static int
-__save_file(void)
+STATIC int
+jscript_save_file(void)
 {
     if (NULL==J.filename) {
         /*
         * no filename, needn't save
         */
-        return __error(0, NULL);
+        return jscript_error(0, NULL);
     }
     else if (SCRIPT_CACHE_NONE==J.cache) {
         /*
         * no cache, needn't save
         */
-        return __error(0, NULL);
+        return jscript_error(0, NULL);
     }
     else if (J.content) {
-        return __save_content();
+        return jscript_save_content();
     }
 
-    char *file = __filename();
+    char *file = jscript_filename();
     if (false==os_file_exist(file)) {
-        return __download(file);
+        return jscript_download(file);
     }
 
-    if (__md5eqf(file)) {
-        return __error(0, NULL);
+    if (jscript_md5eqf(file)) {
+        return jscript_error(0, NULL);
     } else {
-        return __download(file);
+        return jscript_download(file);
     }
 }
 
-static int
-__save_json(void)
+STATIC int
+jscript_save_json(void)
 {
     char file[1+OS_LINE_LEN];
     char *json = jobj_json(G.jobj);
@@ -564,23 +564,23 @@ __save_json(void)
     return os_writefile(file, json, os_strlen(json), false, false);
 }
 
-static int
-__handle(void)
+STATIC int
+jscript_handle(void)
 {
-    __save_file();
+    jscript_save_file();
 
     if (SCRIPT_RUN_NEXT==J.run) {
-        return __save_json();
+        return jscript_save_json();
     } else {
-        return __exec();
+        return jscript_exec();
     }
 }
 
-static int
-__check(void)
+STATIC int
+jscript_check(void)
 {
     if (NULL==J.filename && NULL==J.content) {
-        return __error(1, "no filename and content");
+        return jscript_error(1, "no filename and content");
     }
     
     return 0;
@@ -625,7 +625,7 @@ jscript_main_helper(int argc, char *argv[])
     jobj_t jval = jobj_get(G.jobj, "script");
     if (jval) {
         if (jtype_string != jobj_type(jval)) {
-            return __error(-EBADJSON, "bad json");
+            return jscript_error(-EBADJSON, "bad json");
         }
         
         char *script = jobj_get_string(jval);
@@ -648,15 +648,15 @@ jscript_main_helper(int argc, char *argv[])
     
     err = jrule_j2o(jscript_jrules(), &J, G.jobj);
     if (err<0) {
-        return __error(err, "bad json");
+        return jscript_error(err, "bad json");
     }
     
-    err = __check();
+    err = jscript_check();
     if (err<0) {
         return err;
     }
     
-    return __handle();
+    return jscript_handle();
 }
 
 int allinone_main(int argc, char *argv[])
