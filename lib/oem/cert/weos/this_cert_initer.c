@@ -1,3 +1,6 @@
+#define __THIS_CERT_INITER(_idx)    [_idx] = __OS_CERT_INITER(OS_CERT_client_crt##_idx, OS_CERT_client_key##_idx)
+#include "oem/cert/weos/client.key.c"
+#include "oem/cert/weos/client.crt.c"
 #define __THIS_CERT_INITERS { \
     __THIS_CERT_INITER(0), \
     __THIS_CERT_INITER(1), \
