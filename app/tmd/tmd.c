@@ -13,7 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static struct {    
+STATIC struct {    
     struct {
         int fd;
         int timeout;/* ms */
@@ -52,32 +52,32 @@ struct xtimer {
     tm_node_t timer;
 };
 
-static inline struct xtimer *
-__get_entry_bytm(tm_node_t *timer)
+STATIC struct xtimer *
+tmd_get_entry_bytm(tm_node_t *timer)
 {
     return container_of(timer, struct xtimer, timer);
 }
 
-static inline struct xtimer *
-__get_entry_byhashnode(hash_node_t *node)
+STATIC struct xtimer *
+tmd_get_entry_byhashnode(hash_node_t *node)
 {
     return hx_entry(node, struct xtimer, node, 0);
 }
 
-static inline struct xtimer *
-__get_entry_byh1(h1_node_t *node)
+STATIC struct xtimer *
+tmd_get_entry_byh1(h1_node_t *node)
 {
     return container_of(node, struct xtimer, node);
 }
 
-static inline hash_idx_t 
-__hash(char *name)
+STATIC hash_idx_t 
+tmd_hash(char *name)
 {
     return os_str_bkdr(name) & (h1_size(&tmd.table) - 1);
 }
 
-static int
-__insert(struct xtimer *entry)
+STATIC int
+tmd_insert(struct xtimer *entry)
 {
     if (NULL==entry) {
         return -EKEYNULL;
@@ -85,14 +85,14 @@ __insert(struct xtimer *entry)
 
     hash_idx_t hash(hash_node_t *node)
     {
-        return __hash(entry->name);
+        return tmd_hash(entry->name);
     }
     
     return h1_add(&tmd.table, &entry->node, hash);
 }
 
-static int
-__remove(struct xtimer *entry)
+STATIC int
+tmd_remove(struct xtimer *entry)
 {
     if (NULL==entry) {
         return -EKEYNULL;
@@ -103,8 +103,8 @@ __remove(struct xtimer *entry)
     return h1_del(&tmd.table, &entry->node);
 }
 
-static struct xtimer *
-__get(char *name)
+STATIC struct xtimer *
+tmd_get(char *name)
 {
     if (NULL==name) {
         return NULL;
@@ -112,12 +112,12 @@ __get(char *name)
 
     hash_idx_t hash(void)
     {
-        return __hash(name);
+        return tmd_hash(name);
     }
     
     bool eq(hash_node_t *node)
     {
-        struct xtimer *entry = __get_entry_byhashnode(node);
+        struct xtimer *entry = tmd_get_entry_byhashnode(node);
         
         return os_straeq(entry->name, name);
     }
@@ -127,15 +127,15 @@ __get(char *name)
         return NULL;
     }
 
-    return __get_entry_byh1(node);
+    return tmd_get_entry_byh1(node);
 }
 
-static int
-__foreach(mv_t (*cb)(struct xtimer *entry), bool safe)
+STATIC int
+tmd_foreach(mv_t (*cb)(struct xtimer *entry), bool safe)
 {
     mv_t foreach(h1_node_t *node)
     {
-        struct xtimer *entry = __get_entry_byh1(node);
+        struct xtimer *entry = tmd_get_entry_byh1(node);
 
         return (*cb)(entry);
     }
@@ -147,10 +147,10 @@ __foreach(mv_t (*cb)(struct xtimer *entry), bool safe)
     }
 }
 
-static struct xtimer *
-__create(char *name, char *command, int delay, int interval, int limit)
+STATIC struct xtimer *
+tmd_create(char *name, char *command, int delay, int interval, int limit)
 {
-    struct xtimer *entry = __get(name);
+    struct xtimer *entry = tmd_get(name);
 
     if (NULL==entry) {
         /*
@@ -182,23 +182,23 @@ __create(char *name, char *command, int delay, int interval, int limit)
     
     entry->triggers = 0;
     
-    __insert(entry);
+    tmd_insert(entry);
 
     return entry;
 }
 
-static void
-__destroy(struct xtimer *entry)
+STATIC void
+tmd_destroy(struct xtimer *entry)
 {
     if (entry) {
-        __remove(entry);
+        tmd_remove(entry);
         tm_remove(&entry->timer);
         os_free(entry);
     }
 }
 
-static bool
-__is_cycle(struct xtimer *entry)
+STATIC bool
+tmd_is_cycle(struct xtimer *entry)
 {
     if (entry->interval) {
         return entry->limit?false:true;
@@ -207,10 +207,10 @@ __is_cycle(struct xtimer *entry)
     }
 }
 
-static mv_t 
-xtimer_cb(tm_node_t *timer)
+STATIC mv_t 
+tmd_xtimer_cb(tm_node_t *timer)
 {
-    struct xtimer *entry = __get_entry_bytm(timer);
+    struct xtimer *entry = tmd_get_entry_bytm(timer);
     
     entry->triggers++;
     os_system("%s &", entry->command);
@@ -228,20 +228,20 @@ xtimer_cb(tm_node_t *timer)
                 entry->limit,
                 entry->triggers);
 
-    if (__is_cycle(entry) || entry->triggers < entry->limit) {
+    if (tmd_is_cycle(entry) || entry->triggers < entry->limit) {
         debug_trace("re-insert timer:%s", entry->name);
         
         tm_insert(&entry->timer, 
             os_ms2tick(1000*entry->interval, TM_TICKS),
-            xtimer_cb, 
+            tmd_xtimer_cb, 
             true);
     }
 
     return tm_SAFE(0);
 }
 
-static int
-handle_insert(char *args)
+STATIC int
+tmd_handle_insert(char *args)
 {
     char *name      = args; cli_shift(args);
     char *delay     = args; cli_shift(args);
@@ -278,7 +278,7 @@ handle_insert(char *args)
         return -EINVAL2;
     }
 
-    struct xtimer *entry = __create(name, command, i_delay, i_interval, i_limit);
+    struct xtimer *entry = tmd_create(name, command, i_delay, i_interval, i_limit);
     if (NULL==entry) {
         return -ENOMEM;
     }
@@ -299,12 +299,12 @@ handle_insert(char *args)
                 entry->interval,
                 entry->limit,
                 after,
-                __is_cycle(entry),
+                tmd_is_cycle(entry),
                 tm_is_pending(&entry->timer)?__true:__false);
     
     err = tm_insert(&entry->timer, 
             os_ms2tick(1000*after, TM_TICKS),
-            xtimer_cb, 
+            tmd_xtimer_cb, 
             true);
     if (err<0) {
         return -EEXIST;
@@ -313,8 +313,8 @@ handle_insert(char *args)
     return 0;
 }
 
-static int
-handle_remove(char *args)
+STATIC int
+tmd_handle_remove(char *args)
 {
     char *name = args; cli_shift(args);
     if (NULL==name) {
@@ -323,7 +323,7 @@ handle_remove(char *args)
         return -EINVAL3;
     }
     
-    struct xtimer *entry = __get(name);
+    struct xtimer *entry = tmd_get(name);
     if (NULL==entry) {
         debug_trace("remove timer(%s) nofound", name);
         
@@ -332,28 +332,28 @@ handle_remove(char *args)
 
     debug_trace("remove timer(%s)", name);
     
-    __destroy(entry);
+    tmd_destroy(entry);
     
     return 0;
 }
 
-static int
-handle_clean(char *args)
+STATIC int
+tmd_handle_clean(char *args)
 {
     mv_t cb(struct xtimer *entry)
     {
-        __remove(entry);
+        tmd_remove(entry);
 
         return mv2_ok;
     }
     
-    __foreach(cb, true);
+    tmd_foreach(cb, true);
     
     return 0;
 }
 
-static void
-show(struct xtimer *entry)
+STATIC void
+tmd_show(struct xtimer *entry)
 {
     cli_sprintf("%s %d %d %d %d %d %s" __crlf,
         entry->name,
@@ -365,8 +365,8 @@ show(struct xtimer *entry)
         entry->command);
 }
 
-static int
-handle_show(char *args)
+STATIC int
+tmd_handle_show(char *args)
 {
     char *name = args; cli_shift(args);
     bool empty = true;
@@ -376,7 +376,7 @@ handle_show(char *args)
     mv_t cb(struct xtimer *entry)
     {
         if (NULL==name || os_straeq(entry->name, name)) {
-            show(entry);
+            tmd_show(entry);
 
             empty = false;
         }
@@ -384,7 +384,7 @@ handle_show(char *args)
         return mv2_ok;
     }
     
-    __foreach(cb, false);
+    tmd_foreach(cb, false);
     
     if (empty) {
         /*
@@ -398,15 +398,16 @@ handle_show(char *args)
     return 0;
 }
 
-static int
-__server_handle(fd_set *r)
+STATIC cli_table_t tmd_table[] = {
+    CLI_ENTRY("insert", tmd_handle_insert),
+    CLI_ENTRY("remove", tmd_handle_remove),
+    CLI_ENTRY("clean",  tmd_handle_clean),
+    CLI_ENTRY("show",   tmd_handle_show),
+};
+
+STATIC int
+tmd_server_handle_one(fd_set *r)
 {
-    static cli_table_t table[] = {
-        CLI_ENTRY("insert", handle_insert),
-        CLI_ENTRY("remove", handle_remove),
-        CLI_ENTRY("clean",  handle_clean),
-        CLI_ENTRY("show",   handle_show),
-    };
     int err = 0;
     
     if (FD_ISSET(tmd.timer.fd, r)) {
@@ -414,14 +415,14 @@ __server_handle(fd_set *r)
     }
 
     if (FD_ISSET(tmd.server.fd, r)) {
-        err = clis_handle(tmd.server.fd, table);
+        err = clis_handle(tmd.server.fd, tmd_table);
     }
 
     return err;
 }
 
-static int
-server_handle(void)
+STATIC int
+tmd_server_handle(void)
 {
     fd_set rset;
     struct timeval tv = {
@@ -451,21 +452,21 @@ server_handle(void)
                 debug_timeout("select timeout");
                 return -ETIMEOUT;
             default: /* to accept */
-                return __server_handle(&rset);
+                return tmd_server_handle_one(&rset);
         }
     }
 }
 
-static int
-init_env(void) 
+STATIC int
+tmd_init_env(void) 
 {
     tm_unit_set(TM_TICKS);
 
     return 0;
 }
 
-static int
-init_timerfd(void)
+STATIC int
+tmd_init_timerfd(void)
 {
     int fd = tm_fd(os_second(TM_TICKS), os_nsecond(TM_TICKS));
     if (fd<0) {
@@ -477,8 +478,8 @@ init_timerfd(void)
     }
 }
 
-static int
-init_server(void)
+STATIC int
+tmd_init_server(void)
 {
     int fd;
     int err;
@@ -505,8 +506,8 @@ init_server(void)
 #define TMD_HASHSIZE    1024
 #endif
 
-static int
-__fini(void)
+STATIC int
+tmd_fini(void)
 {
     tm_fini();
     os_fini();
@@ -514,8 +515,8 @@ __fini(void)
     return 0;
 }
 
-static int
-load(void)
+STATIC int
+tmd_load(void)
 {
     if (os_file_exist(SCRIPT_TMD_INIT)) {
         __os_system(SCRIPT_TMD_INIT_RUN);
@@ -526,16 +527,16 @@ load(void)
     return 0;
 }
 
-static void
-__exit(int sig)
+STATIC void
+tmd_exit(int sig)
 {
-    __fini();
+    tmd_fini();
     
     exit(sig);
 }
 
-static int
-__init(void)
+STATIC int
+tmd_init(void)
 {
     int err;
     
@@ -547,26 +548,26 @@ __init(void)
     tm_init();
     
     err = h1_init(&tmd.table, TMD_HASHSIZE);
-        debug_trace_error(err, "__init h1");
+        debug_trace_error(err, "tmd_init h1");
     if (err<0) {
         return err;
     }
 
-    load();
+    tmd_load();
     
-    err = init_env();
+    err = tmd_init_env();
         debug_trace_error(err, "init env");
     if (err<0) {
         return err;
     }
 
-    err = init_timerfd();
+    err = tmd_init_timerfd();
         debug_trace_error(err, "init timerfd");
     if (err<0) {
         return err;
     }
     
-    err = init_server();
+    err = tmd_init_server();
         debug_trace_error(err, "init server");
     if (err<0) {
         return err;
@@ -579,7 +580,7 @@ STATIC int
 tmd_main_helper(int argc, char *argv[])
 {
     while (1) {
-        server_handle();
+        tmd_server_handle();
     }
     
     return 0;
@@ -590,7 +591,7 @@ int allinone_main(int argc, char *argv[])
     setup_signal_exit(NULL);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__init, __fini, tmd_main_helper, argc, argv);
+    int err = os_call(tmd_init, tmd_fini, tmd_main_helper, argc, argv);
 
     return shell_error(err);
 }

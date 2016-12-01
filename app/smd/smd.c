@@ -21,7 +21,7 @@ OS_INITER;
 #define SM_DEAMON_WAIT        3 /* second */
 #endif
 
-static struct {
+STATIC struct {
     struct {
         int fd;
         
