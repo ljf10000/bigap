@@ -52,11 +52,11 @@
 #endif
 
 #ifndef PRODUCT_DEV_PREFIX
-#define PRODUCT_DEV_PREFIX              ":"
+#define PRODUCT_DEV_PREFIX              ""
 #endif
 
 #ifndef PRODUCT_DEV_FLASH_MASTER
-#define PRODUCT_DEV_FLASH_MASTER        "dev/fixme"
+#define PRODUCT_DEV_FLASH_MASTER        "/dev/mtdblock"
 #endif
 
 #ifndef PRODUCT_DEV_SD_MASTER

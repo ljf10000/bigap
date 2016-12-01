@@ -44,8 +44,6 @@
 #define PRODUCT_ROOTFS_MODE             PRODUCT_ROOTFS_RO
 #endif
 
-#define PRODUCT_DEV_FLASH_MASTER        "31" /* root=31:02 */
-
 #ifndef PRODUCT_DEV_USB_MASTER
 #define PRODUCT_DEV_USB_MASTER          "dev/udisk51210" /* fixme */
 #endif
