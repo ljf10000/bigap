@@ -119,7 +119,7 @@ STATIC bool
 __is_online_reauth(struct um_user *user, time_t now, int type)
 {
     time_t uptime   = umd_online_uptime(user, type);
-    time_t reauth   = umd_online_reauth(user, type);
+    time_t reauth   = umd_online_reauthor(user, type);
     
     bool is = reauth && (uptime < now) && (now - uptime > reauth);
     if (is) {

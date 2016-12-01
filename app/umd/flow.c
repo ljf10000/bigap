@@ -539,7 +539,7 @@ umd_ip_handle(sock_server_t *server)
 STATIC bool
 umd_is_flow_reauth_helper(struct um_user *user, int type, int dir)
 {
-    uint64 reauth = umd_flow_reauth(user, type, dir);
+    uint64 reauth = umd_flow_reauthor(user, type, dir);
     uint64 now    = umd_flow_now(user, type, dir);
     
     bool is = reauth && reauth < now;

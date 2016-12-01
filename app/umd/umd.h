@@ -271,24 +271,24 @@ umd_limit_get(struct um_user *user, int type)
 }
 
 static inline struct um_limit_online *
-umd_limit_online_get(struct um_user *user, int type)
+umd_limit_onliner(struct um_user *user, int type)
 {
     return &umd_limit_get(user, type)->online;
 }
 
 static inline struct um_limit_flow *
-umd_limit_flow_get(struct um_user *user, int type, int dir)
+umd_limit_flower(struct um_user *user, int type, int dir)
 {
     return &umd_limit_get(user, type)->flow[dir];
 }
 
 static inline struct um_limit_rate *
-umd_limit_rate_get(struct um_user *user, int type, int dir)
+umd_limit_rater(struct um_user *user, int type, int dir)
 {
     return &umd_limit_get(user, type)->rate[dir];
 }
 
-#define umd_limit_reauth_get(_max, _numerator, _denominator) ({ \
+#define umd_limit_reauthor(_max, _numerator, _denominator) ({ \
     typeof(_max) _m_in___limit_reauth = (_max);                   \
     typeof(_numerator) _n_in___limit_reauth = (_numerator);       \
     typeof(_denominator) _d_in___limit_reauth = (_denominator);   \
@@ -300,29 +300,29 @@ umd_limit_rate_get(struct um_user *user, int type, int dir)
         0; \
 })
 
-#define umd_online_max(_user, _type)            umd_limit_online_get(_user, _type)->max
-#define umd_online_idle(_user, _type)           umd_limit_online_get(_user, _type)->idle
-#define umd_online_aging(_user, _type)          umd_limit_online_get(_user, _type)->aging
-#define umd_online_uptime(_user, _type)         umd_limit_online_get(_user, _type)->uptime
-#define umd_online_downtime(_user, _type)       umd_limit_online_get(_user, _type)->downtime
-#define umd_online_numerator(_user, _type)      umd_limit_online_get(_user, _type)->numerator
-#define umd_online_denominator(_user, _type)    umd_limit_online_get(_user, _type)->denominator
-#define umd_online_reauth(_user, _type)       \
-    umd_limit_reauth_get(umd_online_max(_user, _type), umd_online_numerator(_user, _type), umd_online_denominator(_user, _type))
+#define umd_online_max(_user, _type)            umd_limit_onliner(_user, _type)->max
+#define umd_online_idle(_user, _type)           umd_limit_onliner(_user, _type)->idle
+#define umd_online_aging(_user, _type)          umd_limit_onliner(_user, _type)->aging
+#define umd_online_uptime(_user, _type)         umd_limit_onliner(_user, _type)->uptime
+#define umd_online_downtime(_user, _type)       umd_limit_onliner(_user, _type)->downtime
+#define umd_online_numerator(_user, _type)      umd_limit_onliner(_user, _type)->numerator
+#define umd_online_denominator(_user, _type)    umd_limit_onliner(_user, _type)->denominator
+#define umd_online_reauthor(_user, _type)       \
+    umd_limit_reauthor(umd_online_max(_user, _type), umd_online_numerator(_user, _type), umd_online_denominator(_user, _type))
 
-#define umd_flow_max(_user, _type, _dir)            umd_limit_flow_get(_user, _type, _dir)->max
-#define umd_flow_now(_user, _type, _dir)            umd_limit_flow_get(_user, _type, _dir)->now
-#define umd_flow_numerator(_user, _type, _dir)      umd_limit_flow_get(_user, _type, _dir)->numerator
-#define umd_flow_denominator(_user, _type, _dir)    umd_limit_flow_get(_user, _type, _dir)->denominator
-#define umd_flow_reauth(_user, _type, _dir)     \
-    umd_limit_reauth_get(umd_flow_max(_user, _type, _dir), umd_flow_numerator(_user, _type, _dir), umd_flow_denominator(_user, _type, _dir))
+#define umd_flow_max(_user, _type, _dir)            umd_limit_flower(_user, _type, _dir)->max
+#define umd_flow_now(_user, _type, _dir)            umd_limit_flower(_user, _type, _dir)->now
+#define umd_flow_numerator(_user, _type, _dir)      umd_limit_flower(_user, _type, _dir)->numerator
+#define umd_flow_denominator(_user, _type, _dir)    umd_limit_flower(_user, _type, _dir)->denominator
+#define umd_flow_reauthor(_user, _type, _dir)   \
+    umd_limit_reauthor(umd_flow_max(_user, _type, _dir), umd_flow_numerator(_user, _type, _dir), umd_flow_denominator(_user, _type, _dir))
 
-#define umd_rate_max(_user, _type, _dir)        umd_limit_rate_get(_user, _type, _dir)->max
-#define umd_rate_avg(_user, _type, _dir)        umd_limit_rate_get(_user, _type, _dir)->avg
+#define umd_rate_max(_user, _type, _dir)        umd_limit_rater(_user, _type, _dir)->max
+#define umd_rate_avg(_user, _type, _dir)        umd_limit_rater(_user, _type, _dir)->avg
 
-#define umd_limit_online(_user, _TYPE)          umd_limit_online_get(_user, um_flow_type_##_TYPE)
-#define umd_limit_flow(_user, _TYPE, _DIR)      umd_limit_flow_get(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
-#define umd_limit_rate(_user, _TYPE, _DIR)      umd_limit_rate_get(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
+#define umd_limit_online(_user, _TYPE)          umd_limit_onliner(_user, um_flow_type_##_TYPE)
+#define umd_limit_flow(_user, _TYPE, _DIR)      umd_limit_flower(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
+#define umd_limit_rate(_user, _TYPE, _DIR)      umd_limit_rater(_user, um_flow_type_##_TYPE, um_flow_dir_##_DIR)
 
 static inline void
 umd_update_aging_helper(struct um_user *user, int type, bool debug)
