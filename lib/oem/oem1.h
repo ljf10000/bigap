@@ -13,8 +13,7 @@
     OEM_LSS_PWD,    \
     OEM1_LSS_SERVER,\
     OEM_LSS_PORT,   \
-    OEM_client_crt, \
-    OEM_client_key  )
+    __OEM_CERT_INITER(OEM_client_crt, OEM_client_key))
 
 #define OEM1_RSYNC_SERVER       "its." OEM1_NAME ".com"
 

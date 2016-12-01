@@ -67,6 +67,10 @@ typedef struct {
 #define OEM_CERT_LEN            (8*1024-1)
 #endif
 
+#ifndef OEM_CERT_COUNT
+#define OEM_CERT_COUNT          256
+#endif
+
 enum {
     OEM_CERT_KEY,
     OEM_CERT_CERT,
@@ -81,38 +85,40 @@ enum {
 };
 
 typedef struct {
+    char cert[1+OEM_CERT_LEN];
+    char key[1+OEM_CERT_LEN];
+} oem_cert_t;
+
+#define __OEM_CERT_INITER(_cert, _key)  { \
+    .cert       = _cert,    \
+    .key        = _key,     \
+}   /* end */
+
+typedef struct {
     char user[1+OEM_LSS_USER_LEN];
     char password[1+OEM_LSS_PASSWORD_LEN];
     char server[1+OEM_LSS_SERVER_LEN];
     char port[1+OEM_LSS_PORT_LEN];
 
-    char cert[1+OEM_CERT_LEN];
-    char key[1+OEM_CERT_LEN];
+    oem_cert_t cert;
 } oem_lss_t;
 
-#define __OEM_LSS_INITER(_user, _pass, _server, _port, _cert, _key) { \
+#define __OEM_LSS_INITER(_user, _pass, _server, _port, _lss_cert) { \
     .user       = _user,    \
     .password   = _pass,    \
     .server     = _server,  \
     .port       = _port,    \
-    .cert       = _cert,    \
-    .key        = _key,     \
+    .cert       = _lss_cert,\
 }
-
-typedef struct {
-    char cert[OEM_APP_END][OEM_CERT_END][1+OEM_CERT_LEN];
-} oem_cert_t;
 
 typedef struct {
     oem_rsync_t rsync;
     oem_lss_t   lss;
-    oem_cert_t  cert;
 } oem_t;
 
-#define __OEM_INITER(_rsync, _lss, _cert) { \
+#define __OEM_INITER(_rsync, _lss) { \
     .rsync  = _rsync,   \
     .lss    = _lss,     \
-    .cert   = _cert,    \
 }
 /******************************************************************************/
 #include "oem0.h"
@@ -177,13 +183,7 @@ oem_vendor(void)
 #define oem_lss_password    __this_oem()->lss.password
 #define oem_lss_server      __this_oem()->lss.server
 #define oem_lss_port        __this_oem()->lss.port
-
-#if 0
-#define oem_lss_key         __this_oem()->lss.key
-#define oem_lss_cert        __this_oem()->lss.cert
-#else
-#define oem_lss_key         __this_oem()->cert.cert[OEM_APP_LSS][OEM_CERT_KEY]
-#define oem_lss_cert        __this_oem()->cert.cert[OEM_APP_LSS][OEM_CERT_CERT]
-#endif
+#define oem_lss_key         __this_oem()->lss.cert.key
+#define oem_lss_cert        __this_oem()->lss.cert.cert
 /******************************************************************************/
 #endif /* __OEM_H_57688f1c133d4ebdae411669109ffdc9__ */
