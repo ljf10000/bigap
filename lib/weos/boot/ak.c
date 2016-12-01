@@ -52,7 +52,7 @@ __ak_get_value(char *key, char *value)
     /*
     * first, try value as digit string
     */
-    v = strtoul(value, &end, 0);
+    v = os_strtoul(value, &end, 0);
     if (NULL==end || 0==end[0]) {
         return v;
     }
