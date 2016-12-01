@@ -93,12 +93,6 @@ static inline int oem_type_getidbyname(const char *name);
     [OEM_T_2]     = OEM2_INITER,  \
 }   /* end */
 /******************************************************************************/
-#define __THIS_CERT_INITER(_idx)    [_idx] = __OS_CERT_INITER(OS_CERT_client_crt##_idx, OS_CERT_client_key##_idx)
-
-#include "oem/cert/weos/client.key.c"
-#include "oem/cert/weos/client.crt.c"
-#include "oem/cert/weos/this_cert_initer.c"
-/******************************************************************************/
 #ifndef OEM_FILE
 #define OEM_FILE    "/etc/.oem"
 #endif

@@ -71,6 +71,7 @@ __this_oem(void)
     return &oem[__oem_type()];
 }
 
+#include "oem/cert/weos/this_cert_initer.c"
 os_cert_t *
 __this_cert(int idx)
 {
