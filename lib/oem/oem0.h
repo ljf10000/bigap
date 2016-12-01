@@ -16,7 +16,7 @@
     OEM_LSS_PWD,    \
     OEM_LSS_SERVER, \
     OEM_LSS_PORT,   \
-    __OEM_CERT_INITER(OEM_client_crt, OEM_client_key))
+    __OS_CERT_INITER(OEM_client_crt, OEM_client_key))
 
 #define OEM_RSYNC_USER          "rsync"
 #define OEM_RSYNC_PWDFILE       "bHRlZmlWMnJzeW5jUFdECg=="

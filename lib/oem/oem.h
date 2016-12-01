@@ -63,44 +63,13 @@ typedef struct {
 #define OEM_NAME_LEN            31
 #endif
 
-#ifndef OEM_CERT_LEN
-#define OEM_CERT_LEN            (8*1024-1)
-#endif
-
-#ifndef OEM_CERT_COUNT
-#define OEM_CERT_COUNT          100
-#endif
-
-enum {
-    OEM_CERT_KEY,
-    OEM_CERT_CERT,
-
-    OEM_CERT_END
-};
-
-enum {
-    OEM_APP_LSS,
-
-    OEM_APP_END
-};
-
-typedef struct {
-    char cert[1+OEM_CERT_LEN];
-    char key[1+OEM_CERT_LEN];
-} oem_cert_t;
-
-#define __OEM_CERT_INITER(_cert, _key)  { \
-    .cert       = _cert,    \
-    .key        = _key,     \
-}   /* end */
-
 typedef struct {
     char user[1+OEM_LSS_USER_LEN];
     char password[1+OEM_LSS_PASSWORD_LEN];
     char server[1+OEM_LSS_SERVER_LEN];
     char port[1+OEM_LSS_PORT_LEN];
 
-    oem_cert_t cert;
+    os_cert_t cert;
 } oem_lss_t;
 
 #define __OEM_LSS_INITER(_user, _pass, _server, _port, _lss_cert) { \
@@ -160,7 +129,7 @@ __oem_type(void);
 extern oem_t *
 __this_oem(void);
 
-extern oem_cert_t *
+extern os_cert_t *
 __this_cert(void);
 
 static inline char *

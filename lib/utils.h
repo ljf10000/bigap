@@ -190,6 +190,7 @@
 #include "utils/dll.h"
 #include "utils/md5.h"
 #include "utils/base64.h"
+#include "utils/cert.h"
 
 #if 1   /* __EXTEND__ */
 #include "utils/channel.h"
