@@ -330,8 +330,24 @@ typedef struct {
 
 #define INIT_ENTRY(_name, _init)    { .name = _name, .init = _init }
 
-extern int
-os_initer(os_initer_t map[], int count);
+static inline int
+os_initer(os_initer_t map[], int count)
+{
+    int i, err;
+
+    for (i=0; i<count; i++) {
+        err = (*map[i].init)();
+        if (err<0) {
+            debug_error("init %s error:%d", map[i].name, err);
+
+            return err;
+        }
+    }
+
+    debug_ok("init ok");
+
+    return 0;
+}
 
 #if 0
 Addr.h (lib\utils):    static byte mac[OS_MACSIZE] = {0};
