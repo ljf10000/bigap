@@ -299,7 +299,7 @@ os_strlast(const char *s, int ch)
 typedef bool char_is_f(int ch);
 
 static inline bool
-iscrlf(int ch)
+os_iscrlf(int ch)
 {
     return '\r'==ch || '\n'==ch;
 }
@@ -327,7 +327,7 @@ os_isblank(int ch)
 static inline bool 
 os_char_is(int ch, char_is_f *is)
 {
-    return is?(*is)(ch):(os_isblank(ch) || iscrlf(ch));
+    return is?(*is)(ch):(os_isblank(ch) || os_iscrlf(ch));
 }
 
 extern char *
