@@ -9,7 +9,7 @@
 
 #define in_hx_table(_node) __in_dlist(&(_node)->list)
 
-#define DECLARE_DB_TABLE(_name, _hash_count) \
+#define EXTERN_DB_TABLE(_name, _hash_count) \
 typedef struct {                        \
     dlist_t list;                       \
     hash_t  hash[_hash_count];          \
@@ -22,25 +22,56 @@ typedef struct {                        \
                                         \
 typedef mv_t _name##_foreach_f(_name##_node_t *node); \
                                         \
-static inline _name##_node_t *          \
+EXTERN _name##_node_t *                 \
+_name##_entry(hash_node_t *node, int hidx); \
+                                        \
+EXTERN hash_idx_t                       \
+_name##_size(_name##_table_t *table, int hidx); \
+                                        \
+EXTERN uint32                           \
+_name##_count(_name##_table_t *table);  \
+                                        \
+EXTERN int                              \
+_name##_init(_name##_table_t *table, int size_array[]); \
+                                        \
+EXTERN int                              \
+_name##_add(_name##_table_t *table, _name##_node_t *node, hash_node_calc_f *nhash[]); \
+                                        \
+EXTERN int                              \
+_name##_del(_name##_table_t *table, _name##_node_t *node); \
+                                        \
+EXTERN _name##_node_t *                 \
+_name##_find(_name##_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq); \
+                                        \
+EXTERN int                              \
+_name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach); \
+                                        \
+EXTERN int                              \
+_name##_foreach_safe(_name##_table_t *table, _name##_foreach_f *foreach); \
+                                        \
+os_fake_declare                         \
+/* end */
+
+#define DECLARE_DB_TABLE(_name, _hash_count)    \
+DECLARE _name##_node_t *                \
 _name##_entry(hash_node_t *node, int hidx) \
 {                                       \
     return hash_entry(node, _name##_node_t, hash[hidx]); \
 }                                       \
                                         \
-static inline hash_idx_t                \
+DECLARE hash_idx_t                      \
 _name##_size(_name##_table_t *table, int hidx) \
 {                                       \
     return table->hash[hidx].size;      \
 }                                       \
                                         \
-static inline uint32                    \
+DECLARE uint32                          \
 _name##_count(_name##_table_t *table)   \
 {                                       \
     return table->list.count;           \
 }                                       \
                                         \
-static inline int                       \
+DECLARE int                             \
 _name##_init(_name##_table_t *table, int size_array[]) \
 {                                       \
     int i, err, count = os_count_of(table->hash); \
@@ -57,7 +88,7 @@ _name##_init(_name##_table_t *table, int size_array[]) \
     return 0;                           \
 }                                       \
                                         \
-static inline int                       \
+DECLARE int                             \
 _name##_add(_name##_table_t *table, _name##_node_t *node, hash_node_calc_f *nhash[]) \
 {                                       \
     int i, err, count = os_count_of(table->hash); \
@@ -77,7 +108,7 @@ _name##_add(_name##_table_t *table, _name##_node_t *node, hash_node_calc_f *nhas
     return 0;                           \
 }                                       \
                                         \
-static inline int                       \
+DECLARE int                             \
 _name##_del(_name##_table_t *table, _name##_node_t *node) \
 {                                       \
     int i, err, count = os_count_of(table->hash); \
@@ -97,7 +128,7 @@ _name##_del(_name##_table_t *table, _name##_node_t *node) \
     return 0;                           \
 }                                       \
                                         \
-static inline _name##_node_t *          \
+DECLARE _name##_node_t *                \
 _name##_find(_name##_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq) \
 {                                       \
     hash_node_t *node = hash_find(&table->hash[hidx], dhash, eq); \
@@ -108,7 +139,7 @@ _name##_find(_name##_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_
     return _name##_entry(node, hidx);   \
 }                                       \
                                         \
-static inline int                       \
+DECLARE int                             \
 _name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach) \
 {                                       \
     _name##_node_t *node;               \
@@ -124,7 +155,7 @@ _name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach) \
     return 0;                           \
 }                                       \
                                         \
-static inline int                       \
+DECLARE int                             \
 _name##_foreach_safe(_name##_table_t *table, _name##_foreach_f *foreach) \
 {                                       \
     _name##_node_t *node, *tmp;         \
@@ -142,6 +173,7 @@ _name##_foreach_safe(_name##_table_t *table, _name##_foreach_f *foreach) \
                                         \
 os_fake_declare                         \
 /* end */
+
 /******************************************************************************/
 /*
 * __h1_table_t;
@@ -157,7 +189,8 @@ os_fake_declare                         \
 * int __h1_foreach(__h1_table_t *table, __h1_foreach_f *foreach);
 * int __h1_foreach_safe(__h1_table_t *table, __h1_foreach_f *foreach);
 */
-DECLARE_DB_TABLE(__h1, 1);
+#if USE_MOD_DB_H1
+EXTERN_DB_TABLE(__h1, 1);
 
 typedef __h1_table_t    h1_table_t;
 typedef __h1_node_t     h1_node_t;
@@ -216,6 +249,7 @@ h1_foreach_safe(h1_table_t *table, h1_foreach_f *foreach)
 {
     return __h1_foreach_safe(table, foreach);
 }
+#endif
 /******************************************************************************/
 /*
 * __hx_table_t;
@@ -231,88 +265,17 @@ h1_foreach_safe(h1_table_t *table, h1_foreach_f *foreach)
 * int __hx_foreach(__hx_table_t *table, __hx_foreach_f *foreach);
 * int __hx_foreach_safe(__hx_table_t *table, __hx_foreach_f *foreach);
 */
-DECLARE_DB_TABLE(__h2, 2);
-DECLARE_DB_TABLE(__h3, 3);
-DECLARE_DB_TABLE(__h4, 4);
-DECLARE_DB_TABLE(__h5, 5);
-DECLARE_DB_TABLE(__h6, 6);
-DECLARE_DB_TABLE(__h7, 7);
-DECLARE_DB_TABLE(__h8, 8);
-DECLARE_DB_TABLE(__h9, 9);
+#if USE_MOD_DB_H2
+EXTERN_DB_TABLE(__h2, 2);
 
 typedef __h2_table_t    h2_table_t;
-typedef __h3_table_t    h3_table_t;
-typedef __h4_table_t    h4_table_t;
-typedef __h5_table_t    h5_table_t;
-typedef __h6_table_t    h6_table_t;
-typedef __h7_table_t    h7_table_t;
-typedef __h8_table_t    h8_table_t;
-typedef __h9_table_t    h9_table_t;
-
 typedef __h2_node_t     h2_node_t;
-typedef __h3_node_t     h3_node_t;
-typedef __h4_node_t     h4_node_t;
-typedef __h5_node_t     h5_node_t;
-typedef __h6_node_t     h6_node_t;
-typedef __h7_node_t     h7_node_t;
-typedef __h8_node_t     h8_node_t;
-typedef __h9_node_t     h9_node_t;
-
 typedef __h2_foreach_f  h2_foreach_f;
-typedef __h3_foreach_f  h3_foreach_f;
-typedef __h4_foreach_f  h4_foreach_f;
-typedef __h5_foreach_f  h5_foreach_f;
-typedef __h6_foreach_f  h6_foreach_f;
-typedef __h7_foreach_f  h7_foreach_f;
-typedef __h8_foreach_f  h8_foreach_f;
-typedef __h9_foreach_f  h9_foreach_f;
 
 static inline int 
 h2_init(h2_table_t *table, int size_array[])
 {
     return __h2_init(table, size_array);
-}
-
-static inline int 
-h3_init(h3_table_t *table, int size_array[])
-{
-    return __h3_init(table, size_array);
-}
-
-static inline int 
-h4_init(h4_table_t *table, int size_array[])
-{
-    return __h4_init(table, size_array);
-}
-
-static inline int 
-h5_init(h5_table_t *table, int size_array[])
-{
-    return __h5_init(table, size_array);
-}
-
-static inline int 
-h6_init(h6_table_t *table, int size_array[])
-{
-    return __h6_init(table, size_array);
-}
-
-static inline int 
-h7_init(h7_table_t *table, int size_array[])
-{
-    return __h7_init(table, size_array);
-}
-
-static inline int 
-h8_init(h8_table_t *table, int size_array[])
-{
-    return __h8_init(table, size_array);
-}
-
-static inline int 
-h9_init(h9_table_t *table, int size_array[])
-{
-    return __h9_init(table, size_array);
 }
 
 static inline hash_idx_t 
@@ -321,94 +284,10 @@ h2_size(h2_table_t *table, int hidx)
     return __h2_size(table, hidx);
 }
 
-static inline hash_idx_t 
-h3_size(h3_table_t *table, int hidx)
-{
-    return __h3_size(table, hidx);
-}
-
-static inline hash_idx_t 
-h4_size(h4_table_t *table, int hidx)
-{
-    return __h4_size(table, hidx);
-}
-
-static inline hash_idx_t 
-h5_size(h5_table_t *table, int hidx)
-{
-    return __h5_size(table, hidx);
-}
-
-static inline hash_idx_t 
-h6_size(h6_table_t *table, int hidx)
-{
-    return __h6_size(table, hidx);
-}
-
-static inline hash_idx_t 
-h7_size(h7_table_t *table, int hidx)
-{
-    return __h7_size(table, hidx);
-}
-
-static inline hash_idx_t 
-h8_size(h8_table_t *table, int hidx)
-{
-    return __h8_size(table, hidx);
-}
-
-static inline hash_idx_t 
-h9_size(h9_table_t *table, int hidx)
-{
-    return __h9_size(table, hidx);
-}
-
 static inline uint32 
 h2_count(h2_table_t *table)
 {
     return __h2_count(table);
-}
-
-static inline uint32 
-h3_count(h3_table_t *table)
-{
-    return __h3_count(table);
-}
-
-static inline uint32 
-h4_count(h4_table_t *table)
-{
-    return __h4_count(table);
-}
-
-static inline uint32 
-h5_count(h5_table_t *table)
-{
-    return __h5_count(table);
-}
-
-static inline uint32 
-h6_count(h6_table_t *table)
-{
-    return __h6_count(table);
-}
-
-static inline uint32 
-h7_count(h7_table_t *table)
-{
-    return __h7_count(table);
-}
-
-static inline uint32 
-h8_count(h8_table_t *table)
-{
-    return __h8_count(table);
-}
-
-static inline uint32 
-h9_count(h9_table_t *table)
-{
-    return __h9_count(table);
 }
 
 static inline int
@@ -417,142 +296,16 @@ h2_add(h2_table_t *table, h2_node_t *node, hash_node_calc_f *nhash[])
     return __h2_add(table, node, nhash);
 }
 
-static inline int
-h3_add(h3_table_t *table, h3_node_t *node, hash_node_calc_f *nhash[])
-{
-    return __h3_add(table, node, nhash);
-}
-
-static inline int
-h4_add(h4_table_t *table, h4_node_t *node, hash_node_calc_f *nhash[])
-{
-    return __h4_add(table, node, nhash);
-}
-
-static inline int
-h5_add(h5_table_t *table, h5_node_t *node, hash_node_calc_f *nhash[])
-{
-    return __h5_add(table, node, nhash);
-}
-
-static inline int
-h6_add(h6_table_t *table, h6_node_t *node, hash_node_calc_f *nhash[])
-{
-    return __h6_add(table, node, nhash);
-}
-
-static inline int
-h7_add(h7_table_t *table, h7_node_t *node, hash_node_calc_f *nhash[])
-{
-    return __h7_add(table, node, nhash);
-}
-
-static inline int
-h8_add(h8_table_t *table, h8_node_t *node, hash_node_calc_f *nhash[])
-{
-    return __h8_add(table, node, nhash);
-}
-
-static inline int
-h9_add(h9_table_t *table, h9_node_t *node, hash_node_calc_f *nhash[])
-{
-    return __h9_add(table, node, nhash);
-}
-
 static inline int 
 h2_del(h2_table_t *table, h2_node_t *node)
 {
     return __h2_del(table, node);
 }
 
-static inline int 
-h3_del(h3_table_t *table, h3_node_t *node)
-{
-    return __h3_del(table, node);
-}
-
-static inline int 
-h4_del(h4_table_t *table, h4_node_t *node)
-{
-    return __h4_del(table, node);
-}
-
-static inline int 
-h5_del(h5_table_t *table, h5_node_t *node)
-{
-    return __h5_del(table, node);
-}
-
-static inline int 
-h6_del(h6_table_t *table, h6_node_t *node)
-{
-    return __h6_del(table, node);
-}
-
-static inline int 
-h7_del(h7_table_t *table, h7_node_t *node)
-{
-    return __h7_del(table, node);
-}
-
-static inline int 
-h8_del(h8_table_t *table, h8_node_t *node)
-{
-    return __h8_del(table, node);
-}
-
-static inline int 
-h9_del(h9_table_t *table, h9_node_t *node)
-{
-    return __h9_del(table, node);
-}
-
 static inline h2_node_t *
 h2_find(h2_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 {
     return __h2_find(table, hidx, dhash, eq);
-}
-
-static inline h3_node_t *
-h3_find(h3_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
-{
-    return __h3_find(table, hidx, dhash, eq);
-}
-
-static inline h4_node_t *
-h4_find(h4_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
-{
-    return __h4_find(table, hidx, dhash, eq);
-}
-
-static inline h5_node_t *
-h5_find(h5_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
-{
-    return __h5_find(table, hidx, dhash, eq);
-}
-
-static inline h6_node_t *
-h6_find(h6_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
-{
-    return __h6_find(table, hidx, dhash, eq);
-}
-
-static inline h7_node_t *
-h7_find(h7_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
-{
-    return __h7_find(table, hidx, dhash, eq);
-}
-
-static inline h8_node_t *
-h8_find(h8_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
-{
-    return __h8_find(table, hidx, dhash, eq);
-}
-
-static inline h9_node_t *
-h9_find(h9_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
-{
-    return __h9_find(table, hidx, dhash, eq);
 }
 
 static inline int 
@@ -562,9 +315,109 @@ h2_foreach(h2_table_t *table, h2_foreach_f *foreach)
 }
 
 static inline int 
+h2_foreach_safe(h2_table_t *table, h2_foreach_f *foreach)
+{
+    return __h2_foreach_safe(table, foreach);
+}
+#endif
+
+#if USE_MOD_DB_H3
+EXTERN_DB_TABLE(__h3, 3);
+
+typedef __h3_table_t    h3_table_t;
+typedef __h3_node_t     h3_node_t;
+typedef __h3_foreach_f  h3_foreach_f;
+
+static inline int 
+h3_init(h3_table_t *table, int size_array[])
+{
+    return __h3_init(table, size_array);
+}
+
+static inline hash_idx_t 
+h3_size(h3_table_t *table, int hidx)
+{
+    return __h3_size(table, hidx);
+}
+
+static inline uint32 
+h3_count(h3_table_t *table)
+{
+    return __h3_count(table);
+}
+
+static inline int
+h3_add(h3_table_t *table, h3_node_t *node, hash_node_calc_f *nhash[])
+{
+    return __h3_add(table, node, nhash);
+}
+
+static inline int 
+h3_del(h3_table_t *table, h3_node_t *node)
+{
+    return __h3_del(table, node);
+}
+
+static inline h3_node_t *
+h3_find(h3_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+{
+    return __h3_find(table, hidx, dhash, eq);
+}
+
+static inline int 
 h3_foreach(h3_table_t *table, h3_foreach_f *foreach)
 {
     return __h3_foreach(table, foreach);
+}
+
+static inline int 
+h3_foreach_safe(h3_table_t *table, h3_foreach_f *foreach)
+{
+    return __h3_foreach_safe(table, foreach);
+}
+#endif
+
+#if USE_MOD_DB_H4
+EXTERN_DB_TABLE(__h4, 4);
+
+typedef __h4_table_t    h4_table_t;
+typedef __h4_node_t     h4_node_t;
+typedef __h4_foreach_f  h4_foreach_f;
+
+static inline int 
+h4_init(h4_table_t *table, int size_array[])
+{
+    return __h4_init(table, size_array);
+}
+
+static inline hash_idx_t 
+h4_size(h4_table_t *table, int hidx)
+{
+    return __h4_size(table, hidx);
+}
+
+static inline uint32 
+h4_count(h4_table_t *table)
+{
+    return __h4_count(table);
+}
+
+static inline int
+h4_add(h4_table_t *table, h4_node_t *node, hash_node_calc_f *nhash[])
+{
+    return __h4_add(table, node, nhash);
+}
+
+static inline int 
+h4_del(h4_table_t *table, h4_node_t *node)
+{
+    return __h4_del(table, node);
+}
+
+static inline h4_node_t *
+h4_find(h4_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+{
+    return __h4_find(table, hidx, dhash, eq);
 }
 
 static inline int 
@@ -574,9 +427,109 @@ h4_foreach(h4_table_t *table, h4_foreach_f *foreach)
 }
 
 static inline int 
+h4_foreach_safe(h4_table_t *table, h4_foreach_f *foreach)
+{
+    return __h4_foreach_safe(table, foreach);
+}
+#endif
+
+#if USE_MOD_DB_H5
+EXTERN_DB_TABLE(__h5, 5);
+
+typedef __h5_table_t    h5_table_t;
+typedef __h5_node_t     h5_node_t;
+typedef __h5_foreach_f  h5_foreach_f;
+
+static inline int 
+h5_init(h5_table_t *table, int size_array[])
+{
+    return __h5_init(table, size_array);
+}
+
+static inline hash_idx_t 
+h5_size(h5_table_t *table, int hidx)
+{
+    return __h5_size(table, hidx);
+}
+
+static inline uint32 
+h5_count(h5_table_t *table)
+{
+    return __h5_count(table);
+}
+
+static inline int
+h5_add(h5_table_t *table, h5_node_t *node, hash_node_calc_f *nhash[])
+{
+    return __h5_add(table, node, nhash);
+}
+
+static inline int 
+h5_del(h5_table_t *table, h5_node_t *node)
+{
+    return __h5_del(table, node);
+}
+
+static inline h5_node_t *
+h5_find(h5_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+{
+    return __h5_find(table, hidx, dhash, eq);
+}
+
+static inline int 
 h5_foreach(h5_table_t *table, h5_foreach_f *foreach)
 {
     return __h5_foreach(table, foreach);
+}
+
+static inline int 
+h5_foreach_safe(h5_table_t *table, h5_foreach_f *foreach)
+{
+    return __h5_foreach_safe(table, foreach);
+}
+#endif
+
+#if USE_MOD_DB_H6
+EXTERN_DB_TABLE(__h6, 6);
+
+typedef __h6_table_t    h6_table_t;
+typedef __h6_node_t     h6_node_t;
+typedef __h6_foreach_f  h6_foreach_f;
+
+static inline int 
+h6_init(h6_table_t *table, int size_array[])
+{
+    return __h6_init(table, size_array);
+}
+
+static inline hash_idx_t 
+h6_size(h6_table_t *table, int hidx)
+{
+    return __h6_size(table, hidx);
+}
+
+static inline uint32 
+h6_count(h6_table_t *table)
+{
+    return __h6_count(table);
+}
+
+static inline int
+h6_add(h6_table_t *table, h6_node_t *node, hash_node_calc_f *nhash[])
+{
+    return __h6_add(table, node, nhash);
+}
+
+static inline int 
+h6_del(h6_table_t *table, h6_node_t *node)
+{
+    return __h6_del(table, node);
+}
+
+static inline h6_node_t *
+h6_find(h6_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+{
+    return __h6_find(table, hidx, dhash, eq);
 }
 
 static inline int 
@@ -586,9 +539,109 @@ h6_foreach(h6_table_t *table, h6_foreach_f *foreach)
 }
 
 static inline int 
+h6_foreach_safe(h6_table_t *table, h6_foreach_f *foreach)
+{
+    return __h6_foreach_safe(table, foreach);
+}
+#endif
+
+#if USE_MOD_DB_H7
+EXTERN_DB_TABLE(__h7, 7);
+
+typedef __h7_table_t    h7_table_t;
+typedef __h7_node_t     h7_node_t;
+typedef __h7_foreach_f  h7_foreach_f;
+
+static inline int 
+h7_init(h7_table_t *table, int size_array[])
+{
+    return __h7_init(table, size_array);
+}
+
+static inline hash_idx_t 
+h7_size(h7_table_t *table, int hidx)
+{
+    return __h7_size(table, hidx);
+}
+
+static inline uint32 
+h7_count(h7_table_t *table)
+{
+    return __h7_count(table);
+}
+
+static inline int
+h7_add(h7_table_t *table, h7_node_t *node, hash_node_calc_f *nhash[])
+{
+    return __h7_add(table, node, nhash);
+}
+
+static inline int 
+h7_del(h7_table_t *table, h7_node_t *node)
+{
+    return __h7_del(table, node);
+}
+
+static inline h7_node_t *
+h7_find(h7_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+{
+    return __h7_find(table, hidx, dhash, eq);
+}
+
+static inline int 
 h7_foreach(h7_table_t *table, h7_foreach_f *foreach)
 {
     return __h7_foreach(table, foreach);
+}
+
+static inline int 
+h7_foreach_safe(h7_table_t *table, h7_foreach_f *foreach)
+{
+    return __h7_foreach_safe(table, foreach);
+}
+#endif
+
+#if USE_MOD_DB_H8
+EXTERN_DB_TABLE(__h8, 8);
+
+typedef __h8_table_t    h8_table_t;
+typedef __h8_node_t     h8_node_t;
+typedef __h8_foreach_f  h8_foreach_f;
+
+static inline int 
+h8_init(h8_table_t *table, int size_array[])
+{
+    return __h8_init(table, size_array);
+}
+
+static inline hash_idx_t 
+h8_size(h8_table_t *table, int hidx)
+{
+    return __h8_size(table, hidx);
+}
+
+static inline uint32 
+h8_count(h8_table_t *table)
+{
+    return __h8_count(table);
+}
+
+static inline int
+h8_add(h8_table_t *table, h8_node_t *node, hash_node_calc_f *nhash[])
+{
+    return __h8_add(table, node, nhash);
+}
+
+static inline int 
+h8_del(h8_table_t *table, h8_node_t *node)
+{
+    return __h8_del(table, node);
+}
+
+static inline h8_node_t *
+h8_find(h8_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+{
+    return __h8_find(table, hidx, dhash, eq);
 }
 
 static inline int 
@@ -598,51 +651,59 @@ h8_foreach(h8_table_t *table, h8_foreach_f *foreach)
 }
 
 static inline int 
-h9_foreach(h9_table_t *table, h9_foreach_f *foreach)
-{
-    return __h9_foreach(table, foreach);
-}
-
-static inline int 
-h2_foreach_safe(h2_table_t *table, h2_foreach_f *foreach)
-{
-    return __h2_foreach_safe(table, foreach);
-}
-
-static inline int 
-h3_foreach_safe(h3_table_t *table, h3_foreach_f *foreach)
-{
-    return __h3_foreach_safe(table, foreach);
-}
-
-static inline int 
-h4_foreach_safe(h4_table_t *table, h4_foreach_f *foreach)
-{
-    return __h4_foreach_safe(table, foreach);
-}
-
-static inline int 
-h5_foreach_safe(h5_table_t *table, h5_foreach_f *foreach)
-{
-    return __h5_foreach_safe(table, foreach);
-}
-
-static inline int 
-h6_foreach_safe(h6_table_t *table, h6_foreach_f *foreach)
-{
-    return __h6_foreach_safe(table, foreach);
-}
-
-static inline int 
-h7_foreach_safe(h7_table_t *table, h7_foreach_f *foreach)
-{
-    return __h7_foreach_safe(table, foreach);
-}
-
-static inline int 
 h8_foreach_safe(h8_table_t *table, h8_foreach_f *foreach)
 {
     return __h8_foreach_safe(table, foreach);
+}
+#endif
+
+#if USE_MOD_DB_H9
+EXTERN_DB_TABLE(__h9, 9);
+
+typedef __h9_table_t    h9_table_t;
+typedef __h9_node_t     h9_node_t;
+typedef __h9_foreach_f  h9_foreach_f;
+
+static inline int 
+h9_init(h9_table_t *table, int size_array[])
+{
+    return __h9_init(table, size_array);
+}
+
+static inline hash_idx_t 
+h9_size(h9_table_t *table, int hidx)
+{
+    return __h9_size(table, hidx);
+}
+
+static inline uint32 
+h9_count(h9_table_t *table)
+{
+    return __h9_count(table);
+}
+
+static inline int
+h9_add(h9_table_t *table, h9_node_t *node, hash_node_calc_f *nhash[])
+{
+    return __h9_add(table, node, nhash);
+}
+
+static inline int 
+h9_del(h9_table_t *table, h9_node_t *node)
+{
+    return __h9_del(table, node);
+}
+
+static inline h9_node_t *
+h9_find(h9_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
+{
+    return __h9_find(table, hidx, dhash, eq);
+}
+
+static inline int 
+h9_foreach(h9_table_t *table, h9_foreach_f *foreach)
+{
+    return __h9_foreach(table, foreach);
 }
 
 static inline int 
@@ -650,5 +711,6 @@ h9_foreach_safe(h9_table_t *table, h9_foreach_f *foreach)
 {
     return __h9_foreach_safe(table, foreach);
 }
+#endif
 /******************************************************************************/
 #endif /* __DB_H_db573104d2404862b7487d1d6ebc8d4b__ */

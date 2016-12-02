@@ -40,9 +40,15 @@ static inline void INIT_LIST_HEAD(struct list_head *list)
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-EXTERN void __list_add(struct list_head *new,
+static inline void __list_add(struct list_head *new,
 			      struct list_head *prev,
-			      struct list_head *next);
+			      struct list_head *next)
+{
+	next->prev = new;
+	new->next = next;
+	new->prev = prev;
+	prev->next = new;
+}
 
 /**
  * list_add - add a new entry
@@ -95,7 +101,12 @@ static inline void __list_del_entry(struct list_head *entry)
 	__list_del(entry->prev, entry->next);
 }
 
-EXTERN void list_del(struct list_head *entry);
+static inline void list_del(struct list_head *entry)
+{
+	__list_del(entry->prev, entry->next);
+	entry->next = NULL;
+	entry->prev = NULL;
+}
 
 /**
  * list_replace - replace old entry by new one
@@ -104,8 +115,14 @@ EXTERN void list_del(struct list_head *entry);
  *
  * If @old was empty, it will be overwritten.
  */
-EXTERN void list_replace(struct list_head *old,
-				struct list_head *new);
+static inline void list_replace(struct list_head *old,
+				struct list_head *new)
+{
+	new->next = old->next;
+	new->next->prev = new;
+	new->prev = old->prev;
+	new->prev->next = new;
+}
 
 EXTERN void list_replace_init(struct list_head *old,
 					struct list_head *new);
@@ -164,7 +181,11 @@ static inline int list_empty(const struct list_head *head)
  * to the list entry is list_del_init(). Eg. it cannot be used
  * if another CPU could re-list_add() it.
  */
-EXTERN int list_empty_careful(const struct list_head *head);
+static inline int list_empty_careful(const struct list_head *head)
+{
+	struct list_head *next = head->next;
+	return (next == head) && (next == head->prev);
+}
 
 /**
  * list_rotate_left - rotate the list to the left
@@ -176,7 +197,10 @@ EXTERN void list_rotate_left(struct list_head *head);
  * list_is_singular - tests whether a list has just one entry.
  * @head: the list to test.
  */
-EXTERN int list_is_singular(const struct list_head *head);
+static inline int list_is_singular(const struct list_head *head)
+{
+	return !list_empty(head) && (head->next == head->prev);
+}
 
 EXTERN void __list_cut_position(struct list_head *list,
 		struct list_head *head, struct list_head *entry);
@@ -198,9 +222,19 @@ EXTERN void __list_cut_position(struct list_head *list,
 EXTERN void list_cut_position(struct list_head *list,
 		struct list_head *head, struct list_head *entry);
 
-EXTERN void __list_splice(const struct list_head *list,
+static inline void __list_splice(const struct list_head *list,
 				 struct list_head *prev,
-				 struct list_head *next);
+				 struct list_head *next)
+{
+	struct list_head *first = list->next;
+	struct list_head *last = list->prev;
+
+	first->prev = prev;
+	prev->next = first;
+
+	last->next = next;
+	next->prev = last;
+}
 
 /**
  * list_splice - join two lists, this is designed for stacks
@@ -539,9 +573,21 @@ static inline int hlist_empty(const struct hlist_head *h)
 	return !h->first;
 }
 
-EXTERN void __hlist_del(struct hlist_node *n);
+static inline void __hlist_del(struct hlist_node *n)
+{
+	struct hlist_node *next = n->next;
+	struct hlist_node **pprev = n->pprev;
+	*pprev = next;
+	if (next)
+		next->pprev = pprev;
+}
 
-EXTERN void hlist_del(struct hlist_node *n);
+static inline void hlist_del(struct hlist_node *n)
+{
+	__hlist_del(n);
+	n->next = NULL;
+	n->pprev = NULL;
+}
 
 EXTERN void hlist_del_init(struct hlist_node *n);
 
