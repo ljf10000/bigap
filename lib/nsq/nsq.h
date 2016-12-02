@@ -308,14 +308,21 @@ is_nsq_response_error(nsq_msg_t *msg)
     return is_good_nsq_error(error) && NSQ_E_OK!=error;
 }
 
-#define nsq_msg_dump(_msg, _dump) \
-    _dump("size=%d, type=%s, timestamp=%llu, attempts=%d, body=%s", \
-        (_msg)->size,       \
-        nsq_frame_getnamebyid((_msg)->type), \
-        (_msg)->timestamp,  \
-        (_msg)->attempts,   \
-        (_msg)->body)       \
-        /* end */
+#define nsq_msg_dump(_msg, _dump)   do{     \
+    if (is_nsq_frame_message((_msg)->type)) {   \
+        _dump("size=%d, type=%s, timestamp=%llu, attempts=%d, body=%s", \
+            (_msg)->size,                   \
+            nsq_frame_getnamebyid((_msg)->type), \
+            nsq_body_msg_timestamp(_msg),   \
+            nsq_body_msg_attempts(_msg),    \
+            nsq_body_msg_body(_msg));       \
+    } else {                                \
+        _dump("size=%d, type=%s, body=%s",  \
+            (_msg)->size,                   \
+            nsq_frame_getnamebyid((_msg)->type), \
+            nsq_body_msg_body(_msg));       \
+    }                                       \
+}while(0)
 
 typedef simple_buffer_t nsq_buffer_t;
 
@@ -682,7 +689,7 @@ nsqb_recv(int fd, nsq_buffer_t *b)
     }
     b->len += len;
     b->buf[b->len] = 0;
-    if (NSQ_FRAME_MESSAGE==msg->type) {
+    if (is_nsq_frame_message(msg->type)) {
         nsq_body_ntoh(msg);
     }
 
