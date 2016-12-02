@@ -36,87 +36,16 @@ os_shm_init(os_shm_t *shm, unsigned int key)
     shm->address = INVALID_SHM_ADDR;
 }
 
-static inline void 
-os_shm_destroy(os_shm_t *shm)
-{
-#ifdef __APP__
-    if (shm && INVALID_SHM_ADDR != shm->address) {
-        shmdt(shm->address);
-        shm->address = INVALID_SHM_ADDR;
-        
-        shm_println("shm destroy(key:%#x, size:%#x, id:%d, address:%p)", 
-            shm->key,
-            shm->size,
-            shm->id,
-            shm->address);
-    }
-#endif
-}
-
-static inline int 
-os_shm_create(os_shm_t *shm, unsigned int size, bool readonly)
-{
-#ifdef __APP__
-    int flags = IPC_CREAT | (readonly?SHM_RDONLY:0) | 0x1FF;
-    size_t pagesize;
-    
-    if (NULL==shm) {
-        return -EINVAL1;
-    }
-    else if (INVALID_SHM_ADDR != shm->address) {
-        return shm->id;
-    }
-    
-    pagesize = getpagesize();
-    shm_println("pagesize=%d", pagesize);
-    
-    shm->size = OS_ALIGN(size, pagesize);
-    shm->id = shmget(shm->key, shm->size, flags);
-    if (false==is_good_shmid(shm->id)) {
-        shm_println(
-            "shm create(key:%#x, size:%#x, flags:%#x) error:%d", 
-            shm->key,
-            shm->size,
-            flags,
-            -errno);
-        
-        return -errno;
-    } else {
-        shm_println(
-            "shm create(key:%#x, size:%#x, flags:%#x) id:%d", 
-            shm->key,
-            shm->size,
-            flags,
-            shm->id);
-    }
-    
-    shm->address = shmat(shm->id, NULL, 0);
-    if (INVALID_SHM_ADDR == shm->address) {
-        shm_println(
-            "shm map(key:%#x, size:%#x, flags:%#x, id:%d) error:%d", 
-            shm->key,
-            shm->size,
-            flags,
-            shm->id,
-            -errno);
-        
-        return -errno;
-    } else {
-        shm_println(
-            "shm map(key:%#x, size:%#x, flags:%#x, id:%d) address:%p", 
-            shm->key,
-            shm->size,
-            flags,
-            shm->id,
-            shm->address);
-    }
-    
-    return shm->id;
+#ifdef __BOOT__
+#define os_shm_destroy(_shm)    os_do_nothing()
+#define os_shm_create(_shm)     0
 #else
-    return 0;
-#endif
-}
+extern void 
+os_shm_destroy(os_shm_t *shm);
 
+extern int 
+os_shm_create(os_shm_t *shm, unsigned int size, bool readonly);
+#endif
 /******************************************************************************/
 #endif /* __SHM_H_9251a716aabe4602b0c492b50399af54__ */
 

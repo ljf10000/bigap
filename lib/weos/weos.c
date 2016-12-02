@@ -59,6 +59,8 @@ LIB_INITER;
 #include "weos/app/json.c"
 #include "weos/app/loop.c"
 #include "weos/app/pipe.c"
+#include "weos/app/sem.c"
+#include "weos/app/shm.c"
 #include "weos/app/this.c"
 #include "weos/app/time.c"
 #include "weos/app/timer.c"
