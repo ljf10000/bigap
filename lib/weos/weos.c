@@ -38,6 +38,7 @@ LIB_INITER;
 #include "weos/boot/format.c"
 #include "weos/boot/hash.c"
 #include "weos/boot/md5.c"
+#include "weos/boot/sbuffer.c"
 #if USE_MOD_SLICE
 #include "weos/boot/slice.c"
 #endif
@@ -59,6 +60,9 @@ LIB_INITER;
 #include "weos/app/jlog.c"
 #include "weos/app/json.c"
 #include "weos/app/loop.c"
+#if USE_MOD_NSQ
+#include "weos/app/nsq.c"
+#endif
 #include "weos/app/pipe.c"
 #include "weos/app/sem.c"
 #include "weos/app/shm.c"

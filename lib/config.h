@@ -91,6 +91,10 @@
 #define USE_MOD_FD              PC_VAL(1, 0)
 #endif
 
+#ifndef USE_MOD_NSQ
+#define USE_MOD_NSQ             PC_VAL(1, 1)
+#endif
+
 #ifndef USE_MOD_SLICE
 #define USE_MOD_SLICE           PC_VAL(1, 0)
 #endif
