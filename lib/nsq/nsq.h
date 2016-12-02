@@ -224,6 +224,20 @@ static inline int nsq_frame_getidbyname(const char *name);
 #define is_nsq_frame_message(_code)     (NSQ_FRAME_MESSAGE==(_code))
 #endif
 
+
+typedef union {
+    char response[0];
+    char error[0];
+    
+    struct {
+        uint64 timestamp;
+        uint16 attempts;
+        byte id[NSQ_MSGID_SIZE];
+
+        char body[0];
+    } msg;
+} nsq_body_t;
+
 typedef struct {
     /*
     * msg size
@@ -233,39 +247,55 @@ typedef struct {
     uint32 size;
     uint32 type;
 
-    uint64 timestamp;
-    uint16 attempts;
-    byte id[NSQ_MSGID_SIZE];
+    nsq_body_t b[0];
+} 
+nsq_msg_t;
 
-    char body[0];
-} nsq_msg_t;
+#define nsq_body_response(_msg)         (_msg)->b[0].response
+#define nsq_body_error(_msg)            (_msg)->b[0].error
+#define nsq_body_msg_timestamp(_msg)    (_msg)->b[0].msg.timestamp
+#define nsq_body_msg_attempts(_msg)     (_msg)->b[0].msg.attempts
+#define nsq_body_msg_id(_msg)           (_msg)->b[0].msg.id
+#define nsq_body_msg_body(_msg)         (_msg)->b[0].msg.body
 
 static inline void
 nsq_msg_ntoh(nsq_msg_t *msg)
 {
     msg->size       = ntohl(msg->size);
     msg->type       = ntohl(msg->type);
-    msg->timestamp  = ntohll(msg->timestamp);
-    msg->attempts   = ntohs(msg->attempts);
 }
 #define nsq_msg_hton(_msg)  nsq_msg_ntoh(_msg)
+
+static inline void
+nsq_body_ntoh(nsq_msg_t *msg)
+{
+    nsq_body_msg_timestamp(msg) = ntohll(nsq_body_msg_timestamp(msg));
+    nsq_body_msg_attempts(msg)  = ntohs(nsq_body_msg_attempts(msg));
+}
+#define nsq_body_hton(_msg) nsq_body_ntoh(_msg)
+
+static inline uint32
+nsq_msg_total_size(nsq_msg_t *msg)
+{
+    return msg->size + sizeof(uint32);
+}
 
 static inline uint32
 nsq_msg_body_size(nsq_msg_t *msg)
 {
-    return msg->size - (sizeof(nsq_msg_t) - sizeof(uint32));
+    return nsq_msg_total_size(msg) - sizeof(nsq_msg_t);
 }
 
 static inline bool
 is_nsq_response_heartbeat(nsq_msg_t *msg)
 {
-    return os_streq(msg->body, NSQ_MSG_HEARTBEAT);
+    return os_streq(nsq_body_response(msg), NSQ_MSG_HEARTBEAT);
 }
 
 static inline bool
 is_nsq_response_ok(nsq_msg_t *msg)
 {
-    int error = nsq_error_getidbyname(msg->body);
+    int error = nsq_error_getidbyname(nsq_body_error(msg));
 
     return is_good_nsq_error(error) && NSQ_E_OK==error;
 }
@@ -273,7 +303,7 @@ is_nsq_response_ok(nsq_msg_t *msg)
 static inline bool
 is_nsq_response_error(nsq_msg_t *msg)
 {
-    int error = nsq_error_getidbyname(msg->body);
+    int error = nsq_error_getidbyname(nsq_body_error(msg));
 
     return is_good_nsq_error(error) && NSQ_E_OK!=error;
 }
@@ -609,33 +639,58 @@ nsqb_recv(int fd, nsq_buffer_t *b)
 {
     nsq_msg_t *msg;
     int err, len;
-
+    uint32 size;
+    
     nsqb_clean(b);
 
-    err = len = __io_recv(fd, b->buf, sizeof(nsq_msg_t), 0);
+    /*
+    * read msg header
+    */
+    size = sizeof(nsq_msg_t);
+    err = len = __io_recv(fd, b->buf, size, 0);
     if (err<0) {
-        return err;
+        goto error;
     }
+    else if (len<size) {
+        err = -ETOOSMALL; goto error;
+    }
+    
+    /*
+    * check msg size
+    */
     msg = (nsq_msg_t *)b->buf;
     nsq_msg_ntoh(msg);
-    if (len!=msg->size) {
-        return -ETOOSMALL;
+    if (nsq_msg_total_size(msg) < size) {
+        err = -ETOOSMALL; goto error;
     }
     b->len += len;
 
-    err = len = __io_recv(fd, b->buf + b->len, nsq_msg_body_size(msg), 0);
-    if (err<0) {
-        return err;
+    if (0==nsq_msg_body_size(msg)) {
+        err = 0; goto error;
     }
-    if (len!=msg->size) {
-        return -ETOOSMALL;
+    
+    /*
+    * read msg body
+    */
+    size = nsq_msg_body_size(msg);
+    err = len = __io_recv(fd, b->buf + b->len, size, 0);
+    if (err<0) {
+        goto error;
+    }
+    if (len<size) {
+        err = -ETOOSMALL; goto error;
     }
     b->len += len;
     b->buf[b->len] = 0;
+    if (NSQ_FRAME_MESSAGE==msg->type) {
+        nsq_body_ntoh(msg);
+    }
 
+    err = 0;
+error:
     nsq_msg_dump(msg, debug_proto);
     
-    return 0;
+    return err;
 }
 /******************************************************************************/
 #endif /* __NSQ_H_700ea21373ce4d74a3027b48b6f332c8__ */

@@ -636,7 +636,7 @@ umd_flow_handle(sock_server_t *server)
     umd_user_t *user;
 
     user = umd_user_get(umd_flow.usermac);
-    if (umd.cfg.autouser && NULL==user) {
+    if (NULL==user) {
         switch(umd.cfg.autouser) {
             case UMD_AUTO_BIND:
                 user = umd_user_bind(umd_flow.usermac, umd_flow.userip);
@@ -644,10 +644,14 @@ umd_flow_handle(sock_server_t *server)
             case UMD_AUTO_FAKE:
                 user = umd_user_fake(umd_flow.usermac, umd_flow.userip);
                 break;
+            case UMD_AUTO_NONE:
+            default:
+                break;
         }
-    }
-    if (NULL==user) {
-        return -ENOEXIST;
+        
+        if (NULL==user) {
+            return -ENOEXIST;
+        }
     }
 
     user->hitime = time(NULL);

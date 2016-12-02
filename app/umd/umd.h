@@ -246,10 +246,10 @@ typedef struct {
     int state;
     int reason;
     int group;
-
+    
     uint32 flags;
     uint32 ip; /* network */
-
+    
     time_t create;
     time_t faketime;
     time_t noused;

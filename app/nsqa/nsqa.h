@@ -112,7 +112,8 @@ typedef struct {
     char *channel;
 
     char *script;   // self exec script
-
+    char *secret;   // for auth
+    
     byte msgid[NSQ_MSGID_SIZE]; // last message id
     int  error;                 // last error
 
@@ -311,6 +312,9 @@ nsq_CLS(nsq_instance_t *instance);
 
 extern int
 nsq_REQ(nsq_instance_t *instance);
+
+extern int
+nsq_AUTH(nsq_instance_t *instance);
 
 extern int
 ndq_try_rdy(nsq_instance_t *instance);

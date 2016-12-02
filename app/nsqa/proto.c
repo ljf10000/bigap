@@ -23,7 +23,7 @@ nsq_identifying_response_handle(nsq_instance_t *instance, time_t now)
     else if (instance->auth) {
         jobj_put(instance->jauth);
         
-        instance->jauth = jobj_byjson(msg->body);
+        instance->jauth = jobj_byjson(nsq_body_response(msg));
         if (NULL==instance->jauth) {
             return -EPROTO;
         }
@@ -49,6 +49,7 @@ nsq_run_response_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
 
+    // todo: try handle json
     os_do_nothing();
     
     return 0;
@@ -63,7 +64,7 @@ nsq_run_message_handle(nsq_instance_t *instance, time_t now)
     nsq_FIN(instance);
     ndq_try_rdy(instance);
 
-    nsq_script(instance, msg->body);
+    nsq_script(instance, nsq_body_msg_body(msg));
 
     return 0;
 }
@@ -101,7 +102,7 @@ nsq_frame_response_handle(nsq_instance_t *instance, time_t now)
         return nsq_NOP(instance);
     }
 
-    instance->error = nsq_error_getidbyname(msg->body);
+    instance->error = nsq_error_getidbyname(nsq_body_msg_body(msg));
     if (is_valid_nsq_error(instance->error)) {
         return -EPROTO;
     }
@@ -465,7 +466,7 @@ nsq_FIN(nsq_instance_t *instance)
 {
     int err;
 
-    err = nsqb_FIN(&instance->bsender, nsq_recver_msg(instance)->id);
+    err = nsqb_FIN(&instance->bsender, nsq_body_msg_id(nsq_recver_msg(instance)));
     if (err<0) {
         return err;
     }
@@ -504,13 +505,27 @@ nsq_REQ(nsq_instance_t *instance)
 {
     int err;
 
-    err = nsqb_REQ(&instance->bsender, nsq_recver_msg(instance)->id, 0);
+    err = nsqb_REQ(&instance->bsender, nsq_body_msg_id(nsq_recver_msg(instance)), 0);
     if (err<0) {
         return err;
     }
 
     return nsq_send(instance);
 }
+
+int
+nsq_AUTH(nsq_instance_t *instance)
+{
+    int err;
+
+    err = nsqb_AUTH(&instance->bsender, instance->secret, os_strlen(instance->secret));
+    if (err<0) {
+        return err;
+    }
+
+    return nsq_send(instance);
+}
+
 
 int
 ndq_try_rdy(nsq_instance_t *instance)
