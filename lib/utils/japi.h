@@ -251,11 +251,27 @@ jobj_vsprintf(jobj_t obj, const char *key, const char *fmt, va_list args);
 extern int
 jobj_sprintf(jobj_t obj, const char *key, const char *fmt, ...);
 
-extern jobj_t
-jobj_byfile(char *file);
+static inline jobj_t
+jobj_byfile(char *file)
+{
+    jobj_t obj = json_object_from_file(file);
+    if (NULL==obj) {
+        japi_println("read json file %s failed", file);
+    }
+    
+    return obj;
+}
 
-extern jobj_t
-jobj_byfd(int fd);
+static inline jobj_t
+jobj_byfd(int fd)
+{
+    jobj_t obj = json_object_from_fd(fd);
+    if (NULL==obj) {
+        japi_println("read fd %d failed", fd);
+    }
+    
+    return obj;
+}
 
 extern jobj_t
 jobj_byjson(char *json);
