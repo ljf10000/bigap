@@ -33,10 +33,12 @@ LIB_INITER;
 #endif
 #include "weos/boot/cmd.c"
 #include "weos/boot/crc32.c"
+#include "weos/boot/dlist.c"
 #include "weos/boot/dump.c"
 #include "weos/boot/env.c"
 #include "weos/boot/format.c"
 #include "weos/boot/hash.c"
+#include "weos/boot/list.c"
 #include "weos/boot/md5.c"
 #include "weos/boot/sbuffer.c"
 #if USE_MOD_SLICE

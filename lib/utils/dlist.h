@@ -352,5 +352,9 @@ dlist_foreach(dlist_t *list, dlist_foreach_f *foreach)
     return 0;
 }
 #endif
+
+#ifdef __BOOT__
+#include "weos/boot/dlist.c"
+#endif
 /******************************************************************************/
 #endif /* __DLIST_H_0733f48ee6ac42659f61ab9e489a2425__ */

@@ -767,5 +767,9 @@ static inline void hlist_move_list(struct hlist_head *old,
 	     pos && ({ n = pos->member.next; 1; });			\
 	     pos = hlist_entry_safe(n, typeof(*pos), member))
 #endif /* __BOOT__ || __APP__ */
+
+#ifdef __BOOT__
+#include "weos/boot/list.c"
+#endif
 /******************************************************************************/
 #endif /* __LIST_H_4802b153492a405daae72efe51c39cea__ */
