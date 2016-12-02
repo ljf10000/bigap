@@ -20,7 +20,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define BOOT_SNPRINTF_BUFSIZE   4096
 #endif
 
-int
+STATIC INLINE int
 os_vsnprintf(char *buf, int size, const char *fmt, va_list args)
 {
     int bsize = size?size-1:0;
@@ -46,7 +46,7 @@ error:
     return len;
 }
 
-int
+STATIC INLINE int
 os_snprintf(char *buf, int size, const char *fmt, ...)
 {
     va_list args;
@@ -58,7 +58,7 @@ os_snprintf(char *buf, int size, const char *fmt, ...)
     return len;
 }
 
-int
+STATIC INLINE int
 os_vasprintf(char **buf, const char *fmt, va_list args)
 {
     int len = 0;
@@ -74,7 +74,7 @@ os_vasprintf(char **buf, const char *fmt, va_list args)
     return len;
 }
 
-int
+STATIC INLINE int
 os_asprintf(char **buf, const char *fmt, ...)
 {
     va_list args;

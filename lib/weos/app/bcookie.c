@@ -124,13 +124,13 @@ error:
     return err;
 }
 
-int
+STATIC INLINE int
 bcookie_load(struct bcookie *obj, int size)
 {
     return __bcookie_load(PRODUCT_DEV_BOOT, PRODUCT_BOOT_SIZE, obj, size);
 }
 
-int
+STATIC INLINE int
 bcookie_save(struct bcookie *obj, int size)
 {
     return __bcookie_save(PRODUCT_DEV_BOOT, PRODUCT_BOOT_SIZE, obj, size);

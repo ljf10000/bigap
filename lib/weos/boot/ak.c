@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-uint32
+STATIC INLINE uint32
 __ak_sys_debug(char *var)
 {
     char line[1+OS_LINE_LEN] = {0};
@@ -24,7 +24,7 @@ __ak_sys_debug(char *var)
     return v;
 }
 
-uint32
+STATIC INLINE uint32
 __ak_sys_value(int sys, char *line)
 {
     /*
@@ -42,7 +42,7 @@ __ak_sys_value(int sys, char *line)
     }
 }
 
-int
+STATIC INLINE int
 __ak_get_value(char *key, char *value)
 {
     int sys = INVALID_VALUE;

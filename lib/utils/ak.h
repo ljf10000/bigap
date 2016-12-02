@@ -241,13 +241,13 @@ static inline int ak_sys_getidbyname(const char *name);
 #define __AK_SYS_END    __AK_SYS_END
 #endif
 
-extern uint32
+STATIC INLINE uint32
 __ak_sys_debug(char *var);
 
-extern uint32
+STATIC INLINE uint32
 __ak_sys_value(int sys, char *line);
 
-extern int
+STATIC INLINE int
 __ak_get_value(char *key, char *value);
 /******************************************************************************/
 #define DECLARE_FAKE_COMMAND  extern bool __THIS_COMMAND

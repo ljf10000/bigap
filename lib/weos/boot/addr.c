@@ -80,7 +80,7 @@ __is_good_macstring_S(char *macstring)
 
 }
 
-bool
+STATIC INLINE bool
 __is_good_macstring(char *macstring)
 {
     switch(os_strlen(macstring)) {
@@ -128,7 +128,7 @@ __os_getmac_bystring_S(byte mac[], char macstring[])
     return mac;
 }
 
-byte *
+STATIC INLINE byte *
 __os_getmac_bystring(byte mac[], char macstring[])
 {
     switch(os_strlen(macstring)) {
@@ -139,7 +139,7 @@ __os_getmac_bystring(byte mac[], char macstring[])
     }
 }
 
-byte *
+STATIC INLINE byte *
 os_getmac_bystring(byte mac[], char macstring[])
 {
     byte tmp[6];
@@ -195,7 +195,7 @@ __os_macsnprintf_S(byte mac[], char macstring[], int size, int sep)
         mac[4], mac[5]);
 }
 
-int
+STATIC INLINE int
 os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep)
 {
     switch(type) {
@@ -205,7 +205,7 @@ os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep)
     }
 }
 
-char *
+STATIC INLINE char *
 os_getmacstring(byte mac[], int type, int sep)
 {
     static char macstring[1+MACSTRINGLEN_L] = {0};

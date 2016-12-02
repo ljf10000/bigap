@@ -3,21 +3,21 @@
 /******************************************************************************/
 // https://github.com/littlstar/b64.c
 
-extern char
+STATIC INLINE char
 b64_table(int v);
 
 /**
  * Encode `byte *' source with `size_t' size.
  * Returns a `char *' base64 encoded string.
  */
-extern char *
+STATIC INLINE char *
 b64_encode(byte *src, size_t len);
 
 /**
  * Dencode `char *' source with `size_t' size.
  * Returns a `unsigned char *' base64 decoded string + size of decoded string.
  */
-extern char *
+STATIC INLINE char *
 b64_decode_ex(byte *src, size_t len, size_t *decsize);
 
 /**

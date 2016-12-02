@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-int
+STATIC INLINE int
 os_chex2int(int ch)
 {
     switch(ch) {
@@ -16,7 +16,7 @@ os_chex2int(int ch)
     }
 }
 
-int
+STATIC INLINE int
 os_hex2bin(char *hex, byte *buf, int size)
 {
     int i;
@@ -37,7 +37,7 @@ os_hex2bin(char *hex, byte *buf, int size)
     return hexlen;
 }
 
-int
+STATIC INLINE int
 os_bin2hex(char *hex, int space, byte *buf, int size)
 {
     int i, len = size+size;

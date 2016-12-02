@@ -122,7 +122,7 @@ __md5_transfrom(uint32 state[4], byte block[64])
     os_memset((byte *) x, 0, sizeof(x));
 }
 
-void
+STATIC INLINE void
 md5_init(md5_content_t *ctx)
 {               /* ctx */
     ctx->count[0] = ctx->count[1] = 0;
@@ -133,7 +133,7 @@ md5_init(md5_content_t *ctx)
     ctx->state[3] = 0x10325476;
 }
 
-void
+STATIC INLINE void
 md5_update(md5_content_t *ctx, byte *input, uint32 inputLen)
 {
     uint32 i, index, partLen;
@@ -167,7 +167,7 @@ md5_update(md5_content_t *ctx, byte *input, uint32 inputLen)
            inputLen - i);
 }
 
-void
+STATIC INLINE void
 md5_fini(md5_content_t *ctx, byte md5[16])
 {
     byte bits[8];
@@ -196,7 +196,7 @@ md5_fini(md5_content_t *ctx, byte md5[16])
     os_memset((byte *) ctx, 0, sizeof(*ctx));
 }
 
-void
+STATIC INLINE void
 md5_encode(byte md5[OS_MD5_SIZE], void *buf, uint32 len)
 {
     md5_content_t ctx;
@@ -206,7 +206,7 @@ md5_encode(byte md5[OS_MD5_SIZE], void *buf, uint32 len)
     md5_fini(&ctx, md5);
 }
 
-int
+STATIC INLINE int
 md5_file(char *filename, byte md5[OS_MD5_SIZE])
 {
 #ifdef __APP__

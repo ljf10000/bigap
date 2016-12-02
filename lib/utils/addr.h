@@ -237,13 +237,13 @@ __is_good_macchar(int ch)
         || (ch >= 'A' && ch <= 'F');
 }
 
-extern bool
+STATIC INLINE bool
 __is_good_macstring(char *macstring);
 
-extern byte *
+STATIC INLINE byte *
 __os_getmac_bystring(byte mac[], char macstring[]);
 
-extern byte *
+STATIC INLINE byte *
 os_getmac_bystring(byte mac[], char macstring[]);
 
 static inline bool
@@ -265,7 +265,7 @@ os_mac(char *macstring)
     return __is_good_macstring(macstring)?__os_getmac_bystring(mac, macstring):OS_ZEROMAC;
 }
 
-extern int
+STATIC INLINE int
 os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep);
 
 #define os_macsaprintf(_mac, _macstring, _type, _sep)   ({  \
@@ -276,7 +276,7 @@ os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep);
 /*
 *  multi-thread unsafe
 */
-extern char *
+STATIC INLINE char *
 os_getmacstring(byte mac[], int type, int sep);
 
 /*

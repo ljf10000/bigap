@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-int
+STATIC INLINE int
 envs_count(char *env[])
 {
     int count;
@@ -17,7 +17,7 @@ envs_count(char *env[])
     return count;
 }
 
-void
+STATIC INLINE void
 envs_append(char *dst[], char *src[])
 {
     int i, count = envs_count(dst);
@@ -27,7 +27,7 @@ envs_append(char *dst[], char *src[])
     }
 }
 
-char *
+STATIC INLINE char *
 env_gets(char *envname, char *deft) 
 {
     if (envname) {
@@ -49,7 +49,7 @@ env_gets(char *envname, char *deft)
     }
 }
 
-int
+STATIC INLINE int
 __env_copy(char *envname, char *deft, char s[], int size) 
 {
     char *env = env_gets(envname, deft);
@@ -65,7 +65,7 @@ __env_copy(char *envname, char *deft, char s[], int size)
     return 0;
 }
 
-int
+STATIC INLINE int
 env_geti(char *envname, int deft) 
 {
     if (NULL==envname) {

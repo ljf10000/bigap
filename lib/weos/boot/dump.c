@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-void
+STATIC INLINE void
 os_dump_line(int line, byte *raw, int len, os_dump_line_f *dump_line)
 {
     int i, offset = 0;
@@ -55,7 +55,7 @@ os_dump_line(int line, byte *raw, int len, os_dump_line_f *dump_line)
     }
 }
 
-void
+STATIC INLINE void
 __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line)
 {
     int i, line, tail;

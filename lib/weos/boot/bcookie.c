@@ -1,14 +1,14 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-void
+STATIC INLINE void
 bcookie_fake(struct bcookie *bc)
 {
     bc->id[BCOOKIE_COUNT/2]++;
     bc->id[BCOOKIE_COUNT/2]--;
 }
 
-void
+STATIC INLINE void
 bcookie_cid_dump(uint32 cid[4])
 {
     int i;
@@ -21,7 +21,7 @@ bcookie_cid_dump(uint32 cid[4])
     os_println("PSN:%d", bcookie_cid_psn(cid));
 }
 
-int
+STATIC INLINE int
 bcookie_find(byte *mem, int size, int id)
 {
     struct bcookie bc = BCOOKIE(id);
@@ -41,7 +41,7 @@ bcookie_find(byte *mem, int size, int id)
 
 #if PRODUCT_BCOOKIE_ENABLE
 #ifdef __BOOT__
-STATIC int
+STATIC INLINE int
 __bcookie_check(uint32 begin, uint32 size, struct bcookie *obj, uint32 osize)
 {
     if (osize<=sizeof(struct bcookie)) {
@@ -55,7 +55,7 @@ __bcookie_check(uint32 begin, uint32 size, struct bcookie *obj, uint32 osize)
     }
 }
 
-STATIC int
+STATIC INLINE int
 __bcookie_load(int begin, int size, struct bcookie *obj, int osize)
 {
     int err = 0, offset = INVALID_VALUE;
@@ -93,7 +93,7 @@ error:
     return err;
 }
 
-STATIC int
+STATIC INLINE int
 __bcookie_save(int begin, int size, struct bcookie *obj, int osize)
 {
     int err = 0, offset = INVALID_VALUE;
@@ -142,13 +142,13 @@ error:
     return err;
 }
 
-int
+STATIC INLINE int
 bcookie_load(struct bcookie *obj, int size)
 {
     return __bcookie_load(0, PRODUCT_BOOT_SIZE, obj, size);
 }
 
-int
+STATIC INLINE int
 bcookie_save(struct bcookie *obj, int size)
 {
     return __bcookie_save(0, PRODUCT_BOOT_SIZE, obj, size);

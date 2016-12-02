@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-char
+STATIC INLINE char
 b64_table(int v)
 {
     static const char table[] = {
@@ -18,7 +18,7 @@ b64_table(int v)
     return table[v];
 }
 
-char *
+STATIC INLINE char *
 b64_encode(byte *src, size_t len)
 {
     int i = 0;
@@ -94,7 +94,7 @@ b64_encode(byte *src, size_t len)
     return enc;
 }
 
-char *
+STATIC INLINE char *
 b64_decode_ex(byte *src, size_t len, size_t *decsize)
 {
     int i = 0;

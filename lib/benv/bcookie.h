@@ -30,7 +30,7 @@ struct bcookie {
 #define BCOOKIE_ID(_obj)    (_obj)->id[BCOOKIE_COUNT/2]
 #define BCOOKIE_OBJ(_id)    { .header = BCOOKIE(_id) }
 
-extern void
+STATIC INLINE void
 bcookie_fake(struct bcookie *bc);
 
 struct bcookie_otp {
@@ -47,17 +47,17 @@ struct bcookie_cid {
 #define bcookie_cid_psn(_cid)   (((_cid[2] & 0xffff) << 16) | (_cid[3] >> 16))
 #define bcookie_cid_mid(_cid)   (_cid[0] >> 24)
 
-extern void
+STATIC INLINE void
 bcookie_cid_dump(uint32 cid[4]);
 
-extern int
+STATIC INLINE int
 bcookie_find(byte *mem, int size, int id);
 
 #if PRODUCT_BCOOKIE_ENABLE
-extern int
+STATIC INLINE int
 bcookie_load(struct bcookie *obj, int size);
 
-extern int
+STATIC INLINE int
 bcookie_save(struct bcookie *obj, int size);
 #endif /* PRODUCT_BCOOKIE_ENABLE */
 /******************************************************************************/
