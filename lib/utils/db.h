@@ -712,5 +712,9 @@ h9_foreach_safe(h9_table_t *table, h9_foreach_f *foreach)
     return __h9_foreach_safe(table, foreach);
 }
 #endif
+
+#ifdef __BOOT__
+#include "weos/boot/db.c"
+#endif
 /******************************************************************************/
 #endif /* __DB_H_db573104d2404862b7487d1d6ebc8d4b__ */
