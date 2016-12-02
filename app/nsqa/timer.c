@@ -70,7 +70,7 @@ nsqa_subscribed_tigger(nsq_instance_t *instance, time_t now)
     }
 }
 
-STATIC inline bool
+STATIC bool
 is_nsqa_fsm_timeout(time_t fsm_time, time_t now)
 {
     return  fsm_time && 
