@@ -41,15 +41,15 @@ nsqc_handle_name_topic_channel(char *action, int argc, char *argv[], bool allow_
     char *topic     = (argc>1)?argv[1]:NULL;
     char *channel   = (argc>2)?argv[2]:NULL;
 
-    if (os_str_is_wildcard(name, __iswildcard)) {
+    if (os_str_is_wildcard(name, os_iswildcard)) {
         name = NULL;
     }
     
-    if (os_str_is_wildcard(topic, __iswildcard)) {
+    if (os_str_is_wildcard(topic, os_iswildcard)) {
         topic = NULL;
     }
     
-    if (os_str_is_wildcard(channel, __iswildcard)) {
+    if (os_str_is_wildcard(channel, os_iswildcard)) {
         channel = NULL;
     }
 

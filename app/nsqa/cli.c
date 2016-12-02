@@ -22,15 +22,15 @@ nsqa_handle_name_topic_channel(int(*handle)(char *name, char *topic, char *chann
     char *topic     = name?args:NULL;   cli_shift(args);
     char *channel   = topic?args:NULL;
 
-    if (os_str_is_wildcard(name, __iswildcard)) {
+    if (os_str_is_wildcard(name, os_iswildcard)) {
         name = NULL;
     }
     
-    if (os_str_is_wildcard(topic, __iswildcard)) {
+    if (os_str_is_wildcard(topic, os_iswildcard)) {
         topic = NULL;
     }
     
-    if (os_str_is_wildcard(channel, __iswildcard)) {
+    if (os_str_is_wildcard(channel, os_iswildcard)) {
         channel = NULL;
     }
     

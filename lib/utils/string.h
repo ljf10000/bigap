@@ -305,7 +305,7 @@ os_iscrlf(int ch)
 }
 
 static inline bool
-__iswildcard(int ch)
+os_iswildcard(int ch)
 {
     return '*'==ch || '-'==ch || '_'==ch || '.'==ch;
 }
