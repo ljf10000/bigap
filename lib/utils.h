@@ -21,8 +21,10 @@
 
 #ifdef __BOOT__
 #   define __UCLIBC__
-#   define STATIC static
-#   define INLINE inline
+#   define STATIC   static
+#   define INLINE   inline
+#   define EXTERN   static inline
+#   define DECLARE  static inline
 #   include <malloc.h>
 #   include <common.h>
 #   include <command.h>
@@ -48,6 +50,8 @@
 #   define __APP__
 #   define STATIC
 #   define INLINE
+#   define EXTERN   extern
+#   define DECLARE
 #   ifdef __BUSYBOX__
 #       include "libbb.h"
 #   endif

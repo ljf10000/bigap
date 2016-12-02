@@ -4,7 +4,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 /* Encodes input (uint32) into output (byte). Assumes len is
   a multiple of 4.
  */
-STATIC INLINE void
+DECLARE void
 __md5_encode(byte *output, uint32 *input, uint32 len)
 {
     uint32 i, j;
@@ -20,7 +20,7 @@ __md5_encode(byte *output, uint32 *input, uint32 len)
 /* Decodes input (byte) into output (uint32). Assumes len is
   a multiple of 4.
  */
-STATIC INLINE void
+DECLARE void
 __md5_decode(uint32 *output, byte *input, uint32 len)
 {
     uint32 i, j;
@@ -34,7 +34,7 @@ __md5_decode(uint32 *output, byte *input, uint32 len)
 
 /* MD5 basic transformation. Transforms state based on block.
  */
-STATIC INLINE void
+DECLARE void
 __md5_transfrom(uint32 state[4], byte block[64])
 {
     uint32 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
@@ -122,7 +122,7 @@ __md5_transfrom(uint32 state[4], byte block[64])
     os_memset((byte *) x, 0, sizeof(x));
 }
 
-STATIC INLINE void
+DECLARE void
 md5_init(md5_content_t *ctx)
 {               /* ctx */
     ctx->count[0] = ctx->count[1] = 0;
@@ -133,7 +133,7 @@ md5_init(md5_content_t *ctx)
     ctx->state[3] = 0x10325476;
 }
 
-STATIC INLINE void
+DECLARE void
 md5_update(md5_content_t *ctx, byte *input, uint32 inputLen)
 {
     uint32 i, index, partLen;
@@ -167,7 +167,7 @@ md5_update(md5_content_t *ctx, byte *input, uint32 inputLen)
            inputLen - i);
 }
 
-STATIC INLINE void
+DECLARE void
 md5_fini(md5_content_t *ctx, byte md5[16])
 {
     byte bits[8];
@@ -196,7 +196,7 @@ md5_fini(md5_content_t *ctx, byte md5[16])
     os_memset((byte *) ctx, 0, sizeof(*ctx));
 }
 
-STATIC INLINE void
+DECLARE void
 md5_encode(byte md5[OS_MD5_SIZE], void *buf, uint32 len)
 {
     md5_content_t ctx;
@@ -206,7 +206,7 @@ md5_encode(byte md5[OS_MD5_SIZE], void *buf, uint32 len)
     md5_fini(&ctx, md5);
 }
 
-STATIC INLINE int
+DECLARE int
 md5_file(char *filename, byte md5[OS_MD5_SIZE])
 {
 #ifdef __APP__

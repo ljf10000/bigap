@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-STATIC INLINE bool
+DECLARE bool
 is_good_benv_cookie(benv_cookie_t *cookie)
 {
     return  cookie->vendor[0]
@@ -11,7 +11,7 @@ is_good_benv_cookie(benv_cookie_t *cookie)
         &&  cookie->compile[0];
 }
 
-STATIC INLINE void
+DECLARE void
 __benv_cookie_show(benv_cookie_t *cookie)
 {
     os_println("vendor :%s", cookie->vendor);
@@ -21,7 +21,7 @@ __benv_cookie_show(benv_cookie_t *cookie)
     os_println("compile:%s", cookie->compile);
 }
 
-STATIC INLINE char *
+DECLARE char *
 benv_version_itoa(benv_version_t *version, char string[])
 {
     os_sprintf(string, "%d.%d.%d.%d",
@@ -33,7 +33,7 @@ benv_version_itoa(benv_version_t *version, char string[])
     return string;
 }
 
-STATIC INLINE benv_version_t *
+DECLARE benv_version_t *
 benv_version_atoi(benv_version_t *version, char *string)
 {
     char line[1 + OS_LINE_LEN] = { 0 };
@@ -75,7 +75,7 @@ benv_version_atoi(benv_version_t *version, char *string)
     return version;
 }
 
-STATIC INLINE void
+DECLARE void
 __benv_vcs_deft(benv_vcs_t *vcs)
 {
     os_objzero(vcs);
@@ -85,7 +85,7 @@ __benv_vcs_deft(benv_vcs_t *vcs)
     vcs->self       = BENV_FSM_UNKNOW;
 }
 
-STATIC INLINE bool
+DECLARE bool
 is_benv_good_vcs(benv_vcs_t *vcs)
 {
     if (false==is_benv_good(vcs->error)) {
@@ -118,7 +118,7 @@ is_benv_good_vcs(benv_vcs_t *vcs)
         _os->firmware[_idx]._obj.cookie);                    \
 }while(0)
 
-STATIC INLINE void
+DECLARE void
 __benv_os_show(benv_os_t *os)
 {
     int i;
@@ -145,7 +145,7 @@ rootfs* 1       0       fail    unknow  unknow
     os_println("======================================================================");
 }
 
-STATIC INLINE int
+DECLARE int
 __benv_ops_is(uint32 offset)
 {
     if (offset >= sizeof(benv_env_t)) {
@@ -165,7 +165,7 @@ __benv_ops_is(uint32 offset)
     }
 }
 
-STATIC INLINE int
+DECLARE int
 benv_vcs_cmp(char *obj, benv_vcs_t * a, benv_vcs_t * b)
 {
     int ret;
@@ -211,7 +211,7 @@ benv_vcs_cmp(char *obj, benv_vcs_t * a, benv_vcs_t * b)
     return 0;
 }
 
-STATIC INLINE int
+DECLARE int
 __benv_obj_min(char *obj, int sort[], int count, int (*cmp)(int a, int b))
 {
     int i, idx = 0;
@@ -229,7 +229,7 @@ __benv_obj_min(char *obj, int sort[], int count, int (*cmp)(int a, int b))
     return idx;
 }
 
-STATIC INLINE int
+DECLARE int
 __benv_obj_max(char *obj, int sort[], int count, int (*cmp)(int a, int b))
 {
     int i, idx = 0;
@@ -247,7 +247,7 @@ __benv_obj_max(char *obj, int sort[], int count, int (*cmp)(int a, int b))
     return idx;
 }
 
-STATIC INLINE void
+DECLARE void
 __benv_sort(int sort[], int count, int (*maxmin)(int sort[], int count))
 {
     if (count <= 1) {
@@ -262,7 +262,7 @@ __benv_sort(int sort[], int count, int (*maxmin)(int sort[], int count))
     __benv_sort(sort+1, count-1, maxmin);
 }
 
-STATIC INLINE int
+DECLARE int
 __benv_sort_count(int skips, int sort[], int size)
 {
     int i, count = 0;
@@ -276,7 +276,7 @@ __benv_sort_count(int skips, int sort[], int size)
     return count;
 }
 
-STATIC INLINE int
+DECLARE int
 __benv_check_version(benv_ops_t *ops, char *value)
 {
     benv_version_t version = BENV_INVALID_VERSION;
@@ -291,7 +291,7 @@ __benv_check_version(benv_ops_t *ops, char *value)
     }
 }
 
-STATIC INLINE int
+DECLARE int
 __benv_check_fsm(benv_ops_t *ops, char *value)
 {
     if (0==value[0]) {
@@ -311,7 +311,7 @@ __benv_check_fsm(benv_ops_t *ops, char *value)
     }
 }
 
-STATIC INLINE int
+DECLARE int
 __benv_check_current(benv_ops_t *ops, char *value)
 {
     char *end = NULL;
@@ -340,7 +340,7 @@ __benv_check_current(benv_ops_t *ops, char *value)
     }
 }
 
-STATIC INLINE int
+DECLARE int
 __benv_check_string(benv_ops_t *ops, char *value)
 {
     int size = 0;

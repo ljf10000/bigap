@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-STATIC INLINE int
+DECLARE int
 os_chex2int(int ch)
 {
     switch(ch) {
@@ -16,7 +16,7 @@ os_chex2int(int ch)
     }
 }
 
-STATIC INLINE int
+DECLARE int
 os_hex2bin(char *hex, byte *buf, int size)
 {
     int i;
@@ -37,7 +37,7 @@ os_hex2bin(char *hex, byte *buf, int size)
     return hexlen;
 }
 
-STATIC INLINE int
+DECLARE int
 os_bin2hex(char *hex, int space, byte *buf, int size)
 {
     int i, len = size+size;
@@ -60,7 +60,7 @@ os_bin2hex(char *hex, int space, byte *buf, int size)
 #define BOOT_SNPRINTF_BUFSIZE   4096
 #endif
 
-STATIC INLINE int
+DECLARE int
 os_vsnprintf(char *buf, int size, const char *fmt, va_list args)
 {
     int bsize = size?size-1:0;
@@ -86,7 +86,7 @@ error:
     return len;
 }
 
-STATIC INLINE int
+DECLARE int
 os_snprintf(char *buf, int size, const char *fmt, ...)
 {
     va_list args;
@@ -98,7 +98,7 @@ os_snprintf(char *buf, int size, const char *fmt, ...)
     return len;
 }
 
-STATIC INLINE int
+DECLARE int
 os_vasprintf(char **buf, const char *fmt, va_list args)
 {
     int len = 0;
@@ -114,7 +114,7 @@ os_vasprintf(char **buf, const char *fmt, va_list args)
     return len;
 }
 
-STATIC INLINE int
+DECLARE int
 os_asprintf(char **buf, const char *fmt, ...)
 {
     va_list args;

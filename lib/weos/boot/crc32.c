@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-STATIC INLINE uint32 
+DECLARE uint32 
 __crc32(uint32 crc_in, const void *buf, uint32 size) 
 {
     static uint32 table[256] = {
@@ -55,7 +55,7 @@ __crc32(uint32 crc_in, const void *buf, uint32 size)
     return crc ^ 0xFFFFFFFF;
 }
 
-STATIC INLINE uint32
+DECLARE uint32
 os_crc32(const void *buf, uint32 size)
 {
     return __crc32(0, buf, size);

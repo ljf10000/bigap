@@ -15,6 +15,19 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "benv/bcookie.h"
 LIB_INITER;
 /******************************************************************************/
+#include "weos/boot/addr.c"
+#include "weos/boot/ak.c"
+#include "weos/boot/base64.c"
+#include "weos/boot/bcookie.c"
+#include "weos/boot/benv.c"
+#include "weos/boot/cmd.c"
+#include "weos/boot/crc32.c"
+#include "weos/boot/dump.c"
+#include "weos/boot/env.c"
+#include "weos/boot/format.c"
+#include "weos/boot/md5.c"
+#include "weos/boot/string.c"
+/******************************************************************************/
 #include "app/autoarray.c"
 #include "app/bcookie.c"
 #include "app/bits.c"

@@ -237,13 +237,13 @@ __is_good_macchar(int ch)
         || (ch >= 'A' && ch <= 'F');
 }
 
-STATIC INLINE bool
+EXTERN bool
 __is_good_macstring(char *macstring);
 
-STATIC INLINE byte *
+EXTERN byte *
 __os_getmac_bystring(byte mac[], char macstring[]);
 
-STATIC INLINE byte *
+EXTERN byte *
 os_getmac_bystring(byte mac[], char macstring[]);
 
 static inline bool
@@ -265,7 +265,7 @@ os_mac(char *macstring)
     return __is_good_macstring(macstring)?__os_getmac_bystring(mac, macstring):OS_ZEROMAC;
 }
 
-STATIC INLINE int
+EXTERN int
 os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep);
 
 #define os_macsaprintf(_mac, _macstring, _type, _sep)   ({  \
@@ -276,7 +276,7 @@ os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep);
 /*
 *  multi-thread unsafe
 */
-STATIC INLINE char *
+EXTERN char *
 os_getmacstring(byte mac[], int type, int sep);
 
 /*
@@ -294,6 +294,8 @@ os_ipmatch(uint32 ipa, uint32 ipb, uint32 mask)
     return (ipa & mask)==(ipb & mask);
 }
 
+#ifdef __BOOT__
 #include "weos/boot/addr.c"
+#endif
 /******************************************************************************/
 #endif /* __ADDR_H_a60fcc799b2f44c38dcbf510eb97f0c6__ */

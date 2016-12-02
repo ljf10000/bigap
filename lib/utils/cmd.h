@@ -21,10 +21,10 @@ typedef struct {
     .argv   = { _arg, ##_args },    \
 }   /* end */
 
-STATIC INLINE cmd_table_t *
+EXTERN cmd_table_t *
 cmd_argv(char *command);
 
-STATIC INLINE int
+EXTERN int
 __cmd_handle(int count, cmd_table_t cmd[], int argc, char *argv[], int (*usage)(void));
 
 #define cmd_handle(_cmd, _argc, _argv, _usage)  \
@@ -38,7 +38,7 @@ typedef struct {
 
 #define CMD_MULTI_ENTRY(_module, _main)     { .module = _module, .main = _main }
 
-STATIC INLINE int
+EXTERN int
 __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[]);
 
 #define cmd_multi_handle(_multi, _argc, _argv) \
@@ -51,11 +51,13 @@ typedef struct {
     int (*setter)(char *name, char *value);
 } cmd_op_t;
 
-STATIC INLINE int 
+EXTERN int 
 cmd_getsetter(int argc, char *argv[], cmd_op_t *op);
 
 #endif /* defined(__APP__) || defined(__BOOT__) */
 
+#ifdef __BOOT__
 #include "weos/boot/cmd.c"
+#endif
 /******************************************************************************/
 #endif /* __CMD_H_15a8b3427d7b4f05a0ec671c231b2fa3__ */

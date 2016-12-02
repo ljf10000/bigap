@@ -29,10 +29,10 @@
 #define js_PATH             "/tmp/js:/lib/js"
 #endif
 
-STATIC INLINE int
+EXTERN int
 envs_count(char *env[]);
 
-STATIC INLINE void
+EXTERN void
 envs_append(char *dst[], char *src[]);
 
 extern char **environ;
@@ -70,10 +70,10 @@ envs_clone(char *env[])
     }                                       \
 }while(0)
 
-STATIC INLINE char *
+EXTERN char *
 env_gets(char *envname, char *deft) ;
 
-STATIC INLINE int
+EXTERN int
 __env_copy(char *envname, char *deft, char s[], int size) ;
 
 #define env_copy(_envname, _deft, _string)              ({  \
@@ -81,7 +81,7 @@ __env_copy(char *envname, char *deft, char s[], int size) ;
     __env_copy(_envname, _deft, _string, sizeof(_string));  \
 })
 
-STATIC INLINE int
+EXTERN int
 env_geti(char *envname, int deft) ;
 /******************************************************************************/
 #define use_THIS_ENV    0
@@ -267,6 +267,8 @@ typedef struct {
 } 
 env_cache_t;
 
+#ifdef __BOOT__
 #include "weos/boot/env.c"
+#endif
 /******************************************************************************/
 #endif /* __ENV_H_9f26434e76294326b152b1e81f17fb31__ */

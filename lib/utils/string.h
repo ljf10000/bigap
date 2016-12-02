@@ -115,7 +115,7 @@ os_safe_str(const char *s)
     return s?(char *)s:__nil;
 }
 
-STATIC INLINE int
+EXTERN int
 os_strcount(const char *s, int ch);
 
 static inline int
@@ -137,13 +137,13 @@ os_strcpy(char *dst, const char *src)
 }
 
 /* len is src's length */
-STATIC INLINE char *
+EXTERN char *
 os_strmcpy(char *dst, const char *src, int len);
 
 /*
 * no use strncpy(is unsafe)
 */
-STATIC INLINE uint32 
+EXTERN uint32 
 os_strlcpy(char *dst, const char *src, uint32 size);
 
 #ifndef os_strdcpy
@@ -160,7 +160,7 @@ os_strlcpy(char *dst, const char *src, uint32 size);
 })
 #endif
 
-STATIC INLINE int
+EXTERN int
 os_strcmp(const char *a, const char *b);
 
 static inline bool
@@ -175,7 +175,7 @@ os_strneq(const char *a, const char *b)
     return !!os_strcmp(a, b);
 }
 
-STATIC INLINE int
+EXTERN int
 os_strncmp(const char *a, const char *b, int len);
 
 /*
@@ -330,7 +330,7 @@ os_char_is(int ch, char_is_f *is)
     return is?(*is)(ch):(os_isblank(ch) || os_iscrlf(ch));
 }
 
-STATIC INLINE char *
+EXTERN char *
 os_str_skip(const char *s, char_is_f *is);
 
 /*
@@ -338,7 +338,7 @@ os_str_skip(const char *s, char_is_f *is);
 *
 * 注意 : string被修改，不可重入
 */
-STATIC INLINE char *
+EXTERN char *
 os_str_replace(char *s, char_is_f *is, int new);
 
 /*
@@ -346,7 +346,7 @@ os_str_replace(char *s, char_is_f *is, int new);
 * 
 * 注意 : str被修改，不可重入
 */
-STATIC INLINE char *
+EXTERN char *
 os_str_reduce(char *str, char_is_f *is);
 
 /*
@@ -354,7 +354,7 @@ os_str_reduce(char *str, char_is_f *is);
 * 
 * 注意 : str被修改，不可重入
 */
-STATIC INLINE char *
+EXTERN char *
 os_str_strim(char *str, char_is_f *is);
 
 /*
@@ -362,7 +362,7 @@ os_str_strim(char *str, char_is_f *is);
 * 
 * 注意 : str被修改，不可重入
 */
-STATIC INLINE char *
+EXTERN char *
 os_str_lstrim(char *str, char_is_f *is);
 
 /*
@@ -370,7 +370,7 @@ os_str_lstrim(char *str, char_is_f *is);
 * 
 * 注意 : str被修改，不可重入
 */
-STATIC INLINE char *
+EXTERN char *
 __os_str_rstrim(char *s, int len, char_is_f *is);
 
 static inline char *
@@ -385,7 +385,7 @@ os_str_strim_both(char *s, char_is_f *is)
     return os_str_rstrim(s, is), os_str_lstrim(s, is);
 }
 
-STATIC INLINE bool
+EXTERN bool
 os_str_is_end_by(const char *s, char *end);
 
 static inline bool
@@ -403,7 +403,7 @@ __char_is_drop(int ch, char_is_f *is)
 * 
 * 注意 : string被修改，不可重入
 */
-STATIC INLINE char *
+EXTERN char *
 os_str_drop(char *s, char_is_f *is);
 
 static inline bool 
@@ -428,10 +428,10 @@ __is_notes_line_deft(const char *line)
     return __is_notes_line(line, __notes);
 }
 
-STATIC INLINE char *
+EXTERN char *
 os_str_next(char *s, char_is_f *is);
 
-STATIC INLINE char *
+EXTERN char *
 os_str_next_byifs(char *s, char *ifs);
 
 #ifndef OS_STRING_BKDR
@@ -452,7 +452,7 @@ __bkdr_pop(bkdr_t a, bkdr_t b)
     return (a - b) / OS_STRING_BKDR;
 }
 
-STATIC INLINE bkdr_t
+EXTERN bkdr_t
 os_str_BKDR_push(bkdr_t bkdr, const char *s, uint32 *plen);
 
 static inline bkdr_t
@@ -461,7 +461,7 @@ os_str_BKDR(const char *s, uint32 *plen)
     return os_str_BKDR_push(0, s, plen);
 }
 
-STATIC INLINE bkdr_t
+EXTERN bkdr_t
 os_str_bkdr_push(bkdr_t bkdr, const char *s);
 
 static inline bkdr_t
@@ -470,7 +470,7 @@ os_str_bkdr(const char *s)
     return os_str_bkdr_push(0, s);
 }
 
-STATIC INLINE bkdr_t
+EXTERN bkdr_t
 os_bin_bkdr_push(bkdr_t bkdr, const void *binary, uint32 len);
 
 static inline bkdr_t
@@ -479,6 +479,8 @@ os_bin_bkdr(const void *binary, uint32 len)
     return os_bin_bkdr_push(0, binary, len);
 }
 
+#ifdef __BOOT__
 #include "weos/boot/string.c"
+#endif
 /******************************************************************************/
 #endif /* __STRING_H_433874baec1b41d58eef119d11851217__ */

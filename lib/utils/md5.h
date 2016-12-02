@@ -69,23 +69,23 @@ Rotation is separate from addition to prevent recomputation.
 
 /* MD5 initialization. Begins an MD5 operation, writing a new ctx.
  */
-STATIC INLINE void
+EXTERN void
 md5_init(md5_content_t *ctx);
 
 /* MD5 block update operation. Continues an MD5 message-digest
   operation, processing another message block, and updating the
   ctx.
  */
-STATIC INLINE void
+EXTERN void
 md5_update(md5_content_t *ctx, byte *input, uint32 inputLen);
 
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
   the message digest and zeroizing the ctx.
  */
-STATIC INLINE void
+EXTERN void
 md5_fini(md5_content_t *ctx, byte md5[16]);
 
-STATIC INLINE void
+EXTERN void
 md5_encode(byte md5[OS_MD5_SIZE], void *buf, uint32 len);
 
 static inline bool
@@ -94,7 +94,7 @@ md5_eq(byte a[OS_MD5_SIZE], byte b[OS_MD5_SIZE])
     return os_memeq(a, b, OS_MD5_SIZE);
 }
 
-STATIC INLINE int
+EXTERN int
 md5_file(char *filename, byte md5[OS_MD5_SIZE]);
 
 static inline void
@@ -111,6 +111,8 @@ md5_bin2hex(char *hex, byte md5[OS_MD5_SIZE])
 
 #define MD5_SZERO   SZERO32
 
+#ifdef __BOOT__
 #include "weos/boot/md5.c"
+#endif
 /******************************************************************************/
 #endif /* __MD5_H_46af656ba80c4a0c9dc59106b11551a0__ */

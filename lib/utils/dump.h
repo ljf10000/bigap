@@ -69,10 +69,10 @@ typedef void os_dump_line_f(char *line);
 #define os_dump_printf(_fmt, _args...)  os_printf(_fmt, ##_args)
 #endif
 
-STATIC INLINE void
+EXTERN void
 os_dump_line(int line, byte *raw, int len, os_dump_line_f *dump_line);
 
-STATIC INLINE void
+EXTERN void
 __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line);
 
 #define os_dump_buffer(_is_dump, _buffer, _len, _dump_line) do{ \
@@ -81,6 +81,8 @@ __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line);
     }                                                           \
 }while(0)
 
+#ifdef __BOOT__
 #include "weos/boot/dump.c"
+#endif
 /******************************************************************************/
 #endif /* __DUMP_H_96bec2f065cb4415a8327409eae6d67c__ */

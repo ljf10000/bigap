@@ -241,13 +241,13 @@ static inline int ak_sys_getidbyname(const char *name);
 #define __AK_SYS_END    __AK_SYS_END
 #endif
 
-STATIC INLINE uint32
+EXTERN uint32
 __ak_sys_debug(char *var);
 
-STATIC INLINE uint32
+EXTERN uint32
 __ak_sys_value(int sys, char *line);
 
-STATIC INLINE int
+EXTERN int
 __ak_get_value(char *key, char *value);
 /******************************************************************************/
 #define DECLARE_FAKE_COMMAND  extern bool __THIS_COMMAND
@@ -848,6 +848,8 @@ ak_var_set(ak_var_t *var, uint32 v)
     return ak_set(var->id, v);
 }
 
+#ifdef __BOOT__
 #include "weos/boot/ak.c"
+#endif
 /******************************************************************************/
 #endif /* __AK_H_2e420d20ac8a47b188d92ef8448db5fa__ */

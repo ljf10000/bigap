@@ -136,10 +136,10 @@ typedef struct {
     char pad[BENV_BLOCK_SIZE - BENV_COOKIE_SIZE];
 } benv_cookie_t; /* 512 */
 
-STATIC INLINE bool
+EXTERN bool
 is_good_benv_cookie(benv_cookie_t *cookie);
 
-STATIC INLINE void
+EXTERN void
 __benv_cookie_show(benv_cookie_t *cookie);
 
 typedef product_version_t benv_version_t;
@@ -155,10 +155,10 @@ typedef product_version_t benv_version_t;
 #define BENV_INVALID_VERSION        PRODUCT_INVALID_VERSION
 #define BENV_DEFT_VERSION           PRODUCT_DEFT_VERSION
 
-STATIC INLINE char *
+EXTERN char *
 benv_version_itoa(benv_version_t *version, char string[]);
 
-STATIC INLINE benv_version_t *
+EXTERN benv_version_t *
 benv_version_atoi(benv_version_t *version, char *string);
 
 static inline int
@@ -197,7 +197,7 @@ typedef struct {
     .cookie   = {0},            \
 }   /* end */
 
-STATIC INLINE void
+EXTERN void
 __benv_vcs_deft(benv_vcs_t *vcs);
 
 #define BENV_DEFT_VCS   \
@@ -217,7 +217,7 @@ benv_error_cmp(uint32 a, unsigned b)
     return os_cmp(a, b, is_benv_good, os_cmp_always_eq);
 }
 
-STATIC INLINE bool
+EXTERN bool
 is_benv_good_vcs(benv_vcs_t *vcs);
 
 typedef struct {
@@ -254,7 +254,7 @@ typedef struct {
     char pad[BENV_BLOCK_SIZE - BENV_OS_SIZE];
 } benv_os_t; /* 512 */
 
-STATIC INLINE void
+EXTERN void
 __benv_os_show(benv_os_t *os);
 
 enum {
@@ -292,7 +292,7 @@ typedef struct {
     benv_info_t     info;
 } benv_env_t;
 
-STATIC INLINE int
+EXTERN int
 __benv_ops_is(uint32 offset);
 
 enum {
@@ -676,7 +676,7 @@ benv_debug_init(void)
 * 3. other, fail < unknow < ok
 * 4. self, fail < unknow < ok
 */
-STATIC INLINE int
+EXTERN int
 benv_vcs_cmp(char *obj, benv_vcs_t * a, benv_vcs_t * b);
 
 static inline void
@@ -745,13 +745,13 @@ benv_firmware_cmp(int a, int b)
 /*
 * return sort idx
 */
-STATIC INLINE int
+EXTERN int
 __benv_obj_min(char *obj, int sort[], int count, int (*cmp)(int a, int b));
 
 /*
 * return sort idx
 */
-STATIC INLINE int
+EXTERN int
 __benv_obj_max(char *obj, int sort[], int count, int (*cmp)(int a, int b));
 
 static inline int
@@ -793,7 +793,7 @@ benv_firmware_max(int sort[], int count)
 #define benv_obj_min(_obj)    benv_##_obj##_min
 #define benv_obj_max(_obj)    benv_##_obj##_max
 
-STATIC INLINE void
+EXTERN void
 __benv_sort(int sort[], int count, int (*maxmin)(int sort[], int count));
 
 #define benv_skips(_idx)                (os_bit(0) | os_bit(__benv_current) | os_bit(_idx))
@@ -815,7 +815,7 @@ benv_first_idx(int current, int skips)
     return (1==current?2:1);
 }
 
-STATIC INLINE int
+EXTERN int
 __benv_sort_count(int skips, int sort[], int size);
 #define benv_sort_count(_skips, _sort)    __benv_sort_count(_skips, _sort, os_count_of(_sort))
 
@@ -1035,7 +1035,7 @@ __benv_set_string(benv_ops_t *ops, char *value)
     }
 }
 
-STATIC INLINE int
+EXTERN int
 __benv_check_version(benv_ops_t *ops, char *value);
 
 static inline void
@@ -1062,7 +1062,7 @@ __benv_set_version(benv_ops_t *ops, char *value)
     }
 }
 
-STATIC INLINE int
+EXTERN int
 __benv_check_fsm(benv_ops_t *ops, char *value);
 
 static inline void
@@ -1089,10 +1089,10 @@ __benv_set_fsm(benv_ops_t *ops, char *value)
     *benv_ops_fsm(ops) = fsm;
 }
 
-STATIC INLINE int
+EXTERN int
 __benv_check_current(benv_ops_t *ops, char *value);
 
-STATIC INLINE int
+EXTERN int
 __benv_check_string(benv_ops_t *ops, char *value);
 
 #define BENV_OPS(_path, _type, _member, _check, _write, _show) { \
@@ -2749,6 +2749,8 @@ benv_get(char *path)
     return NULL;
 }
 
+#ifdef __BOOT__
 #include "weos/boot/benv.c"
+#endif
 /******************************************************************************/
 #endif /* __BENV_H_6a2223c1e9a84ae38f5da34125b3974b__ */

@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-STATIC INLINE bool
+DECLARE bool
 __is_good_macstring_L(char *macstring)
 {
     /*
@@ -33,7 +33,7 @@ __is_good_macstring_L(char *macstring)
         && __is_good_macchar(macstring[16]);
 }
 
-STATIC INLINE bool
+DECLARE bool
 __is_good_macstring_M(char *macstring)
 {
     /*
@@ -59,7 +59,7 @@ __is_good_macstring_M(char *macstring)
         && __is_good_macchar(macstring[13]);
 }
 
-STATIC INLINE bool
+DECLARE bool
 __is_good_macstring_S(char *macstring)
 {
     /*
@@ -80,7 +80,7 @@ __is_good_macstring_S(char *macstring)
 
 }
 
-STATIC INLINE bool
+DECLARE bool
 __is_good_macstring(char *macstring)
 {
     switch(os_strlen(macstring)) {
@@ -91,7 +91,7 @@ __is_good_macstring(char *macstring)
     }
 }
 
-STATIC INLINE byte *
+DECLARE byte *
 __os_getmac_bystring_L(byte mac[], char macstring[])
 {
     int i;
@@ -103,7 +103,7 @@ __os_getmac_bystring_L(byte mac[], char macstring[])
     return mac;
 }
 
-STATIC INLINE byte *
+DECLARE byte *
 __os_getmac_bystring_M(byte mac[], char macstring[])
 {
     int i;
@@ -116,7 +116,7 @@ __os_getmac_bystring_M(byte mac[], char macstring[])
     return mac;
 }
 
-STATIC INLINE byte *
+DECLARE byte *
 __os_getmac_bystring_S(byte mac[], char macstring[])
 {
     int i;
@@ -128,7 +128,7 @@ __os_getmac_bystring_S(byte mac[], char macstring[])
     return mac;
 }
 
-STATIC INLINE byte *
+DECLARE byte *
 __os_getmac_bystring(byte mac[], char macstring[])
 {
     switch(os_strlen(macstring)) {
@@ -139,7 +139,7 @@ __os_getmac_bystring(byte mac[], char macstring[])
     }
 }
 
-STATIC INLINE byte *
+DECLARE byte *
 os_getmac_bystring(byte mac[], char macstring[])
 {
     byte tmp[6];
@@ -153,7 +153,7 @@ os_getmac_bystring(byte mac[], char macstring[])
     }
 }
 
-STATIC INLINE int
+DECLARE int
 __os_macsnprintf_L(byte mac[], char macstring[], int size, int sep)
 {
     return os_snprintf(macstring, size,
@@ -171,7 +171,7 @@ __os_macsnprintf_L(byte mac[], char macstring[], int size, int sep)
         mac[5]);
 }
 
-STATIC INLINE int
+DECLARE int
 __os_macsnprintf_M(byte mac[], char macstring[], int size, int sep)
 {
     return os_snprintf(macstring, size,
@@ -183,7 +183,7 @@ __os_macsnprintf_M(byte mac[], char macstring[], int size, int sep)
         mac[4], mac[5]);
 }
 
-STATIC INLINE int
+DECLARE int
 __os_macsnprintf_S(byte mac[], char macstring[], int size, int sep)
 {
     return os_snprintf(macstring, size,
@@ -195,7 +195,7 @@ __os_macsnprintf_S(byte mac[], char macstring[], int size, int sep)
         mac[4], mac[5]);
 }
 
-STATIC INLINE int
+DECLARE int
 os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep)
 {
     switch(type) {
@@ -205,7 +205,7 @@ os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep)
     }
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_getmacstring(byte mac[], int type, int sep)
 {
     static char macstring[1+MACSTRINGLEN_L] = {0};

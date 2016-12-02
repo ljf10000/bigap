@@ -68,16 +68,16 @@
 
 #ifdef __BOOT__
 
-STATIC INLINE int
+EXTERN int
 os_vsnprintf(char *buf, int size, const char *fmt, va_list args);
 
-STATIC INLINE int
+EXTERN int
 os_snprintf(char *buf, int size, const char *fmt, ...);
 
-STATIC INLINE int
+EXTERN int
 os_vasprintf(char **buf, const char *fmt, va_list args);
 
-STATIC INLINE int
+EXTERN int
 os_asprintf(char **buf, const char *fmt, ...);
 
 #else
@@ -173,6 +173,8 @@ os_asprintf_resv(char **buf, int resv, const char *fmt, ...)
     os_vsnprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, _args); \
 })
 
+#ifdef __BOOT__
 #include "weos/boot/format.c"
+#endif
 /******************************************************************************/
 #endif /* __FORMAT_H_099e7e9b6a574b4e87f5851b04db1a9d__ */

@@ -2,7 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #if defined(__APP__) || defined(__BOOT__)
-STATIC INLINE cmd_table_t *
+DECLARE cmd_table_t *
 cmd_argv(char *command)
 {
     static char line[1+OS_LINE_LEN];
@@ -24,7 +24,7 @@ cmd_argv(char *command)
     return &cmd;
 }
 
-STATIC INLINE bool
+DECLARE bool
 __cmd_match(cmd_table_t *cmd, int argc, char *argv[])
 {
     int i;
@@ -42,7 +42,7 @@ __cmd_match(cmd_table_t *cmd, int argc, char *argv[])
     return true;
 }
 
-STATIC INLINE int
+DECLARE int
 __cmd_handle(int count, cmd_table_t cmd[], int argc, char *argv[], int (*usage)(void))
 {
     int i;
@@ -58,7 +58,7 @@ __cmd_handle(int count, cmd_table_t cmd[], int argc, char *argv[], int (*usage)(
     return (*usage)();
 }
 
-STATIC INLINE int
+DECLARE int
 __cmd_multi_handle(int count, cmd_multi_table_t multi[], int argc, char *argv[])
 {
     int i;
@@ -86,7 +86,7 @@ help:
     return -EFORMAT;
 }
 
-STATIC INLINE int 
+DECLARE int 
 cmd_getsetter(int argc, char *argv[], cmd_op_t *op)
 {
     int err = 0;

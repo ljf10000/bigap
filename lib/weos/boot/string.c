@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-STATIC INLINE int
+DECLARE int
 os_strcount(const char *s, int ch)
 {
     const char *p = s;
@@ -16,7 +16,7 @@ os_strcount(const char *s, int ch)
     return count;
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_strmcpy(char *dst, const char *src, int len)
 {
     if (dst && src) {
@@ -28,7 +28,7 @@ os_strmcpy(char *dst, const char *src, int len)
     return dst;
 }
 
-STATIC INLINE uint32 
+DECLARE uint32 
 os_strlcpy(char *dst, const char *src, uint32 size)
 {
     char *d = (char *)dst;
@@ -54,7 +54,7 @@ os_strlcpy(char *dst, const char *src, uint32 size)
     return len;
 }
 
-STATIC INLINE int
+DECLARE int
 os_strcmp(const char *a, const char *b)
 {
     if (a) {
@@ -72,7 +72,7 @@ os_strcmp(const char *a, const char *b)
     }
 }
 
-STATIC INLINE int
+DECLARE int
 os_strncmp(const char *a, const char *b, int len)
 {
     if (a) {
@@ -90,7 +90,7 @@ os_strncmp(const char *a, const char *b, int len)
     }
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_str_skip(const char *s, char_is_f *is)
 {
     char *p = (char *)s;
@@ -102,7 +102,7 @@ os_str_skip(const char *s, char_is_f *is)
     return p;
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_str_replace(char *s, char_is_f *is, int new)
 {
     char *p = s;
@@ -118,7 +118,7 @@ os_str_replace(char *s, char_is_f *is, int new)
     return p;
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_str_reduce(char *str, char_is_f *is)
 {
     char *p = str; /* 记录指针 */
@@ -163,7 +163,7 @@ os_str_reduce(char *str, char_is_f *is)
     return s;
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_str_strim(char *str, char_is_f *is)
 {
     char *p = str; /* 记录指针 */
@@ -180,7 +180,7 @@ os_str_strim(char *str, char_is_f *is)
     return s;
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_str_lstrim(char *str, char_is_f *is)
 {
     char *p = str; /* 记录指针 */
@@ -204,7 +204,7 @@ os_str_lstrim(char *str, char_is_f *is)
     return s;
 }
 
-STATIC INLINE char *
+DECLARE char *
 __os_str_rstrim(char *s, int len, char_is_f *is)
 {
     /* pointer to last char */
@@ -221,7 +221,7 @@ __os_str_rstrim(char *s, int len, char_is_f *is)
     return s;
 }
 
-STATIC INLINE bool
+DECLARE bool
 os_str_is_end_by(const char *s, char *end)
 {
     uint32 slen = os_strlen(s);
@@ -234,7 +234,7 @@ os_str_is_end_by(const char *s, char *end)
     }
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_str_drop(char *s, char_is_f *is)
 {
     /* pointer to last char */
@@ -250,7 +250,7 @@ os_str_drop(char *s, char_is_f *is)
     return s;
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_str_next(char *s, char_is_f *is)
 {
     char *p = s;
@@ -272,7 +272,7 @@ os_str_next(char *s, char_is_f *is)
     }
 }
 
-STATIC INLINE char *
+DECLARE char *
 os_str_next_byifs(char *s, char *ifs)
 {
     bool is_ifs(int ch)
@@ -283,7 +283,7 @@ os_str_next_byifs(char *s, char *ifs)
     return os_str_next(s, is_ifs);
 }
 
-STATIC INLINE bkdr_t
+DECLARE bkdr_t
 os_str_BKDR_push(bkdr_t bkdr, const char *s, uint32 *plen)
 {
     if (s) {
@@ -303,7 +303,7 @@ os_str_BKDR_push(bkdr_t bkdr, const char *s, uint32 *plen)
     return bkdr;
 }
 
-STATIC INLINE bkdr_t
+DECLARE bkdr_t
 os_str_bkdr_push(bkdr_t bkdr, const char *s)
 {
     if (s) {
@@ -317,7 +317,7 @@ os_str_bkdr_push(bkdr_t bkdr, const char *s)
     return bkdr;
 }
 
-STATIC INLINE bkdr_t
+DECLARE bkdr_t
 os_bin_bkdr_push(bkdr_t bkdr, const void *binary, uint32 len)
 {
     if (binary && len) {
