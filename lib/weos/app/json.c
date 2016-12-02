@@ -1,7 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#ifdef __APP__
 char *
 jobj_string_ex(jobj_t obj, int flag)
 {
@@ -1184,6 +1183,4 @@ jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj)
     return jrules_apply(rules, obj, jobj, __jrule_j2o);
 }
 #endif /* USE_JRULE */
-
-#endif
 /******************************************************************************/

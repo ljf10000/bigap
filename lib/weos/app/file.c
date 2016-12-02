@@ -1,8 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#ifdef __APP__
-
 char *
 os_vfmtline(const char *fmt, va_list args)
 {
@@ -565,6 +563,4 @@ os_fgeti_ex(const char *file, int max, int min, int deft)
         return deft;
     }
 }
-
-#endif
 /******************************************************************************/

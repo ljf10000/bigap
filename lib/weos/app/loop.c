@@ -1,8 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-#ifdef __APP__
-
 typedef void loop_watcher_handle_f(loop_t *loop, loop_watcher_t *watcher, time_t now);
 
 STATIC bool
@@ -578,6 +576,4 @@ os_loop(loop_t *loop)
     
     return 0;
 }
-
-#endif
 /******************************************************************************/

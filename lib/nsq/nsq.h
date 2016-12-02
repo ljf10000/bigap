@@ -137,21 +137,21 @@ static inline int nsq_auth_getidbyname(const char *name);
 #endif
 
 #if 1
-#define NSQ_E_OK_NAME             "OK"
-#define NSQ_E_CLOSE_WAIT_NAME     "CLOSE_WAIT"
-#define NSQ_E_ERROR_NAME          "E_ERROR"
-#define NSQ_E_INVALID_NAME        "E_INVALID"
-#define NSQ_E_BAD_TOPIC_NAME      "E_BAD_TOPIC"
-#define NSQ_E_BAD_CHANNEL_NAME    "E_BAD_CHANNEL"
-#define NSQ_E_BAD_BODY_NAME       "E_BAD_BODY"
-#define NSQ_E_BAD_MESSAGE_NAME    "E_BAD_MESSAGE"
-#define NSQ_E_PUB_FAILED_NAME     "E_PUB_FAILED"
-#define NSQ_E_MPUB_FAILED_NAME    "E_MPUB_FAILED"
-#define NSQ_E_FIN_FAILED_NAME     "E_FIN_FAILED"
-#define NSQ_E_REQ_FAILED_NAME     "E_REQ_FAILED"
-#define NSQ_E_TOUCH_FAILED_NAME   "E_TOUCH_FAILED"
-#define NSQ_E_AUTH_FAILED_NAME    "E_AUTH_FAILED "
-#define NSQ_E_UNAUTHORIZED_NAME   "E_UNAUTHORIZED"
+#define NSQ_E_OK_NAME               "OK"
+#define NSQ_E_CLOSE_WAIT_NAME       "CLOSE_WAIT"
+#define NSQ_E_ERROR_NAME            "E_ERROR"
+#define NSQ_E_INVALID_NAME          "E_INVALID"
+#define NSQ_E_BAD_TOPIC_NAME        "E_BAD_TOPIC"
+#define NSQ_E_BAD_CHANNEL_NAME      "E_BAD_CHANNEL"
+#define NSQ_E_BAD_BODY_NAME         "E_BAD_BODY"
+#define NSQ_E_BAD_MESSAGE_NAME      "E_BAD_MESSAGE"
+#define NSQ_E_PUB_FAILED_NAME       "E_PUB_FAILED"
+#define NSQ_E_MPUB_FAILED_NAME      "E_MPUB_FAILED"
+#define NSQ_E_FIN_FAILED_NAME       "E_FIN_FAILED"
+#define NSQ_E_REQ_FAILED_NAME       "E_REQ_FAILED"
+#define NSQ_E_TOUCH_FAILED_NAME     "E_TOUCH_FAILED"
+#define NSQ_E_AUTH_FAILED_NAME      "E_AUTH_FAILED "
+#define NSQ_E_UNAUTHORIZED_NAME     "E_UNAUTHORIZED"
 
 #define NSQ_ERROR_ENUM_MAPPER(_)                            \
     _(NSQ_E_OK,             0,  NSQ_E_OK_NAME),             \
@@ -224,7 +224,6 @@ static inline int nsq_frame_getidbyname(const char *name);
 #define is_nsq_frame_message(_code)     (NSQ_FRAME_MESSAGE==(_code))
 #endif
 
-
 typedef union {
     char response[0];
     char error[0];
@@ -248,8 +247,7 @@ typedef struct {
     uint32 type;
 
     nsq_body_t b[0];
-} 
-nsq_msg_t;
+} nsq_msg_t;
 
 #define nsq_body_response(_msg)         (_msg)->b[0].response
 #define nsq_body_error(_msg)            (_msg)->b[0].error
@@ -308,7 +306,7 @@ is_nsq_response_error(nsq_msg_t *msg)
     return is_good_nsq_error(error) && NSQ_E_OK!=error;
 }
 
-#define nsq_msg_dump(_msg, _dump)   do{     \
+#define nsq_msg_dump(_msg, _dump)   do {    \
     if (is_nsq_frame_message((_msg)->type)) {   \
         _dump("size=%d, type=%s, timestamp=%llu, attempts=%d, body=%s", \
             (_msg)->size,                   \
@@ -322,7 +320,7 @@ is_nsq_response_error(nsq_msg_t *msg)
             nsq_frame_getnamebyid((_msg)->type), \
             nsq_body_msg_body(_msg));       \
     }                                       \
-}while(0)
+} while(0)
 
 typedef simple_buffer_t nsq_buffer_t;
 

@@ -8,6 +8,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "boot/cmd.c"
 #include "boot/crc32.c"
 #include "boot/dump.c"
+#include "boot/env.c"
 #include "boot/format.c"
 #include "boot/md5.c"
 /******************************************************************************/
