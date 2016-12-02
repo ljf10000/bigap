@@ -111,19 +111,8 @@
 })
 #endif
 
-static inline bool
-os_bmask_match(byte *a, byte *b, byte *mask, int len)
-{
-    int i;
-
-    for (i=0; i<len; i++) {
-        if (false==os_mask_match(a[i], b[i], mask[i])) {
-            return false;
-        }
-    }
-
-    return true;
-}
+extern bool
+os_bmask_match(byte *a, byte *b, byte *mask, int len);
 
 enum {
     BITMAPSLOT  = (sizeof(uint32)*8),
@@ -140,63 +129,20 @@ __is_good_bitmap_bit(os_bitmap_t *bp, uint32 bit)
     return IS_GOOD_ENUM(bit, bp->count);
 }
 
-static inline int
-os_bitmap_init(os_bitmap_t *bp, uint32 bits)
-{
-    uint32 count = OS_ALIGN(bits, BITMAPSLOT)/BITMAPSLOT;
-    
-    bp->maps = (uint32 *)os_zalloc(count * sizeof(uint32));
-    if (NULL==bp->maps) {
-        return -ENOMEM;
-    }
-    bp->count = count;
+extern int
+os_bitmap_init(os_bitmap_t *bp, uint32 bits);
 
-    return 0;
-}
+extern int
+os_bitmap_fini(os_bitmap_t *bp);
 
-static inline int
-os_bitmap_fini(os_bitmap_t *bp)
-{
-    if (bp) {
-        bp->count = 0;
-        
-        os_free(bp->maps);
-    }
+extern void
+os_bitmap_set(os_bitmap_t *bp, uint32 bit);
 
-    return 0;
-}
+extern void
+os_bitmap_clr(os_bitmap_t *bp, uint32 bit);
 
-static inline void
-os_bitmap_set(os_bitmap_t *bp, uint32 bit)
-{
-    if (bp && __is_good_bitmap_bit(bp, bit)) {
-        uint32 __bit = bit%BITMAPSLOT;
-        
-        os_setbit(bp->maps[bit/BITMAPSLOT], __bit);
-    }
-}
-
-static inline void
-os_bitmap_clr(os_bitmap_t *bp, uint32 bit)
-{
-    if (bp && __is_good_bitmap_bit(bp, bit)) {
-        uint32 __bit = bit%BITMAPSLOT;
-        
-        os_clrbit(bp->maps[bit/BITMAPSLOT], __bit);
-    }
-}
-
-static inline bool
-os_bitmap_isset(os_bitmap_t *bp, uint32 bit)
-{
-    if (bp && __is_good_bitmap_bit(bp, bit)) {
-        uint32 __bit = bit%BITMAPSLOT;
-        
-        return os_hasbit(bp->maps[bit/BITMAPSLOT], __bit);
-    } else {
-        return false;
-    }
-}
+extern bool
+os_bitmap_isset(os_bitmap_t *bp, uint32 bit);
 /******************************************************************************/
 #define OS_POSITION_HEAD    0x01
 #define OS_POSITION_TAIL    0x02

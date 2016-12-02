@@ -2,6 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #include "app/autoarray.c"
+#include "app/bits.c"
 #if USE_APP_BLOB
 #include "app/blob.c"
 #endif
