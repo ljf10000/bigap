@@ -11,7 +11,72 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #include "umd.h"
+/******************************************************************************/
+umd_limit_t *
+umd_limit_get(umd_user_t *user, int type)
+{
+    return &user->limit[type];
+}
 
+umd_limit_online_t *
+umd_limit_onliner(umd_user_t *user, int type)
+{
+    return &umd_limit_get(user, type)->online;
+}
+
+umd_limit_flow_t *
+umd_limit_flower(umd_user_t *user, int type, int dir)
+{
+    return &umd_limit_get(user, type)->flow[dir];
+}
+
+umd_limit_rate_t *
+umd_limit_rater(umd_user_t *user, int type, int dir)
+{
+    return &umd_limit_get(user, type)->rate[dir];
+}
+
+void
+umd_update_aging_helper(umd_user_t *user, int type, bool debug)
+{
+    umd_online_aging(user, type) = umd_online_idle(user, type);
+
+    if (debug) {
+        debug_aging("update %s aging to %d",
+            umd_flow_type_getnamebyid(type),
+            umd_online_aging(user, type));
+    }
+}
+
+void
+umd_update_aging(umd_user_t *user, bool debug)
+{
+    umd_update_aging_helper(user, umd_flow_type_wan, debug);
+    umd_update_aging_helper(user, umd_flow_type_lan, debug);
+}
+
+void
+umd_user_dump(char *tag, umd_user_t *user)
+{
+    jobj_t obj = umd_juser(user);
+
+    os_println("\t%s:%s", tag, jobj_json(obj));
+
+    jobj_put(obj);
+}
+
+void
+umd_user_debug_helper(char *tag, umd_user_t *user, bool debug)
+{
+    if (debug) {
+        jobj_t obj = umd_juser(user);
+        
+        jdebug("%o", tag, obj);
+
+        jobj_put(obj);
+    }
+}
+/******************************************************************************/
 #define umd_update_online_helper(_user, _obj, _TYPE, _field)    do{ \
     jobj_t o = jobj_get_leaf(_obj, #_TYPE, "online", #_field, NULL);\
                                                                     \
@@ -492,7 +557,6 @@ umd_set_state(umd_user_t *user, int state)
 
     user->state = state;
 }
-
 
 STATIC void
 umd_user_debug(char *tag, umd_user_t *user)

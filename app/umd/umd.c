@@ -11,11 +11,29 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #include "umd.h"
-
+/******************************************************************************/
 OS_INITER;
 
 umd_control_t umd = UMD_INITER;
 
+sock_server_t *
+umd_get_server_by_intf(umd_intf_t *intf)
+{
+    return umd.server[umd_server_id(intf->id)];
+}
+
+umd_intf_t *
+umd_get_intf_by_id(int intf_id)
+{
+    return &umd.cfg.instance.intf[intf_id];
+}
+
+umd_intf_t *
+umd_get_intf_by_server(sock_server_t *server)
+{
+    return umd_get_intf_by_id(umd_intf_id(server->id));
+}
+/******************************************************************************/
 STATIC int
 umd_init_pre(void)
 {

@@ -265,29 +265,17 @@ typedef struct {
 }
 umd_user_t;
 
-static inline umd_limit_t *
-umd_limit_get(umd_user_t *user, int type)
-{
-    return &user->limit[type];
-}
+extern umd_limit_t *
+umd_limit_get(umd_user_t *user, int type);
 
-static inline umd_limit_online_t *
-umd_limit_onliner(umd_user_t *user, int type)
-{
-    return &umd_limit_get(user, type)->online;
-}
+extern umd_limit_online_t *
+umd_limit_onliner(umd_user_t *user, int type);
 
-static inline umd_limit_flow_t *
-umd_limit_flower(umd_user_t *user, int type, int dir)
-{
-    return &umd_limit_get(user, type)->flow[dir];
-}
+extern umd_limit_flow_t *
+umd_limit_flower(umd_user_t *user, int type, int dir);
 
-static inline umd_limit_rate_t *
-umd_limit_rater(umd_user_t *user, int type, int dir)
-{
-    return &umd_limit_get(user, type)->rate[dir];
-}
+extern umd_limit_rate_t *
+umd_limit_rater(umd_user_t *user, int type, int dir);
 
 #define umd_limit_reauthor(_max, _numerator, _denominator) ({ \
     typeof(_max) _m_in___limit_reauth = (_max);                   \
@@ -325,24 +313,11 @@ umd_limit_rater(umd_user_t *user, int type, int dir)
 #define umd_limit_flow(_user, _TYPE, _DIR)      umd_limit_flower(_user, umd_flow_type_##_TYPE, umd_flow_dir_##_DIR)
 #define umd_limit_rate(_user, _TYPE, _DIR)      umd_limit_rater(_user, umd_flow_type_##_TYPE, umd_flow_dir_##_DIR)
 
-static inline void
-umd_update_aging_helper(umd_user_t *user, int type, bool debug)
-{
-    umd_online_aging(user, type) = umd_online_idle(user, type);
+extern void
+umd_update_aging_helper(umd_user_t *user, int type, bool debug);
 
-    if (debug) {
-        debug_aging("update %s aging to %d",
-            umd_flow_type_getnamebyid(type),
-            umd_online_aging(user, type));
-    }
-}
-
-static inline void
-umd_update_aging(umd_user_t *user, bool debug)
-{
-    umd_update_aging_helper(user, umd_flow_type_wan, debug);
-    umd_update_aging_helper(user, umd_flow_type_lan, debug);
-}
+extern void
+umd_update_aging(umd_user_t *user, bool debug);
 
 typedef mv_t um_foreach_f(umd_user_t *user);
 typedef mv_t um_get_f(umd_user_t *user);
@@ -476,23 +451,14 @@ typedef struct {
 
 extern umd_control_t umd;
 
-static inline sock_server_t *
-umd_get_server_by_intf(umd_intf_t *intf)
-{
-    return umd.server[umd_server_id(intf->id)];
-}
+extern sock_server_t *
+umd_get_server_by_intf(umd_intf_t *intf);
 
-static inline umd_intf_t *
-umd_get_intf_by_id(int intf_id)
-{
-    return &umd.cfg.instance.intf[intf_id];
-}
+extern umd_intf_t *
+umd_get_intf_by_id(int intf_id);
 
-static inline umd_intf_t *
-umd_get_intf_by_server(sock_server_t *server)
-{
-    return umd_get_intf_by_id(umd_intf_id(server->id));
-}
+extern umd_intf_t *
+umd_get_intf_by_server(sock_server_t *server);
 
 typedef struct {
     int state;
@@ -594,27 +560,11 @@ umd_juser(umd_user_t *user);
 extern umd_user_t *
 umd_touser(umd_user_t *user, jobj_t obj);
 
-static inline void
-umd_user_dump(char *tag, umd_user_t *user)
-{
-    jobj_t obj = umd_juser(user);
+extern void
+umd_user_dump(char *tag, umd_user_t *user);
 
-    os_println("\t%s:%s", tag, jobj_json(obj));
-
-    jobj_put(obj);
-}
-
-static inline void
-umd_user_debug_helper(char *tag, umd_user_t *user, bool debug)
-{
-    if (debug) {
-        jobj_t obj = umd_juser(user);
-        
-        jdebug("%o", tag, obj);
-
-        jobj_put(obj);
-    }
-}
+extern void
+umd_user_debug_helper(char *tag, umd_user_t *user, bool debug);
 
 extern jobj_t
 umd_jflow(void);
