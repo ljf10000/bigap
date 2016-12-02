@@ -33,6 +33,7 @@ LIB_INITER;
 #endif
 #include "weos/boot/cmd.c"
 #include "weos/boot/crc32.c"
+#include "weos/boot/db.c"
 #include "weos/boot/dlist.c"
 #include "weos/boot/dump.c"
 #include "weos/boot/env.c"
