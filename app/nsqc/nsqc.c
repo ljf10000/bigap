@@ -5,7 +5,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_APP      nsqc
 #endif
 
-#include "nsq/nsq.h"
+#include "utils.h"
 
 OS_INITER;
 
