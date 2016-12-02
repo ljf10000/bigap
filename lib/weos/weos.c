@@ -22,13 +22,13 @@ LIB_INITER;
 #include "weos/boot/bcookie.c"
 #include "weos/boot/benv.c"
 #include "weos/boot/bits.c"
-#if USE_BLOB
+#if USE_MOD_BLOB
 #include "weos/boot/blob.c"
 #endif
-#if USE_CHANNEL
+#if USE_MOD_CHANNEL
 #include "weos/boot/channel.c"
 #endif
-#if USE_CQUEUE
+#if USE_MOD_CQUEUE
 #include "weos/boot/cqueue.c"
 #endif
 #include "weos/boot/cmd.c"
@@ -37,18 +37,18 @@ LIB_INITER;
 #include "weos/boot/env.c"
 #include "weos/boot/format.c"
 #include "weos/boot/md5.c"
-#if USE_SLICE
+#if USE_MOD_SLICE
 #include "weos/boot/slice.c"
 #endif
 #include "weos/boot/string.c"
 /******************************************************************************/
 #include "weos/app/bcookie.c"
-#if USE_APP_COROUTINE
+#if USE_MOD_COROUTINE
 #include "weos/app/coroutine.c"
 #endif
 #include "weos/app/dll.c"
 #include "weos/app/env.c"
-#if USE_APP_FD
+#if USE_MOD_FD
 #include "weos/app/fd.c"
 #endif
 #include "weos/app/file.c"
