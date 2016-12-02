@@ -312,58 +312,74 @@ jobj_get_vleaf(jobj_t obj, va_list args);
 extern jobj_t
 jobj_get_leaf(jobj_t obj, ...);
 /******************************************************************************/
-#define jj_byvar(_obj, _jobj, _member, _type, _format) ({ \
-    jobj_t __tmp = jobj_get(_jobj, #_member); \
+#define __jj_byvar(_obj, _jobj, _jname, _member, _type, _format) ({ \
+    jobj_t __tmp = jobj_get(_jobj, #_jname); \
     if (__tmp) { \
         (_obj)->_member = jobj_get_##_type(__tmp); \
-        debug_format(#_member "=" _format, (_obj)->_member); \
+        debug_format(#_jname "=" _format, (_obj)->_member); \
     } \
     0; \
 })  /* end */
 
-#define jj_bymapper(_obj, _jobj, _member, _mapper, _op) ({ \
-    jobj_t __tmp = jobj_get(_jobj, #_member); \
+#define __jj_bymapper(_obj, _jobj, _jname, _member, _mapper, _op) ({ \
+    jobj_t __tmp = jobj_get(_jobj, #_jname); \
     if (__tmp) { \
         char *string = jobj_get_string(__tmp); \
         _op((_obj)->_member, _mapper(string)); \
-        debug_format(#_member "=%s", string); \
+        debug_format(#_jname "=%s", string); \
     } \
     0; \
 })  /* end */
 
+#define __jj_byeq(_obj, _jobj, _jname, _member, _mapper) \
+        __jj_bymapper(_obj, _jobj, _jname, _member, _mapper, os_eq_buildin)
+
+#define __jj_ip(_obj, _jobj, _jname, _member)       __jj_byeq(_obj, _jobj, _jname, _member, inet_addr)
+#define __jj_time(_obj, _jobj, _jname, _member)     __jj_byeq(_obj, _jobj, _jname, _member, os_fulltime)
+#define __jj_string(_obj, _jobj, _jname, _member)   __jj_byeq(_obj, _jobj, _jname, _member, os_strdup)
+#define __jj_string_unsafe(_obj, _jobj, _jname, _member)    __jj_byeq(_obj, _jobj, _jname, _member, os_map_nothing)
+
+#define __jj_mac(_obj, _jobj, _jname, _member)      __jj_bymapper(_obj, _jobj, _jname, _member, os_mac, os_maccpy)
+#define __jj_strcpy(_obj, _jobj, _jname, _member)   __jj_bymapper(_obj, _jobj, _jname, _member, os_map_nothing, os_strcpy)
+
+#define __jj_bool(_obj, _jobj, _jname, _member)     __jj_byvar(_obj, _jobj, _jname, _member, bool, "%d")
+#define __jj_int(_obj, _jobj, _jname, _member)      __jj_byvar(_obj, _jobj, _jname, _member, int, "%d")
+#define __jj_double(_obj, _jobj, _jname, _member)   __jj_byvar(_obj, _jobj, _jname, _member, double, "%f")
+#define __jj_i32(_obj, _jobj, _jname, _member)      __jj_byvar(_obj, _jobj, _jname, _member, i32, "%d")
+#define __jj_u32(_obj, _jobj, _jname, _member)      __jj_byvar(_obj, _jobj, _jname, _member, u32, "%u")
+#define __jj_f32(_obj, _jobj, _jname, _member)      __jj_byvar(_obj, _jobj, _jname, _member, f32, "%f")
+#define __jj_i64(_obj, _jobj, _jname, _member)      __jj_byvar(_obj, _jobj, _jname, _member, i64, "%lld")
+#define __jj_u64(_obj, _jobj, _jname, _member)      __jj_byvar(_obj, _jobj, _jname, _member, u64, "%llu")
+#define __jj_f64(_obj, _jobj, _jname, _member)      __jj_byvar(_obj, _jobj, _jname, _member, f64, "%llu")
+/******************************************************************************/
+#define jj_byvar(_obj, _jobj, _member, _type, _format) \
+    __jj_byvar(_obj, _jobj, _member, _member, _type, _format)
+
+#define jj_bymapper(_obj, _jobj, _member, _mapper, _op) \
+    __jj_bymapper(_obj, _jobj, _member, _member, _mapper, _op)
+
 #define jj_byeq(_obj, _jobj, _member, _mapper) \
-        jj_bymapper(_obj, _jobj, _member, _mapper, os_eq_buildin)
+    __jj_byeq(_obj, _jobj, _member, _member, _mapper)
 
-#define jj_ip(_obj, _jobj, _member)         jj_byeq(_obj, _jobj, _member, inet_addr)
-#define jj_time(_obj, _jobj, _member)       jj_byeq(_obj, _jobj, _member, os_fulltime)
-#define jj_string(_obj, _jobj, _member)     jj_byeq(_obj, _jobj, _member, os_strdup)
-#define jj_string_unsafe(_obj, _jobj, _member)  jj_byeq(_obj, _jobj, _member, os_map_nothing)
+#define jj_ip(_obj, _jobj, _member)             __jj_ip(_obj, _jobj, _member, _member)
+#define jj_time(_obj, _jobj, _member)           __jj_time(_obj, _jobj, _member, _member)
+#define jj_string(_obj, _jobj, _member)         __jj_string(_obj, _jobj, _member, _member)
+#define jj_string_unsafe(_obj, _jobj, _member)  __jj_string_unsafe(_obj, _jobj, _member, _member)
 
-#define jj_mac(_obj, _jobj, _member)        jj_bymapper(_obj, _jobj, _member, os_mac, os_maccpy)
-#define jj_strcpy(_obj, _jobj, _member)     jj_bymapper(_obj, _jobj, _member, os_map_nothing, os_strcpy)
+#define jj_mac(_obj, _jobj, _member)        __jj_mac(_obj, _jobj, _member, _member)
+#define jj_strcpy(_obj, _jobj, _member)     __jj_strcpy(_obj, _jobj, _member, _member)
 
-#define jj_bool(_obj, _jobj, _member)       jj_byvar(_obj, _jobj, _member, bool, "%d")
-#define jj_int(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, int, "%d")
-#define jj_double(_obj, _jobj, _member)     jj_byvar(_obj, _jobj, _member, double, "%f")
-#define jj_i32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i32, "%d")
-#define jj_u32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, u32, "%u")
-#define jj_f32(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, f32, "%f")
-#define jj_i64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, i64, "%lld")
-#define jj_u64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, u64, "%llu")
-#define jj_f64(_obj, _jobj, _member)        jj_byvar(_obj, _jobj, _member, f64, "%llu")
-
+#define jj_bool(_obj, _jobj, _member)       __jj_bool(_obj, _jobj, _member, _member)
+#define jj_int(_obj, _jobj, _member)        __jj_int(_obj, _jobj, _member, _member)
+#define jj_double(_obj, _jobj, _member)     __jj_double(_obj, _jobj, _member, _member)
+#define jj_i32(_obj, _jobj, _member)        __jj_i32(_obj, _jobj, _member, _member)
+#define jj_u32(_obj, _jobj, _member)        __jj_u32(_obj, _jobj, _member, _member)
+#define jj_f32(_obj, _jobj, _member)        __jj_f32(_obj, _jobj, _member, _member)
+#define jj_i64(_obj, _jobj, _member)        __jj_i64(_obj, _jobj, _member, _member)
+#define jj_u64(_obj, _jobj, _member)        __jj_u64(_obj, _jobj, _member, _member)
+#define jj_f64(_obj, _jobj, _member)        __jj_f64(_obj, _jobj, _member, _member)
+/******************************************************************************/
 typedef int jobj_mapper_f(jobj_t jobj);
-
-#define __JOBJ_MAPPER(_obj, _type, _member)     \
-int __jobj_map_##_member(jobj_t jobj)           \
-{                                               \
-    return jj_##_type(_obj, jobj, _member);     \
-}   /* end */
-
-#define DECLARE_JOBJ_MAPPER(_mapper)            _mapper(__JOBJ_MAPPER) os_fake_declare
-
-#define __JOBJ_MAP_ENTRY(_obj, _type, _member)  __jobj_map_##_member,
-#define JOBJ_MAP_INITER(_mapper)                { _mapper(__JOBJ_MAP_ENTRY) }
 
 extern jobj_t 
 __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count);
@@ -372,13 +388,50 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count);
 #define __jobj_mapfile(_file, _map, _count) __jobj_map(jobj_byfile(_file), _map, _count)
 #define jobj_mapfile(_file, _map)           __jobj_mapfile(_file, _map, os_count_of(_map))
 
+
+#define JOBJ_FUNC_NAME_MEMBER_MAPPER(_obj, _type, _jname, _member) \
+int __jobj_map_##_jname##_##_member##_helper(jobj_t jobj)   \
+{                                                           \
+    return __jj_##_type(_obj, jobj, _jname, _member);       \
+}   /* end */
+#define JOBJ_FUNC_NAME_MEMBER_HELPER(_obj, _type, _jname, _member)  __jobj_map_##_jname##_##_member##_helper,
+
+
+#define JOBJ_FUNC_MEMBER_MAPPER(_obj, _type, _member)  \
+int __jobj_map_##_member##_helper(jobj_t jobj)  \
+{                                               \
+    return jj_##_type(_obj, jobj, _member);     \
+}   /* end */
+#define JOBJ_FUNC_MEMBER_HELPER(_obj, _type, _member)   __jobj_map_##_member##_helper,
+
+
+#define JOBJ_MAP_BY(_jobj, _mapper, _func_mapper, _func_helper) ({ \
+    _mapper(_func_mapper) os_fake_declare;                  \
+    jobj_mapper_f *__map[] = { _mapper(_func_helper) };     \
+    jobj_map(_jobj, __map);                                 \
+})
+#define JOBJ_MAPFILE_BY(_file, _mapper, _func_mapper, _func_helper)  \
+    JOBJ_MAP_BY(jobj_byfile(_file), _mapper, _func_mapper, _func_helper)
+
+
 #define JOBJ_MAP(_jobj, _mapper) ({ \
-    DECLARE_JOBJ_MAPPER(_mapper);   \
-    jobj_mapper_f *__map[] = JOBJ_MAP_INITER(_mapper);\
+    _mapper(JOBJ_FUNC_MEMBER_MAPPER) os_fake_declare; \
+    jobj_mapper_f *__map[] = { _mapper(JOBJ_FUNC_MEMBER_HELPER) }; \
     jobj_map(_jobj, __map);         \
 })
-
 #define JOBJ_MAPFILE(_file, _mapper)        JOBJ_MAP(jobj_byfile(_file), _mapper)
+
+
+#define JOBJ_MAP_NAME_MEMBER(_jobj, _mapper) \
+    JOBJ_MAP_BY(_jobj, _mapper, JOBJ_FUNC_NAME_MEMBER_MAPPER, JOBJ_FUNC_NAME_MEMBER_HELPER)
+#define JOBJ_MAPFILE_NAME_MEMBER(_file, _mapper) \
+    JOBJ_MAPFILE_BY(_file, _mapper, JOBJ_FUNC_NAME_MEMBER_MAPPER, JOBJ_FUNC_NAME_MEMBER_HELPER)
+
+
+#define JOBJ_MAP_MEMBER(_jobj, _mapper) \
+    JOBJ_MAP_BY(_jobj, _mapper, JOBJ_FUNC_MEMBER_MAPPER, JOBJ_FUNC_MEMBER_HELPER)
+#define JOBJ_MAPFILE_MEMBER(_file, _mapper) \
+    JOBJ_MAPFILE_BY(_file, _mapper, JOBJ_FUNC_MEMBER_MAPPER, JOBJ_FUNC_MEMBER_HELPER)
 /******************************************************************************/
 #define USE_JRULE       1
 

@@ -337,12 +337,34 @@ typedef struct {
     char name[1+OS_IFNAME_LEN];
     byte mac[OS_MACSIZE], __r0[2];
     uint32 id;
+    int    auth;
     
     uint32 index;
     uint32 ip;
     uint32 mask;
     uint32 flag;
 } umd_intf_t;
+
+#if 1
+#define UMD_AUTH_TYPE_ENUM_MAPPER(_)        \
+    _(umd_auth_type_none,   0, "none"),     \
+    _(umd_auth_type_mac,    1, "mac"),      \
+    _(umd_auth_type_portal, 2, "portal"),   \
+    _(umd_auth_type_webcat, 3, "webcat"),   \
+    /* end */
+DECLARE_ENUM(umd_auth_type, UMD_AUTH_TYPE_ENUM_MAPPER, umd_auth_type_end);
+
+static inline enum_ops_t *umd_auth_type_ops(void);
+static inline bool is_good_umd_auth_type(int id);
+static inline char *umd_auth_type_getnamebyid(int id);
+static inline int umd_auth_type_getidbyname(const char *name);
+
+#define umd_auth_type_none      umd_auth_type_none
+#define umd_auth_type_mac       umd_auth_type_mac
+#define umd_auth_type_portal    umd_auth_type_portal
+#define umd_auth_type_webcat    umd_auth_type_webcat
+#define umd_auth_type_end       umd_auth_type_end
+#endif
 
 #if 1
 #define UM_FORWARD_MODE_ENUM_MAPPER(_)  \

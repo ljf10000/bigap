@@ -117,16 +117,19 @@ STATIC int
 umd_init_cfg_instance_one(jobj_t jinstance, int id)
 {
     umd_intf_t *intf = &umd.cfg.instance.intf[id];
+    jobj_t jval;
     
-    jobj_t jobj = jobj_get(jinstance, "ingress");
-    if (jobj) {
-        char *ifname = jobj_get_string(jobj);
+    jval = jobj_get(jinstance, "ingress");
+    if (jval) {
+        char *ifname = jobj_get_string(jval);
         
         os_strdcpy(intf->name, ifname);
 
         debug_config("ingress=%s", ifname);
     }
 
+    jj_byeq(intf, jinstance, auth, umd_auth_type_getidbyname);
+    
     return 0;
 }
 
