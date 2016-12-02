@@ -72,27 +72,27 @@
 #define PC_FILE(_dir, _file)    PC_DIR(_dir) "/" _file
 /******************************************************************************/
 #ifndef USE_APP_BLOB
-#define USE_APP_BLOB        PC_VAL(1, 0)
+#define USE_APP_BLOB            PC_VAL(1, 0)
 #endif
 
 #ifndef USE_APP_CHANNEL
-#define USE_APP_CHANNEL     PC_VAL(1, 0)
+#define USE_APP_CHANNEL         PC_VAL(1, 0)
 #endif
 
 #ifndef USE_APP_COROUTINE
-#define USE_APP_COROUTINE   PC_VAL(1, 0)
+#define USE_APP_COROUTINE       PC_VAL(1, 0)
 #endif
 
 #ifndef USE_APP_CQUEUE
-#define USE_APP_CQUEUE      PC_VAL(1, 0)
+#define USE_APP_CQUEUE          PC_VAL(1, 0)
 #endif
 
 #ifndef USE_APP_FD
-#define USE_APP_FD          PC_VAL(1, 0)
+#define USE_APP_FD              PC_VAL(1, 0)
 #endif
 
 #ifndef USE_APP_SLICE
-#define USE_APP_SLICE       PC_VAL(1, 0)
+#define USE_APP_SLICE           PC_VAL(1, 0)
 #endif
 /******************************************************************************/
 #endif /* __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__ */
