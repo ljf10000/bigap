@@ -22,39 +22,39 @@ typedef struct {
     byte buf[0];
 } channel_t;
 
-extern bool
+EXTERN bool
 os_ch_left(channel_t *ch);
 
-extern bool
+EXTERN bool
 os_ch_count(channel_t *ch);
 
-extern bool
+EXTERN bool
 os_ch_is_empty(channel_t *ch);
 
-extern bool
+EXTERN bool
 os_ch_is_full(channel_t *ch);
 
-extern bool
+EXTERN bool
 os_ch_is_writeable(channel_t *ch, uint32 idx);
 
-extern bool
+EXTERN bool
 os_ch_is_readable(channel_t *ch, uint32 idx);
 
 #define os_ch_free(_ch)     os_free(_ch)
 
-extern channel_t *
+EXTERN channel_t *
 os_ch_new(uint32 type, uint32 limit, uint32 size);
 
-extern int
+EXTERN int
 os_ch_get(channel_t *ch, uint32 idx, void *obj);
 
-extern int
+EXTERN int
 os_ch_set(channel_t *ch, uint32 idx, void *obj);
 
-extern int
+EXTERN int
 os_ch_read(channel_t *ch, void *obj);
 
-extern int
+EXTERN int
 os_ch_write(channel_t *ch, void *obj);
 /******************************************************************************/
 #define os_och_new(_limit, _size)       os_ch_new(CHANNEL_OBJECT, _limit, _size)
@@ -192,5 +192,9 @@ os_pch_write(channel_t *ch, void *pointer)
 {
     return os_ch_write(ch, (void *)&pointer);
 }
+
+#ifdef __BOOT__
+#include "weos/boot/channel.c"
+#endif
 /******************************************************************************/
 #endif /* __CHANNEL_H_91835dac42e940458282784927bce6fd__ */

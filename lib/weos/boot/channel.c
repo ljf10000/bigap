@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-STATIC int
+DECLARE int
 __ch_align(channel_t *ch, uint32 number)
 {
     return number % ch->limit;
@@ -17,37 +17,37 @@ __ch_align(channel_t *ch, uint32 number)
     __ch_data(_ch, _type)[_idx] = *(_type *)_obj;   \
 }while(0)
 
-STATIC byte *
+DECLARE byte *
 __ch_buffer(channel_t *ch, uint32 idx)
 {
     return ch->buf + ch->size * idx;
 }
 
-STATIC bool
+DECLARE bool
 __ch_count(channel_t *ch)
 {
     return __ch_align(ch, ch->limit + ch->writer - ch->reader);
 }
 
-STATIC bool
+DECLARE bool
 __ch_left(channel_t *ch)
 {
     return ch->limit - __ch_count(ch);
 }
 
-STATIC bool
+DECLARE bool
 __ch_is_empty(channel_t *ch)
 {
     return 0==__ch_count(ch);
 }
 
-STATIC bool
+DECLARE bool
 __ch_is_full(channel_t *ch)
 {
     return __ch_left(ch) <= 1;
 }
 
-STATIC bool
+DECLARE bool
 __ch_is_writeable(channel_t *ch, uint32 idx)
 {
     uint32 reader = ch->reader;
@@ -69,13 +69,13 @@ __ch_is_writeable(channel_t *ch, uint32 idx)
     }
 }
 
-STATIC bool
+DECLARE bool
 __ch_is_readable(channel_t *ch, uint32 idx)
 {
     return false==__ch_is_writeable(ch, idx);
 }
 
-STATIC int
+DECLARE int
 __ch_SIZE(uint32 type, uint32 size)
 {
     switch(type) {
@@ -112,7 +112,7 @@ __ch_SIZE(uint32 type, uint32 size)
     return size;
 }
 
-STATIC channel_t *
+DECLARE channel_t *
 __ch_new(uint32 type, uint32 limit, uint32 size)
 {
     if (0==size) {
@@ -129,7 +129,7 @@ __ch_new(uint32 type, uint32 limit, uint32 size)
     return ch;
 }
 
-STATIC int
+DECLARE int
 __ch_get(channel_t *ch, uint32 idx, void *obj)
 {
     idx = __ch_align(ch, idx);
@@ -170,7 +170,7 @@ __ch_get(channel_t *ch, uint32 idx, void *obj)
     return 0;
 }
 
-STATIC int
+DECLARE int
 __ch_set(channel_t *ch, uint32 idx, void *obj)
 {
     idx = __ch_align(ch, idx);
@@ -207,7 +207,7 @@ __ch_set(channel_t *ch, uint32 idx, void *obj)
     return 0;
 }
 
-STATIC int
+DECLARE int
 __ch_read(channel_t *ch, void *obj)
 {
     uint32 reader = ch->reader;
@@ -227,7 +227,7 @@ __ch_read(channel_t *ch, void *obj)
     return 0;
 }
 
-STATIC int
+DECLARE int
 __ch_write(channel_t *ch, void *obj)
 {
     uint32 writer = ch->writer;
@@ -247,7 +247,7 @@ __ch_write(channel_t *ch, void *obj)
     return 0;
 }
 /******************************************************************************/
-bool
+DECLARE bool
 os_ch_left(channel_t *ch)
 {
     if (NULL==ch) {
@@ -257,7 +257,7 @@ os_ch_left(channel_t *ch)
     }
 }
 
-bool
+DECLARE bool
 os_ch_count(channel_t *ch)
 {
     if (NULL==ch) {
@@ -267,7 +267,7 @@ os_ch_count(channel_t *ch)
     }
 }
 
-bool
+DECLARE bool
 os_ch_is_empty(channel_t *ch)
 {
     if (NULL==ch) {
@@ -280,7 +280,7 @@ os_ch_is_empty(channel_t *ch)
     }
 }
 
-bool
+DECLARE bool
 os_ch_is_full(channel_t *ch)
 {
     if (NULL==ch) {
@@ -293,7 +293,7 @@ os_ch_is_full(channel_t *ch)
     }
 }
 
-bool
+DECLARE bool
 os_ch_is_writeable(channel_t *ch, uint32 idx)
 {
     if (NULL==ch) {
@@ -306,7 +306,7 @@ os_ch_is_writeable(channel_t *ch, uint32 idx)
     }
 }
 
-bool
+DECLARE bool
 os_ch_is_readable(channel_t *ch, uint32 idx)
 {
     if (NULL==ch) {
@@ -319,13 +319,13 @@ os_ch_is_readable(channel_t *ch, uint32 idx)
     }
 }
 
-channel_t *
+DECLARE channel_t *
 os_ch_new(uint32 type, uint32 limit, uint32 size)
 {
     return __ch_new(type, os_power_align(limit), __ch_SIZE(type, size));
 }
 
-int
+DECLARE int
 os_ch_get(channel_t *ch, uint32 idx, void *obj)
 {
     if (NULL==ch) {
@@ -337,7 +337,7 @@ os_ch_get(channel_t *ch, uint32 idx, void *obj)
     }
 }
 
-int
+DECLARE int
 os_ch_set(channel_t *ch, uint32 idx, void *obj)
 {
     if (NULL==ch) {
@@ -349,7 +349,7 @@ os_ch_set(channel_t *ch, uint32 idx, void *obj)
     }
 }
 
-int
+DECLARE int
 os_ch_read(channel_t *ch, void *obj)
 {
     if (NULL==ch) {
@@ -361,7 +361,7 @@ os_ch_read(channel_t *ch, void *obj)
     }
 }
 
-int
+DECLARE int
 os_ch_write(channel_t *ch, void *obj)
 {
     if (NULL==ch) {

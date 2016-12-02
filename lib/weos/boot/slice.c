@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-bool 
+DECLARE bool 
 slice_is_clean(const slice_t *slice)
 {
     return  0==slice_len(slice)     &&
@@ -10,7 +10,7 @@ slice_is_clean(const slice_t *slice)
             NULL==slice_head(slice);
 }
 
-int 
+DECLARE int 
 slice_reinit(slice_t *slice, uint32 size, uint32 resv, bool local)
 {
     if (0==size) {
@@ -33,7 +33,7 @@ slice_reinit(slice_t *slice, uint32 size, uint32 resv, bool local)
     return 0;
 }
 
-int
+DECLARE int
 slice_alloc(slice_t *slice, uint32 size)
 {
     void *buf = NULL;
@@ -48,7 +48,7 @@ slice_alloc(slice_t *slice, uint32 size)
     return 0;
 }
 
-slice_t *
+DECLARE slice_t *
 slice_clone(slice_t *dst, const slice_t *src)
 {
     void *buf;
@@ -67,7 +67,7 @@ slice_clone(slice_t *dst, const slice_t *src)
     return dst;
 }
 
-int
+DECLARE int
 slice_grow(slice_t *slice, uint32 grow)
 {
     void *buf;
@@ -97,7 +97,7 @@ slice_grow(slice_t *slice, uint32 grow)
     return 0;
 }
 
-byte *
+DECLARE byte *
 slice_pull(slice_t *slice, uint32 len)
 {
     trace_assert(NULL!=slice, "slice is nil");
@@ -138,7 +138,7 @@ slice_pull(slice_t *slice, uint32 len)
     return slice_data(slice);
 }
 
-byte *
+DECLARE byte *
 slice_push(slice_t *slice, uint32 len)
 {
     trace_assert(NULL!=slice,  "slice is nil");
@@ -154,7 +154,7 @@ slice_push(slice_t *slice, uint32 len)
     return slice_data(slice);
 }
 
-byte *
+DECLARE byte *
 slice_put(slice_t *slice, uint32 len)
 {
     trace_assert(NULL!=slice, "slice is nil");
@@ -168,7 +168,7 @@ slice_put(slice_t *slice, uint32 len)
     return slice_tail(slice);
 }
 
-byte *
+DECLARE byte *
 slice_trim(slice_t *slice, uint32 len)
 {
     trace_assert(NULL!=slice, "slice is nil");
@@ -182,7 +182,7 @@ slice_trim(slice_t *slice, uint32 len)
     return slice_tail(slice);
 }
 
-byte *
+DECLARE byte *
 slice_put_char(slice_t *slice, int ch)
 {
     byte *new;
@@ -197,7 +197,7 @@ slice_put_char(slice_t *slice, int ch)
     return new;
 }
 
-byte *
+DECLARE byte *
 slice_put_buf(slice_t *slice, void *buf, uint32 len)
 {
     trace_assert(NULL!=slice, "slice is nil");
@@ -211,7 +211,7 @@ slice_put_buf(slice_t *slice, void *buf, uint32 len)
     return slice_put(slice, len);
 }
 
-int
+DECLARE int
 slice_vsprintf(slice_t *slice, bool grow, char *fmt, va_list args)
 {
     int len = 0, space;
@@ -253,7 +253,7 @@ try_again:
     return len;
 }
 
-int
+DECLARE int
 slice_sprintf(slice_t *slice, bool grow, char *fmt, ...)
 {
     va_list args;
@@ -267,7 +267,7 @@ slice_sprintf(slice_t *slice, bool grow, char *fmt, ...)
 
 #ifdef __APP__
 
-STATIC void 
+DECLARE void 
 __slice_to_msg
 (
     slice_t    *slice, 
@@ -285,7 +285,7 @@ __slice_to_msg
  	msg->msg_iovlen = 1;
 }
 
-int
+DECLARE int
 slice_send(int fd, slice_t *slice, sockaddr_t *remote, int flag)
 {
     struct iovec    iov = {0};
@@ -296,7 +296,7 @@ slice_send(int fd, slice_t *slice, sockaddr_t *remote, int flag)
     return sendmsg(fd, &msg, flag);
 }
 
-int
+DECLARE int
 slice_recv(int fd, slice_t *slice, sockaddr_t *remote, int flag)
 {
     struct iovec    iov = {0};
@@ -306,6 +306,5 @@ slice_recv(int fd, slice_t *slice, sockaddr_t *remote, int flag)
     
     return recvmsg(fd, &msg, flag);
 }
-
 #endif
 /******************************************************************************/

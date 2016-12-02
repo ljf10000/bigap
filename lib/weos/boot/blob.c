@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-uint32
+DECLARE uint32
 blob_vsize(const blob_t *blob)
 {
     uint32 vlen = blob_vlen(blob);
@@ -21,7 +21,7 @@ blob_vsize(const blob_t *blob)
     }
 }
 
-uint32
+DECLARE uint32
 blob_vpad_len(const blob_t *blob)
 {
     uint32 vlen = blob_vlen(blob);
@@ -37,7 +37,7 @@ blob_vpad_len(const blob_t *blob)
     }
 }
 
-void *
+DECLARE void *
 blob_vpad(const blob_t *blob)
 {
     uint32 vlen = blob_vlen(blob);
@@ -53,7 +53,7 @@ blob_vpad(const blob_t *blob)
     }
 }
 
-void
+DECLARE void
 blob_zero_pad(blob_t *blob)
 {
     if (blob_klen(blob)) {
@@ -65,7 +65,7 @@ blob_zero_pad(blob_t *blob)
     }
 }
 
-bool
+DECLARE bool
 blob_eq(const blob_t *a, const blob_t *b)
 {
 	if (!a && !b) {
@@ -86,7 +86,7 @@ blob_eq(const blob_t *a, const blob_t *b)
 	return os_memeq(a, b, size);
 }
 
-blob_t *
+DECLARE blob_t *
 blob_getbyname(const blob_t *root, char *name)
 {
     uint32 i, left;
@@ -105,7 +105,7 @@ blob_getbyname(const blob_t *root, char *name)
 	return NULL;
 }
 
-blob_t *
+DECLARE blob_t *
 blob_getbyidx(const blob_t *root, uint32 idx)
 {
     uint32 i, left;
@@ -126,7 +126,7 @@ blob_getbyidx(const blob_t *root, uint32 idx)
 	return NULL;
 }
 
-blob_t *
+DECLARE blob_t *
 __blob_getby_r(blob_t *root, blob_key_t *keys, uint32 count)
 {
     blob_key_t *key = &keys[0];
@@ -147,7 +147,7 @@ __blob_getby_r(blob_t *root, blob_key_t *keys, uint32 count)
     }
 }
 
-blob_t *
+DECLARE blob_t *
 blob_vgetby(blob_t *blob, const char *fmt, va_list args)
 {
     uint32 idx;
@@ -186,7 +186,7 @@ blob_vgetby(blob_t *blob, const char *fmt, va_list args)
     return blob;
 }
 
-blob_t *
+DECLARE blob_t *
 blob_sgetby(blob_t *root, const char *fmt, ...)
 {
     va_list args;
@@ -198,7 +198,7 @@ blob_sgetby(blob_t *root, const char *fmt, ...)
     return blob;
 }
 
-void
+DECLARE void
 __blob_dump_header(const blob_t *blob, char *tag)
 {
     os_printf("%s "
@@ -225,7 +225,7 @@ __blob_dump_header(const blob_t *blob, char *tag)
         blob_type_getnamebyid(blob_type(blob)));
 }
 
-void
+DECLARE void
 __blob_dump(const blob_t *blob, int level)
 {    
     if (0==level) {
@@ -283,7 +283,7 @@ __blob_dump(const blob_t *blob, int level)
     }
 }
 
-void
+DECLARE void
 __blob_dump_slice(slice_t *slice, char *tag)
 {
     os_printf("%s" __crlf
@@ -299,7 +299,7 @@ __blob_dump_slice(slice_t *slice, char *tag)
         blob_vlen(blob_root(slice)));
 }
 
-int
+DECLARE int
 blob_rule_find_byname(const char *name, const blob_rule_t rule[], int count)
 {
     int i;
@@ -313,7 +313,7 @@ blob_rule_find_byname(const char *name, const blob_rule_t rule[], int count)
     return -ENOEXIST;
 }
 
-int
+DECLARE int
 blob_rule_find_bytypename(uint32 type, const char *name, const blob_rule_t rule[], int count)
 {
     int i;
@@ -327,7 +327,7 @@ blob_rule_find_bytypename(uint32 type, const char *name, const blob_rule_t rule[
     return -ENOEXIST;
 }
 
-bool
+DECLARE bool
 blob_check(uint32 type, const void *value, uint32 len)
 {
     static blob_rule_t rule[BLOB_T_END] = {
@@ -412,7 +412,7 @@ blob_check(uint32 type, const void *value, uint32 len)
     return true;
 }
 
-int
+DECLARE int
 blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32 count)
 {
     if (NULL==blob) {
@@ -479,7 +479,7 @@ blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32 count
     return found?found:-ENOEXIST;
 }
 
-void
+DECLARE void
 __blob_init(
     blob_t *blob, 
     uint32 type, 
@@ -495,7 +495,7 @@ __blob_init(
 #endif
 }
 
-void
+DECLARE void
 __blob_save_name(blob_t *blob, const char *name)
 {
     if (name) {
@@ -505,7 +505,7 @@ __blob_save_name(blob_t *blob, const char *name)
     blob_zero_pad(blob);
 }
 
-blob_t *
+DECLARE blob_t *
 __blob_new(slice_t *slice, int type, const char *name, int payload)
 {
 	blob_t tmp;
@@ -553,7 +553,7 @@ __blob_new(slice_t *slice, int type, const char *name, int payload)
 	return blob;
 }
 
-void *
+DECLARE void *
 __blob_nest_start(slice_t *slice, bool array, const char *name)
 {
 	int type = array?BLOB_T_ARRAY:BLOB_T_OBJECT;
@@ -572,7 +572,7 @@ __blob_nest_start(slice_t *slice, bool array, const char *name)
     return (void *)(uintptr_t)slice_offset_save(slice, offset);
 }
 
-void
+DECLARE void
 __blob_nest_end(slice_t *slice, void *cookie)
 {
     uint32 size;
@@ -598,7 +598,7 @@ __blob_nest_end(slice_t *slice, void *cookie)
 	}
 }
 
-blob_t *
+DECLARE blob_t *
 blob_put(
     slice_t *slice, 
     uint32 type, 
@@ -633,7 +633,7 @@ blob_put(
 	return blob;
 }
 
-blob_t *
+DECLARE blob_t *
 blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args)
 {
     va_list copy;
@@ -650,7 +650,7 @@ blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args)
     return blob;
 }
 
-blob_t *
+DECLARE blob_t *
 blob_put_sprintf(slice_t *slice, char *name, char *fmt, ...)
 {
     va_list args;
@@ -664,7 +664,7 @@ blob_put_sprintf(slice_t *slice, char *name, char *fmt, ...)
 
 #ifdef __APP__
 
-STATIC void
+DECLARE void
 __blob_byteorder(blob_t *blob, bool ntoh)
 {
     
@@ -713,19 +713,19 @@ __blob_byteorder(blob_t *blob, bool ntoh)
     }
 }
 
-void
+DECLARE void
 blob_ntoh(blob_t *blob)
 {
     __blob_byteorder(blob, true);
 }
 
-void
+DECLARE void
 blob_hton(blob_t *blob)
 {
     __blob_byteorder(blob, false);
 }
 
-STATIC jobj_t
+DECLARE jobj_t
 __blob_jobj(blob_t *blob)
 {
     switch(blob_type(blob)) {
@@ -735,7 +735,7 @@ __blob_jobj(blob_t *blob)
     }
 }
 
-STATIC jobj_t
+DECLARE jobj_t
 __blob_btoj(blob_t *blob, jobj_t root, int level)
 {
     char *name      = blob_key(blob);
@@ -800,7 +800,7 @@ __blob_btoj(blob_t *blob, jobj_t root, int level)
     return root;
 }
 
-jobj_t
+DECLARE jobj_t
 blob_btoj(blob_t *blob)
 {
     return __blob_btoj(blob, __blob_jobj(blob), 0);
@@ -809,7 +809,7 @@ blob_btoj(blob_t *blob)
 /*
 * blob to json
 */
-STATIC blob_t *
+DECLARE blob_t *
 __blob_bobj(slice_t *slice, jobj_t obj)
 {
     switch(jobj_type(obj)) {
@@ -819,10 +819,10 @@ __blob_bobj(slice_t *slice, jobj_t obj)
     }
 }
 
-static void
+EXTERN void
 __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level);
 
-STATIC void
+DECLARE void
 ____blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 {
     int type = jobj_type(obj);
@@ -840,7 +840,7 @@ ____blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
     }
 }
 
-STATIC void
+DECLARE void
 __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 {
     int type = jobj_type(obj);
@@ -886,7 +886,7 @@ __blob_jtob(slice_t *slice, char *name, jobj_t obj, int level)
 /*
 * json to blob
 */
-blob_t *
+DECLARE blob_t *
 blob_jtob(slice_t *slice, jobj_t obj)
 {
     if (NULL==__blob_bobj(slice, obj)) {

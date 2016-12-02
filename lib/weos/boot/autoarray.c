@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-STATIC void *
+DECLARE void *
 __os_aa_item(autoarray_t *aa, uint32 idx)
 {
     if (IS_GOOD_ENUM(idx, aa->count)) {
@@ -11,7 +11,7 @@ __os_aa_item(autoarray_t *aa, uint32 idx)
     }
 }
 
-STATIC int
+DECLARE int
 __os_aa_grow_to(autoarray_t *aa, uint32 count)
 {
     int old  = aa->count;
@@ -44,7 +44,7 @@ __os_aa_grow_to(autoarray_t *aa, uint32 count)
     return 0;
 }
 
-STATIC int
+DECLARE int
 __os_aa_grow(autoarray_t *aa)
 {
     int count;
@@ -67,7 +67,7 @@ __os_aa_grow(autoarray_t *aa)
     return __os_aa_grow_to(aa, count);
 }
 
-void
+DECLARE void
 os_aa_clean(autoarray_t *aa)
 {
     if (aa) {
@@ -85,7 +85,7 @@ os_aa_clean(autoarray_t *aa)
     }
 }
 
-int
+DECLARE int
 os_aa_init(
     autoarray_t *aa, 
     uint32 size, 
@@ -138,7 +138,7 @@ os_aa_init(
     return 0;
 }
 
-void *
+DECLARE void *
 os_aa_get(autoarray_t *aa, int idx, bool grow)
 {
     void *value;

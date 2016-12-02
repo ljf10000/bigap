@@ -123,7 +123,7 @@ blob_kpad(const blob_t *blob)
 /*
 * value + ['\0'] + [pad]
 */
-extern uint32
+EXTERN uint32
 blob_vsize(const blob_t *blob);
 
 static inline char *
@@ -132,10 +132,10 @@ blob_value(const blob_t *blob)
     return blob_vlen(blob)?(blob_data(blob) + blob_ksize(blob)):NULL;
 }
 
-extern uint32
+EXTERN uint32
 blob_vpad_len(const blob_t *blob);
 
-extern void *
+EXTERN void *
 blob_vpad(const blob_t *blob);
 
 static inline uint32
@@ -176,10 +176,10 @@ blob_next(const blob_t *blob)
 	return blob?(blob_t *)((char *)blob + blob_size(blob)):NULL;
 }
 
-extern void
+EXTERN void
 blob_zero_pad(blob_t *blob);
 
-extern bool
+EXTERN bool
 blob_eq(const blob_t *a, const blob_t *b);
 
 static inline bool
@@ -262,10 +262,10 @@ blob_get_binary(const blob_t *blob)
     /* end */
 #endif
 
-extern blob_t *
+EXTERN blob_t *
 blob_getbyname(const blob_t *root, char *name);
 
-extern blob_t *
+EXTERN blob_t *
 blob_getbyidx(const blob_t *root, uint32 idx);
 
 typedef struct {
@@ -277,7 +277,7 @@ typedef struct {
     } u;
 } blob_key_t;
 
-extern blob_t *
+EXTERN blob_t *
 __blob_getby_r(blob_t *root, blob_key_t *keys, uint32 count);
 
 static inline blob_t *
@@ -296,16 +296,16 @@ enum {
     bfmt_object = 'o',
 };
 
-extern blob_t *
+EXTERN blob_t *
 blob_vgetby(blob_t *blob, const char *fmt, va_list args);
 
-extern blob_t *
+EXTERN blob_t *
 blob_sgetby(blob_t *root, const char *fmt, ...);
 
-extern void
+EXTERN void
 __blob_dump_header(const blob_t *blob, char *tag);
 
-extern void
+EXTERN void
 __blob_dump(const blob_t *blob, int level);
 
 static inline void
@@ -316,7 +316,7 @@ blob_dump(const blob_t *blob)
     }
 }
 
-extern void
+EXTERN void
 __blob_dump_slice(slice_t *slice, char *tag);
 
 typedef struct blob_rule {
@@ -328,19 +328,19 @@ typedef struct blob_rule {
     bool (*validate)(const struct blob_rule *, blob_t *);
 } blob_rule_t;
 
-extern int
+EXTERN int
 blob_rule_find_byname(const char *name, const blob_rule_t rule[], int count);
 
-extern int
+EXTERN int
 blob_rule_find_bytypename(uint32 type, const char *name, const blob_rule_t rule[], int count);
 
-extern bool
+EXTERN bool
 blob_check(uint32 type, const void *value, uint32 len);
 
-extern int
+EXTERN int
 blob_parse(blob_t *blob, blob_t *cache[], const blob_rule_t rule[], uint32 count);
 
-extern void
+EXTERN void
 __blob_init(
     blob_t *blob, 
     uint32 type, 
@@ -348,10 +348,10 @@ __blob_init(
     uint32 payload
 );
 
-extern void
+EXTERN void
 __blob_save_name(blob_t *blob, const char *name);
 
-extern blob_t *
+EXTERN blob_t *
 __blob_new(slice_t *slice, int type, const char *name, int payload);
 
 static inline blob_t *
@@ -374,10 +374,10 @@ blob_root_array(slice_t *slice)
     return blob_root_init(slice, BLOB_T_ARRAY, NULL);
 }
 
-extern void *
+EXTERN void *
 __blob_nest_start(slice_t *slice, bool array, const char *name);
 
-extern void
+EXTERN void
 __blob_nest_end(slice_t *slice, void *cookie);
 
 static inline void *
@@ -394,7 +394,7 @@ blob_array_start(slice_t *slice, const char *name)
 }
 #define blob_array_end(_slice, _cookie)    __blob_nest_end(_slice, _cookie)
 
-extern blob_t *
+EXTERN blob_t *
 blob_put(
     slice_t *slice, 
     uint32 type, 
@@ -468,25 +468,28 @@ blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32 len
 	return blob_put(slice, BLOB_T_BINARY, name, binary, len);
 }
 
-extern blob_t *
+EXTERN blob_t *
 blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args);
 
-extern blob_t *
+EXTERN blob_t *
 blob_put_sprintf(slice_t *slice, char *name, char *fmt, ...);
 
 #ifdef __APP__
-extern void
+EXTERN void
 blob_ntoh(blob_t *blob);
 
-extern void
+EXTERN void
 blob_hton(blob_t *blob);
 
-extern jobj_t
+EXTERN jobj_t
 blob_btoj(blob_t *blob);
 
-extern blob_t *
+EXTERN blob_t *
 blob_jtob(slice_t *slice, jobj_t obj);
 #endif
 
+#ifdef __BOOT__
+#include "weos/boot/blob.c"
+#endif
 /******************************************************************************/
 #endif /* __BLOB_H_f3a53c1649ab48a884ddae7dad5cdca4__ */

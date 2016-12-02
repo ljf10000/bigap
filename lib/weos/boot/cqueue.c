@@ -1,17 +1,13 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-enum {
-    CQUEUE_F_BLOCK      = 0x01,
-};
-
-bool
+DECLARE bool
 cq_is_block(cqueue_t *cq)
 {
     return os_hasflag(cq->flag, CQUEUE_F_BLOCK);
 }
 
-int
+DECLARE int
 cq_init(cqueue_t *cq, int count, uint32 flag)
 {
     cq->ch = os_pch_new(count);
@@ -24,7 +20,7 @@ cq_init(cqueue_t *cq, int count, uint32 flag)
     return 0;
 }
 
-void
+DECLARE void
 cq_fini(cqueue_t *cq)
 {
     if (cq->free) {
@@ -38,13 +34,13 @@ cq_fini(cqueue_t *cq)
     os_ch_free(cq->ch);
 }
 
-int
+DECLARE int
 cq_get(cqueue_t *cq, uint32 idx, void **pointer)
 {
     return os_pch_get(cq->ch, idx, pointer);
 }
 
-int
+DECLARE int
 cq_set(cqueue_t *cq, uint32 idx, void *pointer)
 {
     void *old = NULL;
@@ -57,13 +53,13 @@ cq_set(cqueue_t *cq, uint32 idx, void *pointer)
     return os_pch_set(cq->ch, idx, pointer);
 }
 
-int
+DECLARE int
 cq_read(cqueue_t *cq, void **pointer)
 {
     return os_pch_read(cq->ch, pointer);
 }
 
-int
+DECLARE int
 cq_write(cqueue_t *cq, void *pointer)
 {
     int err;
@@ -89,5 +85,4 @@ retry:
 
     return err;
 }
-
 /******************************************************************************/

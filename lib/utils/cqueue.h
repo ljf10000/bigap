@@ -9,25 +9,33 @@ typedef struct {
     void (*free)(void *q);
 } cqueue_t;
 
-extern bool
+enum {
+    CQUEUE_F_BLOCK      = 0x01,
+};
+
+EXTERN bool
 cq_is_block(cqueue_t *cq);
 
-extern int
+EXTERN int
 cq_init(cqueue_t *cq, int count, uint32 flag);
 
-extern void
+EXTERN void
 cq_fini(cqueue_t *cq);
 
-extern int
+EXTERN int
 cq_get(cqueue_t *cq, uint32 idx, void **pointer);
 
-extern int
+EXTERN int
 cq_set(cqueue_t *cq, uint32 idx, void *pointer);
 
-extern int
+EXTERN int
 cq_read(cqueue_t *cq, void **pointer);
 
-extern int
+EXTERN int
 cq_write(cqueue_t *cq, void *pointer);
+
+#ifdef __BOOT__
+#include "weos/boot/cqueue.c"
+#endif
 /******************************************************************************/
 #endif /* __CQUEUE_H_04b4815f18564b8799c9ffda96d7e97d__ */

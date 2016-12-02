@@ -48,7 +48,7 @@ slice_in_stack(const slice_t *slice)
 
 #define slice_in_heap(_slice)   (false==slice_in_stack(_slice))
 
-extern bool 
+EXTERN bool 
 slice_is_clean(const slice_t *slice);
 
 static inline bool
@@ -110,7 +110,7 @@ slice_offset_save(slice_t *slice, uint32 offset)
     return old;
 }
 
-extern int 
+EXTERN int 
 slice_reinit(slice_t *slice, uint32 size, uint32 resv, bool local);
 
 static inline void 
@@ -181,7 +181,7 @@ slice_zero(slice_t *slice)
     slice_clean(slice);
 }
 
-extern int
+EXTERN int
 slice_alloc(slice_t *slice, uint32 size);
 
 static inline void
@@ -192,7 +192,7 @@ slice_release(slice_t *slice)
     }
 }
 
-extern slice_t *
+EXTERN slice_t *
 slice_clone(slice_t *dst, const slice_t *src);
 
 #ifndef SLICE_GROW_DOUBLE_LIMIT
@@ -203,21 +203,21 @@ slice_clone(slice_t *dst, const slice_t *src);
 #define SLICE_GROW_STEP             (4*1024)
 #endif
 
-extern int
+EXTERN int
 slice_grow(slice_t *slice, uint32 grow);
 
 /*
 * as skb_pull 
 *   remove data from the start of a buffer
 */
-extern byte *
+EXTERN byte *
 slice_pull(slice_t *slice, uint32 len);
 
 /*
 * as skb_push
 *   add data to the start of a buffer
 */
-extern byte *
+EXTERN byte *
 slice_push(slice_t *slice, uint32 len);
 
 static inline byte *
@@ -230,16 +230,16 @@ slice_unpull(slice_t *slice)
 * as skb_put
 *   add data to a buffer
 */
-extern byte *
+EXTERN byte *
 slice_put(slice_t *slice, uint32 len);
 
-extern byte *
+EXTERN byte *
 slice_trim(slice_t *slice, uint32 len);
 
-extern byte *
+EXTERN byte *
 slice_put_char(slice_t *slice, int ch);
 
-extern byte *
+EXTERN byte *
 slice_put_buf(slice_t *slice, void *buf, uint32 len);
 
 /*
@@ -270,10 +270,10 @@ slice_put_buf(slice_t *slice, void *buf, uint32 len);
 *           此时写入数据完整
 *       }
 */
-extern int
+EXTERN int
 slice_vsprintf(slice_t *slice, bool grow, char *fmt, va_list args);
 
-extern int
+EXTERN int
 slice_sprintf(slice_t *slice, bool grow, char *fmt, ...);
 
 #if 0
@@ -330,11 +330,15 @@ ok:                                                     \
 #endif
 
 #ifdef __APP__
-extern int
+EXTERN int
 slice_send(int fd, slice_t *slice, sockaddr_t *remote, int flag);
 
-extern int
+EXTERN int
 slice_recv(int fd, slice_t *slice, sockaddr_t *remote, int flag);
+#endif
+
+#ifdef __BOOT__
+#include "weos/boot/slice.c"
 #endif
 /******************************************************************************/
 #endif /* __SLICE_H_fad6afb9599d4a349e26aae52beca022__ */
