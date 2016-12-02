@@ -205,6 +205,16 @@ os_macsnprintf(byte mac[], char macstring[], int size, int type, int sep)
     }
 }
 
+char *
+os_getmacstring(byte mac[], int type, int sep)
+{
+    static char macstring[1+MACSTRINGLEN_L] = {0};
+
+    os_macsaprintf(mac, macstring, type, sep);
+
+    return macstring;
+}
+
 #ifdef __APP__
 char *
 os_getmacby(char *script)
@@ -223,6 +233,67 @@ os_getmacby(char *script)
 
     return line;
 }
+
+bool
+is_abstract_sockaddr(void *addr)
+{
+    sockaddr_un_t *uaddr = (sockaddr_un_t *)addr;
+
+    if (AF_UNIX==uaddr->sun_family) {
+        return 0==uaddr->sun_path[0] && uaddr->sun_path[1];
+    } else {
+        return false;
+    }
+}
+
+void
+set_abstract_path(sockaddr_un_t *addr, char *path)
+{
+    addr->sun_path[0] = 0;
+
+    os_memcpy(get_abstract_path(addr), path, os_strlen(path));
+}
+
+void
+abstract_path_vsprintf(sockaddr_un_t *addr, const char *fmt, va_list args)
+{
+    char path[1+OS_LINE_LEN] = {0};
+
+    os_vsprintf(path, fmt, args);
+    
+    set_abstract_path(addr, path);
+}
+
+void
+abstract_path_sprintf(sockaddr_un_t *addr, const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, (char *)fmt);
+    abstract_path_vsprintf(addr, fmt, args);
+    va_end(args);
+}
+
+socklen_t
+os_sockaddr_len(sockaddr_t *addr)
+{
+    switch(addr->sa_family) {
+        case AF_UNIX:
+            if (is_abstract_sockaddr(addr)) {
+                return get_abstract_sockaddr_len((sockaddr_un_t *)addr);
+            } else {
+                return sizeof(sockaddr_un_t);
+            }
+        case AF_INET:   return sizeof(sockaddr_in_t);
+        case AF_PACKET: return sizeof(sockaddr_ll_t);
+#if 0
+        case AF_INET6:  return sizeof(struct sockaddr_in6);
+#endif
+        case AF_NETLINK:return sizeof(sockaddr_nl_t);
+        default: return sizeof(sockaddr_t);
+    }
+}
+
 #endif
 
 /******************************************************************************/
