@@ -186,22 +186,36 @@
 #include "utils/cli.h"
 #include "utils/cmd.h"
 #include "utils/timer.h"
+#if USE_MOD_SLICE
 #include "utils/slice.h"
+#endif
+#if USE_MOD_BLOB
 #include "utils/blob.h"
+#endif
 #include "utils/loop.h"
 #include "utils/dll.h"
 #include "utils/md5.h"
 #include "utils/base64.h"
 
 #if 1   /* __EXTEND__ */
+#if USE_MOD_CHANNEL
 #include "utils/channel.h"
+#endif
+#if USE_MOD_CQUEUE
 #include "utils/cqueue.h"
+#endif
+#if USE_MOD_COROUTINE
 #include "utils/coroutine.h"
+#endif
+#if USE_MOD_FD
 #include "utils/fd.h"
+#endif
 #endif  /* __EXTEND__ */
 
-
 #include "oem/oem.h"
+#if USE_MOD_NSQ
+#include "nsq/nsq.h"
+#endif
 /******************************************************************************/
 #define OS_REAL_INITER          \
     DECLARE_REAL_COMMAND;       \
