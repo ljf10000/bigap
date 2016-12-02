@@ -1,6 +1,31 @@
 #ifndef __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__
 #define __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__
 /******************************************************************************/
+#ifndef USE_APP_BLOB
+#define USE_APP_BLOB        0
+#endif
+
+#ifndef USE_APP_CHANNEL
+#define USE_APP_CHANNEL     0
+#endif
+
+#ifndef USE_APP_COROUTINE
+#define USE_APP_COROUTINE   0
+#endif
+
+#ifndef USE_APP_CQUEUE
+#define USE_APP_CQUEUE      0
+#endif
+
+#ifndef USE_APP_FD
+#define USE_APP_FD          0
+#endif
+
+#ifndef USE_APP_SLICE
+#define USE_APP_SLICE       0
+#endif
+
+/******************************************************************************/
 #if defined(LP64) || defined(ILP64) || defined(LLP64)
 #   define OS64                 1
 #else
