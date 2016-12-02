@@ -28,7 +28,7 @@ OS_INITER;
     _(SM_STATE_RUN,   2, "run"),    \
     _(SM_STATE_DIE,   3, "die"),    \
     /* end */
-DECLARE_ENUM(sm_state, SM_STATE_ENUM_MAPPER, SM_STATE_END);
+INLINE_ENUM(sm_state, SM_STATE_ENUM_MAPPER, SM_STATE_END);
 
 static inline enum_ops_t *sm_state_ops(void);
 static inline bool is_good_sm_state(int id);

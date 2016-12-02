@@ -90,7 +90,7 @@ enum {
     _(NSQ_FSM_SUBSCRIBED,   9,  "subscribed"),  \
     _(NSQ_FSM_RUN,         10,  "run"),         \
     /* end */
-EXTERN_ENUMER(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
+EXTERN_ENUM(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
 
 EXTERN enum_ops_t *nsq_fsm_ops(void);
 EXTERN bool is_good_nsq_fsm(int id);
@@ -121,7 +121,7 @@ EXTERN int nsq_fsm_getidbyname(const char *name);
     _(NSQ_AUTH_IDENTIFY_URL ,       1,  NSQ_AUTH_IDENTIFY_URL_NAME),        \
     _(NSQ_AUTH_PERMISSION_COUNT,    2,  NSQ_AUTH_PERMISSION_COUNT_NAME),    \
     /* end */
-EXTERN_ENUMER(nsq_auth, NSQ_AUTH_ENUM_MAPPER, NSQ_AUTH_END);
+EXTERN_ENUM(nsq_auth, NSQ_AUTH_ENUM_MAPPER, NSQ_AUTH_END);
 
 EXTERN enum_ops_t *nsq_auth_ops(void);
 EXTERN bool is_good_nsq_auth(int id);
@@ -168,7 +168,7 @@ EXTERN int nsq_auth_getidbyname(const char *name);
     _(NSQ_E_AUTH_FAILED,    12, NSQ_E_AUTH_FAILED_NAME),    \
     _(NSQ_E_UNAUTHORIZED,   13, NSQ_E_UNAUTHORIZED_NAME),   \
     /* end */
-EXTERN_ENUMER(nsq_error, NSQ_ERROR_ENUM_MAPPER, NSQ_E_END);
+EXTERN_ENUM(nsq_error, NSQ_ERROR_ENUM_MAPPER, NSQ_E_END);
 
 EXTERN enum_ops_t *nsq_error_ops(void);
 EXTERN bool is_good_nsq_error(int id);
@@ -205,7 +205,7 @@ static inline bool is_valid_nsq_error(int id)
     _(NSQ_FRAME_ERROR,      1,  "error"),       \
     _(NSQ_FRAME_MESSAGE,    2,  "message"),     \
     /* end */
-EXTERN_ENUMER(nsq_frame, NSQ_FRAME_ENUM_MAPPER, NSQ_FRAME_END);
+EXTERN_ENUM(nsq_frame, NSQ_FRAME_ENUM_MAPPER, NSQ_FRAME_END);
 
 EXTERN enum_ops_t *nsq_frame_ops(void);
 EXTERN bool is_good_nsq_frame(int id);

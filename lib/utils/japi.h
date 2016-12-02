@@ -69,7 +69,7 @@ typedef union {
     _(jtype_ip,     json_type_end+8,    "ip"),      \
     _(jtype_mac,    json_type_end+9,    "mac"),     \
     /* end */
-EXTERN_ENUMER(jtype, JTYPE_ENUM_MAPPER, jtype_end);
+EXTERN_ENUM(jtype, JTYPE_ENUM_MAPPER, jtype_end);
 
 EXTERN enum_ops_t *jtype_ops(void);
 EXTERN bool is_good_jtype(int id);

@@ -19,7 +19,7 @@
     _(LOOP_TYPE_FATHER, 4, "father"),   \
     _(LOOP_TYPE_SON,    5, "son"),      \
     /* end */
-EXTERN_ENUMER(loop_type, LOOP_TYPE_ENUM_MAPPER, LOOP_TYPE_END);
+EXTERN_ENUM(loop_type, LOOP_TYPE_ENUM_MAPPER, LOOP_TYPE_END);
 
 EXTERN enum_ops_t *loop_type_ops(void);
 EXTERN bool is_good_loop_type(int id);

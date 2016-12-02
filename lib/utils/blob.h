@@ -23,7 +23,7 @@ enum {
     _(BLOB_T_UINT64,    9, "uint64"),   \
     _(BLOB_T_FLOAT64,   10,"float64"),  \
     /* end */
-EXTERN_ENUMER(blob_type, BLOB_TYPE_ENUM_MAPPER, BLOB_T_END);
+EXTERN_ENUM(blob_type, BLOB_TYPE_ENUM_MAPPER, BLOB_T_END);
 
 EXTERN enum_ops_t *blob_type_ops(void);
 EXTERN bool is_good_blob_type(int id);

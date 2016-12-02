@@ -15,7 +15,7 @@
     _(LIBVAL_PTR,   8, "ptr"),  \
     _(LIBVAL_VOD,   9, "void"), \
     /* end */
-EXTERN_ENUMER(libval_type, LIBVAL_TYPE_ENUM_MAPPER, LIBVAL_END);
+EXTERN_ENUM(libval_type, LIBVAL_TYPE_ENUM_MAPPER, LIBVAL_END);
 
 EXTERN enum_ops_t *libval_type_ops(void);
 EXTERN bool is_good_libval_type(int id);

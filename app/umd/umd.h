@@ -69,7 +69,7 @@
     _(UMD_AUTO_BIND, 1, "bind"),    \
     _(UMD_AUTO_FAKE, 2, "fake"),    \
     /* end */
-EXTERN_ENUMER(umd_user_auto, UMD_AUTO_ENUM_MAPPER, UMD_AUTO_END);
+EXTERN_ENUM(umd_user_auto, UMD_AUTO_ENUM_MAPPER, UMD_AUTO_END);
 
 EXTERN enum_ops_t *umd_user_auto_ops(void);
 EXTERN bool is_good_umd_user_auto(int id);
@@ -94,7 +94,7 @@ EXTERN int umd_user_auto_getidbyname(const char *name);
     _(UMD_STATE_AUTH, 3, "auth"),   \
     _(UMD_STATE_BLOCK,4, "block"),  \
     /* end */
-EXTERN_ENUMER(umd_user_state, UMD_STATE_ENUM_MAPPER, UMD_STATE_END);
+EXTERN_ENUM(umd_user_state, UMD_STATE_ENUM_MAPPER, UMD_STATE_END);
 
 EXTERN enum_ops_t *umd_user_state_ops(void);
 EXTERN bool is_good_umd_user_state(int id);
@@ -137,7 +137,7 @@ EXTERN int umd_user_state_getidbyname(const char *name);
     _(UMD_DEAUTH_INITIATIVE, 6, "initiative"),   \
     _(UMD_DEAUTH_BLOCK,      7, "block"),        \
     /* end */
-EXTERN_ENUMER(umd_deauth_reason, UMD_DEAUTH_ENUM_MAPPER, UMD_DEAUTH_END);
+EXTERN_ENUM(umd_deauth_reason, UMD_DEAUTH_ENUM_MAPPER, UMD_DEAUTH_END);
 
 EXTERN enum_ops_t *umd_deauth_reason_ops(void);
 EXTERN bool is_good_umd_deauth_reason(int id);
@@ -166,7 +166,7 @@ is_valid_umd_deauth_reason(int reason)
     _(umd_flow_type_lan, 0, "lan"), \
     _(umd_flow_type_wan, 1, "wan"), \
     /* end */
-EXTERN_ENUMER(umd_flow_type, UMD_FLOW_TYPE_ENUM_MAPPER, umd_flow_type_end);
+EXTERN_ENUM(umd_flow_type, UMD_FLOW_TYPE_ENUM_MAPPER, umd_flow_type_end);
 
 EXTERN enum_ops_t *umd_flow_type_ops(void);
 EXTERN bool is_good_umd_flow_type(int id);
@@ -184,7 +184,7 @@ EXTERN int umd_flow_type_getidbyname(const char *name);
     _(umd_flow_dir_down, 1, "down"),\
     _(umd_flow_dir_all,  2, "all"), \
     /* end */
-EXTERN_ENUMER(umd_flow_dir, UMD_FLOW_DIR_ENUM_MAPPER, umd_flow_dir_end);
+EXTERN_ENUM(umd_flow_dir, UMD_FLOW_DIR_ENUM_MAPPER, umd_flow_dir_end);
 
 EXTERN enum_ops_t *umd_flow_dir_ops(void);
 EXTERN bool is_good_umd_flow_dir(int id);
@@ -352,7 +352,7 @@ typedef struct {
     _(umd_auth_type_portal, 2, "portal"),   \
     _(umd_auth_type_webcat, 3, "webcat"),   \
     /* end */
-EXTERN_ENUMER(umd_auth_type, UMD_AUTH_TYPE_ENUM_MAPPER, umd_auth_type_end);
+EXTERN_ENUM(umd_auth_type, UMD_AUTH_TYPE_ENUM_MAPPER, umd_auth_type_end);
 
 EXTERN enum_ops_t *umd_auth_type_ops(void);
 EXTERN bool is_good_umd_auth_type(int id);
@@ -371,7 +371,7 @@ EXTERN int umd_auth_type_getidbyname(const char *name);
     _(um_forward_mode_br,   0, "br"),   \
     _(um_forward_mode_rt,   1, "rt"),   \
     /* end */
-EXTERN_ENUMER(forward_mode, UM_FORWARD_MODE_ENUM_MAPPER, um_forward_mode_end);
+EXTERN_ENUM(forward_mode, UM_FORWARD_MODE_ENUM_MAPPER, um_forward_mode_end);
 
 EXTERN enum_ops_t *forward_mode_ops(void);
 EXTERN bool is_good_flow_mode(int id);
@@ -512,7 +512,7 @@ struct vlan_header {
     _(um_pkt_type_vlan, 1, "vlan"), \
     _(um_pkt_type_ip,   2, "ip"),   \
     /* end */
-EXTERN_ENUMER(pkt_type, UM_PKT_TYPE_ENUM_MAPPER, um_pkt_type_end);
+EXTERN_ENUM(pkt_type, UM_PKT_TYPE_ENUM_MAPPER, um_pkt_type_end);
 
 EXTERN enum_ops_t *pkt_type_ops(void);
 EXTERN bool is_good_pkt_type(int id);
@@ -531,7 +531,7 @@ EXTERN int pkt_type_getidbyname(const char *name);
     _(um_pkt_check_bad,     1, "bad"),  \
     _(um_pkt_check_all,     2, "all"),  \
     /* end */
-EXTERN_ENUMER(pkt_check, UM_PKT_CHECK_ENUM_MAPPER, um_pkt_check_end);
+EXTERN_ENUM(pkt_check, UM_PKT_CHECK_ENUM_MAPPER, um_pkt_check_end);
 
 EXTERN enum_ops_t *pkt_check_ops(void);
 EXTERN bool is_good_pkt_check(int id);

@@ -113,7 +113,7 @@ env_geti(char *envname, int deft) ;
     _(ENV_GC,       23, "gc"),          \
     _(ENV_CONF,     24, "conf"),        \
     /* end */
-EXTERN_ENUMER(os_env, OS_ENV_ENUM_MAPPER, OS_ENV_END);
+EXTERN_ENUM(os_env, OS_ENV_ENUM_MAPPER, OS_ENV_END);
 
 EXTERN enum_ops_t *os_env_ops(void);
 EXTERN bool is_good_os_env(int id);

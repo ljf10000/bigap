@@ -1,8 +1,8 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE_ENUMER(ak_DEBUG, AK_DEBUG_ENUM_MAPPER, ____ak_debug_end);
-DECLARE_ENUMER(ak_sys, AK_SYS_ENUM_MAPPER, __AK_SYS_END);
+DECLARE_ENUM(ak_DEBUG, AK_DEBUG_ENUM_MAPPER, ____ak_debug_end);
+DECLARE_ENUM(ak_sys, AK_SYS_ENUM_MAPPER, __AK_SYS_END);
 
 
 DECLARE uint32

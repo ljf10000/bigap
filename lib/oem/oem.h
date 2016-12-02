@@ -74,7 +74,7 @@ typedef struct {
     _(OEM_T_1,    1, OEM1_NAME),    \
     _(OEM_T_2,    2, OEM2_NAME),    \
     /* end */
-DECLARE_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
+INLINE_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
 
 static inline enum_ops_t *oem_type_ops(void);
 static inline bool is_good_oem_type(int id);

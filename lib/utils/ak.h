@@ -109,7 +109,7 @@ DECLARE_FAKE_JDEBUGGER;
     /* end */
     /* 29/30/31 reserved for log pri */
 
-EXTERN_ENUMER(ak_DEBUG, AK_DEBUG_ENUM_MAPPER, ____ak_debug_end);
+EXTERN_ENUM(ak_DEBUG, AK_DEBUG_ENUM_MAPPER, ____ak_debug_end);
 
 EXTERN enum_ops_t *ak_DEBUG_ops(void);
 EXTERN bool is_good_ak_DEBUG(int id);
@@ -229,7 +229,7 @@ __ak_debug_getname(uint32 level)
     _(__AK_SYS_DEBUG,   0, AK_DEBUG_NAME),  \
     _(__AK_SYS_JDEBUG,  1, JS_DEBUG_NAME),  \
     /* end */
-EXTERN_ENUMER(ak_sys, AK_SYS_ENUM_MAPPER, __AK_SYS_END);
+EXTERN_ENUM(ak_sys, AK_SYS_ENUM_MAPPER, __AK_SYS_END);
 
 EXTERN enum_ops_t *ak_sys_ops(void);
 EXTERN bool is_good_ak_sys(int id);
