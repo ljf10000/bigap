@@ -61,8 +61,6 @@ STATIC INLINE int
 bcookie_save(struct bcookie *obj, int size);
 #endif /* PRODUCT_BCOOKIE_ENABLE */
 
-#ifdef __BOOT__
 #include "weos/boot/bcookie.c"
-#endif
 /******************************************************************************/
 #endif /* __BCOOKIE_H_c0ee689aca594ee09d9e8f2223369c41__ */

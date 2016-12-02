@@ -848,8 +848,6 @@ ak_var_set(ak_var_t *var, uint32 v)
     return ak_set(var->id, v);
 }
 
-#ifdef __BOOT__
 #include "weos/boot/ak.c"
-#endif
 /******************************************************************************/
 #endif /* __AK_H_2e420d20ac8a47b188d92ef8448db5fa__ */

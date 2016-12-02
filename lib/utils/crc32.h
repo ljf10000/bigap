@@ -14,8 +14,6 @@ os_crc32(const void *buf, uint32 size);
 
 #define OS_CRC32_STRINGLEN      8
 
-#ifdef __BOOT__
 #include "weos/boot/crc32.c"
-#endif
 /******************************************************************************/
 #endif /* __CRC32_H_cfa26d9a55a54a3ca1b13fc349818689__ */

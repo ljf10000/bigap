@@ -2749,8 +2749,6 @@ benv_get(char *path)
     return NULL;
 }
 
-#ifdef __BOOT__
 #include "weos/boot/benv.c"
-#endif
 /******************************************************************************/
 #endif /* __BENV_H_6a2223c1e9a84ae38f5da34125b3974b__ */

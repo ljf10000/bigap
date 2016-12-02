@@ -111,8 +111,6 @@ md5_bin2hex(char *hex, byte md5[OS_MD5_SIZE])
 
 #define MD5_SZERO   SZERO32
 
-#ifdef __BOOT__
 #include "weos/boot/md5.c"
-#endif
 /******************************************************************************/
 #endif /* __MD5_H_46af656ba80c4a0c9dc59106b11551a0__ */

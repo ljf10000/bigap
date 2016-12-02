@@ -81,8 +81,6 @@ __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line);
     }                                                           \
 }while(0)
 
-#ifdef __BOOT__
 #include "weos/boot/dump.c"
-#endif
 /******************************************************************************/
 #endif /* __DUMP_H_96bec2f065cb4415a8327409eae6d67c__ */

@@ -173,8 +173,6 @@ os_asprintf_resv(char **buf, int resv, const char *fmt, ...)
     os_vsnprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, _args); \
 })
 
-#ifdef __BOOT__
 #include "weos/boot/format.c"
-#endif
 /******************************************************************************/
 #endif /* __FORMAT_H_099e7e9b6a574b4e87f5851b04db1a9d__ */

@@ -56,8 +56,6 @@ cmd_getsetter(int argc, char *argv[], cmd_op_t *op);
 
 #endif /* defined(__APP__) || defined(__BOOT__) */
 
-#ifdef __BOOT__
 #include "weos/boot/cmd.c"
-#endif
 /******************************************************************************/
 #endif /* __CMD_H_15a8b3427d7b4f05a0ec671c231b2fa3__ */
