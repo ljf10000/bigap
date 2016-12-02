@@ -60,5 +60,6 @@ LIB_INITER;
 #include "weos/app/loop.c"
 #include "weos/app/pipe.c"
 #include "weos/app/this.c"
+#include "weos/app/time.c"
 #include "weos/app/timer.c"
 /******************************************************************************/
