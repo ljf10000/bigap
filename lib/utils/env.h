@@ -266,5 +266,9 @@ typedef struct {
     char *conf;     // *
 } 
 env_cache_t;
+
+#ifdef __BOOT__
+#include "weos/boot/env.c"
+#endif
 /******************************************************************************/
 #endif /* __ENV_H_9f26434e76294326b152b1e81f17fb31__ */

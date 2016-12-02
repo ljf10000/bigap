@@ -18,7 +18,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #   elif IS_PRODUCT_LTEFI_AP
 #       include "benv_boot_ap.c"
 #   endif
-#   include "weos/boot.c"
 #elif defined(__APP__)
 #   include "benv_app.c"
 #endif

@@ -293,5 +293,9 @@ os_ipmatch(uint32 ipa, uint32 ipb, uint32 mask)
 {
     return (ipa & mask)==(ipb & mask);
 }
+
+#ifdef __BOOT__
+#include "weos/boot/addr.c"
+#endif
 /******************************************************************************/
 #endif /* __ADDR_H_a60fcc799b2f44c38dcbf510eb97f0c6__ */

@@ -29,5 +29,9 @@ b64_decode(byte *src, size_t len)
 {
 	return b64_decode_ex(src, len, NULL);
 }
+
+#ifdef __BOOT__
+#include "weos/boot/base64.c"
+#endif
 /******************************************************************************/
 #endif				/* __BASE64_H_4a45a623e251441595a8422b336fcf17__ */
