@@ -7,7 +7,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #include "utils.h"
 #include "benv/benv.h"
-#include "fcookie/fcookie.h"
 
 #if !(IS_PRODUCT_LTEFI_MD2 || IS_PRODUCT_LTEFI_MD3 || IS_PRODUCT_PC)
 #error "just support ltefi md2/md3/pc board"

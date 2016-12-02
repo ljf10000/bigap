@@ -6,7 +6,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #include "utils.h"
-#include "fcookie/fcookie.h"
 
 OS_INITER;
 

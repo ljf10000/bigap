@@ -213,6 +213,9 @@
 #endif  /* __EXTEND__ */
 
 #include "oem/oem.h"
+#if USE_MOD_FCOOKIE
+#include "fcookie/fcookie.h"
+#endif
 #if USE_MOD_NSQ
 #include "nsq/nsq.h"
 #endif
