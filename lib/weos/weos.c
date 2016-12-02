@@ -54,6 +54,7 @@ LIB_INITER;
 #include "weos/app/debug.c"
 #include "weos/app/dll.c"
 #include "weos/app/env.c"
+#include "weos/app/fcookie.c"
 #if USE_MOD_FD
 #include "weos/app/fd.c"
 #endif
