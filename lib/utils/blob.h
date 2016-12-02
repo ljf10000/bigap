@@ -329,18 +329,7 @@ typedef struct blob_rule {
 } blob_rule_t;
 
 extern int
-blob_rule_find_byname(const char *name, const blob_rule_t rule[], int count)
-{
-    int i;
-
-    for (i=0; i<count; i++) {
-        if (rule[i].name && os_streq(rule[i].name, name)) {
-            return i;
-        }
-    }
-    
-    return -ENOEXIST;
-};
+blob_rule_find_byname(const char *name, const blob_rule_t rule[], int count);
 
 extern int
 blob_rule_find_bytypename(uint32 type, const char *name, const blob_rule_t rule[], int count);
