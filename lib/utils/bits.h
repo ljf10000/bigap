@@ -111,7 +111,7 @@
 })
 #endif
 
-extern bool
+EXTERN bool
 os_bmask_match(byte *a, byte *b, byte *mask, int len);
 
 enum {
@@ -129,19 +129,19 @@ __is_good_bitmap_bit(os_bitmap_t *bp, uint32 bit)
     return IS_GOOD_ENUM(bit, bp->count);
 }
 
-extern int
+EXTERN int
 os_bitmap_init(os_bitmap_t *bp, uint32 bits);
 
-extern int
+EXTERN int
 os_bitmap_fini(os_bitmap_t *bp);
 
-extern void
+EXTERN void
 os_bitmap_set(os_bitmap_t *bp, uint32 bit);
 
-extern void
+EXTERN void
 os_bitmap_clr(os_bitmap_t *bp, uint32 bit);
 
-extern bool
+EXTERN bool
 os_bitmap_isset(os_bitmap_t *bp, uint32 bit);
 /******************************************************************************/
 #define OS_POSITION_HEAD    0x01
@@ -150,5 +150,9 @@ os_bitmap_isset(os_bitmap_t *bp, uint32 bit);
 
 #define is_position_head(_pos)  os_hasflag(_pos, OS_POSITION_HEAD)
 #define is_position_tail(_pos)  os_hasflag(_pos, OS_POSITION_TAIL)
+
+#ifdef __BOOT__
+#include "weos/boot/bits.c"
+#endif
 /******************************************************************************/
 #endif /* __BITS_H_472ca09446fa4bc389460b4391206b0f__ */

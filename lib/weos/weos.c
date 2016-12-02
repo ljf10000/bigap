@@ -20,6 +20,7 @@ LIB_INITER;
 #include "weos/boot/base64.c"
 #include "weos/boot/bcookie.c"
 #include "weos/boot/benv.c"
+#include "weos/boot/bits.c"
 #include "weos/boot/cmd.c"
 #include "weos/boot/crc32.c"
 #include "weos/boot/dump.c"
@@ -28,36 +29,35 @@ LIB_INITER;
 #include "weos/boot/md5.c"
 #include "weos/boot/string.c"
 /******************************************************************************/
-#include "app/autoarray.c"
-#include "app/bcookie.c"
-#include "app/bits.c"
+#include "weos/app/autoarray.c"
+#include "weos/app/bcookie.c"
 #if USE_APP_BLOB
-#include "app/blob.c"
+#include "weos/app/blob.c"
 #endif
 #if USE_APP_CHANNEL
-#include "app/channel.c"
+#include "weos/app/channel.c"
 #endif
 #if USE_APP_COROUTINE
-#include "app/coroutine.c"
+#include "weos/app/coroutine.c"
 #endif
 #if USE_APP_CQUEUE
-#include "app/cqueue.c"
+#include "weos/app/cqueue.c"
 #endif
-#include "app/dll.c"
-#include "app/env.c"
+#include "weos/app/dll.c"
+#include "weos/app/env.c"
 #if USE_APP_FD
-#include "app/fd.c"
+#include "weos/app/fd.c"
 #endif
-#include "app/file.c"
-#include "app/intf.c"
-#include "app/io.c"
-#include "app/jlog.c"
-#include "app/json.c"
-#include "app/loop.c"
-#include "app/pipe.c"
+#include "weos/app/file.c"
+#include "weos/app/intf.c"
+#include "weos/app/io.c"
+#include "weos/app/jlog.c"
+#include "weos/app/json.c"
+#include "weos/app/loop.c"
+#include "weos/app/pipe.c"
 #if USE_APP_SLICE
-#include "app/slice.c"
+#include "weos/app/slice.c"
 #endif
-#include "app/this.c"
-#include "app/timer.c"
+#include "weos/app/this.c"
+#include "weos/app/timer.c"
 /******************************************************************************/

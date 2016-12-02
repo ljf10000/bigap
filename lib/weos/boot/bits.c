@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-bool
+DECLARE bool
 os_bmask_match(byte *a, byte *b, byte *mask, int len)
 {
     int i;
@@ -15,7 +15,7 @@ os_bmask_match(byte *a, byte *b, byte *mask, int len)
     return true;
 }
 
-int
+DECLARE int
 os_bitmap_init(os_bitmap_t *bp, uint32 bits)
 {
     uint32 count = OS_ALIGN(bits, BITMAPSLOT)/BITMAPSLOT;
@@ -29,7 +29,7 @@ os_bitmap_init(os_bitmap_t *bp, uint32 bits)
     return 0;
 }
 
-int
+DECLARE int
 os_bitmap_fini(os_bitmap_t *bp)
 {
     if (bp) {
@@ -41,7 +41,7 @@ os_bitmap_fini(os_bitmap_t *bp)
     return 0;
 }
 
-void
+DECLARE void
 os_bitmap_set(os_bitmap_t *bp, uint32 bit)
 {
     if (bp && __is_good_bitmap_bit(bp, bit)) {
@@ -51,7 +51,7 @@ os_bitmap_set(os_bitmap_t *bp, uint32 bit)
     }
 }
 
-void
+DECLARE void
 os_bitmap_clr(os_bitmap_t *bp, uint32 bit)
 {
     if (bp && __is_good_bitmap_bit(bp, bit)) {
@@ -61,7 +61,7 @@ os_bitmap_clr(os_bitmap_t *bp, uint32 bit)
     }
 }
 
-bool
+DECLARE bool
 os_bitmap_isset(os_bitmap_t *bp, uint32 bit)
 {
     if (bp && __is_good_bitmap_bit(bp, bit)) {

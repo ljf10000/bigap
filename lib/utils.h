@@ -22,7 +22,6 @@
 #ifdef __BOOT__
 #   define __UCLIBC__
 #   define STATIC   static
-#   define INLINE   inline
 #   define EXTERN   static inline
 #   define DECLARE  static inline
 #   include <malloc.h>
@@ -49,7 +48,6 @@
 #else /* __APP__ */
 #   define __APP__
 #   define STATIC
-#   define INLINE
 #   define EXTERN   extern
 #   define DECLARE
 #   ifdef __BUSYBOX__
