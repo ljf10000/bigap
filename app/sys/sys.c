@@ -34,9 +34,9 @@ BENV_INITER;
 #define SCRIPT_XCOPY                PRODUCT_FILE("usr/sbin/xcopy")
 #define SCRIPT_CURRENT              PRODUCT_FILE("usr/sbin/syscurrent")
 
-#define SCRIPT_USBUPGRADE_INIT      SCRIPT_FILE("usbupgrade/init.cb")
-#define SCRIPT_USBUPGRADE_OK        SCRIPT_FILE("usbupgrade/ok.cb")
-#define SCRIPT_USBUPGRADE_FAIL      SCRIPT_FILE("usbupgrade/fail.cb")
+#define SCRIPT_USBUPGRADE_INIT      SCRIPT_FILE("sys_usbupgrade/init.cb")
+#define SCRIPT_USBUPGRADE_OK        SCRIPT_FILE("sys_usbupgrade/ok.cb")
+#define SCRIPT_USBUPGRADE_FAIL      SCRIPT_FILE("sys_usbupgrade/fail.cb")
 
 #define __FILE_VERSION              "etc/" PRODUCT_FILE_VERSION
 #define __FILE_ROOTFS_VERSION       __FILE_VERSION
@@ -184,8 +184,8 @@ sys = {
     }                                       \
 }while(0)
 
-static char *
-rootfs_file(int idx, char *file)
+STATIC char *
+sys_rootfs_file(int idx, char *file)
 {
     static char line[1+OS_FILENAME_LEN];
 
@@ -207,22 +207,22 @@ rootfs_file(int idx, char *file)
 #define sys_println(_fmt, _args...)     os_do_nothing()
 #endif
 
-static int
-__reboot(void)
+STATIC int
+__sys_reboot(void)
 {
     __os_system(SCRIPT_REBOOT "&");
 
     return -EINVAL;
 }
 
-static int
-__dd(char *dst, char *src)
+STATIC int
+__sys_dd(char *dst, char *src)
 {
     return os_shell("dd if=%s of=%s bs=4096", src, dst);
 }
 
-static char *
-get_pwdfile(void)
+STATIC char *
+sys_get_pwdfile(void)
 {
     static char pwd[1+FCOOKIE_FILE_LEN];
     
@@ -231,22 +231,22 @@ get_pwdfile(void)
             __fcookie_file(FCOOKIE_RSYNC_PWDFILE, pwd);
 }
 
-static void
-put_pwdfile(char *pwdfile)
+STATIC void
+sys_put_pwdfile(char *pwdfile)
 {
     if (pwdfile && NULL==sys.env.pwdfile) {
         unlink(pwdfile);
     }
 }
 
-static int
-__rsync(int idx, benv_version_t *version)
+STATIC int
+__sys_rsync(int idx, benv_version_t *version)
 {
     int err;
     char new[1+BENV_VERSION_STRING_LEN];
     char old[1+BENV_VERSION_STRING_LEN];
     
-    char *pwdfile = get_pwdfile();
+    char *pwdfile = sys_get_pwdfile();
     if (NULL==pwdfile) {
         return -EIO;
     }
@@ -254,12 +254,12 @@ __rsync(int idx, benv_version_t *version)
     benv_version_itoa(version, new);
     benv_version_itoa(&sys.old_version, old);
 
-    err = os_shell("rsync"
+    err = os_shell("sys_rsync"
             " -acz --delete-after --stats --partial"
             " --exclude=/dev/*"
             " --timeout=%s"
             " --password-file=%s"
-            " rsync://%s@%s:%s/%s/%s/rootfs/"
+            " sys_rsync://%s@%s:%s/%s/%s/rootfs/"
             " %s",
             sys.env.timeout,
             pwdfile,
@@ -270,7 +270,7 @@ __rsync(int idx, benv_version_t *version)
                 new,
             dir_rootfs(idx));
     benv_obj(rootfs, idx)->upgrade = efsm(err);
-    put_pwdfile(pwdfile);
+    sys_put_pwdfile(pwdfile);
 
     jinfo("%o", 
         "upgrade", jobj_oprintf("%s%s%s%s%o%d",
@@ -286,8 +286,8 @@ __rsync(int idx, benv_version_t *version)
     return err;
 }
 
-static int
-__xcopy(char *dst, char *src)
+STATIC int
+__sys_xcopy(char *dst, char *src)
 {
     int err = 0;
     
@@ -298,8 +298,8 @@ __xcopy(char *dst, char *src)
     return err;
 }
 
-static int
-__rcopy(int idx, char *dir, benv_version_t *version)
+STATIC int
+__sys_rcopy(int idx, char *dir, benv_version_t *version)
 {
     int err;
     char new[1+BENV_VERSION_STRING_LEN];
@@ -308,7 +308,7 @@ __rcopy(int idx, char *dir, benv_version_t *version)
     benv_version_itoa(version, new);
     benv_version_itoa(&sys.old_version, old);
 
-    err = __xcopy(dir_rootfs(idx), dir);
+    err = __sys_xcopy(dir_rootfs(idx), dir);
     benv_obj(rootfs, idx)->upgrade = efsm(err);
 
     jinfo("%o",
@@ -325,8 +325,8 @@ __rcopy(int idx, char *dir, benv_version_t *version)
     return err;
 }
 
-static int
-__umount(char *dir)
+STATIC int
+__sys_umount(char *dir)
 {
     return os_shell(SCRIPT_UMOUNT " %s", dir);
 }
@@ -337,18 +337,18 @@ __umount(char *dir)
 #define ROOTFS_MOUNT_MODE   __empty
 #endif
 
-static int
-__is_readonly_default(void)
+STATIC int
+is_sys_readonly_default(void)
 {
     return os_streq(PRODUCT_ROOTFS_RO, benv_info(__benv_info_pcba_rootrw));
 }
 
-static int
-__remount(char *dir, bool readonly)
+STATIC int
+do_sys_remount(char *dir, bool readonly)
 {
     int err = 0;
     
-    if (__is_readonly_default()) {
+    if (is_sys_readonly_default()) {
         err = os_shell("mount -o remount" ROOTFS_MOUNT_MODE ",%s %s &> /dev/null",
                     readonly?"ro":"rw",
                     dir);
@@ -357,20 +357,20 @@ __remount(char *dir, bool readonly)
     return err;
 }
 
-static int
-do_umount(char *dir)
+STATIC int
+do_sys_umount(char *dir)
 {
     if (is_current_rootfs_dev(dir) /* yes, dir */ || is_current_rootfs_dir(dir)) {
         debug_trace("skip umount current rootfs %s", dir);
         
         return 0;
     } else {
-        return __umount(dir);
+        return __sys_umount(dir);
     }
 }
 
-static int
-do_mount(char *dev, char *dir, bool check, bool readonly, bool repair)
+STATIC int
+do_sys_mount(char *dev, char *dir, bool check, bool readonly, bool repair)
 {
     return os_shell(SCRIPT_MOUNT " %s %s %s %s %s", 
                 dev, 
@@ -380,14 +380,14 @@ do_mount(char *dev, char *dir, bool check, bool readonly, bool repair)
                 os_yesno(repair));
 }
 
-static int
-do_mount_wait(int wait, char *dev, char *dir, bool check, bool readonly, bool repair)
+STATIC int
+do_sys_mount_wait(int wait, char *dev, char *dir, bool check, bool readonly, bool repair)
 {
     int i, err;
 
     for (i=0; i<wait; i++) {
         if (os_file_exist(dev)) {
-            return do_mount(dev, dir, check, readonly, repair);
+            return do_sys_mount(dev, dir, check, readonly, repair);
         }
 
         sleep(1);
@@ -398,8 +398,8 @@ do_mount_wait(int wait, char *dev, char *dir, bool check, bool readonly, bool re
 
 #define MOUNT0 0
 
-static int
-mount_double(
+STATIC int
+sys_mount_double(
     char *name, char *dir_master,
     char *dev0, char *dir0,
     char *dev1, char *dir1,
@@ -410,16 +410,16 @@ mount_double(
     int err0 = 0;
     int err1 = 0;
     
-    err0 = do_mount(dev0, dir_master, 
+    err0 = do_sys_mount(dev0, dir_master, 
             true,   /* check    */
             false,  /* readonly */
             true);  /* repair   */
-    err1 = do_mount(dev1, dir1, 
+    err1 = do_sys_mount(dev1, dir1, 
             true,   /* check    */
             false,  /* readonly */
             true);  /* repair   */
 #if MOUNT0
-    do_mount(dev0, dir0, 
+    do_sys_mount(dev0, dir0, 
             false,  /* check    */
             false,  /* readonly */
             false); /* repair   */
@@ -431,10 +431,10 @@ mount_double(
         return -EMOUNT;
     }
     else if (err0) {
-        __xcopy(dir0, dir1);
+        __sys_xcopy(dir0, dir1);
     }
     else if (err1) {
-        __xcopy(dir1, dir0);
+        __sys_xcopy(dir1, dir0);
     }
     
     *imaster = 0;
@@ -442,42 +442,42 @@ mount_double(
     return 0;
 }
 
-static int
-mount_config(void)
+STATIC int
+sys_mount_config(void)
 {
-    return mount_double("config", PRODUCT_DIR_CONFIG,
+    return sys_mount_double("config", PRODUCT_DIR_CONFIG,
                 dev_config(0), dir_config(0), 
                 dev_config(1), dir_config(1),
                 &sys.cmaster);
 }
 
-static int
-mount_tool(void)
+STATIC int
+sys_mount_tool(void)
 {
-    return mount_double("tool", PRODUCT_DIR_TOOL,
+    return sys_mount_double("tool", PRODUCT_DIR_TOOL,
                 dev_tool(0), dir_tool(0), 
                 dev_tool(1), dir_tool(1),
                 &sys.tmaster);
 }
 
-static int
-mount_data(void)
+STATIC int
+sys_mount_data(void)
 {
-    return mount_double("data", PRODUCT_DIR_DATA,
+    return sys_mount_double("data", PRODUCT_DIR_DATA,
                 dev_data(0), dir_data(0), 
                 dev_data(1), dir_data(1),
                 &sys.dmaster);
 }
 
-static int
-mount_rootfs(void)
+STATIC int
+sys_mount_rootfs(void)
 {
     int i, err, errs = 0;
-    bool readonly = __is_readonly_default();
+    bool readonly = is_sys_readonly_default();
 
     for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
         if (i!=sys.current) {
-            err = do_mount(dev_rootfs(i), dir_rootfs(i), 
+            err = do_sys_mount(dev_rootfs(i), dir_rootfs(i), 
                     true,   /* check    */
                     readonly,
                     true);  /* repair   */
@@ -490,29 +490,29 @@ mount_rootfs(void)
     return errs;
 }
 
-static int
-mount_hd(void)
+STATIC int
+sys_mount_hd(void)
 {
-    return do_mount_wait(3, PRODUCT_DEV_HD, PRODUCT_DIR_HD, 
+    return do_sys_mount_wait(3, PRODUCT_DEV_HD, PRODUCT_DIR_HD, 
             true,   /* check    */
             false,  /* readonly */
             false); /* repair   */
 }
 
-static int
-mount_sd(void)
+STATIC int
+sys_mount_sd(void)
 {
-    return do_mount_wait(2, PRODUCT_DEV_SD, PRODUCT_DIR_SD, 
+    return do_sys_mount_wait(2, PRODUCT_DEV_SD, PRODUCT_DIR_SD, 
             true,   /* check    */
             false,  /* readonly */
             false); /* repair   */
 }
 
-static int
-mount_usb(void)
+STATIC int
+sys_mount_usb(void)
 {
     if (false==os_file_exist(SCRIPT_HOTPLUG)) {
-        return do_mount_wait(2, PRODUCT_DEV_USB, PRODUCT_DIR_USB, 
+        return do_sys_mount_wait(2, PRODUCT_DEV_USB, PRODUCT_DIR_USB, 
                 true,   /* check    */
                 false,  /* readonly */
                 false); /* repair   */
@@ -521,54 +521,54 @@ mount_usb(void)
     }
 }
 
-static int
-umount_double(char *dir_master, char *dir0, char *dir1)
+STATIC int
+sys_umount_double(char *dir_master, char *dir0, char *dir1)
 {
     int err;
 
-    err = do_umount(dir_master);
+    err = do_sys_umount(dir_master);
     if (err<0) {
         /* log */
     }
 
-    err = do_umount(dir1);
+    err = do_sys_umount(dir1);
     if (err<0) {
         /* log */
     }
 
 #if MOUNT0
-    do_umount(dir0);
+    do_sys_umount(dir0);
 #endif
 
     return err;
 }
 
-static int
-umount_config(void)
+STATIC int
+sys_umount_config(void)
 {
-    return umount_double(PRODUCT_DIR_CONFIG, dir_config(0), dir_config(1));
+    return sys_umount_double(PRODUCT_DIR_CONFIG, dir_config(0), dir_config(1));
 }
 
-static int
-umount_tool(void)
+STATIC int
+sys_umount_tool(void)
 {
-    return umount_double(PRODUCT_DIR_TOOL, dir_tool(0), dir_tool(1));
+    return sys_umount_double(PRODUCT_DIR_TOOL, dir_tool(0), dir_tool(1));
 }
 
-static int
-umount_data(void)
+STATIC int
+sys_umount_data(void)
 {
-    return umount_double(PRODUCT_DIR_DATA, dir_data(0), dir_data(1));
+    return sys_umount_double(PRODUCT_DIR_DATA, dir_data(0), dir_data(1));
 }
 
-static int
-umount_rootfs(void)
+STATIC int
+sys_umount_rootfs(void)
 {
     int i, err, errs = 0;
 
     for (i=0; i<PRODUCT_FIRMWARE_COUNT; i++) {
         if (i!=sys.current) {
-            err = do_umount(dir_rootfs(i));
+            err = do_sys_umount(dir_rootfs(i));
             if (err<0) {
                 errs = err;
             }
@@ -578,64 +578,64 @@ umount_rootfs(void)
     return errs;
 }
 
-static int
-umount_hd(void)
+STATIC int
+sys_umount_hd(void)
 {
-    return do_umount(PRODUCT_DIR_HD);
+    return do_sys_umount(PRODUCT_DIR_HD);
 }
 
-static int
-umount_sd(void)
+STATIC int
+sys_umount_sd(void)
 {
-    return do_umount(PRODUCT_DIR_SD);
+    return do_sys_umount(PRODUCT_DIR_SD);
 }
 
-static int
-umount_usb(void)
+STATIC int
+sys_umount_usb(void)
 {
     if (false==os_file_exist(SCRIPT_HOTPLUG)) {
-        return do_umount(PRODUCT_DIR_USB);
+        return do_sys_umount(PRODUCT_DIR_USB);
     } else {
         return 0;
     }
 }
 
-static struct {
+STATIC struct {
     int (*mount)(void);
     int (*umount)(void);
-} mounts[] = {
+} sys_mounts[] = {
     {
-         .mount =  mount_data,
-        .umount = umount_data,
+         .mount =  sys_mount_data,
+        .umount = sys_umount_data,
     },
     {
-         .mount =  mount_rootfs,
-        .umount = umount_rootfs,
+         .mount =  sys_mount_rootfs,
+        .umount = sys_umount_rootfs,
     },
     {
-         .mount =  mount_config,
-        .umount = umount_config,
+         .mount =  sys_mount_config,
+        .umount = sys_umount_config,
     },
     {
-         .mount =  mount_tool,
-        .umount = umount_tool,
+         .mount =  sys_mount_tool,
+        .umount = sys_umount_tool,
     },
     {
-         .mount =  mount_sd,
-        .umount = umount_sd,
+         .mount =  sys_mount_sd,
+        .umount = sys_umount_sd,
     },
     {
-         .mount =  mount_hd,
-        .umount = umount_hd,
+         .mount =  sys_mount_hd,
+        .umount = sys_umount_hd,
     },
     {
-         .mount =  mount_usb,
-        .umount = umount_usb,
+         .mount =  sys_mount_usb,
+        .umount = sys_umount_usb,
     },
 };
 
-static benv_version_t *
-__get_fversion(int idx, char *file, benv_version_t *version)
+STATIC benv_version_t *
+sys_get_fversion(int idx, char *file, benv_version_t *version)
 {
     char string[1+OS_LINE_LEN] = {0};
     int err;
@@ -656,24 +656,24 @@ __get_fversion(int idx, char *file, benv_version_t *version)
     return version;
 }
 
-static benv_version_t *
-rootfs_version(int idx)
+STATIC benv_version_t *
+sys_rootfs_version(int idx)
 {
     static benv_version_t version;
     
-    return __get_fversion(idx, __FILE_ROOTFS_VERSION, &version);
+    return sys_get_fversion(idx, __FILE_ROOTFS_VERSION, &version);
 }
 
-static benv_version_t *
-kernel_version(int idx)
+STATIC benv_version_t *
+sys_kernel_version(int idx)
 {
     static benv_version_t version;
     
-    return __get_fversion(idx, __FILE_KERNEL_VERSION, &version);
+    return sys_get_fversion(idx, __FILE_KERNEL_VERSION, &version);
 }
 
-static int
-save(void)
+STATIC int
+sys_save(void)
 {
     return benv_save_os();
 }
@@ -698,96 +698,96 @@ save(void)
 *   set rootfs and kernel fsm failed
 *   save rootfs and kernel version
 */
-static void
-upgrade_init(int idx, benv_version_t *version)
+STATIC void
+sys_upgrade_init(int idx, benv_version_t *version)
 {
     __upgrade_init(rootfs, idx, version);
     __upgrade_init(kernel, idx, version);
 
-    save();
+    sys_save();
 }
 
 
-static int
-__dir_rsync_init(int idx, benv_version_t *version)
+STATIC int
+sys_rsync_init(int idx, benv_version_t *version)
 {
     __upgrade_init(rootfs, idx, version);
     
-    save();
+    sys_save();
     
-    return __remount(dir_rootfs(idx), false);
+    return do_sys_remount(dir_rootfs(idx), false);
 }
 
-static int
-__dir_rsync_fini(int idx, benv_version_t *version)
+STATIC int
+sys_rsync_fini(int idx, benv_version_t *version)
 {
     (void)version;
     
-    save();
+    sys_save();
     
-    return __remount(dir_rootfs(idx), true);
+    return do_sys_remount(dir_rootfs(idx), true);
 }
 
 /*
-* rsync cloud ==> rootfs idx
+* sys_rsync cloud ==> rootfs idx
 */
-static int
-rsync(int idx, benv_version_t *version)
+STATIC int
+sys_rsync(int idx, benv_version_t *version)
 {
-    return os_call_2(__dir_rsync_init, __dir_rsync_fini, __rsync, idx, version);
+    return os_call_2(sys_rsync_init, sys_rsync_fini, __sys_rsync, idx, version);
 }
 
-static int
-__dir_rcopy_init(int dst, char *dir, benv_version_t *version)
+STATIC int
+sys_rcopy_init(int dst, char *dir, benv_version_t *version)
 {
     (void)dir;
     
     __upgrade_init(rootfs, dst, version);
     
-    save();
+    sys_save();
     
-    return __remount(dir_rootfs(dst), false);
+    return do_sys_remount(dir_rootfs(dst), false);
 }
 
-static int
-__dir_rcopy_fini(int dst, char *dir, benv_version_t *version)
+STATIC int
+sys_rcopy_fini(int dst, char *dir, benv_version_t *version)
 {
     (void)dir;
     (void)version;
     
-    save();
+    sys_save();
     
-    return __remount(dir_rootfs(dst), true);
+    return do_sys_remount(dir_rootfs(dst), true);
 }
 
 /*
-* rsync src dir ==> rootfs idx
+* sys_rsync src dir ==> rootfs idx
 */
-static int
-rcopy(int idx, char *dir, benv_version_t *version)
+STATIC int
+sys_rcopy(int idx, char *dir, benv_version_t *version)
 {
-    return os_call_3(__dir_rcopy_init, __dir_rcopy_fini, __rcopy, idx, dir, version);
+    return os_call_3(sys_rcopy_init, sys_rcopy_fini, __sys_rcopy, idx, dir, version);
 }
 
-static int
-__rdd_init(int dst, int src)
+STATIC int
+sys_rdd_init(int dst, int src)
 {
     __upgrade_init(rootfs, dst, benv_rootfs_version(src));
     
-    return save();
+    return sys_save();
 }
 
-static int
-__rdd_fini(int dst, int src)
+STATIC int
+sys_rdd_fini(int dst, int src)
 {
     (void)dst;
     (void)src;
     
-    return save();
+    return sys_save();
 }
 
-static int
-__rdd(int dst, int src)
+STATIC int
+__sys_rdd(int dst, int src)
 {
     int err;
     char new[1+BENV_VERSION_STRING_LEN];
@@ -796,7 +796,7 @@ __rdd(int dst, int src)
     benv_version_itoa(benv_rootfs_version(src), new);
     benv_version_itoa(&sys.old_version, old);
 
-    err = __dd(dev_rootfs(dst), dev_rootfs(src));
+    err = __sys_dd(dev_rootfs(dst), dev_rootfs(src));
     benv_obj(rootfs, dst)->upgrade = efsm(err);
 
     jinfo("%o",
@@ -816,33 +816,33 @@ __rdd(int dst, int src)
 /*
 * dd rootfs src ==> rootfs dst
 */
-static int
-rdd(int dst, int src)
+STATIC int
+sys_rdd(int dst, int src)
 {
-    return os_call_2(__rdd_init, __rdd_fini, __rdd, dst, src);
+    return os_call_2(sys_rdd_init, sys_rdd_fini, __sys_rdd, dst, src);
 }
 
-static int
-__kdd_bydev_init(int dst, int src)
+STATIC int
+sys_kdd_bydev_init(int dst, int src)
 {
     (void)src;
     
     __upgrade_init(kernel, dst, benv_kernel_version(src));
     
-    return save();
+    return sys_save();
 }
 
-static int
-__kdd_bydev_fini(int dst, int src)
+STATIC int
+sys_kdd_bydev_fini(int dst, int src)
 {
     (void)dst;
     (void)src;
     
-    return save();
+    return sys_save();
 }
 
-static int
-__kdd_bydev(int dst, int src)
+STATIC int
+__sys_kdd_bydev(int dst, int src)
 {
     int err;
     char new[1+BENV_VERSION_STRING_LEN];
@@ -851,7 +851,7 @@ __kdd_bydev(int dst, int src)
     benv_version_itoa(benv_kernel_version(src), new);
     benv_version_itoa(&sys.old_version, old);
 
-    err = __dd(dev_kernel(dst), dev_kernel(src));
+    err = __sys_dd(dev_kernel(dst), dev_kernel(src));
     benv_obj(kernel, dst)->upgrade = efsm(err);
 
     jinfo("%o",
@@ -871,34 +871,34 @@ __kdd_bydev(int dst, int src)
 /*
 * dd kernel src ==> kernel dst
 */
-static int
-kdd_bydev(int dst, int src)
+STATIC int
+sys_kdd_bydev(int dst, int src)
 {
-    return os_call_2(__kdd_bydev_init, __kdd_bydev_fini, __kdd_bydev, dst, src);
+    return os_call_2(sys_kdd_bydev_init, sys_kdd_bydev_fini, __sys_kdd_bydev, dst, src);
 }
 
-static int
-__kdd_byfile_init(int idx, char *file, benv_version_t *version)
+STATIC int
+sys_kdd_byfile_init(int idx, char *file, benv_version_t *version)
 {
     (void)file;
     
     __upgrade_init(kernel, idx, version);
     
-    return save();
+    return sys_save();
 }
 
 static int
-__kdd_byfile_fini(int idx, char *file, benv_version_t *version)
+sys_kdd_byfile_fini(int idx, char *file, benv_version_t *version)
 {
     (void)idx;
     (void)file;
     (void)version;
     
-    return save();
+    return sys_save();
 }
 
-static int
-__kdd_byfile(int idx, char *file, benv_version_t *version)
+STATIC int
+__sys_kdd_byfile(int idx, char *file, benv_version_t *version)
 {
     int err;
     char new[1+BENV_VERSION_STRING_LEN];
@@ -907,7 +907,7 @@ __kdd_byfile(int idx, char *file, benv_version_t *version)
     benv_version_itoa(version, new);
     benv_version_itoa(&sys.old_version, old);
 
-    err = __dd(dev_kernel(idx), file);
+    err = __sys_dd(dev_kernel(idx), file);
     benv_obj(kernel, idx)->upgrade = efsm(err);
 
     jinfo("%o",
@@ -927,18 +927,18 @@ __kdd_byfile(int idx, char *file, benv_version_t *version)
 /*
 * dd kernel file ==> kernel idx
 */
-static int
-kdd_byfile(int idx, char *file, benv_version_t *version)
+STATIC int
+sys_kdd_byfile(int idx, char *file, benv_version_t *version)
 {
-    return os_call_3(__kdd_byfile_init, __kdd_byfile_fini, __kdd_byfile, idx, file, version);
+    return os_call_3(sys_kdd_byfile_init, sys_kdd_byfile_fini, __sys_kdd_byfile, idx, file, version);
 }
 
-static int
-bdd(char *action, char *obj, char *dst, char *src)
+STATIC int
+sys_bdd(char *action, char *obj, char *dst, char *src)
 {
     int err;
 
-    err = __dd(dst, src);
+    err = __sys_dd(dst, src);
     
     jinfo("%o",
         action, jobj_oprintf("%s%s%s%s%d",
@@ -951,8 +951,8 @@ bdd(char *action, char *obj, char *dst, char *src)
     return err;
 }
 
-static int
-switch_to(int idx)
+STATIC int
+sys_switch_to(int idx)
 {
     jinfo("%o", 
         "switch", jobj_oprintf("%d%d",
@@ -969,13 +969,13 @@ switch_to(int idx)
     benv_obj(kernel, idx)->self = BENV_FSM_UNKNOW;
     
     __benv_current = idx;
-    save();
+    sys_save();
     
     return 0;
 }
 
-static void 
-debug_rootfs_upgrade(int idx, char *master, char *rootfs)
+STATIC void 
+sys_debug_rootfs_upgrade(int idx, char *master, char *rootfs)
 {
     char version_string[1+BENV_VERSION_STRING_LEN];
     
@@ -987,8 +987,8 @@ debug_rootfs_upgrade(int idx, char *master, char *rootfs)
         sys.env.version);
 }
 
-static int
-get_upgrade_byversion(benv_version_t *version, int skips)
+STATIC int
+sys_get_upgrade_byversion(benv_version_t *version, int skips)
 {
     int idx;
     
@@ -997,7 +997,7 @@ get_upgrade_byversion(benv_version_t *version, int skips)
     */
     idx = benv_find_first_bad_byversion(rootfs, version, skips);
     if (is_benv_good_rootfs(idx)) {
-        debug_rootfs_upgrade(idx, "master", "good");
+        sys_debug_rootfs_upgrade(idx, "master", "good");
 
         return idx;
     }
@@ -1007,7 +1007,7 @@ get_upgrade_byversion(benv_version_t *version, int skips)
     */
     idx = benv_find_first_good_byversion(rootfs, version, skips);
     if (is_benv_good_rootfs(idx)) {
-        debug_rootfs_upgrade(idx, "master", "bad");
+        sys_debug_rootfs_upgrade(idx, "master", "bad");
 
         return idx;
     }
@@ -1017,7 +1017,7 @@ get_upgrade_byversion(benv_version_t *version, int skips)
     */
     idx = benv_find_first_byversion(rootfs, version, skips);
     if (is_good_benv_idx(idx)) {
-        debug_rootfs_upgrade(idx, "master", "first");
+        sys_debug_rootfs_upgrade(idx, "master", "first");
 
         return idx;
     }
@@ -1025,30 +1025,30 @@ get_upgrade_byversion(benv_version_t *version, int skips)
     return -ENOEXIST;
 }
 
-static int
-get_upgrade(int skips)
+STATIC int
+sys_get_upgrade(int skips)
 {
-    int idx = get_upgrade_byversion(&sys.version, skips);
+    int idx = sys_get_upgrade_byversion(&sys.version, skips);
     if (is_good_benv_idx(idx)) {
         return idx;
     }
     
     idx = benv_find_worst(rootfs, skips);
     if (is_good_benv_idx(idx)) {
-        debug_rootfs_upgrade(idx, "master", "worst");
+        sys_debug_rootfs_upgrade(idx, "master", "worst");
     } else {
         trace_assert(0, "no found worst slave");
         idx = benv_first_idx(sys.current, skips);
-        debug_rootfs_upgrade(idx, "slave", "force");
+        sys_debug_rootfs_upgrade(idx, "slave", "force");
     }
 
     return idx;
 }
 
-static int
-repair_kernel(int idx, benv_version_t *version)
+STATIC int
+sys_repair_kernel(int idx, benv_version_t *version)
 {
-    int err = kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), version);
+    int err = sys_kdd_byfile(idx, sys_rootfs_file(idx, __BIN_MD_KERNEL), version);
 
     jcrit("%s%d%d", 
         "repair", "kernel",
@@ -1058,8 +1058,8 @@ repair_kernel(int idx, benv_version_t *version)
     return err;
 }
 
-static bool
-is_rootfs_need_repair(int idx)
+STATIC bool
+is_sys_rootfs_need_repair(int idx)
 {
     if (false==is_benv_good_rootfs(idx)) {
         jcrit("%d%s%s",
@@ -1089,14 +1089,14 @@ is_rootfs_need_repair(int idx)
     return false;
 }
 
-static int
-repair_rootfs(int idx)
+STATIC int
+sys_repair_rootfs(int idx)
 {
     benv_version_t version;
     char version_string[1+BENV_VERSION_STRING_LEN];
     int err = 0;
     
-    if (false==is_rootfs_need_repair(idx)) {
+    if (false==is_sys_rootfs_need_repair(idx)) {
         debug_ok("rootfs%d needn't repair", idx);
         
         return 0;
@@ -1117,17 +1117,17 @@ repair_rootfs(int idx)
         "find", "buddy",
         "buddy", buddy);
 
-    upgrade_init(idx, &version);
+    sys_upgrade_init(idx, &version);
 
     if (is_benv_good_rootfs(buddy)) {
-        err = rcopy(idx, dir_rootfs(buddy), &version);
+        err = sys_rcopy(idx, dir_rootfs(buddy), &version);
         jcrit("%s%d%d%d",
             "repair", "rootfs",
             "rootfs", idx,
             "buddy", buddy,
             "error", err);
     } else {
-        err = rsync(idx, &version);
+        err = sys_rsync(idx, &version);
         jcrit("%s%d%d",
             "repair", "rootfs",
             "rootfs", idx,
@@ -1138,13 +1138,13 @@ repair_rootfs(int idx)
         return err;
     }
     
-    return repair_kernel(idx, &version);
+    return sys_repair_kernel(idx, &version);
 }
 
-static int
-reset_kernel(int idx)
+STATIC int
+sys_reset_kernel(int idx)
 {
-    int err = kdd_byfile(idx, rootfs_file(idx, __BIN_MD_KERNEL), benv_kernel_version(idx));
+    int err = sys_kdd_byfile(idx, sys_rootfs_file(idx, __BIN_MD_KERNEL), benv_kernel_version(idx));
 
     jcrit("%s%d%d%d",
         "reset", "kernel",
@@ -1155,10 +1155,10 @@ reset_kernel(int idx)
     return err;
 }
 
-static int
-reset_rootfs(int idx, int resetby)
+STATIC int
+sys_reset_rootfs(int idx, int resetby)
 {
-    int err = rcopy(idx, dir_rootfs(resetby), benv_rootfs_version(resetby));
+    int err = sys_rcopy(idx, dir_rootfs(resetby), benv_rootfs_version(resetby));
     
     jcrit("%s%d%d%d",
         "reset", "rootfs",
@@ -1170,11 +1170,11 @@ reset_rootfs(int idx, int resetby)
 }
 
 /*
-* idx: the rootfs will rsync by cloud
+* idx: the rootfs will sys_rsync by cloud
 * src: the source rootfs
 */
-static int
-upgrade(int idx, int src)
+STATIC int
+sys_upgrade(int idx, int src)
 {
     int err = 0;
     benv_version_t *version = &sys.version;
@@ -1203,15 +1203,15 @@ upgrade(int idx, int src)
         return 0;
     }
 
-    upgrade_init(idx, version);
+    sys_upgrade_init(idx, version);
 
     if (idx==src) {
-        err = rsync(idx, version);
+        err = sys_rsync(idx, version);
     } else {
         /*
         * NOW, NOT goto here
         */
-        err = rcopy(idx, dir_rootfs(src), version);
+        err = sys_rcopy(idx, dir_rootfs(src), version);
     }
     if (err<0) {
         return err;
@@ -1222,21 +1222,21 @@ upgrade(int idx, int src)
     *
     * repair kernel
     */
-    err = repair_kernel(idx, version);
+    err = sys_repair_kernel(idx, version);
     if (err<0) {
         return err;
     }
     
-    switch_to(idx);
+    sys_switch_to(idx);
 
     return err;
 }
 
-static int
-usbupgrade(void)
+STATIC int
+sys_usbupgrade(void)
 {
-    char kernel_version[1+OS_LINE_LEN] = {0};
-    char rootfs_version[1+OS_LINE_LEN] = {0};
+    char sys_kernel_version[1+OS_LINE_LEN] = {0};
+    char sys_rootfs_version[1+OS_LINE_LEN] = {0};
     benv_version_t version;
     int i, err, begin, end; 
     bool kernel_exist = false;
@@ -1247,47 +1247,47 @@ usbupgrade(void)
     
     if (access(USB_FILE_KERNEL_VERSION, 0) || 
         access(USB_FILE_ROOTFS_VERSION, 0)) {
-        debug_trace("no found version file, needn't usbupgrade");
+        debug_trace("no found version file, needn't sys_usbupgrade");
 
         return 0;
     }
     
-    err = os_fgets(kernel_version, OS_LINE_LEN, USB_FILE_KERNEL_VERSION);
+    err = os_fgets(sys_kernel_version, OS_LINE_LEN, USB_FILE_KERNEL_VERSION);
     if (err<0) {
         debug_error("get %s error:%d", USB_FILE_KERNEL_VERSION, err);
         
         return err;
     }
     
-    err = os_fgets(rootfs_version, OS_LINE_LEN, USB_FILE_ROOTFS_VERSION);
+    err = os_fgets(sys_rootfs_version, OS_LINE_LEN, USB_FILE_ROOTFS_VERSION);
     if (err<0) {
         debug_error("get %s error:%d", USB_FILE_ROOTFS_VERSION, err);
         
         return err;
     }
     
-    if (NULL==benv_version_atoi(&version, rootfs_version)) {
-        debug_error("bad rootfs version:%s", rootfs_version);
+    if (NULL==benv_version_atoi(&version, sys_rootfs_version)) {
+        debug_error("bad rootfs version:%s", sys_rootfs_version);
         
         return -EFORMAT;
     }
     
     if (benv_version_eq(benv_rootfs_version(0), &version) && NULL==sys.env.force) {
-        debug_trace("usb(%s)==rootfs0, needn't ubsupgrade", rootfs_version);
+        debug_trace("usb(%s)==rootfs0, needn't ubsupgrade", sys_rootfs_version);
         
         return 0;
     }
 
     if (0==access(USB_BIN_MD_BOOT, 0)) {
-        bdd("upgrade", "boot", PRODUCT_DEV_BOOT, USB_BIN_MD_BOOT);
+        sys_bdd("upgrade", "boot", PRODUCT_DEV_BOOT, USB_BIN_MD_BOOT);
 
-        jinfo("%s", "usbupgrade", "boot");
+        jinfo("%s", "sys_usbupgrade", "boot");
     }
 
     if (0==access(USB_BIN_MD_BOOTENV, 0)) {
-        bdd("upgrade", "bootenv", PRODUCT_DEV_BOOTENV, USB_BIN_MD_BOOTENV);
+        sys_bdd("upgrade", "bootenv", PRODUCT_DEV_BOOTENV, USB_BIN_MD_BOOTENV);
 
-        jinfo("%s", "usbupgrade", "bootenv");
+        jinfo("%s", "sys_usbupgrade", "bootenv");
     }
 
     if (0==access(USB_BIN_MD_KERNEL, 0)) {
@@ -1299,11 +1299,11 @@ usbupgrade(void)
     for (i=begin; i<end; i++) {
         if (i!=sys.current) {
             if (kernel_exist) {
-                benv_version_atoi(&version, kernel_version);
-                err = kdd_byfile(i, USB_BIN_MD_KERNEL, &version);
+                benv_version_atoi(&version, sys_kernel_version);
+                err = sys_kdd_byfile(i, USB_BIN_MD_KERNEL, &version);
                 
                 jinfo("%s%d%d",
-                    "usbupgrade", "kernel",
+                    "sys_usbupgrade", "kernel",
                     "index", i,
                     "error", err);
                 
@@ -1312,11 +1312,11 @@ usbupgrade(void)
                 }
             }
             
-            benv_version_atoi(&version, rootfs_version);
-            err = rcopy(i, DIR_USB_ROOTFS, &version);
+            benv_version_atoi(&version, sys_rootfs_version);
+            err = sys_rcopy(i, DIR_USB_ROOTFS, &version);
             
             jinfo("%s%d%d",
-                "usbupgrade", "rootfs",
+                "sys_usbupgrade", "rootfs",
                 "index", i,
                 "error", err);
                     
@@ -1328,10 +1328,10 @@ usbupgrade(void)
     
     for (i=0; i<2; i++) {
         if (0==access(DIR_USB_CONFIG, 0)) {
-            err = __xcopy(dir_tool(i), DIR_USB_CONFIG);
+            err = __sys_xcopy(dir_tool(i), DIR_USB_CONFIG);
 
             jinfo("%s%d%d",
-                "usbupgrade", "config",
+                "sys_usbupgrade", "config",
                 "index", i,
                 "error", err);
             
@@ -1341,10 +1341,10 @@ usbupgrade(void)
         }
         
         if (0==access(DIR_USB_TOOL, 0)) {
-            err = __xcopy(dir_tool(i), DIR_USB_TOOL);
+            err = __sys_xcopy(dir_tool(i), DIR_USB_TOOL);
             
             jinfo("%s%d%d",
-                "usbupgrade", "tool",
+                "sys_usbupgrade", "tool",
                 "index", i,
                 "error", err);
                 
@@ -1354,10 +1354,10 @@ usbupgrade(void)
         }
         
         if (0==access(DIR_USB_DATA, 0)) {
-            err = __xcopy(dir_tool(i), DIR_USB_DATA);
+            err = __sys_xcopy(dir_tool(i), DIR_USB_DATA);
             
             jinfo("%s%d%d",
-                "usbupgrade", "data",
+                "sys_usbupgrade", "data",
                 "index", i,
                 "error", err);
                 
@@ -1373,8 +1373,8 @@ usbupgrade(void)
 /*
 * just repair one firmware with the best rootfs
 */
-static int
-super_startup(void)
+STATIC int
+sys_super_startup(void)
 {
     int skips = os_bit(0);
     
@@ -1397,18 +1397,18 @@ super_startup(void)
         jcrit("%s",
             "superstartup", "no found good rootfs, use rootfs0 repair rootfs1");
 
-        rdd(1, 0);
+        sys_rdd(1, 0);
     }
     /*
     * 3. repair kernel
     */
-    repair_kernel(best, benv_rootfs_version(best));
+    sys_repair_kernel(best, benv_rootfs_version(best));
     
     jcrit("%s", "superstartup", "end");
-    switch_to(best);
+    sys_switch_to(best);
 
 reboot:
-    return __reboot();
+    return __sys_reboot();
 }
 
 /*
@@ -1447,8 +1447,8 @@ reboot:
     benv_obj(_obj, current)->self   = BENV_FSM_UNKNOW; \
 }while(0)
 
-static int
-normal_startup(void)
+STATIC int
+sys_normal_startup(void)
 {
     os_println("normal startup");
     jinfo("%s", "startup", "normal");
@@ -1456,18 +1456,18 @@ normal_startup(void)
     __normal_startup(rootfs);
     __normal_startup(kernel);
 
-    save();
+    sys_save();
 
     return 0;
 }
 
-static int
-fail_startup(void)
+STATIC int
+sys_fail_startup(void)
 {
     __fail_startup(rootfs);
     __fail_startup(kernel);
 
-    save();
+    sys_save();
     
     os_println("fail startup");
     jalert("%s", "startup", "fail");
@@ -1475,8 +1475,8 @@ fail_startup(void)
     return 0;
 }
 
-static int
-init_env(void)
+STATIC int
+sys_init_env(void)
 {
     char *env;
 
@@ -1591,8 +1591,8 @@ init_env(void)
     return 0;
 }
 
-static int
-get_current(void)
+STATIC int
+sys_get_current(void)
 {
     int i, err;
     char line[1+OS_LINE_LEN] = {0};
@@ -1631,15 +1631,15 @@ error:
     return PC_VAL(__benv_current, PRODUCT_FIRMWARE_CURRENT);
 }
 
-static int
-init_current(void)
+STATIC int
+sys_init_current(void)
 {
     int i, err, old = sys.current;
 
     err = os_pgeti(&sys.current, SCRIPT_CURRENT);
         debug_trace_error(err, SCRIPT_CURRENT);
     if (err<0) {
-        sys.current = get_current();
+        sys.current = sys_get_current();
     }
 
     debug_trace("current %d==>%d", old, sys.current);
@@ -1647,8 +1647,8 @@ init_current(void)
     return 0;
 }
 
-static int
-__fini(void)
+STATIC int
+sys_fini(void)
 {
     os_file_unlock();
     benv_close();
@@ -1657,8 +1657,8 @@ __fini(void)
     return 0;
 }
 
-static int
-__init(bool block)
+STATIC int
+sys_init(bool block)
 {
     int err;
     
@@ -1675,12 +1675,12 @@ __init(bool block)
         return err;
     }
 
-    err = init_current();
+    err = sys_init_current();
     if (err<0) {
         return err;
     }
 
-    err = init_env();
+    err = sys_init_env();
     if (err<0) {
         return err;
     }
@@ -1698,22 +1698,22 @@ __init(bool block)
     return 0;
 }
 
-static int
-__init_lock_with_block(void)
+STATIC int
+sys_init_lock_with_block(void)
 {
-    return __init(true);
+    return sys_init(true);
 }
 
-static int
-__init_lock_with_noblock(void)
+STATIC int
+sys_init_lock_with_noblock(void)
 {
-    return __init(false);
+    return sys_init(false);
 }
 
-static void 
-__exit(int sig)
+STATIC void 
+sys_exit(int sig)
 {
-    __fini();
+    sys_fini();
     
     exit(sig);
 }
@@ -1723,13 +1723,13 @@ sys_usage(void)
 {
     os_eprintln(__THIS_APPNAME " startup");
     os_eprintln(__THIS_APPNAME " upgrade");
-    os_eprintln(__THIS_APPNAME " usbupgrade");
+    os_eprintln(__THIS_APPNAME " sys_usbupgrade");
 
     return -EFORMAT;
 }
 
-static int
-cmd_reset(int argc, char *argv[])
+STATIC int
+sys_cmd_reset(int argc, char *argv[])
 {
     int skips = __skips(sys.resetby);
     int i, err, first=0;
@@ -1743,9 +1743,9 @@ cmd_reset(int argc, char *argv[])
 
     for (i=1; i<PRODUCT_FIRMWARE_COUNT; i++) {
         if (false==is_benv_skip(skips, i)) {
-            err = reset_rootfs(i, sys.resetby);
+            err = sys_reset_rootfs(i, sys.resetby);
             if (0==err) {
-                reset_kernel(i);
+                sys_reset_kernel(i);
             }
 
             if (!first) {
@@ -1758,9 +1758,9 @@ cmd_reset(int argc, char *argv[])
         /*
         * wait to repair by other
         */
-        upgrade_init(sys.current, benv_rootfs_version(sys.resetby));
+        sys_upgrade_init(sys.current, benv_rootfs_version(sys.resetby));
         
-        switch_to(first);
+        sys_switch_to(first);
         
         return os_shell("sysreboot &");
     }
@@ -1768,8 +1768,8 @@ cmd_reset(int argc, char *argv[])
 	return 0;
 }
 
-static int
-cmd_repair(int argc, char *argv[])
+STATIC int
+sys_cmd_repair(int argc, char *argv[])
 {
     int skips = __skips(0);
     int i, err, begin, end;
@@ -1785,15 +1785,15 @@ cmd_repair(int argc, char *argv[])
 
     for (i=begin; i<end; i++) {
         if (false==is_benv_skip(skips, i)) {
-            repair_rootfs(i);
+            sys_repair_rootfs(i);
         }
 	}
 
 	return 0;
 }
 
-static int
-cmd_upgrade(int argc, char *argv[])
+STATIC int
+sys_cmd_upgrade(int argc, char *argv[])
 {
     int i, idx = -ENOEXIST, err = 0;
 
@@ -1828,14 +1828,14 @@ cmd_upgrade(int argc, char *argv[])
             */
             for (i=1; i<PRODUCT_FIRMWARE_COUNT; i++) {
                 if (i!=sys.current) {
-                    err = upgrade(i, i);
+                    err = sys_upgrade(i, i);
                     if (err<0) {
                         return err;
                     }
                 }
             }
         } else {
-            err = upgrade(idx, idx);
+            err = sys_upgrade(idx, idx);
         }
     }
     else {
@@ -1844,10 +1844,10 @@ cmd_upgrade(int argc, char *argv[])
         */
         int skips = __skips(0);
         for (i=0; i<sys.upgrade; i++) {
-            idx = get_upgrade(skips);
+            idx = sys_get_upgrade(skips);
             debug_trace("upgrade rootfs%d by auto select", idx);
 
-            err = upgrade(idx, idx);
+            err = sys_upgrade(idx, idx);
             if (err<0) {
                 return err;
             }
@@ -1859,34 +1859,34 @@ cmd_upgrade(int argc, char *argv[])
     return err;
 }
 
-static int
-cmd_startup(int argc, char *argv[])
+STATIC int
+sys_cmd_startup(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
     
     if (0==sys.current) {
-        return super_startup();
+        return sys_super_startup();
     } else {
-        return normal_startup();
+        return sys_normal_startup();
     }
 }
 
-static int
-cmd_startfail(int argc, char *argv[])
+STATIC int
+sys_cmd_startfail(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
     
     if (0==sys.current) {
-        return super_startup();
+        return sys_super_startup();
     } else {
-        return fail_startup();
+        return sys_fail_startup();
     }
 }
 
-static int
-cmd_usbupgrade(int argc, char *argv[])
+STATIC int
+sys_cmd_usbupgrade(int argc, char *argv[])
 {
     int err;
 
@@ -1894,7 +1894,7 @@ cmd_usbupgrade(int argc, char *argv[])
     (void)argv;
 
     __os_system(DIR_USB_ROOTFS SCRIPT_USBUPGRADE_INIT "&");
-    err = usbupgrade();
+    err = sys_usbupgrade();
     if (0==err) {
         __os_system(DIR_USB_ROOTFS SCRIPT_USBUPGRADE_OK "&");
     } else {
@@ -1904,16 +1904,16 @@ cmd_usbupgrade(int argc, char *argv[])
     return err;
 }
 
-static int
-cmd_mount(int argc, char *argv[])
+STATIC int
+sys_cmd_mount(int argc, char *argv[])
 {
     int i, err, errs = 0;
 
     (void)argc;
     (void)argv;
     
-    for (i=0; i<os_count_of(mounts); i++) {
-        err = (*mounts[i].mount)();
+    for (i=0; i<os_count_of(sys_mounts); i++) {
+        err = (*sys_mounts[i].mount)();
         if (err<0) {
             errs = err;
         }
@@ -1922,16 +1922,16 @@ cmd_mount(int argc, char *argv[])
     return errs;
 }
 
-static int
-cmd_umount(int argc, char *argv[])
+STATIC int
+sys_cmd_umount(int argc, char *argv[])
 {
     int i, err, errs = 0;
 
     (void)argc;
     (void)argv;
     
-    for (i=os_count_of(mounts) - 1; i>=0; i--) {
-        err = (*mounts[i].umount)();
+    for (i=os_count_of(sys_mounts) - 1; i>=0; i--) {
+        err = (*sys_mounts[i].umount)();
         if (err<0) {
             errs = err;
         }
@@ -1940,15 +1940,15 @@ cmd_umount(int argc, char *argv[])
     return errs;
 }
 
-static cmd_table_t cmd[] = {
-    CMD_TABLE_ENTRY(cmd_mount,      1, "mount"),
-    CMD_TABLE_ENTRY(cmd_umount,     1, "umount"),
-    CMD_TABLE_ENTRY(cmd_startup,    1, "startup"),
-    CMD_TABLE_ENTRY(cmd_startfail,  1, "startfail"),
-    CMD_TABLE_ENTRY(cmd_usbupgrade, 1, "usbupgrade"),
-    CMD_TABLE_ENTRY(cmd_upgrade,    1, "upgrade"),
-    CMD_TABLE_ENTRY(cmd_repair,     1, "repair"),
-    CMD_TABLE_ENTRY(cmd_reset,      1, "reset"),
+STATIC cmd_table_t sys_cmd[] = {
+    CMD_TABLE_ENTRY(sys_cmd_mount,      1, "mount"),
+    CMD_TABLE_ENTRY(sys_cmd_umount,     1, "umount"),
+    CMD_TABLE_ENTRY(sys_cmd_startup,    1, "startup"),
+    CMD_TABLE_ENTRY(sys_cmd_startfail,  1, "startfail"),
+    CMD_TABLE_ENTRY(sys_cmd_usbupgrade, 1, "sys_usbupgrade"),
+    CMD_TABLE_ENTRY(sys_cmd_upgrade,    1, "upgrade"),
+    CMD_TABLE_ENTRY(sys_cmd_repair,     1, "repair"),
+    CMD_TABLE_ENTRY(sys_cmd_reset,      1, "reset"),
 };
 
 /*
@@ -1957,7 +1957,7 @@ static cmd_table_t cmd[] = {
 STATIC int
 sys_main_helper(int argc, char *argv[])
 {
-    return cmd_handle(cmd, argc, argv, sys_usage);
+    return cmd_handle(sys_cmd, argc, argv, sys_usage);
 }
 
 /*
@@ -1965,7 +1965,7 @@ sys_main_helper(int argc, char *argv[])
 */
 int allinone_main(int argc, char *argv[])
 {
-    int err = os_call(__init_lock_with_block, __fini, sys_main_helper, argc, argv);
+    int err = os_call(sys_init_lock_with_block, sys_fini, sys_main_helper, argc, argv);
 
     return shell_error(err);
 }
@@ -1973,49 +1973,49 @@ int allinone_main(int argc, char *argv[])
 #ifdef __ALLINONE__
 int sysmount_main(int argc, char *argv[])
 {
-    int err = os_call(__init_lock_with_noblock, __fini, cmd_mount, argc, argv);
+    int err = os_call(sys_init_lock_with_noblock, sys_fini, sys_cmd_mount, argc, argv);
 
     return shell_error(err);
 }
 
 int sysumount_main(int argc, char *argv[])
 {
-    int err = os_call(__init_lock_with_noblock, __fini, cmd_umount, argc, argv);
+    int err = os_call(sys_init_lock_with_noblock, sys_fini, sys_cmd_umount, argc, argv);
 
     return shell_error(err);
 }
 
 int sysreset_main(int argc, char *argv[])
 {
-    int err = os_call(__init_lock_with_block, __fini, cmd_reset, argc, argv);
+    int err = os_call(sys_init_lock_with_block, sys_fini, sys_cmd_reset, argc, argv);
 
     return shell_error(err);
 }
 
 int sysrepair_main(int argc, char *argv[])
 {
-    int err = os_call(__init_lock_with_block, __fini, cmd_repair, argc, argv);
+    int err = os_call(sys_init_lock_with_block, sys_fini, sys_cmd_repair, argc, argv);
 
     return shell_error(err);
 }
 
 int sysstartup_main(int argc, char *argv[])
 {
-    int err = os_call(__init_lock_with_block, __fini, cmd_startup, argc, argv);
+    int err = os_call(sys_init_lock_with_block, sys_fini, sys_cmd_startup, argc, argv);
 
     return shell_error(err);
 }
 
 int sysupgrade_main(int argc, char *argv[])
 {
-    int err = os_call(__init_lock_with_block, __fini, cmd_upgrade, argc, argv);
+    int err = os_call(sys_init_lock_with_block, sys_fini, sys_cmd_upgrade, argc, argv);
 
     return shell_error(err);
 }
 
 int sysusbupgrade_main(int argc, char *argv[])
 {
-    int err = os_call(__init_lock_with_block, __fini, cmd_usbupgrade, argc, argv);
+    int err = os_call(sys_init_lock_with_block, sys_fini, sys_cmd_usbupgrade, argc, argv);
 
     return shell_error(err);
 }
