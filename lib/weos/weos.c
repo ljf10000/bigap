@@ -47,6 +47,7 @@ LIB_INITER;
 #if USE_MOD_COROUTINE
 #include "weos/app/coroutine.c"
 #endif
+#include "weos/app/debug.c"
 #include "weos/app/dll.c"
 #include "weos/app/env.c"
 #if USE_MOD_FD
