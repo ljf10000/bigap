@@ -28,12 +28,13 @@ OS_INITER;
     _(SM_STATE_RUN,   2, "run"),    \
     _(SM_STATE_DIE,   3, "die"),    \
     /* end */
-INLINE_ENUM(sm_state, SM_STATE_ENUM_MAPPER, SM_STATE_END);
+EXTERN_ENUM(sm_state, SM_STATE_ENUM_MAPPER, SM_STATE_END);
+DECLARE_ENUM(sm_state, SM_STATE_ENUM_MAPPER, SM_STATE_END);
 
-static inline enum_ops_t *sm_state_ops(void);
-static inline bool is_good_sm_state(int id);
-static inline char *sm_state_getnamebyid(int id);
-static inline int sm_state_getidbyname(const char *name);
+EXTERN enum_ops_t *sm_state_ops(void);
+EXTERN bool is_good_sm_state(int id);
+EXTERN char *sm_state_getnamebyid(int id);
+EXTERN int sm_state_getidbyname(const char *name);
 
 #define SM_STATE_INIT   SM_STATE_INIT
 #define SM_STATE_FORK   SM_STATE_FORK

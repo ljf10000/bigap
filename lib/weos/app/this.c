@@ -4,6 +4,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #ifdef __APP__
 bool __THIS_DEAMON;
 
+DECLARE_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
+
 int
 __oem_type(void)
 {

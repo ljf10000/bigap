@@ -11,7 +11,7 @@
     _(KEY_B, VALUE_B, "NAME-B"), \
     _(KEY_C, VALUE_C, "NAME-C"), \
     /* end */
-INLINE_ENUM(xxx, XXX_ENUM_MAPPER, KEY_END);
+__DECLARE_ENUM(xxx, XXX_ENUM_MAPPER, KEY_END);
 
 static inline enum_ops_t *xxx_ops(void);
 static inline bool is_good_xxx(int id);
@@ -35,7 +35,7 @@ typedef struct {
 #define __ENUM_MAP_VALUE(_key, _value, _name)   _key = _value
 #define __ENUM_MAP_NAME(_key, _value, _name)    [_key] = _name
 
-#define INLINE_ENUM(_mod, _mapper, _end) \
+#define __DECLARE_ENUM(_mod, _mapper, _end) \
     enum {                          \
         _mapper(__ENUM_MAP_VALUE)   \
                                     \

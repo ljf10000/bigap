@@ -1,6 +1,8 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+DECLARE_ENUM(string_type, STRING_TYPE_ENUM_MAPPER, STRING_T_END);
+
 DECLARE int
 os_strcount(const char *s, int ch)
 {

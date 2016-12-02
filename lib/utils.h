@@ -154,7 +154,6 @@
 #include "utils/bits.h"
 #include "utils/format.h"
 #include "utils/string.h"
-#include "utils/string2.h"
 #include "utils/math.h"
 #include "utils/list.h"
 #include "utils/dlist.h"

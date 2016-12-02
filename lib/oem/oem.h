@@ -1,6 +1,7 @@
 #ifndef __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 #define __OEM_H_57688f1c133d4ebdae411669109ffdc9__
 /******************************************************************************/
+#ifdef __APP__
 #ifndef OS_CERT_COUNT
 #define OS_CERT_COUNT           32
 #endif
@@ -74,12 +75,12 @@ typedef struct {
     _(OEM_T_1,    1, OEM1_NAME),    \
     _(OEM_T_2,    2, OEM2_NAME),    \
     /* end */
-INLINE_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
+EXTERN_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
 
-static inline enum_ops_t *oem_type_ops(void);
-static inline bool is_good_oem_type(int id);
-static inline char *oem_type_getnamebyid(int id);
-static inline int oem_type_getidbyname(const char *name);
+EXTERN enum_ops_t *oem_type_ops(void);
+EXTERN bool is_good_oem_type(int id);
+EXTERN char *oem_type_getnamebyid(int id);
+EXTERN int oem_type_getidbyname(const char *name);
 
 #define OEM_T_DEFT  OEM_T_DEFT
 #define OEM_T_1     OEM_T_1
@@ -131,5 +132,6 @@ oem_vendor(void)
 #define oem_lss_port        __this_oem()->lss.port
 #define oem_lss_key         __this_oem()->lss.cert.key
 #define oem_lss_cert        __this_oem()->lss.cert.cert
+#endif
 /******************************************************************************/
 #endif /* __OEM_H_57688f1c133d4ebdae411669109ffdc9__ */

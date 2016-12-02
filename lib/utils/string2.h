@@ -7,12 +7,12 @@
     _(STRING_T_CONST,   1, "const"),    \
     _(STRING_T_HEAP,    3, "heap"),     \
     /* end */
-INLINE_ENUM(string_type, STRING_TYPE_ENUM_MAPPER, STRING_T_END);
+EXTERN_ENUM(string_type, STRING_TYPE_ENUM_MAPPER, STRING_T_END);
 
-static inline enum_ops_t *string_type_ops(void);
-static inline bool is_good_string_type(int id);
-static inline char *string_type_getnamebyid(int id);
-static inline int string_type_getidbyname(const char *name);
+EXTERN enum_ops_t *string_type_ops(void);
+EXTERN bool is_good_string_type(int id);
+EXTERN char *string_type_getnamebyid(int id);
+EXTERN int string_type_getidbyname(const char *name);
 
 #define STRING_T_GLOBAL     STRING_T_GLOBAL
 #define STRING_T_CONST      STRING_T_CONST

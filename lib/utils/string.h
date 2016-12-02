@@ -479,6 +479,8 @@ os_bin_bkdr(const void *binary, uint32 len)
     return os_bin_bkdr_push(0, binary, len);
 }
 
+#include "utils/string2.h"
+
 #ifdef __BOOT__
 #include "weos/boot/string.c"
 #endif
