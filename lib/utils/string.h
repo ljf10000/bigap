@@ -318,10 +318,16 @@ os_str_is_wildcard(const char *s, char_is_f *is)
         && 0==s[1];
 }
 
+static inline bool
+os_isblank(int ch)
+{
+    return ' '==ch || '\t'==ch;
+}
+
 static inline bool 
 os_char_is(int ch, char_is_f *is)
 {
-    return is?(*is)(ch):(isblank(ch) || iscrlf(ch));
+    return is?(*is)(ch):(os_isblank(ch) || iscrlf(ch));
 }
 
 extern char *
