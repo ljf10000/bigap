@@ -46,7 +46,7 @@ _name##_init(_name##_table_t *table, int size_array[]) \
     int i, err, count = os_count_of(table->hash); \
                                         \
     for (i=0; i<count; i++) {           \
-        err = __hash_init(&table->hash[i], size_array[i]); \
+        err = hash_init(&table->hash[i], size_array[i]); \
         if (err<0) {                    \
             return err;                 \
         }                               \

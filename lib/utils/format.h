@@ -173,6 +173,18 @@ os_asprintf_resv(char **buf, int resv, const char *fmt, ...)
     os_vsnprintf(_buf+(_offset), sizeof(_buf)-(_offset), _fmt, _args); \
 })
 
+EXTERN int
+os_chex2int(int ch);
+
+EXTERN int
+os_hex2bin(char *hex, byte *buf, int size);
+
+/*
+* space NOT include '\0'
+*/
+EXTERN int
+os_bin2hex(char *hex, int space, byte *buf, int size);
+
 #ifdef __BOOT__
 #include "weos/boot/format.c"
 #endif

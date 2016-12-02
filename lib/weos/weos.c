@@ -36,6 +36,7 @@ LIB_INITER;
 #include "weos/boot/dump.c"
 #include "weos/boot/env.c"
 #include "weos/boot/format.c"
+#include "weos/boot/hash.c"
 #include "weos/boot/md5.c"
 #if USE_MOD_SLICE
 #include "weos/boot/slice.c"

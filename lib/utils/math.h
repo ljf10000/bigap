@@ -1,9 +1,6 @@
 #ifndef __MATH_H_8ac85024e292430e93a9fb835069dbfd__
 #define __MATH_H_8ac85024e292430e93a9fb835069dbfd__
 /******************************************************************************/
-EXTERN int
-os_chex2int(int ch);
-
 #define os_hex2number(_hex, _len, _base, _type) ({ \
     _type n = 0;                                \
     char *str = (char *)_hex;                   \
@@ -16,15 +13,6 @@ os_chex2int(int ch);
                                                 \
     n;                                          \
 })
-
-EXTERN int
-os_hex2bin(char *hex, byte *buf, int size);
-
-/*
-* space NOT include '\0'
-*/
-EXTERN int
-os_bin2hex(char *hex, int space, byte *buf, int size);
 
 #ifdef __BOOT__
 #define os_atoi(_string)    simple_strtol(_string, NULL, 0)
