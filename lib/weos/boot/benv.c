@@ -165,4 +165,216 @@ __benv_ops_is(uint32 offset)
     }
 }
 
+int
+benv_vcs_cmp(char *obj, benv_vcs_t * a, benv_vcs_t * b)
+{
+    int ret;
+
+    if (is_benv_good_vcs(a) && false==is_benv_good_vcs(b)) {
+        /*
+        * a is good, b is bad
+        */
+        return 1;
+    }
+    else if (false==is_benv_good_vcs(a) && is_benv_good_vcs(b)) {
+        /*
+        * a is bad, b is good
+        */
+        return -1;
+    }
+    
+    ret = benv_version_cmp(&a->version, &b->version);
+    if (ret) {
+        return ret;
+    }
+    
+    ret = benv_error_cmp(a->error, b->error);
+    if (ret) {
+        return ret;
+    }
+
+    ret = benv_fsm_cmp(a->upgrade, b->upgrade);
+    if (ret) {
+        return ret;
+    }
+
+    ret = benv_fsm_cmp(a->other, b->other);
+    if (ret) {
+        return ret;
+    }
+
+    ret = benv_fsm_cmp(a->self, b->self);
+    if (ret) {
+        return ret;
+    }
+    
+    return 0;
+}
+
+int
+__benv_obj_min(char *obj, int sort[], int count, int (*cmp)(int a, int b))
+{
+    int i, idx = 0;
+
+    for (i=0; i<count; i++) {
+        if (cmp(sort[i], sort[idx]) < 0) {
+            idx = i;
+        }
+    }
+    
+#if BENV_DEBUG & (BENV_DEBUG_SORT | BENV_DEBUG_CMP)
+    os_println("min %s is sort[%d]", obj, idx);
+#endif
+
+    return idx;
+}
+
+int
+__benv_obj_max(char *obj, int sort[], int count, int (*cmp)(int a, int b))
+{
+    int i, idx = 0;
+
+    for (i=0; i<count; i++) {
+        if (cmp(sort[i], sort[idx]) > 0) {
+            idx = i;
+        }
+    }
+    
+#if BENV_DEBUG & (BENV_DEBUG_SORT | BENV_DEBUG_CMP)
+    os_println("max %s is sort[%d]", obj, idx);
+#endif
+
+    return idx;
+}
+
+void
+__benv_sort(int sort[], int count, int (*maxmin)(int sort[], int count))
+{
+    if (count <= 1) {
+        return;
+    }
+    
+    int idx = (*maxmin)(sort, count);
+    if (idx) {
+        os_swap_value(sort[0], sort[idx]);
+    }
+    
+    __benv_sort(sort+1, count-1, maxmin);
+}
+
+int
+__benv_sort_count(int skips, int sort[], int size)
+{
+    int i, count = 0;
+
+    for (i=0; i<size; i++) {
+        if (false==is_benv_skip(skips, i)) {
+            sort[count++] = i;
+        }
+    }
+
+    return count;
+}
+
+int
+__benv_check_version(benv_ops_t *ops, char *value)
+{
+    benv_version_t version = BENV_INVALID_VERSION;
+
+    if (NULL==benv_version_atoi(&version, value)) {
+        /*
+         * when set version, must input value
+         */
+        return -EFORMAT;
+    } else {
+        return 0;
+    }
+}
+
+int
+__benv_check_fsm(benv_ops_t *ops, char *value)
+{
+    if (0==value[0]) {
+        /* 
+         * clear fsm(to unknow)
+         */
+        return 0;
+    } else if (is_good_benv_fsm(benv_fsm_getidbyname(value))) {
+        return 0;
+    } else {
+        debug_error("bad fsm:%s", value);
+
+        /*
+         * when set self/other/upgrade, must input value
+         */
+        return -EFORMAT;
+    }
+}
+
+int
+__benv_check_current(benv_ops_t *ops, char *value)
+{
+    char *end = NULL;
+    int idx = os_strtol(value, &end, 0);
+    
+    if (0==value[0]) {
+        /*
+         * when set kernel/rootfs current, must input value
+         */
+        debug_error("set current failed, must input value");
+
+        return -EFORMAT;
+    }
+    else if (false==os_strton_is_good_end(end)) {
+        debug_error("input invalid current:%s", value);
+        
+        return -EFORMAT;
+    }
+    else if (false==is_good_benv_idx(idx)) {
+        debug_error("bad current %d", idx);
+
+        return -EFORMAT;
+    }
+    else{
+        return 0;
+    }
+}
+
+int
+__benv_check_string(benv_ops_t *ops, char *value)
+{
+    int size = 0;
+
+    switch(__benv_ops_is(ops->offset)) {
+        case BENV_OS:
+            size = BENV_VCS_COOKIE_SIZE;
+            break;
+        case BENV_INFO:
+            size = BENV_INFO_SIZE;
+            break;
+        case BENV_COOKIE:
+        case BENV_MARK:
+        default:
+            /*
+            * no support set string
+            */
+            break;
+    }
+    
+    if (size && value[0]) {
+        if (os_strlen(value) < size) {
+            return 0;
+        } else {
+            debug_error("max string length %d", size-1);
+            
+            return -EFORMAT;
+        }
+    } else {
+        /*
+         * when set var string, may NOT input value
+         */
+        return 0;
+    }
+}
+
 /******************************************************************************/
