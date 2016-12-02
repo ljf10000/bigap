@@ -26,7 +26,7 @@ static int runtime;
 static int savecycle;
 
 #if IS_PRODUCT_LTEFI_MD_PARTITION_A
-static int
+STATIC int
 rt_load(void)
 {
     os_pgeti(&runtime, "bootm rt");
@@ -34,7 +34,7 @@ rt_load(void)
     return 0;
 }
 
-static int
+STATIC int
 rt_save(void)
 {
     os_system("bootm rt=%d", runtime);
@@ -42,7 +42,7 @@ rt_save(void)
     return 0;
 }
 #elif IS_PRODUCT_PC || IS_PRODUCT_LTEFI_MD_PARTITION_B
-static int
+STATIC int
 rt_load(void)
 {
     benv_load();
@@ -51,7 +51,7 @@ rt_load(void)
     return 0;
 }
 
-static int
+STATIC int
 rt_save(void)
 {
     benv_load();
@@ -62,8 +62,8 @@ rt_save(void)
 }
 #endif
 
-static int
-__fini(void)
+STATIC int
+rt_fini(void)
 {
     rt_save();
     
@@ -74,8 +74,8 @@ __fini(void)
     return 0;
 }
 
-static int
-__init(void)
+STATIC int
+rt_init(void)
 {
     int err;
     
@@ -97,8 +97,8 @@ __init(void)
     return 0;
 }
 
-static void 
-__user(int signo)
+STATIC void 
+rt_user(int signo)
 {
     debug_trace("recive signo:%d", signo);
 
@@ -109,10 +109,10 @@ __user(int signo)
     rt_save();
 }
 
-static void 
-__exit(int sig)
+STATIC void 
+rt_exit(int sig)
 {
-    __fini();
+    rt_fini();
     
     exit(sig);
 }
@@ -141,10 +141,10 @@ rt_main_helper(int argc, char *argv[])
 
 int allinone_main(int argc, char *argv[])
 {
-    setup_signal_user(__user);
-    setup_signal_exit(__exit);
+    setup_signal_user(rt_user);
+    setup_signal_exit(rt_exit);
     setup_signal_callstack(NULL);
     
-    return os_call(__init, __fini, rt_main_helper, argc, argv);
+    return os_call(rt_init, rt_fini, rt_main_helper, argc, argv);
 }
 /******************************************************************************/

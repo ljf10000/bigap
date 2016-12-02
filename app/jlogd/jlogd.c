@@ -114,7 +114,7 @@ typedef struct {
     jlog_server_t server[JLOGD_END_SERVER];
 } jlogd_t;
 
-static jlogd_t jlogd = {
+STATIC jlogd_t jlogd = {
     .pri    = AK_VAR_INITER("pri", JLOGD_PRI),
     .timeout= AK_VAR_INITER("timeout", JLOGD_TIMEOUT),
     .cut    = AK_VAR_INITER("cut", JLOGD_CUTCOUNT),
@@ -132,8 +132,8 @@ static jlogd_t jlogd = {
 #define foreach_server(_server) \
     for(_server=jlogserver0; _server<jlogservermax; _server++)
 
-static int
-jcut(jlog_server_t *server, int cut)
+STATIC int
+jlogd_jcut(jlog_server_t *server, int cut)
 {
     /*
     * open cache file
@@ -177,8 +177,8 @@ jcut(jlog_server_t *server, int cut)
     return 0;
 }
 
-static void
-jtrycut(void)
+STATIC void
+jlogd_jtrycut(void)
 {
     if (os_hasbit(jlogd.event, SIGUSR1)) {
         jlog_server_t *server;
@@ -186,13 +186,13 @@ jtrycut(void)
         os_clrbit(jlogd.event, SIGUSR1);
 
         foreach_server(server) {
-            jcut(server, 0);
+            jlogd_jcut(server, 0);
         }
     }
 }
 
-static int
-jadd(jlog_server_t *server)
+STATIC int
+jlogd_jadd(jlog_server_t *server)
 {
     int len = 0, pri, err;
     jobj_t obj = NULL;
@@ -254,8 +254,8 @@ error:
     return len;
 }
 
-static int
-jhandle(jlog_server_t *server)
+STATIC int
+jlogd_jhandle(jlog_server_t *server)
 {
     int err, len;
     os_sockaddr_t client = OS_SOCKADDR_INITER(server->family);
@@ -276,7 +276,7 @@ jhandle(jlog_server_t *server)
     jlogb[len] = 0;
     __debug_trace("read:%s, len:%d", jlogb, len);
 
-    err = jadd(server);
+    err = jlogd_jadd(server);
     if (err<0) { /* yes, <0 */
         /* log */
     } else {
@@ -296,31 +296,31 @@ jhandle(jlog_server_t *server)
 
     int cut = (int)ak_var_get(&jlogd.cut);
     if (server->log.count >= cut) {
-        return jcut(server, cut);
+        return jlogd_jcut(server, cut);
     } else {
         return 0;
     }
 }
 
-static int
-__server_handle(fd_set *r)
+STATIC int
+jlogd_server_handle_one(fd_set *r)
 {
     jlog_server_t *server;
     int err = 0;
 
     foreach_server(server) {
         if (FD_ISSET(server->fd, r)) {
-            err = jhandle(server);
+            err = jlogd_jhandle(server);
         }
     }
 
-    jtrycut();
+    jlogd_jtrycut();
     
     return err;
 }
 
-static int
-server_handle(void)
+STATIC int
+jlogd_server_handle(void)
 {
     fd_set rset;
     uint32 timeout = ak_var_get(&jlogd.timeout);
@@ -348,7 +348,7 @@ server_handle(void)
                     // is breaked
                     __debug_event("select breaked");
 
-                    jtrycut();
+                    jlogd_jtrycut();
                     
                     continue;
                 } else {
@@ -359,13 +359,13 @@ server_handle(void)
                 __debug_timeout("select timeout");
                 return -ETIMEOUT;
             default: /* to read */
-                return __server_handle(&rset);
+                return jlogd_server_handle_one(&rset);
         }
     }
 }
 
-static int
-init_env(void) 
+STATIC int
+jlogd_init_env(void) 
 {
     jlog_server_t *server;
     int err;
@@ -414,12 +414,12 @@ init_env(void)
     return 0;
 }
 
-static int
-init_server(jlog_server_t *server)
+STATIC int
+jlogd_init_server(jlog_server_t *server)
 {
     int fd, err, protocol, addrlen, cut = (int)ak_var_get(&jlogd.cut);
 
-    err = jcut(server, cut);
+    err = jlogd_jcut(server, cut);
     if (err<0) {
         return err;
     }
@@ -450,14 +450,14 @@ init_server(jlog_server_t *server)
     return 0;
 }
 
-static int 
-init_all_server(void)
+STATIC int 
+jlogd_init_all_server(void)
 {
     jlog_server_t *server;
     int err;
 
     foreach_server(server) {
-        err = init_server(server);
+        err = jlogd_init_server(server);
             __debug_trace_error(err, "init %s", server->name);
         if (err < 0) {
             return err;
@@ -467,26 +467,14 @@ init_all_server(void)
     return 0;
 }
 
-
-static void
-usr1(int sig)
+STATIC void
+jlogd_usr1(int sig)
 {
     __debug_signal("recv USR1");
     
     if (false==os_hasbit(jlogd.event, SIGUSR1)) {
         os_setbit(jlogd.event, SIGUSR1);
     }
-}
-
-static void
-setup(void)
-{
-    int cut[] = {SIGUSR1};
-
-    setup_signal(usr1, cut);
-    
-    setup_signal_exit(NULL);
-    setup_signal_callstack(NULL);
 }
 
 STATIC int 
@@ -496,19 +484,19 @@ jlogd_main_helper(int argc, char *argv[])
 
     __os_system("mkdir -p " JLOG_LPATH " " JLOG_RPATH);
 
-    err = init_env();
+    err = jlogd_init_env();
         __debug_trace_error(err, "init env");
     if (err<0) {
         return err;
     }
 
-    err = init_all_server();
+    err = jlogd_init_all_server();
     if (err<0) {
         return err;
     }
     
     while (1) {
-        server_handle();
+        jlogd_server_handle();
     }
     
     return 0;
@@ -516,7 +504,11 @@ jlogd_main_helper(int argc, char *argv[])
 
 int allinone_main(int argc, char *argv[])
 {
-    setup();
+    int cut[] = {SIGUSR1};
+
+    setup_signal(jlogd_usr1, cut);
+    setup_signal_exit(NULL);
+    setup_signal_callstack(NULL);
     
     return os_main(jlogd_main_helper, argc, argv);
 }

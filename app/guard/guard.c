@@ -91,19 +91,19 @@ static byte private[OTP_SIZE];
 static uint32 noauth;
 
 #if IS_PRODUCT_PC
-#define get_mac()       "12:34:56:78:9a:bc"
-#define get_mid()       1
-#define get_psn()       2
-#define get_rt()        3
-#define get_na()        4
-#define set_na(_na)     os_do_nothing()
-#define get_oem()       "none"
-#define get_version()   "0.0.0.1"
-#define load()          os_do_nothing()
-#define save()          os_do_nothing()
+#define guard_get_mac()       "12:34:56:78:9a:bc"
+#define guard_get_mid()       1
+#define guard_get_psn()       2
+#define guard_get_rt()        3
+#define guard_get_na()        4
+#define guard_set_na(_na)     os_do_nothing()
+#define guard_get_oem()       "none"
+#define guard_get_version()   "0.0.0.1"
+#define guard_load()          os_do_nothing()
+#define guard_save()          os_do_nothing()
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_A
-static char *
-get_mac(void)
+STATIC char *
+guard_get_mac(void)
 {
     static char mac[1+OS_LINE_LEN];
     static char *files[] = {
@@ -131,8 +131,8 @@ get_mac(void)
     return __empty;
 }
     
-static uint32
-get_mid(void)
+STATIC uint32
+guard_get_mid(void)
 {
     static uint32 mid;
 
@@ -143,8 +143,8 @@ get_mid(void)
     return mid;
 }
 
-static uint32
-get_psn(void)
+STATIC uint32
+guard_get_psn(void)
 {
     static uint32 psn;
 
@@ -155,8 +155,8 @@ get_psn(void)
     return psn;
 }
 
-static uint32
-get_rt(void)
+STATIC uint32
+guard_get_rt(void)
 {
     static uint32 rt;
 
@@ -167,8 +167,8 @@ get_rt(void)
     return rt;
 }
 
-static uint32
-get_na(void)
+STATIC uint32
+guard_get_na(void)
 {
     if (0==noauth) {
         os_pgeti(&noauth, "bootm na");
@@ -177,16 +177,16 @@ get_na(void)
     return noauth;
 }
 
-static void
-set_na(uint32 na)
+STATIC void
+guard_set_na(uint32 na)
 {
     noauth = na;
     
     os_system("bootm na=%d", na);
 }
 
-static inline char *
-get_oem(void)
+STATIC char *
+guard_get_oem(void)
 {
     static char vendor[1+OS_LINE_LEN];
 
@@ -197,8 +197,8 @@ get_oem(void)
     return vendor;
 }
 
-static inline char *
-get_version(void)
+STATIC char *
+guard_get_version(void)
 {
     static char version[1+OS_LINE_LEN];
 
@@ -209,17 +209,17 @@ get_version(void)
     return version;
 }
 
-#define load()      os_do_nothing()
-#define save()      os_do_nothing()
+#define guard_load()      os_do_nothing()
+#define guard_save()      os_do_nothing()
 #elif IS_PRODUCT_LTEFI_MD_PARTITION_B
-#define get_mac()   benv_info(__benv_info_oem_mac)
-#define get_mid()   benv_mark(__benv_mark_cid_mid)
-#define get_psn()   benv_mark(__benv_mark_cid_psn)
-#define get_rt()    benv_mark(__benv_mark_runtime)
-#define get_oem()   benv_info(__benv_info_oem_vendor)
+#define guard_get_mac()   benv_info(__benv_info_oem_mac)
+#define guard_get_mid()   benv_mark(__benv_mark_cid_mid)
+#define guard_get_psn()   benv_mark(__benv_mark_cid_psn)
+#define guard_get_rt()    benv_mark(__benv_mark_runtime)
+#define guard_get_oem()   benv_info(__benv_info_oem_vendor)
 
-static uint32
-get_na(void)
+STATIC uint32
+guard_get_na(void)
 {
     if (0==noauth) {
         noauth = benv_mark(__benv_mark_noauth);
@@ -228,16 +228,16 @@ get_na(void)
     return noauth;
 }
 
-static void
-set_na(uint32 na)
+STATIC void
+guard_set_na(uint32 na)
 {
     noauth = na;
     
     benv_mark(__benv_mark_noauth) = na;
 }
 
-static inline char *
-get_version(void)
+STATIC char *
+guard_get_version(void)
 {
     static char version[1+OS_LINE_LEN];
 
@@ -248,8 +248,8 @@ get_version(void)
     return version;
 }
 
-static void
-load(void)
+STATIC void
+guard_load(void)
 {
     /*
     * load info, and auto load mark
@@ -257,8 +257,8 @@ load(void)
     benv_load();
 }
 
-static void
-save(void)
+STATIC void
+guard_save(void)
 {
     benv_load();
     benv_mark(__benv_mark_noauth) = noauth;
@@ -268,8 +268,8 @@ save(void)
 #error "bad product"
 #endif
 
-static int
-jcheck(jobj_t obj)
+STATIC int
+guard_jcheck(jobj_t obj)
 {
     int code = -EFORMAT;
 
@@ -312,18 +312,18 @@ jcheck(jobj_t obj)
 
         return -EFAKESEVER;
     }
-    else if (0!=os_strcmp(get_mac(), jobj_get_string(jmac))) {
-        debug_error("mac(%s)!=jmac(%s)", get_mac(), jobj_get_string(jmac));
+    else if (0!=os_strcmp(guard_get_mac(), jobj_get_string(jmac))) {
+        debug_error("mac(%s)!=jmac(%s)", guard_get_mac(), jobj_get_string(jmac));
 
         return -EFAKESEVER;
     }
-    else if (get_mid()!=jobj_get_i32(jmid)) {
-        debug_error("mid(%d)!=jmid(%d)", get_mid(), jobj_get_i32(jmid));
+    else if (guard_get_mid()!=jobj_get_i32(jmid)) {
+        debug_error("mid(%d)!=jmid(%d)", guard_get_mid(), jobj_get_i32(jmid));
 
         return -EFAKESEVER;
     }
-    else if (get_psn()!=jobj_get_i32(jpsn)) {
-        debug_error("psn(%d)!=jpsn(%d)", get_psn(), jobj_get_i32(jpsn));
+    else if (guard_get_psn()!=jobj_get_i32(jpsn)) {
+        debug_error("psn(%d)!=jpsn(%d)", guard_get_psn(), jobj_get_i32(jpsn));
 
         return -EFAKESEVER;
     }
@@ -336,8 +336,8 @@ jcheck(jobj_t obj)
     return 0;
 }
 
-static int
-failed(char *action)
+STATIC int
+guard_failed(char *action)
 {
     int na = os_fgeti_ex(FILE_NA, NAMAX, NAMIN, NADFT);
     int rt = os_fgeti_ex(FILE_RT, RTMAX, RTMIN, RTDFT);
@@ -346,13 +346,13 @@ failed(char *action)
     rt = rt + rand() % rt;
     rs = rs + rand() % rs;
     
-    if (get_rt() > rt && get_na() > na) {
+    if (guard_get_rt() > rt && guard_get_na() > na) {
         if (os_file_exist(FILE_RN)) {
-            os_system("for ((i=0; i<100; i++)); do echo checked %s failed!; done", action);
+            os_system("for ((i=0; i<100; i++)); do echo checked %s guard_failed!; done", action);
         }
 
         sleep(rs);
-        save();
+        guard_save();
 
         __os_system("(sysreboot || reboot) &");
     }
@@ -360,16 +360,16 @@ failed(char *action)
     return 0;
 }
 
-static void
-ok(char *action)
+STATIC void
+guard_ok(char *action)
 {
     debug_ok("%s ok", action);
     
     os_system("echo %s >> " FILE_ST, action);
 }
 
-static char *
-get_cert(int id, char cert[])
+STATIC char *
+guard_get_cert(int id, char cert[])
 {
     char *s = __fcookie_file(id, cert);
     if (NULL==s) {
@@ -379,8 +379,8 @@ get_cert(int id, char cert[])
     return s;
 }
 
-static void
-put_cert(char *cert)
+STATIC void
+guard_put_cert(char *cert)
 {
     if (cert[0]) {
         unlink(cert);
@@ -388,8 +388,8 @@ put_cert(char *cert)
     }
 }
 
-static int
-do_report(int hack)
+STATIC int
+do_guard_report(int hack)
 {
     char line[1+OS_LINE_LEN] = {0};
     jobj_t obj = NULL;
@@ -398,8 +398,8 @@ do_report(int hack)
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==get_cert(FCOOKIE_LSS_CERT, cert) || 
-        NULL==get_cert(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==guard_get_cert(FCOOKIE_LSS_CERT, cert) || 
+        NULL==guard_get_cert(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
 
@@ -418,13 +418,13 @@ do_report(int hack)
                 " -k --cert %s --key %s"
                 " -u %s:%s"
                 " -s https://%s:%s/" SERVICE_REPORT,
-            get_version(),
-                get_oem(),
-                get_mac(),
-                get_mid(),
-                get_psn(),
-                get_rt(),
-                get_na(),
+            guard_get_version(),
+                guard_get_oem(),
+                guard_get_mac(),
+                guard_get_mid(),
+                guard_get_psn(),
+                guard_get_rt(),
+                guard_get_na(),
                 hack,
             cert, key,
             oem_lss_user, oem_lss_password,
@@ -440,9 +440,9 @@ do_report(int hack)
         err = -EFAKESEVER; goto error;
     }
     
-    code = jcheck(obj);
+    code = guard_jcheck(obj);
     if (code) {
-        debug_error("check json failed");
+        debug_error("check json guard_failed");
         err = -EFAKESEVER; goto error;
     }
     
@@ -452,22 +452,22 @@ do_report(int hack)
         err = -EFAKESEVER; goto error;
     }
 
-    ok("report");
+    guard_ok("report");
 error:
     jobj_put(obj);
 
     if (err<0) {
-        failed("report");
+        guard_failed("report");
     }
 
-    put_cert(cert);
-    put_cert(key);
+    guard_put_cert(cert);
+    guard_put_cert(key);
     
     return err;
 }
 
-static int
-do_register(void)
+STATIC int
+do_guard_register(void)
 {
     char line[1+OS_LINE_LEN] = {0};
     jobj_t obj = NULL;
@@ -476,8 +476,8 @@ do_register(void)
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==get_cert(FCOOKIE_LSS_CERT, cert) || 
-        NULL==get_cert(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==guard_get_cert(FCOOKIE_LSS_CERT, cert) || 
+        NULL==guard_get_cert(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
 
@@ -495,13 +495,13 @@ do_register(void)
                 " -k --cert %s --key %s"
                 " -u %s:%s"
                 " -s https://%s:%s/" SERVICE_REGISTER,
-            get_version(), 
-                get_oem(), 
-                get_mac(), 
-                get_mid(), 
-                get_psn(),
-                get_rt(), 
-                get_na(), 
+            guard_get_version(), 
+                guard_get_oem(), 
+                guard_get_mac(), 
+                guard_get_mid(), 
+                guard_get_psn(),
+                guard_get_rt(), 
+                guard_get_na(), 
             cert, key,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
@@ -516,9 +516,9 @@ do_register(void)
         err = -EFAKESEVER; goto error;
     }
 
-    code = jcheck(obj);
+    code = guard_jcheck(obj);
     if (code) {
-        debug_error("check json failed");
+        debug_error("check json guard_failed");
         err = -EFAKESEVER; goto error;
     }
 
@@ -534,22 +534,22 @@ do_register(void)
 
     otp_private_write(private);
     
-    ok("register");
+    guard_ok("register");
 error:
     jobj_put(obj);
 
     if (err<0) {
-        failed("register");
+        guard_failed("register");
     }
 
-    put_cert(cert);
-    put_cert(key);
+    guard_put_cert(cert);
+    guard_put_cert(key);
     
     return err; 
 }
 
-static int
-do_auth(void)
+STATIC int
+do_guard_auth(void)
 {
     char line[1+OS_LINE_LEN] = {0};
     byte guid[OTP_SIZE];
@@ -559,8 +559,8 @@ do_auth(void)
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==get_cert(FCOOKIE_LSS_CERT, cert) || 
-        NULL==get_cert(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==guard_get_cert(FCOOKIE_LSS_CERT, cert) || 
+        NULL==guard_get_cert(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
     
@@ -579,13 +579,13 @@ do_auth(void)
                 " -k --cert %s --key %s"
                 " -u %s:%s"
                 " -s https://%s:%s/" SERVICE_AUTH,
-            get_version(),
-                get_oem(),
-                get_mac(),
-                get_mid(),
-                get_psn(),
-                get_rt(),
-                get_na(),
+            guard_get_version(),
+                guard_get_oem(),
+                guard_get_mac(),
+                guard_get_mid(),
+                guard_get_psn(),
+                guard_get_rt(),
+                guard_get_na(),
                 __otp_string(private),
             cert, key,
             oem_lss_user, oem_lss_password,
@@ -601,9 +601,9 @@ do_auth(void)
         err = -EFAKESEVER; goto error;
     }
 
-    code = jcheck(obj);
+    code = guard_jcheck(obj);
     if (code) {
-        debug_error("check json failed");
+        debug_error("check json guard_failed");
         err = -EFAKESEVER; goto error;
     }
 
@@ -621,23 +621,23 @@ do_auth(void)
         err = -EFAKESEVER; goto error;
     }
     
-    ok("auth");
-    set_na(0);
+    guard_ok("auth");
+    guard_set_na(0);
 error:
     jobj_put(obj);
 
     if (err<0) {
-        failed("auth");
+        guard_failed("auth");
     }
 
-    put_cert(cert);
-    put_cert(key);
+    guard_put_cert(cert);
+    guard_put_cert(key);
     
     return err;
 }
 
-static int
-do_check(void)
+STATIC int
+do_guard_check(void)
 {
     int err = 0;
 
@@ -667,7 +667,7 @@ do_check(void)
         */
         debug_trace("custom is HACKED");
         
-        do_report(HACKED_CUSTOM);
+        do_guard_report(HACKED_CUSTOM);
 
         return -EHACKED;
     }
@@ -680,7 +680,7 @@ do_check(void)
         */
         debug_trace("private is ZERO");
         
-        do_register();
+        do_guard_register();
 
         return -ENOAUTH;
     }
@@ -693,12 +693,12 @@ do_check(void)
         */
         debug_trace("private is PRIVATE");
         
-        return do_auth();
+        return do_guard_auth();
     }
 }
 
-static int
-do_cmd(void)
+STATIC int
+do_guard_cmd(void)
 {
     char line[1+OS_LINE_LEN] = {0};
     jobj_t obj = NULL;
@@ -707,8 +707,8 @@ do_cmd(void)
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==get_cert(FCOOKIE_LSS_CERT, cert) || 
-        NULL==get_cert(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==guard_get_cert(FCOOKIE_LSS_CERT, cert) || 
+        NULL==guard_get_cert(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
     
@@ -723,7 +723,7 @@ do_cmd(void)
                 " -k --cert %s --key %s"
                 " -u %s:%s"
                 " -s https://%s:%s/" SERVICE_COMMAND,
-            get_mac(), get_mid(), get_psn(), __otp_string(private),
+            guard_get_mac(), guard_get_mid(), guard_get_psn(), __otp_string(private),
             cert, key,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
@@ -740,9 +740,9 @@ do_cmd(void)
         err = -EFAKESEVER; goto error;
     }
 
-    code = jcheck(obj);
+    code = guard_jcheck(obj);
     if (code) {
-        debug_error("check json failed");
+        debug_error("check json guard_failed");
         err = -EFAKESEVER; goto error;
     }
 
@@ -759,20 +759,20 @@ do_cmd(void)
     if (jcmd) {
         os_system("echo %s | base64 -d | sh", jobj_get_string(jcmd));
 
-        ok("command");
+        guard_ok("command");
     }
 
 error:
     jobj_put(obj);
 
-    put_cert(cert);
-    put_cert(key);
+    guard_put_cert(cert);
+    guard_put_cert(key);
 
     return err;
 }
 
-static void
-prepare(void)
+STATIC void
+guard_prepare(void)
 {
     static bool ok = false;
     
@@ -780,11 +780,11 @@ prepare(void)
     uint32 mid, psn;
     
     while(!ok) {
-        load();
+        guard_load();
 
-        mac = get_mac();
-        mid = get_mid();
-        psn = get_psn();
+        mac = guard_get_mac();
+        mid = guard_get_mid();
+        psn = guard_get_psn();
         
         ok = is_good_macstring(mac) && mid && psn;
         if (!ok) {
@@ -792,36 +792,36 @@ prepare(void)
         }
         
         debug_trace("load mac=%s, mid=%d, psn=%d, rt=%d, na=%d, ok=%d", 
-            mac, mid, psn, get_rt(), get_na(), ok);
+            mac, mid, psn, guard_get_rt(), guard_get_na(), ok);
     }
 }
 
-static void
-try_save(uint32 time)
+STATIC void
+guard_try_save(uint32 time)
 {
     nosaved += time;
     if (nosaved>=time) {
         nosaved = 0;
 
-        save();
+        guard_save();
     }
 }
 
-static void
-check(void)
+STATIC void
+guard_check(void)
 {
     uint32 total = 0;
 
-    while(do_check()) {
+    while(do_guard_check()) {
         sleep(CHKSLEEP);
 
-        set_na(get_na() + CHKSLEEP);
-        try_save(CHKSLEEP);
+        guard_set_na(guard_get_na() + CHKSLEEP);
+        guard_try_save(CHKSLEEP);
     }
 }
 
-static int
-__fini(void)
+STATIC int
+guard_fini(void)
 {
     benv_close();
     
@@ -830,16 +830,16 @@ __fini(void)
     return 0;
 }
 
-static void
-__exit(int sig)
+STATIC void
+guard_exit(int sig)
 {
-    __fini();
+    guard_fini();
     
     exit(sig);
 }
 
-static int
-__init(void)
+STATIC int
+guard_init(void)
 {
     int err;
     
@@ -862,11 +862,11 @@ guard_main_helper(int argc, char *argv[])
     (void)argc;
     (void)argv;
     
-    prepare();
-    check();
+    guard_prepare();
+    guard_check();
     
     while(1) {
-        do_cmd();
+        do_guard_cmd();
 
         sleep(cmdsleep);
     }
@@ -879,10 +879,10 @@ guard_main_helper(int argc, char *argv[])
 */
 int allinone_main(int argc, char *argv[])
 {
-    setup_signal_exit(__exit);
+    setup_signal_exit(guard_exit);
     setup_signal_callstack(NULL);
     
-    int err = os_call(__init, __fini, guard_main_helper, argc, argv);
+    int err = os_call(guard_init, guard_fini, guard_main_helper, argc, argv);
 
     return shell_error(err);
 }
