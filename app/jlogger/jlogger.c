@@ -11,8 +11,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-static int
-usage(int error)
+STATIC int
+jlogger_usage(int error)
 {
     os_eprintln(__THIS_APPNAME " {app} {file} {func} {pri} {json}");
     os_eprintln(__THIS_APPNAME " {app} {file} {func} {pri} {format} {values...}");
@@ -31,7 +31,7 @@ jlogger_main_helper(int argc, char *argv[])
     char *format= json;
     
     if (argc < 6) {
-        return usage(-EHELP);
+        return jlogger_usage(-EHELP);
     }
 
     switch(json[0]) {
@@ -45,7 +45,7 @@ jlogger_main_helper(int argc, char *argv[])
                 json);
         case '%':
             if (argc < 7) {
-                return usage(-EHELP);
+                return jlogger_usage(-EHELP);
             }
             
             return __jformat(app,

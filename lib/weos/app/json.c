@@ -2,6 +2,37 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 #ifdef __APP__
+char *
+jobj_string_ex(jobj_t obj, int flag)
+{
+    if (obj) {
+        return (char *)json_object_to_json_string_ext(obj, flag);
+    } else {
+        return NULL;
+    }
+}
+
+char *
+jobj_json(jobj_t obj)
+{
+    return jobj_string_ex(obj, JSON_C_TO_STRING_PLAIN);
+}
+
+int
+jobj_string_len(jobj_t obj)
+{
+    if (obj) {
+        return json_object_get_string_len(obj);
+    } else {
+        return 0;
+    }
+}
+
+void
+jobj_del(jobj_t obj, char *k)
+{
+    json_object_object_del(obj, k);
+}
 
 void
 jobj_add(jobj_t obj, char *k, jobj_t v)
@@ -26,6 +57,30 @@ jobj_add(jobj_t obj, char *k, jobj_t v)
                 break;
         }       
     }
+}
+
+jobj_t
+jobj_get(jobj_t obj, char *key)
+{
+    struct json_object *new = NULL;
+    
+    if (obj && key) {
+    	json_object_object_get_ex(obj, key, &new);
+    }
+
+    return new;
+}
+
+jobj_t
+jarray_get(jobj_t array, int idx)
+{
+    jobj_t obj = NULL;
+    
+    if (array && IS_GOOD_ENUM(idx, jarray_length(array))) {
+    	obj = json_object_array_get_idx(array, idx);
+    }
+
+    return obj;
 }
 
 #define jobj_add_value(_obj, _key, _value, _create) ({ \
@@ -146,6 +201,28 @@ jobj_sprintf(jobj_t obj, const char *key, const char *fmt, ...)
     va_end(args);
     
     return err;    
+}
+
+jobj_t
+jobj_byfile(char *file)
+{
+    jobj_t obj = json_object_from_file(file);
+    if (NULL==obj) {
+        japi_println("read json file %s failed", file);
+    }
+    
+    return obj;
+}
+
+jobj_t
+jobj_byfd(int fd)
+{
+    jobj_t obj = json_object_from_fd(fd);
+    if (NULL==obj) {
+        japi_println("read fd %d failed", fd);
+    }
+    
+    return obj;
 }
 
 jobj_t

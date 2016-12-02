@@ -154,33 +154,17 @@ __jobj_put(jobj_t obj)
     _obj = NULL;            \
 }while(0)
 
-static inline char *
-jobj_string_ex(jobj_t obj, int flag)
-{
-    if (obj) {
-        return (char *)json_object_to_json_string_ext(obj, flag);
-    } else {
-        return NULL;
-    }
-}
+extern char *
+jobj_string_ex(jobj_t obj, int flag);
 
-static inline char *
-jobj_json(jobj_t obj)
-{
-    return jobj_string_ex(obj, JSON_C_TO_STRING_PLAIN);
-}
+extern char *
+jobj_json(jobj_t obj);
 
-static inline int
-jobj_string_len(jobj_t obj)
-{
-    if (obj) {
-        return json_object_get_string_len(obj);
-    } else {
-        return 0;
-    }
-}
+extern int
+jobj_string_len(jobj_t obj);
 
-#define jobj_del(_jobj, _k)     json_object_object_del(_jobj, _k)
+extern void
+jobj_del(jobj_t obj, char *k);
 
 extern void
 jobj_add(jobj_t obj, char *k, jobj_t v);
@@ -202,30 +186,13 @@ jobj_add(jobj_t obj, char *k, jobj_t v);
 #define jobj_get_binary(_obj)           ((byte *)json_object_get_string(_obj))
 #define jobj_get_binary_len(_obj)       json_object_get_string_len(_obj)
 
-static inline jobj_t
-jobj_get(jobj_t obj, char *key)
-{
-    struct json_object *new = NULL;
-    
-    if (obj && key) {
-    	json_object_object_get_ex(obj, key, &new);
-    }
-
-    return new;
-}
+extern jobj_t
+jobj_get(jobj_t obj, char *key);
 
 #define jarray_length(_obj)             json_object_array_length(_obj)
-static inline jobj_t
-jarray_get(jobj_t array, int idx)
-{
-    jobj_t obj = NULL;
-    
-    if (array && IS_GOOD_ENUM(idx, jarray_length(array))) {
-    	obj = json_object_array_get_idx(array, idx);
-    }
 
-    return obj;
-}
+extern jobj_t
+jarray_get(jobj_t array, int idx);
 
 #define jarray_set(_jarray, _idx, _jval)    json_object_array_put_idx(_jarray, _idx, _jval)
 #define jarray_add(_jarray, _jval)          json_object_array_add(_jarray, _jval)
@@ -284,27 +251,11 @@ jobj_vsprintf(jobj_t obj, const char *key, const char *fmt, va_list args);
 extern int
 jobj_sprintf(jobj_t obj, const char *key, const char *fmt, ...);
 
-static inline jobj_t
-jobj_byfile(char *file)
-{
-    jobj_t obj = json_object_from_file(file);
-    if (NULL==obj) {
-        japi_println("read json file %s failed", file);
-    }
-    
-    return obj;
-}
+extern jobj_t
+jobj_byfile(char *file);
 
-static inline jobj_t
-jobj_byfd(int fd)
-{
-    jobj_t obj = json_object_from_fd(fd);
-    if (NULL==obj) {
-        japi_println("read fd %d failed", fd);
-    }
-    
-    return obj;
-}
+extern jobj_t
+jobj_byfd(int fd);
 
 extern jobj_t
 jobj_byjson(char *json);
