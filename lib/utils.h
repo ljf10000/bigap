@@ -212,6 +212,7 @@
 #endif
 #endif  /* __EXTEND__ */
 
+#if 2   /* __EXTEND__ */
 #include "oem/oem.h"
 #if USE_MOD_FCOOKIE
 #include "fcookie/fcookie.h"
@@ -219,6 +220,7 @@
 #if USE_MOD_NSQ
 #include "nsq/nsq.h"
 #endif
+#endif /* __EXTEND__ */
 /******************************************************************************/
 #define OS_REAL_INITER          \
     DECLARE_REAL_COMMAND;       \

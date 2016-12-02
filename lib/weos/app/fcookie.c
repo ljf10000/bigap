@@ -1,6 +1,25 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+#include "oem/cert/weos/fcookie_cert_initer.c"
+
+#define __FCOOKIE_FILE_ENTRY(_info, _mode) {  \
+    .info = _info,  \
+    .mode = _mode,  \
+}   /* end */
+
+#define FCOOKIE_FILE_ENTRY(_info)   __FCOOKIE_FILE_ENTRY(_info, 0)
+#define FCOOKIE_CERT_ENTRY(_idx)    [FCOOKIE_CERT_BEGIN+_idx] = FCOOKIE_FILE_ENTRY(__this_cert(_idx)->cert)
+#define FCOOKIE_KEY_ENTRY(_idx)     [FCOOKIE_KEY_BEGIN+_idx] = FCOOKIE_FILE_ENTRY(__this_cert(_idx)->key)
+#define FCOOKIE_CERT_INITER(_idx)   FCOOKIE_CERT_ENTRY(_idx), FCOOKIE_KEY_ENTRY(_idx)
+
+#define FCOOKIE_INITER    { \
+    [FCOOKIE_RSYNC_PWDFILE] = __FCOOKIE_FILE_ENTRY(oem_rsync_pwdfile, 0x600), \
+    [FCOOKIE_LSS_CERT]      = FCOOKIE_FILE_ENTRY(oem_lss_cert),  \
+    [FCOOKIE_LSS_KEY]       = FCOOKIE_FILE_ENTRY(oem_lss_key),   \
+    FCOOKIE_CERT_INITERS    \
+}   /* end */
+
 #ifdef IN_CURL
 char *
 __fcookie_file_create(fcookie_file_t *cert, char *tmp_file)
@@ -50,25 +69,6 @@ __fcookie_file_create(fcookie_file_t *cert, char *tmp_file)
     return tmp_file;
 }
 #endif
-
-#include "oem/cert/weos/fcookie_cert_initer.c"
-
-#define __FCOOKIE_FILE_ENTRY(_info, _mode) {  \
-    .info = _info,  \
-    .mode = _mode,  \
-}   /* end */
-
-#define FCOOKIE_FILE_ENTRY(_info)   __FCOOKIE_FILE_ENTRY(_info, 0)
-#define FCOOKIE_CERT_ENTRY(_idx)    [FCOOKIE_CERT_BEGIN+_idx] = FCOOKIE_FILE_ENTRY(__this_cert(_idx)->cert)
-#define FCOOKIE_KEY_ENTRY(_idx)     [FCOOKIE_KEY_BEGIN+_idx] = FCOOKIE_FILE_ENTRY(__this_cert(_idx)->key)
-#define FCOOKIE_CERT_INITER(_idx)   FCOOKIE_CERT_ENTRY(_idx), FCOOKIE_KEY_ENTRY(_idx)
-
-#define FCOOKIE_INITER    { \
-    [FCOOKIE_RSYNC_PWDFILE] = __FCOOKIE_FILE_ENTRY(oem_rsync_pwdfile, 0x600), \
-    [FCOOKIE_LSS_CERT]      = FCOOKIE_FILE_ENTRY(oem_lss_cert),  \
-    [FCOOKIE_LSS_KEY]       = FCOOKIE_FILE_ENTRY(oem_lss_key),   \
-    FCOOKIE_CERT_INITERS    \
-}   /* end */
 
 char *
 __fcookie_file(int id, char *tmp_file)
