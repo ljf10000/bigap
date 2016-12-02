@@ -20,6 +20,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "app/fd.c"
 #endif
 #include "app/file.c"
+#include "app/intf.c"
 #include "app/jlog.c"
 #include "app/json.c"
 #include "app/loop.c"
