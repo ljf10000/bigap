@@ -13,6 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __LIB__
 #include "utils.h"
 #include "benv/bcookie.h"
+#include "nsq/nsq.h"
 LIB_INITER;
 /******************************************************************************/
 #include "weos/boot/addr.c"
