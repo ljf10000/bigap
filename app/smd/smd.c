@@ -21,6 +21,27 @@ OS_INITER;
 #define SM_DEAMON_WAIT        3 /* second */
 #endif
 
+#if 1
+#define SM_STATE_ENUM_MAPPER(_)     \
+    _(SM_STATE_INIT,  0, "init"),   \
+    _(SM_STATE_FORK,  1, "fork"),   \
+    _(SM_STATE_RUN,   2, "run"),    \
+    _(SM_STATE_DIE,   3, "die"),    \
+    /* end */
+DECLARE_ENUM(sm_state, SM_STATE_ENUM_MAPPER, SM_STATE_END);
+
+static inline enum_ops_t *sm_state_ops(void);
+static inline bool is_good_sm_state(int id);
+static inline char *sm_state_getnamebyid(int id);
+static inline int sm_state_getidbyname(const char *name);
+
+#define SM_STATE_INIT   SM_STATE_INIT
+#define SM_STATE_FORK   SM_STATE_FORK
+#define SM_STATE_RUN    SM_STATE_RUN
+#define SM_STATE_DIE    SM_STATE_DIE
+#define SM_STATE_END    SM_STATE_END
+#endif
+
 STATIC struct {
     struct {
         int fd;

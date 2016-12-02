@@ -69,12 +69,12 @@ typedef union {
     _(jtype_ip,     json_type_end+8,    "ip"),      \
     _(jtype_mac,    json_type_end+9,    "mac"),     \
     /* end */
-DECLARE_ENUM(jtype, JTYPE_ENUM_MAPPER, jtype_end);
+EXTERN_ENUMER(jtype, JTYPE_ENUM_MAPPER, jtype_end);
 
-static inline enum_ops_t *jtype_ops(void);
-static inline bool is_good_jtype(int id);
-static inline char *jtype_getnamebyid(int id);
-static inline int jtype_getidbyname(const char *name);
+EXTERN enum_ops_t *jtype_ops(void);
+EXTERN bool is_good_jtype(int id);
+EXTERN char *jtype_getnamebyid(int id);
+EXTERN int jtype_getidbyname(const char *name);
 
 #define jtype_null      jtype_null
 #define jtype_bool      jtype_bool

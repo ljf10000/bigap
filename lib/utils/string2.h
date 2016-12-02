@@ -7,7 +7,7 @@
     _(STRING_T_CONST,   1, "const"),    \
     _(STRING_T_HEAP,    3, "heap"),     \
     /* end */
-DECLARE_ENUM(string_type, STRING_TYPE_ENUM_MAPPER, STRING_T_END);
+INLINE_ENUM(string_type, STRING_TYPE_ENUM_MAPPER, STRING_T_END);
 
 static inline enum_ops_t *string_type_ops(void);
 static inline bool is_good_string_type(int id);

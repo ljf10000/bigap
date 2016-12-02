@@ -113,12 +113,12 @@ env_geti(char *envname, int deft) ;
     _(ENV_GC,       23, "gc"),          \
     _(ENV_CONF,     24, "conf"),        \
     /* end */
-DECLARE_ENUM(os_env, OS_ENV_ENUM_MAPPER, OS_ENV_END);
+EXTERN_ENUMER(os_env, OS_ENV_ENUM_MAPPER, OS_ENV_END);
 
-static inline enum_ops_t *os_env_ops(void);
-static inline bool is_good_os_env(int id);
-static inline char *os_env_getnamebyid(int id);
-static inline int os_env_getidbyname(const char *name);
+EXTERN enum_ops_t *os_env_ops(void);
+EXTERN bool is_good_os_env(int id);
+EXTERN char *os_env_getnamebyid(int id);
+EXTERN int os_env_getidbyname(const char *name);
 
 #define ENV_TIMEOUT     ENV_TIMEOUT
 #define ENV_INTERVAL    ENV_INTERVAL

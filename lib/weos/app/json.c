@@ -1,6 +1,8 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+DECLARE_ENUMER(jtype, JTYPE_ENUM_MAPPER, jtype_end);
+
 char *
 jobj_string_ex(jobj_t obj, int flag)
 {

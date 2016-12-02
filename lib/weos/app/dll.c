@@ -1,6 +1,8 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+DECLARE_ENUMER(libval_type, LIBVAL_TYPE_ENUM_MAPPER, LIBVAL_END);
+
 int
 LIBCALLv(void *f, libproto_t *proto)
 {

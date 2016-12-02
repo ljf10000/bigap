@@ -3,6 +3,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 typedef void loop_watcher_handle_f(loop_t *loop, loop_watcher_t *watcher, time_t now);
 
+DECLARE_ENUMER(loop_type, LOOP_TYPE_ENUM_MAPPER, LOOP_TYPE_END);
+
 STATIC bool
 __is_good_loop(loop_t *loop)
 {
