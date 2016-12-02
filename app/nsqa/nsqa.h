@@ -256,7 +256,10 @@ extern nsqa_control_t nsqa;
 }   /* end */
 /******************************************************************************/
 extern int
-nsqi_insert(char *json);
+nsqi_insert(jobj_t jobj);
+
+extern int
+nsqi_insert_byjson(char *json);
 
 extern int
 nsqi_remove(char *name, char *topic, char *channel);
@@ -343,9 +346,9 @@ extern int
 nsq_script(nsq_instance_t *instance, char *json);
 /******************************************************************************/
 extern int
-init_nsq_timer(void);
+init_nsqa_timer(void);
 
 extern int
-init_nsq_cli(void);
+init_nsqa_cli(void);
 /******************************************************************************/
 #endif /* __NSQA_H_138838ae69b44e039c63875789ba5889__ */

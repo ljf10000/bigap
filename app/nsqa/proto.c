@@ -12,8 +12,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-static int
-identifying_response_handle(nsq_instance_t *instance, time_t now)
+STATIC int
+nsq_identifying_response_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
     
@@ -34,8 +34,8 @@ identifying_response_handle(nsq_instance_t *instance, time_t now)
     return 0;
 }
 
-static int
-subscribing_response_handle(nsq_instance_t *instance, time_t now)
+STATIC int
+nsq_subscribing_response_handle(nsq_instance_t *instance, time_t now)
 {
     if (NSQ_E_OK==instance->error) {
         nsqi_fsm(instance, NSQ_FSM_SUBSCRIBED);
@@ -44,8 +44,8 @@ subscribing_response_handle(nsq_instance_t *instance, time_t now)
     return 0;
 }
 
-static int
-run_response_handle(nsq_instance_t *instance, time_t now)
+STATIC int
+nsq_run_response_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
 
@@ -54,8 +54,8 @@ run_response_handle(nsq_instance_t *instance, time_t now)
     return 0;
 }
 
-static int
-run_message_handle(nsq_instance_t *instance, time_t now)
+STATIC int
+nsq_run_message_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
     int err;
@@ -68,8 +68,8 @@ run_message_handle(nsq_instance_t *instance, time_t now)
     return 0;
 }
 
-static int
-pre_handle(nsq_instance_t *instance)
+STATIC int
+nsq_pre_handle(nsq_instance_t *instance)
 {
     switch(instance->fsm) {
         case NSQ_FSM_INIT:      // down
@@ -85,14 +85,14 @@ pre_handle(nsq_instance_t *instance)
     return 0;
 }
 
-static int 
-frame_error_handle(nsq_instance_t *instance, time_t now)
+STATIC int 
+nsq_frame_error_handle(nsq_instance_t *instance, time_t now)
 {
     return -EPROTO;
 }
 
-static int 
-frame_response_handle(nsq_instance_t *instance, time_t now)
+STATIC int 
+nsq_frame_response_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
     int err;
@@ -120,15 +120,15 @@ frame_response_handle(nsq_instance_t *instance, time_t now)
 
             break;
         case NSQ_FSM_IDENTIFYING:
-            err = identifying_response_handle(instance, now);
+            err = nsq_identifying_response_handle(instance, now);
 
             break;
         case NSQ_FSM_SUBSCRIBING:
-            err = subscribing_response_handle(instance, now);
+            err = nsq_subscribing_response_handle(instance, now);
 
             break;
         case NSQ_FSM_RUN:
-            err = run_response_handle(instance, now);
+            err = nsq_run_response_handle(instance, now);
             
             break;
         default:
@@ -140,8 +140,8 @@ frame_response_handle(nsq_instance_t *instance, time_t now)
     return -EPROTO;
 }
 
-static int 
-frame_message_handle(nsq_instance_t *instance, time_t now)
+STATIC int 
+nsq_frame_message_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
     int err;
@@ -154,7 +154,7 @@ frame_message_handle(nsq_instance_t *instance, time_t now)
         return -EPROTO;
     }
     
-    err = run_message_handle(instance, now);
+    err = nsq_run_message_handle(instance, now);
     if (err<0) {
         return err;
     }
@@ -162,23 +162,23 @@ frame_message_handle(nsq_instance_t *instance, time_t now)
     return 0;
 }
 
-static int 
-frame_handle(nsq_instance_t *instance, time_t now)
+STATIC int 
+nsq_frame_handle(nsq_instance_t *instance, time_t now)
 {
     nsq_msg_t *msg = nsq_recver_msg(instance);
     int err;
 
     switch(msg->type) {
         case NSQ_FRAME_ERROR:
-            err = frame_error_handle(instance, now);
+            err = nsq_frame_error_handle(instance, now);
 
             break;
         case NSQ_FRAME_RESPONSE:
-            err = frame_response_handle(instance, now);
+            err = nsq_frame_response_handle(instance, now);
             
             break;
         case NSQ_FRAME_MESSAGE:
-            err = frame_message_handle(instance, now);
+            err = nsq_frame_message_handle(instance, now);
             
             break;
         default:
@@ -196,7 +196,7 @@ nsq_recver(struct loop_watcher *watcher, time_t now)
     nsq_instance_t *instance = (nsq_instance_t *)watcher->user;
     int err;
 
-    err = pre_handle(instance);
+    err = nsq_pre_handle(instance);
     if (err<0) {
         goto confused;
     }
@@ -206,7 +206,7 @@ nsq_recver(struct loop_watcher *watcher, time_t now)
         goto confused;
     }
 
-    err = frame_handle(instance, now);
+    err = nsq_frame_handle(instance, now);
     if (err<0) {
         goto confused;
     }

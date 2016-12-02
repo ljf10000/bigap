@@ -73,8 +73,8 @@ nsqa_init(void)
         INIT_ENTRY("os",        os_init),
         INIT_ENTRY("env",       init_nsqa_env),
         INIT_ENTRY("table",     init_nsqa_table),
-        INIT_ENTRY("timer",     init_nsq_timer),
-        INIT_ENTRY("cli",       init_nsq_cli),
+        INIT_ENTRY("timer",     init_nsqa_timer),
+        INIT_ENTRY("cli",       init_nsqa_cli),
         INIT_ENTRY("cfg",       init_nsqa_cfg),
     };
 

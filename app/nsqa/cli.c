@@ -15,8 +15,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 /*
 * handle {mac} {json}
 */
-static int
-handle_name_topic_channel(int(*handle)(char *name, char *topic, char *channel), char *args)
+STATIC int
+nsqa_handle_name_topic_channel(int(*handle)(char *name, char *topic, char *channel), char *args)
 {
     char *name      = args;             cli_shift(args);
     char *topic     = name?args:NULL;   cli_shift(args);
@@ -44,37 +44,37 @@ handle_name_topic_channel(int(*handle)(char *name, char *topic, char *channel), 
 /*
 * remove {name}
 */
-static int
-handle_remove(char *args)
+STATIC int
+nsqa_handle_remove(char *args)
 {
-    return handle_name_topic_channel(nsqi_remove, args);
+    return nsqa_handle_name_topic_channel(nsqi_remove, args);
 }
 
 /*
 * insert {json}
 */
-static int
-handle_insert(char *args)
+STATIC int
+nsqa_handle_insert(char *args)
 {
     char *json  = args;
     
-    return nsqi_insert(json);
+    return nsqi_insert_byjson(json);
 }
 
-static mv_t
-show_user(nsq_instance_t *instance)
+STATIC mv_t
+nsqa_show_user(nsq_instance_t *instance)
 {
     return mv2_ok;
 }
 
-static int
-show_stat(void)
+STATIC int
+nsqa_show_stat(void)
 {
     return 0;
 }
 
-static int
-show_count(void)
+STATIC int
+nsqa_show_count(void)
 {
     cli_sprintf("%d" __crlf, h1_count(&nsqa.table));
     
@@ -84,24 +84,24 @@ show_count(void)
 /*
 * show [json]
 */
-static int
-handle_show(char *args)
+STATIC int
+nsqa_handle_show(char *args)
 {
-    return handle_name_topic_channel(nsqi_show, args);
+    return nsqa_handle_name_topic_channel(nsqi_show, args);
 }
 
-static cli_table_t cli_table[] = {
-    CLI_ENTRY("insert", handle_insert),
-    CLI_ENTRY("remove", handle_remove),
-    CLI_ENTRY("show",   handle_show),
+STATIC cli_table_t nsqa_cli_table[] = {
+    CLI_ENTRY("insert", nsqa_handle_insert),
+    CLI_ENTRY("remove", nsqa_handle_remove),
+    CLI_ENTRY("show",   nsqa_handle_show),
 };
 
-static int
-nsq_cli(loop_watcher_t *watcher, time_t now)
+STATIC int
+nsqa_cli(loop_watcher_t *watcher, time_t now)
 {
     int err;
     
-    err = clis_handle(watcher->fd, cli_table);
+    err = clis_handle(watcher->fd, nsqa_cli_table);
     
     os_loop_del_watcher(&nsqa.loop, watcher->fd);
 
@@ -109,11 +109,11 @@ nsq_cli(loop_watcher_t *watcher, time_t now)
 }
 
 int
-init_nsq_cli(void)
+init_nsqa_cli(void)
 {
     int err;
 
-    err = os_loop_add_CLI(&nsqa.loop, "nsqa", nsq_cli);
+    err = os_loop_add_CLI(&nsqa.loop, "nsqa", nsqa_cli);
     if (err<0) {
         return err;
     }

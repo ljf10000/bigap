@@ -12,8 +12,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-static nsq_instance_t *
-__entry(hash_node_t *node)
+STATIC nsq_instance_t *
+__nsqi_entry(hash_node_t *node)
 {
     if (node) {
         return h1_entry(node, nsq_instance_t, node);
@@ -22,8 +22,8 @@ __entry(hash_node_t *node)
     }
 }
 
-static nsq_instance_t *
-__hentry(h1_node_t *node)
+STATIC nsq_instance_t *
+__nsqi_hentry(h1_node_t *node)
 {
     if (node) {
         return h1_entry(node, nsq_instance_t, node);
@@ -32,8 +32,8 @@ __hentry(h1_node_t *node)
     }
 }
 
-static hash_idx_t
-__hash(char *name, char *topic, char *channel)
+STATIC hash_idx_t
+__nsqi_hash(char *name, char *topic, char *channel)
 {
     bkdr_t bkdr = 0;
 
@@ -44,8 +44,8 @@ __hash(char *name, char *topic, char *channel)
     return (hash_idx_t)bkdr & NSQ_HASHMASK;
 }
 
-static int
-__destroy(nsq_instance_t *instance)
+STATIC int
+__nsqi_destroy(nsq_instance_t *instance)
 {
     int i;
     
@@ -76,8 +76,8 @@ __destroy(nsq_instance_t *instance)
     return 0;
 }
 
-static nsq_instance_t *
-__create(char *name, char *topic, char *channel, jobj_t jobj)
+STATIC nsq_instance_t *
+__nsqi_create(char *name, char *topic, char *channel, jobj_t jobj)
 {
     nsq_instance_t *instance = NULL;
     jobj_t jval, jidentify;
@@ -139,85 +139,38 @@ __create(char *name, char *topic, char *channel, jobj_t jobj)
     
     return instance;
 error:
-    __destroy(instance);
+    __nsqi_destroy(instance);
 
     return NULL;
 }
 
-static int
-__insert(nsq_instance_t *instance)
+STATIC int
+__nsqi_insert(nsq_instance_t *instance)
 {
     hash_idx_t nhash(hash_node_t *node)
     {
-        nsq_instance_t *instance = __entry(node);
+        nsq_instance_t *instance = __nsqi_entry(node);
         
-        return __hash(instance->name, instance->topic, instance->channel);
+        return __nsqi_hash(instance->name, instance->topic, instance->channel);
     }
     
     return h1_add(&nsqa.table, &instance->node, nhash);
 }
 
-static int
-__remove(nsq_instance_t *instance)
+STATIC int
+__nsqi_remove(nsq_instance_t *instance)
 {
     return h1_del(&nsqa.table, &instance->node);
 }
 
-static int
-__show(nsq_instance_t *instance)
+STATIC int
+__nsqi_show(nsq_instance_t *instance)
 {
     return 0;
 }
 
-static int
-__nsqi_insert(jobj_t jobj)
-{
-    int err;
-
-    char *name = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_NAME_NAME));
-    if (NULL==name) {
-        debug_cli("no-found " NSQ_INSTANCE_NAME_NAME);
-        
-        return -EBADJSON;
-    }
-
-    char *topic = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_TOPIC_NAME));
-    if (NULL==name) {
-        debug_cli("no-found " NSQ_INSTANCE_TOPIC_NAME);
-        
-        return -EBADJSON;
-    }
-
-    char *channel = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_CHANNEL_NAME));
-    if (NULL==name) {
-        debug_cli("no-found " NSQ_INSTANCE_CHANNEL_NAME);
-        
-        return -EBADJSON;
-    }
-
-    if (nsqi_get(name, topic, channel)) {
-        debug_entry("instance %s.%s.%s exist.", name, topic, channel);
-        
-        return -EEXIST;
-    }
-    
-    nsq_instance_t *instance = __create(name, topic, channel, jobj);
-    if (NULL==instance) {
-        return -ENOMEM;
-    }
-
-    err = __insert(instance);
-    if (err<0) {
-        debug_entry("insert %s error:%d", name, err);
-        
-        return err;
-    }
-    
-    return 0;
-}
-
-static int
-handle_name_topic_channel_by_special(
+STATIC int
+nsqi_handle_name_topic_channel_by_special(
     int (*pre)(nsq_instance_t *instance),
     int (*handle)(nsq_instance_t *instance),
     int (*post)(nsq_instance_t *instance),
@@ -255,8 +208,8 @@ handle_name_topic_channel_by_special(
     return 0;
 }
 
-static int
-handle_name_topic_channel_by_wildcard(
+STATIC int
+nsqi_handle_name_topic_channel_by_wildcard(
     int (*pre)(nsq_instance_t *instance),
     int (*handle)(nsq_instance_t *instance, int pre_error),
     int (*post)(nsq_instance_t *instance),
@@ -298,16 +251,16 @@ handle_name_topic_channel_by_wildcard(
     return nsqi_foreach(foreach, true);
 }
 
-static int
-remove_by_special(char *name, char *topic, char *channel)
+STATIC int
+nsqi_remove_by_special(char *name, char *topic, char *channel)
 {
-    return handle_name_topic_channel_by_special(
-                NULL, __remove, __destroy,
+    return nsqi_handle_name_topic_channel_by_special(
+                NULL, __nsqi_remove, __nsqi_destroy,
                 name, topic, channel);
 }
 
-static int
-remove_by_wildcard(char *name, char *topic, char *channel)
+STATIC int
+nsqi_remove_by_wildcard(char *name, char *topic, char *channel)
 {
     int notify(nsq_instance_t *instance, int pre_error)
     {
@@ -320,28 +273,28 @@ remove_by_wildcard(char *name, char *topic, char *channel)
         return 0;
     }
     
-    return handle_name_topic_channel_by_wildcard(
-                __remove, notify, __destroy,
+    return nsqi_handle_name_topic_channel_by_wildcard(
+                __nsqi_remove, notify, __nsqi_destroy,
                 name, topic, channel);
 }
 
-static int
-show_by_special(char *name, char *topic, char *channel)
+STATIC int
+nsqi_show_by_special(char *name, char *topic, char *channel)
 {
-    return handle_name_topic_channel_by_special(
-                NULL, __show, NULL,
+    return nsqi_handle_name_topic_channel_by_special(
+                NULL, __nsqi_show, NULL,
                 name, topic, channel);
 }
 
-static int
-show_by_wildcard(char *name, char *topic, char *channel)
+STATIC int
+nsqi_show_by_wildcard(char *name, char *topic, char *channel)
 {
     int notify(nsq_instance_t *instance, int pre_error)
     {
-        return __show(instance);
+        return __nsqi_show(instance);
     }
     
-    return handle_name_topic_channel_by_wildcard(
+    return nsqi_handle_name_topic_channel_by_wildcard(
                 NULL, notify, NULL,
                 name, topic, channel);
 }
@@ -372,7 +325,54 @@ nsqi_fsm(nsq_instance_t *instance, int fsm)
 }
 
 int
-nsqi_insert(char *json)
+nsqi_insert(jobj_t jobj)
+{
+    int err;
+
+    char *name = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_NAME_NAME));
+    if (NULL==name) {
+        debug_cli("no-found " NSQ_INSTANCE_NAME_NAME);
+        
+        return -EBADJSON;
+    }
+
+    char *topic = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_TOPIC_NAME));
+    if (NULL==name) {
+        debug_cli("no-found " NSQ_INSTANCE_TOPIC_NAME);
+        
+        return -EBADJSON;
+    }
+
+    char *channel = jobj_get_string(jobj_get(jobj, NSQ_INSTANCE_CHANNEL_NAME));
+    if (NULL==name) {
+        debug_cli("no-found " NSQ_INSTANCE_CHANNEL_NAME);
+        
+        return -EBADJSON;
+    }
+
+    if (nsqi_get(name, topic, channel)) {
+        debug_entry("instance %s.%s.%s exist.", name, topic, channel);
+        
+        return -EEXIST;
+    }
+    
+    nsq_instance_t *instance = __nsqi_create(name, topic, channel, jobj);
+    if (NULL==instance) {
+        return -ENOMEM;
+    }
+
+    err = __nsqi_insert(instance);
+    if (err<0) {
+        debug_entry("insert %s error:%d", name, err);
+        
+        return err;
+    }
+    
+    return 0;
+}
+
+int
+nsqi_insert_byjson(char *json)
 {
     jobj_t jobj = NULL;
     int err = 0;
@@ -382,7 +382,7 @@ nsqi_insert(char *json)
         err = -EBADJSON; goto error;
     }
 
-    err = __nsqi_insert(jobj);
+    err = nsqi_insert(jobj);
     if (err<0) {
         goto error;
     }
@@ -399,9 +399,9 @@ int
 nsqi_remove(char *name, char *topic, char *channel)
 {
     if (name && topic && channel) {
-        return remove_by_special(name, topic, channel);
+        return nsqi_remove_by_special(name, topic, channel);
     } else {
-        return remove_by_wildcard(name, topic, channel);
+        return nsqi_remove_by_wildcard(name, topic, channel);
     }
 }
 
@@ -410,7 +410,7 @@ nsqi_foreach(nsq_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h1_node_t *node)
     {
-        return (*foreach)(__hentry(node));
+        return (*foreach)(__nsqi_hentry(node));
     }
 
     if (safe) {
@@ -425,28 +425,28 @@ nsqi_get(char *name, char *topic, char *channel)
 {
     hash_idx_t dhash(void)
     {
-        return __hash(name, topic, channel);
+        return __nsqi_hash(name, topic, channel);
     }
     
     bool eq(hash_node_t *node)
     {
-        nsq_instance_t *instance = __entry(node);
+        nsq_instance_t *instance = __nsqi_entry(node);
         
         return os_streq(name, instance->name)
             && os_streq(topic, instance->topic)
             && os_streq(channel, instance->channel);
     }
 
-    return __hentry(h1_find(&nsqa.table, dhash, eq));
+    return __nsqi_hentry(h1_find(&nsqa.table, dhash, eq));
 }
 
 int
 nsqi_show(char *name, char *topic, char *channel)
 {
     if (name && topic && channel) {
-        return show_by_special(name, topic, channel);
+        return nsqi_show_by_special(name, topic, channel);
     } else {
-        return show_by_wildcard(name, topic, channel);
+        return nsqi_show_by_wildcard(name, topic, channel);
     }
 }
 /******************************************************************************/
