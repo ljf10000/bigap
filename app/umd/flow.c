@@ -705,9 +705,9 @@ umd_jflow(void)
         jtype = jobj_new_object();
         for (j=0; j<umd_pkt_check_end; j++) {
             jst = umd_jflow_total(i, j);
-            jobj_add(jtype, pkt_check_getnamebyid(j), jst);
+            jobj_add(jtype, umd_pkt_check_getnamebyid(j), jst);
         }
-        jobj_add(jtotal, pkt_check_getnamebyid(i), jtype);
+        jobj_add(jtotal, umd_pkt_check_getnamebyid(i), jtype);
     }
     jobj_add(jflow, "total", jtotal);
     
