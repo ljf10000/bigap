@@ -347,6 +347,9 @@ ak_show(char *app, char *key)
     for (i=0; i<__ak_count; i++) {
         ak = __ak_entry(i);
 
+        os_println("app=%s key=%s ak->app=%s ak->key=%s",
+            app, key,
+            ak->app, ak->k);
         if ((NULL==app || os_streq(app, ak->app)) &&
             (NULL==key || os_streq(key, ak->k))) {
             os_println(__tab "%s.%s=%u",
