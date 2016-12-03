@@ -22,6 +22,8 @@ ak_cmd_reload(int argc, char *argv[])
     
     ak_load();
     ak_show(NULL, NULL);
+
+    return 0;
 }
 
 STATIC int 
@@ -31,6 +33,8 @@ ak_cmd_load(int argc, char *argv[])
     (void)argv;
     
     ak_load();
+
+    return 0;
 }
 
 STATIC int 
