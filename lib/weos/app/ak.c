@@ -428,7 +428,7 @@ ak_jshow(char *app, char *key)
     int count = __ak_apps_save(apps);
     int iapp = 0;
     
-    sb_sprintf(&sb, "{" __crlf);
+    sb_sprintf(&sb, "{");
     
     for (i=0; i<count; i++) {
         int ikey = 0;
@@ -437,7 +437,7 @@ ak_jshow(char *app, char *key)
             continue;
         }
         
-        sb_sprintf(&sb, __tab "\"%s\": {" __crlf, apps[i]);
+        sb_sprintf(&sb, __tab "\"%s\": {", apps[i]);
         
         for (j=0; j<__ak_count; j++) {
             ak = __ak_entry(j);
@@ -449,20 +449,20 @@ ak_jshow(char *app, char *key)
                 continue;
             }
 
-            sb_sprintf(&sb, __tab2 "\"%s\": %u," __crlf, ak->k, ak->v);
+            sb_sprintf(&sb, __tab2 "\"%s\": %u,", ak->k, ak->v);
             ikey++;
         }
 
         if (ikey) {
-            sb_backspace(&sb, 1+sizeof(__crlf)); sb_sprintf(&sb, __crlf);
+            sb_backspace(&sb, 1);
         }
         
-        sb_sprintf(&sb, __tab "}," __crlf);
+        sb_sprintf(&sb, __tab "},");
         iapp++;
     }
     
     if (iapp) {
-        sb_backspace(&sb, 1+sizeof(__crlf)); sb_sprintf(&sb, __crlf);
+        sb_backspace(&sb, 1);
     }
     sb_sprintf(&sb, "}" __crlf);
 
