@@ -47,6 +47,7 @@ LIB_INITER;
 #endif
 #include "weos/boot/string.c"
 /******************************************************************************/
+#include "weos/app/ak.c"
 #include "weos/app/bcookie.c"
 #if USE_MOD_COROUTINE
 #include "weos/app/coroutine.c"
