@@ -169,7 +169,11 @@ __ak_getbyname(char *app, char *k)
     
     ak_t *ak = __ak_getbyname2(app, k);
 
-    return ak?__ak_make(__ak_getidx(ak), __ak_getoffset(ak)):INVALID_AKID;
+    if (ak) {
+        return __ak_make(__ak_getidx(ak), __ak_getoffset(ak));
+    } else {
+        return INVALID_AKID;
+    }
 }
 
 int 
