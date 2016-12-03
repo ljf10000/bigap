@@ -40,8 +40,8 @@ ak_cmd_load(int argc, char *argv[])
 STATIC int 
 ak_handle_app_key(int argc, char *argv[], void (*handle)(char *app, char *key))
 {
-    char *app = (argc>1)?argv[1]:NULL;
-    char *key = (argc>2)?argv[2]:NULL;
+    char *app = argv[1];
+    char *key = argv[2];
 
     if (app && 0==app[1] && os_iswildcard(app[0])) {
         app = NULL;
@@ -52,6 +52,19 @@ ak_handle_app_key(int argc, char *argv[], void (*handle)(char *app, char *key))
     }
 
     (*handle)(app, key);
+
+    return 0;
+}
+
+STATIC int 
+ak_cmd_insert(int argc, char *argv[])
+{
+    char *app = argv[1];
+    char *key = argv[2];
+
+    if (INVALID_AKID==ak_insert(app, key)) {
+        return -EINVAL;
+    }
 
     return 0;
 }
@@ -73,8 +86,9 @@ ak_usage(void)
 {
     os_eprintln(__THIS_APPNAME " reload");
     os_eprintln(__THIS_APPNAME " load");
-    os_eprintln(__THIS_APPNAME " show [APP] [KEY]");
-    os_eprintln(__THIS_APPNAME " jshow [APP] [KEY]");
+    os_eprintln(__THIS_APPNAME " insert {app} {key}");
+    os_eprintln(__THIS_APPNAME " show [app] [key]");
+    os_eprintln(__THIS_APPNAME " jshow [app] [key]");
 
     return -EFORMAT;
 }
@@ -85,6 +99,7 @@ ak_main_helper(int argc, char *argv[])
     static cmd_table_t cmd[] = {
         CMD_TABLE_ENTRY(ak_cmd_reload,  1, "reload"),
         CMD_TABLE_ENTRY(ak_cmd_load,    1, "load"),
+        CMD_TABLE_ENTRY(ak_cmd_insert,  3, "insert", NULL, NULL),
         CMD_TABLE_ENTRY(ak_cmd_show,    3, "show", NULL, NULL),
         CMD_TABLE_ENTRY(ak_cmd_jshow,   3, "jshow", NULL, NULL),
     };
