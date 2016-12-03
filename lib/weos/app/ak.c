@@ -431,17 +431,16 @@ ak_jshow(char *app, char *key)
 
         if (ikey) {
             sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
-            os_printf("*"); os_printf(__crlf);
+            os_printf("\b\b"); os_printf(__crlf);
         }
         
-        sb_sprintf(&sb, __tab "},");
-        os_printf(__tab "},");
+        sb_sprintf(&sb, __tab "}," __crlf);
+        os_printf(__tab "}," __crlf);
         iapp++;
     }
-    
     if (iapp) {
-        sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
-        os_printf("*"); os_printf(__crlf);
+        sb_backspace(&sb, 2); sb_sprintf(&sb, __crlf);
+        os_printf("\b\b"); os_printf(__crlf);
     }
     sb_sprintf(&sb, "}" __crlf);
     os_printf("}" __crlf);
