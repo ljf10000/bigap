@@ -59,7 +59,7 @@ sb_left(simple_buffer_t *sb);
 EXTERN char *
 sb_cursor(simple_buffer_t *sb);
 
-EXTERN DECLARE void
+EXTERN void
 sb_backspace(simple_buffer_t *sb, uint32 count);
 
 #define sb_append_number(_sb, _number) ({ \
