@@ -90,18 +90,17 @@ nsqa_handle_show(char *args)
     return nsqa_handle_name_topic_channel(nsqi_show, args);
 }
 
-STATIC cli_table_t nsqa_cli_table[] = {
-    CLI_ENTRY("insert", nsqa_handle_insert),
-    CLI_ENTRY("remove", nsqa_handle_remove),
-    CLI_ENTRY("show",   nsqa_handle_show),
-};
-
 STATIC int
 nsqa_cli(loop_watcher_t *watcher, time_t now)
 {
+    static cli_table_t table[] = {
+        CLI_ENTRY("insert", nsqa_handle_insert),
+        CLI_ENTRY("remove", nsqa_handle_remove),
+        CLI_ENTRY("show",   nsqa_handle_show),
+    };
     int err;
     
-    err = clis_handle(watcher->fd, nsqa_cli_table);
+    err = clis_handle(watcher->fd, table);
     
     os_loop_del_watcher(&nsqa.loop, watcher->fd);
 

@@ -13,7 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-STATIC struct {    
+static struct {    
     struct {
         int fd;
         int timeout;/* ms */
@@ -398,16 +398,15 @@ tmd_handle_show(char *args)
     return 0;
 }
 
-STATIC cli_table_t tmd_table[] = {
-    CLI_ENTRY("insert", tmd_handle_insert),
-    CLI_ENTRY("remove", tmd_handle_remove),
-    CLI_ENTRY("clean",  tmd_handle_clean),
-    CLI_ENTRY("show",   tmd_handle_show),
-};
-
 STATIC int
 tmd_server_handle_one(fd_set *r)
 {
+    static cli_table_t table[] = {
+        CLI_ENTRY("insert", tmd_handle_insert),
+        CLI_ENTRY("remove", tmd_handle_remove),
+        CLI_ENTRY("clean",  tmd_handle_clean),
+        CLI_ENTRY("show",   tmd_handle_show),
+    };
     int err = 0;
     
     if (FD_ISSET(tmd.timer.fd, r)) {
@@ -415,7 +414,7 @@ tmd_server_handle_one(fd_set *r)
     }
 
     if (FD_ISSET(tmd.server.fd, r)) {
-        err = clis_handle(tmd.server.fd, tmd_table);
+        err = clis_handle(tmd.server.fd, table);
     }
 
     return err;

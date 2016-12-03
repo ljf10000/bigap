@@ -97,18 +97,17 @@ nsqc_cmd_show(int argc, char *argv[])
     return nsqc_handle_name_topic_channel("remove", argc, argv, true);
 }
 
-STATIC cli_table_t nsqc_table[] = {
-    CLI_ENTRY("insert", nsqc_cmd_insert),
-    CLI_ENTRY("remove", nsqc_cmd_remove),
-    CLI_ENTRY("show",   nsqc_cmd_show),
-};
-
 STATIC int
 nsqc_command(int argc, char *argv[])
 {
+    static cli_table_t table[] = {
+        CLI_ENTRY("insert", nsqc_cmd_insert),
+        CLI_ENTRY("remove", nsqc_cmd_remove),
+        CLI_ENTRY("show",   nsqc_cmd_show),
+    };
     int err;
 
-    err = cli_argv_handle(nsqc_table, os_count_of(nsqc_table), argc, argv);
+    err = cli_argv_handle(table, os_count_of(table), argc, argv);
     if (err<0) {
         debug_error("%s error:%d", argv[0], err);
 

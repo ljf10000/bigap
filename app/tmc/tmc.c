@@ -99,19 +99,18 @@ tmc_cmd_show(int argc, char *argv[])
     }
 }
 
-STATIC cli_table_t tmc_table[] = {
-    CLI_ENTRY("insert", tmc_cmd_insert),
-    CLI_ENTRY("remove", tmc_cmd_remove),
-    CLI_ENTRY("clean",  tmc_cmd_clean),
-    CLI_ENTRY("show",   tmc_cmd_show),
-};
-
 STATIC int
 tmc_command(int argc, char *argv[])
 {
+    static cli_table_t table[] = {
+        CLI_ENTRY("insert", tmc_cmd_insert),
+        CLI_ENTRY("remove", tmc_cmd_remove),
+        CLI_ENTRY("clean",  tmc_cmd_clean),
+        CLI_ENTRY("show",   tmc_cmd_show),
+    };
     int err;
 
-    err = cli_argv_handle(tmc_table, os_count_of(tmc_table), argc, argv);
+    err = cli_argv_handle(table, os_count_of(table), argc, argv);
     if (err<0) {
         debug_error("%s error:%d", argv[0], err);
 

@@ -195,7 +195,7 @@ cmd_read_pointer(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    struct command_item commands[] = {
+    static struct command_item commands[] = {
         {
             .list = {"-div0"},
             .func = cmd_div0,

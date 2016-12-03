@@ -11,7 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 
-STATIC cli_client_t smc = CLI_CLIENT_INITER("smd");
+static cli_client_t smc = CLI_CLIENT_INITER("smd");
 
 #define smc_handle(_action, _argc, _argv) \
     clic_sync_handle(&smc, _action, _argc, _argv)
@@ -102,19 +102,18 @@ smc_cmd_show(int argc, char *argv[])
     }
 }
 
-STATIC cli_table_t smc_table[] = {
-    CLI_ENTRY("insert", smc_cmd_insert),
-    CLI_ENTRY("remove", smc_cmd_remove),
-    CLI_ENTRY("clean",  smc_cmd_clean),
-    CLI_ENTRY("show",   smc_cmd_show),
-};
-
 STATIC int
 smc_command(int argc, char *argv[])
 {
+    static cli_table_t table[] = {
+        CLI_ENTRY("insert", smc_cmd_insert),
+        CLI_ENTRY("remove", smc_cmd_remove),
+        CLI_ENTRY("clean",  smc_cmd_clean),
+        CLI_ENTRY("show",   smc_cmd_show),
+    };
     int err;
 
-    err = cli_argv_handle(smc_table, os_count_of(smc_table), argc, argv);
+    err = cli_argv_handle(table, os_count_of(table), argc, argv);
     if (err<0) {
         debug_error("%s error:%d", argv[0], err);
 

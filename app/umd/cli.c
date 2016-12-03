@@ -431,33 +431,33 @@ umd_handle_gc(char *args)
     }
 }
 
-STATIC cli_table_t umd_cli_table[] = {
-    CLI_ENTRY("create", umd_handle_create),
-    CLI_ENTRY("delete", umd_handle_delete),
-    
-    CLI_ENTRY("block",  umd_handle_block),
-    CLI_ENTRY("unblock",umd_handle_unblock),
-    
-    CLI_ENTRY("bind",   umd_handle_bind),
-    CLI_ENTRY("unbind", umd_handle_unbind),
-    
-    CLI_ENTRY("fake",   umd_handle_fake),
-    CLI_ENTRY("unfake", umd_handle_unfake),
-    
-    CLI_ENTRY("auth",   umd_handle_auth),
-    CLI_ENTRY("deauth", umd_handle_deauth),
-    CLI_ENTRY("reauth", umd_handle_reauth),
-    
-    CLI_ENTRY("sync",   umd_handle_sync),
-    CLI_ENTRY("show",   umd_handle_show),
-    CLI_ENTRY("tag",    umd_handle_tag),
-    CLI_ENTRY("gc",     umd_handle_gc),
-};
-
 STATIC int
 umd_cli_handle(sock_server_t *server)
 {
-    return clis_handle(server->fd, umd_cli_table);
+    static cli_table_t table[] = {
+        CLI_ENTRY("create", umd_handle_create),
+        CLI_ENTRY("delete", umd_handle_delete),
+        
+        CLI_ENTRY("block",  umd_handle_block),
+        CLI_ENTRY("unblock",umd_handle_unblock),
+        
+        CLI_ENTRY("bind",   umd_handle_bind),
+        CLI_ENTRY("unbind", umd_handle_unbind),
+        
+        CLI_ENTRY("fake",   umd_handle_fake),
+        CLI_ENTRY("unfake", umd_handle_unfake),
+        
+        CLI_ENTRY("auth",   umd_handle_auth),
+        CLI_ENTRY("deauth", umd_handle_deauth),
+        CLI_ENTRY("reauth", umd_handle_reauth),
+        
+        CLI_ENTRY("sync",   umd_handle_sync),
+        CLI_ENTRY("show",   umd_handle_show),
+        CLI_ENTRY("tag",    umd_handle_tag),
+        CLI_ENTRY("gc",     umd_handle_gc),
+    };
+    
+    return clis_handle(server->fd, table);
 }
 
 STATIC int
