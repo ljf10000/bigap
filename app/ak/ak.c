@@ -34,7 +34,7 @@ ak_cmd_load(int argc, char *argv[])
 }
 
 STATIC int 
-ak_handle_app_key(int argc, char *argv[], int (*handle)(int argc, char *argv[]))
+ak_handle_app_key(int argc, char *argv[], int (*handle)(char *app, char *key))
 {
     char *app = (argc>0)?argv[0]:NULL;
     char *key = (argc>1)?argv[1]:NULL;
