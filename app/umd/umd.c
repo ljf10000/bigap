@@ -16,15 +16,15 @@ OS_INITER;
 
 umd_control_t umd = UMD_INITER;
 
-DECLARE_ENUM(umd_user_auto, UMD_AUTO_ENUM_MAPPER, UMD_AUTO_END);
-DECLARE_ENUM(umd_user_state, UMD_STATE_ENUM_MAPPER, UMD_STATE_END);
-DECLARE_ENUM(umd_deauth_reason, UMD_DEAUTH_ENUM_MAPPER, UMD_DEAUTH_END);
-DECLARE_ENUM(umd_flow_type, UMD_FLOW_TYPE_ENUM_MAPPER, umd_flow_type_end);
-DECLARE_ENUM(umd_flow_dir, UMD_FLOW_DIR_ENUM_MAPPER, umd_flow_dir_end);
-DECLARE_ENUM(umd_auth_type, UMD_AUTH_TYPE_ENUM_MAPPER, umd_auth_type_end);
-DECLARE_ENUM(forward_mode, UM_FORWARD_MODE_ENUM_MAPPER, um_forward_mode_end);
-DECLARE_ENUM(pkt_type, UM_PKT_TYPE_ENUM_MAPPER, um_pkt_type_end);
-DECLARE_ENUM(pkt_check, UM_PKT_CHECK_ENUM_MAPPER, um_pkt_check_end);
+DECLARE_ENUM(umd_user_auto,     UMD_AUTO_ENUM_MAPPER,           UMD_AUTO_END);
+DECLARE_ENUM(umd_user_state,    UMD_STATE_ENUM_MAPPER,          UMD_STATE_END);
+DECLARE_ENUM(umd_deauth_reason, UMD_DEAUTH_ENUM_MAPPER,         UMD_DEAUTH_END);
+DECLARE_ENUM(umd_flow_type,     UMD_FLOW_TYPE_ENUM_MAPPER,      umd_flow_type_end);
+DECLARE_ENUM(umd_flow_dir,      UMD_FLOW_DIR_ENUM_MAPPER,       umd_flow_dir_end);
+DECLARE_ENUM(umd_auth_type,     UMD_AUTH_TYPE_ENUM_MAPPER,      umd_auth_type_end);
+DECLARE_ENUM(umd_forward_mode,  UMD_FORWARD_MODE_ENUM_MAPPER,   umd_forward_mode_end);
+DECLARE_ENUM(umd_pkt_type,      UMD_PKT_TYPE_ENUM_MAPPER,       umd_pkt_type_end);
+DECLARE_ENUM(umd_pkt_check,     UMD_PKT_CHECK_ENUM_MAPPER,      umd_pkt_check_end);
 
 sock_server_t *
 umd_get_server_by_intf(umd_intf_t *intf)

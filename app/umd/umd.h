@@ -367,20 +367,20 @@ EXTERN int umd_auth_type_getidbyname(const char *name);
 #endif
 
 #if 1
-#define UM_FORWARD_MODE_ENUM_MAPPER(_)  \
-    _(um_forward_mode_br,   0, "br"),   \
-    _(um_forward_mode_rt,   1, "rt"),   \
+#define UMD_FORWARD_MODE_ENUM_MAPPER(_)  \
+    _(umd_forward_mode_br,  0, "br"),   \
+    _(umd_forward_mode_rt,  1, "rt"),   \
     /* end */
-EXTERN_ENUM(forward_mode, UM_FORWARD_MODE_ENUM_MAPPER, um_forward_mode_end);
+EXTERN_ENUM(umd_forward_mode, UMD_FORWARD_MODE_ENUM_MAPPER, umd_forward_mode_end);
 
-EXTERN enum_ops_t *forward_mode_ops(void);
-EXTERN bool is_good_flow_mode(int id);
-EXTERN char *flow_mode_getnamebyid(int id);
-EXTERN int flow_mode_getidbyname(const char *name);
+EXTERN enum_ops_t *umd_forward_mode_ops(void);
+EXTERN bool is_good_umd_flow_mode(int id);
+EXTERN char *umd_flow_mode_getnamebyid(int id);
+EXTERN int umd_flow_mode_getidbyname(const char *name);
 
-#define um_forward_mode_br  um_forward_mode_br
-#define um_forward_mode_rt  um_forward_mode_rt
-#define um_forward_mode_end um_forward_mode_end
+#define umd_forward_mode_br     umd_forward_mode_br
+#define umd_forward_mode_rt     umd_forward_mode_rt
+#define umd_forward_mode_end    umd_forward_mode_end
 #endif
 
 typedef struct {
@@ -507,41 +507,41 @@ struct vlan_header {
 };
 
 #if 1
-#define UM_PKT_TYPE_ENUM_MAPPER(_)  \
-    _(um_pkt_type_eth,  0, "eth"),  \
-    _(um_pkt_type_vlan, 1, "vlan"), \
-    _(um_pkt_type_ip,   2, "ip"),   \
+#define UMD_PKT_TYPE_ENUM_MAPPER(_)  \
+    _(umd_pkt_type_eth,  0, "eth"),  \
+    _(umd_pkt_type_vlan, 1, "vlan"), \
+    _(umd_pkt_type_ip,   2, "ip"),   \
     /* end */
-EXTERN_ENUM(pkt_type, UM_PKT_TYPE_ENUM_MAPPER, um_pkt_type_end);
+EXTERN_ENUM(umd_pkt_type, UMD_PKT_TYPE_ENUM_MAPPER, umd_pkt_type_end);
 
-EXTERN enum_ops_t *pkt_type_ops(void);
-EXTERN bool is_good_pkt_type(int id);
-EXTERN char *pkt_type_getnamebyid(int id);
-EXTERN int pkt_type_getidbyname(const char *name);
+EXTERN enum_ops_t *umd_pkt_type_ops(void);
+EXTERN bool is_good_umd_pkt_type(int id);
+EXTERN char *umd_pkt_type_getnamebyid(int id);
+EXTERN int umd_pkt_type_getidbyname(const char *name);
 
-#define um_pkt_type_eth     um_pkt_type_eth
-#define um_pkt_type_vlan    um_pkt_type_vlan
-#define um_pkt_type_ip      um_pkt_type_ip
-#define um_pkt_type_end     um_pkt_type_end
+#define umd_pkt_type_eth     umd_pkt_type_eth
+#define umd_pkt_type_vlan    umd_pkt_type_vlan
+#define umd_pkt_type_ip      umd_pkt_type_ip
+#define umd_pkt_type_end     umd_pkt_type_end
 #endif
 
 #if 1
-#define UM_PKT_CHECK_ENUM_MAPPER(_)     \
-    _(um_pkt_check_good,    0, "good"), \
-    _(um_pkt_check_bad,     1, "bad"),  \
-    _(um_pkt_check_all,     2, "all"),  \
+#define UMD_PKT_CHECK_ENUM_MAPPER(_)     \
+    _(umd_pkt_check_good,    0, "good"), \
+    _(umd_pkt_check_bad,     1, "bad"),  \
+    _(umd_pkt_check_all,     2, "all"),  \
     /* end */
-EXTERN_ENUM(pkt_check, UM_PKT_CHECK_ENUM_MAPPER, um_pkt_check_end);
+EXTERN_ENUM(umd_pkt_check, UMD_PKT_CHECK_ENUM_MAPPER, umd_pkt_check_end);
 
-EXTERN enum_ops_t *pkt_check_ops(void);
-EXTERN bool is_good_pkt_check(int id);
-EXTERN char *pkt_check_getnamebyid(int id);
-EXTERN int pkt_check_getidbyname(const char *name);
+EXTERN enum_ops_t *umd_pkt_check_ops(void);
+EXTERN bool is_good_umd_pkt_check(int id);
+EXTERN char *umd_pkt_check_getnamebyid(int id);
+EXTERN int umd_pkt_check_getidbyname(const char *name);
 
-#define um_pkt_check_good   um_pkt_check_good
-#define um_pkt_check_bad    um_pkt_check_bad
-#define um_pkt_check_all    um_pkt_check_all
-#define um_pkt_check_end    um_pkt_check_end
+#define umd_pkt_check_good   umd_pkt_check_good
+#define umd_pkt_check_bad    umd_pkt_check_bad
+#define umd_pkt_check_all    umd_pkt_check_all
+#define umd_pkt_check_end    umd_pkt_check_end
 #endif
 
 typedef struct {
@@ -570,7 +570,7 @@ typedef struct {
     int type;   /* umd_flow_type_lan/umd_flow_type_wan */
     int dir;    /* umd_flow_dir_up/umd_flow_dir_down/umd_flow_dir_all */
 
-    umd_flowst_t    total[um_pkt_type_end][um_pkt_check_end],
+    umd_flowst_t    total[umd_pkt_type_end][umd_pkt_check_end],
                     dev[umd_flow_type_end][umd_flow_dir_end];
 }
 umd_flow_t;
