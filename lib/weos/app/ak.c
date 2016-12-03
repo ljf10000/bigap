@@ -368,6 +368,8 @@ __ak_apps_find(char *apps[], int count, char *app)
         }
     }
 
+    os_println("no-found %s in apps", app);
+    
     return INVALID_COMMON_ID;
 }
 
@@ -383,9 +385,13 @@ __ak_apps_save(char *apps[])
         id = __ak_apps_find(apps, count, ak->app);
         if (false==is_good_common_id(id)) {
             apps[count++] = ak->app;
+
+            os_println("save %s in apps", ak->app);
         }
     }
 
+    os_println("apps count %d", count);
+    
     return count;
 }
 
@@ -438,6 +444,10 @@ ak_jshow(char *app, char *key)
         sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
     }
     sb_sprintf(&sb, "}" __crlf);
+
+    os_printf("%s", sb.buf);
+
+    sb_fini(&sb);
 }
 
 int 
