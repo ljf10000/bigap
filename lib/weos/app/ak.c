@@ -437,7 +437,7 @@ ak_jshow(char *app, char *key)
             continue;
         }
         
-        sb_sprintf(&sb, __tab "\"%s\": {", apps[i]);
+        sb_sprintf(&sb, "\"%s\": {", apps[i]);
         
         for (j=0; j<__ak_count; j++) {
             ak = __ak_entry(j);
@@ -449,7 +449,7 @@ ak_jshow(char *app, char *key)
                 continue;
             }
 
-            sb_sprintf(&sb, __tab2 "\"%s\": %u,", ak->k, ak->v);
+            sb_sprintf(&sb, "\"%s\": %u,", ak->k, ak->v);
             ikey++;
         }
 
@@ -457,7 +457,7 @@ ak_jshow(char *app, char *key)
             sb_backspace(&sb, 1);
         }
         
-        sb_sprintf(&sb, __tab "},");
+        sb_sprintf(&sb, "},");
         iapp++;
     }
     
