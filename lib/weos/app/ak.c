@@ -367,8 +367,6 @@ __ak_apps_find(char *apps[], int count, char *app)
             return i;
         }
     }
-
-    os_println("no-found %s in apps", app);
     
     return INVALID_COMMON_ID;
 }
@@ -433,7 +431,7 @@ ak_jshow(char *app, char *key)
 
         if (ikey) {
             sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
-            os_printf("\b"); os_printf(__crlf);
+            os_printf("*"); os_printf(__crlf);
         }
         
         sb_sprintf(&sb, __tab "},");
@@ -443,7 +441,7 @@ ak_jshow(char *app, char *key)
     
     if (iapp) {
         sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
-        os_printf("\b"); os_printf(__crlf);
+        os_printf("*"); os_printf(__crlf);
     }
     sb_sprintf(&sb, "}" __crlf);
     os_printf("}" __crlf);
