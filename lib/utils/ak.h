@@ -250,16 +250,7 @@ __ak_sys_value(int sys, char *line);
 EXTERN int
 __ak_get_value(char *key, char *value);
 /******************************************************************************/
-#define DECLARE_FAKE_COMMAND  extern bool __THIS_COMMAND
-#define DECLARE_REAL_COMMAND  bool __THIS_COMMAND;
-
-#ifdef __ALLINONE__
-#   define DECLARE_COMMAND  DECLARE_FAKE_COMMAND
-#else
-#   define DECLARE_COMMAND  DECLARE_REAL_COMMAND
-#endif
-
-DECLARE_FAKE_COMMAND;
+extern bool __THIS_COMMAND;
 
 static inline int __ak_init(void);
 
