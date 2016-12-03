@@ -78,9 +78,9 @@ umd_add_flow_total(int type, int valid)
 {
     umd_add_flowst(&umd_flow.total[type][valid]);
 }
-#define umd_add_flow_good(_type)    umd_add_flow_total(_type, um_pkt_check_good)
+#define umd_add_flow_good(_type)    umd_add_flow_total(_type, umd_pkt_check_good)
 #define umd_add_flow_bad(_type)     umd_add_flow_total(_type, umd_pkt_check_bad)
-#define umd_add_flow_all(_type)     umd_add_flow_total(_type, um_pkt_check_all)
+#define umd_add_flow_all(_type)     umd_add_flow_total(_type, umd_pkt_check_all)
 
 STATIC void
 umd_set_flow_dev(void)
