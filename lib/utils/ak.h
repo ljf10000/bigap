@@ -262,7 +262,7 @@ static inline int __ak_init(void);
 
 #define ak_get(_akid, _deft)            (_akid)
 #define ak_set(_akid, _value)           0
-#define ak_insert(_app, _key)           0
+#define ak_insert(_app, _key, _value)   0
 
 #define ak_load()                       0
 #define ak_show(_app, _key)             os_do_nothing()
@@ -336,7 +336,7 @@ ak_set(akid_t akid, uint32 v)
 }
 
 extern akid_t 
-ak_insert(char *app, char *key);
+ak_insert(char *app, char *key, uint32 value);
 
 extern int 
 ak_load(void);

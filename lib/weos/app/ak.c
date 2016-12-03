@@ -315,7 +315,7 @@ __ak_file_filter(const char *path, const char *file)
 }
 
 akid_t 
-ak_insert(char *app, char *key)
+ak_insert(char *app, char *key, uint32 value)
 {
     if (NULL==app || os_strlen(app) > OS_APPNAMELEN) {
         return INVALID_AKID;
@@ -328,7 +328,8 @@ ak_insert(char *app, char *key)
     if (NULL==ak) {
         return INVALID_AKID;
     }
-
+    ak->v = value;
+    
     return __ak_makeid(ak);
 }
 

@@ -61,8 +61,12 @@ ak_cmd_insert(int argc, char *argv[])
 {
     char *app = argv[1];
     char *key = argv[2];
-
-    if (INVALID_AKID==ak_insert(app, key)) {
+    char *value = argv[3];
+    
+    char *end = NULL;
+    uint32 v = os_strtoul(value, &end, 0);
+    
+    if (INVALID_AKID==ak_insert(app, key, v)) {
         return -EINVAL;
     }
 
@@ -86,7 +90,7 @@ ak_usage(void)
 {
     os_eprintln(__THIS_APPNAME " reload");
     os_eprintln(__THIS_APPNAME " load");
-    os_eprintln(__THIS_APPNAME " insert {app} {key}");
+    os_eprintln(__THIS_APPNAME " insert {app} {key} {value}");
     os_eprintln(__THIS_APPNAME " show [app] [key]");
     os_eprintln(__THIS_APPNAME " jshow [app] [key]");
 
@@ -99,7 +103,7 @@ ak_main_helper(int argc, char *argv[])
     static cmd_table_t cmd[] = {
         CMD_TABLE_ENTRY(ak_cmd_reload,  1, "reload"),
         CMD_TABLE_ENTRY(ak_cmd_load,    1, "load"),
-        CMD_TABLE_ENTRY(ak_cmd_insert,  3, "insert", NULL, NULL),
+        CMD_TABLE_ENTRY(ak_cmd_insert,  4, "insert", NULL, NULL, NULL),
         CMD_TABLE_ENTRY(ak_cmd_show,    3, "show", NULL, NULL),
         CMD_TABLE_ENTRY(ak_cmd_jshow,   3, "jshow", NULL, NULL),
     };
