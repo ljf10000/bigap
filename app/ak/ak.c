@@ -40,8 +40,8 @@ ak_cmd_load(int argc, char *argv[])
 STATIC int 
 ak_handle_app_key(int argc, char *argv[], void (*handle)(char *app, char *key))
 {
-    char *app = (argc>0)?argv[0]:NULL;
-    char *key = (argc>1)?argv[1]:NULL;
+    char *app = (argc>1)?argv[1]:NULL;
+    char *key = (argc>2)?argv[2]:NULL;
 
     if (app && 0==app[1] && os_iswildcard(app[0])) {
         app = NULL;
