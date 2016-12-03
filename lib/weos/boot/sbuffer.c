@@ -122,8 +122,10 @@ sb_vsprintf(simple_buffer_t *sb, char *fmt, va_list args)
     va_end(copy);
 
     if (sb_left(sb) >= vsize || 0==sb_expand(sb, vsize)) {
-        os_vsnprintf(sb->buf, sb_left(sb), fmt, args);
-
+        int len = os_vsnprintf(sb_cursor(sb), sb_left(sb), fmt, args);
+        
+        sb->len += len;
+        
         return 0;
     } else {
         return -ENOSPACE;
