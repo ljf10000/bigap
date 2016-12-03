@@ -336,7 +336,7 @@ ak_set(akid_t akid, uint32 v)
 }
 
 extern akid_t 
-ak_insert(void);
+ak_insert(char *app, char *key);
 
 extern int 
 ak_load(char *app, char *key);
