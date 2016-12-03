@@ -31,14 +31,14 @@ ak_usage(void)
     return -EFORMAT;
 }
 
-STATIC cmd_table_t ak_cmd[] = {
-    CMD_TABLE_ENTRY(ak_cmd_reload, 1, "reload"),
-};
-
 STATIC int
 ak_main_helper(int argc, char *argv[])
 {
-    return cmd_handle(ak_cmd, argc, argv, ak_usage);
+    static cmd_table_t cmd[] = {
+        CMD_TABLE_ENTRY(ak_cmd_reload, 1, "reload"),
+    };
+
+    return cmd_handle(cmd, argc, argv, ak_usage);
 }
 
 int allinone_main(int argc, char *argv[])

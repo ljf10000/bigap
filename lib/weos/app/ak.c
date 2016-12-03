@@ -346,7 +346,7 @@ __ak_show(void)
     for (i=0; i<__ak_count; i++) {
         ak_t *ak = __ak_entry(i);
         
-        os_println("reload %s.%s=%u",
+        os_println(__tab "%s.%s=%u",
             ak->app,
             ak->k,
             ak->v);
