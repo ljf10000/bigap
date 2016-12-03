@@ -339,7 +339,7 @@ extern akid_t
 ak_insert(char *app, char *key);
 
 extern int 
-ak_load(char *app, char *key);
+ak_load(void);
 
 extern void 
 ak_show(char *app, char *key) ;
