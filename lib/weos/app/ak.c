@@ -385,12 +385,8 @@ __ak_apps_save(char *apps[])
         id = __ak_apps_find(apps, count, ak->app);
         if (false==is_good_common_id(id)) {
             apps[count++] = ak->app;
-
-            os_println("save %s in apps", ak->app);
         }
     }
-
-    os_println("apps count %d", count);
     
     return count;
 }
@@ -409,6 +405,7 @@ ak_jshow(char *app, char *key)
     int iapp = 0;
     
     sb_sprintf(&sb, "{" __crlf);
+    os_printf("{" __crlf);
     for (i=0; i<count; i++) {
         int ikey = 0;
 
@@ -417,6 +414,7 @@ ak_jshow(char *app, char *key)
         }
         
         sb_sprintf(&sb, __tab "\"%s\": {" __crlf, apps[i]);
+        os_printf(__tab "\"%s\": {" __crlf, apps[i]);
         
         for (j=0; j<__ak_count; j++) {
             ak = __ak_entry(j);
@@ -429,21 +427,26 @@ ak_jshow(char *app, char *key)
             }
 
             sb_sprintf(&sb, __tab2 "\"%s\": %u,", ak->k, ak->v);
+            os_printf(__tab2 "\"%s\": %u,", ak->k, ak->v);
             ikey++;
         }
 
         if (ikey) {
             sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
+            os_printf("\b"); os_printf(__crlf);
         }
         
         sb_sprintf(&sb, __tab "},");
+        os_printf(__tab "},");
         iapp++;
     }
     
     if (iapp) {
         sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
+        os_printf("\b"); os_printf(__crlf);
     }
     sb_sprintf(&sb, "}" __crlf);
+    os_printf("}" __crlf);
 
     os_printf("%s", sb.buf);
 
