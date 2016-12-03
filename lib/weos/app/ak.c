@@ -113,12 +113,12 @@ __ak_getoffset(ak_t *ak)
 }
 
 STATIC akid_t
-__ak_makeid(ak_t *ak)
+__ak_MAKE(ak_t *ak)
 {
     return __ak_make(__ak_getidx(ak), __ak_getoffset(ak));
 }
 
-ak_t *
+STATIC ak_t *
 __ak_getbyid(akid_t akid)
 {
     if (is_good_enum(__ak_idx(akid), __ak_count)) {
@@ -150,9 +150,16 @@ __ak_new(char *app, char *k)
 }
 
 STATIC ak_t *
-__ak_getbyname2(char *app, char *k)
+__ak_getbyname_p(char *app, char *k)
 {
     ak_t *ak = NULL;
+    
+    if (NULL==app || os_strlen(app) > OS_APPNAMELEN) {
+        return NULL;
+    }
+    else if (NULL==k || os_strlen(k) > OS_AKNAME_LEN) {
+        return NULL;
+    }
     
     __ak_foreach(ak) {
         if (os_straeq(ak->app, app) && os_straeq(ak->k, k)) {
@@ -166,20 +173,20 @@ __ak_getbyname2(char *app, char *k)
 akid_t 
 __ak_getbyname(char *app, char *k)
 {
-    if (NULL==app) {
-        return os_assertV(INVALID_AKID);
-    }
-    else if (NULL==k) {
-        return os_assertV(INVALID_AKID);
-    }
-    
-    ak_t *ak = __ak_getbyname2(app, k);
+    ak_t *ak = __ak_getbyname_p(app, k);
 
-    if (ak) {
-        return __ak_makeid(ak);
-    } else {
-        return INVALID_AKID;
+    return ak?__ak_MAKE(ak):INVALID_AKID;
+}
+
+akid_t 
+__ak_getbynameEx(char *app, char *k)
+{
+    ak_t *ak = __ak_getbyname_p(app, k);
+    if (NULL==ak) {
+        ak = __ak_new(app, k);
     }
+
+    return ak?__ak_MAKE(ak):INVALID_AKID;
 }
 
 int 
@@ -195,6 +202,19 @@ __ak_get(akid_t akid, uint32 *pv)
     }
     
     *pv = ak->v;
+    
+    return 0;
+}
+
+int 
+__ak_set(akid_t akid, uint32 v)
+{
+    ak_t *ak = __ak_getbyid(akid);
+    if (NULL==ak) {
+        return -ENOEXIST;
+    }
+    
+    ak->v = v;
     
     return 0;
 }
@@ -276,7 +296,7 @@ __ak_load_line(const char *file/* not include path */, char *line)
     }
     info.v = __ak_get_value(info.key, info.var);
     
-    ak_t *ak = __ak_getbyname2(info.app, info.key);
+    ak_t *ak = __ak_getbyname_p(info.app, info.key);
     if (NULL==ak) {
         ak = __ak_new(info.app, info.key);
         if (NULL==ak) {
@@ -312,25 +332,6 @@ __ak_file_filter(const char *path, const char *file)
         
         return true;
     }
-}
-
-akid_t 
-ak_insert(char *app, char *key, uint32 value)
-{
-    if (NULL==app || os_strlen(app) > OS_APPNAMELEN) {
-        return INVALID_AKID;
-    }
-    else if (NULL==key || os_strlen(key) > OS_AKNAME_LEN) {
-        return INVALID_AKID;
-    }
-
-    ak_t *ak = __ak_new(app, key);
-    if (NULL==ak) {
-        return INVALID_AKID;
-    }
-    ak->v = value;
-    
-    return __ak_makeid(ak);
 }
 
 int 

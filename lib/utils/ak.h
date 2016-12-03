@@ -255,14 +255,20 @@ extern bool __THIS_COMMAND;
 static inline int __ak_init(void);
 
 #if !defined(__APP__) || __RUNAS__==RUN_AS_COMMAND
+
+#define __ak_getbyname(_app, _key)      0
+#define __ak_getbynameEx(_app, _key)    0
+#define __ak_get(_akid, _pv)            0
+#define __ak_set(_akid, _v)             0
+
 /*
 * kernel/boot/(app cmd)
 */
 #define ak_getbyname(_key)              0
+#define ak_getbynameEx(_key)            0
 
 #define ak_get(_akid, _deft)            (_akid)
 #define ak_set(_akid, _value)           0
-#define ak_insert(_app, _key, _value)   0
 
 #define ak_load()                       0
 #define ak_show(_app, _key)             os_do_nothing()
@@ -289,11 +295,14 @@ typedef struct {
 extern akid_t 
 __ak_getbyname(char *app, char *k);
 
+extern akid_t 
+__ak_getbynameEx(char *app, char *k);
+
 extern int 
 __ak_get(akid_t akid, uint32 *pv);
 
-extern ak_t *
-__ak_getbyid(akid_t akid);
+extern int 
+__ak_set(akid_t akid, uint32 v);
 
 static inline akid_t 
 ak_getbyname(char *k)
@@ -302,6 +311,16 @@ ak_getbyname(char *k)
         return 0;
     } else {
         return __ak_getbyname(__THIS_APPNAME, k);
+    }
+}
+
+static inline akid_t 
+ak_getbynameEx(char *k)
+{
+    if (__THIS_COMMAND) {
+        return 0;
+    } else {
+        return __ak_getbynameEx(__THIS_APPNAME, k);
     }
 }
 
@@ -323,20 +342,11 @@ static inline int
 ak_set(akid_t akid, uint32 v)
 {
     if (false==__THIS_COMMAND) {
-        ak_t *ak = __ak_getbyid(akid);
-
-        if (NULL==ak) {
-            return -ENOEXIST;
-        }
-        
-        ak->v = v;
+        return __ak_set(akid, v);
+    } else {
+        return 0;
     }
-    
-    return 0;
 }
-
-extern akid_t 
-ak_insert(char *app, char *key, uint32 value);
 
 extern int 
 ak_load(void);
