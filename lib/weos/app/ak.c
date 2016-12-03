@@ -449,12 +449,12 @@ ak_jshow(char *app, char *key)
                 continue;
             }
 
-            sb_sprintf(&sb, __tab2 "\"%s\": %u,", ak->k, ak->v);
+            sb_sprintf(&sb, __tab2 "\"%s\": %u," __crlf, ak->k, ak->v);
             ikey++;
         }
 
         if (ikey) {
-            sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
+            sb_backspace(&sb, 1+sizeof(__crlf)); sb_sprintf(&sb, __crlf);
         }
         
         sb_sprintf(&sb, __tab "}," __crlf);
@@ -462,7 +462,7 @@ ak_jshow(char *app, char *key)
     }
     
     if (iapp) {
-        sb_backspace(&sb, 2); sb_sprintf(&sb, __crlf);
+        sb_backspace(&sb, 1+sizeof(__crlf)); sb_sprintf(&sb, __crlf);
     }
     sb_sprintf(&sb, "}" __crlf);
 
