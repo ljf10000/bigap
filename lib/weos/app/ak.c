@@ -404,6 +404,7 @@ ak_jshow(char *app, char *key)
     
     sb_sprintf(&sb, "{" __crlf);
     os_printf("{" __crlf);
+    
     for (i=0; i<count; i++) {
         int ikey = 0;
 
@@ -438,6 +439,7 @@ ak_jshow(char *app, char *key)
         os_printf(__tab "}," __crlf);
         iapp++;
     }
+    
     if (iapp) {
         sb_backspace(&sb, 2); sb_sprintf(&sb, __crlf);
         os_printf("\b\b"); os_printf(__crlf);

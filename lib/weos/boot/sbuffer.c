@@ -91,9 +91,11 @@ DECLARE void
 sb_backspace(simple_buffer_t *sb, uint32 count)
 {
     if (sb->len >= count) {
+        os_println("before backspace=%s", sb->buf);
         sb->len -= count;
 
         *(sb->buf + sb->len) = 0;
+        os_println("after  backspace=%s", sb->buf);
     }
 }
 
