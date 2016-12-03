@@ -144,14 +144,14 @@ umd_eth_handle(sock_server_t *server)
     byte *smac = eth->ether_shost;
     byte *dmac = eth->ether_dhost;
 
-    umd_add_flow_all(um_pkt_type_eth);
+    umd_add_flow_all(umd_pkt_type_eth);
     
     if (eth->ether_type != umd.ether_type_ip &&
         eth->ether_type != umd.ether_type_vlan) {
         /*
         * bad ether type
         */
-        umd_add_flow_bad(um_pkt_type_eth);
+        umd_add_flow_bad(umd_pkt_type_eth);
         
         return -EFORMAT;
     }
@@ -159,7 +159,7 @@ umd_eth_handle(sock_server_t *server)
         /*
         * bad src mac
         */
-        umd_add_flow_bad(um_pkt_type_eth);
+        umd_add_flow_bad(umd_pkt_type_eth);
         
         return -EFORMAT;
     }
@@ -167,12 +167,12 @@ umd_eth_handle(sock_server_t *server)
         /*
         * bad dst mac
         */
-        umd_add_flow_bad(um_pkt_type_eth);
+        umd_add_flow_bad(umd_pkt_type_eth);
         
         return -EFORMAT;
     }
 
-    umd_add_flow_good(um_pkt_type_eth);
+    umd_add_flow_good(umd_pkt_type_eth);
 
     if (__is_ak_debug_flow) {
         char smacstring[1+MACSTRINGLEN_L];
@@ -196,10 +196,10 @@ umd_vlan_handle(sock_server_t *server)
     if (umd_flow.eth->ether_type == umd.ether_type_vlan) {
         struct vlan_header *vlan = umd_flow.vlan = (struct vlan_header *)(umd_flow.eth+1);
 
-        umd_add_flow_all(um_pkt_type_vlan);
+        umd_add_flow_all(umd_pkt_type_vlan);
         
         if (vlan->type != umd.ether_type_ip) {
-            umd_add_flow_bad(um_pkt_type_vlan);
+            umd_add_flow_bad(umd_pkt_type_vlan);
             
             return -EFORMAT;
         }
@@ -210,7 +210,7 @@ umd_vlan_handle(sock_server_t *server)
                 vlan->type);
         }
         
-        umd_add_flow_good(um_pkt_type_vlan);
+        umd_add_flow_good(umd_pkt_type_vlan);
     }
     
     return 0;
@@ -427,7 +427,7 @@ umd_ip_handle_helper(sock_server_t *server, bool first)
     bool again = false;
     int err;
     
-    umd_add_flow_all(um_pkt_type_ip);
+    umd_add_flow_all(umd_pkt_type_ip);
 
     if (umd_flow.eth->ether_type == umd.ether_type_ip) {
         iph = umd_flow.iph = (struct ip *)(umd_flow.eth+1);
@@ -437,7 +437,7 @@ umd_ip_handle_helper(sock_server_t *server, bool first)
     }
     else {
         if (first) {
-            umd_add_flow_bad(um_pkt_type_ip);
+            umd_add_flow_bad(umd_pkt_type_ip);
         }
         
         return -EFORMAT;
@@ -448,14 +448,14 @@ umd_ip_handle_helper(sock_server_t *server, bool first)
 
     if (4!=iph->ip_v) {
         if (first) {
-            umd_add_flow_bad(um_pkt_type_ip);
+            umd_add_flow_bad(umd_pkt_type_ip);
         }
         
         return -EFORMAT;
     }
     else if (5!=iph->ip_hl) {
         if (first) {
-            umd_add_flow_bad(um_pkt_type_ip);
+            umd_add_flow_bad(umd_pkt_type_ip);
         }
         
         return -EFORMAT;
@@ -476,14 +476,14 @@ umd_ip_handle_helper(sock_server_t *server, bool first)
     }
     if (err<0) {
         if (first) {
-            umd_add_flow_bad(um_pkt_type_ip);
+            umd_add_flow_bad(umd_pkt_type_ip);
         }
         
         return err;
     }
 
     if (first) {
-        umd_add_flow_good(um_pkt_type_ip);
+        umd_add_flow_good(umd_pkt_type_ip);
     }
     
     if (__is_ak_debug_flow) {
