@@ -308,6 +308,22 @@ __ak_file_filter(const char *path, const char *file)
     }
 }
 
+akid_t 
+ak_insert(char *app, char *key)
+{
+    if (NULL==app || os_strlen(app) > OS_APPNAMELEN) {
+        return INVALID_AKID;
+    }
+    else if (NULL==key || os_strlen(key) > OS_AKNAME_LEN) {
+        return INVALID_AKID;
+    }
+
+    ak_t *ak = __ak_new(app, key);
+    if (NULL==ak) {
+
+    }
+}
+
 int 
 ak_load(void)
 {
