@@ -123,35 +123,6 @@ __jlog_header(
     __jlog_printf(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #ifdef __APP__
-typedef struct {
-    int family;
-    int fd;
-
-    os_sockaddr_t server;
-} jlog_control_t;
-
-#define JLOG_CONTROL_INITER   { \
-    .family = INVALID_VALUE,    \
-    .fd     = INVALID_FD,       \
-}   /* end */
-
-#define DECLARE_REAL_JLOG   jlog_control_t __THIS_JLOGGER = JLOG_CONTROL_INITER
-#define DECLARE_FAKE_JLOG   extern jlog_control_t __THIS_JLOGGER
-
-#ifdef __ALLINONE__
-#   define DECLARE_JLOG     DECLARE_FAKE_JLOG
-#else
-#   define DECLARE_JLOG     DECLARE_REAL_JLOG
-#endif
-
-DECLARE_FAKE_JLOG;
-
-static inline jlog_control_t *
-__this_jlogger(void)
-{
-    return &__THIS_JLOGGER;
-}
-
 #define use_jlog_connect    1
 #define use_jlog_bind       0
 
@@ -242,28 +213,17 @@ __jformat(
     char *argv[]
 );
 
+extern void
+__jlog_close(void);
+
 extern int
-__jlog_env_init(void);
-
-static inline int
-jlog_init(void)
-{
-    int fd, err;
-    int family;
-    
-    err = __jlog_env_init();
-    if (err<0) {
-        return err;
-    }
-
-    return 0;
-}
+jlog_init(void);
 
 static inline void
 jlog_fini(void)
 {
 #ifndef __JLOGD__
-    os_close(__this_jlogger()->fd);
+    __jlog_close();
 #endif
 }
 

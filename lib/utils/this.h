@@ -53,10 +53,6 @@
 #define __THIS_COMMAND          __SYMBOL_TO_THIS(_command)
 #endif
 
-#ifndef __THIS_JLOGGER
-#define __THIS_JLOGGER          __SYMBOL_TO_THIS(_jlogger)
-#endif
-
 #ifndef __THIS_DEBUG
 #define __THIS_DEBUG            __SYMBOL_TO_THIS(_debugger)
 #endif

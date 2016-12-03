@@ -1,6 +1,26 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+typedef struct {
+    int family;
+    int fd;
+
+    os_sockaddr_t server;
+} jlog_control_t;
+
+#define JLOG_CONTROL_INITER   { \
+    .family = INVALID_VALUE,    \
+    .fd     = INVALID_FD,       \
+}   /* end */
+
+STATIC jlog_control_t *
+__this_jlogger(void)
+{
+    static jlog_control_t jlog = JLOG_CONTROL_INITER;
+    
+    return &jlog;
+}
+
 STATIC sockaddr_un_t *
 __jlog_userver(void)
 {
@@ -433,8 +453,14 @@ error:
     return err;
 }
 
+void
+__jlog_close(void)
+{
+    os_close(__this_jlogger()->fd);
+}
+
 int
-__jlog_env_init(void)
+jlog_init(void)
 {
     int family, err;
     
