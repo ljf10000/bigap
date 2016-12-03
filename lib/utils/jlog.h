@@ -244,6 +244,29 @@ __jformat(
 
 extern int
 __jlog_env_init(void);
+
+static inline int
+jlog_init(void)
+{
+    int fd, err;
+    int family;
+    
+    err = __jlog_env_init();
+    if (err<0) {
+        return err;
+    }
+
+    return 0;
+}
+
+static inline void
+jlog_fini(void)
+{
+#ifndef __JLOGD__
+    os_close(__this_jlogger()->fd);
+#endif
+}
+
 #else
 #define DECLARE_JLOG        os_fake_declare
 
@@ -261,6 +284,9 @@ __jlog_env_init(void);
 
 #define __clogger(_app, _sub, _file, _func, _line, _PRI, _json) \
         __jlog_printf(_app, _sub, _file, _func, _line, _PRI, "%s", _json)
+
+#define jlog_init()     0
+#define jlog_fini()     os_do_nothing()
 #endif
 
 #define jvlogger(_sub, _PRI, _fmt, _args)     \
@@ -491,33 +517,5 @@ __jlog_env_init(void);
 
 #define error_assertV(_value, _fmt, _args...)   \
     __debug_assertV(_value, debug_error, _fmt, ##_args)
-
-static inline int
-jlog_init(void)
-{
-#ifdef __APP__
-    int fd, err;
-    int family;
-    
-    err = __jlog_env_init();
-    if (err<0) {
-        return err;
-    }
-#endif /* __APP__ */
-
-    return 0;
-}
-
-static inline int
-jlog_fini(void)
-{
-#ifdef __APP__
-#ifndef __JLOGD__
-    os_close(__this_jlogger()->fd);
-#endif
-#endif
-
-    return 0;
-}
 /******************************************************************************/
 #endif /* __JLOG_H_c174923fabe845e980f9379209210cc3__ */
