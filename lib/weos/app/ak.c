@@ -427,7 +427,7 @@ ak_jshow(char *app, char *key)
         }
 
         if (ikey) {
-            sb_backspace(&sb, 1); sb_backspace(&sb, __crlf);
+            sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
         }
         
         sb_sprintf(&sb, __tab "},");
@@ -435,7 +435,7 @@ ak_jshow(char *app, char *key)
     }
     
     if (iapp) {
-        sb_backspace(&sb, 1); sb_backspace(&sb, __crlf);
+        sb_backspace(&sb, 1); sb_sprintf(&sb, __crlf);
     }
     sb_sprintf(&sb, "}" __crlf);
 }
