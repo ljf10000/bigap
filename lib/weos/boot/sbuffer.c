@@ -87,6 +87,16 @@ sb_cursor(simple_buffer_t *sb)
     }
 }
 
+DECLARE void
+sb_backspace(simple_buffer_t *sb, uint32 count)
+{
+    if (sb->len >= count) {
+        sb->len -= count;
+
+        *(sb->buf + sb->len) = 0;
+    }
+}
+
 DECLARE int
 sb_append_buffer(simple_buffer_t *sb, void *buf, uint32 len)
 {

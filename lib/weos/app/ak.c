@@ -308,8 +308,8 @@ __ak_file_filter(const char *path, const char *file)
     }
 }
 
-STATIC int 
-__ak_load(void) 
+int 
+ak_load(void)
 {
     int ret = 0;
     char *path;
@@ -338,28 +338,106 @@ __ak_load(void)
     return 0;
 }
 
-STATIC void 
-__ak_show(void) 
+void 
+ak_show(char *app, char *key) 
 {
     int i;
+    ak_t *ak;
     
     for (i=0; i<__ak_count; i++) {
-        ak_t *ak = __ak_entry(i);
-        
-        os_println(__tab "%s.%s=%u",
-            ak->app,
-            ak->k,
-            ak->v);
+        ak = __ak_entry(i);
+
+        if ((NULL==app || os_streq(app, ak->app)) &&
+            (NULL==key || os_streq(key, ak->k))) {
+            os_println(__tab "%s.%s=%u",
+                ak->app,
+                ak->k,
+                ak->v);
+        }
     }
 }
 
-int 
-ak_reload(void)
+STATIC int
+__ak_apps_find(char *apps[], int count, char *app)
 {
-    __ak_load();
-    __ak_show();
+    int i;
+
+    for (i=0; i<count; i++) {
+        if (os_streq(app, apps[i])) {
+            return i;
+        }
+    }
+
+    return INVALID_COMMON_ID;
+}
+
+STATIC int
+__ak_apps_save(char *apps[])
+{
+    int i, id, count = 0;
+    ak_t *ak;
     
-    return 0;
+    for (i=0; i<__ak_count; i++) {
+        ak = __ak_entry(i);
+
+        id = __ak_apps_find(apps, count, ak->app);
+        if (false==is_good_common_id(id)) {
+            apps[count++] = ak->app;
+        }
+    }
+
+    return count;
+}
+
+void 
+ak_jshow(char *app, char *key) 
+{
+    int i, j, id;
+    char *apps[__ak_count];
+    ak_t *ak;
+    simple_buffer_t sb;;
+
+    sb_init(&sb, 0, 0, 0, SB_F_EXPAND_AUTO);
+
+    int count = __ak_apps_save(apps);
+    int iapp = 0;
+    
+    sb_sprintf(&sb, "{" __crlf);
+    for (i=0; i<count; i++) {
+        int ikey = 0;
+
+        if (app && os_strneq(app, apps[i])) {
+            continue;
+        }
+        
+        sb_sprintf(&sb, __tab "\"%s\": {" __crlf, apps[i]);
+        
+        for (j=0; j<__ak_count; j++) {
+            ak = __ak_entry(j);
+            
+            if (os_strneq(apps[i], ak->app)) {
+                continue;
+            }
+            else if (key && os_strneq(key, ak->k)) {
+                continue;
+            }
+
+            sb_sprintf(&sb, __tab2 "\"%s\": %u,", ak->k, ak->v);
+            ikey++;
+        }
+
+        if (ikey) {
+            sb_backspace(&sb, 1); sb_backspace(&sb, __crlf);
+        }
+        
+        sb_sprintf(&sb, __tab "},");
+        iapp++;
+    }
+    
+    if (iapp) {
+        sb_backspace(&sb, 1); sb_backspace(&sb, __crlf);
+    }
+    sb_sprintf(&sb, "}" __crlf);
 }
 
 int 
@@ -393,7 +471,7 @@ ak_init(void)
         __ak_protect_0  = OS_PROTECTED;
         __ak_protect_1  = OS_PROTECTED;
         
-        __ak_load();
+        ak_load();
     }
     
     __ak_init();

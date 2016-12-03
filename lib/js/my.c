@@ -46,11 +46,11 @@ duke_ak_set(duk_context *ctx)
     return duk_push_int(ctx, ak_set(akid, value)), 1;
 }
 
-JS_PARAM(ak_reload, 0);
+JS_PARAM(ak_load, 0);
 STATIC duk_ret_t
-duke_ak_reload(duk_context *ctx)
+duke_ak_load(duk_context *ctx)
 {
-    return duk_push_int(ctx, ak_reload()), 1;
+    return duk_push_int(ctx, ak_load()), 1;
 }
 
 /*
@@ -747,7 +747,7 @@ STATIC const dukc_func_entry_t js_my_func[] = {
     JS_FUNC(ak_getbyname),
     JS_FUNC(ak_get),
     JS_FUNC(ak_set),
-    JS_FUNC(ak_reload),
+    JS_FUNC(ak_load),
     JS_FUNC(is_debug),
     JS_FUNC(debug),
     JS_FUNC(pexec),

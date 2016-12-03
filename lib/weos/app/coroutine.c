@@ -58,7 +58,7 @@ __is_god_coev(int ev)
 }
 
 STATIC bool
-is_good_id(co_id_t id)
+is_good_co_id(co_id_t id)
 {
     return IS_GOOD_ENUM(id, __this_coroutine()->size);
 }
@@ -117,7 +117,7 @@ __co_check(coroutine_t *co)
 STATIC bool
 __is_good_co(coroutine_t *co)
 {
-    return co && __co_check(co) && is_good_id(co->id) && co==__co_getbyid(co->id);
+    return co && __co_check(co) && is_good_co_id(co->id) && co==__co_getbyid(co->id);
 }
 
 STATIC bool
@@ -129,7 +129,7 @@ __is_good_co_running(void)
 STATIC bool
 __is_good_coid(co_id_t id)
 {
-    return is_good_id(id) && __is_good_co(__co_getbyid(id));
+    return is_good_co_id(id) && __is_good_co(__co_getbyid(id));
 }
 
 STATIC int // return 0 or error
@@ -196,7 +196,7 @@ __co_a_bind(coroutine_t *co, co_id_t id)
     /*
     * id is good, try use it
     */
-    if (is_good_id(id)) {
+    if (is_good_co_id(id)) {
         if (NULL==__co_getbyid(id)) { // NOT exist, can use it
             ____co_a_bind(co, id);
             
@@ -221,7 +221,7 @@ again:
     /*
     * full
     */
-    if (false==is_good_id(found)) {
+    if (false==is_good_co_id(found)) {
         err = __co_aa_grow();
         if (err<0) {
             return err;
@@ -247,7 +247,7 @@ __co_a_unbind(coroutine_t *co, co_id_t id)
     if (co) {
         int i;
         
-        if (is_good_id(id) && co==__co_getbyid(id)) {
+        if (is_good_co_id(id) && co==__co_getbyid(id)) {
             ____co_a_unbind(co, id);
 
             return;

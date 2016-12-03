@@ -41,6 +41,9 @@ sb_fini(simple_buffer_t *sb)
     os_free(sb->buf);
 }
 
+EXTERN int
+sb_init(simple_buffer_t *sb, uint32 size, uint32 minsize, uint32 expand, uint32 flags);
+
 static inline void
 sb_clean(simple_buffer_t *sb)
 {
@@ -55,6 +58,9 @@ sb_left(simple_buffer_t *sb);
 
 EXTERN char *
 sb_cursor(simple_buffer_t *sb);
+
+EXTERN DECLARE void
+sb_backspace(simple_buffer_t *sb, uint32 count);
 
 #define sb_append_number(_sb, _number) ({ \
     int __err = 0; \
@@ -81,6 +87,8 @@ sb_vsprintf(simple_buffer_t *sb, char *fmt, va_list args);
 
 EXTERN int
 sb_sprintf(simple_buffer_t *sb, char *fmt, ...);
+
+#define sb_sprintln(_sb, _fmt, _args...)    sb_sprintf(_sb, _fmt __crlf, ##_args)
 
 #ifdef __BOOT__
 #include "weos/boot/sbuffer.c"

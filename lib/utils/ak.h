@@ -263,7 +263,9 @@ static inline int __ak_init(void);
 #define ak_get(_akid, _deft)            (_akid)
 #define ak_set(_akid, _value)           0
 
-#define ak_reload()                     0
+#define ak_load()                       0
+#define ak_show(_app, _key)             os_do_nothing()
+#define ak_jshow(_app, _key)            os_do_nothing()
 #define ak_fini()                       0
 
 static inline int 
@@ -333,7 +335,13 @@ ak_set(akid_t akid, uint32 v)
 }
 
 extern int 
-ak_reload(void);
+ak_load(void);
+
+extern void 
+ak_show(char *app, char *key) ;
+
+extern void 
+ak_jshow(char *app, char *key) ;
 
 extern int 
 ak_fini(void) ;
