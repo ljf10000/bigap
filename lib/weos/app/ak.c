@@ -112,6 +112,12 @@ __ak_getoffset(ak_t *ak)
     return (char *)ak - (char *)__ak_hdr();
 }
 
+STATIC akid_t
+__ak_makeid(ak_t *ak)
+{
+    return __ak_make(__ak_getidx(ak), __ak_getoffset(ak));
+}
+
 ak_t *
 __ak_getbyid(akid_t akid)
 {
@@ -170,7 +176,7 @@ __ak_getbyname(char *app, char *k)
     ak_t *ak = __ak_getbyname2(app, k);
 
     if (ak) {
-        return __ak_make(__ak_getidx(ak), __ak_getoffset(ak));
+        return __ak_makeid(ak);
     } else {
         return INVALID_AKID;
     }
@@ -320,8 +326,10 @@ ak_insert(char *app, char *key)
 
     ak_t *ak = __ak_new(app, key);
     if (NULL==ak) {
-
+        return INVALID_AKID;
     }
+
+    return __ak_makeid(ak);
 }
 
 int 
