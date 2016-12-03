@@ -491,21 +491,21 @@ __ak_get(akid_t akid, uint32 *pv)
     return 0;
 }
 
-struct akinfo {
+typedef struct {
     char *filename;
     char *line;
     char app[1+OS_LINE_LEN];
     char key[1+OS_LINE_LEN];
     char var[1+OS_LINE_LEN];
     uint32 v;
-};
+} ak_info_t;
 #define AKINFO_INITER(_filename, _line) {  \
     .filename = (char *)_filename, \
     .line = _line, \
 }
 
 static inline int
-__ak_load_line_app(struct akinfo *info)
+__ak_load_line_app(ak_info_t *info)
 {
     /*
     * filename's format is "xxx.key"
@@ -528,7 +528,7 @@ __ak_load_line_app(struct akinfo *info)
 }
 
 static inline int
-__ak_load_line_kv(struct akinfo *info)
+__ak_load_line_kv(ak_info_t *info)
 {
     /* 
     * read key & var 
@@ -552,7 +552,7 @@ __ak_load_line_kv(struct akinfo *info)
 static inline mv_t 
 __ak_load_line(const char *file/* not include path */, char *line)
 {
-    struct akinfo info = AKINFO_INITER(file, line);
+    ak_info_t info = AKINFO_INITER(file, line);
     int err;
 
     ak_println("load file(%s) line(%s)", file, line);

@@ -4,7 +4,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 DECLARE_ENUM(ak_DEBUG, AK_DEBUG_ENUM_MAPPER, ____ak_debug_end);
 DECLARE_ENUM(ak_sys, AK_SYS_ENUM_MAPPER, __AK_SYS_END);
 
-
 DECLARE uint32
 __ak_sys_debug(char *var)
 {
@@ -72,4 +71,7 @@ __ak_get_value(char *key, char *value)
         return __ak_debug_default;
     }
 }
+
+
+
 /******************************************************************************/
