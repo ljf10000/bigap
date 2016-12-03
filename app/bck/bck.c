@@ -87,7 +87,7 @@ bck_hacked(int obj, int reason)
 {
     os_println("system is hacked(%d.%d), reboot...", obj, reason);
     
-    __os_system("reboot &");
+    os_system_helper("reboot &");
     
     return -EHACKED;
 }

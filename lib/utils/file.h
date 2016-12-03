@@ -82,6 +82,9 @@ extern int
 os_v_fsize(const char *fmt, ...);
 
 extern int
+os_system_helper(char *cmd);
+
+extern int
 os_vsystem(const char *fmt, va_list args);
 
 extern int

@@ -518,7 +518,7 @@ STATIC int
 tmd_load(void)
 {
     if (os_file_exist(SCRIPT_TMD_INIT)) {
-        __os_system(SCRIPT_TMD_INIT_RUN);
+        os_system_helper(SCRIPT_TMD_INIT_RUN);
 
         debug_trace(SCRIPT_TMD_INIT);
     }

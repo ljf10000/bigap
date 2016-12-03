@@ -84,6 +84,20 @@ os_v_fsize(const char *fmt, ...)
 }
 
 int
+os_system_helper(char *cmd)
+{
+    int err;
+
+    err = system(cmd);
+        debug_shell("%s error:%d", cmd, err);
+    if (127==err || -1==err) {
+        return -ESYSTEM;
+    } else {
+        return __os_wait_error(err);
+    }
+}
+
+int
 os_vsystem(const char *fmt, va_list args)
 {
     int err = 0;
@@ -91,7 +105,7 @@ os_vsystem(const char *fmt, va_list args)
 
     err = os_vasprintf(&cmd, fmt, args);
     if (err>0) {
-        err = __os_system(cmd);
+        err = os_system_helper(cmd);
     }
     os_free(cmd);
 

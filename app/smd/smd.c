@@ -824,7 +824,7 @@ smd_load(void)
     }
 
     if (os_file_exist(SCRIPT_SMD_INIT)) {
-        __os_system(SCRIPT_SMD_INIT_RUN);
+        os_system_helper(SCRIPT_SMD_INIT_RUN);
 
         debug_trace(SCRIPT_SMD_INIT);
     }

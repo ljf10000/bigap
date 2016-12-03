@@ -353,7 +353,7 @@ guard_failed(char *action)
         sleep(rs);
         guard_save();
 
-        __os_system("(sysreboot || reboot) &");
+        os_system_helper("(sysreboot || reboot) &");
     }
     
     return 0;

@@ -482,7 +482,7 @@ jlogd_main_helper(int argc, char *argv[])
 {
     int err;
 
-    __os_system("mkdir -p " JLOG_LPATH " " JLOG_RPATH);
+    os_system_helper("mkdir -p " JLOG_LPATH " " JLOG_RPATH);
 
     err = jlogd_init_env();
         __debug_trace_error(err, "init env");

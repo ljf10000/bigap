@@ -209,7 +209,7 @@ sys_rootfs_file(int idx, char *file)
 STATIC int
 __sys_reboot(void)
 {
-    __os_system(SCRIPT_REBOOT "&");
+    os_system_helper(SCRIPT_REBOOT "&");
 
     return -EINVAL;
 }
@@ -1892,12 +1892,12 @@ sys_cmd_usbupgrade(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    __os_system(DIR_USB_ROOTFS SCRIPT_USBUPGRADE_INIT "&");
+    os_system_helper(DIR_USB_ROOTFS SCRIPT_USBUPGRADE_INIT "&");
     err = sys_usbupgrade();
     if (0==err) {
-        __os_system(DIR_USB_ROOTFS SCRIPT_USBUPGRADE_OK "&");
+        os_system_helper(DIR_USB_ROOTFS SCRIPT_USBUPGRADE_OK "&");
     } else {
-        __os_system(DIR_USB_ROOTFS SCRIPT_USBUPGRADE_FAIL "&");
+        os_system_helper(DIR_USB_ROOTFS SCRIPT_USBUPGRADE_FAIL "&");
     }
 
     return err;
