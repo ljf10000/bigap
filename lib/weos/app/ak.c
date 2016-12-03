@@ -62,9 +62,9 @@ __ak_offset(akid_t akid)
 STATIC os_shm_t *
 __this_ak(void)
 {
-    static os_shm_t __THIS_AK = OS_SHM_INITER(OS_AK_SHM_ID);
+    static os_shm_t ak = OS_SHM_INITER(OS_AK_SHM_ID);
     
-    return &__THIS_AK;
+    return &ak;
 }
 #define __ak_address    __this_ak()->address
 
