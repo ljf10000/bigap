@@ -392,7 +392,7 @@ smd_wait_ok(sm_entry_t *entry)
     char prefix[1+OS_LINE_SHORT] = {0};
     int pid = 0, normal = 0, deamon = 0;
 
-    os_println("smd_wait ok ...");
+    os_println("smd_wait OK ...");
     
     if (smd_is_normal(entry)) {
         pid = normal = entry->normal;
@@ -420,7 +420,7 @@ smd_wait_ok(sm_entry_t *entry)
         smd_run(entry, prefix);
     }
 
-    os_println("smd_wait ok ok.");
+    os_println("smd_wait OK ok.");
 }
 
 STATIC void
@@ -464,9 +464,9 @@ smd_wait(void)
     char *prefix;
     
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
-        os_println("smd_wait son ...");
+        os_println("smd_wait son %d ...", pid);
         smd_wait_son(pid);
-        os_println("smd_wait son ok.");
+        os_println("smd_wait son %d ok.", pid);
     }
     
     /*
