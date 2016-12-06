@@ -42,14 +42,7 @@ static inline int sm_state_getidbyname(const char *name);
 #endif
 
 typedef struct {
-    struct {
-        int fd;
-
-        sockaddr_un_t addr;
-    } server;
-
     STREAM f;    /* todo: cache entry */
-    int timeout;
     uint32 time;
     
     struct list_head list;
@@ -58,11 +51,6 @@ typedef struct {
 } smd_control_t;
 
 #define SMD_INITER {                    \
-    .server = {                         \
-        .fd     = INVALID_FD,           \
-        .addr   = OS_SOCKADDR_ABSTRACT("smd"), \
-    },                                  \
-    .timeout = CLI_TIMEOUT,             \
     .list = LIST_HEAD_INIT(smd.list),   \
     .loop = LOOP_INITER,                \
 }   /* end */

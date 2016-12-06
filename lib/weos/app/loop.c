@@ -42,7 +42,7 @@ __loop_master_init(loop_t *loop)
         if (loop->efd<0) {
             return -errno;
         }
-        os_println("add master fd=%d", loop->efd);
+        debug_trace("add master fd=%d", loop->efd);
         debug_ok("loop master init ok.");
     }
 
@@ -268,7 +268,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-    os_println("add timer fd=%d", fd);
+    debug_trace("add timer fd=%d", fd);
     
     return 0;
 }
@@ -319,7 +319,7 @@ __loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-    os_println("add father fd=%d", fd);
+    debug_trace("add father fd=%d", fd);
     
     return 0;
 }
@@ -332,7 +332,7 @@ __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, void *user)
         return -ENOEXIST;
     }
     watcher->father = father;
-    os_println("add son fd=%d", fd);
+    debug_trace("add son fd=%d", fd);
     
     return 0;
 }
@@ -398,8 +398,8 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     socklen_t addrlen = sizeof(addr);
     
     fd = accept(watcher->fd, &addr.c, &addrlen);
-    debug_io("accept new fd=%d from %d, errno=%d", fd, watcher->fd, -errno);
-    if (is_good_fd(watcher->fd)) {
+    debug_io("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
+    if (is_good_fd(fd)) {
         os_closexec(fd);
         
         __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd, watcher->user);
