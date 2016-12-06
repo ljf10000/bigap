@@ -282,11 +282,11 @@ smd_run(sm_entry_t *entry, char *prefix)
         return 0;
     }
     else { // child
-        cmd_table_t *cmd = cmd_argv(entry->command);
+        char *argv[] = {"/bin/bash", "-c", entry->command, NULL};
         
-        err = execvp(cmd->argv[0], cmd->argv);
+        err = execvp(cmd->argv[0], argv);
         
-        debug_error("exec %s error:%d", cmd->argv[0], -errno);
+        debug_error("exec %s error:%d", entry->command, -errno);
         
         exit(err);
     }
