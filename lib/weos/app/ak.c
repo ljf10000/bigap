@@ -372,9 +372,9 @@ ak_foreach(ak_foreach_f *foreach)
         mv_u mv;
     
         __ak_foreach(ak) {
-            mv.v = (*foreach)(ak->app, ak->key, ak->v);
+            mv.v = (*foreach)(ak->app, ak->k, ak->v);
             if (is_mv2_break(mv)) {
-                return mv2_break(mv);
+                return mv.v;
             }
         }
     }
