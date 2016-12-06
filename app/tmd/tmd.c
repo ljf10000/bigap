@@ -262,7 +262,7 @@ tmd_handle_insert(char *args)
         NULL==command) {
         debug_error("NULL name|delay|interval|limit|command");
         
-        return -EINVAL1;
+        return -EKEYNULL;
     }
 
     debug_test("name:%s delay:%s interval:%s, limit:%s, command:%s", 
