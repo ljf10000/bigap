@@ -88,7 +88,7 @@ os_asprintf(char **buf, const char *fmt, ...);
 #define os_vasprintf(_pbuf, _fmt, _args)        vasprintf(_pbuf, _fmt, _args)
 
 static inline int
-os_vsprintf_size(char *fmt, va_list args)
+os_vsprintf_size(const char *fmt, va_list args)
 {
     char tmp[4];
 
@@ -99,7 +99,7 @@ os_vsprintf_size(char *fmt, va_list args)
 }
 
 static inline int
-os_sprintf_size(char *fmt, ...)
+os_sprintf_size(const char *fmt, ...)
 {
     va_list args;
     

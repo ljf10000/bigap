@@ -212,7 +212,7 @@ slice_put_buf(slice_t *slice, void *buf, uint32 len)
 }
 
 DECLARE int
-slice_vsprintf(slice_t *slice, bool grow, char *fmt, va_list args)
+slice_vsprintf(slice_t *slice, bool grow, const char *fmt, va_list args)
 {
     int len = 0, space;
 
@@ -254,7 +254,7 @@ try_again:
 }
 
 DECLARE int
-slice_sprintf(slice_t *slice, bool grow, char *fmt, ...)
+slice_sprintf(slice_t *slice, bool grow, const char *fmt, ...)
 {
     va_list args;
     

@@ -70,7 +70,7 @@ typedef struct loop_watcher {
 typedef struct {
     int efd;
     time_t now;
-    
+
     autoarray_t watcher;
 
     uint32 count[LOOP_TYPE_END];

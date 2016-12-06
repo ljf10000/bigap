@@ -271,10 +271,10 @@ slice_put_buf(slice_t *slice, void *buf, uint32 len);
 *       }
 */
 EXTERN int
-slice_vsprintf(slice_t *slice, bool grow, char *fmt, va_list args);
+slice_vsprintf(slice_t *slice, bool grow, const char *fmt, va_list args);
 
 EXTERN int
-slice_sprintf(slice_t *slice, bool grow, char *fmt, ...);
+slice_sprintf(slice_t *slice, bool grow, const char *fmt, ...);
 
 #if 0
 #define slice_sprintf(_slice, _flag, _fmt, _args...) ({ \

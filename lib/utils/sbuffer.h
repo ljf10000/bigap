@@ -80,6 +80,7 @@ sb_sprintf(simple_buffer_t *sb, const char *fmt, ...);
 
 #define sb_sprintln(_sb, _fmt, _args...)    sb_sprintf(_sb, _fmt __crlf, ##_args)
 
+
 #ifdef __BOOT__
 #include "weos/boot/sbuffer.c"
 #endif

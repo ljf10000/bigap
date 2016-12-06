@@ -230,7 +230,7 @@ cli_vsprintf(const char *fmt, va_list args)
 
     __clib_len += len;
     __clib_cursor[0] = 0;
-    
+
     return len;
 }
 

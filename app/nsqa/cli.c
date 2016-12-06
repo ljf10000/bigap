@@ -99,7 +99,7 @@ nsqa_cli(loop_watcher_t *watcher, time_t now)
         CLI_ENTRY("show",   nsqa_handle_show),
     };
     int err;
-    
+
     err = clis_handle(watcher->fd, table);
     
     os_loop_del_watcher(&nsqa.loop, watcher->fd);

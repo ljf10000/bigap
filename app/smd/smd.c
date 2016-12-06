@@ -6,6 +6,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #define __DEAMON__
+#define __CLI_TCP__     0
 
 #include "utils.h"
 #include "sm/sm.h"
@@ -41,20 +42,29 @@ static inline int sm_state_getidbyname(const char *name);
 #define SM_STATE_END    SM_STATE_END
 #endif
 
-typedef struct {
+static struct {
+    struct {
+        int fd;
+
+        sockaddr_un_t addr;
+    } server;
+
     STREAM f;    /* todo: cache entry */
+    int timeout;
     uint32 time;
     
     struct list_head list;
-    loop_t loop;
-} smd_control_t;
+}
+smd = {
+    .server = {
+        .fd     = INVALID_FD,
+        .addr   = OS_SOCKADDR_ABSTRACT("smd"),
+    },
 
-#define SMD_INITER  {                   \
-    .list = LIST_HEAD_INIT(smd.list),   \
-    .loop = LOOP_INITER,                \
-}   /* end */
+    .timeout = CLI_TIMEOUT,
 
-static smd_control_t smd = SMD_INITER;
+    .list = LIST_HEAD_INIT(smd.list),
+};
 
 enum {
     SM_F_STATIC   = 0x01,
@@ -707,8 +717,8 @@ smd_handle_show(char *args)
     return 0;
 }
 
-STATIC int 
-smd_cli(struct loop_watcher *watcher, time_t now)
+STATIC int
+smd_server_handle_one(fd_set *r)
 {
     static cli_table_t table[] = {
         CLI_ENTRY("insert", smd_handle_insert),
@@ -716,21 +726,71 @@ smd_cli(struct loop_watcher *watcher, time_t now)
         CLI_ENTRY("clean",  smd_handle_clean),
         CLI_ENTRY("show",   smd_handle_show),
     };
+    int err = 0;
 
-    return clis_handle(watcher->fd, table);
+    if (FD_ISSET(smd.server.fd, r)) {
+        err = clis_handle(smd.server.fd, table);
+    }
+    
+    return err;
+}
+
+STATIC int
+smd_server_handle(void)
+{
+    fd_set rset;
+    struct timeval tv = {
+        .tv_sec     = os_second(smd.timeout),
+        .tv_usec    = os_usecond(smd.timeout),
+    };
+    int err;
+
+    while(1) {
+        FD_ZERO(&rset);
+        FD_SET(smd.server.fd, &rset);
+        
+        err = select(smd.server.fd+1, &rset, NULL, NULL, &tv);
+        switch(err) {
+            case -1:/* error */
+                if (EINTR==errno) {
+                    // is breaked
+                    debug_event("select breaked");
+                    continue;
+                } else {
+                    debug_trace("select error:%d", -errno);
+                    return -errno;
+                }
+            case 0: /* timeout, retry */
+                debug_timeout("select timeout");
+                return -ETIMEOUT;
+            default: /* to accept */
+                return smd_server_handle_one(&rset);
+        }
+    }
+
+    return 0;
 }
 
 STATIC int
 smd_init_server(void)
 {
+    int fd;
     int err;
     
-    err = os_loop_add_CLI(&smd.loop, "smd", smd_cli);
-    if (err<0) {
-        debug_error("add loop father error:%d", err);
-
-        return err;
+    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+    if (fd<0) {
+    	debug_error("socket error:%d", -errno);
+        return -errno;
     }
+    os_closexec(fd);
+    
+    err = bind(fd, (sockaddr_t *)&smd.server.addr, get_abstract_sockaddr_len(&smd.server.addr));
+    if (err<0) {
+        debug_error("bind error:%d", -errno);
+        return -errno;
+    }
+    
+    smd.server.fd = fd;
     
     debug_ok("init server ok");
     
@@ -738,29 +798,9 @@ smd_init_server(void)
 }
 
 STATIC int 
-smd_timer_cb(struct loop_watcher *watcher, time_t now)
-{
-    smd.time += SM_TIMER;
-
-    smd_wait();
-    
-    return 0;
-}
-
-STATIC int 
 smd_init_timer(void)
 {
-    struct itimerspec tm = OS_ITIMESPEC_INITER(SM_TIMER, 0);
-    int err;
-    
-    err = os_loop_add_timer(&smd.loop, smd_timer_cb, &tm);
-    if (err<0) {
-        debug_error("add loop timer error:%d", err);
-
-        return err;
-    }
-    
-    return 0;
+    return setup_timer(SM_TIMER, 0);
 }
 
 STATIC int
@@ -824,6 +864,12 @@ smd_init(void)
 }
 
 STATIC void
+smd_timer(int sig)
+{
+    smd.time++;
+}
+
+STATIC void
 smd_exit(int sig)
 {
     smd_fini();
@@ -835,8 +881,11 @@ STATIC int
 smd_main_helper(int argc, char *argv[])
 {
     smd_load();
-
-    os_loop(&smd.loop);
+    
+    while (1) {
+        smd_server_handle();
+        smd_wait();
+    }
     
     return 0;
 }
@@ -844,6 +893,7 @@ smd_main_helper(int argc, char *argv[])
 int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(smd_exit);
+    setup_signal_timer(smd_timer);
     setup_signal_callstack(NULL);
     
     int err = os_call(smd_init, smd_fini, smd_main_helper, argc, argv);

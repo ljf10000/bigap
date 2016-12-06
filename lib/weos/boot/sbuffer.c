@@ -187,7 +187,7 @@ sb_vsprintf(simple_buffer_t *sb, const char *fmt, va_list args)
         os_vsnprintf(sb_cursor(sb), sb_left(sb), fmt, args);
 
         sb_shift(sb, vsize);
-        
+
         return 0;
     } else {
         return -ENOSPACE;

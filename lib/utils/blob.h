@@ -469,10 +469,10 @@ blob_put_binary(slice_t *slice, const char *name, const void *binary, uint32 len
 }
 
 EXTERN blob_t *
-blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args);
+blob_put_vsprintf(slice_t *slice, char *name, const char *fmt, va_list args);
 
 EXTERN blob_t *
-blob_put_sprintf(slice_t *slice, char *name, char *fmt, ...);
+blob_put_sprintf(slice_t *slice, char *name, const char *fmt, ...);
 
 #ifdef __APP__
 EXTERN void

@@ -636,7 +636,7 @@ blob_put(
 }
 
 DECLARE blob_t *
-blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args)
+blob_put_vsprintf(slice_t *slice, char *name, const char *fmt, va_list args)
 {
     va_list copy;
 
@@ -653,7 +653,7 @@ blob_put_vsprintf(slice_t *slice, char *name, char *fmt, va_list args)
 }
 
 DECLARE blob_t *
-blob_put_sprintf(slice_t *slice, char *name, char *fmt, ...)
+blob_put_sprintf(slice_t *slice, char *name, const char *fmt, ...)
 {
     va_list args;
     
