@@ -67,7 +67,6 @@ typedef struct {
     char *cname;
     char *pidfile;
 
-    int pid;
     int normal;
     int deamon;
     int forks;

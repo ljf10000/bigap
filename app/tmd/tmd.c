@@ -6,14 +6,13 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #define __DEAMON__
-#define __CLI_TCP__     0
 
 #include "utils.h"
 #include "tm/tm.h"
 
 OS_INITER;
 
-static struct {    
+typedef struct {    
     struct {
         int fd;
         int timeout;/* ms */
@@ -25,18 +24,24 @@ static struct {
     } server;
 
     h1_table_t table;
-}
-tmd = {
-    .timer = {
-        .fd     = INVALID_FD,
-        .timeout= CLI_TIMEOUT,
-    },
 
-    .server = {
-        .fd     = INVALID_FD,
-        .addr   = OS_SOCKADDR_ABSTRACT("tmd"),
-    },
-};
+    loop_t loop;
+} tmd_control_t;
+
+#define TMD_INITER  {           \
+    .timer = {                  \
+        .fd     = INVALID_FD,   \
+        .timeout= CLI_TIMEOUT,  \
+    },                          \
+    .loop = LOOP_INITER,        \
+                                \
+    .server = {                 \
+        .fd     = INVALID_FD,   \
+        .addr   = OS_SOCKADDR_ABSTRACT("tmd"), \
+    },                          \
+}   /* end */
+
+static tmd_control_t tmd = TMD_INITER;
 
 struct xtimer {
     char name[1+TM_NAMESIZE];
@@ -399,64 +404,6 @@ tmd_handle_show(char *args)
 }
 
 STATIC int
-tmd_server_handle_one(fd_set *r)
-{
-    static cli_table_t table[] = {
-        CLI_ENTRY("insert", tmd_handle_insert),
-        CLI_ENTRY("remove", tmd_handle_remove),
-        CLI_ENTRY("clean",  tmd_handle_clean),
-        CLI_ENTRY("show",   tmd_handle_show),
-    };
-    int err = 0;
-    
-    if (FD_ISSET(tmd.timer.fd, r)) {
-        err = tm_fd_trigger(tmd.timer.fd);
-    }
-
-    if (FD_ISSET(tmd.server.fd, r)) {
-        err = clis_handle(tmd.server.fd, table);
-    }
-
-    return err;
-}
-
-STATIC int
-tmd_server_handle(void)
-{
-    fd_set rset;
-    struct timeval tv = {
-        .tv_sec     = os_second(tmd.timer.timeout),
-        .tv_usec    = os_usecond(tmd.timer.timeout),
-    };
-    int maxfd = OS_MAX(tmd.timer.fd, tmd.server.fd);
-    int err;
-
-    while(1) {
-        FD_ZERO(&rset);
-        FD_SET(tmd.timer.fd, &rset);
-        FD_SET(tmd.server.fd, &rset);
-        
-        err = select(maxfd+1, &rset, NULL, NULL, &tv);
-        switch(err) {
-            case -1:/* error */
-                if (EINTR==errno) {
-                    // is breaked
-                    debug_event("select breaked");
-                    continue;
-                } else {
-                    debug_trace("select error:%d", -errno);
-                    return -errno;
-                }
-            case 0: /* timeout, retry */
-                debug_timeout("select timeout");
-                return -ETIMEOUT;
-            default: /* to accept */
-                return tmd_server_handle_one(&rset);
-        }
-    }
-}
-
-STATIC int
 tmd_init_env(void) 
 {
     tm_unit_set(TM_TICKS);
@@ -465,39 +412,56 @@ tmd_init_env(void)
 }
 
 STATIC int
-tmd_init_timerfd(void)
+tmd_timer(struct loop_watcher *watcher, time_t now)
 {
-    int fd = tm_fd(os_second(TM_TICKS), os_nsecond(TM_TICKS));
-    if (fd<0) {
-        return fd;
-    } else {
-        tmd.timer.fd = fd;
+    tm_fd_trigger(watcher->fd);
 
-        return 0;
+    return 0;
+}
+
+STATIC int
+tmd_init_timer(void)
+{
+    struct itimerspec tm = OS_ITIMESPEC_INITER(os_second(TM_TICKS), os_nsecond(TM_TICKS));
+    
+    return os_loop_add_timer(&tmd.loop, tmd_timer, &tm);
+}
+
+STATIC int
+tmd_cli(struct loop_watcher *watcher, time_t now)
+{
+    static cli_table_t table[] = {
+        CLI_ENTRY("insert", tmd_handle_insert),
+        CLI_ENTRY("remove", tmd_handle_remove),
+        CLI_ENTRY("clean",  tmd_handle_clean),
+        CLI_ENTRY("show",   tmd_handle_show),
+    };
+    int err, ret;
+
+    ret = clis_handle(watcher->fd, table);
+    
+    err = os_loop_del_watcher(&smd.loop, watcher->fd);
+    if (err<0) {
+        debug_trace("del loop cli error:%d", err);
+        
+        return err;
     }
+    
+    return ret;
 }
 
 STATIC int
 tmd_init_server(void)
 {
-    int fd;
     int err;
     
-    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
-    if (fd<0) {
-    	debug_error("socket error:%d", -errno);
-        return -errno;
-    }
-    os_closexec(fd);
-    
-    err = bind(fd, (sockaddr_t *)&tmd.server.addr, get_abstract_sockaddr_len(&tmd.server.addr));
+    err = os_loop_add_cli(&tmd.loop, tmd_cli);
     if (err<0) {
-        debug_error("bind error:%d", -errno);
-        return -errno;
+        debug_error("add loop cli error:%d", err);
     }
-
-    tmd.server.fd = fd;
-
+    
+    debug_ok("init server ok");
+    
     return 0;
 }
 
@@ -560,7 +524,7 @@ tmd_init(void)
         return err;
     }
 
-    err = tmd_init_timerfd();
+    err = tmd_init_timer();
         debug_trace_error(err, "init timerfd");
     if (err<0) {
         return err;
@@ -578,9 +542,7 @@ tmd_init(void)
 STATIC int 
 tmd_main_helper(int argc, char *argv[])
 {
-    while (1) {
-        tmd_server_handle();
-    }
+    os_loop(&tmd.loop);
     
     return 0;
 }
