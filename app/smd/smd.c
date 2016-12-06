@@ -522,6 +522,9 @@ smd_insert(sm_entry_t *entry)
         */
         err = smd_run(entry, "in insert(not exist)");
         if (err<0) {
+            debug_error("run %s error:%d", entry->name, err);
+            os_println("run %s error:%d", entry->name, err);
+            
             return err;
         }
     } else {
