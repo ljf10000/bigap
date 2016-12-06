@@ -62,6 +62,7 @@ LIB_INITER;
 #include "weos/app/fd.c"
 #endif
 #include "weos/app/file.c"
+#include "weos/app/format.c"
 #include "weos/app/intf.c"
 #include "weos/app/io.c"
 #include "weos/app/jlog.c"
