@@ -306,15 +306,17 @@ tmd_handle_insert(char *args)
                 after,
                 tmd_is_cycle(entry),
                 tm_is_pending(&entry->timer)?__true:__false);
-    
-    err = tm_insert(&entry->timer, 
-            os_ms2tick(1000*after, TM_TICKS),
-            tmd_xtimer_cb, 
-            true);
-    if (err<0) {
-        return -EEXIST;
-    }
 
+    if (false==tm_is_pending(&entry->timer)) {
+        err = tm_insert(&entry->timer, 
+                os_ms2tick(1000*after, TM_TICKS),
+                tmd_xtimer_cb, 
+                true);
+        if (err<0) {
+            return -EEXIST;
+        }
+    }
+    
     return 0;
 }
 
