@@ -282,9 +282,9 @@ smd_run(sm_entry_t *entry, char *prefix)
         return 0;
     }
     else { // child
-        char *argv[] = {"/bin/bash", "-c", entry->command, NULL};
+        char *argv[] = {"bash", "-c", entry->command, NULL};
         
-        err = execvp(cmd->argv[0], argv);
+        err = execvp("/bin/bash", argv);
         
         debug_error("exec %s error:%d", entry->command, -errno);
         
