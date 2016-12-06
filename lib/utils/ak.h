@@ -260,16 +260,18 @@ static inline int __ak_init(void);
 
 #if !defined(__APP__) || __RUNAS__==RUN_AS_COMMAND
 
-#define __ak_getbyname(_app, _key)      0
-#define __ak_getbynameEx(_app, _key)    0
-#define __ak_get(_akid, _pv)            0
-#define __ak_set(_akid, _v)             0
+#define __ak_getidbyname(_app, _key)    0
+#define __ak_getidbynameEx(_app, _key)  0
+#define __ak_getnamebyid(_akid)         NULL
+#define __ak_getkeybyid(_akid)          NULL
+#define __ak_getvaluebyid(_akid)        NULL
+#define __ak_setvaluebyid(_akid, _v)    0
 
 /*
 * kernel/boot/(app cmd)
 */
-#define ak_getbyname(_key)              0
-#define ak_getbynameEx(_key)            0
+#define ak_getidbyname(_key)            0
+#define ak_getidbynameEx(_key)          0
 
 #define ak_get(_akid, _deft)            (_akid)
 #define ak_set(_akid, _value)           0
@@ -286,44 +288,41 @@ ak_init(void)
     return 0;
 }
 #else /* app unknow/deamon */
-/*
-* app deamon
-*/
-typedef struct {
-    char app[1+OS_APPNAMELEN];
-    char k[1+OS_APPKEYLEN];
-    uint32 v;
-} ak_t;
+extern akid_t 
+__ak_getidbyname(char *app, char *k);
 
 extern akid_t 
-__ak_getbyname(char *app, char *k);
+__ak_getidbynameEx(char *app, char *k);
 
-extern akid_t 
-__ak_getbynameEx(char *app, char *k);
+extern char *
+__ak_getnamebyid(akid_t akid);
+
+extern char * 
+__ak_getkeybyid(akid_t akid);
+
+extern uint32 * 
+__ak_getvaluebyid(akid_t akid);
 
 extern int 
-__ak_get(akid_t akid, uint32 *pv);
-
-extern int 
-__ak_set(akid_t akid, uint32 v);
+__ak_setvaluebyid(akid_t akid, uint32 v);
 
 static inline akid_t 
-ak_getbyname(char *k)
+ak_getidbyname(char *k)
 {
     if (__THIS_COMMAND) {
         return 0;
     } else {
-        return __ak_getbyname(__THIS_APPNAME, k);
+        return __ak_getidbyname(__THIS_APPNAME, k);
     }
 }
 
 static inline akid_t 
-ak_getbynameEx(char *k)
+ak_getidbynameEx(char *k)
 {
     if (__THIS_COMMAND) {
         return 0;
     } else {
-        return __ak_getbynameEx(__THIS_APPNAME, k);
+        return __ak_getidbynameEx(__THIS_APPNAME, k);
     }
 }
 
@@ -333,11 +332,9 @@ ak_get(akid_t akid, uint32 deft)
     if (__THIS_COMMAND) {
         return akid;
     } else {
-        uint32 v = deft;
+        uint32 *p = __ak_getvaluebyid(akid);
 
-        __ak_get(akid, &v);
-
-        return v;
+        return p?(*p):deft;
     }
 }
 
@@ -345,7 +342,7 @@ static inline int
 ak_set(akid_t akid, uint32 v)
 {
     if (false==__THIS_COMMAND) {
-        return __ak_set(akid, v);
+        return __ak_setvaluebyid(akid, v);
     } else {
         return 0;
     }
@@ -384,8 +381,8 @@ __ak_init_command()
 static inline void 
 __ak_init_deamon() 
 {    
-    __THIS_DEBUG    = ak_getbyname(AK_DEBUG_NAME);
-    __THIS_JDEBUG   = ak_getbyname(JS_DEBUG_NAME);
+    __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
+    __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
 }
 #endif
 
@@ -442,7 +439,7 @@ static inline int
 ak_var_init(ak_var_t *var)
 {
     if (INVALID_VALUE==var->id) {
-        var->id = ak_getbyname(var->key);
+        var->id = ak_getidbyname(var->key);
 
         return 0;
     } else {

@@ -3,6 +3,15 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 bool __THIS_COMMAND;
 
+/*
+* app deamon
+*/
+typedef struct {
+    char app[1+OS_APPNAMELEN];
+    char k[1+OS_APPKEYLEN];
+    uint32 v;
+} ak_t;
+
 typedef struct {
     uint32 protect;
     bool inited;
@@ -149,7 +158,7 @@ __ak_new(char *app, char *k)
 }
 
 STATIC ak_t *
-__ak_getbyname_helper(char *app, char *k, bool CreateIfNotExist)
+__ak_getbyname(char *app, char *k, bool CreateIfNotExist)
 {
     ak_t *ak = NULL;
     
@@ -179,40 +188,56 @@ __ak_getbyname_helper(char *app, char *k, bool CreateIfNotExist)
 }
 
 akid_t 
-__ak_getbyname(char *app, char *k)
+__ak_getidbyname(char *app, char *k)
 {
-    ak_t *ak = __ak_getbyname_helper(app, k, false);
+    ak_t *ak = __ak_getbyname(app, k, false);
 
     return ak?__ak_MAKE(ak):INVALID_AKID;
 }
 
 akid_t 
-__ak_getbynameEx(char *app, char *k)
+__ak_getidbynameEx(char *app, char *k)
 {
-    ak_t *ak = __ak_getbyname_helper(app, k, true);
+    ak_t *ak = __ak_getbyname(app, k, true);
 
     return ak?__ak_MAKE(ak):INVALID_AKID;
 }
 
-int 
-__ak_get(akid_t akid, uint32 *pv)
+char * 
+__ak_getnamebyid(akid_t akid)
 {
     ak_t *ak = __ak_getbyid(akid);
+    if (NULL==ak) {
+        return NULL;
+    }
+    
+    return ak->app;
+}
 
-    if (NULL==pv) {
-        return -EKEYNULL;
-    }
-    else if (NULL==ak) {
-        return -ENOEXIST;
+char * 
+__ak_getkeybyid(akid_t akid)
+{
+    ak_t *ak = __ak_getbyid(akid);
+    if (NULL==ak) {
+        return NULL;
     }
     
-    *pv = ak->v;
+    return ak->k;
+}
+
+uint32 * 
+__ak_getvaluebyid(akid_t akid)
+{
+    ak_t *ak = __ak_getbyid(akid);
+    if (NULL==ak) {
+        return NULL;
+    }
     
-    return 0;
+    return &ak->v;
 }
 
 int 
-__ak_set(akid_t akid, uint32 v)
+__ak_setvaluebyid(akid_t akid, uint32 v)
 {
     ak_t *ak = __ak_getbyid(akid);
     if (NULL==ak) {
@@ -301,7 +326,7 @@ __ak_load_line(const char *file/* not include path */, char *line)
     }
     info.v = __ak_get_value(info.key, info.var);
     
-    ak_t *ak = __ak_getbyname_helper(info.app, info.key, true);
+    ak_t *ak = __ak_getbyname(info.app, info.key, true);
     if (NULL==ak) {
         return mv2_break(-ELIMIT);
     }

@@ -125,7 +125,7 @@ ak_cmd_set(int argc, char *argv[])
     char *key = argv[2];
     char *value = argv[3];
 
-    akid_t id = __ak_getbynameEx(app, key);
+    akid_t id = __ak_getidbynameEx(app, key);
     if (INVALID_AKID==id) {
         return -EINVAL;
     }
@@ -133,7 +133,7 @@ ak_cmd_set(int argc, char *argv[])
     char *end = NULL;
     uint32 v = os_strtoul(value, &end, 0);
 
-    int err = __ak_set(id, v);
+    int err = __ak_setvaluebyid(id, v);
     if (err<0) {
         return err;
     }
