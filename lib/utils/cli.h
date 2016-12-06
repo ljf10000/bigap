@@ -8,7 +8,7 @@
 #if __CLI_TCP__
 #define CLI_SOCK_TYPE       SOCK_STREAM
 #define CLI_REPLY_END       __cli_reply
-#define CLI_BUFFER_LEN      PC_VAL(OS_LINE_LEN + 128, OS_BIG_LEN)
+#define CLI_BUFFER_LEN      PC_VAL(OS_PAGE_LEN, OS_BIG_LEN)
 #else
 #define CLI_SOCK_TYPE       SOCK_DGRAM
 #define CLI_REPLY_END       NULL
@@ -191,9 +191,6 @@ __cli_reply(int err)
 
     __clib_err = err;
 #if __CLI_TCP__
-    if (__clib_len) {
-        os_printf("%s", __clib_buf);
-    }
     len = io_send(cli->fd, __clib(), __clib_space);
 #else
     len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
@@ -326,7 +323,10 @@ __clic_recv(int fd, int timeout)
             len = __clib_len;
             err = __io_recv(fd, __clib_buf, len, 0);
             if (err==len) {
-                __clib_show();
+                // __clib_show();
+                os_printf("recv: ...");
+                os_printf("recv:%s", __clib_buf);
+                os_printf("recv: ok.");
             } else {
                 goto error;
             }
