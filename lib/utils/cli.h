@@ -511,6 +511,7 @@ cli_line_handle(
 static inline int
 __clis_handle(int fd, cli_table_t *table, int count)
 {
+    debug_cli("clis handle");
     cli_t *cli = __this_cli();
     char buf[1+OS_LINE_LEN] = {0};
     int err;
@@ -524,6 +525,7 @@ __clis_handle(int fd, cli_table_t *table, int count)
 #else
     err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&cli->addr, &cli->addrlen);
     debug_cli("recv request[%d]:%s", err, buf);
+    
     if (is_abstract_sockaddr(&cli->addr)) {
         set_abstract_sockaddr_len(&cli->addr, cli->addrlen);
     }
@@ -532,7 +534,6 @@ __clis_handle(int fd, cli_table_t *table, int count)
         return err;
     }
     buf[err] = 0;
-    
     
     char *method = buf;
     char *args   = buf;
