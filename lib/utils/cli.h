@@ -511,17 +511,21 @@ cli_line_handle(
 static inline int
 __clis_handle(int fd, cli_table_t *table, int count)
 {
-    os_println("clis handle");
+    os_println("clis handle 1");
     cli_t *cli = __this_cli();
     char buf[1+OS_LINE_LEN] = {0};
     int err;
 
+    os_println("clis handle 2");
+
     __this_cli()->fd = fd;
     __clib_clear();
     
+    os_println("clis handle 3");
 #if __CLI_TCP__
     err = __io_recv(fd, buf, sizeof(buf), 0);
     debug_cli("recv request[%d]:%s", err, buf);
+    os_println("clis handle 4");
 #else
     err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)&cli->addr, &cli->addrlen);
     debug_cli("recv request[%d]:%s", err, buf);
@@ -531,12 +535,15 @@ __clis_handle(int fd, cli_table_t *table, int count)
     }
 #endif
     if (err<0) { /* yes, <0 */
+    os_println("clis handle sb");
         return err;
     }
     buf[err] = 0;
     
     char *method = buf;
     char *args   = buf;
+
+    os_println("clis handle 5");
 
     os_str_strim_both(method, NULL);
     os_str_reduce(method, NULL);
