@@ -8,7 +8,7 @@
 #if __CLI_TCP__
 #define CLI_SOCK_TYPE       SOCK_STREAM
 #define CLI_REPLY_END       __cli_reply
-#define CLI_BUFFER_LEN      OS_BIG_LEN /* test tcp with page size */
+#define CLI_BUFFER_LEN      PC_VAL(OS_PAGE_LEN, OS_BIG_LEN)
 #else
 #define CLI_SOCK_TYPE       SOCK_DGRAM
 #define CLI_REPLY_END       NULL
@@ -310,34 +310,37 @@ __clic_recv(int fd, int timeout)
 {
     cli_t *cli = __this_cli();
     int err = 0, len;
+    simple_buffer_t sb;
 
+    sb_init(&sb, SB_AUTO_INITER(CLI_BUFFER_LEN, CLI_BUFFER_LEN, CLI_BUFFER_LEN));
+    
     while(1) {
         len = sizeof(cli_header_t);
         err = __io_recv(fd, __clib(), len, 0);
         if (err==len) {
             // is last
             if (0==__clib_len) {
-                return __clib_err;
+                err = __clib_err; goto  show;
             }
 
             len = __clib_len;
             err = __io_recv(fd, __clib_buf, len, 0);
             if (err==len) {
-                __clib_show();
+                sb_append_string(&sb, __clib_buf);
             } else {
                 goto error;
             }
         } else {
 error:
             if (err > len) {
-                return -ETOOBIG;
+                err = -ETOOBIG;
             }
             else if (err>0) {
-                return -ETOOSMALL;
+                err = -ETOOSMALL;
             }
             // err = 0
             else if (0==err) {
-                return __clib_show();
+                err = __clib_err;
             }
             else if (EINTR==errno) {
                 continue;
@@ -346,13 +349,19 @@ error:
                 /*
                 * timeout
                 */
-                return -ETIMEOUT;
+                err = -ETIMEOUT;
             }
             else {
-                return -errno;
+                err = -errno;
             }
+
+            goto show;
         }
     }
+
+show:
+    os_printf("%s", sb_buf(&sb));
+    sb_fini(&sb);
     
     return 0;
 }
