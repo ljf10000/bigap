@@ -5,7 +5,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __THIS_APP      smc
 #endif
 
-#define __CLI_TCP__     0
 #include "utils.h"
 #include "sm/sm.h"
 
