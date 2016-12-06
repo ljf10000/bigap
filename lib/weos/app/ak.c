@@ -390,7 +390,7 @@ ak_load(void)
 }
 
 int
-ak_foreach(ak_foreach_f *foreach)
+ak_foreach(mv_t (*foreach)(char *app, char *k, uint32 v))
 {
     if (foreach) {
         ak_t *ak;
