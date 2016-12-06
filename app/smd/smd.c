@@ -835,7 +835,10 @@ smd_main_helper(int argc, char *argv[])
 {
     smd_load();
 
-    return os_loop(&smd.loop);
+    os_loop(&smd.loop);
+    os_println("smd exit");
+    
+    return 0;
 }
 
 int allinone_main(int argc, char *argv[])
