@@ -323,10 +323,9 @@ __clic_recv(int fd, int timeout)
             len = __clib_len;
             err = __io_recv(fd, __clib_buf, len, 0);
             if (err==len) {
-                // __clib_show();
-                os_printf("recv: ...\n");
-                os_printf("recv:%s", __clib_buf);
-                os_printf("recv: ok.\n");
+                __clib_cut(len);
+                
+                __clib_show();
             } else {
                 goto error;
             }
