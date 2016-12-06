@@ -42,6 +42,8 @@ ak_show_helper(char *app, char *key)
             (NULL==key || os_streq(key, k))) {
             os_println(__tab "%s.%s=%u", name, k, v);
         }
+
+        return mv2_ok;
     }
     
     ak_foreach(foreach);
