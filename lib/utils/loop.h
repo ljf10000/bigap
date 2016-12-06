@@ -107,7 +107,7 @@ os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user);
 #define __os_loop_add_cli(_loop, _name, _cb)  os_loop_add_normal(_loop, __clis_FD(_name), _cb, NULL)
 #endif
 
-#define os_loop_add_cli(_loop, _cb) __os_loop_add_cli(_loop, __THIS_APPNAME, _cb, NULL)
+#define os_loop_add_cli(_loop, _cb)     __os_loop_add_cli(_loop, __THIS_APPNAME, _cb)
 
 extern void 
 os_loop_fini(loop_t *loop);
