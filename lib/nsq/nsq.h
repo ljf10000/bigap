@@ -335,7 +335,7 @@ typedef simple_buffer_t nsq_buffer_t;
 #define NSQ_INSTRUCTION_REQ         "REQ "
 #define NSQ_INSTRUCTION_TOUCH       "TOUCH "
 
-#define nsqb_init(_b, _size)    sb_init(_b, _size, 0, 0, SB_F_EXPAND_AUTO)
+#define nsqb_init(_b, _size)    sb_init(_b, SB_AUTO_INITER(_size, 0, 0))
 #define nsqb_fini(_b)           sb_fini(_b)
 #define nsqb_clean(_b)          sb_clean(_b)
 

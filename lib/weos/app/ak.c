@@ -257,7 +257,7 @@ typedef struct {
     char var[1+OS_LINE_LEN];
     uint32 v;
 } ak_info_t;
-#define AKINFO_INITER(_filename, _line) {  \
+#define AK_INFO_INITER(_filename, _line) {  \
     .filename = (char *)_filename, \
     .line = _line, \
 }
@@ -310,7 +310,7 @@ __ak_load_line_kv(ak_info_t *info)
 STATIC mv_t 
 __ak_load_line(const char *file/* not include path */, char *line)
 {
-    ak_info_t info = AKINFO_INITER(file, line);
+    ak_info_t info = AK_INFO_INITER(file, line);
     int err;
 
     ak_println("load file(%s) line(%s)", file, line);

@@ -7,25 +7,12 @@ typedef struct {
     int fd[2];      /* father/son */
 } pipe_std_t;
 
-#define PIPE_STD_INITER(_size, _minsize, _expand) { \
-    .sb = SB_INITER(_size, _minsize, _expand, SB_F_EXPAND_AUTO), \
-    .fd     = {INVALID_FD, INVALID_FD}, \
-}   /* end */
-
 typedef struct {
     pipe_std_t std[3];  // std in/out/err
     pipinfo_t info;
     
     int err;
 } pipexec_t;
-
-#define PIPEXEC_INITER(_size, _minsize, _expand) {   \
-    .std = {                    \
-        [1]  = PIPE_STD_INITER(_size, _minsize, _expand), \
-        [2]  = PIPE_STD_INITER(_size, _minsize, _expand), \
-    },                          \
-    .err = 0,                   \
-}   /* end */
 
 enum {
     __pipe_father   = 0,
@@ -63,7 +50,7 @@ __pipe_std_read(pipe_std_t *std)
             return -errno;
         }
         else if (len < left) {
-            std->sb.len += len;
+            sb_shift(&std->sb, len);
             
             return len;
         }
@@ -80,31 +67,27 @@ __pipe_std_read(pipe_std_t *std)
 STATIC int
 __pipe_init(pipexec_t *pe, pipinfo_t *info)
 {
-    int err;
+    int i, err;
     char **env;
-    
+
+    os_objzero(pe);
     os_objcpy(&pe->info, info);
-    
-    err = sb_init(&pe->std[1].sb, 0, 0, 0, 0);
-    if (err<0) {
-        return err;
-    }
 
-    err = sb_init(&pe->std[2].sb, 0, 0, 0, 0);
-    if (err<0) {
-        return err;
-    }
-    
-    err = pipe(pe->std[1].fd);
-    if (err<0) {
-        return -errno;
-    }
-    
-    err = pipe(pe->std[2].fd);
-    if (err<0) {
-        return -errno;
-    }
+    for (i=1; i<3; i++) {
+        err = sb_init(&pe->std[i].sb, SB_AUTO_INITER(0, 0, 0));
+        if (err<0) {
+            return err;
+        }
 
+        pe->std[i].fd[0] = INVALID_FD;
+        pe->std[i].fd[1] = INVALID_FD;
+
+        err = pipe(pe->std[i].fd);
+        if (err<0) {
+            return -errno;
+        }
+    }
+    
     return 0;
 }
 
@@ -288,7 +271,7 @@ __pipe_son_handle(pipexec_t *pe)
 int
 os_pexecv(pipinfo_t *info)
 {
-    pipexec_t pe = PIPEXEC_INITER(info->size, info->minsize, info->expand);
+    pipexec_t pe;
     int err = 0, pid = 0;
     
     if (NULL==info) {

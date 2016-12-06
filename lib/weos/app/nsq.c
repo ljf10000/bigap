@@ -1,11 +1,10 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE_ENUM(nsq_fsm, NSQ_FSM_ENUM_MAPPER, NSQ_FSM_END);
-DECLARE_ENUM(nsq_auth, NSQ_AUTH_ENUM_MAPPER, NSQ_AUTH_END);
-DECLARE_ENUM(nsq_error, NSQ_ERROR_ENUM_MAPPER, NSQ_E_END);
-DECLARE_ENUM(nsq_frame, NSQ_FRAME_ENUM_MAPPER, NSQ_FRAME_END);
-
+DECLARE_ENUM(nsq_fsm,   NSQ_FSM_ENUM_MAPPER,    NSQ_FSM_END);
+DECLARE_ENUM(nsq_auth,  NSQ_AUTH_ENUM_MAPPER,   NSQ_AUTH_END);
+DECLARE_ENUM(nsq_error, NSQ_ERROR_ENUM_MAPPER,  NSQ_E_END);
+DECLARE_ENUM(nsq_frame, NSQ_FRAME_ENUM_MAPPER,  NSQ_FRAME_END);
 
 bool
 is_good_nsq_name_char(int ch)
@@ -322,7 +321,7 @@ nsqb_recv(int fd, nsq_buffer_t *b)
     if (nsq_msg_total_size(msg) < size) {
         err = -ETOOSMALL; goto error;
     }
-    b->len += len;
+    sb_shift(b, len);
 
     if (0==nsq_msg_body_size(msg)) {
         err = 0; goto error;
@@ -339,8 +338,8 @@ nsqb_recv(int fd, nsq_buffer_t *b)
     if (len<size) {
         err = -ETOOSMALL; goto error;
     }
-    b->len += len;
-    b->buf[b->len] = 0;
+    sb_shift(b, len);
+
     if (is_nsq_frame_message(msg->type)) {
         nsq_body_ntoh(msg);
     }
