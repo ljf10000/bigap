@@ -126,10 +126,7 @@ ak_cmd_set(int argc, char *argv[])
         return -EINVAL;
     }
 
-    char *end = NULL;
-    uint32 v = os_strtoul(value, &end, 0);
-
-    int err = __ak_setvaluebyid(id, v);
+    int err = __ak_setvaluebyid(id, os_strtoul(value, NULL, 0));
     if (err<0) {
         return err;
     }
