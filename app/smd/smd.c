@@ -282,12 +282,19 @@ smd_run(sm_entry_t *entry, char *prefix)
         return 0;
     }
     else { // child
+#if 0
         char *argv[] = {"bash", "-c", entry->command, NULL};
         
         err = execvp("/bin/bash", argv);
         
         debug_error("exec %s error:%d", entry->command, -errno);
+#else
+        cmd_table_t *cmd = cmd_argv(entry->command);
         
+        err = execvp(cmd->argv[0], cmd->argv);
+        
+        debug_error("exec %s error:%d", cmd->argv[0], -errno);
+#endif
         exit(err);
     }
 }
@@ -557,10 +564,10 @@ smd_create(char *name, char *command, char *pidfile)
         return NULL;
     }
 
-    entry->name     = strdup(name);
-    entry->command  = strdup(command);
+    entry->name     = os_strdup(name);
+    entry->command  = os_strdup(os_str_skip_env(command));
     if (pidfile) {
-        entry->pidfile  = strdup(pidfile);
+        entry->pidfile  = os_strdup(pidfile);
     }
 
     smd_set_time(entry, "in create");

@@ -324,6 +324,12 @@ os_isblank(int ch)
     return ' '==ch || '\t'==ch;
 }
 
+static inline bool
+os_iseq(int ch)
+{
+    return '='==ch;
+}
+
 static inline bool 
 os_char_is(int ch, char_is_f *is)
 {
@@ -333,6 +339,8 @@ os_char_is(int ch, char_is_f *is)
 EXTERN char *
 os_str_skip(const char *s, char_is_f *is);
 
+EXTERN char *
+os_str_skip_env(const char *s);
 /*
 * 将 string 内的 is 替换 为 new
 *

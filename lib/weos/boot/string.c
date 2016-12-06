@@ -105,6 +105,29 @@ os_str_skip(const char *s, char_is_f *is)
 }
 
 DECLARE char *
+os_str_skip_env(const char *s)
+{
+    char *begin = (char *)s;
+    char *p, *eq;
+
+    while(1) {
+        // find '='
+        eq = os_strchr(begin, '=');
+        if (NULL==eq) {
+            return begin;
+        }
+
+        // find ' '
+        p = os_strchr(eq, ' ');
+        if (NULL==p) {
+            return begin;
+        }
+
+        begin = ++p; // skip ' '
+    }
+}
+
+DECLARE char *
 os_str_replace(char *s, char_is_f *is, int new)
 {
     char *p = s;
