@@ -178,6 +178,8 @@ __clib_show(void)
         __clib_cut(__clib_len);
         
         os_printf("%s", __clib_buf);
+
+        os_objzero(__clib());
     }
 
     return __clib_err;
