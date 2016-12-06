@@ -219,9 +219,7 @@ smd_dump_all(char *name)
     sm_entry_t *entry;
 
     if (__is_ak_debug_trace) {
-        list_for_each_entry(entry, &smd.list, node) {
-            os_println("smd_dump_all entry name:%s", entry->name);
-        
+        list_for_each_entry(entry, &smd.list, node) {        
             debug_trace("entry:%s pid:%d/%d forks:%d command:%s ", 
                 entry->name,
                 entry->normal, entry->deamon,
@@ -240,9 +238,7 @@ smd_getbyname(char *name)
         return NULL;
     }
 
-    list_for_each_entry(entry, &smd.list, node) {
-        os_println("smd_getbyname entry name:%s", entry->name);
-            
+    list_for_each_entry(entry, &smd.list, node) {            
         if (os_streq(name, entry->name)) {
             return entry;
         }
@@ -256,9 +252,7 @@ smd_getbynormal(int pid)
 {
     sm_entry_t *entry;
 
-    list_for_each_entry(entry, &smd.list, node) {
-        os_println("smd_getbynormal entry name:%s", entry->name);
-        
+    list_for_each_entry(entry, &smd.list, node) {        
         if (pid==entry->normal) {
             return entry;
         }
@@ -363,7 +357,6 @@ smd_wait_error(sm_entry_t *entry)
     char prefix[1+OS_LINE_SHORT] = {0};
     int pid;
 
-    os_println("smd_wait error ...");
     if (smd_is_normal(entry)) {
         pid = entry->normal;
     } else {
@@ -383,7 +376,6 @@ smd_wait_error(sm_entry_t *entry)
 
     smd_kill_deamon(entry);
     smd_run(entry, prefix);
-    os_println("smd_wait error ok.");
 }
 
 STATIC void
@@ -391,8 +383,6 @@ smd_wait_ok(sm_entry_t *entry)
 {
     char prefix[1+OS_LINE_SHORT] = {0};
     int pid = 0, normal = 0, deamon = 0;
-
-    os_println("smd_wait OK ...");
     
     if (smd_is_normal(entry)) {
         pid = normal = entry->normal;
@@ -419,8 +409,6 @@ smd_wait_ok(sm_entry_t *entry)
         smd_die(entry, prefix);
         smd_run(entry, prefix);
     }
-
-    os_println("smd_wait OK ok.");
 }
 
 STATIC void
@@ -464,18 +452,19 @@ smd_wait(void)
     char *prefix;
     
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
-        os_println("smd_wait son %d ...", pid);
+        /*
+        * todo:
+        *   fork and exit !!!
+        *   fork and exit !!!
+        *   fork and exit !!!
+        */
         smd_wait_son(pid);
-        os_println("smd_wait son %d ok.", pid);
     }
     
     /*
     * check run
     */
-    os_println("smd_wait run ...");
-    list_for_each_entry(entry, &smd.list, node) {
-        os_println("smd_wait entry name:%s", entry->name);
-        
+    list_for_each_entry(entry, &smd.list, node) {        
         switch(entry->state) {
             case SM_STATE_DIE:    /* down */
             case SM_STATE_INIT:
@@ -496,7 +485,6 @@ smd_wait(void)
                 break;
         }
     }
-    os_println("smd_wait run ok.");
     
     return 0;
 }
@@ -533,7 +521,6 @@ smd_insert(sm_entry_t *entry)
         err = smd_run(entry, "in insert(not exist)");
         if (err<0) {
             debug_error("run %s error:%d", entry->name, err);
-            os_println("run %s error:%d", entry->name, err);
             
             return err;
         }
@@ -648,7 +635,6 @@ smd_handle_insert(char *args)
         return -EINVAL4;
     }
 
-    os_println("smd_handle_insert get ...");
     sm_entry_t *entry = smd_getbyname(name);
     if (entry) {
         /*
@@ -658,25 +644,18 @@ smd_handle_insert(char *args)
         
         return 0;
     }
-    os_println("smd_handle_insert get ok.");
 
-    os_println("smd_handle_insert create ...");
     entry = smd_create(name, command, pidfile);
     if (NULL==entry) {
         return -ENOMEM;
     }
-    os_println("smd_handle_insert create ok.");
 
-    os_println("smd_handle_insert insert ...");
     err = smd_insert(entry);
     if (err<0) {
-        os_println("smd_handle_insert remove ...");
         smd_remove(entry);
-        os_println("smd_handle_insert remove ok.");
 
         return err;
     }
-    os_println("smd_handle_insert insert ok.");
     
     return 0;
 }
@@ -705,7 +684,6 @@ smd_handle_clean(char *args)
     sm_entry_t *entry, *tmp;
 
     list_for_each_entry_safe(entry, tmp, &smd.list, node) {
-        os_println("smd_handle_clean entry name:%s", entry->name);
         smd_remove(entry);
     }
 
@@ -734,9 +712,7 @@ smd_handle_show(char *args)
     
     cli_sprintf("#name pid/dpid forks state command" __crlf);
 
-    list_for_each_entry(entry, &smd.list, node) {
-        os_println("smd_handle_show entry name:%s", entry->name);
-        
+    list_for_each_entry(entry, &smd.list, node) {        
         if (NULL==name || os_streq(entry->name, name)) {
             smd_show(entry);
 
@@ -767,18 +743,14 @@ smd_cli(struct loop_watcher *watcher, time_t now)
     };
     int err, ret;
 
-    os_println("smd_cli ...");
     ret = clis_handle(watcher->fd, table);
-    os_println("smd_cli ok.");
 
-    os_println("smd_cli del fd ...");
     err = os_loop_del_watcher(&smd.loop, watcher->fd);
     if (err<0) {
         debug_trace("del loop cli error:%d", err);
         
         return err;
     }
-    os_println("smd_cli del fd ok.");
     
     return ret;
 }
@@ -801,13 +773,11 @@ smd_init_server(void)
 STATIC int
 smd_timer(struct loop_watcher *watcher, time_t now)
 {
-    os_println("smd_timer %u ...", now);
     smd.time += SM_TIMER;
 
     if (0==(smd.time % os_second(CLI_TIMEOUT))) {
         smd_wait();
     }
-    os_println("smd_timer %u ok", now);
     
     return 0;
 }
