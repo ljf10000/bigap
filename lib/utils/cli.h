@@ -191,6 +191,9 @@ __cli_reply(int err)
 
     __clib_err = err;
 #if __CLI_TCP__
+    if (__clib_len) {
+        os_printf("%s", __clib_buf);
+    }
     len = io_send(cli->fd, __clib(), __clib_space);
 #else
     len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
@@ -310,37 +313,34 @@ __clic_recv(int fd, int timeout)
 {
     cli_t *cli = __this_cli();
     int err = 0, len;
-    simple_buffer_t sb;
 
-    sb_init(&sb, SB_AUTO_INITER(CLI_BUFFER_LEN, CLI_BUFFER_LEN, CLI_BUFFER_LEN));
-    
     while(1) {
         len = sizeof(cli_header_t);
         err = __io_recv(fd, __clib(), len, 0);
         if (err==len) {
             // is last
             if (0==__clib_len) {
-                err = __clib_err; goto  show;
+                return __clib_err;
             }
 
             len = __clib_len;
             err = __io_recv(fd, __clib_buf, len, 0);
             if (err==len) {
-                sb_append_string(&sb, __clib_buf);
+                __clib_show();
             } else {
                 goto error;
             }
         } else {
 error:
             if (err > len) {
-                err = -ETOOBIG;
+                return -ETOOBIG;
             }
             else if (err>0) {
-                err = -ETOOSMALL;
+                return -ETOOSMALL;
             }
             // err = 0
             else if (0==err) {
-                err = __clib_err;
+                return __clib_show();
             }
             else if (EINTR==errno) {
                 continue;
@@ -349,19 +349,13 @@ error:
                 /*
                 * timeout
                 */
-                err = -ETIMEOUT;
+                return -ETIMEOUT;
             }
             else {
-                err = -errno;
+                return -errno;
             }
-
-            goto show;
         }
     }
-
-show:
-    os_printf("%s", sb_buf(&sb));
-    sb_fini(&sb);
     
     return 0;
 }
