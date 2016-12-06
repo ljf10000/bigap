@@ -462,7 +462,7 @@ os_loop_del_watcher(loop_t *loop, int fd)
         return -EINVAL0;
     }
     else if (false==is_good_fd(fd)) {
-        return -EINVAL1;
+        return -EBADFD;
     }
     else {
         return __loop_watcher_del(loop, fd);
@@ -476,7 +476,7 @@ os_loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], 
         return -EINVAL0;
     }
     else if (NULL==cb) {
-        return -EINVAL1;
+        return -EBADCB;
     }
     else if (NULL==inotify) {
         return -EINVAL2;
@@ -496,7 +496,7 @@ os_loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
         return -EINVAL0;
     }
     else if (NULL==cb) {
-        return -EINVAL1;
+        return -EBADCB;
     }
     else if (NULL==timer) {
         return -EINVAL2;
@@ -513,7 +513,7 @@ os_loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
         return -EINVAL0;
     }
     else if (NULL==cb) {
-        return -EINVAL1;
+        return -EBADCB;
     }
     else if (NULL==sigs) {
         return -EINVAL2;
@@ -533,7 +533,7 @@ os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user)
         return -EINVAL0;
     }
     else if (NULL==cb) {
-        return -EINVAL1;
+        return -EBADCB;
     }
     else if (false==is_good_fd(fd)) {
         return -EBADF;
@@ -550,7 +550,7 @@ os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
         return -EINVAL0;
     }
     else if (NULL==cb) {
-        return -EINVAL1;
+        return -EBADCB;
     }
     else if (false==is_good_fd(fd)) {
         return -EBADF;
