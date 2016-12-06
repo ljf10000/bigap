@@ -8,7 +8,7 @@
 #if __CLI_TCP__
 #define CLI_SOCK_TYPE       SOCK_STREAM
 #define CLI_REPLY_END       __cli_reply
-#define CLI_BUFFER_LEN      OS_PAGE_LEN /* test tcp with page size */
+#define CLI_BUFFER_LEN      OS_BIG_LEN /* test tcp with page size */
 #else
 #define CLI_SOCK_TYPE       SOCK_DGRAM
 #define CLI_REPLY_END       NULL
