@@ -191,9 +191,6 @@ __cli_reply(int err)
 
     __clib_err = err;
 #if __CLI_TCP__
-    if (__clib_len) {
-        os_printf("%s", __clib_buf);
-    }
     len = io_send(cli->fd, __clib(), __clib_space);
 #else
     len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
@@ -320,7 +317,7 @@ __clic_recv(int fd, int timeout)
         if (err==len) {
             // is last
             if (0==__clib_len) {
-                return __clib_show();
+                return __clib_err;
             }
 
             len = __clib_len;
