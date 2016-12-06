@@ -15,6 +15,25 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 OS_REAL_INITER;
 
 STATIC int 
+ak_handle_app_key(int argc, char *argv[], void (*handle)(char *app, char *key))
+{
+    char *app = argv[1];
+    char *key = argv[2];
+
+    if (app && 0==app[1] && os_iswildcard(app[0])) {
+        app = NULL;
+    }
+
+    if (key && 0==key[1] && os_iswildcard(key[0])) {
+        key = NULL;
+    }
+
+    (*handle)(app, key);
+
+    return 0;
+}
+
+STATIC int 
 ak_cmd_reload(int argc, char *argv[])
 {
     (void)argc;
@@ -33,25 +52,6 @@ ak_cmd_load(int argc, char *argv[])
     (void)argv;
     
     ak_load();
-
-    return 0;
-}
-
-STATIC int 
-ak_handle_app_key(int argc, char *argv[], void (*handle)(char *app, char *key))
-{
-    char *app = argv[1];
-    char *key = argv[2];
-
-    if (app && 0==app[1] && os_iswildcard(app[0])) {
-        app = NULL;
-    }
-
-    if (key && 0==key[1] && os_iswildcard(key[0])) {
-        key = NULL;
-    }
-
-    (*handle)(app, key);
 
     return 0;
 }

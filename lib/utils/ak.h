@@ -5,8 +5,8 @@
 #define OS_APPNAMELEN           (32 - sizeof(uint32) - 1)
 #endif
 
-#ifndef OS_AKNAME_LEN
-#define OS_AKNAME_LEN           (32 - 1)
+#ifndef OS_APPKEYLEN
+#define OS_APPKEYLEN            (32 - 1)
 #endif
 
 #ifndef AK_PATH
@@ -17,8 +17,12 @@
 #define AK_PATH_DEFT            "/etc/ak"
 #endif
 
+#ifndef AK_BITS
+#define AK_BITS                 10
+#endif
+
 #ifndef AK_LIMIT
-#define AK_LIMIT                1023
+#define AK_LIMIT                ((1<<AK_BITS) - 1)  // 1023
 #endif
 
 #ifndef ENV_AK_DEBUG
@@ -288,7 +292,7 @@ ak_init(void)
 */
 typedef struct {
     char app[1+OS_APPNAMELEN];
-    char k[1+OS_AKNAME_LEN];
+    char k[1+OS_APPKEYLEN];
     uint32 v;
 } ak_t;
 

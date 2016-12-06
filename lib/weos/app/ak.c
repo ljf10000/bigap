@@ -15,48 +15,48 @@ typedef union {
     akid_t akid;
 
     struct {
-        uint16 idx;
-        uint16 offset;
+        uint32 idx: AK_BITS;
+        uint32 offset: 8*sizeof(akid_t) - AK_BITS;
     } v;
 } ak_u;
 
 #define __AKU_MAKE(_idx, _offset)    {  \
     .v = {                              \
-        .idx = (uint16)(_idx),          \
-        .offset = (uint16)(_offset),    \
+        .idx = _idx,                    \
+        .offset = _offset,              \
     }                                   \
 }
 
 #define __AKU_INITER(_akid)         { .akid = _akid }
 
 STATIC akid_t
-__ak_make(int idx, int offset)
+__ak_make(uint32 idx, uint32 offset)
 {
-    ak_u aku = __AKU_MAKE(idx, offset);
+    ak_u u = __AKU_MAKE(idx, offset);
 
-    return aku.akid;
+    return u.akid;
 }
 
-STATIC int
+STATIC uint32
 __ak_idx(akid_t akid)
 {
-    ak_u aku = __AKU_INITER(akid);
+    ak_u u = __AKU_INITER(akid);
 
-    return (int)aku.v.idx;
+    return u.v.idx;
 }
 
-STATIC int
+STATIC uint32
 __ak_offset(akid_t akid)
 {
-    ak_u aku = __AKU_INITER(akid);
+    ak_u u = __AKU_INITER(akid);
 
-    return (int)aku.v.offset;
+    return (int)u.v.offset;
 }
 
-#define ak_shm_size     (0  \
+#define ak_shm_size         (0  \
     + sizeof(ak_hdr_t)          \
     + sizeof(ak_t) * AK_LIMIT   \
-    + sizeof(uint32)          \
+    + sizeof(uint32)            \
 )   /* end */
 
 STATIC os_shm_t *
@@ -100,13 +100,13 @@ __ak_dump(void)
     }
 }
 
-STATIC int 
+STATIC uint32 
 __ak_getidx(ak_t *ak)
 {
     return ak - __ak_0;
 }
 
-STATIC int 
+STATIC uint32 
 __ak_getoffset(ak_t *ak)
 {
     return (char *)ak - (char *)__ak_hdr();
@@ -157,7 +157,7 @@ __ak_getbyname_p(char *app, char *k)
     if (NULL==app || os_strlen(app) > OS_APPNAMELEN) {
         return NULL;
     }
-    else if (NULL==k || os_strlen(k) > OS_AKNAME_LEN) {
+    else if (NULL==k || os_strlen(k) > OS_APPKEYLEN) {
         return NULL;
     }
     
@@ -268,8 +268,8 @@ __ak_load_line_kv(ak_info_t *info)
     }
     
     int len = os_strlen(info->key);
-    if (len >= OS_AKNAME_LEN) {
-        ak_println("key(%s) length(%d) > %d", info->key, len, OS_AKNAME_LEN);
+    if (len >= OS_APPKEYLEN) {
+        ak_println("key(%s) length(%d) > %d", info->key, len, OS_APPKEYLEN);
         
         return -ETOOBIG;
     }
@@ -429,7 +429,6 @@ ak_jshow(char *app, char *key)
     int iapp = 0;
     
     sb_sprintf(&sb, "{");
-    
     for (i=0; i<count; i++) {
         int ikey = 0;
 
@@ -460,12 +459,10 @@ ak_jshow(char *app, char *key)
         sb_sprintf(&sb, "},");
         iapp++;
     }
-    
     if (iapp) {
         sb_backspace(&sb, 1);
     }
     sb_sprintf(&sb, "}" __crlf);
-
     os_printf("%s", sb.buf);
 
     sb_fini(&sb);
