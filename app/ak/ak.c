@@ -33,6 +33,68 @@ ak_handle_app_key(int argc, char *argv[], void (*handle)(char *app, char *key))
     return 0;
 }
 
+STATIC void 
+ak_show_helper(char *app, char *key) 
+{
+    mv_t foreach(char *name, char *k, uint32 v)
+    {
+        if ((NULL==app || os_streq(app, name)) &&
+            (NULL==key || os_streq(key, k))) {
+            os_println(__tab "%s.%s=%u", name, k, v);
+        }
+    }
+    
+    ak_foreach(foreach);
+
+    return 0;
+}
+
+STATIC void 
+ak_json_helper(char *app, char *key) 
+{
+    jobj_t jobj, japp, jval;
+    ak_t *ak;
+    int err;
+    
+    jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return;
+    }
+
+    mv_t foreach(char *name, char *k, uint32 v)
+    {
+        if (app && os_strneq(app, name)) {
+            return mv2_ok;
+        }
+        else if (key && os_strneq(key, k)) {
+            return mv2_ok;
+        }
+
+        japp = jobj_get(jobj, name);
+        if (NULL==japp) {
+            japp = jobj_new_object();
+            if (NULL==japp) {
+                return mv2_break(-ENOMEM);
+            }
+            
+            jobj_add(jobj, name, japp);
+        }
+
+        if (NULL==jobj_get(japp, k)) {
+            err = jobj_add_u32(japp, k, v);
+            if (err<0) {
+                return mv2_break(err);
+            }
+        }
+    }
+
+    ak_foreach(foreach);
+
+    os_println("%s", jobj_json(jobj));
+
+    jobj_put(jobj);
+}
+
 STATIC int 
 ak_cmd_reload(int argc, char *argv[])
 {
@@ -40,7 +102,7 @@ ak_cmd_reload(int argc, char *argv[])
     (void)argv;
     
     ak_load();
-    ak_show(NULL, NULL);
+    ak_show_helper(NULL, NULL);
 
     return 0;
 }
@@ -82,26 +144,13 @@ ak_cmd_set(int argc, char *argv[])
 STATIC int 
 ak_cmd_show(int argc, char *argv[])
 {
-    return ak_handle_app_key(argc, argv, ak_show);
-}
-
-void 
-ak_cmd_json_helper(char *app, char *key)
-{
-    int cb(jobj_t jobj)
-    {
-        os_println("%s", jobj_json(jobj));
-
-        return 0;
-    }
-    
-    ak_jhandle(app, key, cb);
+    return ak_handle_app_key(argc, argv, ak_show_helper);
 }
 
 STATIC int 
 ak_cmd_json(int argc, char *argv[])
 {
-    return ak_handle_app_key(argc, argv, ak_cmd_json_helper);
+    return ak_handle_app_key(argc, argv, ak_json_helper);
 }
 
 STATIC int

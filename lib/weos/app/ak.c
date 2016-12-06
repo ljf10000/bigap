@@ -364,75 +364,22 @@ ak_load(void)
     return 0;
 }
 
-void 
-ak_show(char *app, char *key) 
+int
+ak_foreach(ak_foreach_f *foreach)
 {
-    int i;
-    ak_t *ak;
+    if (foreach) {
+        ak_t *ak;
+        mv_u mv;
     
-    for (i=0; i<__ak_count; i++) {
-        ak = __ak_entry(i);
-
-        if ((NULL==app || os_streq(app, ak->app)) &&
-            (NULL==key || os_streq(key, ak->k))) {
-            os_println(__tab "%s.%s=%u",
-                ak->app,
-                ak->k,
-                ak->v);
-        }
-    }
-}
-
-int 
-ak_jhandle(char *app, char *key, int (*callback)(struct json_object* jobj)) 
-{
-    jobj_t jobj, japp, jval;
-    ak_t *ak;
-    int err;
-    
-    jobj = jobj_new_object();
-    if (NULL==jobj) {
-        return -ENOMEM;
-    }
-
-    __ak_foreach(ak) {
-        if (app && os_strneq(app, ak->app)) {
-            continue;
-        }
-        else if (key && os_strneq(key, ak->k)) {
-            continue;
-        }
-        
-        japp = jobj_get(jobj, ak->app);
-        if (NULL==japp) {
-            japp = jobj_new_object();
-            if (NULL==japp) {
-                err = -ENOMEM; goto error;
-            }
-            
-            jobj_add(jobj, ak->app, japp);
-        }
-
-        if (NULL==jobj_get(japp, ak->k)) {
-            err = jobj_add_u32(japp, ak->k, ak->v);
-            if (err<0) {
-                goto error;
+        __ak_foreach(ak) {
+            mv.v = (*foreach)(ak->app, ak->key, ak->v);
+            if (is_mv2_break(mv)) {
+                return mv2_break(mv);
             }
-        }
+        }
     }
 
-    if (callback) {
-        err = (*callback)(jobj);
-        if (err<0) {
-            goto error;
-        }
-    }
-    
-    err = 0;
-error:
-    jobj_put(jobj);
-
-    return err;
+    return 0;
 }
 
 int 

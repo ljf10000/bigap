@@ -253,6 +253,8 @@ __ak_sys_value(int sys, char *line);
 
 EXTERN int
 __ak_get_value(char *key, char *value);
+
+typedef mv_t (*ak_foreach_f)(char *app, char *k, uint32 v);
 /******************************************************************************/
 extern bool __THIS_COMMAND;
 
@@ -275,8 +277,7 @@ static inline int __ak_init(void);
 #define ak_set(_akid, _value)           0
 
 #define ak_load()                       0
-#define ak_show(_app, _key)             os_do_nothing()
-#define ak_jhandle(_app, _key, _cb)   0
+#define ak_foreach(_foreach)            0
 #define ak_fini()                       0
 
 static inline int 
@@ -355,12 +356,8 @@ ak_set(akid_t akid, uint32 v)
 extern int 
 ak_load(void);
 
-extern void 
-ak_show(char *app, char *key);
-
-struct json_object;
-extern int 
-ak_jhandle(char *app, char *key, int (*callback)(struct json_object* jobj));
+extern int
+ak_foreach(ak_foreach_f *foreach);
 
 extern int 
 ak_fini(void) ;
