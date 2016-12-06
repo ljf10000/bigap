@@ -63,29 +63,27 @@ ak_json_helper(char *app, char *key)
 
     mv_t foreach(char *name, char *k, uint32 v)
     {
-        if (app && os_strneq(app, name)) {
-            return mv2_ok;
-        }
-        else if (key && os_strneq(key, k)) {
-            return mv2_ok;
-        }
-
-        japp = jobj_get(jobj, name);
-        if (NULL==japp) {
-            japp = jobj_new_object();
+        if ((NULL==app || os_streq(app, name)) &&
+            (NULL==key || os_streq(key, k))) {
+            japp = jobj_get(jobj, name);
             if (NULL==japp) {
-                return mv2_break(-ENOMEM);
-            }
-            
-            jobj_add(jobj, name, japp);
-        }
+                japp = jobj_new_object();
+                if (NULL==japp) {
+                    return mv2_break(-ENOMEM);
+                }
+                
+                jobj_add(jobj, name, japp);
+            }
 
-        if (NULL==jobj_get(japp, k)) {
-            err = jobj_add_u32(japp, k, v);
-            if (err<0) {
-                return mv2_break(err);
+            if (NULL==jobj_get(japp, k)) {
+                err = jobj_add_u32(japp, k, v);
+                if (err<0) {
+                    return mv2_break(err);
+                }
             }
         }
+        
+        return mv2_ok;
     }
 
     ak_foreach(foreach);
