@@ -47,16 +47,12 @@ ak_show_helper(char *app, char *key)
     }
     
     ak_foreach(foreach);
-
-    return 0;
 }
 
 STATIC void 
 ak_json_helper(char *app, char *key) 
 {
-    jobj_t jobj, japp, jval;
-    ak_t *ak;
-    int err;
+    jobj_t jobj;
     
     jobj = jobj_new_object();
     if (NULL==jobj) {
@@ -67,7 +63,7 @@ ak_json_helper(char *app, char *key)
     {
         if ((NULL==app || os_streq(app, name)) &&
             (NULL==key || os_streq(key, k))) {
-            japp = jobj_get(jobj, name);
+            jobj_t japp = jobj_get(jobj, name);
             if (NULL==japp) {
                 japp = jobj_new_object();
                 if (NULL==japp) {
@@ -78,7 +74,7 @@ ak_json_helper(char *app, char *key)
             }
 
             if (NULL==jobj_get(japp, k)) {
-                err = jobj_add_u32(japp, k, v);
+                int err = jobj_add_u32(japp, k, v);
                 if (err<0) {
                     return mv2_break(err);
                 }
