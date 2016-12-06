@@ -717,8 +717,18 @@ smd_cli(struct loop_watcher *watcher, time_t now)
         CLI_ENTRY("clean",  smd_handle_clean),
         CLI_ENTRY("show",   smd_handle_show),
     };
+    int err, ret;
 
-    return clis_handle(watcher->fd, table);
+    ret = clis_handle(watcher->fd, table);
+    
+    err = os_loop_del_watcher(&umd.loop, watcher->fd);
+    if (err<0) {
+        debug_trace("del loop cli error:%d", err);
+        
+        return err;
+    }
+    
+    return ret;
 }
 
 STATIC int
@@ -726,9 +736,9 @@ smd_init_server(void)
 {
     int err;
     
-    err = os_loop_add_CLI(&smd.loop, "smd", smd_cli);
+    err = os_loop_add_cli(&smd.loop, smd_cli);
     if (err<0) {
-        debug_ok("init server error:%d", err);
+        debug_error("add loop cli error:%d", err);
     }
     
     debug_ok("init server ok");

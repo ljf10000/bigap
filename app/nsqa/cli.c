@@ -112,7 +112,7 @@ init_nsqa_cli(void)
 {
     int err;
 
-    err = os_loop_add_CLI(&nsqa.loop, "nsqa", nsqa_cli);
+    err = os_loop_add_cli(&nsqa.loop, nsqa_cli);
     if (err<0) {
         return err;
     }
