@@ -42,27 +42,14 @@ static inline int sm_state_getidbyname(const char *name);
 #endif
 
 typedef struct {
-    struct {
-        int fd;
-        
-        sockaddr_un_t addr;
-    } server;
-
     STREAM f;    /* todo: cache entry */
-    int timeout;
     uint32 time;
     
     struct list_head list;
-
     loop_t loop;
 } smd_control_t;
 
 #define SMD_INITER  {                   \
-    .server = {                         \
-        .fd     = INVALID_FD,           \
-        .addr   = OS_SOCKADDR_ABSTRACT("smd"), \
-    },                                  \
-    .timeout = CLI_TIMEOUT,             \
     .list = LIST_HEAD_INIT(smd.list),   \
     .loop = LOOP_INITER,                \
 }   /* end */
@@ -721,7 +708,7 @@ smd_handle_show(char *args)
 }
 
 STATIC int 
-smd_cli_cb(struct loop_watcher *watcher, time_t now)
+smd_cli(struct loop_watcher *watcher, time_t now)
 {
     static cli_table_t table[] = {
         CLI_ENTRY("insert", smd_handle_insert),
@@ -736,25 +723,9 @@ smd_cli_cb(struct loop_watcher *watcher, time_t now)
 STATIC int
 smd_init_server(void)
 {
-    int fd;
     int err;
     
-    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
-    if (fd<0) {
-    	debug_error("socket error:%d", -errno);
-        return -errno;
-    }
-    os_closexec(fd);
-    
-    err = bind(fd, (sockaddr_t *)&smd.server.addr, get_abstract_sockaddr_len(&smd.server.addr));
-    if (err<0) {
-        debug_error("bind error:%d", -errno);
-        return -errno;
-    }
-    
-    smd.server.fd = fd;
-
-    err = os_loop_add_father(&smd.loop, smd.server.fd, smd_cli_cb, NULL);
+    err = os_loop_add_CLI(&smd.loop, "smd", smd_cli);
     if (err<0) {
         debug_error("add loop father error:%d", err);
 
@@ -782,7 +753,7 @@ smd_init_timer(void)
     struct itimerspec tm = OS_ITIMESPEC_INITER(SM_TIMER, 0);
     int err;
     
-    err = os_loop_add_timer(&smd.loop, smd.server.fd, smd_timer_cb, &tm);
+    err = os_loop_add_timer(&smd.loop, smd_timer_cb, &tm);
     if (err<0) {
         debug_error("add loop timer error:%d", err);
 
