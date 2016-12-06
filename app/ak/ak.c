@@ -85,10 +85,23 @@ ak_cmd_show(int argc, char *argv[])
     return ak_handle_app_key(argc, argv, ak_show);
 }
 
+void 
+ak_cmd_jshow_helper(char *app, char *key)
+{
+    int callback(jobj_t jobj)
+    {
+        os_println("%s", jobj_json(jobj));
+
+        return 0;
+    }
+    
+    ak_jcallback(app, key, callback);
+}
+
 STATIC int 
 ak_cmd_jshow(int argc, char *argv[])
 {
-    return ak_handle_app_key(argc, argv, ak_jshow);
+    return ak_handle_app_key(argc, argv, ak_cmd_jshow_helper);
 }
 
 STATIC int

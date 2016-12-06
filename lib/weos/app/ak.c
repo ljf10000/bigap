@@ -135,8 +135,7 @@ STATIC ak_t *
 __ak_new(char *app, char *k)
 {
     if (__ak_count < __ak_limit) {
-        int idx = __ak_count++;
-        ak_t *ak = __ak_entry(idx);
+        ak_t *ak = __ak_entry(__ak_count++);
         
         os_strdcpy(ak->app, app);
         os_strdcpy(ak->k, k);
@@ -150,7 +149,7 @@ __ak_new(char *app, char *k)
 }
 
 STATIC ak_t *
-__ak_getbyname_p(char *app, char *k)
+__ak_getbyname_helper(char *app, char *k, bool CreateIfNotExist)
 {
     ak_t *ak = NULL;
     
@@ -166,14 +165,23 @@ __ak_getbyname_p(char *app, char *k)
             return ak;
         }
     }
-    
-    return NULL;
+
+    if (CreateIfNotExist) {
+        ak = __ak_new(app, k);
+        if (NULL==ak) {
+            ak_println("limit(%d)", __ak_limit);
+        }
+
+        return ak;
+    } else {
+        return NULL;
+    }
 }
 
 akid_t 
 __ak_getbyname(char *app, char *k)
 {
-    ak_t *ak = __ak_getbyname_p(app, k);
+    ak_t *ak = __ak_getbyname_helper(app, k, false);
 
     return ak?__ak_MAKE(ak):INVALID_AKID;
 }
@@ -181,10 +189,7 @@ __ak_getbyname(char *app, char *k)
 akid_t 
 __ak_getbynameEx(char *app, char *k)
 {
-    ak_t *ak = __ak_getbyname_p(app, k);
-    if (NULL==ak) {
-        ak = __ak_new(app, k);
-    }
+    ak_t *ak = __ak_getbyname_helper(app, k, true);
 
     return ak?__ak_MAKE(ak):INVALID_AKID;
 }
@@ -296,14 +301,9 @@ __ak_load_line(const char *file/* not include path */, char *line)
     }
     info.v = __ak_get_value(info.key, info.var);
     
-    ak_t *ak = __ak_getbyname_p(info.app, info.key);
+    ak_t *ak = __ak_getbyname_helper(info.app, info.key, true);
     if (NULL==ak) {
-        ak = __ak_new(info.app, info.key);
-        if (NULL==ak) {
-            ak_println("limit(%d)", __ak_limit);
-            
-            return mv2_break(-ELIMIT);
-        }
+        return mv2_break(-ELIMIT);
     }
 
     ak_println("load %s.%s(0x%x==>0x%x)",
@@ -383,89 +383,56 @@ ak_show(char *app, char *key)
     }
 }
 
-STATIC int
-__ak_apps_find(char *apps[], int count, char *app)
+int 
+ak_jcallback(char *app, char *key, int (*callback)(jobj_t jobj)) 
 {
-    int i;
-
-    for (i=0; i<count; i++) {
-        if (os_streq(app, apps[i])) {
-            return i;
-        }
-    }
-    
-    return INVALID_COMMON_ID;
-}
-
-STATIC int
-__ak_apps_save(char *apps[])
-{
-    int i, id, count = 0;
+    jobj_t jobj, japp, jval;
     ak_t *ak;
+    int err;
     
-    for (i=0; i<__ak_count; i++) {
-        ak = __ak_entry(i);
-
-        id = __ak_apps_find(apps, count, ak->app);
-        if (false==is_good_common_id(id)) {
-            apps[count++] = ak->app;
-        }
+    jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return -ENOMEM;
     }
-    
-    return count;
-}
 
-void 
-ak_jshow(char *app, char *key) 
-{
-    int i, j, id;
-    char *apps[__ak_count];
-    ak_t *ak;
-    simple_buffer_t sb;;
-
-    sb_init(&sb, 0, 0, 0, SB_F_EXPAND_AUTO);
-
-    int count = __ak_apps_save(apps);
-    int iapp = 0;
-    
-    sb_sprintf(&sb, "{");
-    for (i=0; i<count; i++) {
-        int ikey = 0;
-
-        if (app && os_strneq(app, apps[i])) {
+    __ak_foreach(ak) {
+        if (app && os_strneq(app, ak->app)) {
+            continue;
+        }
+        else if (key && os_strneq(key, ak->k)) {
             continue;
         }
         
-        sb_sprintf(&sb, "\"%s\": {", apps[i]);
-        
-        for (j=0; j<__ak_count; j++) {
-            ak = __ak_entry(j);
+        japp = jobj_get(jobj, ak->app);
+        if (NULL==japp) {
+            japp = jobj_new_object();
+            if (NULL==japp) {
+                err = -ENOMEM; goto error;
+            }
             
-            if (os_strneq(apps[i], ak->app)) {
-                continue;
-            }
-            else if (key && os_strneq(key, ak->k)) {
-                continue;
-            }
-
-            sb_sprintf(&sb, "\"%s\": %u,", ak->k, ak->v);
-            ikey++;
+            jobj_add(jobj, ak->app, japp);
         }
 
-        if (ikey) {
-            sb_backspace(&sb, 1);
+        if (NULL==jobj_get(japp, ak->k)) {
+            err = jobj_add_u32(japp, ak->k, ak->v);
+            if (err<0) {
+                goto error;
+            }
         }
-        
-        sb_sprintf(&sb, "},");
-        iapp++;
     }
-    if (iapp) {
-        sb_backspace(&sb, 1);
-    }
-    sb_sprintf(&sb, "}" __crlf);
-    os_printf("%s", sb.buf);
 
-    sb_fini(&sb);
+    if (callback) {
+        err = (*callback)(jobj);
+        if (err<0) {
+            goto error;
+        }
+    }
+    
+    err = 0;
+error:
+    jobj_put(jobj);
+
+    return err;
 }
 
 int 

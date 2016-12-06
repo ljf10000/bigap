@@ -276,7 +276,7 @@ static inline int __ak_init(void);
 
 #define ak_load()                       0
 #define ak_show(_app, _key)             os_do_nothing()
-#define ak_jshow(_app, _key)            os_do_nothing()
+#define ak_jcallback(_app, _key, _cb)   0
 #define ak_fini()                       0
 
 static inline int 
@@ -356,10 +356,10 @@ extern int
 ak_load(void);
 
 extern void 
-ak_show(char *app, char *key) ;
+ak_show(char *app, char *key);
 
-extern void 
-ak_jshow(char *app, char *key) ;
+extern int 
+ak_jcallback(char *app, char *key, int (*callback)(jobj_t jobj));
 
 extern int 
 ak_fini(void) ;

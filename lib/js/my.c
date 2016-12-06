@@ -26,6 +26,16 @@ duke_ak_getbyname(duk_context *ctx)
     return duk_push_uint(ctx, __ak_getbyname(app, key)), 1;
 }
 
+JS_PARAM(ak_getbynameEx, 2);
+STATIC duk_ret_t
+duke_ak_getbynameEx(duk_context *ctx)
+{
+    char *app = (char *)duk_require_string(ctx, 0);
+    char *key = (char *)duk_require_string(ctx, 1);
+    
+    return duk_push_uint(ctx, __ak_getbynameEx(app, key)), 1;
+}
+
 JS_PARAM(ak_get, 2);
 STATIC duk_ret_t
 duke_ak_get(duk_context *ctx)
@@ -745,6 +755,7 @@ js_my_arg_register(duk_context *ctx)
 
 STATIC const dukc_func_entry_t js_my_func[] = {
     JS_FUNC(ak_getbyname),
+    JS_FUNC(ak_getbynameEx),
     JS_FUNC(ak_get),
     JS_FUNC(ak_set),
     JS_FUNC(ak_load),
