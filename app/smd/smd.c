@@ -64,6 +64,7 @@ enum {
 typedef struct {
     char *name;
     char *command;
+    char *cname;
     char *pidfile;
 
     int pid;
@@ -122,8 +123,8 @@ smd_get_normal_pid(sm_entry_t *entry)
 {
     int i, pid = 0;
 
-    if (entry->pid) {
-        return entry->pid;
+    if (entry->normal) {
+        return entry->normal;
     }
     
     for (i=0; i<3; i++) {
@@ -274,7 +275,6 @@ smd_run(sm_entry_t *entry, char *prefix)
     }
     else if (pid>0) { // father
         entry->forks++;
-        entry->pid = pid;
         
         smd_change(entry, SM_STATE_FORK, pid, 0, prefix);
 
@@ -288,7 +288,7 @@ smd_run(sm_entry_t *entry, char *prefix)
         return 0;
     }
     else { // child
-#if 0
+#if 1
         char *argv[] = {"bash", "-c", entry->command, NULL};
         
         err = execvp("/bin/bash", argv);
@@ -314,7 +314,7 @@ smd_die(sm_entry_t *entry, char *prefix)
 STATIC void
 smd_killall(sm_entry_t *entry)
 {
-    os_system("killall '%s'", entry->name);
+    os_system("killall '%s'", entry->cname);
 }
 
 STATIC void
@@ -536,6 +536,7 @@ smd_destroy(sm_entry_t *entry)
 {
     if (entry) {
         os_free(entry->name);
+        os_free(entry->cname);
         os_free(entry->command);
         os_free(entry->pidfile);
 
@@ -570,14 +571,17 @@ smd_create(char *name, char *command, char *pidfile)
         return NULL;
     }
 
-    entry->name     = os_strdup(name);
-    entry->command  = os_strdup(os_str_skip_env(command));
     if (pidfile) {
         entry->pidfile  = os_strdup(pidfile);
     }
+    entry->name     = os_strdup(name);
+    
+    entry->command  = os_strdup(command);
+    cmd_table_t *cmd= cmd_argv(os_str_skip_env(command));
+    entry->cname    = os_strdup(cmd->argv[0]);
 
     smd_set_time(entry, "in create");
-    
+
     return entry;
 }
 
