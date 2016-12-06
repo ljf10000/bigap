@@ -184,18 +184,24 @@ __clib_clear(void)
 static inline int
 __cli_reply(int err)
 {
+    os_println("__cli_reply 1");
     cli_t *cli = __this_cli();
     int len;
+    os_println("__cli_reply 2");
     
     debug_cli("send reply[len=%d, err=%d]:%s", __clib_len, err, __clib_buf);
 
     __clib_err = err;
 #if __CLI_TCP__
+    os_println("__cli_reply 3");
     len = io_send(cli->fd, __clib(), __clib_space);
+    os_println("__cli_reply 4");
 #else
     len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
 #endif
+    os_println("__cli_reply 5");
     __clib_clear();
+    os_println("__cli_reply 6");
     
     return len;
 }
@@ -485,6 +491,9 @@ cli_line_handle(
 )
 {
     int i, len, err;
+
+    os_println("cli_line_handle tag=%s args=%s reply=%p end=%p", 
+        tag, args, reply, reply_end);
     
     for (i=0; i<count; i++) {
         cli_table_t *table = &tables[i];
