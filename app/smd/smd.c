@@ -620,7 +620,7 @@ smd_handle_insert(char *args)
         
         return 0;
     }
-        
+
     entry = smd_create(name, command, pidfile);
     if (NULL==entry) {
         return -ENOMEM;
