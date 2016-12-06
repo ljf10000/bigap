@@ -440,7 +440,7 @@ tmd_cli(struct loop_watcher *watcher, time_t now)
 
     ret = clis_handle(watcher->fd, table);
     
-    err = os_loop_del_watcher(&smd.loop, watcher->fd);
+    err = os_loop_del_watcher(&tmd.loop, watcher->fd);
     if (err<0) {
         debug_trace("del loop cli error:%d", err);
         
