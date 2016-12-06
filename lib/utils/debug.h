@@ -98,6 +98,15 @@ __setup_signal(void (*handle)(int signo), int sigs[], int count);
 #define setup_signal(_handle, _sigs) \
         __setup_signal(_handle, _sigs, os_count_of(_sigs))
 
+#define os_signal_ignore_list    SIGPIPE
+static inline void
+setup_signal_ignore(void (*handle)(int signo))
+{
+    int sigs[] = {os_signal_ignore_list};
+
+    setup_signal(handle?handle:SIG_IGN, sigs);
+}
+
 #define os_signal_user_list     SIGUSR1, SIGUSR2
 static inline void
 setup_signal_user(void (*handle)(int signo))
@@ -134,6 +143,7 @@ setup_signal_callstack(void (*handle)(int signo))
     setup_signal(handle?handle:__sighandle_callstack, sigs);
 }
 #else
+#define setup_signal_ignore(_handle)        os_do_nothing()
 #define setup_signal_user(_handle)          os_do_nothing()
 #define setup_signal_exit(_handle)          os_do_nothing()
 #define setup_signal_timer(_handle)         os_do_nothing()
