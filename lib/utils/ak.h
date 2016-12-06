@@ -359,7 +359,7 @@ extern void
 ak_show(char *app, char *key);
 
 extern int 
-ak_jhandle(char *app, char *key, int (*callback)(jobj_t jobj));
+ak_jhandle(char *app, char *key, int (*callback)(struct json_object* jobj));
 
 extern int 
 ak_fini(void) ;

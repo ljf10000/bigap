@@ -88,14 +88,14 @@ ak_cmd_show(int argc, char *argv[])
 void 
 ak_cmd_json_helper(char *app, char *key)
 {
-    int callback(jobj_t jobj)
+    int cb(jobj_t jobj)
     {
         os_println("%s", jobj_json(jobj));
 
         return 0;
     }
     
-    ak_jhandle(app, key, callback);
+    ak_jhandle(app, key, cb);
 }
 
 STATIC int 

@@ -384,7 +384,7 @@ ak_show(char *app, char *key)
 }
 
 int 
-ak_jhandle(char *app, char *key, int (*callback)(jobj_t jobj)) 
+ak_jhandle(char *app, char *key, int (*callback)(struct json_object* jobj)) 
 {
     jobj_t jobj, japp, jval;
     ak_t *ak;
