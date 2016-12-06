@@ -577,6 +577,7 @@ smd_handle_insert(char *args)
     char *command   = NULL;
     int err = 0;
 
+    os_println("smd_handle_insert 1");
     if (NULL==type) {
         debug_error("NULL type");
         
@@ -611,27 +612,36 @@ smd_handle_insert(char *args)
         return -EINVAL4;
     }
     
+    os_println("smd_handle_insert 2");
+    
     sm_entry_t *entry = smd_getbyname(name);
     if (entry) {
         /*
         * have exist, do nothing
         */
         debug_trace("%s exist", name);
+        os_println("smd_handle_insert 2.1");
         
         return 0;
     }
     
+    os_println("smd_handle_insert 3");
+    
     entry = smd_create(name, command, pidfile);
     if (NULL==entry) {
+        os_println("smd_handle_insert 3.1");
         return -ENOMEM;
     }
+    os_println("smd_handle_insert 4");
 
     err = smd_insert(entry);
     if (err<0) {
+        os_println("smd_handle_insert 4.1");
         smd_destroy(entry);
 
         return err;
     }
+    os_println("smd_handle_insert 5");
     
     return 0;
 }
