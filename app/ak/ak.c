@@ -86,7 +86,7 @@ ak_cmd_show(int argc, char *argv[])
 }
 
 void 
-ak_cmd_jshow_helper(char *app, char *key)
+ak_cmd_json_helper(char *app, char *key)
 {
     int callback(jobj_t jobj)
     {
@@ -95,13 +95,13 @@ ak_cmd_jshow_helper(char *app, char *key)
         return 0;
     }
     
-    ak_jcallback(app, key, callback);
+    ak_jhandle(app, key, callback);
 }
 
 STATIC int 
-ak_cmd_jshow(int argc, char *argv[])
+ak_cmd_json(int argc, char *argv[])
 {
-    return ak_handle_app_key(argc, argv, ak_cmd_jshow_helper);
+    return ak_handle_app_key(argc, argv, ak_cmd_json_helper);
 }
 
 STATIC int
@@ -111,7 +111,7 @@ ak_usage(void)
     os_eprintln(__THIS_APPNAME " load");
     os_eprintln(__THIS_APPNAME " set {app} {key} {value}");
     os_eprintln(__THIS_APPNAME " show [app] [key]");
-    os_eprintln(__THIS_APPNAME " jshow [app] [key]");
+    os_eprintln(__THIS_APPNAME " json [app] [key]");
 
     return -EFORMAT;
 }
@@ -124,7 +124,7 @@ ak_main_helper(int argc, char *argv[])
         CMD_TABLE_ENTRY(ak_cmd_load,    1, "load"),
         CMD_TABLE_ENTRY(ak_cmd_set,     4, "set", NULL, NULL, NULL),
         CMD_TABLE_ENTRY(ak_cmd_show,    3, "show", NULL, NULL),
-        CMD_TABLE_ENTRY(ak_cmd_jshow,   3, "jshow", NULL, NULL),
+        CMD_TABLE_ENTRY(ak_cmd_json,    3, "json", NULL, NULL),
     };
 
     return cmd_handle(cmd, argc, argv, ak_usage);
