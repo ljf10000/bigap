@@ -253,8 +253,6 @@ __ak_sys_value(int sys, char *line);
 
 EXTERN int
 __ak_get_value(char *key, char *value);
-
-typedef mv_t ak_foreach_f(char *app, char *k, uint32 v);
 /******************************************************************************/
 extern bool __THIS_COMMAND;
 
@@ -357,7 +355,7 @@ extern int
 ak_load(void);
 
 extern int
-ak_foreach(ak_foreach_f *foreach);
+ak_foreach(mv_t (*foreach)(char *app, char *k, uint32 v));
 
 extern int 
 ak_fini(void) ;
