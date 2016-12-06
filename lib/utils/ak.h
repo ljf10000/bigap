@@ -358,6 +358,7 @@ ak_load(void);
 extern void 
 ak_show(char *app, char *key);
 
+struct json_object;
 extern int 
 ak_jhandle(char *app, char *key, int (*callback)(struct json_object* jobj));
 
