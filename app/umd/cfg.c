@@ -16,6 +16,16 @@ extern sock_server_t umd_cli_server;
 extern sock_server_t umd_flow_server;
 extern sock_server_t umd_timer_server;
 
+STATIC void
+umd_init_cfg_intf_deft(umd_intf_t *intf, char *ifname, int id)
+{
+    os_strdcpy(intf->name, UMD_IFNAME_INGRESS);
+
+    intf->id    = id;
+    intf->auth  = umd_auth_type_deft;
+    intf->mode  = umd_forward_mode_deft;
+}
+
 STATIC int
 umd_init_cfg_intf_pre(int count)
 {
@@ -28,9 +38,7 @@ umd_init_cfg_intf_pre(int count)
     }
 
     for (i=0; i<count; i++) {
-        intf->id = i;
-        
-        os_strdcpy(intf->name, UMD_IFNAME_INGRESS);
+        umd_init_cfg_intf_deft(intf, UMD_IFNAME_INGRESS, i);
     }
     umd.cfg.instance.intf = intf;
     umd.cfg.instance.count = count;
@@ -122,14 +130,15 @@ umd_init_cfg_instance_one(jobj_t jinstance, int id)
     jval = jobj_get(jinstance, "ingress");
     if (jval) {
         char *ifname = jobj_get_string(jval);
-        
+
         os_strdcpy(intf->name, ifname);
 
         debug_config("ingress=%s", ifname);
     }
 
     jj_byeq(intf, jinstance, auth, umd_auth_type_getidbyname);
-    
+    jj_byeq(intf, jinstance, mode, umd_forward_mode_getidbyname);
+
     return 0;
 }
 

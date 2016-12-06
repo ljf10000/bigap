@@ -336,13 +336,15 @@ enum {
 typedef struct {
     char name[1+OS_IFNAME_LEN];
     byte mac[OS_MACSIZE], __r0[2];
-    uint32 id;
-    int    auth;
+    uint32  id;
     
-    uint32 index;
-    uint32 ip;
-    uint32 mask;
-    uint32 flag;
+    int     auth;   // umd_auth_type_end
+    int     mode;   // umd_forward_mode_end
+    
+    uint32  index;
+    uint32  ip;
+    uint32  mask;
+    uint32  flag;
 } umd_intf_t;
 
 #if 1
@@ -364,6 +366,8 @@ EXTERN int umd_auth_type_getidbyname(const char *name);
 #define umd_auth_type_portal    umd_auth_type_portal
 #define umd_auth_type_webcat    umd_auth_type_webcat
 #define umd_auth_type_end       umd_auth_type_end
+
+#define umd_auth_type_deft      umd_auth_type_portal
 #endif
 
 #if 1
@@ -374,13 +378,15 @@ EXTERN int umd_auth_type_getidbyname(const char *name);
 EXTERN_ENUM(umd_forward_mode, UMD_FORWARD_MODE_ENUM_MAPPER, umd_forward_mode_end);
 
 EXTERN enum_ops_t *umd_forward_mode_ops(void);
-EXTERN bool is_good_umd_flow_mode(int id);
-EXTERN char *umd_flow_mode_getnamebyid(int id);
-EXTERN int umd_flow_mode_getidbyname(const char *name);
+EXTERN bool is_good_umd_forward_mode(int id);
+EXTERN char *umd_forward_mode_getnamebyid(int id);
+EXTERN int umd_forward_mode_getidbyname(const char *name);
 
 #define umd_forward_mode_br     umd_forward_mode_br
 #define umd_forward_mode_rt     umd_forward_mode_rt
 #define umd_forward_mode_end    umd_forward_mode_end
+
+#define umd_forward_mode_deft   umd_forward_mode_rt
 #endif
 
 typedef struct {
