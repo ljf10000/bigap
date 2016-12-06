@@ -460,6 +460,7 @@ smd_wait(void)
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
         smd_wait_son(pid);
     }
+    os_println("smd_wait ...");
     
     /*
     * check run
@@ -487,6 +488,7 @@ smd_wait(void)
                 break;
         }
     }
+    os_println("smd_wait ok.");
     
     return 0;
 }
@@ -638,6 +640,7 @@ smd_handle_insert(char *args)
         return -EINVAL4;
     }
 
+    os_println("smd_handle_insert get ...");
     sm_entry_t *entry = smd_getbyname(name);
     if (entry) {
         /*
@@ -647,18 +650,25 @@ smd_handle_insert(char *args)
         
         return 0;
     }
+    os_println("smd_handle_insert get ok.");
 
+    os_println("smd_handle_insert create ...");
     entry = smd_create(name, command, pidfile);
     if (NULL==entry) {
         return -ENOMEM;
     }
+    os_println("smd_handle_insert create ok.");
 
+    os_println("smd_handle_insert insert ...");
     err = smd_insert(entry);
     if (err<0) {
+        os_println("smd_handle_insert remove ...");
         smd_remove(entry);
+        os_println("smd_handle_insert remove ok.");
 
         return err;
     }
+    os_println("smd_handle_insert insert ok.");
     
     return 0;
 }
@@ -783,12 +793,13 @@ smd_init_server(void)
 STATIC int
 smd_timer(struct loop_watcher *watcher, time_t now)
 {
-    os_println("smd_timer %u", now);
+    os_println("smd_timer %u ...", now);
     smd.time += SM_TIMER;
 
     if (0==(smd.time % os_second(CLI_TIMEOUT))) {
         smd_wait();
     }
+    os_println("smd_timer %u ok", now);
     
     return 0;
 }
