@@ -652,6 +652,7 @@ smd_handle_insert(char *args)
 
     err = smd_insert(entry);
     if (err<0) {
+        smd_remove(entry);
         smd_destroy(entry);
 
         return err;
