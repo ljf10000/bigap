@@ -220,6 +220,8 @@ smd_dump_all(char *name)
 
     if (__is_ak_debug_trace) {
         list_for_each_entry(entry, &smd.list, node) {
+            os_println("smd_dump_all entry name:%s", entry->name);
+        
             debug_trace("entry:%s pid:%d/%d forks:%d command:%s ", 
                 entry->name,
                 entry->normal, entry->deamon,
@@ -239,6 +241,8 @@ smd_getbyname(char *name)
     }
 
     list_for_each_entry(entry, &smd.list, node) {
+        os_println("smd_getbyname entry name:%s", entry->name);
+            
         if (os_streq(name, entry->name)) {
             return entry;
         }
@@ -253,6 +257,8 @@ smd_getbynormal(int pid)
     sm_entry_t *entry;
 
     list_for_each_entry(entry, &smd.list, node) {
+        os_println("smd_getbynormal entry name:%s", entry->name);
+        
         if (pid==entry->normal) {
             return entry;
         }
@@ -459,6 +465,8 @@ smd_wait(void)
     * check run
     */
     list_for_each_entry(entry, &smd.list, node) {
+        os_println("smd_wait entry name:%s", entry->name);
+        
         switch(entry->state) {
             case SM_STATE_DIE:    /* down */
             case SM_STATE_INIT:
@@ -676,6 +684,7 @@ smd_handle_clean(char *args)
     sm_entry_t *entry, *tmp;
 
     list_for_each_entry_safe(entry, tmp, &smd.list, node) {
+        os_println("smd_handle_clean entry name:%s", entry->name);
         smd_remove(entry);
     }
 
@@ -705,6 +714,8 @@ smd_handle_show(char *args)
     cli_sprintf("#name pid/dpid forks state command" __crlf);
 
     list_for_each_entry(entry, &smd.list, node) {
+        os_println("smd_handle_show entry name:%s", entry->name);
+        
         if (NULL==name || os_streq(entry->name, name)) {
             smd_show(entry);
 
