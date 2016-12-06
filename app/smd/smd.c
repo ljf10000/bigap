@@ -751,6 +751,8 @@ smd_timer(struct loop_watcher *watcher, time_t now)
 {
     smd.time += SM_TIMER;
 
+    smd_wait();
+    
     return 0;
 }
 
