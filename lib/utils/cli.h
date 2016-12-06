@@ -340,7 +340,7 @@ error:
             }
             // err = 0
             else if (0==err) {
-                return __clib_show();
+                return __clib_err;
             }
             else if (EINTR==errno) {
                 continue;
