@@ -157,16 +157,6 @@ __clib(void)
 #define __clib_SIZE     (CLI_BUFFER_LEN - sizeof(cli_header_t))
 #define __clib_left     ((__clib_SIZE>__clib_len)?(__clib_SIZE - __clib_len):0)
 
-static inline int
-__clib_show(void)
-{
-    if (0==__clib_err && __clib_len && is_good_str(__clib_buf)) {
-        os_printf("%s", __clib_buf);
-    }
-
-    return __clib_err;
-}
-
 static inline void
 __clib_cut(uint32 len)
 {
@@ -179,6 +169,18 @@ __clib_clear(void)
     __clib_len = 0;
     
     __clib_cut(0);
+}
+
+static inline int
+__clib_show(void)
+{
+    if (0==__clib_err && __clib_len && is_good_str(__clib_buf)) {
+        __clib_cut(__clib_len);
+        
+        os_printf("%s", __clib_buf);
+    }
+
+    return __clib_err;
 }
 
 static inline int
@@ -323,8 +325,6 @@ __clic_recv(int fd, int timeout)
             len = __clib_len;
             err = __io_recv(fd, __clib_buf, len, 0);
             if (err==len) {
-                __clib_cut(len);
-                
                 __clib_show();
             } else {
                 goto error;
@@ -368,8 +368,6 @@ __clic_recv(int fd, int timeout)
     err = io_recv(fd, __clib(), CLI_BUFFER_LEN, timeout);
     // err > hdr
     if (err >= (int)sizeof(cli_header_t)) {
-        __clib_cut(err - sizeof(cli_header_t));
-        
         return __clib_show();
     }
     // 0 < err < hdr
