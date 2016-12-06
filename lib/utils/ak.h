@@ -104,7 +104,7 @@ DECLARE_FAKE_JDEBUGGER;
     _(____ak_debug_js,          20,"js"),       \
     _(____ak_debug_format,      21,"format"),   \
     _(____ak_debug_cli,         22,"cli"),      \
-    _(____ak_debug_r0,          23,"r0"),       \
+    _(____ak_debug_loop,        23,"loop"),     \
     _(____ak_debug_r1,          24,"r1"),       \
     _(____ak_debug_r2,          25,"r2"),       \
     _(____ak_debug_r3,          26,"r3"),       \
@@ -144,6 +144,7 @@ enum {
     __ak_debug_js           = os_bit(____ak_debug_js),
     __ak_debug_format       = os_bit(____ak_debug_format),
     __ak_debug_cli          = os_bit(____ak_debug_cli),
+    __ak_debug_loop         = os_bit(____ak_debug_loop),
     __ak_debug_test         = os_bit(____ak_debug_test),
 
     __ak_debug_all          = os_mask(____ak_debug_end),
@@ -226,6 +227,7 @@ __ak_debug_getname(uint32 level)
 #define __is_ak_debug_js        __is_ak_debug(__ak_debug_js)
 #define __is_ak_debug_format    __is_ak_debug(__ak_debug_format)
 #define __is_ak_debug_cli       __is_ak_debug(__ak_debug_cli)
+#define __is_ak_debug_loop      __is_ak_debug(__ak_debug_loop)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
 #if 1

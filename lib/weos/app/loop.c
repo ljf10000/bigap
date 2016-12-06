@@ -42,7 +42,7 @@ __loop_master_init(loop_t *loop)
         if (loop->efd<0) {
             return -errno;
         }
-        debug_trace("add master fd=%d", loop->efd);
+        debug_loop("add master fd=%d", loop->efd);
         debug_ok("loop master init ok.");
     }
 
@@ -166,12 +166,12 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb, void *user)
     
     loop_watcher_t *watcher = __loop_watcher_take(loop, fd);
     if (NULL==watcher) {
-        debug_trace("not found %s watcher:%d", watchname, fd);
+        debug_loop("not found %s watcher:%d", watchname, fd);
         
         return NULL;
     }
     else if (__is_good_loop_watcher(watcher)) {
-        debug_trace("exist %s watcher:%d", watchname, fd);
+        debug_loop("exist %s watcher:%d", watchname, fd);
         
         return NULL;
     }
@@ -185,7 +185,7 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb, void *user)
     
     err = __loop_fd_add(loop, fd);
     if (err<0) {
-        debug_trace("add %s watcher error: %d", watchname, -errno);
+        debug_loop("add %s watcher error: %d", watchname, -errno);
         
         return NULL;
     }
@@ -268,7 +268,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-    debug_trace("add timer fd=%d", fd);
+    debug_loop("add timer fd=%d", fd);
     
     return 0;
 }
@@ -319,7 +319,7 @@ __loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-    debug_trace("add father fd=%d", fd);
+    debug_loop("add father fd=%d", fd);
     
     return 0;
 }
@@ -332,7 +332,7 @@ __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, void *user)
         return -ENOEXIST;
     }
     watcher->father = father;
-    debug_trace("add son fd=%d", fd);
+    debug_loop("add son fd=%d", fd);
     
     return 0;
 }
@@ -346,7 +346,7 @@ __loop_inotify_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     int current = 0;
     int len = read(watcher->fd, buf, 1+OS_PAGE_LEN);
     if (len<0) {
-        debug_trace("inotify read error:%d", -errno);
+        debug_loop("inotify read error:%d", -errno);
 
         return;
     }
@@ -398,7 +398,7 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     socklen_t addrlen = sizeof(addr);
     
     fd = accept(watcher->fd, &addr.c, &addrlen);
-    debug_io("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
+    debug_loop("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
     if (is_good_fd(fd)) {
         os_closexec(fd);
         

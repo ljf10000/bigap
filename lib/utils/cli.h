@@ -494,7 +494,7 @@ cli_line_handle(
             
             if (table->syn && reply) {
                 len = (*reply)(err);
-                debug_trace("send len:%d", len);
+                debug_cli("send len:%d", len);
 
                 if (len>0 && reply_end) {
                     (*reply_end)(err);
@@ -541,7 +541,7 @@ __clis_handle(int fd, cli_table_t *table, int count)
 
     err = cli_line_handle(table, count, method, args, __cli_reply, CLI_REPLY_END);
 
-    debug_trace("action:%s %s, error:%d, len:%d, buf:%s", 
+    debug_cli("action:%s %s, error:%d, len:%d, buf:%s", 
         method, args?args:__empty,
         __clib_err,
         __clib_len,
