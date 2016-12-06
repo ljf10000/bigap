@@ -488,21 +488,29 @@ cli_line_handle(
     
     for (i=0; i<count; i++) {
         cli_table_t *table = &tables[i];
-        
-        if (os_streq(table->tag, tag)) {
-            err = (*table->u.line_cb)(args);
-            
-            if (table->syn && reply) {
-                len = (*reply)(err);
-                debug_cli("send len:%d", len);
 
-                if (len>0 && reply_end) {
-                    (*reply_end)(err);
-                }
-            }
-
-            return err;
+        if (os_strneq(table->tag, tag)) {
+            continue;
         }
+
+        os_println("cli_line_handle ...");
+        err = (*table->u.line_cb)(args);
+        os_println("cli_line_handle error:%d", err);
+        
+        if (table->syn && reply) {
+            os_println("cli_line_handle reply ...");
+            len = (*reply)(err);
+            os_println("cli_line_handle reply len:%d", len);
+            debug_cli("send len:%d", len);
+
+            if (len>0 && reply_end) {
+                os_println("cli_line_handle end ...");
+                len = (*reply_end)(err);
+                os_println("cli_line_handle end len:%d", len);
+            }
+        }
+
+        return err;
     }
     
     return -ENOEXIST;
@@ -542,9 +550,7 @@ __clis_handle(int fd, cli_table_t *table, int count)
     os_str_reduce(method, NULL);
     cli_shift(args);
 
-    os_println("cli line handle ...");
     err = cli_line_handle(table, count, method, args, __cli_reply, CLI_REPLY_END);
-    os_println("cli line handle error:%d", err);
     
     debug_cli("action:%s %s, error:%d, len:%d, buf:%s", 
         method, args?args:__empty,
