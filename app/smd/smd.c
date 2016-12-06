@@ -65,7 +65,8 @@ typedef struct {
     char *name;
     char *command;
     char *pidfile;
-    
+
+    int pid;
     int normal;
     int deamon;
     int forks;
@@ -121,6 +122,10 @@ smd_get_normal_pid(sm_entry_t *entry)
 {
     int i, pid = 0;
 
+    if (entry->pid) {
+        return entry->pid;
+    }
+    
     for (i=0; i<3; i++) {
         os_v_pgeti(&pid, 
             "ps |"
@@ -269,7 +274,8 @@ smd_run(sm_entry_t *entry, char *prefix)
     }
     else if (pid>0) { // father
         entry->forks++;
-
+        entry->pid = pid;
+        
         smd_change(entry, SM_STATE_FORK, pid, 0, prefix);
 
         jinfo("%o", 
