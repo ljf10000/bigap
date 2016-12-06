@@ -193,15 +193,15 @@ __cli_reply(int err)
 
     __clib_err = err;
 #if __CLI_TCP__
-    os_println("__cli_reply send buf=%p len=%d ...", __clib(), __clib_space);
+    os_println("__cli_reply send buf=%p len=%u ...", __clib(), __clib_space);
     len = io_send(cli->fd, __clib(), __clib_space);
-    os_println("__cli_reply send buf=%p len=%d ok.", __clib(), __clib_space);
+    os_println("__cli_reply send buf=%p len=%u ok.", __clib(), __clib_space);
 #else
     len = io_sendto(cli->fd, __clib(), __clib_space, ((struct sockaddr *)&cli->addr), cli->addrlen);
 #endif
-    os_println("__cli_reply clear buf=%p len=%d ...", __clib(), __clib_space);
+    os_println("__cli_reply clear buf=%p len=%u ...", __clib(), __clib_space);
     __clib_clear();
-    os_println("__cli_reply clear buf=%p len=%d ok", __clib(), __clib_space);
+    os_println("__cli_reply clear buf=%p len=%u ok", __clib(), __clib_space);
     
     return len;
 }
