@@ -511,7 +511,7 @@ cli_line_handle(
 static inline int
 __clis_handle(int fd, cli_table_t *table, int count)
 {
-    debug_cli("clis handle");
+    os_println("clis handle");
     cli_t *cli = __this_cli();
     char buf[1+OS_LINE_LEN] = {0};
     int err;
@@ -542,8 +542,10 @@ __clis_handle(int fd, cli_table_t *table, int count)
     os_str_reduce(method, NULL);
     cli_shift(args);
 
+    os_println("cli line handle ...");
     err = cli_line_handle(table, count, method, args, __cli_reply, CLI_REPLY_END);
-
+    os_println("cli line handle error:%d", err);
+    
     debug_cli("action:%s %s, error:%d, len:%d, buf:%s", 
         method, args?args:__empty,
         __clib_err,
