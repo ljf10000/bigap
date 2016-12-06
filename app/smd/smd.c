@@ -456,15 +456,17 @@ smd_wait(void)
     int pid;
     sm_entry_t *entry;
     char *prefix;
-
+    
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
+        os_println("smd_wait son ...");
         smd_wait_son(pid);
+        os_println("smd_wait son ok.");
     }
-    os_println("smd_wait ...");
     
     /*
     * check run
     */
+    os_println("smd_wait run ...");
     list_for_each_entry(entry, &smd.list, node) {
         os_println("smd_wait entry name:%s", entry->name);
         
@@ -488,7 +490,7 @@ smd_wait(void)
                 break;
         }
     }
-    os_println("smd_wait ok.");
+    os_println("smd_wait run ok.");
     
     return 0;
 }
