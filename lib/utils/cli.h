@@ -512,7 +512,7 @@ cli_line_handle(
             os_println("cli_line_handle reply len:%d", len);
             debug_cli("send len:%d", len);
 
-            if (len>0 && reply_end) {
+            if (len > sizeof(cli_header_t) && reply_end) {
                 os_println("cli_line_handle end ...");
                 len = (*reply_end)(err);
                 os_println("cli_line_handle end len:%d", len);
