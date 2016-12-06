@@ -117,6 +117,7 @@ nsqa_main_helper(int argc, char *argv[])
 int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(nsqa_exit);
+    setup_signal_ignore(NULL);
     setup_signal_user(nsqa_signal);
     setup_signal_callstack(NULL);
     

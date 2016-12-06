@@ -508,6 +508,7 @@ int allinone_main(int argc, char *argv[])
 
     setup_signal(jlogd_usr1, cut);
     setup_signal_exit(NULL);
+    setup_signal_ignore(NULL);
     setup_signal_callstack(NULL);
     
     return os_main(jlogd_main_helper, argc, argv);

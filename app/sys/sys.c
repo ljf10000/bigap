@@ -1662,6 +1662,7 @@ sys_init(bool block)
     int err;
     
     setup_signal_exit(NULL);
+    setup_signal_ignore(NULL);
     setup_signal_callstack(NULL);
 
     err = os_init();

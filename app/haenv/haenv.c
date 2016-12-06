@@ -220,6 +220,7 @@ haenv_init_helper(void)
     int err = 0;
     
     setup_signal_exit(haenv_exit_helper);
+    setup_signal_ignore(NULL);
     setup_signal_callstack(haenv_exit_helper);
     
     err = os_init();

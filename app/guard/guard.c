@@ -879,6 +879,7 @@ guard_main_helper(int argc, char *argv[])
 int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(guard_exit);
+    setup_signal_ignore(NULL);
     setup_signal_callstack(NULL);
     
     int err = os_call(guard_init, guard_fini, guard_main_helper, argc, argv);

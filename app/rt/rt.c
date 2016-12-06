@@ -143,6 +143,7 @@ int allinone_main(int argc, char *argv[])
 {
     setup_signal_user(rt_user);
     setup_signal_exit(rt_exit);
+    setup_signal_ignore(NULL);
     setup_signal_callstack(NULL);
     
     return os_call(rt_init, rt_fini, rt_main_helper, argc, argv);

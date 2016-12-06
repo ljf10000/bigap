@@ -648,6 +648,7 @@ rsha_main_helper(int argc, char *argv[])
 int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(__exit);
+    setup_signal_ignore(NULL);
     setup_signal_timer(__signal);
     setup_signal_user(__signal);
     setup_signal_callstack(NULL);

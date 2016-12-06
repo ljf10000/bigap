@@ -221,6 +221,7 @@ int main(int argc, char *argv[])
     struct command_ctrl ctrl = COMMAND_CTRL_INITER(commands);
 
     setup_signal_exit(NULL);
+    setup_signal_ignore(NULL);
     setup_signal_callstack(NULL);
     
     return os_do_command(argc, argv, &ctrl);

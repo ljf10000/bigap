@@ -42,6 +42,7 @@ static cmd_multi_table_t multi[] = {
 int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(NULL);
+    setup_signal_ignore(NULL);
     setup_signal_callstack(NULL);
     
     int err = os_call(hisi_init, hisi_fini, cmd_multi_handle, multi, argc, argv);
