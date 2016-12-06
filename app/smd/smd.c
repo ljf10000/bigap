@@ -749,14 +749,18 @@ smd_cli(struct loop_watcher *watcher, time_t now)
     };
     int err, ret;
 
+    os_println("smd_cli ...");
     ret = clis_handle(watcher->fd, table);
-    
+    os_println("smd_cli ok.");
+
+    os_println("smd_cli del fd ...");
     err = os_loop_del_watcher(&smd.loop, watcher->fd);
     if (err<0) {
         debug_trace("del loop cli error:%d", err);
         
         return err;
     }
+    os_println("smd_cli del fd ok.");
     
     return ret;
 }
@@ -779,6 +783,7 @@ smd_init_server(void)
 STATIC int
 smd_timer(struct loop_watcher *watcher, time_t now)
 {
+    os_println("smd_timer %u", now);
     smd.time += SM_TIMER;
 
     if (0==(smd.time % os_second(CLI_TIMEOUT))) {
