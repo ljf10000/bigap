@@ -751,7 +751,9 @@ smd_timer(struct loop_watcher *watcher, time_t now)
 {
     smd.time += SM_TIMER;
 
-    smd_wait();
+    if (0==(smd.time%os_second(CLI_TIMEOUT))) {
+        smd_wait();
+    }
     
     return 0;
 }
