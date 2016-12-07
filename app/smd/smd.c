@@ -180,22 +180,6 @@ smd_set_time(sm_entry_t *entry, char *prefix)
         entry->time[entry->state]);
 }
 
-STATIC void
-smd_dump_all(char *name)
-{
-    sm_entry_t *entry;
-
-    if (__is_ak_debug_trace) {
-        list_for_each_entry(entry, &smd.list, node) {        
-            debug_trace("entry:%s pid:%d/%d forks:%d command:%s ", 
-                entry->name,
-                entry->normal, entry->deamon,
-                entry->forks,
-                entry->command);
-        }
-    }
-}
-
 STATIC hash_idx_t
 smd_hashname(char *name)
 {
@@ -286,6 +270,25 @@ __smd_foreach(smd_foreach_f *foreach, bool safe)
         return h2_foreach_safe(&smd.table, node_foreach);
     } else {
         return h2_foreach(&smd.table, node_foreach);
+    }
+}
+
+STATIC void
+smd_dump_all(char *name)
+{
+    mv_t cb(sm_entry_t *entry)
+    {
+        debug_trace("entry:%s pid:%d/%d forks:%d command:%s ", 
+            entry->name,
+            entry->normal, entry->deamon,
+            entry->forks,
+            entry->command);
+
+        return mv2_ok;
+    }
+
+    if (__is_ak_debug_trace) {
+        return __smd_foreach(cb, false);
     }
 }
 
