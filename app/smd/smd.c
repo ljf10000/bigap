@@ -562,16 +562,15 @@ smd_wait_son(int pid)
 STATIC int
 smd_wait(void)
 {
-    int pid;
+    int i, pid, count = 0;
+    int pids[h2_count(&smd.table)];
     
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
-        /*
-        * todo:
-        *   fork and exit !!!
-        *   fork and exit !!!
-        *   fork and exit !!!
-        */
-        smd_wait_son(pid);
+        pids[count++] = pid;
+    }
+
+    for (i=0; i<count; i++) {
+        smd_wait_son(pids[i]);
     }
     
     /*
