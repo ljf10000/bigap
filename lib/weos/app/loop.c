@@ -399,6 +399,7 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     
     fd = accept(watcher->fd, &addr.c, &addrlen);
     debug_loop("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
+    loop_println("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
     if (is_good_fd(fd)) {
         os_closexec(fd);
         
@@ -428,7 +429,6 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev, time_t now)
     else {
         (*map[watcher->type])(loop, watcher, now);
     }
-    loop_println("loop watcher:%s", loop_type_getnamebyid(watcher->type));
     
     return 0;
 }
@@ -453,9 +453,7 @@ __loop_handle(loop_t *loop)
     for (i=0; i<nfds; i++) {
         count++;
         
-        loop_println("loop ev:%d time:%u ...", count, now);
         __loop_handle_ev(loop, &evs[i], now);
-        loop_println("loop ev:%d time:%u ok.", count, now);
     }
 
     return 0;
