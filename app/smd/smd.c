@@ -202,8 +202,8 @@ smd_hx_entry(h2_node_t *node)
     }
 }
 
-STATIC umd_user_t *
-smd_user_entry(hash_node_t *node, hash_idx_t nidx)
+STATIC sm_entry_t *
+smd_entry(hash_node_t *node, hash_idx_t nidx)
 {
     return hx_entry(node, sm_entry_t, node, nidx);
 }
@@ -211,7 +211,7 @@ smd_user_entry(hash_node_t *node, hash_idx_t nidx)
 STATIC hash_idx_t
 smd_nodehashname(hash_node_t *node)
 {
-    sm_entry_t *entry = smd_user_entry(node, SMD_HASH_NAME);
+    sm_entry_t *entry = smd_entry(node, SMD_HASH_NAME);
 
     return smd_hashname(entry->name);
 }
@@ -219,7 +219,7 @@ smd_nodehashname(hash_node_t *node)
 STATIC hash_idx_t
 smd_nodehashpid(hash_node_t *node)
 {
-    sm_entry_t *entry = umd_user_entry(node, SMD_HASH_PID);
+    sm_entry_t *entry = smd_entry(node, SMD_HASH_PID);
 
     return smd_hashpid(smd_pid(entry));
 }
@@ -288,7 +288,7 @@ smd_dump_all(char *name)
     }
 
     if (__is_ak_debug_trace) {
-        return __smd_foreach(cb, false);
+        __smd_foreach(cb, false);
     }
 }
 
@@ -308,7 +308,7 @@ smd_getbyname(char *name)
     
     bool eq(hash_node_t *node)
     {
-        sm_entry_t *entry = smd_user_entry(node, SMD_HASH_NAME);
+        sm_entry_t *entry = smd_entry(node, SMD_HASH_NAME);
         
         return os_streq(entry->name, name);
     }
@@ -326,7 +326,7 @@ smd_getbynormal(int pid)
     
     bool eq(hash_node_t *node)
     {
-        sm_entry_t *entry = smd_user_entry(node, SMD_HASH_PID);
+        sm_entry_t *entry = smd_entry(node, SMD_HASH_PID);
         
         return pid==entry->normal;
     }
@@ -563,8 +563,6 @@ STATIC int
 smd_wait(void)
 {
     int pid;
-    sm_entry_t *entry;
-    char *prefix;
     
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
         /*
@@ -579,7 +577,8 @@ smd_wait(void)
     /*
     * check run
     */
-    list_for_each_entry(entry, &smd.list, node) {        
+    mv_t cb(sm_entry_t *entry)
+    {       
         switch(entry->state) {
             case SM_STATE_DIE:    /* down */
             case SM_STATE_INIT:
@@ -599,9 +598,11 @@ smd_wait(void)
             default:
                 break;
         }
+
+        return mv2_ok;
     }
     
-    return 0;
+    return __smd_foreach(cb, false);
 }
 
 STATIC int
