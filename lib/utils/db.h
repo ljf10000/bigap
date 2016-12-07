@@ -1,6 +1,15 @@
 #ifndef __DB_H_db573104d2404862b7487d1d6ebc8d4b__
 #define __DB_H_db573104d2404862b7487d1d6ebc8d4b__
 /******************************************************************************/
+#ifndef DB_DPRINT
+#define DB_DPRINT               1
+#endif
+
+#if DB_DPRINT
+#define hx_println(_fmt, _args...)  printf(_fmt "\n", ##_args)
+#else
+#define hx_println(_fmt, _args...)  os_do_nothing()
+#endif
 /*
 * node: hash_node_t *
 */
@@ -145,12 +154,16 @@ _name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach) \
     _name##_node_t *node;               \
     mv_u mv;                            \
                                         \
+    hx_println("hx foreach ...");       \
     dlistForeachEntry(&table->list, node, list) { \
         mv.v = (*foreach)(node);        \
+        hx_println("hx foreach node=%p", node); \
         if (is_mv2_break(mv)) {         \
+            hx_println("hx foreach ok."); \
             return mv2_error(mv);       \
         }                               \
     }                                   \
+    hx_println("hx foreach ok.");       \
                                         \
     return 0;                           \
 }                                       \
@@ -161,12 +174,16 @@ _name##_foreach_safe(_name##_table_t *table, _name##_foreach_f *foreach) \
     _name##_node_t *node, *tmp;         \
     mv_u mv;                            \
                                         \
+    hx_println("hx safe foreach ...");  \
     dlistForeachEntrySafe(&table->list, node, tmp, list) { \
         mv.v = (*foreach)(node);        \
+        hx_println("hx safe foreach node=%p", node); \
         if (is_mv2_break(mv)) {         \
+            hx_println("hx safe foreach ok."); \
             return mv2_error(mv);       \
         }                               \
     }                                   \
+    hx_println("hx safe foreach ok.");  \
                                         \
     return 0;                           \
 }                                       \
