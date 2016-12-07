@@ -137,14 +137,47 @@ os_strcpy(char *dst, const char *src)
 }
 
 /* len is src's length */
-EXTERN char *
-os_strmcpy(char *dst, const char *src, int len);
+static inline char *
+os_strmcpy(char *dst, const char *src, int len)
+{
+    if (dst && src) {
+        os_memcpy(dst, src, len);
+
+        dst[len] = 0;
+    }
+
+    return dst;
+}
 
 /*
 * no use strncpy(is unsafe)
 */
-EXTERN uint32 
-os_strlcpy(char *dst, const char *src, uint32 size);
+static inline uint32 
+os_strlcpy(char *dst, const char *src, uint32 size)
+{
+    char *d = (char *)dst;
+    char *s = (char *)src;
+    int n, len = 0;
+    
+    os_assert(NULL!=dst);
+    os_assert(NULL!=src);
+
+    if (size > 0) {
+        n = size - 1;
+
+        while(*s && n) {
+            *d++ = *s++;
+            n--;
+        }
+
+        len = size - 1 - n;
+    }
+
+    dst[len] = 0;
+    
+    return len;
+}
+
 
 #ifndef os_strdcpy
 #define os_strdcpy(_dst, _src)          ({  \

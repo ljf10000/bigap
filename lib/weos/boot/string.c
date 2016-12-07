@@ -19,44 +19,6 @@ os_strcount(const char *s, int ch)
 }
 
 DECLARE char *
-os_strmcpy(char *dst, const char *src, int len)
-{
-    if (dst && src) {
-        os_memcpy(dst, src, len);
-
-        dst[len] = 0;
-    }
-
-    return dst;
-}
-
-DECLARE uint32 
-os_strlcpy(char *dst, const char *src, uint32 size)
-{
-    char *d = (char *)dst;
-    char *s = (char *)src;
-    int n, len = 0;
-    
-    os_assert(NULL!=dst);
-    os_assert(NULL!=src);
-
-    if (size > 0) {
-        n = size - 1;
-
-        while(*s && n) {
-            *d++ = *s++;
-            n--;
-        }
-
-        len = size - 1 - n;
-    }
-
-    dst[len] = 0;
-    
-    return len;
-}
-
-DECLARE char *
 os_str_skip(const char *s, char_is_f *is)
 {
     char *p = (char *)s;
