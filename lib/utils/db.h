@@ -94,6 +94,7 @@ _name##_init(_name##_table_t *table, int size_array[]) \
     }                                   \
                                         \
     dlist_init(&table->list);           \
+    hx_println("hx init ok");           \
                                         \
     return 0;                           \
 }                                       \
@@ -116,6 +117,7 @@ _name##_add(_name##_table_t *table, _name##_node_t *node, hash_node_calc_f *nhas
         hx_println("hx add list error:%d", err); \
         return err;                     \
     }                                   \
+    hx_println("hx add ok");            \
                                         \
     return 0;                           \
 }                                       \
@@ -138,6 +140,7 @@ _name##_del(_name##_table_t *table, _name##_node_t *node) \
         hx_println("hx del list error:%d", err); \
         return err;                     \
     }                                   \
+    hx_println("hx del ok");            \
                                         \
     return 0;                           \
 }                                       \
