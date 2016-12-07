@@ -278,9 +278,9 @@ smd_dump_all(char *name)
 {
     mv_t cb(sm_entry_t *entry)
     {
-        debug_trace("entry:%s pid:%d/%d forks:%d command:%s ", 
+        debug_trace("entry:%s pid:%d forks:%d command:%s ", 
             entry->name,
-            entry->normal, entry->deamon,
+            entry->pid,
             entry->forks,
             entry->command);
 
