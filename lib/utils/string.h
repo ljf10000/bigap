@@ -500,11 +500,38 @@ __is_notes_line_deft(const char *line)
     return __is_notes_line(line, __notes);
 }
 
-EXTERN char *
-os_str_next(char *s, char_is_f *is);
+static inline char *
+os_str_next(char *s, char_is_f *is)
+{
+    char *p = s;
 
-EXTERN char *
-os_str_next_byifs(char *s, char *ifs);
+    if (NULL==s) {
+        return NULL;
+    }
+    
+    while(*p && false==os_char_is(*p, is)) {
+        p++;
+    }
+    
+    if (0==*p) {
+        return NULL;
+    } else {
+        *p++ = 0;
+
+        return p;
+    }
+}
+
+static inline char *
+os_str_next_byifs(char *s, char *ifs)
+{
+    bool is_ifs(int ch)
+    {
+        return NULL!=os_strchr(ifs, ch);
+    }
+    
+    return os_str_next(s, is_ifs);
+}
 
 #ifndef OS_STRING_BKDR
 #define OS_STRING_BKDR      31

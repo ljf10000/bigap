@@ -201,39 +201,6 @@ os_str_drop(char *s, char_is_f *is)
     return s;
 }
 
-DECLARE char *
-os_str_next(char *s, char_is_f *is)
-{
-    char *p = s;
-
-    if (NULL==s) {
-        return NULL;
-    }
-    
-    while(*p && false==os_char_is(*p, is)) {
-        p++;
-    }
-    
-    if (0==*p) {
-        return NULL;
-    } else {
-        *p++ = 0;
-
-        return p;
-    }
-}
-
-DECLARE char *
-os_str_next_byifs(char *s, char *ifs)
-{
-    bool is_ifs(int ch)
-    {
-        return NULL!=os_strchr(ifs, ch);
-    }
-    
-    return os_str_next(s, is_ifs);
-}
-
 DECLARE bkdr_t
 os_str_BKDR_push(bkdr_t bkdr, const char *s, uint32 *plen)
 {
