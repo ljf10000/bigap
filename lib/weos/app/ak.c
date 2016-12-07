@@ -109,25 +109,25 @@ __ak_dump(void)
     }
 }
 
-static inline uint32 
+STATIC uint32 
 __ak_getidx(ak_t *ak)
 {
     return ak - __ak_0;
 }
 
-static inline uint32 
+STATIC uint32 
 __ak_getoffset(ak_t *ak)
 {
     return (char *)ak - (char *)__ak_hdr();
 }
 
-static inline akid_t
+STATIC akid_t
 __ak_MAKE(ak_t *ak)
 {
     return __ak_make(__ak_getidx(ak), __ak_getoffset(ak));
 }
 
-static inline ak_t *
+STATIC ak_t *
 __ak_getbyid(akid_t akid)
 {
     if (is_good_enum(__ak_idx(akid), __ak_count)) {

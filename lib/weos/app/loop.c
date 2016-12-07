@@ -5,13 +5,13 @@ typedef void loop_watcher_handle_f(loop_t *loop, loop_watcher_t *watcher, time_t
 
 DECLARE_ENUM(loop_type, LOOP_TYPE_ENUM_MAPPER, LOOP_TYPE_END);
 
-static inline bool
+STATIC bool
 __is_good_loop(loop_t *loop)
 {
     return loop && is_good_fd(loop->efd);
 }
 
-static inline bool
+STATIC bool
 __is_good_loop_watcher(loop_watcher_t *watcher)
 {
     return watcher && is_good_fd(watcher->fd);
@@ -399,7 +399,6 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     
     fd = accept(watcher->fd, &addr.c, &addrlen);
     debug_loop("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
-    loop_println("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
     if (is_good_fd(fd)) {
         os_closexec(fd);
         

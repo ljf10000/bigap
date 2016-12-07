@@ -19,6 +19,80 @@ os_strcount(const char *s, int ch)
 }
 
 DECLARE char *
+os_strmcpy(char *dst, const char *src, int len)
+{
+    if (dst && src) {
+        os_memcpy(dst, src, len);
+
+        dst[len] = 0;
+    }
+
+    return dst;
+}
+
+DECLARE uint32 
+os_strlcpy(char *dst, const char *src, uint32 size)
+{
+    char *d = (char *)dst;
+    char *s = (char *)src;
+    int n, len = 0;
+    
+    os_assert(NULL!=dst);
+    os_assert(NULL!=src);
+
+    if (size > 0) {
+        n = size - 1;
+
+        while(*s && n) {
+            *d++ = *s++;
+            n--;
+        }
+
+        len = size - 1 - n;
+    }
+
+    dst[len] = 0;
+    
+    return len;
+}
+
+DECLARE int
+os_strcmp(const char *a, const char *b)
+{
+    if (a) {
+        if (b) {
+            return (a!=b)?strcmp(a, b):0;
+        } else {
+            return 1;
+        }
+    } else {
+        if (b) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+}
+
+DECLARE int
+os_strncmp(const char *a, const char *b, int len)
+{
+    if (a) {
+        if (b) {
+            return ((a!=b) && len>0)?strncmp(a, b, len):0;
+        } else {
+            return 1;
+        }
+    } else {
+        if (b) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+}
+
+DECLARE char *
 os_str_skip(const char *s, char_is_f *is)
 {
     char *p = (char *)s;
@@ -53,6 +127,125 @@ os_str_skip_env(const char *s)
     }
 }
 
+DECLARE char *
+os_str_replace(char *s, char_is_f *is, int new)
+{
+    char *p = s;
+
+    while(*p) {
+        if (os_char_is(*p, is)) {
+            *p++ = new;
+        } else {
+            p++;
+        }
+    }
+
+    return p;
+}
+
+DECLARE char *
+os_str_reduce(char *str, char_is_f *is)
+{
+    char *p = str; /* 记录指针 */
+    char *s = str; /* 扫描指针 */
+    bool in_reduce = false; /* reduce 模式 */
+    
+    while(*s) {
+        if (os_char_is(*s, is)) {
+            /*
+            * 扫描到 去重字符, 则记录之
+            *
+            * (1) 进入 reduce 模式
+            * (2) p 不动，保证只记录一次 去重字符，即达到 reduce 效果
+            */
+            in_reduce = true;
+            
+            *p = *s++;
+
+        } else {
+            /*
+            * 扫描到正常数据(非 去重字符)
+            *
+            * 如果当前是 reduce 模式
+            *   (1) p 走一步，完成 reduce，为记录正常数据做准备
+            *   (2) 退出 reduce 模式
+            */
+            if (in_reduce) {
+                p++;
+                
+                in_reduce = false;
+            }
+
+            /*
+            * 记录正常数据
+            */
+            *p++ = *s++;
+        }
+    }
+
+    *p = 0; /* 丢弃尾部 冗余 */
+
+    return s;
+}
+
+DECLARE char *
+os_str_strim(char *str, char_is_f *is)
+{
+    char *p = str; /* 记录指针 */
+    char *s = str; /* 扫描指针 */
+
+    while(*s) {
+        if (os_char_is(*s, is)) {
+            s++;
+        } else {
+            *p++ = *s++;
+        }
+    }
+
+    return s;
+}
+
+DECLARE char *
+os_str_lstrim(char *str, char_is_f *is)
+{
+    char *p = str; /* 记录指针 */
+    char *s = str; /* 扫描指针 */
+
+    // begin with is
+    if (os_char_is(*p, is)) {
+        /* find first no-match is */
+        while(*s && os_char_is(*s, is)) {
+            s++;
+        }
+
+        /* all move to begin */
+        while(*s) {
+            *p++ = *s++;
+        }
+        
+        *p = 0;
+    }
+    
+    return s;
+}
+
+DECLARE char *
+__os_str_rstrim(char *s, int len, char_is_f *is)
+{
+    /* pointer to last char */
+    char *p = ____os_strlast(s, len);
+
+    /* scan, from last char to begin */
+    while(p>=s && os_char_is(*p, is)) {
+        p--;
+    }
+
+    /* now, pointer to the right first no-match is */
+    *(p+1) = 0;
+    
+    return s;
+}
+
 DECLARE bool
 os_str_is_end_by(const char *s, char *end)
 {
@@ -63,6 +256,44 @@ os_str_is_end_by(const char *s, char *end)
         return os_memeq(s + slen - elen, end, elen);
     } else {
         return false;
+    }
+}
+
+DECLARE char *
+os_str_drop(char *s, char_is_f *is)
+{
+    /* pointer to last char */
+    char *p = s;
+
+    /* scan, from last char to begin */
+    while(*p && false==__char_is_drop(*p, is)) {
+        p++;
+    }
+
+    *p = 0;
+    
+    return s;
+}
+
+DECLARE char *
+os_str_next(char *s, char_is_f *is)
+{
+    char *p = s;
+
+    if (NULL==s) {
+        return NULL;
+    }
+    
+    while(*p && false==os_char_is(*p, is)) {
+        p++;
+    }
+    
+    if (0==*p) {
+        return NULL;
+    } else {
+        *p++ = 0;
+
+        return p;
     }
 }
 
