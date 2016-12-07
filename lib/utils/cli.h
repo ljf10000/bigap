@@ -87,17 +87,6 @@ typedef struct {
     cli_buffer_t    *b;
 } cli_t;
 
-#define DECLARE_FAKE_CLI        extern cli_t __THIS_CLI
-#define DECLARE_REAL_CLI        cli_t __THIS_CLI;
-
-#ifdef __ALLINONE__
-#   define DECLARE_CLI          DECLARE_FAKE_CLI
-#else
-#   define DECLARE_CLI          DECLARE_REAL_CLI
-#endif
-
-DECLARE_FAKE_CLI;
-
 extern cli_t *
 __this_cli(void);
 
