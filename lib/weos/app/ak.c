@@ -439,6 +439,7 @@ ak_init(void)
         __ak_protect_1  = OS_PROTECTED;
         
         ak_load();
+        os_println(__THIS_APPNAME " " __THIS_FILENAME " ak load OK!");
     }
     
     __ak_init();
