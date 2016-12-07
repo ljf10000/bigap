@@ -596,6 +596,11 @@ smd_insert(sm_entry_t *entry)
 {
     int err, pid = 0;
 
+    err = __smd_insert(entry);
+    if (err<0) {
+        return err;
+    }
+    
     /*
     * maybe smd is re-start
     *   check the app is run?
