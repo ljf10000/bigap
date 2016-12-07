@@ -455,8 +455,13 @@ umd_cli(struct loop_watcher *watcher, time_t now)
         CLI_ENTRY("tag",    umd_handle_tag),
         CLI_ENTRY("gc",     umd_handle_gc),
     };
+    int err;
     
-    return clis_handle(watcher->fd, table);
+    err = clis_handle(watcher->fd, table);
+
+    os_loop_del_watcher(&umd.loop, watcher->fd);
+
+    return err;
 }
 
 STATIC int
