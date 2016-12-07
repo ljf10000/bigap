@@ -74,8 +74,7 @@ typedef struct {
     char *cname;
     char *pidfile;
 
-    int normal;
-    int deamon;
+    int pid;
     int forks;
     int state;
     int flags;
@@ -101,7 +100,6 @@ smd_is_normal(sm_entry_t *entry)
     return NULL==entry->pidfile;
 }
 #define smd_is_deamon(_entry)       (false==smd_is_normal(_entry))
-#define smd_pid(_entry)             smd_is_normal(_entry)?(_entry)->normal:(_entry)->deamon
 
 STATIC bool
 smd_is_timeout(sm_entry_t *entry)
@@ -132,8 +130,8 @@ smd_get_normal_pid(sm_entry_t *entry)
 {
     int i, pid = 0;
 
-    if (entry->normal) {
-        return entry->normal;
+    if (entry->pid) {
+        return entry->pid;
     }
     
     for (i=0; i<3; i++) {
@@ -221,7 +219,7 @@ smd_nodehashpid(hash_node_t *node)
 {
     sm_entry_t *entry = smd_entry(node, SMD_HASH_PID);
 
-    return smd_hashpid(smd_pid(entry));
+    return smd_hashpid(entry->pid);
 }
 
 STATIC int
@@ -236,7 +234,7 @@ __smd_remove(sm_entry_t *entry)
 
     h2_del(&smd.table, &entry->node);
 
-    debug_entry("remove %s:%s", entry->name, entry->command);
+    debug_entry("insert %s:%d:%s", entry->name, entry->pid, entry->command);
     
     return 0;
 }
@@ -255,7 +253,7 @@ __smd_insert(sm_entry_t *entry)
     
     h2_add(&smd.table, &entry->node, nhash);
 
-    debug_entry("insert %s:%s", entry->name, entry->command);
+    debug_entry("insert %s:%d:%s", entry->name, entry->pid, entry->command);
 
     return 0;
 }
@@ -330,58 +328,34 @@ smd_getbynormal(int pid)
     {
         sm_entry_t *entry = smd_entry(node, SMD_HASH_PID);
         
-        return pid==entry->normal;
+        return pid==entry->pid;
     }
     
     return smd_hx_entry(h2_find(&smd.table, SMD_HASH_PID, dhash, eq));
 }
 
 STATIC void
-smd_change(sm_entry_t *entry, int state, int normal, int deamon, char *prefix)
+smd_change(sm_entry_t *entry, int state, int pid, char *prefix)
 {
     int err;
     
-    if (normal!=entry->normal && deamon!=entry->deamon) {
-        debug_entry("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d), deamon pid(%d==>%d)",
+    if (pid!=entry->pid) {
+        debug_entry("%s: set entry(%s) state(%s==>%s), pid(%d==>%d)",
             prefix,
             entry->name, 
             sm_state_getnamebyid(entry->state),
             sm_state_getnamebyid(state),
-            entry->normal, normal,
-            entry->deamon, deamon);
+            entry->pid, pid;
         
-        entry->normal = normal;
-        entry->deamon = deamon;
-    }
-    else if (normal!=entry->normal) {
-        debug_entry("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d)",
-            prefix,
-            entry->name, 
-            sm_state_getnamebyid(entry->state),
-            sm_state_getnamebyid(state),
-            entry->normal, normal);
-        
-        entry->normal = normal;
-        entry->deamon = deamon;
-    }
-    else if (deamon!=entry->deamon) {
-        debug_entry("%s: set entry(%s) state(%s==>%s), deamon pid(%d==>%d)",
-            prefix,
-            entry->name, 
-            sm_state_getnamebyid(entry->state),
-            sm_state_getnamebyid(state),
-            entry->deamon, deamon);
-        
-        entry->deamon = deamon;
+        __smd_remove(entry);
+        entry->pid = pid;
+        __smd_insert(entry);
     }
 
     if (state!=entry->state) {
         entry->state = state;
         smd_set_time(entry, prefix);
     }
-
-    __smd_remove(entry);
-    __smd_insert(entry);
 }
 
 STATIC int
@@ -401,9 +375,9 @@ smd_run(sm_entry_t *entry, char *prefix)
         smd_change(entry, SM_STATE_FORK, pid, 0, prefix);
 
         jinfo("%o", 
-            "exec", jobj_oprintf("%s%d%d%s",
+            "exec", jobj_oprintf("%s%d%%d%s",
                         "name",     entry->name,
-                        "normal",   entry->normal,
+                        "pid",      entry->pid,
                         "forks",    entry->forks,
                         "command",  entry->command));
 
@@ -454,7 +428,7 @@ smd_kill(sm_entry_t *entry)
         return 0;
     }
     
-    int pid = smd_pid(entry);
+    int pid = entry->pid;
     if (os_pid_exist(pid)) {
         kill(pid, SIGKILL);
     }
@@ -462,10 +436,9 @@ smd_kill(sm_entry_t *entry)
     smd_kill_deamon(entry);
     
     jinfo("%o", 
-        "kill", jobj_oprintf("%s%d%d%d%s",
+        "kill", jobj_oprintf("%s%d%d%s",
                     "name",     entry->name,
-                    "normal",   entry->normal,
-                    "deamon",   entry->deamon,
+                    "pid",      entry->pid,
                     "forks",    entry->forks,
                     "state",    sm_state_getnamebyid(entry->state)));
                     
@@ -478,7 +451,7 @@ STATIC void
 smd_wait_error(sm_entry_t *entry)
 {
     char prefix[1+OS_LINE_SHORT] = {0};
-    int pid = smd_pid(entry);
+    int pid = entry->pid;
 
     os_snprintf(prefix, OS_LINE_SHORT, "int wait %s(%s)",
         smd_type(entry),
@@ -499,13 +472,13 @@ STATIC void
 smd_wait_ok(sm_entry_t *entry)
 {
     char prefix[1+OS_LINE_SHORT] = {0};
-    int pid = 0, normal = 0, deamon = 0;
+    int pid = 0;
     
     if (smd_is_normal(entry)) {
-        pid = normal = entry->normal;
+        pid = entry->pid;
     }
     else {
-        pid = deamon = smd_is_run(entry)?entry->deamon:smd_get_deamon_pid(entry);
+        pid = smd_is_run(entry)?entry->pid:smd_get_deamon_pid(entry);
     }
     
     os_snprintf(prefix, OS_LINE_SHORT, "int wait %s(%s)",
@@ -513,7 +486,7 @@ smd_wait_ok(sm_entry_t *entry)
         sm_state_getnamebyid(entry->state));
 
     if (os_pid_exist(pid)) {
-        smd_change(entry, SM_STATE_RUN, normal, deamon, prefix);
+        smd_change(entry, SM_STATE_RUN, pid, prefix);
     } else {
         jinfo("%o", 
             "wait-ok", jobj_oprintf("%s%d%d%s",
@@ -544,7 +517,7 @@ smd_wait_son(int pid)
         jinfo("%o", 
             "wait-son", jobj_oprintf("%s%d%d%s",
                             "name",     entry->name,
-                            "normal",   entry->normal,
+                            "pid",      entry->pid,
                             "forks",    entry->forks,
                             "state",    sm_state_getnamebyid(entry->state)));
         char *prefix = "in wait son(normal)";
@@ -817,8 +790,8 @@ smd_show(sm_entry_t *entry)
     cli_sprintf("%s %c%d/%d %d %s '%s'" __crlf,
         entry->name,
         os_hasflag(entry->flags, SM_F_STATIC)?'*':' ',
-        entry->normal,
-        entry->deamon,
+        smd_is_normal(entry)?entry->pid:0,
+        smd_is_deamon(entry)?entry->pid:0,
         entry->forks,
         sm_state_getnamebyid(entry->state),
         entry->command);
