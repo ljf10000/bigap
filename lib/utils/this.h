@@ -43,7 +43,7 @@
 
 #if defined(__ALLINONE__) || defined(__BOOT__)
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(_, _name)
-#elif defined (__APP__) || defined(__LIB__)
+#elif defined(__APP__) || defined(__LIB__)
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)
 #else
 #   error "error !!!"
