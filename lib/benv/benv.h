@@ -660,8 +660,8 @@ static inline void
 benv_debug_init(void)
 {
 #ifdef __BOOT__
-    __THIS_only_debugger    = &benv_mark(__benv_mark_debug);
-    __THIS_only_jdebugger   = &benv_mark(__benv_mark_jdebug);
+    __THIS_DEBUG    = &benv_mark(__benv_mark_debug);
+    __THIS_JDEBUG   = &benv_mark(__benv_mark_jdebug);
 #endif
 }
 

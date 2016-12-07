@@ -157,10 +157,14 @@ __ak_debug_getname(uint32 level)
 
 #if defined(__BOOT__)
     typedef uint32 *akid_t;
-#   define __ak_debugger        (__THIS_only_debugger?(*__THIS_only_debugger):__ak_debug_default)
-#   define __js_debugger        (__THIS_only_jdebugger?(*__THIS_only_jdebugger):__js_debug_default)
+    extern akid_t __THIS_DEBUG;
+    extern akid_t __THIS_JDEBUG;
+#   define __ak_debugger        (__THIS_DEBUG?(*__THIS_DEBUG):__ak_debug_default)
+#   define __js_debugger        (__THIS_JDEBUG?(*__THIS_JDEBUG):__js_debug_default)
 #elif defined(__APP__)
     typedef uint32 akid_t;
+    extern akid_t __THIS_only_debugger;
+    extern akid_t __THIS_only_jdebugger;
     extern akid_t __THIS_libjs_debugger;
     extern akid_t __THIS_libjs_jdebugger;
     extern akid_t __THIS_libweos_debugger;
@@ -180,9 +184,6 @@ __ak_debug_getname(uint32 level)
 #   error "invalid __THIS_DEBUG"
 #   error "invalid __THIS_JDEBUG"
 #endif
-
-extern akid_t __THIS_only_debugger;
-extern akid_t __THIS_only_jdebugger;
 
 #define __is_ak_debug(_level)   (os_hasflag(__ak_debugger, _level))
 #define __is_js_debug(_level)   (os_hasflag(__js_debugger, _level))
