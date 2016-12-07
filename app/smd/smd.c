@@ -225,6 +225,23 @@ smd_nodehashpid(hash_node_t *node)
 }
 
 STATIC int
+__smd_remove(sm_entry_t *entry)
+{
+    if (os_hasflag(entry->flags, SM_F_STATIC)) {
+        return 0;
+    }
+    else if (false==in_hx_table(&entry->node)) {
+        return 0;
+    }
+
+    h2_del(&smd.table, &entry->node);
+
+    debug_entry("remove %s:%s", entry->name, entry->command);
+    
+    return 0;
+}
+
+STATIC int
 __smd_insert(sm_entry_t *entry)
 {
     static hash_node_calc_f *nhash[SMD_HASH_END] = {
@@ -233,30 +250,13 @@ __smd_insert(sm_entry_t *entry)
     };
     
     if (in_hx_table(&entry->node)) {
-        return -EINLIST;
-    }
-
-    h2_add(&smd.table, &entry->node, nhash);
-    
-    debug_entry("insert %s:%s", entry->name, entry->command);
-
-    return 0;
-}
-
-STATIC int
-__smd_remove(sm_entry_t *entry)
-{
-    if (os_hasflag(entry->flags, SM_F_STATIC)) {
         return 0;
     }
-    else if (false==in_hx_table(&entry->node)) {
-        return -ENOINLIST;
-    }
+    
+    h2_add(&smd.table, &entry->node, nhash);
 
-    h2_del(&smd.table, &entry->node);
-    
-    debug_entry("remove %s:%s", entry->name, entry->command);
-    
+    debug_entry("insert %s:%s", entry->name, entry->command);
+
     return 0;
 }
 
@@ -617,7 +617,7 @@ smd_wait(void)
     }
     
     os_println("smd_wait foreach ...");
-    err = __smd_foreach(cb, false);
+    err = __smd_foreach(cb, true);
     os_println("smd_wait foreach ok.");
     
     os_println("smd_wait  ok.");

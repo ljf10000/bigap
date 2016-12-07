@@ -431,6 +431,8 @@ umd_wan_offline(umd_user_t *user)
 STATIC umd_user_t *
 __umduser_remove(umd_user_t *user)
 {
+    int err;
+    
     if (NULL==user) {
         debug_bug("user nil");
         
