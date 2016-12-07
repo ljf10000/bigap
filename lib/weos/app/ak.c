@@ -38,7 +38,7 @@ typedef union {
 
 #define __AKU_INITER(_akid)         { .akid = _akid }
 
-static inline OS_INLINE akid_t
+ALWAYS_INLINE akid_t
 __ak_make(uint32 idx, uint32 offset)
 {
     ak_u u = __AKU_MAKER(idx, offset);
@@ -46,7 +46,7 @@ __ak_make(uint32 idx, uint32 offset)
     return u.akid;
 }
 
-STATIC uint32
+ALWAYS_INLINE uint32
 __ak_idx(akid_t akid)
 {
     ak_u u = __AKU_INITER(akid);
@@ -54,7 +54,7 @@ __ak_idx(akid_t akid)
     return u.v.idx;
 }
 
-STATIC uint32
+ALWAYS_INLINE uint32
 __ak_offset(akid_t akid)
 {
     ak_u u = __AKU_INITER(akid);
@@ -68,7 +68,7 @@ __ak_offset(akid_t akid)
     + sizeof(uint32)            \
 )   /* end */
 
-STATIC os_shm_t *
+ALWAYS_INLINE os_shm_t *
 __this_ak(void)
 {
     static os_shm_t ak = OS_SHM_INITER(OS_AK_SHM_ID);
@@ -77,7 +77,7 @@ __this_ak(void)
 }
 #define __ak_address    __this_ak()->address
 
-STATIC ak_hdr_t *
+ALWAYS_INLINE ak_hdr_t *
 __ak_hdr(void)
 {
     return (ak_hdr_t *)__ak_address;
@@ -109,19 +109,19 @@ __ak_dump(void)
     }
 }
 
-STATIC uint32 
+ALWAYS_INLINE uint32 
 __ak_getidx(ak_t *ak)
 {
     return ak - __ak_0;
 }
 
-STATIC uint32 
+ALWAYS_INLINE uint32 
 __ak_getoffset(ak_t *ak)
 {
     return (char *)ak - (char *)__ak_hdr();
 }
 
-STATIC akid_t
+ALWAYS_INLINE akid_t
 __ak_MAKE(ak_t *ak)
 {
     return __ak_make(__ak_getidx(ak), __ak_getoffset(ak));

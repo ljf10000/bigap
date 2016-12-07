@@ -1,13 +1,9 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-cli_t *
-__this_cli(void)
+ALWAYS_INLINE void
+__this_cli_init(cli_t *cli)
 {
-    static cli_t __THIS_CLI;
-    
-    cli_t *cli = &__THIS_CLI;
-    
     if (NULL==cli->b) {
         cli->b = (cli_buffer_t *)os_zalloc(1+CLI_BUFFER_LEN);
         if (NULL==cli->b) {
@@ -18,6 +14,16 @@ __this_cli(void)
         cli->addrlen = sizeof(sockaddr_un_t);
         cli->fd = INVALID_FD;
     }
+}
+
+cli_t *
+__this_cli(void)
+{
+    static cli_t __THIS_CLI;
+    
+    cli_t *cli = &__THIS_CLI;
+
+    __this_cli_init();
     
     return cli;
 }

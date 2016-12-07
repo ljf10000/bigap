@@ -5,19 +5,19 @@ typedef void loop_watcher_handle_f(loop_t *loop, loop_watcher_t *watcher, time_t
 
 DECLARE_ENUM(loop_type, LOOP_TYPE_ENUM_MAPPER, LOOP_TYPE_END);
 
-STATIC bool
+ALWAYS_INLINE bool
 __is_good_loop(loop_t *loop)
 {
     return loop && is_good_fd(loop->efd);
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 __is_good_loop_watcher(loop_watcher_t *watcher)
 {
     return watcher && is_good_fd(watcher->fd);
 }
 
-STATIC int
+ALWAYS_INLINE int
 __loop_fd_add(loop_t *loop, int fd)
 {
     struct epoll_event ev;
@@ -28,7 +28,7 @@ __loop_fd_add(loop_t *loop, int fd)
     return epoll_ctl(loop->efd, EPOLL_CTL_ADD, fd, &ev);
 }
 
-STATIC int
+ALWAYS_INLINE int
 __loop_fd_del(loop_t *loop, int fd)
 {
     return epoll_ctl(loop->efd, EPOLL_CTL_DEL, fd, NULL);
@@ -133,7 +133,7 @@ __loop_init(loop_t *loop)
     return 0;
 }
 
-STATIC loop_watcher_t *
+ALWAYS_INLINE loop_watcher_t *
 __loop_watcher_take(loop_t *loop, int fd)
 {
     if (false==is_good_fd(fd)) {
@@ -145,7 +145,7 @@ __loop_watcher_take(loop_t *loop, int fd)
     return watcher;
 }
 
-STATIC loop_watcher_t *
+ALWAYS_INLINE loop_watcher_t *
 __loop_watcher(loop_t *loop, int fd)
 {
     loop_watcher_t *watcher = __loop_watcher_take(loop, fd);

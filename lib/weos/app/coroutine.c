@@ -23,7 +23,7 @@ typedef struct {
 
 #define CO_ARRAY(_id)       __this_coroutine()->array[_id]
 
-STATIC co_control_t *
+ALWAYS_INLINE co_control_t *
 __this_coroutine(void)
 {
     static co_control_t *control;
@@ -45,19 +45,19 @@ __co_control_init(void)
     }
 }
 
-STATIC coroutine_t *
+ALWAYS_INLINE coroutine_t *
 __co_getbyid(co_id_t id)
 {
     return CO_ARRAY(id);
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 __is_god_coev(int ev)
 {
     return IS_GOOD_ENUM(ev, CO_EV_END);
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 is_good_co_id(co_id_t id)
 {
     return IS_GOOD_ENUM(id, __this_coroutine()->size);
@@ -114,19 +114,19 @@ __co_check(coroutine_t *co)
     return check;
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 __is_good_co(coroutine_t *co)
 {
     return co && __co_check(co) && is_good_co_id(co->id) && co==__co_getbyid(co->id);
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 __is_good_co_running(void)
 {
     return __is_good_co(__this_coroutine()->running);
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 __is_good_coid(co_id_t id)
 {
     return is_good_co_id(id) && __is_good_co(__co_getbyid(id));

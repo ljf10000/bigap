@@ -94,32 +94,32 @@ typedef struct {
 
 typedef mv_t smd_foreach_f(sm_entry_t *entry);
 
-STATIC bool
+ALWAYS_INLINE bool
 smd_is_normal(sm_entry_t *entry)
 {
     return NULL==entry->pidfile;
 }
 #define smd_is_deamon(_entry)       (false==smd_is_normal(_entry))
 
-STATIC bool
+ALWAYS_INLINE bool
 smd_is_timeout(sm_entry_t *entry)
 {
     return smd.time - entry->time[entry->state] > SM_DEAMON_WAIT;
 }
 
-STATIC char *
+ALWAYS_INLINE char *
 smd_type(sm_entry_t *entry)
 {
     return smd_is_normal(entry)?"normal":"deamon";
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 smd_is_run(sm_entry_t *entry)
 {
     return SM_STATE_RUN==entry->state;
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 smd_have_pid(sm_entry_t *entry)
 {
     return SM_STATE_FORK==entry->state || SM_STATE_RUN==entry->state;

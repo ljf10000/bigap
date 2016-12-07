@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-STATIC char *
+ALWAYS_INLINE char *
 __date_string(struct tm *tm, int ifs)
 {
     static char current[1+FULLTIME_STRING_LEN];
@@ -18,7 +18,7 @@ os_date_string(time_t t)
     return __date_string(os_gettm(t), '-');
 }
 
-STATIC char *
+ALWAYS_INLINE char *
 __time_string(struct tm *tm, int ifs)
 {
     static char current[1+FULLTIME_STRING_LEN];
@@ -60,7 +60,7 @@ os_fulltime_string_link(time_t t)
     return __fulltime_string(os_gettm(t), __os_fulltime_ifs_link);
 }
 
-STATIC time_t
+ALWAYS_INLINE time_t
 __os_fulltime(char *fulltime, char *format)
 {
     struct tm tm;

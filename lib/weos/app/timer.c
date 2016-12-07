@@ -27,7 +27,7 @@ typedef struct {
     uint64      removed;
 } tm_clock_t;
 
-STATIC tm_clock_t *
+ALWAYS_INLINE tm_clock_t *
 __this_timer(void)
 {
     static tm_clock_t *clock;
@@ -39,7 +39,7 @@ __this_timer(void)
     return clock;
 }
 
-STATIC tm_ring_t *
+ALWAYS_INLINE tm_ring_t *
 __tm_ring(int idx)
 {
     return &__this_timer()->ring[idx];
@@ -51,26 +51,26 @@ __tm_ring(int idx)
 #define __tm_foreach_ring(_ring)    for((_ring)=__tm_ring0; (_ring)<=__tm_ringmax; (_ring)++)
 #define __tm_foreach_slot(_slot)    for((_slot)=0; (_slot)<TM_SLOT; (_slot)++)
 
-STATIC struct list_head *
+ALWAYS_INLINE struct list_head *
 __tm_slot(tm_ring_t *ring, int idx)
 {
     return &ring->slot[idx].list;
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 __tm_is_once(tm_node_t *timer)
 {
     return os_hasflag(timer->flags, TM_ONCE);
 }
 #define __tm_is_cycle(_timer)   (false==__tm_is_once(_timer))
 
-STATIC bool
+ALWAYS_INLINE bool
 __tm_is_pending(tm_node_t *timer)
 {
     return os_hasflag(timer->flags, TM_PENDING);
 }
 
-STATIC uint32
+ALWAYS_INLINE uint32
 __tm_left(tm_node_t *timer)
 {
     uint64 timeout = timer->create + (uint64)timer->expires;

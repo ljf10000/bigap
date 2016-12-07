@@ -19,19 +19,19 @@ enum {
     __pipe_son      = 1,
 };
 
-STATIC char *
+ALWAYS_INLINE char *
 __pipe_std_cursor(pipe_std_t *std)
 {
     return sb_cursor(&std->sb);
 }
 
-STATIC uint32
+ALWAYS_INLINE uint32
 __pipe_std_left(pipe_std_t *std)
 {
     return sb_left(&std->sb);
 }
 
-STATIC int
+ALWAYS_INLINE int
 __pipe_std_expand(pipe_std_t *std)
 {
     return sb_expand(&std->sb, 0);

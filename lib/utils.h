@@ -21,10 +21,11 @@
 
 #ifdef __BOOT__
 #   define __UCLIBC__
-#   define STATIC   static
-#   define INLINE   inline
-#   define EXTERN   static inline
-#   define DECLARE  static inline
+#   define STATIC           static
+#   define INLINE           inline
+#   define EXTERN           static inline
+#   define DECLARE          static inline
+#   define ALWAYS_INLINE    static inline
 #   include <malloc.h>
 #   include <common.h>
 #   include <command.h>
@@ -50,8 +51,9 @@
 #   define __APP__
 #   define STATIC
 #   define INLINE
-#   define EXTERN   extern
+#   define EXTERN           extern
 #   define DECLARE
+#   define ALWAYS_INLINE    static inline __attribute__((always_inline))
 #   ifdef __BUSYBOX__
 #       include "libbb.h"
 #   endif

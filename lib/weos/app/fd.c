@@ -20,7 +20,7 @@ typedef struct {
     autoarray_t evs; /* struct epoll_event */
 } fd_control_t;
 
-STATIC fd_control_t *
+ALWAYS_INLINE fd_control_t *
 __this_fd(void)
 {
     static fd_control_t *control;
@@ -32,7 +32,7 @@ __this_fd(void)
     return control;
 }
 
-STATIC void
+ALWAYS_INLINE void
 __fd_control_init(void)
 {
     __this_fd()->epfd = INVALID_FD;
@@ -44,13 +44,13 @@ __fd_control_init(void)
 #define ____fd_epfd         __this_fd()->epfd
 #define ____fd_looper       __this_fd()->looper
 /******************************************************************************/
-STATIC struct epoll_event *
+ALWAYS_INLINE struct epoll_event *
 __fd_evs(int idx) 
 { 
     return (struct epoll_event *)os_aa_get(____fd_evs, idx, false); 
 }
 
-STATIC fd_map_t *
+ALWAYS_INLINE fd_map_t *
 __fd_map(int fd, bool grow)
 {
     if (grow) {
@@ -63,7 +63,7 @@ __fd_map(int fd, bool grow)
     return (fd_map_t *)os_aa_get(____fd_map, fd, grow);
 }
 
-STATIC fd_map_t *
+ALWAYS_INLINE fd_map_t *
 __fd_get(int fd)
 {
     fd_map_t *map = __fd_map(fd, false);
@@ -71,7 +71,7 @@ __fd_get(int fd)
     return (map && map->flag)?map:NULL;
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 __fd_is_sock(fd_map_t *map)
 {
     return os_hasflag(map->flag, FD_F_SOCK);

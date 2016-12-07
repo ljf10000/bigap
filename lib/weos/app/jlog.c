@@ -14,7 +14,7 @@ typedef struct {
     .fd     = INVALID_FD,       \
 }   /* end */
 
-STATIC jlog_control_t *
+ALWAYS_INLINE jlog_control_t *
 __this_jlogger(void)
 {
     static jlog_control_t jlog = JLOG_CONTROL_INITER;
@@ -22,19 +22,19 @@ __this_jlogger(void)
     return &jlog;
 }
 
-STATIC sockaddr_un_t *
+ALWAYS_INLINE sockaddr_un_t *
 __jlog_userver(void)
 {
     return &__this_jlogger()->server.un;
 }
 
-STATIC sockaddr_in_t *
+ALWAYS_INLINE sockaddr_in_t *
 __jlog_iserver(void)
 {
     return &__this_jlogger()->server.in;
 }
 
-STATIC sockaddr_t *
+ALWAYS_INLINE sockaddr_t *
 __jlog_server(void)
 {
     return &__this_jlogger()->server.c;
@@ -151,14 +151,9 @@ error:
 }
 
 STATIC int
-__jlog_socket(const char *app, const char *sub, int family)
+__jlog_socket_init(const char *app, const char *sub, int family)
 {
     int fd, err, addrlen;
-    
-    fd = __this_jlogger()->fd;
-    if (is_good_fd(fd)) {
-        return fd;
-    }
     
     fd = socket(family, SOCK_DGRAM, (AF_UNIX==family)?0:IPPROTO_UDP);
     if (fd<0) {
@@ -208,6 +203,17 @@ error:
     os_close(fd);
 
     return err;
+}
+
+int
+__jlog_socket(const char *app, const char *sub, int family)
+{
+    int fd = __this_jlogger()->fd;
+    if (is_good_fd(fd)) {
+        return fd;
+    } else {
+        return __jlog_socket_init(app, sub, family);
+    }
 }
 
 int

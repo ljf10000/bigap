@@ -42,7 +42,7 @@ umd_is_dev_ip(uint32 ip)
     return false;
 }
 
-STATIC bool
+ALWAYS_INLINE bool
 umd_is_user_ip(uint32 ip)
 {
     umd_intf_t *intf = umd_flow.intf;
@@ -66,14 +66,14 @@ umd_is_lan_ip(uint32 ip)
     return false;
 }
 
-STATIC void
+ALWAYS_INLINE void
 umd_add_flowst(umd_flowst_t *st)
 {
     st->packets++;
     st->bytes += umd_flow.len;
 }
 
-STATIC void
+ALWAYS_INLINE void
 umd_add_flow_total(int type, int valid)
 {
     umd_add_flowst(&umd_flow.total[type][valid]);
@@ -82,20 +82,20 @@ umd_add_flow_total(int type, int valid)
 #define umd_add_flow_bad(_type)     umd_add_flow_total(_type, umd_pkt_check_bad)
 #define umd_add_flow_all(_type)     umd_add_flow_total(_type, umd_pkt_check_all)
 
-STATIC void
+ALWAYS_INLINE void
 umd_set_flow_dev(void)
 {
     umd_add_flowst(&umd_flow.dev[umd_flow.type][umd_flow.dir]);
 }
 
-STATIC void
+ALWAYS_INLINE void
 umd_set_flow_suser(void)
 {
     umd_flow.usermac= umd_flow.eth->ether_shost;
     umd_flow.userip = umd_flow.iph->ip_src.s_addr;
 }
 
-STATIC void
+ALWAYS_INLINE void
 umd_set_flow_duser(void)
 {
     umd_flow.usermac= umd_flow.eth->ether_dhost;

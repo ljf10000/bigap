@@ -163,10 +163,6 @@ __jobj_add_string(jobj_t obj, char *key, char *value)
     }
 }
 
-
-
-
-
 int
 jobj_vsprintf(jobj_t obj, const char *key, const char *fmt, va_list args)
 {
