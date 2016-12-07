@@ -10,6 +10,16 @@
 #define LOOP_FDGROW         1024
 #endif
 
+#ifndef LOOP_DPRINT
+#define LOOP_DPRINT         1
+#endif
+
+#if LOOP_DPRINT
+#define loop_println(_fmt, _args...)    printf(_fmt "\n", ##_args)
+#else
+#define loop_println(_fmt, _args...)    os_do_nothing()
+#endif
+
 #if 1
 #define LOOP_TYPE_ENUM_MAPPER(_)        \
     _(LOOP_TYPE_INOTIFY,0, "inotify"),  \

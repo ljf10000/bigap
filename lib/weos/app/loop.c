@@ -428,6 +428,7 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev, time_t now)
     else {
         (*map[watcher->type])(loop, watcher, now);
     }
+    loop_println("loop watcher:%s", loop_type_getnamebyid(watcher->type));
     
     return 0;
 }
@@ -435,6 +436,7 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev, time_t now)
 STATIC int
 __loop_handle(loop_t *loop)
 {
+    static uint64 count;
     struct epoll_event evs[32];
     int i;
     
@@ -449,7 +451,11 @@ __loop_handle(loop_t *loop)
     time_t now = time(NULL);
     
     for (i=0; i<nfds; i++) {
+        count++;
+        
+        loop_println("loop ev:%d time:%u ...", count, now);
         __loop_handle_ev(loop, &evs[i], now);
+        loop_println("loop ev:%d time:%u ok.", count, now);
     }
 
     return 0;
