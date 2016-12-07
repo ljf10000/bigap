@@ -2,7 +2,7 @@
 #define __DB_H_db573104d2404862b7487d1d6ebc8d4b__
 /******************************************************************************/
 #ifndef DB_DPRINT
-#define DB_DPRINT               1
+#define DB_DPRINT               0
 #endif
 
 #if DB_DPRINT
