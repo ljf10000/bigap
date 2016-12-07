@@ -237,6 +237,8 @@ __smd_insert(sm_entry_t *entry)
     }
 
     h2_add(&smd.table, &entry->node, nhash);
+    
+    debug_entry("insert %s:%s", entry->name, entry->command);
 
     return 0;
 }
@@ -251,9 +253,9 @@ __smd_remove(sm_entry_t *entry)
         return -ENOINLIST;
     }
 
-    debug_trace("remove %s:%s", entry->name, entry->command);
-
     h2_del(&smd.table, &entry->node);
+    
+    debug_entry("remove %s:%s", entry->name, entry->command);
     
     return 0;
 }
@@ -340,7 +342,7 @@ smd_change(sm_entry_t *entry, int state, int normal, int deamon, char *prefix)
     int err;
     
     if (normal!=entry->normal && deamon!=entry->deamon) {
-        debug_trace("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d), deamon pid(%d==>%d)",
+        debug_entry("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d), deamon pid(%d==>%d)",
             prefix,
             entry->name, 
             sm_state_getnamebyid(entry->state),
@@ -352,7 +354,7 @@ smd_change(sm_entry_t *entry, int state, int normal, int deamon, char *prefix)
         entry->deamon = deamon;
     }
     else if (normal!=entry->normal) {
-        debug_trace("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d)",
+        debug_entry("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d)",
             prefix,
             entry->name, 
             sm_state_getnamebyid(entry->state),
@@ -363,7 +365,7 @@ smd_change(sm_entry_t *entry, int state, int normal, int deamon, char *prefix)
         entry->deamon = deamon;
     }
     else if (deamon!=entry->deamon) {
-        debug_trace("%s: set entry(%s) state(%s==>%s), deamon pid(%d==>%d)",
+        debug_entry("%s: set entry(%s) state(%s==>%s), deamon pid(%d==>%d)",
             prefix,
             entry->name, 
             sm_state_getnamebyid(entry->state),
@@ -570,7 +572,9 @@ smd_wait(void)
     }
 
     for (i=0; i<count; i++) {
+        os_println("smd_wait son %d pid=%d ...", i, pids[i]);
         smd_wait_son(pids[i]);
+        os_println("smd_wait son %d pid=%d ok.", i, pids[i]);
     }
     
     /*
