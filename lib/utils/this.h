@@ -42,11 +42,11 @@
 #define __SYMBOL_TO_VAR(_prefix, _name)         __SYMBOL_TO_VAR2(_prefix, _name)
 
 #if defined(__LIB__)
-    // boot/busybox/openwrt-app
-#   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(only, _name)
-#elif defined(__ALLINONE__) || defined(__BOOT__) || defined(__APP__)
     // pc/openwrt-lib
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)
+#elif defined(__ALLINONE__) || defined(__BOOT__) || defined(__APP__)
+    // boot/busybox/openwrt-app
+#   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(only, _name)
 #else
 #   error "error !!!"
 #endif
