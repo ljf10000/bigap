@@ -1,19 +1,19 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE bool
+ALWAYS_INLINE bool
 __in_hash(hash_node_t *node)
 {
     return NULL!=node->bucket;
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __is_good_hash_idx(hash_t *h, hash_idx_t idx)
 {
     return IS_GOOD_ENUM(idx, h->size);
 }
 
-DECLARE hash_bucket_t *
+ALWAYS_INLINE hash_bucket_t *
 __hash_bucket(hash_t *h, hash_idx_t idx)
 {
     if (__is_good_hash_idx(h, idx)) {
@@ -23,13 +23,13 @@ __hash_bucket(hash_t *h, hash_idx_t idx)
     }
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __is_hash_empty(hash_t *h)
 {
     return 0==h->count;
 }
 
-DECLARE void
+ALWAYS_INLINE void
 __hash_del(hash_node_t *node)
 {
     if (__in_hash(node) && false==__is_hash_empty(node->bucket->hash)) {

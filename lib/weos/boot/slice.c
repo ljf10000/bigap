@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE bool 
+ALWAYS_INLINE bool 
 slice_is_clean(const slice_t *slice)
 {
     return  0==slice_len(slice)     &&

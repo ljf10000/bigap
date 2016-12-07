@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE int
+ALWAYS_INLINE int
 __ch_align(channel_t *ch, uint32 number)
 {
     return number % ch->limit;
@@ -17,31 +17,31 @@ __ch_align(channel_t *ch, uint32 number)
     __ch_data(_ch, _type)[_idx] = *(_type *)_obj;   \
 }while(0)
 
-DECLARE byte *
+ALWAYS_INLINE byte *
 __ch_buffer(channel_t *ch, uint32 idx)
 {
     return ch->buf + ch->size * idx;
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __ch_count(channel_t *ch)
 {
     return __ch_align(ch, ch->limit + ch->writer - ch->reader);
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __ch_left(channel_t *ch)
 {
     return ch->limit - __ch_count(ch);
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __ch_is_empty(channel_t *ch)
 {
     return 0==__ch_count(ch);
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __ch_is_full(channel_t *ch)
 {
     return __ch_left(ch) <= 1;
@@ -69,7 +69,7 @@ __ch_is_writeable(channel_t *ch, uint32 idx)
     }
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __ch_is_readable(channel_t *ch, uint32 idx)
 {
     return false==__ch_is_writeable(ch, idx);

@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE void *
+ALWAYS_INLINE void *
 __os_aa_item(autoarray_t *aa, uint32 idx)
 {
     if (IS_GOOD_ENUM(idx, aa->count)) {

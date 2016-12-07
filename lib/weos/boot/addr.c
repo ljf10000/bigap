@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE bool
+ALWAYS_INLINE bool
 __is_good_macstring_L(char *macstring)
 {
     /*
@@ -33,7 +33,7 @@ __is_good_macstring_L(char *macstring)
         && __is_good_macchar(macstring[16]);
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __is_good_macstring_M(char *macstring)
 {
     /*
@@ -59,7 +59,7 @@ __is_good_macstring_M(char *macstring)
         && __is_good_macchar(macstring[13]);
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __is_good_macstring_S(char *macstring)
 {
     /*
@@ -91,7 +91,7 @@ __is_good_macstring(char *macstring)
     }
 }
 
-DECLARE byte *
+ALWAYS_INLINE byte *
 __os_getmac_bystring_L(byte mac[], char macstring[])
 {
     int i;
@@ -103,7 +103,7 @@ __os_getmac_bystring_L(byte mac[], char macstring[])
     return mac;
 }
 
-DECLARE byte *
+ALWAYS_INLINE byte *
 __os_getmac_bystring_M(byte mac[], char macstring[])
 {
     int i;
@@ -116,7 +116,7 @@ __os_getmac_bystring_M(byte mac[], char macstring[])
     return mac;
 }
 
-DECLARE byte *
+ALWAYS_INLINE byte *
 __os_getmac_bystring_S(byte mac[], char macstring[])
 {
     int i;
@@ -153,7 +153,7 @@ os_getmac_bystring(byte mac[], char macstring[])
     }
 }
 
-DECLARE int
+ALWAYS_INLINE int
 __os_macsnprintf_L(byte mac[], char macstring[], int size, int sep)
 {
     return os_snprintf(macstring, size,
@@ -171,7 +171,7 @@ __os_macsnprintf_L(byte mac[], char macstring[], int size, int sep)
         mac[5]);
 }
 
-DECLARE int
+ALWAYS_INLINE int
 __os_macsnprintf_M(byte mac[], char macstring[], int size, int sep)
 {
     return os_snprintf(macstring, size,
@@ -183,7 +183,7 @@ __os_macsnprintf_M(byte mac[], char macstring[], int size, int sep)
         mac[4], mac[5]);
 }
 
-DECLARE int
+ALWAYS_INLINE int
 __os_macsnprintf_S(byte mac[], char macstring[], int size, int sep)
 {
     return os_snprintf(macstring, size,

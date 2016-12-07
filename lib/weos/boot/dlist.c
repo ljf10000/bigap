@@ -1,25 +1,25 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE dlist_node_t *
+ALWAYS_INLINE dlist_node_t *
 ____dlist_first(dlist_t *list)
 {
     return list_entry(list->head.next, dlist_node_t, node);
 }
 
-DECLARE dlist_node_t *
+ALWAYS_INLINE dlist_node_t *
 ____dlist_last(dlist_t *list)
 {
     return list_entry(list->head.prev, dlist_node_t, node);
 }
 
-DECLARE dlist_node_t *
+ALWAYS_INLINE dlist_node_t *
 ____dlist_next(dlist_node_t *node)
 {
     return list_entry(node->node.next, dlist_node_t, node);
 }
 
-DECLARE dlist_node_t *
+ALWAYS_INLINE dlist_node_t *
 ____dlist_prev(dlist_node_t *node)
 {
     return list_entry(node->node.prev, dlist_node_t, node);
@@ -31,43 +31,43 @@ __in_dlist(dlist_node_t *node)
     return NULL!=node->list;
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __is_dlist_empty(dlist_t *list)
 {
     return list_empty(&list->head) && 0==list->count;
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __is_dlist_first(dlist_node_t *node)
 {
     return __in_dlist(node) && is_list_first(&node->node, &node->list->head);
 }
 
-DECLARE bool
+ALWAYS_INLINE bool
 __is_dlist_last(dlist_node_t *node)
 {
     return __in_dlist(node) && is_list_last(&node->node, &node->list->head);
 }
 
-DECLARE dlist_node_t *
+ALWAYS_INLINE dlist_node_t *
 __dlist_first(dlist_t *list)
 {
     return __is_dlist_empty(list)?NULL:____dlist_first(list);
 }
 
-DECLARE dlist_node_t *
+ALWAYS_INLINE dlist_node_t *
 __dlist_last(dlist_t *list)
 {
     return __is_dlist_empty(list)?NULL:____dlist_last(list);
 }
 
-DECLARE dlist_node_t *
+ALWAYS_INLINE dlist_node_t *
 __dlist_next(dlist_node_t *node)
 {
     return __is_dlist_last(node)?NULL:____dlist_next(node);
 }
 
-DECLARE dlist_node_t *
+ALWAYS_INLINE dlist_node_t *
 __dlist_prev(dlist_node_t *node)
 {
     return __is_dlist_first(node)?NULL:____dlist_prev(node);
