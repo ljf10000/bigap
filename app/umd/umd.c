@@ -147,15 +147,9 @@ umd_init(void)
 STATIC int
 umd_main_helper(int argc, char **argv)
 {
-    int err = 0;
-
     umd_update_limit_test();
 
-    while(1) {
-        sock_servers_run(umd.server, umd.server_count);
-    }
-    
-    return err;
+    return os_loop(&umd.loop);
 }
 
 int allinone_main(int argc, char *argv[])

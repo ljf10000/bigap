@@ -10,7 +10,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #define __DEAMON__
-#define __CLI_TCP__     0
 #include "umd.h"
 
 /*
@@ -432,7 +431,7 @@ umd_handle_gc(char *args)
 }
 
 STATIC int
-umd_cli_handle(sock_server_t *server)
+umd_cli(struct loop_watcher *watcher, time_t now)
 {
     static cli_table_t table[] = {
         CLI_ENTRY("create", umd_handle_create),
@@ -457,19 +456,20 @@ umd_cli_handle(sock_server_t *server)
         CLI_ENTRY("gc",     umd_handle_gc),
     };
     
-    return clis_handle(server->fd, table);
+    return clis_handle(watcher->fd, table);
 }
 
 STATIC int
 umd_cli_init(sock_server_t *server)
 {
-    int fd;
-    
-    fd = __clis_fd(&server->addr.un);
-    if (fd<0) {
-        return fd;
+    int err;
+
+    err = os_loop_add_cli(&umd.loop, umd_cli);
+    if (err<0) {
+        debug_ok("add loop cli error:%d", err);
+        
+        return err;
     }
-    server->fd = fd;
     
     debug_ok("init cli server ok");
     
@@ -477,5 +477,5 @@ umd_cli_init(sock_server_t *server)
 }
 
 sock_server_t umd_cli_server = 
-    SOCK_USERVER_INITER(UMD_SERVER_CLI, "umd", umd_cli_init, umd_cli_handle);
+    SOCK_USERVER_INITER(UMD_SERVER_CLI, "umd", umd_cli_init, NULL);
 /******************************************************************************/

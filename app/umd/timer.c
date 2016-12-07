@@ -200,26 +200,8 @@ umd_timer_handle(umd_user_t *user, time_t now)
 }
 
 STATIC int
-umd_timer_server_init(sock_server_t *server)
-{    
-    int fd = tm_fd(os_second(1000*umd.cfg.ticks), os_nsecond(1000*umd.cfg.ticks));
-    if (fd<0) {
-        return fd;
-    }
-    server->fd = fd;
-    
-    debug_ok("init timer server ok");
-    
-    return 0;
-}
-
-STATIC int
-umd_timer_server_handle(sock_server_t *server)
+umd_timer(struct loop_watcher *watcher, time_t now)
 {
-    uint32 times = tm_fd_read(server->fd);
-    time_t now = time(NULL);
-    int i;
-    
     mv_t cb(umd_user_t *user)
     {
         umd_timer_handle(user, now);
@@ -227,15 +209,31 @@ umd_timer_server_handle(sock_server_t *server)
         return mv2_ok;
     }
     
-    for (i=0; i<times; i++) {
-        umd.ticks++;
-        
-        umd_user_foreach(cb, true);
-    }
+    umd.ticks++;
+    
+    umd_user_foreach(cb, true);
 
     return 0;
 }
 
+STATIC int
+umd_timer_server_init(sock_server_t *server)
+{
+    struct itimerspec tm = OS_ITIMESPEC_INITER(os_second(1000*umd.cfg.ticks), os_nsecond(1000*umd.cfg.ticks));
+    int err;
+
+    err = os_loop_add_timer(&umd.loop, umd_timer, &tm);
+    if (err<0) {
+        debug_error("add loop timer error:%d", err);
+        
+        return err;
+    }
+    
+    debug_ok("init timer ok");
+    
+    return 0;
+}
+
 sock_server_t umd_timer_server = 
-    SOCK_SERVER_INITER(UMD_SERVER_TIMER, 0, umd_timer_server_init, umd_timer_server_handle);
+    SOCK_SERVER_INITER(UMD_SERVER_TIMER, 0, umd_timer_server_init, NULL);
 /******************************************************************************/

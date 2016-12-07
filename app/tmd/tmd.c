@@ -544,9 +544,7 @@ tmd_init(void)
 STATIC int 
 tmd_main_helper(int argc, char *argv[])
 {
-    os_loop(&tmd.loop);
-    
-    return 0;
+    return os_loop(&tmd.loop);
 }
 
 int allinone_main(int argc, char *argv[])

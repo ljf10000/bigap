@@ -863,9 +863,7 @@ smd_main_helper(int argc, char *argv[])
 {
     smd_load();
 
-    os_loop(&smd.loop);
-    
-    return 0;
+    return os_loop(&smd.loop);
 }
 
 int allinone_main(int argc, char *argv[])

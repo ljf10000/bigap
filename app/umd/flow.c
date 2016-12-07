@@ -726,10 +726,34 @@ umd_jflow(void)
 }
 
 STATIC int
+umd_flower(struct loop_watcher *watcher, time_t now)
+{
+    static int (*handle[])(sock_server_t *) = {
+        umd_pkt_handle,
+        umd_intf_handle,
+        umd_eth_handle,
+        umd_vlan_handle,
+        umd_ip_handle,
+    };
+    
+    sock_server_t *server = (sock_server_t *)watcher->user;
+    int i, err;
+
+    for (i=0; i<os_count_of(handle); i++) {
+        err = (*handle[i])(server);
+        if (err<0) {
+            return err;
+        }
+    }
+
+    return 0;
+}
+
+STATIC int
 umd_flow_server_init(sock_server_t *server)
 {
     int fd, err;
-    
+
     fd = socket(AF_PACKET, SOCK_RAW, umd.ether_type_all);
     if (fd<0) {
         debug_error("socket error:%d", -errno);
@@ -755,49 +779,18 @@ umd_flow_server_init(sock_server_t *server)
     }
 
     server->fd = fd;
-    
+
+    err = os_loop_add_normal(&umd.loop, fd, umd_flower, server);
+    if (err<0) {
+        debug_error("add loop intf %s flow error:%d", intf->name, err);
+
+        return err;
+    }
     debug_ok("init flow server ok");
     
     return 0;
 }
 
-STATIC int
-umd_flow_server_handle_helper(sock_server_t *server)
-{
-    static int (*handle[])(sock_server_t *) = {
-        umd_pkt_handle,
-        umd_intf_handle,
-        umd_eth_handle,
-        umd_vlan_handle,
-        umd_ip_handle,
-    };
-    int i, err;
-
-    for (i=0; i<os_count_of(handle); i++) {
-        err = (*handle[i])(server);
-        if (err<0) {
-            return err;
-        }
-    }
-
-    return 0;
-}
-
-STATIC int
-umd_flow_server_handle(sock_server_t *server)
-{
-    int i, err;
-
-    for (i=0; i<umd.cfg.sniff_count; i++) {
-        err = umd_flow_server_handle_helper(server);
-        if (err<0) {
-            return err;
-        }
-    }
-
-    return 0;
-}
-
 sock_server_t umd_flow_server = 
-    SOCK_SERVER_INITER(UMD_SERVER_FLOW, AF_PACKET, umd_flow_server_init, umd_flow_server_handle);
+    SOCK_SERVER_INITER(UMD_SERVER_FLOW, AF_PACKET, umd_flow_server_init, NULL);
 /******************************************************************************/

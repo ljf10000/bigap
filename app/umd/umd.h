@@ -468,6 +468,7 @@ typedef struct {
     char *conf;
     sock_server_t **server;
     int server_count;
+    loop_t loop;
     h2_table_t table;
 } umd_control_t;
 
@@ -475,6 +476,7 @@ typedef struct {
     .lan    = UMD_LAN_INITER,   \
     .cfg    = UMD_CFG_INITER,   \
     .conf   = UMD_CONF,         \
+    .loop   = LOOP_INITER,      \
 }   /* end */
 
 extern umd_control_t umd;
