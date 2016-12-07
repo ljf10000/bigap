@@ -616,7 +616,9 @@ smd_wait(void)
         return mv2_ok;
     }
     
+    os_println("smd_wait foreach ...");
     err = __smd_foreach(cb, false);
+    os_println("smd_wait foreach ok.");
     
     os_println("smd_wait  ok.");
 
