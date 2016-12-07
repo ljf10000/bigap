@@ -122,8 +122,8 @@ umd_pkt_handle(sock_server_t *server)
         
         __os_dump_buffer(umd_flow.packet, umd_flow.len, NULL);
     }
-    
-    return 0;
+    return -1;
+    // return 0;
 }
 
 STATIC int
@@ -738,7 +738,7 @@ umd_flower(struct loop_watcher *watcher, time_t now)
 
     sock_server_t *server = (sock_server_t *)watcher->user;
     int i, err;
-    return 0;
+
     for (i=0; i<os_count_of(handle); i++) {
         err = (*handle[i])(server);
         if (err<0) {
