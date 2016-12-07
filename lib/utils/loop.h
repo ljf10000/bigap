@@ -11,7 +11,7 @@
 #endif
 
 #ifndef LOOP_DPRINT
-#define LOOP_DPRINT         1
+#define LOOP_DPRINT         0
 #endif
 
 #if LOOP_DPRINT
