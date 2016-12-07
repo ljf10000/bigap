@@ -56,42 +56,6 @@ os_strlcpy(char *dst, const char *src, uint32 size)
     return len;
 }
 
-DECLARE int
-os_strcmp(const char *a, const char *b)
-{
-    if (a) {
-        if (b) {
-            return (a==b)?0:strcmp(a, b);
-        } else {
-            return 1;
-        }
-    } else {
-        if (b) {
-            return -1;
-        } else {
-            return 0;
-        }
-    }
-}
-
-DECLARE int
-os_strncmp(const char *a, const char *b, int len)
-{
-    if (a) {
-        if (b) {
-            return ((a==b) || len<=0)?0:strncmp(a, b, len);
-        } else {
-            return 1;
-        }
-    } else {
-        if (b) {
-            return -1;
-        } else {
-            return 0;
-        }
-    }
-}
-
 DECLARE char *
 os_str_skip(const char *s, char_is_f *is)
 {

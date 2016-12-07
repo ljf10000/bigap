@@ -160,8 +160,23 @@ os_strlcpy(char *dst, const char *src, uint32 size);
 })
 #endif
 
-EXTERN int
-os_strcmp(const char *a, const char *b);
+static inline int
+os_strcmp(const char *a, const char *b)
+{
+    if (a) {
+        if (b) {
+            return (a!=b)?strcmp(a, b):0;
+        } else {
+            return 1;
+        }
+    } else {
+        if (b) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+}
 
 static inline bool
 os_streq(const char *a, const char *b)
@@ -175,8 +190,24 @@ os_strneq(const char *a, const char *b)
     return !!os_strcmp(a, b);
 }
 
-EXTERN int
-os_strncmp(const char *a, const char *b, int len);
+static inline int
+os_strncmp(const char *a, const char *b, int len)
+{
+    if (a) {
+        if (b) {
+            return ((a!=b) && len>0)?strncmp(a, b, len):0;
+        } else {
+            return 1;
+        }
+    } else {
+        if (b) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+}
+
 
 /*
 * use a's size
