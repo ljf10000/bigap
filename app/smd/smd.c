@@ -263,8 +263,6 @@ __smd_foreach(smd_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h2_node_t *node)
     {
-        os_println("smd foreach %p", node);
-        
         return (*foreach)(smd_hx_entry(node));
     }
 
