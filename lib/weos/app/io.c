@@ -10,7 +10,7 @@ __io_error(char *method, void *buf, int size, int error)
         os_dump_buffer(__is_ak_debug_packet, buf, err, NULL);
     }
     else if (err<0) { /* yes, <0 */
-        debug_io("%s error:%d", method, -errno);
+        // debug_io("%s error:%d", method, -errno);
 
         return -errno;
     }
@@ -23,7 +23,7 @@ __io_read_error(char *method, void *buf, int size, int error)
 {
     int err = __io_error(method, buf, size, error);
     if (0==err) {
-        debug_io("%s nothing", method);
+        // debug_io("%s nothing", method);
     }
 
     return err;
@@ -34,7 +34,7 @@ __io_write_error(char *method, void *buf, int size, int error)
 {
     int err = __io_error(method, buf, size, error);
     if (err != size) {
-        debug_io("%s count(%d) < length(%d)", method, err, size);
+        // debug_io("%s count(%d) < length(%d)", method, err, size);
 
         return -EIO;
     }
@@ -62,7 +62,7 @@ __io_write_error(char *method, void *buf, int size, int error)
                                                         \
                 continue;                               \
             } else {                                    \
-                debug_io("%s error:%d", _action, -errno); \
+                /* debug_io("%s error:%d", _action, -errno); */ \
                                                         \
                 err = -errno;                           \
             }                                           \
@@ -336,10 +336,4 @@ sock_servers_run(sock_server_t *server[], int count)
 
     return 0;
 }
-
-
-
-
-
-
 /******************************************************************************/

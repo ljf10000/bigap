@@ -268,14 +268,7 @@ static inline int __ak_init(void);
 #define ak_load()                       0
 #define ak_foreach(_foreach)            0
 #define ak_fini()                       0
-
-static inline int 
-ak_init(void)
-{    
-    __ak_init();
-
-    return 0;
-}
+#define ak_init()                       0
 #else /* app unknow/deamon */
 extern akid_t 
 __ak_getidbyname(char *app, char *k);
@@ -359,8 +352,8 @@ ak_init(void)
     
     __ak_init();
     
-    ak_println("init OK!");
-    os_println(__THIS_APPNAME " " __THIS_FILENAME " ak init OK!");
+    ak_println(__THIS_APPNAME " " __THIS_FILENAME " ak init OK!");
+    ak_println(__THIS_APPNAME " " __THIS_FILENAME " __THIS_DEBUG=" __SYMBOL_TO_STRING(__THIS_DEBUG));
     
     return 0;
 error:
@@ -373,7 +366,8 @@ error:
 
 #endif /* !defined(__APP__) || defined(__COMMAND__) */
 
-#if defined(__APP__) && (__RUNAS__ & RUN_AS_COMMAND)
+#ifdef __APP__
+#if __RUNAS__ & RUN_AS_COMMAND
 static inline void 
 __ak_init_command() 
 {
@@ -389,7 +383,7 @@ __ak_init_command()
 }
 #endif
 
-#if defined(__APP__) && (__RUNAS__ & RUN_AS_DEAMON)
+#if __RUNAS__ & RUN_AS_DEAMON
 static inline void 
 __ak_init_deamon() 
 {
@@ -398,7 +392,7 @@ __ak_init_deamon()
 }
 #endif
 
-#if defined(__APP__) && (__RUNAS__==RUN_AS_UNKNOW)
+#if __RUNAS__==RUN_AS_UNKNOW
 static inline void 
 __ak_init_unknow() 
 {
@@ -420,7 +414,6 @@ __ak_init(void)
 {
     ak_println("ak runas %d", __RUNAS__);
     
-#ifdef __APP__
 #if __RUNAS__==RUN_AS_COMMAND
     __ak_init_command();
 #elif __RUNAS__==RUN_AS_DEAMON
@@ -430,10 +423,10 @@ __ak_init(void)
 #else
 #   error "bad __RUNAS__"
 #endif
-#endif
 
     return 0;
 }
+#endif
 /******************************************************************************/
 typedef struct {
     akid_t id;
