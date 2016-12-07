@@ -445,6 +445,7 @@ ak_init(void)
     __ak_dump();
     
     ak_println("init OK!");
+    os_println(__THIS_APPNAME " ak init OK!");
     
     return 0;
 error:
