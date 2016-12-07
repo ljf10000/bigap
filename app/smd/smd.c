@@ -345,7 +345,7 @@ smd_change(sm_entry_t *entry, int state, int pid, char *prefix)
             entry->name, 
             sm_state_getnamebyid(entry->state),
             sm_state_getnamebyid(state),
-            entry->pid, pid;
+            entry->pid, pid);
         
         __smd_remove(entry);
         entry->pid = pid;
