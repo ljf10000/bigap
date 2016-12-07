@@ -697,7 +697,7 @@ smd_create(char *name, char *command, char *pidfile)
     if (NULL==entry) {            
         return NULL;
     }
-
+    
     if (pidfile) {
         entry->pidfile  = os_strdup(pidfile);
     }
