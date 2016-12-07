@@ -5,13 +5,13 @@ typedef void loop_watcher_handle_f(loop_t *loop, loop_watcher_t *watcher, time_t
 
 DECLARE_ENUM(loop_type, LOOP_TYPE_ENUM_MAPPER, LOOP_TYPE_END);
 
-STATIC bool
+static inline bool
 __is_good_loop(loop_t *loop)
 {
     return loop && is_good_fd(loop->efd);
 }
 
-STATIC bool
+static inline bool
 __is_good_loop_watcher(loop_watcher_t *watcher)
 {
     return watcher && is_good_fd(watcher->fd);
