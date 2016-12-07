@@ -344,10 +344,34 @@ extern int
 ak_foreach(mv_t (*foreach)(char *app, char *k, uint32 v));
 
 extern int 
-ak_fini(void) ;
+ak_fini(void);
 
 extern int 
-ak_init(void) ;
+ak_init_helper(void);
+
+static inline int 
+ak_init(void) 
+{
+    int err = ak_init_helper();
+    if(err<0) {
+        goto error;
+    }
+    
+    __ak_init();
+    __ak_dump();
+    
+    ak_println("init OK!");
+    os_println(__THIS_APPNAME " " __THIS_FILENAME " ak init OK!");
+    
+    return 0;
+error:
+    ak_println("init failed!");
+    
+    ak_fini();
+
+    return err;
+}
+
 #endif /* !defined(__APP__) || defined(__COMMAND__) */
 
 #if defined(__APP__) && (__RUNAS__ & RUN_AS_COMMAND)

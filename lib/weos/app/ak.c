@@ -421,7 +421,7 @@ ak_fini(void)
 }
 
 int 
-ak_init(void) 
+ak_init_helper(void) 
 {
     int err = 0;
     
@@ -441,17 +441,9 @@ ak_init(void)
         ak_load();
         os_println(__THIS_APPNAME " " __THIS_FILENAME " ak load OK!");
     }
-    
-    __ak_init();
-    __ak_dump();
-    
-    ak_println("init OK!");
-    os_println(__THIS_APPNAME " " __THIS_FILENAME " ak init OK!");
-    
+
     return 0;
-error:
-    ak_println("init failed!");
-    
+error:    
     ak_fini();
 
     return err;
