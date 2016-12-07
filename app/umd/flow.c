@@ -122,8 +122,8 @@ umd_pkt_handle(sock_server_t *server)
         
         __os_dump_buffer(umd_flow.packet, umd_flow.len, NULL);
     }
-    return -1;
-    // return 0;
+
+    return 0;
 }
 
 STATIC int
