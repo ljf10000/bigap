@@ -41,17 +41,24 @@ static inline int sm_state_getidbyname(const char *name);
 #define SM_STATE_END    SM_STATE_END
 #endif
 
+enum {
+    SMD_HASH_NAME,
+    SMD_HASH_PID,
+
+    SMD_HASH_END
+};
+#define SMD_HASH_SIZE   256
+
 typedef struct {
     STREAM f;    /* todo: cache entry */
     uint32 time;
-    
-    struct list_head list;
 
     loop_t loop;
+
+    h2_table_t table;
 } smd_control_t;
 
 #define SMD_INITER {                    \
-    .list = LIST_HEAD_INIT(smd.list),   \
     .loop = LOOP_INITER,                \
 }   /* end */
 
@@ -76,7 +83,7 @@ typedef struct {
     
     uint32 time[SM_STATE_END];
     
-    struct list_head node;
+    h2_node_t node;
 } sm_entry_t;
 
 #define DAEMONS(_name, _command, _pidfile) {  \
@@ -86,12 +93,15 @@ typedef struct {
     .flags  = SM_F_STATIC,    \
 }   /* end */
 
+typedef mv_t smd_foreach_f(sm_entry_t *entry);
+
 STATIC bool
 smd_is_normal(sm_entry_t *entry)
 {
     return NULL==entry->pidfile;
 }
-#define smd_is_deamon(_entry)     (false==smd_is_normal(_entry))
+#define smd_is_deamon(_entry)       (false==smd_is_normal(_entry))
+#define smd_pid(_entry)             smd_is_normal(_entry)?(_entry)->normal:(_entry)->deamon
 
 STATIC bool
 smd_is_timeout(sm_entry_t *entry)
@@ -171,8 +181,161 @@ smd_set_time(sm_entry_t *entry, char *prefix)
 }
 
 STATIC void
+smd_dump_all(char *name)
+{
+    sm_entry_t *entry;
+
+    if (__is_ak_debug_trace) {
+        list_for_each_entry(entry, &smd.list, node) {        
+            debug_trace("entry:%s pid:%d/%d forks:%d command:%s ", 
+                entry->name,
+                entry->normal, entry->deamon,
+                entry->forks,
+                entry->command);
+        }
+    }
+}
+
+STATIC hash_idx_t
+smd_hashname(char *name)
+{
+    return hash_bybuf(name, os_strlen(name), SMD_HASH_SIZE - 1);
+}
+
+STATIC hash_idx_t
+smd_hashpid(int pid)
+{
+    return hash_bybuf((byte *)&pid, sizeof(pid), SMD_HASH_SIZE - 1);
+}
+
+STATIC sm_entry_t *
+smd_hx_entry(h2_node_t *node)
+{
+    if (node) {
+        return hash_entry(node, sm_entry_t, node);
+    } else {
+        return NULL;
+    }
+}
+
+STATIC umd_user_t *
+smd_user_entry(hash_node_t *node, hash_idx_t nidx)
+{
+    return hx_entry(node, sm_entry_t, node, nidx);
+}
+
+STATIC hash_idx_t
+smd_nodehashname(hash_node_t *node)
+{
+    sm_entry_t *entry = smd_user_entry(node, SMD_HASH_NAME);
+
+    return smd_hashname(entry->name);
+}
+
+STATIC hash_idx_t
+smd_nodehashpid(hash_node_t *node)
+{
+    sm_entry_t *entry = umd_user_entry(node, SMD_HASH_PID);
+
+    return smd_hashpid(smd_pid(entry));
+}
+
+STATIC int
+__smd_insert(sm_entry_t *entry)
+{
+    static hash_node_calc_f *nhash[SMD_HASH_END] = {
+        [SMD_HASH_NAME] = smd_nodehashname, 
+        [SMD_HASH_PID]  = smd_nodehashpid
+    };
+    
+    if (in_hx_table(&entry->node)) {
+        return -EINLIST;
+    }
+
+    h2_add(&smd.table, &entry->node, nhash);
+
+    return 0;
+}
+
+STATIC int
+__smd_remove(sm_entry_t *entry)
+{
+    if (os_hasflag(entry->flags, SM_F_STATIC)) {
+        return 0;
+    }
+    else if (false==in_hx_table(&entry->node)) {
+        return -ENOINLIST;
+    }
+
+    debug_trace("remove %s:%s", entry->name, entry->command);
+
+    h2_del(&smd.table, &entry->node);
+    
+    return 0;
+}
+
+STATIC int
+__smd_foreach(smd_foreach_f *foreach, bool safe)
+{
+    mv_t node_foreach(h2_node_t *node)
+    {
+        return (*foreach)(smd_hx_entry(node));
+    }
+
+    if (safe) {
+        return h2_foreach_safe(&smd.table, node_foreach);
+    } else {
+        return h2_foreach(&smd.table, node_foreach);
+    }
+}
+
+STATIC sm_entry_t *
+smd_getbyname(char *name)
+{
+    sm_entry_t *entry;
+    
+    if (NULL==name) {
+        return NULL;
+    }
+
+    hash_idx_t dhash(void)
+    {
+        return smd_hashname(name);
+    }
+    
+    bool eq(hash_node_t *node)
+    {
+        sm_entry_t *entry = smd_user_entry(node, SMD_HASH_NAME);
+        
+        return os_streq(entry->name, name);
+    }
+    
+    return smd_hx_entry(h2_find(&smd.table, SMD_HASH_NAME, dhash, eq));
+}
+
+STATIC sm_entry_t *
+smd_getbynormal(int pid)
+{
+    hash_idx_t dhash(void)
+    {
+        return smd_hashpid(pid);
+    }
+    
+    bool eq(hash_node_t *node)
+    {
+        sm_entry_t *entry = smd_user_entry(node, SMD_HASH_PID);
+        
+        return pid==entry->normal;
+    }
+    
+    return smd_hx_entry(h2_find(&smd.table, SMD_HASH_PID, dhash, eq));
+}
+
+STATIC void
 smd_change(sm_entry_t *entry, int state, int normal, int deamon, char *prefix)
 {
+    int err;
+    
     if (normal!=entry->normal && deamon!=entry->deamon) {
         debug_trace("%s: set entry(%s) state(%s==>%s), normal pid(%d==>%d), deamon pid(%d==>%d)",
             prefix,
@@ -211,54 +374,9 @@ smd_change(sm_entry_t *entry, int state, int normal, int deamon, char *prefix)
         entry->state = state;
         smd_set_time(entry, prefix);
     }
-}
 
-STATIC void
-smd_dump_all(char *name)
-{
-    sm_entry_t *entry;
-
-    if (__is_ak_debug_trace) {
-        list_for_each_entry(entry, &smd.list, node) {        
-            debug_trace("entry:%s pid:%d/%d forks:%d command:%s ", 
-                entry->name,
-                entry->normal, entry->deamon,
-                entry->forks,
-                entry->command);
-        }
-    }
-}
-
-STATIC sm_entry_t *
-smd_getbyname(char *name)
-{
-    sm_entry_t *entry;
-    
-    if (NULL==name) {
-        return NULL;
-    }
-
-    list_for_each_entry(entry, &smd.list, node) {            
-        if (os_streq(name, entry->name)) {
-            return entry;
-        }
-    }
-    
-    return NULL;
-}
-
-STATIC sm_entry_t *
-smd_getbynormal(int pid)
-{
-    sm_entry_t *entry;
-
-    list_for_each_entry(entry, &smd.list, node) {        
-        if (pid==entry->normal) {
-            return entry;
-        }
-    }
-
-    return NULL;
+    __smd_remove(entry);
+    __smd_insert(entry);
 }
 
 STATIC int
@@ -331,7 +449,7 @@ smd_kill(sm_entry_t *entry)
         return 0;
     }
     
-    int pid = smd_is_normal(entry)?entry->normal:entry->deamon;
+    int pid = smd_pid(entry);
     if (os_pid_exist(pid)) {
         kill(pid, SIGKILL);
     }
@@ -355,14 +473,8 @@ STATIC void
 smd_wait_error(sm_entry_t *entry)
 {
     char prefix[1+OS_LINE_SHORT] = {0};
-    int pid;
+    int pid = smd_pid(entry);
 
-    if (smd_is_normal(entry)) {
-        pid = entry->normal;
-    } else {
-        pid = entry->deamon;
-    }
-    
     os_snprintf(prefix, OS_LINE_SHORT, "int wait %s(%s)",
         smd_type(entry),
         sm_state_getnamebyid(entry->state));
@@ -493,12 +605,6 @@ STATIC int
 smd_insert(sm_entry_t *entry)
 {
     int err, pid = 0;
-    
-    if (is_in_list(&entry->node)) {
-        return -EINLIST;
-    }
-    
-    list_add(&entry->node, &smd.list);
 
     /*
     * maybe smd is re-start
@@ -554,16 +660,13 @@ smd_destroy(sm_entry_t *entry)
 STATIC int
 smd_remove(sm_entry_t *entry)
 {
-    if (os_hasflag(entry->flags, SM_F_STATIC)) {
-        return 0;
-    }
-    else if (false==is_in_list(&entry->node)) {
-        return -ENOINLIST;
+    int err;
+
+    err = __smd_remove(entry);
+    if (err<0) {
+        return err;
     }
 
-    debug_trace("remove %s:%s", entry->name, entry->command);
-    
-    list_del(&entry->node);
     smd_kill(entry);
     smd_destroy(entry);
     
@@ -669,7 +772,7 @@ smd_handle_remove(char *args)
         
         return -EINVAL5;
     }
-    
+
     sm_entry_t *entry = smd_getbyname(name);
     if (NULL==entry) {
         return -ENOEXIST;
@@ -681,13 +784,14 @@ smd_handle_remove(char *args)
 STATIC int
 smd_handle_clean(char *args)
 {
-    sm_entry_t *entry, *tmp;
-
-    list_for_each_entry_safe(entry, tmp, &smd.list, node) {
+    mv_t cb(sm_entry_t *entry)
+    {
         smd_remove(entry);
-    }
 
-    return 0;
+        return mv2_ok;
+    }
+    
+    return __smd_foreach(cb, true);
 }
 
 STATIC void
@@ -703,23 +807,28 @@ smd_show(sm_entry_t *entry)
         entry->command);
 }
 
+
 STATIC int
 smd_handle_show(char *args)
 {
     char *name = args; cli_shift(args);
-    sm_entry_t *entry;
     bool empty = true;
     
     cli_sprintf("#name pid/dpid forks state command" __crlf);
 
-    list_for_each_entry(entry, &smd.list, node) {        
+    mv_t cb(sm_entry_t *entry)
+    {
         if (NULL==name || os_streq(entry->name, name)) {
             smd_show(entry);
 
             empty = false;
         }
-    }
 
+        return mv2_ok;
+    }
+    
+    return __smd_foreach(cb, false);
+    
     if (empty) {
         /*
         * drop head line
@@ -843,6 +952,12 @@ smd_init(void)
     }
     
     err = smd_init_server();
+    if (err<0) {
+        return err;
+    }
+    
+    int hash_size[SMD_HASH_END] = { SMD_HASH_SIZE, SMD_HASH_SIZE };
+    err = h2_init(&smd.table, hash_size);
     if (err<0) {
         return err;
     }
