@@ -566,7 +566,8 @@ smd_wait(void)
 {
     int i, err, pid, count = 0;
     
-    os_println("smd_wait  ...");
+    os_println("smd_wait ...");
+    os_println("smd_wait son ...");
 #if 0
     int pids[h2_count(&smd.table)];
     
@@ -586,6 +587,7 @@ smd_wait(void)
         os_println("smd_wait son pid=%d ok.", pid);
     }
 #endif
+    os_println("smd_wait son ok.");
     /*
     * check run
     */
