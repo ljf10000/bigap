@@ -566,7 +566,7 @@ smd_wait(void)
 {
     int i, err, pid, count = 0;
     
-#if 1
+#if 0
     int pids[h2_count(&smd.table)];
     
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
