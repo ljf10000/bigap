@@ -217,7 +217,22 @@ extern void
 __jlog_close(void);
 
 extern int
-jlog_init(void);
+__jlog_init(void);
+
+static inline int
+jlog_init(void)
+{
+    int err;
+
+    err = __jlog_init();
+    if (err<0) {
+        return err;
+    }
+
+    ak_println(__THIS_APPNAME " " __THIS_FILENAME " jlog init OK!");
+
+    return 0;
+}
 
 static inline void
 jlog_fini(void)

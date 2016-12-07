@@ -461,7 +461,7 @@ __jlog_close(void)
 }
 
 int
-jlog_init(void)
+__jlog_init(void)
 {
     int family, err;
 
@@ -513,8 +513,6 @@ jlog_init(void)
         default:
             return -ENOSUPPORT;
     }
-
-    os_println(__THIS_APPNAME " " __THIS_FILENAME " jlog init OK!");
 
     return 0;
 }
