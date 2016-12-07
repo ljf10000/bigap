@@ -88,6 +88,7 @@ _name##_init(_name##_table_t *table, int size_array[]) \
     for (i=0; i<count; i++) {           \
         err = hash_init(&table->hash[i], size_array[i]); \
         if (err<0) {                    \
+            hx_println("hx init hash error:%d", err); \
             return err;                 \
         }                               \
     }                                   \
@@ -105,12 +106,14 @@ _name##_add(_name##_table_t *table, _name##_node_t *node, hash_node_calc_f *nhas
     for (i=0; i<count; i++) {           \
         err = hash_add(&table->hash[i], &node->hash[i], nhash[i]); \
         if (err<0) {                    \
+            hx_println("hx add hash error:%d", err); \
             return err;                 \
         }                               \
     }                                   \
                                         \
     err = dlist_add(&table->list, &node->list); \
     if (err<0) {                        \
+        hx_println("hx add list error:%d", err); \
         return err;                     \
     }                                   \
                                         \
@@ -125,12 +128,14 @@ _name##_del(_name##_table_t *table, _name##_node_t *node) \
     for (i=0; i<count; i++) {           \
         err = hash_del(&table->hash[i], &node->hash[i]); \
         if (err<0) {                    \
+            hx_println("hx del hash error:%d", err); \
             return err;                 \
         }                               \
     }                                   \
                                         \
     err = dlist_del(&table->list, &node->list); \
     if (err<0) {                        \
+        hx_println("hx del list error:%d", err); \
         return err;                     \
     }                                   \
                                         \
