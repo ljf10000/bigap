@@ -482,10 +482,6 @@ __clis_handle(int fd, cli_table_t *table, int count)
         return err;
     }
     else if (0==err) {
-        /*
-        * todo: unix socket recv empty, why ???
-        */
-        os_println("__clis_handle empty");
         return 0;
     }
     buf[err] = 0;
