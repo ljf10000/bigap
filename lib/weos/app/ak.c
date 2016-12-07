@@ -29,7 +29,7 @@ typedef union {
     } v;
 } ak_u;
 
-#define __AKU_MAKE(_idx, _offset)    {  \
+#define __AKU_MAKER(_idx, _offset)  {   \
     .v = {                              \
         .idx = _idx,                    \
         .offset = _offset,              \
@@ -41,7 +41,7 @@ typedef union {
 OS_INLINE akid_t
 __ak_make(uint32 idx, uint32 offset)
 {
-    ak_u u = __AKU_MAKE(idx, offset);
+    ak_u u = __AKU_MAKER(idx, offset);
 
     return u.akid;
 }
