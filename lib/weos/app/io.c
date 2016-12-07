@@ -1,7 +1,7 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-STATIC int
+static inline int
 __io_error(char *method, void *buf, int size, int error)
 {
     int err = error;
