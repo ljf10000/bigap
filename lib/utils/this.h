@@ -41,9 +41,11 @@
 #define __SYMBOL_TO_VAR2(_prefix, _name)        __THIS_##_prefix##_name
 #define __SYMBOL_TO_VAR(_prefix, _name)         __SYMBOL_TO_VAR2(_prefix, _name)
 
-#if defined(__ALLINONE__) || defined(__BOOT__)
-#   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(_, _name)
-#elif defined(__APP__) || defined(__LIB__)
+#if defined(__ALLINONE__) || defined(__BOOT__) || defined(__APP__)
+    // boot/busybox/openwrt-app
+#   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(app, _name)
+#elif defined(__LIB__)
+    // pc/openwrt-lib
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)
 #else
 #   error "error !!!"
@@ -54,7 +56,7 @@
 #endif
 
 #ifndef __THIS_JDEBUG
-#define __THIS_JDEBUG           __SYMBOL_TO_THIS(_js_debugger)
+#define __THIS_JDEBUG           __SYMBOL_TO_THIS(_jdebugger)
 #endif
 
 #ifndef __THIS_CLI

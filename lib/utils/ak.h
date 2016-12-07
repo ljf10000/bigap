@@ -56,29 +56,16 @@ enum { INVALID_AKID = 0};
 typedef uint32 akid_t;
 
 #if defined(__BOOT__)
-#    define DECLARE_FAKE_DEBUGGER       extern akid_t *__THIS_DEBUG
-#    define DECLARE_REAL_DEBUGGER       akid_t *__THIS_DEBUG
-#    define DECLARE_DEBUGGER            DECLARE_REAL_DEBUGGER
-
-#    define DECLARE_FAKE_JDEBUGGER      extern akid_t *__THIS_JDEBUG
-#    define DECLARE_REAL_JDEBUGGER      akid_t *__THIS_JDEBUG
-#    define DECLARE_JDEBUGGER           DECLARE_REAL_JDEBUGGER
+    extern akid_t *__THIS_JDEBUG;
+    extern akid_t *__THIS_JDEBUG;
 #else
-#    define DECLARE_FAKE_DEBUGGER       extern akid_t __THIS_DEBUG
-#    define DECLARE_REAL_DEBUGGER       akid_t __THIS_DEBUG
-#    define DECLARE_FAKE_JDEBUGGER      extern akid_t __THIS_JDEBUG
-#    define DECLARE_REAL_JDEBUGGER      akid_t __THIS_JDEBUG
-#    ifdef __ALLINONE__
-#        define DECLARE_DEBUGGER        DECLARE_FAKE_DEBUGGER
-#        define DECLARE_JDEBUGGER       DECLARE_FAKE_JDEBUGGER
-#    else
-#        define DECLARE_DEBUGGER        DECLARE_REAL_DEBUGGER
-#        define DECLARE_JDEBUGGER       DECLARE_REAL_JDEBUGGER
-#    endif
+    extern akid_t __THIS_app_debugger;
+    extern akid_t __THIS_app_jdebugger;
+    extern akid_t __THIS_libjs_debugger;
+    extern akid_t __THIS_libjs_jdebugger;
+    extern akid_t __THIS_libweos_debugger;
+    extern akid_t __THIS_libweos_jdebugger;
 #endif
-
-DECLARE_FAKE_DEBUGGER;
-DECLARE_FAKE_JDEBUGGER;
 /******************************************************************************/
 #define AK_DEBUG_ENUM_MAPPER(_)                 \
     _(____ak_debug_ok,          0, "ok"),       \
@@ -382,7 +369,7 @@ __ak_init_command()
 #if defined(__APP__) && (__RUNAS__ & RUN_AS_DEAMON)
 static inline void 
 __ak_init_deamon() 
-{    
+{
     __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
     __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
 }
