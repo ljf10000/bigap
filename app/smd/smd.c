@@ -566,8 +566,6 @@ smd_wait(void)
 {
     int i, err, pid, count = 0;
     
-    os_println("smd_wait ...");
-    os_println("smd_wait son ...");
 #if 1
     int pids[h2_count(&smd.table)];
     
@@ -576,18 +574,14 @@ smd_wait(void)
     }
 
     for (i=0; i<count; i++) {
-        os_println("smd_wait son %d pid=%d ...", i, pids[i]);
         smd_wait_son(pids[i]);
-        os_println("smd_wait son %d pid=%d ok.", i, pids[i]);
     }
 #else
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
-        os_println("smd_wait son pid=%d ...", pid);
         smd_wait_son(pid);
-        os_println("smd_wait son pid=%d ok.", pid);
     }
 #endif
-    os_println("smd_wait son ok.");
+
     /*
     * check run
     */
@@ -616,12 +610,8 @@ smd_wait(void)
         return mv2_ok;
     }
     
-    os_println("smd_wait foreach ...");
     err = __smd_foreach(cb, true);
-    os_println("smd_wait foreach ok.");
     
-    os_println("smd_wait  ok.");
-
     return err;
 }
 
@@ -876,8 +866,6 @@ smd_cli(struct loop_watcher *watcher, time_t now)
     };
     int err, ret;
 
-    os_println("smd_cli ...");
-
     ret = clis_handle(watcher->fd, table);
 
     err = os_loop_del_watcher(&smd.loop, watcher->fd);
@@ -886,7 +874,6 @@ smd_cli(struct loop_watcher *watcher, time_t now)
         
         return err;
     }
-    os_println("smd_cli ok.");
     
     return ret;
 }
@@ -910,11 +897,10 @@ STATIC int
 smd_timer(struct loop_watcher *watcher, time_t now)
 {
     smd.time += SM_TIMER;
-    os_println("smd_timer ...");
+
     if (0==(smd.time % os_second(CLI_TIMEOUT))) {
         smd_wait();
     }
-    os_println("smd_timer ok.");
     
     return 0;
 }

@@ -352,8 +352,8 @@ ak_init(void)
     
     __ak_init();
     
-    os_println(__THIS_APPNAME " " __THIS_FILENAME " ak init OK!");
-    os_println(__THIS_APPNAME " " __THIS_FILENAME " __THIS_DEBUG=" __SYMBOL_TO_STRING(__THIS_DEBUG));
+    ak_println(__THIS_APPNAME " " __THIS_FILENAME " ak init OK!");
+    ak_println(__THIS_APPNAME " " __THIS_FILENAME " __THIS_DEBUG=" __SYMBOL_TO_STRING(__THIS_DEBUG));
     
     return 0;
 error:
