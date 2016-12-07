@@ -58,7 +58,7 @@ typedef struct {
     _args = __cli_line_next(_args);         \
 }while(0)
 
-EXTERN DECLARE int
+EXTERN int
 cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[]);
 
 #endif /* defined(__APP__) || defined(__BOOT__) */
