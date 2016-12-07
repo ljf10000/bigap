@@ -38,7 +38,7 @@ typedef union {
 
 #define __AKU_INITER(_akid)         { .akid = _akid }
 
-STATIC akid_t
+OS_INLINE akid_t
 __ak_make(uint32 idx, uint32 offset)
 {
     ak_u u = __AKU_MAKE(idx, offset);
