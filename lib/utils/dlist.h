@@ -26,6 +26,9 @@ typedef struct dlist_s {
 typedef bool dlist_eq_f(dlist_node_t *node);
 typedef int  dlist_cmp_f(dlist_node_t *node);
 typedef mv_t dlist_foreach_f(dlist_node_t *node);
+
+EXTERN bool
+__in_dlist(dlist_node_t *node);
 #endif
 /******************************************************************************/
 #if 2
