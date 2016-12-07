@@ -507,7 +507,7 @@ jlog_init(void)
             return -ENOSUPPORT;
     }
 
-    os_println(__THIS_APPNAME " jlog init OK!");
+    os_println(__THIS_APPNAME " " __THIS_FILENAME " jlog init OK!");
 
     return 0;
 }

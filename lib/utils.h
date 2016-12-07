@@ -274,7 +274,7 @@ lib_init(void)
         os_println(__THIS_APPNAME " jlog init error:%d", err);
     }
 
-    os_println( __THIS_APPNAME " __THIS_DEBUG=" __SYMBOL_TO_STRING(__THIS_DEBUG));    
+    os_println(__THIS_APPNAME " " __THIS_FILENAME " __THIS_DEBUG=" __SYMBOL_TO_STRING(__THIS_DEBUG));    
     return 0;
 }
 
