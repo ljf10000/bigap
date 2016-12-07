@@ -442,6 +442,8 @@ ak_init_helper(void)
         os_println(__THIS_APPNAME " " __THIS_FILENAME " ak load OK!");
     }
 
+    __ak_dump();
+
     return 0;
 error:    
     ak_fini();

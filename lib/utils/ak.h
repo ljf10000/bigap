@@ -358,7 +358,6 @@ ak_init(void)
     }
     
     __ak_init();
-    __ak_dump();
     
     ak_println("init OK!");
     os_println(__THIS_APPNAME " " __THIS_FILENAME " ak init OK!");
