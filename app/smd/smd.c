@@ -565,6 +565,7 @@ STATIC int
 smd_wait(void)
 {
     int i, pid, count = 0;
+#if 0
     int pids[h2_count(&smd.table)];
     
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
@@ -576,7 +577,13 @@ smd_wait(void)
         smd_wait_son(pids[i]);
         os_println("smd_wait son %d pid=%d ok.", i, pids[i]);
     }
-    
+#else
+    while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
+        os_println("smd_wait son pid=%d ...", pid);
+        smd_wait_son(pid);
+        os_println("smd_wait son pid=%d ok.", pid);
+    }
+#endif
     /*
     * check run
     */
