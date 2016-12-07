@@ -5,12 +5,23 @@
 #error "must defined __THIS_APP before all #include"
 #endif
 
-#define __SYMBOL_CONTRACT2(x, y)    x##y
-#define __SYMBOL_CONTRACT(x, y)     __SYMBOL_CONTRACT2(x, y)
-#define OS_DEFINE(x)                __SYMBOL_CONTRACT(x, __COUNTER__)
+#define __SYMBOL_CONTRACT2(x, y)            x##y
+#define __SYMBOL_CONTRACT(x, y)             __SYMBOL_CONTRACT2(x, y)
+#define OS_DEFINE(x)                        __SYMBOL_CONTRACT(x, __COUNTER__)
 
-#define __SYMBOL_TO_STRING2(x)      #x
-#define __SYMBOL_TO_STRING(x)       __SYMBOL_TO_STRING2(x)
+#define __SYMBOL_TO_STRING2(x)              #x
+#define __SYMBOL_TO_STRING(x)               __SYMBOL_TO_STRING2(x)
+
+#define __SYMBOL_TO_THIS3(_prefix, _name)   __THIS_##_prefix##_name
+#define __SYMBOL_TO_THIS2(_prefix, _name)   __SYMBOL_TO_THIS3(_prefix, _name)
+
+#if defined(__LIB__)
+#   define __SYMBOL_TO_THIS(_name)          __SYMBOL_TO_THIS2(__THIS_APP, _name)
+#elif defined(__ALLINONE__) || defined(__BOOT__) || defined(__APP__)
+#   define __SYMBOL_TO_THIS(_name)          __SYMBOL_TO_THIS2(only, _name)
+#else
+#   error "error !!!"
+#endif
 
 #ifdef __ALLINONE__
 #define allinone_main           __SYMBOL_CONTRACT(__THIS_APP, _main)
@@ -37,18 +48,6 @@
 #ifndef __THIS_PIDFILE
 #define __THIS_PIDFILE          "/tmp/." __THIS_APPNAME ".pid"
 #endif
-/******************************************************************************/
-#define __SYMBOL_TO_VAR2(_prefix, _name)        __THIS_##_prefix##_name
-#define __SYMBOL_TO_VAR(_prefix, _name)         __SYMBOL_TO_VAR2(_prefix, _name)
-
-#if defined(__LIB__)
-#   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)
-#elif defined(__ALLINONE__) || defined(__BOOT__) || defined(__APP__)
-#   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(only, _name)
-#else
-#   error "error !!!"
-#endif
-
 /*
 * pc-app/openwrt-app/boot/kernel/busybox: 
 *   __THIS_only_debugger
