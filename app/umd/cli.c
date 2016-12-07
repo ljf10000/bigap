@@ -464,7 +464,7 @@ umd_cli_init(sock_server_t *server)
 {
     int err;
 
-    err = os_loop_add_cli(&umd.loop, umd_cli);
+    err = os_loop_add_cli(&umd.loop, umd_cli, server);
     if (err<0) {
         debug_ok("add loop cli error:%d", err);
         

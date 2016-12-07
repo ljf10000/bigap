@@ -457,7 +457,7 @@ tmd_init_server(void)
 {
     int err;
     
-    err = os_loop_add_cli(&tmd.loop, tmd_cli);
+    err = os_loop_add_cli(&tmd.loop, tmd_cli, NULL);
     if (err<0) {
         debug_error("add loop cli error:%d", err);
     }

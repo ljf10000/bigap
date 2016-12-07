@@ -56,9 +56,5 @@
 #ifndef __THIS_JDEBUG
 #define __THIS_JDEBUG           __SYMBOL_TO_THIS(_js_debugger)
 #endif
-
-#ifndef __THIS_CLI
-#define __THIS_CLI              __SYMBOL_TO_THIS(_cli)
-#endif
 /******************************************************************************/
 #endif /* __THIS_H_bb55b32c2226479dab1f126ea1ba1e9f__ */

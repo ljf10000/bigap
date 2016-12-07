@@ -101,13 +101,10 @@ os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user);
 extern int
 os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user);
 
-#if __CLI_TCP__
-#define __os_loop_add_cli(_loop, _name, _cb)  os_loop_add_father(_loop, __clis_FD(_name), _cb, NULL)
-#else
-#define __os_loop_add_cli(_loop, _name, _cb)  os_loop_add_normal(_loop, __clis_FD(_name), _cb, NULL)
-#endif
-
-#define os_loop_add_cli(_loop, _cb)     __os_loop_add_cli(_loop, __THIS_APPNAME, _cb)
+#define __os_loop_add_cli(_loop, _name, _cb, _user) \
+    os_loop_add_father(_loop, __clis_FD(_name), _cb, NULL)
+#define os_loop_add_cli(_loop, _cb, _user) \
+    __os_loop_add_cli(_loop, __THIS_APPNAME, _cb)
 
 extern void 
 os_loop_fini(loop_t *loop);

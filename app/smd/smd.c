@@ -760,7 +760,7 @@ smd_init_server(void)
 {
     int err;
     
-    err = os_loop_add_cli(&smd.loop, smd_cli);
+    err = os_loop_add_cli(&smd.loop, smd_cli, NULL);
     if (err<0) {
         debug_error("add loop cli error:%d", err);
     }
