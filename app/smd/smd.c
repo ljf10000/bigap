@@ -564,7 +564,9 @@ smd_wait_son(int pid)
 STATIC int
 smd_wait(void)
 {
-    int i, pid, count = 0;
+    int i, err, pid, count = 0;
+    
+    os_println("smd_wait  ...");
 #if 0
     int pids[h2_count(&smd.table)];
     
@@ -612,7 +614,11 @@ smd_wait(void)
         return mv2_ok;
     }
     
-    return __smd_foreach(cb, false);
+    err = __smd_foreach(cb, false);
+    
+    os_println("smd_wait  ok.");
+
+    return err;
 }
 
 STATIC int
