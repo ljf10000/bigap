@@ -4,7 +4,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 typedef struct {
     int family;
     int fd;
-
+    bool inited;
+    
     os_sockaddr_t server;
 } jlog_control_t;
 
@@ -463,6 +464,12 @@ int
 jlog_init(void)
 {
     int family, err;
+
+    if (__this_jlogger()->inited) {
+        return 0;
+    }
+
+    __this_jlogger()->inited = true;
     
     family  = __jlog_server()->sa_family
             = __this_jlogger()->family
