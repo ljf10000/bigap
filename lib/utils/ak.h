@@ -59,8 +59,8 @@ typedef uint32 akid_t;
     extern akid_t *__THIS_JDEBUG;
     extern akid_t *__THIS_JDEBUG;
 #else
-    extern akid_t __THIS_app_debugger;
-    extern akid_t __THIS_app_jdebugger;
+    extern akid_t __THIS_only_debugger;
+    extern akid_t __THIS_only_jdebugger;
     extern akid_t __THIS_libjs_debugger;
     extern akid_t __THIS_libjs_jdebugger;
     extern akid_t __THIS_libweos_debugger;

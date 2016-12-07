@@ -43,7 +43,7 @@
 
 #if defined(__ALLINONE__) || defined(__BOOT__) || defined(__APP__)
     // boot/busybox/openwrt-app
-#   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(app, _name)
+#   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(only, _name)
 #elif defined(__LIB__)
     // pc/openwrt-lib
 #   define __SYMBOL_TO_THIS(_name)              __SYMBOL_TO_VAR(__THIS_APP, _name)

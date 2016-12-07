@@ -14,8 +14,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "benv/bcookie.h"
 
-akid_t __THIS_app_debugger;
-akid_t __THIS_app_jdebugger;
+akid_t __THIS_only_debugger;
+akid_t __THIS_only_jdebugger;
 akid_t __THIS_libweos_debugger;
 akid_t __THIS_libweos_jdebugger;
 
