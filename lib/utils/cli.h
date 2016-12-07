@@ -482,6 +482,8 @@ __clis_handle(int fd, cli_table_t *table, int count)
         return err;
     }
     buf[err] = 0;
+
+    os_println("__clis_handle %s", buf);
     
     char *method = buf;
     char *args   = buf;
