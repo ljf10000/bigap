@@ -147,6 +147,7 @@ _name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach) \
                                         \
     dlistForeachEntry(&table->list, node, list) { \
         mv.v = (*foreach)(node);        \
+        os_println("hx foreach node=%p", node); \
         if (is_mv2_break(mv)) {         \
             return mv2_error(mv);       \
         }                               \
