@@ -567,6 +567,9 @@ smd_wait(void)
     int i, err, pid, count = 0;
     
 #if 0
+    /*
+    * use these code, some app always fork state
+    */
     int pids[h2_count(&smd.table)];
     
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
