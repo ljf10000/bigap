@@ -229,8 +229,8 @@
     os_fake_declare             \
     /* end */
 
-#define OS_INITER           \
-    os_fake_declare         \
+#define OS_INITER               \
+    os_fake_declare             \
     /* end */
 
 #ifdef __ALLINONE__

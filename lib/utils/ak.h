@@ -52,20 +52,6 @@ enum { INVALID_AKID = 0};
 #else
 #define ak_println(_fmt, _args...)  os_do_nothing()
 #endif
-
-typedef uint32 akid_t;
-
-#if defined(__BOOT__)
-    extern akid_t *__THIS_DEBUG;
-    extern akid_t *__THIS_JDEBUG;
-#else
-    extern akid_t __THIS_only_debugger;
-    extern akid_t __THIS_only_jdebugger;
-    extern akid_t __THIS_libjs_debugger;
-    extern akid_t __THIS_libjs_jdebugger;
-    extern akid_t __THIS_libweos_debugger;
-    extern akid_t __THIS_libweos_jdebugger;
-#endif
 /******************************************************************************/
 #define AK_DEBUG_ENUM_MAPPER(_)                 \
     _(____ak_debug_ok,          0, "ok"),       \
@@ -170,26 +156,36 @@ __ak_debug_getname(uint32 level)
 }
 
 #if defined(__BOOT__)
-#   define __ak_debug       (__THIS_DEBUG?(*__THIS_DEBUG):__ak_debug_default)
-#   define __js_debug       (__THIS_JDEBUG?(*__THIS_JDEBUG):__js_debug_default)
+    typedef uint32 *akid_t;
+#   define __ak_debugger        (__THIS_only_debugger?(*__THIS_only_debugger):__ak_debug_default)
+#   define __js_debugger        (__THIS_only_jdebugger?(*__THIS_only_jdebugger):__js_debug_default)
 #elif defined(__APP__)
+    typedef uint32 akid_t;
+    extern akid_t __THIS_libjs_debugger;
+    extern akid_t __THIS_libjs_jdebugger;
+    extern akid_t __THIS_libweos_debugger;
+    extern akid_t __THIS_libweos_jdebugger;
 #   if __RUNAS__==RUN_AS_COMMAND
-#       define __ak_debug   __THIS_DEBUG
-#       define __js_debug   __THIS_JDEBUG
+#       define __ak_debugger    __THIS_DEBUG
+#       define __js_debugger    __THIS_JDEBUG
 #   else /* run as deamon/unknow */
-#       define __ak_debug   ak_get(__THIS_DEBUG, __ak_debug_default)
-#       define __js_debug   ak_get(__THIS_JDEBUG, __js_debug_default)
+#       define __ak_debugger    ak_get(__THIS_DEBUG, __ak_debug_default)
+#       define __js_debugger    ak_get(__THIS_JDEBUG, __js_debug_default)
 #   endif
 #elif defined(__KERNEL__)
-#   define __ak_debug       __THIS_DEBUG
-#   define __js_debug       __THIS_JDEBUG
+    typedef uint32 akid_t;
+#   define __ak_debugger        __THIS_DEBUG
+#   define __js_debugger        __THIS_JDEBUG
 #else
 #   error "invalid __THIS_DEBUG"
 #   error "invalid __THIS_JDEBUG"
 #endif
 
-#define __is_ak_debug(_level)   (os_hasflag(__ak_debug, _level))
-#define __is_js_debug(_level)   (os_hasflag(__js_debug, _level))
+extern akid_t __THIS_only_debugger;
+extern akid_t __THIS_only_jdebugger;
+
+#define __is_ak_debug(_level)   (os_hasflag(__ak_debugger, _level))
+#define __is_js_debug(_level)   (os_hasflag(__js_debugger, _level))
 
 #define __is_ak_debug_ok        __is_ak_debug(__ak_debug_ok)
 #define __is_ak_debug_bug       __is_ak_debug(__ak_debug_bug)

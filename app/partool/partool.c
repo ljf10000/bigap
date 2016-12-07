@@ -186,7 +186,7 @@ struct part_block {
 #define PART_BLOCK_SIZE(_size)  (sizeof(struct part_block) + (_size))
 
 #ifdef __BOOT__
-unsigned int __THIS_DEBUG = 0;
+unsigned int __THIS_only_debugger = 0;
 
 static unsigned char boot_block[PART_BLOCK_SIZE(PART_BLOCK_CACHE_SIZE)];
 
