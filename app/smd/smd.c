@@ -372,7 +372,7 @@ smd_run(sm_entry_t *entry, char *prefix)
     else if (pid>0) { // father
         entry->forks++;
         
-        smd_change(entry, SM_STATE_FORK, pid, 0, prefix);
+        smd_change(entry, SM_STATE_FORK, pid, prefix);
 
         jinfo("%o", 
             "exec", jobj_oprintf("%s%d%%d%s",
@@ -404,7 +404,7 @@ smd_run(sm_entry_t *entry, char *prefix)
 STATIC void
 smd_die(sm_entry_t *entry, char *prefix)
 {
-    smd_change(entry, SM_STATE_DIE, 0, 0, prefix);
+    smd_change(entry, SM_STATE_DIE, 0, prefix);
 }
 
 STATIC void
@@ -530,7 +530,7 @@ smd_wait_son(int pid)
         *
         * check deamon real die in __wait_fork
         */
-        smd_change(entry, entry->state, 0, 0, "in wait son(deamon)");
+        smd_change(entry, entry->state, 0, "in wait son(deamon)");
     }
 }
 
@@ -625,9 +625,9 @@ smd_insert(sm_entry_t *entry)
         * re-init, just change state and save pid, needn't run it
         */
         if (smd_is_normal(entry)) {
-            smd_change(entry, SM_STATE_RUN, pid, 0, "in insert(normal exist)");
+            smd_change(entry, SM_STATE_RUN, pid, "in insert(normal exist)");
         } else {
-            smd_change(entry, SM_STATE_RUN, 0, pid, "in insert(deamon exist)");
+            smd_change(entry, SM_STATE_RUN, pid, "in insert(deamon exist)");
         }
     }
     
