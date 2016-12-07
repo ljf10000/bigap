@@ -28,7 +28,6 @@ LIB_INITER;
 #if USE_MOD_CHANNEL
 #include "weos/boot/channel.c"
 #endif
-#include "weos/boot/cli.c"
 #if USE_MOD_CQUEUE
 #include "weos/boot/cqueue.c"
 #endif
@@ -50,7 +49,6 @@ LIB_INITER;
 /******************************************************************************/
 #include "weos/app/ak.c"
 #include "weos/app/bcookie.c"
-#include "weos/app/cli.c"
 #if USE_MOD_COROUTINE
 #include "weos/app/coroutine.c"
 #endif
