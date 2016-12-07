@@ -13,7 +13,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #ifdef __BOOT__
-#   if IS_PRODUCT_LTEFI_MD || IS_PRODUCT_PC
+    akid_t *__THIS_DEBUG;
+    akid_t *__THIS_JDEBUG;
+#   if IS_PRODUCT_LTEFI_MD
 #       include "benv_boot_md.c"
 #   elif IS_PRODUCT_LTEFI_AP
 #       include "benv_boot_ap.c"

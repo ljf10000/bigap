@@ -56,7 +56,7 @@ enum { INVALID_AKID = 0};
 typedef uint32 akid_t;
 
 #if defined(__BOOT__)
-    extern akid_t *__THIS_JDEBUG;
+    extern akid_t *__THIS_DEBUG;
     extern akid_t *__THIS_JDEBUG;
 #else
     extern akid_t __THIS_only_debugger;
