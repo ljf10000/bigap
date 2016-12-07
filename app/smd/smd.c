@@ -568,7 +568,7 @@ smd_wait(void)
     
     os_println("smd_wait ...");
     os_println("smd_wait son ...");
-#if 0
+#if 1
     int pids[h2_count(&smd.table)];
     
     while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
