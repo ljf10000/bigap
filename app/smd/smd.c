@@ -866,6 +866,8 @@ smd_cli(struct loop_watcher *watcher, time_t now)
     };
     int err, ret;
 
+    os_println("smd_cli ...");
+
     ret = clis_handle(watcher->fd, table);
 
     err = os_loop_del_watcher(&smd.loop, watcher->fd);
@@ -874,6 +876,7 @@ smd_cli(struct loop_watcher *watcher, time_t now)
         
         return err;
     }
+    os_println("smd_cli ok.");
     
     return ret;
 }
@@ -897,10 +900,11 @@ STATIC int
 smd_timer(struct loop_watcher *watcher, time_t now)
 {
     smd.time += SM_TIMER;
-
+    os_println("smd_timer ...");
     if (0==(smd.time % os_second(CLI_TIMEOUT))) {
         smd_wait();
     }
+    os_println("smd_timer ok.");
     
     return 0;
 }
