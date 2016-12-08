@@ -382,11 +382,19 @@ __cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
         bool syn    = os_hasflag(table->flag, CLI_F_SYN);
         bool server = os_hasflag(table->flag, CLI_F_SERVER);
 
+        if (__is_ak_debug_cli) {
+            os_println("tcp=%d syn=%d server=%d", tcp, syn, server);
+        }
+
         if (server) {
             /*
             * this command use tcp
             */
             __this_cli_tcp = tcp;
+        }
+        
+        if (__is_ak_debug_cli) {
+            os_println("__this_cli_tcp=%d", __this_cli_tcp);
         }
         
         err = (*table->cb)(table, argc, argv);
