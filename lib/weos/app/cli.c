@@ -59,7 +59,11 @@ __cli_reply(int err)
     }
 
     if (__is_ak_debug_cli) {
-        os_println("send reply[len=%d, err=%d]:\n%s", __clib_len, __clib_err, __clib_buf);
+        os_println("send %s reply[len=%d, err=%d]:\n%s",
+            __this_cli_type_string,
+            __clib_len, 
+            __clib_err, 
+            __clib_buf);
         
         os_dump_buffer(__clib(), __clib_space);
     }
@@ -163,7 +167,7 @@ __clic_recv_tcp(cli_client_t *clic, int fd)
         err = __io_recv(fd, __clib(), len, 0);
         
         if (__is_ak_debug_cli) {
-            os_println("recv reply-header[len=%d, err=%d]", __clib_len, __clib_err);
+            os_println("recv tcp reply-header[len=%d, err=%d]", __clib_len, __clib_err);
             
             os_dump_buffer(__clib(), err);
         }
@@ -177,7 +181,7 @@ __clic_recv_tcp(cli_client_t *clic, int fd)
             len = __clib_len;
             err = __io_recv(fd, __clib_buf, len, 0);
             if (__is_ak_debug_cli) {
-                os_println("recv reply[len=%d, err=%d]\n%s", __clib_len, __clib_err, __clib_buf);
+                os_println("recv tcp reply[len=%d, err=%d]\n%s", __clib_len, __clib_err, __clib_buf);
                 
                 os_dump_buffer(__clib(), err);
             }
@@ -224,6 +228,11 @@ __clic_recv_udp(cli_client_t *clic, int fd)
     int err = 0;
 
     err = __io_recv(fd, __clib(), CLI_BUFFER_LEN, 0);
+    if (__is_ak_debug_cli) {
+        os_println("recv udp reply[len=%d, err=%d]\n%s", __clib_len, __clib_err, __clib_buf);
+        
+        os_dump_buffer(__clib(), err);
+    }
     // err > hdr
     if (err >= (int)sizeof(cli_header_t)) {
         __clib_cut(err - sizeof(cli_header_t));
@@ -268,7 +277,7 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
     }
 
     if (__is_ak_debug_cli) {
-        os_println("send request[len=%d]", len);
+        os_println("send %s request[len=%d]", __this_cli_type_string, len);
         
         os_dump_buffer(buf, len);
     }
@@ -394,7 +403,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     buf[err] = 0;
 
     if (__is_ak_debug_cli) {
-        os_println("recv request[len=%d]", err);
+        os_println("recv %s request[len=%d]", __this_cli_type_string, err);
         
         os_dump_buffer(buf, err);
     }
@@ -416,7 +425,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     }
     
     if (__is_ak_debug_cli) {
-        os_println("recv request argv");
+        os_println("recv %s request argc:%d", __this_cli_type_string, argc);
         
         __argv_dump(os_println, argc, argv);
     }
