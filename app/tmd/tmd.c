@@ -284,8 +284,8 @@ tmd_handle_insert(cli_table_t *table, int argc, char *argv[])
     else if (os_strlen(name) > TM_NAMESIZE) {
         return tmc_help(-ETOOBIG);
     }
-    else if (tmc_help(command) > TM_CMDSIZE) {
-        return tmc_usage(-ETOOBIG);
+    else if (os_strlen(command) > TM_CMDSIZE) {
+        return tmc_help(-ETOOBIG);
     }
     
     debug_cli("name:%s delay:%s interval:%s, limit:%s, command:%s", 
@@ -303,7 +303,7 @@ tmd_handle_insert(cli_table_t *table, int argc, char *argv[])
         debug_error("invalid args, delay:%d, interval:%d, limit:%d",
             i_delay, i_interval, i_limit);
 
-        return tmc_usage(-EINVAL);
+        return tmc_help(-EINVAL);
     }
 
     struct xtimer *entry = tmd_create(name, command, i_delay, i_interval, i_limit);
@@ -407,10 +407,10 @@ tmd_handle_show(cli_table_t *table, int argc, char *argv[])
     char *name = argv[1];
     
     if (1!=argc && 2!=argc) {
-        return tmc_usage(-EINVAL2);
+        return tmc_help(-EINVAL2);
     }
     else if (name && os_strlen(name) > TM_NAMESIZE) {
-        return tmc_usage(-ETOOBIG);
+        return tmc_help(-ETOOBIG);
     }
 
     bool empty = true;
