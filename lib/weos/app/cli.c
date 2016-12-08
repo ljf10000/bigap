@@ -320,10 +320,11 @@ __cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
             continue;
         }
 
+        os_println("table %s flag:0x%x timeout:%u", table->tag, table->flag, table->timeout);
         bool tcp    = os_hasflag(table->flag, CLI_F_TCP);
         bool syn    = os_hasflag(table->flag, CLI_F_SYN);
         bool server = os_hasflag(table->flag, CLI_F_SERVER);
-        
+
         if (server) {
             /*
             * this command use tcp

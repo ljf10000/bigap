@@ -27,7 +27,7 @@ enum {
 struct cli_table_s {
     char *tag;
 
-    int flag;
+    uint32 flag;
     uint32 timeout;
 
     cli_handle_f *cb;
