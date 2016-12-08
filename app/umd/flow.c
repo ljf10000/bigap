@@ -120,7 +120,7 @@ umd_pkt_handle(sock_server_t *server)
     if (__is_ak_debug_packet) {
         os_println("recv packet length=%d", umd_flow.len);
         
-        __os_dump_buffer(umd_flow.packet, umd_flow.len, NULL);
+        os_dump_buffer(umd_flow.packet, umd_flow.len);
     }
 
     return 0;

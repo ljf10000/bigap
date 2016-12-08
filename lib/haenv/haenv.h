@@ -619,7 +619,7 @@ static inline void
 haee_dump(haenv_entry_t *e)
 {
 #if HAENV_PRINT
-    __os_dump_buffer(e, haee_size(e), NULL);
+    os_dump_buffer(e, haee_size(e));
 #endif
 }
 
