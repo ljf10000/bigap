@@ -2716,7 +2716,7 @@ benv_cmd_hiden(int argc, char *argv[])
 static inline int
 benv_cmd(int argc, char *argv[])
 {
-    __benv_self = cli_argv_dump(argc, argv);
+    __benv_self = argv_dump(argc, argv);
 
     if (benv_cmd_hiden(argc, argv)) {
         return __benv_errno;

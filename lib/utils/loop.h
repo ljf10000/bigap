@@ -45,6 +45,11 @@ EXTERN int loop_type_getidbyname(const char *name);
 #define LOOP_TYPE_END       LOOP_TYPE_END
 #endif
 
+enum {
+    LOOP_F_ONCE = 0x01,
+    LOOP_F_AUTO_DEL_SON = 0x02,
+};
+
 struct loop_watcher;
 
 typedef struct {
@@ -111,10 +116,23 @@ os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user);
 extern int
 os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user);
 
-#define __os_loop_add_cli(_loop, _name, _cb, _user) \
-    os_loop_add_father(_loop, __clis_FD(_name), _cb, _user)
-#define os_loop_add_cli(_loop, _cb, _user) \
-    __os_loop_add_cli(_loop, __THIS_APPNAME, _cb, _user)
+#define __os_loop_cli_add(_loop, _tcp, _name, _cb, _user)   ({  \
+    int __err;                                                  \
+                                                                \
+    if (_tcp) {                                                 \
+        __err = os_loop_add_father(_loop, __clis_FD(_tcp, _name), _cb, true, _user); \
+    } else {                                                    \
+        __err = os_loop_add_normal(_loop, __clis_FD(_tcp, _name), _cb, _user); \
+    }                                                           \
+                                                                \
+    __err;                                                      \
+})  /* end */
+#define os_loop_cli_add(_loop, _tcp, _cb, _user) \
+    __os_loop_cli_add(_loop, _tcp, __THIS_APPNAME, _cb, _user)
+#define os_loop_cli_tcp(_loop, _cb, _user) \
+    os_loop_cli_add(_loop, true, _cb, _user)
+#define os_loop_cli_udp(_loop, _cb, _user) \
+    os_loop_cli_add(_loop, false, _cb, _user)
 
 extern void 
 os_loop_fini(loop_t *loop);

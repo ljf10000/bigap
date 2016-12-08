@@ -29,6 +29,113 @@ envs_append(char *dst[], char *src[])
     }
 }
 
+DECLARE int 
+zip2line_helper(char line[], int size, char *s, int sep)
+{
+    int len = os_strlen(s);
+
+    /*
+    * 2: '\0' and sep
+    */
+    if (size < (len+2)) {
+        return -ENOSPACE;
+    }
+
+    os_memcpy(line, s, len);
+
+    line[len++] = sep;
+    line[len] = 0;
+    
+    return len;
+}
+
+DECLARE int 
+zip2line(char buf[], int size, char *ss[], bool (*is_good)(int idx), int sep)
+{
+    int i, offset = 0, len;
+    
+    for (i=0; (*is_good)(i); i++) {
+        len = zip2line_helper(buf + offset, size - offset, ss[i], sep);
+        if (len<0) {
+            return len;
+        }
+
+        offset += len;
+    }
+    
+    return offset;
+}
+
+DECLARE int 
+argv_zip2line(char buf[], int size, int argc, char *argv[], int sep)
+{
+    bool is_good(int idx)
+    {
+        return idx < argc;
+    }
+    
+    return zip2line(buf, size, argv, is_good, sep);
+}
+
+DECLARE int 
+envs_zip2line(char buf[], int size, char *env[], int sep)
+{
+    bool is_good(int idx)
+    {
+        return !!env[idx];
+    }
+
+    return zip2line(buf, size, env, is_good, sep);
+}
+
+DECLARE int
+argv_unzipbin(char buf[], int argc, char *argv[])
+{
+    char *p = buf;
+    int i;
+    
+    for (i=0; i<argc; i++) {
+        if (*p) {
+            argv[i] = p;
+
+            p += 1 + os_strlen(p); // point to next
+        } else {
+            return i;
+        }
+    }
+
+    return -ENOSPACE;
+}
+
+DECLARE int
+envs_unzipbin(char buf[], int count, char *env[])
+{
+    int c = argv_unzipbin(buf, count, env);
+    if (c<0) {
+        return c;
+    }
+    else if (c>=count) {
+        return -ENOSPACE;
+    }
+    else {
+        env[c++] = NULL;
+
+        return c;
+    }
+}
+
+DECLARE int
+argv_flat(char *line[], int size, int argc, char *argv)
+{
+    
+}
+
+DECLARE int
+envs_flat(char *line[], int size, int argc, char *argv)
+{
+    
+}
+
 DECLARE char *
 env_gets(char *envname, char *deft) 
 {

@@ -11,8 +11,8 @@ OS_INITER;
 
 STATIC cli_client_t nsqc = CLI_CLIENT_INITER("nsqa");
 
-#define nsqc_handle(_action, _argc, _argv) \
-    clic_sync_handle(&nsqc, _action, _argc, _argv)
+#define nsqc_request(_table, _argc, _argv) \
+    clic_request(&nsqc, _table, _argc, _argv)
 
 STATIC int
 nsqc_usage(int error)
@@ -28,18 +28,18 @@ nsqc_usage(int error)
 * ACTION name topic channel
 */
 STATIC int
-nsqc_handle_name_topic_channel(char *action, int argc, char *argv[], bool allow_all_empty)
+nsqc_handle_name_topic_channel(cli_table_t *table, int argc, char *argv[], bool allow_all_empty)
 {
-    if (argc < 1) {
+    if (argc < 2) {
         return nsqc_usage(-EINVAL0);
     }
-    else if (argc > 3) {
+    else if (argc > 4) {
         return nsqc_usage(-EINVAL1);
     }
 
-    char *name      = argv[0];
-    char *topic     = (argc>1)?argv[1]:NULL;
-    char *channel   = (argc>2)?argv[2]:NULL;
+    char *name      = argv[1];
+    char *topic     = (argc>2)?argv[2]:NULL;
+    char *channel   = (argc>3)?argv[3]:NULL;
 
     if (os_str_is_wildcard(name, os_iswildcard)) {
         name = NULL;
@@ -66,48 +66,48 @@ nsqc_handle_name_topic_channel(char *action, int argc, char *argv[], bool allow_
         return nsqc_usage(-ETOOBIG);
     }
     else {
-        return nsqc_handle(action, argc, argv);
+        return nsqc_request(table, argc, argv);
     }
 }
 
 STATIC int
-nsqc_cmd_insert(int argc, char *argv[])
+nsqc_cmd_insert(cli_table_t *table, int argc, char *argv[])
 {
-    char *json = argv[0];
+    char *json = argv[1];
     
-    if (1!=argc) {
+    if (2!=argc) {
         return nsqc_usage(-EINVAL0);
     }
     else if (false==is_good_json(json)) {
         return nsqc_usage(-EBADJSON);
     }
     
-    return nsqc_handle("insert", argc, argv);
+    return nsqc_request(table, argc, argv);
 }
 
 STATIC int
-nsqc_cmd_remove(int argc, char *argv[])
+nsqc_cmd_remove(cli_table_t *table, int argc, char *argv[])
 {
-    return nsqc_handle_name_topic_channel("remove", argc, argv, false);
+    return nsqc_handle_name_topic_channel(table, argc, argv, false);
 }
 
 STATIC int
-nsqc_cmd_show(int argc, char *argv[])
+nsqc_cmd_show(cli_table_t *table, int argc, char *argv[])
 {
-    return nsqc_handle_name_topic_channel("remove", argc, argv, true);
+    return nsqc_handle_name_topic_channel(table, argc, argv, true);
 }
 
 STATIC int
 nsqc_command(int argc, char *argv[])
 {
-    static cli_table_t table[] = {
-        CLI_ENTRY("insert", nsqc_cmd_insert),
-        CLI_ENTRY("remove", nsqc_cmd_remove),
-        CLI_ENTRY("show",   nsqc_cmd_show),
+    static cli_table_t tables[] = {
+        CLI_TCP_ENTRY("insert", nsqc_cmd_insert),
+        CLI_TCP_ENTRY("remove", nsqc_cmd_remove),
+        CLI_TCP_ENTRY("show",   nsqc_cmd_show),
     };
     int err;
 
-    err = cli_argv_handle(table, os_count_of(table), argc, argv);
+    err = cli_argv_handle(tables, argc, argv);
     if (err<0) {
         debug_error("%s error:%d", argv[0], err);
 

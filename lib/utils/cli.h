@@ -1,65 +1,63 @@
 #ifndef __CLI_H_277ca663cad74dd5ad59851d69c58e0c__
 #define __CLI_H_277ca663cad74dd5ad59851d69c58e0c__
 /******************************************************************************/
-#define CLI_SOCK_TYPE       SOCK_STREAM
-#define CLI_REPLY_END       __cli_reply
+#ifndef CLI_BUFFER_LEN
 #define CLI_BUFFER_LEN      PC_VAL(OS_PAGE_LEN, OS_BIG_LEN)
+#endif
 
 #ifndef CLI_TIMEOUT
 #define CLI_TIMEOUT         5000 /* ms */
 #endif
 
+#ifndef CLI_ARGC
+#define CLI_ARGC            PC_VAL(32, 16)
+#endif
+
+typedef struct cli_table_s cli_table_t;
+
+typedef int cli_handle_f(cli_table_t *table, int argc, char *argv[]);
+
+enum {
+    CLI_F_SYN   = 0x01,
+    CLI_F_TCP   = 0x02,
+    CLI_F_SERVER= 0x04,
+};
+
 #if defined(__APP__) || defined(__BOOT__)
-typedef struct {
+struct cli_table_s {
     char *tag;
 
-    bool syn; /* just for server, client not use it */
-    
-    union {
-        void *cb;
-        int (*line_cb)(char *args);
-        int (*argv_cb)(int argc, char *argv[]);
-    } u;
-} cli_table_t;
+    int flag;
+    uint32 timeout;
 
-#define __CLI_ENTRY(_tag, _syn, _cb)   { \
-    .tag    = _tag,         \
-    .syn    = _syn,         \
-    .u      = {             \
-        .cb = _cb,          \
-    },                      \
-}
+    cli_handle_f *cb;
+};
 
-#define CLI_ENTRY(_tag, _cb)    __CLI_ENTRY(_tag, true, _cb)
+#ifdef __DEAMON__
+#define __CLI_ENTRY(_tag, _flag, _timeout, _cb)   { \
+    .tag    = _tag,     \
+    .flag   = _flag,    \
+    .timeout= _timeout, \
+    .cb     = _cb,      \
+}   /* end */
+#else
+#define __CLI_ENTRY(_tag, _flag, _timeout, _cb)   { \
+    .tag    = _tag,     \
+    .flag   = _flag | CLI_F_SERVER, \
+    .timeout= _timeout, \
+    .cb     = _cb,      \
+}   /* end */
+#endif
 
-#define __cli_argv_dump(_dump, _argc, _argv) ({ \
-    int i;                                  \
-                                            \
-    for (i=0; i<_argc; i++) {               \
-        _dump("function:%s argv[%d]=%s",    \
-            __func__, i, _argv[i]);         \
-    }                                       \
-                                            \
-    _argv[0];                               \
-})
+#define __CLI_TCP_ENTRY(_tag, _timeout, _cb) \
+    __CLIC_ENTRY(_tag, CLI_F_TCP, _timeout, _cb)
+#define __CLI_UDP_ENTRY(_tag, _timeout, _cb) \
+    __CLIC_ENTRY(_tag, 0, _timeout, _cb)
 
-#define cli_argv_dump(_argc, _argv)         __cli_argv_dump(debug_trace, _argc, _argv)
-
-#define __cli_line_next(_args)              os_str_next_byifs(_args, __space)
-#define __cli_shift(_args, _count)      do{ \
-    int i, count = (_count);                \
-                                            \
-    for (i=0; i<count; i++) {               \
-        _args = __cli_line_next(_args);     \
-    }                                       \
-}while(0)
-
-#define cli_shift(_args)                do{ \
-    _args = __cli_line_next(_args);         \
-}while(0)
-
-EXTERN int
-cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[]);
+#define CLI_TCP_ENTRY(_tag, _cb) \
+    __CLI_TCP_ENTRY(_tag, CLI_TIMEOUT, _cb)
+#define CLI_UDP_ENTRY(_tag, _cb) \
+    __CLI_UDP_ENTRY(_tag, CLI_TIMEOUT, _cb)
 
 #endif /* defined(__APP__) || defined(__BOOT__) */
 /******************************************************************************/
@@ -80,7 +78,8 @@ typedef struct {
 
 typedef struct {
     int fd;
-
+    bool tcp;
+    
     sockaddr_un_t   addr;
     socklen_t       addrlen;
 
@@ -89,6 +88,22 @@ typedef struct {
 
 extern cli_t *
 __this_cli(void);
+
+#define __this_cli_tcp          __this_cli()->tcp
+#define __this_cli_fd           __this_cli()->fd
+#define __this_cli_addr         (&__this_cli()->addr)
+#define __this_cli_addrlen      __this_cli()->addrlen
+
+static inline int 
+__this_cli_socket(bool tcp)
+{
+    int fd = socket(AF_UNIX, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
+    if (is_good_fd(fd)) {
+        os_closexec(fd);
+    }
+
+    return fd;
+}
 
 static inline cli_buffer_t *
 __clib(void)
@@ -122,9 +137,6 @@ extern int
 __clib_show(void);
 
 extern int
-__cli_reply(int err);
-
-extern int
 cli_vsprintf(const char *fmt, va_list args);
 
 extern int
@@ -132,12 +144,12 @@ cli_sprintf(const char *fmt, ...);
 
 #if 1
 typedef struct {
-    int timeout;
+    int timeout;    // todo: not use it
     
     sockaddr_un_t server, client;
 } cli_client_t;
 
-#define CLI_CLIENT_INITER(_server_PATH)             {   \
+#define CLI_CLIENT_INITER(_server_PATH) {   \
     .server     = OS_SOCKADDR_ABSTRACT(_server_PATH),   \
     .client     = OS_SOCKADDR_UNIX(__zero),             \
     .timeout    = CLI_TIMEOUT,                          \
@@ -146,49 +158,47 @@ typedef struct {
 #define CLI_CLIENT_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"
 
 extern int
-__clic_fd(cli_client_t *clic);
+__clic_fd_helper(cli_client_t *clic, cli_table_t *table);
+
+static inline int
+__clic_fd(cli_client_t *clic, cli_table_t *table)
+{
+    abstract_path_sprintf(&clic->client, CLI_CLIENT_UNIX, getpid());
+    
+    return __clic_fd_helper(clic, table);
+}
 
 extern int
 __clic_recv(int fd, int timeout);
 
 extern int
-__clic_handle(bool syn, char *buf, cli_client_t *clic);
+__clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len);
 
 extern int
-clic_handle(cli_client_t *clic, bool syn, char *action, int argc, char *argv[]);
-
-#define clic_sync_handle(_client, _action, _argc, _argv) \
-    clic_handle(_client, true, _action, _argc, _argv)
-
-#define clic_async_handle(_client, _action, _argc, _argv) \
-    clic_handle(_client, false, _action, _argc, _argv)
+clic_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[]);
 #endif
 /******************************************************************************/
 #if 1
 extern int
-__clis_fd(sockaddr_un_t *server);
+__clis_fd(bool tcp, sockaddr_un_t *server);
 
-#define __clis_FD(_name)    ({  \
+#define __clis_FD(_tcp, _name)    ({    \
     sockaddr_un_t server = OS_SOCKADDR_ABSTRACT(_name); \
-                                \
-    __clis_fd(&server);         \
+                                        \
+    __clis_fd(_tcp, &server);           \
 })  /* end */
 
 extern int
-cli_line_handle(
-    cli_table_t tables[],
-    int count,
-    char *tag,
-    char *args,
-    int (*reply)(int err),
-    int (*reply_end)(int err)
-);
+__cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[]);
+
+#define cli_argv_handle(_tables, _argc, _argv) \
+    __cli_argv_handle(_tables, os_count_of(_tables), _argc, _argv)
 
 extern int
-__clis_handle(int fd, cli_table_t *table, int count);
+__clis_handle(int fd, cli_table_t tables[], int count);
 
-#define clis_handle(_fd, _table) \
-    __clis_handle(_fd, _table, os_count_of(_table))
+#define clis_handle(_fd, _tables) \
+    __clis_handle(_fd, _tables, os_count_of(_tables))
 #endif
 #endif /* __APP__ */
 

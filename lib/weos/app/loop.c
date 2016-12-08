@@ -157,7 +157,7 @@ __loop_watcher(loop_t *loop, int fd)
 }
 
 STATIC loop_watcher_t *
-__loop_watcher_add(loop_t *loop, int fd, int type, void *cb, void *user)
+__loop_watcher_add(loop_t *loop, int fd, int type, int flag, void *cb, void *user)
 {
     int err;
     char *watchname = loop_type_getnamebyid(type);
@@ -179,7 +179,7 @@ __loop_watcher_add(loop_t *loop, int fd, int type, void *cb, void *user)
     watcher->fd     = fd;
     watcher->father = INVALID_FD;
     watcher->type   = type;
-    watcher->flag   = 0;
+    watcher->flag   = flag;
     watcher->cb.cb  = cb;
     watcher->user   = user;
     
@@ -231,7 +231,7 @@ __loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], i
         }
     }
 
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_INOTIFY, cb, NULL);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_INOTIFY, 0, cb, NULL);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -264,7 +264,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
         return -errno;
     }
 
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_TIMER, cb, NULL);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_TIMER, 0, cb, NULL);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -293,7 +293,7 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
     }
     os_closexec(fd);
     
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SIGNAL, cb, NULL);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SIGNAL, 0, cb, NULL);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -304,7 +304,7 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
 STATIC int
 __loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user)
 {
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_NORMAL, cb, user);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_NORMAL, 0, cb, user);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -313,9 +313,10 @@ __loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user)
 }
 
 STATIC int
-__loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
+__loop_add_father(loop_t *loop, int fd, loop_son_f *cb, bool auto_del_son, void *user)
 {    
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_FATHER, cb, user);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, 
+        LOOP_TYPE_FATHER, auto_del_son?LOOP_F_AUTO_DEL_SON:0, cb, user);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -325,9 +326,9 @@ __loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
 }
 
 STATIC int
-__loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, void *user)
+__loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, int flag, void *user)
 {
-    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SON, cb, user);
+    loop_watcher_t *watcher = __loop_watcher_add(loop, fd, LOOP_TYPE_SON, flag, cb, user);
     if (NULL==watcher) {
         return -ENOEXIST;
     }
@@ -388,12 +389,16 @@ STATIC void
 __loop_normal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     (*watcher->cb.normal)(watcher, now);
+
+    if (os_hasflag(watcher->flag, LOOP_F_ONCE)) {
+        __loop_watcher_del(loop, watcher->fd);
+    }
 }
 
 STATIC void
 __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
-    int fd;
+    int fd, flag;
     os_sockaddr_t addr;
     socklen_t addrlen = sizeof(addr);
     
@@ -401,8 +406,10 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     debug_loop("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
     if (is_good_fd(fd)) {
         os_closexec(fd);
-        
-        __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd, watcher->user);
+
+        flag = os_hasflag(watcher->flag, LOOP_F_AUTO_DEL_SON)?LOOP_F_ONCE:0;
+
+        __loop_add_son(loop, fd, watcher->cb.cb, watcher->fd, flag, watcher->user);
     }
 }
 
@@ -547,7 +554,7 @@ os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user)
 }
 
 int
-os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
+os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, bool auto_del_son, void *user)
 {
     if (NULL==loop) {
         return -EINVAL0;
@@ -559,8 +566,26 @@ os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user)
         return -EBADF;
     }
     else {
-        return __loop_add_father(loop, fd, cb, user);
+        return __loop_add_father(loop, fd, cb, auto_del_son, user);
     }
+}
+
+int
+__os_loop_cli_handle(loop_t *loop, int fd, cli_table_t table[], int count)
+{
+    int err = __clis_handle(fd, table, count);
+    if (err<0) {
+        return err;
+    }
+    
+    err = os_loop_del_watcher(loop, fd);
+    if (err<0) {
+        debug_loop("loop del fd:%d error:%d", fd, err);
+        
+        return err;
+    }
+    
+    return 0;
 }
 
 int

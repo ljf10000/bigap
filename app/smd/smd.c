@@ -691,10 +691,10 @@ smd_create(char *name, char *command, char *pidfile)
 }
 
 STATIC int
-smd_handle_insert(char *args)
+smd_handle_insert(cli_table_t *table, int argc, char *argv[])
 {
-    char *type      = args; cli_shift(args);
-    char *name      = args; cli_shift(args);
+    char *type      = argv[1];
+    char *name      = argv[2];
     char *pidfile   = NULL;
     char *command   = NULL;
     int err = 0;
@@ -714,14 +714,14 @@ smd_handle_insert(char *args)
         /*
         * insert normal name command
         */
-        command = args; /* NOT shift */
+        command = argv[3];
     }
     else if (os_streq(type, "deamon")) {
         /*
         * insert deamon name pidfile command
         */
-        pidfile = args; cli_shift(args);
-        command = args; /* NOT shift */
+        pidfile = argv[3];
+        command = argv[4];
     }
     else {
         return -EINVAL3;
@@ -759,9 +759,9 @@ smd_handle_insert(char *args)
 }
 
 STATIC int
-smd_handle_remove(char *args)
+smd_handle_remove(cli_table_t *table, int argc, char *argv[])
 {
-    char *name = args; cli_shift(args);
+    char *name = argv[1];
     if (NULL==name) {
         debug_trace("remove monitor without name");
         
@@ -777,7 +777,7 @@ smd_handle_remove(char *args)
 }
 
 STATIC int
-smd_handle_clean(char *args)
+smd_handle_clean(cli_table_t *table, int argc, char *argv[])
 {
     mv_t cb(sm_entry_t *entry)
     {
@@ -804,9 +804,9 @@ smd_show(sm_entry_t *entry)
 
 
 STATIC int
-smd_handle_show(char *args)
+smd_handle_show(cli_table_t *table, int argc, char *argv[])
 {
-    char *name = args; cli_shift(args);
+    char *name = argv[1];
     bool empty = true;
     
     cli_sprintf("#name pid/dpid forks state command" __crlf);
@@ -839,24 +839,14 @@ smd_handle_show(char *args)
 STATIC int
 smd_cli(struct loop_watcher *watcher, time_t now)
 {
-    static cli_table_t table[] = {
-        CLI_ENTRY("insert", smd_handle_insert),
-        CLI_ENTRY("remove", smd_handle_remove),
-        CLI_ENTRY("clean",  smd_handle_clean),
-        CLI_ENTRY("show",   smd_handle_show),
+    static cli_table_t tables[] = {
+        CLI_TCP_ENTRY("insert", smd_handle_insert),
+        CLI_TCP_ENTRY("remove", smd_handle_remove),
+        CLI_TCP_ENTRY("clean",  smd_handle_clean),
+        CLI_TCP_ENTRY("show",   smd_handle_show),
     };
-    int err, ret;
 
-    ret = clis_handle(watcher->fd, table);
-
-    err = os_loop_del_watcher(&smd.loop, watcher->fd);
-    if (err<0) {
-        debug_trace("del loop cli error:%d", err);
-        
-        return err;
-    }
-    
-    return ret;
+    return clis_handle(watcher->fd, tables);
 }
 
 STATIC int
@@ -864,7 +854,7 @@ smd_init_server(void)
 {
     int err;
     
-    err = os_loop_add_cli(&smd.loop, smd_cli, NULL);
+    err = os_loop_cli_tcp(&smd.loop, smd_cli, NULL);
     if (err<0) {
         debug_error("add loop cli error:%d", err);
     }

@@ -16,10 +16,10 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 * handle {mac} {json}
 */
 STATIC int
-umd_handle_mac_json(umd_user_t *(*handle)(byte mac[], jobj_t obj), char *args)
+umd_handle_mac_json(umd_user_t *(*handle)(byte mac[], jobj_t obj), int argc, char *argv[])
 {
-    char *mac   = args; cli_shift(args);
-    char *json  = args; cli_shift(args);
+    char *mac   = argv[1];
+    char *json  = argv[2];
     jobj_t obj  = NULL;
     int err = 0;
     
@@ -51,10 +51,10 @@ error:
 * handle {mac} {ip}
 */
 STATIC int
-umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), char *args)
+umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), int argc, char *argv[])
 {
-    char *mac   = args; cli_shift(args);
-    char *ip    = args; cli_shift(args);
+    char *mac   = argv[1];
+    char *ip    = argv[2];
 
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -79,9 +79,9 @@ umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), char *args)
 * handle {mac}
 */
 STATIC int
-umd_handle_mac(int (*handle)(byte mac[]), char *args)
+umd_handle_mac(int (*handle)(byte mac[]), int argc, char *argv[])
 {
-    char *mac = args; cli_shift(args);
+    char *mac = argv[1];
 
     if (is_good_macstring(mac)) {
         return (*handle)(os_mac(mac));
@@ -96,7 +96,7 @@ umd_handle_mac(int (*handle)(byte mac[]), char *args)
 * create {mac}
 */
 STATIC int
-umd_handle_create(char *args)
+umd_handle_create(cli_table_t *table, int argc, char *argv[])
 {
     int create(byte mac[])
     {
@@ -105,23 +105,23 @@ umd_handle_create(char *args)
         return user?0:-ENOMEM;
     }
     
-    return umd_handle_mac(create, args);
+    return umd_handle_mac(create, argc, argv);
 }
 
 /*
 * delete {mac}
 */
 STATIC int
-umd_handle_delete(char *args)
+umd_handle_delete(cli_table_t *table, int argc, char *argv[])
 {
-    return umd_handle_mac(umd_user_delete, args);
+    return umd_handle_mac(umd_user_delete, argc, argv);
 }
 
 /*
 * block {mac}
 */
 STATIC int
-umd_handle_block(char *args)
+umd_handle_block(cli_table_t *table, int argc, char *argv[])
 {
     int block(byte mac[])
     {
@@ -130,44 +130,44 @@ umd_handle_block(char *args)
         return user?0:-ENOMEM;
     }
     
-    return umd_handle_mac(block, args);
+    return umd_handle_mac(block, argc, argv);
 }
 
 /*
 * unblock {mac}
 */
 STATIC int
-umd_handle_unblock(char *args)
+umd_handle_unblock(cli_table_t *table, int argc, char *argv[])
 {
-    return umd_handle_mac(umd_user_unblock, args);
+    return umd_handle_mac(umd_user_unblock, argc, argv);
 }
 
 /*
 * bind {mac} {ip}
 */
 STATIC int
-umd_handle_bind(char *args)
+umd_handle_bind(cli_table_t *table, int argc, char *argv[])
 {
-    return umd_handle_mac_ip(umd_user_bind, args);
+    return umd_handle_mac_ip(umd_user_bind, argc, argv);
 }
 
 /*
 * unbind {mac}
 */
 STATIC int
-umd_handle_unbind(char *args)
+umd_handle_unbind(cli_table_t *table, int argc, char *argv[])
 {
-    return umd_handle_mac(umd_user_unbind, args);
+    return umd_handle_mac(umd_user_unbind, argc, argv);
 }
 
 /*
 * fake {mac} {ip}
 */
 STATIC int
-umd_handle_fake(char *args)
+umd_handle_fake(cli_table_t *table, int argc, char *argv[])
 {
     if (UMD_AUTO_FAKE==umd.cfg.autouser) {
-        return umd_handle_mac_ip(umd_user_fake, args);
+        return umd_handle_mac_ip(umd_user_fake, argc, argv);
     } else {
         return -ENOSUPPORT;
     }
@@ -177,10 +177,10 @@ umd_handle_fake(char *args)
 * unfake {mac}
 */
 STATIC int
-umd_handle_unfake(char *args)
+umd_handle_unfake(cli_table_t *table, int argc, char *argv[])
 {
     if (UMD_AUTO_FAKE==umd.cfg.autouser) {
-        return umd_handle_mac(umd_user_unfake, args);
+        return umd_handle_mac(umd_user_unfake, argc, argv);
     } else {
         return -ENOSUPPORT;
     }
@@ -190,11 +190,11 @@ umd_handle_unfake(char *args)
 * auth {mac} {group} {json}
 */
 STATIC int
-umd_handle_auth(char *args)
+umd_handle_auth(cli_table_t *table, int argc, char *argv[])
 {
-    char *mac   = args; cli_shift(args);
-    char *group = args; cli_shift(args);
-    char *json  = args; cli_shift(args);
+    char *mac   = argv[1];
+    char *group = argv[2];
+    char *json  = argv[3];
     jobj_t obj = NULL;
     
     if (false==is_good_macstring(mac)) {
@@ -228,7 +228,7 @@ error:
 * deauth {mac}
 */
 STATIC int
-umd_handle_deauth(char *args)
+umd_handle_deauth(cli_table_t *table, int argc, char *argv[])
 {
     int deauth(byte mac[])
     {
@@ -237,17 +237,17 @@ umd_handle_deauth(char *args)
         return 0;
     }
     
-    return umd_handle_mac(deauth, args);
+    return umd_handle_mac(deauth, argc, argv);
 }
 
 /*
 * reauth {mac}
 */
 STATIC int
-umd_handle_reauth(char *args)
+umd_handle_reauth(cli_table_t *table, int argc, char *argv[])
 {
     if (umd.cfg.reauthable) {
-        return umd_handle_mac(umd_user_reauth, args);
+        return umd_handle_mac(umd_user_reauth, argc, argv);
     } else {
         return -ENOSUPPORT;
     }
@@ -351,9 +351,9 @@ umd_show_count(void)
 * show [json]
 */
 STATIC int
-umd_handle_show(char *args)
+umd_handle_show(cli_table_t *table, int argc, char *argv[])
 {
-    char *json = args; /* json maybe include space, not shift */
+    char *json = argv[1];
     
     if (NULL==json) {
         /*
@@ -379,10 +379,10 @@ umd_handle_show(char *args)
 * sync {mac} {json}
 */
 STATIC int
-umd_handle_sync(char *args)
+umd_handle_sync(cli_table_t *table, int argc, char *argv[])
 {
     if (umd.cfg.syncable) {
-        return umd_handle_mac_json(umd_user_sync, args);
+        return umd_handle_mac_json(umd_user_sync, argc, argv);
     } else {
         return -ENOSUPPORT;
     }
@@ -392,11 +392,11 @@ umd_handle_sync(char *args)
 * tag {mac} {key} [value]
 */
 STATIC int
-umd_handle_tag(char *args)
+umd_handle_tag(cli_table_t *table, int argc, char *argv[])
 {
-    char *mac   = args; cli_shift(args);
-    char *k     = args; cli_shift(args);
-    char *v     = args; cli_shift(args);
+    char *mac   = argv[1];
+    char *k     = argv[2];
+    char *v     = argv[3];
 
     if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
@@ -421,7 +421,7 @@ umd_handle_tag(char *args)
 * gc
 */
 STATIC int
-umd_handle_gc(char *args)
+umd_handle_gc(cli_table_t *table, int argc, char *argv[])
 {
     if (umd.cfg.gc) {
         return umd_user_foreach(umd_gc, true);
@@ -433,35 +433,30 @@ umd_handle_gc(char *args)
 STATIC int
 umd_cli(struct loop_watcher *watcher, time_t now)
 {
-    static cli_table_t table[] = {
-        CLI_ENTRY("create", umd_handle_create),
-        CLI_ENTRY("delete", umd_handle_delete),
+    static cli_table_t tables[] = {
+        CLI_TCP_ENTRY("create", umd_handle_create),
+        CLI_TCP_ENTRY("delete", umd_handle_delete),
         
-        CLI_ENTRY("block",  umd_handle_block),
-        CLI_ENTRY("unblock",umd_handle_unblock),
+        CLI_TCP_ENTRY("block",  umd_handle_block),
+        CLI_TCP_ENTRY("unblock",umd_handle_unblock),
         
-        CLI_ENTRY("bind",   umd_handle_bind),
-        CLI_ENTRY("unbind", umd_handle_unbind),
+        CLI_TCP_ENTRY("bind",   umd_handle_bind),
+        CLI_TCP_ENTRY("unbind", umd_handle_unbind),
         
-        CLI_ENTRY("fake",   umd_handle_fake),
-        CLI_ENTRY("unfake", umd_handle_unfake),
+        CLI_TCP_ENTRY("fake",   umd_handle_fake),
+        CLI_TCP_ENTRY("unfake", umd_handle_unfake),
         
-        CLI_ENTRY("auth",   umd_handle_auth),
-        CLI_ENTRY("deauth", umd_handle_deauth),
-        CLI_ENTRY("reauth", umd_handle_reauth),
+        CLI_TCP_ENTRY("auth",   umd_handle_auth),
+        CLI_TCP_ENTRY("deauth", umd_handle_deauth),
+        CLI_TCP_ENTRY("reauth", umd_handle_reauth),
         
-        CLI_ENTRY("sync",   umd_handle_sync),
-        CLI_ENTRY("show",   umd_handle_show),
-        CLI_ENTRY("tag",    umd_handle_tag),
-        CLI_ENTRY("gc",     umd_handle_gc),
+        CLI_TCP_ENTRY("sync",   umd_handle_sync),
+        CLI_TCP_ENTRY("show",   umd_handle_show),
+        CLI_TCP_ENTRY("tag",    umd_handle_tag),
+        CLI_TCP_ENTRY("gc",     umd_handle_gc),
     };
-    int err;
-    
-    err = clis_handle(watcher->fd, table);
 
-    os_loop_del_watcher(&umd.loop, watcher->fd);
-
-    return err;
+    return clis_handle(watcher->fd, tables);
 }
 
 STATIC int
@@ -469,7 +464,7 @@ umd_cli_init(sock_server_t *server)
 {
     int err;
 
-    err = os_loop_add_cli(&umd.loop, umd_cli, server);
+    err = os_loop_cli_tcp(&umd.loop, umd_cli, server);
     if (err<0) {
         debug_ok("add loop cli error:%d", err);
         

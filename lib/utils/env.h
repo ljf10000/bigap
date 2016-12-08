@@ -29,6 +29,19 @@
 #define js_PATH             "/tmp/js:/lib/js"
 #endif
 
+#define __argv_dump(_dump, _argc, _argv) ({ \
+    int i;                                  \
+                                            \
+    for (i=0; i<_argc; i++) {               \
+        _dump("function:%s argv[%d]=%s",    \
+            __func__, i, _argv[i]);         \
+    }                                       \
+                                            \
+    _argv[0];                               \
+})
+
+#define argv_dump(_argc, _argv)     __argv_dump(debug_trace, _argc, _argv)
+
 EXTERN int
 envs_count(char *env[]);
 
@@ -42,6 +55,30 @@ envs_clone(char *env[])
 {
     envs_append(env, environ);
 }
+
+EXTERN int 
+zip2line_helper(char line[], int size, char *s, int sep);
+#define zip2bin_helper(_line, _size, _s)    zip2line_helper(_line, _size, _s, 0)
+#define zip2str_helper(_line, _size, _s)    zip2line_helper(_line, _size, _s, ' ')
+
+EXTERN int 
+zip2line(char buf[], int size, char *ss[], bool (*is_good)(int idx), int sep);
+
+EXTERN int
+argv_zip2line(char buf[], int size, int argc, char *argv[], int sep);
+#define argv_zip2bin(_bin, _size, _argc, _argv) argv_zip2line(_bin, _size, _argc, _argv, 0)
+#define argv_zip2str(_str, _size, _argc, _argv) argv_zip2line(_str, _size, _argc, _argv, ' ')
+
+EXTERN int
+envs_zip2line(char buf[], int size, char *env[], int sep);
+#define envs_zip2bin(_bin, _size, _env)     envs_zip2line(_bin, _size, _env, 0)
+#define envs_zip2str(_str, _size, _env)     envs_zip2line(_str, _size, _env, ' ')
+
+EXTERN int
+argv_unzipbin(char buf[], int argc, char *argv[]);
+
+EXTERN int
+envs_unzipbin(char buf[], int count, char *env[]);
 
 /*
 * new first

@@ -314,7 +314,7 @@ os_iswildcard(int ch)
 static inline bool
 os_str_is_wildcard(const char *s, char_is_f *is)
 {
-    return s \
+    return s
         && (is?(*is)(s[0]):('*'==s[0]))
         && 0==s[1];
 }

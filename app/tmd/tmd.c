@@ -246,13 +246,13 @@ tmd_xtimer_cb(tm_node_t *timer)
 }
 
 STATIC int
-tmd_handle_insert(char *args)
+tmd_handle_insert(cli_table_t *table, int argc, char *argv[])
 {
-    char *name      = args; cli_shift(args);
-    char *delay     = args; cli_shift(args);
-    char *interval  = args; cli_shift(args);
-    char *limit     = args; cli_shift(args);
-    char *command   = args;
+    char *name      = argv[1];
+    char *delay     = argv[2];
+    char *interval  = argv[3];
+    char *limit     = argv[4];
+    char *command   = argv[5];
     int err;
     
     if (NULL==name      ||
@@ -321,9 +321,9 @@ tmd_handle_insert(char *args)
 }
 
 STATIC int
-tmd_handle_remove(char *args)
+tmd_handle_remove(cli_table_t *table, int argc, char *argv[])
 {
-    char *name = args; cli_shift(args);
+    char *name = argv[1];
     if (NULL==name) {
         debug_trace("remove timer without name");
         
@@ -345,7 +345,7 @@ tmd_handle_remove(char *args)
 }
 
 STATIC int
-tmd_handle_clean(char *args)
+tmd_handle_clean(cli_table_t *table, int argc, char *argv[])
 {
     mv_t cb(struct xtimer *entry)
     {
@@ -373,9 +373,9 @@ tmd_show(struct xtimer *entry)
 }
 
 STATIC int
-tmd_handle_show(char *args)
+tmd_handle_show(cli_table_t *table, int argc, char *argv[])
 {
-    char *name = args; cli_shift(args);
+    char *name = argv[1];
     bool empty = true;
     
     cli_sprintf("#name delay interval limit triggers left command" __crlf);
@@ -432,24 +432,14 @@ tmd_init_timer(void)
 STATIC int
 tmd_cli(struct loop_watcher *watcher, time_t now)
 {
-    static cli_table_t table[] = {
-        CLI_ENTRY("insert", tmd_handle_insert),
-        CLI_ENTRY("remove", tmd_handle_remove),
-        CLI_ENTRY("clean",  tmd_handle_clean),
-        CLI_ENTRY("show",   tmd_handle_show),
+    static cli_table_t tables[] = {
+        CLI_TCP_ENTRY("insert", tmd_handle_insert),
+        CLI_TCP_ENTRY("remove", tmd_handle_remove),
+        CLI_TCP_ENTRY("clean",  tmd_handle_clean),
+        CLI_TCP_ENTRY("show",   tmd_handle_show),
     };
-    int err, ret;
 
-    ret = clis_handle(watcher->fd, table);
-    
-    err = os_loop_del_watcher(&tmd.loop, watcher->fd);
-    if (err<0) {
-        debug_trace("del loop cli error:%d", err);
-        
-        return err;
-    }
-    
-    return ret;
+    return clis_handle(watcher->fd, tables);
 }
 
 STATIC int
@@ -457,7 +447,7 @@ tmd_init_server(void)
 {
     int err;
     
-    err = os_loop_add_cli(&tmd.loop, tmd_cli, NULL);
+    err = os_loop_cli_tcp(&tmd.loop, tmd_cli, NULL);
     if (err<0) {
         debug_error("add loop cli error:%d", err);
     }

@@ -10,9 +10,9 @@ __this_cli_init(cli_t *cli)
             return NULL;
         }
         
-        cli->addr.sun_family = AF_UNIX;
-        cli->addrlen = sizeof(sockaddr_un_t);
-        cli->fd = INVALID_FD;
+        __this_cli_addr->sun_family = AF_UNIX;
+        __this_cli_addrlen = sizeof(sockaddr_un_t);
+        __this_cli_fd = INVALID_FD;
     }
 
     return cli;
@@ -40,7 +40,7 @@ __clib_show(void)
     return __clib_err;
 }
 
-int
+STATIC int
 __cli_reply(int err)
 {
     cli_t *cli = __this_cli();
@@ -49,7 +49,14 @@ __cli_reply(int err)
     debug_cli("send reply[len=%d, err=%d]:%s", __clib_len, err, __clib_buf);
 
     __clib_err = err;
-    len = io_send(cli->fd, __clib(), __clib_space);
+    
+    if (__this_cli_tcp) {
+        len = io_send(__this_cli_fd, __clib(), __clib_space);
+    } else {
+        len = io_sendto(__this_cli_fd, __clib(), __clib_space, 
+                    (struct sockaddr *)__this_cli_addr, __this_cli_addrlen);
+    }
+
     __clib_clear();
     
     return len;
@@ -64,7 +71,7 @@ cli_vsprintf(const char *fmt, va_list args)
     int vsize = os_vsprintf_size((char *)fmt, copy);
     va_end(copy);
 
-    if (__clib_left < vsize) {
+    if (__this_cli_tcp && __clib_left < vsize) {
         __cli_reply(0);
     }
 
@@ -100,30 +107,26 @@ cli_sprintf(const char *fmt, ...)
 }
 
 int
-__clic_fd(cli_client_t *clic)
+__clic_fd_helper(cli_client_t *clic, cli_table_t *table)
 {
+    bool tcp = os_hasflag(table->flag, CLI_F_TCP);
     int fd = INVALID_FD, err = 0;
     int type;
-    
-    sockaddr_un_t *client = &clic->client;
-    abstract_path_sprintf(client, CLI_CLIENT_UNIX, getpid());
-    clic->timeout = env_geti(OS_ENV(TIMEOUT), CLI_TIMEOUT);
 
-    fd = socket(AF_UNIX, CLI_SOCK_TYPE, 0);
+    fd = __this_cli_socket(tcp);
     if (fd<0) {
         debug_error("socket error:%d", -errno);
         return -errno;
     }
-    os_closexec(fd);
 
-    struct timeval timeout = OS_TIMEVAL_INITER(os_second(clic->timeout), os_usecond(clic->timeout));
-    
+    struct timeval timeout = OS_TIMEVAL_INITER(os_second(table->timeout), os_usecond(table->timeout));
     err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (err<0) {
         debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
         return -errno;
     }
 
+    sockaddr_un_t *client = &clic->client;
     err = bind(fd, (sockaddr_t *)client, get_abstract_sockaddr_len(client));
     if (err<0) {
         debug_error("bind(%s) error:%d", get_abstract_path(client), -errno);
@@ -140,8 +143,8 @@ __clic_fd(cli_client_t *clic)
     return fd;
 }
 
-int
-__clic_recv(int fd, int timeout)
+STATIC int
+__clic_recv_tcp(int fd)
 {
     cli_t *cli = __this_cli();
     int err = 0, len;
@@ -192,17 +195,51 @@ error:
     return 0;
 }
 
+STATIC int
+__clic_recv_udp(int fd)
+{
+    cli_t *cli = __this_cli();
+    int err = 0;
+
+    err = __io_recv(fd, __clib(), CLI_BUFFER_LEN);
+    // err > hdr
+    if (err >= (int)sizeof(cli_header_t)) {
+        __clib_cut(err - sizeof(cli_header_t));
+        
+        return __clib_show();
+    }
+    // 0 < err < hdr
+    else if (err > 0) {
+        return -ETOOSMALL;
+    }
+    // err < 0
+    else {
+        return err;
+    }
+}
+
+STATIC int
+__clic_recv(int fd, bool tcp)
+{
+    if (tcp) {
+        return __clic_recv_tcp(fd);
+    } else {
+        return __clic_recv_udp(fd);
+    }
+}
+
 int
-__clic_handle(bool syn, char *buf, cli_client_t *clic)
+__clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
 {
     int fd = INVALID_FD, err = 0;
-
-    fd = __clic_fd(clic);
+    bool tcp = os_hasflag(table->flag, CLI_F_TCP);
+    bool syn = os_hasflag(table->flag, CLI_F_SYN);
+    
+    fd = __clic_fd(clic, table);
     if (fd<0) {
         return fd;
     }
 
-    int len = os_strlen(buf);
     err = io_send(fd, buf, len);
     if (err<0) { /* yes, <0 */
         goto error;
@@ -213,7 +250,7 @@ __clic_handle(bool syn, char *buf, cli_client_t *clic)
         err = 0; goto error;
     }
 
-    err = __clic_recv(fd, clic->timeout);
+    err = __clic_recv(fd, tcp);
     if (err<0) {
         goto error;
     }
@@ -225,30 +262,25 @@ error:
 }
 
 int
-clic_handle(cli_client_t *clic, bool syn, char *action, int argc, char *argv[])
+clic_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
 {
-    char buf[1+OS_LINE_LEN] = {0};
-    int i, len;
-
-    len = os_saprintf(buf, "%s", action);
-    for (i=0; i<argc; i++) {
-        len += os_snprintf(buf + len, OS_LINE_LEN - len, " %s", argv[i]);
-    }
-
-    return __clic_handle(syn, buf, clic);
+    char buf[1+OS_LINE_LEN];
+    
+    int len = argv_zip2bin(buf, sizeof(buf), argc, argv);
+    
+    return __clic_request(clic, table, buf, len);
 }
 
 int
-__clis_fd(sockaddr_un_t *server)
+__clis_fd(bool tcp, sockaddr_un_t *server)
 {
     int fd = INVALID_FD, err = 0;
-    
-    fd = socket(AF_UNIX, CLI_SOCK_TYPE, 0);
+
+    fd = __this_cli_socket(tcp);
     if (fd<0) {
     	debug_error("socket error:%d", -errno);
         return -errno;
     }
-    os_closexec(fd);
     
     err = bind(fd, (sockaddr_t *)server, get_abstract_sockaddr_len(server));
     if (err<0) {
@@ -257,28 +289,28 @@ __clis_fd(sockaddr_un_t *server)
         return -errno;
     }
 
-    err = listen(fd, 0);
-    if (err<0) {
-        debug_error("listen(%s) error:%d", get_abstract_path(server), -errno);
-        
-        return -errno;
+    if (tcp) {
+        err = listen(fd, 0);
+        if (err<0) {
+            debug_error("listen(%s) error:%d", get_abstract_path(server), -errno);
+            
+            return -errno;
+        }
     }
-
+    
     return fd;
 }
 
 int
-cli_line_handle(
-    cli_table_t tables[],
-    int count,
-    char *tag,
-    char *args,
-    int (*reply)(int err),
-    int (*reply_end)(int err)
-)
+__cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 {
-    int i, len, err;
+    int i, err, len;
+    char *tag = argv[0];
 
+    if (argc < 1) {
+        return -EINVAL0;
+    }
+    
     for (i=0; i<count; i++) {
         cli_table_t *table = &tables[i];
 
@@ -286,17 +318,28 @@ cli_line_handle(
             continue;
         }
 
-        err = (*table->u.line_cb)(args);
+        bool tcp    = os_hasflag(table->flag, CLI_F_TCP);
+        bool syn    = os_hasflag(table->flag, CLI_F_SYN);
+        bool server = os_hasflag(table->flag, CLI_F_SERVER);
         
-        if (table->syn && reply) {
-            len = (*reply)(err);
+        if (server) {
+            /*
+            * this command use tcp
+            */
+            __this_cli_tcp = tcp;
+        }
+        
+        err = (*table->cb)(table, argc, argv);
+        
+        if (server && syn) {
+            len = __cli_reply(err);
             debug_cli("send len:%d", len);
 
-            if (len > sizeof(cli_header_t) && reply_end) {
-                len = (*reply_end)(err);
+            if (tcp && len > sizeof(cli_header_t)) {
+                len = __cli_reply(err);
             }
         }
-
+        
         return err;
     }
     
@@ -304,17 +347,23 @@ cli_line_handle(
 }
 
 int
-__clis_handle(int fd, cli_table_t *table, int count)
+__clis_handle(int fd, cli_table_t tables[], int count)
 {
     cli_t *cli = __this_cli();
     char buf[1+OS_LINE_LEN] = {0};
-    int err;
+    char *argv[CLI_ARGC];
+    int err, argc;
 
-    __this_cli()->fd = fd;
     __clib_clear();
-    
-    err = __io_recv(fd, buf, sizeof(buf), 0);
-        debug_cli("recv request[%d]:%s", err, buf);
+
+    if (__this_cli_tcp) {
+        err = __io_recv(fd, buf, sizeof(buf), 0);
+    } else {
+        err = __io_recvfrom(fd, buf, sizeof(buf), 0, (sockaddr_t *)__this_cli_addr, &__this_cli_addrlen);
+        if (is_abstract_sockaddr(__this_cli_addr)) {
+            set_abstract_sockaddr_len(__this_cli_addr, __this_cli_addrlen);
+        }
+    }
     if (err<0) { /* yes, <0 */
         return err;
     }
@@ -323,21 +372,34 @@ __clis_handle(int fd, cli_table_t *table, int count)
     }
     buf[err] = 0;
 
-    char *method = buf;
-    char *args   = buf;
+    argc = argv_unzipbin(buf, os_count_of(argv), argv);
+    if (argc<0) {
+        __cli_reply(argc);
 
-    os_str_strim_both(method, NULL);
-    os_str_reduce(method, NULL);
-    cli_shift(args);
+        return argc;
+    }
 
-    err = cli_line_handle(table, count, method, args, __cli_reply, CLI_REPLY_END);
+    char line[1+OS_LINE_LEN];
+    if (__ak_debug_cli) {
+        argv_zip2str(line, sizeof(line), argc, argv);
+        
+        debug_cli("recv request[%d]:%s", err, line);
+    }
     
-    debug_cli("action:%s %s, error:%d, len:%d, buf:%s", 
-        method, args?args:__empty,
-        __clib_err,
-        __clib_len,
-        __clib_buf);
-
+    /*
+    * save this fd, for __cli_reply
+    */
+    __this_cli_fd = fd;
+    
+    err = __cli_argv_handle(tables, count, argc, argv);
+    if (__ak_debug_cli) {
+        debug_cli("action:%s, error:%d, len:%d, buf:%s", 
+            line,
+            __clib_err,
+            __clib_len,
+            __clib_buf);
+    }
+    
     return err;
 }
 /******************************************************************************/

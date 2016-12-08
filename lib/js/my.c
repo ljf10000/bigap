@@ -537,7 +537,7 @@ js_my_loop_father_initer(loop_t *loop, loop_obj_t *obj, duk_context *ctx, int id
     for (i=0; i<count; i++) {
         fd = js_get_array_int(ctx, -1, i);
 
-        err = os_loop_add_father(loop, fd, cb, NULL);
+        err = os_loop_add_father(loop, fd, cb, 0, NULL);
         if (err<0) {
             duk_pop_n(ctx, level); return 0;
         }

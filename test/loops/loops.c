@@ -119,13 +119,6 @@ static int son_cb(loop_watcher_t *watcher, time_t now)
         return -errno;
     }
 
-    err = os_loop_del_watcher(&loop, watcher->fd);
-    if (err<0) {
-        debug_error("son delete error:%d", err);
-
-        return err;
-    }
-    
     return 0;
 }
 
@@ -226,7 +219,7 @@ loops_main_helper(int argc, char *argv[])
         return err;
     }
 
-    err = os_loop_add_father(&loop, loops.tcp.fd, son_cb, NULL);
+    err = os_loop_add_father(&loop, loops.tcp.fd, son_cb, true, NULL);
     if (err<0) {
         debug_error("add loop father error:%d", err);
         

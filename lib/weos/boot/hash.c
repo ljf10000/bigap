@@ -29,7 +29,7 @@ __is_hash_empty(hash_t *h)
     return 0==h->count;
 }
 
-ALWAYS_INLINE void
+DECLARE void
 __hash_del(hash_node_t *node)
 {
     if (__in_hash(node) && false==__is_hash_empty(node->bucket->hash)) {

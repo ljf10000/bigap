@@ -12,8 +12,8 @@ OS_INITER;
 
 static cli_client_t tmc = CLI_CLIENT_INITER("tmd");
 
-#define tmc_handle(_action, _argc, _argv) \
-    clic_sync_handle(&tmc, _action, _argc, _argv)
+#define tmc_request(_table, _argc, _argv) \
+    clic_request(&tmc, _table, _argc, _argv)
 
 STATIC int
 tmc_usage(int error)
@@ -26,15 +26,15 @@ tmc_usage(int error)
 }
 
 STATIC int
-tmc_cmd_insert(int argc, char *argv[])
+tmc_cmd_insert(cli_table_t *table, int argc, char *argv[])
 {
-    char *name      = argv[0];
-    char *delay     = argv[1];
-    char *interval  = argv[2];
-    char *limit     = argv[3];
-    char *command   = argv[4];
+    char *name      = argv[1];
+    char *delay     = argv[2];
+    char *interval  = argv[3];
+    char *limit     = argv[4];
+    char *command   = argv[5];
     
-    if (5!=argc) {
+    if (6!=argc) {
         return tmc_usage(-EINVAL0);
     }
     else if (os_strlen(name) > TM_NAMESIZE) {
@@ -52,64 +52,64 @@ tmc_cmd_insert(int argc, char *argv[])
         return tmc_usage(-EINVAL);
     }
     
-    return tmc_handle("insert", argc, argv);
+    return tmc_request(table, argc, argv);
 }
 
 STATIC int
-tmc_cmd_remove(int argc, char *argv[])
+tmc_cmd_remove(cli_table_t *table, int argc, char *argv[])
 {
-    char *name = argv[0];
+    char *name = argv[1];
     
-    if (1!=argc) {
+    if (2!=argc) {
         return tmc_usage(-EINVAL1);
     }
     else if (os_strlen(name) > TM_NAMESIZE) {
         return tmc_usage(-ETOOBIG);
     }
     else {
-        return tmc_handle("remove", argc, argv);
+        return tmc_request(table, argc, argv);
     }
 }
 
 STATIC int
-tmc_cmd_clean(int argc, char *argv[])
+tmc_cmd_clean(cli_table_t *table, int argc, char *argv[])
 {
-    if (0!=argc) {
+    if (1!=argc) {
         return tmc_usage(-EINVAL1);
     }
     else {
-        return tmc_handle("clean", argc, argv);
+        return tmc_request(table, argc, argv);
     }
 }
 
 STATIC int
-tmc_cmd_show(int argc, char *argv[])
+tmc_cmd_show(cli_table_t *table, int argc, char *argv[])
 {
-    char *name = argv[0];
+    char *name = argv[1];
     
-    if (0!=argc && 1!=argc) {
+    if (1!=argc && 2!=argc) {
         return tmc_usage(-EINVAL2);
     }
     else if (name && os_strlen(name) > TM_NAMESIZE) {
         return tmc_usage(-ETOOBIG);
     }
     else {
-        return tmc_handle("show", argc, argv);
+        return tmc_request(table, argc, argv);
     }
 }
 
 STATIC int
 tmc_command(int argc, char *argv[])
 {
-    static cli_table_t table[] = {
-        CLI_ENTRY("insert", tmc_cmd_insert),
-        CLI_ENTRY("remove", tmc_cmd_remove),
-        CLI_ENTRY("clean",  tmc_cmd_clean),
-        CLI_ENTRY("show",   tmc_cmd_show),
+    static cli_table_t tables[] = {
+        CLI_TCP_ENTRY("insert", tmc_cmd_insert),
+        CLI_TCP_ENTRY("remove", tmc_cmd_remove),
+        CLI_TCP_ENTRY("clean",  tmc_cmd_clean),
+        CLI_TCP_ENTRY("show",   tmc_cmd_show),
     };
     int err;
 
-    err = cli_argv_handle(table, os_count_of(table), argc, argv);
+    err = cli_argv_handle(tables, argc, argv);
     if (err<0) {
         debug_error("%s error:%d", argv[0], err);
 
