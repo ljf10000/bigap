@@ -176,7 +176,7 @@ clic_argv_simple(cli_client_t *clic, int argc, char *argv[])
 {
     cli_table_t table = __CLI_ENTRY(argv[0], CLI_F_SYN | CLI_F_TCP, CLI_TIMEOUT, NULL);
 
-    return clic_request(clic, table, argc, argv);
+    return clic_request(clic, &table, argc, argv);
 }
 
 #endif
