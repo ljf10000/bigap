@@ -144,7 +144,6 @@ cli_sprintf(const char *fmt, ...);
     _error;                 \
 })  /* end */
 
-#if 1
 typedef struct {
     int timeout;    // todo: not use it
     
@@ -171,21 +170,7 @@ __clic_fd(cli_client_t *clic, cli_table_t *table)
     
     return __clic_fd_helper(clic, table);
 }
-
-extern int
-clic_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[]);
-
-static inline int
-clic_argv_simple(cli_client_t *clic, int argc, char *argv[])
-{
-    cli_table_t table = __CLI_ENTRY("@default", CLI_F_SYN | CLI_F_TCP, CLI_TIMEOUT, NULL);
-
-    return clic_request(clic, &table, argc, argv);
-}
-
-#endif
 /******************************************************************************/
-#if 1
 extern int
 __clis_fd(bool tcp, sockaddr_un_t *server);
 
@@ -196,17 +181,14 @@ __clis_fd(bool tcp, sockaddr_un_t *server);
 })  /* end */
 
 extern int
-__cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[]);
+__cli_response(int fd, cli_table_t tables[], int count);
 
-#define cli_argv_handle(_tables, _argc, _argv) \
-    __cli_argv_handle(_tables, os_count_of(_tables), _argc, _argv)
+#define cli_response(_fd, _tables) \
+    __cli_response(_fd, _tables, os_count_of(_tables))
 
 extern int
-__clis_handle(int fd, cli_table_t tables[], int count);
+cli_request(cli_client_t *clic, int argc, char *argv[]);
 
-#define clis_handle(_fd, _tables) \
-    __clis_handle(_fd, _tables, os_count_of(_tables))
-#endif
 #endif /* __APP__ */
 
 #ifdef __BOOT__

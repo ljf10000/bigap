@@ -69,6 +69,13 @@
 #define NSQ_MSG_TIMEOUT             PC_VAL(5*1000, 10*1000)
 #endif
 
+#define NSQC_USAGE \
+    "nsqc usage:"                                       __crlf \
+    __tab "nsqc insert {json}"                          __crlf \
+    __tab "nsqc remove {name|*} {topic|*} {channel|*}"  __crlf \
+    __tab "nsqc show [{name|*} {topic|*} {channel|*}]"  __crlf \
+    /* end */
+
 #define NSQ_MSG_HEARTBEAT           "_heartbeat_"
 
 enum { 

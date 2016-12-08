@@ -245,13 +245,6 @@ tmd_xtimer_cb(tm_node_t *timer)
     return tm_SAFE(0);
 }
 
-#define TMC_USAGE \
-    "tmc usage:"                                                            __crlf \
-    __tab "tmc insert {name} delay(second) interval(second) limit command"  __crlf \
-    __tab "tmc remove {name}"                                               __crlf \
-    __tab "tmc show [name]"                                                 __crlf \
-    /* end */
-
 STATIC int
 tmc_help(int error)
 {
@@ -474,7 +467,7 @@ tmd_cli(struct loop_watcher *watcher, time_t now)
         CLI_TCP_ENTRY("show",   tmd_handle_show),
     };
 
-    return clis_handle(watcher->fd, tables);
+    return cli_response(watcher->fd, tables);
 }
 
 STATIC int

@@ -29,5 +29,13 @@
 
 #define SCRIPT_SMD_INIT_RUN         \
 "(sleep " __SYMBOL_TO_STRING(SCRIPT_SMD_INIT_DELAY) ";" SCRIPT_SMD_INIT ";) &"
+
+#define SMC_USAGE \
+    "smc usage:"                                            __crlf \
+    __tab "smc insert deamon {name} {pidfile} {command}"    __crlf \
+    __tab "smc insert normal {name} {command}"              __crlf \
+    __tab "smc remove {name}"                               __crlf \
+    __tab "smc show [name]"                                 __crlf \
+    /* end */
 /******************************************************************************/
 #endif /* __SM_H_47451518b91b472588606e24d093dabb__ */

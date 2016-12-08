@@ -12,20 +12,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 /******************************************************************************/
-#define UMC_USAGE \
-    "tmc usage:"                            __crlf \
-    __tab " bind   {mac} {ip}"              __crlf \
-    __tab " unbind {mac}"                   __crlf \
-    __tab " fake   {mac} {ip}"              __crlf \
-    __tab " unfake {mac}"                   __crlf \
-    __tab " auth   {mac} {group} {json}"    __crlf \
-    __tab " deauth {mac}"                   __crlf \
-    __tab " reauth {mac}"                   __crlf \
-    __tab " tag    {mac} {key} [value]"     __crlf \
-    __tab " gc"                             __crlf \
-    __tab " show [stat | json]"             __crlf \
-    /* end */
-
 STATIC int
 umc_help(int error)
 {

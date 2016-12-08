@@ -14,7 +14,7 @@ STATIC cli_client_t nsqc = CLI_CLIENT_INITER("nsqa");
 STATIC int
 nsqc_main_helper(int argc, char *argv[])
 {
-    return clic_argv_simple(&nsqc, argc-1, argv+1);
+    return cli_request(&nsqc, argc-1, argv+1);
 }
 
 int allinone_main(int argc, char *argv[])

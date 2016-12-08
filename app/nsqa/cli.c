@@ -12,13 +12,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-#define NSQC_USAGE \
-    "nsqc usage:"                                       __crlf \
-    __tab "nsqc insert {json}"                          __crlf \
-    __tab "nsqc remove {name|*} {topic|*} {channel|*}"  __crlf \
-    __tab "nsqc show [{name|*} {topic|*} {channel|*}]"  __crlf \
-    /* end */
-
 STATIC int
 nsqc_help(int error)
 {
@@ -140,7 +133,7 @@ nsqa_cli(loop_watcher_t *watcher, time_t now)
         CLI_TCP_ENTRY("show",   nsqa_handle_show),
     };
 
-    return clis_handle(watcher->fd, tables);
+    return cli_response(watcher->fd, tables);
 }
 
 int

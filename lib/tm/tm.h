@@ -26,6 +26,13 @@
 #define SCRIPT_TMD_INIT_RUN         \
 "(sleep " __SYMBOL_TO_STRING(SCRIPT_TMD_INIT_DELAY) ";" SCRIPT_TMD_INIT ";) &"
 
+#define TMC_USAGE \
+    "tmc usage:"                                                            __crlf \
+    __tab "tmc insert {name} delay(second) interval(second) limit command"  __crlf \
+    __tab "tmc remove {name}"                                               __crlf \
+    __tab "tmc show [name]"                                                 __crlf \
+    /* end */
+
 static inline bool
 is_good_tm_args(int delay, int interval, int limit)
 {

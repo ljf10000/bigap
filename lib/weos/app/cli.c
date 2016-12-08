@@ -41,13 +41,11 @@ __clib_show(int (*show)(char *buf, int len))
         else {
             os_eprintf("%s", __clib_buf);
         }
-        
-        os_objzero(__clib());
     }
 
     int err = __clib_err;
     
-    __clib_clear();
+    os_objzero(__clib());
     
     return err;
 }
@@ -200,11 +198,11 @@ __clic_recv_tcp(cli_client_t *clic, int fd)
                     __clib_err,
                     __clib_buf);
                 
-                os_dump_buffer(__clib(), err);
+                os_dump_buffer(__clib_buf, err);
             }
             
             if (err==len) {
-                __clib_show(clic->show);
+                err = __clib_show(clic->show);
             } else {
                 goto error;
             }
@@ -282,11 +280,13 @@ __clic_recv(cli_client_t *clic, int fd, bool tcp)
 }
 
 STATIC int
-__clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
+__cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
 {
-    int fd = INVALID_FD, err = 0;
+    char buf[1+OS_LINE_LEN];
     bool tcp = os_hasflag(table->flag, CLI_F_TCP);
     bool syn = os_hasflag(table->flag, CLI_F_SYN);
+    int fd = INVALID_FD, err = 0;
+    int len = argv_zip2bin(buf, sizeof(buf), argc, argv);
 
     fd = __clic_fd(clic, table);
     if (fd<0) {
@@ -329,13 +329,11 @@ error:
 }
 
 int
-clic_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
+cli_request(cli_client_t *clic, int argc, char *argv[])
 {
-    char buf[1+OS_LINE_LEN];
-    
-    int len = argv_zip2bin(buf, sizeof(buf), argc, argv);
-    
-    return __clic_request(clic, table, buf, len);
+    cli_table_t table = __CLI_ENTRY("@default", CLI_F_SYN | CLI_F_TCP, CLI_TIMEOUT, NULL);
+
+    return __cli_request(clic, &table, argc, argv);
 }
 
 int
@@ -369,7 +367,7 @@ __clis_fd(bool tcp, sockaddr_un_t *server)
 }
 
 STATIC int
-__cli_table_handle(cli_table_t *table, int argc, char *argv[])
+__clis_table_handle(cli_table_t *table, int argc, char *argv[])
 {
     int err, len;
     char *tag = argv[0];
@@ -404,8 +402,8 @@ __cli_table_handle(cli_table_t *table, int argc, char *argv[])
     return err;
 }
 
-int
-__cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
+STATIC int
+__clis_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 {
     int i, err, len;
     char *tag = argv[0];
@@ -417,14 +415,14 @@ __cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
             continue;
         }
 
-        return __cli_table_handle(table, argc, argv);
+        return __clis_table_handle(table, argc, argv);
     }
     
     return -ENOEXIST;
 }
 
 int
-__clis_handle(int fd, cli_table_t tables[], int count)
+__cli_response(int fd, cli_table_t tables[], int count)
 {
     cli_t *cli = __this_cli();
     char buf[1+OS_LINE_LEN] = {0};
@@ -470,7 +468,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
         return argc;
     }
     else if (0==argc) {
-        return __cli_table_handle(&tables[0], argc, argv);
+        return __clis_table_handle(&tables[0], argc, argv);
     }
     
     if (__is_ak_debug_cli) {
@@ -481,7 +479,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
         __argv_dump(os_println, argc, argv);
     }
     
-    err = __cli_argv_handle(tables, count, argc, argv);
+    err = __clis_argv_handle(tables, count, argc, argv);
     debug_cli("action:%s, error:%d, len:%d, buf:%s", 
         tables->tag,
         __clib_err,

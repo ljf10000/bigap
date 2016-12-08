@@ -690,14 +690,6 @@ smd_create(char *name, char *command, char *pidfile)
     return entry;
 }
 
-#define SMC_USAGE \
-    "smc usage:"                                            __crlf \
-    __tab "smc insert deamon {name} {pidfile} {command}"    __crlf \
-    __tab "smc insert normal {name} {command}"              __crlf \
-    __tab "smc remove {name}"                               __crlf \
-    __tab "smc show [name]"                                 __crlf \
-    /* end */
-
 STATIC int
 smc_help(int error)
 {
@@ -859,7 +851,7 @@ smd_cli(struct loop_watcher *watcher, time_t now)
         CLI_TCP_ENTRY("show",   smd_handle_show),
     };
 
-    return clis_handle(watcher->fd, tables);
+    return cli_response(watcher->fd, tables);
 }
 
 STATIC int

@@ -15,7 +15,7 @@ static cli_client_t smc = CLI_CLIENT_INITER("smd");
 STATIC int 
 smc_main_helper(int argc, char *argv[])
 {
-    return clic_argv_simple(&smc, argc-1, argv+1);
+    return cli_request(&smc, argc-1, argv+1);
 }
 
 int allinone_main(int argc, char *argv[])
