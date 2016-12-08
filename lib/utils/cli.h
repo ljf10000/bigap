@@ -90,7 +90,7 @@ __this_cli(void);
 #define __this_cli_addr         (&__this_cli()->addr)
 #define __this_cli_addrlen      __this_cli()->addrlen
 
-#define __this_cli_type_string  __this_cli_tcp?"tcp":"udp"
+#define __this_cli_type_string(_tcp)    (_tcp)?"tcp":"udp"
 
 static inline int 
 __this_cli_socket(bool tcp)
