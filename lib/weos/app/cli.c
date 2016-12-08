@@ -201,6 +201,8 @@ __clic_recv_tcp(cli_client_t *clic, int fd)
             
             if (err==len) {
                 __clib_show(clic->show);
+
+                __clib_clear();
             } else {
                 goto error;
             }
@@ -284,8 +286,6 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
     bool tcp = os_hasflag(table->flag, CLI_F_TCP);
     bool syn = os_hasflag(table->flag, CLI_F_SYN);
 
-    __clib_clear();
-    
     fd = __clic_fd(clic, table);
     if (fd<0) {
         return fd;
