@@ -63,5 +63,9 @@
 #ifndef __THIS_JDEBUG
 #define __THIS_JDEBUG           __SYMBOL_TO_THIS(_jdebugger)
 #endif
+
+#ifndef __THIS_USAGE
+#define __THIS_USAGE            "nothing"
+#endif
 /******************************************************************************/
 #endif /* __THIS_H_bb55b32c2226479dab1f126ea1ba1e9f__ */
