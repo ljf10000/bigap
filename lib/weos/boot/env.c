@@ -62,7 +62,9 @@ zip2line(char buf[], int size, char *ss[], bool (*is_good)(int idx), int sep)
 
         offset += len;
     }
-    
+
+    buf[offset++] = 0; // append last '\0'
+
     return offset;
 }
 
