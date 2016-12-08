@@ -158,7 +158,10 @@ int
 io_send(int fd, void *buf, int len)
 {
     int err = send(fd, buf, len, 0);
-
+    if (err<0) {
+        os_println("io_send err=%d errno=%d", err, -errno);
+    }
+    
     return __io_write_error("send", buf, len, err);
 }
 
