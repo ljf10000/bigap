@@ -376,6 +376,8 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     }
     buf[err] = 0;
 
+    __os_dump_buffer(buf, err, NULL);
+    
     argc = argv_unzipbin(buf, os_count_of(argv), argv);
     if (argc<0) {
         __cli_reply(argc);
@@ -383,6 +385,8 @@ __clis_handle(int fd, cli_table_t tables[], int count)
         return argc;
     }
 
+    __argv_dump(os_println, argc, argv);
+    
     char line[1+OS_LINE_LEN];
     if (__ak_debug_cli) {
         argv_zip2str(line, sizeof(line), argc, argv);
