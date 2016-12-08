@@ -283,6 +283,10 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
         return fd;
     }
 
+    if (__is_ak_debug_cli) {
+        os_println("table %s[flag=0x%x timeout=%d]", table->tag, table->flag, table->timeout);
+    }
+
     err = io_send(fd, buf, len);
     if (err<0) { /* yes, <0 */
         goto error;
@@ -290,8 +294,8 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
 
     if (__is_ak_debug_cli) {
         os_println("send %s request[pkt=%d/%d]", 
-        __this_cli_type_string, 
-        len, err);
+            __this_cli_type_string, 
+            len, err);
         
         os_dump_buffer(buf, len);
     }
