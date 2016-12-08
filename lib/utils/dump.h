@@ -70,12 +70,13 @@ typedef void os_dump_line_f(char *line);
 #endif
 
 EXTERN void
-os_dump_line(int line, byte *raw, int len, os_dump_line_f *dump_line);
+__os_dump_line(int line, byte *raw, int len, os_dump_line_f *dump_line);
+#define os_dump_line(_line, _raw, _len) __os_dump_line(_line, _raw, _len, NULL)
 
 EXTERN void
 __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line);
 
-#define os_dump_buffer(_buf, _len)  __os_dump_buffer(_buf, _len, NULL)
+#define os_dump_buffer(_buf, _len)      __os_dump_buffer(_buf, _len, NULL)
 
 #define os_dump_buffer_by(_is_dump, _buf, _len) do{ \
     if (_is_dump) {                                 \

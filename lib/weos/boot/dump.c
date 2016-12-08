@@ -2,7 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 DECLARE void
-os_dump_line(int line, byte *raw, int len, os_dump_line_f *dump_line)
+__os_dump_line(int line, byte *raw, int len, os_dump_line_f *dump_line)
 {
     int i, offset = 0;
     char buf[1 + __DUMP_LINE_MAX] = {0};
@@ -92,8 +92,8 @@ __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line)
     * body
     */
     for (i=0; i<(line-1); i++) {
-        os_dump_line(i, raw + i * __DUMP_LINE_BYTES, __DUMP_LINE_BYTES, dump_line);
+        __os_dump_line(i, raw + i * __DUMP_LINE_BYTES, __DUMP_LINE_BYTES, dump_line);
     }
-    os_dump_line(line, raw + i * __DUMP_LINE_BYTES, tail, dump_line);
+    __os_dump_line(line, raw + i * __DUMP_LINE_BYTES, tail, dump_line);
 }
 /******************************************************************************/

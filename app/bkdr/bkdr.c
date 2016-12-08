@@ -24,7 +24,7 @@ bkdr_cmd_hex(int argc, char *argv[])
         return -ETOOBIG;
     }
 
-    os_dump_line(0, bin, len, NULL);
+    os_dump_line(0, bin, len);
     
     os_println("%d", os_bin_bkdr(bin, len)%os_atoi(mod));
 
