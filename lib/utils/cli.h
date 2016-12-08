@@ -138,7 +138,7 @@ cli_vsprintf(const char *fmt, va_list args);
 extern int
 cli_sprintf(const char *fmt, ...);
 
-static inline void
+static inline int
 cli_help(int error)
 {
     cli_sprintf(__THIS_USAGE);
