@@ -59,7 +59,7 @@ __cli_reply(int err)
     }
 
     if (__is_ak_debug_cli) {
-        os_println("send %s reply[pkt=%d/%d len=%d, err=%d]:\n%s",
+        os_println("send %s reply[pkt=%d/%d len=%d, err=%u]:\n%s",
             __this_cli_type_string,
             __clib_space, len,
             __clib_len, 
@@ -419,7 +419,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     if (__is_ak_debug_cli) {
         os_println("recv %s request[pkt=%d/%d]", 
             __this_cli_type_string, 
-            sizeof(buf), err);
+            (int)sizeof(buf), err);
         
         os_dump_buffer(buf, err);
     }
