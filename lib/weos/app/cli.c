@@ -270,16 +270,6 @@ __clic_recv_udp(cli_client_t *clic, int fd)
 }
 
 STATIC int
-__clic_recv(cli_client_t *clic, int fd, bool tcp)
-{
-    if (tcp) {
-        return __clic_recv_tcp(clic, fd);
-    } else {
-        return __clic_recv_udp(clic, fd);
-    }
-}
-
-STATIC int
 __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
 {
     char buf[1+OS_LINE_LEN];
@@ -317,7 +307,11 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
         err = 0; goto error;
     }
 
-    err = __clic_recv(clic, fd, tcp);
+    if (tcp) {
+        err = __clic_recv_tcp(clic, fd);
+    } else {
+        err = __clic_recv_udp(clic, fd);
+    }
     if (err<0) {
         goto error;
     }
