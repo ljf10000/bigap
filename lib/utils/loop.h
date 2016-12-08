@@ -114,7 +114,7 @@ extern int
 os_loop_add_normal(loop_t *loop, int fd, loop_normal_f *cb, void *user);
 
 extern int
-os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, void *user);
+os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, bool auto_del_son, void *user);
 
 #define __os_loop_cli_add(_loop, _tcp, _name, _cb, _user)   ({  \
     int __err;                                                  \

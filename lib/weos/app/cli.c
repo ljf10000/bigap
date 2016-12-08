@@ -201,7 +201,7 @@ __clic_recv_udp(int fd)
     cli_t *cli = __this_cli();
     int err = 0;
 
-    err = __io_recv(fd, __clib(), CLI_BUFFER_LEN);
+    err = __io_recv(fd, __clib(), CLI_BUFFER_LEN, 0);
     // err > hdr
     if (err >= (int)sizeof(cli_header_t)) {
         __clib_cut(err - sizeof(cli_header_t));
