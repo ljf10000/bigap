@@ -20,6 +20,7 @@
 typedef struct cli_table_s cli_table_t;
 
 typedef int cli_handle_f(cli_table_t *table, int argc, char *argv[]);
+typedef int cli_show_f(char *buf, int len);
 
 enum {
     CLI_F_SYN   = 0x01,
@@ -140,7 +141,7 @@ typedef struct {
     
     sockaddr_un_t server, client;
 
-    int (*show)(void);
+    cli_show_f *show;
 } cli_client_t;
 
 #define CLI_CLIENT_INITER(_server_PATH) {   \

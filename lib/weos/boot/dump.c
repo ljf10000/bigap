@@ -60,6 +60,10 @@ __os_dump_buffer(void *buffer, int len, os_dump_line_f *dump_line)
 {
     int i, line, tail;
     byte *raw = (byte *)buffer;
+
+    if (len<0) {
+        return;
+    }
     
     /*
     * 行数，向上取整 

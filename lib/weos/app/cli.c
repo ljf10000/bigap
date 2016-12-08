@@ -27,23 +27,20 @@ __this_cli(void)
 }
 
 STATIC int
-__clib_show(void)
+__clib_show(int (*show)(char *buf, int len))
 {
     if (0==__clib_err && __clib_len && is_good_str(__clib_buf)) {
         __clib_cut(__clib_len);
-        
-        os_printf("%s", __clib_buf);
 
+        if (show) {
+            (*show)(__clib_buf, __clib_len);
+        } else {
+            os_printf("%s", __clib_buf);
+        }
         os_objzero(__clib());
     }
 
     return __clib_err;
-}
-
-STATIC int
-__clic_show(cli_client_t *clic)
-{
-    return clic->show?(*clic->show)():__clib_show();
 }
 
 STATIC int
@@ -160,6 +157,11 @@ __clic_recv_tcp(cli_client_t *clic, int fd)
     while(1) {
         len = sizeof(cli_header_t);
         err = __io_recv(fd, __clib(), len, 0);
+        
+        if (__is_ak_debug_cli) {
+            __os_dump_buffer(__clib(), err, NULL);
+        }
+        
         if (err==len) {
             // is last
             if (0==__clib_len) {
@@ -168,8 +170,12 @@ __clic_recv_tcp(cli_client_t *clic, int fd)
 
             len = __clib_len;
             err = __io_recv(fd, __clib_buf, len, 0);
+            if (__is_ak_debug_cli) {
+                __os_dump_buffer(__clib(), err, NULL);
+            }
+            
             if (err==len) {
-                __clic_show(clic);
+                __clib_show(clic->show);
             } else {
                 goto error;
             }
@@ -213,8 +219,8 @@ __clic_recv_udp(cli_client_t *clic, int fd)
     // err > hdr
     if (err >= (int)sizeof(cli_header_t)) {
         __clib_cut(err - sizeof(cli_header_t));
-        
-        return __clic_show(clic);
+
+        return __clib_show(clic->show);
     }
     // 0 < err < hdr
     else if (err > 0) {
