@@ -50,9 +50,9 @@ struct cli_table_s {
 #endif
 
 #define __CLI_TCP_ENTRY(_tag, _timeout, _cb) \
-    __CLI_ENTRY(_tag, CLI_F_TCP, _timeout, _cb)
+    __CLI_ENTRY(_tag, CLI_F_SYN | CLI_F_TCP, _timeout, _cb)
 #define __CLI_UDP_ENTRY(_tag, _timeout, _cb) \
-    __CLI_ENTRY(_tag, 0, _timeout, _cb)
+    __CLI_ENTRY(_tag, CLI_F_SYN, _timeout, _cb)
 
 #define CLI_TCP_ENTRY(_tag, _cb) \
     __CLI_TCP_ENTRY(_tag, CLI_TIMEOUT, _cb)
