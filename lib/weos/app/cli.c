@@ -47,21 +47,21 @@ STATIC int
 __cli_reply(int err)
 {
     cli_t *cli = __this_cli();
-    int len;
+    int len, fd = __this_cli_fd;
     
     __clib_err = err;
     
     if (__this_cli_tcp) {
-        len = io_send(__this_cli_fd, __clib(), __clib_space);
+        len = io_send(fd, __clib(), __clib_space);
     } else {
-        len = io_sendto(__this_cli_fd, __clib(), __clib_space, 
+        len = io_sendto(fd, __clib(), __clib_space, 
                     (struct sockaddr *)__this_cli_addr, __this_cli_addrlen);
     }
 
     if (__is_ak_debug_cli) {
         os_println("send %s reply[fd=%d pkt=%d/%d len=%d, err=%d]:\n%s",
             __this_cli_type_string(__this_cli_tcp),
-            __this_cli_fd, __clib_space, len,
+            fd, __clib_space, len,
             __clib_len, 
             __clib_err, 
             __clib_buf);
