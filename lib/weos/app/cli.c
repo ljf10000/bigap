@@ -59,7 +59,7 @@ __cli_reply(int err)
     }
 
     if (__is_ak_debug_cli) {
-        os_println("send %s reply[pkt=%d/%d len=%d, err=%u]:\n%s",
+        os_println("send %s reply[pkt=%d/%d len=%d, err=%d]:\n%s",
             __this_cli_type_string,
             __clib_space, len,
             __clib_len, 

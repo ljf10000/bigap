@@ -113,7 +113,7 @@ __clib(void)
 #define __clib_len      __clib()->hdr.len
 #define __clib_buf      __clib()->buf
 #define __clib_cursor   (__clib_buf  + __clib_len)
-#define __clib_space    (sizeof(cli_header_t) + __clib_len)
+#define __clib_space    ((uint32)sizeof(cli_header_t) + __clib_len)
 #define __clib_SIZE     (CLI_BUFFER_LEN - sizeof(cli_header_t))
 #define __clib_left     ((__clib_SIZE>__clib_len)?(__clib_SIZE - __clib_len):0)
 
