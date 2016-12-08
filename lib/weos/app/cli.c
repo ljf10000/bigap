@@ -247,7 +247,7 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
         goto error;
     }
 
-    if (__ak_debug_cli) {
+    if (__is_ak_debug_cli) {
         __os_dump_buffer(buf, len, NULL);
     }
     
@@ -354,7 +354,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
 {
     cli_t *cli = __this_cli();
     char buf[1+OS_LINE_LEN] = {0};
-    char *argv[CLI_ARGC];
+    char *argv[CLI_ARGC] = { NULL };
     int err, argc;
 
     __clib_clear();
@@ -375,7 +375,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     }
     buf[err] = 0;
 
-    if (__ak_debug_cli) {
+    if (__is_ak_debug_cli) {
         __os_dump_buffer(buf, err, NULL);
     }
 
@@ -386,7 +386,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
         return argc;
     }
 
-    if (__ak_debug_cli) {
+    if (__is_ak_debug_cli) {
         __argv_dump(os_println, argc, argv);
     }
 
