@@ -13,6 +13,10 @@
 #define CLI_ARGC            PC_VAL(32, 16)
 #endif
 
+#ifndef CLI_F_DEAMON
+#define CLI_F_DEAMON        DEAMON_VAL(CLI_F_SERVER, 0)
+#endif
+
 typedef struct cli_table_s cli_table_t;
 
 typedef int cli_handle_f(cli_table_t *table, int argc, char *argv[]);
@@ -33,21 +37,12 @@ struct cli_table_s {
     cli_handle_f *cb;
 };
 
-#ifdef __DEAMON__
 #define __CLI_ENTRY(_tag, _flag, _timeout, _cb)   { \
     .tag    = _tag,     \
-    .flag   = _flag,    \
-    .timeout= _timeout | CLI_F_SERVER, \
-    .cb     = _cb,      \
-}   /* end */
-#else
-#define __CLI_ENTRY(_tag, _flag, _timeout, _cb)   { \
-    .tag    = _tag,     \
-    .flag   = _flag,    \
+    .flag   = _flag | CLI_F_DEAMON, \
     .timeout= _timeout, \
     .cb     = _cb,      \
 }   /* end */
-#endif
 
 #define __CLI_TCP_ENTRY(_tag, _timeout, _cb) \
     __CLI_ENTRY(_tag, CLI_F_SYN | CLI_F_TCP, _timeout, _cb)

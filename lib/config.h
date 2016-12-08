@@ -68,6 +68,13 @@
 
 #define PC_DIR(_dir)            PC_VAL(".", _dir)
 #define PC_FILE(_dir, _file)    PC_DIR(_dir) "/" _file
+
+#ifdef __DEAMON__
+#define DEAMON_VAL(_deamom_val, _normal_val)    _deamom_val
+#else
+#define DEAMON_VAL(_deamom_val, _normal_val)    _normal_val
+#endif
+
 /******************************************************************************/
 #ifndef USE_MOD_BLOB
 #define USE_MOD_BLOB            PC_VAL(1, 0)
