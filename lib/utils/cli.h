@@ -37,13 +37,13 @@ struct cli_table_s {
 #define __CLI_ENTRY(_tag, _flag, _timeout, _cb)   { \
     .tag    = _tag,     \
     .flag   = _flag,    \
-    .timeout= _timeout, \
+    .timeout= _timeout | CLI_F_SERVER, \
     .cb     = _cb,      \
 }   /* end */
 #else
 #define __CLI_ENTRY(_tag, _flag, _timeout, _cb)   { \
     .tag    = _tag,     \
-    .flag   = _flag | CLI_F_SERVER, \
+    .flag   = _flag,    \
     .timeout= _timeout, \
     .cb     = _cb,      \
 }   /* end */
