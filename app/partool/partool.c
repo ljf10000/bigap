@@ -368,7 +368,7 @@ part_block_dump(struct part_block *block, char *header)
 {
     if (__is_ak_debug_packet) {
         os_println("block cache(%s)", header);
-        __os_dump_buffer(block->cache, PART_BLOCK_DUMP_LEN, NULL);
+        os_dump_buffer(block->cache, PART_BLOCK_DUMP_LEN);
         os_println(__crlf);
     }
 }

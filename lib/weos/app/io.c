@@ -7,7 +7,7 @@ __io_error(char *method, void *buf, int size, int error)
     int err = error;
     
     if (err>0) {
-        os_dump_buffer(__is_ak_debug_packet, buf, err, NULL);
+        os_dump_buffer_by(__is_ak_debug_packet, buf, err);
     }
     else if (err<0) { /* yes, <0 */
         // debug_io("%s error:%d", method, -errno);
@@ -170,7 +170,7 @@ __iov_dump(struct iovec *iov, int count)
     
     if (debug) {
         for (i=0; i<count; i++) {
-            os_dump_buffer(debug, iov[i].iov_base, iov[i].iov_len, NULL);
+            os_dump_buffer(iov[i].iov_base, iov[i].iov_len);
         }
     }
 }

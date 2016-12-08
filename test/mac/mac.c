@@ -22,27 +22,27 @@ static char g_macstring[1+MACSTRINGLEN_L] = {0};
 
 int main(int argc, char *argv[])
 {   
-    __os_dump_buffer(MAC0, 6, NULL);
+    os_dump_buffer(MAC0, 6);
     os_println("mac==>string(%s)", os_macstring(MAC0));
     os_println("==========================================");
     
-    __os_dump_buffer(MAC1, 6, NULL);
+    os_dump_buffer(MAC1, 6);
     os_println("mac==>string(%s)", os_macstring(MAC1));
     os_println("==========================================");
     
-    __os_dump_buffer(os_mac(STRING0), 6, NULL);
+    os_dump_buffer(os_mac(STRING0), 6);
     os_println("string(%s)==>mac", STRING0);
     os_println("==========================================");
     
-    __os_dump_buffer(os_mac(STRING1), 6, NULL);
+    os_dump_buffer(os_mac(STRING1), 6);
     os_println("string(%s)==>mac", STRING1);
     os_println("==========================================");
     
-    __os_dump_buffer(os_mac(SEP0), 6, NULL);
+    os_dump_buffer(os_mac(SEP0), 6);
     os_println("string(%s)==>mac", SEP0);
     os_println("==========================================");
     
-    __os_dump_buffer(os_mac(SEP1), 6, NULL);
+    os_dump_buffer(os_mac(SEP1), 6);
     os_println("string(%s)==>mac", SEP1);
     os_println("==========================================");
     
