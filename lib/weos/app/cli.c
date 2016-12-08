@@ -284,7 +284,10 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
     }
 
     if (__is_ak_debug_cli) {
-        os_println("table %s[flag=0x%x timeout=%d]", table->tag, table->flag, table->timeout);
+        os_println("table %s[flag=0x%x timeout=%d]", 
+            table->tag, 
+            table->flag, 
+            table->timeout);
     }
 
     err = io_send(fd, buf, len);
@@ -368,6 +371,13 @@ __cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
             continue;
         }
 
+        if (__is_ak_debug_cli) {
+            os_println("table %s[flag=0x%x timeout=%d]", 
+                table->tag, 
+                table->flag, 
+                table->timeout);
+        }
+        
         bool tcp    = os_hasflag(table->flag, CLI_F_TCP);
         bool syn    = os_hasflag(table->flag, CLI_F_SYN);
         bool server = os_hasflag(table->flag, CLI_F_SERVER);
