@@ -447,6 +447,13 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     else if (0==argc) {
         cli_table_t *table = &tables[0];
 
+        if (__is_ak_debug_cli) {
+            os_println("table %s[flag=0x%x timeout=%d]", 
+                table->tag, 
+                table->flag, 
+                table->timeout);
+        }
+
         err = (*table->cb)(table, argc, argv);
 
         __cli_reply(err);
