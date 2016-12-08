@@ -45,7 +45,11 @@ __clib_show(int (*show)(char *buf, int len))
         os_objzero(__clib());
     }
 
-    return __clib_err;
+    int err = __clib_err;
+    
+    __clib_clear();
+    
+    return err;
 }
 
 STATIC int
@@ -201,8 +205,6 @@ __clic_recv_tcp(cli_client_t *clic, int fd)
             
             if (err==len) {
                 __clib_show(clic->show);
-
-                __clib_clear();
             } else {
                 goto error;
             }
