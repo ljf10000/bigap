@@ -245,7 +245,7 @@ tmd_xtimer_cb(tm_node_t *timer)
     return tm_SAFE(0);
 }
 
-#define TMD_USAGE \
+#define TMC_USAGE \
     "tmc usage:"                                                            __crlf \
     __tab "tmc insert {name} delay(second) interval(second) limit command"  __crlf \
     __tab "tmc remove {name}"                                               __crlf \
@@ -255,9 +255,7 @@ tmd_xtimer_cb(tm_node_t *timer)
 STATIC int
 tmc_help(int error)
 {
-    __clib_clear();
-    
-    cli_sprintf(TMD_USAGE);
+    cli_sprintf(TMC_USAGE);
 
     return error;
 }

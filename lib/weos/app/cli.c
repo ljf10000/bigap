@@ -408,7 +408,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     else if (0==argc) {
         cli_table_t *table = &tables[0];
 
-        err = (tables[0].cb)(table, argc, argv);
+        err = (*table->cb)(table, argc, argv);
 
         __cli_reply(err);
 
