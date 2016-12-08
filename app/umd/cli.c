@@ -489,7 +489,7 @@ umd_cli(struct loop_watcher *watcher, time_t now)
         CLI_TCP_ENTRY("gc",     umd_handle_gc),
     };
 
-    return clis_handle(watcher->fd, tables);
+    return cli_response(watcher->fd, tables);
 }
 
 STATIC int

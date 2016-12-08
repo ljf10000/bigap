@@ -15,7 +15,7 @@ static cli_client_t umc = CLI_CLIENT_INITER("umd");
 STATIC int 
 umc_main_helper(int argc, char *argv[])
 {
-    return clic_argv_simple(&umc, argc-1, argv+1);
+    return cli_request(&umc, argc-1, argv+1);
 }
 
 int allinone_main(int argc, char *argv[])

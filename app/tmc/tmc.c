@@ -15,7 +15,7 @@ static cli_client_t tmc = CLI_CLIENT_INITER("tmd");
 STATIC int
 tmc_main_helper(int argc, char *argv[])
 {
-    return clic_argv_simple(&tmc, argc-1, argv+1);
+    return cli_request(&tmc, argc-1, argv+1);
 }
 
 int allinone_main(int argc, char *argv[])
