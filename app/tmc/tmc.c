@@ -127,8 +127,6 @@ tmc_main_helper(int argc, char *argv[])
     if (1==argc) {
         return tmc_usage(-EHELP);
     }
-
-    tmc.timeout = env_geti(OS_ENV(TIMEOUT), tmc.timeout);
     
     err = tmc_command(argc-1, argv+1);
     if (err<0) {

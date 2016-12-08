@@ -358,8 +358,6 @@ umc_main_helper(int argc, char *argv[])
     if (1==argc) {
         return umc_usage(-EHELP);
     }
-
-    umc.timeout = env_geti(OS_ENV(TIMEOUT), umc.timeout);
     
     err = umc_command(argc-1, argv+1);
     if (err<0) {

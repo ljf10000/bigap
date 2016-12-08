@@ -130,8 +130,6 @@ smc_main_helper(int argc, char *argv[])
     if (1==argc) {
         return smc_usage(-EHELP);
     }
-
-    smc.timeout = env_geti(OS_ENV(TIMEOUT), smc.timeout);
     
     err = smc_command(argc-1, argv+1);
     if (err<0) {

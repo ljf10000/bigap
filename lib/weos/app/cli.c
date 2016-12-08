@@ -119,8 +119,10 @@ __clic_fd_helper(cli_client_t *clic, cli_table_t *table)
         return -errno;
     }
 
-    struct timeval timeout = OS_TIMEVAL_INITER(os_second(table->timeout), os_usecond(table->timeout));
-    err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
+    int timeout = env_geti(OS_ENV(TIMEOUT), 0);
+    timeout = (timeout>0)?timeout:table->timeout;
+    struct timeval tm = OS_TIMEVAL_INITER(os_second(timeout), os_usecond(timeout));
+    err = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&tm, sizeof(tm));
     if (err<0) {
         debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
         return -errno;
