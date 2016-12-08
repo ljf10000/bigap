@@ -126,6 +126,7 @@ __clib_cut(uint32 len)
 static inline void
 __clib_clear(void) 
 {
+    __clib_err = 0;
     __clib_len = 0;
     
     __clib_cut(0);
