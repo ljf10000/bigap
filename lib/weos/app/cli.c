@@ -34,9 +34,14 @@ __clib_show(int (*show)(char *buf, int len))
 
         if (show) {
             (*show)(__clib_buf, __clib_len);
-        } else {
+        }
+        else if (0==__clib_err) {
             os_printf("%s", __clib_buf);
         }
+        else {
+            os_eprintf("%s", __clib_buf);
+        }
+        
         os_objzero(__clib());
     }
 
