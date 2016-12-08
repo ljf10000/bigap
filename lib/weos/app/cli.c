@@ -118,7 +118,6 @@ __clic_fd_helper(cli_client_t *clic, cli_table_t *table)
         debug_error("socket error:%d", -errno);
         return -errno;
     }
-    os_println("table %s socket:%d", table->tag, fd);
     
     int timeout = env_geti(OS_ENV(TIMEOUT), 0);
     timeout = (timeout>0)?timeout:table->timeout;
@@ -128,7 +127,6 @@ __clic_fd_helper(cli_client_t *clic, cli_table_t *table)
         debug_error("setsockopt SO_RCVTIMEO error:%d", -errno);
         return -errno;
     }
-    os_println("table %s SO_RCVTIMEO", table->tag);
     
     sockaddr_un_t *client = &clic->client;
     err = bind(fd, (sockaddr_t *)client, get_abstract_sockaddr_len(client));
@@ -136,7 +134,6 @@ __clic_fd_helper(cli_client_t *clic, cli_table_t *table)
         debug_error("bind(%s) error:%d", get_abstract_path(client), -errno);
         return -errno;
     }
-    os_println("table %s bind", table->tag);
     
     sockaddr_un_t *server = &clic->server;
     err = connect(fd, (sockaddr_t *)server, get_abstract_sockaddr_len(server));
@@ -144,7 +141,6 @@ __clic_fd_helper(cli_client_t *clic, cli_table_t *table)
         debug_error("connect(%s) error:%d", get_abstract_path(server), -errno);
         return -errno;
     }
-    os_println("table %s connect", table->tag);
     
     return fd;
 }
@@ -251,7 +247,7 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
         goto error;
     }
     debug_cli("send repuest[%d]:%s", len, buf);
-    os_println("table %s repuest[%d]:%s", table->tag, len, buf);
+    __os_dump_buffer(buf, len, NULL);
     
     if (false==syn) {
         err = 0; goto error;
