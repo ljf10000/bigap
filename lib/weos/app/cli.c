@@ -29,7 +29,7 @@ __this_cli(void)
 STATIC int
 __clib_show(int (*show)(char *buf, int len))
 {
-    if (0==__clib_err && __clib_len && is_good_str(__clib_buf)) {
+    if (__clib_len && is_good_str(__clib_buf)) {
         __clib_cut(__clib_len);
 
         if (show) {
