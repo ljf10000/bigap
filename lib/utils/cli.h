@@ -73,8 +73,8 @@ typedef struct {
 } cli_buffer_t;
 
 typedef struct {
-    int fd;
-    bool tcp;
+    int fd;     // just for server
+    bool tcp;   // just for server
     
     sockaddr_un_t   addr;
     socklen_t       addrlen;

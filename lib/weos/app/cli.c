@@ -423,6 +423,8 @@ __clis_handle(int fd, cli_table_t tables[], int count)
 
     __clib_clear();
 
+    __this_cli_tcp = os_hasflag(tables[0].flag, CLI_F_TCP);
+    
     if (__this_cli_tcp) {
         err = __io_recv(fd, buf, sizeof(buf), 0);
     } else {
