@@ -320,7 +320,7 @@ __loop_add_father(loop_t *loop, int fd, loop_son_f *cb, bool auto_del_son, void 
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-    debug_loop("add father fd=%d", fd);
+    debug_loop("add father fd=%d auto_del_son=%d user=%d", fd, auto_del_son, user);
     
     return 0;
 }
@@ -333,7 +333,7 @@ __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, int flag, void 
         return -ENOEXIST;
     }
     watcher->father = father;
-    debug_loop("add son fd=%d", fd);
+    debug_loop("add son fd=%d flag=0x%x user=%d", fd, flag, user);
     
     return 0;
 }
@@ -391,6 +391,11 @@ __loop_normal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     (*watcher->cb.normal)(watcher, now);
 
     if (os_hasflag(watcher->flag, LOOP_F_ONCE)) {
+        debug_loop("auto delete fd=%d flag=0x%x user=%p", 
+            watcher->fd, 
+            watcher->flag, 
+            watcher->user);
+        
         __loop_watcher_del(loop, watcher->fd);
     }
 }
@@ -568,24 +573,6 @@ os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, bool auto_del_son, void
     else {
         return __loop_add_father(loop, fd, cb, auto_del_son, user);
     }
-}
-
-int
-__os_loop_cli_handle(loop_t *loop, int fd, cli_table_t table[], int count)
-{
-    int err = __clis_handle(fd, table, count);
-    if (err<0) {
-        return err;
-    }
-    
-    err = os_loop_del_watcher(loop, fd);
-    if (err<0) {
-        debug_loop("loop del fd:%d error:%d", fd, err);
-        
-        return err;
-    }
-    
-    return 0;
 }
 
 int
