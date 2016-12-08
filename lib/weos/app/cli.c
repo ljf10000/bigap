@@ -358,6 +358,42 @@ __clis_fd(bool tcp, sockaddr_un_t *server)
     return fd;
 }
 
+STATIC int
+__cli_table_handle(cli_table_t *table, int argc, char *argv[])
+{
+    int err, len;
+    char *tag = argv[0];
+
+    if (__is_ak_debug_cli) {
+        os_println("table %s[flag=0x%x timeout=%d]", 
+            table->tag, 
+            table->flag, 
+            table->timeout);
+    }
+    
+    bool tcp    = os_hasflag(table->flag, CLI_F_TCP);
+    bool syn    = os_hasflag(table->flag, CLI_F_SYN);
+    bool server = os_hasflag(table->flag, CLI_F_SERVER);
+
+    if (server) {
+        /*
+        * this command use tcp
+        */
+        __this_cli_tcp = tcp;
+    }
+    
+    err = (*table->cb)(table, argc, argv);
+    
+    if (server && syn) {
+        len = __cli_reply(err);
+        if (tcp && len > sizeof(cli_header_t)) {
+            len = __cli_reply(err);
+        }
+    }
+    
+    return err;
+}
+
 int
 __cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
 {
@@ -371,42 +407,7 @@ __cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
             continue;
         }
 
-        if (__is_ak_debug_cli) {
-            os_println("table %s[flag=0x%x timeout=%d]", 
-                table->tag, 
-                table->flag, 
-                table->timeout);
-        }
-        
-        bool tcp    = os_hasflag(table->flag, CLI_F_TCP);
-        bool syn    = os_hasflag(table->flag, CLI_F_SYN);
-        bool server = os_hasflag(table->flag, CLI_F_SERVER);
-
-        if (__is_ak_debug_cli) {
-            os_println("tcp=%d syn=%d server=%d", tcp, syn, server);
-        }
-
-        if (server) {
-            /*
-            * this command use tcp
-            */
-            __this_cli_tcp = tcp;
-        }
-        
-        if (__is_ak_debug_cli) {
-            os_println("__this_cli_tcp=%d", __this_cli_tcp);
-        }
-        
-        err = (*table->cb)(table, argc, argv);
-        
-        if (server && syn) {
-            len = __cli_reply(err);
-            if (tcp && len > sizeof(cli_header_t)) {
-                len = __cli_reply(err);
-            }
-        }
-        
-        return err;
+        return __cli_table_handle(table, argc, argv);
     }
     
     return -ENOEXIST;
@@ -453,20 +454,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
         return argc;
     }
     else if (0==argc) {
-        cli_table_t *table = &tables[0];
-
-        if (__is_ak_debug_cli) {
-            os_println("table %s[flag=0x%x timeout=%d]", 
-                table->tag, 
-                table->flag, 
-                table->timeout);
-        }
-
-        err = (*table->cb)(table, argc, argv);
-
-        __cli_reply(err);
-
-        return err;
+        return __cli_table_handle(&tables[0], argc, argv);
     }
     
     if (__is_ak_debug_cli) {
