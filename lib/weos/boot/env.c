@@ -124,18 +124,6 @@ envs_unzipbin(char buf[], int count, char *env[])
     }
 }
 
-DECLARE int
-argv_flat(char *line[], int size, int argc, char *argv)
-{
-    
-}
-
-DECLARE int
-envs_flat(char *line[], int size, int argc, char *argv)
-{
-    
-}
-
 DECLARE char *
 env_gets(char *envname, char *deft) 
 {
