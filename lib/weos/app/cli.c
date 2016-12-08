@@ -246,8 +246,10 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
     if (err<0) { /* yes, <0 */
         goto error;
     }
-    debug_cli("send repuest[%d]:%s", len, buf);
-    __os_dump_buffer(buf, len, NULL);
+
+    if (__ak_debug_cli) {
+        __os_dump_buffer(buf, len, NULL);
+    }
     
     if (false==syn) {
         err = 0; goto error;
@@ -321,7 +323,6 @@ __cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
             continue;
         }
 
-        os_println("table %s flag:0x%x timeout:%u", table->tag, table->flag, table->timeout);
         bool tcp    = os_hasflag(table->flag, CLI_F_TCP);
         bool syn    = os_hasflag(table->flag, CLI_F_SYN);
         bool server = os_hasflag(table->flag, CLI_F_SERVER);
@@ -337,8 +338,6 @@ __cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
         
         if (server && syn) {
             len = __cli_reply(err);
-            debug_cli("send len:%d", len);
-
             if (tcp && len > sizeof(cli_header_t)) {
                 len = __cli_reply(err);
             }
@@ -376,8 +375,10 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     }
     buf[err] = 0;
 
-    __os_dump_buffer(buf, err, NULL);
-    
+    if (__ak_debug_cli) {
+        __os_dump_buffer(buf, err, NULL);
+    }
+
     argc = argv_unzipbin(buf, os_count_of(argv), argv);
     if (argc<0) {
         __cli_reply(argc);
@@ -385,28 +386,21 @@ __clis_handle(int fd, cli_table_t tables[], int count)
         return argc;
     }
 
-    __argv_dump(os_println, argc, argv);
-    
-    char line[1+OS_LINE_LEN];
     if (__ak_debug_cli) {
-        argv_zip2str(line, sizeof(line), argc, argv);
-        
-        debug_cli("recv request[%d]:%s", err, line);
+        __argv_dump(os_println, argc, argv);
     }
-    
+
     /*
     * save this fd, for __cli_reply
     */
     __this_cli_fd = fd;
     
     err = __cli_argv_handle(tables, count, argc, argv);
-    if (__ak_debug_cli) {
-        debug_cli("action:%s, error:%d, len:%d, buf:%s", 
-            line,
-            __clib_err,
-            __clib_len,
-            __clib_buf);
-    }
+    debug_cli("action:%s, error:%d, len:%d, buf:%s", 
+        tables->tag,
+        __clib_err,
+        __clib_len,
+        __clib_buf);
     
     return err;
 }
