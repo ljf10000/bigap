@@ -255,9 +255,7 @@ tmd_xtimer_cb(tm_node_t *timer)
 STATIC int
 tmc_help(int error)
 {
-    cli_sprintf(TMC_USAGE);
-
-    return error;
+    return cli_help(error, TMC_USAGE);
 }
 
 STATIC int
