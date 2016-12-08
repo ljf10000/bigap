@@ -204,7 +204,8 @@ __clic_recv_tcp(cli_client_t *clic, int fd)
             } else {
                 goto error;
             }
-        } else {
+        } 
+        else {
 error:
             if (err > len) {
                 return -ETOOBIG;
@@ -282,6 +283,8 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
     int fd = INVALID_FD, err = 0;
     bool tcp = os_hasflag(table->flag, CLI_F_TCP);
     bool syn = os_hasflag(table->flag, CLI_F_SYN);
+
+    __clib_clear();
     
     fd = __clic_fd(clic, table);
     if (fd<0) {
