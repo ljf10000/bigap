@@ -7,9 +7,15 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 
+#define __THIS_USAGE \
+    "tmc usage:"                                                            __crlf \
+    __tab "tmc insert {name} delay(second) interval(second) limit command"  __crlf \
+    __tab "tmc remove {name}"                                               __crlf \
+    __tab "tmc show [name]"                                                 __crlf \
+    /* end */
 #include "utils.h"
 #include "tm/tm.h"
-
+/******************************************************************************/
 OS_INITER;
 
 typedef struct {    
@@ -246,15 +252,9 @@ tmd_xtimer_cb(tm_node_t *timer)
 }
 
 STATIC int
-tmc_help(int error)
-{
-    return cli_help(error, TMC_USAGE);
-}
-
-STATIC int
 tmd_handle_help(cli_table_t *table, int argc, char *argv[])
 {
-    return tmc_help(-EHELP);
+    return cli_help(-EHELP);
 }
 
 STATIC int
@@ -268,13 +268,13 @@ tmd_handle_insert(cli_table_t *table, int argc, char *argv[])
     int err;
 
     if (6!=argc) {
-        return tmc_help(-EINVAL0);
+        return cli_help(-EINVAL0);
     }
     else if (os_strlen(name) > TM_NAMESIZE) {
-        return tmc_help(-ETOOBIG);
+        return cli_help(-ETOOBIG);
     }
     else if (os_strlen(command) > TM_CMDSIZE) {
-        return tmc_help(-ETOOBIG);
+        return cli_help(-ETOOBIG);
     }
     
     debug_cli("name:%s delay:%s interval:%s, limit:%s, command:%s", 
@@ -292,7 +292,7 @@ tmd_handle_insert(cli_table_t *table, int argc, char *argv[])
         debug_error("invalid args, delay:%d, interval:%d, limit:%d",
             i_delay, i_interval, i_limit);
 
-        return tmc_help(-EINVAL);
+        return cli_help(-EINVAL);
     }
 
     struct xtimer *entry = tmd_create(name, command, i_delay, i_interval, i_limit);
@@ -338,10 +338,10 @@ tmd_handle_remove(cli_table_t *table, int argc, char *argv[])
     char *name = argv[1];
     
     if (2!=argc) {
-        return tmc_help(-EINVAL1);
+        return cli_help(-EINVAL1);
     }
     else if (os_strlen(name) > TM_NAMESIZE) {
-        return tmc_help(-ETOOBIG);
+        return cli_help(-ETOOBIG);
     }
 
     struct xtimer *entry = tmd_get(name);
@@ -362,7 +362,7 @@ STATIC int
 tmd_handle_clean(cli_table_t *table, int argc, char *argv[])
 {
     if (1!=argc) {
-        return tmc_help(-EINVAL1);
+        return cli_help(-EINVAL1);
     }
     
     mv_t cb(struct xtimer *entry)
@@ -396,10 +396,10 @@ tmd_handle_show(cli_table_t *table, int argc, char *argv[])
     char *name = argv[1];
     
     if (1!=argc && 2!=argc) {
-        return tmc_help(-EINVAL2);
+        return cli_help(-EINVAL2);
     }
     else if (name && os_strlen(name) > TM_NAMESIZE) {
-        return tmc_help(-ETOOBIG);
+        return cli_help(-ETOOBIG);
     }
 
     bool empty = true;

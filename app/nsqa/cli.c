@@ -10,14 +10,14 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
     
 #define __DEAMON__
+#define __THIS_USAGE \
+    "nsqc usage:"                                       __crlf \
+    __tab "nsqc insert {json}"                          __crlf \
+    __tab "nsqc remove {name|*} {topic|*} {channel|*}"  __crlf \
+    __tab "nsqc show [{name|*} {topic|*} {channel|*}]"  __crlf \
+    /* end */
 #include "nsqa.h"
 /******************************************************************************/
-STATIC int
-nsqc_help(int error)
-{
-    return cli_help(error, NSQC_USAGE);
-}
-
 /*
 * handle {mac} {json}
 */
@@ -30,10 +30,10 @@ nsqa_handle_name_topic_channel(
 )
 {
     if (argc < 2) {
-        return nsqc_help(-EINVAL0);
+        return cli_help(-EINVAL0);
     }
     else if (argc > 4) {
-        return nsqc_help(-EINVAL1);
+        return cli_help(-EINVAL1);
     }
 
     char *name      = argv[1];
@@ -53,16 +53,16 @@ nsqa_handle_name_topic_channel(
     }
 
     if (false==allow_all_empty && NULL==name && NULL==topic && NULL==channel) {
-        return nsqc_help(-EINVAL2);
+        return cli_help(-EINVAL2);
     }
     else if (os_strlen(name) > NSQ_NAMESIZE) {
-        return nsqc_help(-ETOOBIG);
+        return cli_help(-ETOOBIG);
     }
     else if (os_strlen(topic) > NSQ_NAMESIZE) {
-        return nsqc_help(-ETOOBIG);
+        return cli_help(-ETOOBIG);
     }
     else if (os_strlen(channel) > NSQ_NAMESIZE) {
-        return nsqc_help(-ETOOBIG);
+        return cli_help(-ETOOBIG);
     }
 
     return (*handle)(name, topic, channel);
@@ -86,10 +86,10 @@ nsqa_handle_insert(cli_table_t *table, int argc, char *argv[])
     char *json = argv[1];
     
     if (2!=argc) {
-        return nsqc_help(-EINVAL0);
+        return cli_help(-EINVAL0);
     }
     else if (false==is_good_json(json)) {
-        return nsqc_help(-EBADJSON);
+        return cli_help(-EBADJSON);
     }
     
     return nsqi_insert_byjson(json);
