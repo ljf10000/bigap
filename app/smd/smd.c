@@ -690,47 +690,47 @@ smd_create(char *name, char *command, char *pidfile)
     return entry;
 }
 
+#define SMC_USAGE \
+    "smc usage:"                                            __crlf \
+    __tab "smc insert deamon {name} {pidfile} {command}"    __crlf \
+    __tab "smc insert normal {name} {command}"              __crlf \
+    __tab "smc remove {name}"                               __crlf \
+    __tab "smc show [name]"                                 __crlf \
+    /* end */
+
+STATIC int
+smc_help(int error)
+{
+    return cli_help(error, SMC_USAGE);
+}
+
 STATIC int
 smd_handle_insert(cli_table_t *table, int argc, char *argv[])
 {
-    char *type      = argv[1];
-    char *name      = argv[2];
-    char *pidfile   = NULL;
-    char *command   = NULL;
-    int err = 0;
+    char *type = argv[1];
+    char *name = argv[2];
+    char *pidfile = NULL;
+    char *command = NULL;
 
-    if (NULL==type) {
-        debug_error("NULL type");
-        
-        return -EINVAL1;
-    }
-    else if (NULL==name) {
-        debug_error("NULL name");
-        
-        return -EINVAL2;
-    }
-
-    if (os_streq(type, "normal")) {
-        /*
-        * insert normal name command
-        */
+    if (4==argc && os_streq(type, "normal")) {
         command = argv[3];
     }
-    else if (os_streq(type, "deamon")) {
-        /*
-        * insert deamon name pidfile command
-        */
+    else if (5==argc && os_streq(type, "deamon")) {
         pidfile = argv[3];
         command = argv[4];
     }
     else {
-        return -EINVAL3;
+        return smc_help(-EINVAL0);
     }
 
-    if (NULL==command) {
-        debug_error("NULL command");
-        
-        return -EINVAL4;
+    if (os_strlen(name) > SM_NAMESIZE) {
+        return smc_help(-ETOOBIG);
+    }
+    else if (os_strlen(command) > SM_CMDSIZE) {
+        return smc_help(-ETOOBIG);
+    }
+    else if (os_strlen(pidfile) > SM_PIDFILE) {
+        return smc_help(-ETOOBIG);
     }
 
     sm_entry_t *entry = smd_getbyname(name);
@@ -748,7 +748,7 @@ smd_handle_insert(cli_table_t *table, int argc, char *argv[])
         return -ENOMEM;
     }
 
-    err = smd_insert(entry);
+    int err = smd_insert(entry);
     if (err<0) {
         smd_remove(entry);
 
@@ -762,10 +762,12 @@ STATIC int
 smd_handle_remove(cli_table_t *table, int argc, char *argv[])
 {
     char *name = argv[1];
-    if (NULL==name) {
-        debug_trace("remove monitor without name");
-        
-        return -EINVAL5;
+    
+    if (2!=argc) {
+        return smc_help(-EINVAL1);
+    }
+    else if (os_strlen(name) > SM_NAMESIZE) {
+        return smc_help(-ETOOBIG);
     }
 
     sm_entry_t *entry = smd_getbyname(name);
@@ -779,6 +781,10 @@ smd_handle_remove(cli_table_t *table, int argc, char *argv[])
 STATIC int
 smd_handle_clean(cli_table_t *table, int argc, char *argv[])
 {
+    if (1!=argc) {
+        return smc_help(-EINVAL2);
+    }
+    
     mv_t cb(sm_entry_t *entry)
     {
         smd_remove(entry);
@@ -808,6 +814,13 @@ smd_handle_show(cli_table_t *table, int argc, char *argv[])
 {
     char *name = argv[1];
     bool empty = true;
+    
+    if (1!=argc && 2!=argc) {
+        return smc_help(-EINVAL3);
+    }
+    else if (name && os_strlen(name) > SM_NAMESIZE) {
+        return smc_help(-ETOOBIG);
+    }
     
     cli_sprintf("#name pid/dpid forks state command" __crlf);
 

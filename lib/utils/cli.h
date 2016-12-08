@@ -137,6 +137,12 @@ cli_vsprintf(const char *fmt, va_list args);
 extern int
 cli_sprintf(const char *fmt, ...);
 
+#define cli_help(_error, _usage)    ({ \
+    cli_sprintf(_usage);    \
+                            \
+    _error;                 \
+})  /* end */
+
 #if 1
 typedef struct {
     int timeout;    // todo: not use it

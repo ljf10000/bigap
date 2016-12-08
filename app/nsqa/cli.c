@@ -12,6 +12,19 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
+#define NSQC_USAGE \
+    "nsqc usage:"                                       __crlf \
+    __tab "nsqc insert {json}"                          __crlf \
+    __tab "nsqc remove {name|*} {topic|*} {channel|*}"  __crlf \
+    __tab "nsqc show [{name|*} {topic|*} {channel|*}]"  __crlf \
+    /* end */
+
+STATIC int
+nsqc_help(int error)
+{
+    return cli_help(error, NSQC_USAGE);
+}
+
 /*
 * handle {mac} {json}
 */
@@ -19,9 +32,17 @@ STATIC int
 nsqa_handle_name_topic_channel(
     int(*handle)(char *name, char *topic, char *channel), 
     int argc, 
-    char *argv[]
+    char *argv[],
+    bool allow_all_empty
 )
 {
+    if (argc < 2) {
+        return nsqc_help(-EINVAL0);
+    }
+    else if (argc > 4) {
+        return nsqc_help(-EINVAL1);
+    }
+
     char *name      = argv[1];
     char *topic     = (argc>2)?argv[2]:NULL;
     char *channel   = (argc>3)?argv[3]:NULL;
@@ -37,9 +58,18 @@ nsqa_handle_name_topic_channel(
     if (os_str_is_wildcard(channel, os_iswildcard)) {
         channel = NULL;
     }
-    
-    if (NULL==name && NULL==topic && NULL==channel) {
-        return -EFORMAT;
+
+    if (false==allow_all_empty && NULL==name && NULL==topic && NULL==channel) {
+        return nsqc_help(-EINVAL2);
+    }
+    else if (os_strlen(name) > NSQ_NAMESIZE) {
+        return nsqc_help(-ETOOBIG);
+    }
+    else if (os_strlen(topic) > NSQ_NAMESIZE) {
+        return nsqc_help(-ETOOBIG);
+    }
+    else if (os_strlen(channel) > NSQ_NAMESIZE) {
+        return nsqc_help(-ETOOBIG);
     }
 
     return (*handle)(name, topic, channel);
@@ -51,7 +81,7 @@ nsqa_handle_name_topic_channel(
 STATIC int
 nsqa_handle_remove(cli_table_t *table, int argc, char *argv[])
 {
-    return nsqa_handle_name_topic_channel(nsqi_remove, argc, argv);
+    return nsqa_handle_name_topic_channel(nsqi_remove, argc, argv, false);
 }
 
 /*
@@ -60,7 +90,14 @@ nsqa_handle_remove(cli_table_t *table, int argc, char *argv[])
 STATIC int
 nsqa_handle_insert(cli_table_t *table, int argc, char *argv[])
 {
-    char *json  = argv[1];
+    char *json = argv[1];
+    
+    if (2!=argc) {
+        return nsqc_help(-EINVAL0);
+    }
+    else if (false==is_good_json(json)) {
+        return nsqc_help(-EBADJSON);
+    }
     
     return nsqi_insert_byjson(json);
 }
@@ -91,7 +128,7 @@ nsqa_show_count(void)
 STATIC int
 nsqa_handle_show(cli_table_t *table, int argc, char *argv[])
 {
-    return nsqa_handle_name_topic_channel(nsqi_show, argc, argv);
+    return nsqa_handle_name_topic_channel(nsqi_show, argc, argv, true);
 }
 
 STATIC int

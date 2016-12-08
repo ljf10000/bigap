@@ -11,6 +11,26 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #include "umd.h"
+/******************************************************************************/
+#define UMC_USAGE \
+    "tmc usage:"                            __crlf \
+    __tab " bind   {mac} {ip}"              __crlf \
+    __tab " unbind {mac}"                   __crlf \
+    __tab " fake   {mac} {ip}"              __crlf \
+    __tab " unfake {mac}"                   __crlf \
+    __tab " auth   {mac} {group} {json}"    __crlf \
+    __tab " deauth {mac}"                   __crlf \
+    __tab " reauth {mac}"                   __crlf \
+    __tab " tag    {mac} {key} [value]"     __crlf \
+    __tab " gc"                             __crlf \
+    __tab " show [stat | json]"             __crlf \
+    /* end */
+
+STATIC int
+umc_help(int error)
+{
+    return cli_help(error, UMC_USAGE);
+}
 
 /*
 * handle {mac} {json}
@@ -23,22 +43,30 @@ umd_handle_mac_json(umd_user_t *(*handle)(byte mac[], jobj_t obj), int argc, cha
     jobj_t obj  = NULL;
     int err = 0;
     
-    if (false==is_good_macstring(mac)) {
+    if (3!=argc) {
+        return umc_help(-EFORMAT);
+    }
+    else if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
 
-        err = -EFORMAT; goto error;
+        return umc_help(-EFORMAT);
     }
-        
+    else if (false==is_good_json(json)) {
+        debug_trace("bad json %s", json);
+
+        return umc_help(-EFORMAT);
+    }
+
     obj = jobj_byjson(json);
     if (NULL==obj) {
         debug_trace("bad json %s", json);
 
-        err = -EFORMAT; goto error;
+        err = umc_help(-EFORMAT); goto error;
     }
 
     umd_user_t *user = (*handle)(os_mac(mac), obj);
     if (NULL==user) {
-        err = -EFORMAT; goto error;
+        err = umc_help(-EFORMAT); goto error;
     }
 
 error:
@@ -53,18 +81,21 @@ error:
 STATIC int
 umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), int argc, char *argv[])
 {
-    char *mac   = argv[1];
-    char *ip    = argv[2];
-
-    if (false==is_good_macstring(mac)) {
+    char *mac= argv[0];
+    char *ip = argv[1];
+    
+    if (3!=argc) {
+        return umc_help(-EFORMAT);
+    }
+    else if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
 
-        return -EFORMAT;
+        return umc_help(-EFORMAT);
     }
     else if (false==is_good_ipstring(ip)) {
         debug_trace("bad ip %s", ip);
 
-        return -EFORMAT;
+        return umc_help(-EFORMAT);
     }
 
     umd_user_t *user = (*handle)(os_mac(mac), inet_addr(ip));
@@ -81,15 +112,18 @@ umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), int argc, char *
 STATIC int
 umd_handle_mac(int (*handle)(byte mac[]), int argc, char *argv[])
 {
-    char *mac = argv[1];
-
-    if (is_good_macstring(mac)) {
-        return (*handle)(os_mac(mac));
-    } else {
+    char *mac= argv[1];
+    
+    if (2!=argc) {
+        return umc_help(-EFORMAT);
+    }
+    else if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
 
-        return -EFORMAT;
+        return umc_help(-EFORMAT);
     }
+
+    return (*handle)(os_mac(mac));
 }
 
 /*
@@ -197,10 +231,18 @@ umd_handle_auth(cli_table_t *table, int argc, char *argv[])
     char *json  = argv[3];
     jobj_t obj = NULL;
     
-    if (false==is_good_macstring(mac)) {
+    if (4!=argc) {
+        return umc_help(-EFORMAT);
+    }
+    else if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
 
-        return -EFORMAT;
+        return umc_help(-EFORMAT);
+    }
+    else if (false==is_good_json(json)) {
+        debug_trace("bad json %s", json);
+
+        return umc_help(-EFORMAT);
     }
     
     int groupid = os_atoi(group);
@@ -210,7 +252,7 @@ umd_handle_auth(cli_table_t *table, int argc, char *argv[])
     if (NULL==obj) {
         debug_trace("bad json %s", json);
 
-        err = -EBADJSON; goto error;
+        err = umc_help(-EBADJSON); goto error;
     }
 
     umd_user_t *user = umd_user_auth(os_mac(mac), groupid, obj);
@@ -280,13 +322,13 @@ umd_show_user_byjson(char *json)
     
     obj = jobj_byjson(json);
     if (NULL==obj) {
-        err = -EFILTER; goto error;
+        err = umc_help(-EFILTER); goto error;
     }
     
     if (NULL!=(jmac = jobj_get(obj, "mac"))) {
         string = jobj_get_string(jmac);
         if (false==is_good_macstring(string)) {
-            err = -EBADMAC; goto error;
+            err = umc_help(-EBADMAC); goto error;
         }
 
         user = umd_user_get(os_mac(string));
@@ -294,13 +336,13 @@ umd_show_user_byjson(char *json)
     else if (NULL!=(jip = jobj_get(obj, "ip"))) {
         string = jobj_get_string(jip);
         if (false==is_good_ipstring(string)) {
-            err = -EBADIP; goto error;
+            err = umc_help(-EBADIP); goto error;
         }
 
         user = umd_user_getbyip(inet_addr(string));
     }
     else {
-        err = -EFILTER; goto error;
+        err = umc_help(-EFILTER); goto error;
     }
     
     if (NULL==user) {
@@ -353,25 +395,27 @@ umd_show_count(void)
 STATIC int
 umd_handle_show(cli_table_t *table, int argc, char *argv[])
 {
-    char *json = argv[1];
-    
-    if (NULL==json) {
-        /*
-        * TODO: unix socket, 数据报方式, 无法传送大量数据，需要修改机制
-        */
-        return umd_user_foreach(umd_show_user, false);
-    }
-    else if (os_streq("stat", json)) {
-        return umd_show_stat();
-    }
-    else if (os_streq("count", json)) {
-        return umd_show_count();
-    }
-    else if (is_good_json(json)) {
-        return umd_show_user_byjson(json);
-    }
-    else {
-        return -EFORMAT;
+    switch(argc) {
+        case 1:
+            return umd_user_foreach(umd_show_user, false);
+        case 2: {
+            char *json = argv[1];
+
+            if (os_streq("stat", json)) {
+                return umd_show_stat();
+            }
+            else if (os_streq("count", json)) {
+                return umd_show_count();
+            }
+            else if (is_good_json(json)) {
+                return umd_show_user_byjson(json);
+            }
+            else {
+                return umc_help(-EHELP);
+            }
+        }
+        default:
+            return umc_help(-EHELP);
     }
 }
 
@@ -398,10 +442,13 @@ umd_handle_tag(cli_table_t *table, int argc, char *argv[])
     char *k     = argv[2];
     char *v     = argv[3];
 
-    if (false==is_good_macstring(mac)) {
+    if (3!=argc && 4!=argc) {        
+        return umc_help(-EFORMAT);
+    }
+    else if (false==is_good_macstring(mac)) {
         debug_trace("bad mac %s", mac);
 
-        return -EFORMAT;
+        return umc_help(-EFORMAT);
     }
 
     umd_tag_t *tag = NULL;
