@@ -423,7 +423,11 @@ __clis_handle(int fd, cli_table_t tables[], int count)
 
     __clib_clear();
 
+    /*
+    * save this fd/tcp, for __cli_reply
+    */
     __this_cli_tcp = os_hasflag(tables[0].flag, CLI_F_TCP);
+    __this_cli_fd = fd;
     
     if (__this_cli_tcp) {
         err = __io_recv(fd, buf, sizeof(buf), 0);
@@ -442,8 +446,9 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     buf[err] = 0;
 
     if (__is_ak_debug_cli) {
-        os_println("recv %s request[pkt=%d/%d]", 
+        os_println("recv %s request[fd=%d pkt=%d/%d]", 
             __this_cli_type_string(__this_cli_tcp), 
+            fd,
             (int)sizeof(buf), err);
         
         os_dump_buffer(buf, err);
@@ -460,17 +465,13 @@ __clis_handle(int fd, cli_table_t tables[], int count)
     }
     
     if (__is_ak_debug_cli) {
-        os_println("recv %s request argc:%d", 
+        os_println("recv %s request[fd=%d argc=%d]", 
             __this_cli_type_string(__this_cli_tcp), 
+            fd,
             argc);
         
         __argv_dump(os_println, argc, argv);
     }
-
-    /*
-    * save this fd, for __cli_reply
-    */
-    __this_cli_fd = fd;
     
     err = __cli_argv_handle(tables, count, argc, argv);
     debug_cli("action:%s, error:%d, len:%d, buf:%s", 
