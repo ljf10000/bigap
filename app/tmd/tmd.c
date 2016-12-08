@@ -245,6 +245,29 @@ tmd_xtimer_cb(tm_node_t *timer)
     return tm_SAFE(0);
 }
 
+#define TMD_USAGE \
+    "tmc usage:"                                                            __crlf \
+    __tab "tmc insert {name} delay(second) interval(second) limit command"  __crlf \
+    __tab "tmc remove {name}"                                               __crlf \
+    __tab "tmc show [name]"                                                 __crlf \
+    /* end */
+
+STATIC int
+tmc_help(int error)
+{
+    __clib_clear();
+    
+    cli_sprintf(TMD_USAGE);
+
+    return error;
+}
+
+STATIC int
+tmd_handle_help(cli_table_t *table, int argc, char *argv[])
+{
+    return tmc_help(-EHELP);
+}
+
 STATIC int
 tmd_handle_insert(cli_table_t *table, int argc, char *argv[])
 {
@@ -254,18 +277,18 @@ tmd_handle_insert(cli_table_t *table, int argc, char *argv[])
     char *limit     = argv[4];
     char *command   = argv[5];
     int err;
-    
-    if (NULL==name      ||
-        NULL==delay     ||
-        NULL==interval  ||
-        NULL==limit     ||
-        NULL==command) {
-        debug_error("NULL name|delay|interval|limit|command");
-        
-        return -EKEYNULL;
-    }
 
-    debug_test("name:%s delay:%s interval:%s, limit:%s, command:%s", 
+    if (6!=argc) {
+        return tmc_help(-EINVAL0);
+    }
+    else if (os_strlen(name) > TM_NAMESIZE) {
+        return tmc_help(-ETOOBIG);
+    }
+    else if (tmc_help(command) > TM_CMDSIZE) {
+        return tmc_usage(-ETOOBIG);
+    }
+    
+    debug_cli("name:%s delay:%s interval:%s, limit:%s, command:%s", 
         name, 
         delay,
         interval,
@@ -279,8 +302,8 @@ tmd_handle_insert(cli_table_t *table, int argc, char *argv[])
     if (false==is_good_tm_args(i_delay, i_interval, i_limit)) {
         debug_error("invalid args, delay:%d, interval:%d, limit:%d",
             i_delay, i_interval, i_limit);
-        
-        return -EINVAL2;
+
+        return tmc_usage(-EINVAL);
     }
 
     struct xtimer *entry = tmd_create(name, command, i_delay, i_interval, i_limit);
@@ -324,12 +347,14 @@ STATIC int
 tmd_handle_remove(cli_table_t *table, int argc, char *argv[])
 {
     char *name = argv[1];
-    if (NULL==name) {
-        debug_trace("remove timer without name");
-        
-        return -EINVAL3;
-    }
     
+    if (2!=argc) {
+        return tmc_help(-EINVAL1);
+    }
+    else if (os_strlen(name) > TM_NAMESIZE) {
+        return tmc_help(-ETOOBIG);
+    }
+
     struct xtimer *entry = tmd_get(name);
     if (NULL==entry) {
         debug_trace("remove timer(%s) nofound", name);
@@ -347,6 +372,10 @@ tmd_handle_remove(cli_table_t *table, int argc, char *argv[])
 STATIC int
 tmd_handle_clean(cli_table_t *table, int argc, char *argv[])
 {
+    if (1!=argc) {
+        return tmc_help(-EINVAL1);
+    }
+    
     mv_t cb(struct xtimer *entry)
     {
         tmd_remove(entry);
@@ -376,8 +405,16 @@ STATIC int
 tmd_handle_show(cli_table_t *table, int argc, char *argv[])
 {
     char *name = argv[1];
-    bool empty = true;
     
+    if (1!=argc && 2!=argc) {
+        return tmc_usage(-EINVAL2);
+    }
+    else if (name && os_strlen(name) > TM_NAMESIZE) {
+        return tmc_usage(-ETOOBIG);
+    }
+
+    bool empty = true;
+
     cli_sprintf("#name delay interval limit triggers left command" __crlf);
     
     mv_t cb(struct xtimer *entry)
@@ -433,6 +470,8 @@ STATIC int
 tmd_cli(struct loop_watcher *watcher, time_t now)
 {
     static cli_table_t tables[] = {
+        CLI_TCP_ENTRY("help",   tmd_handle_help),
+
         CLI_TCP_ENTRY("insert", tmd_handle_insert),
         CLI_TCP_ENTRY("remove", tmd_handle_remove),
         CLI_TCP_ENTRY("clean",  tmd_handle_clean),

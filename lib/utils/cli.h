@@ -129,9 +129,6 @@ __clib_clear(void)
 }
 
 extern int
-__clib_show(void);
-
-extern int
 cli_vsprintf(const char *fmt, va_list args);
 
 extern int
@@ -142,6 +139,8 @@ typedef struct {
     int timeout;    // todo: not use it
     
     sockaddr_un_t server, client;
+
+    int (*show)(void);
 } cli_client_t;
 
 #define CLI_CLIENT_INITER(_server_PATH) {   \
@@ -171,6 +170,15 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len);
 
 extern int
 clic_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[]);
+
+static inline int
+clic_argv_simple(cli_client_t *clic, int argc, char *argv[])
+{
+    cli_table_t table = __CLI_ENTRY(argv[0], CLI_F_SYN | CLI_F_TCP, CLI_TIMEOUT, NULL);
+
+    return clic_request(clic, table, argc, argv);
+}
+
 #endif
 /******************************************************************************/
 #if 1

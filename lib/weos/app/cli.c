@@ -26,7 +26,7 @@ __this_cli(void)
     return __this_cli_init(&__THIS_CLI);
 }
 
-int
+STATIC int
 __clib_show(void)
 {
     if (0==__clib_err && __clib_len && is_good_str(__clib_buf)) {
@@ -38,6 +38,12 @@ __clib_show(void)
     }
 
     return __clib_err;
+}
+
+STATIC int
+__clic_show(cli_client_t *clic)
+{
+    return clic->show?(*clic->show)():__clib_show();
 }
 
 STATIC int
@@ -146,7 +152,7 @@ __clic_fd_helper(cli_client_t *clic, cli_table_t *table)
 }
 
 STATIC int
-__clic_recv_tcp(int fd)
+__clic_recv_tcp(cli_client_t *clic, int fd)
 {
     cli_t *cli = __this_cli();
     int err = 0, len;
@@ -163,7 +169,7 @@ __clic_recv_tcp(int fd)
             len = __clib_len;
             err = __io_recv(fd, __clib_buf, len, 0);
             if (err==len) {
-                __clib_show();
+                __clic_show(clic);
             } else {
                 goto error;
             }
@@ -198,7 +204,7 @@ error:
 }
 
 STATIC int
-__clic_recv_udp(int fd)
+__clic_recv_udp(cli_client_t *clic, int fd)
 {
     cli_t *cli = __this_cli();
     int err = 0;
@@ -208,7 +214,7 @@ __clic_recv_udp(int fd)
     if (err >= (int)sizeof(cli_header_t)) {
         __clib_cut(err - sizeof(cli_header_t));
         
-        return __clib_show();
+        return __clic_show(clic);
     }
     // 0 < err < hdr
     else if (err > 0) {
@@ -221,12 +227,12 @@ __clic_recv_udp(int fd)
 }
 
 STATIC int
-__clic_recv(int fd, bool tcp)
+__clic_recv(cli_client_t *clic, int fd, bool tcp)
 {
     if (tcp) {
-        return __clic_recv_tcp(fd);
+        return __clic_recv_tcp(clic, fd);
     } else {
-        return __clic_recv_udp(fd);
+        return __clic_recv_udp(clic, fd);
     }
 }
 
@@ -255,7 +261,7 @@ __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
         err = 0; goto error;
     }
 
-    err = __clic_recv(fd, tcp);
+    err = __clic_recv(clic, fd, tcp);
     if (err<0) {
         goto error;
     }
@@ -312,10 +318,6 @@ __cli_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
     int i, err, len;
     char *tag = argv[0];
 
-    if (argc < 1) {
-        return -EINVAL0;
-    }
-    
     for (i=0; i<count; i++) {
         cli_table_t *table = &tables[i];
 
@@ -354,7 +356,7 @@ __clis_handle(int fd, cli_table_t tables[], int count)
 {
     cli_t *cli = __this_cli();
     char buf[1+OS_LINE_LEN] = {0};
-    char *argv[CLI_ARGC] = { NULL };
+    char *argv[CLI_ARGC] = {NULL};
     int err, argc;
 
     __clib_clear();
@@ -385,7 +387,16 @@ __clis_handle(int fd, cli_table_t tables[], int count)
 
         return argc;
     }
+    else if (0==argc) {
+        cli_table_t *table = &tables[0];
 
+        err = (tables[0].cb)(table, argc, argv);
+
+        __cli_reply(err);
+
+        return err;
+    }
+    
     if (__is_ak_debug_cli) {
         __argv_dump(os_println, argc, argv);
     }
