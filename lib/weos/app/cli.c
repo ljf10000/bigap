@@ -236,7 +236,7 @@ __clic_recv(cli_client_t *clic, int fd, bool tcp)
     }
 }
 
-int
+STATIC int
 __clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len)
 {
     int fd = INVALID_FD, err = 0;

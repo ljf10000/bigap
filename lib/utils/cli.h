@@ -163,12 +163,6 @@ __clic_fd(cli_client_t *clic, cli_table_t *table)
 }
 
 extern int
-__clic_recv(int fd, int timeout);
-
-extern int
-__clic_request(cli_client_t *clic, cli_table_t *table, char *buf, int len);
-
-extern int
 clic_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[]);
 
 static inline int
