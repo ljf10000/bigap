@@ -192,7 +192,7 @@ __this_env(void);
 static inline void
 os_env_init(void)
 {
-#if use_THIS_ENV
+#if USE_THIS_ENV
     int i;
     
 #define OS_ENV_GET(_key, _value, _name) \
