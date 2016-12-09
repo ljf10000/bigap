@@ -246,7 +246,7 @@ umd_user_tag_free(umd_user_tag_t *tag)
 }
 
 STATIC umd_user_tag_t *
-umd_user_tag_new(char *k, char *v)
+umduser_tag_new(char *k, char *v)
 {
     umd_user_tag_t *tag = (umd_user_tag_t *)os_malloc(sizeof(*tag));
     if (NULL==tag) {
@@ -267,7 +267,7 @@ umd_user_tag_new(char *k, char *v)
 }
 
 STATIC umd_user_tag_t *
-umd_user_tag_get(umd_user_t *user, char *k)
+umduser_tag_get(umd_user_t *user, char *k)
 {
     umd_user_tag_t *tag;
 
@@ -285,7 +285,7 @@ umd_user_tag_get(umd_user_t *user, char *k)
 }
 
 STATIC umd_user_tag_t *
-umd_user_tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
+umduser_tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
 {
     umd_user_tag_t *tag = NULL;
 
@@ -293,9 +293,9 @@ umd_user_tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
         return NULL;
     }
 
-    tag = umd_user_tag_get(user, k);
+    tag = umduser_tag_get(user, k);
     if (NULL==tag) {
-        tag = umd_user_tag_new(k, v);
+        tag = umduser_tag_new(k, v);
         if (NULL==tag) {
             return NULL;
         }
@@ -316,13 +316,13 @@ umd_user_tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
 }
 
 STATIC umd_user_tag_t *
-umd_user_tag_set(umd_user_t *user, char *k, char *v)
+umduser_tag_set(umd_user_t *user, char *k, char *v)
 {
-    return umd_user_tag_insert(user, k, v, true);
+    return umduser_tag_insert(user, k, v, true);
 }
 
 STATIC void
-umd_user_tag_clear(umd_user_t *user)
+umduser_tag_clear(umd_user_t *user)
 {
     umd_user_tag_t *p, *n;
     
@@ -365,7 +365,7 @@ umd_lan_online(umd_user_t *user)
     umd_flow_reset(user, umd_flow_type_lan);
     umd_flow_reset(user, umd_flow_type_wan);
 
-    umd_user_tag_clear(user);
+    umduser_tag_clear(user);
     
     debug_event("user %s lan online", os_macstring(user->mac));
 }
@@ -387,7 +387,7 @@ umd_wan_online(umd_user_t *user)
 
     umd_flow_reset(user, umd_flow_type_wan);
 
-    umd_user_tag_clear(user);
+    umduser_tag_clear(user);
     
     debug_event("user %s wan online", os_macstring(user->mac));
 }
@@ -593,7 +593,7 @@ __umduser_delete(umd_user_t *user, umd_event_cb_t *ev)
 
     umd_user_debug_head_call("delete", user, {
         umd_ev_call(ev, user);
-        umd_user_tag_clear(user);
+        umduser_tag_clear(user);
         __umduser_remove(user);
         os_free(user);
     });
@@ -1027,13 +1027,13 @@ umduser_foreach(um_foreach_f *foreach, bool safe)
 umd_user_tag_t *
 umd_user_tag_get(byte mac[], char *k)
 {
-    return umd_user_tag_get(__umduser_get(mac), k);
+    return umduser_tag_get(__umduser_get(mac), k);
 }
 
 umd_user_tag_t *
 umd_user_tag_set(byte mac[], char *k, char *v)
 {
-    return umd_user_tag_set(__umduser_get(mac), k, v);
+    return umduser_tag_set(__umduser_get(mac), k, v);
 }
 
 int umd_user_delete(byte mac[])
@@ -1302,7 +1302,7 @@ umd_touser_tag(umd_user_t *user, jobj_t juser)
     if (jtag) {
         jobj_foreach(jtag, k, v) {
             if (jtype_string==jobj_type(v)) {
-                umd_user_tag_set(user, k, jobj_get_string(v));
+                umduser_tag_set(user, k, jobj_get_string(v));
             }
         }
     }
