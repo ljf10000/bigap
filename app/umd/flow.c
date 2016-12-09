@@ -107,16 +107,14 @@ umd_conn_get(umd_conn_t *q)
         return umd_conn_hash(q);
     }
     
-    bool eq(hash_node_t *p)
+    bool eq(hash_node_t *node)
     {
-        umd_conn_t *cn = umd_conn_hx_entry(p);
+        umd_conn_t *cn = umd_conn_hx_entry(node);
         
         return umd_conn_eq(q, cn);
     }
 
-    h1_node_t *node = h1_find(&umd.head.conn, hash, eq);
-
-    return umd_conn_h1_entry(node);
+    return umd_conn_h1_entry(h1_find(&umd.head.conn, hash, eq));
 }
 
 STATIC bool

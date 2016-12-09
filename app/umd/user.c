@@ -513,7 +513,7 @@ umd_set_user_reason(umd_user_t *user, int reason)
         return;
     }
 
-    debug_trace("user(%s) state(%s) reason change %s==>%s", 
+    debug_entry("user(%s) state(%s) reason change %s==>%s", 
         os_macstring(user->mac),
         umd_user_state_getnamebyid(user->state),
         umd_deauth_reason_getnamebyid(user->reason), 
@@ -555,7 +555,7 @@ umd_set_user_state(umd_user_t *user, int state)
         return;
     }
 
-    debug_trace("user %s state change %s==>%s", 
+    debug_entry("user %s state change %s==>%s", 
         os_macstring(user->mac), 
         umd_user_state_getnamebyid(user->state), 
         umd_user_state_getnamebyid(state));
@@ -914,16 +914,14 @@ __umduser_get(byte mac[])
         return __umduser_hashmac(mac);
     }
     
-    bool eq(hash_node_t *p)
+    bool eq(hash_node_t *node)
     {
-        umd_user_t *user = __umduser_hx_entry(p, UM_USER_NIDX_MAC);
+        umd_user_t *user = __umduser_hx_entry(node, UM_USER_NIDX_MAC);
         
         return os_maceq(user->mac, mac);
     }
-
-    h2_node_t *node = h2_find(&umd.head.user, UM_USER_NIDX_MAC, dhash, eq);
     
-    return __umduser_h2_entry(node);
+    return __umduser_h2_entry(h2_find(&umd.head.user, UM_USER_NIDX_MAC, dhash, eq));
 }
 
 STATIC umd_user_t *
@@ -931,7 +929,7 @@ umduser_get(byte mac[])
 {
     umd_user_t *user = __umduser_get(mac);
     if (NULL==user) {
-        debug_trace("no-found user %s", os_macstring(mac));
+        debug_entry("no-found user %s", os_macstring(mac));
     }
 
     return user;
@@ -1019,24 +1017,24 @@ umduser_sync(umd_user_t *user, jobj_t obj)
 umd_user_tag_t *
 umd_user_tag_get(byte mac[], char *k)
 {
-    return umduser_tag_get(__umduser_get(mac), k);
+    return umduser_tag_get(umduser_get(mac), k);
 }
 
 umd_user_tag_t *
 umd_user_tag_set(byte mac[], char *k, char *v)
 {
-    return umduser_tag_set(__umduser_get(mac), k, v);
+    return umduser_tag_set(umduser_get(mac), k, v);
 }
 
 int umd_user_delete(byte mac[])
 {
-    return umduser_delete(__umduser_get(mac));
+    return umduser_delete(umduser_get(mac));
 }
 
 umd_user_t *
 umd_user_create(byte mac[])
 {
-    umd_user_t *user = __umduser_get(mac);
+    umd_user_t *user = umduser_get(mac);
 
     return user?user:umduser_create(mac);
 }
@@ -1104,7 +1102,7 @@ int umd_user_foreach(mv_t (*foreach)(umd_user_t *user), bool safe)
 umd_user_t *
 umd_user_get(byte mac[])
 {
-    return __umduser_get(mac);
+    return umduser_get(mac);
 }
 
 umd_user_t *
@@ -1115,16 +1113,14 @@ umd_user_getbyip(uint32 ip)
         return __umduser_haship(ip);
     }
     
-    bool eq(hash_node_t *p)
+    bool eq(hash_node_t *node)
     {
-        umd_user_t *user = __umduser_hx_entry(p, UM_USER_NIDX_IP);
+        umd_user_t *user = __umduser_hx_entry(node, UM_USER_NIDX_IP);
 
         return ip==user->ip;
     }
-
-    h2_node_t *node = h2_find(&umd.head.user, UM_USER_NIDX_IP, dhash, eq);
     
-    return __umduser_h2_entry(node);
+    return __umduser_h2_entry(h2_find(&umd.head.user, UM_USER_NIDX_IP, dhash, eq));
 }
 
 int umd_user_delbyip(uint32 ip)

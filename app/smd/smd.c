@@ -292,16 +292,14 @@ smd_getbyname(char *name)
         return smd_hashname(name);
     }
     
-    bool eq(hash_node_t *p)
+    bool eq(hash_node_t *node)
     {
-        sm_entry_t *entry = smd_hx_entry(p, SMD_HASH_NAME);
+        sm_entry_t *entry = smd_hx_entry(node, SMD_HASH_NAME);
         
         return os_streq(entry->name, name);
     }
-
-    h2_node_t *node = h2_find(&smd.table, SMD_HASH_NAME, dhash, eq);
     
-    return smd_h2_entry(node);
+    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_NAME, dhash, eq));
 }
 
 STATIC sm_entry_t *
@@ -312,16 +310,14 @@ smd_getbynormal(int pid)
         return smd_hashpid(pid);
     }
     
-    bool eq(hash_node_t *p)
+    bool eq(hash_node_t *node)
     {
-        sm_entry_t *entry = smd_hx_entry(p, SMD_HASH_PID);
+        sm_entry_t *entry = smd_hx_entry(node, SMD_HASH_PID);
         
         return pid==entry->pid;
     }
-
-    h2_node_t *node = h2_find(&smd.table, SMD_HASH_PID, dhash, eq);
     
-    return smd_h2_entry(node);
+    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_PID, dhash, eq));
 }
 
 STATIC void
