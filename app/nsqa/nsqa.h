@@ -229,9 +229,6 @@ nsq_sender_msg(nsq_instance_t *instance)
     return (nsq_msg_t *)instance->bsender.buf;
 }
 
-typedef mv_t nsq_foreach_f(nsq_instance_t *instance);
-typedef mv_t nsq_get_f(nsq_instance_t *instance);
-
 typedef struct {
     struct {
         uint32 ticks;
@@ -274,7 +271,7 @@ extern int
 nsqi_show(char *name, char *topic, char *channel);
 
 extern int
-nsqi_foreach(nsq_foreach_f *foreach, bool safe);
+nsqi_foreach(mv_t (*foreach)(nsq_instance_t *instance), bool safe);
 
 extern int
 nsqi_identify(nsq_instance_t *instance, char *json);

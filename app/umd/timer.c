@@ -202,7 +202,7 @@ umd_timer_handle(umd_user_t *user, time_t now)
 STATIC int
 umd_timer(struct loop_watcher *watcher, time_t now)
 {
-    mv_t cb(umd_user_t *user)
+    mv_t foreach(umd_user_t *user)
     {
         umd_timer_handle(user, now);
 
@@ -211,7 +211,7 @@ umd_timer(struct loop_watcher *watcher, time_t now)
     
     umd.ticks++;
     
-    umd_user_foreach(cb, true);
+    umd_user_foreach(foreach, true);
 
     return 0;
 }

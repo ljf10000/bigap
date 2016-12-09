@@ -16,6 +16,9 @@
 #define hx_entry(_node, _type, _member, _nidx) \
     safe_container_of(_node, _type, _member.hash[_nidx])
 
+#define __hx_entry(_node, _type, _member, _nidx) \
+    safe_container_of(_node, _type, _member.hash[_nidx])
+
 #define in_hx_table(_node) __in_dlist(&(_node)->list)
 
 #define EXTERN_DB_TABLE(_name, _hash_count) \
@@ -221,7 +224,7 @@ typedef __h1_table_t    h1_table_t;
 typedef __h1_node_t     h1_node_t;
 typedef __h1_foreach_f  h1_foreach_f;
 
-#define h1_entry(_node, _type, _member) hx_entry(_node, _type, _member, 0)
+#define h1_entry(_node, _type, _member)     safe_container_of(_node, _type, _member)
 
 static inline int 
 h1_init(h1_table_t *table, int size)
@@ -297,6 +300,8 @@ typedef __h2_table_t    h2_table_t;
 typedef __h2_node_t     h2_node_t;
 typedef __h2_foreach_f  h2_foreach_f;
 
+#define h2_entry(_node, _type, _member)     safe_container_of(_node, _type, _member)
+
 static inline int 
 h2_init(h2_table_t *table, int size_array[])
 {
@@ -352,6 +357,8 @@ EXTERN_DB_TABLE(__h3, 3);
 typedef __h3_table_t    h3_table_t;
 typedef __h3_node_t     h3_node_t;
 typedef __h3_foreach_f  h3_foreach_f;
+
+#define h3_entry(_node, _type, _member)     safe_container_of(_node, _type, _member)
 
 static inline int 
 h3_init(h3_table_t *table, int size_array[])
@@ -409,6 +416,8 @@ typedef __h4_table_t    h4_table_t;
 typedef __h4_node_t     h4_node_t;
 typedef __h4_foreach_f  h4_foreach_f;
 
+#define h4_entry(_node, _type, _member)     safe_container_of(_node, _type, _member)
+
 static inline int 
 h4_init(h4_table_t *table, int size_array[])
 {
@@ -464,6 +473,8 @@ EXTERN_DB_TABLE(__h5, 5);
 typedef __h5_table_t    h5_table_t;
 typedef __h5_node_t     h5_node_t;
 typedef __h5_foreach_f  h5_foreach_f;
+
+#define h5_entry(_node, _type, _member)     safe_container_of(_node, _type, _member)
 
 static inline int 
 h5_init(h5_table_t *table, int size_array[])
@@ -521,6 +532,8 @@ typedef __h6_table_t    h6_table_t;
 typedef __h6_node_t     h6_node_t;
 typedef __h6_foreach_f  h6_foreach_f;
 
+#define h6_entry(_node, _type, _member)     safe_container_of(_node, _type, _member)
+
 static inline int 
 h6_init(h6_table_t *table, int size_array[])
 {
@@ -576,6 +589,8 @@ EXTERN_DB_TABLE(__h7, 7);
 typedef __h7_table_t    h7_table_t;
 typedef __h7_node_t     h7_node_t;
 typedef __h7_foreach_f  h7_foreach_f;
+
+#define h7_entry(_node, _type, _member)     safe_container_of(_node, _type, _member)
 
 static inline int 
 h7_init(h7_table_t *table, int size_array[])
@@ -633,6 +648,8 @@ typedef __h8_table_t    h8_table_t;
 typedef __h8_node_t     h8_node_t;
 typedef __h8_foreach_f  h8_foreach_f;
 
+#define h8_entry(_node, _type, _member)     safe_container_of(_node, _type, _member)
+
 static inline int 
 h8_init(h8_table_t *table, int size_array[])
 {
@@ -688,6 +705,8 @@ EXTERN_DB_TABLE(__h9, 9);
 typedef __h9_table_t    h9_table_t;
 typedef __h9_node_t     h9_node_t;
 typedef __h9_foreach_f  h9_foreach_f;
+
+#define h9_entry(_node, _type, _member)     safe_container_of(_node, _type, _member)
 
 static inline int 
 h9_init(h9_table_t *table, int size_array[])

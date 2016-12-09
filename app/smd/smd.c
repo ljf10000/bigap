@@ -98,8 +98,6 @@ typedef struct {
     .flags  = SM_F_STATIC,    \
 }   /* end */
 
-typedef mv_t smd_foreach_f(sm_entry_t *entry);
-
 ALWAYS_INLINE bool
 smd_is_normal(sm_entry_t *entry)
 {
@@ -197,13 +195,13 @@ smd_hashpid(int pid)
 }
 
 STATIC sm_entry_t *
-smd_h2entry(h2_node_t *node)
+smd_h2_entry(h2_node_t *node)
 {
-    return safe_container_of(node, sm_entry_t, node);
+    return h2_entry(node, sm_entry_t, node);
 }
 
 STATIC sm_entry_t *
-smd_h0entry(hash_node_t *node, hash_idx_t nidx)
+smd_hx_entry(hash_node_t *node, hash_idx_t nidx)
 {
     return hx_entry(node, sm_entry_t, node, nidx);
 }
@@ -211,7 +209,7 @@ smd_h0entry(hash_node_t *node, hash_idx_t nidx)
 STATIC hash_idx_t
 smd_nodehashname(hash_node_t *node)
 {
-    sm_entry_t *entry = smd_h0entry(node, SMD_HASH_NAME);
+    sm_entry_t *entry = smd_hx_entry(node, SMD_HASH_NAME);
 
     return smd_hashname(entry->name);
 }
@@ -219,7 +217,7 @@ smd_nodehashname(hash_node_t *node)
 STATIC hash_idx_t
 smd_nodehashpid(hash_node_t *node)
 {
-    sm_entry_t *entry = smd_h0entry(node, SMD_HASH_PID);
+    sm_entry_t *entry = smd_hx_entry(node, SMD_HASH_PID);
 
     return smd_hashpid(entry->pid);
 }
@@ -261,11 +259,11 @@ __smd_insert(sm_entry_t *entry)
 }
 
 STATIC int
-__smd_foreach(smd_foreach_f *foreach, bool safe)
+__smd_foreach(mv_t (*foreach)(sm_entry_t *entry), bool safe)
 {
     mv_t node_foreach(h2_node_t *node)
     {
-        return (*foreach)(smd_h2entry(node));
+        return (*foreach)(smd_h2_entry(node));
     }
 
     if (safe) {
@@ -278,7 +276,7 @@ __smd_foreach(smd_foreach_f *foreach, bool safe)
 STATIC void
 smd_dump_all(char *name)
 {
-    mv_t cb(sm_entry_t *entry)
+    mv_t foreach(sm_entry_t *entry)
     {
         debug_trace("entry:%s pid:%d forks:%d command:%s ", 
             entry->name,
@@ -290,7 +288,7 @@ smd_dump_all(char *name)
     }
 
     if (__is_ak_debug_trace) {
-        __smd_foreach(cb, false);
+        __smd_foreach(foreach, false);
     }
 }
 
@@ -310,12 +308,12 @@ smd_getbyname(char *name)
     
     bool eq(hash_node_t *node)
     {
-        sm_entry_t *entry = smd_h0entry(node, SMD_HASH_NAME);
+        sm_entry_t *entry = smd_hx_entry(node, SMD_HASH_NAME);
         
         return os_streq(entry->name, name);
     }
     
-    return smd_h2entry(h2_find(&smd.table, SMD_HASH_NAME, dhash, eq));
+    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_NAME, dhash, eq));
 }
 
 STATIC sm_entry_t *
@@ -328,12 +326,12 @@ smd_getbynormal(int pid)
     
     bool eq(hash_node_t *node)
     {
-        sm_entry_t *entry = smd_h0entry(node, SMD_HASH_PID);
+        sm_entry_t *entry = smd_hx_entry(node, SMD_HASH_PID);
         
         return pid==entry->pid;
     }
     
-    return smd_h2entry(h2_find(&smd.table, SMD_HASH_PID, dhash, eq));
+    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_PID, dhash, eq));
 }
 
 STATIC void
@@ -563,7 +561,7 @@ smd_wait(void)
     /*
     * check run
     */
-    mv_t cb(sm_entry_t *entry)
+    mv_t foreach(sm_entry_t *entry)
     {       
         switch(entry->state) {
             case SM_STATE_DIE:    /* down */
@@ -588,7 +586,7 @@ smd_wait(void)
         return mv2_ok;
     }
     
-    err = __smd_foreach(cb, true);
+    err = __smd_foreach(foreach, true);
     
     return err;
 }
@@ -773,14 +771,14 @@ smd_handle_clean(cli_table_t *table, int argc, char *argv[])
         return cli_help(-EINVAL2);
     }
     
-    mv_t cb(sm_entry_t *entry)
+    mv_t foreach(sm_entry_t *entry)
     {
         smd_remove(entry);
 
         return mv2_ok;
     }
     
-    return __smd_foreach(cb, true);
+    return __smd_foreach(foreach, true);
 }
 
 STATIC void
@@ -812,7 +810,7 @@ smd_handle_show(cli_table_t *table, int argc, char *argv[])
     
     cli_sprintf("#name pid/dpid forks state command" __crlf);
 
-    mv_t cb(sm_entry_t *entry)
+    mv_t foreach(sm_entry_t *entry)
     {
         if (NULL==name || os_streq(entry->name, name)) {
             smd_show(entry);
@@ -823,7 +821,7 @@ smd_handle_show(cli_table_t *table, int argc, char *argv[])
         return mv2_ok;
     }
     
-    return __smd_foreach(cb, false);
+    return __smd_foreach(foreach, false);
     
     if (empty) {
         /*

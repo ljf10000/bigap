@@ -64,21 +64,21 @@ struct xtimer {
 };
 
 STATIC struct xtimer *
-tmd_get_entry_bytm(tm_node_t *timer)
+tmd_tm_entry(tm_node_t *timer)
 {
-    return safe_container_of(timer, struct xtimer, timer);
+    return tm_timer_entry(timer, struct xtimer, timer);
 }
 
 STATIC struct xtimer *
-tmd_h0entry(hash_node_t *node)
+tmd_hx_entry(hash_node_t *node)
+{
+    return hx_entry(node, struct xtimer, node, 0);
+}
+
+STATIC struct xtimer *
+tmd_h1_entry(h1_node_t *node)
 {
     return h1_entry(node, struct xtimer, node);
-}
-
-STATIC struct xtimer *
-tmd_h1entry(h1_node_t *node)
-{
-    return safe_container_of(node, struct xtimer, node);
 }
 
 STATIC hash_idx_t 
@@ -87,19 +87,22 @@ tmd_hash(char *name)
     return os_str_bkdr(name) & (h1_size(&tmd.table) - 1);
 }
 
+STATIC hash_idx_t 
+tmd_nhash(hash_node_t *node)
+{
+    struct xtimer *entry = tmd_hx_entry(node);
+    
+    return tmd_hash(entry->name);
+}
+
 STATIC int
 tmd_insert(struct xtimer *entry)
 {
     if (NULL==entry) {
         return -EKEYNULL;
     }
-
-    hash_idx_t hash(hash_node_t *node)
-    {
-        return tmd_hash(entry->name);
-    }
     
-    return h1_add(&tmd.table, &entry->node, hash);
+    return h1_add(&tmd.table, &entry->node, tmd_nhash);
 }
 
 STATIC int
@@ -128,7 +131,7 @@ tmd_get(char *name)
     
     bool eq(hash_node_t *node)
     {
-        struct xtimer *entry = tmd_h0entry(node);
+        struct xtimer *entry = tmd_hx_entry(node);
         
         return os_straeq(entry->name, name);
     }
@@ -138,23 +141,23 @@ tmd_get(char *name)
         return NULL;
     }
 
-    return tmd_h1entry(node);
+    return tmd_h1_entry(node);
 }
 
 STATIC int
-tmd_foreach(mv_t (*cb)(struct xtimer *entry), bool safe)
+tmd_foreach(mv_t (*foreach)(struct xtimer *entry), bool safe)
 {
-    mv_t foreach(h1_node_t *node)
+    mv_t node_foreach(h1_node_t *node)
     {
-        struct xtimer *entry = tmd_h1entry(node);
+        struct xtimer *entry = tmd_h1_entry(node);
 
-        return (*cb)(entry);
+        return (*foreach)(entry);
     }
 
     if (safe) {
-        return h1_foreach_safe(&tmd.table, foreach);
+        return h1_foreach_safe(&tmd.table, node_foreach);
     } else {
-        return h1_foreach(&tmd.table, foreach);
+        return h1_foreach(&tmd.table, node_foreach);
     }
 }
 
@@ -221,7 +224,7 @@ tmd_is_cycle(struct xtimer *entry)
 STATIC mv_t 
 tmd_xtimer_cb(tm_node_t *timer)
 {
-    struct xtimer *entry = tmd_get_entry_bytm(timer);
+    struct xtimer *entry = tmd_tm_entry(timer);
     
     entry->triggers++;
     os_system("%s &", entry->command);
@@ -359,14 +362,14 @@ tmd_handle_clean(cli_table_t *table, int argc, char *argv[])
         return cli_help(-EINVAL1);
     }
     
-    mv_t cb(struct xtimer *entry)
+    mv_t foreach(struct xtimer *entry)
     {
         tmd_remove(entry);
 
         return mv2_ok;
     }
     
-    tmd_foreach(cb, true);
+    tmd_foreach(foreach, true);
     
     return 0;
 }
@@ -400,7 +403,7 @@ tmd_handle_show(cli_table_t *table, int argc, char *argv[])
 
     cli_sprintf("#name delay interval limit triggers left command" __crlf);
     
-    mv_t cb(struct xtimer *entry)
+    mv_t foreach(struct xtimer *entry)
     {
         if (NULL==name || os_straeq(entry->name, name)) {
             tmd_show(entry);
@@ -411,7 +414,7 @@ tmd_handle_show(cli_table_t *table, int argc, char *argv[])
         return mv2_ok;
     }
     
-    tmd_foreach(cb, false);
+    tmd_foreach(foreach, false);
     
     if (empty) {
         /*

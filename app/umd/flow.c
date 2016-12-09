@@ -15,6 +15,116 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 static umd_flow_t flow;
 static umd_conn_t conn;
 
+STATIC bkdr_t
+umd_conn_bdkr(umd_conn_t *cn)
+{
+    bkdr_t bkdr = 0;
+
+    bkdr = os_bin_bkdr_push(bkdr, cn->smac, sizeof(cn->smac));
+    bkdr = os_bin_bkdr_push(bkdr, cn->dmac, sizeof(cn->dmac));
+    bkdr = os_bin_bkdr_push(bkdr, &cn->sip, sizeof(cn->sip));
+    bkdr = os_bin_bkdr_push(bkdr, &cn->dip, sizeof(cn->dip));
+    bkdr = os_bin_bkdr_push(bkdr, &cn->protocol, sizeof(cn->protocol));
+
+    return bkdr;
+}
+
+STATIC bkdr_t
+umd_conn_eq(umd_conn_t *a, umd_conn_t *b)
+{
+    return a->bkdr == b->bkdr
+        && os_maceq(a->smac, b->smac)
+        && os_maceq(a->dmac, b->dmac)
+        && a->sip == b->sip
+        && a->dip == b->dip
+        && a->protocol == b->protocol;
+}
+
+STATIC umd_conn_t *
+umd_conn_hx_entry(hash_node_t *node)
+{
+    return hx_entry(node, umd_conn_t, node.conn, 0);
+}
+
+STATIC umd_conn_t *
+umd_conn_h1_entry(h1_node_t *node)
+{
+    return h1_entry(node, umd_conn_t, node.conn);
+}
+
+STATIC hash_idx_t 
+umd_conn_hash(umd_conn_t *cn)
+{
+    return cn->bkdr & (umd.cfg.connhashsize - 1);
+}
+
+STATIC hash_idx_t
+umd_conn_nhash(hash_node_t *node)
+{
+    umd_conn_t *cn = umd_conn_hx_entry(node);
+    
+    return umd_conn_hash(cn);
+}
+
+STATIC umd_conn_t *
+umd_conn_new(bkdr_t bkdr)
+{
+    umd_conn_t *cn = NULL;
+    
+    if (NULL==flow.iph) {
+        return NULL;
+    }
+
+    cn = (umd_conn_t *)os_zalloc(sizeof(*cn));
+    if (NULL==cn) {
+        return NULL;
+    }
+    cn->bkdr = bkdr;
+
+    return cn;
+}
+
+STATIC int
+umd_conn_insert(umd_conn_t *cn)
+{
+    return h1_add(&umd.head.conn, &cn->node.conn, umd_conn_nhash);
+}
+
+STATIC int
+umd_conn_remove(umd_conn_t *cn)
+{
+    return h1_del(&umd.head.conn, &cn->node.conn);
+}
+
+STATIC umd_conn_t *
+umd_conn_get(umd_conn_t *cn)
+{
+    hash_idx_t hash(void)
+    {
+        return umd_conn_hash(cn);
+    }
+    
+    bool eq(hash_node_t *node)
+    {
+        umd_conn_t *p = umd_conn_h1_entry(node);
+        
+        return umd_conn_eq(cn, p);
+    }
+
+    h1_node_t *node = h1_find(&umd.head.conn, hash, eq);
+    if (NULL==node) {
+        return NULL;
+    }
+
+    return umd_conn_h1_entry(node);
+}
+
+STATIC int
+umd_conn_foreach(mv_t (*cb)(umd_conn_t *cn), bool safe)
+{
+    return h1_foreach();
+}
+
 STATIC bool
 umd_is_dev_mac(byte mac[])
 {

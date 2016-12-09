@@ -122,14 +122,14 @@ nsqa_timer_handle(nsq_instance_t *instance, time_t now)
 STATIC int
 nsqa_timer(loop_watcher_t *watcher, time_t now)
 {
-    mv_t cb(nsq_instance_t *instance)
+    mv_t foreach(nsq_instance_t *instance)
     {
         nsqa_timer_handle(instance, now);
 
         return mv2_ok;
     }
     
-    nsqi_foreach(cb, true);
+    nsqi_foreach(foreach, true);
     
     nsqa.st.ticks++;
     

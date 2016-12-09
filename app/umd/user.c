@@ -142,7 +142,6 @@ void umd_update_limit_test(void)
         .ip = intf->ip,
         .head = { 
             .tag    = DLIST_INITER(user.head.tag),
-            .uconn  = DLIST_INITER(user.head.uconn),
         },
     };
     os_maccpy(user.mac, intf->mac);
@@ -209,13 +208,13 @@ umd_haship(uint32 ip)
 }
 
 STATIC umd_user_t *
-umd_h2user(h2_node_t *node)
+umd_h2_user(h2_node_t *node)
 {
-    return safe_container_of(node, umd_user_t, node.user);
+    return h2_entry(node, umd_user_t, node.user);
 }
 
 STATIC umd_user_t *
-umd_h0user(hash_node_t *node, hash_idx_t nidx)
+umd_hx_user(hash_node_t *node, hash_idx_t nidx)
 {
     return hx_entry(node, umd_user_t, node.user, nidx);
 }
@@ -223,7 +222,7 @@ umd_h0user(hash_node_t *node, hash_idx_t nidx)
 STATIC hash_idx_t
 umd_nodehashmac(hash_node_t *node)
 {
-    umd_user_t *user = umd_h0user(node, UM_USER_NIDX_MAC);
+    umd_user_t *user = umd_hx_user(node, UM_USER_NIDX_MAC);
 
     return umd_hashmac(user->mac);
 }
@@ -231,7 +230,7 @@ umd_nodehashmac(hash_node_t *node)
 STATIC hash_idx_t
 umd_nodehaship(hash_node_t *node)
 {
-    umd_user_t *user = umd_h0user(node, UM_USER_NIDX_IP);
+    umd_user_t *user = umd_hx_user(node, UM_USER_NIDX_IP);
 
     return umd_haship(user->ip);
 }
@@ -619,7 +618,6 @@ __umduser_create(byte mac[], umd_event_cb_t *ev)
         return NULL;
     }
     dlist_init(&user->head.tag);
-    dlist_init(&user->head.uconn);
 
     os_maccpy(user->mac, mac);
 
@@ -918,14 +916,14 @@ __umduser_get(byte mac[])
     
     bool eq(hash_node_t *node)
     {
-        umd_user_t *user = umd_h0user(node, UM_USER_NIDX_MAC);
+        umd_user_t *user = umd_hx_user(node, UM_USER_NIDX_MAC);
         
         return os_maceq(user->mac, mac);
     }
 
     h2_node_t *node = h2_find(&umd.head.user, UM_USER_NIDX_MAC, dhash, eq);
     
-    return umd_h2user(node);
+    return umd_h2_user(node);
 }
 
 STATIC umd_user_t *
@@ -1018,21 +1016,6 @@ umduser_sync(umd_user_t *user, jobj_t obj)
     return __umduser_sync(user, obj, umd_ev);
 }
 
-STATIC int
-umduser_foreach(um_foreach_f *foreach, bool safe)
-{
-    mv_t node_foreach(h2_node_t *node)
-    {
-        return (*foreach)(umd_h2user(node));
-    }
-
-    if (safe) {
-        return h2_foreach_safe(&umd.head.user, node_foreach);
-    } else {
-        return h2_foreach(&umd.head.user, node_foreach);
-    }
-}
-
 umd_user_tag_t *
 umd_user_tag_get(byte mac[], char *k)
 {
@@ -1113,9 +1096,18 @@ umd_user_sync(byte mac[], jobj_t obj)
     return umduser_sync(umd_user_create(mac), obj);
 }
 
-int umd_user_foreach(um_foreach_f *foreach, bool safe)
+int umd_user_foreach(mv_t (*foreach)(umd_user_t *user), bool safe)
 {
-    return umduser_foreach(foreach, safe);
+    mv_t node_foreach(h2_node_t *node)
+    {
+        return (*foreach)(umd_h2_user(node));
+    }
+
+    if (safe) {
+        return h2_foreach_safe(&umd.head.user, node_foreach);
+    } else {
+        return h2_foreach(&umd.head.user, node_foreach);
+    }
 }
 
 umd_user_t *
@@ -1134,14 +1126,14 @@ umd_user_getbyip(uint32 ip)
     
     bool eq(hash_node_t *node)
     {
-        umd_user_t *user = umd_h0user(node, UM_USER_NIDX_IP);
+        umd_user_t *user = umd_hx_user(node, UM_USER_NIDX_IP);
 
         return ip==user->ip;
     }
 
     h2_node_t *node = h2_find(&umd.head.user, UM_USER_NIDX_IP, dhash, eq);
     
-    return umd_h2user(node);
+    return umd_h2_user(node);
 }
 
 int umd_user_delbyip(uint32 ip)
@@ -1491,7 +1483,7 @@ umd_match_user(umd_user_t *user, umd_user_filter_t *filter)
 
 int umd_user_delby(umd_user_filter_t *filter)
 {
-    mv_t cb(umd_user_t *user)
+    mv_t foreach(umd_user_t *user)
     {
         if (umd_match_user(user, filter)) {
             umduser_delete(user);
@@ -1500,12 +1492,12 @@ int umd_user_delby(umd_user_filter_t *filter)
         return mv2_ok;
     }
     
-    return umd_user_foreach(cb, true);
+    return umd_user_foreach(foreach, true);
 }
 
-int umd_user_getbyfilter(umd_user_filter_t *filter, um_get_f *get)
+int umd_user_getbyfilter(umd_user_filter_t *filter, mv_t (*get)(umd_user_t *user))
 {
-    mv_t cb(umd_user_t *user)
+    mv_t foreach(umd_user_t *user)
     {
         if (umd_match_user(user, filter)) {
             return (*get)(user);
@@ -1514,6 +1506,6 @@ int umd_user_getbyfilter(umd_user_filter_t *filter, um_get_f *get)
         }
     }
     
-    return umd_user_foreach(cb, false);
+    return umd_user_foreach(foreach, false);
 }
 /******************************************************************************/

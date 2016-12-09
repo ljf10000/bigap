@@ -13,15 +13,15 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "nsqa.h"
 /******************************************************************************/
 STATIC nsq_instance_t *
-__nsqi_h0entry(hash_node_t *node)
+__nsqi_hx_entry(hash_node_t *node)
 {
-    return h1_entry(node, nsq_instance_t, node);
+    return hx_entry(node, nsq_instance_t, node, 0);
 }
 
 STATIC nsq_instance_t *
-__nsqi_h2entry(h1_node_t *node)
+__nsqi_h1_entry(h1_node_t *node)
 {
-    return safe_container_of(node, nsq_instance_t, node);
+    return h1_entry(node, nsq_instance_t, node);
 }
 
 STATIC hash_idx_t
@@ -34,6 +34,14 @@ __nsqi_hash(char *name, char *topic, char *channel)
     bkdr = os_str_bkdr_push(bkdr, channel);
 
     return (hash_idx_t)bkdr & NSQ_HASHMASK;
+}
+
+STATIC hash_idx_t 
+__ndqi_nhash(hash_node_t *node)
+{
+    nsq_instance_t *instance = __nsqi_hx_entry(node);
+    
+    return __nsqi_hash(instance->name, instance->topic, instance->channel);
 }
 
 STATIC int
@@ -139,14 +147,7 @@ error:
 STATIC int
 __nsqi_insert(nsq_instance_t *instance)
 {
-    hash_idx_t nhash(hash_node_t *node)
-    {
-        nsq_instance_t *instance = __nsqi_h0entry(node);
-        
-        return __nsqi_hash(instance->name, instance->topic, instance->channel);
-    }
-    
-    return h1_add(&nsqa.table, &instance->node, nhash);
+    return h1_add(&nsqa.table, &instance->node, __ndqi_nhash);
 }
 
 STATIC int
@@ -398,11 +399,11 @@ nsqi_remove(char *name, char *topic, char *channel)
 }
 
 int
-nsqi_foreach(nsq_foreach_f *foreach, bool safe)
+nsqi_foreach(mv_t (*foreach)(nsq_instance_t *instance), bool safe)
 {
     mv_t node_foreach(h1_node_t *node)
     {
-        return (*foreach)(__nsqi_h2entry(node));
+        return (*foreach)(__nsqi_h1_entry(node));
     }
 
     if (safe) {
@@ -422,14 +423,14 @@ nsqi_get(char *name, char *topic, char *channel)
     
     bool eq(hash_node_t *node)
     {
-        nsq_instance_t *instance = __nsqi_h0entry(node);
+        nsq_instance_t *instance = __nsqi_hx_entry(node);
         
         return os_streq(name, instance->name)
             && os_streq(topic, instance->topic)
             && os_streq(channel, instance->channel);
     }
 
-    return __nsqi_h2entry(h1_find(&nsqa.table, dhash, eq));
+    return __nsqi_h1_entry(h1_find(&nsqa.table, dhash, eq));
 }
 
 int

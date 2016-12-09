@@ -274,7 +274,6 @@ typedef struct {
 
     struct {
         dlist_t tag;
-        dlist_t uconn;
     } head;
 
     struct {
@@ -336,9 +335,6 @@ umd_update_aging_helper(umd_user_t *user, int type, bool debug);
 
 extern void
 umd_update_aging(umd_user_t *user, bool debug);
-
-typedef mv_t um_foreach_f(umd_user_t *user);
-typedef mv_t um_get_f(umd_user_t *user);
 
 enum {
     UMD_SERVER_TIMER,    /* must first */
@@ -653,27 +649,29 @@ EXTERN int umd_conn_dir_getidbyname(const char *name);
 #define umd_conn_dir_end        umd_conn_dir_end
 #endif
 
+/*
+* size = 23 * uint32 = 92 byte
+*/
 typedef struct {
     byte smac[OS_MACSIZE];
     byte dmac[OS_MACSIZE];
     uint32 sip;     // network sort
     uint32 dip;     // network sort
-    
     byte protocol, _r[3];
 
     int conn_dir;   // umd_conn_dir_end
     int flow_type;  // umd_flow_type_end
     int flow_dir;   // umd_flow_dir_end
-
+    
+    bkdr_t bkdr;
+    
     byte *usermac;
     uint32 userip;  // network sort
     
-    umd_user_t *user;
     umd_intf_t *intf;
 
     struct {
-        h1_node_t       conn;
-        dlist_node_t    uconn;
+        h1_node_t conn;
     } node;
 } 
 umd_conn_t;
@@ -751,7 +749,7 @@ extern umd_user_t *
 umd_user_sync(byte mac[], jobj_t obj);
 
 extern int
-umd_user_foreach(um_foreach_f *foreach, bool safe);
+umd_user_foreach(mv_t (*foreach)(umd_user_t *user), bool safe);
 
 extern umd_user_t *
 umd_user_get(byte mac[]);
@@ -760,7 +758,7 @@ extern umd_user_t *
 umd_user_getbyip(uint32 ip);
 
 extern int
-umd_user_getbyfilter(umd_user_filter_t *filter, um_get_f *get);
+umd_user_getbyfilter(umd_user_filter_t *filter, mv_t (*get)(umd_user_t *user));
 
 extern int
 umd_user_delbyip(uint32 ip);

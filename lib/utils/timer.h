@@ -52,6 +52,9 @@ typedef struct tm_node_s {
     uint64      create;
 } tm_node_t;
 
+#define tm_timer_entry(_ptr, _type, _member) \
+    safe_container_of(_ptr, _type, _member)
+
 /*
 * return
 *   <0: error
