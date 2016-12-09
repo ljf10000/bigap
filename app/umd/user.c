@@ -301,7 +301,7 @@ umduser_tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
             return NULL;
         }
 
-        dlist_add(&tag->node.tag, &user->head.tag);
+        dlist_add(&user->head.tag, &tag->node.tag);
     }
     else {
         if (false==update_if_exist) {
@@ -329,6 +329,8 @@ umduser_tag_clear(umd_user_t *user)
     {
         umd_user_tag_t *tag = dlist_entry(p, umd_user_tag_t, node.tag);
 
+        dlist_del(&user->head.tag, &tag->node.tag);
+        
         umduser_tag_free(tag);
 
         return mv2_ok;
@@ -617,8 +619,9 @@ __umduser_create(byte mac[], umd_event_cb_t *ev)
         return NULL;
     }
     os_maccpy(user->mac, mac);
-    
-    INIT_LIST_HEAD(&user->head.tag);
+
+    dlist_init(&user->head.tag);
+    dlist_init(&user->head.conn);
 
     umd_user_debug_tail_call("create", user, {
         umd_set_user_state(user, UMD_STATE_NONE);
