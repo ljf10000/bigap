@@ -237,7 +237,7 @@ umd_nodehaship(hash_node_t *node)
 }
 
 STATIC void
-umd_user_tag_free(umd_user_tag_t *tag)
+umduser_tag_free(umd_user_tag_t *tag)
 {
     if (tag) {
         os_free(tag->k);
@@ -258,7 +258,7 @@ umduser_tag_new(char *k, char *v)
     tag->v = os_strdup(v);
 
     if (NULL==tag->k || NULL==tag->v) {
-        umd_user_tag_free(tag); 
+        umduser_tag_free(tag); 
 
         return NULL;
     }
@@ -331,7 +331,7 @@ umduser_tag_clear(umd_user_t *user)
     {
         umd_user_tag_t *tag = dlist_entry(node, umd_user_tag_t, node.user);
 
-        umd_user_tag_free(tag);
+        umduser_tag_free(tag);
 
         return mv2_ok;
     }
