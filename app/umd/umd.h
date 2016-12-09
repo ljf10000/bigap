@@ -244,7 +244,7 @@ typedef struct {
 
 typedef struct {
     struct {
-        dlist_node_t user;
+        dlist_node_t tag;
     } node;
     
     char *k;
