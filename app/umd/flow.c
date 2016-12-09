@@ -106,7 +106,7 @@ umd_conn_get(umd_conn_t *cn)
     
     bool eq(hash_node_t *node)
     {
-        umd_conn_t *p = umd_conn_h1_entry(node);
+        umd_conn_t *p = umd_conn_hx_entry(node);
         
         return umd_conn_eq(cn, p);
     }
@@ -227,7 +227,6 @@ umd_pkt_handle(sock_server_t *server)
     conn.usermac= NULL;
     conn.userip = 0;
     conn.intf   = umd_getintf_byserver(server);
-    conn.user   = NULL;
 
     err = recvfrom(server->fd, flow.packet, sizeof(flow.packet), 0, &server->addr.c, &addrlen);
     if (err<0) { /* yes, <0 */
