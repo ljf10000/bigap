@@ -149,16 +149,10 @@ tmd_foreach(mv_t (*foreach)(struct xtimer *entry), bool safe)
 {
     mv_t node_foreach(h1_node_t *node)
     {
-        struct xtimer *entry = tmd_h1_entry(node);
-
-        return (*foreach)(entry);
+        return (*foreach)(tmd_h1_entry(node));
     }
 
-    if (safe) {
-        return h1_foreach_safe(&tmd.table, node_foreach);
-    } else {
-        return h1_foreach(&tmd.table, node_foreach);
-    }
+    return h1_foreach(&tmd.table, node_foreach, safe);
 }
 
 STATIC struct xtimer *

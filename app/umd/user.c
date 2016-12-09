@@ -1103,11 +1103,7 @@ int umd_user_foreach(mv_t (*foreach)(umd_user_t *user), bool safe)
         return (*foreach)(umd_h2_user(node));
     }
 
-    if (safe) {
-        return h2_foreach_safe(&umd.head.user, node_foreach);
-    } else {
-        return h2_foreach(&umd.head.user, node_foreach);
-    }
+    return h2_foreach(&umd.head.user, node_foreach, safe);
 }
 
 umd_user_t *

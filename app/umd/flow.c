@@ -127,11 +127,7 @@ umd_conn_foreach(mv_t (*foreach)(umd_conn_t *cn), bool safe)
         return (*foreach)(umd_conn_h1_entry(node));
     }
 
-    if (safe) {
-        return h1_foreach_safe(&umd.head.conn, node_foreach);
-    } else {
-        return h1_foreach(&umd.head.conn, node_foreach);
-    }
+    return h1_foreach(&umd.head.conn, node_foreach, safe);
 }
 
 STATIC bool

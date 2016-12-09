@@ -266,11 +266,7 @@ __smd_foreach(mv_t (*foreach)(sm_entry_t *entry), bool safe)
         return (*foreach)(smd_h2_entry(node));
     }
 
-    if (safe) {
-        return h2_foreach_safe(&smd.table, node_foreach);
-    } else {
-        return h2_foreach(&smd.table, node_foreach);
-    }
+    return h2_foreach(&smd.table, node_foreach, safe);
 }
 
 STATIC void

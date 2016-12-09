@@ -56,10 +56,7 @@ EXTERN _name##_node_t *                 \
 _name##_find(_name##_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq); \
                                         \
 EXTERN int                              \
-_name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach); \
-                                        \
-EXTERN int                              \
-_name##_foreach_safe(_name##_table_t *table, _name##_foreach_f *foreach); \
+_name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach, bool safe); \
                                         \
 os_fake_declare                         \
 /* end */
@@ -160,41 +157,34 @@ _name##_find(_name##_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_
 }                                       \
                                         \
 DECLARE int                             \
-_name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach) \
-{                                       \
-    _name##_node_t *node;               \
-    mv_u mv;                            \
-                                        \
-    hx_println("hx foreach ...");       \
-    dlistForeachEntry(&table->list, node, list) { \
-        mv.v = (*foreach)(node);        \
-        hx_println("hx foreach node=%p", node); \
-        if (is_mv2_break(mv)) {         \
-            hx_println("hx foreach ok."); \
-            return mv2_error(mv);       \
-        }                               \
-    }                                   \
-    hx_println("hx foreach ok.");       \
-                                        \
-    return 0;                           \
-}                                       \
-                                        \
-DECLARE int                             \
-_name##_foreach_safe(_name##_table_t *table, _name##_foreach_f *foreach) \
+_name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach, bool safe) \
 {                                       \
     _name##_node_t *node, *tmp;         \
     mv_u mv;                            \
                                         \
-    hx_println("hx safe foreach ...");  \
-    dlistForeachEntrySafe(&table->list, node, tmp, list) { \
-        mv.v = (*foreach)(node);        \
-        hx_println("hx safe foreach node=%p", node); \
-        if (is_mv2_break(mv)) {         \
-            hx_println("hx safe foreach ok."); \
-            return mv2_error(mv);       \
+    if (safe) {                         \
+        hx_println("hx safe foreach ...");  \
+        dlistForeachEntrySafe(&table->list, node, tmp, list) { \
+            mv.v = (*foreach)(node);    \
+            hx_println("hx safe foreach node=%p", node); \
+            if (is_mv2_break(mv)) {     \
+                hx_println("hx safe foreach ok."); \
+                return mv2_error(mv);   \
+            }                           \
         }                               \
+        hx_println("hx safe foreach ok.");  \
+    } else {                            \
+        hx_println("hx foreach ...");   \
+        dlistForeachEntry(&table->list, node, list) { \
+            mv.v = (*foreach)(node);    \
+            hx_println("hx foreach node=%p", node); \
+            if (is_mv2_break(mv)) {     \
+                hx_println("hx foreach ok."); \
+                return mv2_error(mv);   \
+            }                           \
+        }                               \
+        hx_println("hx foreach ok.");   \
     }                                   \
-    hx_println("hx safe foreach ok.");  \
                                         \
     return 0;                           \
 }                                       \
@@ -214,8 +204,7 @@ os_fake_declare                         \
 * int __h1_add(__h1_table_t *table, __h1_node_t *node, hash_node_calc_f *nhash);
 * void __h1_del(__h1_table_t *table, __h1_node_t *node);
 * __h1_node_t *__h1_find(__h1_table_t *table, hash_data_calc_f *dhash, hash_eq_f *eq);
-* int __h1_foreach(__h1_table_t *table, __h1_foreach_f *foreach);
-* int __h1_foreach_safe(__h1_table_t *table, __h1_foreach_f *foreach);
+* int __h1_foreach(__h1_table_t *table, __h1_foreach_f *foreach, bool safe);
 */
 #if USE_MOD_DB_H1
 EXTERN_DB_TABLE(__h1, 1);
@@ -267,15 +256,9 @@ h1_find(h1_table_t *table, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline int 
-h1_foreach(h1_table_t *table, h1_foreach_f *foreach)
+h1_foreach(h1_table_t *table, h1_foreach_f *foreach, bool safe)
 {
-    return __h1_foreach(table, foreach);
-}
-
-static inline int 
-h1_foreach_safe(h1_table_t *table, h1_foreach_f *foreach)
-{
-    return __h1_foreach_safe(table, foreach);
+    return __h1_foreach(table, foreach, safe);
 }
 #endif
 /******************************************************************************/
@@ -290,8 +273,7 @@ h1_foreach_safe(h1_table_t *table, h1_foreach_f *foreach)
 * __hx_node_t *__hx_add(__hx_table_t *table, __hx_node_t *node, hash_node_calc_f *nhash[]);
 * void __hx_del(__hx_table_t *table, __hx_node_t *node);
 * __hx_node_t *__hx_find(__hx_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq);
-* int __hx_foreach(__hx_table_t *table, __hx_foreach_f *foreach);
-* int __hx_foreach_safe(__hx_table_t *table, __hx_foreach_f *foreach);
+* int __hx_foreach(__hx_table_t *table, __hx_foreach_f *foreach, bool safe);
 */
 #if USE_MOD_DB_H2
 EXTERN_DB_TABLE(__h2, 2);
@@ -339,15 +321,9 @@ h2_find(h2_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline int 
-h2_foreach(h2_table_t *table, h2_foreach_f *foreach)
+h2_foreach(h2_table_t *table, h2_foreach_f *foreach, bool safe)
 {
-    return __h2_foreach(table, foreach);
-}
-
-static inline int 
-h2_foreach_safe(h2_table_t *table, h2_foreach_f *foreach)
-{
-    return __h2_foreach_safe(table, foreach);
+    return __h2_foreach(table, foreach, safe);
 }
 #endif
 
@@ -397,15 +373,9 @@ h3_find(h3_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline int 
-h3_foreach(h3_table_t *table, h3_foreach_f *foreach)
+h3_foreach(h3_table_t *table, h3_foreach_f *foreach, bool safe)
 {
-    return __h3_foreach(table, foreach);
-}
-
-static inline int 
-h3_foreach_safe(h3_table_t *table, h3_foreach_f *foreach)
-{
-    return __h3_foreach_safe(table, foreach);
+    return __h3_foreach(table, foreach, safe);
 }
 #endif
 
@@ -455,15 +425,9 @@ h4_find(h4_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline int 
-h4_foreach(h4_table_t *table, h4_foreach_f *foreach)
+h4_foreach(h4_table_t *table, h4_foreach_f *foreach, bool safe)
 {
-    return __h4_foreach(table, foreach);
-}
-
-static inline int 
-h4_foreach_safe(h4_table_t *table, h4_foreach_f *foreach)
-{
-    return __h4_foreach_safe(table, foreach);
+    return __h4_foreach(table, foreach, safe);
 }
 #endif
 
@@ -513,15 +477,9 @@ h5_find(h5_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline int 
-h5_foreach(h5_table_t *table, h5_foreach_f *foreach)
+h5_foreach(h5_table_t *table, h5_foreach_f *foreach, bool safe)
 {
-    return __h5_foreach(table, foreach);
-}
-
-static inline int 
-h5_foreach_safe(h5_table_t *table, h5_foreach_f *foreach)
-{
-    return __h5_foreach_safe(table, foreach);
+    return __h5_foreach(table, foreach, safe);
 }
 #endif
 
@@ -571,15 +529,9 @@ h6_find(h6_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline int 
-h6_foreach(h6_table_t *table, h6_foreach_f *foreach)
+h6_foreach(h6_table_t *table, h6_foreach_f *foreach, bool safe)
 {
-    return __h6_foreach(table, foreach);
-}
-
-static inline int 
-h6_foreach_safe(h6_table_t *table, h6_foreach_f *foreach)
-{
-    return __h6_foreach_safe(table, foreach);
+    return __h6_foreach(table, foreach, safe);
 }
 #endif
 
@@ -629,15 +581,9 @@ h7_find(h7_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline int 
-h7_foreach(h7_table_t *table, h7_foreach_f *foreach)
+h7_foreach(h7_table_t *table, h7_foreach_f *foreach, bool safe)
 {
-    return __h7_foreach(table, foreach);
-}
-
-static inline int 
-h7_foreach_safe(h7_table_t *table, h7_foreach_f *foreach)
-{
-    return __h7_foreach_safe(table, foreach);
+    return __h7_foreach(table, foreach, safe);
 }
 #endif
 
@@ -687,15 +633,9 @@ h8_find(h8_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline int 
-h8_foreach(h8_table_t *table, h8_foreach_f *foreach)
+h8_foreach(h8_table_t *table, h8_foreach_f *foreach, bool safe)
 {
-    return __h8_foreach(table, foreach);
-}
-
-static inline int 
-h8_foreach_safe(h8_table_t *table, h8_foreach_f *foreach)
-{
-    return __h8_foreach_safe(table, foreach);
+    return __h8_foreach(table, foreach, safe);
 }
 #endif
 
@@ -745,15 +685,9 @@ h9_find(h9_table_t *table, int hidx, hash_data_calc_f *dhash, hash_eq_f *eq)
 }
 
 static inline int 
-h9_foreach(h9_table_t *table, h9_foreach_f *foreach)
+h9_foreach(h9_table_t *table, h9_foreach_f *foreach, bool safe)
 {
-    return __h9_foreach(table, foreach);
-}
-
-static inline int 
-h9_foreach_safe(h9_table_t *table, h9_foreach_f *foreach)
-{
-    return __h9_foreach_safe(table, foreach);
+    return __h9_foreach(table, foreach, safe);
 }
 #endif
 

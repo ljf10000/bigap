@@ -406,11 +406,7 @@ nsqi_foreach(mv_t (*foreach)(nsq_instance_t *instance), bool safe)
         return (*foreach)(__nsqi_h1_entry(node));
     }
 
-    if (safe) {
-        return h1_foreach_safe(&nsqa.table, node_foreach);
-    } else {
-        return h1_foreach(&nsqa.table, node_foreach);
-    }
+    return h1_foreach(&nsqa.table, node_foreach, safe);
 }
 
 nsq_instance_t *
