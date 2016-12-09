@@ -124,7 +124,7 @@ umd_conn_foreach(mv_t (*foreach)(umd_conn_t *cn), bool safe)
 {
     mv_t node_foreach(h1_node_t *node)
     {
-        return (*foreach)(__nsqi_h1_entry(node));
+        return (*foreach)(umd_conn_h1_entry(node));
     }
 
     if (safe) {
