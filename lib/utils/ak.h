@@ -280,7 +280,7 @@ __ak_getvaluebyid(akid_t akid);
 extern int 
 __ak_setvaluebyid(akid_t akid, uint32 v);
 
-static inline akid_t 
+static inline akid_t // must inline
 ak_getidbyname(char *k)
 {
     if (__THIS_COMMAND) {
@@ -290,7 +290,7 @@ ak_getidbyname(char *k)
     }
 }
 
-static inline akid_t 
+static inline akid_t // must inline
 ak_getidbynameEx(char *k)
 {
     if (__THIS_COMMAND) {
@@ -300,7 +300,7 @@ ak_getidbynameEx(char *k)
     }
 }
 
-static inline uint32
+static inline uint32 // must inline
 ak_get(akid_t akid, uint32 deft)
 {
     if (__THIS_COMMAND) {
@@ -312,7 +312,7 @@ ak_get(akid_t akid, uint32 deft)
     }
 }
 
-static inline int 
+static inline int // must inline
 ak_set(akid_t akid, uint32 v)
 {
     if (false==__THIS_COMMAND) {
@@ -334,7 +334,7 @@ ak_fini(void);
 extern int 
 ak_init_helper(void);
 
-static inline int 
+static inline int // must inline
 ak_init(void) 
 {
     int err = ak_init_helper();
@@ -360,7 +360,7 @@ error:
 
 #ifdef __APP__
 #if __RUNAS__ & RUN_AS_COMMAND
-static inline void 
+static inline void // must inline
 __ak_init_command() 
 {
     char *value;
@@ -376,7 +376,7 @@ __ak_init_command()
 #endif
 
 #if __RUNAS__ & RUN_AS_DEAMON
-static inline void 
+static inline void // must inline
 __ak_init_deamon() 
 {
     __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
@@ -386,7 +386,7 @@ __ak_init_deamon()
 
 #if __RUNAS__==RUN_AS_UNKNOW
 static inline void 
-__ak_init_unknow() 
+__ak_init_unknow() // must inline
 {
     char *value = getenv(OS_ENV(DEAMON));
     
@@ -401,7 +401,7 @@ __ak_init_unknow()
 }
 #endif
 
-static inline int 
+static inline int // must inline
 __ak_init(void)
 {
     ak_println("ak runas %d", __RUNAS__);

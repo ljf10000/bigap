@@ -138,7 +138,7 @@ cli_vsprintf(const char *fmt, va_list args);
 extern int
 cli_sprintf(const char *fmt, ...);
 
-static inline int
+static inline int // must inline
 cli_help(int error)
 {
     cli_sprintf(__THIS_USAGE);
@@ -146,7 +146,7 @@ cli_help(int error)
     return error;
 }
 
-static inline int
+static inline int // must inline
 cli_handle_help(cli_table_t *table, int argc, char *argv[])
 {
     return cli_help(-EHELP);
@@ -171,7 +171,7 @@ typedef struct {
 extern int
 __clic_fd_helper(cli_client_t *clic, cli_table_t *table);
 
-static inline int
+static inline int // must inline
 __clic_fd(cli_client_t *clic, cli_table_t *table)
 {
     abstract_path_sprintf(&clic->client, CLI_CLIENT_UNIX, getpid());
