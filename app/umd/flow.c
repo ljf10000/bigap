@@ -100,24 +100,21 @@ umd_conn_remove(umd_conn_t *cn)
 }
 
 STATIC umd_conn_t *
-umd_conn_get(umd_conn_t *cn)
+umd_conn_get(umd_conn_t *q)
 {
     hash_idx_t hash(void)
     {
-        return umd_conn_hash(cn);
+        return umd_conn_hash(q);
     }
     
-    bool eq(hash_node_t *node)
+    bool eq(hash_node_t *p)
     {
-        umd_conn_t *p = umd_conn_hx_entry(node);
+        umd_conn_t *cn = umd_conn_hx_entry(p);
         
-        return umd_conn_eq(cn, p);
+        return umd_conn_eq(q, cn);
     }
 
     h1_node_t *node = h1_find(&umd.head.conn, hash, eq);
-    if (NULL==node) {
-        return NULL;
-    }
 
     return umd_conn_h1_entry(node);
 }

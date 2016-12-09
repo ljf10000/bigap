@@ -130,17 +130,14 @@ tmd_get(char *name)
         return tmd_hash(name);
     }
     
-    bool eq(hash_node_t *node)
+    bool eq(hash_node_t *p)
     {
-        struct xtimer *entry = tmd_hx_entry(node);
+        struct xtimer *entry = tmd_hx_entry(p);
         
         return os_straeq(entry->name, name);
     }
 
     h1_node_t *node = h1_find(&tmd.table, hash, eq);
-    if (NULL==node) {
-        return NULL;
-    }
 
     return tmd_h1_entry(node);
 }

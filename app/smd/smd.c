@@ -292,14 +292,16 @@ smd_getbyname(char *name)
         return smd_hashname(name);
     }
     
-    bool eq(hash_node_t *node)
+    bool eq(hash_node_t *p)
     {
-        sm_entry_t *entry = smd_hx_entry(node, SMD_HASH_NAME);
+        sm_entry_t *entry = smd_hx_entry(p, SMD_HASH_NAME);
         
         return os_streq(entry->name, name);
     }
+
+    h2_node_t *node = h2_find(&smd.table, SMD_HASH_NAME, dhash, eq);
     
-    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_NAME, dhash, eq));
+    return smd_h2_entry(node);
 }
 
 STATIC sm_entry_t *
@@ -310,14 +312,16 @@ smd_getbynormal(int pid)
         return smd_hashpid(pid);
     }
     
-    bool eq(hash_node_t *node)
+    bool eq(hash_node_t *p)
     {
-        sm_entry_t *entry = smd_hx_entry(node, SMD_HASH_PID);
+        sm_entry_t *entry = smd_hx_entry(p, SMD_HASH_PID);
         
         return pid==entry->pid;
     }
+
+    h2_node_t *node = h2_find(&smd.table, SMD_HASH_PID, dhash, eq);
     
-    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_PID, dhash, eq));
+    return smd_h2_entry(node);
 }
 
 STATIC void
@@ -807,8 +811,6 @@ smd_handle_show(cli_table_t *table, int argc, char *argv[])
         return mv2_ok;
     }
     
-    return smd_foreach(foreach, false);
-    
     if (empty) {
         /*
         * drop head line
@@ -818,7 +820,7 @@ smd_handle_show(cli_table_t *table, int argc, char *argv[])
         debug_trace("show monitor(%s) nofound", name);
     }
     
-    return 0;
+    return smd_foreach(foreach, false);
 }
 
 STATIC int

@@ -914,9 +914,9 @@ __umduser_get(byte mac[])
         return __umduser_hashmac(mac);
     }
     
-    bool eq(hash_node_t *node)
+    bool eq(hash_node_t *p)
     {
-        umd_user_t *user = __umduser_hx_entry(node, UM_USER_NIDX_MAC);
+        umd_user_t *user = __umduser_hx_entry(p, UM_USER_NIDX_MAC);
         
         return os_maceq(user->mac, mac);
     }
@@ -1115,9 +1115,9 @@ umd_user_getbyip(uint32 ip)
         return __umduser_haship(ip);
     }
     
-    bool eq(hash_node_t *node)
+    bool eq(hash_node_t *p)
     {
-        umd_user_t *user = __umduser_hx_entry(node, UM_USER_NIDX_IP);
+        umd_user_t *user = __umduser_hx_entry(p, UM_USER_NIDX_IP);
 
         return ip==user->ip;
     }

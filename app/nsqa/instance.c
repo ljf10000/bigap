@@ -413,16 +413,18 @@ nsqi_get(char *name, char *topic, char *channel)
         return __nsqi_hash(name, topic, channel);
     }
     
-    bool eq(hash_node_t *node)
+    bool eq(hash_node_t *p)
     {
-        nsq_instance_t *instance = __nsqi_hx_entry(node);
+        nsq_instance_t *instance = __nsqi_hx_entry(p);
         
         return os_streq(name, instance->name)
             && os_streq(topic, instance->topic)
             && os_streq(channel, instance->channel);
     }
 
-    return __nsqi_h1_entry(h1_find(&nsqa.table, dhash, eq));
+    h1_node_t *node = h1_find(&nsqa.table, dhash, eq);
+    
+    return __nsqi_h1_entry(node);
 }
 
 int
