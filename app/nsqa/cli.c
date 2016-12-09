@@ -134,7 +134,7 @@ STATIC int
 nsqa_cli(loop_watcher_t *watcher, time_t now)
 {
     static cli_table_t tables[] = {
-        CLI_TCP_ENTRY("help",   nsqa_handle_help),
+        CLI_TCP_ENTRY("help",   cli_handle_help),
         
         CLI_TCP_ENTRY("insert", nsqa_handle_insert),
         CLI_TCP_ENTRY("remove", nsqa_handle_remove),
