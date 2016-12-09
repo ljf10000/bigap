@@ -249,11 +249,10 @@ umd_user_tag_free(umd_user_tag_t *tag)
 STATIC umd_user_tag_t *
 umduser_tag_new(char *k, char *v)
 {
-    umd_user_tag_t *tag = (umd_user_tag_t *)os_malloc(sizeof(*tag));
+    umd_user_tag_t *tag = (umd_user_tag_t *)os_zalloc(sizeof(*tag));
     if (NULL==tag) {
         return NULL;
     }
-    INIT_LIST_HEAD(&tag->node);
 
     tag->k = os_strdup(k);
     tag->v = os_strdup(v);
