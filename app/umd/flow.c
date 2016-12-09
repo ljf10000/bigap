@@ -120,9 +120,18 @@ umd_conn_get(umd_conn_t *cn)
 }
 
 STATIC int
-umd_conn_foreach(mv_t (*cb)(umd_conn_t *cn), bool safe)
+umd_conn_foreach(mv_t (*foreach)(umd_conn_t *cn), bool safe)
 {
-    return h1_foreach();
+    mv_t node_foreach(h1_node_t *node)
+    {
+        return (*foreach)(__nsqi_h1_entry(node));
+    }
+
+    if (safe) {
+        return h1_foreach_safe(&umd.head.conn, node_foreach);
+    } else {
+        return h1_foreach(&umd.head.conn, node_foreach);
+    }
 }
 
 STATIC bool
