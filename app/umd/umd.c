@@ -25,6 +25,7 @@ DECLARE_ENUM(umd_auth_type,     UMD_AUTH_TYPE_ENUM_MAPPER,      umd_auth_type_en
 DECLARE_ENUM(umd_forward_mode,  UMD_FORWARD_MODE_ENUM_MAPPER,   umd_forward_mode_end);
 DECLARE_ENUM(umd_pkt_type,      UMD_PKT_TYPE_ENUM_MAPPER,       umd_pkt_type_end);
 DECLARE_ENUM(umd_pkt_check,     UMD_PKT_CHECK_ENUM_MAPPER,      umd_pkt_check_end);
+DECLARE_ENUM(umd_conn_dir,      UMD_CONN_DIR_ENUM_MAPPER,       umd_conn_dir_end);
 
 umd_intf_t *
 umd_getintf_byid(int intf_id)

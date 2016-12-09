@@ -13,6 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "umd.h"
 
 static umd_flow_t flow;
+static umd_conn_t conn;
 
 STATIC bool
 umd_is_dev_mac(byte mac[])
@@ -49,7 +50,7 @@ umd_is_dev_ip(uint32 ip)
 STATIC bool
 umd_is_user_ip(uint32 ip)
 {
-    umd_intf_t *intf = flow.intf;
+    umd_intf_t *intf = conn.intf;
     
     return (ip & intf->mask)==(intf->ip & intf->mask);
 }
@@ -81,7 +82,7 @@ umd_add_flowst(umd_flowst_t *st)
 STATIC void
 umd_add_flow_total(int type, int valid)
 {
-    umd_add_flowst(&flow.total[type][valid]);
+    umd_add_flowst(&flow.st.total[type][valid]);
 }
 #define umd_add_flow_good(_type)    umd_add_flow_total(_type, umd_pkt_check_good)
 #define umd_add_flow_bad(_type)     umd_add_flow_total(_type, umd_pkt_check_bad)
@@ -90,21 +91,21 @@ umd_add_flow_total(int type, int valid)
 STATIC void
 umd_set_flow_dev(void)
 {
-    umd_add_flowst(&flow.dev[flow.type][flow.dir]);
+    umd_add_flowst(&flow.st.dev[conn.flow_type][conn.flow_dir]);
 }
 
 STATIC void
 umd_set_flow_suser(void)
 {
-    flow.usermac= flow.eth->ether_shost;
-    flow.userip = flow.iph->ip_src.s_addr;
+    conn.usermac= flow.eth->ether_shost;
+    conn.userip = flow.iph->ip_src.s_addr;
 }
 
 STATIC void
 umd_set_flow_duser(void)
 {
-    flow.usermac= flow.eth->ether_dhost;
-    flow.userip = flow.iph->ip_dst.s_addr;
+    conn.usermac= flow.eth->ether_dhost;
+    conn.userip = flow.iph->ip_dst.s_addr;
 }
 
 STATIC int
@@ -112,15 +113,17 @@ umd_pkt_handle(sock_server_t *server)
 {
     int err, len;
     socklen_t addrlen = sizeof(server->addr.ll);
+    
+    conn.usermac= NULL;
+    conn.userip = 0;
+    conn.intf   = umd_getintf_byserver(server);
+    conn.user   = NULL;
 
     err = recvfrom(server->fd, flow.packet, sizeof(flow.packet), 0, &server->addr.c, &addrlen);
     if (err<0) { /* yes, <0 */
         return err;
     }
     flow.len    = err;
-    flow.usermac= NULL;
-    flow.userip = 0;
-    flow.intf   = umd_getintf_byserver(server);
     
     if (__is_ak_debug_packet) {
         os_println("recv packet length=%d", flow.len);
@@ -134,7 +137,7 @@ umd_pkt_handle(sock_server_t *server)
 STATIC int
 umd_intf_handle(sock_server_t *server)
 {
-    if (server->addr.ll.sll_ifindex == flow.intf->index) {
+    if (server->addr.ll.sll_ifindex == conn.intf->index) {
         return 0;
     } else {
         return -EBADIDX;
@@ -237,8 +240,8 @@ umd_ip_source_dev(uint32 sip, uint32 dip)
         *
         * lan down for user
         */
-        flow.dir    = umd_flow_dir_down;
-        flow.type   = umd_flow_type_lan;
+        conn.flow_dir    = umd_flow_dir_down;
+        conn.flow_type   = umd_flow_type_lan;
         
         umd_set_flow_duser();
     }
@@ -248,8 +251,8 @@ umd_ip_source_dev(uint32 sip, uint32 dip)
         *
         * lan up for dev
         */
-        flow.dir    = umd_flow_dir_up;
-        flow.type   = umd_flow_type_lan;
+        conn.flow_dir    = umd_flow_dir_up;
+        conn.flow_type   = umd_flow_type_lan;
 
         umd_set_flow_dev();
     }
@@ -259,8 +262,8 @@ umd_ip_source_dev(uint32 sip, uint32 dip)
         *
         * wan up for dev
         */
-        flow.dir    = umd_flow_dir_up;
-        flow.type   = umd_flow_type_wan;
+        conn.flow_dir    = umd_flow_dir_up;
+        conn.flow_type   = umd_flow_type_wan;
 
         umd_set_flow_dev();
     }
@@ -277,8 +280,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
         *
         * lan up for user
         */
-        flow.dir    = umd_flow_dir_up;
-        flow.type   = umd_flow_type_lan;
+        conn.flow_dir    = umd_flow_dir_up;
+        conn.flow_type   = umd_flow_type_lan;
 
         umd_set_flow_suser();
     }
@@ -293,8 +296,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
             *
             * first, lan up for {user}
             */
-            flow.dir    = umd_flow_dir_up;
-            flow.type   = umd_flow_type_lan;
+            conn.flow_dir    = umd_flow_dir_up;
+            conn.flow_type   = umd_flow_type_lan;
 
             umd_set_flow_suser();
 
@@ -305,8 +308,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
             *
             * again, lan down for {user}
             */
-            flow.dir    = umd_flow_dir_down;
-            flow.type   = umd_flow_type_lan;
+            conn.flow_dir    = umd_flow_dir_down;
+            conn.flow_type   = umd_flow_type_lan;
 
             umd_set_flow_duser();
 
@@ -319,8 +322,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
         *
         * lan up for user
         */
-        flow.dir    = umd_flow_dir_up;
-        flow.type   = umd_flow_type_lan;
+        conn.flow_dir    = umd_flow_dir_up;
+        conn.flow_type   = umd_flow_type_lan;
 
         umd_set_flow_suser();
     }
@@ -330,8 +333,8 @@ umd_ip_source_user(uint32 sip, uint32 dip, bool first)
         *
         * wan up for user
         */
-        flow.dir    = umd_flow_dir_up;
-        flow.type   = umd_flow_type_wan;
+        conn.flow_dir    = umd_flow_dir_up;
+        conn.flow_type   = umd_flow_type_wan;
 
         umd_set_flow_suser();
     }
@@ -348,8 +351,8 @@ umd_ip_source_lan(uint32 sip, uint32 dip)
         *
         * lan down for dev
         */
-        flow.dir    = umd_flow_dir_down;
-        flow.type   = umd_flow_type_lan;
+        conn.flow_dir    = umd_flow_dir_down;
+        conn.flow_type   = umd_flow_type_lan;
 
         umd_set_flow_dev();
     }
@@ -359,8 +362,8 @@ umd_ip_source_lan(uint32 sip, uint32 dip)
         *
         * lan down for user
         */
-        flow.dir    = umd_flow_dir_down;
-        flow.type   = umd_flow_type_lan;
+        conn.flow_dir    = umd_flow_dir_down;
+        conn.flow_type   = umd_flow_type_lan;
 
         umd_set_flow_duser();
     }
@@ -389,8 +392,8 @@ umd_ip_source_wan(uint32 sip, uint32 dip)
         *
         * wan down for dev
         */
-        flow.dir    = umd_flow_dir_down;
-        flow.type   = umd_flow_type_wan;
+        conn.flow_dir    = umd_flow_dir_down;
+        conn.flow_type   = umd_flow_type_wan;
 
         umd_set_flow_dev();
     }
@@ -400,8 +403,8 @@ umd_ip_source_wan(uint32 sip, uint32 dip)
         *
         * wan down for user
         */
-        flow.dir    = umd_flow_dir_down;
-        flow.type   = umd_flow_type_wan;
+        conn.flow_dir   = umd_flow_dir_down;
+        conn.flow_type  = umd_flow_type_wan;
         
         umd_set_flow_duser();
     }
@@ -499,8 +502,8 @@ umd_ip_handle_helper(sock_server_t *server, bool first)
         
         os_strcpy(sipstring, os_ipstring(iph->ip_src.s_addr));
         os_strcpy(dipstring, os_ipstring(iph->ip_dst.s_addr));
-        os_strcpy( ipstring, os_ipstring(flow.userip));
-        os_strcpy( macstring, os_macstring(flow.usermac));
+        os_strcpy( ipstring, os_ipstring(conn.userip));
+        os_strcpy( macstring, os_macstring(conn.usermac));
         
         debug_flow("recv packet"
                         " sip=%s"
@@ -513,13 +516,13 @@ umd_ip_handle_helper(sock_server_t *server, bool first)
             sipstring,
             dipstring,
             iph->ip_p,
-            umd_flow_dir_getnamebyid(flow.dir),
-            umd_flow_type_getnamebyid(flow.type),
+            umd_flow_dir_getnamebyid(conn.flow_dir),
+            umd_flow_type_getnamebyid(conn.flow_type),
             ipstring,
             macstring);
     }
 
-    if (NULL==flow.usermac || 0==flow.userip) {
+    if (NULL==conn.usermac || 0==conn.userip) {
         return -ENOSUPPORT;
     }
     
@@ -638,14 +641,14 @@ umd_flow_handle(sock_server_t *server)
 {
     umd_user_t *user;
 
-    user = umd_user_get(flow.usermac);
+    user = umd_user_get(conn.usermac);
     if (NULL==user) {
         switch(umd.cfg.autouser) {
             case UMD_AUTO_BIND:
-                user = umd_user_bind(flow.usermac, flow.userip);
+                user = umd_user_bind(conn.usermac, conn.userip);
                 break;
             case UMD_AUTO_FAKE:
-                user = umd_user_fake(flow.usermac, flow.userip);
+                user = umd_user_fake(conn.usermac, conn.userip);
                 break;
             case UMD_AUTO_NONE:
             default:
@@ -660,11 +663,11 @@ umd_flow_handle(sock_server_t *server)
     user->hitime = time(NULL);
 
     if (is_user_have_bind(user)) {
-        umd_flow_update(user, flow.type, flow.dir);
+        umd_flow_update(user, conn.flow_type, conn.flow_dir);
         umd_user_debug_helper("user-flow-update", user, __is_ak_debug_flow);
 
-        umd_flow_reauth(user, flow.type, flow.dir);
-        umd_overflow(user, flow.type, flow.dir);
+        umd_flow_reauth(user, conn.flow_type, conn.flow_dir);
+        umd_overflow(user, conn.flow_type, conn.flow_dir);
 
         umd_update_aging(user, false);
     }
@@ -686,13 +689,13 @@ umd_jflow_st(umd_flowst_t *st)
 STATIC jobj_t
 umd_jflow_total(int type, int valid)
 {
-    return umd_jflow_st(&flow.total[type][valid]);
+    return umd_jflow_st(&flow.st.total[type][valid]);
 }
 
 STATIC jobj_t
 umd_jflow_dev(int type, int dir)
 {
-    return umd_jflow_st(&flow.dev[type][dir]);
+    return umd_jflow_st(&flow.st.dev[type][dir]);
 }
 
 jobj_t

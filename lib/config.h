@@ -175,5 +175,9 @@
 #ifndef USE_JLOG_BIND
 #define USE_JLOG_BIND           PC_VAL(0, 0)
 #endif
+
+#ifndef USE_UMD_CONN_PROTOCOL
+#define USE_UMD_CONN_PROTOCOL   PC_VAL(1, 0)
+#endif
 /******************************************************************************/
 #endif /* __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__ */

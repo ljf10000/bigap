@@ -23,8 +23,8 @@
 #define UMD_REAUTHABLE          true
 #endif
 
-#ifndef UMD_FAKEABLE
-#define UMD_FAKEABLE            true
+#ifndef UMD_CONNPROTOCOL
+#define UMD_CONNPROTOCOL        false
 #endif
 
 #ifndef UMD_CONF
@@ -269,12 +269,11 @@ typedef struct {
     time_t faketime;
     time_t noused;
     time_t hitime;
-    
+
     umd_limit_t limit[umd_flow_type_end];
 
     struct {
         dlist_t tag;
-        dlist_t conn;
     } head;
 
     struct {
@@ -417,21 +416,6 @@ EXTERN int umd_forward_mode_getidbyname(const char *name);
 #endif
 
 typedef struct {
-    byte smac[OS_MACSIZE];
-    byte dmac[OS_MACSIZE];
-    uint32 sip;
-    uint32 dip;
-
-    umd_user_t *user;
-    umd_intf_t *intf;
-
-    struct {
-        dlist_node_t    user;
-        h1_node_t       hash;
-    } node;
-} umd_connect_t;
-
-typedef struct {
     struct {
         int count;
         umd_intf_t *intf;
@@ -443,6 +427,7 @@ typedef struct {
 
     bool   syncable;
     bool   reauthable;
+    bool   connprotocol;
     uint32 autouser;
     uint32 gc;
     uint32 sniff_count;
@@ -461,6 +446,7 @@ umd_config_t;
     _(&umd.cfg, string, script_getmacbyip,  UMD_SCRIPT_MAC)     \
     _(&umd.cfg, bool,   syncable,           UMD_SYNCABLE)       \
     _(&umd.cfg, bool,   reauthable,         UMD_REAUTHABLE)     \
+    _(&umd.cfg, bool,   connprotocol,       UMD_CONNPROTOCOL)   \
     _(&umd.cfg, u32,    gc,                 UMD_GC)             \
     _(&umd.cfg, u32,    sniff_count,        UMD_SNIFF_COUNT)    \
     _(&umd.cfg, u32,    ticks,              UMD_TICKS)          \
@@ -607,8 +593,6 @@ typedef struct {
 } umd_flowst_t;
 
 typedef struct {
-    umd_intf_t *intf;
-    
     byte packet[2048];
     int len;
 
@@ -616,22 +600,80 @@ typedef struct {
     struct vlan_header  *vlan;
     struct ip           *iph;
 
-    uint32 userip; /* network sort */
-    uint32 sip;
-    uint32 dip;
-    
-    byte *usermac;
-    byte *smac;
-    byte *dmac;
-    
-    int type;   /* umd_flow_type_lan/umd_flow_type_wan */
-    int dir;    /* umd_flow_dir_up/umd_flow_dir_down/umd_flow_dir_all */
-
-    umd_flowst_t    total[umd_pkt_type_end][umd_pkt_check_end],
-                    dev[umd_flow_type_end][umd_flow_dir_end];
+    struct {
+        umd_flowst_t    total[umd_pkt_type_end][umd_pkt_check_end];
+        umd_flowst_t    dev[umd_flow_type_end][umd_flow_dir_end];
+    } st;
 }
 umd_flow_t;
 
+#if 1
+#define UMD_CONN_DIR_ENUM_MAPPER(_)  \
+    _(umd_conn_dir_dev2dev,     0, "dev2dev"),      \
+    _(umd_conn_dir_dev2user,    1, "dev2user"),     \
+    _(umd_conn_dir_dev2lan,     2, "dev2lan"),      \
+    _(umd_conn_dir_dev2wan,     3, "dev2wan"),      \
+    _(umd_conn_dir_user2dev,    4, "user2dev"),     \
+    _(umd_conn_dir_user2user,   5, "user2user"),    \
+    _(umd_conn_dir_user2lan,    6, "user2lan"),     \
+    _(umd_conn_dir_user2wan,    7, "user2wan"),     \
+    _(umd_conn_dir_lan2dev,     8, "lan2dev"),      \
+    _(umd_conn_dir_lan2user,    9, "lan2user"),     \
+    _(umd_conn_dir_lan2lan,     10,"lan2lan"),      \
+    _(umd_conn_dir_lan2wan,     11,"lan2wan"),      \
+    _(umd_conn_dir_wan2dev,     12,"wan2dev"),      \
+    _(umd_conn_dir_wan2user,    13,"wan2user"),     \
+    _(umd_conn_dir_wan2lan,     14,"wan2lan"),      \
+    _(umd_conn_dir_wan2wan,     15,"wan2wan"),      \
+    /* end */
+EXTERN_ENUM(umd_conn_dir, UMD_CONN_DIR_ENUM_MAPPER, umd_conn_dir_end);
+
+EXTERN enum_ops_t *umd_conn_dir_ops(void);
+EXTERN bool is_good_umd_conn_dir(int id);
+EXTERN char *umd_conn_dir_getnamebyid(int id);
+EXTERN int umd_conn_dir_getidbyname(const char *name);
+
+#define umd_conn_dir_dev2dev    umd_conn_dir_dev2dev
+#define umd_conn_dir_dev2user   umd_conn_dir_dev2user
+#define umd_conn_dir_dev2lan    umd_conn_dir_dev2lan
+#define umd_conn_dir_dev2wan    umd_conn_dir_dev2wan
+#define umd_conn_dir_user2dev   umd_conn_dir_user2dev
+#define umd_conn_dir_user2user  umd_conn_dir_user2user
+#define umd_conn_dir_user2lan   umd_conn_dir_user2lan
+#define umd_conn_dir_user2wan   umd_conn_dir_user2wan
+#define umd_conn_dir_lan2dev    umd_conn_dir_lan2dev
+#define umd_conn_dir_lan2user   umd_conn_dir_lan2user
+#define umd_conn_dir_lan2lan    umd_conn_dir_lan2lan
+#define umd_conn_dir_lan2wan    umd_conn_dir_lan2wan
+#define umd_conn_dir_wan2dev    umd_conn_dir_wan2dev
+#define umd_conn_dir_wan2user   umd_conn_dir_wan2user
+#define umd_conn_dir_wan2lan    umd_conn_dir_wan2lan
+#define umd_conn_dir_wan2wan    umd_conn_dir_wan2wan
+#define umd_conn_dir_end        umd_conn_dir_end
+#endif
+
+typedef struct {
+    byte smac[OS_MACSIZE];
+    byte dmac[OS_MACSIZE];
+    uint32 sip;     // network sort
+    uint32 dip;     // network sort
+    
+    byte protocol, _r[3];
+
+    int conn_dir;   // umd_conn_dir_end
+    int flow_type;  // umd_flow_type_end
+    int flow_dir;   // umd_flow_dir_end
+
+    byte *usermac;
+    uint32 userip;  // network sort
+    
+    umd_user_t *user;
+    umd_intf_t *intf;
+
+    struct {
+        h1_node_t conn;
+    } node;
+} umd_conn_t;
 /******************************************************************************/
 extern jobj_t
 umd_juser(umd_user_t *user);
