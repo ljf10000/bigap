@@ -83,17 +83,10 @@ typedef struct sock_server {
 extern int
 sock_servers_init(sock_server_t *server[], int count);
 
-extern int
-__sock_servers_fdmax(sock_server_t *server[], int count);
-
-extern void
-__sock_servers_prepare(sock_server_t *server[], int count, fd_set *set);
-
-extern int
-__sock_servers_handle(sock_server_t *server[], int count, fd_set *set);
-
+#if USE_SOCK_SERVER_SELECT
 extern int
 sock_servers_run(sock_server_t *server[], int count);
+#endif
 
 #endif
 /******************************************************************************/

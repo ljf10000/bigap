@@ -433,9 +433,7 @@ int __jobj_map_##_member##_helper(jobj_t jobj)  \
 #define JOBJ_MAPFILE_MEMBER(_file, _mapper) \
     JOBJ_MAPFILE_BY(_file, _mapper, JOBJ_FUNC_MEMBER_MAPPER, JOBJ_FUNC_MEMBER_HELPER)
 /******************************************************************************/
-#define USE_JRULE       1
-
-#if USE_JRULE
+#if USE_JSON_RULE
 enum {
     JRULE_MUST      = 0x0001,
     JRULE_DROP      = 0x0002,
@@ -641,7 +639,7 @@ static inline jrule_t *xxx_jrules(void);
                                     \
     os_fake_declare                 \
     /* end */
-#endif /* USE_JRULE */
+#endif /* USE_JSON_RULE */
 
 #endif /* __APP__ */
 /******************************************************************************/

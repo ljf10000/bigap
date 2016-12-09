@@ -123,9 +123,6 @@ __jlog_header(
     __jlog_printf(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #ifdef __APP__
-#define use_jlog_connect    1
-#define use_jlog_bind       0
-
 extern int
 __jlog(jobj_t obj, const char *app, const char *sub, uint32 PRI);
 

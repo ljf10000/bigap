@@ -163,7 +163,7 @@ __jlog_socket_init(const char *app, const char *sub, int family)
     }
     os_closexec(fd);
         
-#if use_jlog_bind
+#if USE_JLOG_BIND
     os_sockaddr_t client = OS_SOCKADDR_INITER(family);
     
     if (AF_UNIX==family) {
@@ -182,7 +182,7 @@ __jlog_socket_init(const char *app, const char *sub, int family)
     }
 #endif
 
-#if use_jlog_connect
+#if USE_JLOG_CONNECT
     if (AF_UNIX==family) {
         addrlen = get_abstract_sockaddr_len(__jlog_userver());
     } else {
@@ -256,7 +256,7 @@ try_again:
         return fd;
     }
 
-#if use_jlog_connect
+#if USE_JLOG_CONNECT
     err = send(fd, json, len, 0);
 #else
     err = sendto(fd, json, len, 0, __jlog_server(), os_sockaddr_len(__jlog_userver()));

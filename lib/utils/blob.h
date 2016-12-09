@@ -52,10 +52,6 @@ is_blob_type_container(int type)
 
 #define BLOB_ALIGN(_len)    OS_ALIGN(_len, sizeof(uint32))
 
-#ifndef USE_BLOB_COUNT
-#define USE_BLOB_COUNT      1
-#endif
-
 typedef struct {
     byte    type;       /* enum blob_type */
     byte    flag;

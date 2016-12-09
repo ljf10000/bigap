@@ -3,10 +3,6 @@
 /******************************************************************************/
 #include "utils.h"
 /******************************************************************************/
-#ifndef UM_USE_WIRELESS
-#define UM_USE_WIRELESS         0
-#endif
-
 #ifndef UM_SSID_MAX
 #define UM_SSID_MAX             128
 #endif

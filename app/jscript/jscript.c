@@ -159,7 +159,7 @@ typedef struct {
     char *cache;
 } jinstance_t;
 
-#if USE_JRULE
+#if USE_JSON_RULE
 #define JINSTANCE_JRULE_MAPPER(_) \
     _(offsetof(jinstance_t, name), name, "name",    \
             string, sizeof(char *), JRULE_MUST,     \
@@ -215,7 +215,7 @@ typedef struct {
 }
 jscript_t;
 
-#if USE_JRULE
+#if USE_JSON_RULE
 #define JSCRIPT_JRULE_MAPPER(_) \
     _(offsetof(jscript_t, type), type, "type",          \
             enum, sizeof(int), 0,                       \

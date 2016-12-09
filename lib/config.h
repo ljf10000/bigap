@@ -144,4 +144,36 @@
 #define USE_MOD_SLICE           PC_VAL(1, 0)
 #endif
 /******************************************************************************/
+#ifndef USE_SOCK_SERVER_SELECT
+#define USE_SOCK_SERVER_SELECT  PC_VAL(1, 0)
+#endif
+
+#ifndef USE_BLOB_COUNT
+#define USE_BLOB_COUNT          PC_VAL(1, 1)
+#endif
+
+#ifndef USE_JSON_RULE
+#define USE_JSON_RULE           PC_VAL(1, 1)
+#endif
+
+#ifndef USE_STRING_BLOCK
+#define USE_STRING_BLOCK        PC_VAL(0, 0)
+#endif
+
+#ifndef USE_UM_WIRELESS
+#define USE_UM_WIRELESS         PC_VAL(0, 0)
+#endif
+
+#ifndef USE_THIS_ENV
+#define USE_THIS_ENV            PC_VAL(0, 0)
+#endif
+
+#ifndef USE_JLOG_CONNECT
+#define USE_JLOG_CONNECT        PC_VAL(1, 1)
+#endif
+
+#ifndef USE_JLOG_BIND
+#define USE_JLOG_BIND           PC_VAL(0, 0)
+#endif
+/******************************************************************************/
 #endif /* __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__ */

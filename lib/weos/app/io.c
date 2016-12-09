@@ -259,7 +259,8 @@ sock_servers_init(sock_server_t *server[], int count)
     return 0;
 }
 
-int
+#if USE_SOCK_SERVER_SELECT
+STATIC int
 __sock_servers_fdmax(sock_server_t *server[], int count)
 {
     int i, fdmax = 0;
@@ -273,7 +274,7 @@ __sock_servers_fdmax(sock_server_t *server[], int count)
     return fdmax;
 }
 
-void
+STATIC void
 __sock_servers_prepare(sock_server_t *server[], int count, fd_set *set)
 {
     int i;
@@ -286,7 +287,7 @@ __sock_servers_prepare(sock_server_t *server[], int count, fd_set *set)
     }
 }
 
-int
+STATIC int
 __sock_servers_handle(sock_server_t *server[], int count, fd_set *set)
 {
     int i, err;
@@ -339,4 +340,5 @@ sock_servers_run(sock_server_t *server[], int count)
 
     return 0;
 }
+#endif
 /******************************************************************************/

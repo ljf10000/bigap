@@ -70,10 +70,6 @@ string_opt_t;
 #define STRING_OPT_RO_STATIC_INITER(_bin, _eoz)     STRING_OPT_INITER(_bin, true,  false, _eoz)
 #define STRING_OPT_RW_STATIC_INITER(_bin, _eoz)     STRING_OPT_INITER(_bin, false, false, _eoz)
 
-#ifndef USE_STRING_BLOCK
-#define USE_STRING_BLOCK    0
-#endif
-
 typedef struct string_s {
     union {
         string_opt_t o;
