@@ -99,20 +99,12 @@ tmd_nhash(hash_node_t *node)
 STATIC int
 tmd_insert(struct xtimer *entry)
 {
-    if (NULL==entry) {
-        return -EKEYNULL;
-    }
-    
     return h1_add(&tmd.table, &entry->node, tmd_nhash);
 }
 
 STATIC int
 tmd_remove(struct xtimer *entry)
 {
-    if (NULL==entry) {
-        return -EKEYNULL;
-    }
-
     tm_remove(&entry->timer);
 
     return h1_del(&tmd.table, &entry->node);
@@ -185,7 +177,6 @@ tmd_destroy(struct xtimer *entry)
 {
     if (entry) {
         tmd_remove(entry);
-        tm_remove(&entry->timer);
         os_free(entry);
     }
 }

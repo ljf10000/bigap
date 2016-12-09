@@ -53,8 +53,6 @@ umd_conn_eq(umd_conn_t *a, umd_conn_t *b)
         && a->protocol == b->protocol;
 }
 
-
-
 STATIC hash_idx_t 
 umd_conn_hash(umd_conn_t *cn)
 {
