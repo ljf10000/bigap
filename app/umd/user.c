@@ -275,14 +275,14 @@ umduser_tag_get(umd_user_t *user, char *k)
 
     bool eq(dlist_node_t *p)
     {
-        umd_user_tag_t *tag = dlist_entry(p, umd_user_tag_t, node.user);
+        umd_user_tag_t *tag = dlist_entry(p, umd_user_tag_t, node.tag);
 
         return os_streq(k, tag->k);
     }
     
     dlist_node_t *node = dlist_find(&user.head.tag, eq);
 
-    return dlist_entry(node, umd_user_tag_t, node.user);
+    return dlist_entry(node, umd_user_tag_t, node.tag);
 }
 
 STATIC umd_user_tag_t *
@@ -301,7 +301,7 @@ umduser_tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
             return NULL;
         }
 
-        dlist_add(&tag->node.user, &user->head.tag);
+        dlist_add(&tag->node.tag, &user->head.tag);
     }
     else {
         if (false==update_if_exist) {
@@ -327,7 +327,7 @@ umduser_tag_clear(umd_user_t *user)
 {
     mv_t foreach(dlist_node_t *p)
     {
-        umd_user_tag_t *tag = dlist_entry(p, umd_user_tag_t, node.user);
+        umd_user_tag_t *tag = dlist_entry(p, umd_user_tag_t, node.tag);
 
         umduser_tag_free(tag);
 
@@ -1251,7 +1251,7 @@ umd_juser_tag(umd_user_t *user)
 
     mv_t foreach(dlist_node_t *node)
     {
-        umd_user_tag_t *tag = dlist_entry(node, umd_user_tag_t, node.user);
+        umd_user_tag_t *tag = dlist_entry(node, umd_user_tag_t, node.tag);
 
         jobj_add_string(obj, tag->k, tag->v);
 
