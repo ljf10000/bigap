@@ -618,10 +618,10 @@ __umduser_create(byte mac[], umd_event_cb_t *ev)
     if (NULL==user) {
         return NULL;
     }
-    os_maccpy(user->mac, mac);
-
     dlist_init(&user->head.tag);
     dlist_init(&user->head.conn);
+    
+    os_maccpy(user->mac, mac);
 
     umd_user_debug_tail_call("create", user, {
         umd_set_user_state(user, UMD_STATE_NONE);
