@@ -243,7 +243,7 @@ typedef struct {
 } umd_limit_t;
 
 typedef struct {
-    struct list_head tag;
+    struct list_head node;
 
     char *k;
     char *v;
