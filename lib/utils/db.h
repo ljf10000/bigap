@@ -361,7 +361,7 @@ _mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
 }                                                       \
                                                         \
 static inline _type *                                   \
-_mod##_h2_entry(h2_node_t *nod)                         \
+_mod##_h2_entry(h2_node_t *node)                        \
 {                                                       \
     return h2_entry(node, _type, _member);              \
 }                                                       \
@@ -440,7 +440,7 @@ _mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
 }                                                       \
                                                         \
 static inline _type *                                   \
-_mod##_h3_entry(h3_node_t *nod)                         \
+_mod##_h3_entry(h3_node_t *node)                        \
 {                                                       \
     return h3_entry(node, _type, _member);              \
 }                                                       \
@@ -519,7 +519,7 @@ _mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
 }                                                       \
                                                         \
 static inline _type *                                   \
-_mod##_h4_entry(h4_node_t *nod)                         \
+_mod##_h4_entry(h4_node_t *node)                        \
 {                                                       \
     return h4_entry(node, _type, _member);              \
 }                                                       \
@@ -598,7 +598,7 @@ _mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
 }                                                       \
                                                         \
 static inline _type *                                   \
-_mod##_h5_entry(h5_node_t *nod)                         \
+_mod##_h5_entry(h5_node_t *node)                        \
 {                                                       \
     return h5_entry(node, _type, _member);              \
 }                                                       \
@@ -677,7 +677,7 @@ _mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
 }                                                       \
                                                         \
 static inline _type *                                   \
-_mod##_h6_entry(h6_node_t *nod)                         \
+_mod##_h6_entry(h6_node_t *node)                        \
 {                                                       \
     return h6_entry(node, _type, _member);              \
 }                                                       \
@@ -756,7 +756,7 @@ _mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
 }                                                       \
                                                         \
 static inline _type *                                   \
-_mod##_h7_entry(h7_node_t *nod)                         \
+_mod##_h7_entry(h7_node_t *node)                        \
 {                                                       \
     return h7_entry(node, _type, _member);              \
 }                                                       \
@@ -835,7 +835,7 @@ _mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
 }                                                       \
                                                         \
 static inline _type *                                   \
-_mod##_h8_entry(h8_node_t *nod)                         \
+_mod##_h8_entry(h8_node_t *node)                        \
 {                                                       \
     return h8_entry(node, _type, _member);              \
 }                                                       \
@@ -914,7 +914,7 @@ _mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
 }                                                       \
                                                         \
 static inline _type *                                   \
-_mod##_h9_entry(h9_node_t *nod)                         \
+_mod##_h9_entry(h9_node_t *node)                        \
 {                                                       \
     return h9_entry(node, _type, _member);              \
 }                                                       \
