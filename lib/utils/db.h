@@ -379,7 +379,7 @@ h2_foreach(h2_table_t *table, h2_foreach_f *foreach, bool safe)
     return __h2_foreach(table, foreach, safe);
 }
 
-#define DECLARE_DB_H2(_number, _table, _mod, _type, _member) \
+#define DECLARE_DB_H2(_table, _mod, _type, _member) \
     DECLARE_DB_HX(2, _table, _mod, _type, _member)
 #endif
 
@@ -434,7 +434,7 @@ h3_foreach(h3_table_t *table, h3_foreach_f *foreach, bool safe)
     return __h3_foreach(table, foreach, safe);
 }
 
-#define DECLARE_DB_H3(_number, _table, _mod, _type, _member) \
+#define DECLARE_DB_H3(_table, _mod, _type, _member) \
     DECLARE_DB_HX(3, _table, _mod, _type, _member)
 #endif
 
@@ -489,7 +489,7 @@ h4_foreach(h4_table_t *table, h4_foreach_f *foreach, bool safe)
     return __h4_foreach(table, foreach, safe);
 }
 
-#define DECLARE_DB_H4(_number, _table, _mod, _type, _member) \
+#define DECLARE_DB_H4(_table, _mod, _type, _member) \
     DECLARE_DB_HX(4, _table, _mod, _type, _member)
 #endif
 
@@ -544,7 +544,7 @@ h5_foreach(h5_table_t *table, h5_foreach_f *foreach, bool safe)
     return __h5_foreach(table, foreach, safe);
 }
 
-#define DECLARE_DB_H5(_number, _table, _mod, _type, _member) \
+#define DECLARE_DB_H5(_table, _mod, _type, _member) \
     DECLARE_DB_HX(5, _table, _mod, _type, _member)
 #endif
 
@@ -599,7 +599,7 @@ h6_foreach(h6_table_t *table, h6_foreach_f *foreach, bool safe)
     return __h6_foreach(table, foreach, safe);
 }
 
-#define DECLARE_DB_H6(_number, _table, _mod, _type, _member) \
+#define DECLARE_DB_H6(_table, _mod, _type, _member) \
     DECLARE_DB_HX(6, _table, _mod, _type, _member)
 #endif
 
@@ -654,7 +654,7 @@ h7_foreach(h7_table_t *table, h7_foreach_f *foreach, bool safe)
     return __h7_foreach(table, foreach, safe);
 }
 
-#define DECLARE_DB_H7(_number, _table, _mod, _type, _member) \
+#define DECLARE_DB_H7(_table, _mod, _type, _member) \
     DECLARE_DB_HX(7, _table, _mod, _type, _member)
 #endif
 
@@ -709,7 +709,7 @@ h8_foreach(h8_table_t *table, h8_foreach_f *foreach, bool safe)
     return __h8_foreach(table, foreach, safe);
 }
 
-#define DECLARE_DB_H8(_number, _table, _mod, _type, _member) \
+#define DECLARE_DB_H8(_table, _mod, _type, _member) \
     DECLARE_DB_HX(8, _table, _mod, _type, _member)
 #endif
 
@@ -764,7 +764,7 @@ h9_foreach(h9_table_t *table, h9_foreach_f *foreach, bool safe)
     return __h9_foreach(table, foreach, safe);
 }
 
-#define DECLARE_DB_H9(_number, _table, _mod, _type, _member) \
+#define DECLARE_DB_H9(_table, _mod, _type, _member) \
     DECLARE_DB_HX(9, _table, _mod, _type, _member)
 #endif
 
