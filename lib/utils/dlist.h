@@ -20,7 +20,7 @@ typedef struct dlist_s {
 
 #define DLIST_INITER(_list)      {  \
     .count = 0,                     \
-    .head  = LIST_HEAD_INIT(_list), \
+    .head  = LIST_HEAD_INIT((_list).head), \
 }
 
 typedef bool dlist_eq_f(dlist_node_t *node);
