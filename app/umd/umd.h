@@ -243,8 +243,10 @@ typedef struct {
 } umd_limit_t;
 
 typedef struct {
-    struct list_head node;
-
+    struct {
+        dlist_node_t user;
+    } node;
+    
     char *k;
     char *v;
 } umd_user_tag_t;
@@ -271,8 +273,8 @@ typedef struct {
     umd_limit_t limit[umd_flow_type_end];
 
     struct {
-        struct list_head tag;
-        struct list_head conn;
+        dlist_t tag;
+        dlist_t conn;
     } head;
 
     struct {

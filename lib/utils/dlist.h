@@ -114,6 +114,9 @@ dlist_find(dlist_t *list, dlist_eq_f *eq);
 
 EXTERN int
 dlist_foreach(dlist_t *list, dlist_foreach_f *foreach);
+
+EXTERN int
+dlist_foreach_safe(dlist_t *list, dlist_foreach_f *foreach);
 #endif
 
 #ifdef __BOOT__

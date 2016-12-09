@@ -270,4 +270,20 @@ dlist_foreach(dlist_t *list, dlist_foreach_f *foreach)
 
     return 0;
 }
+
+DECLARE int
+dlist_foreach_safe(dlist_t *list, dlist_foreach_f *foreach)
+{
+    dlist_node_t *node, *tmp;
+    mv_u mv;
+    
+    dlistForeach(list, node, tmp) {
+        mv.v = (*foreach)(node);
+        if (is_mv2_break(mv)) {
+            return mv2_error(mv);
+        }
+    }
+
+    return 0;
+}
 /******************************************************************************/

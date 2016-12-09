@@ -141,7 +141,8 @@ void umd_update_limit_test(void)
     umd_user_t user = {
         .ip = intf->ip,
         .head = { 
-            .tag = LIST_HEAD_INIT(user.head.tag),
+            .tag    = DLIST_INITER(user.head.tag),
+            .conn   = DLIST_INITER(user.head.conn),
         },
     };
     os_maccpy(user.mac, intf->mac);
@@ -269,19 +270,20 @@ umduser_tag_new(char *k, char *v)
 STATIC umd_user_tag_t *
 umduser_tag_get(umd_user_t *user, char *k)
 {
-    umd_user_tag_t *tag;
-
     if (NULL==user) {
         return NULL;
     }
-    
-    list_for_each_entry(tag, &user->head.tag, node) {
-        if (os_streq(k, tag->k)) {
-            return tag;
-        }
-    }
 
-    return NULL;
+    bool eq(dlist_node_t *node)
+    {
+        umd_user_tag_t *tag = dlist_entry(node, umd_user_tag_t, node.user);
+
+        return os_streq(k, tag->k);
+    }
+    
+    dlist_node_t * tagnode = dlist_find(&user.head.tag, eq);
+
+    return dlist_entry(tagnode, umd_user_tag_t, node.user);
 }
 
 STATIC umd_user_tag_t *
@@ -300,7 +302,7 @@ umduser_tag_insert(umd_user_t *user, char *k, char *v, bool update_if_exist)
             return NULL;
         }
 
-        list_add(&tag->node, &user->head.tag);
+        dlist_add(&tag->node.user, &user->head.tag);
     }
     else {
         if (false==update_if_exist) {
@@ -325,10 +327,17 @@ STATIC void
 umduser_tag_clear(umd_user_t *user)
 {
     umd_user_tag_t *p, *n;
-    
-    list_for_each_entry_safe(p, n, &user->head.tag, node) {
-        umd_user_tag_free(p);
+
+    mv_t foreach(dlist_node_t *node)
+    {
+        umd_user_tag_t *tag = dlist_entry(node, umd_user_tag_t, node.user);
+
+        umd_user_tag_free(tag);
+
+        return mv2_ok;
     }
+
+    dlist_foreach_safe(&user.head.tag, foreach);
 }
 
 STATIC void
@@ -1242,11 +1251,17 @@ STATIC jobj_t
 umd_juser_tag(umd_user_t *user)
 {
     jobj_t obj = jobj_new_object();
-    umd_user_tag_t *tag;
-    
-    list_for_each_entry(tag, &user->head.tag, node) {
+
+    mv_t foreach(dlist_node_t *node)
+    {
+        umd_user_tag_t *tag = dlist_entry(node, umd_user_tag_t, node.user);
+
         jobj_add_string(obj, tag->k, tag->v);
+
+        return mv2_ok;
     }
+
+    dlist_foreach(&user->head.tag, foreach);
 
     return obj;
 }
