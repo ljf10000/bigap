@@ -146,6 +146,12 @@ cli_help(int error)
     return error;
 }
 
+static inline int
+cli_handle_help(cli_table_t *table, int argc, char *argv[])
+{
+    return cli_help(-EHELP);
+}
+
 typedef struct {
     int timeout;    // todo: not use it
     

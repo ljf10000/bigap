@@ -68,6 +68,12 @@ nsqa_handle_name_topic_channel(
     return (*handle)(name, topic, channel);
 }
 
+STATIC int
+nsqa_handle_help(cli_table_t *table, int argc, char *argv[])
+{
+    return cli_help(-EHELP);
+}
+
 /*
 * remove {name}
 */
@@ -128,6 +134,8 @@ STATIC int
 nsqa_cli(loop_watcher_t *watcher, time_t now)
 {
     static cli_table_t tables[] = {
+        CLI_TCP_ENTRY("help",   nsqa_handle_help),
+        
         CLI_TCP_ENTRY("insert", nsqa_handle_insert),
         CLI_TCP_ENTRY("remove", nsqa_handle_remove),
         CLI_TCP_ENTRY("show",   nsqa_handle_show),

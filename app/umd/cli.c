@@ -119,6 +119,12 @@ umd_handle_mac(int (*handle)(byte mac[]), int argc, char *argv[])
     return (*handle)(os_mac(mac));
 }
 
+STATIC int
+umd_handle_help(cli_table_t *table, int argc, char *argv[])
+{
+    return cli_help(-EHELP);
+}
+
 /*
 * create {mac}
 */
@@ -474,6 +480,8 @@ STATIC int
 umd_cli(struct loop_watcher *watcher, time_t now)
 {
     static cli_table_t tables[] = {
+        CLI_TCP_ENTRY("help",   cli_handle_help),
+        
         CLI_TCP_ENTRY("create", umd_handle_create),
         CLI_TCP_ENTRY("delete", umd_handle_delete),
         

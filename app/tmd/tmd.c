@@ -459,7 +459,7 @@ STATIC int
 tmd_cli(struct loop_watcher *watcher, time_t now)
 {
     static cli_table_t tables[] = {
-        CLI_TCP_ENTRY("help",   tmd_handle_help),
+        CLI_TCP_ENTRY("help",   cli_handle_help),
 
         CLI_TCP_ENTRY("insert", tmd_handle_insert),
         CLI_TCP_ENTRY("remove", tmd_handle_remove),

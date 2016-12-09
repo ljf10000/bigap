@@ -462,6 +462,9 @@ __cli_response(int fd, cli_table_t tables[], int count)
         return argc;
     }
     else if (0==argc) {
+        /*
+        * tables[0] is help
+        */
         return __clis_table_handle(&tables[0], argc, argv);
     }
     
