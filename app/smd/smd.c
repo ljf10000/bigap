@@ -697,12 +697,6 @@ smd_create(char *name, char *command, char *pidfile)
 }
 
 STATIC int
-smd_handle_help(cli_table_t *table, int argc, char *argv[])
-{
-    return cli_help(-EHELP);
-}
-
-STATIC int
 smd_handle_insert(cli_table_t *table, int argc, char *argv[])
 {
     char *type = argv[1];
@@ -851,6 +845,9 @@ STATIC int
 smd_cli(struct loop_watcher *watcher, time_t now)
 {
     static cli_table_t tables[] = {
+        /*
+        * help must first
+        */
         CLI_TCP_ENTRY("help",   cli_handle_help),
         
         CLI_TCP_ENTRY("insert", smd_handle_insert),

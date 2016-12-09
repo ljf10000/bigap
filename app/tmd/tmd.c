@@ -252,12 +252,6 @@ tmd_xtimer_cb(tm_node_t *timer)
 }
 
 STATIC int
-tmd_handle_help(cli_table_t *table, int argc, char *argv[])
-{
-    return cli_help(-EHELP);
-}
-
-STATIC int
 tmd_handle_insert(cli_table_t *table, int argc, char *argv[])
 {
     char *name      = argv[1];
@@ -459,6 +453,9 @@ STATIC int
 tmd_cli(struct loop_watcher *watcher, time_t now)
 {
     static cli_table_t tables[] = {
+        /*
+        * help must first
+        */
         CLI_TCP_ENTRY("help",   cli_handle_help),
 
         CLI_TCP_ENTRY("insert", tmd_handle_insert),
