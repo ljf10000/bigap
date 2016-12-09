@@ -273,16 +273,16 @@ umduser_tag_get(umd_user_t *user, char *k)
         return NULL;
     }
 
-    bool eq(dlist_node_t *node)
+    bool eq(dlist_node_t *p)
     {
-        umd_user_tag_t *tag = dlist_entry(node, umd_user_tag_t, node.user);
+        umd_user_tag_t *tag = dlist_entry(p, umd_user_tag_t, node.user);
 
         return os_streq(k, tag->k);
     }
     
-    dlist_node_t * tagnode = dlist_find(&user.head.tag, eq);
+    dlist_node_t *node = dlist_find(&user.head.tag, eq);
 
-    return dlist_entry(tagnode, umd_user_tag_t, node.user);
+    return dlist_entry(node, umd_user_tag_t, node.user);
 }
 
 STATIC umd_user_tag_t *
@@ -325,11 +325,9 @@ umduser_tag_set(umd_user_t *user, char *k, char *v)
 STATIC void
 umduser_tag_clear(umd_user_t *user)
 {
-    umd_user_tag_t *p, *n;
-
-    mv_t foreach(dlist_node_t *node)
+    mv_t foreach(dlist_node_t *p)
     {
-        umd_user_tag_t *tag = dlist_entry(node, umd_user_tag_t, node.user);
+        umd_user_tag_t *tag = dlist_entry(p, umd_user_tag_t, node.user);
 
         umduser_tag_free(tag);
 
