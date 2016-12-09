@@ -270,8 +270,6 @@ typedef struct {
     
     umd_limit_t limit[umd_flow_type_end];
 
-    h2_node_t node;
-
     struct {
         struct list_head tag;
         struct list_head conn;
