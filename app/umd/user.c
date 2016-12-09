@@ -1244,7 +1244,7 @@ umd_juser_tag(umd_user_t *user)
     jobj_t obj = jobj_new_object();
     umd_user_tag_t *tag;
     
-    list_for_each_entry(tag, &user->head.tag, tag) {
+    list_for_each_entry(tag, &user->head.tag, node) {
         jobj_add_string(obj, tag->k, tag->v);
     }
 
