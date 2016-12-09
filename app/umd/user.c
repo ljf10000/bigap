@@ -280,7 +280,7 @@ umduser_tag_get(umd_user_t *user, char *k)
         return os_streq(k, tag->k);
     }
     
-    dlist_node_t *node = dlist_find(&user.head.tag, eq);
+    dlist_node_t *node = dlist_find(&user->head.tag, eq);
 
     return dlist_entry(node, umd_user_tag_t, node.tag);
 }
@@ -336,7 +336,7 @@ umduser_tag_clear(umd_user_t *user)
         return mv2_ok;
     }
 
-    dlist_foreach_safe(&user.head.tag, foreach);
+    dlist_foreach_safe(&user->head.tag, foreach);
 }
 
 STATIC void
@@ -620,7 +620,7 @@ __umduser_create(byte mac[], umd_event_cb_t *ev)
     }
     dlist_init(&user->head.tag);
     dlist_init(&user->head.conn);
-    
+
     os_maccpy(user->mac, mac);
 
     umd_user_debug_tail_call("create", user, {
