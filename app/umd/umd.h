@@ -155,7 +155,7 @@ EXTERN int umd_deauth_reason_getidbyname(const char *name);
 #define UMD_DEAUTH_END          UMD_DEAUTH_END
 #endif
 
-static inline bool
+ALWAYS_INLINE bool
 is_valid_umd_deauth_reason(int reason)
 {
     return IS_GOOD_VALUE(reason, UMD_DEAUTH_NONE+1, UMD_DEAUTH_END);
@@ -330,8 +330,17 @@ enum {
     UMD_SERVER_END = UMD_SERVER_FLOW
 };
 
-#define umd_intf_id(_server_id)  (_server_id - UMD_SERVER_END)
-#define umd_server_id(_intf_id)  (_intf_id + UMD_SERVER_END)
+ALWAYS_INLINE int
+umd_intf_id(int server_id)
+{
+    return server_id - UMD_SERVER_END;
+}
+
+ALWAYS_INLINE int
+umd_server_id(int intf_id)
+{
+    return intf_id + UMD_SERVER_END;
+}
 
 typedef struct {
     char name[1+OS_IFNAME_LEN];
@@ -437,10 +446,12 @@ typedef struct {
     char *ipstring;
     char *maskstring;
 } umd_lan_t;
+
 #define __UMD_LAN_INITER(_ipstring, _maskstring) { \
     .ipstring   = _ipstring,    \
     .maskstring = _maskstring,  \
 }   /* end */
+
 #define UMD_LAN_INITER { \
     __UMD_LAN_INITER("192.168.0.0", "255.255.255.0"), \
     __UMD_LAN_INITER("172.16.0.0", "255.240.0.0"),    \
@@ -481,14 +492,17 @@ typedef struct {
 
 extern umd_control_t umd;
 
+extern umd_intf_t *
+umd_getintf_byid(int intf_id);
+
 extern sock_server_t *
-umd_get_server_by_intf(umd_intf_t *intf);
+umd_getserver_byid(int server_id);
+
+extern sock_server_t *
+umd_getserver_byintf(umd_intf_t *intf);
 
 extern umd_intf_t *
-umd_get_intf_by_id(int intf_id);
-
-extern umd_intf_t *
-umd_get_intf_by_server(sock_server_t *server);
+umd_getintf_byserver(sock_server_t *server);
 
 typedef struct {
     int state;

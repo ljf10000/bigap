@@ -26,22 +26,28 @@ DECLARE_ENUM(umd_forward_mode,  UMD_FORWARD_MODE_ENUM_MAPPER,   umd_forward_mode
 DECLARE_ENUM(umd_pkt_type,      UMD_PKT_TYPE_ENUM_MAPPER,       umd_pkt_type_end);
 DECLARE_ENUM(umd_pkt_check,     UMD_PKT_CHECK_ENUM_MAPPER,      umd_pkt_check_end);
 
-sock_server_t *
-umd_get_server_by_intf(umd_intf_t *intf)
-{
-    return umd.server[umd_server_id(intf->id)];
-}
-
 umd_intf_t *
-umd_get_intf_by_id(int intf_id)
+umd_getintf_byid(int intf_id)
 {
     return &umd.cfg.instance.intf[intf_id];
 }
 
-umd_intf_t *
-umd_get_intf_by_server(sock_server_t *server)
+sock_server_t *
+umd_getserver_byid(int server_id)
 {
-    return umd_get_intf_by_id(umd_intf_id(server->id));
+    return umd.server[server_id];
+}
+
+sock_server_t *
+umd_getserver_byintf(umd_intf_t *intf)
+{
+    return umd_getserver_byid(umd_server_id(intf->id));
+}
+
+umd_intf_t *
+umd_getintf_byserver(sock_server_t *server)
+{
+    return umd_getintf_byid(umd_intf_id(server->id));
 }
 /******************************************************************************/
 STATIC int
