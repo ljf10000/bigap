@@ -63,22 +63,23 @@ struct xtimer {
     tm_node_t timer;
 };
 
+#if 1
+DECLARE_DB_H1(&tmd.table, tmd, struct xtimer, node);
+
+static inline struct xtimer *
+tmd_hx_entry(hash_node_t *node);
+
+static inline struct xtimer *
+tmd_h1_entry(h1_node_t *node);
+
+static inline int
+tmd_foreach(mv_t (*foreach)(struct xtimer *entry), bool safe);
+#endif
+
 STATIC struct xtimer *
 tmd_tm_entry(tm_node_t *timer)
 {
     return tm_timer_entry(timer, struct xtimer, timer);
-}
-
-STATIC struct xtimer *
-tmd_hx_entry(hash_node_t *node)
-{
-    return hx_entry(node, struct xtimer, node, 0);
-}
-
-STATIC struct xtimer *
-tmd_h1_entry(h1_node_t *node)
-{
-    return h1_entry(node, struct xtimer, node);
 }
 
 STATIC hash_idx_t 
@@ -142,17 +143,6 @@ tmd_get(char *name)
     }
 
     return tmd_h1_entry(node);
-}
-
-STATIC int
-tmd_foreach(mv_t (*foreach)(struct xtimer *entry), bool safe)
-{
-    mv_t node_foreach(h1_node_t *node)
-    {
-        return (*foreach)(tmd_h1_entry(node));
-    }
-
-    return h1_foreach(&tmd.table, node_foreach, safe);
 }
 
 STATIC struct xtimer *

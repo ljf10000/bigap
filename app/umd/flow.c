@@ -15,6 +15,19 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 static umd_flow_t flow;
 static umd_conn_t conn;
 
+#if 1
+DECLARE_DB_H1(&umd.head.conn, umd_conn, umd_conn_t, node.conn);
+
+static inline umd_conn_t *
+umd_conn_hx_entry(hash_node_t *node);
+
+static inline umd_conn_t *
+umd_conn_h1_entry(h1_node_t *node);
+
+static inline int
+umd_conn_foreach(mv_t (*foreach)(umd_conn_t *entry), bool safe);
+#endif
+
 STATIC bkdr_t
 umd_conn_bdkr(umd_conn_t *cn)
 {
@@ -40,17 +53,7 @@ umd_conn_eq(umd_conn_t *a, umd_conn_t *b)
         && a->protocol == b->protocol;
 }
 
-STATIC umd_conn_t *
-umd_conn_hx_entry(hash_node_t *node)
-{
-    return hx_entry(node, umd_conn_t, node.conn, 0);
-}
 
-STATIC umd_conn_t *
-umd_conn_h1_entry(h1_node_t *node)
-{
-    return h1_entry(node, umd_conn_t, node.conn);
-}
 
 STATIC hash_idx_t 
 umd_conn_hash(umd_conn_t *cn)
@@ -117,17 +120,6 @@ umd_conn_get(umd_conn_t *cn)
     }
 
     return umd_conn_h1_entry(node);
-}
-
-STATIC int
-umd_conn_foreach(mv_t (*foreach)(umd_conn_t *cn), bool safe)
-{
-    mv_t node_foreach(h1_node_t *node)
-    {
-        return (*foreach)(umd_conn_h1_entry(node));
-    }
-
-    return h1_foreach(&umd.head.conn, node_foreach, safe);
 }
 
 STATIC bool

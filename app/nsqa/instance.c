@@ -12,17 +12,18 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "nsqa.h"
 /******************************************************************************/
-STATIC nsq_instance_t *
-__nsqi_hx_entry(hash_node_t *node)
-{
-    return hx_entry(node, nsq_instance_t, node, 0);
-}
+#if 1
+DECLARE_DB_H1(&nsqa.table, __nsqi, nsq_instance_t, node);
 
-STATIC nsq_instance_t *
-__nsqi_h1_entry(h1_node_t *node)
-{
-    return h1_entry(node, nsq_instance_t, node);
-}
+static inline nsq_instance_t *
+__nsqi_hx_entry(hash_node_t *node);
+
+static inline nsq_instance_t *
+__nsqi_h1_entry(h1_node_t *node);
+
+static inline int
+__nsqi_foreach(mv_t (*foreach)(nsq_instance_t *entry), bool safe);
+#endif
 
 STATIC hash_idx_t
 __nsqi_hash(char *name, char *topic, char *channel)
@@ -401,12 +402,7 @@ nsqi_remove(char *name, char *topic, char *channel)
 int
 nsqi_foreach(mv_t (*foreach)(nsq_instance_t *instance), bool safe)
 {
-    mv_t node_foreach(h1_node_t *node)
-    {
-        return (*foreach)(__nsqi_h1_entry(node));
-    }
-
-    return h1_foreach(&nsqa.table, node_foreach, safe);
+    return __nsqi_foreach(foreach, safe);
 }
 
 nsq_instance_t *

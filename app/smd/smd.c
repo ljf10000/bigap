@@ -98,6 +98,19 @@ typedef struct {
     .flags  = SM_F_STATIC,    \
 }   /* end */
 
+#if 1
+DECLARE_DB_H2(&smd.table, smd, sm_entry_t, node);
+
+static inline sm_entry_t *
+smd_h2_entry(h2_node_t *node);
+
+static inline sm_entry_t *
+smd_hx_entry(hash_node_t *node, hash_idx_t nidx);
+
+static inline int
+smd_foreach(mv_t (*foreach)(sm_entry_t *entry), bool safe);
+#endif
+
 ALWAYS_INLINE bool
 smd_is_normal(sm_entry_t *entry)
 {
@@ -194,18 +207,6 @@ smd_hashpid(int pid)
     return hash_bybuf((byte *)&pid, sizeof(pid), SMD_HASH_SIZE - 1);
 }
 
-STATIC sm_entry_t *
-smd_h2_entry(h2_node_t *node)
-{
-    return h2_entry(node, sm_entry_t, node);
-}
-
-STATIC sm_entry_t *
-smd_hx_entry(hash_node_t *node, hash_idx_t nidx)
-{
-    return hx_entry(node, sm_entry_t, node, nidx);
-}
-
 STATIC hash_idx_t
 smd_nodehashname(hash_node_t *node)
 {
@@ -258,17 +259,6 @@ __smd_insert(sm_entry_t *entry)
     return 0;
 }
 
-STATIC int
-__smd_foreach(mv_t (*foreach)(sm_entry_t *entry), bool safe)
-{
-    mv_t node_foreach(h2_node_t *node)
-    {
-        return (*foreach)(smd_h2_entry(node));
-    }
-
-    return h2_foreach(&smd.table, node_foreach, safe);
-}
-
 STATIC void
 smd_dump_all(char *name)
 {
@@ -284,7 +274,7 @@ smd_dump_all(char *name)
     }
 
     if (__is_ak_debug_trace) {
-        __smd_foreach(foreach, false);
+        smd_foreach(foreach, false);
     }
 }
 
@@ -582,7 +572,7 @@ smd_wait(void)
         return mv2_ok;
     }
     
-    err = __smd_foreach(foreach, true);
+    err = smd_foreach(foreach, true);
     
     return err;
 }
@@ -774,7 +764,7 @@ smd_handle_clean(cli_table_t *table, int argc, char *argv[])
         return mv2_ok;
     }
     
-    return __smd_foreach(foreach, true);
+    return smd_foreach(foreach, true);
 }
 
 STATIC void
@@ -817,7 +807,7 @@ smd_handle_show(cli_table_t *table, int argc, char *argv[])
         return mv2_ok;
     }
     
-    return __smd_foreach(foreach, false);
+    return smd_foreach(foreach, false);
     
     if (empty) {
         /*
