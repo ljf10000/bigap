@@ -616,7 +616,7 @@ __co_resume(coroutine_t *create, bool suspend_old)
 STATIC mv_t 
 __co_suspend_timeout(tm_node_t *timer)
 {
-    coroutine_t *co = container_of(timer, coroutine_t, suspend.timer);
+    coroutine_t *co = safe_container_of(timer, coroutine_t, suspend.timer);
 
     __co_signal(co, CO_EV_SUSPEND_TIMEOUT);
     

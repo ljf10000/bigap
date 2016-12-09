@@ -13,23 +13,15 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "nsqa.h"
 /******************************************************************************/
 STATIC nsq_instance_t *
-__nsqi_entry(hash_node_t *node)
+__nsqi_h0entry(hash_node_t *node)
 {
-    if (node) {
-        return h1_entry(node, nsq_instance_t, node);
-    } else {
-        return NULL;
-    }
+    return h1_entry(node, nsq_instance_t, node);
 }
 
 STATIC nsq_instance_t *
-__nsqi_hentry(h1_node_t *node)
+__nsqi_h2entry(h1_node_t *node)
 {
-    if (node) {
-        return h1_entry(node, nsq_instance_t, node);
-    } else {
-        return NULL;
-    }
+    return safe_container_of(node, nsq_instance_t, node);
 }
 
 STATIC hash_idx_t
@@ -149,7 +141,7 @@ __nsqi_insert(nsq_instance_t *instance)
 {
     hash_idx_t nhash(hash_node_t *node)
     {
-        nsq_instance_t *instance = __nsqi_entry(node);
+        nsq_instance_t *instance = __nsqi_h0entry(node);
         
         return __nsqi_hash(instance->name, instance->topic, instance->channel);
     }
@@ -410,7 +402,7 @@ nsqi_foreach(nsq_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h1_node_t *node)
     {
-        return (*foreach)(__nsqi_hentry(node));
+        return (*foreach)(__nsqi_h2entry(node));
     }
 
     if (safe) {
@@ -430,14 +422,14 @@ nsqi_get(char *name, char *topic, char *channel)
     
     bool eq(hash_node_t *node)
     {
-        nsq_instance_t *instance = __nsqi_entry(node);
+        nsq_instance_t *instance = __nsqi_h0entry(node);
         
         return os_streq(name, instance->name)
             && os_streq(topic, instance->topic)
             && os_streq(channel, instance->channel);
     }
 
-    return __nsqi_hentry(h1_find(&nsqa.table, dhash, eq));
+    return __nsqi_h2entry(h1_find(&nsqa.table, dhash, eq));
 }
 
 int

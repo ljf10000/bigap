@@ -16,14 +16,10 @@ OS_INITER;
 /******************************************************************************/
 nsqa_control_t nsqa = NSQA_INITER;
 
-#define NSQ_JMAPPER(_)                  \
-    _(&nsqa.cfg, string, script)        \
-    /* end */
-
 STATIC int
 init_nsqa_cfg(void)
 {
-    jobj_t jobj = JOBJ_MAPFILE(nsqa.env.conf, NSQ_JMAPPER);
+    jobj_t jobj = JOBJ_MAPFILE(nsqa.env.conf, NSQA_CFG_JMAPPER);
     if (NULL==jobj) {
         return -EBADCONF;
     }

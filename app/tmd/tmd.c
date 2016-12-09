@@ -66,19 +66,19 @@ struct xtimer {
 STATIC struct xtimer *
 tmd_get_entry_bytm(tm_node_t *timer)
 {
-    return container_of(timer, struct xtimer, timer);
+    return safe_container_of(timer, struct xtimer, timer);
 }
 
 STATIC struct xtimer *
-tmd_get_entry_byhashnode(hash_node_t *node)
+tmd_h0entry(hash_node_t *node)
 {
-    return hx_entry(node, struct xtimer, node, 0);
+    return h1_entry(node, struct xtimer, node);
 }
 
 STATIC struct xtimer *
-tmd_get_entry_byh1(h1_node_t *node)
+tmd_h1entry(h1_node_t *node)
 {
-    return container_of(node, struct xtimer, node);
+    return safe_container_of(node, struct xtimer, node);
 }
 
 STATIC hash_idx_t 
@@ -128,7 +128,7 @@ tmd_get(char *name)
     
     bool eq(hash_node_t *node)
     {
-        struct xtimer *entry = tmd_get_entry_byhashnode(node);
+        struct xtimer *entry = tmd_h0entry(node);
         
         return os_straeq(entry->name, name);
     }
@@ -138,7 +138,7 @@ tmd_get(char *name)
         return NULL;
     }
 
-    return tmd_get_entry_byh1(node);
+    return tmd_h1entry(node);
 }
 
 STATIC int
@@ -146,7 +146,7 @@ tmd_foreach(mv_t (*cb)(struct xtimer *entry), bool safe)
 {
     mv_t foreach(h1_node_t *node)
     {
-        struct xtimer *entry = tmd_get_entry_byh1(node);
+        struct xtimer *entry = tmd_h1entry(node);
 
         return (*cb)(entry);
     }

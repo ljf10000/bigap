@@ -23,9 +23,11 @@ typedef struct {
     char *script;
 } nsq_config_t;
 
-#define NSQA_CFG_INITER  {  \
-    .script = NSQ_SCRIPT,   \
-}   /* end */
+#define NSQA_CFG_JMAPPER(_) \
+    _(&nsqa.cfg, string, script, NSQ_SCRIPT)    \
+    /* end */
+
+#define NSQA_CFG_INITER  JOBJ_MAP_INITER(NSQA_CFG_JMAPPER)
 
 #define NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME   "feature_negotiation"
 

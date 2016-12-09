@@ -14,7 +14,7 @@
 * node: hash_node_t *
 */
 #define hx_entry(_node, _type, _member, _nidx) \
-    container_of(_node, _type, _member.hash[_nidx])
+    safe_container_of(_node, _type, _member.hash[_nidx])
 
 #define in_hx_table(_node) __in_dlist(&(_node)->list)
 
@@ -65,7 +65,7 @@ os_fake_declare                         \
 DECLARE _name##_node_t *                \
 _name##_entry(hash_node_t *node, int hidx) \
 {                                       \
-    return hash_entry(node, _name##_node_t, hash[hidx]); \
+    return safe_container_of(node, _name##_node_t, hash[hidx]); \
 }                                       \
                                         \
 DECLARE hash_idx_t                      \

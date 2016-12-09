@@ -609,7 +609,7 @@ part_item_clean(struct part_block *block)
 static inline struct part_item *
 part_item_getbycursor(struct string_kv *c)
 {
-    return container_of(c, struct part_item, c);
+    return safe_container_of(c, struct part_item, c);
 }
 
 /* 

@@ -188,22 +188,6 @@ umd_init_cfg_instance(jobj_t jcfg)
     return 0;
 }
 
-#define UMD_CFG_JMAPPER(_)              \
-    _(&umd.cfg, string, script_event)       \
-    _(&umd.cfg, string, script_getipbymac)  \
-    _(&umd.cfg, string, script_getmacbyip)  \
-    _(&umd.cfg, bool,   syncable)       \
-    _(&umd.cfg, bool,   reauthable)     \
-    _(&umd.cfg, u32,    gc)             \
-    _(&umd.cfg, u32,    sniff_count)    \
-    _(&umd.cfg, u32,    ticks)          \
-    _(&umd.cfg, u32,    idle)           \
-    _(&umd.cfg, u32,    fake)           \
-    _(&umd.cfg, u32,    machashsize)    \
-    _(&umd.cfg, u32,    iphashsize)     \
-    _(&umd.cfg, u32,    autouser)       \
-    /* end */
-
 int umd_init_cfg(void)
 {
     jobj_t jobj = JOBJ_MAPFILE(umd.conf, UMD_CFG_JMAPPER);

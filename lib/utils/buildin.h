@@ -53,6 +53,12 @@
 #endif
 #endif /* defined(__BOOT__) || defined(__APP__) */
 
+#ifndef safe_container_of
+#define safe_container_of(_ptr, _type, _member) \
+	    ((_ptr)?container_of(_ptr, _type, _member):NULL)
+#endif
+
+
 #ifndef os_count_of
 #define os_count_of(_x)         (sizeof(_x)/sizeof((_x)[0]))
 #endif

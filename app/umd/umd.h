@@ -11,6 +11,10 @@
 #define UMD_IPHASHSIZE          256
 #endif
 
+#ifndef UMD_CONNHASHSIZE
+#define UMD_CONNHASHSIZE        1024
+#endif
+
 #ifndef UMD_SYNCABLE
 #define UMD_SYNCABLE            true
 #endif
@@ -197,6 +201,17 @@ EXTERN int umd_flow_dir_getidbyname(const char *name);
 #define umd_flow_dir_end    umd_flow_dir_end
 #endif
 
+enum {
+    UM_USER_NIDX_MAC,
+    UM_USER_NIDX_IP,
+
+    UM_USER_NIDX_END
+};
+
+enum {
+    UM_F_SYNC   =   0x01,
+};
+
 typedef struct {
     uint32 max;         /* config */
     uint32 idle;        /* config */
@@ -232,9 +247,7 @@ typedef struct {
 
     char *k;
     char *v;
-} umd_tag_t;
-
-#define UM_F_SYNC       0x01
+} umd_user_tag_t;
 
 typedef struct {
     byte mac[OS_MACSIZE], __r0[2];
@@ -258,10 +271,15 @@ typedef struct {
     umd_limit_t limit[umd_flow_type_end];
 
     h2_node_t node;
-    
+
     struct {
         struct list_head tag;
+        struct list_head conn;
     } head;
+
+    struct {
+        h2_node_t user;
+    } node;
 }
 umd_user_t;
 
@@ -399,6 +417,21 @@ EXTERN int umd_forward_mode_getidbyname(const char *name);
 #endif
 
 typedef struct {
+    byte smac[OS_MACSIZE];
+    byte dmac[OS_MACSIZE];
+    uint32 sip;
+    uint32 dip;
+
+    umd_user_t *user;
+    umd_intf_t *intf;
+
+    struct {
+        dlist_node_t    user;
+        h1_node_t       hash;
+    } node;
+} umd_connect_t;
+
+typedef struct {
     struct {
         int count;
         umd_intf_t *intf;
@@ -418,25 +451,28 @@ typedef struct {
     uint32 fake;
     uint32 machashsize;
     uint32 iphashsize;
+    uint32 connhashsize;
 }
 umd_config_t;
 
-#define UMD_CFG_INITER                  {   \
-    .syncable = UMD_SYNCABLE,               \
-    .reauthable = UMD_REAUTHABLE,           \
-    .autouser = UMD_AUTOUSER,               \
-    .gc = UMD_GC,                           \
-    .sniff_count = UMD_SNIFF_COUNT,         \
-    .ticks = UMD_TICKS,                     \
-    .idle = UMD_IDLE,                       \
-    .fake = UMD_FAKE,                       \
-    .machashsize = UMD_MACHASHSIZE,         \
-    .iphashsize = UMD_IPHASHSIZE,           \
-                                            \
-    .script_event = UMD_SCRIPT_EVENT,       \
-    .script_getipbymac = UMD_SCRIPT_IP,     \
-    .script_getmacbyip = UMD_SCRIPT_MAC,    \
-}   /* end */
+#define UMD_CFG_JMAPPER(_) \
+    _(&umd.cfg, string, script_event,       UMD_SCRIPT_EVENT)   \
+    _(&umd.cfg, string, script_getipbymac,  UMD_SCRIPT_IP)      \
+    _(&umd.cfg, string, script_getmacbyip,  UMD_SCRIPT_MAC)     \
+    _(&umd.cfg, bool,   syncable,           UMD_SYNCABLE)       \
+    _(&umd.cfg, bool,   reauthable,         UMD_REAUTHABLE)     \
+    _(&umd.cfg, u32,    gc,                 UMD_GC)             \
+    _(&umd.cfg, u32,    sniff_count,        UMD_SNIFF_COUNT)    \
+    _(&umd.cfg, u32,    ticks,              UMD_TICKS)          \
+    _(&umd.cfg, u32,    idle,               UMD_IDLE)           \
+    _(&umd.cfg, u32,    fake,               UMD_FAKE)           \
+    _(&umd.cfg, u32,    machashsize,        UMD_MACHASHSIZE)    \
+    _(&umd.cfg, u32,    iphashsize,         UMD_IPHASHSIZE)     \
+    _(&umd.cfg, u32,    connhashsize,       UMD_CONNHASHSIZE)   \
+    _(&umd.cfg, u32,    autouser,           UMD_AUTOUSER)       \
+    /* end */
+
+#define UMD_CFG_INITER      JOBJ_MAP_INITER(UMD_CFG_JMAPPER)
 
 #define UM_LAN_COUNT    3
 
@@ -458,13 +494,6 @@ typedef struct {
     __UMD_LAN_INITER("10.0.0.0", "255.0.0.0"),        \
 }   /* end */
 
-enum {
-    UM_USER_NIDX_MAC,
-    UM_USER_NIDX_IP,
-
-    UM_USER_NIDX_END
-};
-
 typedef struct {
     byte basemac[OS_MACSIZE]; /* local ap's base mac */
     uint16 ether_type_ip;   /* network sort */
@@ -479,9 +508,15 @@ typedef struct {
     char *conf;
     sock_server_t **server;
     int server_count;
+
+    struct {
+        h2_table_t user;
+        h1_table_t conn;
+    } head;
+    
     loop_t loop;
-    h2_table_t table;
-} umd_control_t;
+} 
+umd_control_t;
 
 #define UMD_INITER          {   \
     .lan    = UMD_LAN_INITER,   \
@@ -628,10 +663,10 @@ umduser_reauth(umd_user_t *user);
 extern int
 umduser_deauth(umd_user_t *user, int reason);
 
-extern umd_tag_t *
+extern umd_user_tag_t *
 umd_user_tag_get(byte mac[], char *k);
 
-extern umd_tag_t *
+extern umd_user_tag_t *
 umd_user_tag_set(byte mac[], char *k, char *v);
 
 extern umd_user_t *
@@ -680,7 +715,7 @@ extern umd_user_t *
 umd_user_getbyip(uint32 ip);
 
 extern int
-umd_user_getby(umd_user_filter_t *filter, um_get_f *get);
+umd_user_getbyfilter(umd_user_filter_t *filter, um_get_f *get);
 
 extern int
 umd_user_delbyip(uint32 ip);

@@ -83,7 +83,12 @@ umd_init_post(void)
         [UM_USER_NIDX_IP]  = umd.cfg.iphashsize,
     };
     
-    err = h2_init(&umd.table, hash_size);
+    err = h2_init(&umd.head.user, hash_size);
+    if (err<0) {
+        return err;
+    }
+    
+    err = h1_init(&umd.head.conn, umd.cfg.connhashsize);
     if (err<0) {
         return err;
     }

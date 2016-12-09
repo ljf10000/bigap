@@ -364,7 +364,7 @@ umd_show_stat(void)
     }
 
     jobj_add_string(obj, "mac", os_macstring(umd.basemac));
-    jobj_add_i32(obj, "user", h2_count(&umd.table));
+    jobj_add_i32(obj, "user", h2_count(&umd.head.user));
     jobj_add(obj, "flow", umd_jflow());
 
     cli_sprintf(__tab "%s" __crlf, jobj_json(obj));
@@ -377,7 +377,7 @@ umd_show_stat(void)
 STATIC int
 umd_show_count(void)
 {
-    cli_sprintf("%d" __crlf, h2_count(&umd.table));
+    cli_sprintf("%d" __crlf, h2_count(&umd.head.user));
     
     return 0;
 }
@@ -444,7 +444,7 @@ umd_handle_tag(cli_table_t *table, int argc, char *argv[])
         return cli_help(-EFORMAT);
     }
 
-    umd_tag_t *tag = NULL;
+    umd_user_tag_t *tag = NULL;
     if (NULL==v) {
         tag = umd_user_tag_get(os_mac(mac), k);
         if (tag) {

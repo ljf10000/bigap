@@ -397,12 +397,12 @@ int __jobj_map_##_jname##_##_member##_helper(jobj_t jobj)   \
 #define JOBJ_FUNC_NAME_MEMBER_HELPER(_obj, _type, _jname, _member)  __jobj_map_##_jname##_##_member##_helper,
 
 
-#define JOBJ_FUNC_MEMBER_MAPPER(_obj, _type, _member)  \
+#define JOBJ_FUNC_MEMBER_MAPPER(_obj, _type, _member, _default) \
 int __jobj_map_##_member##_helper(jobj_t jobj)  \
 {                                               \
     return jj_##_type(_obj, jobj, _member);     \
 }   /* end */
-#define JOBJ_FUNC_MEMBER_HELPER(_obj, _type, _member)   __jobj_map_##_member##_helper,
+#define JOBJ_FUNC_MEMBER_HELPER(_obj, _type, _member, _default)     __jobj_map_##_member##_helper,
 
 
 #define JOBJ_MAP_BY(_jobj, _mapper, _func_mapper, _func_helper) ({ \
@@ -420,6 +420,10 @@ int __jobj_map_##_member##_helper(jobj_t jobj)  \
     jobj_map(_jobj, __map);         \
 })
 #define JOBJ_MAPFILE(_file, _mapper)        JOBJ_MAP(jobj_byfile(_file), _mapper)
+
+
+#define __JOBJ_MAP_INIT_HELPER(_obj, _type, _member, _default)  ._member = _default,
+#define JOBJ_MAP_INITER(_mapper)            { _mapper(__JOBJ_MAP_INIT_HELPER) }
 
 
 #define JOBJ_MAP_NAME_MEMBER(_jobj, _mapper) \

@@ -80,7 +80,7 @@ __fd_is_sock(fd_map_t *map)
 STATIC int 
 __fd_watcher(int fd, int event, loop_node_t *node)
 {
-    fd_map_t *map = container_of(node, fd_map_t, loop);
+    fd_map_t *map = safe_container_of(node, fd_map_t, loop);
 
     switch(event) {
         case EPOLLIN:

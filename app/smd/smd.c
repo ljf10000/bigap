@@ -197,17 +197,13 @@ smd_hashpid(int pid)
 }
 
 STATIC sm_entry_t *
-smd_hx_entry(h2_node_t *node)
+smd_h2entry(h2_node_t *node)
 {
-    if (node) {
-        return hash_entry(node, sm_entry_t, node);
-    } else {
-        return NULL;
-    }
+    return safe_container_of(node, sm_entry_t, node);
 }
 
 STATIC sm_entry_t *
-smd_entry(hash_node_t *node, hash_idx_t nidx)
+smd_h0entry(hash_node_t *node, hash_idx_t nidx)
 {
     return hx_entry(node, sm_entry_t, node, nidx);
 }
@@ -215,7 +211,7 @@ smd_entry(hash_node_t *node, hash_idx_t nidx)
 STATIC hash_idx_t
 smd_nodehashname(hash_node_t *node)
 {
-    sm_entry_t *entry = smd_entry(node, SMD_HASH_NAME);
+    sm_entry_t *entry = smd_h0entry(node, SMD_HASH_NAME);
 
     return smd_hashname(entry->name);
 }
@@ -223,7 +219,7 @@ smd_nodehashname(hash_node_t *node)
 STATIC hash_idx_t
 smd_nodehashpid(hash_node_t *node)
 {
-    sm_entry_t *entry = smd_entry(node, SMD_HASH_PID);
+    sm_entry_t *entry = smd_h0entry(node, SMD_HASH_PID);
 
     return smd_hashpid(entry->pid);
 }
@@ -269,7 +265,7 @@ __smd_foreach(smd_foreach_f *foreach, bool safe)
 {
     mv_t node_foreach(h2_node_t *node)
     {
-        return (*foreach)(smd_hx_entry(node));
+        return (*foreach)(smd_h2entry(node));
     }
 
     if (safe) {
@@ -314,12 +310,12 @@ smd_getbyname(char *name)
     
     bool eq(hash_node_t *node)
     {
-        sm_entry_t *entry = smd_entry(node, SMD_HASH_NAME);
+        sm_entry_t *entry = smd_h0entry(node, SMD_HASH_NAME);
         
         return os_streq(entry->name, name);
     }
     
-    return smd_hx_entry(h2_find(&smd.table, SMD_HASH_NAME, dhash, eq));
+    return smd_h2entry(h2_find(&smd.table, SMD_HASH_NAME, dhash, eq));
 }
 
 STATIC sm_entry_t *
@@ -332,12 +328,12 @@ smd_getbynormal(int pid)
     
     bool eq(hash_node_t *node)
     {
-        sm_entry_t *entry = smd_entry(node, SMD_HASH_PID);
+        sm_entry_t *entry = smd_h0entry(node, SMD_HASH_PID);
         
         return pid==entry->pid;
     }
     
-    return smd_hx_entry(h2_find(&smd.table, SMD_HASH_PID, dhash, eq));
+    return smd_h2entry(h2_find(&smd.table, SMD_HASH_PID, dhash, eq));
 }
 
 STATIC void

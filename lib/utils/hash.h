@@ -31,8 +31,6 @@ typedef struct hash_s {
     .size = _size,              \
 }
 
-#define hash_entry(_node, _type, _member)      container_of(_node, _type, _member)
-
 typedef hash_idx_t hash_node_calc_f(hash_node_t *node);
 typedef hash_idx_t hash_data_calc_f(void);
 typedef bool hash_eq_f(hash_node_t *node);

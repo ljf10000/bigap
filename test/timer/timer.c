@@ -26,7 +26,7 @@ int count = 1000000;
 static mv_t
 timer_cb(tm_node_t *timer)
 {
-    struct test *test = container_of(timer, struct test, node);
+    struct test *test = safe_container_of(timer, struct test, node);
 
     debug_test("timer(%d) timeout, expires(%d)", test->expires, tm_expires(timer));
 
