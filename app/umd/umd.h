@@ -255,9 +255,9 @@ typedef struct {
     byte mac[OS_MACSIZE], __r0[2];
     byte bssid_first[OS_MACSIZE], 
          bssid_current[OS_MACSIZE];
-    
+
     char *ssid;
-    
+
     int state;
     int reason;
     int group;
@@ -274,6 +274,7 @@ typedef struct {
 
     struct {
         dlist_t tag;
+        dlist_t uconn;
     } head;
 
     struct {
@@ -671,9 +672,11 @@ typedef struct {
     umd_intf_t *intf;
 
     struct {
-        h1_node_t conn;
+        h1_node_t       conn;
+        dlist_node_t    uconn;
     } node;
-} umd_conn_t;
+} 
+umd_conn_t;
 /******************************************************************************/
 extern jobj_t
 umd_juser(umd_user_t *user);

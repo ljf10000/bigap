@@ -89,7 +89,7 @@ umd_init_post(void)
         return err;
     }
     
-    err = h1_init(&umd.head.conn, umd.cfg.connhashsize);
+    err = h1_init(&umd.head.uconn, umd.cfg.connhashsize);
     if (err<0) {
         return err;
     }

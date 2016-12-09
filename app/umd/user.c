@@ -142,7 +142,7 @@ void umd_update_limit_test(void)
         .ip = intf->ip,
         .head = { 
             .tag    = DLIST_INITER(user.head.tag),
-            .conn   = DLIST_INITER(user.head.conn),
+            .uconn  = DLIST_INITER(user.head.uconn),
         },
     };
     os_maccpy(user.mac, intf->mac);
@@ -619,7 +619,7 @@ __umduser_create(byte mac[], umd_event_cb_t *ev)
         return NULL;
     }
     dlist_init(&user->head.tag);
-    dlist_init(&user->head.conn);
+    dlist_init(&user->head.uconn);
 
     os_maccpy(user->mac, mac);
 
