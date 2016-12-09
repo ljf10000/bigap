@@ -207,7 +207,7 @@ __umduser_haship(uint32 ip)
     return hash_bybuf((byte *)&ip, sizeof(ip), umd.cfg.iphashsize - 1);
 }
 #if 1
-DECLARE_DB_H2(&umd.head.user, smd, umd_user_t, node.user);
+DECLARE_DB_H2(&umd.head.user, __umduser, umd_user_t, node.user);
 
 static inline umd_user_t *
 __umduser_h2_entry(h2_node_t *node);
