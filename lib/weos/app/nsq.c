@@ -1,11 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE_ENUM(nsq_fsm,   NSQ_FSM_ENUM_MAPPER,    NSQ_FSM_END);
-DECLARE_ENUM(nsq_auth,  NSQ_AUTH_ENUM_MAPPER,   NSQ_AUTH_END);
-DECLARE_ENUM(nsq_error, NSQ_ERROR_ENUM_MAPPER,  NSQ_E_END);
-DECLARE_ENUM(nsq_frame, NSQ_FRAME_ENUM_MAPPER,  NSQ_FRAME_END);
-
 bool
 is_good_nsq_name_char(int ch)
 {

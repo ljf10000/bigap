@@ -23,12 +23,12 @@ enum {
     _(BLOB_T_UINT64,    9, "uint64"),   \
     _(BLOB_T_FLOAT64,   10,"float64"),  \
     /* end */
-EXTERN_ENUM(blob_type, BLOB_TYPE_ENUM_MAPPER, BLOB_T_END);
+DECLARE_ENUM(blob_type, BLOB_TYPE_ENUM_MAPPER, BLOB_T_END);
 
-EXTERN enum_ops_t *blob_type_ops(void);
-EXTERN bool is_good_blob_type(int id);
-EXTERN char *blob_type_getnamebyid(int id);
-EXTERN int blob_type_getidbyname(const char *name);
+static inline enum_ops_t *blob_type_ops(void);
+static inline bool is_good_blob_type(int id);
+static inline char *blob_type_getnamebyid(int id);
+static inline int blob_type_getidbyname(const char *name);
 
 #define BLOB_T_OBJECT   BLOB_T_OBJECT
 #define BLOB_T_ARRAY    BLOB_T_ARRAY

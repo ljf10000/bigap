@@ -12,9 +12,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 /******************************************************************************/
-DECLARE_ENUM(rsh_cmd, RSH_CMD_ENUM_MAPPER, RSH_CMD_END);
-DECLARE_ENUM(rsh_mode, RSH_MODE_ENUM_MAPPER, RSH_MODE_END);
-
 typedef struct {
     char *ipstring;
     uint32 ip;      /* network sort */

@@ -73,12 +73,12 @@
     _(UMD_AUTO_BIND, 1, "bind"),    \
     _(UMD_AUTO_FAKE, 2, "fake"),    \
     /* end */
-EXTERN_ENUM(umd_user_auto, UMD_AUTO_ENUM_MAPPER, UMD_AUTO_END);
+DECLARE_ENUM(umd_user_auto, UMD_AUTO_ENUM_MAPPER, UMD_AUTO_END);
 
-EXTERN enum_ops_t *umd_user_auto_ops(void);
-EXTERN bool is_good_umd_user_auto(int id);
-EXTERN char *umd_user_auto_getnamebyid(int id);
-EXTERN int umd_user_auto_getidbyname(const char *name);
+static inline enum_ops_t *umd_user_auto_ops(void);
+static inline bool is_good_umd_user_auto(int id);
+static inline char *umd_user_auto_getnamebyid(int id);
+static inline int umd_user_auto_getidbyname(const char *name);
 
 #define UMD_AUTO_NONE   UMD_AUTO_NONE
 #define UMD_AUTO_BIND   UMD_AUTO_BIND
@@ -98,12 +98,12 @@ EXTERN int umd_user_auto_getidbyname(const char *name);
     _(UMD_STATE_AUTH, 3, "auth"),   \
     _(UMD_STATE_BLOCK,4, "block"),  \
     /* end */
-EXTERN_ENUM(umd_user_state, UMD_STATE_ENUM_MAPPER, UMD_STATE_END);
+DECLARE_ENUM(umd_user_state, UMD_STATE_ENUM_MAPPER, UMD_STATE_END);
 
-EXTERN enum_ops_t *umd_user_state_ops(void);
-EXTERN bool is_good_umd_user_state(int id);
-EXTERN char *umd_user_state_getnamebyid(int id);
-EXTERN int umd_user_state_getidbyname(const char *name);
+static inline enum_ops_t *umd_user_state_ops(void);
+static inline bool is_good_umd_user_state(int id);
+static inline char *umd_user_state_getnamebyid(int id);
+static inline int umd_user_state_getidbyname(const char *name);
 
 #define UMD_STATE_NONE  UMD_STATE_NONE
 #define UMD_STATE_BIND  UMD_STATE_BIND
@@ -141,12 +141,12 @@ EXTERN int umd_user_state_getidbyname(const char *name);
     _(UMD_DEAUTH_INITIATIVE, 6, "initiative"),   \
     _(UMD_DEAUTH_BLOCK,      7, "block"),        \
     /* end */
-EXTERN_ENUM(umd_deauth_reason, UMD_DEAUTH_ENUM_MAPPER, UMD_DEAUTH_END);
+DECLARE_ENUM(umd_deauth_reason, UMD_DEAUTH_ENUM_MAPPER, UMD_DEAUTH_END);
 
-EXTERN enum_ops_t *umd_deauth_reason_ops(void);
-EXTERN bool is_good_umd_deauth_reason(int id);
-EXTERN char *umd_deauth_reason_getnamebyid(int id);
-EXTERN int umd_deauth_reason_getidbyname(const char *name);
+static inline enum_ops_t *umd_deauth_reason_ops(void);
+static inline bool is_good_umd_deauth_reason(int id);
+static inline char *umd_deauth_reason_getnamebyid(int id);
+static inline int umd_deauth_reason_getidbyname(const char *name);
 
 #define UMD_DEAUTH_NONE         UMD_DEAUTH_NONE
 #define UMD_DEAUTH_AUTO         UMD_DEAUTH_AUTO
@@ -170,12 +170,12 @@ is_valid_umd_deauth_reason(int reason)
     _(umd_flow_type_lan, 0, "lan"), \
     _(umd_flow_type_wan, 1, "wan"), \
     /* end */
-EXTERN_ENUM(umd_flow_type, UMD_FLOW_TYPE_ENUM_MAPPER, umd_flow_type_end);
+DECLARE_ENUM(umd_flow_type, UMD_FLOW_TYPE_ENUM_MAPPER, umd_flow_type_end);
 
-EXTERN enum_ops_t *umd_flow_type_ops(void);
-EXTERN bool is_good_umd_flow_type(int id);
-EXTERN char *umd_flow_type_getnamebyid(int id);
-EXTERN int umd_flow_type_getidbyname(const char *name);
+static inline enum_ops_t *umd_flow_type_ops(void);
+static inline bool is_good_umd_flow_type(int id);
+static inline char *umd_flow_type_getnamebyid(int id);
+static inline int umd_flow_type_getidbyname(const char *name);
 
 #define umd_flow_type_lan   umd_flow_type_lan
 #define umd_flow_type_wan   umd_flow_type_wan
@@ -188,12 +188,12 @@ EXTERN int umd_flow_type_getidbyname(const char *name);
     _(umd_flow_dir_down, 1, "down"),\
     _(umd_flow_dir_all,  2, "all"), \
     /* end */
-EXTERN_ENUM(umd_flow_dir, UMD_FLOW_DIR_ENUM_MAPPER, umd_flow_dir_end);
+DECLARE_ENUM(umd_flow_dir, UMD_FLOW_DIR_ENUM_MAPPER, umd_flow_dir_end);
 
-EXTERN enum_ops_t *umd_flow_dir_ops(void);
-EXTERN bool is_good_umd_flow_dir(int id);
-EXTERN char *umd_flow_dir_getnamebyid(int id);
-EXTERN int umd_flow_dir_getidbyname(const char *name);
+static inline enum_ops_t *umd_flow_dir_ops(void);
+static inline bool is_good_umd_flow_dir(int id);
+static inline char *umd_flow_dir_getnamebyid(int id);
+static inline int umd_flow_dir_getidbyname(const char *name);
 
 #define umd_flow_dir_up     umd_flow_dir_up
 #define umd_flow_dir_down   umd_flow_dir_down
@@ -377,12 +377,12 @@ typedef struct {
     _(umd_auth_type_portal, 2, "portal"),   \
     _(umd_auth_type_webcat, 3, "webcat"),   \
     /* end */
-EXTERN_ENUM(umd_auth_type, UMD_AUTH_TYPE_ENUM_MAPPER, umd_auth_type_end);
+DECLARE_ENUM(umd_auth_type, UMD_AUTH_TYPE_ENUM_MAPPER, umd_auth_type_end);
 
-EXTERN enum_ops_t *umd_auth_type_ops(void);
-EXTERN bool is_good_umd_auth_type(int id);
-EXTERN char *umd_auth_type_getnamebyid(int id);
-EXTERN int umd_auth_type_getidbyname(const char *name);
+static inline enum_ops_t *umd_auth_type_ops(void);
+static inline bool is_good_umd_auth_type(int id);
+static inline char *umd_auth_type_getnamebyid(int id);
+static inline int umd_auth_type_getidbyname(const char *name);
 
 #define umd_auth_type_none      umd_auth_type_none
 #define umd_auth_type_mac       umd_auth_type_mac
@@ -398,12 +398,12 @@ EXTERN int umd_auth_type_getidbyname(const char *name);
     _(umd_forward_mode_br,  0, "br"),   \
     _(umd_forward_mode_rt,  1, "rt"),   \
     /* end */
-EXTERN_ENUM(umd_forward_mode, UMD_FORWARD_MODE_ENUM_MAPPER, umd_forward_mode_end);
+DECLARE_ENUM(umd_forward_mode, UMD_FORWARD_MODE_ENUM_MAPPER, umd_forward_mode_end);
 
-EXTERN enum_ops_t *umd_forward_mode_ops(void);
-EXTERN bool is_good_umd_forward_mode(int id);
-EXTERN char *umd_forward_mode_getnamebyid(int id);
-EXTERN int umd_forward_mode_getidbyname(const char *name);
+static inline enum_ops_t *umd_forward_mode_ops(void);
+static inline bool is_good_umd_forward_mode(int id);
+static inline char *umd_forward_mode_getnamebyid(int id);
+static inline int umd_forward_mode_getidbyname(const char *name);
 
 #define umd_forward_mode_br     umd_forward_mode_br
 #define umd_forward_mode_rt     umd_forward_mode_rt
@@ -552,12 +552,12 @@ struct vlan_header {
     _(umd_pkt_type_vlan, 1, "vlan"), \
     _(umd_pkt_type_ip,   2, "ip"),   \
     /* end */
-EXTERN_ENUM(umd_pkt_type, UMD_PKT_TYPE_ENUM_MAPPER, umd_pkt_type_end);
+DECLARE_ENUM(umd_pkt_type, UMD_PKT_TYPE_ENUM_MAPPER, umd_pkt_type_end);
 
-EXTERN enum_ops_t *umd_pkt_type_ops(void);
-EXTERN bool is_good_umd_pkt_type(int id);
-EXTERN char *umd_pkt_type_getnamebyid(int id);
-EXTERN int umd_pkt_type_getidbyname(const char *name);
+static inline enum_ops_t *umd_pkt_type_ops(void);
+static inline bool is_good_umd_pkt_type(int id);
+static inline char *umd_pkt_type_getnamebyid(int id);
+static inline int umd_pkt_type_getidbyname(const char *name);
 
 #define umd_pkt_type_eth     umd_pkt_type_eth
 #define umd_pkt_type_vlan    umd_pkt_type_vlan
@@ -571,12 +571,12 @@ EXTERN int umd_pkt_type_getidbyname(const char *name);
     _(umd_pkt_check_bad,     1, "bad"),  \
     _(umd_pkt_check_all,     2, "all"),  \
     /* end */
-EXTERN_ENUM(umd_pkt_check, UMD_PKT_CHECK_ENUM_MAPPER, umd_pkt_check_end);
+DECLARE_ENUM(umd_pkt_check, UMD_PKT_CHECK_ENUM_MAPPER, umd_pkt_check_end);
 
-EXTERN enum_ops_t *umd_pkt_check_ops(void);
-EXTERN bool is_good_umd_pkt_check(int id);
-EXTERN char *umd_pkt_check_getnamebyid(int id);
-EXTERN int umd_pkt_check_getidbyname(const char *name);
+static inline enum_ops_t *umd_pkt_check_ops(void);
+static inline bool is_good_umd_pkt_check(int id);
+static inline char *umd_pkt_check_getnamebyid(int id);
+static inline int umd_pkt_check_getidbyname(const char *name);
 
 #define umd_pkt_check_good   umd_pkt_check_good
 #define umd_pkt_check_bad    umd_pkt_check_bad
@@ -623,12 +623,12 @@ umd_flow_t;
     _(umd_conn_dir_wan2lan,     14,"wan2lan"),      \
     _(umd_conn_dir_wan2wan,     15,"wan2wan"),      \
     /* end */
-EXTERN_ENUM(umd_conn_dir, UMD_CONN_DIR_ENUM_MAPPER, umd_conn_dir_end);
+DECLARE_ENUM(umd_conn_dir, UMD_CONN_DIR_ENUM_MAPPER, umd_conn_dir_end);
 
-EXTERN enum_ops_t *umd_conn_dir_ops(void);
-EXTERN bool is_good_umd_conn_dir(int id);
-EXTERN char *umd_conn_dir_getnamebyid(int id);
-EXTERN int umd_conn_dir_getidbyname(const char *name);
+static inline enum_ops_t *umd_conn_dir_ops(void);
+static inline bool is_good_umd_conn_dir(int id);
+static inline char *umd_conn_dir_getnamebyid(int id);
+static inline int umd_conn_dir_getidbyname(const char *name);
 
 #define umd_conn_dir_dev2dev    umd_conn_dir_dev2dev
 #define umd_conn_dir_dev2user   umd_conn_dir_dev2user

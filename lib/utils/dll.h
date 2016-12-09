@@ -15,12 +15,12 @@
     _(LIBVAL_PTR,   8, "ptr"),  \
     _(LIBVAL_VOD,   9, "void"), \
     /* end */
-EXTERN_ENUM(libval_type, LIBVAL_TYPE_ENUM_MAPPER, LIBVAL_END);
+DECLARE_ENUM(libval_type, LIBVAL_TYPE_ENUM_MAPPER, LIBVAL_END);
 
-EXTERN enum_ops_t *libval_type_ops(void);
-EXTERN bool is_good_libval_type(int id);
-EXTERN char *libval_type_getnamebyid(int id);
-EXTERN int libval_type_getidbyname(const char *name);
+static inline enum_ops_t *libval_type_ops(void);
+static inline bool is_good_libval_type(int id);
+static inline char *libval_type_getnamebyid(int id);
+static inline int libval_type_getidbyname(const char *name);
 
 #define LIBVAL_F32  LIBVAL_F32
 #define LIBVAL_I32  LIBVAL_I32

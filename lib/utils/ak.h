@@ -86,12 +86,12 @@ enum { INVALID_AKID = 0};
     /* end */
     /* 29/30/31 reserved for log pri */
 
-EXTERN_ENUM(ak_DEBUG, AK_DEBUG_ENUM_MAPPER, ____ak_debug_end);
+DECLARE_ENUM(ak_DEBUG, AK_DEBUG_ENUM_MAPPER, ____ak_debug_end);
 
-EXTERN enum_ops_t *ak_DEBUG_ops(void);
-EXTERN bool is_good_ak_DEBUG(int id);
-EXTERN char *ak_DEBUG_getnamebyid(int id);
-EXTERN int ak_DEBUG_getidbyname(const char *name);
+static inline enum_ops_t *ak_DEBUG_ops(void);
+static inline bool is_good_ak_DEBUG(int id);
+static inline char *ak_DEBUG_getnamebyid(int id);
+static inline int ak_DEBUG_getidbyname(const char *name);
 
 enum {
     __ak_debug_ok           = os_bit(____ak_debug_ok),
@@ -214,12 +214,12 @@ extern akid_t __THIS_JDEBUG;
     _(__AK_SYS_DEBUG,   0, AK_DEBUG_NAME),  \
     _(__AK_SYS_JDEBUG,  1, JS_DEBUG_NAME),  \
     /* end */
-EXTERN_ENUM(ak_sys, AK_SYS_ENUM_MAPPER, __AK_SYS_END);
+DECLARE_ENUM(ak_sys, AK_SYS_ENUM_MAPPER, __AK_SYS_END);
 
-EXTERN enum_ops_t *ak_sys_ops(void);
-EXTERN bool is_good_ak_sys(int id);
-EXTERN char *ak_sys_getnamebyid(int id);
-EXTERN int ak_sys_getidbyname(const char *name);
+static inline enum_ops_t *ak_sys_ops(void);
+static inline bool is_good_ak_sys(int id);
+static inline char *ak_sys_getnamebyid(int id);
+static inline int ak_sys_getidbyname(const char *name);
 
 #define __AK_SYS_DEBUG  __AK_SYS_DEBUG
 #define __AK_SYS_JDEBUG __AK_SYS_JDEBUG

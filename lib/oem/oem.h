@@ -75,12 +75,12 @@ typedef struct {
     _(OEM_T_1,    1, OEM1_NAME),    \
     _(OEM_T_2,    2, OEM2_NAME),    \
     /* end */
-EXTERN_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
+DECLARE_ENUM(oem_type, OEM_T_ENUM_MAPPER, OEM_T_END);
 
-EXTERN enum_ops_t *oem_type_ops(void);
-EXTERN bool is_good_oem_type(int id);
-EXTERN char *oem_type_getnamebyid(int id);
-EXTERN int oem_type_getidbyname(const char *name);
+static inline enum_ops_t *oem_type_ops(void);
+static inline bool is_good_oem_type(int id);
+static inline char *oem_type_getnamebyid(int id);
+static inline int oem_type_getidbyname(const char *name);
 
 #define OEM_T_DEFT  OEM_T_DEFT
 #define OEM_T_1     OEM_T_1

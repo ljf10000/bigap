@@ -89,7 +89,7 @@ if content:exist, filename:exist, then
     _(SCRIPT_TYPE_JS,   0,  "js"),  \
     _(SCRIPT_TYPE_SH,   1,  "sh"),  \
     /* end */
-INLINE_ENUM(script_type, SCRIPT_TYPE_ENUM_MAPPER, SCRIPT_TYPE_END);
+DECLARE_ENUM(script_type, SCRIPT_TYPE_ENUM_MAPPER, SCRIPT_TYPE_END);
 
 #define SCRIPT_TYPE_JS      SCRIPT_TYPE_JS
 #define SCRIPT_TYPE_SH      SCRIPT_TYPE_SH
@@ -106,7 +106,7 @@ static inline int script_type_getidbyname(const char *name);
     _(SCRIPT_RUN_THIS,  0,  "this"),    \
     _(SCRIPT_RUN_NEXT,  1,  "next"),    \
     /* end */
-INLINE_ENUM(script_run, SCRIPT_RUN_ENUM_MAPPER, SCRIPT_RUN_END);
+DECLARE_ENUM(script_run, SCRIPT_RUN_ENUM_MAPPER, SCRIPT_RUN_END);
 
 #define SCRIPT_RUN_THIS     SCRIPT_RUN_THIS
 #define SCRIPT_RUN_NEXT     SCRIPT_RUN_NEXT
@@ -123,7 +123,7 @@ static inline int script_run_getidbyname(const char *name);
     _(SCRIPT_CACHE_NONE,    0,  "none"),    \
     _(SCRIPT_CACHE_CACHE,   1,  "cache"),   \
     /* end */
-INLINE_ENUM(script_cache, SCRIPT_CACHE_ENUM_MAPPER, SCRIPT_CACHE_END);
+DECLARE_ENUM(script_cache, SCRIPT_CACHE_ENUM_MAPPER, SCRIPT_CACHE_END);
 
 #define SCRIPT_CACHE_NONE       SCRIPT_CACHE_NONE
 #define SCRIPT_CACHE_CACHE      SCRIPT_CACHE_CACHE
@@ -140,7 +140,7 @@ static inline int script_cache_getidbyname(const char *name);
     _(SCRIPT_SCOPE_GLOBAL,      0,  "global"),      \
     _(SCRIPT_SCOPE_INSTANCE,    1,  "instance"),    \
     /* end */
-INLINE_ENUM(script_scope, SCRIPT_SCOPE_ENUM_MAPPER, SCRIPT_SCOPE_END);
+DECLARE_ENUM(script_scope, SCRIPT_SCOPE_ENUM_MAPPER, SCRIPT_SCOPE_END);
 
 #define SCRIPT_SCOPE_GLOBAL     SCRIPT_SCOPE_GLOBAL
 #define SCRIPT_SCOPE_INSTANCE   SCRIPT_SCOPE_INSTANCE

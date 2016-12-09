@@ -1,8 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE_ENUM(blob_type, BLOB_TYPE_ENUM_MAPPER, BLOB_T_END);
-
 DECLARE uint32
 blob_vsize(const blob_t *blob)
 {

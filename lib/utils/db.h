@@ -260,6 +260,33 @@ h1_foreach(h1_table_t *table, h1_foreach_f *foreach, bool safe)
 {
     return __h1_foreach(table, foreach, safe);
 }
+
+DECLARE_DB_H1(_table, _mod, _type, _member)             \
+static inline _type *                                   \
+_mod##_hx_entry(hash_node_t *node)                      \
+{                                                       \
+    return hx_entry(node, _type, _member, 0);           \
+}                                                       \
+                                                        \
+static inline _type *                                   \
+_mod##_h1_entry(h1_node_t *node)                        \
+{                                                       \
+    return h1_entry(node, _type, _member);              \
+}                                                       \
+                                                        \
+static inline int                                       \
+_mod##_foreach(mv_t (*foreach)(_type *cn), bool safe)   \
+{                                                       \
+    mv_t node_foreach(h1_node_t *node)                  \
+    {                                                   \
+        return (*foreach)(_mod##_h1_entry(node));       \
+    }                                                   \
+                                                        \
+    return h1_foreach(_table, node_foreach, safe);      \
+}                                                       \
+                                                        \
+os_fake_declare                                         \
+/* end */
 #endif
 /******************************************************************************/
 /*
@@ -325,6 +352,33 @@ h2_foreach(h2_table_t *table, h2_foreach_f *foreach, bool safe)
 {
     return __h2_foreach(table, foreach, safe);
 }
+
+DECLARE_DB_H2(_table, _mod, _type, _member)             \
+static inline _type *                                   \
+_mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
+{                                                       \
+    return hx_entry(node, _type, _member, nidx);        \
+}                                                       \
+                                                        \
+static inline _type *                                   \
+_mod##_h2_entry(h2_node_t *nod)                         \
+{                                                       \
+    return h2_entry(node, _type, _member);              \
+}                                                       \
+                                                        \
+static inline int                                       \
+_mod##_foreach(mv_t (*foreach)(_type *cn), bool safe)   \
+{                                                       \
+    mv_t node_foreach(h2_node_t *node)                  \
+    {                                                   \
+        return (*foreach)(_mod##_h2_entry(node));       \
+    }                                                   \
+                                                        \
+    return h2_foreach(_table, node_foreach, safe);      \
+}                                                       \
+                                                        \
+os_fake_declare                                         \
+/* end */
 #endif
 
 #if USE_MOD_DB_H3
@@ -377,6 +431,33 @@ h3_foreach(h3_table_t *table, h3_foreach_f *foreach, bool safe)
 {
     return __h3_foreach(table, foreach, safe);
 }
+
+DECLARE_DB_H3(_table, _mod, _type, _member)             \
+static inline _type *                                   \
+_mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
+{                                                       \
+    return hx_entry(node, _type, _member, nidx);        \
+}                                                       \
+                                                        \
+static inline _type *                                   \
+_mod##_h3_entry(h3_node_t *nod)                         \
+{                                                       \
+    return h3_entry(node, _type, _member);              \
+}                                                       \
+                                                        \
+static inline int                                       \
+_mod##_foreach(mv_t (*foreach)(_type *cn), bool safe)   \
+{                                                       \
+    mv_t node_foreach(h3_node_t *node)                  \
+    {                                                   \
+        return (*foreach)(_mod##_h3_entry(node));       \
+    }                                                   \
+                                                        \
+    return h3_foreach(_table, node_foreach, safe);      \
+}                                                       \
+                                                        \
+os_fake_declare                                         \
+/* end */
 #endif
 
 #if USE_MOD_DB_H4
@@ -429,6 +510,33 @@ h4_foreach(h4_table_t *table, h4_foreach_f *foreach, bool safe)
 {
     return __h4_foreach(table, foreach, safe);
 }
+
+DECLARE_DB_H4(_table, _mod, _type, _member)             \
+static inline _type *                                   \
+_mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
+{                                                       \
+    return hx_entry(node, _type, _member, nidx);        \
+}                                                       \
+                                                        \
+static inline _type *                                   \
+_mod##_h4_entry(h4_node_t *nod)                         \
+{                                                       \
+    return h4_entry(node, _type, _member);              \
+}                                                       \
+                                                        \
+static inline int                                       \
+_mod##_foreach(mv_t (*foreach)(_type *cn), bool safe)   \
+{                                                       \
+    mv_t node_foreach(h4_node_t *node)                  \
+    {                                                   \
+        return (*foreach)(_mod##_h4_entry(node));       \
+    }                                                   \
+                                                        \
+    return h4_foreach(_table, node_foreach, safe);      \
+}                                                       \
+                                                        \
+os_fake_declare                                         \
+/* end */
 #endif
 
 #if USE_MOD_DB_H5
@@ -481,6 +589,33 @@ h5_foreach(h5_table_t *table, h5_foreach_f *foreach, bool safe)
 {
     return __h5_foreach(table, foreach, safe);
 }
+
+DECLARE_DB_H5(_table, _mod, _type, _member)             \
+static inline _type *                                   \
+_mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
+{                                                       \
+    return hx_entry(node, _type, _member, nidx);        \
+}                                                       \
+                                                        \
+static inline _type *                                   \
+_mod##_h5_entry(h5_node_t *nod)                         \
+{                                                       \
+    return h5_entry(node, _type, _member);              \
+}                                                       \
+                                                        \
+static inline int                                       \
+_mod##_foreach(mv_t (*foreach)(_type *cn), bool safe)   \
+{                                                       \
+    mv_t node_foreach(h5_node_t *node)                  \
+    {                                                   \
+        return (*foreach)(_mod##_h5_entry(node));       \
+    }                                                   \
+                                                        \
+    return h5_foreach(_table, node_foreach, safe);      \
+}                                                       \
+                                                        \
+os_fake_declare                                         \
+/* end */
 #endif
 
 #if USE_MOD_DB_H6
@@ -533,6 +668,33 @@ h6_foreach(h6_table_t *table, h6_foreach_f *foreach, bool safe)
 {
     return __h6_foreach(table, foreach, safe);
 }
+
+DECLARE_DB_H6(_table, _mod, _type, _member)             \
+static inline _type *                                   \
+_mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
+{                                                       \
+    return hx_entry(node, _type, _member, nidx);        \
+}                                                       \
+                                                        \
+static inline _type *                                   \
+_mod##_h6_entry(h6_node_t *nod)                         \
+{                                                       \
+    return h6_entry(node, _type, _member);              \
+}                                                       \
+                                                        \
+static inline int                                       \
+_mod##_foreach(mv_t (*foreach)(_type *cn), bool safe)   \
+{                                                       \
+    mv_t node_foreach(h6_node_t *node)                  \
+    {                                                   \
+        return (*foreach)(_mod##_h6_entry(node));       \
+    }                                                   \
+                                                        \
+    return h6_foreach(_table, node_foreach, safe);      \
+}                                                       \
+                                                        \
+os_fake_declare                                         \
+/* end */
 #endif
 
 #if USE_MOD_DB_H7
@@ -585,6 +747,33 @@ h7_foreach(h7_table_t *table, h7_foreach_f *foreach, bool safe)
 {
     return __h7_foreach(table, foreach, safe);
 }
+
+DECLARE_DB_H7(_table, _mod, _type, _member)             \
+static inline _type *                                   \
+_mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
+{                                                       \
+    return hx_entry(node, _type, _member, nidx);        \
+}                                                       \
+                                                        \
+static inline _type *                                   \
+_mod##_h7_entry(h7_node_t *nod)                         \
+{                                                       \
+    return h7_entry(node, _type, _member);              \
+}                                                       \
+                                                        \
+static inline int                                       \
+_mod##_foreach(mv_t (*foreach)(_type *cn), bool safe)   \
+{                                                       \
+    mv_t node_foreach(h7_node_t *node)                  \
+    {                                                   \
+        return (*foreach)(_mod##_h7_entry(node));       \
+    }                                                   \
+                                                        \
+    return h7_foreach(_table, node_foreach, safe);      \
+}                                                       \
+                                                        \
+os_fake_declare                                         \
+/* end */
 #endif
 
 #if USE_MOD_DB_H8
@@ -637,6 +826,33 @@ h8_foreach(h8_table_t *table, h8_foreach_f *foreach, bool safe)
 {
     return __h8_foreach(table, foreach, safe);
 }
+
+DECLARE_DB_H8(_table, _mod, _type, _member)             \
+static inline _type *                                   \
+_mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
+{                                                       \
+    return hx_entry(node, _type, _member, nidx);        \
+}                                                       \
+                                                        \
+static inline _type *                                   \
+_mod##_h8_entry(h8_node_t *nod)                         \
+{                                                       \
+    return h8_entry(node, _type, _member);              \
+}                                                       \
+                                                        \
+static inline int                                       \
+_mod##_foreach(mv_t (*foreach)(_type *cn), bool safe)   \
+{                                                       \
+    mv_t node_foreach(h8_node_t *node)                  \
+    {                                                   \
+        return (*foreach)(_mod##_h8_entry(node));       \
+    }                                                   \
+                                                        \
+    return h8_foreach(_table, node_foreach, safe);      \
+}                                                       \
+                                                        \
+os_fake_declare                                         \
+/* end */
 #endif
 
 #if USE_MOD_DB_H9
@@ -689,6 +905,33 @@ h9_foreach(h9_table_t *table, h9_foreach_f *foreach, bool safe)
 {
     return __h9_foreach(table, foreach, safe);
 }
+
+DECLARE_DB_H9(_table, _mod, _type, _member)             \
+static inline _type *                                   \
+_mod##_hx_entry(hash_node_t *node, hash_idx_t nidx)     \
+{                                                       \
+    return hx_entry(node, _type, _member, nidx);        \
+}                                                       \
+                                                        \
+static inline _type *                                   \
+_mod##_h9_entry(h9_node_t *nod)                         \
+{                                                       \
+    return h9_entry(node, _type, _member);              \
+}                                                       \
+                                                        \
+static inline int                                       \
+_mod##_foreach(mv_t (*foreach)(_type *cn), bool safe)   \
+{                                                       \
+    mv_t node_foreach(h9_node_t *node)                  \
+    {                                                   \
+        return (*foreach)(_mod##_h9_entry(node));       \
+    }                                                   \
+                                                        \
+    return h9_foreach(_table, node_foreach, safe);      \
+}                                                       \
+                                                        \
+os_fake_declare                                         \
+/* end */
 #endif
 
 #ifdef __BOOT__

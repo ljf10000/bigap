@@ -1,8 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE_ENUM(os_env, OS_ENV_ENUM_MAPPER, OS_ENV_END);
-
 DECLARE int
 envs_count(char *env[])
 {

@@ -1,8 +1,6 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
-DECLARE_ENUM(benv_fsm, BENV_FSM_ENUM_MAPPER, BENV_FSM_END);
-
 DECLARE bool
 is_good_benv_cookie(benv_cookie_t *cookie)
 {
