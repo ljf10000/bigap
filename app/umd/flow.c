@@ -255,10 +255,8 @@ umd_conn_remove(umd_conn_t *cn)
 }
 
 STATIC umd_conn_t *
-umd_conn_get(umd_conn_t *q)
+umd_conn_get(umd_conn_t *query)
 {
-    umd_conn_t *cn;
-    
     hash_idx_t hash(void)
     {
         return umd_conn_hash(q);
@@ -268,10 +266,8 @@ umd_conn_get(umd_conn_t *q)
     {
         umd_conn_t *cn = umd_conn_hx_entry(node);
         
-        return umd_conn_eq(q, cn);
+        return umd_conn_eq(query, cn);
     }
-
-    umd_conn_debug("conn count=%d", h1_count(&umd.head.conn));
     
     return umd_conn_h1_entry(h1_find(&umd.head.conn, hash, eq));
 }
@@ -285,9 +281,12 @@ umd_conn_getEx(umd_conn_t *tmpl)
     
     umd_conn_t *cn = umd_conn_get(tmpl);
     if (cn) {
+        umd_conn_debug("conn count=%d, found conn=%p",
+            h1_count(&umd.head.conn), cn);
+        
         return cn;
     }
-
+    
     cn = umd_conn_new(tmpl);
     if (NULL==cn) {
         return NULL;
