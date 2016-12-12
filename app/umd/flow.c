@@ -571,18 +571,12 @@ umd_conn_update(umd_conn_t *cn, time_t now)
         [umd_conn_dir_wan2wan]  = umd_conn_not_support,
     };
 
+    cn->hit = now;
     if (false==is_good_umd_conn_dir(cn->conn_dir)) {
         cn->conn_dir = umd_conn_dir(cn->sip, cn->dip);
     }
     
-    cn->hit = now;
-    
-    umd_conn_handle_f *f = handler[cn->conn_dir];
-    if (f) {
-        return (*f)(cn);
-    } else {
-        return -EFORMAT;
-    }
+    return (*handler[cn->conn_dir])(cn);
 }
 
 mv_t
