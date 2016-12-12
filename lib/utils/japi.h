@@ -437,6 +437,10 @@ int __jobj_map_##_member##_helper(jobj_t jobj)  \
 #define JOBJ_MAPFILE_MEMBER(_file, _mapper) \
     JOBJ_MAPFILE_BY(_file, _mapper, JOBJ_FUNC_MEMBER_MAPPER, JOBJ_FUNC_MEMBER_HELPER)
 /******************************************************************************/
+#ifndef USE_JSON_RULE
+#define USE_JSON_RULE           PC_VAL(1, 1)
+#endif
+
 #if USE_JSON_RULE
 enum {
     JRULE_MUST      = 0x0001,

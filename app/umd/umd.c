@@ -54,9 +54,9 @@ umd_init_pre(void)
     umd.ether_type_vlan= htons(ETHERTYPE_VLAN);
     umd.ether_type_all = htons(ETH_P_ALL);
 
-    for (i=0; i<os_count_of(umd.lan); i++) {
-        umd.lan[i].ip   = inet_addr(umd.lan[i].ipstring);
-        umd.lan[i].mask = inet_addr(umd.lan[i].maskstring);
+    for (i=0; i<os_count_of(umd.plan); i++) {
+        umd.plan[i].ip   = inet_addr(umd.plan[i].ipstring);
+        umd.plan[i].mask = inet_addr(umd.plan[i].maskstring);
     }
 
     umd.conf = env_gets(OS_ENV(CONF), UMD_CONF);
@@ -77,7 +77,7 @@ umd_init_post(void)
     if (err<0) {
         return err;
     }
-    
+
     err = h1_init(&umd.head.conn, umd.cfg.connhashsize);
     if (err<0) {
         return err;

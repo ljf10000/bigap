@@ -1,6 +1,10 @@
 #ifndef __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 #define __STRING2_H_795ed673d7eb48a4b2d3cc401be937d5__
 /******************************************************************************/
+#ifndef USE_STRING_BLOCK
+#define USE_STRING_BLOCK        PC_VAL(0, 0)
+#endif
+
 #if 1
 #define STRING_TYPE_ENUM_MAPPER(_)      \
     _(STRING_T_GLOBAL,  0, "global"),   \

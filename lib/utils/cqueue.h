@@ -1,6 +1,10 @@
 #ifndef __CQUEUE_H_04b4815f18564b8799c9ffda96d7e97d__
 #define __CQUEUE_H_04b4815f18564b8799c9ffda96d7e97d__
 /******************************************************************************/
+#ifndef USE_MOD_CQUEUE
+#define USE_MOD_CQUEUE          PC_VAL(1, 0)
+#endif
+
 typedef struct {
     uint32 flag;
     

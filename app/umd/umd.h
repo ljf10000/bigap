@@ -4,27 +4,31 @@
 #include "um/um.h"
 
 #ifndef UMD_MACHASHSIZE
-#define UMD_MACHASHSIZE         256
+#define UMD_MACHASHSIZE         PC_VAL(1024, 256)
 #endif
 
 #ifndef UMD_IPHASHSIZE
-#define UMD_IPHASHSIZE          256
+#define UMD_IPHASHSIZE          PC_VAL(1024, 256)
 #endif
 
 #ifndef UMD_CONNHASHSIZE
-#define UMD_CONNHASHSIZE        1024
+#define UMD_CONNHASHSIZE        PC_VAL(8192, 1024)
 #endif
 
 #ifndef UMD_SYNCABLE
-#define UMD_SYNCABLE            true
+#define UMD_SYNCABLE            PC_VAL(true, true)
 #endif
 
 #ifndef UMD_REAUTHABLE
-#define UMD_REAUTHABLE          true
+#define UMD_REAUTHABLE          PC_VAL(true, true)
+#endif
+
+#ifndef UMD_CONNECTABLE
+#define UMD_CONNECTABLE         PC_VAL(true, false)
 #endif
 
 #ifndef UMD_CONNPROTOCOL
-#define UMD_CONNPROTOCOL        false
+#define UMD_CONNPROTOCOL        PC_VAL(false, false)
 #endif
 
 #ifndef UMD_CONF
@@ -55,8 +59,12 @@
 #define UMD_FAKE                PC_VAL(10, 30)  /* second */
 #endif
 
-#ifndef UMD_GC
-#define UMD_GC                  PC_VAL(30, 0)   /* second */
+#ifndef UMD_GCUSER
+#define UMD_GCUSER              PC_VAL(30, 300)   /* second */
+#endif
+
+#ifndef UMD_GCCONN
+#define UMD_GCCONN              PC_VAL(30, 300)   /* second */
 #endif
 
 #ifndef UMD_SNIFF_COUNT
@@ -282,6 +290,8 @@ typedef struct {
 }
 umd_user_t;
 
+typedef void umd_user_timer_f(umd_user_t *user, time_t now);
+
 extern umd_limit_t *
 umd_limit_get(umd_user_t *user, int type);
 
@@ -412,6 +422,23 @@ static inline int umd_forward_mode_getidbyname(const char *name);
 #define umd_forward_mode_deft   umd_forward_mode_rt
 #endif
 
+#if 1
+#define UMD_GC_TARGET_ENUM_MAPPER(_)  \
+    _(umd_gc_target_user,  0, "user"),  \
+    _(umd_gc_target_conn,  1, "conn"),  \
+    /* end */
+DECLARE_ENUM(umd_gc_target, UMD_GC_TARGET_ENUM_MAPPER, umd_gc_target_end);
+
+static inline enum_ops_t *umd_gc_target_ops(void);
+static inline bool is_good_umd_gc_target(int id);
+static inline char *umd_gc_target_getnamebyid(int id);
+static inline int umd_gc_target_getidbyname(const char *name);
+
+#define umd_gc_target_user      umd_gc_target_user
+#define umd_gc_target_conn      umd_gc_target_conn
+#define umd_gc_target_end       umd_gc_target_end
+#endif
+
 typedef struct {
     struct {
         int count;
@@ -422,18 +449,21 @@ typedef struct {
     char *script_getmacbyip;
     char *script_getipbymac;
 
-    bool   syncable;
-    bool   reauthable;
-    bool   connprotocol;
-    uint32 autouser;
-    uint32 gc;
-    uint32 sniff_count;
-    uint32 ticks;
-    uint32 idle;
-    uint32 fake;
-    uint32 machashsize;
-    uint32 iphashsize;
-    uint32 connhashsize;
+    bool    syncable;
+    bool    reauthable;
+    bool    connectable;
+    bool    connprotocol;
+    uint32  autouser;
+    uint32  gc;
+    uint32  gcuser;
+    uint32  gcconn;
+    uint32  sniff_count;
+    uint32  ticks;
+    uint32  idle;
+    uint32  fake;
+    uint32  machashsize;
+    uint32  iphashsize;
+    uint32  connhashsize;
 }
 umd_config_t;
 
@@ -443,8 +473,10 @@ umd_config_t;
     _(&umd.cfg, string, script_getmacbyip,  UMD_SCRIPT_MAC)     \
     _(&umd.cfg, bool,   syncable,           UMD_SYNCABLE)       \
     _(&umd.cfg, bool,   reauthable,         UMD_REAUTHABLE)     \
+    _(&umd.cfg, bool,   connectable,        UMD_CONNECTABLE)    \
     _(&umd.cfg, bool,   connprotocol,       UMD_CONNPROTOCOL)   \
-    _(&umd.cfg, u32,    gc,                 UMD_GC)             \
+    _(&umd.cfg, u32,    gcuser,             UMD_GCUSER)         \
+    _(&umd.cfg, u32,    gcconn,             UMD_GCCONN)         \
     _(&umd.cfg, u32,    sniff_count,        UMD_SNIFF_COUNT)    \
     _(&umd.cfg, u32,    ticks,              UMD_TICKS)          \
     _(&umd.cfg, u32,    idle,               UMD_IDLE)           \
@@ -457,21 +489,21 @@ umd_config_t;
 
 #define UMD_CFG_INITER      JOBJ_MAP_INITER(UMD_CFG_JMAPPER)
 
-#define UM_LAN_COUNT    3
+#define UM_PLAN_COUNT       3
 
 typedef struct {
     uint32 ip;
     uint32 mask;
     char *ipstring;
     char *maskstring;
-} umd_lan_t;
+} umd_plan_t;
 
 #define __UMD_LAN_INITER(_ipstring, _maskstring) { \
     .ipstring   = _ipstring,    \
     .maskstring = _maskstring,  \
 }   /* end */
 
-#define UMD_LAN_INITER { \
+#define UMD_PLAN_INITER { \
     __UMD_LAN_INITER("192.168.0.0", "255.255.255.0"), \
     __UMD_LAN_INITER("172.16.0.0", "255.240.0.0"),    \
     __UMD_LAN_INITER("10.0.0.0", "255.0.0.0"),        \
@@ -482,13 +514,14 @@ typedef struct {
     uint16 ether_type_ip;   /* network sort */
     uint16 ether_type_vlan; /* network sort */
     uint16 ether_type_all;  /* network sort */
-    
+
     uint32 ticks;
     bool deinit;
 
-    umd_lan_t lan[UM_LAN_COUNT];
+    umd_plan_t plan[UM_PLAN_COUNT];
     umd_config_t cfg;
     char *conf;
+    
     sock_server_t **server;
     int server_count;
 
@@ -502,7 +535,7 @@ typedef struct {
 umd_control_t;
 
 #define UMD_INITER          {   \
-    .lan    = UMD_LAN_INITER,   \
+    .plan   = UMD_PLAN_INITER,  \
     .cfg    = UMD_CFG_INITER,   \
     .conf   = UMD_CONF,         \
     .loop   = LOOP_INITER,      \
@@ -657,12 +690,15 @@ typedef struct {
     byte dmac[OS_MACSIZE];
     uint32 sip;     // network sort
     uint32 dip;     // network sort
-    byte protocol, _r[3];
 
+    byte protocol, _r[2];
+    byte intf_id;
+    
     int conn_dir;   // umd_conn_dir_end
     int flow_type;  // umd_flow_type_end
     int flow_dir;   // umd_flow_dir_end
-    
+
+    time_t hit;
     bkdr_t bkdr;
     
     byte *usermac;
@@ -675,6 +711,22 @@ typedef struct {
     } node;
 } 
 umd_conn_t;
+
+typedef int  umd_conn_handle_f(umd_conn_t *cn);
+typedef void umd_conn_timer_f(umd_conn_t *cn, time_t now);
+
+#if 1
+DECLARE_DB_H1(&umd.head.conn, umd_conn, umd_conn_t, node.conn);
+
+static inline umd_conn_t *
+umd_conn_hx_entry(hash_node_t *node);
+
+static inline umd_conn_t *
+umd_conn_h1_entry(h1_node_t *node);
+
+static inline int
+umd_conn_foreach(mv_t (*foreach)(umd_conn_t *entry), bool safe);
+#endif
 /******************************************************************************/
 extern jobj_t
 umd_juser(umd_user_t *user);
@@ -775,7 +827,16 @@ umd_user_delby(umd_user_filter_t *filter);
 extern void
 umd_update_limit_test(void);
 
-extern int 
-umd_gc(umd_user_t *user);
+extern mv_t 
+umd_user_gc(umd_user_t *user);
+
+extern mv_t
+umd_conn_gc(umd_conn_t *cn);
+
+extern int
+umd_user_timer(struct loop_watcher *watcher, time_t now);
+
+extern int
+umd_conn_timer(struct loop_watcher *watcher, time_t now);
 /******************************************************************************/
 #endif /* __UM_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__ */

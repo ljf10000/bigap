@@ -121,6 +121,10 @@ __env_copy(char *envname, char *deft, char s[], int size) ;
 EXTERN int
 env_geti(char *envname, int deft) ;
 /******************************************************************************/
+#ifndef USE_THIS_ENV
+#define USE_THIS_ENV            PC_VAL(0, 0)
+#endif
+
 #if 1
 #define OS_ENV_ENUM_MAPPER(_)           \
     _(ENV_TIMEOUT,  0,  "timeout"),     \

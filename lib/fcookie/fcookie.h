@@ -1,7 +1,10 @@
 #ifndef __FCOOKIE_H_39d80845ac764a84bfdfa3166c751c51__
 #define __FCOOKIE_H_39d80845ac764a84bfdfa3166c751c51__
-/******************************************************************************/
 #include "oem/oem.h"
+/******************************************************************************/
+#ifndef USE_MOD_FCOOKIE
+#define USE_MOD_FCOOKIE         PC_VAL(1, 1)
+#endif
 
 #ifdef __APP__
 /*

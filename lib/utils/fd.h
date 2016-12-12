@@ -2,24 +2,28 @@
 #define __FD_H_9a5aee0aa8d54fa2b8054102fd51ec21__
 #if defined(__APP__) && !defined(__UCLIBC__)
 /******************************************************************************/
+#ifndef USE_MOD_FD
+#define USE_MOD_FD              PC_VAL(1, 0)
+#endif
+
 #ifndef FD_INIT_COUNT
-#define FD_INIT_COUNT       1024
+#define FD_INIT_COUNT           1024
 #endif
 
 #ifndef FD_GROW_COUNT
-#define FD_GROW_COUNT       1024
+#define FD_GROW_COUNT           1024
 #endif
 
 #ifndef FD_LIMIT
-#define FD_LIMIT            (1024*1024)
+#define FD_LIMIT                (1024*1024)
 #endif
 
 #ifndef FD_READTIMEOUT
-#define FD_READTIMEOUT      5000 /* ms */
+#define FD_READTIMEOUT          5000 /* ms */
 #endif
 
 #ifndef FD_WRITETIMEOUT
-#define FD_WRITETIMEOUT     3000 /* ms */
+#define FD_WRITETIMEOUT         3000 /* ms */
 #endif
 
 #if 0

@@ -1,6 +1,14 @@
 #ifndef __JLOG_H_c174923fabe845e980f9379209210cc3__
 #define __JLOG_H_c174923fabe845e980f9379209210cc3__
 /******************************************************************************/
+#ifndef USE_JLOG_CONNECT
+#define USE_JLOG_CONNECT        PC_VAL(1, 1)
+#endif
+
+#ifndef USE_JLOG_BIND
+#define USE_JLOG_BIND           PC_VAL(0, 0)
+#endif
+
 #ifndef JLOG_UNIX
 #define JLOG_UNIX           "/tmp/.jlog.unix"
 #endif

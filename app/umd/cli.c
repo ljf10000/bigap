@@ -20,7 +20,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
     __tab " deauth {mac}"                   __crlf \
     __tab " reauth {mac}"                   __crlf \
     __tab " tag    {mac} {key} [value]"     __crlf \
-    __tab " gc"                             __crlf \
+    __tab " gc     {user|conn}"             __crlf \
     __tab " show [stat | json]"             __crlf \
     /* end */
 #include "umd.h"
@@ -463,11 +463,28 @@ umd_handle_tag(cli_table_t *table, int argc, char *argv[])
 STATIC int
 umd_handle_gc(cli_table_t *table, int argc, char *argv[])
 {
-    if (umd.cfg.gc) {
-        return umd_user_foreach(umd_gc, true);
-    } else {
-        return -ENOSUPPORT;
+    char *target = argv[1];
+
+    int id = umd_gc_target_getidbyname(target);
+
+    switch(id) {
+        case umd_gc_target_user:
+            if (umd.cfg.gcuser) {
+                return umd_user_foreach(umd_user_gc, true);
+            } else {
+                return -ENOSUPPORT;
+            }
+
+        case umd_gc_target_conn:
+            if (umd.cfg.gcconn) {
+                return umd_conn_foreach(umd_conn_gc, true);
+            } else {
+                return -ENOSUPPORT;
+            }
+        default:
+            return cli_help(-EFORMAT);
     }
+    
 }
 
 STATIC int

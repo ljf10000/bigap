@@ -83,6 +83,10 @@ typedef struct sock_server {
 extern int
 sock_servers_init(sock_server_t *server[], int count);
 
+#ifndef USE_SOCK_SERVER_SELECT
+#define USE_SOCK_SERVER_SELECT  PC_VAL(1, 0)
+#endif
+
 #if USE_SOCK_SERVER_SELECT
 extern int
 sock_servers_run(sock_server_t *server[], int count);

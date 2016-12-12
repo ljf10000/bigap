@@ -1,6 +1,10 @@
 #ifndef __CHANNEL_H_91835dac42e940458282784927bce6fd__
 #define __CHANNEL_H_91835dac42e940458282784927bce6fd__
 /******************************************************************************/
+#ifndef USE_MOD_CHANNEL
+#define USE_MOD_CHANNEL         PC_VAL(1, 0)
+#endif
+
 enum channel_type {
     CHANNEL_OBJECT,
     CHANNEL_POINTER,

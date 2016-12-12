@@ -15,21 +15,11 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 static umd_flow_t flow;
 static umd_conn_t conn;
 
-#if 1
-DECLARE_DB_H1(&umd.head.conn, umd_conn, umd_conn_t, node.conn);
-
-static inline umd_conn_t *
-umd_conn_hx_entry(hash_node_t *node);
-
-static inline umd_conn_t *
-umd_conn_h1_entry(h1_node_t *node);
-
-static inline int
-umd_conn_foreach(mv_t (*foreach)(umd_conn_t *entry), bool safe);
-#endif
+STATIC int
+umd_conn_handle(sock_server_t *server);
 
 STATIC bkdr_t
-umd_conn_bdkr(umd_conn_t *cn)
+umd_conn_bkdr(umd_conn_t *cn)
 {
     bkdr_t bkdr = 0;
 
@@ -67,20 +57,19 @@ umd_conn_nhash(hash_node_t *node)
     return umd_conn_hash(cn);
 }
 
-STATIC umd_conn_t *
-umd_conn_new(bkdr_t bkdr)
+STATIC void
+umd_conn_destroy(umd_conn_t *cn)
 {
-    umd_conn_t *cn = NULL;
-    
-    if (NULL==flow.iph) {
-        return NULL;
-    }
+    os_free(cn);
+}
 
-    cn = (umd_conn_t *)os_zalloc(sizeof(*cn));
-    if (NULL==cn) {
-        return NULL;
+STATIC umd_conn_t *
+umd_conn_new(umd_conn_t *tmpl)
+{
+    umd_conn_t *cn = (umd_conn_t *)os_zalloc(sizeof(*cn));
+    if (cn) {
+        os_objcpy(cn, tmpl);
     }
-    cn->bkdr = bkdr;
 
     return cn;
 }
@@ -100,6 +89,8 @@ umd_conn_remove(umd_conn_t *cn)
 STATIC umd_conn_t *
 umd_conn_get(umd_conn_t *q)
 {
+    umd_conn_t *cn;
+    
     hash_idx_t hash(void)
     {
         return umd_conn_hash(q);
@@ -113,6 +104,53 @@ umd_conn_get(umd_conn_t *q)
     }
 
     return umd_conn_h1_entry(h1_find(&umd.head.conn, hash, eq));
+
+}
+
+STATIC umd_conn_t *
+umd_conn_getEx(umd_conn_t *tmpl)
+{
+    umd_conn_t *cn = umd_conn_get(tmpl);
+    if (cn) {
+        return cn;
+    }
+
+    cn = umd_conn_new(tmpl);
+    if (NULL==cn) {
+        return NULL;
+    }
+    
+    int err = umd_conn_insert(cn);
+    if (err<0) {
+        umd_conn_destroy(cn);
+
+        return NULL;
+    }
+
+    return cn;
+}
+
+STATIC void
+umd_conn_ip_init(umd_conn_t *cn, struct ether_header *eth, struct ip *iph)
+{
+    os_maccpy(cn->smac, eth->ether_shost);
+    os_maccpy(cn->dmac, eth->ether_dhost);
+    cn->sip = iph->ip_src.s_addr;
+    cn->dip = iph->ip_dst.s_addr;
+    cn->protocol = iph->ip_p;
+    
+    cn->bkdr = umd_conn_bkdr(cn);
+}
+
+STATIC void
+umd_conn_init(umd_conn_t *cn, sock_server_t *server)
+{
+    cn->usermac     = NULL;
+    cn->userip      = 0;
+    cn->intf_id     = umd_intf_id(server->id);
+    cn->conn_dir    = umd_conn_dir_end;
+    cn->flow_dir    = umd_flow_dir_end;
+    cn->flow_type   = umd_flow_type_end;
 }
 
 STATIC bool
@@ -125,11 +163,10 @@ umd_is_dev_mac(byte mac[])
             return true;
         }
     }
-    
+
     return false;
 }
 
-// todo: use hash later
 STATIC bool
 umd_is_dev_ip(uint32 ip)
 {
@@ -150,7 +187,7 @@ umd_is_dev_ip(uint32 ip)
 STATIC bool
 umd_is_user_ip(uint32 ip)
 {
-    umd_intf_t *intf = conn.intf;
+    umd_intf_t *intf = umd_getintf_byid(conn.intf_id);
     
     return (ip & intf->mask)==(intf->ip & intf->mask);
 }
@@ -158,18 +195,345 @@ umd_is_user_ip(uint32 ip)
 STATIC bool
 umd_is_lan_ip(uint32 ip)
 {
-    umd_lan_t *lan;
+    umd_plan_t *plan;
     int i;
 
-    for (i=0; i<os_count_of(umd.lan); i++) {
-        lan = &umd.lan[i];
+    for (i=0; i<os_count_of(umd.plan); i++) {
+        plan = &umd.plan[i];
 
-        if ((ip & lan->mask)==(lan->ip & lan->mask)) {
+        if ((ip & plan->mask)==(plan->ip & plan->mask)) {
             return true;
         }
     }
 
     return false;
+}
+
+STATIC int
+umd_conn_dir(uint32 sip, uint32 dip)
+{
+    if (umd_is_dev_ip(sip)) {
+        if (umd_is_dev_ip(dip)) {
+            return umd_conn_dir_dev2dev;
+        }
+        else if (umd_is_user_ip(dip)) {
+            return umd_conn_dir_dev2user;            
+        }
+        else if (umd_is_lan_ip(dip)) {
+            return umd_conn_dir_dev2lan;
+        }
+        else { /* dip is wan */
+            return umd_conn_dir_dev2wan;
+        }
+    }
+    else if (umd_is_user_ip(sip)) {
+        if (umd_is_dev_ip(dip)) {
+            return umd_conn_dir_user2dev;
+        }
+        else if (umd_is_user_ip(dip)) {
+            return umd_conn_dir_user2user;
+        }
+        else if (umd_is_lan_ip(dip)) {
+            return umd_conn_dir_user2lan;
+        }
+        else { /* dip is wan */
+            return umd_conn_dir_user2wan;
+        }
+    }
+    else if (umd_is_lan_ip(sip)) {
+        if (umd_is_dev_ip(dip)) {
+            return umd_conn_dir_lan2dev;
+        }
+        else if (umd_is_user_ip(dip)) {
+            return umd_conn_dir_lan2dev;
+        }
+        else if (umd_is_lan_ip(dip)) {
+            return umd_conn_dir_lan2lan;
+        }
+        else { /* dip is wan */
+            return umd_conn_dir_lan2wan;
+        }
+    }
+    else { /* sip is wan */
+        if (umd_is_dev_ip(dip)) {
+            return umd_conn_dir_wan2dev;
+        }
+        else if (umd_is_user_ip(dip)) {
+            return umd_conn_dir_wan2user;
+        }
+        else if (umd_is_lan_ip(dip)) {
+            return umd_conn_dir_wan2lan;
+        }
+        else { /* dip is wan */
+            return umd_conn_dir_wan2wan;
+        }
+    }
+}
+
+static int
+umd_conn_dev2user(umd_conn_t *cn)
+{
+    /*
+    * dev==>user
+    *
+    * lan down for user
+    */
+    return umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_down);
+}
+
+static int
+umd_conn_dev2lan(umd_conn_t *cn)
+{
+    /*
+    * dev==>lan
+    *
+    * lan up for dev
+    */
+    umd_add_flow_dev(umd_flow_type_lan, umd_flow_dir_up);
+    
+    return -EFORMAT;
+}
+
+static int
+umd_conn_dev2wan(umd_conn_t *cn)
+{
+    /*
+    * dev==>wan
+    *
+    * wan up for dev
+    */
+    umd_add_flow_dev(umd_flow_type_wan, umd_flow_dir_up);
+    
+    return -EFORMAT;
+}
+
+static int
+umd_conn_user2dev(umd_conn_t *cn)
+{
+    /*
+    * user==>dev
+    *
+    * lan up for user
+    */
+    return umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_up);
+}
+
+static int
+umd_conn_user2user(umd_conn_t *cn)
+{
+    int err;
+    
+    if (cn->sip==cn->dip) {
+        return -EFORMAT;
+    }
+    
+    /*
+    * user==>{user}
+    *
+    * first, lan down for {user}
+    */
+    err = umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_down);
+    if (err<0) {
+        return err;
+    }
+    
+    /*
+    * {user}==>user
+    *
+    * again, lan up for {user}
+    */
+    err = umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_up);
+    if (err<0) {
+        return err;
+    }
+    
+    return 0;
+}
+
+static int
+umd_conn_user2lan(umd_conn_t *cn)
+{
+    /*
+    * user==>lan
+    *
+    * lan up for user
+    */
+    return umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_up);
+}
+
+static int
+umd_conn_user2wan(umd_conn_t *cn)
+{
+    /*
+    * user==>wan
+    *
+    * wan up for user
+    */
+    return umd_conn_set_user(cn, umd_flow_type_wan, umd_flow_dir_up);
+}
+
+static int
+umd_conn_lan2dev(umd_conn_t *cn)
+{
+    /*
+    * lan==>dev
+    *
+    * lan down for dev
+    */
+    umd_add_flow_dev(umd_flow_type_lan, umd_flow_dir_down);
+    
+    return -EFORMAT;
+}
+
+static int
+umd_conn_lan2user(umd_conn_t *cn)
+{
+    /*
+    * lan==>user
+    *
+    * lan down for user
+    */
+    return umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_down);
+}
+
+static int
+umd_conn_wan2dev(umd_conn_t *cn)
+{
+    /*
+    * wan==>dev
+    *
+    * wan down for dev
+    */
+    umd_add_flow_dev(umd_flow_type_wan, umd_flow_dir_down);
+    
+    return -EFORMAT;
+}
+
+static int
+umd_conn_wan2user(umd_conn_t *cn)
+{
+    /*
+    * wan==>user
+    *
+    * wan down for user
+    */
+    return umd_conn_set_user(cn, umd_flow_type_wan, umd_flow_dir_down);
+}
+
+static int
+umd_conn_save(umd_conn_t *cn, time_t now)
+{
+    static umd_conn_handle_f *handler[umd_conn_dir_end] = {
+        [umd_conn_dir_dev2dev]  = NULL,
+        [umd_conn_dir_dev2user] = umd_conn_dev2user,
+        [umd_conn_dir_dev2lan]  = umd_conn_dev2lan,
+        [umd_conn_dir_dev2wan]  = umd_conn_dev2wan,
+        [umd_conn_dir_user2dev] = umd_conn_user2dev,
+        [umd_conn_dir_user2user]= umd_conn_user2user,
+        [umd_conn_dir_user2lan] = umd_conn_user2lan,
+        [umd_conn_dir_user2wan] = umd_conn_user2wan,
+        [umd_conn_dir_lan2dev]  = umd_conn_lan2dev,
+        [umd_conn_dir_lan2user] = umd_conn_lan2user,
+        [umd_conn_dir_lan2lan]  = NULL,
+        [umd_conn_dir_lan2wan]  = NULL,
+        [umd_conn_dir_wan2dev]  = umd_conn_wan2dev,
+        [umd_conn_dir_wan2user] = umd_conn_wan2user,
+        [umd_conn_dir_wan2lan]  = NULL,
+        [umd_conn_dir_wan2wan]  = NULL,
+    };
+
+    if (false==is_good_umd_conn_dir(cn->conn_dir)) {
+        cn->conn_dir = umd_conn_dir(cn->sip, cn->dip);
+    }
+    cn->hit = now;
+    
+    umd_conn_handle_f *f = handler[cn->conn_dir];
+    if (f) {
+        return (*f)(cn);
+    } else {
+        return -EFORMAT;
+    }
+}
+
+STATIC int
+umd_conn_set_user(umd_conn_t *cn, int flow_type, int flow_dir)
+{
+    cn->flow_type   = flow_type;
+    cn->flow_dir    = flow_dir;
+
+    switch(flow_dir) {
+        case umd_flow_dir_up:
+            cn->usermac = cn->smac;
+            cn->userip  = cn->sip;
+            break;
+        case umd_flow_dir_down:
+            cn->usermac = cn->dmac;
+            cn->userip  = cn->dip;
+            break;
+        default:
+            return -EFORMAT;
+    }
+
+    return umd_conn_handle(cn);
+}
+
+mv_t
+umd_conn_gc(umd_conn_t *cn)
+{
+    umd_conn_remove(cn);
+    umd_conn_destroy(cn);
+
+    return mv2_ok;
+}
+
+STATIC bool
+is_umd_conn_gc(umd_conn_t *cn, time_t now)
+{
+    time_t hit = cn->hit;
+    
+    return umd.cfg.connectable 
+        && umd.cfg.gcconn 
+        && (hit < now) 
+        && (now - hit > umd.cfg.gcconn);
+}
+
+STATIC void
+umd_conn_gc_auto(umd_conn_t *cn, time_t now)
+{
+    if (is_umd_conn_gc(cn, now)) {
+        umd_conn_gc(cn);
+    }
+}
+
+STATIC void
+umd_conn_timer_handle(umd_conn_t *cn, time_t now)
+{
+    static umd_conn_timer_f *handler[] = {
+        umd_conn_gc_auto,
+    };
+    
+    int i;
+
+    for (i=0; i<os_count_of(handler); i++) {
+        (*handler[i])(cn, now);
+    }
+}
+
+int
+umd_conn_timer(struct loop_watcher *watcher, time_t now)
+{
+    mv_t foreach(umd_conn_t *cn)
+    {
+        umd_conn_timer_handle(cn, now);
+
+        return mv2_ok;
+    }
+
+    if (umd.cfg.connectable) {
+        umd_conn_foreach(foreach, true);
+    }
+
+    return 0;
 }
 
 STATIC void
@@ -189,41 +553,50 @@ umd_add_flow_total(int type, int valid)
 #define umd_add_flow_all(_type)     umd_add_flow_total(_type, umd_pkt_check_all)
 
 STATIC void
-umd_set_flow_dev(void)
+umd_add_flow_dev(int flow_type, int flow_dir)
 {
-    umd_add_flowst(&flow.st.dev[conn.flow_type][conn.flow_dir]);
+    umd_add_flowst(&flow.st.dev[flow_type][flow_dir]);
 }
 
-STATIC void
-umd_set_flow_suser(void)
+static inline struct ether_header *
+umd_get_eth(void)
 {
-    conn.usermac= flow.eth->ether_shost;
-    conn.userip = flow.iph->ip_src.s_addr;
+    return (struct ether_header *)flow.packet;
 }
 
-STATIC void
-umd_set_flow_duser(void)
+static inline struct vlan_header *
+umd_get_vlan(void)
 {
-    conn.usermac= flow.eth->ether_dhost;
-    conn.userip = flow.iph->ip_dst.s_addr;
+    return (struct vlan_header *)(flow.eth + 1);
+}
+
+static inline struct ip *
+umd_get_iph(void)
+{
+    if (flow.eth->ether_type == umd.ether_type_ip) {
+        return (struct ip *)(flow.eth + 1);
+    }
+    else if (flow.eth->ether_type == umd.ether_type_vlan) {
+        return (struct ip *)(flow.vlan + 1);
+    }
+    else {       
+        return NULL;
+    }
 }
 
 STATIC int
-umd_pkt_handle(sock_server_t *server)
+umd_pkt_handle(sock_server_t *server, time_t now)
 {
-    int err, len;
     socklen_t addrlen = sizeof(server->addr.ll);
-    
-    conn.usermac= NULL;
-    conn.userip = 0;
-    conn.intf   = umd_getintf_byserver(server);
+    int err;
 
-    err = recvfrom(server->fd, flow.packet, sizeof(flow.packet), 0, &server->addr.c, &addrlen);
+    umd_conn_init(&conn, server);
+
+    err = flow.len = recvfrom(server->fd, flow.packet, sizeof(flow.packet), 0, &server->addr.c, &addrlen);
     if (err<0) { /* yes, <0 */
         return err;
     }
-    flow.len    = err;
-    
+
     if (__is_ak_debug_packet) {
         os_println("recv packet length=%d", flow.len);
         
@@ -234,9 +607,11 @@ umd_pkt_handle(sock_server_t *server)
 }
 
 STATIC int
-umd_intf_handle(sock_server_t *server)
+umd_intf_handle(sock_server_t *server, time_t now)
 {
-    if (server->addr.ll.sll_ifindex == conn.intf->index) {
+    umd_intf_t *intf = umd_getintf_byid(conn.intf_id);
+    
+    if (server->addr.ll.sll_ifindex == intf->index) {
         return 0;
     } else {
         return -EBADIDX;
@@ -244,9 +619,9 @@ umd_intf_handle(sock_server_t *server)
 }
 
 STATIC int
-umd_eth_handle(sock_server_t *server)
+umd_eth_handle(sock_server_t *server, time_t now)
 {
-    struct ether_header *eth = flow.eth = (struct ether_header *)flow.packet;
+    struct ether_header *eth = flow.eth = umd_get_eth();
     
     byte *smac = eth->ether_shost;
     byte *dmac = eth->ether_dhost;
@@ -293,15 +668,15 @@ umd_eth_handle(sock_server_t *server)
             dmacstring,
             ntohs(eth->ether_type));
     }
-    
+
     return 0;
 }
 
 STATIC int
-umd_vlan_handle(sock_server_t *server)
+umd_vlan_handle(sock_server_t *server, time_t now)
 {
     if (flow.eth->ether_type == umd.ether_type_vlan) {
-        struct vlan_header *vlan = flow.vlan = (struct vlan_header *)(flow.eth+1);
+        struct vlan_header *vlan = flow.vlan = umd_get_vlan();
 
         umd_add_flow_all(umd_pkt_type_vlan);
         
@@ -324,274 +699,36 @@ umd_vlan_handle(sock_server_t *server)
 }
 
 STATIC int
-umd_ip_source_dev(uint32 sip, uint32 dip)
+umd_ip_handle(sock_server_t *server, time_t now)
 {
-    if (umd_is_dev_ip(dip)) {
-        /*
-        * dev==>dev, invalid
-        */
-        
-        return -EFORMAT;
-    }
-    else if (umd_is_user_ip(dip)) {
-        /*
-        * dev==>user
-        *
-        * lan down for user
-        */
-        conn.flow_dir    = umd_flow_dir_down;
-        conn.flow_type   = umd_flow_type_lan;
-        
-        umd_set_flow_duser();
-    }
-    else if (umd_is_lan_ip(dip)) {
-        /*
-        * dev==>lan
-        *
-        * lan up for dev
-        */
-        conn.flow_dir    = umd_flow_dir_up;
-        conn.flow_type   = umd_flow_type_lan;
-
-        umd_set_flow_dev();
-    }
-    else { /* dip is wan */
-        /*
-        * dev==>wan
-        *
-        * wan up for dev
-        */
-        conn.flow_dir    = umd_flow_dir_up;
-        conn.flow_type   = umd_flow_type_wan;
-
-        umd_set_flow_dev();
-    }
-
-    return 0;
-}
-
-STATIC int
-umd_ip_source_user(uint32 sip, uint32 dip, bool first)
-{
-    if (umd_is_dev_ip(dip)) {
-        /*
-        * user==>dev
-        *
-        * lan up for user
-        */
-        conn.flow_dir    = umd_flow_dir_up;
-        conn.flow_type   = umd_flow_type_lan;
-
-        umd_set_flow_suser();
-    }
-    else if (umd_is_user_ip(dip)) {
-        if (sip==dip) {
-            return -EFORMAT;
-        }
-
-        if (first) {
-            /*
-            * {user}==>user
-            *
-            * first, lan up for {user}
-            */
-            conn.flow_dir    = umd_flow_dir_up;
-            conn.flow_type   = umd_flow_type_lan;
-
-            umd_set_flow_suser();
-
-            return 1; // try again
-        } else {
-            /*
-            * user==>{user}
-            *
-            * again, lan down for {user}
-            */
-            conn.flow_dir    = umd_flow_dir_down;
-            conn.flow_type   = umd_flow_type_lan;
-
-            umd_set_flow_duser();
-
-            // not again
-        }
-    }
-    else if (umd_is_lan_ip(dip)) {
-        /*
-        * user==>lan
-        *
-        * lan up for user
-        */
-        conn.flow_dir    = umd_flow_dir_up;
-        conn.flow_type   = umd_flow_type_lan;
-
-        umd_set_flow_suser();
-    }
-    else { /* dip is wan */
-        /*
-        * user==>wan
-        *
-        * wan up for user
-        */
-        conn.flow_dir    = umd_flow_dir_up;
-        conn.flow_type   = umd_flow_type_wan;
-
-        umd_set_flow_suser();
-    }
-
-    return 0;
-}
-
-STATIC int
-umd_ip_source_lan(uint32 sip, uint32 dip)
-{
-    if (umd_is_dev_ip(dip)) {
-        /*
-        * lan==>dev
-        *
-        * lan down for dev
-        */
-        conn.flow_dir    = umd_flow_dir_down;
-        conn.flow_type   = umd_flow_type_lan;
-
-        umd_set_flow_dev();
-    }
-    else if (umd_is_user_ip(dip)) {
-        /*
-        * lan==>user
-        *
-        * lan down for user
-        */
-        conn.flow_dir    = umd_flow_dir_down;
-        conn.flow_type   = umd_flow_type_lan;
-
-        umd_set_flow_duser();
-    }
-    else if (umd_is_lan_ip(dip)) {
-        /*
-        * lan==>lan, invalid
-        */
-        return -EFORMAT;
-    }
-    else { /* dip is wan */
-        /*
-        * lan==>wan, invalid
-        */
-        return -EFORMAT;
-    }
-
-    return 0;
-}
-
-STATIC int
-umd_ip_source_wan(uint32 sip, uint32 dip)
-{
-    if (umd_is_dev_ip(dip)) {
-        /*
-        * wan==>dev
-        *
-        * wan down for dev
-        */
-        conn.flow_dir    = umd_flow_dir_down;
-        conn.flow_type   = umd_flow_type_wan;
-
-        umd_set_flow_dev();
-    }
-    else if (umd_is_user_ip(dip)) {
-        /*
-        * wan==>user
-        *
-        * wan down for user
-        */
-        conn.flow_dir   = umd_flow_dir_down;
-        conn.flow_type  = umd_flow_type_wan;
-        
-        umd_set_flow_duser();
-    }
-    else if (umd_is_lan_ip(dip)) {
-        /*
-        * wan==>lan, invalid
-        */
-        
-        return -EFORMAT;
-    }
-    else { /* dip is wan */
-        /*
-        * wan==>wan, invalid
-        */
-        return -EFORMAT;
-    }
-
-    return 0;
-}
-
-STATIC int
-umd_flow_handle(sock_server_t *server);
-
-STATIC int
-umd_ip_handle_helper(sock_server_t *server, bool first)
-{
-    struct ip *iph;
-    bool again = false;
-    int err;
+    umd_conn_t *cn;
+    int err = 0;
     
     umd_add_flow_all(umd_pkt_type_ip);
 
-    if (flow.eth->ether_type == umd.ether_type_ip) {
-        iph = flow.iph = (struct ip *)(flow.eth+1);
+    struct ip *iph = flow.iph = umd_get_iph();
+    if (NULL==iph) {
+        err = -EFORMAT; goto error;
     }
-    else if (flow.eth->ether_type == umd.ether_type_vlan) {
-        iph = flow.iph = (struct ip *)(flow.vlan+1);
-    }
-    else {
-        if (first) {
-            umd_add_flow_bad(umd_pkt_type_ip);
-        }
-        
-        return -EFORMAT;
-    }
-
-    uint32 sip = iph->ip_src.s_addr;
-    uint32 dip = iph->ip_dst.s_addr;
-
-    if (4!=iph->ip_v) {
-        if (first) {
-            umd_add_flow_bad(umd_pkt_type_ip);
-        }
-        
-        return -EFORMAT;
+    else if (4!=iph->ip_v) {
+        err = -EFORMAT; goto error;
     }
     else if (5!=iph->ip_hl) {
-        if (first) {
-            umd_add_flow_bad(umd_pkt_type_ip);
-        }
-        
-        return -EFORMAT;
+        err = -EFORMAT; goto error;
     }
 
-    if (umd_is_dev_ip(sip)) {
-        err = umd_ip_source_dev(sip, dip);
-    }
-    else if (umd_is_user_ip(sip)) {
-        err = umd_ip_source_user(sip, dip, first);
-        again = (1==err);
-    }
-    else if (umd_is_lan_ip(sip)) {
-        err = umd_ip_source_lan(sip, dip);
-    }
-    else { /* sip is wan */
-        err = umd_ip_source_wan(sip, dip);
-    }
-    if (err<0) {
-        if (first) {
-            umd_add_flow_bad(umd_pkt_type_ip);
+    umd_conn_ip_init(&conn, flow.eth, iph);
+
+    if (umd.cfg.connectable) {
+        cn = umd_conn_getEx(&conn);
+        if (NULL==cn) {
+            err = -ENOMEM; goto error;
         }
-        
-        return err;
+    } else {
+        cn = &conn;
     }
 
-    if (first) {
-        umd_add_flow_good(umd_pkt_type_ip);
-    }
+    err = umd_conn_save(cn, now);
     
     if (__is_ak_debug_flow) {
         char sipstring[1+OS_IPSTRINGLEN];
@@ -601,9 +738,9 @@ umd_ip_handle_helper(sock_server_t *server, bool first)
         
         os_strcpy(sipstring, os_ipstring(iph->ip_src.s_addr));
         os_strcpy(dipstring, os_ipstring(iph->ip_dst.s_addr));
-        os_strcpy( ipstring, os_ipstring(conn.userip));
-        os_strcpy( macstring, os_macstring(conn.usermac));
-        
+        os_strcpy( ipstring, os_ipstring(cn->userip));
+        os_strcpy( macstring, os_macstring(cn->usermac));
+
         debug_flow("recv packet"
                         " sip=%s"
                         " dip=%s"
@@ -615,27 +752,17 @@ umd_ip_handle_helper(sock_server_t *server, bool first)
             sipstring,
             dipstring,
             iph->ip_p,
-            umd_flow_dir_getnamebyid(conn.flow_dir),
-            umd_flow_type_getnamebyid(conn.flow_type),
+            umd_flow_dir_getnamebyid(cn->flow_dir),
+            umd_flow_type_getnamebyid(cn->flow_type),
             ipstring,
             macstring);
     }
-
-    if (NULL==conn.usermac || 0==conn.userip) {
-        return -ENOSUPPORT;
-    }
     
-    umd_flow_handle(server);
-
-    return again?1:0;
-}
-
-STATIC int
-umd_ip_handle(sock_server_t *server)
-{
-    int err = umd_ip_handle_helper(server, true);
-    if (err>0) { // yes > 0, again
-        err = umd_ip_handle_helper(server, false);
+error:
+    if (err<0) {
+        umd_add_flow_bad(umd_pkt_type_ip);
+    } else {
+        umd_add_flow_good(umd_pkt_type_ip);
     }
     
     return err;
@@ -736,18 +863,18 @@ umd_flow_update(umd_user_t *user, int type, int dir)
 }
 
 STATIC int
-umd_flow_handle(sock_server_t *server)
+umd_conn_handle(umd_conn_t *cn)
 {
     umd_user_t *user;
 
-    user = umd_user_get(conn.usermac);
+    user = umd_user_get(cn->usermac);
     if (NULL==user) {
         switch(umd.cfg.autouser) {
             case UMD_AUTO_BIND:
-                user = umd_user_bind(conn.usermac, conn.userip);
+                user = umd_user_bind(cn->usermac, cn->userip);
                 break;
             case UMD_AUTO_FAKE:
-                user = umd_user_fake(conn.usermac, conn.userip);
+                user = umd_user_fake(cn->usermac, cn->userip);
                 break;
             case UMD_AUTO_NONE:
             default:
@@ -762,11 +889,11 @@ umd_flow_handle(sock_server_t *server)
     user->hitime = time(NULL);
 
     if (is_user_have_bind(user)) {
-        umd_flow_update(user, conn.flow_type, conn.flow_dir);
+        umd_flow_update(user, cn->flow_type, cn->flow_dir);
         umd_user_debug_helper("user-flow-update", user, __is_ak_debug_flow);
 
-        umd_flow_reauth(user, conn.flow_type, conn.flow_dir);
-        umd_overflow(user, conn.flow_type, conn.flow_dir);
+        umd_flow_reauth(user, cn->flow_type, cn->flow_dir);
+        umd_overflow(user, cn->flow_type, cn->flow_dir);
 
         umd_update_aging(user, false);
     }
@@ -845,7 +972,7 @@ umd_flower(struct loop_watcher *watcher, time_t now)
     int i, err;
 
     for (i=0; i<os_count_of(handle); i++) {
-        err = (*handle[i])(server);
+        err = (*handle[i])(server, now);
         if (err<0) {
             return err;
         }

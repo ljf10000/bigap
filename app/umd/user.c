@@ -1495,4 +1495,209 @@ int umd_user_getbyfilter(umd_user_filter_t *filter, mv_t (*get)(umd_user_t *user
     
     return umd_user_foreach(foreach, false);
 }
+
+STATIC void 
+__umduser_online_aging(umd_user_t *user, int type)
+{
+    if (umd_online_idle(user, type)) {
+        umd_online_aging(user, type) -= umd.cfg.ticks;
+        
+        if (umd_online_aging(user, type) <= 0) {
+            debug_timeout("user(%s) type(%s) online aging",
+                os_macstring(user->mac),
+                umd_flow_type_getnamebyid(type));
+            
+            umduser_unbind(user, UMD_DEAUTH_AGING);
+        }
+    }
+}
+
+STATIC void 
+umduser_online_aging(umd_user_t *user, time_t now)
+{
+    (void)now;
+    
+    if (is_user_have_bind(user)) {
+        __umduser_online_aging(user, umd_flow_type_wan);
+        __umduser_online_aging(user, umd_flow_type_lan);
+    }
+}
+
+mv_t 
+umd_user_gc(umd_user_t *user)
+{
+    if (is_user_noused(user)) {
+        umd_user_debug_helper("gc", user, __is_ak_debug_gc);
+        
+        umduser_delete(user);
+    }
+
+    return 0;
+}
+
+STATIC bool
+is_umduser_gc(umd_user_t *user, time_t now)
+{
+    time_t noused = user->noused;
+
+    bool is = umd.cfg.gcuser 
+        && (noused < now) 
+        && (now - noused > umd.cfg.gcuser);
+
+    if (is) {
+        debug_gc("user(%s) gc(%u) noused(%u) now(%u) online gc",
+            os_macstring(user->mac),
+            umd.cfg.gcuser,
+            noused,
+            now);
+    }
+
+    return is;
+}
+
+STATIC void
+umduser_gc_auto(umd_user_t *user, time_t now)
+{
+    if (is_umduser_gc(user, now)) {
+        umd_user_gc(user);
+    }
+}
+
+STATIC bool
+__is_umduser_online_timeout(umd_user_t *user, time_t now, int type)
+{
+    time_t max      = umd_online_max(user, type);
+    time_t uptime   = umd_online_uptime(user, type);
+
+    bool is = max && (uptime < now) && (now - uptime > max);
+    if (is) {
+        debug_timeout("user(%s) type(%s) max(%u) uptime(%u) now(%u) online timeout",
+            os_macstring(user->mac),
+            umd_flow_type_getnamebyid(type),
+            max,
+            uptime,
+            now);
+    }
+
+    return is;
+}
+
+STATIC bool
+is_umduser_online_timeout(umd_user_t *user, time_t now)
+{
+    return __is_umduser_online_timeout(user, now, umd_flow_type_wan)
+        || __is_umduser_online_timeout(user, now, umd_flow_type_lan);
+}
+
+STATIC void 
+umduser_online_timeout(umd_user_t *user, time_t now)
+{
+    /*
+    * online timeout
+    *   just for auth user
+    */
+    if (is_user_auth(user) && is_umduser_online_timeout(user, now)) {        
+        umduser_deauth(user, UMD_DEAUTH_ONLINETIME);
+    }
+}
+
+STATIC bool
+__is_umduser_online_reauth(umd_user_t *user, time_t now, int type)
+{
+    time_t uptime   = umd_online_uptime(user, type);
+    time_t reauth   = umd_online_reauthor(user, type);
+    
+    bool is = reauth && (uptime < now) && (now - uptime > reauth);
+    if (is) {
+        debug_timeout("user(%s) type(%s) reauth(%u) uptime(%u) now(%u) online reauth",
+            os_macstring(user->mac),
+            umd_flow_type_getnamebyid(type),
+            reauth,
+            uptime,
+            now);
+    }
+
+    return is;
+}
+
+STATIC bool
+is_umduser_online_reauth(umd_user_t *user, time_t now)
+{
+    return __is_umduser_online_reauth(user, now, umd_flow_type_wan)
+        || __is_umduser_online_reauth(user, now, umd_flow_type_lan);
+}
+
+STATIC void 
+umduser_online_reauth(umd_user_t *user, time_t now)
+{
+    /*
+    * online reauth
+    *   just for auth user
+    */
+    if (umd.cfg.reauthable 
+            && is_user_auth(user) 
+            && is_umduser_online_reauth(user, now)) {        
+        umduser_reauth(user);
+    }
+}
+
+STATIC bool
+is_umduser_fake_timeout(umd_user_t *user, time_t now)
+{
+    time_t faketime = user->faketime;
+    uint32 fake = umd.cfg.fake;
+    
+    bool is = fake && (faketime < now) && (now - faketime > umd.cfg.fake);
+    if (is) {
+        debug_timeout("user(%s) faketime(%u) now(%u) timeout",
+            os_macstring(user->mac),
+            faketime,
+            now);
+    }
+
+    return is;
+}
+
+STATIC void 
+umduser_fake_timeout(umd_user_t *user, time_t now)
+{
+    if (is_user_fake(user) && is_umduser_fake_timeout(user, now)) {        
+        umduser_unfake(user, UMD_DEAUTH_ONLINETIME);
+    }
+}
+
+STATIC void
+umduser_timer_handle(umd_user_t *user, time_t now)
+{
+    static umd_user_timer_f *handler[] = {
+        umduser_fake_timeout,
+        umduser_online_reauth,
+        umduser_online_timeout,
+        umduser_online_aging,
+
+        umduser_gc_auto, // keep last
+    };
+    
+    int i;
+
+    for (i=0; i<os_count_of(handler); i++) {
+        (*handler[i])(user, now);
+    }
+}
+
+int
+umd_user_timer(struct loop_watcher *watcher, time_t now)
+{
+    mv_t foreach(umd_user_t *user)
+    {
+        umduser_timer_handle(user, now);
+
+        return mv2_ok;
+    }
+    
+    umd_user_foreach(foreach, true);
+
+    return 0;
+}
+
 /******************************************************************************/

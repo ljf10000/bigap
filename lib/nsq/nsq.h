@@ -1,40 +1,44 @@
 #ifndef __NSQ_H_700ea21373ce4d74a3027b48b6f332c8__
 #define __NSQ_H_700ea21373ce4d74a3027b48b6f332c8__
 /******************************************************************************/
+#ifndef USE_MOD_NSQ
+#define USE_MOD_NSQ             PC_VAL(1, 1)
+#endif
+
 #ifndef NSQ_NAMESIZE
-#define NSQ_NAMESIZE        64
+#define NSQ_NAMESIZE            64
 #endif
 
 #ifndef NSQ_PORT
-#define NSQ_PORT            4150
+#define NSQ_PORT                4150
 #endif
 
 #ifndef NSQ_TICKS
-#define NSQ_TICKS           PC_VAL(5000, 5000)  // ms
+#define NSQ_TICKS               PC_VAL(5000, 5000)  // ms
 #endif
 
 #ifndef NSQ_CONF
-#define NSQ_CONF            PC_FILE("/tmp/config", "nsqa.conf")
+#define NSQ_CONF                PC_FILE("/tmp/config", "nsqa.conf")
 #endif
 
 #ifndef NSQ_CACHE
-#define NSQ_CACHE           "/tmp/cache/nsq"
+#define NSQ_CACHE               "/tmp/cache/nsq"
 #endif
 
 #ifndef NSQ_FLASH
-#define NSQ_FLASH           "/data/cache/nsq"
+#define NSQ_FLASH               "/data/cache/nsq"
 #endif
 
 #ifndef NSQ_SCRIPT
-#define NSQ_SCRIPT          PC_FILE("/tmp/script", "nsq.script")
+#define NSQ_SCRIPT              PC_FILE("/tmp/script", "nsq.script")
 #endif
 
 #ifndef NSQ_USER_AGENT
-#define NSQ_USER_AGENT      "weos-nsq-agent"
+#define NSQ_USER_AGENT          "weos-nsq-agent"
 #endif
 
 #ifndef NSQ_TOPIC
-#define NSQ_TOPIC           "weos.nsq.topic.default"
+#define NSQ_TOPIC               "weos.nsq.topic.default"
 #endif
 
 #ifndef NSQ_RDY
