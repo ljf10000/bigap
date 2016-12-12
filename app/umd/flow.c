@@ -325,9 +325,9 @@ STATIC void
 umd_conn_clean(umd_conn_t *cn, sock_server_t *server)
 {
     cn->intf_id     = umd_intf_id(server->id);
-    cn->conn_dir    = 0;
-    cn->flow_dir    = 0;
-    cn->flow_type   = 0;
+    cn->conn_dir    = umd_conn_dir_end;
+    cn->flow_dir    = umd_flow_dir_end;
+    cn->flow_type   = umd_flow_type_end;
 }
 
 STATIC int
