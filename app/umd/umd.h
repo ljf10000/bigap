@@ -24,7 +24,7 @@
 #endif
 
 #ifndef UMD_CONNECTABLE
-#define UMD_CONNECTABLE         PC_VAL(true, false)
+#define UMD_CONNECTABLE         PC_VAL(false, false)
 #endif
 
 #ifndef UMD_CONNPROTOCOL
