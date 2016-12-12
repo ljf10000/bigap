@@ -140,7 +140,7 @@ umd_is_lan_ip(uint32 ip)
 }
 
 STATIC int
-umd_conn_dump(umc_conn_t *cn, char *action, int err)
+umd_conn_dump(umd_conn_t *cn, char *action, int err)
 {
     if (1 || __is_ak_debug_conn) {
         char sipstring[1+OS_IPSTRINGLEN];
