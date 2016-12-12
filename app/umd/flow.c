@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
-#if 1
+#if 0
 #define is_umd_conn_debug                   1
 #define umd_conn_debug(_fmt, _args...)      os_println(_fmt, ##_args)
 #else
@@ -265,6 +265,8 @@ umd_conn_remove(umd_conn_t *cn)
 STATIC umd_conn_t *
 umd_conn_get(umd_conn_t *query)
 {
+    static umd_conn_t *last;
+    
     hash_idx_t hash(void)
     {
         return umd_conn_hash(query);
@@ -276,8 +278,17 @@ umd_conn_get(umd_conn_t *query)
         
         return umd_conn_eq(query, cn);
     }
+
+    if (last && umd_conn_eq(last, query)) {
+        return last;
+    }
     
-    return umd_conn_h1_entry(h1_find(&umd.head.conn, hash, eq));
+    umd_conn_t *found = umd_conn_h1_entry(h1_find(&umd.head.conn, hash, eq));
+    if (found && found != last) {
+        last = found;
+    }
+
+    return found;
 }
 
 STATIC umd_conn_t *
