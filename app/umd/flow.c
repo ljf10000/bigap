@@ -12,6 +12,14 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
+#if 1
+#define is_umd_conn_debug   1
+#define umd_conn_debug      os_println
+#else
+#define is_umd_conn_debug   __is_ak_debug_conn
+#define umd_conn_debug      debug_conn
+#endif
+
 typedef int umd_pkt_handle_f(sock_server_t *server, time_t now);
 
 static umd_flow_t flow;
@@ -142,7 +150,7 @@ umd_is_lan_ip(uint32 ip)
 STATIC int
 umd_conn_dump(umd_conn_t *cn, char *action, int err)
 {
-    if (1 || __is_ak_debug_conn) {
+    if (is_umd_conn_debug) {
         char sipstring[1+OS_IPSTRINGLEN];
         char dipstring[1+OS_IPSTRINGLEN];
         char smacstring[1+MACSTRINGLEN_L];
@@ -153,7 +161,7 @@ umd_conn_dump(umd_conn_t *cn, char *action, int err)
         os_strcpy(smacstring, os_macstring(cn->smac));
         os_strcpy(dmacstring, os_macstring(cn->dmac));
 
-        os_println("%s conn"
+        umd_conn_debug("%s conn"
                         " smac=%s"
                         " dmac=%s"
                         " sip=%s"
@@ -562,6 +570,8 @@ umd_conn_update(umd_conn_t *cn, time_t now)
     if (false==is_good_umd_conn_dir(cn->conn_dir)) {
         cn->conn_dir = umd_conn_dir(cn->sip, cn->dip);
     }
+    umd_conn_debug("conn dir %s", umd_conn_dir_getnamebyid(cn->conn_dir));
+    
     cn->hit = now;
     
     umd_conn_handle_f *f = handler[cn->conn_dir];
