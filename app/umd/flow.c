@@ -298,8 +298,6 @@ umd_conn_getEx(umd_conn_t *tmpl)
     
     umd_conn_t *cn = umd_conn_get(tmpl);
     if (cn) {
-        umd_conn_dump(cn, "get", 0);
-        
         return cn;
     }
     
