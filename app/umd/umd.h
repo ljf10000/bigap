@@ -683,7 +683,7 @@ static inline int umd_conn_dir_getidbyname(const char *name);
 #endif
 
 /*
-* size = 23 * uint32 = 92 byte
+* size = 18 * uint32 = 72 byte
 */
 typedef struct {
     byte smac[OS_MACSIZE];
@@ -691,19 +691,19 @@ typedef struct {
     uint32 sip;     // network sort
     uint32 dip;     // network sort
 
-    byte protocol, _r[2];
+    byte protocol;
     byte intf_id;
+    byte _r0[2];
     
-    int conn_dir;   // umd_conn_dir_end
-    int flow_type;  // umd_flow_type_end
-    int flow_dir;   // umd_flow_dir_end
-
+    uint32 suser:1;             // source is user
+    uint32 flow_type:2;         // umd_flow_type_end
+    uint32 flow_dir:2;          // umd_flow_dir_end
+    uint32 conn_dir:5;          // umd_conn_dir_end
+    uint32 flag:22;
+    
     time_t hit;
     bkdr_t bkdr;
-    
-    byte *usermac;
-    uint32 userip;  // network sort
-    
+
     umd_intf_t *intf;
 
     struct {
@@ -711,6 +711,18 @@ typedef struct {
     } node;
 } 
 umd_conn_t;
+
+static inline byte *
+umd_conn_usermac(umd_conn_t *cn)
+{
+    return cn->suser?cn->smac:cn->dmac;
+}
+
+static inline uint32
+umd_conn_userip(umd_conn_t *cn)
+{
+    return cn->suser?cn->sip:cn->dip;
+}
 
 typedef int  umd_conn_handle_f(umd_conn_t *cn);
 typedef void umd_conn_timer_f(umd_conn_t *cn, time_t now);

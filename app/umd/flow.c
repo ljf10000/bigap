@@ -131,7 +131,7 @@ umd_conn_getEx(umd_conn_t *tmpl)
 }
 
 STATIC void
-umd_conn_ip_init(umd_conn_t *cn, struct ether_header *eth, struct ip *iph)
+umd_conn_init(umd_conn_t *cn, struct ether_header *eth, struct ip *iph)
 {
     os_maccpy(cn->smac, eth->ether_shost);
     os_maccpy(cn->dmac, eth->ether_dhost);
@@ -143,10 +143,8 @@ umd_conn_ip_init(umd_conn_t *cn, struct ether_header *eth, struct ip *iph)
 }
 
 STATIC void
-umd_conn_init(umd_conn_t *cn, sock_server_t *server)
+umd_conn_clean(umd_conn_t *cn, sock_server_t *server)
 {
-    cn->usermac     = NULL;
-    cn->userip      = 0;
     cn->intf_id     = umd_intf_id(server->id);
     cn->conn_dir    = umd_conn_dir_end;
     cn->flow_dir    = umd_flow_dir_end;
@@ -421,7 +419,7 @@ umd_conn_wan2user(umd_conn_t *cn)
 }
 
 static int
-umd_conn_save(umd_conn_t *cn, time_t now)
+umd_conn_update(umd_conn_t *cn, time_t now)
 {
     static umd_conn_handle_f *handler[umd_conn_dir_end] = {
         [umd_conn_dir_dev2dev]  = NULL,
@@ -460,19 +458,7 @@ umd_conn_set_user(umd_conn_t *cn, int flow_type, int flow_dir)
 {
     cn->flow_type   = flow_type;
     cn->flow_dir    = flow_dir;
-
-    switch(flow_dir) {
-        case umd_flow_dir_up:
-            cn->usermac = cn->smac;
-            cn->userip  = cn->sip;
-            break;
-        case umd_flow_dir_down:
-            cn->usermac = cn->dmac;
-            cn->userip  = cn->dip;
-            break;
-        default:
-            return -EFORMAT;
-    }
+    cn->suser       = umd_flow_dir_up==flow_dir;
 
     return umd_conn_handle(cn);
 }
@@ -590,7 +576,7 @@ umd_pkt_handle(sock_server_t *server, time_t now)
     socklen_t addrlen = sizeof(server->addr.ll);
     int err;
 
-    umd_conn_init(&conn, server);
+    umd_conn_clean(&conn, server);
 
     err = flow.len = recvfrom(server->fd, flow.packet, sizeof(flow.packet), 0, &server->addr.c, &addrlen);
     if (err<0) { /* yes, <0 */
@@ -717,7 +703,7 @@ umd_ip_handle(sock_server_t *server, time_t now)
         err = -EFORMAT; goto error;
     }
 
-    umd_conn_ip_init(&conn, flow.eth, iph);
+    umd_conn_init(&conn, flow.eth, iph);
 
     if (umd.cfg.connectable) {
         cn = umd_conn_getEx(&conn);
@@ -728,7 +714,13 @@ umd_ip_handle(sock_server_t *server, time_t now)
         cn = &conn;
     }
 
-    err = umd_conn_save(cn, now);
+    err = umd_conn_update(cn, now);
+error:
+    if (err<0) {
+        umd_add_flow_bad(umd_pkt_type_ip);
+    } else {
+        umd_add_flow_good(umd_pkt_type_ip);
+    }
     
     if (__is_ak_debug_flow) {
         char sipstring[1+OS_IPSTRINGLEN];
@@ -736,10 +728,10 @@ umd_ip_handle(sock_server_t *server, time_t now)
         char  ipstring[1+OS_IPSTRINGLEN];
         char macstring[1+MACSTRINGLEN_L];
         
-        os_strcpy(sipstring, os_ipstring(iph->ip_src.s_addr));
-        os_strcpy(dipstring, os_ipstring(iph->ip_dst.s_addr));
-        os_strcpy( ipstring, os_ipstring(cn->userip));
-        os_strcpy( macstring, os_macstring(cn->usermac));
+        os_strcpy(sipstring, os_ipstring(cn->sip));
+        os_strcpy(dipstring, os_ipstring(cn->dip));
+        os_strcpy( ipstring, os_ipstring(umd_conn_userip(cn)));
+        os_strcpy( macstring, os_macstring(umd_conn_usermac(cn)));
 
         debug_flow("recv packet"
                         " sip=%s"
@@ -748,21 +740,16 @@ umd_ip_handle(sock_server_t *server, time_t now)
                         " dir=%s"
                         " type=%s"
                         " userip=%s"
-                        " usermac=%s",
+                        " usermac=%s"
+                        " err=%d",
             sipstring,
             dipstring,
-            iph->ip_p,
+            cn->protocol,
             umd_flow_dir_getnamebyid(cn->flow_dir),
             umd_flow_type_getnamebyid(cn->flow_type),
             ipstring,
-            macstring);
-    }
-    
-error:
-    if (err<0) {
-        umd_add_flow_bad(umd_pkt_type_ip);
-    } else {
-        umd_add_flow_good(umd_pkt_type_ip);
+            macstring,
+            err);
     }
     
     return err;
@@ -866,15 +853,17 @@ STATIC int
 umd_conn_handle(umd_conn_t *cn)
 {
     umd_user_t *user;
-
-    user = umd_user_get(cn->usermac);
+    byte *usermac = umd_conn_usermac(cn);
+    uint32 userip = umd_conn_userip(cn);
+    
+    user = umd_user_get(usermac);
     if (NULL==user) {
         switch(umd.cfg.autouser) {
             case UMD_AUTO_BIND:
-                user = umd_user_bind(cn->usermac, cn->userip);
+                user = umd_user_bind(usermac, userip);
                 break;
             case UMD_AUTO_FAKE:
-                user = umd_user_fake(cn->usermac, cn->userip);
+                user = umd_user_fake(usermac, userip);
                 break;
             case UMD_AUTO_NONE:
             default:
