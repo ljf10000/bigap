@@ -133,14 +133,14 @@ umd_conn_getEx(umd_conn_t *tmpl)
 }
 
 STATIC void
-umd_conn_init(umd_conn_t *cn, struct ether_header *eth, struct ip *iph)
+umd_conn_init(umd_conn_t *cn, struct ether_header *eth, struct ip *iph, time_t now)
 {
     os_maccpy(cn->smac, eth->ether_shost);
     os_maccpy(cn->dmac, eth->ether_dhost);
     cn->sip = iph->ip_src.s_addr;
     cn->dip = iph->ip_dst.s_addr;
     cn->protocol = iph->ip_p;
-    
+    cn->hit = now;
     cn->bkdr = umd_conn_bkdr(cn);
 }
 
@@ -148,9 +148,9 @@ STATIC void
 umd_conn_clean(umd_conn_t *cn, sock_server_t *server)
 {
     cn->intf_id     = umd_intf_id(server->id);
-    cn->conn_dir    = umd_conn_dir_end;
-    cn->flow_dir    = umd_flow_dir_end;
-    cn->flow_type   = umd_flow_type_end;
+    cn->conn_dir    = 0;
+    cn->flow_dir    = 0;
+    cn->flow_type   = 0;
 }
 
 STATIC bool
@@ -705,7 +705,7 @@ umd_ip_handle(sock_server_t *server, time_t now)
         err = -EFORMAT; goto error;
     }
 
-    umd_conn_init(&conn, flow.eth, iph);
+    umd_conn_init(&conn, flow.eth, iph, now);
 
     if (umd.cfg.connectable) {
         cn = umd_conn_getEx(&conn);
