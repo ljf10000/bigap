@@ -343,7 +343,13 @@ umd_conn_set_user(umd_conn_t *cn, int flow_type, int flow_dir)
     return umd_conn_handle(cn);
 }
 
-static int
+STATIC int
+umd_conn_not_support(umd_conn_t *cn)
+{
+    return -EFORMAT;
+}
+
+STATIC int
 umd_conn_dev2user(umd_conn_t *cn)
 {
     /*
@@ -354,7 +360,7 @@ umd_conn_dev2user(umd_conn_t *cn)
     return umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_down);
 }
 
-static int
+STATIC int
 umd_conn_dev2lan(umd_conn_t *cn)
 {
     /*
@@ -367,7 +373,7 @@ umd_conn_dev2lan(umd_conn_t *cn)
     return -EFORMAT;
 }
 
-static int
+STATIC int
 umd_conn_dev2wan(umd_conn_t *cn)
 {
     /*
@@ -380,7 +386,7 @@ umd_conn_dev2wan(umd_conn_t *cn)
     return -EFORMAT;
 }
 
-static int
+STATIC int
 umd_conn_user2dev(umd_conn_t *cn)
 {
     /*
@@ -391,7 +397,7 @@ umd_conn_user2dev(umd_conn_t *cn)
     return umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_up);
 }
 
-static int
+STATIC int
 umd_conn_user2user(umd_conn_t *cn)
 {
     int err;
@@ -423,7 +429,7 @@ umd_conn_user2user(umd_conn_t *cn)
     return 0;
 }
 
-static int
+STATIC int
 umd_conn_user2lan(umd_conn_t *cn)
 {
     /*
@@ -434,7 +440,7 @@ umd_conn_user2lan(umd_conn_t *cn)
     return umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_up);
 }
 
-static int
+STATIC int
 umd_conn_user2wan(umd_conn_t *cn)
 {
     /*
@@ -445,7 +451,7 @@ umd_conn_user2wan(umd_conn_t *cn)
     return umd_conn_set_user(cn, umd_flow_type_wan, umd_flow_dir_up);
 }
 
-static int
+STATIC int
 umd_conn_lan2dev(umd_conn_t *cn)
 {
     /*
@@ -458,7 +464,7 @@ umd_conn_lan2dev(umd_conn_t *cn)
     return -EFORMAT;
 }
 
-static int
+STATIC int
 umd_conn_lan2user(umd_conn_t *cn)
 {
     /*
@@ -469,7 +475,7 @@ umd_conn_lan2user(umd_conn_t *cn)
     return umd_conn_set_user(cn, umd_flow_type_lan, umd_flow_dir_down);
 }
 
-static int
+STATIC int
 umd_conn_wan2dev(umd_conn_t *cn)
 {
     /*
@@ -482,7 +488,7 @@ umd_conn_wan2dev(umd_conn_t *cn)
     return -EFORMAT;
 }
 
-static int
+STATIC int
 umd_conn_wan2user(umd_conn_t *cn)
 {
     /*
@@ -493,11 +499,11 @@ umd_conn_wan2user(umd_conn_t *cn)
     return umd_conn_set_user(cn, umd_flow_type_wan, umd_flow_dir_down);
 }
 
-static int
+STATIC int
 umd_conn_update(umd_conn_t *cn, time_t now)
 {
     static umd_conn_handle_f *handler[umd_conn_dir_end] = {
-        [umd_conn_dir_dev2dev]  = NULL,
+        [umd_conn_dir_dev2dev]  = umd_conn_not_support,
         [umd_conn_dir_dev2user] = umd_conn_dev2user,
         [umd_conn_dir_dev2lan]  = umd_conn_dev2lan,
         [umd_conn_dir_dev2wan]  = umd_conn_dev2wan,
@@ -507,12 +513,12 @@ umd_conn_update(umd_conn_t *cn, time_t now)
         [umd_conn_dir_user2wan] = umd_conn_user2wan,
         [umd_conn_dir_lan2dev]  = umd_conn_lan2dev,
         [umd_conn_dir_lan2user] = umd_conn_lan2user,
-        [umd_conn_dir_lan2lan]  = NULL,
-        [umd_conn_dir_lan2wan]  = NULL,
+        [umd_conn_dir_lan2lan]  = umd_conn_not_support,
+        [umd_conn_dir_lan2wan]  = umd_conn_not_support,
         [umd_conn_dir_wan2dev]  = umd_conn_wan2dev,
         [umd_conn_dir_wan2user] = umd_conn_wan2user,
-        [umd_conn_dir_wan2lan]  = NULL,
-        [umd_conn_dir_wan2wan]  = NULL,
+        [umd_conn_dir_wan2lan]  = umd_conn_not_support,
+        [umd_conn_dir_wan2wan]  = umd_conn_not_support,
     };
 
     if (false==is_good_umd_conn_dir(cn->conn_dir)) {
