@@ -53,7 +53,9 @@ __loop_watcher_constructor(void *item)
     loop_watcher_t *watcher = (loop_watcher_t *)item;
 
     os_objzero(watcher);
-    watcher->fd = INVALID_FD;
+    
+    watcher->fd     = INVALID_FD;
+    watcher->father = INVALID_FD;
 }
 
 STATIC void
@@ -188,7 +190,7 @@ __loop_watcher_add(loop_t *loop, int fd, int type, int flag, void *cb, void *use
         return NULL;
     }
     loop->count[type]++;
-    debug_ok("add %s watcher ok.", watchname);
+    debug_loop("add %s watcher ok.", watchname);
     
     return watcher;
 }
@@ -200,10 +202,12 @@ __loop_watcher_del(loop_t *loop, int fd)
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-
+    
     loop->count[watcher->type]--;
     __loop_watcher_destructor(watcher);
-
+    
+    debug_loop("del %s watcher ok.", loop_type_getnamebyid(watcher->type));
+    
     return 0;
 }
 
