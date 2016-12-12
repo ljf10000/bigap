@@ -476,7 +476,7 @@ umd_handle_gc(cli_table_t *table, int argc, char *argv[])
             }
 
         case umd_gc_target_conn:
-            if (umd.cfg.gcconn) {
+            if (umd.cfg.connectable && umd.cfg.gcconn) {
                 return umd_conn_foreach(umd_conn_gc, true);
             } else {
                 return -ENOSUPPORT;

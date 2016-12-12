@@ -454,7 +454,6 @@ typedef struct {
     bool    connectable;
     bool    connprotocol;
     uint32  autouser;
-    uint32  gc;
     uint32  gcuser;
     uint32  gcconn;
     uint32  sniff_count;
