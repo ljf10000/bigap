@@ -345,56 +345,41 @@ umd_conn_dir(uint32 sip, uint32 dip)
     if (umd_is_dev_ip(sip)) {
         if (umd_is_dev_ip(dip)) {
             return umd_conn_dir_dev2dev;
-        }
-        else if (umd_is_user_ip(dip)) {
+        } else if (umd_is_user_ip(dip)) {
             return umd_conn_dir_dev2user;            
-        }
-        else if (umd_is_lan_ip(dip)) {
+        } else if (umd_is_lan_ip(dip)) {
             return umd_conn_dir_dev2lan;
-        }
-        else { /* dip is wan */
+        } else { /* dip is wan */
             return umd_conn_dir_dev2wan;
         }
-    }
-    else if (umd_is_user_ip(sip)) {
+    } else if (umd_is_user_ip(sip)) {
         if (umd_is_dev_ip(dip)) {
             return umd_conn_dir_user2dev;
-        }
-        else if (umd_is_user_ip(dip)) {
+        } else if (umd_is_user_ip(dip)) {
             return umd_conn_dir_user2user;
-        }
-        else if (umd_is_lan_ip(dip)) {
+        } else if (umd_is_lan_ip(dip)) {
             return umd_conn_dir_user2lan;
-        }
-        else { /* dip is wan */
+        } else { /* dip is wan */
             return umd_conn_dir_user2wan;
         }
-    }
-    else if (umd_is_lan_ip(sip)) {
+    } else if (umd_is_lan_ip(sip)) {
         if (umd_is_dev_ip(dip)) {
             return umd_conn_dir_lan2dev;
-        }
-        else if (umd_is_user_ip(dip)) {
+        } else if (umd_is_user_ip(dip)) {
             return umd_conn_dir_lan2dev;
-        }
-        else if (umd_is_lan_ip(dip)) {
+        } else if (umd_is_lan_ip(dip)) {
             return umd_conn_dir_lan2lan;
-        }
-        else { /* dip is wan */
+        } else { /* dip is wan */
             return umd_conn_dir_lan2wan;
         }
-    }
-    else { /* sip is wan */
+    } else { /* sip is wan */
         if (umd_is_dev_ip(dip)) {
             return umd_conn_dir_wan2dev;
-        }
-        else if (umd_is_user_ip(dip)) {
+        } else if (umd_is_user_ip(dip)) {
             return umd_conn_dir_wan2user;
-        }
-        else if (umd_is_lan_ip(dip)) {
+        } else if (umd_is_lan_ip(dip)) {
             return umd_conn_dir_wan2lan;
-        }
-        else { /* dip is wan */
+        } else { /* dip is wan */
             return umd_conn_dir_wan2wan;
         }
     }

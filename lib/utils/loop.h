@@ -50,20 +50,22 @@ enum {
     LOOP_F_AUTO_DEL_SON = 0x02,
 };
 
-struct loop_watcher;
+loop_watcher_t;
 
 typedef struct {
     char *path;
     uint32 mask;
 } loop_inotify_t;
 
-typedef int loop_timer_f(struct loop_watcher *watcher, time_t now);
-typedef int loop_signal_f(struct loop_watcher *watcher, struct signalfd_siginfo *siginfo, time_t now);
-typedef int loop_normal_f(struct loop_watcher *watcher, time_t now);
-typedef int loop_son_f(struct loop_watcher *watcher, time_t now);
-typedef int loop_inotify_f(struct loop_watcher *watcher, struct inotify_event *ev, time_t now);
+typedef struct loop_watcher_s loop_watcher_t;
 
-typedef struct loop_watcher {
+typedef int loop_timer_f(loop_watcher_t *watcher, time_t now);
+typedef int loop_signal_f(loop_watcher_t *watcher, struct signalfd_siginfo *siginfo, time_t now);
+typedef int loop_normal_f(loop_watcher_t *watcher, time_t now);
+typedef int loop_son_f(loop_watcher_t *watcher, time_t now);
+typedef int loop_inotify_f(loop_watcher_t *watcher, struct inotify_event *ev, time_t now);
+
+struct loop_watcher_s {
     int fd;
     int father;
     uint16 type;
@@ -80,7 +82,7 @@ typedef struct loop_watcher {
     } cb;
 
     void *user;
-} loop_watcher_t;
+};
 
 typedef struct {
     int efd;
