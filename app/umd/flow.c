@@ -167,6 +167,9 @@ umd_conn_dump(umd_conn_t *cn, char *action, int err)
                         " sip=%s"
                         " dip=%s"
                         " protocol=%d"
+                        " flow-type=%s"
+                        " flow-dir=%s"
+                        " conn-dir=%s"
                         " err=%d",
             action,
             smacstring,
@@ -174,6 +177,9 @@ umd_conn_dump(umd_conn_t *cn, char *action, int err)
             sipstring,
             dipstring,
             cn->protocol,
+            umd_flow_type_getnamebyid(cn->flow_type),
+            umd_flow_dir_getnamebyid(cn->flow_dir),
+            umd_conn_dir_getnamebyid(cn->conn_dir),
             err);
     }
 
