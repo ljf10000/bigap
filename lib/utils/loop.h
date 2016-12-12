@@ -50,8 +50,6 @@ enum {
     LOOP_F_AUTO_DEL_SON = 0x02,
 };
 
-loop_watcher_t;
-
 typedef struct {
     char *path;
     uint32 mask;
