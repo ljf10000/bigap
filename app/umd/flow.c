@@ -189,6 +189,7 @@ umd_conn_new(umd_conn_t *tmpl)
 {
     umd_conn_t *cn = (umd_conn_t *)os_zalloc(sizeof(*cn));
     if (cn) {
+        os_println("new conn");
         os_objcpy(cn, tmpl);
     }
 
@@ -233,6 +234,7 @@ umd_conn_getEx(umd_conn_t *tmpl)
 {
     umd_conn_t *cn = umd_conn_get(tmpl);
     if (cn) {
+        os_println("found conn");
         return cn;
     }
 
@@ -247,7 +249,7 @@ umd_conn_getEx(umd_conn_t *tmpl)
 
         return NULL;
     }
-
+    os_println("insert conn");
     
     if (__is_ak_debug_conn) {
         char sipstring[1+OS_IPSTRINGLEN];
@@ -260,7 +262,7 @@ umd_conn_getEx(umd_conn_t *tmpl)
         os_strcpy(smacstring, os_macstring(cn->smac));
         os_strcpy(dmacstring, os_macstring(cn->dmac));
 
-        debug_conn("setup conn"
+        debug_conn("insert conn"
                         " smac=%s"
                         " dmac=%s"
                         " sip=%s"
@@ -563,6 +565,7 @@ umd_conn_update(umd_conn_t *cn, time_t now)
 mv_t
 umd_conn_gc(umd_conn_t *cn)
 {
+    os_println("remove conn");
     umd_conn_remove(cn);
     umd_conn_destroy(cn);
 
