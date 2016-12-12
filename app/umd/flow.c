@@ -323,9 +323,11 @@ umd_conn_init(umd_conn_t *cn, struct ether_header *eth, struct ip *iph, time_t n
     os_maccpy(cn->dmac, eth->ether_dhost);
     cn->sip     = iph->ip_src.s_addr;
     cn->dip     = iph->ip_dst.s_addr;
-    cn->protocol= umd.cfg.connprotocol?iph->ip_p:0;
-    cn->hit     = now;
-    cn->bkdr    = umd_conn_bkdr(cn);
+    if (umd.cfg.connectable) {
+        cn->protocol= umd.cfg.connprotocol?iph->ip_p:0;
+        cn->hit     = now;
+        cn->bkdr    = umd_conn_bkdr(cn);
+    }
 }
 
 STATIC void
