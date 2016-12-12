@@ -1,42 +1,6 @@
 #ifndef __DB_H_db573104d2404862b7487d1d6ebc8d4b__
 #define __DB_H_db573104d2404862b7487d1d6ebc8d4b__
 /******************************************************************************/
-#ifndef USE_MOD_DB_H1
-#define USE_MOD_DB_H1           PC_VAL(1, 1)
-#endif
-
-#ifndef USE_MOD_DB_H2
-#define USE_MOD_DB_H2           PC_VAL(1, 1)
-#endif
-
-#ifndef USE_MOD_DB_H3
-#define USE_MOD_DB_H3           PC_VAL(1, 0)
-#endif
-
-#ifndef USE_MOD_DB_H4
-#define USE_MOD_DB_H4           PC_VAL(1, 0)
-#endif
-
-#ifndef USE_MOD_DB_H5
-#define USE_MOD_DB_H5           PC_VAL(1, 0)
-#endif
-
-#ifndef USE_MOD_DB_H6
-#define USE_MOD_DB_H6           PC_VAL(1, 0)
-#endif
-
-#ifndef USE_MOD_DB_H7
-#define USE_MOD_DB_H7           PC_VAL(1, 0)
-#endif
-
-#ifndef USE_MOD_DB_H8
-#define USE_MOD_DB_H8           PC_VAL(1, 0)
-#endif
-
-#ifndef USE_MOD_DB_H9
-#define USE_MOD_DB_H9           PC_VAL(1, 0)
-#endif
-
 #ifndef DB_DPRINT
 #define DB_DPRINT               0
 #endif

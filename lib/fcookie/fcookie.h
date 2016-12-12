@@ -2,10 +2,6 @@
 #define __FCOOKIE_H_39d80845ac764a84bfdfa3166c751c51__
 #include "oem/oem.h"
 /******************************************************************************/
-#ifndef USE_MOD_FCOOKIE
-#define USE_MOD_FCOOKIE         PC_VAL(1, 1)
-#endif
-
 #ifdef __APP__
 /*
 * NOT depend actions
@@ -83,6 +79,6 @@ typedef struct {
 extern char *
 __fcookie_domain_get(char *domain);
 
-#endif
+#endif /* __APP__ */
 /******************************************************************************/
 #endif /* __FCOOKIE_H_39d80845ac764a84bfdfa3166c751c51__ */

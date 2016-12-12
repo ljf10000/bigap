@@ -18,7 +18,7 @@ fcookie_main_helper(int argc, char *argv[])
     int type;
 
     if (argc<3) {
-        return EFORMAT;
+        return -EFORMAT;
     }
 
     type = os_atoi(argv[1]);
@@ -28,7 +28,7 @@ fcookie_main_helper(int argc, char *argv[])
             int id = os_atoi(argv[2]);
             char *file = fcookie_file(id);
             if (NULL==file) {
-                return ENOEXIST;
+                return -ENOEXIST;
             }
 
             os_println("%s", file);
@@ -38,7 +38,7 @@ fcookie_main_helper(int argc, char *argv[])
             
         }   break;
         default:
-            return EFORMAT;
+            return -EFORMAT;
     }
 
     return 0;

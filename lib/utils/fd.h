@@ -2,10 +2,6 @@
 #define __FD_H_9a5aee0aa8d54fa2b8054102fd51ec21__
 #if defined(__APP__) && !defined(__UCLIBC__)
 /******************************************************************************/
-#ifndef USE_MOD_FD
-#define USE_MOD_FD              PC_VAL(1, 0)
-#endif
-
 #ifndef FD_INIT_COUNT
 #define FD_INIT_COUNT           1024
 #endif

@@ -1,10 +1,6 @@
 #ifndef __NSQ_H_700ea21373ce4d74a3027b48b6f332c8__
 #define __NSQ_H_700ea21373ce4d74a3027b48b6f332c8__
 /******************************************************************************/
-#ifndef USE_MOD_NSQ
-#define USE_MOD_NSQ             PC_VAL(1, 1)
-#endif
-
 #ifndef NSQ_NAMESIZE
 #define NSQ_NAMESIZE            64
 #endif

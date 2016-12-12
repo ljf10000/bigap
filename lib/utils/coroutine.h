@@ -2,10 +2,6 @@
 #define __COROUTINE_H_5d8fd5ee4fd14fdaa141fc278df9d147__
 #if defined(__APP__) && !defined(__UCLIBC__)
 /******************************************************************************/
-#ifndef USE_MOD_COROUTINE
-#define USE_MOD_COROUTINE       PC_VAL(1, 0)
-#endif
-
 #ifndef CO_STACK_DEFAULT
 #define CO_STACK_DEFAULT        (1024*8)
 #endif

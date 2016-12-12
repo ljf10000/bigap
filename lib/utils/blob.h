@@ -1,10 +1,6 @@
 #ifndef __BLOB_H_f3a53c1649ab48a884ddae7dad5cdca4__
 #define __BLOB_H_f3a53c1649ab48a884ddae7dad5cdca4__
 /******************************************************************************/
-#ifndef USE_MOD_BLOB
-#define USE_MOD_BLOB            PC_VAL(1, 0)
-#endif
-
 #ifndef USE_BLOB_COUNT
 #define USE_BLOB_COUNT          PC_VAL(1, 1)
 #endif

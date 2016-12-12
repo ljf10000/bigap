@@ -484,7 +484,6 @@ umd_handle_gc(cli_table_t *table, int argc, char *argv[])
         default:
             return cli_help(-EFORMAT);
     }
-    
 }
 
 STATIC int
