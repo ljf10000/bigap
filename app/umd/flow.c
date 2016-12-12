@@ -12,10 +12,13 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "umd.h"
 
+typedef int umd_pkt_handle_f(sock_server_t *server, time_t now);
+
 static umd_flow_t flow;
 static umd_conn_t conn;
 
-typedef int umd_pkt_handle_f(sock_server_t *server, time_t now);
+STATIC int
+umd_conn_handle(umd_conn_t *cn);
 
 static inline struct ether_header *
 umd_get_eth(void)
@@ -136,9 +139,6 @@ umd_is_lan_ip(uint32 ip)
     return false;
 }
 
-STATIC int
-umd_conn_handle(umd_conn_t *cn);
-
 STATIC bkdr_t
 umd_conn_bkdr(umd_conn_t *cn)
 {
@@ -240,7 +240,7 @@ umd_conn_getEx(umd_conn_t *tmpl)
     if (NULL==cn) {
         return NULL;
     }
-    
+
     int err = umd_conn_insert(cn);
     if (err<0) {
         umd_conn_destroy(cn);
@@ -248,6 +248,32 @@ umd_conn_getEx(umd_conn_t *tmpl)
         return NULL;
     }
 
+    
+    if (__is_ak_debug_conn) {
+        char sipstring[1+OS_IPSTRINGLEN];
+        char dipstring[1+OS_IPSTRINGLEN];
+        char smacstring[1+MACSTRINGLEN_L];
+        char dmacstring[1+MACSTRINGLEN_L];
+        
+        os_strcpy(sipstring, os_ipstring(cn->sip));
+        os_strcpy(dipstring, os_ipstring(cn->dip));
+        os_strcpy(smacstring, os_macstring(cn->smac));
+        os_strcpy(dmacstring, os_macstring(cn->dmac));
+
+        debug_conn("setup conn"
+                        " smac=%s"
+                        " dmac=%s"
+                        " sip=%s"
+                        " dip=%s"
+                        " protocol=%d",
+            smacstring,
+            dmacstring,
+            sipstring,
+            dipstring,
+            cn->protocol);
+    }
+    
+    
     return cn;
 }
 
@@ -256,11 +282,11 @@ umd_conn_init(umd_conn_t *cn, struct ether_header *eth, struct ip *iph, time_t n
 {
     os_maccpy(cn->smac, eth->ether_shost);
     os_maccpy(cn->dmac, eth->ether_dhost);
-    cn->sip = iph->ip_src.s_addr;
-    cn->dip = iph->ip_dst.s_addr;
-    cn->protocol = iph->ip_p;
-    cn->hit = now;
-    cn->bkdr = umd_conn_bkdr(cn);
+    cn->sip     = iph->ip_src.s_addr;
+    cn->dip     = iph->ip_dst.s_addr;
+    cn->protocol= umd.cfg.connprotocol?iph->ip_p:0;
+    cn->hit     = now;
+    cn->bkdr    = umd_conn_bkdr(cn);
 }
 
 STATIC void
