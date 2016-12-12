@@ -683,23 +683,23 @@ static inline int umd_conn_dir_getidbyname(const char *name);
 #endif
 
 /*
-* size = 18 * uint32 = 72 byte
+* size = 16 * uint32 = 64 byte
 */
 typedef struct {
     byte smac[OS_MACSIZE];
-    byte dmac[OS_MACSIZE];
-    uint32 sip;     // network sort
-    uint32 dip;     // network sort
-
     byte protocol;
     byte intf_id;
-    byte _r0[2];
     
-    uint32 suser:1;             // source is user
-    uint32 flow_type:2;         // umd_flow_type_end
-    uint32 flow_dir:2;          // umd_flow_dir_end
-    uint32 conn_dir:5;          // umd_conn_dir_end
-    uint32 flag:22;
+    byte dmac[OS_MACSIZE];
+    byte suser;             // source is user
+    byte conn_dir;          // umd_conn_dir_end
+    
+    byte flow_type;         // umd_flow_type_end
+    byte flow_dir;          // umd_flow_dir_end
+    uint16 flag;
+    
+    uint32 sip;     // network sort
+    uint32 dip;     // network sort
     
     time_t hit;
     bkdr_t bkdr;
