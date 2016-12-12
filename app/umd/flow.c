@@ -17,8 +17,127 @@ static umd_conn_t conn;
 
 typedef int umd_pkt_handle_f(sock_server_t *server, time_t now);
 
+static inline struct ether_header *
+umd_get_eth(void)
+{
+    return (struct ether_header *)flow.packet;
+}
+
+static inline struct vlan_header *
+umd_get_vlan(void)
+{
+    return (struct vlan_header *)(flow.eth + 1);
+}
+
+static inline struct ip *
+umd_get_iph(void)
+{
+    if (flow.eth->ether_type == umd.ether_type_ip) {
+        return (struct ip *)(flow.eth + 1);
+    }
+    else if (flow.eth->ether_type == umd.ether_type_vlan) {
+        return (struct ip *)(flow.vlan + 1);
+    }
+    else {       
+        return NULL;
+    }
+}
+
+STATIC void
+umd_add_flowst(umd_flowst_t *st)
+{
+    st->packets++;
+    st->bytes += flow.len;
+}
+
+STATIC void
+umd_add_flow_total(int type, int valid)
+{
+    umd_add_flowst(&flow.st.total[type][valid]);
+}
+
+STATIC void
+umd_add_flow_good(int type)
+{
+    umd_add_flow_total(type, umd_pkt_check_good);
+}
+
+STATIC void
+umd_add_flow_bad(int type)
+{
+    umd_add_flow_total(type, umd_pkt_check_bad);
+}
+
+STATIC void
+umd_add_flow_all(int type)
+{
+    umd_add_flow_total(type, umd_pkt_check_all);
+}
+
+STATIC void
+umd_add_flow_dev(int flow_type, int flow_dir)
+{
+    umd_add_flowst(&flow.st.dev[flow_type][flow_dir]);
+}
+
+STATIC bool
+umd_is_dev_mac(byte mac[])
+{
+    int i;
+
+    for (i=0; i<umd.cfg.instance.count; i++) {
+        if (os_maceq(mac, umd_getintf_byid(i)->mac)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+STATIC bool
+umd_is_dev_ip(uint32 ip)
+{
+    umd_intf_t *intf;
+    int i;
+
+    for (i=0; i<umd.cfg.instance.count; i++) {
+        intf = umd_getintf_byid(i);
+        
+        if (ip==intf->ip) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+STATIC bool
+umd_is_user_ip(uint32 ip)
+{
+    umd_intf_t *intf = umd_getintf_byid(conn.intf_id);
+    
+    return (ip & intf->mask)==(intf->ip & intf->mask);
+}
+
+STATIC bool
+umd_is_lan_ip(uint32 ip)
+{
+    umd_plan_t *plan;
+    int i;
+
+    for (i=0; i<os_count_of(umd.plan); i++) {
+        plan = &umd.plan[i];
+
+        if ((ip & plan->mask)==(plan->ip & plan->mask)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 STATIC int
-umd_conn_handle(sock_server_t *server);
+umd_conn_handle(umd_conn_t *cn);
 
 STATIC bkdr_t
 umd_conn_bkdr(umd_conn_t *cn)
@@ -151,62 +270,6 @@ umd_conn_clean(umd_conn_t *cn, sock_server_t *server)
     cn->conn_dir    = 0;
     cn->flow_dir    = 0;
     cn->flow_type   = 0;
-}
-
-STATIC bool
-umd_is_dev_mac(byte mac[])
-{
-    int i;
-
-    for (i=0; i<umd.cfg.instance.count; i++) {
-        if (os_maceq(mac, umd_getintf_byid(i)->mac)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-STATIC bool
-umd_is_dev_ip(uint32 ip)
-{
-    umd_intf_t *intf;
-    int i;
-
-    for (i=0; i<umd.cfg.instance.count; i++) {
-        intf = umd_getintf_byid(i);
-        
-        if (ip==intf->ip) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-STATIC bool
-umd_is_user_ip(uint32 ip)
-{
-    umd_intf_t *intf = umd_getintf_byid(conn.intf_id);
-    
-    return (ip & intf->mask)==(intf->ip & intf->mask);
-}
-
-STATIC bool
-umd_is_lan_ip(uint32 ip)
-{
-    umd_plan_t *plan;
-    int i;
-
-    for (i=0; i<os_count_of(umd.plan); i++) {
-        plan = &umd.plan[i];
-
-        if ((ip & plan->mask)==(plan->ip & plan->mask)) {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 STATIC int
@@ -522,54 +585,6 @@ umd_conn_timer(struct loop_watcher *watcher, time_t now)
     }
 
     return 0;
-}
-
-STATIC void
-umd_add_flowst(umd_flowst_t *st)
-{
-    st->packets++;
-    st->bytes += flow.len;
-}
-
-STATIC void
-umd_add_flow_total(int type, int valid)
-{
-    umd_add_flowst(&flow.st.total[type][valid]);
-}
-#define umd_add_flow_good(_type)    umd_add_flow_total(_type, umd_pkt_check_good)
-#define umd_add_flow_bad(_type)     umd_add_flow_total(_type, umd_pkt_check_bad)
-#define umd_add_flow_all(_type)     umd_add_flow_total(_type, umd_pkt_check_all)
-
-STATIC void
-umd_add_flow_dev(int flow_type, int flow_dir)
-{
-    umd_add_flowst(&flow.st.dev[flow_type][flow_dir]);
-}
-
-static inline struct ether_header *
-umd_get_eth(void)
-{
-    return (struct ether_header *)flow.packet;
-}
-
-static inline struct vlan_header *
-umd_get_vlan(void)
-{
-    return (struct vlan_header *)(flow.eth + 1);
-}
-
-static inline struct ip *
-umd_get_iph(void)
-{
-    if (flow.eth->ether_type == umd.ether_type_ip) {
-        return (struct ip *)(flow.eth + 1);
-    }
-    else if (flow.eth->ether_type == umd.ether_type_vlan) {
-        return (struct ip *)(flow.vlan + 1);
-    }
-    else {       
-        return NULL;
-    }
 }
 
 STATIC int
