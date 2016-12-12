@@ -79,7 +79,21 @@ umd_init_cfg_intf_post(void)
             return err;
         }
 #endif
-        debug_config("init intf %s", intf->name);
+        if (__ak_debug_config) {
+            char ipstring[1+OS_IPSTRINGLEN];
+            char ipmaskstring[1+OS_IPSTRINGLEN];
+            char macstring[1+MACSTRINGLEN_L];
+        
+            os_strcpy(ipstring, os_ipstring(intf->ip));
+            os_strcpy(ipmaskstring, os_ipstring(intf->mask));
+            os_strcpy(macstring, os_macstring(intf->mac));
+
+            debug_config("init intf %s mac=%s ip=%s mask=%s", 
+                intf->name,
+                macstring,
+                ipstring,
+                ipmaskstring);
+        }
     }
 
     return 0;
