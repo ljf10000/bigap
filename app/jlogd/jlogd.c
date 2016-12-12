@@ -111,6 +111,8 @@ typedef struct {
     uint32 event;
     char mac[1+MACSTRINGLEN_L];
 
+    loop_t loop;
+    
     jlog_server_t server[JLOGD_END_SERVER];
 } jlogd_t;
 
@@ -120,6 +122,7 @@ STATIC jlogd_t jlogd = {
     .cut    = AK_VAR_INITER("cut", JLOGD_CUTCOUNT),
     
     .mac    = {0},
+    .loop   = LOOP_INITER,
     .server = {
         [JLOGD_USERVER] = JLOGD_SERVER("userver", AF_UNIX, &envar_ulog, &envar_ucache),
         [JLOGD_ISERVER] = JLOGD_SERVER("iserver", AF_INET, &envar_ilog, &envar_icache),
@@ -302,66 +305,14 @@ jlogd_jhandle(jlog_server_t *server)
     }
 }
 
-STATIC int
-jlogd_server_handle_one(fd_set *r)
+STATIC int 
+jlogd_handle(loop_watcher_t *watcher, time_t now)
 {
-    jlog_server_t *server;
-    int err = 0;
+    jlog_server_t *server = (jlog_server_t *)watcher->user;
 
-    foreach_server(server) {
-        if (FD_ISSET(server->fd, r)) {
-            err = jlogd_jhandle(server);
-        }
-    }
+    jlogd_jhandle(server);
 
     jlogd_jtrycut();
-    
-    return err;
-}
-
-STATIC int
-jlogd_server_handle(void)
-{
-    fd_set rset;
-    uint32 timeout = ak_var_get(&jlogd.timeout);
-    struct timeval tv = {
-        .tv_sec     = os_second(timeout),
-        .tv_usec    = os_usecond(timeout),
-    };
-    jlog_server_t *server;
-    int err, fdmax = 0;
-    
-    foreach_server(server) {
-        fdmax = OS_MAX(fdmax, server->fd);
-    }
-
-    while(1) {
-        FD_ZERO(&rset);
-        foreach_server(server) {
-            FD_SET(server->fd, &rset);
-        }
-        
-        err = select(fdmax+1, &rset, NULL, NULL, &tv);
-        switch(err) {
-            case -1:/* error */
-                if (EINTR==errno) {
-                    // is breaked
-                    __debug_event("select breaked");
-
-                    jlogd_jtrycut();
-                    
-                    continue;
-                } else {
-                    __debug_error("select error:%d", -errno);
-                    return -errno;
-                }
-            case 0: /* timeout, retry */
-                __debug_timeout("select timeout");
-                return -ETIMEOUT;
-            default: /* to read */
-                return jlogd_server_handle_one(&rset);
-        }
-    }
 }
 
 STATIC int
@@ -446,6 +397,8 @@ jlogd_init_server(jlog_server_t *server)
     }
     
     server->fd = fd;
+
+    os_loop_add_normal(&jlogd.loop, fd, jlogd_handle, server);
     
     return 0;
 }
@@ -494,12 +447,8 @@ jlogd_main_helper(int argc, char *argv[])
     if (err<0) {
         return err;
     }
-    
-    while (1) {
-        jlogd_server_handle();
-    }
-    
-    return 0;
+
+    return os_loop(&jlogd.loop);
 }
 
 int allinone_main(int argc, char *argv[])
