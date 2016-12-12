@@ -139,6 +139,39 @@ umd_is_lan_ip(uint32 ip)
     return false;
 }
 
+STATIC int
+umd_conn_dump(umc_conn_t *cn, char *action, int err)
+{
+    if (1 || __is_ak_debug_conn) {
+        char sipstring[1+OS_IPSTRINGLEN];
+        char dipstring[1+OS_IPSTRINGLEN];
+        char smacstring[1+MACSTRINGLEN_L];
+        char dmacstring[1+MACSTRINGLEN_L];
+        
+        os_strcpy(sipstring, os_ipstring(cn->sip));
+        os_strcpy(dipstring, os_ipstring(cn->dip));
+        os_strcpy(smacstring, os_macstring(cn->smac));
+        os_strcpy(dmacstring, os_macstring(cn->dmac));
+
+        os_println("%s conn"
+                        " smac=%s"
+                        " dmac=%s"
+                        " sip=%s"
+                        " dip=%s"
+                        " protocol=%d"
+                        " err=%d",
+            action,
+            smacstring,
+            dmacstring,
+            sipstring,
+            dipstring,
+            cn->protocol,
+            err);
+    }
+
+    return err;
+}
+
 STATIC bkdr_t
 umd_conn_bkdr(umd_conn_t *cn)
 {
@@ -189,8 +222,9 @@ umd_conn_new(umd_conn_t *tmpl)
 {
     umd_conn_t *cn = (umd_conn_t *)os_zalloc(sizeof(*cn));
     if (cn) {
-        os_println("new conn");
         os_objcpy(cn, tmpl);
+
+        umd_conn_dump(cn, "create", 0);
     }
 
     return cn;
@@ -199,13 +233,17 @@ umd_conn_new(umd_conn_t *tmpl)
 STATIC int
 umd_conn_insert(umd_conn_t *cn)
 {
-    return h1_add(&umd.head.conn, &cn->node.conn, umd_conn_nhash);
+    int err = h1_add(&umd.head.conn, &cn->node.conn, umd_conn_nhash);
+
+    return umd_conn_dump(cn, "insert", err);
 }
 
 STATIC int
 umd_conn_remove(umd_conn_t *cn)
 {
-    return h1_del(&umd.head.conn, &cn->node.conn);
+    int err = h1_del(&umd.head.conn, &cn->node.conn);
+
+    return umd_conn_dump(cn, "remove", err);
 }
 
 STATIC umd_conn_t *
@@ -226,7 +264,6 @@ umd_conn_get(umd_conn_t *q)
     }
 
     return umd_conn_h1_entry(h1_find(&umd.head.conn, hash, eq));
-
 }
 
 STATIC umd_conn_t *
@@ -248,33 +285,7 @@ umd_conn_getEx(umd_conn_t *tmpl)
 
         return NULL;
     }
-    os_println("insert conn");
-    
-    if (__is_ak_debug_conn) {
-        char sipstring[1+OS_IPSTRINGLEN];
-        char dipstring[1+OS_IPSTRINGLEN];
-        char smacstring[1+MACSTRINGLEN_L];
-        char dmacstring[1+MACSTRINGLEN_L];
-        
-        os_strcpy(sipstring, os_ipstring(cn->sip));
-        os_strcpy(dipstring, os_ipstring(cn->dip));
-        os_strcpy(smacstring, os_macstring(cn->smac));
-        os_strcpy(dmacstring, os_macstring(cn->dmac));
 
-        debug_conn("insert conn"
-                        " smac=%s"
-                        " dmac=%s"
-                        " sip=%s"
-                        " dip=%s"
-                        " protocol=%d",
-            smacstring,
-            dmacstring,
-            sipstring,
-            dipstring,
-            cn->protocol);
-    }
-    
-    
     return cn;
 }
 
