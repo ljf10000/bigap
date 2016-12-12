@@ -115,6 +115,8 @@ umd_is_dev_ip(uint32 ip)
         intf = umd_getintf_byid(i);
         
         if (ip==intf->ip) {
+            os_println("ip=0x%x intf %s ip=0x%x", ip, intf->name, intf->ip);
+            
             return true;
         }
     }
