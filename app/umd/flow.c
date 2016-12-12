@@ -259,7 +259,7 @@ umd_conn_get(umd_conn_t *query)
 {
     hash_idx_t hash(void)
     {
-        return umd_conn_hash(q);
+        return umd_conn_hash(query);
     }
     
     bool eq(hash_node_t *node)
