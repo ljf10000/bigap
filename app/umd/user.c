@@ -1686,7 +1686,7 @@ umduser_timer_handle(umd_user_t *user, time_t now)
 }
 
 int
-umd_user_timer(struct loop_watcher *watcher, time_t now)
+umd_user_timer(loop_watcher_t *watcher, time_t now)
 {
     mv_t foreach(umd_user_t *user)
     {

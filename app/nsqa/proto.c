@@ -192,7 +192,7 @@ nsq_frame_handle(nsq_instance_t *instance, time_t now)
 }
 
 int 
-nsq_recver(struct loop_watcher *watcher, time_t now)
+nsq_recver(loop_watcher_t *watcher, time_t now)
 {
     nsq_instance_t *instance = (nsq_instance_t *)watcher->user;
     int err;

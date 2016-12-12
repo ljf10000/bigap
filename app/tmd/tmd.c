@@ -407,7 +407,7 @@ tmd_init_env(void)
 }
 
 STATIC int
-tmd_timer(struct loop_watcher *watcher, time_t now)
+tmd_timer(loop_watcher_t *watcher, time_t now)
 {
     tm_fd_trigger(watcher->fd);
 
@@ -423,7 +423,7 @@ tmd_init_timer(void)
 }
 
 STATIC int
-tmd_cli(struct loop_watcher *watcher, time_t now)
+tmd_cli(loop_watcher_t *watcher, time_t now)
 {
     static cli_table_t tables[] = {
         /*

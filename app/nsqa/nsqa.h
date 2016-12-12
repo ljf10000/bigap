@@ -319,7 +319,7 @@ extern int
 ndq_try_rdy(nsq_instance_t *instance);
 
 extern int 
-nsq_recver(struct loop_watcher *watcher, time_t now);
+nsq_recver(loop_watcher_t *watcher, time_t now);
 
 extern int
 nsq_resolve(nsq_instance_t *instance);

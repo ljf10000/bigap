@@ -629,7 +629,7 @@ umd_conn_timer_handle(umd_conn_t *cn, time_t now)
 }
 
 int
-umd_conn_timer(struct loop_watcher *watcher, time_t now)
+umd_conn_timer(loop_watcher_t *watcher, time_t now)
 {
     mv_t foreach(umd_conn_t *cn)
     {
@@ -1018,7 +1018,7 @@ umd_jflow(void)
 }
 
 STATIC int
-umd_flower(struct loop_watcher *watcher, time_t now)
+umd_flower(loop_watcher_t *watcher, time_t now)
 {
     static umd_pkt_handle_f *handler[] = {
         umd_pkt_handle,

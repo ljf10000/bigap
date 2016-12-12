@@ -845,9 +845,9 @@ extern mv_t
 umd_conn_gc(umd_conn_t *cn);
 
 extern int
-umd_user_timer(struct loop_watcher *watcher, time_t now);
+umd_user_timer(loop_watcher_t *watcher, time_t now);
 
 extern int
-umd_conn_timer(struct loop_watcher *watcher, time_t now);
+umd_conn_timer(loop_watcher_t *watcher, time_t now);
 /******************************************************************************/
 #endif /* __UM_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__ */

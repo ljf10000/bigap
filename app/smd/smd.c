@@ -820,7 +820,7 @@ smd_handle_show(cli_table_t *table, int argc, char *argv[])
 }
 
 STATIC int
-smd_cli(struct loop_watcher *watcher, time_t now)
+smd_cli(loop_watcher_t *watcher, time_t now)
 {
     static cli_table_t tables[] = {
         /*
@@ -853,7 +853,7 @@ smd_init_server(void)
 }
 
 STATIC int
-smd_timer(struct loop_watcher *watcher, time_t now)
+smd_timer(loop_watcher_t *watcher, time_t now)
 {
     smd.time += SM_TIMER;
 

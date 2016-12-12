@@ -13,7 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "umd.h"
 
 STATIC int
-umd_timer(struct loop_watcher *watcher, time_t now)
+umd_timer(loop_watcher_t *watcher, time_t now)
 {
     umd.ticks++;
     

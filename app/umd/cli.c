@@ -487,7 +487,7 @@ umd_handle_gc(cli_table_t *table, int argc, char *argv[])
 }
 
 STATIC int
-umd_cli(struct loop_watcher *watcher, time_t now)
+umd_cli(loop_watcher_t *watcher, time_t now)
 {
     static cli_table_t tables[] = {
         /*
