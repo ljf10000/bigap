@@ -951,7 +951,7 @@ umd_jflow(void)
 STATIC int
 umd_flower(struct loop_watcher *watcher, time_t now)
 {
-    static int umd_pkt_handle_f *handler[] = {
+    static umd_pkt_handle_f *handler[] = {
         umd_pkt_handle,
         umd_intf_handle,
         umd_eth_handle,
