@@ -271,12 +271,18 @@ umd_conn_get(umd_conn_t *q)
         return umd_conn_eq(q, cn);
     }
 
+    umd_conn_debug("conn count=%d", h1_count(&umd.head.conn));
+    
     return umd_conn_h1_entry(h1_find(&umd.head.conn, hash, eq));
 }
 
 STATIC umd_conn_t *
 umd_conn_getEx(umd_conn_t *tmpl)
 {
+    if (false==umd.cfg.connectable) {
+        return &conn;
+    }
+    
     umd_conn_t *cn = umd_conn_get(tmpl);
     if (cn) {
         return cn;
@@ -293,7 +299,7 @@ umd_conn_getEx(umd_conn_t *tmpl)
 
         return NULL;
     }
-
+    
     return cn;
 }
 
@@ -774,13 +780,9 @@ umd_ip_handle(sock_server_t *server, time_t now)
 
     umd_conn_init(&conn, flow.eth, iph, now);
 
-    if (umd.cfg.connectable) {
-        cn = umd_conn_getEx(&conn);
-        if (NULL==cn) {
-            err = -ENOMEM; goto error;
-        }
-    } else {
-        cn = &conn;
+    cn = umd_conn_getEx(&conn);
+    if (NULL==cn) {
+        err = -ENOMEM; goto error;
     }
 
     err = umd_conn_update(cn, now);
