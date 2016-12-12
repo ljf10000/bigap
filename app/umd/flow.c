@@ -15,6 +15,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 static umd_flow_t flow;
 static umd_conn_t conn;
 
+typedef int umd_pkt_handle_f(sock_server_t *server, time_t now);
+
 STATIC int
 umd_conn_handle(sock_server_t *server);
 
@@ -268,6 +270,16 @@ umd_conn_dir(uint32 sip, uint32 dip)
     }
 }
 
+STATIC int
+umd_conn_set_user(umd_conn_t *cn, int flow_type, int flow_dir)
+{
+    cn->flow_type   = flow_type;
+    cn->flow_dir    = flow_dir;
+    cn->suser       = umd_flow_dir_up==flow_dir;
+
+    return umd_conn_handle(cn);
+}
+
 static int
 umd_conn_dev2user(umd_conn_t *cn)
 {
@@ -451,16 +463,6 @@ umd_conn_update(umd_conn_t *cn, time_t now)
     } else {
         return -EFORMAT;
     }
-}
-
-STATIC int
-umd_conn_set_user(umd_conn_t *cn, int flow_type, int flow_dir)
-{
-    cn->flow_type   = flow_type;
-    cn->flow_dir    = flow_dir;
-    cn->suser       = umd_flow_dir_up==flow_dir;
-
-    return umd_conn_handle(cn);
 }
 
 mv_t
@@ -949,7 +951,7 @@ umd_jflow(void)
 STATIC int
 umd_flower(struct loop_watcher *watcher, time_t now)
 {
-    static int (*handle[])(sock_server_t *) = {
+    static int umd_pkt_handle_f *handler[] = {
         umd_pkt_handle,
         umd_intf_handle,
         umd_eth_handle,
@@ -960,8 +962,8 @@ umd_flower(struct loop_watcher *watcher, time_t now)
     sock_server_t *server = (sock_server_t *)watcher->user;
     int i, err;
 
-    for (i=0; i<os_count_of(handle); i++) {
-        err = (*handle[i])(server, now);
+    for (i=0; i<os_count_of(handler); i++) {
+        err = (*handler[i])(server, now);
         if (err<0) {
             return err;
         }
