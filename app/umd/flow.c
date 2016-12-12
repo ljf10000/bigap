@@ -13,11 +13,11 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "umd.h"
 
 #if 1
-#define is_umd_conn_debug   1
-#define umd_conn_debug      os_println
+#define is_umd_conn_debug                   1
+#define umd_conn_debug(_fmt, _args...)      os_println(_fmt, ##_args)
 #else
-#define is_umd_conn_debug   __is_ak_debug_conn
-#define umd_conn_debug      debug_conn
+#define is_umd_conn_debug                   __is_ak_debug_conn
+#define umd_conn_debug(_fmt, _args...)      debug_conn(_fmt, ##_args)
 #endif
 
 typedef int umd_pkt_handle_f(sock_server_t *server, time_t now);
@@ -281,8 +281,7 @@ umd_conn_getEx(umd_conn_t *tmpl)
     
     umd_conn_t *cn = umd_conn_get(tmpl);
     if (cn) {
-        umd_conn_debug("conn count=%d, found conn=%p",
-            h1_count(&umd.head.conn), cn);
+        umd_conn_dump(cn, "get", 0);
         
         return cn;
     }
