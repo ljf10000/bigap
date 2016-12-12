@@ -382,6 +382,11 @@ umd_conn_dir(uint32 sip, uint32 dip)
 STATIC int
 umd_conn_set_user(umd_conn_t *cn, int flow_type, int flow_dir)
 {
+    umd_conn_debug("conn update conn-dir=%s flow-type=%s flow-dir=%s", 
+        umd_conn_dir_getnamebyid(cn->conn_dir),
+        umd_flow_type_getnamebyid(cn->flow_type),
+        umd_flow_dir_getnamebyid(cn->flow_dir));
+
     cn->flow_type   = flow_type;
     cn->flow_dir    = flow_dir;
     cn->suser       = umd_flow_dir_up==flow_dir;
@@ -397,9 +402,7 @@ umd_conn_not_support(umd_conn_t *cn)
 
 STATIC int
 umd_conn_dev2user(umd_conn_t *cn)
-{
-    umd_conn_debug("conn dir %s", umd_conn_dir_getnamebyid(cn->conn_dir));
-    
+{    
     /*
     * dev==>user
     *
@@ -436,9 +439,7 @@ umd_conn_dev2wan(umd_conn_t *cn)
 
 STATIC int
 umd_conn_user2dev(umd_conn_t *cn)
-{
-    umd_conn_debug("conn dir %s", umd_conn_dir_getnamebyid(cn->conn_dir));
-    /*
+{    /*
     * user==>dev
     *
     * lan up for user
@@ -454,8 +455,6 @@ umd_conn_user2user(umd_conn_t *cn)
     if (cn->sip==cn->dip) {
         return -EFORMAT;
     }
-    
-    umd_conn_debug("conn dir %s", umd_conn_dir_getnamebyid(cn->conn_dir));
     
     /*
     * user==>{user}
@@ -482,9 +481,7 @@ umd_conn_user2user(umd_conn_t *cn)
 
 STATIC int
 umd_conn_user2lan(umd_conn_t *cn)
-{
-    umd_conn_debug("conn dir %s", umd_conn_dir_getnamebyid(cn->conn_dir));
-    
+{    
     /*
     * user==>lan
     *
@@ -495,9 +492,7 @@ umd_conn_user2lan(umd_conn_t *cn)
 
 STATIC int
 umd_conn_user2wan(umd_conn_t *cn)
-{
-    umd_conn_debug("conn dir %s", umd_conn_dir_getnamebyid(cn->conn_dir));
-    
+{    
     /*
     * user==>wan
     *
@@ -521,9 +516,7 @@ umd_conn_lan2dev(umd_conn_t *cn)
 
 STATIC int
 umd_conn_lan2user(umd_conn_t *cn)
-{
-    umd_conn_debug("conn dir %s", umd_conn_dir_getnamebyid(cn->conn_dir));
-    
+{    
     /*
     * lan==>user
     *
@@ -547,9 +540,7 @@ umd_conn_wan2dev(umd_conn_t *cn)
 
 STATIC int
 umd_conn_wan2user(umd_conn_t *cn)
-{
-    umd_conn_debug("conn dir %s", umd_conn_dir_getnamebyid(cn->conn_dir));
-    
+{    
     /*
     * wan==>user
     *
