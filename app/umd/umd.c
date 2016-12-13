@@ -50,7 +50,7 @@ static inline umd_intf_t *
 umd_intf_h1_entry(h1_node_t *node);
 
 static inline int
-umd_intf_foreach(mv_t (*foreach)(umd_intf_t *entry), bool safe);
+umd_intf_foreach(mv_t (*foreach)(umd_intf_t *intf), bool safe);
 #endif
 
 STATIC int
@@ -65,22 +65,10 @@ umd_intf_dump(umd_intf_t *intf, char *action, int err)
     return err;
 }
 
-STATIC bkdr_t
-umd_intf_bkdr(umd_intf_t *intf)
-{
-    return os_bin_bkdr(intf->mac, sizeof(intf->mac));
-}
-
-STATIC bkdr_t
-umd_intf_eq(umd_intf_t *a, umd_intf_t *b)
-{
-    return os_maceq(a->mac, b->mac);
-}
-
 STATIC hash_idx_t 
-umd_intf_hash(umd_intf_t *intf)
+umd_intf_hash(byte mac[])
 {
-    return intf->bkdr & (umd.cfg.intfhashsize - 1);
+    return os_macbkdr(mac) & (umd.cfg.intfhashsize - 1);
 }
 
 STATIC hash_idx_t
@@ -88,7 +76,7 @@ umd_intf_nhash(hash_node_t *node)
 {
     umd_intf_t *intf = umd_intf_hx_entry(node);
     
-    return umd_intf_hash(intf);
+    return umd_intf_hash(intf->mac);
 }
 
 STATIC void
@@ -105,7 +93,7 @@ umd_intf_new(char *ifname, byte mac[])
         os_strcpy(intf->name, ifname);
         os_maccpy(intf->mac, mac);
 
-        umd_intf_dump("create", intf, 0);
+        umd_intf_dump(intf, "create", 0);
     }
 
     return intf;
@@ -134,17 +122,17 @@ umd_intf_get(byte mac[])
     
     hash_idx_t hash(void)
     {
-        return umd_intf_hash(query);
+        return umd_intf_hash(mac);
     }
     
     bool eq(hash_node_t *node)
     {
         umd_intf_t *intf = umd_intf_hx_entry(node);
         
-        return umd_intf_eq(query, intf);
+        return os_maceq(mac, intf->mac);
     }
 
-    if (last && umd_intf_eq(last, query)) {
+    if (last && os_maceq(mac, last->mac)) {
         return last;
     }
     

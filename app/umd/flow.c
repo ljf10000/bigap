@@ -199,7 +199,7 @@ umd_conn_bkdr(umd_conn_t *cn)
     return bkdr;
 }
 
-STATIC bkdr_t
+STATIC bool
 umd_conn_eq(umd_conn_t *a, umd_conn_t *b)
 {
     return a->bkdr == b->bkdr

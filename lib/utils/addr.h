@@ -208,6 +208,12 @@ os_maceq(byte a[], byte b[])
         && *(uint16 *)(a+4) == *(uint16 *)(b+4);
 }
 
+static inline bkdr_t
+os_macbkdr(byte mac[])
+{
+    return os_bin_bkdr(mac, OS_MACSIZE);
+}
+
 static inline bool
 os_macmaskmach(byte a[], byte b[], byte mask[])
 {
@@ -298,6 +304,12 @@ static inline bool
 os_ipmatch(uint32 ipa, uint32 ipb, uint32 mask)
 {
     return (ipa & mask)==(ipb & mask);
+}
+
+static inline bkdr_t
+os_ipbkdr(uint32 ip)
+{
+    return os_bin_bkdr(&ip, sizeof(ip));
 }
 
 #ifdef __BOOT__

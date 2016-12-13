@@ -198,13 +198,13 @@ __umduser_ev_call(umd_event_cb_t *ev, umd_user_t *user, char *action)
 STATIC hash_idx_t
 __umduser_hashmac(byte mac[])
 {
-    return hash_bybuf(mac, OS_MACSIZE, umd.cfg.machashsize - 1);
+    return os_macbkdr(mac) & (umd.cfg.machashsize - 1);
 }
 
 STATIC hash_idx_t
 __umduser_haship(uint32 ip)
 {
-    return hash_bybuf((byte *)&ip, sizeof(ip), umd.cfg.iphashsize - 1);
+    return os_ipbkdr(ip) & (umd.cfg.iphashsize - 1);
 }
 #if 1
 DECLARE_DB_H2(&umd.head.user, __umduser, umd_user_t, node.user);

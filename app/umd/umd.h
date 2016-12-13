@@ -374,8 +374,6 @@ typedef struct {
     uint32  ip;
     uint32  mask;
     uint32  flag;
-
-    bkdr_t  bkdr;
     
     struct {
         h1_node_t intf;
