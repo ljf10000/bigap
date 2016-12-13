@@ -79,7 +79,7 @@ enum { INVALID_AKID = 0};
     _(____ak_debug_cli,         22,"cli"),      \
     _(____ak_debug_loop,        23,"loop"),     \
     _(____ak_debug_conn,        24,"conn"),     \
-    _(____ak_debug_intf,        24,"intf"),     \
+    _(____ak_debug_intf,        25,"intf"),     \
     _(____ak_debug_r3,          26,"r3"),       \
     _(____ak_debug_r4,          27,"r4"),       \
     _(____ak_debug_test,        28,"test"),     \
