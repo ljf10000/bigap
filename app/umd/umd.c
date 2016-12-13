@@ -40,19 +40,6 @@ umd_getingress_byserver(sock_server_t *server)
     return umd_getingress_byid(umd_ingress_id(server->id));
 }
 /******************************************************************************/
-#if 1
-DECLARE_DB_H1(&umd.head.intf, umd_intf, umd_intf_t, node.intf);
-
-static inline umd_intf_t *
-umd_intf_hx_entry(hash_node_t *node);
-
-static inline umd_intf_t *
-umd_intf_h1_entry(h1_node_t *node);
-
-static inline int
-umd_intf_foreach(mv_t (*foreach)(umd_intf_t *intf), bool safe);
-#endif
-
 STATIC int
 umd_intf_dump(umd_intf_t *intf, char *action, int err)
 {

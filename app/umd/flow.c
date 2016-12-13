@@ -133,19 +133,6 @@ umd_is_lan_ip(uint32 ip)
     return false;
 }
 
-#if 1
-DECLARE_DB_H1(&umd.head.conn, umd_conn, umd_conn_t, node.conn);
-
-static inline umd_conn_t *
-umd_conn_hx_entry(hash_node_t *node);
-
-static inline umd_conn_t *
-umd_conn_h1_entry(h1_node_t *node);
-
-static inline int
-umd_conn_foreach(mv_t (*foreach)(umd_conn_t *entry), bool safe);
-#endif
-
 STATIC int
 umd_conn_dump(umd_conn_t *cn, char *action, int err)
 {
