@@ -12,11 +12,11 @@
 #endif
 
 #ifndef UMD_CONNHASHSIZE
-#define UMD_CONNHASHSIZE        PC_VAL(16*1024, 4*1024)
+#define UMD_CONNHASHSIZE        PC_VAL(32*1024, 4*1024)
 #endif
 
 #ifndef UMD_INTFHASHSIZE
-#define UMD_INTFHASHSIZE        PC_VAL(256, 64)
+#define UMD_INTFHASHSIZE        PC_VAL(256, 32)
 #endif
 
 #ifndef UMD_SYNCABLE
