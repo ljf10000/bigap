@@ -83,10 +83,6 @@
 #define UMD_GCCONN              PC_VAL(30, 300)   /* second */
 #endif
 
-#ifndef UMD_SNIFF_COUNT
-#define UMD_SNIFF_COUNT         PC_VAL(128, 32)
-#endif
-
 #ifndef UMD_IFNAME_INGRESS
 #define UMD_IFNAME_INGRESS      PC_VAL("eth0", "lan0")
 #endif
@@ -465,7 +461,6 @@ typedef struct {
     
     uint32  gcuser;
     uint32  gcconn;
-    uint32  sniff_count;
     uint32  ticks;
     uint32  idle;
     uint32  fake;
@@ -489,7 +484,6 @@ umd_config_t;
     _(&umd.cfg, bool,   promisc,            UMD_PROMISC)        \
     _(&umd.cfg, u32,    gcuser,             UMD_GCUSER)         \
     _(&umd.cfg, u32,    gcconn,             UMD_GCCONN)         \
-    _(&umd.cfg, u32,    sniff_count,        UMD_SNIFF_COUNT)    \
     _(&umd.cfg, u32,    ticks,              UMD_TICKS)          \
     _(&umd.cfg, u32,    idle,               UMD_IDLE)           \
     _(&umd.cfg, u32,    fake,               UMD_FAKE)           \
