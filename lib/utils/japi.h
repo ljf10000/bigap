@@ -334,7 +334,7 @@ jobj_get_leaf(jobj_t obj, ...);
 #define __jj_byeq(_obj, _jobj, _jname, _member, _mapper) \
         __jj_bymapper(_obj, _jobj, _jname, _member, _mapper, os_eq_buildin)
 
-#define __jj_ip(_obj, _jobj, _jname, _member)       __jj_byeq(_obj, _jobj, _jname, _member, inet_addr)
+#define __jj_ip(_obj, _jobj, _jname, _member)       __jj_byeq(_obj, _jobj, _jname, _member, os_ipaddr)
 #define __jj_time(_obj, _jobj, _jname, _member)     __jj_byeq(_obj, _jobj, _jname, _member, os_fulltime)
 #define __jj_string(_obj, _jobj, _jname, _member)   __jj_byeq(_obj, _jobj, _jname, _member, os_strdup)
 #define __jj_string_unsafe(_obj, _jobj, _jname, _member)    __jj_byeq(_obj, _jobj, _jname, _member, os_map_nothing)

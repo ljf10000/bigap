@@ -17,64 +17,69 @@ extern sock_server_t umd_flow_server;
 extern sock_server_t umd_timer_server;
 
 STATIC void
-umd_init_cfg_intf_deft(umd_intf_t *intf, char *ifname, int id)
+umd_init_cfg_ingress_deft(umd_ingress_t *ingress, char *ifname, int id)
 {
-    os_strdcpy(intf->name, UMD_IFNAME_INGRESS);
+    os_strdcpy(ingress->name, UMD_IFNAME_INGRESS);
 
-    intf->id    = id;
-    intf->auth  = umd_auth_type_deft;
-    intf->mode  = umd_forward_mode_deft;
+    ingress->id     = id;
+    ingress->auth   = umd_auth_type_deft;
+    ingress->mode   = umd_forward_mode_deft;
 }
 
 STATIC int
-umd_init_cfg_intf_pre(int count)
+umd_init_cfg_ingress_pre(int count)
 {
-    umd_intf_t *intf;
+    umd_ingress_t *ingress;
     int i;
     
-    intf = (umd_intf_t *)os_zalloc(count*sizeof(umd_intf_t));
-    if (NULL==intf) {
+    ingress = (umd_ingress_t *)os_zalloc(count*sizeof(umd_ingress_t));
+    if (NULL==ingress) {
         return -ENOMEM;
     }
 
     for (i=0; i<count; i++) {
-        umd_init_cfg_intf_deft(intf, UMD_IFNAME_INGRESS, i);
+        umd_init_cfg_ingress_deft(ingress, UMD_IFNAME_INGRESS, i);
     }
-    umd.cfg.instance.intf = intf;
-    umd.cfg.instance.count = count;
+    umd.cfg.instance.ingress= ingress;
+    umd.cfg.instance.count  = count;
 
-    debug_config("intf count %d", count);
+    debug_config("ingress count %d", count);
     
     return 0;
 }
 
 STATIC int
-umd_init_cfg_intf_post(void)
+umd_init_cfg_ingress_post(void)
 {
     int i, err;
-    umd_intf_t *intf;
+    umd_ingress_t *ingress;
 
     for (i=0; i<umd.cfg.instance.count; i++) {
-        intf = &umd.cfg.instance.intf[i];
-        intf->index = if_nametoindex(intf->name);
+        ingress = &umd.cfg.instance.ingress[i];
+        ingress->index = if_nametoindex(ingress->name);
 
-        err = intf_get_mac(intf->name, intf->mac);
+        if (is_good_ipstring(ingress->ipaddr) && is_good_ipstring(ingress->ipmask)) {
+            ingress->ip    = os_ipaddr(ingress->ipaddr);
+            ingress->mask  = os_ipaddr(ingress->ipmask);
+        } else {
+            err = intf_get_ip(ingress->name, &ingress->ip);
+            if (err<0) {
+                return err;
+            }
+
+            err = intf_get_netmask(ingress->name, &ingress->mask);
+            if (err<0) {
+                return err;
+            }
+        }
+
+        err = intf_get_mac(ingress->name, ingress->mac);
         if (err<0) {
             return err;
         }
         
-        err = intf_get_ip(intf->name, &intf->ip);
-        if (err<0) {
-            return err;
-        }
-        
-        err = intf_get_netmask(intf->name, &intf->mask);
-        if (err<0) {
-            return err;
-        }
-
         if (umd.cfg.promisc) {
-            err = intf_set_promisc(intf->name);
+            err = intf_set_promisc(ingress->name);
             if (err<0) {
                 return err;
             }
@@ -85,12 +90,12 @@ umd_init_cfg_intf_post(void)
             char ipmaskstring[1+OS_IPSTRINGLEN];
             char macstring[1+MACSTRINGLEN_L];
         
-            os_strcpy(ipstring, os_ipstring(intf->ip));
-            os_strcpy(ipmaskstring, os_ipstring(intf->mask));
-            os_strcpy(macstring, os_macstring(intf->mac));
+            os_strcpy(ipstring, os_ipstring(ingress->ip));
+            os_strcpy(ipmaskstring, os_ipstring(ingress->mask));
+            os_strcpy(macstring, os_macstring(ingress->mac));
 
-            debug_config("init intf %s mac=%s ip=%s mask=%s", 
-                intf->name,
+            debug_config("init ingress %s mac=%s ip=%s mask=%s", 
+                ingress->name,
                 macstring,
                 ipstring,
                 ipmaskstring);
@@ -116,7 +121,7 @@ umd_init_cfg_server(int count)
     server[UMD_SERVER_TIMER] = &umd_timer_server;
     server[UMD_SERVER_TIMER]->id = UMD_SERVER_TIMER;
     debug_config("setup timer server");
-    
+
     server[UMD_SERVER_CLI]   = &umd_cli_server;
     server[UMD_SERVER_CLI]->id = UMD_SERVER_CLI;
     debug_config("setup cli server");
@@ -139,20 +144,15 @@ umd_init_cfg_server(int count)
 STATIC int
 umd_init_cfg_instance_one(jobj_t jinstance, int id)
 {
-    umd_intf_t *intf = &umd.cfg.instance.intf[id];
+    umd_ingress_t *ingress = &umd.cfg.instance.ingress[id];
     jobj_t jval;
+
+    __jj_strcpy(ingress, jinstance, "ingress", name);
+    jj_strcpy(ingress, jinstance, ipaddr);
+    jj_strcpy(ingress, jinstance, ipmask);
     
-    jval = jobj_get(jinstance, "ingress");
-    if (jval) {
-        char *ifname = jobj_get_string(jval);
-
-        os_strdcpy(intf->name, ifname);
-
-        debug_config("ingress=%s", ifname);
-    }
-
-    jj_byeq(intf, jinstance, auth, umd_auth_type_getidbyname);
-    jj_byeq(intf, jinstance, mode, umd_forward_mode_getidbyname);
+    jj_byeq(ingress, jinstance, auth, umd_auth_type_getidbyname);
+    jj_byeq(ingress, jinstance, mode, umd_forward_mode_getidbyname);
 
     return 0;
 }
@@ -160,7 +160,6 @@ umd_init_cfg_instance_one(jobj_t jinstance, int id)
 STATIC int
 umd_init_cfg_instance(jobj_t jcfg)
 {
-    umd_intf_t *intf;
     int i, err, count;
     
     jobj_t jarray = jobj_get(jcfg, "instance");
@@ -173,7 +172,7 @@ umd_init_cfg_instance(jobj_t jcfg)
         return -EBADCONF;
     }
     
-    err = umd_init_cfg_intf_pre(count);
+    err = umd_init_cfg_ingress_pre(count);
     if (err<0) {
         return err;
     }
@@ -190,8 +189,10 @@ umd_init_cfg_instance(jobj_t jcfg)
         }
     }
     
-    err = umd_init_cfg_intf_post();
+    err = umd_init_cfg_ingress_post();
     if (err<0) {
+        sleep(5);
+        
         return err;
     }
     
@@ -203,6 +204,30 @@ umd_init_cfg_instance(jobj_t jcfg)
     return 0;
 }
 
+STATIC int
+umd_init_cfg_intf(void)
+{
+    mv_t foreach(struct ifreq *ifr)
+    {
+        char *ifname = ifr->ifr_name;
+        byte mac[OS_MACSIZE];
+        
+        int err = intf_get_mac(ifname, mac);
+        if (err<0) {
+            return mv2_go(err);
+        }
+        
+        umd_intf_t *intf = umd_intf_getEx(ifname, mac);
+        if (NULL==intf) {
+            return mv2_go(-ENOMEM);
+        }
+
+        return mv2_ok;
+    }
+    
+    return intf_foreachEx(true, foreach);
+}
+
 int umd_init_cfg(void)
 {
     jobj_t jobj = JOBJ_MAPFILE(umd.conf, UMD_CFG_JMAPPER);
@@ -211,6 +236,11 @@ int umd_init_cfg(void)
     }
 
     int err = umd_init_cfg_instance(jobj);
+    if (err<0) {
+        return err;
+    }
+
+    int err = umd_init_cfg_intf();
     if (err<0) {
         return err;
     }

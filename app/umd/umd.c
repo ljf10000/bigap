@@ -16,10 +16,10 @@ OS_INITER;
 
 umd_control_t umd = UMD_INITER;
 
-umd_intf_t *
-umd_getintf_byid(int intf_id)
+umd_ingress_t *
+umd_getingress_byid(int ingress_id)
 {
-    return &umd.cfg.instance.intf[intf_id];
+    return &umd.cfg.instance.ingress[ingress_id];
 }
 
 sock_server_t *
@@ -29,15 +29,141 @@ umd_getserver_byid(int server_id)
 }
 
 sock_server_t *
-umd_getserver_byintf(umd_intf_t *intf)
+umd_getserver_byingress(umd_ingress_t *ingress)
 {
-    return umd_getserver_byid(umd_server_id(intf->id));
+    return umd_getserver_byid(umd_server_id(ingress->id));
+}
+
+umd_ingress_t *
+umd_getingress_byserver(sock_server_t *server)
+{
+    return umd_getingress_byid(umd_ingress_id(server->id));
+}
+/******************************************************************************/
+STATIC int
+umd_intf_dump(umd_intf_t *intf, char *action, int err)
+{
+    debug_intf("%s intf %s mac %s err=%d",
+        action,
+        intf->name,
+        os_macstring(intf->mac),
+        err);
+
+    return err;
+}
+
+STATIC bkdr_t
+umd_intf_bkdr(umd_intf_t *intf)
+{
+    return os_bin_bkdr(intf->mac, sizeof(intf->mac));
+}
+
+STATIC bkdr_t
+umd_intf_eq(umd_intf_t *a, umd_intf_t *b)
+{
+    return os_maceq(a->mac, b->mac);
+}
+
+STATIC hash_idx_t 
+umd_intf_hash(umd_intf_t *intf)
+{
+    return intf->bkdr & (umd.cfg.intfhashsize - 1);
+}
+
+STATIC hash_idx_t
+umd_intf_nhash(hash_node_t *node)
+{
+    umd_intf_t *intf = umd_intf_hx_entry(node);
+    
+    return umd_intf_hash(intf);
+}
+
+STATIC void
+umd_intf_destroy(umd_intf_t *intf)
+{
+    os_free(intf);
+}
+
+STATIC umd_intf_t *
+umd_intf_new(char *ifname, byte mac[])
+{
+    umd_intf_t *intf = (umd_intf_t *)os_zalloc(sizeof(*intf));
+    if (intf) {
+        os_strcpy(intf->name, ifname);
+        os_maccpy(intf->mac, mac);
+
+        umd_intf_dump("create", intf, 0);
+    }
+
+    return intf;
+}
+
+STATIC int
+umd_intf_insert(umd_intf_t *intf)
+{
+    int err = h1_add(&umd.head.intf, &intf->node.intf, umd_intf_nhash);
+
+    return umd_intf_dump(intf, "insert", err);
+}
+
+STATIC int
+umd_intf_remove(umd_intf_t *intf)
+{
+    int err = h1_del(&umd.head.intf, &intf->node.intf);
+
+    return umd_intf_dump(intf, "remove", err);
+}
+
+STATIC umd_intf_t *
+umd_intf_get(byte mac[])
+{
+    static umd_intf_t *last;
+    
+    hash_idx_t hash(void)
+    {
+        return umd_intf_hash(query);
+    }
+    
+    bool eq(hash_node_t *node)
+    {
+        umd_intf_t *intf = umd_intf_hx_entry(node);
+        
+        return umd_intf_eq(query, intf);
+    }
+
+    if (last && umd_intf_eq(last, query)) {
+        return last;
+    }
+    
+    umd_intf_t *found = umd_intf_h1_entry(h1_find(&umd.head.intf, hash, eq));
+    if (found && found != last) {
+        last = found;
+    }
+
+    return found;
 }
 
 umd_intf_t *
-umd_getintf_byserver(sock_server_t *server)
+umd_intf_getEx(char *ifname, byte mac[])
 {
-    return umd_getintf_byid(umd_intf_id(server->id));
+    umd_intf_t *intf = umd_intf_get(mac);
+    if (intf) {
+        return intf;
+    }
+    
+    intf = umd_intf_new(ifname, mac);
+    if (NULL==intf) {
+        return NULL;
+    }
+
+    int err = umd_intf_insert(intf);
+    if (err<0) {
+        umd_intf_destroy(intf);
+
+        return NULL;
+    }
+    
+    return intf;
 }
 /******************************************************************************/
 STATIC int
@@ -55,8 +181,8 @@ umd_init_pre(void)
     umd.ether_type_all = htons(ETH_P_ALL);
 
     for (i=0; i<os_count_of(umd.plan); i++) {
-        umd.plan[i].ip   = inet_addr(umd.plan[i].ipstring);
-        umd.plan[i].mask = inet_addr(umd.plan[i].maskstring);
+        umd.plan[i].ip   = os_ipaddr(umd.plan[i].ipstring);
+        umd.plan[i].mask = os_ipaddr(umd.plan[i].maskstring);
     }
 
     umd.conf = env_gets(OS_ENV(CONF), UMD_CONF);
@@ -79,6 +205,11 @@ umd_init_post(void)
     }
 
     err = h1_init(&umd.head.conn, umd.cfg.connhashsize);
+    if (err<0) {
+        return err;
+    }
+
+    err = h1_init(&umd.head.intf, umd.cfg.intfhashsize);
     if (err<0) {
         return err;
     }

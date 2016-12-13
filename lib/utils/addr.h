@@ -114,10 +114,16 @@ os_ipstring(uint32 ip)
     return (char *)inet_ntoa(in);
 }
 
-static inline bool
-is_good_ipstring(char *ip)
+static inline uint32
+os_ipaddr(char *ipstring)
 {
-    return is_good_str(ip) && INADDR_NONE!=inet_addr(ip);
+    return inet_addr(ipstring);
+}
+
+static inline bool
+is_good_ipstring(char *ipstring)
+{
+    return is_good_str(ipstring) && INADDR_NONE!=inet_addr(ipstring);
 }
 #endif /* __APP__ */
 

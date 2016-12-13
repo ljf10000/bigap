@@ -13,29 +13,14 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 OS_INITER;
 /******************************************************************************/
 typedef struct {
-    char *ipstring;
-    uint32 ip;      /* network sort */
-    int port;       /* network sort */
-} rsh_slot_t;
-
-typedef struct {
-    char *config;       /* local config file */
-    char *cloud;        /* cloud config file */
-    
-    char *basemac;
-    char *request;
-    char *response;
-    
-    int current;        /* current slot */
-    int master;
-    
     struct {
-        int interval;   /* seconds */
+        int interval;
         int times;
     } echo;
-    
-    rsh_slot_t slot[RSH_SLOT_END];
-} rsh_config_t;
+
+    int port;
+    char *server;
+} rsha_config_t;
 
 #define RSH_CONFIG_INITER               {   \
     .echo = {                               \
@@ -137,7 +122,7 @@ load_slot(jobj_t jslot, int slot)
     }
     char *ipstring = jobj_get_string(jip);
     if (is_good_ipstring(ipstring)) {
-        ip = inet_addr(ipstring);
+        ip = os_ipaddr(ipstring);
     } else if (is_local_rsh_slot(slot)) {
         debug_error("bad load slot[%d].ip", slot);
         
@@ -646,9 +631,10 @@ int allinone_main(int argc, char *argv[])
 {
     setup_signal_exit(__exit);
     setup_signal_ignore(NULL);
+    setup_signal_callstack(NULL);
+    
     setup_signal_timer(__signal);
     setup_signal_user(__signal);
-    setup_signal_callstack(NULL);
     
     int err = os_call(__init, __fini, rsha_main_helper, argc, argv);
 

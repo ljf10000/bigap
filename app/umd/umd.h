@@ -15,6 +15,10 @@
 #define UMD_CONNHASHSIZE        PC_VAL(8192, 1024)
 #endif
 
+#ifndef UMD_INTFHASHSIZE
+#define UMD_INTFHASHSIZE        PC_VAL(1024, 256)
+#endif
+
 #ifndef UMD_SYNCABLE
 #define UMD_SYNCABLE            PC_VAL(true, true)
 #endif
@@ -25,6 +29,14 @@
 
 #ifndef UMD_CONNECTABLE
 #define UMD_CONNECTABLE         PC_VAL(false, false)
+#endif
+
+#ifndef UMD_AUTOUSER
+#define UMD_AUTOUSER            PC_VAL(true, true) // todo: default false
+#endif
+
+#ifndef UMD_FAKEABLE
+#define UMD_FAKEABLE            PC_VAL(true, true)
 #endif
 
 #ifndef UMD_CONNPROTOCOL
@@ -77,29 +89,6 @@
 
 #ifndef UMD_IFNAME_INGRESS
 #define UMD_IFNAME_INGRESS      PC_VAL("eth0", "lan0")
-#endif
-
-#if 1
-#define UMD_AUTO_ENUM_MAPPER(_)     \
-    _(UMD_AUTO_NONE, 0, "none"),    \
-    _(UMD_AUTO_BIND, 1, "bind"),    \
-    _(UMD_AUTO_FAKE, 2, "fake"),    \
-    /* end */
-DECLARE_ENUM(umd_user_auto, UMD_AUTO_ENUM_MAPPER, UMD_AUTO_END);
-
-static inline enum_ops_t *umd_user_auto_ops(void);
-static inline bool is_good_umd_user_auto(int id);
-static inline char *umd_user_auto_getnamebyid(int id);
-static inline int umd_user_auto_getidbyname(const char *name);
-
-#define UMD_AUTO_NONE   UMD_AUTO_NONE
-#define UMD_AUTO_BIND   UMD_AUTO_BIND
-#define UMD_AUTO_FAKE   UMD_AUTO_FAKE
-#define UMD_AUTO_END    UMD_AUTO_END
-#endif
-
-#ifndef UMD_AUTOUSER
-#define UMD_AUTOUSER    UMD_AUTO_FAKE
 #endif
 
 #if 1
@@ -359,15 +348,15 @@ enum {
 };
 
 ALWAYS_INLINE int
-umd_intf_id(int server_id)
+umd_ingress_id(int server_id)
 {
     return server_id - UMD_SERVER_END;
 }
 
 ALWAYS_INLINE int
-umd_server_id(int intf_id)
+umd_server_id(int ingress_id)
 {
-    return intf_id + UMD_SERVER_END;
+    return ingress_id + UMD_SERVER_END;
 }
 
 typedef struct {
@@ -377,12 +366,40 @@ typedef struct {
     
     int     auth;   // umd_auth_type_end
     int     mode;   // umd_forward_mode_end
+
+    char    ipaddr[1+OS_IPSTRINGLEN];
+    char    ipmask[1+OS_IPSTRINGLEN];
     
     uint32  index;
     uint32  ip;
     uint32  mask;
     uint32  flag;
-} umd_intf_t;
+
+    bkdr_t  bkdr;
+    
+    struct {
+        h1_node_t intf;
+    } node;
+} 
+umd_intf_t;
+
+extern umd_intf_t *
+umd_intf_getEx(char *ifname, byte mac[]);
+
+typedef umd_intf_t umd_ingress_t;
+
+#if 1
+DECLARE_DB_H1(&umd.head.intf, umd_intf, umd_intf_t, node.intf);
+
+static inline umd_intf_t *
+umd_intf_hx_entry(hash_node_t *node);
+
+static inline umd_intf_t *
+umd_intf_h1_entry(h1_node_t *node);
+
+static inline int
+umd_intf_foreach(mv_t (*foreach)(umd_intf_t *entry), bool safe);
+#endif
 
 #if 1
 #define UMD_AUTH_TYPE_ENUM_MAPPER(_)        \
@@ -446,7 +463,7 @@ static inline int umd_gc_target_getidbyname(const char *name);
 typedef struct {
     struct {
         int count;
-        umd_intf_t *intf;
+        umd_ingress_t *ingress;
     } instance;
     
     char *script_event;
@@ -458,8 +475,9 @@ typedef struct {
     bool    connectable;
     bool    connprotocol;
     bool    promisc;
+    bool    autouser;
+    bool    fakeable;
     
-    uint32  autouser;
     uint32  gcuser;
     uint32  gcconn;
     uint32  sniff_count;
@@ -469,6 +487,7 @@ typedef struct {
     uint32  machashsize;
     uint32  iphashsize;
     uint32  connhashsize;
+    uint32  intfhashsize;
 }
 umd_config_t;
 
@@ -479,6 +498,8 @@ umd_config_t;
     _(&umd.cfg, bool,   syncable,           UMD_SYNCABLE)       \
     _(&umd.cfg, bool,   reauthable,         UMD_REAUTHABLE)     \
     _(&umd.cfg, bool,   connectable,        UMD_CONNECTABLE)    \
+    _(&umd.cfg, bool,   autouser,           UMD_AUTOUSER)       \
+    _(&umd.cfg, bool,   fakeable,           UMD_FAKEABLE)       \
     _(&umd.cfg, bool,   connprotocol,       UMD_CONNPROTOCOL)   \
     _(&umd.cfg, bool,   promisc,            UMD_PROMISC)        \
     _(&umd.cfg, u32,    gcuser,             UMD_GCUSER)         \
@@ -490,7 +511,7 @@ umd_config_t;
     _(&umd.cfg, u32,    machashsize,        UMD_MACHASHSIZE)    \
     _(&umd.cfg, u32,    iphashsize,         UMD_IPHASHSIZE)     \
     _(&umd.cfg, u32,    connhashsize,       UMD_CONNHASHSIZE)   \
-    _(&umd.cfg, u32,    autouser,           UMD_AUTOUSER)       \
+    _(&umd.cfg, u32,    intfhashsize,       UMD_CONNHASHSIZE)   \
     /* end */
 
 #define UMD_CFG_INITER      JOBJ_MAP_INITER(UMD_CFG_JMAPPER)
@@ -534,6 +555,7 @@ typedef struct {
     struct {
         h2_table_t user;
         h1_table_t conn;
+        h1_table_t intf;
     } head;
     
     loop_t loop;
@@ -549,17 +571,17 @@ umd_control_t;
 
 extern umd_control_t umd;
 
-extern umd_intf_t *
-umd_getintf_byid(int intf_id);
+extern umd_ingress_t *
+umd_getingress_byid(int ingress_id);
 
 extern sock_server_t *
 umd_getserver_byid(int server_id);
 
 extern sock_server_t *
-umd_getserver_byintf(umd_intf_t *intf);
+umd_getserver_byingress(umd_ingress_t *ingress);
 
-extern umd_intf_t *
-umd_getintf_byserver(sock_server_t *server);
+extern umd_ingress_t *
+umd_getingress_byserver(sock_server_t *server);
 
 typedef struct {
     int state;
@@ -694,7 +716,7 @@ static inline int umd_conn_dir_getidbyname(const char *name);
 typedef struct {
     byte smac[OS_MACSIZE];
     byte protocol;
-    byte intf_id;
+    byte ingress_id;
     
     byte dmac[OS_MACSIZE];
     byte suser;             // source is user
@@ -709,8 +731,6 @@ typedef struct {
     
     time_t hit;
     bkdr_t bkdr;
-
-    umd_intf_t *intf;
 
     struct {
         h1_node_t conn;

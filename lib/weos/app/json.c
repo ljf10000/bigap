@@ -704,7 +704,7 @@ jrule_ip_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     jobj_t jval = jobj_get(jobj, rule->name);
     uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
 
-    *member = inet_addr(jobj_get_string(jval));
+    *member = os_ipaddr(jobj_get_string(jval));
 
     return 0;
 }

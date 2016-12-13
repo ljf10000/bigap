@@ -354,7 +354,7 @@ jlogd_init_env(void)
             return err;
         }
         
-        ip = inet_addr(ipaddress);
+        ip = os_ipaddr(ipaddress);
         if (INADDR_NONE==ip) {
             return -EFORMAT;
         }

@@ -508,7 +508,7 @@ __jlog_init(void)
                 __debug_ok("get jlog ip:%s", ipaddress);
             }
 
-            ip = inet_addr(ipaddress);
+            ip = os_ipaddr(ipaddress);
             if (INADDR_NONE==ip) {
                 return -EFORMAT;
             }

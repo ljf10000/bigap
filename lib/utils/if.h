@@ -60,6 +60,12 @@ intf_get_ip(char *ifname, uint32 *ip);
 
 extern int
 intf_get_netmask(char *ifname, uint32 *mask);
+
+extern int
+intf_foreach(mv_t (*foreach)(char *ifname));
+
+extern int
+intf_foreachEx(mv_t (*foreach)(char *ifname));
 /******************************************************************************/
 #endif
 #endif /* __IF_H_d2aee259b0af4f9f935ac914816d9ec9__ */

@@ -79,7 +79,7 @@ enum { INVALID_AKID = 0};
     _(____ak_debug_cli,         22,"cli"),      \
     _(____ak_debug_loop,        23,"loop"),     \
     _(____ak_debug_conn,        24,"conn"),     \
-    _(____ak_debug_r2,          25,"r2"),       \
+    _(____ak_debug_intf,        24,"intf"),     \
     _(____ak_debug_r3,          26,"r3"),       \
     _(____ak_debug_r4,          27,"r4"),       \
     _(____ak_debug_test,        28,"test"),     \
@@ -119,6 +119,7 @@ enum {
     __ak_debug_cli          = os_bit(____ak_debug_cli),
     __ak_debug_loop         = os_bit(____ak_debug_loop),
     __ak_debug_conn         = os_bit(____ak_debug_conn),
+    __ak_debug_intf         = os_bit(____ak_debug_intf),
     __ak_debug_test         = os_bit(____ak_debug_test),
 
     __ak_debug_all          = os_mask(____ak_debug_end),

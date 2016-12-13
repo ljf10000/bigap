@@ -227,7 +227,7 @@ nsq_resolve(nsq_instance_t *instance)
     
     debug_proto("instance[%s] resolve ...", instance->name);
     
-    uint32 ip = inet_addr(instance->domain);
+    uint32 ip = os_ipaddr(instance->domain);
     if (INADDR_NONE != ip) {
         instance->server.sin_addr.s_addr = ip;
     } else {

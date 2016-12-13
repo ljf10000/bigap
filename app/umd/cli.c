@@ -91,7 +91,7 @@ umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), int argc, char *
         return cli_help(-EFORMAT);
     }
 
-    umd_user_t *user = (*handle)(os_mac(mac), inet_addr(ip));
+    umd_user_t *user = (*handle)(os_mac(mac), os_ipaddr(ip));
     if (NULL==user) {
         return -ENOEXIST;
     }
@@ -193,7 +193,7 @@ umd_handle_unbind(cli_table_t *table, int argc, char *argv[])
 STATIC int
 umd_handle_fake(cli_table_t *table, int argc, char *argv[])
 {
-    if (UMD_AUTO_FAKE==umd.cfg.autouser) {
+    if (UMD_FAKEABLE==umd.cfg.fakeable) {
         return umd_handle_mac_ip(umd_user_fake, argc, argv);
     } else {
         return -ENOSUPPORT;
@@ -206,7 +206,7 @@ umd_handle_fake(cli_table_t *table, int argc, char *argv[])
 STATIC int
 umd_handle_unfake(cli_table_t *table, int argc, char *argv[])
 {
-    if (UMD_AUTO_FAKE==umd.cfg.autouser) {
+    if (UMD_FAKEABLE==umd.cfg.fakeable) {
         return umd_handle_mac(umd_user_unfake, argc, argv);
     } else {
         return -ENOSUPPORT;
@@ -332,7 +332,7 @@ umd_show_user_byjson(char *json)
             err = cli_help(-EBADIP); goto error;
         }
 
-        user = umd_user_getbyip(inet_addr(string));
+        user = umd_user_getbyip(os_ipaddr(string));
     }
     else {
         err = cli_help(-EFILTER); goto error;

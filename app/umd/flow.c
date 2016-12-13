@@ -94,27 +94,13 @@ umd_add_flow_dev(int flow_type, int flow_dir)
 STATIC bool
 umd_is_dev_mac(byte mac[])
 {
+    umd_ingress_t *ingress;
     int i;
 
     for (i=0; i<umd.cfg.instance.count; i++) {
-        if (os_maceq(mac, umd_getintf_byid(i)->mac)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-STATIC bool
-umd_is_dev_ip(uint32 ip)
-{
-    umd_intf_t *intf;
-    int i;
-
-    for (i=0; i<umd.cfg.instance.count; i++) {
-        intf = umd_getintf_byid(i);
+        ingress = umd_getingress_byid(i);
         
-        if (ip==intf->ip) {
+        if (os_maceq(mac, ingress->mac)) {
             return true;
         }
     }
@@ -125,9 +111,9 @@ umd_is_dev_ip(uint32 ip)
 STATIC bool
 umd_is_user_ip(uint32 ip)
 {
-    umd_intf_t *intf = umd_getintf_byid(conn.intf_id);
+    umd_ingress_t *ingress = umd_getingress_byid(conn.ingress_id);
     
-    return (ip & intf->mask)==(intf->ip & intf->mask);
+    return (ip & ingress->mask)==(ingress->ip & ingress->mask);
 }
 
 STATIC bool
@@ -333,53 +319,53 @@ umd_conn_init(umd_conn_t *cn, struct ether_header *eth, struct ip *iph, time_t n
 STATIC void
 umd_conn_clean(umd_conn_t *cn, sock_server_t *server)
 {
-    cn->intf_id     = umd_intf_id(server->id);
+    cn->ingress_id  = umd_ingress_id(server->id);
     cn->conn_dir    = umd_conn_dir_end;
     cn->flow_dir    = umd_flow_dir_end;
     cn->flow_type   = umd_flow_type_end;
 }
 
 STATIC int
-umd_conn_dir(uint32 sip, uint32 dip)
+umd_conn_dir(umd_conn_t *cn)
 {
-    if (umd_is_dev_ip(sip)) {
-        if (umd_is_dev_ip(dip)) {
+    if (umd_is_dev_mac(cn->smac)) {
+        if (umd_is_dev_mac(cn->dmac)) {
             return umd_conn_dir_dev2dev;
-        } else if (umd_is_user_ip(dip)) {
+        } else if (umd_is_user_ip(cn->dip)) {
             return umd_conn_dir_dev2user;            
-        } else if (umd_is_lan_ip(dip)) {
+        } else if (umd_is_lan_ip(cn->dip)) {
             return umd_conn_dir_dev2lan;
-        } else { /* dip is wan */
+        } else { /* cn->dip is wan */
             return umd_conn_dir_dev2wan;
         }
-    } else if (umd_is_user_ip(sip)) {
-        if (umd_is_dev_ip(dip)) {
+    } else if (umd_is_user_ip(cn->cn->sip)) {
+        if (umd_is_dev_mac(cn->dmac)) {
             return umd_conn_dir_user2dev;
-        } else if (umd_is_user_ip(dip)) {
+        } else if (umd_is_user_ip(cn->dip)) {
             return umd_conn_dir_user2user;
-        } else if (umd_is_lan_ip(dip)) {
+        } else if (umd_is_lan_ip(cn->dip)) {
             return umd_conn_dir_user2lan;
-        } else { /* dip is wan */
+        } else { /* cn->dip is wan */
             return umd_conn_dir_user2wan;
         }
-    } else if (umd_is_lan_ip(sip)) {
-        if (umd_is_dev_ip(dip)) {
+    } else if (umd_is_lan_ip(cn->cn->sip)) {
+        if (umd_is_dev_mac(cn->dmac)) {
             return umd_conn_dir_lan2dev;
-        } else if (umd_is_user_ip(dip)) {
+        } else if (umd_is_user_ip(cn->dip)) {
             return umd_conn_dir_lan2dev;
-        } else if (umd_is_lan_ip(dip)) {
+        } else if (umd_is_lan_ip(cn->dip)) {
             return umd_conn_dir_lan2lan;
-        } else { /* dip is wan */
+        } else { /* cn->dip is wan */
             return umd_conn_dir_lan2wan;
         }
-    } else { /* sip is wan */
-        if (umd_is_dev_ip(dip)) {
+    } else { /* cn->sip is wan */
+        if (umd_is_dev_mac(cn->dmac)) {
             return umd_conn_dir_wan2dev;
-        } else if (umd_is_user_ip(dip)) {
+        } else if (umd_is_user_ip(cn->dip)) {
             return umd_conn_dir_wan2user;
-        } else if (umd_is_lan_ip(dip)) {
+        } else if (umd_is_lan_ip(cn->dip)) {
             return umd_conn_dir_wan2lan;
-        } else { /* dip is wan */
+        } else { /* cn->dip is wan */
             return umd_conn_dir_wan2wan;
         }
     }
@@ -579,7 +565,7 @@ umd_conn_update(umd_conn_t *cn, time_t now)
 
     cn->hit = now;
     if (false==is_good_umd_conn_dir(cn->conn_dir)) {
-        cn->conn_dir = umd_conn_dir(cn->sip, cn->dip);
+        cn->conn_dir = umd_conn_dir(cn);
     }
     
     return (*handler[cn->conn_dir])(cn);
@@ -670,9 +656,9 @@ umd_pkt_handle(sock_server_t *server, time_t now)
 STATIC int
 umd_intf_handle(sock_server_t *server, time_t now)
 {
-    umd_intf_t *intf = umd_getintf_byid(conn.intf_id);
+    umd_ingress_t *ingress = umd_getingress_byid(conn.ingress_id);
     
-    if (server->addr.ll.sll_ifindex == intf->index) {
+    if (server->addr.ll.sll_ifindex == ingress->index) {
         return 0;
     } else {
         return -EBADIDX;
@@ -928,22 +914,16 @@ umd_conn_handle(umd_conn_t *cn)
     uint32 userip = umd_conn_userip(cn);
     
     user = umd_user_get(usermac);
+    if (NULL==user && umd.cfg.autouser) {
+        if (umd.cfg.fakeable) {
+            user = umd_user_fake(usermac, userip);
+        } else {
+            user = umd_user_bind(usermac, userip);
+        }
+    }
+
     if (NULL==user) {
-        switch(umd.cfg.autouser) {
-            case UMD_AUTO_BIND:
-                user = umd_user_bind(usermac, userip);
-                break;
-            case UMD_AUTO_FAKE:
-                user = umd_user_fake(usermac, userip);
-                break;
-            case UMD_AUTO_NONE:
-            default:
-                break;
-        }
-        
-        if (NULL==user) {
-            return -ENOEXIST;
-        }
+        return -ENOEXIST;
     }
 
     user->hitime = time(NULL);
@@ -1055,12 +1035,12 @@ umd_flow_server_init(sock_server_t *server)
     os_closexec(fd);
     os_noblock(fd);
 
-    umd_intf_t *intf = umd_getintf_byserver(server);
+    umd_ingress_t *ingress = umd_getingress_byserver(server);
 
     sockaddr_ll_t addr = {
         .sll_family     = AF_PACKET,
         .sll_protocol   = umd.ether_type_all,
-        .sll_ifindex    = intf->index,
+        .sll_ifindex    = ingress->index,
     };
 
     err = bind(fd, (sockaddr_t *)(&addr), sizeof(addr));
@@ -1074,7 +1054,7 @@ umd_flow_server_init(sock_server_t *server)
 
     err = os_loop_add_normal(&umd.loop, fd, umd_flower, server);
     if (err<0) {
-        debug_error("add loop intf %s flow error:%d", intf->name, err);
+        debug_error("add loop intf %s flow error:%d", ingress->name, err);
 
         return err;
     }

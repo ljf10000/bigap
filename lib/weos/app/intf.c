@@ -2,7 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 int
-__intf_ioctl(int cmd, char *action, struct ifreq *ifr)
+intf_ioctl(int cmd, char *action, char *name, void *user)
 {
     int fd = INVALID_FD, err = 0;
 
@@ -10,16 +10,16 @@ __intf_ioctl(int cmd, char *action, struct ifreq *ifr)
     if (false==is_good_fd(fd)) {
         err = -errno;
         
-        debug_error("intf %s socket error:%d", ifr->ifr_name, err);
+        debug_error("intf %s socket error:%d", name, err);
         
         goto error;
     }
 
-    err = ioctl(fd, cmd, ifr);
+    err = ioctl(fd, cmd, user);
     if (err<0) {
         err = -errno;
         
-        debug_error("intf %s ioctl %d:%s error:%d", ifr->ifr_name, cmd, action, err);
+        debug_error("intf %s ioctl %d:%s error:%d", name, cmd, action, err);
         
         goto error;
     }
@@ -38,7 +38,7 @@ intf_get_flag(char *ifname, int *flag)
 
     os_strcpy(ifr.ifr_name, ifname);
 
-    err = __intf_ioctl(SIOCGIFFLAGS, "get-flag", &ifr);
+    err = intf_ioctl(SIOCGIFFLAGS, "get-flag", ifr.ifr_name, &ifr);
     if (err<0) {
         return err;
     }
@@ -57,7 +57,7 @@ intf_set_flag(char *ifname, int flag)
     os_strcpy(ifr.ifr_name, ifname);
     ifr.ifr_flags = flag;
 
-    return __intf_ioctl(SIOCSIFFLAGS, "set-flag", &ifr);
+    return intf_ioctl(SIOCSIFFLAGS, "set-flag", ifr.ifr_name, &ifr);
 }
 
 int
@@ -138,7 +138,7 @@ intf_get_mtu(char *ifname, int *mtu)
 
     os_strcpy(ifr.ifr_name, ifname);
 
-    err = __intf_ioctl(SIOCGIFMTU, "get-mtu", &ifr);
+    err = intf_ioctl(SIOCGIFMTU, "get-mtu", ifr.ifr_name, &ifr);
     if (err<0) {
         return err;
     }
@@ -157,7 +157,7 @@ intf_set_mtu(char *ifname, int mtu)
     os_strcpy(ifr.ifr_name, ifname);
     ifr.ifr_mtu = mtu;
     
-    return __intf_ioctl(SIOCSIFMTU, "set-mtu", &ifr);
+    return intf_ioctl(SIOCSIFMTU, "set-mtu", ifr.ifr_name, &ifr);
 }
 
 int
@@ -168,7 +168,7 @@ intf_get_mac(char *ifname, byte mac[])
 
     os_strcpy(ifr.ifr_name, ifname);
 
-    err = __intf_ioctl(SIOCGIFHWADDR, "get-mac", &ifr);
+    err = intf_ioctl(SIOCGIFHWADDR, "get-mac", ifr.ifr_name, &ifr);
     if (err<0) {
         return err;
     }
@@ -187,7 +187,7 @@ intf_set_mac(char *ifname, byte mac[])
     os_strcpy(ifr.ifr_name, ifname);
     os_maccpy((byte *)ifr.ifr_hwaddr.sa_data, mac);
 
-    return __intf_ioctl(SIOCSIFHWADDR, "set-mac", &ifr);
+    return intf_ioctl(SIOCSIFHWADDR, "set-mac", ifr.ifr_name, &ifr);
 }
 
 int
@@ -198,7 +198,7 @@ intf_get_ip(char *ifname, uint32 *ip)
 
     os_strcpy(ifr.ifr_name, ifname);
 
-    err = __intf_ioctl(SIOCGIFADDR, "get-ip", &ifr);
+    err = intf_ioctl(SIOCGIFADDR, "get-ip", ifr.ifr_name, &ifr);
     if (err<0) {
         return err;
     }
@@ -216,7 +216,7 @@ intf_get_netmask(char *ifname, uint32 *mask)
 
     os_strcpy(ifr.ifr_name, ifname);
 
-    err = __intf_ioctl(SIOCGIFNETMASK, "get-netmask", &ifr);
+    err = intf_ioctl(SIOCGIFNETMASK, "get-netmask", ifr.ifr_name, &ifr);
     if (err<0) {
         return err;
     }
@@ -224,5 +224,67 @@ intf_get_netmask(char *ifname, uint32 *mask)
     *mask = ((sockaddr_in_t *)&ifr.ifr_addr)->sin_addr.s_addr;
     
     return 0;
+}
+
+int
+intf_foreach(mv_t (*foreach)(char *ifname))
+{
+    struct ifconf conf;
+    struct ifreq *ifr;
+    char buff[BUFSIZ];
+    int i, err, count;
+    mv_u mv;
+    
+    conf.ifc_buf = buff;
+    conf.ifc_len = sizeof(buff);
+
+    err = intf_ioctl(SIOCGIFCONF, "get-conf", "global", &conf);
+    if (err<0) {
+        return err;
+    }
+
+    count = conf.ifc_len/sizeof(struct ifreq);
+    
+    for (i=0, ifr=conf.ifc_req; 
+        i<count; 
+        i++, ifr++) {
+        if (foreach) {
+            mv.v = (*foreach)(ifr->ifr_name);
+            if (is_mv2_break(mv.v)) {
+                return mv2_break(mv.v);
+            }
+        }
+    }
+    
+    return 0;
+}
+
+int
+intf_foreachEx(bool skip_loopback, mv_t (*foreach)(char *ifname))
+{
+    int flag;
+    
+    mv_t cb(char *name)
+    {
+        int ret = intf_get_flag(name, &flag);
+        if (ret<0) {
+            return mv2_go(ret);
+        }
+        else if (os_hasflag(flag, IFF_LOOPBACK)) {
+            return mv2_ok;
+        }
+        else if (foreach) {
+            return (*foreach)(name);
+        }
+        else {
+            return mv2_ok;
+        }
+    }
+
+    if (skip_loopback) {
+        return intf_foreach(cb);
+    } else {
+        return intf_foreach(foreach);
+    }
 }
 /******************************************************************************/

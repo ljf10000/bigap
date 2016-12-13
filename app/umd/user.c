@@ -137,14 +137,14 @@ umd_update_limit(umd_user_t *user, jobj_t obj)
 void umd_update_limit_test(void)
 {
 #if UM_TEST & UM_TEST_JSON
-    umd_intf_t *intf = &umd.cfg.instance.intf[0];
+    umd_ingress_t *ingress = &umd.cfg.instance.ingress[0];
     umd_user_t user = {
-        .ip = intf->ip,
+        .ip = ingress->ip,
         .head = { 
-            .tag    = DLIST_INITER(user.head.tag),
+            .tag = DLIST_INITER(user.head.tag),
         },
     };
-    os_maccpy(user.mac, intf->mac);
+    os_maccpy(user.mac, ingress->mac);
     
     jobj_t obj = jobj_byfile("./auth.json");
     if (NULL==obj) {
@@ -868,7 +868,7 @@ __umduser_auth(umd_user_t *user, int group, jobj_t obj, umd_event_cb_t *ev)
             return NULL;
         } else {
             // bind user @none
-            __umduser_bind(user, inet_addr(ipaddress), __umduser_ev);
+            __umduser_bind(user, os_ipaddr(ipaddress), __umduser_ev);
         }
     }
     
