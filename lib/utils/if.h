@@ -65,7 +65,7 @@ extern int
 intf_foreach(mv_t (*foreach)(char *ifname));
 
 extern int
-intf_foreachEx(mv_t (*foreach)(char *ifname));
+intf_foreachEx(bool skip_loopback, mv_t (*foreach)(char *ifname));
 /******************************************************************************/
 #endif
 #endif /* __IF_H_d2aee259b0af4f9f935ac914816d9ec9__ */
