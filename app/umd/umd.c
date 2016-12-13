@@ -49,10 +49,6 @@ umd_intf_dump(umd_intf_t *intf, char *action, int err)
         os_macstring(intf->mac),
         err);
 
-    ak_println("__THIS_DEBUG=0x%x", __THIS_DEBUG);
-    ak_println("__ak_debugger=0x%x", __ak_debugger);
-    ak_println("__is_ak_debug_intf=%d", __is_ak_debug_intf);
-    
     return err;
 }
 
