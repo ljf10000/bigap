@@ -102,7 +102,7 @@ umd_intf_remove(umd_intf_t *intf)
     return umd_intf_dump(intf, "remove", err);
 }
 
-STATIC umd_intf_t *
+umd_intf_t *
 umd_intf_get(byte mac[])
 {
     static umd_intf_t *last;

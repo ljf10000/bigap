@@ -94,18 +94,7 @@ umd_add_flow_dev(int flow_type, int flow_dir)
 STATIC bool
 umd_is_dev_mac(byte mac[])
 {
-    umd_ingress_t *ingress;
-    int i;
-
-    for (i=0; i<umd.cfg.instance.count; i++) {
-        ingress = umd_getingress_byid(i);
-        
-        if (os_maceq(mac, ingress->mac)) {
-            return true;
-        }
-    }
-
-    return false;
+    return !!umd_intf_get(mac);
 }
 
 STATIC bool

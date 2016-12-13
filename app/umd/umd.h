@@ -383,6 +383,9 @@ umd_intf_t;
 
 typedef umd_intf_t umd_ingress_t;
 
+extern umd_intf_t *
+umd_intf_get(byte mac[]);
+
 #if 1
 #define UMD_AUTH_TYPE_ENUM_MAPPER(_)        \
     _(umd_auth_type_none,   0, "none"),     \
