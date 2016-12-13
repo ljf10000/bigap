@@ -218,11 +218,6 @@ int umd_init_cfg(void)
         return err;
     }
 
-    err = umd_init_cfg_intf();
-    if (err<0) {
-        return err;
-    }
-
     jobj_put(jobj);
     
     return 0;
