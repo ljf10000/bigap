@@ -207,9 +207,8 @@ umd_init_cfg_instance(jobj_t jcfg)
 STATIC int
 umd_init_cfg_intf(void)
 {
-    mv_t foreach(struct ifreq *ifr)
+    mv_t foreach(char *ifname)
     {
-        char *ifname = ifr->ifr_name;
         byte mac[OS_MACSIZE];
         
         int err = intf_get_mac(ifname, mac);
@@ -230,17 +229,19 @@ umd_init_cfg_intf(void)
 
 int umd_init_cfg(void)
 {
+    int err;
+    
     jobj_t jobj = JOBJ_MAPFILE(umd.conf, UMD_CFG_JMAPPER);
     if (NULL==jobj) {
         return -EBADCONF;
     }
 
-    int err = umd_init_cfg_instance(jobj);
+    err = umd_init_cfg_instance(jobj);
     if (err<0) {
         return err;
     }
 
-    int err = umd_init_cfg_intf();
+    err = umd_init_cfg_intf();
     if (err<0) {
         return err;
     }
