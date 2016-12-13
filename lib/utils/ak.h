@@ -210,6 +210,7 @@ extern akid_t __THIS_JDEBUG;
 #define __is_ak_debug_cli       __is_ak_debug(__ak_debug_cli)
 #define __is_ak_debug_loop      __is_ak_debug(__ak_debug_loop)
 #define __is_ak_debug_conn      __is_ak_debug(__ak_debug_conn)
+#define __is_ak_debug_intf      __is_ak_debug(__ak_debug_intf)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
 #if 1
