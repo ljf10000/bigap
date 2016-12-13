@@ -131,129 +131,10 @@ __jlog_header(
     __jlog_printf(__THIS_APPNAME, _sub, __THIS_FILENAME, __func__, __LINE__, _PRI, _fmt, ##_args)
 
 #ifdef __APP__
-typedef struct {
-    int family;
-    int fd;
-    bool inited;
-    
-    os_sockaddr_t server;
-} jlog_control_t;
-
-#define JLOG_CONTROL_INITER   { \
-    .family = INVALID_VALUE,    \
-    .fd     = INVALID_FD,       \
-}   /* end */
-
-extern jlog_control_t *
-__this_jlogger(void);
-
-static inline sockaddr_un_t *
-__jlog_userver(void)
-{
-    return &__this_jlogger()->server.un;
-}
-
-static inline sockaddr_in_t *
-__jlog_iserver(void)
-{
-    return &__this_jlogger()->server.in;
-}
-
-static inline sockaddr_t *
-__jlog_server(void)
-{
-    return &__this_jlogger()->server.c;
-}
-
-extern jobj_t
-__jlog_add_header(
-    jobj_t obj, 
-    const char *app, 
-    const char *sub, 
-    const char *type,
-    const char *file, 
-    const char *func, 
-    uint32 line, 
-    uint32 PRI
-);
-
-extern int
-__jlog_socket(const char *app, const char *sub, int family);
-
-static inline int
-__jlog(jobj_t obj, const char *app, const char *sub, uint32 PRI)
-{
-    int fd, len, err;
-    
-    char *json = NULL;
-    
-    if (NULL==obj) {
-        __debug_error("nil obj");
-        
-        return -EINVAL0;
-    }
-
-    json = jobj_json(obj);
-    if (NULL==json) {
-        __debug_error("__jlog obj==>json failed");
-        
-        return -ENOMEM;
-    }
-
-    if (LOG_DEBUG==LOG_PRI(PRI) && __is_ak_debug(JLOG_LEVEL(PRI))) {
-        os_eprintln(__tab "%s", json);
-    }
-    
-    len = os_strlen(json);
-    if (len<=0) {
-        __debug_error("__jlog obj==>json(bad)");
-        
-        return -EINVAL1;
-    }
-    
-    bool try = false;
-    int family = __this_jlogger()->family;
-    
-try_again:
-    fd = __jlog_socket(app, sub, family);
-    if (false==is_good_fd(fd)) {
-        return fd;
-    }
-
-#if USE_JLOG_CONNECT
-    err = send(fd, json, len, 0);
-#else
-    err = sendto(fd, json, len, 0, __jlog_server(), os_sockaddr_len(__jlog_userver()));
-#endif
-    if (false==try && EBADF==err) {
-        /*
-        * if jlogd re-start
-        *   re-create client socket
-        */
-        try = true;
-
-        __this_jlogger()->fd = INVALID_FD;
-        
-        goto try_again;
-    }
-    else if (err<0) { /* yes, <0 */
-        __debug_trace("__jlog write error:%d", -errno);
-        
-        return -errno;
-    }
-    else if (err != len) {
-        __debug_trace("__jlog write count(%d) < length(%d)", err, len);
-        
-        return -EIO;
-    }
-    
-    return 0;
-}
-
 /*
 * v: as vsprintf
 */
-static inline int
+static inline int // must inline
 __jvlogger(
     const char *app, 
     const char *sub, 
@@ -263,33 +144,12 @@ __jvlogger(
     uint32 PRI, 
     const char *fmt, 
     va_list args
-)
-{
-    jobj_t obj = NULL;
-    int err;
-    
-    obj = __jlog_add_header(NULL, app, sub, JLOG_KEY_TYPE_C, file, func, line, PRI);
-    if (NULL==obj) {
-        err = -ENOMEM; goto error;
-    }
-    
-    err = jobj_vprintf(obj, fmt, args);
-    if (err<0) {
-        goto error;
-    }
-    
-    err = __jlog(obj, app, sub, PRI);
-
-error:
-    jobj_put(obj);
-
-    return err;
-}
+);
 
 /*
 * v: as vsprintf
 */
-static inline int
+static inline int // must inline
 __dvlogger(
     const char *app, 
     const char *sub, 
@@ -299,30 +159,9 @@ __dvlogger(
     uint32 PRI, 
     const char *fmt, 
     va_list args
-)
-{
-    jobj_t obj = NULL;
-    int err;
-    
-    obj = __jlog_add_header(NULL, app, sub, JLOG_KEY_TYPE_C, file, func, line, PRI);
-    if (NULL==obj) {
-        err = -ENOMEM; goto error;
-    }
+);
 
-    err = jobj_vsprintf(obj, "__debugger__", fmt, args);
-    if (err<0) {
-        goto error;
-    }
-    
-    err = __jlog(obj, app, sub, PRI);
-
-error:
-    jobj_put(obj);
-    
-    return err;
-}
-
-static inline int
+static inline int // must inline
 __jlogger(
     const char *app, 
     const char *sub, 
@@ -332,19 +171,9 @@ __jlogger(
     uint32 PRI, 
     const char *fmt, 
     ...
-)
-{
-    int err = 0;
-    va_list args;
-    
-    va_start(args, (char *)fmt);
-    err = __jvlogger(app, sub, file, func, line, PRI, fmt, args);
-    va_end(args);
-    
-    return err;
-}
+);
 
-static inline int
+static inline int // must inline
 __dlogger(
     const char *app, 
     const char *sub, 
@@ -354,22 +183,12 @@ __dlogger(
     uint32 PRI, 
     const char *fmt, 
     ...
-)
-{
-    int err = 0;
-    va_list args;
-    
-    va_start(args, (char *)fmt);
-    err = __dvlogger(app, sub, file, func, line, PRI, fmt, args);
-    va_end(args);
-    
-    return err;
-}
+);
 
 /*
 * c: by command
 */
-static inline int
+static inline int // must inline
 __clogger(
     const char *app, 
     const char *sub, 
@@ -378,32 +197,12 @@ __clogger(
     uint32 line,
     uint32 PRI,
     char *json
-)
-{
-    jobj_t obj = NULL;
-    int err;
-
-    obj = jobj_byjson(json);
-    if (NULL==obj) {
-        err = -EBADJSON; goto error;
-    }
-
-    obj = __jlog_add_header(obj, app, sub, JLOG_KEY_TYPE_SH, file, func, line, PRI);
-    if (NULL==obj) {
-        err = -EFORMAT; goto error;
-    }
-    
-    err = __jlog(obj, app, sub, PRI);
-error:
-    jobj_put(obj);
-
-    return err;
-}
+);
 
 /*
 * by command
 */
-extern int
+static inline int
 __jformat(
     const char *app, 
     const char *sub, 
@@ -422,7 +221,7 @@ __jlog_close(void);
 extern int
 __jlog_init(void);
 
-static inline int
+static inline int // must inline
 jlog_init(void)
 {
     int err;
@@ -437,7 +236,7 @@ jlog_init(void)
     return 0;
 }
 
-static inline void
+static inline void // must inline
 jlog_fini(void)
 {
 #ifndef __JLOGD__
@@ -707,5 +506,314 @@ jlog_fini(void)
 
 #define error_assertV(_value, _fmt, _args...)   \
     __debug_assertV(_value, debug_error, _fmt, ##_args)
+
+
+#ifdef __APP__
+typedef struct {
+    int family;
+    int fd;
+    bool inited;
+    
+    os_sockaddr_t server;
+} jlog_control_t;
+
+#define JLOG_CONTROL_INITER   { \
+    .family = INVALID_VALUE,    \
+    .fd     = INVALID_FD,       \
+}   /* end */
+
+extern jlog_control_t *
+__this_jlogger(void);
+
+static inline sockaddr_un_t *
+__jlog_userver(void)
+{
+    return &__this_jlogger()->server.un;
+}
+
+static inline sockaddr_in_t *
+__jlog_iserver(void)
+{
+    return &__this_jlogger()->server.in;
+}
+
+static inline sockaddr_t *
+__jlog_server(void)
+{
+    return &__this_jlogger()->server.c;
+}
+
+extern jobj_t
+__jlog_add_header(
+    jobj_t obj, 
+    const char *app, 
+    const char *sub, 
+    const char *type,
+    const char *file, 
+    const char *func, 
+    uint32 line, 
+    uint32 PRI
+);
+
+extern int
+__jlog_socket(const char *app, const char *sub, int family);
+
+static inline int // must inline
+__jlog(jobj_t obj, const char *app, const char *sub, uint32 PRI)
+{
+    int fd, len, err;
+    
+    char *json = NULL;
+    
+    if (NULL==obj) {
+        __debug_error("nil obj");
+        
+        return -EINVAL0;
+    }
+
+    json = jobj_json(obj);
+    if (NULL==json) {
+        __debug_error("__jlog obj==>json failed");
+        
+        return -ENOMEM;
+    }
+
+    if (LOG_DEBUG==LOG_PRI(PRI) && __is_ak_debug(JLOG_LEVEL(PRI))) {
+        os_eprintln(__tab "%s", json);
+    }
+    
+    len = os_strlen(json);
+    if (len<=0) {
+        __debug_error("__jlog obj==>json(bad)");
+        
+        return -EINVAL1;
+    }
+    
+    bool try = false;
+    int family = __this_jlogger()->family;
+    
+try_again:
+    fd = __jlog_socket(app, sub, family);
+    if (false==is_good_fd(fd)) {
+        return fd;
+    }
+
+#if USE_JLOG_CONNECT
+    err = send(fd, json, len, 0);
+#else
+    err = sendto(fd, json, len, 0, __jlog_server(), os_sockaddr_len(__jlog_userver()));
+#endif
+    if (false==try && EBADF==err) {
+        /*
+        * if jlogd re-start
+        *   re-create client socket
+        */
+        try = true;
+
+        __this_jlogger()->fd = INVALID_FD;
+        
+        goto try_again;
+    }
+    else if (err<0) { /* yes, <0 */
+        __debug_trace("__jlog write error:%d", -errno);
+        
+        return -errno;
+    }
+    else if (err != len) {
+        __debug_trace("__jlog write count(%d) < length(%d)", err, len);
+        
+        return -EIO;
+    }
+    
+    return 0;
+}
+
+/*
+* v: as vsprintf
+*/
+static inline int // must inline
+__jvlogger(
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32 line, 
+    uint32 PRI, 
+    const char *fmt, 
+    va_list args
+)
+{
+    jobj_t obj = NULL;
+    int err;
+    
+    obj = __jlog_add_header(NULL, app, sub, JLOG_KEY_TYPE_C, file, func, line, PRI);
+    if (NULL==obj) {
+        err = -ENOMEM; goto error;
+    }
+    
+    err = jobj_vprintf(obj, fmt, args);
+    if (err<0) {
+        goto error;
+    }
+    
+    err = __jlog(obj, app, sub, PRI);
+
+error:
+    jobj_put(obj);
+
+    return err;
+}
+
+/*
+* v: as vsprintf
+*/
+static inline int // must inline
+__dvlogger(
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32 line, 
+    uint32 PRI, 
+    const char *fmt, 
+    va_list args
+)
+{
+    jobj_t obj = NULL;
+    int err;
+    
+    obj = __jlog_add_header(NULL, app, sub, JLOG_KEY_TYPE_C, file, func, line, PRI);
+    if (NULL==obj) {
+        err = -ENOMEM; goto error;
+    }
+
+    err = jobj_vsprintf(obj, "__debugger__", fmt, args);
+    if (err<0) {
+        goto error;
+    }
+    
+    err = __jlog(obj, app, sub, PRI);
+
+error:
+    jobj_put(obj);
+    
+    return err;
+}
+
+static inline int // must inline
+__jlogger(
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32 line, 
+    uint32 PRI, 
+    const char *fmt, 
+    ...
+)
+{
+    int err = 0;
+    va_list args;
+    
+    va_start(args, (char *)fmt);
+    err = __jvlogger(app, sub, file, func, line, PRI, fmt, args);
+    va_end(args);
+    
+    return err;
+}
+
+static inline int // must inline
+__dlogger(
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32 line, 
+    uint32 PRI, 
+    const char *fmt, 
+    ...
+)
+{
+    int err = 0;
+    va_list args;
+    
+    va_start(args, (char *)fmt);
+    err = __dvlogger(app, sub, file, func, line, PRI, fmt, args);
+    va_end(args);
+    
+    return err;
+}
+
+/*
+* c: by command
+*/
+static inline int // must inline
+__clogger(
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32 line,
+    uint32 PRI,
+    char *json
+)
+{
+    jobj_t obj = NULL;
+    int err;
+
+    obj = jobj_byjson(json);
+    if (NULL==obj) {
+        err = -EBADJSON; goto error;
+    }
+
+    obj = __jlog_add_header(obj, app, sub, JLOG_KEY_TYPE_SH, file, func, line, PRI);
+    if (NULL==obj) {
+        err = -EFORMAT; goto error;
+    }
+    
+    err = __jlog(obj, app, sub, PRI);
+error:
+    jobj_put(obj);
+
+    return err;
+}
+
+/*
+* by command
+*/
+static int
+__jformat(
+    const char *app, 
+    const char *sub, 
+    const char *file, 
+    const char *func, 
+    uint32 line, 
+    uint32 PRI, 
+    const char *fmt, 
+    int argc,
+    char *argv[]
+)
+{
+    int err = 0;
+    
+    jobj_t obj = __jlog_add_header(NULL, app, sub, JLOG_KEY_TYPE_SH, file, func, line, PRI);
+    if (NULL==obj) {
+        err = -ENOMEM; goto error;
+    }
+    
+    err = jobj_exec(obj, fmt, argc, argv);
+    if (err<0) {
+        goto error;
+    }
+    
+    err = __jlog(obj, app, sub, PRI);
+
+error:
+    jobj_put(obj);
+
+    return err;
+}
+
+#endif
 /******************************************************************************/
 #endif /* __JLOG_H_c174923fabe845e980f9379209210cc3__ */
