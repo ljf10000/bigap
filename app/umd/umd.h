@@ -31,6 +31,10 @@
 #define UMD_CONNPROTOCOL        PC_VAL(false, false)
 #endif
 
+#ifndef UMD_PROMISC
+#define UMD_PROMISC             PC_VAL(true, true)
+#endif
+
 #ifndef UMD_CONF
 #define UMD_CONF                PC_FILE("/tmp/config", "umd.conf")
 #endif
@@ -453,6 +457,8 @@ typedef struct {
     bool    reauthable;
     bool    connectable;
     bool    connprotocol;
+    bool    promisc;
+    
     uint32  autouser;
     uint32  gcuser;
     uint32  gcconn;
@@ -474,6 +480,7 @@ umd_config_t;
     _(&umd.cfg, bool,   reauthable,         UMD_REAUTHABLE)     \
     _(&umd.cfg, bool,   connectable,        UMD_CONNECTABLE)    \
     _(&umd.cfg, bool,   connprotocol,       UMD_CONNPROTOCOL)   \
+    _(&umd.cfg, bool,   promisc,            UMD_PROMISC)        \
     _(&umd.cfg, u32,    gcuser,             UMD_GCUSER)         \
     _(&umd.cfg, u32,    gcconn,             UMD_GCCONN)         \
     _(&umd.cfg, u32,    sniff_count,        UMD_SNIFF_COUNT)    \

@@ -73,12 +73,13 @@ umd_init_cfg_intf_post(void)
             return err;
         }
 
-#if 0
-        err = intf_set_promisc(intf->name);
-        if (err<0) {
-            return err;
+        if (umd.cfg.promisc) {
+            err = intf_set_promisc(intf->name);
+            if (err<0) {
+                return err;
+            }
         }
-#endif
+
         if (__ak_debug_config) {
             char ipstring[1+OS_IPSTRINGLEN];
             char ipmaskstring[1+OS_IPSTRINGLEN];
