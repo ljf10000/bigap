@@ -245,6 +245,8 @@ rsh_msg_mac_bkdr(rsh_msg_t *msg)
     for (i=0; i<RSH_HDR_END; i++) {
         bkdr = __bkdr_push(bkdr, rsh_msg_mac(msg, i));
     }
+
+    return bkdr;
 }
 
 /*
@@ -295,7 +297,7 @@ rsh_msg_value_xor(rsh_msg_t *msg)
 
 /*
 * 1. msg-raw-seq   XOR raw-mac-bdkr     ==> msg-xor-seq
-*    msg-raw-rsv   XOR raw-mac-bdkr     ==> msg-xor-rsv
+*    msg-raw-ack   XOR raw-mac-bdkr     ==> msg-xor-ack
 * 2. msg-raw-mac   XOR msg-random       ==> msg-xor-mac
 * 3. msg-raw-body  XOR msg-xor-mac      ==> msg-xor-body
 * 4. msg-raw-value XOR msg-xor-mac-bkdr ==> msg-xor-value
@@ -306,7 +308,7 @@ rsh_msg_encode_xor(rsh_msg_t *msg, byte mac[])
     uint32 bkdr32 = os_bin_bkdr(mac, OS_MACSIZE);
     
     msg->seq = RSH_XOR32(msg->seq, bkdr32);
-    msg->rsv = RSH_XOR32(msg->rsv, bkdr32);
+    msg->ack = RSH_XOR32(msg->ack, bkdr32);
     
     rsh_msg_mac_xor(msg);
     rsh_msg_body_xor(msg);
@@ -318,7 +320,7 @@ rsh_msg_encode_xor(rsh_msg_t *msg, byte mac[])
 * 2. msg-xor-body  XOR msg-xor-mac      ==> msg-raw-body
 * 3. msg-xor-mac   XOR msg-random       ==> msg-raw-mac
 * 4. msg-xor-seq   XOR raw-mac-bdkr     ==> msg-raw-seq
-*    msg-xor-rsv   XOR raw-mac-bdkr     ==> msg-raw-rsv
+*    msg-xor-ack   XOR raw-mac-bdkr     ==> msg-raw-ack
 */
 static inline void
 rsh_msg_decode_xor(rsh_msg_t *msg)
@@ -330,7 +332,7 @@ rsh_msg_decode_xor(rsh_msg_t *msg)
     uint32 bkdr32 = rsh_msg_mac_bkdr(msg);
 
     msg->seq = RSH_XOR32(msg->seq, bkdr32);
-    msg->rsv = RSH_XOR32(msg->rsv, bkdr32);
+    msg->ack = RSH_XOR32(msg->ack, bkdr32);
 }
 
 static inline int
