@@ -16,7 +16,7 @@
 #endif
 
 #ifndef UMD_INTFHASHSIZE
-#define UMD_INTFHASHSIZE        PC_VAL(1024, 256)
+#define UMD_INTFHASHSIZE        PC_VAL(256, 64)
 #endif
 
 #ifndef UMD_SYNCABLE
@@ -490,7 +490,7 @@ umd_config_t;
     _(&umd.cfg, u32,    machashsize,        UMD_MACHASHSIZE)    \
     _(&umd.cfg, u32,    iphashsize,         UMD_IPHASHSIZE)     \
     _(&umd.cfg, u32,    connhashsize,       UMD_CONNHASHSIZE)   \
-    _(&umd.cfg, u32,    intfhashsize,       UMD_CONNHASHSIZE)   \
+    _(&umd.cfg, u32,    intfhashsize,       UMD_INTFHASHSIZE)   \
     /* end */
 
 #define UMD_CFG_INITER      JOBJ_MAP_INITER(UMD_CFG_JMAPPER)
