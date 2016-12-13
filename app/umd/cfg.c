@@ -204,29 +204,6 @@ umd_init_cfg_instance(jobj_t jcfg)
     return 0;
 }
 
-STATIC int
-umd_init_cfg_intf(void)
-{
-    mv_t foreach(char *ifname)
-    {
-        byte mac[OS_MACSIZE];
-        
-        int err = intf_get_mac(ifname, mac);
-        if (err<0) {
-            return mv2_go(err);
-        }
-        
-        umd_intf_t *intf = umd_intf_getEx(ifname, mac);
-        if (NULL==intf) {
-            return mv2_go(-ENOMEM);
-        }
-
-        return mv2_ok;
-    }
-    
-    return intf_foreachEx(true, foreach);
-}
-
 int umd_init_cfg(void)
 {
     int err;

@@ -131,7 +131,7 @@ umd_intf_get(byte mac[])
     return found;
 }
 
-umd_intf_t *
+STATIC umd_intf_t *
 umd_intf_getEx(char *ifname, byte mac[])
 {
     umd_intf_t *intf = umd_intf_get(mac);
@@ -153,6 +153,30 @@ umd_intf_getEx(char *ifname, byte mac[])
     
     return intf;
 }
+
+STATIC int
+umd_intf_init(void)
+{
+    mv_t foreach(char *ifname)
+    {
+        byte mac[OS_MACSIZE];
+        
+        int err = intf_get_mac(ifname, mac);
+        if (err<0) {
+            return mv2_go(err);
+        }
+        
+        umd_intf_t *intf = umd_intf_getEx(ifname, mac);
+        if (NULL==intf) {
+            return mv2_go(-ENOMEM);
+        }
+
+        return mv2_ok;
+    }
+    
+    return intf_foreachEx(true, foreach);
+}
+
 /******************************************************************************/
 STATIC int
 umd_init_pre(void)
@@ -202,6 +226,11 @@ umd_init_post(void)
         return err;
     }
 
+    err = umd_intf_init();
+    if (err<0) {
+        return err;
+    }
+    
     err = sock_servers_init(umd.server, umd.server_count);
     if (err<0) {
         return err;

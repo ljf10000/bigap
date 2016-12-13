@@ -381,9 +381,6 @@ typedef struct {
 } 
 umd_intf_t;
 
-extern umd_intf_t *
-umd_intf_getEx(char *ifname, byte mac[]);
-
 typedef umd_intf_t umd_ingress_t;
 
 #if 1
