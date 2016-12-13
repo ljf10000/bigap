@@ -389,19 +389,6 @@ umd_intf_getEx(char *ifname, byte mac[]);
 typedef umd_intf_t umd_ingress_t;
 
 #if 1
-DECLARE_DB_H1(&umd.head.intf, umd_intf, umd_intf_t, node.intf);
-
-static inline umd_intf_t *
-umd_intf_hx_entry(hash_node_t *node);
-
-static inline umd_intf_t *
-umd_intf_h1_entry(h1_node_t *node);
-
-static inline int
-umd_intf_foreach(mv_t (*foreach)(umd_intf_t *entry), bool safe);
-#endif
-
-#if 1
 #define UMD_AUTH_TYPE_ENUM_MAPPER(_)        \
     _(umd_auth_type_none,   0, "none"),     \
     _(umd_auth_type_mac,    1, "mac"),      \
@@ -752,19 +739,6 @@ umd_conn_userip(umd_conn_t *cn)
 
 typedef int  umd_conn_handle_f(umd_conn_t *cn);
 typedef void umd_conn_timer_f(umd_conn_t *cn, time_t now);
-
-#if 1
-DECLARE_DB_H1(&umd.head.conn, umd_conn, umd_conn_t, node.conn);
-
-static inline umd_conn_t *
-umd_conn_hx_entry(hash_node_t *node);
-
-static inline umd_conn_t *
-umd_conn_h1_entry(h1_node_t *node);
-
-static inline int
-umd_conn_foreach(mv_t (*foreach)(umd_conn_t *entry), bool safe);
-#endif
 /******************************************************************************/
 extern jobj_t
 umd_juser(umd_user_t *user);
