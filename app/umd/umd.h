@@ -4,15 +4,15 @@
 #include "um/um.h"
 
 #ifndef UMD_MACHASHSIZE
-#define UMD_MACHASHSIZE         PC_VAL(1024, 256)
+#define UMD_MACHASHSIZE         PC_VAL(8192, 1024)
 #endif
 
 #ifndef UMD_IPHASHSIZE
-#define UMD_IPHASHSIZE          PC_VAL(1024, 256)
+#define UMD_IPHASHSIZE          PC_VAL(8192, 1024)
 #endif
 
 #ifndef UMD_CONNHASHSIZE
-#define UMD_CONNHASHSIZE        PC_VAL(8192, 1024)
+#define UMD_CONNHASHSIZE        PC_VAL(16*1024, 4*1024)
 #endif
 
 #ifndef UMD_INTFHASHSIZE
