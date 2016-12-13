@@ -250,8 +250,8 @@ intf_foreach(mv_t (*foreach)(char *ifname))
         i++, ifr++) {
         if (foreach) {
             mv.v = (*foreach)(ifr->ifr_name);
-            if (is_mv2_break(mv.v)) {
-                return mv2_break(mv.v);
+            if (is_mv2_break(mv)) {
+                return mv2_error(mv);
             }
         }
     }
