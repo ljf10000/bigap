@@ -351,7 +351,7 @@ umd_conn_dir(umd_conn_t *cn)
         } else { /* cn->dip is wan */
             return umd_conn_dir_dev2wan;
         }
-    } else if (umd_is_user_ip(cn->cn->sip)) {
+    } else if (umd_is_user_ip(cn->sip)) {
         if (umd_is_dev_mac(cn->dmac)) {
             return umd_conn_dir_user2dev;
         } else if (umd_is_user_ip(cn->dip)) {
@@ -361,7 +361,7 @@ umd_conn_dir(umd_conn_t *cn)
         } else { /* cn->dip is wan */
             return umd_conn_dir_user2wan;
         }
-    } else if (umd_is_lan_ip(cn->cn->sip)) {
+    } else if (umd_is_lan_ip(cn->sip)) {
         if (umd_is_dev_mac(cn->dmac)) {
             return umd_conn_dir_lan2dev;
         } else if (umd_is_user_ip(cn->dip)) {
