@@ -198,6 +198,7 @@
 #include "utils/loop.h"
 #include "utils/dll.h"
 #include "utils/md5.h"
+#include "utils/aes.h"
 #include "utils/base64.h"
 
 #if 1   /* __EXTEND__ */

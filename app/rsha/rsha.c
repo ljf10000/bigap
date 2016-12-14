@@ -11,7 +11,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 OS_INITER;
 /******************************************************************************/
 rsha_control_t rsha;
-
+static char rsha_buffer[RSH_MSG_ALLSIZE];
+rsh_msg_t *rsha_msg = (rsh_msg_t *)rsha_buffer;
 /******************************************************************************/
 static int
 rsha_fini(void)
@@ -29,6 +30,11 @@ rsha_init(void)
     err = os_init();
     if (err<0) {
         return err;
+    }
+
+    char *macstring = os_getmacby(SCRIPT_GETBASEMAC);
+    if (NULL==os_getmac_bystring(rsha.basemac, macstring)) {
+        return -EBADBASEMAC;
     }
 
     err = os_loop_init(&rsha.loop);

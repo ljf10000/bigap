@@ -175,7 +175,9 @@ typedef struct {
     
     bool loop;
     uint32 seq; 
-
+    uint32 seq_noack;
+    uint32 seq_peer;
+    
     char *key;
     byte *key8;
     uint32 key8size;
@@ -219,12 +221,12 @@ rshi_echo_switch(rsh_instance_t *instance, int state)
 
 typedef struct {
     int fd;
-
-    char rbuffer[RSH_MSG_ALLSIZE];
-    char wbuffer[RSH_MSG_ALLSIZE];
-
-    loop_t loop;
     uint32 ticks;
+
+    char buffer[RSH_MSG_ALLSIZE];
+    byte basemac[OS_MACSIZE];
+    
+    loop_t loop;
     
     struct {
         h2_table_t instance;
@@ -232,18 +234,7 @@ typedef struct {
 } rsha_control_t;
 
 extern rsha_control_t rsha;
-
-static inline rsh_msg_t *
-rsha_rmsg(void)
-{
-    return (rsh_msg_t *)rsha.rbuffer;
-}
-
-static inline rsh_msg_t *
-rsha_wmsg(void)
-{
-    return (rsh_msg_t *)rsha.wbuffer;
-}
+extern rsh_msg_t *rsha_msg;
 /******************************************************************************/
 extern int
 rshi_fsm_init(rsh_instance_t *instance);
@@ -268,6 +259,9 @@ rshi_getbyaddr(sockaddr_in_t *addr);
 
 extern int
 rshi_show(char *name);
+
+extern int 
+rsha_send(rsh_instance_t *instance);
 
 extern int 
 rsha_recver(loop_watcher_t *watcher, time_t now);

@@ -66,6 +66,12 @@ __rshi_destroy(rsh_instance_t *instance)
         os_free(instance->proxy);
         os_free(instance->register);
 
+        os_free(instance->key);
+        os_free(instance->key8);
+        os_free(instance->key32);
+
+        jobj_put(instance->jcfg);
+        
         if (instance->loop) {
             os_loop_del_watcher(&rsha.loop, instance->fd);
             
@@ -118,11 +124,15 @@ __rshi_create(char *name, jobj_t jobj)
         goto error;
     }
     
+    jj_u32(instance, jobj, seq);
+    instance->seq_noack = instance->seq;
+    
     jj_u32(instance, jobj, cid);
     if (false==is_good_os_cert(instance->cid)) {
         goto error;
     }
     
+
     __jj_u32(instance, jobj, port, server.sin_port);
     if (0==instance->server.sin_port) {
         goto error;
@@ -147,6 +157,15 @@ __rshi_create(char *name, jobj_t jobj)
     os_closexec(fd);
     instance->fd = fd;
 
+    instance->client.sin_family = AF_INET;
+    instance->client.sin_addr.s_addr = INADDR_ANY;
+    instance->client.sin_port = 0;
+    err = bind(fd, (sockaddr_t *)&instance->client, sizeof(instance->client));
+    if (err<0) {
+        debug_error("bind instance %s error:%d", instance->name, -errno);
+        return -errno;
+    }
+    
     err = os_loop_add_normal(&rsha.loop, fd, rsha_recver, instance);
     if (err<0) {
         goto error;

@@ -14,6 +14,10 @@
 #ifndef RSH_SEQ_UNKNOW
 #define RSH_SEQ_UNKNOW              0
 #endif
+
+#ifndef RSH_AES_BITS
+#define RSH_AES_BITS                256
+#endif
 /******************************************************************************/
 /*
     1. ping
@@ -83,17 +87,6 @@ enum {
     RSH_MSG_ALLSIZE     = RSH_MSG_BODYSIZE + sizeof(rsh_msg_t),
 };
 
-#define rsh_msg_random(_msg, _idx)  (_msg)->h[_idx].random
-#define rsh_msg_mac(_msg, _idx)     (_msg)->h[_idx].mac
-#define rsh_msg_value(_msg, _idx)   (_msg)->h[_idx].value
-#define rsh_msg_magic(_msg)         rsh_msg_value(_msg, RSH_H_MAGIC)
-#define rsh_msg_version(_msg)       rsh_msg_value(_msg, RSH_H_VERSION)
-#define rsh_msg_cmd(_msg)           rsh_msg_value(_msg, RSH_H_CMD)
-#define rsh_msg_length(_msg)        rsh_msg_value(_msg, RSH_H_LENGTH)
-#define rsh_msg_flag(_msg)          rsh_msg_value(_msg, RSH_H_FLAG)
-#define rsh_msg_resv(_msg)          rsh_msg_value(_msg, RSH_H_RESV)
-#define rsh_msg_body32(_msg)        ((uint32 *)(_msg)->body)
-
 static inline void
 rsh_msg_hton(rsh_msg_t *msg)
 {
@@ -110,21 +103,27 @@ rsh_msg_hton(rsh_msg_t *msg)
 #define rsh_msg_ntoh(_msg)  rsh_msg_hton(_msg)
 
 static inline int
-rsh_msg_fill(rsh_msg_t *msg, void *buf, int len)
+rsh_msg_bfill(rsh_msg_t *msg, byte mac[], void *buf, int len)
 {
-    int i;
+    len = buf?len:0;
     
     if (len > RSH_MSG_BODYSIZE) {
         return -ETOOBIG;
     }
 
-    rsh_msg_length(msg) = len;
+    msg->magic  = RSH_MAGIC;
+    msg->version= RSH_VERSION;
+    msg->len    = len;
     os_memcpy(msg->body, buf, len);
-
-    rsh_msg_magic(msg)      = RSH_MAGIC;
-    rsh_msg_version(msg)    = RSH_VERSION;
+    os_maccpy(msg->mac, mac);
 
     return 0;
+}
+
+static inline int
+rsh_msg_sfill(rsh_msg_t *msg, byte mac[], char *string)
+{
+    return rsh_msg_bfill(msg, mac, string, os_strlen(string));
 }
 /******************************************************************************/
 #endif /* __RSH_H_cd4ac08f199c4732a4decf3ae976b791__ */
