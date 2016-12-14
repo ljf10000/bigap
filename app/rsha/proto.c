@@ -97,13 +97,12 @@ rsh_register(rsh_instance_t *instance, time_t now)
     os_arrayzero(line);
     err = os_v_pgets(line, sizeof(line), 
             "curl"
-                " -d '{"
-                    "\"mac\":\"%s\""
-                "}'"
+                " -d '{\"mac\":\"%s\"}'"
                 " -k --cert %s --key %s"
                 " -s %s",
             rsha.macstring,
-            cert, key);
+            cert, key,
+            instance->registry);
     if (err<0) {
         debug_error("curl err(%d)", err);
         err = -ECURLFAIL; goto error;
