@@ -13,7 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "rsha.h"
 /******************************************************************************/
 #if 1
-DECLARE_DB_H1(&rsha.head.instance, __rshi, rsh_instance_t, node.instance);
+DECLARE_DB_H2(&rsha.head.instance, __rshi, rsh_instance_t, node.instance);
 
 static inline rsh_instance_t *
 __rshi_hx_entry(hash_node_t *node, hash_idx_t nidx);
