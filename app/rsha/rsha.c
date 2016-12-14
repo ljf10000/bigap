@@ -11,7 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 OS_INITER;
 /******************************************************************************/
 rsha_control_t rsha;
-char rsha_buffer[RSH_MSG_ALLSIZE];
+byte rsha_buffer[RSH_MSG_ALLSIZE];
 rsh_msg_t *rsha_msg = (rsh_msg_t *)rsha_buffer;
 /******************************************************************************/
 static int

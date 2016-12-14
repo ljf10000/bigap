@@ -239,7 +239,7 @@ typedef struct {
 
 extern rsha_control_t rsha;
 extern rsh_msg_t *rsha_msg;
-extern char rsha_buffer[];
+extern byte rsha_buffer[];
 /******************************************************************************/
 extern int
 rshi_fsm_init(rsh_instance_t *instance);

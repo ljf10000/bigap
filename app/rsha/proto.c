@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #include "rsha.h"
 /******************************************************************************/
-STATIC int 
+STATIC void 
 rsha_crypt(rsh_instance_t *instance, int len, aes_crypt_handle_t *cb)
 {
     byte *in, *out;
@@ -28,13 +28,13 @@ rsha_crypt(rsh_instance_t *instance, int len, aes_crypt_handle_t *cb)
 STATIC void 
 rsha_encrypt(rsh_instance_t *instance, int len)
 {
-    return rsha_crypt(instance, len, aes_encrypt);
+    rsha_crypt(instance, len, aes_encrypt);
 }
 
 STATIC void 
 rsha_decrypt(rsh_instance_t *instance, int len)
 {
-    return rsha_crypt(instance, len, aes_decrypt);
+    rsha_crypt(instance, len, aes_decrypt);
 }
 
 STATIC int 
@@ -63,7 +63,7 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     socklen_t addrlen = sizeof(addr);
     int err, len;
 
-    err = len = __io_recvfrom(instance->fd, msg, RSH_MSG_ALLSIZE, 
+    err = len = __io_recvfrom(instance->fd, msg, RSH_MSG_ALLSIZE, 0,
         (sockaddr_t *)&addr, &addrlen);
     if (err<0) {
         return err;
@@ -115,7 +115,7 @@ rsha_ack_verror(rsh_instance_t *instance, const char *fmt, va_list args)
 {
     jobj_t jobj = jobj_new_object();
     
-    int err = jobj_sprintf(jobj, fmt, args);
+    int err = jobj_vsprintf(jobj, "error", fmt, args);
     if (err<0) {
         return NULL;
     }
