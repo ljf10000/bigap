@@ -54,6 +54,51 @@ rsha_send(rsh_instance_t *instance)
     return 0;
 }
 
+STATIC int
+rsha_ack(rsh_instance_t *instance, int error, char *error_string)
+{
+    rsh_msg_t *msg = rsha_msg;
+
+    rsh_msg_sfill(msg, rsha.mac, error_string);
+
+    msg->flag   = RSH_F_ACK;
+    msg->seq    = 0;
+    msg->ack    = instance->seq_peer;
+    msg->error  = error;
+    
+    return rsha_send(instance);
+}
+
+STATIC int
+rsha_ack_ok(rsh_instance_t *instance)
+{
+    return rsha_ack(instance, 0, NULL);
+}
+
+STATIC int
+rsha_ack_error(rsh_instance_t *instance, int error, const char *fmt, ...)
+{
+    va_list args;
+    jobj_t jobj = NULL;
+    int err;
+    
+    va_start(args, (char *)fmt);
+    jobj = jobj_vsprintf(jobj_new_object(), "error", fmt, args);
+    va_end(args);
+
+    if (NULL==jobj) {
+        return -ENOMEM;
+    }
+
+    err = rsha_ack(instance, error, jobj_json(jobj));
+    jobj_put(jobj);
+    if (err<0) {
+        return err;
+    }
+    
+    return error;
+}
+
 int 
 rsha_recver(loop_watcher_t *watcher, time_t now)
 {
@@ -95,59 +140,20 @@ rsha_echo(rsh_instance_t *instance)
     return rsha_send(instance);
 }
 
-int
-rsha_ack(rsh_instance_t *instance, int error, char *error_string)
-{
-    rsh_msg_t *msg = rsha_msg;
-
-    rsh_msg_sfill(msg, rsha.mac, error_string);
-
-    msg->flag   = RSH_F_ACK;
-    msg->seq    = 0;
-    msg->ack    = instance->seq_peer;
-    msg->error  = error;
-    
-    return rsha_send(instance);
-}
-
-int
-rsha_ack_error(rsh_instance_t *instance, int error, const char *fmt, ...)
-{
-    va_list args;
-    jobj_t jobj = NULL;
-    int err;
-    
-    va_start(args, (char *)fmt);
-    jobj = jobj_vsprintf(jobj_new_object(), "error", fmt, args);
-    va_end(args);
-
-    if (NULL==jobj) {
-        return -ENOMEM;
-    }
-
-    err = rsha_ack(instance, error, jobj_json(jobj));
-    jobj_put(jobj);
-    if (err<0) {
-        return err;
-    }
-    
-    return error;
-}
-
 int 
-rsh_resolve(rsh_instance_t *instance, time_t now)
+rsha_resolve(rsh_instance_t *instance, time_t now)
 {
     return rshi_fsm(instance, RSH_FSM_RESOLVED, now);
 }
 
 int 
-rsh_run(rsh_instance_t *instance, time_t now)
+rsha_run(rsh_instance_t *instance, time_t now)
 {
     return rshi_fsm(instance, RSH_FSM_RUN, now);
 }
 
 int 
-rsh_register(rsh_instance_t *instance, time_t now)
+rsha_register(rsh_instance_t *instance, time_t now)
 {
     static char line[1+OS_FILE_LEN];
     jobj_t jobj = NULL;

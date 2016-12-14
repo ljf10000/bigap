@@ -272,25 +272,13 @@ extern int
 rsha_echo(rsh_instance_t *instance);
 
 extern int 
-rsha_ack(rsh_instance_t *instance, int error, char *error_string);
-
-static inline int
-rsha_ack_ok(rsh_instance_t *instance)
-{
-    return rsha_ack(instance, 0, NULL);
-}
-
-extern int
-rsha_ack_error(rsh_instance_t *instance, int error, const char *fmt, ...);
+rsha_resolve(rsh_instance_t *instance, time_t now);
 
 extern int 
-rsh_resolve(rsh_instance_t *instance, time_t now);
+rsha_run(rsh_instance_t *instance, time_t now);
 
 extern int 
-rsh_run(rsh_instance_t *instance, time_t now);
-
-extern int 
-rsh_register(rsh_instance_t *instance, time_t now);
+rsha_register(rsh_instance_t *instance, time_t now);
 
 extern int
 init_rsha_cli(void);
