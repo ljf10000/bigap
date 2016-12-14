@@ -234,7 +234,7 @@ __jlog_init(void)
             }
 
             ip = os_ipaddr(ipaddress);
-            if (INADDR_NONE==ip) {
+            if (false==is_good_ipaddr(ip)) {
                 return -EFORMAT;
             }
             

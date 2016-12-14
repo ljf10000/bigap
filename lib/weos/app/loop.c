@@ -107,14 +107,6 @@ __loop_watcher_init(loop_t *loop, uint32 limit)
     return 0;
 }
 
-void 
-os_loop_fini(loop_t *loop)
-{
-    __loop_watcher_fini(loop);
-
-    os_close(loop->efd);
-}
-
 STATIC int
 __loop_init(loop_t *loop)
 {
@@ -575,6 +567,24 @@ os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, bool auto_del_son, void
     else {
         return __loop_add_father(loop, fd, cb, auto_del_son, user);
     }
+}
+
+void 
+os_loop_fini(loop_t *loop)
+{
+    __loop_watcher_fini(loop);
+
+    os_close(loop->efd);
+}
+
+int
+os_loop_init(loop_t *loop)
+{
+    os_objzero(loop);
+
+    loop->efd = INVALID_FD;
+
+    return 0;
 }
 
 int

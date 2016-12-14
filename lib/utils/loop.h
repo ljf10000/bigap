@@ -93,9 +93,6 @@ typedef struct {
 
 #define LOOP_INITER     {   \
     .efd    = INVALID_FD,   \
-    .count  = {             \
-        [0 ... (LOOP_TYPE_END-1)] = INVALID_FD, \
-    }                       \
 }   /* end */
 
 extern int
@@ -136,6 +133,9 @@ os_loop_add_father(loop_t *loop, int fd, loop_son_f *cb, bool auto_del_son, void
 
 extern void 
 os_loop_fini(loop_t *loop);
+
+extern int
+os_loop_init(loop_t *loop);
 
 extern int
 os_loop(loop_t *loop);

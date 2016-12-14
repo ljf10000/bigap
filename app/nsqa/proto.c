@@ -228,7 +228,7 @@ nsq_resolve(nsq_instance_t *instance)
     debug_proto("instance[%s] resolve ...", instance->name);
     
     uint32 ip = os_ipaddr(instance->domain);
-    if (INADDR_NONE != ip) {
+    if (is_good_ipaddr(ip)) {
         instance->server.sin_addr.s_addr = ip;
     } else {
         struct hostent *p = gethostbyname(instance->domain);

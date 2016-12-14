@@ -24,6 +24,8 @@ SUB_SYSTEM=ak \
 		jscript \
 		nsqa \
 		nsqc \
+		rsha \
+		rshc \
 		rt \
 		sem \
 		sys \

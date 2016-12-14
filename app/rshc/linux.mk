@@ -16,13 +16,9 @@ include $(DIR_ROOT)/mk/define.mk
 #
 #changed me, append obj
 #
-OBJS=$(DIR_SELF)/rsha.o \
-	$(DIR_SELF)/cli.o \
-	$(DIR_SELF)/instance.o \
-	$(DIR_SELF)/proto.o \
-	$(DIR_SELF)/timer.o \
-	#end
-TARGET_NAME=rsha
+OBJS=$(DIR_SELF)/rshc.o
+	# end
+TARGET_NAME=rshc
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=exe
 LIB_DEPEND=c m json-c weos

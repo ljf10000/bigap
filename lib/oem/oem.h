@@ -6,6 +6,8 @@
 #define OS_CERT_COUNT           32
 #endif
 
+#define is_good_os_cert(_cid)   is_good_enum(_cid, OS_CERT_COUNT)
+
 typedef struct {
     char *cert;
     char *key;

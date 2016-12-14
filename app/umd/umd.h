@@ -1,14 +1,14 @@
-#ifndef __UM_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__
-#define __UM_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__
+#ifndef __UMD_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__
+#define __UMD_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__
 /******************************************************************************/
 #include "um/um.h"
 
 #ifndef UMD_MACHASHSIZE
-#define UMD_MACHASHSIZE         PC_VAL(8192, 1024)
+#define UMD_MACHASHSIZE         PC_VAL(8*1024, 1*1024)
 #endif
 
 #ifndef UMD_IPHASHSIZE
-#define UMD_IPHASHSIZE          PC_VAL(8192, 1024)
+#define UMD_IPHASHSIZE          PC_VAL(8*1024, 1*1024)
 #endif
 
 #ifndef UMD_CONNHASHSIZE
@@ -869,4 +869,4 @@ umd_user_timer(loop_watcher_t *watcher, time_t now);
 extern int
 umd_conn_timer(loop_watcher_t *watcher, time_t now);
 /******************************************************************************/
-#endif /* __UM_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__ */
+#endif /* __UMD_H_c4e41de0b2154a2aa5e5b4c8fd42dc23__ */
