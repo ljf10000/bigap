@@ -45,6 +45,18 @@ is_good_fcookie_file_id(int id)
     return IS_GOOD_VALUE(id, FCOOKIE_FILE_BEGIN, FCOOKIE_FILE_END);
 }
 
+static inline int
+fcookie_cert_id(int cid)
+{
+    return FCOOKIE_CERT_BEGIN + cid;
+}
+
+static inline int
+fcookie_key_id(int cid)
+{
+    return FCOOKIE_KEY_BEGIN + cid;
+}
+
 typedef struct {
     char *info;
     int mode;
@@ -60,13 +72,28 @@ extern char *
 __fcookie_file_create(fcookie_file_t *cert, char *tmp_file);
 
 extern char *
-__fcookie_file(int id, char *tmp_file);
+fcookie_file(int id, char *tmp_file);
 
-/*
-* unsafe
-*/
-extern char *
-fcookie_file(int id);
+static inline char *
+fcookie_cert(int cid, char *tmp_file)
+{
+    return fcookie_file(fcookie_cert_id(cid), tmp_file);
+}
+
+static inline char *
+fcookie_key(int cid, char *tmp_file)
+{
+    return fcookie_file(fcookie_key_id(cid), tmp_file);
+}
+
+STATIC void
+fcookie_put_file(char *file)
+{
+    if (is_good_str(file)) {
+        unlink(file);
+        // os_system("rm -f %s &", file);
+    }
+}
 /******************************************************************************/
 
 typedef struct {

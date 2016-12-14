@@ -227,7 +227,7 @@ sys_get_pwdfile(void)
     
     return  sys.env.pwdfile?
             sys.env.pwdfile:
-            __fcookie_file(FCOOKIE_RSYNC_PWDFILE, pwd);
+            fcookie_file(FCOOKIE_RSYNC_PWDFILE, pwd);
 }
 
 STATIC void

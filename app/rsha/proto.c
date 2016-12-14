@@ -68,7 +68,19 @@ rsha_ack(rsh_instance_t *instance)
 }
 
 int 
-rsh_register(rsh_instance_t *instance)
+rsh_resolve(rsh_instance_t *instance, time_t now)
+{
+    return rshi_fsm(instance, RSH_FSM_RESOLVED, now);
+}
+
+int 
+rsh_run(rsh_instance_t *instance, time_t now)
+{
+    return rshi_fsm(instance, RSH_FSM_RUN, now);
+}
+
+int 
+rsh_register(rsh_instance_t *instance, time_t now)
 {
     static char line[1+OS_FILE_LEN];
     jobj_t jobj = NULL;
@@ -77,8 +89,8 @@ rsh_register(rsh_instance_t *instance)
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
 
-    if (NULL==guard_get_cert(FCOOKIE_LSS_CERT, cert) || 
-        NULL==guard_get_cert(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==fcookie_cert(instance->cid, cert) || 
+        NULL==fcookie_key(instance->cid, key)) {
         err = -ENOCERT; goto error;
     }
 
@@ -132,10 +144,12 @@ rsh_register(rsh_instance_t *instance)
     }
 
     aes_key_setup(instance->key8, instance->key32, len*8/2);
-    
-    return 0;
+
+    return rshi_fsm(instance, RSH_FSM_REGISTERED, now);
 error:
     jobj_put(jobj);
+    fcookie_put_file(cert);
+    fcookie_put_file(key);
     
     return err;
 }

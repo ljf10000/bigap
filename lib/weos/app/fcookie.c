@@ -71,7 +71,7 @@ __fcookie_file_create(fcookie_file_t *cert, char *tmp_file)
 #endif
 
 char *
-__fcookie_file(int id, char *tmp_file)
+fcookie_file(int id, char *tmp_file)
 {
     /*
     * mktemp reutrn it, must static
@@ -93,14 +93,6 @@ __fcookie_file(int id, char *tmp_file)
     } while(os_file_exist(tmp_file));
     
     return __fcookie_file_create(cert, tmp_file);
-}
-
-char *
-fcookie_file(int id)
-{
-    static char tmp_file[1+FCOOKIE_FILE_LEN];
-
-    return __fcookie_file(id, tmp_file);
 }
 
 char *

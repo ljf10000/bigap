@@ -367,26 +367,6 @@ guard_ok(char *action)
     os_system("echo %s >> " FILE_ST, action);
 }
 
-STATIC char *
-guard_get_cert(int id, char cert[])
-{
-    char *s = __fcookie_file(id, cert);
-    if (NULL==s) {
-        debug_error("no cert %d", id);
-    }
-
-    return s;
-}
-
-STATIC void
-guard_put_cert(char *cert)
-{
-    if (cert[0]) {
-        unlink(cert);
-        // os_system("rm -f %s &", cert);
-    }
-}
-
 STATIC int
 do_guard_report(int hack)
 {
@@ -397,8 +377,8 @@ do_guard_report(int hack)
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==guard_get_cert(FCOOKIE_LSS_CERT, cert) || 
-        NULL==guard_get_cert(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==fcookie_file(FCOOKIE_LSS_CERT, cert) || 
+        NULL==fcookie_file(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
 
@@ -459,8 +439,8 @@ error:
         guard_failed("report");
     }
 
-    guard_put_cert(cert);
-    guard_put_cert(key);
+    fcookie_put_file(cert);
+    fcookie_put_file(key);
     
     return err;
 }
@@ -475,8 +455,8 @@ do_guard_register(void)
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==guard_get_cert(FCOOKIE_LSS_CERT, cert) || 
-        NULL==guard_get_cert(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==fcookie_file(FCOOKIE_LSS_CERT, cert) || 
+        NULL==fcookie_file(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
 
@@ -541,8 +521,8 @@ error:
         guard_failed("register");
     }
 
-    guard_put_cert(cert);
-    guard_put_cert(key);
+    fcookie_put_file(cert);
+    fcookie_put_file(key);
     
     return err; 
 }
@@ -558,8 +538,8 @@ do_guard_auth(void)
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==guard_get_cert(FCOOKIE_LSS_CERT, cert) || 
-        NULL==guard_get_cert(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==fcookie_file(FCOOKIE_LSS_CERT, cert) || 
+        NULL==fcookie_file(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
     
@@ -629,8 +609,8 @@ error:
         guard_failed("auth");
     }
 
-    guard_put_cert(cert);
-    guard_put_cert(key);
+    fcookie_put_file(cert);
+    fcookie_put_file(key);
     
     return err;
 }
@@ -706,8 +686,8 @@ do_guard_cmd(void)
     char cert[1+FCOOKIE_FILE_LEN] = {0};
     char  key[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==guard_get_cert(FCOOKIE_LSS_CERT, cert) || 
-        NULL==guard_get_cert(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==fcookie_file(FCOOKIE_LSS_CERT, cert) || 
+        NULL==fcookie_file(FCOOKIE_LSS_KEY,  key)) {
         err = -ENOEXIST; goto error;
     }
     
@@ -764,8 +744,8 @@ do_guard_cmd(void)
 error:
     jobj_put(obj);
 
-    guard_put_cert(cert);
-    guard_put_cert(key);
+    fcookie_put_file(cert);
+    fcookie_put_file(key);
 
     return err;
 }

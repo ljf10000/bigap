@@ -15,6 +15,7 @@ OS_INITER;
 STATIC int
 fcookie_main_helper(int argc, char *argv[])
 {
+    char file[1+FCOOKIE_FILE_LEN];
     int type;
 
     if (argc<3) {
@@ -26,8 +27,7 @@ fcookie_main_helper(int argc, char *argv[])
     switch(type) {
         case FCOOKIE_FILE: {
             int id = os_atoi(argv[2]);
-            char *file = fcookie_file(id);
-            if (NULL==file) {
+            if (NULL==fcookie_file(id, file)) {
                 return -ENOEXIST;
             }
 

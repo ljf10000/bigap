@@ -278,7 +278,13 @@ extern int
 rsha_ack(rsh_instance_t *instance);
 
 extern int 
-rsh_register(rsh_instance_t *instance);
+rsh_resolve(rsh_instance_t *instance, time_t now);
+
+extern int 
+rsh_run(rsh_instance_t *instance, time_t now);
+
+extern int 
+rsh_register(rsh_instance_t *instance, time_t now);
 
 extern int
 init_rsha_cli(void);

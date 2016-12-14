@@ -18,7 +18,7 @@ STATIC void
 rsha_init_tigger(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_init(instance)) {
-        rsh_register(instance);      // ==> registered
+        rsh_register(instance, now);    // ==> registered
     }
 }
 
@@ -26,7 +26,7 @@ STATIC void
 rsha_registered_tigger(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_retgistered(instance)) {
-        rsh_resolve(instance);      // ==> resolved
+        rsh_resolve(instance, now);     // ==> resolved
     }
 }
 
@@ -34,7 +34,7 @@ STATIC void
 rsha_resolved_tigger(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_resolved(instance)) {
-        rsh_run(instance);          // ==> run
+        rsh_run(instance, now);         // ==> run
     }
 }
 
