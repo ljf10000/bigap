@@ -82,10 +82,18 @@ typedef struct {
     byte body[0];
 } rsh_msg_t;        // 32 == sizeof(rsh_msg_t)
 
+#define RSH_MSG_SIZE(_bodysize)  ((_bodysize) + sizeof(rsh_msg_t))
+
 enum {
     RSH_MSG_BODYSIZE    = 1408, // 32*44
-    RSH_MSG_ALLSIZE     = RSH_MSG_BODYSIZE + sizeof(rsh_msg_t),
+    RSH_MSG_ALLSIZE     = RSH_MSG_SIZE(RSH_MSG_BODYSIZE),
 };
+
+static inline bool
+is_good_rsh_msg_size(int size)
+{
+    return size > 0 && 0 == (size % AES_BLOCK_SIZE);
+}
 
 static inline void
 rsh_msg_hton(rsh_msg_t *msg)
@@ -105,18 +113,23 @@ rsh_msg_hton(rsh_msg_t *msg)
 static inline int
 rsh_msg_bfill(rsh_msg_t *msg, byte mac[], void *buf, int len)
 {
-    len = buf?len:0;
+    os_objzero(msg);
     
-    if (len > RSH_MSG_BODYSIZE) {
+    len = buf?len:0;
+
+    msg->len = AES_ALIGN(len);
+    if (msg->len > RSH_MSG_BODYSIZE) {
         return -ETOOBIG;
     }
 
-    msg->magic  = RSH_MAGIC;
-    msg->version= RSH_VERSION;
-    msg->len    = len;
-    os_memcpy(msg->body, buf, len);
+    msg->magic      = RSH_MAGIC;
+    msg->version    = RSH_VERSION;
+    msg->_r0        = 0;
+    msg->_r1        = 0;
     os_maccpy(msg->mac, mac);
-
+    os_memcpy(msg->body, buf, len);
+    os_memzero(msg->body + len, len % AES_BLOCK_SIZE);
+    
     return 0;
 }
 
@@ -124,6 +137,12 @@ static inline int
 rsh_msg_sfill(rsh_msg_t *msg, byte mac[], char *string)
 {
     return rsh_msg_bfill(msg, mac, string, os_strlen(string));
+}
+
+static inline int
+rsh_msg_zfill(rsh_msg_t *msg, byte mac[])
+{
+    return rsh_msg_bfill(msg, mac, NULL, 0);
 }
 /******************************************************************************/
 #endif /* __RSH_H_cd4ac08f199c4732a4decf3ae976b791__ */

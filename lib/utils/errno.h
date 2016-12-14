@@ -251,6 +251,7 @@ enum {
     EBADCB          = ERRNO(94),
     ENOCERT         = ERRNO(95),
     EBADKEY         = ERRNO(96),
+    EBADSIZE        = ERRNO(97),
 };
 
 static inline int

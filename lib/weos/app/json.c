@@ -164,23 +164,21 @@ __jobj_add_string(jobj_t obj, char *key, char *value)
 int
 jobj_vsprintf(jobj_t obj, const char *key, const char *fmt, va_list args)
 {
-    int len, err = 0;
-    char *line = (char *)os_zalloc(1+OS_BIG_LEN);
-    if (NULL==line) {
-        err = -ENOMEM; goto error;
+    int err = 0;
+    char *line = NULL;
+
+    if (NULL==obj) {
+        return -ENOMEM;
+    }
+    
+    err = os_vasprintf(&line, fmt, args);
+    if (err<0) {
+        return -ENOMEM;
     }
 
-    len = os_vsnprintf(line, OS_BIG_LEN, fmt, args);
-    if (os_snprintf_is_full(OS_BIG_LEN, len)) {
-        err = -ENOSPACE;
-    } else {
-        err = jobj_add_string(obj, key, line);
-	}
+    err = jobj_add_string(obj, key, line);
 
-error:
-    if (line) {
-        os_free(line);
-    }
+    os_free(line);
 
     return err;
 }

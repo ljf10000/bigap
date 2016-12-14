@@ -184,9 +184,8 @@ typedef struct {
     
     char *key;
     byte *key8;
-    uint32 key8size;
     uint32 *key32;
-    uint32 key32size;
+    uint32 keysize;
 
     struct {
         struct {
@@ -240,6 +239,7 @@ typedef struct {
 
 extern rsha_control_t rsha;
 extern rsh_msg_t *rsha_msg;
+extern char rsha_buffer[];
 /******************************************************************************/
 extern int
 rshi_fsm_init(rsh_instance_t *instance);
@@ -266,16 +266,22 @@ extern int
 rshi_show(char *name);
 
 extern int 
-rsha_send(rsh_instance_t *instance);
-
-extern int 
 rsha_recver(loop_watcher_t *watcher, time_t now);
 
 extern int 
 rsha_echo(rsh_instance_t *instance);
 
 extern int 
-rsha_ack(rsh_instance_t *instance);
+rsha_ack(rsh_instance_t *instance, int error, char *error_string);
+
+static inline int
+rsha_ack_ok(rsh_instance_t *instance)
+{
+    return rsha_ack(instance, 0, NULL);
+}
+
+extern int
+rsha_ack_error(rsh_instance_t *instance, int error, const char *fmt, ...);
 
 extern int 
 rsh_resolve(rsh_instance_t *instance, time_t now);

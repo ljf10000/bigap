@@ -11,7 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 OS_INITER;
 /******************************************************************************/
 rsha_control_t rsha;
-static char rsha_buffer[RSH_MSG_ALLSIZE];
+char rsha_buffer[RSH_MSG_ALLSIZE];
 rsh_msg_t *rsha_msg = (rsh_msg_t *)rsha_buffer;
 /******************************************************************************/
 static int
@@ -41,6 +41,13 @@ rsha_init(void)
     err = os_loop_init(&rsha.loop);
     if (err<0) {
         debug_error("init loop error:%d", err);
+        
+        return err;
+    }
+
+    err = init_rsha_cli();
+    if (err<0) {
+        debug_error("init cli error:%d", err);
         
         return err;
     }

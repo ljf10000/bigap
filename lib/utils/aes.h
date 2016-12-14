@@ -5,7 +5,8 @@
 
 /****************************** MACROS ******************************/
 #define AES_BLOCK_SIZE 16               // AES operates on 16 bytes at a time
-
+#define AES_ALIGN(_len)         OS_ALIGN(len, AES_BLOCK_SIZE)
+#define AES_BLOCK_COUNT(_len)   (AES_ALIGN(_len)/AES_BLOCK_SIZE)
 /*********************** FUNCTION DECLARATIONS **********************/
 static inline bool
 is_good_aes_key_size(int size)
@@ -22,6 +23,11 @@ is_good_aes_key_size(int size)
 EXTERN void aes_key_setup(const byte key[],     // The key, must be 128, 192, or 256 bits
                    uint32 w[],                  // Output key schedule to be used later
                    int keysize);                // Bit length of the key, 128, 192, or 256
+
+typedef void aes_crypt_t(const byte in[],
+                 byte out[],
+                 const uint32 key[],
+                 int keysize);
 
 EXTERN void aes_encrypt(const byte in[],        // 16 bytes of plaintext
                  byte out[],                    // 16 bytes of ciphertext

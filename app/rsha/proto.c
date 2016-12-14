@@ -11,14 +11,40 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
     
 #define __DEAMON__
 #include "rsha.h"
-/******************************************************************************/
-int 
+/******************************************************************************/s
+STATIC int 
+rsha_crypt(rsh_instance_t *instance, int len, aes_crypt_t *cb)
+{
+    byte *in, *out;
+    int i, count = AES_BLOCK_COUNT(len);
+    
+    for (i=0; i<count; i++) {
+        in = out = rsha_buffer + i*AES_BLOCK_SIZE;
+        
+        (*cb)(in, out, instance->key32, 8*instance->keysize);
+    }
+}
+
+STATIC void 
+rsha_encrypt(rsh_instance_t *instance, int len)
+{
+    return rsha_crypt(instance, len, aes_encrypt);
+}
+
+STATIC void 
+rsha_decrypt(rsh_instance_t *instance, int len)
+{
+    return rsha_crypt(instance, len, aes_decrypt);
+}
+
+STATIC int 
 rsha_send(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
     int len = msg->len, err;
 
     rsh_msg_hton(msg);
+    rsha_encrypt(instance, len);
     
     err = io_sendto(instance->fd, msg, len, (sockaddr_t *)&instance->server, sizeof(instance->server));
     if (err<0) {
@@ -31,7 +57,26 @@ rsha_send(rsh_instance_t *instance)
 int 
 rsha_recver(loop_watcher_t *watcher, time_t now)
 {
+    rsh_msg_t *msg = rsha_msg;
     rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
+    sockaddr_in_t addr;
+    socklen_t addrlen = sizeof(addr);
+    int err, len;
+
+    err = len = __io_recvfrom(instance->fd, msg, RSH_MSG_ALLSIZE, 
+        (sockaddr_t *)&addr, &addrlen);
+    if (err<0) {
+        return err;
+    }
+    else if (false==is_good_rsh_msg_size(len)) {
+        return -EBADSIZE;
+    }
+
+    rsha_decrypt(instance, len);
+    rsh_msg_ntoh(msg);
+    if (len != RSH_MSG_SIZE(msg->len)) {
+        return -EBADSIZE;
+    }
 
     return 0;
 }
@@ -41,30 +86,65 @@ rsha_echo(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
 
-    os_objzero(msg);
+    rsh_msg_zfill(msg, rsha.mac);
 
     msg->cmd    = RSH_CMD_ECHO;
     msg->flag   = RSH_F_SYN;
     msg->seq    = instance->seq++;
-
-    rsh_msg_bfill(msg, rsha.mac, NULL, 0);
     
     return rsha_send(instance);
 }
 
-int 
-rsha_ack(rsh_instance_t *instance)
+int
+rsha_ack(rsh_instance_t *instance, int error, char *error_string)
 {
     rsh_msg_t *msg = rsha_msg;
+
+    rsh_msg_sfill(msg, rsha.mac, error_string);
 
     msg->flag   = RSH_F_ACK;
     msg->seq    = 0;
     msg->ack    = instance->seq_peer;
-    msg->error  = 0;
-
-    rsh_msg_bfill(msg, rsha.mac, NULL, 0);
+    msg->error  = error;
     
-    return 0;
+    return rsha_send(instance);
+}
+
+STATIC jobj_t
+rsha_ack_verror(rsh_instance_t *instance, const char *fmt, va_list args)
+{
+    jobj_t jobj = jobj_new_object();
+    
+    int err = jobj_sprintf(jobj, fmt, args);
+    if (err<0) {
+        return NULL;
+    }
+
+    return jobj;
+}
+
+int
+rsha_ack_error(rsh_instance_t *instance, int error, const char *fmt, ...)
+{
+    va_list args;
+    jobj_t jobj = NULL;
+    int err;
+    
+    va_start(args, (char *)fmt);
+    jobj = jobj_vsprintf(jobj_new_object(), fmt, args);
+    va_end(args);
+
+    if (NULL==jobj) {
+        return -ENOMEM;
+    }
+
+    err = rsha_ack(instance, error, jobj_json(jobj));
+    jobj_put(jobj);
+    if (err<0) {
+        return err;
+    }
+    
+    return error;
 }
 
 int 
@@ -127,17 +207,18 @@ rsh_register(rsh_instance_t *instance, time_t now)
     }
 
     instance->key = os_strdup(key);
-    instance->key8 = (byte *)os_malloc(len/2);
+    instance->keysize = len/2;
+    instance->key8 = (byte *)os_malloc(instance->keysize);
     if (NULL==instance->key8) {
         err = -ENOMEM; goto error;
     }
     
-    instance->key32 = (uint32 *)os_malloc(len/2);
+    instance->key32 = (uint32 *)os_malloc(instance->keysize);
     if (NULL==instance->key32) {
         err = -ENOMEM; goto error;
     }
-
-    err = os_hex2bin(key, instance->key8, len/2);
+    
+    err = os_hex2bin(key, instance->key8, instance->keysize);
     if (err<0) {
         err = -EBADKEY; goto error;
     }
