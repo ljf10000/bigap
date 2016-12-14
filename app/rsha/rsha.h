@@ -205,8 +205,8 @@ rshi_echo(rsh_instance_t *instance)
 static inline void
 rshi_echo_clear(rsh_echo_t *echo)
 {
-    echo->miss  = 0;
-    echo->ticks = 0;
+    echo->send  = 0;
+    echo->send  = 0;
 }
 
 static inline rsh_echo_t *
