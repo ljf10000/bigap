@@ -108,7 +108,7 @@ rsh_register(rsh_instance_t *instance, time_t now)
         err = -ECURLFAIL; goto error;
     }
 
-    jobj_t jobj = jobj_byjson(line);
+    jobj = jobj_byjson(line);
     if (NULL==jobj) {
         debug_error("bad json=%s", line);
         err = -EBADJSON; goto error;
