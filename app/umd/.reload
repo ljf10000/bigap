@@ -1,5 +1,5 @@
 #!/bin/bash
 
 pushd ../../ &> /dev/null
-./.reload "$@"
+./.reload umd "error|config|conn"
 popd &> /dev/null
