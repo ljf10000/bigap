@@ -64,7 +64,7 @@ __rshi_destroy(rsh_instance_t *instance)
     if (instance) {
         os_free(instance->name);
         os_free(instance->proxy);
-        os_free(instance->register);
+        os_free(instance->registry);
 
         os_free(instance->key);
         os_free(instance->key8);
@@ -119,8 +119,8 @@ __rshi_create(char *name, jobj_t jobj)
         goto error;
     }
     
-    jj_string(instance, jobj, register);
-    if (NULL==instance->register) {
+    jj_string(instance, jobj, registry);
+    if (NULL==instance->registry) {
         goto error;
     }
     

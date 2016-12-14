@@ -160,7 +160,7 @@ typedef struct {
 typedef struct {
     char *name;
     char *proxy;
-    char *register;
+    char *registry;
     uint32 cid; // cert id
 
     sockaddr_in_t client, server;
