@@ -165,6 +165,8 @@ enum {
     * length: 17
     */
     MACSTRINGLEN_L  = (MACSTRINGLEN_S + 5),
+    
+    MACSTRINGLEN  = MACSTRINGLEN_L,
 };
 
 #define OS_ZEROMAC_STRING   "00:00:00:00:00:00"

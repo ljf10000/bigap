@@ -33,9 +33,10 @@ rsha_init(void)
     }
 
     char *macstring = os_getmacby(SCRIPT_GETBASEMAC);
-    if (NULL==os_getmac_bystring(rsha.basemac, macstring)) {
+    if (NULL==os_getmac_bystring(rsha.mac, macstring)) {
         return -EBADBASEMAC;
     }
+    os_strcpy(rsha.macstring, macstring);
 
     err = os_loop_init(&rsha.loop);
     if (err<0) {

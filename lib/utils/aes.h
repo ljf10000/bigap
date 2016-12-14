@@ -7,6 +7,14 @@
 #define AES_BLOCK_SIZE 16               // AES operates on 16 bytes at a time
 
 /*********************** FUNCTION DECLARATIONS **********************/
+static inline bool
+is_good_aes_key_size(int size)
+{
+    return size==128/8
+        || size==192/8
+        || size==256/8;
+}
+
 ///////////////////
 // AES
 ///////////////////

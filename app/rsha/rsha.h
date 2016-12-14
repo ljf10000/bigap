@@ -128,8 +128,7 @@ enum {
 }   /* end */
 
 /*
-    json config
-    
+    1. rsha json config
     {
         "name": "NAME",
         "proxy": "PROXY",
@@ -147,6 +146,11 @@ enum {
                 "times", TIMES
             }
         }
+    }
+    
+    2. rsh register json
+    {
+        "key": "KEY"
     }
 */
 
@@ -224,7 +228,8 @@ typedef struct {
     uint32 ticks;
 
     char buffer[RSH_MSG_ALLSIZE];
-    byte basemac[OS_MACSIZE];
+    char macstring[1+MACSTRINGLEN];
+    byte mac[OS_MACSIZE];
     
     loop_t loop;
     
@@ -271,6 +276,9 @@ rsha_echo(rsh_instance_t *instance);
 
 extern int 
 rsha_ack(rsh_instance_t *instance);
+
+extern int 
+rsh_register(rsh_instance_t *instance);
 
 extern int
 init_rsha_cli(void);
