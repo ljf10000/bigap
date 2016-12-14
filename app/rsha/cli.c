@@ -48,12 +48,12 @@ rsha_handle_insert(cli_table_t *table, int argc, char *argv[])
         return cli_help(-EINVAL0);
     }
 
-    jobj_t = jobj_byjson(json);
-    if (NULL==json) {
+    jobj_t jobj = jobj_byjson(json);
+    if (NULL==jobj) {
         return cli_help(-EBADJSON);
     }
 
-    return rshi_insert(jobj_t);
+    return rshi_insert(jobj);
 }
 
 /*
