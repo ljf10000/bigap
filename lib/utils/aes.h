@@ -24,7 +24,7 @@ EXTERN void aes_key_setup(const byte key[],     // The key, must be 128, 192, or
                    uint32 w[],                  // Output key schedule to be used later
                    int keysize);                // Bit length of the key, 128, 192, or 256
 
-typedef void aes_crypt_t(const byte in[],
+typedef void aes_crypt_handle_t(const byte in[],
                  byte out[],
                  const uint32 key[],
                  int keysize);

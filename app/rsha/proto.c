@@ -11,9 +11,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
     
 #define __DEAMON__
 #include "rsha.h"
-/******************************************************************************/s
+/******************************************************************************/
 STATIC int 
-rsha_crypt(rsh_instance_t *instance, int len, aes_crypt_t *cb)
+rsha_crypt(rsh_instance_t *instance, int len, aes_crypt_handle_t *cb)
 {
     byte *in, *out;
     int i, count = AES_BLOCK_COUNT(len);
