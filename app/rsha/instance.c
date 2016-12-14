@@ -163,7 +163,7 @@ __rshi_create(char *name, jobj_t jobj)
     err = bind(fd, (sockaddr_t *)&instance->client, sizeof(instance->client));
     if (err<0) {
         debug_error("bind instance %s error:%d", instance->name, -errno);
-        return -errno;
+        goto error;
     }
     
     err = os_loop_add_normal(&rsha.loop, fd, rsha_recver, instance);
@@ -319,12 +319,12 @@ rshi_getbyname(char *name)
     
     bool eq(hash_node_t *node)
     {
-        rsh_instance_t *instance = __rshi_hx_entry(node);
+        rsh_instance_t *instance = __rshi_hx_entry(node, RSHI_NIDX_NAME);
         
         return os_streq(name, instance->name);
     }
     
-    return __rshi_h2_entry(h2_find(&rsha.head.instance, dhash, eq));
+    return __rshi_h2_entry(h2_find(&rsha.head.instance, RSHI_NIDX_NAME, dhash, eq));
 }
 
 rsh_instance_t *
@@ -337,13 +337,13 @@ rshi_getbyaddr(sockaddr_in_t *addr)
     
     bool eq(hash_node_t *node)
     {
-        rsh_instance_t *instance = __rshi_hx_entry(node);
+        rsh_instance_t *instance = __rshi_hx_entry(node, RSHI_NIDX_ADDR);
         
         return addr->sin_addr.s_addr==instance->server.sin_addr.s_addr
             && addr->sin_port==instance->server.sin_port;
     }
     
-    return __rshi_h2_entry(h2_find(&rsha.head.instance, dhash, eq));
+    return __rshi_h2_entry(h2_find(&rsha.head.instance, RSHI_NIDX_ADDR, dhash, eq));
 }
 
 int

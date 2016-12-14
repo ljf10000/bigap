@@ -240,7 +240,7 @@ extern int
 rshi_fsm_init(rsh_instance_t *instance);
 
 extern int
-rshi_fsm(rsh_instance_t *instance, int fsm);
+rshi_fsm(rsh_instance_t *instance, int fsm, time_t now);
 
 extern int
 rshi_insert(jobj_t jobj);
