@@ -86,11 +86,11 @@ rsh_register(rsh_instance_t *instance, time_t now)
     jobj_t jobj = NULL;
     int err, len;
 
-    char cert[1+FCOOKIE_FILE_LEN] = {0};
-    char  key[1+FCOOKIE_FILE_LEN] = {0};
+    char fcert[1+FCOOKIE_FILE_LEN] = {0};
+    char  fkey[1+FCOOKIE_FILE_LEN] = {0};
 
-    if (NULL==fcookie_cert(instance->cid, cert) || 
-        NULL==fcookie_key(instance->cid, key)) {
+    if (NULL==fcookie_cert(instance->cid, fcert) || 
+        NULL==fcookie_key(instance->cid, fkey)) {
         err = -ENOCERT; goto error;
     }
 
@@ -101,7 +101,7 @@ rsh_register(rsh_instance_t *instance, time_t now)
                 " -k --cert %s --key %s"
                 " -s %s",
             rsha.macstring,
-            cert, key,
+            fcert, fkey,
             instance->registry);
     if (err<0) {
         debug_error("curl err(%d)", err);
@@ -147,8 +147,8 @@ rsh_register(rsh_instance_t *instance, time_t now)
     return rshi_fsm(instance, RSH_FSM_REGISTERED, now);
 error:
     jobj_put(jobj);
-    fcookie_put_file(cert);
-    fcookie_put_file(key);
+    fcookie_put_file(fcert);
+    fcookie_put_file(fkey);
     
     return err;
 }
