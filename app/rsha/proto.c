@@ -110,19 +110,6 @@ rsha_ack(rsh_instance_t *instance, int error, char *error_string)
     return rsha_send(instance);
 }
 
-STATIC jobj_t
-rsha_ack_verror(rsh_instance_t *instance, const char *fmt, va_list args)
-{
-    jobj_t jobj = jobj_new_object();
-    
-    int err = jobj_vsprintf(jobj, "error", fmt, args);
-    if (err<0) {
-        return NULL;
-    }
-
-    return jobj;
-}
-
 int
 rsha_ack_error(rsh_instance_t *instance, int error, const char *fmt, ...)
 {
@@ -131,7 +118,7 @@ rsha_ack_error(rsh_instance_t *instance, int error, const char *fmt, ...)
     int err;
     
     va_start(args, (char *)fmt);
-    jobj = jobj_vsprintf(jobj_new_object(), fmt, args);
+    jobj = jobj_vsprintf(jobj_new_object(), "error", fmt, args);
     va_end(args);
 
     if (NULL==jobj) {
