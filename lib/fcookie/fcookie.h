@@ -86,7 +86,7 @@ fcookie_key(int cid, char *tmp_file)
     return fcookie_file(fcookie_key_id(cid), tmp_file);
 }
 
-STATIC void
+static inline void
 fcookie_put_file(char *file)
 {
     if (is_good_str(file)) {
