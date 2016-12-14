@@ -23,6 +23,7 @@ akid_t __THIS_JDEBUG;
 LIB_INITER;
 /******************************************************************************/
 #include "weos/boot/addr.c"
+#include "weos/boot/aes.c"
 #include "weos/boot/ak.c"
 #include "weos/boot/autoarray.c"
 #include "weos/boot/base64.c"

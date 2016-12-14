@@ -144,9 +144,11 @@ os_bitmap_clr(os_bitmap_t *bp, uint32 bit);
 EXTERN bool
 os_bitmap_isset(os_bitmap_t *bp, uint32 bit);
 /******************************************************************************/
-#define OS_POSITION_HEAD    0x01
-#define OS_POSITION_TAIL    0x02
-#define OS_POSITION_ALL     (OS_POSITION_HEAD | OS_POSITION_TAIL)
+enum {
+    OS_POSITION_HEAD    = 0x01,
+    OS_POSITION_TAIL    = 0x02,
+    OS_POSITION_ALL     = (OS_POSITION_HEAD | OS_POSITION_TAIL),
+};
 
 #define is_position_head(_pos)  os_hasflag(_pos, OS_POSITION_HEAD)
 #define is_position_tail(_pos)  os_hasflag(_pos, OS_POSITION_TAIL)

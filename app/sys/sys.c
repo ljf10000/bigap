@@ -374,9 +374,9 @@ do_sys_mount(char *dev, char *dir, bool check, bool readonly, bool repair)
     return os_shell(SCRIPT_MOUNT " %s %s %s %s %s", 
                 dev, 
                 dir,
-                os_yesno(check),
+                os_yes_no(check),
                 readonly?"ro":"rw",
-                os_yesno(repair));
+                os_yes_no(repair));
 }
 
 STATIC int

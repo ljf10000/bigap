@@ -214,7 +214,7 @@ static inline jrule_t *nsq_instance_jrules(void);
 static inline bool
 is_nsq_resolve_ok(nsq_instance_t *instance)
 {
-    return INADDR_NONE != instance->server.sin_addr.s_addr;
+    return is_good_ipaddr(instance->server.sin_addr.s_addr);
 }
 
 static inline nsq_msg_t *

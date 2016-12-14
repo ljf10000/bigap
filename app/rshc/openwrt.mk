@@ -1,12 +1,6 @@
 
-OBJS=rsha.o \
-	cli.o \
-	instance.o \
-	proto.o \
-	timer.o \
-	#end
-		
-__TARGET=rsha
+OBJS=rshc.o
+__TARGET=rshc
 TARGET=$(__TARGET)
 LIBS_DEPEND=-lc -lm -ljson-c -lweos
 

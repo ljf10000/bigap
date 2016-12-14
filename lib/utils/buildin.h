@@ -126,23 +126,31 @@ string_to_string_mapper(char *s)
 #endif
 
 #ifndef os_fake_declare
-#define os_fake_declare     extern int __os_value_not_used_forever
+#define os_fake_declare         extern int __os_value_not_used_forever
+#endif
+
+#ifndef OS_WAIT_FOREVER
+#define OS_WAIT_FOREVER         60 // second
 #endif
 
 #ifndef os_wait_forever
-#define os_wait_forever()   do{ sleep(60); }while(1)
+#define os_wait_forever()       do{ sleep(OS_WAIT_FOREVER); }while(1)
 #endif
 
-#ifndef os_yesno
-#define os_yesno(_yesno)    ((_yesno)?"yes":"no")
+#ifndef os_yes_no
+#define os_yes_no(_yes_no)      ((_yes_no)?"yes":"no")
+#endif
+
+#ifndef os_ok_error
+#define os_ok_error(_ok_error)  ((_ok_error)?"ok":"error")
 #endif
 
 #ifndef ntohll
-#define ntohll(_val)        __bswap_64(_val)
+#define ntohll(_val)            __bswap_64(_val)
 #endif
 
 #ifndef htonll
-#define htonll(_val)        ntohll(_val)
+#define htonll(_val)            ntohll(_val)
 #endif
 
 #define os_swap_value(_a, _b) do {  \

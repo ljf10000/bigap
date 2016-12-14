@@ -124,7 +124,7 @@ __nsqi_create(char *name, char *topic, char *channel, jobj_t jobj)
     sockaddr_in_t *server   = &instance->server;
     server->sin_family      = AF_INET;
     server->sin_port        = htons(instance->port);
-    server->sin_addr.s_addr = INADDR_NONE;
+    server->sin_addr.s_addr = INVALID_IPADDR;
 
     sockaddr_in_t *client   = &instance->client;
     client->sin_family      = AF_INET;

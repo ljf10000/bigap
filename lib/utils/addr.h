@@ -2,6 +2,39 @@
 #define __ADDR_H_a60fcc799b2f44c38dcbf510eb97f0c6__
 #ifdef __APP__
 /******************************************************************************/
+enum { INVALID_IPADDR = INADDR_NONE };
+
+/*
+* just for single-thread, unsafe for multi-thread
+*
+* @ip: network sort
+*/
+static inline char *
+os_ipstring(uint32 ip)
+{
+    struct in_addr in = {.s_addr = ip};
+    
+    return (char *)inet_ntoa(in);
+}
+
+static inline uint32
+os_ipaddr(char *ipstring)
+{
+    return inet_addr(ipstring);
+}
+
+static inline bool
+is_good_ipaddr(uint32 ip)
+{
+    return INVALID_IPADDR != ip;
+}
+
+static inline bool
+is_good_ipstring(char *ipstring)
+{
+    return is_good_str(ipstring) && is_good_ipaddr(os_ipaddr(ipstring));
+}
+
 #define OS_UNIX_PATH(_PATH)             "/tmp/." _PATH ".unix"
 #define __ABSTRACT_PATH(_PATH)          __zero _PATH
 #define OS_ABSTRACT_PATH(_PATH)         __ABSTRACT_PATH(OS_UNIX_PATH(_PATH))
@@ -101,30 +134,6 @@ os_sockaddr_len(sockaddr_t *addr);
 extern char *
 os_getmacby(char *script);
 /******************************************************************************/
-/*
-* just for single-thread, unsafe for multi-thread
-*
-* @ip: network sort
-*/
-static inline char *
-os_ipstring(uint32 ip)
-{
-    struct in_addr in = {.s_addr = ip};
-    
-    return (char *)inet_ntoa(in);
-}
-
-static inline uint32
-os_ipaddr(char *ipstring)
-{
-    return inet_addr(ipstring);
-}
-
-static inline bool
-is_good_ipstring(char *ipstring)
-{
-    return is_good_str(ipstring) && INADDR_NONE!=inet_addr(ipstring);
-}
 #endif /* __APP__ */
 
 /******************************************************************************/

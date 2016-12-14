@@ -10421,7 +10421,7 @@ DUK_INTERNAL duk_small_int_t duk_unicode_is_whitespace(duk_codepoint_t cp) {
 	 *    000C;<control>;Cc;0;WS;;;;;N;FORM FEED (FF);;;;
 	 *    0020;SPACE;Zs;0;WS;;;;;N;;;;;
 	 *    00A0;NO-BREAK SPACE;Zs;0;CS;<noBreak> 0020;;;;N;NON-BREAKING SPACE;;;;
-	 *    FEFF;ZERO WIDTH NO-BREAK SPACE;Cf;0;BN;;;;;N;BYTE ORDER MARK;;;;
+	 *    FEFF;ZERO WIDTH NO-BREAK SPACE;Cf;0;BN;;;;;N;byte ORDER MARK;;;;
 	 *
 	 *  It also specifies any Unicode category 'Zs' characters as white
 	 *  space.  These can be extracted with the "src/extract_chars.py" script.
