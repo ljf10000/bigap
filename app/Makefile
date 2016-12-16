@@ -14,6 +14,7 @@ include $(DIR_ROOT)/mk/define.mk
 SUB_SYSTEM=ak \
 		benv \
 		bkdr \
+		cli \
 		duktape \
 		fcookie \
 		guard \
