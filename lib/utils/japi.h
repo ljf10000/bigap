@@ -563,31 +563,31 @@ struct jrule_s {
 #define jmethod_deft(_rule, _member)    (_rule)->deft._member
 
 static inline jrule_o2j_f *
-jmethod_o2j(jrule_t *rule)
+jmethod_o2j(const jrule_t *rule)
 {
     return rule->unserialize.o2j;
 }
 
 static inline jrule_j2o_f *
-jmethod_j2o(jrule_t *rule)
+jmethod_j2o(const jrule_t *rule)
 {
     return rule->unserialize.j2o;
 }
 
 static inline jrule_check_f *
-jmethod_check(jrule_t *rule)
+jmethod_check(const jrule_t *rule)
 {
     return rule->serialize.check;
 }
 
 static inline jrule_get_rules_f *
-jmethod_get_rules(jrule_t *rule)
+jmethod_get_rules(const jrule_t *rule)
 {
     return rule->deft.get_rules;
 }
 
 static inline jrule_get_enum_ops_f *
-jmethod_get_enum_ops(jrule_t *rule)
+jmethod_get_enum_ops(const jrule_t *rule)
 {
     return rule->serialize.get_enum_ops;
 }
