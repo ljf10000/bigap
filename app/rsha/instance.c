@@ -159,30 +159,6 @@ __rshi_remove(rsh_instance_t *instance)
     return h1_del(&rsha.head.instance, &instance->node.instance);
 }
 
-STATIC int
-rshi_echo_j2o(rsh_echo_t *echo, jobj_t jobj)
-{
-    return jrule_j2o(rsh_echo_jrules(), echo, jobj);
-}
-
-STATIC jobj_t
-rshi_echo_o2j(rsh_echo_t *echo)
-{
-    jobj_t jobj = jobj_new_object();
-    if (NULL==jobj) {
-        return NULL;
-    }
-    
-    int err = jrule_o2j(rsh_echo_jrules(), echo, jobj);
-    if (err<0) {
-        jobj_put(jobj);
-
-        return NULL;
-    }
-
-    return jobj;
-}
-
 STATIC jobj_t
 rshi_st_o2j(rsh_instance_st_t *st)
 {

@@ -169,6 +169,18 @@ typedef struct {
 DECLARE_JRULER(rsh_echo, RSH_ECHO_JRULE_MAPPER);
 
 static inline jrule_t *rsh_echo_jrules(void);
+
+static inline int
+rshi_echo_j2o(rsh_echo_t *echo, jobj_t jobj)
+{
+    return jrule_j2o(rsh_echo_jrules(), echo, jobj);
+}
+
+static inline jobj_t
+rshi_echo_o2j(rsh_echo_t *echo)
+{
+    return jrule_o2j_ex(rsh_echo_jrules(), echo);
+}
 #endif
 
 typedef struct {

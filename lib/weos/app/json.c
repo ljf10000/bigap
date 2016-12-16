@@ -1282,6 +1282,24 @@ jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jr
     return 0;
 }
 
+jobj_t
+jrule_o2j_ex(const jrule_t *rules, void *obj)
+{
+    jobj_t jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return NULL;
+    }
+    
+    int err = jrule_o2j(rules, obj, jobj);
+    if (err<0) {
+        jobj_put(jobj);
+
+        return NULL;
+    }
+
+    return jobj;
+}
+
 int
 jrule_o2j(const jrule_t *rules, void *obj, jobj_t jobj)
 {
