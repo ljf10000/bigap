@@ -2,7 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 STATIC bool
-__jscript_md5eqf(jscript_t *jscript, char *filename)
+__jscript_md5eqf(jscript_t *jsc, char *filename)
 {
     byte md5[OS_MD5_SIZE];
     char md5string[1+OS_MD5_SIZE] = {0};
@@ -11,11 +11,11 @@ __jscript_md5eqf(jscript_t *jscript, char *filename)
 
     md5_bin2hex(md5string, md5);
 
-    return os_streq(md5string, jscript->md5);
+    return os_streq(md5string, jsc->md5);
 }
 
 STATIC bool
-__jscript_md5eqc(jscript_t *jscript, char *content)
+__jscript_md5eqc(jscript_t *jsc, char *content)
 {
     byte md5[OS_MD5_SIZE];
     char md5string[1+OS_MD5_SIZE] = {0};
@@ -24,15 +24,15 @@ __jscript_md5eqc(jscript_t *jscript, char *content)
 
     md5_bin2hex(md5string, md5);
 
-    return os_streq(md5string, jscript->md5);
+    return os_streq(md5string, jsc->md5);
 }
 
 STATIC int
-__jscript_report(jscript_t *jscript, char *ack, jobj_t jreply)
+__jscript_report(jscript_t *jsc, char *ack, jobj_t jreply)
 {
     int err = 0;
     
-    if (NULL==jscript->reply) {
+    if (NULL==jsc->reply) {
         return 0;
     }
 
@@ -42,16 +42,16 @@ __jscript_report(jscript_t *jscript, char *ack, jobj_t jreply)
     }
     time_t now = time(NULL);
 
-    jobj_add_string(jobj, "mac",jscript->dev.basemac);
-    jobj_add_string(jobj, "recvtime", os_fulltime_string(jscript->recvtime));
+    jobj_add_string(jobj, "mac",jsc->dev.basemac);
+    jobj_add_string(jobj, "recvtime", os_fulltime_string(jsc->recvtime));
     jobj_add_string(jobj, "exectime", os_fulltime_string(now));
-    jobj_add_string(jobj, "id", jscript->id);
+    jobj_add_string(jobj, "id", jsc->id);
     jobj_add_string(jobj, "ack", ack);
-    jobj_add_u64(jobj, "seq", jscript->seq);
+    jobj_add_u64(jobj, "seq", jsc->seq);
 
     jobj_add(jobj, "reply", jreply);
 
-    err = os_system("%s '%s'", jscript->reply, jobj_json(jobj));
+    err = os_system("%s '%s'", jsc->reply, jobj_json(jobj));
     jobj_put(jobj);
 
     return err;
@@ -77,15 +77,39 @@ __jscript_jreply(int error, char *outstring, char *errstring)
 }
 
 STATIC int
-__jscript_error(jscript_t *jscript, int error, char *errstring)
+__jscript_verror(jscript_t *jsc, int error, const char *fmt, va_list args)
 {
-    __jscript_report(jscript, "error", __jscript_jreply(error, NULL, errstring));
+    char *errstring = NULL;
+
+    int err = os_vasprintf(&errstring, fmt, args);
+    if (err>0) {
+        __jscript_report(jsc, "error", __jscript_jreply(error, NULL, errstring));
+    }
+    os_free(errstring);
 
     return error;
 }
 
 STATIC int
-__jscript_exec(jscript_t *jscript, char *json)
+__jscript_error(jscript_t *jsc, int error, const char *fmt, ...)
+{
+    va_list args;
+    
+    va_start(args, (char *)fmt);
+    __jscript_verror(jsc, error, fmt, args);
+    va_end(args);
+    
+    return error;
+}
+
+STATIC int
+__jscript_ok(jscript_t *jsc)
+{
+    return __jscript_error(jsc, 0, NULL);
+}
+
+STATIC int
+__jscript_exec(jscript_t *jsc, char *json)
 {
     int err = 0;
     
@@ -93,23 +117,23 @@ __jscript_exec(jscript_t *jscript, char *json)
 
     int cb(int error, char *outstring, char *errstring)
     {
-        __jscript_report(jscript, "reply", __jscript_jreply(error, outstring, errstring));
+        __jscript_report(jsc, "reply", __jscript_jreply(error, outstring, errstring));
     
         return 0;
     }
 
-    if (0==jscript->period || now < (jscript->sendtime + jscript->period)) {
-        if (jscript->dev.slot == jscript->slot) {
+    if (0==jsc->period || now < (jsc->sendtime + jsc->period)) {
+        if (jsc->dev.slot == jsc->slot) {
             // ipc
             err = os_pexec_json(json, cb);
             if (err<0) {
-                __jscript_error(jscript, err, "jexec error");
+                __jscript_error(jsc, err, "jexec error:%s", json);
             }
         } else {
             // rpc
-            err = os_system(JSCRIPT_REMOTE " %d '%s'", jscript->slot, json);
+            err = os_system(JSCRIPT_REMOTE " %d '%s'", jsc->slot, json);
 
-            __jscript_error(jscript, err, 0==err?"jremote ok":"jremote error");
+            __jscript_error(jsc, err, 0==err?"jremote ok":"jremote error");
         }
     }
 
@@ -117,18 +141,18 @@ __jscript_exec(jscript_t *jscript, char *json)
 }
 
 STATIC char * // unsafe
-__jscript_dir(jscript_t *jscript)
+__jscript_dir(jscript_t *jsc)
 {
     static char dir[1+OS_LINE_LEN];
 
-    switch(jscript->scope) {
+    switch(jsc->scope) {
         case JSCRIPT_SCOPE_INSTANCE:
-            os_saprintf(dir, "%s/%s", jscript->instance.cache, jscript->instance.name);
+            os_saprintf(dir, "%s/%s", jsc->instance.cache, jsc->instance.name);
             
             break;
         case JSCRIPT_SCOPE_GLOBAL:
         default:
-            os_saprintf(dir, "%s", jscript->instance.cache);
+            os_saprintf(dir, "%s", jsc->instance.cache);
             
             break;
     }
@@ -137,125 +161,113 @@ __jscript_dir(jscript_t *jscript)
 }
 
 STATIC char *
-__jscript_filename(jscript_t *jscript)
+__jscript_filename(jscript_t *jsc)
 {
     static char filename[1+OS_LINE_LEN];
-    
-    if ('/'==jscript->filename[0]) {
-        os_saprintf(filename, "%s", jscript->filename);
-    } else {
-        os_saprintf(filename, "%s/%s", __jscript_dir(jscript), jscript->filename);
-    }
 
+    if ('/'==jsc->filename[0]) {
+        os_saprintf(filename, "%s", jsc->filename);
+    } else {
+        os_saprintf(filename, "%s/%s", __jscript_dir(jsc), jsc->filename);
+    }
+    
     return filename;
 }
 
 STATIC int
-__jscript_save_content(jscript_t *jscript)
+__jscript_save_content(jscript_t *jsc)
 {
     int err = 0;
-    char *content = b64_decode((byte *)jscript->content, os_strlen(jscript->content));
+    char *content = b64_decode((byte *)jsc->content, os_strlen(jsc->content));
     if (NULL==content) {
         return -ENOMEM;
     }
     
-    if (NULL==jscript->md5 || false==__jscript_md5eqc(jscript, content)) {
-        err = os_writefile(__jscript_filename(jscript), content, os_strlen(content), false, false);
+    if (NULL==jsc->md5 || false==__jscript_md5eqc(jsc, content)) {
+        err = os_writefile(__jscript_filename(jsc), content, os_strlen(content), false, false);
     }
 
     os_free(content);
     
-    return __jscript_error(jscript, 0, NULL);
+    return __jscript_ok(jsc);
 }
 
 STATIC int
-__jscript_download(jscript_t *jscript, char *file)
+__jscript_download(jscript_t *jsc, char *file)
 {
-    if (NULL==jscript->url) {
-        return __jscript_error(jscript, 1, "file not exist and no url");
+    if (NULL==jsc->url) {
+        return __jscript_error(jsc, 1, "file not exist and no url");
     } else {
-        int err = os_system("curl -o %s %s &> /dev/null", file, jscript->url);
+        int err = os_system("curl -o %s %s &> /dev/null", file, jsc->url);
 
-        return __jscript_error(jscript, err, "download");
+        return __jscript_error(jsc, err, "download error: curl -o %s %s &> /dev/null", file, jsc->url);
     }
 }
 
 STATIC int
-__jscript_save_file(jscript_t *jscript)
+__jscript_save_file(jscript_t *jsc)
 {
-    if (NULL==jscript->filename) {
+    if (NULL==jsc->filename) {
         /*
         * no filename, needn't save
         */
-        return __jscript_error(jscript, 0, NULL);
+        return __jscript_ok(jsc);
     }
-    else if (JSCRIPT_CACHE_NONE==jscript->cache) {
+    else if (JSCRIPT_CACHE_NONE==jsc->cache) {
         /*
         * no cache, needn't save
         */
-        return __jscript_error(jscript, 0, NULL);
+        return __jscript_ok(jsc);
     }
-    else if (jscript->content) {
-        return __jscript_save_content(jscript);
-    }
-
-    char *file = __jscript_filename(jscript);
-    if (false==os_file_exist(file)) {
-        return __jscript_download(jscript, file);
+    else if (jsc->content) {
+        return __jscript_save_content(jsc);
     }
 
-    if (__jscript_md5eqf(jscript, file)) {
-        return __jscript_error(jscript, 0, NULL);
+    char *file = __jscript_filename(jsc);
+    if (os_file_exist(file) && __jscript_md5eqf(jsc, file)) {
+        return __jscript_ok(jsc);
     } else {
-        return __jscript_download(jscript, file);
+        return __jscript_download(jsc, file);
     }
 }
 
 STATIC int
-__jscript_save_json(jscript_t *jscript, char *json)
+__jscript_save_json(jscript_t *jsc, char *json)
 {
     char file[1+OS_LINE_LEN];
+
+    // todo: inotify the dir and save file to flash
     
     os_saprintf(file, "/tmp/startup/next/%s.%llu.json",
-        jscript->instance.name,
-        jscript->seq);
+        jsc->instance.name,
+        jsc->seq);
 
     return os_writefile(file, json, os_strlen(json), false, false);
 }
 
 STATIC int
-__jscript_handle(jscript_t *jscript, char *json)
+__jscript_handle(jscript_t *jsc, char *json)
 {
-    __jscript_save_file(jscript);
+    __jscript_save_file(jsc);
 
-    if (JSCRIPT_RUN_NEXT==jscript->run) {
-        return __jscript_save_json(jscript, json);
+    if (jsc->dev.is_startup || JSCRIPT_RUN_THIS==jsc->run) {
+        return __jscript_exec(jsc, json);
     } else {
-        return __jscript_exec(jscript, json);
+        return __jscript_save_json(jsc, json);
     }
-}
-
-STATIC int
-__jscript_check(jscript_t *jscript)
-{
-    if (NULL==jscript->filename && jscript->content) {
-        return __jscript_error(jscript, 1, "no filename and content");
-    }
-    
-    return 0;
 }
 
 int
 jscript_exec(char *json)
 {
     int err;
-    jscript_t J = {
+    jscript_t jscript = {
         .dev = {
             .slot = env_geti("SLOT", 0),
             .basemac = os_getmacby(SCRIPT_GETBASEMAC),
         },
     };
-    jscript_t *jscript = &J;
+    jscript_t *jsc = &jscript;
     
     jobj_t jobj = jobj_byjson(json);
     if (NULL==jobj) {
@@ -268,11 +280,11 @@ jscript_exec(char *json)
     jobj_t jval = jobj_get(jobj, "script");
     if (jval) {
         if (jtype_string != jobj_type(jval)) {
-            return __jscript_error(jscript, -EBADJSON, "bad json");
+            return __jscript_error(jsc, -EBADJSON, "bad json:script not string");
         }
         
         char *script = jobj_get_string(jval);
-        if (os_strneq("/bin/" __THIS_APPNAME, script)) {
+        if (os_strneq(JSCRIPT_SCRIPT, script)) {
             return os_system("%s '%s'", script, json);
         }
     }
@@ -281,25 +293,23 @@ jscript_exec(char *json)
     * append recvtime
     */
     if (NULL==jobj_get(jobj, "recvtime")) {
-        jscript->recvtime = time(NULL);
+        jsc->recvtime = time(NULL);
         
-        char *now = os_fulltime_string(jscript->recvtime);
+        char *now = os_fulltime_string(jsc->recvtime);
         jobj_add(jobj, "recvtime", jobj_new_string(now));
     } else {
-        jscript->dev.is_startup = true;
+        jsc->dev.is_startup = true;
     }
     
-    err = jrule_j2o(jscript_jrules(), jscript, jobj);
+    err = jrule_j2o(jscript_jrules(), jsc, jobj);
     if (err<0) {
-        return __jscript_error(jscript, err, "bad json");
+        return __jscript_error(jsc, err, "bad json:%s", jobj_json(jobj));
+    }
+    else if (NULL==jsc->filename && jsc->content) {
+        return __jscript_error(jsc, 1, "no filename and content");
     }
     
-    err = __jscript_check(jscript);
-    if (err<0) {
-        return err;
-    }
-    
-    return __jscript_handle(jscript, jobj_json(jobj));
+    return __jscript_handle(jsc, jobj_json(jobj));
 }
 
 /******************************************************************************/

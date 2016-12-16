@@ -22,6 +22,10 @@
 #define JSCRIPT_CACHE       PC_VAL("./cache", "/tmp/cache")
 #endif
 
+#ifndef JSCRIPT_SCRIPT
+#define JSCRIPT_SCRIPT      PC_VAL("../jscript/jscript", "/bin/jscript")
+#endif
+
 /*
 if content:exist, filename:exist, then
         cache must cache/flash
