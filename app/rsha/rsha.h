@@ -240,27 +240,27 @@ rsh_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, peer_error_max), peer_error_max, "peer_error_max", \
-            u32, sizeof(u32), 0,                        \
+            u32, sizeof(uint32), 0,                     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, peer_error), peer_error, "peer_error", \
-            u32, sizeof(u32), 0,                        \
+            u32, sizeof(uint32), 0,                     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, seq), seq, "seq",        \
-            u32, sizeof(u32), 0,                        \
+            u32, sizeof(uint32), 0,                     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, seq_noack), seq_noack, "seq_noack", \
-            u32, sizeof(u32), 0,                        \
+            u32, sizeof(uint32), 0,                     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, seq_peer), seq_peer, "seq_peer", \
-            u32, sizeof(u32), 0,                        \
+            u32, sizeof(uint32), 0,                     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
