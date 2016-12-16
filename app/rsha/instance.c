@@ -484,7 +484,7 @@ rshi_echo_recver(rsh_instance_t *instance, time_t now)
     }
     
     rshi_echo_recv_ok(instance)++;
-    rshi_echo(instance)->recv = now;
+    rshi_echo_get(instance)->recv = now;
     
     return 0;
 }
