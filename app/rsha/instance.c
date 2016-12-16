@@ -127,11 +127,14 @@ __rshi_create(char *name, jobj_t jobj)
     
     jobj_t jecho = jobj_get(jobj, "echo");
     if (jecho) {
-        for (i=0; i<RSH_ECHO_STATE_END; i++) {
-            jval = jobj_get(jecho, rsh_echo_state_getnamebyid(i));
-            if (jval) {
-                __rshi_jecho(&instance->echo[i], jval);
-            }
+        jval = jobj_get(jecho, "idle");
+        if (jval) {
+            __rshi_jecho(&instance->echo.idle, jval);
+        }
+        
+        jval = jobj_get(jecho, "busy");
+        if (jval) {
+            __rshi_jecho(&instance->echo.busy, jval);
         }
     }
     

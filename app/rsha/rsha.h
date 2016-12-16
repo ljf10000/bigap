@@ -111,23 +111,6 @@ static inline int rsh_fsm_getidbyname(const char *name);
 #define is_rsh_fsm_run(_instance)           (RSH_FSM_RUN==(_instance)->fsm)
 #endif
 
-#if 1
-#define RSH_ECHO_STATE_ENUM_MAPPER(_)       \
-    _(RSH_ECHO_STATE_IDLE,  0, "idle"),     \
-    _(RSH_ECHO_STATE_BUSY,  1, "busy"),     \
-    /* end */
-DECLARE_ENUM(rsh_echo_state, RSH_ECHO_STATE_ENUM_MAPPER, RSH_ECHO_STATE_END);
-
-static inline enum_ops_t *rsh_echo_state_ops(void);
-static inline bool is_good_rsh_echo_state(int id);
-static inline char *rsh_echo_state_getnamebyid(int id);
-static inline int rsh_echo_state_getidbyname(const char *name);
-
-#define RSH_ECHO_STATE_IDLE     RSH_ECHO_STATE_IDLE
-#define RSH_ECHO_STATE_BUSY     RSH_ECHO_STATE_BUSY
-#define RSH_ECHO_STATE_END      RSH_ECHO_STATE_END
-#endif
-
 /*
     1. rsha json config
     {
