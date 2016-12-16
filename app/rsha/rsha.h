@@ -233,6 +233,13 @@ rshi_seq(rsh_instance_t *instance)
     return (instance->seq_noack = instance->seq++);
 }
 
+static inline void
+rshi_echo_clear(rsh_echo_t *echo)
+{
+    echo->send = 0;
+    echo->recv = 0;
+}
+
 static inline rsh_echo_t *
 rshi_echo_get(rsh_instance_t *instance)
 {

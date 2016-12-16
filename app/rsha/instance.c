@@ -201,7 +201,8 @@ __rshi_show_cb(rsh_instance_t *instance)
 STATIC void
 rshi_fsm_init(rsh_instance_t *instance)
 {
-    os_arrayzero(instance->echo);
+    rshi_echo_clear(&instance->echo.idle);
+    rshi_echo_clear(&instance->echo.busy);
 }
 
 int
