@@ -172,7 +172,12 @@ typedef struct {
     char *flash;
     uint32 cid; // cert id
 
-    rsh_echo_t echo[RSH_ECHO_STATE_END];
+    struct {
+        rsh_echo_t idle, busy;
+    } echo;
+    
+    bool busy;
+    
     jobj_t jcfg;
     
     int fd;
@@ -248,16 +253,23 @@ rshi_seq(rsh_instance_t *instance)
 static inline rsh_echo_t *
 rshi_echo_get(rsh_instance_t *instance)
 {
-    return &instance->echo[instance->echo_state];
+    if (instance->busy) {
+        return &instance.echo.busy;
+    } else {
+        return &instance.echo.idle;
+    }
 }
 
 static inline rsh_echo_t *
-rshi_echo_switch(rsh_instance_t *instance, int state)
+rshi_echo_set(rsh_instance_t *instance, bool busy)
 {
-    if (instance->echo_state != state) {
-        os_objcpy(&instance->echo[state], &instance->echo[instance->echo_state]);
-        
-        instance->echo_state = state;
+    if (instance->busy != busy) {
+        rsh_echo_t *old = rshi_echo_get(instance);
+        instance->busy = busy;
+        rsh_echo_t *new = rshi_echo_get(instance);
+
+        new->send = old->send;
+        new->recv = old->recv;
     }
     
     return rshi_echo_get(instance);

@@ -76,6 +76,7 @@ LIB_INITER;
 #include "weos/app/intf.c"
 #include "weos/app/io.c"
 #include "weos/app/jlog.c"
+#include "weos/app/jscript.c"
 #include "weos/app/json.c"
 #include "weos/app/loop.c"
 #if USE_MOD_NSQ

@@ -200,6 +200,7 @@
 #include "utils/md5.h"
 #include "utils/aes.h"
 #include "utils/base64.h"
+#include "utils/jscript.h"
 
 #if 1   /* __EXTEND__ */
 #if USE_MOD_CHANNEL

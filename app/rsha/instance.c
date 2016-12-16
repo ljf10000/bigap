@@ -90,14 +90,10 @@ __rshi_create(char *name, jobj_t jobj)
     instance->seq   = rand() % 0xffff;
     instance->name  = os_strdup(name);
     instance->peer_error_max = RSHI_PEER_ERROR_MAX;
-    
-    echo = &instance->echo[RSH_ECHO_STATE_IDLE];
-    echo->interval  = os_second(RSHA_ECHO_IDLE_INTERVAL);
-    echo->times     = RSHA_ECHO_IDLE_TIMES;
-    
-    echo = &instance->echo[RSH_ECHO_STATE_BUSY];
-    echo->interval  = os_second(RSHA_ECHO_BUSY_INTERVAL);
-    echo->times     = RSHA_ECHO_BUSY_TIMES;
+    instance->echo.idle.interval  = os_second(RSHA_ECHO_IDLE_INTERVAL);
+    instance->echo.idle.times     = RSHA_ECHO_IDLE_TIMES;
+    instance->echo.busy.interval  = os_second(RSHA_ECHO_BUSY_INTERVAL);
+    instance->echo.busy.times     = RSHA_ECHO_BUSY_TIMES;
     
     jj_string(instance, jobj, proxy);
     if (NULL==instance->proxy) {
