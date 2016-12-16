@@ -137,11 +137,11 @@ __jscript_dir(void)
 {
     if (false==is_good_str(__this_jscript()->dir)) {
         switch(__this_jscript()->J.scope) {
-            case SCRIPT_SCOPE_INSTANCE:
+            case JSCRIPT_SCOPE_INSTANCE:
                 os_saprintf(__this_jscript()->dir, "%s/%s", __this_jscript()->J.instance.cache, __this_jscript()->J.instance.name);
                 
                 break;
-            case SCRIPT_SCOPE_GLOBAL:
+            case JSCRIPT_SCOPE_GLOBAL:
             default:
                 os_saprintf(__this_jscript()->dir, "%s", __this_jscript()->J.instance.cache);
                 
@@ -205,7 +205,7 @@ __jscript_save_file(void)
         */
         return __jscript_error(0, NULL);
     }
-    else if (SCRIPT_CACHE_NONE==__this_jscript()->J.cache) {
+    else if (JSCRIPT_CACHE_NONE==__this_jscript()->J.cache) {
         /*
         * no cache, needn't save
         */
