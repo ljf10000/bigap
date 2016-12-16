@@ -507,7 +507,7 @@ rshi_command_recver(rsh_instance_t *instance, time_t now)
     rsh_msg_t *msg = rsha_msg;
     jobj_t jobj = NULL;
     int err = 0;
-    
+
     jobj = jobj_byjson(msg->body);
     if (NULL==jobj) {
         rshi_command_recv_error(instance)++;
@@ -515,10 +515,10 @@ rshi_command_recver(rsh_instance_t *instance, time_t now)
         err = rshi_ack_error(instance, -RSH_E_BODY, "%s", msg->body);
         goto error;
     }
-    
+
     rshi_command_recv_ok(instance)++;
     rshi_ack_ok(instance);
-    
+
     err = rshi_script(instance, jobj);
 error:
     jobj_put(jobj);
