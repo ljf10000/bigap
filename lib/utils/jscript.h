@@ -155,7 +155,7 @@ typedef struct {
 #if 1
 #define JINSTANCE_JRULE_MAPPER(_) \
     _(offsetof(jinstance_t, name), name, "name",    \
-            string, sizeof(char *), JRULE_MUST,     \
+            string, sizeof(char *), JRULE_F_MUST,   \
             JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
@@ -170,7 +170,7 @@ typedef struct {
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
     _(offsetof(jinstance_t, cache), cache, "cache", \
-            string, sizeof(char *), JRULE_MUST,     \
+            string, sizeof(char *), JRULE_F_MUST,   \
             JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
@@ -231,12 +231,12 @@ jscript_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_INT(JSCRIPT_SCOPE_GLOBAL)),       \
     _(offsetof(jscript_t, slot), slot, "slot",          \
-            int, sizeof(int), JRULE_BORDER,             \
+            int, sizeof(int), JRULE_F_BORDER,           \
             JRULE_VAR_INT(0),                           \
             JRULE_VAR_INT(1),                           \
             JRULE_VAR_INT(0)),                          \
     _(offsetof(jscript_t, seq), seq, "seq",             \
-            u64, sizeof(uint64), JRULE_MUST,            \
+            u64, sizeof(uint64), JRULE_F_MUST,          \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
@@ -266,7 +266,7 @@ jscript_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, id), id, "id",                \
-            string, sizeof(char *), JRULE_MUST,         \
+            string, sizeof(char *), JRULE_F_MUST,       \
             JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
@@ -281,7 +281,7 @@ jscript_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_STRING(JSCRIPT_REMOTE_DEFAULT)),  \
     _(offsetof(jscript_t, sendtime), sendtime, "sendtime", \
-            time, sizeof(time_t), JRULE_MUST,           \
+            time, sizeof(time_t), JRULE_F_MUST,         \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
@@ -291,12 +291,12 @@ jscript_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, period), period, "period",    \
-            u32, sizeof(uint32), JRULE_MUST,            \
+            u32, sizeof(uint32), JRULE_F_MUST,          \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, instance), instance, "instance", \
-            object, sizeof(jinstance_t), JRULE_MUST,    \
+            object, sizeof(jinstance_t), JRULE_F_MUST,  \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_RULES(jinstance_jrules)),         \

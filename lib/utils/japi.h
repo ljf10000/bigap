@@ -438,20 +438,22 @@ int __jobj_map_##_member##_helper(jobj_t jobj)  \
     JOBJ_MAPFILE_BY(_file, _mapper, JOBJ_FUNC_MEMBER_MAPPER, JOBJ_FUNC_MEMBER_HELPER)
 /******************************************************************************/
 enum {
-    JRULE_MUST      = 0x0001,
-    JRULE_DROP      = 0x0002,
-
-    JRULE_CHECKER   = 0x0010,
-    JRULE_BORDER    = 0x0020,
+    JRULE_F_MUST    = 0x0001,
+    JRULE_F_DROP    = 0x0002,
+    
+    JRULE_F_CHECKER = 0x0010,
+    JRULE_F_BORDER  = 0x0020,
 };
 
-#define JURLE_VALID_FLAGS       \
-    JRULE_MUST,                 \
-    JRULE_DROP,                 \
-    JRULE_CHECKER,              \
-    JRULE_CHECKER | JRULE_MUST, \
-    JRULE_BORDER,               \
-    JRULE_BORDER | JRULE_MUST,  \
+#define JURLE_F_VALID_LIST          \
+    JRULE_F_MUST,                   \
+    JRULE_F_DROP,                   \
+                                    \
+    JRULE_F_CHECKER,                \
+    JRULE_F_CHECKER | JRULE_F_MUST, \
+                                    \
+    JRULE_F_BORDER,                 \
+    JRULE_F_BORDER | JRULE_F_MUST,  \
     /* end */
 
 extern bool
@@ -459,6 +461,13 @@ is_good_jrule_flag(int flag);
 
 typedef struct jrule_s jrule_t;
 typedef union jrule_var_u jrule_var_t;
+
+typedef int jrule_o2j_f(const jrule_t *rule, void *obj, jobj_t jobj);
+typedef int jrule_j2o_f(const jrule_t *rule, void *obj, jobj_t jobj);
+typedef int jrule_check_f(const jrule_t *rule, jobj_t jobj);
+
+typedef jrule_t *jrule_get_rules_f(void);
+typedef enum_ops_t *jrule_get_enum_ops_f(void);
 
 union jrule_var_u {
     void    *v;
@@ -476,12 +485,12 @@ union jrule_var_u {
     uint64  u64;
     float64 f64;
 
-    int (*o2j)(const jrule_t *rule, void *obj, jobj_t jobj);
-    int (*j2o)(const jrule_t *rule, void *obj, jobj_t jobj);
-    int (*check)(const jrule_t *rule, jobj_t jobj);
-    
-    jrule_t *(*get_rules)(void);
-    enum_ops_t *(*get_enum_ops)(void);
+    jrule_o2j_f *o2j;
+    jrule_j2o_f *j2o;
+    jrule_check_f *check;
+
+    jrule_get_rules_f *get_rules;
+    jrule_get_enum_ops_f *get_enum_ops;
 };
 
 #define JRULE_VAR_INITER(_member, _value)   {._member = _value }
@@ -520,15 +529,15 @@ struct jrule_s {
     *
     * 1. type is atomic (bool/int/double/...)
     *       deft as default value
-    *   if JRULE_CHECKER
+    *   if JRULE_F_CHECKER
     *       serialize as checker
     *       unserialize not-used
-    *   else if JRULE_BORDER
+    *   else if JRULE_F_BORDER
     *       serialize/unserialize as min/max
     *   else
     *       serialize/unserialize not-used
     * 2. type is enum
-    *       not support JRULE_CHECKER/JRULE_BORDER
+    *       not support JRULE_F_CHECKER/JRULE_F_BORDER
     *       serialize as get_enum_ops
     *       unserialize not-used
     *       deft as default value
@@ -537,17 +546,50 @@ struct jrule_s {
     *       unserialize as j2o
     *       deft as default value
     * 4. type is object
-    *       only support JRULE_MUST
+    *       only support JRULE_F_MUST
     *       serialize/unserialize not-used
     *       deft as rules
     * 5. type is array
-    *       only support JRULE_MUST
+    *       only support JRULE_F_MUST
     *       serialize as o2j
     *       unserialize as j2o
     *       deft as rules
     */
     jrule_var_t serialize, unserialize, deft;
 };
+
+#define jrule_boder_min(_jrule, _member)    (_jrule)->serialize._member
+#define jrule_boder_max(_jrule, _member)    (_jrule)->unserialize._member
+
+static inline jrule_o2j_f *
+jmethod_o2j(jrule_t *rule)
+{
+    return rule->unserialize.o2j;
+}
+
+static inline jrule_j2o_f *
+jmethod_j2o(jrule_t *rule)
+{
+    return rule->unserialize.j2o;
+}
+
+static inline jrule_check_f *
+jmethod_check(jrule_t *rule)
+{
+    return rule->serialize.check;
+}
+
+static inline jrule_get_rules_f *
+jmethod_get_rules(jrule_t *rule)
+{
+    return rule->deft.get_rules;
+}
+
+static inline jrule_get_enum_ops_f *
+jmethod_get_enum_ops(jrule_t *rule)
+{
+    return rule->serialize.get_enum_ops;
+}
 
 #define JRULER(_offset, _member, _name, \
             _type, _size, _flag,\

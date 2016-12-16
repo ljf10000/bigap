@@ -116,7 +116,7 @@ static inline int rsh_fsm_getidbyname(const char *name);
     {
         "name": "NAME",                 // must
         "proxy": "PROXY",               // must
-        "register": "REGISTER",         // must
+        "registry": "REGISTRY",         // must
         "cid": CID,                     // must
         "port": PORT,                   // must
         
@@ -155,11 +155,9 @@ typedef struct {
     char *flash;
     uint32 cid; // cert id
 
-    struct {
-        rsh_echo_t idle, busy;
-    } echo;
-    
-    bool busy;
+    rsh_echo_t idle;
+    rsh_echo_t busy;
+    bool echo_busy;
     
     jobj_t jcfg;
     
@@ -196,6 +194,44 @@ typedef struct {
     } node;
 } 
 rsh_instance_t;
+
+#if 1
+#define RSH_INSTANCE_JRULE_MAPPER(_) \
+    _(offsetof(rsh_instance_t, cid), cid, "cid",        \
+            int, sizeof(int), JRULE_F_MUST,             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, port), port, "port",     \
+            int, sizeof(int), JRULE_F_MUST,             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, proxy), proxy, "proxy",  \
+            string, sizeof(char *), JRULE_F_MUST,       \
+            JRULE_VAR_STRDUP,                           \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, registry), registry, "registry", \
+            string, sizeof(char *), JRULE_F_MUST,       \
+            JRULE_VAR_STRDUP,                           \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, cache), cache, "cache",  \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_STRDUP,                           \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRING(RSHA_CACHE)),              \
+    _(offsetof(rsh_instance_t, flash), flash, "flash",  \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_STRDUP,                           \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRING(RSHA_FLASH)),              \
+    /* end */
+DECLARE_JRULER(rsh_instance, RSH_INSTANCE_JRULE_MAPPER);
+
+static inline jrule_t *rsh_instance_jrules(void);
+#endif
 
 #define rshi_st_run(_instance, _cmd, _dir, _type) \
     (_instance)->st.run.val[_cmd][_dir][_type]
@@ -243,19 +279,19 @@ rshi_echo_clear(rsh_echo_t *echo)
 static inline rsh_echo_t *
 rshi_echo_get(rsh_instance_t *instance)
 {
-    if (instance->busy) {
-        return &instance->echo.busy;
+    if (instance->echo_busy) {
+        return &instance->busy;
     } else {
-        return &instance->echo.idle;
+        return &instance->idle;
     }
 }
 
 static inline rsh_echo_t *
 rshi_echo_set(rsh_instance_t *instance, bool busy)
 {
-    if (instance->busy != busy) {
+    if (instance->echo_busy != busy) {
         rsh_echo_t *old = rshi_echo_get(instance);
-        instance->busy = busy;
+        instance->echo_busy = busy;
         rsh_echo_t *new = rshi_echo_get(instance);
 
         new->send = old->send;

@@ -75,97 +75,83 @@ __rshi_jecho(rsh_echo_t *echo, jobj_t jval)
     jj_u32(echo, jval, times);
 }
 
-STATIC rsh_instance_t *
-__rshi_create(char *name, jobj_t jobj)
+STATIC int
+__rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
 {
-    rsh_instance_t *instance = NULL;
-    rsh_echo_t *echo;
     jobj_t jval;
-    int i, fd, err;
+    int err;
     
-    instance = (rsh_instance_t *)os_zalloc(sizeof(rsh_instance_t));
-    if (NULL==instance) {
-        goto error;
-    }
     instance->seq   = rand() % 0xffff;
     instance->name  = os_strdup(name);
     instance->peer_error_max = RSHI_PEER_ERROR_MAX;
-    instance->echo.idle.interval  = os_second(RSHA_ECHO_IDLE_INTERVAL);
-    instance->echo.idle.times     = RSHA_ECHO_IDLE_TIMES;
-    instance->echo.busy.interval  = os_second(RSHA_ECHO_BUSY_INTERVAL);
-    instance->echo.busy.times     = RSHA_ECHO_BUSY_TIMES;
-    
-    jj_string(instance, jobj, proxy);
-    if (NULL==instance->proxy) {
-        goto error;
-    }
-    
-    jj_string(instance, jobj, registry);
-    if (NULL==instance->registry) {
-        goto error;
-    }
-    
-    jj_u32(instance, jobj, cid);
-    if (false==is_good_os_cert(instance->cid)) {
-        goto error;
-    }
-    
-    jj_u32(instance, jobj, port);
-    if (0==instance->port) {
-        goto error;
-    }
-    
-    jj_string(instance, jobj, cache);
-    if (NULL==instance->cache) {
-        instance->cache = os_strdup(RSHA_CACHE);
-    }
-    
-    jj_string(instance, jobj, flash);
-    if (NULL==instance->flash) {
-        instance->flash = os_strdup(RSHA_FLASH);
-    }
-    
+
     jobj_t jecho = jobj_get(jobj, "echo");
     if (jecho) {
         jval = jobj_get(jecho, "idle");
         if (jval) {
-            __rshi_jecho(&instance->echo.idle, jval);
+            __rshi_jecho(&instance->idle, jval);
         }
         
         jval = jobj_get(jecho, "busy");
         if (jval) {
-            __rshi_jecho(&instance->echo.busy, jval);
+            __rshi_jecho(&instance->busy, jval);
         }
+    } else {
+        instance->idle.interval  = os_second(RSHA_ECHO_IDLE_INTERVAL);
+        instance->idle.times     = RSHA_ECHO_IDLE_TIMES;
+        instance->busy.interval  = os_second(RSHA_ECHO_BUSY_INTERVAL);
+        instance->busy.times     = RSHA_ECHO_BUSY_TIMES;
     }
-    
-    fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+    err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
+    if (err<0) {
+        return err;
+    }
+
+    int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (fd<0) {
         debug_error("instance %s socket error:%d", instance->name, -errno);
         
-        goto error;
+        return fd;
     }
     os_closexec(fd);
     instance->fd = fd;
-
+    
     sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, 0);
     err = bind(fd, (sockaddr_t *)&client, sizeof(client));
     if (err<0) {
         debug_error("bind instance %s error:%d", instance->name, -errno);
-        goto error;
+        
+        return -errno;
     }
     
     err = os_loop_add_normal(&rsha.loop, fd, rsha_recver, instance);
     if (err<0) {
-        goto error;
+        return err;
     }
+    
     instance->loop  = true;
     instance->jcfg  = jobj;
 
-    return instance;
-error:
-    __rshi_destroy(instance);
+    return 0;
+}
 
-    return NULL;
+STATIC rsh_instance_t *
+__rshi_create(char *name, jobj_t jobj)
+{
+    rsh_instance_t *instance = (rsh_instance_t *)os_zalloc(sizeof(rsh_instance_t));
+    if (NULL==instance) {
+        return NULL;
+    }
+    
+    int err = __rshi_init(instance, name, jobj);
+    if (err<0) {
+        __rshi_destroy(instance);
+
+        return NULL;
+    }
+    
+    return instance;
 }
 
 STATIC int
@@ -201,8 +187,8 @@ __rshi_show_cb(rsh_instance_t *instance)
 STATIC void
 rshi_fsm_init(rsh_instance_t *instance)
 {
-    rshi_echo_clear(&instance->echo.idle);
-    rshi_echo_clear(&instance->echo.busy);
+    rshi_echo_clear(&instance->idle);
+    rshi_echo_clear(&instance->busy);
 }
 
 int

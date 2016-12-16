@@ -745,7 +745,7 @@ jrule_getbyname(const jrule_t *rules, char *name)
 bool
 is_good_jrule_flag(int flag)
 {
-    static int flags[] = { JURLE_VALID_FLAGS };
+    static int flags[] = { JURLE_F_VALID_LIST };
     int i;
 
     for (i=0; i<os_count_of(flags); i++) {
@@ -776,7 +776,7 @@ __jrule_selfcheck(const jrule_t *rule)
         case jtype_i64:     // down
         case jtype_u64:     // down
         case jtype_f64:
-            if (os_hasflag(rule->flag, JRULE_CHECKER) && NULL==rule->serialize.check) {
+            if (os_hasflag(rule->flag, JRULE_F_CHECKER) && NULL==jmethod_check(rule)) {
                 debug_json("bad %s rule[%s], flag:%u", jtype_getnamebyid(rule->type), rule->name, rule->flag);
 
                 return -EBADRULE;
@@ -784,7 +784,7 @@ __jrule_selfcheck(const jrule_t *rule)
             
             break;
         case jtype_enum:
-            if (NULL==rule->serialize.get_enum_ops) {
+            if (NULL==jmethod_get_enum_ops(rule)) {
                 debug_json("bad enum rule[%s], no-found ops", rule->name);
 
                 return -EBADRULE;
@@ -792,7 +792,7 @@ __jrule_selfcheck(const jrule_t *rule)
             
             break;
         case jtype_string:
-            if (NULL==rule->unserialize.j2o) {
+            if (NULL==jmethod_j2o(rule)) {
                 debug_json("bad string rule[%s], no-found j2o", rule->name);
 
                 return -EBADRULE;
@@ -800,7 +800,7 @@ __jrule_selfcheck(const jrule_t *rule)
 
             break;
         case jtype_object:
-            if (NULL==rule->deft.get_rules) {
+            if (NULL==jmethod_get_rules(rule)) {
                 debug_json("bad object rule[%s], no-found rules", rule->name);
 
                 return -EBADRULE;
@@ -808,17 +808,17 @@ __jrule_selfcheck(const jrule_t *rule)
             
             break;
         case jtype_array:
-            if (NULL==rule->serialize.o2j) {
+            if (NULL==jmethod_o2j(rule)) {
                 debug_json("bad array rule[%s], no-found o2j", rule->name);
 
                 return -EBADRULE;
             }
-            else if (NULL==rule->unserialize.j2o) {
+            else if (NULL==jmethod_j2o(rule)) {
                 debug_json("bad array rule[%s], no-found j2o", rule->name);
 
                 return -EBADRULE;
             }
-            else if (NULL==rule->deft.get_rules) {
+            else if (NULL==jmethod_get_rules(rule)) {
                 debug_json("bad array rule[%s], no-found rules", rule->name);
 
                 return -EBADRULE;
@@ -887,7 +887,7 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
             jobj_add_f64(jobj, rule->name, *(float64 *)member);
             break;
         case jtype_enum: {
-            enum_ops_t *ops = rule->serialize.get_enum_ops();
+            enum_ops_t *ops = jmethod_get_enum_ops(rule)();
 
             jobj_add_string(jobj, rule->name, ops->getname(*(int *)member));
         }   break;
@@ -907,14 +907,14 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
             jval = jobj_new_object();
             jobj_add(jobj, rule->name, jval);
             
-            err = jrule_o2j(rule->deft.get_rules(), member, jval);
+            err = jrule_o2j(jmethod_get_rules(rule)(), member, jval);
             if (err<0) {
                 return err;
             }
 
             break;
         case jtype_array:
-            err = rule->serialize.o2j(rule, obj, jobj);
+            err = jmethod_o2j(rule)(rule, obj, jobj);
             if (err<0) {
                 return err;
             }
@@ -934,11 +934,11 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
     _long_type v = jobj_get_##_short_type(jval);    \
                                                     \
     if (border) {                                   \
-        if (v < rule->serialize._member) {          \
-            v = rule->serialize._member;            \
+        if (v < jrule_boder_min(rule, _member)) {   \
+            v = jrule_boder_min(rule, _member);     \
         }                                           \
-        else if (v > rule->unserialize._member) {   \
-            v = rule->unserialize._member;          \
+        else if (v > jrule_boder_max(rule, _member)) {   \
+            v = jrule_boder_max(rule, _member);     \
         }                                           \
     }                                               \
                                                     \
@@ -964,7 +964,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     jobj_t jval = jobj_get(jobj, rule->name);
     int err;
     
-    if (os_hasflag(rule->flag, JRULE_DROP)) {
+    if (os_hasflag(rule->flag, JRULE_F_DROP)) {
         if (jval) {
             debug_json("drop json key %s", rule->name);
             
@@ -973,15 +973,15 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
         
         return 0;
     }
-    else if (os_hasflag(rule->flag, JRULE_MUST)) {
+    else if (os_hasflag(rule->flag, JRULE_F_MUST)) {
         if (NULL==jval) {
             debug_json("no-found json key %s", rule->name);
             
             return -ENOEXIST;
         }
     }
-    else if (os_hasflag(rule->flag, JRULE_CHECKER)) {
-        err = (*rule->serialize.check)(rule, jobj);
+    else if (os_hasflag(rule->flag, JRULE_F_CHECKER)) {
+        err = jmethod_check(rule)(rule, jobj);
         if (err<0) {
             debug_json("rule[%s] check error %d", rule->name, err);
             
@@ -989,7 +989,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
         }
     }
 
-    bool border = os_hasflag(rule->flag, JRULE_BORDER);
+    bool border = os_hasflag(rule->flag, JRULE_F_BORDER);
     char *member = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
     int jtype = jval?jobj_type(jval):jtype_null;
     
@@ -1045,7 +1045,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
         case jtype_enum: {
             JRULE_JTYPE_CHECK(jtype_string);
             
-            enum_ops_t *ops = rule->serialize.get_enum_ops();
+            enum_ops_t *ops = jmethod_get_enum_ops(rule)();
             int id = ops->getid(jobj_get_string(jval));
             if (false==ops->is_good(id)) {
                 return -EBADENUM;
@@ -1093,7 +1093,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             JRULE_JTYPE_CHECK(jtype_string);
             
             if (obj) {
-                err = rule->serialize.j2o(rule, obj, jobj);
+                err = jmethod_j2o(rule)(rule, obj, jobj);
                 if (err<0) {
                     return err;
                 }
@@ -1104,7 +1104,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             JRULE_JTYPE_CHECK(jtype_object);
             
             if (obj) {
-                err = jrule_j2o(rule->deft.get_rules(), member, jval);
+                err = jrule_j2o(jmethod_get_rules(rule)(), member, jval);
                 if (err<0) {
                     return err;
                 }
@@ -1115,7 +1115,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             JRULE_JTYPE_CHECK(jtype_array);
             
             if (obj) {
-                err = rule->unserialize.j2o(rule, obj, jobj);
+                err = jmethod_j2o(rule)(rule, obj, jobj);
                 if (err<0) {
                     return err;
                 }
