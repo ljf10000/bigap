@@ -637,12 +637,20 @@ jrule_strassign(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     char *deft = jmethod_deft(rule, s);
+    char *string = NULL;
 
     if (jval) {
-        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = jobj_get_string(jval);
+        string = jobj_get_string(jval);
     } else if (deft) {
-        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = deft;
+        string = deft;
     }
+
+    if (string) {
+        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = string;
+    }
+    
+    debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
+        rule->name, string);
     
     return 0;
 }
@@ -652,12 +660,20 @@ jrule_strdup(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     char *deft = jmethod_deft(rule, s);
+    char *string = NULL;
 
     if (jval) {
-        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = os_strdup(jobj_get_string(jval));
+        string = jobj_get_string(jval);
     } else if (deft) {
-        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = os_strdup(deft);
+        string = deft;
     }
+
+    if (string) {
+        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = os_strdup(string);
+    }
+    
+    debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
+        rule->name, string);
     
     return 0;
 }
@@ -667,12 +683,20 @@ jrule_strcpy(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     char *deft = jmethod_deft(rule, s);
+    char *string = NULL;
     
     if (jval) {
-        os_strcpy(JRULE_OBJ_MEMBER_ADDRESS(rule, obj), jobj_get_string(jval));
+        string = jobj_get_string(jval);
     } else if (deft) {
-        os_strcpy(JRULE_OBJ_MEMBER_ADDRESS(rule, obj), deft);
+        string = deft;
     }
+
+    if (string) {
+        os_strcpy(JRULE_OBJ_MEMBER_ADDRESS(rule, obj), string);
+    }
+    
+    debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
+        rule->name, string);
     
     return 0;
 }
@@ -681,8 +705,12 @@ int
 jrule_time_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    char *string = os_fulltime_string(*member);
+    
+    jobj_add_string(jobj, rule->name, string);
 
-    jobj_add_string(jobj, rule->name, os_fulltime_string(*member));
+    debug_json("o2j %s %s=%s", jtype_getnamebyid(rule->type),
+        rule->name, string);
 
     return 0;
 }
@@ -690,12 +718,17 @@ jrule_time_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 int
 jrule_time_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
+    char *string = NULL;
     jobj_t jval = jobj_get(jobj, rule->name);
     if (jval) {
         time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-
-        *member = os_fulltime(jobj_get_string(jval));
+        string = jobj_get_string(jval);
+        
+        *member = os_fulltime(string);
     }
+    
+    debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
+        rule->name, string);
     
     return 0;
 }
@@ -704,8 +737,12 @@ int
 jrule_ip_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    char *string = os_ipstring(*member);
     
-    jobj_add_string(jobj, rule->name, os_ipstring(*member));
+    jobj_add_string(jobj, rule->name, string);
+
+    debug_json("o2j %s %s=%s", jtype_getnamebyid(rule->type),
+        rule->name, string);
 
     return 0;
 }
@@ -713,12 +750,16 @@ jrule_ip_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 int
 jrule_ip_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
+    char *string = NULL;
     jobj_t jval = jobj_get(jobj, rule->name);
     if (jval) {
         uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-
-        *member = os_ipaddr(jobj_get_string(jval));
+        string = jobj_get_string(jval);
+        *member = os_ipaddr(string);
     }
+    
+    debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
+        rule->name, string);
     
     return 0;
 }
@@ -727,8 +768,12 @@ int
 jrule_mac_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    char *string = os_macstring(member);
     
-    jobj_add_string(jobj, rule->name, os_macstring(member));
+    jobj_add_string(jobj, rule->name, string);
+
+    debug_json("o2j %s %s=%s", jtype_getnamebyid(rule->type),
+        rule->name, string);
 
     return 0;
 }
@@ -736,14 +781,33 @@ jrule_mac_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 int
 jrule_mac_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
+    char *string = NULL;
     jobj_t jval = jobj_get(jobj, rule->name);
     if (jval) {
         byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+        string = jobj_get_string(jval);
         
-        os_getmac_bystring(member, jobj_get_string(jval));
+        os_getmac_bystring(member, string);
     }
     
+    debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
+        rule->name, string);
+    
     return 0;
+}
+
+const jrule_t *
+jrule_getbyname(const jrule_t *rules, char *name)
+{
+    const jrule_t *rule;
+
+    JRULE_FOREACH(rule, rules) {
+        if (os_streq(name, rule->name)) {
+            return rule;
+        }
+    }
+
+    return NULL;
 }
 
 bool
@@ -865,35 +929,76 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
     switch(rule->type) {
         case jtype_bool:
             jobj_add_bool(jobj, rule->name, *(bool *)member_address);
+            
+            debug_json("o2j %s %s=%s", jtype_getnamebyid(rule->type),
+                rule->name, __bool_string(*(bool *)member_address));
+            
             break;
         case jtype_int:
             jobj_add_int(jobj, rule->name, *(int *)member_address);
+            
+            debug_json("o2j %s %s=%d", jtype_getnamebyid(rule->type),
+                rule->name, *(bool *)member_address);
+            
             break;
         case jtype_double:
             jobj_add_double(jobj, rule->name, *(double *)member_address);
+            
+            debug_json("o2j %s %s=%f", jtype_getnamebyid(rule->type),
+                rule->name, *(double *)member_address);
+                
             break;
         case jtype_i32:
             jobj_add_i32(jobj, rule->name, *(int32 *)member_address);
+            
+            debug_json("o2j %s %s=%f", jtype_getnamebyid(rule->type),
+                rule->name, *(double *)member_address);
+                
             break;
         case jtype_u32:
             jobj_add_u32(jobj, rule->name, *(uint32 *)member_address);
+            
+            debug_json("o2j %s %s=%u", jtype_getnamebyid(rule->type),
+                rule->name, *(uint32 *)member_address);
+                
             break;
         case jtype_f32:
             jobj_add_f32(jobj, rule->name, *(float32 *)member_address);
+            
+            debug_json("o2j %s %s=%f", jtype_getnamebyid(rule->type),
+                rule->name, *(float32 *)member_address);
+                
             break;
         case jtype_i64:
             jobj_add_i64(jobj, rule->name, *(int64 *)member_address);
+            
+            debug_json("o2j %s %s=%lld", jtype_getnamebyid(rule->type),
+                rule->name, *(int64 *)member_address);
+                
             break;
         case jtype_u64:
             jobj_add_u64(jobj, rule->name, *(uint64 *)member_address);
+            
+            debug_json("o2j %s %s=%llu", jtype_getnamebyid(rule->type),
+                rule->name, *(uint64 *)member_address);
+                
             break;
         case jtype_f64:
             jobj_add_f64(jobj, rule->name, *(float64 *)member_address);
+            
+            debug_json("o2j %s %s=%llf", jtype_getnamebyid(rule->type),
+                rule->name, *(float64 *)member_address);
+                
             break;
         case jtype_enum: {
             enum_ops_t *ops = jmethod_get_enum_ops(rule)();
 
-            jobj_add_string(jobj, rule->name, ops->getname(*(int *)member_address));
+            char *string = ops->getname(*(int *)member_address);
+            jobj_add_string(jobj, rule->name, string);
+            
+            debug_json("o2j %s %s=%s", jtype_getnamebyid(rule->type),
+                rule->name, string);
+                
         }   break;
         case jtype_time:
             jrule_time_o2j(rule, obj, jobj);
@@ -906,6 +1011,9 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
             break;
         case jtype_string:
             jobj_add_string(jobj, rule->name, member_address);
+
+            debug_json("o2j %s %s=%s", jtype_getnamebyid(rule->type),
+                rule->name, member_address);
             break;
         case jtype_object:
             jval = jobj_new_object();
@@ -973,6 +1081,7 @@ STATIC int
 __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
+    char *string = NULL;
     int err;
     
     if (os_hasflag(rule->flag, JRULE_F_DROP)) {
@@ -1055,22 +1164,30 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             
             break;
         case jtype_enum: {
+            enum_ops_t *ops = jmethod_get_enum_ops(rule)();
             int id;
             
             JRULE_JTYPE_CHECK(jtype_string);
 
             if (jval) {
-                enum_ops_t *ops = jmethod_get_enum_ops(rule)();
-                id = ops->getid(jobj_get_string(jval));
+                string = jobj_get_string(jval);
+                id = ops->getid(string);
                 if (false==ops->is_good(id)) {
+                    debug_json("j2o %s %s=invalid(%s)", jtype_getnamebyid(rule->type),
+                        rule->name, string);
+                        
                     return -EBADENUM;
                 }
             } else {
                 id = jmethod_deft(rule, i);
+                string = ops->getname(id);
             }
             
             if (obj) {
                 *(int *)member_address = id;
+    
+                debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
+                    rule->name, string);
             }
             
         }   break;

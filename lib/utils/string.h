@@ -45,8 +45,8 @@
 #define __ok_string(__is_ok)        ((__is_ok)?__ok:__fail)
 #endif
 
-#ifndef __true_string
-#define __true_string(__is_true)    ((__is_true)?"true":"false")
+#ifndef __bool_string
+#define __bool_string(__is_true)    ((__is_true)?"true":"false")
 #endif
 
 #ifndef __tab

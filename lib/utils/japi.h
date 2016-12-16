@@ -651,6 +651,9 @@ jrule_o2j(const jrule_t *rules, void *obj, jobj_t jobj);
 extern int
 jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj);
 
+extern const jrule_t *
+jrule_getbyname(const jrule_t *rules, char *name);
+
 #if 0
 /*
 * JRULE: json rule macro
