@@ -642,9 +642,6 @@ jrule_mac_o2j(const jrule_t *rule, void *obj, jobj_t jobj);
 extern int
 jrule_mac_j2o(const jrule_t *rule, void *obj, jobj_t jobj);
 
-extern jrule_t *
-jrule_getbyname(const jrule_t *rules, char *name);
-
 extern int
 jrule_selfcheck(const jrule_t *rules);
 

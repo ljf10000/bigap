@@ -746,20 +746,6 @@ jrule_mac_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     return 0;
 }
 
-jrule_t *
-jrule_getbyname(const jrule_t *rules, char *name)
-{
-    const jrule_t *rule;
-
-    JRULE_FOREACH(rule, rules) {
-        if (os_streq(name, rule->name)) {
-            return rule;
-        }
-    }
-
-    return NULL;
-}
-
 bool
 is_good_jrule_flag(int flag)
 {
