@@ -648,12 +648,22 @@ jrule_mac_j2o(const jrule_t *rule, void *obj, jobj_t jobj);
 extern int
 jrule_selfcheck(const jrule_t *rules);
 
+/*
+* obj maybe NULL: just do nothing
+*/
 extern jobj_t
 jrule_o2j_ex(const jrule_t *rules, void *obj);
 
+/*
+* obj maybe NULL: just do nothing
+*/
 extern int
 jrule_o2j(const jrule_t *rules, void *obj, jobj_t jobj);
 
+/*
+* obj maybe NULL: just for check
+* jobj maybe NULL: just do nothing
+*/
 extern int
 jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj);
 

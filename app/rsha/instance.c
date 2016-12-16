@@ -39,128 +39,8 @@ __rshi_nodehashname(hash_node_t *node)
     return __rshi_hashname(instance->name);
 }
 
-STATIC int
-__rshi_destroy(rsh_instance_t *instance)
-{
-    if (instance) {
-        os_free(instance->name);
-        os_free(instance->proxy);
-        os_free(instance->registry);
-        os_free(instance->cache);
-        os_free(instance->flash);
-
-        os_free(instance->key);
-        os_free(instance->key8);
-        os_free(instance->key32);
-
-        jobj_put(instance->jcfg);
-        
-        if (instance->loop) {
-            os_loop_del_watcher(&rsha.loop, instance->fd);
-            
-            instance->loop = false;
-            instance->fd = INVALID_FD;
-        }
-
-        os_free(instance);
-    }
-
-    return 0;
-}
-
-STATIC int
-__rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
-{
-    jobj_t jval;
-    int err;
-    
-    instance->seq   = rand() % 0xffff;
-    instance->name  = os_strdup(name);
-    instance->peer_error_max = RSHI_PEER_ERROR_MAX;
-
-    jobj_t jecho = jobj_get(jobj, "echo");
-    if (jecho) {
-        jval = jobj_get(jecho, "idle");
-        if (jval) {
-            rshi_echo_j2o(&instance->idle, jval);
-        }
-        
-        jval = jobj_get(jecho, "busy");
-        if (jval) {
-            rshi_echo_j2o(&instance->busy, jval);
-        }
-    } else {
-        instance->idle.interval  = os_second(RSHA_ECHO_IDLE_INTERVAL);
-        instance->idle.times     = RSHA_ECHO_IDLE_TIMES;
-        instance->busy.interval  = os_second(RSHA_ECHO_BUSY_INTERVAL);
-        instance->busy.times     = RSHA_ECHO_BUSY_TIMES;
-    }
-
-    err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
-    if (err<0) {
-        return err;
-    }
-
-    int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (fd<0) {
-        debug_error("instance %s socket error:%d", instance->name, -errno);
-        
-        return fd;
-    }
-    os_closexec(fd);
-    instance->fd = fd;
-    
-    sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, 0);
-    err = bind(fd, (sockaddr_t *)&client, sizeof(client));
-    if (err<0) {
-        debug_error("bind instance %s error:%d", instance->name, -errno);
-        
-        return -errno;
-    }
-    
-    err = os_loop_add_normal(&rsha.loop, fd, rsha_recver, instance);
-    if (err<0) {
-        return err;
-    }
-    
-    instance->loop  = true;
-    instance->jcfg  = jobj;
-
-    return 0;
-}
-
-STATIC rsh_instance_t *
-__rshi_create(char *name, jobj_t jobj)
-{
-    rsh_instance_t *instance = (rsh_instance_t *)os_zalloc(sizeof(rsh_instance_t));
-    if (NULL==instance) {
-        return NULL;
-    }
-    
-    int err = __rshi_init(instance, name, jobj);
-    if (err<0) {
-        __rshi_destroy(instance);
-
-        return NULL;
-    }
-    
-    return instance;
-}
-
-STATIC int
-__rshi_insert(rsh_instance_t *instance)
-{
-    return h1_add(&rsha.head.instance, &instance->node.instance, __rshi_nodehashname);
-}
-
-STATIC int
-__rshi_remove(rsh_instance_t *instance)
-{
-    return h1_del(&rsha.head.instance, &instance->node.instance);
-}
-
 STATIC jobj_t
-rshi_st_o2j(rsh_instance_st_t *st)
+__rshi_st_o2j(rsh_instance_st_t *st)
 {
     jobj_t jobj = NULL, jrun, jcmd, jdir;
     int cmd, dir, type;
@@ -222,13 +102,139 @@ __rshi_o2j(rsh_instance_t *instance)
 
     jobj_add(jobj, "idle", rshi_echo_o2j(&instance->idle));
     jobj_add(jobj, "busy", rshi_echo_o2j(&instance->busy));
-    jobj_add(jobj, "st", rshi_st_o2j(instance));
+    jobj_add(jobj, "st", __rshi_st_o2j(instance));
 
     return jobj;
 error:
     jobj_put(jobj);
 
     return NULL;
+}
+
+STATIC int
+__rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
+{
+    jobj_t jecho;
+    int err;
+
+    err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
+    if (err<0) {
+        return err;
+    }
+    
+    jecho = jobj_get(jobj, "echo");
+    if (jecho) {
+        rshi_echo_j2o(&instance->idle, jobj_get(jecho, "idle"));
+        rshi_echo_j2o(&instance->busy, jobj_get(jecho, "busy"));
+    } else {
+        instance->idle.interval  = os_second(RSHA_ECHO_IDLE_INTERVAL);
+        instance->idle.times     = RSHA_ECHO_IDLE_TIMES;
+        instance->busy.interval  = os_second(RSHA_ECHO_BUSY_INTERVAL);
+        instance->busy.times     = RSHA_ECHO_BUSY_TIMES;
+    }
+
+    return 0;
+}
+
+STATIC int
+__rshi_destroy(rsh_instance_t *instance)
+{
+    if (instance) {
+        os_free(instance->name);
+        os_free(instance->proxy);
+        os_free(instance->registry);
+        os_free(instance->cache);
+        os_free(instance->flash);
+
+        os_free(instance->key);
+        os_free(instance->key8);
+        os_free(instance->key32);
+
+        jobj_put(instance->jcfg);
+        
+        if (instance->loop) {
+            os_loop_del_watcher(&rsha.loop, instance->fd);
+            
+            instance->loop = false;
+            instance->fd = INVALID_FD;
+        }
+
+        os_free(instance);
+    }
+
+    return 0;
+}
+
+STATIC int
+__rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
+{
+    int err;
+    
+    instance->seq   = rand() % 0xffff;
+    instance->name  = os_strdup(name);
+    instance->peer_error_max = RSHI_PEER_ERROR_MAX;
+
+    err = __rshi_j2o(instance, jobj);
+    if (err<0) {
+        return err;
+    }
+
+    int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (fd<0) {
+        debug_error("instance %s socket error:%d", instance->name, -errno);
+        
+        return fd;
+    }
+    os_closexec(fd);
+    instance->fd = fd;
+    
+    sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, 0);
+    err = bind(fd, (sockaddr_t *)&client, sizeof(client));
+    if (err<0) {
+        debug_error("bind instance %s error:%d", instance->name, -errno);
+        
+        return -errno;
+    }
+    
+    err = os_loop_add_normal(&rsha.loop, fd, rsha_recver, instance);
+    if (err<0) {
+        return err;
+    }
+    
+    instance->loop  = true;
+    instance->jcfg  = jobj;
+
+    return 0;
+}
+
+STATIC rsh_instance_t *
+__rshi_create(char *name, jobj_t jobj)
+{
+    rsh_instance_t *instance = (rsh_instance_t *)os_zalloc(sizeof(rsh_instance_t));
+    if (NULL==instance) {
+        return NULL;
+    }
+    
+    int err = __rshi_init(instance, name, jobj);
+    if (err<0) {
+        __rshi_destroy(instance);
+
+        return NULL;
+    }
+    
+    return instance;
+}
+
+STATIC int
+__rshi_insert(rsh_instance_t *instance)
+{
+    return h1_add(&rsha.head.instance, &instance->node.instance, __rshi_nodehashname);
+}
+
+STATIC int
+__rshi_remove(rsh_instance_t *instance)
+{
+    return h1_del(&rsha.head.instance, &instance->node.instance);
 }
 
 STATIC int

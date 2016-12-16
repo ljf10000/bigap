@@ -1307,7 +1307,7 @@ jrule_o2j(const jrule_t *rules, void *obj, jobj_t jobj)
         return -EINVAL0;
     }
     else if (NULL==obj) {
-        return -EINVAL1;
+        return 0;
     }
     else if (NULL==jobj) {
         return -EINVAL2;
@@ -1323,7 +1323,7 @@ jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj)
         return -EINVAL3;
     }
     else if (NULL==jobj) {
-        return -EINVAL4;
+        return 0;
     }
 
     return jrules_apply(rules, obj, jobj, __jrule_j2o);
