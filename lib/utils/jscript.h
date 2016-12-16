@@ -207,7 +207,7 @@ typedef struct {
     jinstance_t instance;
 
     struct {
-        int dev_slot;
+        int slot;
         char *basemac;
 
         bool is_startup;
