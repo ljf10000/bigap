@@ -42,7 +42,7 @@ typedef struct {
     int output_buffer_timeout;
 } nsq_identify_t;
 
-#if USE_JSON_RULE
+#if 1
 #define NSQ_IDENTIFY_JRULE_MAPPER(_) \
     _(offsetof(nsq_identify_t, client_id), client_id, "client_id", \
             string, sizeof(char *), JRULE_MUST,         \
@@ -135,7 +135,7 @@ typedef struct {
 } 
 nsq_instance_t;
 
-#if USE_JSON_RULE
+#if 1
 #define NSQ_INSTANCE_JRULE_MAPPER(_) \
     _(offsetof(nsq_instance_t, fsm), fsm, "fsm",        \
             enum, sizeof(int), 0,                       \

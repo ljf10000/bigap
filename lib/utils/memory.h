@@ -269,6 +269,13 @@ os_memmem(const void *mem, size_t mem_size,
 #define os_objeq(_a, _b)            (0==os_objcmp(_a, _b))
 #endif
 
+/*
+* use (*_a)'s size
+*/
+#ifndef os_objneq
+#define os_objneq(_a, _b)            (false==os_objeq(_a, _b))
+#endif
+
 #define os_objdeft(_obj, _deft) do{ \
     typeof(*_obj) new_in_os_objdeft = _deft;    \
     os_objcpy(_obj, &new_in_os_objdeft);        \

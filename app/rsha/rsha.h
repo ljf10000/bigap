@@ -3,6 +3,18 @@
 /******************************************************************************/
 #include "rsh/rsh.h"
 
+#ifndef RSHA_SCRIPT
+#define RSHA_SCRIPT                 PC_FILE("/tmp/script", "rsh.script")
+#endif
+
+#ifndef RSHA_CACHE
+#define RSHA_CACHE                  "/tmp/cache/rsh"
+#endif
+
+#ifndef RSHA_FLASH
+#define RSHA_FLASH                  "/data/cache/rsh"
+#endif
+
 #ifndef RSHA_TICKS
 #define RSHA_TICKS                  1000    // ms
 #endif
@@ -31,17 +43,17 @@
 #define RSHI_NAMEHASHSIZE           PC_VAL(256, 256)
 #endif
 
-#ifndef RSHI_ADDRHASHSIZE
-#define RSHI_ADDRHASHSIZE           PC_VAL(256, 256)
-#endif
-
 #ifndef RSHI_NAMESIZE
 #define RSHI_NAMESIZE               32
+#endif
+
+#ifndef RSHI_PEER_ERROR_MAX
+#define RSHI_PEER_ERROR_MAX         PC_VAL(8, 32)
 #endif
 /******************************************************************************/
 #if 1
 #define RSHIST_DIR_ENUM_MAPPER(_)       \
-    _(RSHIST_DIR_SEND,   0, "send"),    \
+    _(RSHIST_DIR_SEND,  0, "send"),     \
     _(RSHIST_DIR_RECV,  1, "recv"),     \
     /* end */
 DECLARE_ENUM(rshist_dir, RSHIST_DIR_ENUM_MAPPER, RSHIST_DIR_END);
@@ -116,27 +128,18 @@ static inline int rsh_echo_state_getidbyname(const char *name);
 #define RSH_ECHO_STATE_END      RSH_ECHO_STATE_END
 #endif
 
-enum {
-    RSHI_NIDX_NAME,
-    RSHI_NIDX_ADDR,
-    
-    RSHI_NIDX_END
-};
-#define RSHI_HASHSIZE_INITER { \
-    [RSHI_NIDX_NAME]    = RSHI_NAMEHASHSIZE, \
-    [RSHI_NIDX_ADDR]    = RSHI_ADDRHASHSIZE, \
-}   /* end */
-
 /*
     1. rsha json config
     {
-        "name": "NAME",
-        "proxy": "PROXY",
-        "register": "REGISTER",
-        "cid": CID,
-        "port": PORT,
-        "seq": SEQ-BEGIN-NUMBER,
-        "echo": {
+        "name": "NAME",                 // must
+        "proxy": "PROXY",               // must
+        "register": "REGISTER",         // must
+        "cid": CID,                     // must
+        "port": PORT,                   // must
+        
+        "cache": "CACHE-PATH",          // option
+        "flash": "FLASH-PATH",          // option
+        "echo": {                       // option
             "idle": {
                 "interval": INTERVAL,
                 "times", TIMES
@@ -157,24 +160,27 @@ enum {
 typedef struct {
     uint32 interval;
     uint32 times;
-    uint32 send;
-    uint32 recv;
+    time_t send;
+    time_t recv;
 } rsh_echo_t;
 
 typedef struct {
     char *name;
     char *proxy;
     char *registry;
+    char *cache;
+    char *flash;
     uint32 cid; // cert id
 
-    sockaddr_in_t client, server;
     rsh_echo_t echo[RSH_ECHO_STATE_END];
     jobj_t jcfg;
     
     int fd;
+    int port;
     int fsm;
     int echo_state;
     int error;
+    uint32 ip;
     uint32 fsm_time;
     
     bool loop;
@@ -187,6 +193,9 @@ typedef struct {
     uint32 *key32;
     uint32 keysize;
 
+    uint32 peer_error;
+    uint32 peer_error_max;
+    
     struct {
         struct {
             uint32 val[RSH_CMD_END][RSHIST_DIR_END][RSHIST_TYPE_END];
@@ -194,10 +203,40 @@ typedef struct {
     } st;
 
     struct {
-        h2_node_t instance;
+        h1_node_t instance;
     } node;
 } 
 rsh_instance_t;
+
+#define rshi_st_run(_instance, _cmd, _dir, _type) \
+    (_instance)->st.run[_cmd][_dir][_type]
+#define rshi_st_run_recv_error(_instance, _cmd) \
+    rshi_st_run(_instance, _cmd, RSHIST_DIR_RECV, RSHIST_TYPE_ERROR)
+
+#define rshi_unknow_recv_ok(_instance) \
+    rshi_st_run(_instance, RSH_CMD_UNKNOW, RSHIST_DIR_RECV, RSHIST_TYPE_OK)
+#define rshi_unknow_recv_error(_instance) \
+    rshi_st_run(_instance, RSH_CMD_UNKNOW, RSHIST_DIR_RECV, RSHIST_TYPE_ERROR)
+
+#define rshi_command_recv_ok(_instance) \
+    rshi_st_run(_instance, RSH_CMD_COMMAND, RSHIST_DIR_RECV, RSHIST_TYPE_OK)
+#define rshi_command_recv_error(_instance) \
+    rshi_st_run(_instance, RSH_CMD_COMMAND, RSHIST_DIR_RECV, RSHIST_TYPE_ERROR)
+
+#define rshi_echo_recv_ok(_instance) \
+    rshi_st_run(_instance, RSH_CMD_ECHO, RSHIST_DIR_RECV, RSHIST_TYPE_OK)
+#define rshi_echo_recv_error(_instance) \
+    rshi_st_run(_instance, RSH_CMD_ECHO, RSHIST_DIR_RECV, RSHIST_TYPE_ERROR)
+#define rshi_echo_send_ok(_instance) \
+    rshi_st_run(_instance, RSH_CMD_ECHO, RSHIST_DIR_SEND, RSHIST_TYPE_OK)
+#define rshi_echo_send_error(_instance) \
+    rshi_st_run(_instance, RSH_CMD_ECHO, RSHIST_DIR_SEND, RSHIST_TYPE_ERROR)
+
+static inline bool
+is_rshi_server_address(rsh_instance_t *instance, sockaddr_in_t *addr)
+{
+    return instance->ip==addr->sin_addr.s_addr && instance->port==addr->sin_port;
+}
 
 static inline rsh_echo_t *
 rshi_echo(rsh_instance_t *instance)
@@ -205,20 +244,21 @@ rshi_echo(rsh_instance_t *instance)
     return &instance->echo[instance->echo_state];
 }
 
-static inline void
-rshi_echo_clear(rsh_echo_t *echo)
+static inline uint32
+rshi_seq(rsh_instance_t *instance)
 {
-    echo->send  = 0;
-    echo->send  = 0;
+    return (instance->seq_noack = instance->seq++);
 }
 
 static inline rsh_echo_t *
 rshi_echo_switch(rsh_instance_t *instance, int state)
 {
-    rshi_echo_clear(rshi_echo(instance));
-
-    instance->echo_state = state;
-
+    if (instance->echo_state != state) {
+        os_objcpy(&instance->echo[state], &instance->echo[instance->echo_state]);
+        
+        instance->echo_state = state;
+    }
+    
     return rshi_echo(instance);
 }
 
@@ -233,7 +273,7 @@ typedef struct {
     loop_t loop;
     
     struct {
-        h2_table_t instance;
+        h1_table_t instance;
     } head;
 } rsha_control_t;
 
@@ -241,9 +281,6 @@ extern rsha_control_t rsha;
 extern rsh_msg_t *rsha_msg;
 extern byte rsha_buffer[];
 /******************************************************************************/
-extern int
-rshi_fsm_init(rsh_instance_t *instance);
-
 extern int
 rshi_fsm(rsh_instance_t *instance, int fsm, time_t now);
 
@@ -259,9 +296,6 @@ rshi_foreach(mv_t (*foreach)(rsh_instance_t *instance), bool safe);
 extern rsh_instance_t *
 rshi_getbyname(char *name);
 
-extern rsh_instance_t *
-rshi_getbyaddr(sockaddr_in_t *addr);
-
 extern int
 rshi_show(char *name);
 
@@ -269,16 +303,16 @@ extern int
 rsha_recver(loop_watcher_t *watcher, time_t now);
 
 extern int 
-rsha_echo(rsh_instance_t *instance);
+rshi_echo(rsh_instance_t *instance);
 
 extern int 
-rsha_resolve(rsh_instance_t *instance, time_t now);
+rshi_resolve(rsh_instance_t *instance, time_t now);
 
 extern int 
-rsha_run(rsh_instance_t *instance, time_t now);
+rshi_run(rsh_instance_t *instance, time_t now);
 
 extern int 
-rsha_register(rsh_instance_t *instance, time_t now);
+rshi_register(rsh_instance_t *instance, time_t now);
 
 extern int
 init_rsha_cli(void);

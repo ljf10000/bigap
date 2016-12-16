@@ -226,23 +226,12 @@ nsq_resolve(nsq_instance_t *instance)
     }
     
     debug_proto("instance[%s] resolve ...", instance->name);
-    
-    uint32 ip = os_ipaddr(instance->domain);
-    if (is_good_ipaddr(ip)) {
-        instance->server.sin_addr.s_addr = ip;
-    } else {
-        struct hostent *p = gethostbyname(instance->domain);
-        if (NULL==p) {
-            return -EDNS;
-        }
 
-        instance->server.sin_addr.s_addr = *(uint32 *)(p->h_addr);
-    }
+    instance->server.sin_addr.s_addr = os_ipdns(instance->domain);
     
     debug_proto("instance[%s] resolve ok.", instance->name);
 
     nsqi_fsm(instance, NSQ_FSM_RESOLVED);
-
 
     return 0;
 }

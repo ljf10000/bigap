@@ -64,8 +64,8 @@ if content:exist, filename:exist, then
 
     "instance": {
         "name": "instance name",        #must exist
-        "topic": "topic",               #must exist
-        "channel": "channel",           #must exist
+        "topic": "topic",               #option
+        "channel": "channel",           #option
         "cache": "global cache path"    #must exist
     }
 }
@@ -159,7 +159,7 @@ typedef struct {
     char *cache;
 } jinstance_t;
 
-#if USE_JSON_RULE
+#if 1
 #define JINSTANCE_JRULE_MAPPER(_) \
     _(offsetof(jinstance_t, name), name, "name",    \
             string, sizeof(char *), JRULE_MUST,     \
@@ -167,12 +167,12 @@ typedef struct {
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
     _(offsetof(jinstance_t, topic), topic, "topic", \
-            string, sizeof(char *), JRULE_MUST,     \
+            string, sizeof(char *), 0,              \
             JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
     _(offsetof(jinstance_t, channel), channel, "channel",  \
-            string, sizeof(char *), JRULE_MUST,     \
+            string, sizeof(char *), 0,              \
             JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL,                         \
             JRULE_VAR_NULL),                        \
@@ -215,7 +215,7 @@ typedef struct {
 }
 jscript_t;
 
-#if USE_JSON_RULE
+#if 1
 #define JSCRIPT_JRULE_MAPPER(_) \
     _(offsetof(jscript_t, type), type, "type",          \
             enum, sizeof(int), 0,                       \

@@ -14,6 +14,28 @@ rsha_control_t rsha;
 byte rsha_buffer[RSH_MSG_ALLSIZE];
 rsh_msg_t *rsha_msg = (rsh_msg_t *)rsha_buffer;
 /******************************************************************************/
+int
+rsha_script(rsh_instance_t *instance, char *json)
+{
+    jobj_t jscript = NULL;
+
+    jscript = jobj_byjson(json);
+    if (NULL==jscript) {
+        return 0;
+    }
+
+    jobj_t jinstance = jobj_new_object();
+    jobj_add(jinstance, "name",     jobj_new_string(instance->name));
+    jobj_add(jinstance, "cache",    jobj_new_string(nsqa.env.cache));
+    jobj_add(jscript, "instance", jinstance);
+    
+    os_shell(NSQ_SCRIPT " '%s'", jobj_json(jscript));
+    
+    jobj_put(jscript);
+    
+    return 0;
+}
+
 static int
 rsha_fini(void)
 {
@@ -59,8 +81,7 @@ rsha_init(void)
         return err;
     }
 
-    int hash_size[RSHI_NIDX_END] = RSHI_HASHSIZE_INITER;
-    err = h2_init(&rsha.head.instance, hash_size);
+    err = h1_init(&rsha.head.instance, RSHI_NAMEHASHSIZE);
     if (err<0) {
         debug_error("init instance hash:%d", err);
         

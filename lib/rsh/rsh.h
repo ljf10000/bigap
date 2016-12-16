@@ -42,8 +42,9 @@
 */
 #if 1
 #define RSH_CMD_ENUM_MAPPER(_)          \
-    _(RSH_CMD_ECHO,     0, "echo"),     \
-    _(RSH_CMD_COMMAND,  1, "command"),  \
+    _(RSH_CMD_UNKNOW,   0, "unknow"),   \
+    _(RSH_CMD_ECHO,     1, "echo"),     \
+    _(RSH_CMD_COMMAND,  2, "command"),  \
     /* end */
 DECLARE_ENUM(rsh_cmd, RSH_CMD_ENUM_MAPPER, RSH_CMD_END);
 
@@ -52,9 +53,16 @@ static inline bool is_good_rsh_cmd(int id);
 static inline char *rsh_cmd_getnamebyid(int id);
 static inline int rsh_cmd_getidbyname(const char *name);
 
+#define RSH_CMD_UNKNOW      RSH_CMD_UNKNOW
 #define RSH_CMD_ECHO        RSH_CMD_ECHO
 #define RSH_CMD_COMMAND     RSH_CMD_COMMAND
 #define RSH_CMD_END         RSH_CMD_END
+
+static inline bool is_valid_rsh_cmd(int id)
+{
+    return is_good_value(id, RSH_CMD_ECHO, RSH_CMD_END);
+}
+
 #endif
 
 enum {
@@ -93,6 +101,12 @@ static inline bool
 is_good_rsh_msg_size(int size)
 {
     return size > 0 && 0 == (size % AES_BLOCK_SIZE);
+}
+
+static inline int
+rsh_msg_size(rsh_msg_t *msg)
+{
+    return (int)RSH_MSG_SIZE(msg->len);
 }
 
 static inline void
@@ -144,5 +158,22 @@ rsh_msg_zfill(rsh_msg_t *msg, byte mac[])
 {
     return rsh_msg_bfill(msg, mac, NULL, 0);
 }
+
+
+enum {
+    RSH_E_PACKET,
+    RSH_E_SERVER,
+    
+    RSH_E_OK,
+    RSH_E_CMD,
+    RSH_E_LEN,
+    RSH_E_FLAG,
+    RSH_E_ACK,
+    RSH_E_MAC,
+    RSH_E_MAGIC,
+    RSH_E_VERSION,
+
+    RSH_E_END
+};
 /******************************************************************************/
 #endif /* __RSH_H_cd4ac08f199c4732a4decf3ae976b791__ */

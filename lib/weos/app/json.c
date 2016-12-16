@@ -632,7 +632,6 @@ __jobj_map(jobj_t jobj, jobj_mapper_f *map[], int count)
     return jobj;
 }
 
-#if USE_JSON_RULE
 int
 jrule_strassign(const jrule_t *rule, void *obj, jobj_t jobj)
 {
@@ -1176,5 +1175,5 @@ jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj)
 
     return jrules_apply(rules, obj, jobj, __jrule_j2o);
 }
-#endif /* USE_JSON_RULE */
+
 /******************************************************************************/

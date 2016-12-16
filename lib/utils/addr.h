@@ -35,6 +35,19 @@ is_good_ipstring(char *ipstring)
     return is_good_str(ipstring) && is_good_ipaddr(os_ipaddr(ipstring));
 }
 
+static inline uint32
+os_ipdns(char *ipstring_or_domain)
+{
+    uint32 ip = os_ipaddr(ipstring_or_domain);
+    if (is_good_ipaddr(ip)) {
+        return ip;
+    } else {
+        struct hostent *host = gethostbyname(ipstring_or_domain);
+
+        return host?*(uint32 *)(host->h_addr):INVALID_IPADDR;
+    }
+}
+
 #define OS_UNIX_PATH(_PATH)             "/tmp/." _PATH ".unix"
 #define __ABSTRACT_PATH(_PATH)          __zero _PATH
 #define OS_ABSTRACT_PATH(_PATH)         __ABSTRACT_PATH(OS_UNIX_PATH(_PATH))
@@ -218,6 +231,8 @@ os_maceq(byte a[], byte b[])
     return *(uint32 *)(a+0) == *(uint32 *)(b+0)
         && *(uint16 *)(a+4) == *(uint16 *)(b+4);
 }
+
+#define os_macneq(_a, _b)   (false==os_maceq(_a, _b))
 
 static inline bkdr_t
 os_macbkdr(byte mac[])
