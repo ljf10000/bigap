@@ -234,10 +234,6 @@ __rshi_o2j(rsh_instance_t *instance)
     jobj_t jobj = NULL;
     int err;
     
-    if (NULL==instance) {
-        return NULL;
-    }
-    
     jobj = jobj_new_object();
     if (NULL==jobj) {
         return NULL;

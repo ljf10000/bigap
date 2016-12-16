@@ -146,12 +146,12 @@ typedef struct {
 #if 1
 #define RSH_ECHO_JRULE_MAPPER(_) \
     _(offsetof(rsh_echo_t, interval), interval, "interval", \
-            u32, sizeof(u32), 0,                        \
+            u32, sizeof(uint32), 0,                     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_echo_t, times), times, "times",      \
-            u32, sizeof(u32), 0,                        \
+            u32, sizeof(uint32), 0,                     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
