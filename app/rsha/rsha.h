@@ -199,7 +199,7 @@ typedef struct {
     time_t fsm_time;
     time_t command_time;
     time_t ping_time;
-    time_t pone_time;
+    time_t pong_time;
     
     bool loop;
     uint32 seq; 
