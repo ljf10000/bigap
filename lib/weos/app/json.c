@@ -636,10 +636,14 @@ int
 jrule_strassign(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
-    
-    *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = 
-        jval?jobj_get_string(jval):jmethod_deft(rule, s);
+    char *deft = jmethod_deft(rule, s);
 
+    if (jval) {
+        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = jobj_get_string(jval);
+    } else if (deft) {
+        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = deft;
+    }
+    
     return 0;
 }
 
@@ -647,10 +651,14 @@ int
 jrule_strdup(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
-    
-    *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = 
-        os_strdup(jval?jobj_get_string(jval):jmethod_deft(rule, s));
+    char *deft = jmethod_deft(rule, s);
 
+    if (jval) {
+        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = os_strdup(jobj_get_string(jval));
+    } else if (deft) {
+        *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = os_strdup(deft);
+    }
+    
     return 0;
 }
 
@@ -658,10 +666,14 @@ int
 jrule_strcpy(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
+    char *deft = jmethod_deft(rule, s);
     
-    os_strcpy(JRULE_OBJ_MEMBER_ADDRESS(rule, obj), 
-        jval?jobj_get_string(jval):jmethod_deft(rule, s));
-
+    if (jval) {
+        os_strcpy(JRULE_OBJ_MEMBER_ADDRESS(rule, obj), jobj_get_string(jval));
+    } else if (deft) {
+        os_strcpy(JRULE_OBJ_MEMBER_ADDRESS(rule, obj), deft);
+    }
+    
     return 0;
 }
 
@@ -679,10 +691,12 @@ int
 jrule_time_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
-    time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    if (jval) {
+        time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
 
-    *member = jval?os_fulltime(jobj_get_string(jval)):time(NULL);
-
+        *member = os_fulltime(jobj_get_string(jval));
+    }
+    
     return 0;
 }
 
@@ -700,10 +714,12 @@ int
 jrule_ip_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
-    uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    if (jval) {
+        uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
 
-    *member = os_ipaddr(jobj_get_string(jval));
-
+        *member = os_ipaddr(jobj_get_string(jval));
+    }
+    
     return 0;
 }
 
@@ -721,10 +737,12 @@ int
 jrule_mac_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
-    byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    if (jval) {
+        byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+        
+        os_getmac_bystring(member, jobj_get_string(jval));
+    }
     
-    os_getmac_bystring(member, jobj_get_string(jval));
-
     return 0;
 }
 
