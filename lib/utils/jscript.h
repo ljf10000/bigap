@@ -212,24 +212,24 @@ jscript_t;
 #define JSCRIPT_JRULE_MAPPER(_) \
     _(offsetof(jscript_t, type), type, "type",          \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(jscript_type_ops),            \
+            JRULE_VAR_ENUM(jscript_type_ops),           \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT(JSCRIPT_TYPE_SH)),             \
+            JRULE_VAR_INT(JSCRIPT_TYPE_SH)),            \
     _(offsetof(jscript_t, run), run, "run",             \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(jscript_run_ops),             \
+            JRULE_VAR_ENUM(jscript_run_ops),            \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT(JSCRIPT_RUN_THIS)),            \
+            JRULE_VAR_INT(JSCRIPT_RUN_THIS)),           \
     _(offsetof(jscript_t, cache), cache, "cache",       \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(jscript_cache_ops),           \
+            JRULE_VAR_ENUM(jscript_cache_ops),          \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT(JSCRIPT_CACHE_NONE)),          \
+            JRULE_VAR_INT(JSCRIPT_CACHE_NONE)),         \
     _(offsetof(jscript_t, scope), scope, "scope",       \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(jscript_scope_ops),           \
+            JRULE_VAR_ENUM(jscript_scope_ops),          \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT(JSCRIPT_SCOPE_GLOBAL)),        \
+            JRULE_VAR_INT(JSCRIPT_SCOPE_GLOBAL)),       \
     _(offsetof(jscript_t, slot), slot, "slot",          \
             int, sizeof(int), JRULE_BORDER,             \
             JRULE_VAR_INT(0),                           \
