@@ -205,8 +205,17 @@ typedef struct {
     uint32 period;
     
     jinstance_t instance;
+
+    struct {
+        int dev_slot;
+        char *basemac;
+
+        bool is_startup;
+    } dev;
 }
 jscript_t;
+
+#define JSCRIPT_ZERO    {.script = NULL}
 
 #if 1
 #define JSCRIPT_JRULE_MAPPER(_) \
@@ -305,25 +314,6 @@ DECLARE_JRULER(jscript, JSCRIPT_JRULE_MAPPER);
 
 static inline jrule_t *jscript_jrules(void);
 #endif
-
-typedef struct {
-    int slot;
-    char *mac;
-    
-    jobj_t jobj;
-    jobj_t jstd;
-    jobj_t jreply;
-    
-    bool is_startup;
-
-    char dir[1+OS_LINE_LEN];
-    char filename[1+OS_LINE_LEN];
-
-    jscript_t J;
-} jscript_control_t;
-
-extern jscript_control_t *
-__this_jscript(void);
 
 extern int
 jscript_exec(char *json);
