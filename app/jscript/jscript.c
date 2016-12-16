@@ -303,7 +303,7 @@ jscript_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, instance), instance, "instance", \
-            object, sizeof(jinstance_t), 0,             \
+            object, sizeof(jinstance_t), JRULE_MUST,    \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_RULES(jinstance_jrules)),         \

@@ -239,16 +239,16 @@ is_rshi_server_address(rsh_instance_t *instance, sockaddr_in_t *addr)
     return instance->ip==addr->sin_addr.s_addr && instance->port==addr->sin_port;
 }
 
-static inline rsh_echo_t *
-rshi_echo(rsh_instance_t *instance)
-{
-    return &instance->echo[instance->echo_state];
-}
-
 static inline uint32
 rshi_seq(rsh_instance_t *instance)
 {
     return (instance->seq_noack = instance->seq++);
+}
+
+static inline rsh_echo_t *
+rshi_echo_get(rsh_instance_t *instance)
+{
+    return &instance->echo[instance->echo_state];
 }
 
 static inline rsh_echo_t *
@@ -260,7 +260,7 @@ rshi_echo_switch(rsh_instance_t *instance, int state)
         instance->echo_state = state;
     }
     
-    return rshi_echo(instance);
+    return rshi_echo_get(instance);
 }
 
 typedef struct {

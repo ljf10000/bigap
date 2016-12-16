@@ -53,7 +53,7 @@ is_rsha_echo_tigger(rsh_echo_t *echo, time_t now)
 STATIC void
 rsha_echo_tigger(rsh_instance_t *instance, time_t now)
 {
-    rsh_echo_t *echo = rshi_echo(instance);
+    rsh_echo_t *echo = rshi_echo_get(instance);
     
     if (is_rsh_fsm_run(instance) && is_rsha_echo_tigger(echo, now)) {
         echo->send = now;
@@ -71,7 +71,7 @@ is_rsha_echo_timeout(rsh_echo_t *echo, time_t now)
 STATIC void
 rsha_echo_timeout(rsh_instance_t *instance, time_t now)
 {
-    if (is_rsh_fsm_run(instance) && is_rsha_echo_timeout(rshi_echo(instance), now)) {
+    if (is_rsh_fsm_run(instance) && is_rsha_echo_timeout(rshi_echo_get(instance), now)) {
         rshi_fsm(instance, RSH_FSM_INIT, now);
     }
 }
