@@ -854,42 +854,42 @@ jrule_selfcheck(const jrule_t *rules)
 STATIC int
 __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
-    char *member = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    char *member_address = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
     jobj_t jval;
     int err;
     
     switch(rule->type) {
         case jtype_bool:
-            jobj_add_bool(jobj, rule->name, *(bool *)member);
+            jobj_add_bool(jobj, rule->name, *(bool *)member_address);
             break;
         case jtype_int:
-            jobj_add_int(jobj, rule->name, *(int *)member);
+            jobj_add_int(jobj, rule->name, *(int *)member_address);
             break;
         case jtype_double:
-            jobj_add_double(jobj, rule->name, *(double *)member);
+            jobj_add_double(jobj, rule->name, *(double *)member_address);
             break;
         case jtype_i32:
-            jobj_add_i32(jobj, rule->name, *(int32 *)member);
+            jobj_add_i32(jobj, rule->name, *(int32 *)member_address);
             break;
         case jtype_u32:
-            jobj_add_u32(jobj, rule->name, *(uint32 *)member);
+            jobj_add_u32(jobj, rule->name, *(uint32 *)member_address);
             break;
         case jtype_f32:
-            jobj_add_f32(jobj, rule->name, *(float32 *)member);
+            jobj_add_f32(jobj, rule->name, *(float32 *)member_address);
             break;
         case jtype_i64:
-            jobj_add_i64(jobj, rule->name, *(int64 *)member);
+            jobj_add_i64(jobj, rule->name, *(int64 *)member_address);
             break;
         case jtype_u64:
-            jobj_add_u64(jobj, rule->name, *(uint64 *)member);
+            jobj_add_u64(jobj, rule->name, *(uint64 *)member_address);
             break;
         case jtype_f64:
-            jobj_add_f64(jobj, rule->name, *(float64 *)member);
+            jobj_add_f64(jobj, rule->name, *(float64 *)member_address);
             break;
         case jtype_enum: {
             enum_ops_t *ops = jmethod_get_enum_ops(rule)();
 
-            jobj_add_string(jobj, rule->name, ops->getname(*(int *)member));
+            jobj_add_string(jobj, rule->name, ops->getname(*(int *)member_address));
         }   break;
         case jtype_time:
             jrule_time_o2j(rule, obj, jobj);
@@ -901,13 +901,13 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
             jrule_mac_o2j(rule, obj, jobj);
             break;
         case jtype_string:
-            jobj_add_string(jobj, rule->name, member);
+            jobj_add_string(jobj, rule->name, member_address);
             break;
         case jtype_object:
             jval = jobj_new_object();
             jobj_add(jobj, rule->name, jval);
             
-            err = jrule_o2j(jmethod_get_rules(rule)(), member, jval);
+            err = jrule_o2j(jmethod_get_rules(rule)(), member_address, jval);
             if (err<0) {
                 return err;
             }
@@ -931,21 +931,28 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 #define JRULE_AUTOMIC_J2O(_long_type, _short_type, _member) do{ \
-    _long_type v = jobj_get_##_short_type(jval);    \
-                                                    \
-    if (border) {                                   \
-        if (v < jrule_boder_min(rule, _member)) {   \
-            v = jrule_boder_min(rule, _member);     \
-        }                                           \
-        else if (v > jrule_boder_max(rule, _member)) {   \
-            v = jrule_boder_max(rule, _member);     \
-        }                                           \
-    }                                               \
-                                                    \
-    if (obj) {                                      \
-        *(_long_type *)member = v;                  \
-    }                                               \
-} while(0)
+    if (jval) {                                         \
+        _long_type v = jobj_get_##_short_type(jval);    \
+                                                        \
+        if (border) {                                   \
+            if (v < jmethod_min(rule, _member)) {       \
+                v = jmethod_min(rule, _member);         \
+            }                                           \
+            else if (v > jmethod_max(rule, _member)) {  \
+                v = jmethod_max(rule, _member);         \
+            }                                           \
+        }                                               \
+                                                        \
+        if (obj) {                                      \
+            *(_long_type *)member_address = v;          \
+        }                                               \
+    } else {                                            \
+        if (obj) {                                      \
+            *(_long_type *)member_address = jmethod_deft(rule, _member); \
+        }                                               \
+    }                                                   \
+}                                                       \
+while(0)
 
 #define JRULE_JTYPE_CHECK(_type)        do{ \
     if (jval && _type != jtype) {           \
@@ -990,7 +997,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     }
 
     bool border = os_hasflag(rule->flag, JRULE_F_BORDER);
-    char *member = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    char *member_address = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
     int jtype = jval?jobj_type(jval):jtype_null;
     
     switch(rule->type) {
@@ -998,7 +1005,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             JRULE_JTYPE_CHECK(jtype_bool);
 
             if (obj) {
-                *(bool *)member = jobj_get_bool(jval);
+                *(bool *)member_address = jobj_get_bool(jval);
             }
             
             break;
@@ -1052,7 +1059,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             }
                 
             if (obj) {
-                *(int *)member = id;
+                *(int *)member_address = id;
             }
             
         }   break;
@@ -1104,7 +1111,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             JRULE_JTYPE_CHECK(jtype_object);
             
             if (obj) {
-                err = jrule_j2o(jmethod_get_rules(rule)(), member, jval);
+                err = jrule_j2o(jmethod_get_rules(rule)(), member_address, jval);
                 if (err<0) {
                     return err;
                 }

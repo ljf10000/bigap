@@ -558,8 +558,9 @@ struct jrule_s {
     jrule_var_t serialize, unserialize, deft;
 };
 
-#define jrule_boder_min(_jrule, _member)    (_jrule)->serialize._member
-#define jrule_boder_max(_jrule, _member)    (_jrule)->unserialize._member
+#define jmethod_min(_rule, _member)     (_rule)->serialize._member
+#define jmethod_max(_rule, _member)     (_rule)->unserialize._member
+#define jmethod_deft(_rule, _member)    (_rule)->deft._member
 
 static inline jrule_o2j_f *
 jmethod_o2j(jrule_t *rule)
