@@ -95,15 +95,15 @@ static inline int jscript_type_getidbyname(const char *name);
 #endif
 
 #if 1
-#define SCRIPT_RUN_ENUM_MAPPER(_)       \
-    _(SCRIPT_RUN_THIS,  0,  "this"),    \
-    _(SCRIPT_RUN_NEXT,  1,  "next"),    \
+#define JSCRIPT_RUN_ENUM_MAPPER(_)       \
+    _(JSCRIPT_RUN_THIS,  0,  "this"),    \
+    _(JSCRIPT_RUN_NEXT,  1,  "next"),    \
     /* end */
-DECLARE_ENUM(jscript_exec, SCRIPT_RUN_ENUM_MAPPER, SCRIPT_RUN_END);
+DECLARE_ENUM(jscript_run, JSCRIPT_RUN_ENUM_MAPPER, JSCRIPT_RUN_END);
 
-#define SCRIPT_RUN_THIS     SCRIPT_RUN_THIS
-#define SCRIPT_RUN_NEXT     SCRIPT_RUN_NEXT
-#define SCRIPT_RUN_END      SCRIPT_RUN_END
+#define JSCRIPT_RUN_THIS     JSCRIPT_RUN_THIS
+#define JSCRIPT_RUN_NEXT     JSCRIPT_RUN_NEXT
+#define JSCRIPT_RUN_END      JSCRIPT_RUN_END
 
 static inline enum_ops_t *jscript_run_ops(void);
 static inline bool is_good_jscript_run(int id);
@@ -112,15 +112,15 @@ static inline int jscript_run_getidbyname(const char *name);
 #endif
 
 #if 1
-#define SCRIPT_CACHE_ENUM_MAPPER(_)         \
-    _(SCRIPT_CACHE_NONE,    0,  "none"),    \
-    _(SCRIPT_CACHE_CACHE,   1,  "cache"),   \
+#define JSCRIPT_CACHE_ENUM_MAPPER(_)         \
+    _(JSCRIPT_CACHE_NONE,    0,  "none"),    \
+    _(JSCRIPT_CACHE_CACHE,   1,  "cache"),   \
     /* end */
-DECLARE_ENUM(jscript_cache, SCRIPT_CACHE_ENUM_MAPPER, SCRIPT_CACHE_END);
+DECLARE_ENUM(jscript_cache, JSCRIPT_CACHE_ENUM_MAPPER, JSCRIPT_CACHE_END);
 
-#define SCRIPT_CACHE_NONE       SCRIPT_CACHE_NONE
-#define SCRIPT_CACHE_CACHE      SCRIPT_CACHE_CACHE
-#define SCRIPT_CACHE_END        SCRIPT_CACHE_END
+#define JSCRIPT_CACHE_NONE       JSCRIPT_CACHE_NONE
+#define JSCRIPT_CACHE_CACHE      JSCRIPT_CACHE_CACHE
+#define JSCRIPT_CACHE_END        JSCRIPT_CACHE_END
 
 static inline enum_ops_t *jscript_cache_ops(void);
 static inline bool is_good_jscript_cache(int id);
@@ -129,15 +129,15 @@ static inline int jscript_cache_getidbyname(const char *name);
 #endif
 
 #if 1
-#define SCRIPT_SCOPE_ENUM_MAPPER(_)                 \
-    _(SCRIPT_SCOPE_GLOBAL,      0,  "global"),      \
-    _(SCRIPT_SCOPE_INSTANCE,    1,  "instance"),    \
+#define JSCRIPT_SCOPE_ENUM_MAPPER(_)                 \
+    _(JSCRIPT_SCOPE_GLOBAL,      0,  "global"),      \
+    _(JSCRIPT_SCOPE_INSTANCE,    1,  "instance"),    \
     /* end */
-DECLARE_ENUM(jscript_scope, SCRIPT_SCOPE_ENUM_MAPPER, SCRIPT_SCOPE_END);
+DECLARE_ENUM(jscript_scope, JSCRIPT_SCOPE_ENUM_MAPPER, JSCRIPT_SCOPE_END);
 
-#define SCRIPT_SCOPE_GLOBAL     SCRIPT_SCOPE_GLOBAL
-#define SCRIPT_SCOPE_INSTANCE   SCRIPT_SCOPE_INSTANCE
-#define SCRIPT_SCOPE_END        SCRIPT_SCOPE_END
+#define JSCRIPT_SCOPE_GLOBAL     JSCRIPT_SCOPE_GLOBAL
+#define JSCRIPT_SCOPE_INSTANCE   JSCRIPT_SCOPE_INSTANCE
+#define JSCRIPT_SCOPE_END        JSCRIPT_SCOPE_END
 
 static inline enum_ops_t *jscript_scope_ops(void);
 static inline bool is_good_jscript_scope(int id);
@@ -219,17 +219,17 @@ jscript_t;
             enum, sizeof(int), 0,                       \
             JRULE_VAR_ENUM(jscript_run_ops),             \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT(SCRIPT_RUN_THIS)),            \
+            JRULE_VAR_INT(JSCRIPT_RUN_THIS)),            \
     _(offsetof(jscript_t, cache), cache, "cache",       \
             enum, sizeof(int), 0,                       \
             JRULE_VAR_ENUM(jscript_cache_ops),           \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT(SCRIPT_CACHE_NONE)),          \
+            JRULE_VAR_INT(JSCRIPT_CACHE_NONE)),          \
     _(offsetof(jscript_t, scope), scope, "scope",       \
             enum, sizeof(int), 0,                       \
             JRULE_VAR_ENUM(jscript_scope_ops),           \
             JRULE_VAR_NULL,                             \
-            JRULE_VAR_INT(SCRIPT_SCOPE_GLOBAL)),        \
+            JRULE_VAR_INT(JSCRIPT_SCOPE_GLOBAL)),        \
     _(offsetof(jscript_t, slot), slot, "slot",          \
             int, sizeof(int), JRULE_BORDER,             \
             JRULE_VAR_INT(0),                           \
