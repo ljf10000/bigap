@@ -210,7 +210,7 @@ typedef struct {
 rsh_instance_t;
 
 #define rshi_st_run(_instance, _cmd, _dir, _type) \
-    (_instance)->st.run[_cmd][_dir][_type]
+    (_instance)->st.run.val[_cmd][_dir][_type]
 #define rshi_st_run_recv_error(_instance, _cmd) \
     rshi_st_run(_instance, _cmd, RSHIST_DIR_RECV, RSHIST_TYPE_ERROR)
 

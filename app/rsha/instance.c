@@ -202,7 +202,7 @@ __rshi_show_cb(rsh_instance_t *instance)
 STATIC void
 rshi_fsm_init(rsh_instance_t *instance)
 {
-    os_arrayzero(&instance->echo);
+    os_arrayzero(instance->echo);
 }
 
 int
