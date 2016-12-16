@@ -79,7 +79,7 @@ __jscript_jreply(int error, char *outstring, char *errstring)
 STATIC int
 __jscript_error(jscript_t *jscript, int error, char *errstring)
 {
-    __jscript_report("error", __jscript_jreply(error, NULL, errstring));
+    __jscript_report(jscript, "error", __jscript_jreply(error, NULL, errstring));
 
     return error;
 }
