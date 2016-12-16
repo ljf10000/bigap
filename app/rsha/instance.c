@@ -476,7 +476,7 @@ rshi_echo_recver(rsh_instance_t *instance, time_t now)
 }
 
 STATIC int
-rshi_script(rsh_instance_t *instance, char *json)
+rshi_exec(rsh_instance_t *instance, char *json)
 {
     jobj_t jobj = jobj_byjson(json);
     if (NULL==jobj) {
@@ -504,7 +504,7 @@ rshi_command_recver(rsh_instance_t *instance, time_t now)
     rshi_command_recv_ok(instance)++;
     rshi_ack_ok(instance);
 
-    return rshi_script(instance, msg->body);
+    return rshi_exec(instance, msg->body);
 }
 
 STATIC int 
