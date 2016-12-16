@@ -283,7 +283,7 @@ jscript_exec(char *json)
     if (NULL==jobj_get(jobj, "recvtime")) {
         jscript->recvtime = time(NULL);
         
-        char *now = os_fulltime_string(jscript.recvtime);
+        char *now = os_fulltime_string(jscript->recvtime);
         jobj_add(jobj, "recvtime", jobj_new_string(now));
     } else {
         jscript->dev.is_startup = true;

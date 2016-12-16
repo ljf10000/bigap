@@ -776,7 +776,7 @@ is_good_jrule_flag(int flag)
 }
 
 STATIC int
-__jrule_selfcheck(jrule_t *rule)
+__jrule_selfcheck(const jrule_t *rule)
 {
     if (false==is_good_jrule_flag(rule->flag)) {
         debug_json("bad rule[%s], invalid flag:%u", rule->name, rule->flag);
@@ -1166,7 +1166,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 STATIC int
 jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jrule_t *rule, void *obj, jobj_t jobj))
 {
-    jrule_t *rule;
+    const jrule_t *rule;
     int err;
 
     JRULE_FOREACH(rule, rules) {
