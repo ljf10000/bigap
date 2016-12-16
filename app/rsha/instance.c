@@ -102,7 +102,7 @@ __rshi_o2j(rsh_instance_t *instance)
 
     jobj_add(jobj, "idle", rshi_echo_o2j(&instance->idle));
     jobj_add(jobj, "busy", rshi_echo_o2j(&instance->busy));
-    jobj_add(jobj, "st", __rshi_st_o2j(instance));
+    jobj_add(jobj, "st", __rshi_st_o2j(&instance->st));
 
     return jobj;
 error:
