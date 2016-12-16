@@ -87,7 +87,7 @@ typedef struct {
     int32 error;
     uint32 _r1;     // must zero
     
-    byte body[0];
+    char body[0];
 } rsh_msg_t;        // 32 == sizeof(rsh_msg_t)
 
 #define RSH_MSG_SIZE(_bodysize)  ((_bodysize) + sizeof(rsh_msg_t))
