@@ -237,9 +237,9 @@ static inline rsh_echo_t *
 rshi_echo_get(rsh_instance_t *instance)
 {
     if (instance->busy) {
-        return &instance.echo.busy;
+        return &instance->echo.busy;
     } else {
-        return &instance.echo.idle;
+        return &instance->echo.idle;
     }
 }
 
