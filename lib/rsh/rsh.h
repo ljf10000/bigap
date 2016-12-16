@@ -172,7 +172,6 @@ enum {
     RSH_E_MAC,
     RSH_E_MAGIC,
     RSH_E_VERSION,
-    RSH_E_BODY,
 
     RSH_E_END
 };

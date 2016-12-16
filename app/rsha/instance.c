@@ -490,40 +490,35 @@ rshi_echo_recver(rsh_instance_t *instance, time_t now)
 }
 
 STATIC int
-rshi_script(rsh_instance_t *instance, jobj_t jobj)
+rshi_script(rsh_instance_t *instance, char *json)
 {
+    jobj_t jobj = jobj_byjson(json);
+    if (NULL==jobj) {
+        return -EBADJSON;
+    }
+    
     jobj_t jinstance = jobj_new_object();
     
     jobj_add(jinstance, "name",     jobj_new_string(instance->name));
     jobj_add(jinstance, "cache",    jobj_new_string(instance->cache));
     jobj_add(jobj, "instance", jinstance);
     
-    return os_shell(RSHA_SCRIPT " '%s'", jobj_json(jobj));
+    int err = os_shell(RSHA_SCRIPT " '%s'", jobj_json(jobj));
+    
+    jobj_put(jobj);
+
+    return err;
 }
 
 STATIC int 
 rshi_command_recver(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
-    jobj_t jobj = NULL;
-    int err = 0;
-
-    jobj = jobj_byjson(msg->body);
-    if (NULL==jobj) {
-        rshi_command_recv_error(instance)++;
-
-        err = rshi_ack_error(instance, -RSH_E_BODY, "%s", msg->body);
-        goto error;
-    }
 
     rshi_command_recv_ok(instance)++;
     rshi_ack_ok(instance);
 
-    err = rshi_script(instance, jobj);
-error:
-    jobj_put(jobj);
-
-    return err;
+    return rshi_script(instance, msg->body);
 }
 
 STATIC int 
