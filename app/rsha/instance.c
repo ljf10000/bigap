@@ -68,13 +68,6 @@ __rshi_destroy(rsh_instance_t *instance)
     return 0;
 }
 
-STATIC void
-__rshi_jecho(rsh_echo_t *echo, jobj_t jval)
-{
-    jj_u32(echo, jval, interval);
-    jj_u32(echo, jval, times);
-}
-
 STATIC int
 __rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
 {
@@ -89,12 +82,12 @@ __rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
     if (jecho) {
         jval = jobj_get(jecho, "idle");
         if (jval) {
-            __rshi_jecho(&instance->idle, jval);
+            rshi_echo_j2o(&instance->idle, jval);
         }
         
         jval = jobj_get(jecho, "busy");
         if (jval) {
-            __rshi_jecho(&instance->busy, jval);
+            rshi_echo_j2o(&instance->busy, jval);
         }
     } else {
         instance->idle.interval  = os_second(RSHA_ECHO_IDLE_INTERVAL);
@@ -167,12 +160,120 @@ __rshi_remove(rsh_instance_t *instance)
 }
 
 STATIC int
+rshi_echo_j2o(rsh_echo_t *echo, jobj_t jobj)
+{
+    return jrule_j2o(rsh_echo_jrules(), echo, jobj);
+}
+
+STATIC jobj_t
+rshi_echo_o2j(rsh_echo_t *echo)
+{
+    jobj_t jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return NULL;
+    }
+    
+    int err = jrule_o2j(rsh_echo_jrules(), echo, jobj);
+    if (err<0) {
+        jobj_put(jobj);
+
+        return NULL;
+    }
+
+    return jobj;
+}
+
+STATIC jobj_t
+rshi_st_o2j(rsh_instance_st_t *st)
+{
+    jobj_t jobj = NULL, jrun, jcmd, jdir;
+    int cmd, dir, type;
+    
+    jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return NULL;
+    }
+    
+    jrun = jobj_new_object();
+    if (NULL==jrun) {
+        goto error;
+    }
+    jobj_add(jobj, "run", jrun);
+
+    for (cmd=0; cmd<RSH_CMD_END; cmd++) {
+        jcmd = jobj_new_object();
+        if (NULL==jcmd) {
+            goto error;
+        }
+        jobj_add(jrun, rsh_cmd_getnamebyid(cmd), jcmd);
+        
+        for (dir=0; dir<RSHIST_DIR_END; dir++) {
+            jdir = jobj_new_object();
+            if (NULL==jdir) {
+                goto error;
+            }
+            jobj_add(jcmd, rshist_dir_getnamebyid(dir), jdir);
+            
+            for (type=0; type<RSHIST_TYPE_END; type++) {
+                jobj_add_u32(jdir, rshist_type_getnamebyid(type), 
+                    st->run.val[cmd][dir][type]);
+            }
+        }
+    }
+
+    return jobj;
+error:
+    jobj_put(jobj);
+
+    return NULL;
+}
+
+STATIC jobj_t
+__rshi_o2j(rsh_instance_t *instance)
+{
+    jobj_t jobj = NULL;
+    int err;
+    
+    if (NULL==instance) {
+        return NULL;
+    }
+    
+    jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return NULL;
+    }
+    
+    err = jrule_o2j(rsh_instance_jrules(), instance, jobj);
+    if (err<0) {
+        goto error;
+    }
+
+    jobj_add(jobj, "idle", rshi_echo_o2j(&instance->idle));
+    jobj_add(jobj, "busy", rshi_echo_o2j(&instance->busy));
+    jobj_add(jobj, "st", rshi_st_o2j(instance));
+
+    return jobj;
+error:
+    jobj_put(jobj);
+
+    return NULL;
+}
+
+STATIC int
 __rshi_show(rsh_instance_t *instance)
 {
     if (NULL==instance) {
         return -ENOEXIST;
     }
 
+    jobj_t jobj = __rshi_o2j(instance);
+    if (NULL==jobj) {
+        return -EOBJ2JSON;
+    }
+    
+    cli_sprintf("%s", jobj_json(jobj));
+    jobj_put(jobj);
+    
     return 0;
 }
 
@@ -410,6 +511,7 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
 
     if (error) {
         instance->peer_error++;
+        instance->error = error;
     }
 
     return rshi_send(instance);
@@ -478,7 +580,10 @@ rshi_echo_recver(rsh_instance_t *instance, time_t now)
 STATIC int
 rshi_exec(rsh_instance_t *instance, char *json)
 {
-    jobj_t jobj = jobj_byjson(json);
+    jobj_t jobj = NULL;
+    int err;
+
+    jobj = jobj_byjson(json);
     if (NULL==jobj) {
         return -EBADJSON;
     }
@@ -489,7 +594,7 @@ rshi_exec(rsh_instance_t *instance, char *json)
     jobj_add(jinstance, "cache",    jobj_new_string(instance->cache));
     jobj_add(jobj, "instance", jinstance);
 
-    int err = jscript_exec(jobj_json(jobj));
+    err = jscript_exec(jobj_json(jobj));
     
     jobj_put(jobj);
 
@@ -501,6 +606,7 @@ rshi_command_recver(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
 
+    instance->command_time = now;
     rshi_command_recv_ok(instance)++;
     rshi_ack_ok(instance);
 

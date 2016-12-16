@@ -71,10 +71,10 @@ static inline int rshist_dir_getidbyname(const char *name);
     /* end */
 DECLARE_ENUM(rshist_type, RSHIST_TYPE_ENUM_MAPPER, RSHIST_TYPE_END);
 
-static inline enum_ops_t *rshist_dir_ops(void);
-static inline bool is_good_rshist_dir(int id);
-static inline char *rshist_dir_getnamebyid(int id);
-static inline int rshist_dir_getidbyname(const char *name);
+static inline enum_ops_t *rshist_type_ops(void);
+static inline bool is_good_rshist_type(int id);
+static inline char *rshist_type_getnamebyid(int id);
+static inline int rshist_type_getidbyname(const char *name);
 
 #define RSHIST_TYPE_OK      RSHIST_TYPE_OK
 #define RSHIST_TYPE_ERROR   RSHIST_TYPE_ERROR
@@ -143,6 +143,40 @@ typedef struct {
     time_t recv;
 } rsh_echo_t;
 
+#if 1
+#define RSH_ECHO_JRULE_MAPPER(_) \
+    _(offsetof(rsh_echo_t, interval), interval, "interval", \
+            u32, sizeof(u32), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_echo_t, times), times, "times",      \
+            u32, sizeof(u32), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_echo_t, send), send, "send",         \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_echo_t, recv), recv, "recv",         \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    /* end */
+DECLARE_JRULER(rsh_echo, RSH_ECHO_JRULE_MAPPER);
+
+static inline jrule_t *rsh_echo_jrules(void);
+#endif
+
+typedef struct {
+    struct {
+        uint32 val[RSH_CMD_END][RSHIST_DIR_END][RSHIST_TYPE_END];
+    } run;
+} rsh_instance_st_t;
+
 typedef struct {
     char *name;
     char *proxy;
@@ -160,11 +194,12 @@ typedef struct {
     int fd;
     int port;
     int fsm;
-    int echo_state;
     int error;
     uint32 ip;
-    uint32 fsm_time;
-    uint32 command_time;
+    time_t fsm_time;
+    time_t command_time;
+    time_t ping_time;
+    time_t pone_time;
     
     bool loop;
     uint32 seq; 
@@ -178,12 +213,8 @@ typedef struct {
 
     uint32 peer_error;
     uint32 peer_error_max;
-    
-    struct {
-        struct {
-            uint32 val[RSH_CMD_END][RSHIST_DIR_END][RSHIST_TYPE_END];
-        } run;
-    } st;
+
+    rsh_instance_st_t st;
 
     struct {
         h1_node_t instance;
@@ -201,6 +232,66 @@ rsh_instance_t;
     _(offsetof(rsh_instance_t, port), port, "port",     \
             int, sizeof(int), JRULE_F_MUST,             \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, error), error, "error",  \
+            int, sizeof(int), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, peer_error_max), peer_error_max, "peer_error_max", \
+            u32, sizeof(u32), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, peer_error), peer_error, "peer_error", \
+            u32, sizeof(u32), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, seq), seq, "seq",        \
+            u32, sizeof(u32), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, seq_noack), seq_noack, "seq_noack", \
+            u32, sizeof(u32), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, seq_peer), seq_peer, "seq_peer", \
+            u32, sizeof(u32), 0,                        \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, fsm_time), fsm_time, "fsm_time", \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, command_time), command_time, "command_time", \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, ping_time), ping_time, "ping_time", \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, pong_time), pong_time, "pong_time", \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, ip), ip, "ip",           \
+            ip, sizeof(int), 0,                         \
+            JRULE_VAR_IP,                               \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, fsm), fsm, "fsm",        \
+            enum, sizeof(int), 0,                       \
+            JRULE_VAR_ENUM(rsh_fsm_ops),                \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, proxy), proxy, "proxy",  \

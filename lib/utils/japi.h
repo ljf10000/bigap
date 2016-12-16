@@ -511,6 +511,9 @@ union jrule_var_u {
 #define JRULE_VAR_STRDUP                    JRULE_VAR_POINTER(jrule_strdup)
 #define JRULE_VAR_STRCPY                    JRULE_VAR_POINTER(jrule_strcpy)
 #define JRULE_VAR_STRASSIGN                 JRULE_VAR_POINTER(jrule_strassign)
+#define JRULE_VAR_IP                        JRULE_VAR_POINTER(jrule_ip_j2o)
+#define JRULE_VAR_MAC                       JRULE_VAR_POINTER(jrule_mac_j2o)
+#define JRULE_VAR_TIME                      JRULE_VAR_POINTER(jrule_time_j2o)
 #define JRULE_VAR_NULL                      JRULE_VAR_POINTER(NULL)
 
 struct jrule_s {
