@@ -488,8 +488,8 @@ rshi_script(rsh_instance_t *instance, char *json)
     jobj_add(jinstance, "name",     jobj_new_string(instance->name));
     jobj_add(jinstance, "cache",    jobj_new_string(instance->cache));
     jobj_add(jobj, "instance", jinstance);
-    
-    int err = os_shell(RSHA_SCRIPT " '%s'", jobj_json(jobj));
+
+    int err = jscript_exec(jobj_json(jobj));
     
     jobj_put(jobj);
 

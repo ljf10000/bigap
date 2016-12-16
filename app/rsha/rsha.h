@@ -3,10 +3,6 @@
 /******************************************************************************/
 #include "rsh/rsh.h"
 
-#ifndef RSHA_SCRIPT
-#define RSHA_SCRIPT                 PC_FILE("/tmp/script", "rsh.script")
-#endif
-
 #ifndef RSHA_CACHE
 #define RSHA_CACHE                  "/tmp/cache/rsh"
 #endif
