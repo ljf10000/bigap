@@ -439,25 +439,27 @@ STATIC int
 rshi_ack_error(rsh_instance_t *instance, int error, const char *fmt, ...)
 {
     va_list args;
-    jobj_t jobj = NULL;
+    jobj_t jobj = jobj_new_object();
     int err;
     
     va_start(args, (char *)fmt);
-    jobj = jobj_vsprintf(jobj_new_object(), "error", fmt, args);
+    err = jobj_vsprintf(jobj, "error", fmt, args);
     va_end(args);
-
-    if (NULL==jobj) {
-        return -ENOMEM;
+    if (err<0) {
+        goto error;
     }
 
     char *json = jobj_json(jobj);
     err = rshi_ack(instance, error, json, os_strlen(json));
-    jobj_put(jobj);
     if (err<0) {
-        return err;
+        goto error;
     }
-    
-    return error;
+
+    err = error;
+error:
+    jobj_put(jobj);
+
+    return err;
 }
 
 STATIC int 
