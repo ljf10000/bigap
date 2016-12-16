@@ -69,7 +69,7 @@ cli_main_helper(int argc, char *argv[])
     if (NULL==client) {
         return cli_usage(argc, argv);
     } else {
-        return cli_request(&client, argc-2, argv+2);
+        return cli_request(client, argc-2, argv+2);
     }
 }
 
