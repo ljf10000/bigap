@@ -313,6 +313,8 @@ jlogd_handle(loop_watcher_t *watcher, time_t now)
     jlogd_jhandle(server);
 
     jlogd_jtrycut();
+
+    return 0;
 }
 
 STATIC int
