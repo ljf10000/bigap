@@ -182,6 +182,7 @@ typedef struct {
     int error;
     uint32 ip;
     uint32 fsm_time;
+    uint32 command_time;
     
     bool loop;
     uint32 seq; 

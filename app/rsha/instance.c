@@ -487,14 +487,37 @@ rshi_echo_recver(rsh_instance_t *instance, time_t now)
     return 0;
 }
 
+STATIC int
+rshi_script(rsh_instance_t *instance, char *json)
+{
+    jobj_t jscript = NULL;
+
+    jscript = jobj_byjson(json);
+    if (NULL==jscript) {
+        return 0;
+    }
+
+    jobj_t jinstance = jobj_new_object();
+    jobj_add(jinstance, "name",     jobj_new_string(instance->name));
+    jobj_add(jinstance, "cache",    jobj_new_string(instance->cache));
+    jobj_add(jscript, "instance", jinstance);
+    
+    os_shell(RSHA_SCRIPT " '%s'", jobj_json(jscript));
+    
+    jobj_put(jscript);
+    
+    return 0;
+}
+
 STATIC int 
 rshi_command_recver(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
 
     rshi_command_recv_ok(instance)++;
-
-    return 0;
+    rshi_ack_ok(instance);
+    
+    return rshi_script(instance, msg->body);
 }
 
 STATIC int 
