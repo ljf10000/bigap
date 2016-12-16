@@ -749,7 +749,7 @@ jrule_mac_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 jrule_t *
 jrule_getbyname(const jrule_t *rules, char *name)
 {
-    jrule_t *rule;
+    const jrule_t *rule;
 
     JRULE_FOREACH(rule, rules) {
         if (os_streq(name, rule->name)) {
@@ -856,7 +856,7 @@ __jrule_selfcheck(const jrule_t *rule)
 int
 jrule_selfcheck(const jrule_t *rules)
 {
-    jrule_t *rule;
+    const jrule_t *rule;
     int err;
     
     JRULE_FOREACH(rule, rules) {
