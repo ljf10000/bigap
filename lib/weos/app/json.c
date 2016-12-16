@@ -637,7 +637,8 @@ jrule_strassign(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     
-    *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = jobj_get_string(jval);
+    *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = 
+        jval?jobj_get_string(jval):jmethod_deft(rule, s);
 
     return 0;
 }
@@ -647,7 +648,8 @@ jrule_strdup(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     
-    *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = os_strdup(jobj_get_string(jval));
+    *(char **)JRULE_OBJ_MEMBER_ADDRESS(rule, obj) = 
+        os_strdup(jval?jobj_get_string(jval):jmethod_deft(rule, s));
 
     return 0;
 }
@@ -657,7 +659,8 @@ jrule_strcpy(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     
-    os_strcpy(JRULE_OBJ_MEMBER_ADDRESS(rule, obj), jobj_get_string(jval));
+    os_strcpy(JRULE_OBJ_MEMBER_ADDRESS(rule, obj), 
+        jval?jobj_get_string(jval):jmethod_deft(rule, s));
 
     return 0;
 }
@@ -665,9 +668,8 @@ jrule_strcpy(const jrule_t *rule, void *obj, jobj_t jobj)
 int
 jrule_time_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
-    jobj_t jval = jobj_get(jobj, rule->name);
     time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-    
+
     jobj_add_string(jobj, rule->name, os_fulltime_string(*member));
 
     return 0;
@@ -679,7 +681,7 @@ jrule_time_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     jobj_t jval = jobj_get(jobj, rule->name);
     time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
 
-    *member = os_fulltime(jobj_get_string(jval));
+    *member = jval?os_fulltime(jobj_get_string(jval)):time(NULL);
 
     return 0;
 }
@@ -687,7 +689,6 @@ jrule_time_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 int
 jrule_ip_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
-    jobj_t jval = jobj_get(jobj, rule->name);
     uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
     
     jobj_add_string(jobj, rule->name, os_ipstring(*member));
@@ -709,7 +710,6 @@ jrule_ip_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 int
 jrule_mac_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
-    jobj_t jval = jobj_get(jobj, rule->name);
     byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
     
     jobj_add_string(jobj, rule->name, os_macstring(member));
@@ -931,27 +931,27 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 }
 
 #define JRULE_AUTOMIC_J2O(_long_type, _short_type, _member) do{ \
-    if (jval) {                                         \
-        _long_type v = jobj_get_##_short_type(jval);    \
-                                                        \
-        if (border) {                                   \
-            if (v < jmethod_min(rule, _member)) {       \
-                v = jmethod_min(rule, _member);         \
-            }                                           \
-            else if (v > jmethod_max(rule, _member)) {  \
-                v = jmethod_max(rule, _member);         \
-            }                                           \
-        }                                               \
-                                                        \
-        if (obj) {                                      \
-            *(_long_type *)member_address = v;          \
-        }                                               \
-    } else {                                            \
-        if (obj) {                                      \
-            *(_long_type *)member_address = jmethod_deft(rule, _member); \
-        }                                               \
-    }                                                   \
-}                                                       \
+    if (jobj) {                                             \
+        _long_type v;                                       \
+                                                            \
+        if (jval) {                                         \
+            v = jobj_get_##_short_type(jval);               \
+                                                            \
+            if (border) {                                   \
+                if (v < jmethod_min(rule, _member)) {       \
+                    v = jmethod_min(rule, _member);         \
+                }                                           \
+                else if (v > jmethod_max(rule, _member)) {  \
+                    v = jmethod_max(rule, _member);         \
+                }                                           \
+            }                                               \
+        } else {                                            \
+            v = jmethod_deft(rule, _member);                \
+        }                                                   \
+                                                            \
+        *(_long_type *)member_address = v;                  \
+    }                                                       \
+}                                                           \
 while(0)
 
 #define JRULE_JTYPE_CHECK(_type)        do{ \
@@ -1005,7 +1005,8 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             JRULE_JTYPE_CHECK(jtype_bool);
 
             if (obj) {
-                *(bool *)member_address = jobj_get_bool(jval);
+                *(bool *)member_address = 
+                    jval?jobj_get_bool(jval):jmethod_deft(rule, b);
             }
             
             break;
@@ -1050,14 +1051,20 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             
             break;
         case jtype_enum: {
-            JRULE_JTYPE_CHECK(jtype_string);
+            int id;
             
-            enum_ops_t *ops = jmethod_get_enum_ops(rule)();
-            int id = ops->getid(jobj_get_string(jval));
-            if (false==ops->is_good(id)) {
-                return -EBADENUM;
+            JRULE_JTYPE_CHECK(jtype_string);
+
+            if (jval) {
+                enum_ops_t *ops = jmethod_get_enum_ops(rule)();
+                id = ops->getid(jobj_get_string(jval));
+                if (false==ops->is_good(id)) {
+                    return -EBADENUM;
+                }
+            } else {
+                id = jmethod_deft(rule, i);
             }
-                
+            
             if (obj) {
                 *(int *)member_address = id;
             }
