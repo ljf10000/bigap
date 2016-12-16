@@ -245,7 +245,7 @@ __jscript_handle(void)
 {
     __jscript_save_file();
 
-    if (SCRIPT_RUN_NEXT==__this_jscript()->J.run) {
+    if (JSCRIPT_RUN_NEXT==__this_jscript()->J.run) {
         return __jscript_save_json();
     } else {
         return __jscript_exec();
