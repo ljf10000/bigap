@@ -403,8 +403,6 @@ rshi_decode(rsh_instance_t *instance, int len)
     rsh_msg_t *msg = rsha_msg;
 
     rsh_msg_decode(msg, instance->md5, secret->u.key32, secret->size);
-    
-    instance->seq_peer_temp = msg->seq;
 }
 
 STATIC int 
@@ -678,11 +676,16 @@ __rsha_recver(rsh_instance_t *instance, time_t now, int *pcmd)
         goto error;
     }
 
+    /*
+    * now, msg maybe error, save peer msg to temp
+    */
+    instance->seq_peer_temp = msg->seq;
+    
     err = rshi_recv_checker(instance, now, msg, len);
     if (err<0) {
-        goto error;
+        return err;
     }
-
+    
     /*
     * now, msg is ok, save peer msg
     */
