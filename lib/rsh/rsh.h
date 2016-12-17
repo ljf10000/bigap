@@ -298,9 +298,6 @@ rsh_msg_fill(rsh_msg_t *msg, byte mac[], void *buf, int len)
 }
 
 enum {
-    RSH_E_PACKET,
-    RSH_E_SERVER,
-    
     RSH_E_MD5,
     RSH_E_CMD,
     RSH_E_LEN,
