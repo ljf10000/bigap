@@ -11,7 +11,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 #define __DEAMON__
 #define __THIS_USAGE \
-    "tmc usage:"                            __crlf \
+    "umc usage:"                            __crlf \
     __tab " bind   {mac} {ip}"              __crlf \
     __tab " unbind {mac}"                   __crlf \
     __tab " fake   {mac} {ip}"              __crlf \
