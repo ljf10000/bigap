@@ -36,7 +36,7 @@ cli_usage(int argc, char *argv[])
 {
     int i;
 
-    os_eprintf("cli usage:");
+    os_eprintln("cli usage:");
     for (i=0; i<os_count_of(cli); i++) {
         os_eprintln(__tab "cli %s", cli[i].name);
     }
