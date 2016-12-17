@@ -139,7 +139,7 @@ __rshi_o2j(rsh_instance_t *instance)
     jobj_add(jobj, "echo", rshi_echo_o2j(instance));
     jobj_add(jobj, "st", __rshi_st_o2j(&instance->st));
     jobj_add(jobj, "fsm_time", __rshi_fsm_o2j(instance));
-    
+
     return jobj;
 error:
     jobj_put(jobj);
