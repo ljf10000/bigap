@@ -85,6 +85,20 @@ enum {
     RSH_F_TLV   = 0x10,
 };
 
+enum {
+    RSH_E_MD5,
+    RSH_E_CMD,
+    RSH_E_LEN,
+    RSH_E_FLAG,
+    RSH_E_ACK,
+    RSH_E_MAC,
+    RSH_E_MAGIC,
+    RSH_E_VERSION,
+    RSH_E_SECRET,
+    
+    RSH_E_END
+};
+
 typedef struct {
     uint32 size; // byte count
 
@@ -102,9 +116,13 @@ typedef struct {
     byte    version;
 
     uint16  flag;
-    uint16  len;     // NOT include rsh header
+    uint16  len;    // NOT include rsh header
     
     byte    mac[OS_MACSIZE];
+    /*
+    * is  ack: check it
+    * not ack: ignore it
+    */
     int16   error;
 
     uint32  seq;
@@ -132,6 +150,8 @@ enum {
 };
 
 #define RSH_MSG_SIZE(_bodysize)     AES_ALIGN((_bodysize) + sizeof(rsh_msg_t))
+
+#define is_rsh_msg_ack(_msg)        os_hasflag((_msg)->flag, RSH_F_ACK)
 
 static inline bool
 is_good_rsh_msg_size(int size)
@@ -179,10 +199,7 @@ rsh_secret_hton(rsh_secret_t *secret)
 static inline void
 rsh_body_hton(rsh_msg_t *msg)
 {
-    if (RSH_CMD_UPDATEKEY==msg->cmd &&
-        0==msg->error &&
-        os_hasflag(msg->flag, RSH_F_ACK)) {
-
+    if (RSH_CMD_UPDATEKEY==msg->cmd && false==is_rsh_msg_ack(msg)) {
         rsh_secret_hton(rsh_msg_secret(msg));
     }
 }
@@ -296,18 +313,5 @@ rsh_msg_fill(rsh_msg_t *msg, byte mac[], void *buf, int len)
     return 0;
     
 }
-
-enum {
-    RSH_E_MD5,
-    RSH_E_CMD,
-    RSH_E_LEN,
-    RSH_E_FLAG,
-    RSH_E_ACK,
-    RSH_E_MAC,
-    RSH_E_MAGIC,
-    RSH_E_VERSION,
-
-    RSH_E_END
-};
 /******************************************************************************/
 #endif /* __RSH_H_cd4ac08f199c4732a4decf3ae976b791__ */

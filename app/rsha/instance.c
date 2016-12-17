@@ -40,6 +40,24 @@ __rshi_nodehashname(hash_node_t *node)
 }
 
 STATIC jobj_t
+__rshi_fsm_o2j(rsh_instance_t *instance)
+{
+    jobj_t jobj = NULL, jval;
+    int i;
+    
+    jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return NULL;
+    }
+    
+    for (i=0; i<RSH_FSM_END; i++) {
+        jobj_add_string(jobj, rsh_fsm_getnamebyid(i), os_fulltime_string(instance->fsm_time[i]));
+    }
+
+    return jobj;
+}
+
+STATIC jobj_t
 __rshi_st_o2j(rshi_st_t *st)
 {
     jobj_t jobj = NULL, jrun, jcmd, jdir;
@@ -103,7 +121,8 @@ __rshi_o2j(rsh_instance_t *instance)
     jobj_add(jobj, "idle", rshi_echo_o2j(&instance->idle));
     jobj_add(jobj, "busy", rshi_echo_o2j(&instance->busy));
     jobj_add(jobj, "st", __rshi_st_o2j(&instance->st));
-
+    jobj_add(jobj, "fsm_time", __rshi_fsm_o2j(instance);
+    
     return jobj;
 error:
     jobj_put(jobj);
@@ -170,7 +189,7 @@ __rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
     instance->seq_noack = instance->seq = rand() % 0xffff;
     instance->name  = os_strdup(name);
     instance->peer_error_max = RSHI_PEER_ERROR_MAX;
-
+    
     err = __rshi_j2o(instance, jobj);
     if (err<0) {
         return err;
@@ -200,6 +219,7 @@ __rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
     
     instance->loop  = true;
     instance->jcfg  = jobj;
+    rshi_fsm_restart(instance, time(NULL));
 
     return 0;
 }
@@ -259,6 +279,66 @@ __rshi_show_cb(rsh_instance_t *instance)
 
     return mv2_ok;
 }
+
+rsh_echo_t *
+rshi_echo_set(rsh_instance_t *instance, bool busy)
+{
+    if (instance->echo_busy != busy) {
+        rsh_echo_t *old = rshi_echo_get(instance);
+        instance->echo_busy = busy;
+        rsh_echo_t *new = rshi_echo_get(instance);
+
+        new->send = old->send;
+        new->recv = old->recv;
+    }
+    
+    return rshi_echo_get(instance);
+}
+
+int
+rshi_secret_init(rsh_secret_t *secret, char *keystring)
+{
+    int err, len = os_strlen(keystring), size = len/2;
+    
+    if (len%2 || false==is_good_aes_key_size(size)) {
+        err = -EBADKEY; goto error;
+    }
+
+    err = os_hex2bin(keystring, secret->u.key, size);
+    if (err<0) {
+        err = -EBADKEY; goto error;
+    }
+    secret->size = size;
+    
+    return 0;
+error:
+
+    return err;
+}
+
+rsh_secret_t *
+rshi_secret_setup(rsh_instance_t *instance, rsh_secret_t *secret, time_t now)
+{
+    instance->secret_current = !instance->secret_current;
+
+    rsh_secret_t *current = rshi_secret_get(instance);
+
+    current->size = secret->size;
+    aes_key_setup(secret->u.key, current->u.key32, 8*secret->size);
+
+    instance->secret_update++;
+    instance->updatekey_time = now;
+    
+    return current;
+}
+
+
+
+
+
+
+
+
 
 STATIC void
 rshi_fsm_init(rsh_instance_t *instance)
@@ -464,7 +544,10 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
     if (error) {
         os_objcpy(&hdr, msg);
     }
-    
+
+    /*
+    * zero first
+    */
     os_objzero(msg);
 
     msg->flag   = RSH_F_ACK;
@@ -498,8 +581,18 @@ STATIC int
 rshi_ack_error(rsh_instance_t *instance, int error, const char *fmt, ...)
 {
     va_list args;
-    jobj_t jobj = jobj_new_object();
+    jobj_t jobj = NULL;
+    rsh_msg_t *msg = rsha_msg;
     int err;
+
+    if (is_rsh_msg_ack(msg)) {
+        /*
+        * not report ack's error
+        */
+        return 0;
+    }
+    
+    jobj = jobj_new_object();
     
     va_start(args, (char *)fmt);
     err = jobj_vsprintf(jobj, "error", fmt, args);
@@ -550,7 +643,7 @@ rshi_echo_recv_checker(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
     
-    if (false==os_hasflag(msg->flag, RSH_F_ACK)) {
+    if (false==is_rsh_msg_ack(msg)) {
         return rshi_ack_error(instance, -RSH_E_FLAG, 
             "echo reply[ack:0x%x] no ack flag", 
             msg->ack);
@@ -570,7 +663,7 @@ rshi_noack_recv_checker(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
     
-    if (os_hasflag(msg->flag, RSH_F_ACK)) {
+    if (is_rsh_msg_ack(msg)) {
         return rshi_ack_error(instance, -RSH_E_FLAG, 
             "command with ack flag");
     }
@@ -717,6 +810,9 @@ rshi_echo(rsh_instance_t *instance)
     rsh_msg_t *msg = rsha_msg;
     int err;
 
+    /*
+    * zero first
+    */
     os_objzero(msg);
     rsh_msg_fill(msg, rsha.mac, NULL, 0);
 

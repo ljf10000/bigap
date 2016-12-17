@@ -83,12 +83,19 @@ static inline int rshist_type_getidbyname(const char *name);
 #define rshist_type(_is_error)  ((_is_error)?RSHIST_TYPE_ERROR:RSHIST_TYPE_OK)
 #endif
 
+/*
+* 1. agent
+*   init==>registered==>resolved==>run
+*
+* 2. proxy
+*   init==>registered==>run
+*/
 #if 1
 #define RSH_FSM_ENUM_MAPPER(_)                  \
-    _(RSH_FSM_INIT,         1, "init"),         \
-    _(RSH_FSM_REGISTERED,   2, "registered"),   \
-    _(RSH_FSM_RESOLVED,     3, "resolved"),     \
-    _(RSH_FSM_RUN,          4, "run"),          \
+    _(RSH_FSM_INIT,         0, "init"),         \
+    _(RSH_FSM_REGISTERED,   1, "registered"),   \
+    _(RSH_FSM_RESOLVED,     2, "resolved"),     \
+    _(RSH_FSM_RUN,          3, "run"),          \
     /* end */
 DECLARE_ENUM(rsh_fsm, RSH_FSM_ENUM_MAPPER, RSH_FSM_END);
 
@@ -383,20 +390,8 @@ rshi_echo_get(rsh_instance_t *instance)
     }
 }
 
-static inline rsh_echo_t *
-rshi_echo_set(rsh_instance_t *instance, bool busy)
-{
-    if (instance->echo_busy != busy) {
-        rsh_echo_t *old = rshi_echo_get(instance);
-        instance->echo_busy = busy;
-        rsh_echo_t *new = rshi_echo_get(instance);
-
-        new->send = old->send;
-        new->recv = old->recv;
-    }
-    
-    return rshi_echo_get(instance);
-}
+extern rsh_echo_t *
+rshi_echo_set(rsh_instance_t *instance, bool busy);
 
 static inline rsh_secret_t *
 rshi_secret_get(rsh_instance_t *instance)
@@ -410,42 +405,11 @@ rshi_secret_pre(rsh_instance_t *instance)
     return &instance->secret[!instance->secret_current];
 }
 
-static inline int
-rshi_secret_init(rsh_secret_t *secret, char *keystring)
-{
-    int err, len = os_strlen(keystring), size = len/2;
-    
-    if (len%2 || false==is_good_aes_key_size(size)) {
-        err = -EBADKEY; goto error;
-    }
+extern int
+rshi_secret_init(rsh_secret_t *secret, char *keystring);
 
-    err = os_hex2bin(keystring, secret->u.key, size);
-    if (err<0) {
-        err = -EBADKEY; goto error;
-    }
-    secret->size = size;
-    
-    return 0;
-error:
-
-    return err;
-}
-
-static inline rsh_secret_t *
-rshi_secret_setup(rsh_instance_t *instance, rsh_secret_t *secret, time_t now)
-{
-    instance->secret_current = !instance->secret_current;
-
-    rsh_secret_t *current = rshi_secret_get(instance);
-
-    current->size = secret->size;
-    aes_key_setup(secret->u.key, current->u.key32, 8*secret->size);
-
-    instance->secret_update++;
-    instance->updatekey_time = now;
-    
-    return current;
-}
+extern rsh_secret_t *
+rshi_secret_setup(rsh_instance_t *instance, rsh_secret_t *secret, time_t now);
 
 typedef struct {
     int fd;
@@ -468,6 +432,12 @@ extern byte rsha_buffer[];
 /******************************************************************************/
 extern int
 rshi_fsm(rsh_instance_t *instance, int fsm, time_t now);
+
+static inline int
+rshi_fsm_restart(rsh_instance_t *instance, time_t now)
+{
+    return rshi_fsm(instance, RSH_FSM_INIT, now);
+}
 
 extern int
 rshi_insert(jobj_t jobj);

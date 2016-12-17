@@ -72,7 +72,7 @@ STATIC void
 rsha_echo_timeout(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_run(instance) && is_rsha_echo_timeout(rshi_echo_get(instance), now)) {
-        rshi_fsm(instance, RSH_FSM_INIT, now);
+        rshi_fsm_restart(instance, now);
     }
 }
 
@@ -80,7 +80,7 @@ STATIC void
 rsha_error_checker(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_run(instance) && instance->peer_error > instance->peer_error_max) {
-        rshi_fsm(instance, RSH_FSM_INIT, now);
+        rshi_fsm_restart(instance, now);
     }
 }
 
