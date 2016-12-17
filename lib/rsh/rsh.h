@@ -154,7 +154,7 @@ rsh_msg_body(rsh_msg_t *msg)
 static inline rsh_secret_t *
 rsh_msg_secret(rsh_msg_t *msg)
 {
-    return &msg->u[0].key;
+    return &msg->u[0].secret;
 }
 
 static inline rsh_msg_t *
