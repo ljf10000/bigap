@@ -282,7 +282,7 @@ rshi_fsm(rsh_instance_t *instance, int fsm, time_t now)
     }
     
     instance->fsm = fsm;
-    instance->fsm_time = now?now:time(NULL);
+    instance->fsm_time[fsm] = now;
     
     switch(fsm) {
         case RSH_FSM_INIT:
