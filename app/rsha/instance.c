@@ -40,7 +40,7 @@ __rshi_nodehashname(hash_node_t *node)
 }
 
 STATIC jobj_t
-__rshi_st_o2j(rsh_instance_st_t *st)
+__rshi_st_o2j(rshi_st_t *st)
 {
     jobj_t jobj = NULL, jrun, jcmd, jdir;
     int cmd, dir, type;
@@ -145,10 +145,7 @@ __rshi_destroy(rsh_instance_t *instance)
         os_free(instance->registry);
         os_free(instance->cache);
         os_free(instance->flash);
-
         os_free(instance->key);
-        os_free(instance->key8);
-        os_free(instance->key32);
 
         jobj_put(instance->jcfg);
         
@@ -170,7 +167,7 @@ __rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
 {
     int err;
     
-    instance->seq   = rand() % 0xffff;
+    instance->seq_noack = instance->seq = rand() % 0xffff;
     instance->name  = os_strdup(name);
     instance->peer_error_max = RSHI_PEER_ERROR_MAX;
 
@@ -391,36 +388,23 @@ rshi_show(char *name)
 }
 
 STATIC void 
-rshi_crypt(rsh_instance_t *instance, int len, aes_crypt_handle_t *cb)
+rshi_encode(rsh_instance_t *instance)
 {
-    byte *in, *out;
-    int i, count = AES_BLOCK_COUNT(len);
-    
-    for (i=0; i<count; i++) {
-        in = out = rsha_buffer + i*AES_BLOCK_SIZE;
-        
-        (*cb)(in, out, instance->key32, 8*instance->keysize);
-    }
-}
-
-STATIC void 
-rshi_encrypt(rsh_instance_t *instance, int len)
-{
-    rsh_msg_hton(rsha_msg);
-    
-    rshi_crypt(instance, len, aes_encrypt);
-}
-
-STATIC void 
-rshi_decrypt(rsh_instance_t *instance, int len)
-{
+    rsh_secret_t *secret = rshi_secret_get(instance);
     rsh_msg_t *msg = rsha_msg;
     
-    rshi_crypt(instance, len, aes_decrypt);
+    rsh_msg_encode(msg, secret->u.key32, secret->size);
+}
 
-    rsh_msg_ntoh(msg);
+STATIC void 
+rshi_decode(rsh_instance_t *instance, int len)
+{
+    rsh_secret_t *secret = rshi_secret_get(instance);
+    rsh_msg_t *msg = rsha_msg;
+
+    rsh_msg_decode(msg, instance->md5, secret->u.key32, secret->size);
     
-    instance->seq_peer = msg->seq;
+    instance->seq_peer_temp = msg->seq;
 }
 
 STATIC int 
@@ -434,23 +418,16 @@ rshi_recv(rsh_instance_t *instance)
     err = len = __io_recvfrom(instance->fd, msg, RSH_MSG_ALLSIZE, 0,
         (sockaddr_t *)&addr, &addrlen);
     if (err<0) {
-        rshi_unknow_recv_error(instance)++;
-        
         return err;
     }
     else if (false==is_good_rsh_msg_size(len)) {
-        rshi_unknow_recv_error(instance)++;
-        
         return -EBADSIZE;
     }
     else if (false==is_rshi_server_address(instance, &addr)) {
-        rshi_unknow_recv_error(instance)++;
-        
         return -EFAKESEVER;
     }
     
-    rshi_unknow_recv_ok(instance)++;
-    rshi_decrypt(instance, len);
+    rshi_decode(instance, len);
     
     return len;
 }
@@ -460,38 +437,56 @@ rshi_send(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
     sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->port);
-    int err, size = rsh_msg_size(msg);
+    int err, size = rsh_msg_size(msg), cmd = msg->cmd;
     
-    rshi_encrypt(instance, size);
+    rshi_encode(instance);
     
     err = io_sendto(instance->fd, msg, size, (sockaddr_t *)&proxy, sizeof(proxy));
     if (err<0) {
-        return err;
+        goto error;
     }
     else if (err!=size) {
-        return -EIO;
+        err = -EIO; goto error;
     }
     
     return size;
+error:
+    rshi_st_send(instance, cmd, err<0);
+    
+    return err;
 }
 
 STATIC int
 rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
 {
+    rsh_msg_t hdr;
     rsh_msg_t *msg = rsha_msg;
+    int err;
 
-    rsh_msg_bfill(msg, rsha.mac, buf, len);
+    if (error) {
+        os_objcpy(&hdr, msg);
+    }
+    
+    os_objzero(msg);
 
     msg->flag   = RSH_F_ACK;
-    msg->seq    = 0;
-    msg->ack    = instance->seq_peer;
+    msg->seq    = instance->seq;
     msg->error  = error;
 
     if (error) {
+        msg->ack = instance->seq_peer_temp;
+        
         instance->peer_error++;
         instance->error = error;
+
+        rsh_hdr_hton(&hdr);
+        rsh_msg_append(msg, &hdr, sizeof(hdr));
+    } else {
+        msg->ack = instance->seq_peer;
     }
 
+    rsh_msg_fill(msg, rsha.mac, buf, len);
+    
     return rshi_send(instance);
 }
 
@@ -528,33 +523,6 @@ error:
     return err;
 }
 
-STATIC int 
-rshi_echo_recver(rsh_instance_t *instance, time_t now)
-{
-    rsh_msg_t *msg = rsha_msg;
-    
-    if (false==os_hasflag(msg->flag, RSH_F_ACK)) {
-        rshi_echo_recv_error(instance)++;
-        
-        return rshi_ack_error(instance, -RSH_E_FLAG, 
-            "echo reply[ack:0x%x] no ack flag", 
-            msg->ack);
-    }
-    else if (msg->ack != instance->seq_noack) {
-        rshi_echo_recv_error(instance)++;
-        
-        return rshi_ack_error(instance, -RSH_E_ACK, 
-            "echo reply[ack:0x%x] not match instance[seq_noack:0x%x]", 
-            msg->ack,
-            instance->seq_noack);
-    }
-    
-    rshi_echo_recv_ok(instance)++;
-    rshi_echo_get(instance)->recv = now;
-    
-    return 0;
-}
-
 STATIC int
 rshi_exec(rsh_instance_t *instance, char *json)
 {
@@ -580,23 +548,85 @@ rshi_exec(rsh_instance_t *instance, char *json)
 }
 
 STATIC int 
+rshi_echo_recv_checker(rsh_instance_t *instance, time_t now)
+{
+    rsh_msg_t *msg = rsha_msg;
+    
+    if (false==os_hasflag(msg->flag, RSH_F_ACK)) {
+        return rshi_ack_error(instance, -RSH_E_FLAG, 
+            "echo reply[ack:0x%x] no ack flag", 
+            msg->ack);
+    }
+
+    return 0;
+}
+
+STATIC int 
+rshi_recv_nochecker(rsh_instance_t *instance, time_t now)
+{
+    return 0;
+}
+
+STATIC int 
+rshi_noack_recv_checker(rsh_instance_t *instance, time_t now)
+{
+    rsh_msg_t *msg = rsha_msg;
+    
+    if (os_hasflag(msg->flag, RSH_F_ACK)) {
+        return rshi_ack_error(instance, -RSH_E_FLAG, 
+            "command with ack flag");
+    }
+
+    return 0;
+}
+
+STATIC int 
+rshi_echo_recver(rsh_instance_t *instance, time_t now)
+{
+    rshi_echo_get(instance)->recv = now;
+    
+    return 0;
+}
+
+STATIC int 
 rshi_command_recver(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
 
     instance->command_time = now;
-    rshi_command_recv_ok(instance)++;
     rshi_ack_ok(instance);
+    rshi_exec(instance, msg->body);
 
-    return rshi_exec(instance, msg->body);
+    return 0;
 }
 
 STATIC int 
-rshi_recv_checker(rsh_instance_t *instance, rsh_msg_t *msg, int len)
+rshi_updatekey_recver(rsh_instance_t *instance, time_t now)
 {
+    rsh_msg_t *msg = rsha_msg;
+
+    rshi_ack_ok(instance);
+    rshi_secret_setup(instance, rsh_msg_secret(msg), now);
+
+    return 0;
+}
+
+STATIC int 
+rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
+{
+    static int (*checker[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
+        [RSH_CMD_ECHO]      = rshi_echo_recv_checker,
+        [RSH_CMD_COMMAND]   = rshi_noack_recv_checker,
+        [RSH_CMD_UPDATEKEY] = rshi_noack_recv_checker,
+    };
+    
     int size = rsh_msg_size(msg);
 
-    if (false==is_valid_rsh_cmd(msg->cmd)) {
+    if (false==md5_eq(instance->md5, msg->md5)) {
+        return rshi_ack_error(instance, -RSH_E_MD5, 
+            "invalid md5");
+    }
+    else if (false==is_valid_rsh_cmd(msg->cmd)) {
         return rshi_ack_error(instance, -RSH_E_CMD, 
             "invalid cmd %d", 
             msg->cmd);
@@ -621,35 +651,61 @@ rshi_recv_checker(rsh_instance_t *instance, rsh_msg_t *msg, int len)
             "invalid mac %s", 
             os_macstring(msg->mac));
     }
-
-    return 0;
+    else if (msg->ack != instance->seq_noack) {
+        return rshi_ack_error(instance, -RSH_E_ACK, 
+            "ack:0x%x not match instance[seq_noack:0x%x]", 
+            msg->ack,
+            instance->seq_noack);
+    }
+    else {
+        return (*checker[msg->cmd])(instance, now);
+    }
 }
 
 int 
-rsha_recver(loop_watcher_t *watcher, time_t now)
+__rsha_recver(rsh_instance_t *instance, time_t now, int *pcmd)
 {
     static int (*recver[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
         [RSH_CMD_ECHO]      = rshi_echo_recver,
         [RSH_CMD_COMMAND]   = rshi_command_recver,
     };
     
-    rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
     rsh_msg_t *msg = rsha_msg;
     int err, len;
 
     err = len = rshi_recv(instance);
     if (err<0) {
-        return err;
+        goto error;
     }
 
-    err = rshi_recv_checker(instance, msg, len);
+    err = rshi_recv_checker(instance, now, msg, len);
     if (err<0) {
-        rshi_st_run_recv_error(instance, is_valid_rsh_cmd(msg->cmd)?msg->cmd:RSH_CMD_UNKNOW)++;
-        
-        return 0;
+        goto error;
     }
 
-    return (*recver[msg->cmd])(instance, now);
+    /*
+    * now, msg is ok, save peer msg
+    */
+    instance->seq_peer = msg->seq;
+    
+    err = (*recver[msg->cmd])(instance, now);
+error:
+    *pcmd = is_valid_rsh_cmd(msg->cmd)?msg->cmd:RSH_CMD_UNKNOW;
+    
+    return err;
+}
+
+int 
+rsha_recver(loop_watcher_t *watcher, time_t now)
+{
+    rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
+    int err, cmd = RSH_CMD_UNKNOW;
+
+    err = __rsha_recver(instance, now, &cmd);
+    
+    rshi_st_recv(instance, cmd, err<0)++;
+
+    return err;
 }
 
 int 
@@ -657,22 +713,16 @@ rshi_echo(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
     int err;
-    
-    rsh_msg_zfill(msg, rsha.mac);
+
+    os_objzero(msg);
+    rsh_msg_fill(msg, rsha.mac, NULL, 0);
 
     msg->cmd    = RSH_CMD_ECHO;
-    msg->flag   = RSH_F_SYN;
-    msg->seq    = rshi_seq(instance);
-    msg->ack    = 0; // not use ack
+    msg->flag   = 0;
+    msg->seq    = instance->seq++;
+    msg->ack    = instance->seq_peer; // first is 0
     
-    err = rshi_send(instance);
-    if (err<0) {
-        rshi_echo_send_error(instance)++;
-    } else {
-        rshi_echo_send_ok(instance)++;
-    }
-    
-    return err;
+    return rshi_send(instance);
 }
 
 int
@@ -732,32 +782,17 @@ rshi_register(rsh_instance_t *instance, time_t now)
         err = -EBADJSON; goto error;
     }
 
+    rsh_secret_t secret;
     char *key = jobj_get_string(jkey);
-    len = os_strlen(key);
-
-    if (false==is_good_aes_key_size(len)) {
-        err = -EBADKEY; goto error;
-    }
-
-    instance->key = os_strdup(key);
-    instance->keysize = len/2;
-    instance->key8 = (byte *)os_malloc(instance->keysize);
-    if (NULL==instance->key8) {
-        err = -ENOMEM; goto error;
-    }
     
-    instance->key32 = (uint32 *)os_malloc(instance->keysize);
-    if (NULL==instance->key32) {
-        err = -ENOMEM; goto error;
-    }
-    
-    err = os_hex2bin(key, instance->key8, instance->keysize);
+    err = rshi_secret_init(&secret, key);
     if (err<0) {
-        err = -EBADKEY; goto error;
+        goto error;
     }
 
-    aes_key_setup(instance->key8, instance->key32, len*8/2);
-
+    rshi_secret_setup(instance, &secret, now);
+    instance->key = os_strdup(key);
+    
     return rshi_fsm(instance, RSH_FSM_REGISTERED, now);
 error:
     jobj_put(jobj);

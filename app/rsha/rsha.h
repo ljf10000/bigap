@@ -79,6 +79,8 @@ static inline int rshist_type_getidbyname(const char *name);
 #define RSHIST_TYPE_OK      RSHIST_TYPE_OK
 #define RSHIST_TYPE_ERROR   RSHIST_TYPE_ERROR
 #define RSHIST_TYPE_END     RSHIST_TYPE_END
+
+#define rshist_type(_is_error)  ((_is_error)?RSHIST_TYPE_ERROR:RSHIST_TYPE_OK)
 #endif
 
 #if 1
@@ -187,7 +189,13 @@ typedef struct {
     struct {
         uint32 val[RSH_CMD_END][RSHIST_DIR_END][RSHIST_TYPE_END];
     } run;
-} rsh_instance_st_t;
+} rshi_st_t;
+
+typedef struct {
+    uint32 key32[RSH_KEY32_SIZE];
+    
+    rsh_secret_t key8;
+} rshi_secret_t;
 
 typedef struct {
     char *name;
@@ -208,8 +216,9 @@ typedef struct {
     int fsm;
     int error;
     uint32 ip;
-    time_t fsm_time;
+    time_t fsm_time[RSH_FSM_END];
     time_t command_time;
+    time_t updatekey_time;
     time_t ping_time;
     time_t pong_time;
     
@@ -217,16 +226,18 @@ typedef struct {
     uint32 seq; 
     uint32 seq_noack;
     uint32 seq_peer;
+    uint32 seq_peer_temp;
+    
+    rshi_st_t st;
     
     char *key;
-    byte *key8;
-    uint32 *key32;
-    uint32 keysize;
-
+    rsh_secret_t secret[2];
+    uint32 secret_current;
+    uint32 secret_update;
+    
+    byte md5[OS_MD5_SIZE];
     uint32 peer_error;
     uint32 peer_error_max;
-
-    rsh_instance_st_t st;
 
     struct {
         h1_node_t instance;
@@ -286,6 +297,11 @@ rsh_instance_t;
             JRULE_VAR_TIME,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, updatekey_time), updatekey_time, "updatekey_time", \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, ping_time), ping_time, "ping_time", \
             time, sizeof(time_t), 0,                    \
             JRULE_VAR_TIME,                             \
@@ -326,46 +342,28 @@ rsh_instance_t;
             JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_STRING(RSHA_FLASH)),              \
+    _(offsetof(rsh_instance_t, key), key, "key",        \
+            string, sizeof(char *), 0,                  \
+            JRULE_VAR_STRDUP,                           \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
     /* end */
 DECLARE_JRULER(rsh_instance, RSH_INSTANCE_JRULE_MAPPER);
 
 static inline jrule_t *rsh_instance_jrules(void);
 #endif
 
-#define rshi_st_run(_instance, _cmd, _dir, _type) \
+#define rshi_st(_instance, _cmd, _dir, _type) \
     (_instance)->st.run.val[_cmd][_dir][_type]
-#define rshi_st_run_recv_error(_instance, _cmd) \
-    rshi_st_run(_instance, _cmd, RSHIST_DIR_RECV, RSHIST_TYPE_ERROR)
-
-#define rshi_unknow_recv_ok(_instance) \
-    rshi_st_run(_instance, RSH_CMD_UNKNOW, RSHIST_DIR_RECV, RSHIST_TYPE_OK)
-#define rshi_unknow_recv_error(_instance) \
-    rshi_st_run(_instance, RSH_CMD_UNKNOW, RSHIST_DIR_RECV, RSHIST_TYPE_ERROR)
-
-#define rshi_command_recv_ok(_instance) \
-    rshi_st_run(_instance, RSH_CMD_COMMAND, RSHIST_DIR_RECV, RSHIST_TYPE_OK)
-#define rshi_command_recv_error(_instance) \
-    rshi_st_run(_instance, RSH_CMD_COMMAND, RSHIST_DIR_RECV, RSHIST_TYPE_ERROR)
-
-#define rshi_echo_recv_ok(_instance) \
-    rshi_st_run(_instance, RSH_CMD_ECHO, RSHIST_DIR_RECV, RSHIST_TYPE_OK)
-#define rshi_echo_recv_error(_instance) \
-    rshi_st_run(_instance, RSH_CMD_ECHO, RSHIST_DIR_RECV, RSHIST_TYPE_ERROR)
-#define rshi_echo_send_ok(_instance) \
-    rshi_st_run(_instance, RSH_CMD_ECHO, RSHIST_DIR_SEND, RSHIST_TYPE_OK)
-#define rshi_echo_send_error(_instance) \
-    rshi_st_run(_instance, RSH_CMD_ECHO, RSHIST_DIR_SEND, RSHIST_TYPE_ERROR)
+#define rshi_st_recv(_instance, _cmd, _is_error) \
+    rshi_st(_instance, _cmd, RSHIST_DIR_RECV, rshist_type(_is_error))
+#define rshi_st_send(_instance, _cmd, _is_error) \
+    rshi_st(_instance, _cmd, RSHIST_DIR_SEND, rshist_type(_is_error))
 
 static inline bool
 is_rshi_server_address(rsh_instance_t *instance, sockaddr_in_t *addr)
 {
     return instance->ip==addr->sin_addr.s_addr && instance->port==addr->sin_port;
-}
-
-static inline uint32
-rshi_seq(rsh_instance_t *instance)
-{
-    return (instance->seq_noack = instance->seq++);
 }
 
 static inline void
@@ -398,6 +396,55 @@ rshi_echo_set(rsh_instance_t *instance, bool busy)
     }
     
     return rshi_echo_get(instance);
+}
+
+static inline rsh_secret_t *
+rshi_secret_get(rsh_instance_t *instance)
+{
+    return &instance->secret[instance->secret_current];
+}
+
+static inline rsh_secret_t *
+rshi_secret_pre(rsh_instance_t *instance)
+{
+    return &instance->secret[!instance->secret_current];
+}
+
+static inline int
+rshi_secret_init(rsh_secret_t *secret, char *keystring)
+{
+    int err, len = os_strlen(keystring), size = len/2;
+    
+    if (len%2 || false==is_good_aes_key_size(size)) {
+        err = -EBADKEY; goto error;
+    }
+
+    err = os_hex2bin(keystring, secret->u.key, size);
+    if (err<0) {
+        err = -EBADKEY; goto error;
+    }
+    secret->size = size;
+    
+    return 0;
+error:
+
+    return err;
+}
+
+static inline rsh_secret_t *
+rshi_secret_setup(rsh_instance_t *instance, rsh_secret_t *secret, time_t now)
+{
+    instance->secret_current = !instance->secret_current;
+
+    rsh_secret_t *current = rshi_secret_get(instance);
+
+    current->size = secret->size;
+    aes_key_setup(secret->u.key, current->u.key32, 8*secret->size);
+
+    instance->secret_update++;
+    instance->updatekey_time = now;
+    
+    return current;
 }
 
 typedef struct {
