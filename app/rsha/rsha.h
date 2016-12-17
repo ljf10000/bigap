@@ -27,12 +27,16 @@
 #define RSHA_ECHO_BUSY_INTERVAL     PC_VAL(2*1000, 5*1000)      // ms
 #endif
 
-#ifndef RSHA_FSM_TIMEOUT
-#define RSHA_FSM_TIMEOUT            PC_VAL(5*1000, 10*1000)
-#endif
-
 #ifndef RSHA_ECHO_BUSY_TIMES
 #define RSHA_ECHO_BUSY_TIMES        PC_VAL(3, 3)
+#endif
+
+#ifndef RSHA_ECHO_BUSY_TIMEOUT
+#define RSHA_ECHO_BUSY_TIMEOUT      PC_VAL(300*1000, 150*1000)  // ms
+#endif
+
+#ifndef RSHA_FSM_TIMEOUT
+#define RSHA_FSM_TIMEOUT            PC_VAL(5*1000, 10*1000)
 #endif
 
 #ifndef RSHI_NAMEHASHSIZE
@@ -81,6 +85,23 @@ static inline int rshist_type_getidbyname(const char *name);
 #define RSHIST_TYPE_END     RSHIST_TYPE_END
 
 #define rshist_type(_is_error)  ((_is_error)?RSHIST_TYPE_ERROR:RSHIST_TYPE_OK)
+#endif
+
+#if 1
+#define RSH_ECHO_ENUM_MAPPER(_)     \
+    _(RSH_ECHO_IDLE,    0, "idle"), \
+    _(RSH_ECHO_BUSY,    1, "busy"), \
+    /* end */
+DECLARE_ENUM(rsh_echo, RSH_ECHO_ENUM_MAPPER, RSH_ECHO_END);
+
+static inline enum_ops_t *rsh_echo_ops(void);
+static inline bool is_good_rsh_echo(int id);
+static inline char *rsh_echo_getnamebyid(int id);
+static inline int rsh_echo_getidbyname(const char *name);
+
+#define RSH_ECHO_IDLE   RSH_ECHO_IDLE
+#define RSH_ECHO_BUSY   RSH_ECHO_BUSY
+#define RSH_ECHO_END    RSH_ECHO_END
 #endif
 
 /*
@@ -180,13 +201,13 @@ DECLARE_JRULER(rsh_echo, RSH_ECHO_JRULE_MAPPER);
 static inline jrule_t *rsh_echo_jrules(void);
 
 static inline int
-rshi_echo_j2o(rsh_echo_t *echo, jobj_t jobj)
+__rshi_echo_j2o(rsh_echo_t *echo, jobj_t jobj)
 {
     return jrule_j2o(rsh_echo_jrules(), echo, jobj);
 }
 
 static inline jobj_t
-rshi_echo_o2j(rsh_echo_t *echo)
+__rshi_echo_o2j(rsh_echo_t *echo)
 {
     return jrule_o2j_ex(rsh_echo_jrules(), echo);
 }
@@ -212,10 +233,9 @@ typedef struct {
     char *flash;
     uint32 cid; // cert id
 
-    rsh_echo_t idle;
-    rsh_echo_t busy;
+    rsh_echo_t echo[RSH_ECHO_END];
     bool echo_busy;
-    
+
     jobj_t jcfg;
     
     int fd;
@@ -228,6 +248,7 @@ typedef struct {
     time_t updatekey_time;
     time_t ping_time;
     time_t pong_time;
+    time_t busy_time;
     
     bool loop;
     uint32 seq; 
@@ -294,11 +315,6 @@ rsh_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, fsm_time), fsm_time, "fsm_time", \
-            time, sizeof(time_t), 0,                    \
-            JRULE_VAR_TIME,                             \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, command_time), command_time, "command_time", \
             time, sizeof(time_t), 0,                    \
             JRULE_VAR_TIME,                             \
@@ -315,6 +331,11 @@ rsh_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, pong_time), pong_time, "pong_time", \
+            time, sizeof(time_t), 0,                    \
+            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, busy_time), busy_time, "busy_time", \
             time, sizeof(time_t), 0,                    \
             JRULE_VAR_TIME,                             \
             JRULE_VAR_NULL,                             \
@@ -383,15 +404,11 @@ rshi_echo_clear(rsh_echo_t *echo)
 static inline rsh_echo_t *
 rshi_echo_get(rsh_instance_t *instance)
 {
-    if (instance->echo_busy) {
-        return &instance->busy;
-    } else {
-        return &instance->idle;
-    }
+    return &instance->echo[instance->echo_busy];
 }
 
 extern rsh_echo_t *
-rshi_echo_set(rsh_instance_t *instance, bool busy);
+rshi_echo_set(rsh_instance_t *instance, time_t now, bool busy);
 
 static inline rsh_secret_t *
 rshi_secret_get(rsh_instance_t *instance)

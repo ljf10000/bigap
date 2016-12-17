@@ -76,6 +76,20 @@ rsha_echo_timeout(rsh_instance_t *instance, time_t now)
     }
 }
 
+STATIC bool
+is_rsha_busy_timeout(rsh_instance_t *instance, time_t now)
+{
+    return instance->echo_busy && is_rsha_timeout(instance->busy_time, now, RSHA_ECHO_BUSY_TIMEOUT);
+}
+
+STATIC void
+rsha_busy_timeout(rsh_instance_t *instance, time_t now)
+{
+    if (is_rsh_fsm_run(instance) && is_rsha_busy_timeout(instance, now)) {
+        rshi_echo_set(instance, now, false);
+    }
+}
+
 STATIC void
 rsha_error_checker(rsh_instance_t *instance, time_t now)
 {
@@ -98,8 +112,8 @@ rsha_timer_handle(rsh_instance_t *instance, time_t now)
         rsha_registered_tigger,
         rsha_resolved_tigger,
         rsha_echo_tigger,
-        
         rsha_echo_timeout,
+        rsha_busy_timeout,
         rsha_error_checker,
     };
     int i;
