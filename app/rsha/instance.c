@@ -759,7 +759,13 @@ rshi_update_recver(rsh_instance_t *instance, time_t now)
     rsh_msg_t *msg = rsha_msg;
 
     instance->update_time = now;
-    rshi_key_setup(instance, rsh_msg_key(msg), now);
+    switch(rsh_msg_update_type(msg)) {
+        case RSH_UPDATE_KEY:
+            rshi_key_setup(instance, rsh_msg_key(msg), now);
+            break;
+        default:
+            break;
+    }
 }
 
 STATIC int 
