@@ -864,14 +864,14 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     }
     rawmsg.cmd      = msg->cmd;
     rawmsg.update   = rsh_msg_update_type(msg);
-    
+
     err = rshi_recv_checker(instance, now, msg, len);
     if (err<0) {
         goto error;
     }
 
     rshi_recv_ok(instance, now);
-    
+
     (*recver[msg->cmd])(instance, now);
 error:
     rshi_recv_over(instance, &rawmsg, err<0);

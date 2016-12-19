@@ -183,25 +183,25 @@ hmac_sha2(int type, const byte *key, uint32 key_size, const byte *message, uint3
     switch(type) {
 #if USE_MOD_SHA224
         case SHA_224:
-            hmac_sha224(type, key, key_size, message, message_len, mac);
+            hmac_sha224(key, key_size, message, message_len, mac);
             break;
 #endif
 
 #if USE_MOD_SHA256
         case SHA_256:
-            hmac_sha256(type, key, key_size, message, message_len, mac);
+            hmac_sha256(key, key_size, message, message_len, mac);
             break;
 #endif
 
 #if USE_MOD_SHA384
         case SHA_384:
-            hmac_sha384(type, key, key_size, message, message_len, mac);
+            hmac_sha384(key, key_size, message, message_len, mac);
             break;
 #endif
 
 #if USE_MOD_SHA512
         case SHA_512:
-            hmac_sha512(type, key, key_size, message, message_len, mac);
+            hmac_sha512(key, key_size, message, message_len, mac);
             break;
 #endif
         default:
