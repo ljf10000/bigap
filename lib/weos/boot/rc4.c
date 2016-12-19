@@ -32,11 +32,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#include <assert.h>
-#include <string.h>
-
-#include "rc4.h"
-
 #define __RC4_CRYPT()           do {    \
     t += s[(byte) i];                   \
     os_swap_value(s[(byte) i], s[t]);   \
