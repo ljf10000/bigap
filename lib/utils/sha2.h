@@ -366,7 +366,7 @@ sha##_number##_update(sha##_number##_ctx_t *ctx, const byte *message, uint32 len
     ctx->tot_len += (block_nb + 1) << SHA##_number##_U_SHIFT; \
 }                                                           \
 DECLARE void                                                \
-sha224_final(sha##_number##_ctx_t *ctx, byte *digest)       \
+sha##_number##_final(sha##_number##_ctx_t *ctx, byte *digest) \
 {                                                           \
     uint32 block_nb;                                        \
     uint32 pm_len;                                          \
@@ -383,14 +383,14 @@ sha224_final(sha##_number##_ctx_t *ctx, byte *digest)       \
     ctx->block[ctx->len] = 0x80;                            \
     SHA_UNPACK(len_b, ctx->block + pm_len - 4);             \
                                                             \
-    sha256_transf(ctx, ctx->block, block_nb);               \
+    sha##_number##_transf(ctx, ctx->block, block_nb);               \
                                                             \
     for (i = 0 ; i < SHA##_number##_F_COUNT; i++) {         \
-        SHA224_UNPACK(ctx->h[i], &digest[i << (SHA##_number##_F_SHIFT-4)]); \
+        SHA##_number##_UNPACK(ctx->h[i], &digest[i << (SHA##_number##_F_SHIFT-4)]); \
     }                                                       \
 }                                                           \
 DECLARE void                                                \
-sha##_number##(const byte *message, uint32 len, byte *digest) \
+sha##_number(const byte *message, uint32 len, byte *digest) \
 {                                                           \
     sha##_number##_ctx_t ctx = SHA_INITER(SHA##_number##_H_INITER); \
                                                             \
