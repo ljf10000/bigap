@@ -114,30 +114,30 @@ hmac_sha2_reinit(hmac_sha2_ctx_t *ctx)
 }
 
 DECLARE void
-hmac_sha2_update(hmac_sha2_ctx_t *ctx, const byte *message, uint32 message_len)
+hmac_sha2_update(hmac_sha2_ctx_t *ctx, const void *message, uint32 message_len)
 {
     switch(ctx->type) {
 #if USE_MOD_SHA224
         case SHA_224:
-            hmac_sha224_update(&ctx->u.ctx224, message, message_len);
+            hmac_sha224_update(&ctx->u.ctx224, (const byte *)message, message_len);
             break;
 #endif
 
 #if USE_MOD_SHA256
         case SHA_256:
-            hmac_sha256_update(&ctx->u.ctx256, message, message_len);
+            hmac_sha256_update(&ctx->u.ctx256, (const byte *)message, message_len);
             break;
 #endif
 
 #if USE_MOD_SHA384
         case SHA_384:
-            hmac_sha384_update(&ctx->u.ctx384, message, message_len);
+            hmac_sha384_update(&ctx->u.ctx384, (const byte *)message, message_len);
             break;
 #endif
 
 #if USE_MOD_SHA512
         case SHA_512:
-            hmac_sha512_update(&ctx->u.ctx512, message, message_len);
+            hmac_sha512_update(&ctx->u.ctx512, (const byte *)message, message_len);
             break;
 #endif
         default:
@@ -178,30 +178,30 @@ hmac_sha2_final(hmac_sha2_ctx_t *ctx, byte mac[])
 }
 
 DECLARE void
-hmac_sha2(int type, const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[])
+hmac_sha2(int type, const byte *key, uint32 key_size, const void *message, uint32 message_len, byte mac[])
 {
     switch(type) {
 #if USE_MOD_SHA224
         case SHA_224:
-            hmac_sha224(key, key_size, message, message_len, mac);
+            hmac_sha224(key, key_size, (const byte *)message, message_len, mac);
             break;
 #endif
 
 #if USE_MOD_SHA256
         case SHA_256:
-            hmac_sha256(key, key_size, message, message_len, mac);
+            hmac_sha256(key, key_size, (const byte *)message, message_len, mac);
             break;
 #endif
 
 #if USE_MOD_SHA384
         case SHA_384:
-            hmac_sha384(key, key_size, message, message_len, mac);
+            hmac_sha384(key, key_size, (const byte *)message, message_len, mac);
             break;
 #endif
 
 #if USE_MOD_SHA512
         case SHA_512:
-            hmac_sha512(key, key_size, message, message_len, mac);
+            hmac_sha512(key, key_size, (const byte *)message, message_len, mac);
             break;
 #endif
         default:

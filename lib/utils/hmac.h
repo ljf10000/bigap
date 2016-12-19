@@ -233,13 +233,13 @@ EXTERN void
 hmac_sha2_reinit(hmac_sha2_ctx_t *ctx);
 
 EXTERN void
-hmac_sha2_update(hmac_sha2_ctx_t *ctx, const byte *message, uint32 message_len);
+hmac_sha2_update(hmac_sha2_ctx_t *ctx, const void *message, uint32 message_len);
 
 EXTERN void
 hmac_sha2_final(hmac_sha2_ctx_t *ctx, byte mac[]);
 
 EXTERN void
-hmac_sha2(int type, const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[]);
+hmac_sha2(int type, const byte *key, uint32 key_size, const void *message, uint32 message_len, byte mac[]);
 
 #ifdef __BOOT__
 #include "weos/boot/hmac.c"
