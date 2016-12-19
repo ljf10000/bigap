@@ -401,52 +401,6 @@ static inline jrule_t *rsh_instance_jrules(void);
 #define rshi_tm_echo_send(_instance, _is_error) \
     rshi_tm_echo(_instance, RSHIST_DIR_SEND, rshist_type(_is_error))
 
-static inline void
-rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
-{
-    rshi_st_send(instance, over->cmd, is_error)++;
-    
-    switch(over->cmd) {
-        case RSH_CMD_ECHO:
-            rshi_tm_echo_send(instance, is_error)++;
-            
-            break;
-        case RSH_CMD_COMMAND:
-            rshi_tm_command_send(instance, is_error)++;
-            
-            break;
-        case RSH_CMD_UPDATE:
-            if (is_good_rsh_update(over->update)) {
-                rshi_tm_update_send(instance, over->update, is_error)++;
-            }
-            
-            break;
-    }
-}
-
-static inline void
-rshi_recv_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
-{
-    rshi_st_recv(instance, over->cmd, is_error)++;
-    
-    switch(over->cmd) {
-        case RSH_CMD_ECHO:
-            rshi_tm_echo_recv(instance, is_error)++;
-            
-            break;
-        case RSH_CMD_COMMAND:
-            rshi_tm_command_recv(instance, is_error)++;
-            
-            break;
-        case RSH_CMD_UPDATE:
-            if (is_good_rsh_update(over->update)) {
-                rshi_tm_update_recv(instance, over->update, is_error)++;
-            }
-            
-            break;
-    }
-}
-
 static inline bool
 is_rshi_server_address(rsh_instance_t *instance, sockaddr_in_t *addr)
 {

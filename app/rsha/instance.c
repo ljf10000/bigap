@@ -556,6 +556,29 @@ rshi_recv(rsh_instance_t *instance)
     return len;
 }
 
+STATIC void
+rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
+{
+    rshi_st_send(instance, over->cmd, is_error)++;
+    
+    switch(over->cmd) {
+        case RSH_CMD_ECHO:
+            rshi_tm_echo_send(instance, is_error)++;
+            
+            break;
+        case RSH_CMD_COMMAND:
+            rshi_tm_command_send(instance, is_error)++;
+            
+            break;
+        case RSH_CMD_UPDATE:
+            if (is_good_rsh_update(over->update)) {
+                rshi_tm_update_send(instance, over->update, is_error)++;
+            }
+            
+            break;
+    }
+}
+
 STATIC int 
 rshi_send(rsh_instance_t *instance)
 {
@@ -848,6 +871,29 @@ rshi_recv_ok(rsh_instance_t *instance, time_t now)
 
     if (false==is_rsh_msg_ack(msg)) {
         rshi_ack_ok(instance);
+    }
+}
+
+STATIC void
+rshi_recv_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
+{
+    rshi_st_recv(instance, over->cmd, is_error)++;
+    
+    switch(over->cmd) {
+        case RSH_CMD_ECHO:
+            rshi_tm_echo_recv(instance, is_error)++;
+            
+            break;
+        case RSH_CMD_COMMAND:
+            rshi_tm_command_recv(instance, is_error)++;
+            
+            break;
+        case RSH_CMD_UPDATE:
+            if (is_good_rsh_update(over->update)) {
+                rshi_tm_update_recv(instance, over->update, is_error)++;
+            }
+            
+            break;
     }
 }
 
