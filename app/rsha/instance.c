@@ -754,18 +754,22 @@ rshi_command_recver(rsh_instance_t *instance, time_t now)
 }
 
 STATIC void 
-rshi_update_recver(rsh_instance_t *instance, time_t now)
+rshi_update_key_recver(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
 
-    instance->update_time = now;
-    switch(rsh_msg_update_type(msg)) {
-        case RSH_UPDATE_KEY:
-            rshi_key_setup(instance, rsh_msg_key(msg), now);
-            break;
-        default:
-            break;
-    }
+    rshi_key_setup(instance, rsh_msg_key(msg), now);
+}
+
+STATIC void 
+rshi_update_recver(rsh_instance_t *instance, time_t now)
+{
+    static void (*updater[RSH_UPDATE_END])(rsh_instance_t *instance, time_t now) = {
+        [RSH_UPDATE_KEY]    = rshi_update_key_recver,
+    };
+    rsh_msg_t *msg = rsha_msg;
+
+    (*updater[msg->cmd])(instance, now);
 }
 
 STATIC int 
@@ -876,9 +880,9 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
         goto error;
     }
 
-    rshi_recv_ok(instance, now);
-
     (*recver[msg->cmd])(instance, now);
+
+    rshi_recv_ok(instance, now);
 error:
     rshi_recv_over(instance, &rawmsg, err<0);
 
