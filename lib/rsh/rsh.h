@@ -232,7 +232,7 @@ rsh_msg_update_type(rsh_msg_t *msg)
 static inline rsh_key_t *
 rsh_msg_key(rsh_msg_t *msg)
 {
-    return rsh_msg_update(msg)->u.key;
+    return &rsh_msg_update(msg)->u.key;
 }
 
 /*
@@ -245,7 +245,7 @@ rsh_emsg(rsh_msg_t *msg)
     return (rsh_msg_t *)rsh_msg_body(msg);
 }
 
-static inline char *
+static inline byte *
 rsh_emsg_body(rsh_msg_t *msg)
 {
     return rsh_msg_body(rsh_emsg(msg));
@@ -318,8 +318,8 @@ rsh_msg_hmac(rsh_msg_t *msg, rsh_key_t *key, byte hmac[], int hmacsize)
     hmac_sha2_ctx_t ctx = HMAC_SHA2_CTX_INITER(SHA_TYPE(hmacsize));
     
     hmac_sha2_init(&ctx, key->u.key, key->size);
-    hmac_sha2_update(&ctx, msg, sizeof(msg));
-    hmac_sha2_update(&ctx, rsh_msg_body(msg), msg->len);
+    hmac_sha2_update(&ctx, (const byte *)msg, sizeof(msg));
+    hmac_sha2_update(&ctx, (const byte *)rsh_msg_body(msg), msg->len);
     hmac_sha2_final(&ctx, hmac);
 }
 
