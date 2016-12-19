@@ -134,10 +134,14 @@ typedef uint32 sha256_uint_t;
 typedef uint64 sha384_uint_t;
 typedef uint64 sha512_uint_t;
 
+#define SHA224_T_SHIFT  6
 #define SHA256_T_SHIFT  6
+#define SHA384_T_SHIFT  7
 #define SHA512_T_SHIFT  7
 
+#define SHA224_K_COUNT  64
 #define SHA256_K_COUNT  64
+#define SHA384_K_COUNT  80
 #define SHA512_K_COUNT  80
 
 #define SHA224_U_SHIFT  6
