@@ -332,31 +332,6 @@ rsh_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, command_time), command_time, "command_time", \
-            time, sizeof(time_t), 0,                    \
-            JRULE_VAR_TIME,                             \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, updatekey_time), updatekey_time, "updatekey_time", \
-            time, sizeof(time_t), 0,                    \
-            JRULE_VAR_TIME,                             \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, ping_time), ping_time, "ping_time", \
-            time, sizeof(time_t), 0,                    \
-            JRULE_VAR_TIME,                             \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, pong_time), pong_time, "pong_time", \
-            time, sizeof(time_t), 0,                    \
-            JRULE_VAR_TIME,                             \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, busy_time), busy_time, "busy_time", \
-            time, sizeof(time_t), 0,                    \
-            JRULE_VAR_TIME,                             \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, ip), ip, "ip",           \
             ip, sizeof(int), 0,                         \
             JRULE_VAR_IP,                               \
