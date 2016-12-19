@@ -2,11 +2,10 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 /*
- * HMAC-SHA-224/256/384/512 implementation
- * Last update: 06/15/2005
- * Issue date:  06/15/2005
+ * RC4 implementation
+ * Issue date: 03/18/2006
  *
- * Copyright (C) 2005 Olivier Gay <olivier.gay@a3.epfl.ch>
+ * Copyright (C) 2006 Olivier Gay <olivier.gay@a3.epfl.ch>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,19 +32,93 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#if USE_MOD_SHA224
-    DECLARE_HMAC_SHA_TABLE(224);
-#endif
+#include <assert.h>
+#include <string.h>
 
-#if USE_MOD_SHA256
-    DECLARE_HMAC_SHA_TABLE(256);
-#endif
+#include "rc4.h"
 
-#if USE_MOD_SHA384
-    DECLARE_HMAC_SHA_TABLE(384);
-#endif
+#define __RC4_CRYPT()           do {    \
+    t += s[(byte) i];                   \
+    os_swap_value(s[(byte) i], s[t]);   \
+    new_dst[i] = new_src[i] ^ s[(byte) (s[(byte) i] + s[t])]; \
+}while(0)
 
-#if USE_MOD_SHA512
-    DECLARE_HMAC_SHA_TABLE(512);
-#endif
+DECLARE void
+rc4_ks(rc4_ctx_t *ctx, const byte *key, uint32 key_len)
+{
+    static const byte rc4_table[256] = RC4_TABLE_INITER;
+    
+    uint32 i;
+    byte *s;
+    byte t, tmp;
+
+    t = 0;
+    s = ctx->se;
+
+    assert(key_len > 0 && key_len <= 256);
+
+    ctx->pose = 1;
+    ctx->posd = 1;
+    ctx->te = 0;
+    ctx->td = 0;
+
+    memcpy(s, rc4_table, 256);
+
+    for (i = 0; i < 256; i++) {
+        t += s[i] + key[i % key_len];
+        os_swap_value(s[i], s[t]);
+    }
+
+    memcpy(ctx->sd, s, 256);
+}
+
+DECLARE void
+rc4_encrypt(rc4_ctx_t *ctx, const byte *src, byte *dst, uint32 len)
+{
+    uint32 i;
+    uint32 pos;
+    const byte *new_src;
+    byte *s, *new_dst;
+    byte t, tmp;
+
+    pos = ctx->pose;
+    s = ctx->se;
+    t = ctx->te;
+
+    new_src = src - pos;
+    new_dst = dst - pos;
+
+    for (i = pos; i < len + pos; i++) {
+        __RC4_CRYPT();
+    }
+
+    ctx->pose = i;
+    ctx->te = t;
+}
+
+DECLARE void
+rc4_decrypt(rc4_ctx_t *ctx, const byte *src, byte *dst, uint32 len)
+{
+    uint32 i;
+    uint32 pos;
+    const byte *new_src;
+    byte *s, *new_dst;
+    byte t, tmp;
+
+    pos = ctx->posd;
+    s = ctx->sd;
+    t = ctx->td;
+
+    new_src = src - pos;
+    new_dst = dst - pos;
+
+    for (i = pos; i < len + pos; i++) {
+        __RC4_CRYPT();
+    }
+
+    ctx->posd = i;
+    ctx->td = t;
+}
+
+#undef __RC4_CRYPT
 /******************************************************************************/

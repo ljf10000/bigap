@@ -202,6 +202,7 @@
 #include "utils/base64.h"
 #include "utils/sha2.h"
 #include "utils/hmac.h"
+#include "utils/rc4.h"
 #include "utils/jscript.h"
 
 #if 1   /* __EXTEND__ */

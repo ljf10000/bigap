@@ -51,6 +51,7 @@ LIB_INITER;
 #include "weos/boot/hmac.c"
 #include "weos/boot/list.c"
 #include "weos/boot/md5.c"
+#include "weos/boot/rc4.c"
 #include "weos/boot/sbuffer.c"
 #include "weos/boot/sha2.c"
 #if USE_MOD_SLICE

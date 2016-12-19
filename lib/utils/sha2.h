@@ -1,7 +1,7 @@
 #ifndef __SHA2_H_f482c6dfe05341e7b2ddf4db926acb7d__
 #define __SHA2_H_f482c6dfe05341e7b2ddf4db926acb7d__
 /******************************************************************************/
-// https://github.com/ogay/hmac
+// https://github.com/ogay/sha2
 
 /*
  * FIPS 180-2 SHA-224/256/384/512 implementation
@@ -45,21 +45,21 @@
 #define SHA384_BLOCK_SIZE  SHA512_BLOCK_SIZE
 #define SHA512_BLOCK_SIZE  (1024 / 8)
 
-#define SHA224_H_INITER { \
+#define SHA224_H0_INITER { \
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, \
     0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4, \
 }
-#define SHA256_H_INITER { \
+#define SHA256_H0_INITER { \
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, \
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19, \
 }
-#define SHA384_H_INITER { \
+#define SHA384_H0_INITER { \
     0xcbbb9d5dc1059ed8ULL, 0x629a292a367cd507ULL, \
     0x9159015a3070dd17ULL, 0x152fecd8f70e5939ULL, \
     0x67332667ffc00b31ULL, 0x8eb44a8768581511ULL, \
     0xdb0c2e0d64f98fa7ULL, 0x47b5481dbefa4fa4ULL, \
 }
-#define SHA512_H_INITER { \
+#define SHA512_H0_INITER { \
     0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL, \
     0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL, \
     0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL, \
@@ -277,18 +277,14 @@ typedef struct {
     sha512_uint_t h[8];
 } sha512_ctx_t;
 
-#define SHA_INITER(_h_initer) { \
-    .tot_len= 0,                \
-    .len    = 0,                \
-    .h      = _h_initer,        \
-}
-#define SHA224_INITER   SHA_INITER(SHA224_H_INITER)
-#define SHA256_INITER   SHA_INITER(SHA256_H_INITER)
-#define SHA384_INITER   SHA_INITER(SHA384_H_INITER)
-#define SHA512_INITER   SHA_INITER(SHA512_H_INITER)
+#define SHA_INITER(_h0_initer)  {   \
+    .tot_len= 0,                    \
+    .len    = 0,                    \
+    .h      = _h0_initer,           \
+}   /* end */
 
-#define SHA_INIT(_ctx, _h_initer)           do{ \
-    typeof((_ctx)->h[0]) __h0[8] = _h_initer;   \
+#define SHA_INIT(_ctx, _h0_initer)          do{ \
+    typeof((_ctx)->h[0]) __h0[8] = _h0_initer;  \
                                                 \
     os_memcpy((_ctx)->h, __h0, sizeof(__h0));   \
                                                 \
