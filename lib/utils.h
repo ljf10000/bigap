@@ -200,6 +200,8 @@
 #include "utils/md5.h"
 #include "utils/aes.h"
 #include "utils/base64.h"
+#include "utils/sha2.h"
+#include "utils/hmac.h"
 #include "utils/jscript.h"
 
 #if 1   /* __EXTEND__ */
