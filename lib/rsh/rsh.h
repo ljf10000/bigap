@@ -104,11 +104,6 @@ static inline int rsh_update_getidbyname(const char *name);
 
 #define RSH_UPDATE_KEY      RSH_UPDATE_KEY
 #define RSH_UPDATE_END      RSH_UPDATE_END
-
-static inline bool is_valid_rsh_update(int id)
-{
-    return is_good_value(id, RSH_UPDATE_ECHO, RSH_UPDATE_END);
-}
 #endif
 
 enum {
