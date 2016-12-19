@@ -139,7 +139,7 @@ hmac_sha##_number##_update(hmac_sha##_number##_ctx_t *ctx, const byte *message, 
     sha##_number##_update(&ctx->ctx_inside, message, message_len); \
 }                                                           \
 DECLARE void                                                \
-hmac_sha##_number##_final(hmac_sha##_number##_ctx_t *ctx, byte *mac, uint32 mac_size) \
+hmac_sha##_number##_final(hmac_sha##_number##_ctx_t *ctx, byte mac[]) \
 {                                                           \
     byte digest_inside[SHA##_number##_DIGEST_SIZE];\
     byte mac_temp[SHA##_number##_DIGEST_SIZE];     \
@@ -147,16 +147,16 @@ hmac_sha##_number##_final(hmac_sha##_number##_ctx_t *ctx, byte *mac, uint32 mac_
     sha##_number##_final(&ctx->ctx_inside, digest_inside);  \
     sha##_number##_update(&ctx->ctx_outside, digest_inside, SHA##_number##_DIGEST_SIZE); \
     sha##_number##_final(&ctx->ctx_outside, mac_temp);      \
-    memcpy(mac, mac_temp, mac_size);                        \
+    memcpy(mac, mac_temp, SHA##_number##_DIGEST_SIZE);                        \
 }                                                           \
 DECLARE void                                                \
-hmac_sha##_number(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte *mac, uint32 mac_size) \
+hmac_sha##_number(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[]) \
 {                                                           \
     hmac_sha##_number##_ctx_t ctx;                          \
                                                             \
     hmac_sha##_number##_init(&ctx, key, key_size);          \
     hmac_sha##_number##_update(&ctx, message, message_len); \
-    hmac_sha##_number##_final(&ctx, mac, mac_size);         \
+    hmac_sha##_number##_final(&ctx, mac);                   \
 }                                                           \
 os_fake_declare                                             \
 /* end */
@@ -169,9 +169,9 @@ hmac_sha224_reinit(hmac_sha224_ctx_t *ctx);
 EXTERN void
 hmac_sha224_update(hmac_sha224_ctx_t *ctx, const byte *message, uint32 message_len);
 EXTERN void
-hmac_sha224_final(hmac_sha224_ctx_t *ctx, byte *mac, uint32 mac_size);
+hmac_sha224_final(hmac_sha224_ctx_t *ctx, byte mac[SHA224_DIGEST_SIZE]);
 EXTERN void
-hmac_sha224(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte *mac, uint32 mac_size);
+hmac_sha224(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[SHA224_DIGEST_SIZE]);
 #endif
 
 #if USE_MOD_SHA256
@@ -182,9 +182,9 @@ hmac_sha256_reinit(hmac_sha256_ctx_t *ctx);
 EXTERN void
 hmac_sha256_update(hmac_sha256_ctx_t *ctx, const byte *message, uint32 message_len);
 EXTERN void
-hmac_sha256_final(hmac_sha256_ctx_t *ctx, byte *mac, uint32 mac_size);
+hmac_sha256_final(hmac_sha256_ctx_t *ctx, byte mac[SHA256_DIGEST_SIZE]);
 EXTERN void
-hmac_sha256(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte *mac, uint32 mac_size);
+hmac_sha256(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[SHA256_DIGEST_SIZE]);
 #endif
 
 #if USE_MOD_SHA384
@@ -195,9 +195,9 @@ hmac_sha384_reinit(hmac_sha384_ctx_t *ctx);
 EXTERN void
 hmac_sha384_update(hmac_sha384_ctx_t *ctx, const byte *message, uint32 message_len);
 EXTERN void
-hmac_sha384_final(hmac_sha384_ctx_t *ctx, byte *mac, uint32 mac_size);
+hmac_sha384_final(hmac_sha384_ctx_t *ctx, byte mac[SHA384_DIGEST_SIZE]);
 EXTERN void
-hmac_sha384(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte *mac, uint32 mac_size);
+hmac_sha384(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[SHA384_DIGEST_SIZE]);
 #endif
 
 #if USE_MOD_SHA512
@@ -208,10 +208,38 @@ hmac_sha512_reinit(hmac_sha512_ctx_t *ctx);
 EXTERN void
 hmac_sha512_update(hmac_sha512_ctx_t *ctx, const byte *message, uint32 message_len);
 EXTERN void
-hmac_sha512_final(hmac_sha512_ctx_t *ctx, byte *mac, uint32 mac_size);
+hmac_sha512_final(hmac_sha512_ctx_t *ctx, byte mac[SHA512_DIGEST_SIZE]);
 EXTERN void
-hmac_sha512(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte *mac, uint32 mac_size);
+hmac_sha512(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[SHA512_DIGEST_SIZE]);
 #endif
+
+typedef struct {
+    int type;   // SHA_END
+
+    union {
+        hmac_sha224_ctx_t ctx224;
+        hmac_sha256_ctx_t ctx256;
+        hmac_sha384_ctx_t ctx384;
+        hmac_sha512_ctx_t ctx512;
+    } u;
+} hmac_sha2_ctx_t;
+
+#define HMAC_SHA2_CTX_INITER(_type) { .type = _type}
+
+EXTERN void
+hmac_sha2_init(hmac_sha2_ctx_t *ctx, const byte *key, uint32 key_size);
+
+EXTERN void
+hmac_sha2_reinit(hmac_sha2_ctx_t *ctx);
+
+EXTERN void
+hmac_sha2_update(hmac_sha2_ctx_t *ctx, const byte *message, uint32 message_len);
+
+EXTERN void
+hmac_sha2_final(hmac_sha2_ctx_t *ctx, byte mac[]);
+
+EXTERN void
+hmac_sha2(int type, const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[]);
 
 #ifdef __BOOT__
 #include "weos/boot/hmac.c"

@@ -40,7 +40,7 @@ __rshi_nodehashname(hash_node_t *node)
 }
 
 STATIC jobj_t
-__rshi_fsm_o2j(rsh_instance_t *instance)
+__rshi_tm_o2j(rsh_instance_t *instance)
 {
     jobj_t jobj = NULL, jval;
     int i;
@@ -90,7 +90,7 @@ __rshi_st_o2j(rshi_st_t *st)
             
             for (type=0; type<RSHIST_TYPE_END; type++) {
                 jobj_add_u32(jdir, rshist_type_getnamebyid(type), 
-                    st->run.val[cmd][dir][type]);
+                    st->val[cmd][dir][type]);
             }
         }
     }
@@ -138,7 +138,7 @@ __rshi_o2j(rsh_instance_t *instance)
 
     jobj_add(jobj, "echo", rshi_echo_o2j(instance));
     jobj_add(jobj, "st", __rshi_st_o2j(&instance->st));
-    jobj_add(jobj, "fsm_time", __rshi_fsm_o2j(instance));
+    jobj_add(jobj, "tm", __rshi_tm_o2j(&instance->tm));
 
     return jobj;
 error:
@@ -179,46 +179,11 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
 }
 
 STATIC int
-__rshi_destroy(rsh_instance_t *instance)
+__rshi_add_watcher(rsh_instance_t *instance)
 {
-    if (instance) {
-        os_free(instance->name);
-        os_free(instance->proxy);
-        os_free(instance->registry);
-        os_free(instance->cache);
-        os_free(instance->flash);
-        os_free(instance->key);
+    int err, fd;
 
-        jobj_put(instance->jcfg);
-        
-        if (instance->loop) {
-            os_loop_del_watcher(&rsha.loop, instance->fd);
-            
-            instance->loop = false;
-            instance->fd = INVALID_FD;
-        }
-
-        os_free(instance);
-    }
-
-    return 0;
-}
-
-STATIC int
-__rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
-{
-    int err;
-    
-    instance->seq_noack = instance->seq = rand() % 0xffff;
-    instance->name  = os_strdup(name);
-    instance->peer_error_max = RSHI_PEER_ERROR_MAX;
-    
-    err = __rshi_j2o(instance, jobj);
-    if (err<0) {
-        return err;
-    }
-
-    int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (fd<0) {
         debug_error("instance %s socket error:%d", instance->name, -errno);
         
@@ -234,14 +199,60 @@ __rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
         
         return -errno;
     }
-    
+
     err = os_loop_add_normal(&rsha.loop, fd, rsha_recver, instance);
     if (err<0) {
         return err;
     }
     
-    instance->loop  = true;
+    return 0;
+}
+
+STATIC void
+__rshi_del_watcher(rsh_instance_t *instance)
+{
+    if (is_good_fd(instance->fd)) {
+        os_loop_del_watcher(&rsha.loop, instance->fd);
+        os_close(instance->fd);
+    }
+}
+
+STATIC int
+__rshi_destroy(rsh_instance_t *instance)
+{
+    if (instance) {
+        os_free(instance->name);
+        os_free(instance->proxy);
+        os_free(instance->registry);
+        os_free(instance->cache);
+        os_free(instance->flash);
+        os_free(instance->key.hex);
+
+        jobj_put(instance->jcfg);
+        
+        __rshi_del_watcher(instance);
+
+        os_free(instance);
+    }
+
+    return 0;
+}
+
+STATIC int
+__rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
+{
+    int err;
+    
+    instance->fd    = INVALID_FD;
+    instance->name  = os_strdup(name);
+    instance->peer_error_max = RSHI_PEER_ERROR_MAX;
+    
+    err = __rshi_j2o(instance, jobj);
+    if (err<0) {
+        return err;
+    }
     instance->jcfg  = jobj;
+
     rshi_fsm_restart(instance, time(NULL));
 
     return 0;
@@ -316,14 +327,14 @@ rshi_echo_set(rsh_instance_t *instance, time_t now, bool busy)
     }
 
     if (busy) {
-        instance->busy_time = now;
+        instance->tm.busy = now;
     }
     
     return rshi_echo_get(instance);
 }
 
 int
-rshi_secret_init(rsh_secret_t *secret, char *keystring)
+rshi_key_init(rsh_key_t *key, char *keystring)
 {
     int err, len = os_strlen(keystring), size = len/2;
     
@@ -331,11 +342,11 @@ rshi_secret_init(rsh_secret_t *secret, char *keystring)
         err = -EBADKEY; goto error;
     }
 
-    err = os_hex2bin(keystring, secret->u.key, size);
+    err = os_hex2bin(keystring, key->u.key, size);
     if (err<0) {
         err = -EBADKEY; goto error;
     }
-    secret->size = size;
+    key->size = size;
     
     return 0;
 error:
@@ -343,30 +354,41 @@ error:
     return err;
 }
 
-rsh_secret_t *
-rshi_secret_setup(rsh_instance_t *instance, rsh_secret_t *secret, time_t now)
+rsh_key_t *
+rshi_key_setup(rsh_instance_t *instance, rsh_key_t *key, time_t now)
 {
-    instance->secret_current = !instance->secret_current;
+    instance->key.current = !instance->key.current;
 
-    rsh_secret_t *current = rshi_secret_get(instance);
+    rsh_key_t *current = rshi_key_get(instance);
 
-    current->size = secret->size;
-    aes_key_setup(secret->u.key, current->u.key32, 8*secret->size);
+    current->size = key->size;
+    aes_key_setup(key->u.key, current->u.key32, 8*key->size);
 
-    instance->secret_update++;
-    instance->updatekey_time = now;
+    instance->key.update++;
     
     return current;
 }
 
-STATIC void
+STATIC int
 rshi_fsm_init(rsh_instance_t *instance)
 {
-    int i;
+    int i, err, fd;
+
+    if (is_good_fd(instance->fd)) {
+        os_loop_del_watcher(&rsha.loop, instance->fd);
+        os_close(instance->fd);
+    }
 
     for (i=0; i<RSH_ECHO_END; i++) {
         rshi_echo_clear(&instance->echo[i]);
     }
+
+    err = __rshi_add_watcher(instance);
+    if (err<0) {
+        return err;
+    }
+
+    return 0;
 }
 
 int
@@ -384,7 +406,7 @@ rshi_fsm(rsh_instance_t *instance, int fsm, time_t now)
     }
     
     instance->fsm = fsm;
-    instance->fsm_time[fsm] = now;
+    instance->tm.fsm[fsm] = now;
     
     switch(fsm) {
         case RSH_FSM_INIT:
@@ -492,19 +514,21 @@ rshi_show(char *name)
 STATIC void 
 rshi_encode(rsh_instance_t *instance)
 {
-    rsh_secret_t *secret = rshi_secret_get(instance);
     rsh_msg_t *msg = rsha_msg;
-    
-    rsh_msg_encode(msg, secret->u.key32, secret->size);
+
+    rsh_msg_encode(msg, rsh_msg_len(msg), 
+        rshi_key_get(instance), 
+        msg->hmac, msg->hmacsize);
 }
 
 STATIC void 
 rshi_decode(rsh_instance_t *instance, int len)
 {
-    rsh_secret_t *secret = rshi_secret_get(instance);
     rsh_msg_t *msg = rsha_msg;
 
-    rsh_msg_decode(msg, instance->md5, secret->u.key32, secret->size);
+    rsh_msg_decode(msg, len, 
+        rshi_key_get(instance), 
+        instance->hmac, instance->hmacsize);
 }
 
 STATIC int 
@@ -537,7 +561,12 @@ rshi_send(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
     sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->port);
-    int err, size = rsh_msg_size(msg), cmd = msg->cmd;
+    rsh_msg_t rawmsg = {
+        .cmd    = msg->cmd,
+        .update = rsh_msg_update_type(msg),
+    };
+    int size    = rsh_msg_size(msg);
+    int err;
     
     rshi_encode(instance);
     
@@ -549,9 +578,9 @@ rshi_send(rsh_instance_t *instance)
         err = -EIO; goto error;
     }
     
-    return size;
+    err = size;
 error:
-    rshi_st_send(instance, cmd, err<0);
+    rshi_send_over(instance, &rawmsg, err<0);
     
     return err;
 }
@@ -559,12 +588,13 @@ error:
 STATIC int
 rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
 {
-    rsh_msg_t hdr;
+    rsh_msg_t emsg;
     rsh_msg_t *msg = rsha_msg;
+    uint32 seq_peer = msg->seq;
     int err;
-
+    
     if (error) {
-        os_objcpy(&hdr, msg);
+        os_objcpy(&emsg, msg);
     }
 
     /*
@@ -572,20 +602,18 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
     */
     os_objzero(msg);
 
-    msg->flag   = RSH_F_ACK;
-    msg->seq    = instance->seq;
-    msg->error  = error;
-
+    msg->flag       = RSH_F_ACK;
+    msg->error      = error;
+    msg->seq        = instance->seq;
+    msg->hmacsize   = instance->hmacsize;
+    msg->ack        = seq_peer;
+    
     if (error) {
-        msg->ack = instance->seq_peer_temp;
-        
         instance->peer_error++;
         instance->error = error;
 
-        rsh_hdr_hton(&hdr);
-        rsh_msg_append(msg, &hdr, sizeof(hdr));
-    } else {
-        msg->ack = instance->seq_peer;
+        rsh_hdr_hton(&emsg);
+        rsh_msg_append(msg, &emsg, sizeof(emsg));
     }
 
     rsh_msg_fill(msg, rsha.mac, buf, len);
@@ -667,16 +695,11 @@ rshi_echo_recv_checker(rsh_instance_t *instance, time_t now)
     
     if (false==is_rsh_msg_ack(msg)) {
         return rshi_ack_error(instance, -RSH_E_FLAG, 
-            "echo reply[ack:0x%x] no ack flag", 
+            "time[%s] echo reply ack[0x%x] without ack flag", 
+            os_fulltime_string(now),
             msg->ack);
     }
 
-    return 0;
-}
-
-STATIC int 
-rshi_recv_nochecker(rsh_instance_t *instance, time_t now)
-{
     return 0;
 }
 
@@ -687,42 +710,56 @@ rshi_noack_recv_checker(rsh_instance_t *instance, time_t now)
     
     if (is_rsh_msg_ack(msg)) {
         return rshi_ack_error(instance, -RSH_E_FLAG, 
-            "command with ack flag");
+            "time[%s] command with ack flag",
+            os_fulltime_string(now));
     }
 
     return 0;
 }
 
 STATIC int 
-rshi_echo_recver(rsh_instance_t *instance, time_t now)
+rshi_update_recv_checker(rsh_instance_t *instance, time_t now)
 {
-    rshi_echo_get(instance)->recv = now;
+    rsh_msg_t *msg = rsha_msg;
+    rsh_update_t *update = rsh_msg_update(msg);
+    
+    if (is_rsh_msg_ack(msg)) {
+        return rshi_ack_error(instance, -RSH_E_FLAG, 
+            "time[%s] update with ack flag",
+            os_fulltime_string(now));
+    }
+    else if (false==is_good_rsh_update(update->type)) {
+        return rshi_ack_error(instance, -RSH_E_FLAG, 
+            "time[%s] invalid update[%d]",
+            os_fulltime_string(now),
+            update->type);
+    }
     
     return 0;
 }
 
-STATIC int 
+STATIC void 
+rshi_echo_recver(rsh_instance_t *instance, time_t now)
+{
+    rshi_echo_get(instance)->recv = now;
+}
+
+STATIC void 
 rshi_command_recver(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
 
-    instance->command_time = now;
-    rshi_ack_ok(instance);
     rshi_echo_set(instance, now, true);
-    rshi_exec(instance, msg->body);
-
-    return 0;
+    rshi_exec(instance, rsh_msg_body(msg));
 }
 
-STATIC int 
-rshi_updatekey_recver(rsh_instance_t *instance, time_t now)
+STATIC void 
+rshi_update_recver(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
 
-    rshi_ack_ok(instance);
-    rshi_secret_setup(instance, rsh_msg_secret(msg), now);
-
-    return 0;
+    instance->update_time = now;
+    rshi_key_setup(instance, rsh_msg_key(msg), now);
 }
 
 STATIC int 
@@ -731,43 +768,56 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
     static int (*checker[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
         [RSH_CMD_ECHO]      = rshi_echo_recv_checker,
         [RSH_CMD_COMMAND]   = rshi_noack_recv_checker,
-        [RSH_CMD_UPDATEKEY] = rshi_noack_recv_checker,
+        [RSH_CMD_UPDATE]    = rshi_update_recv_checker,
     };
     
     int size = rsh_msg_size(msg);
 
-    if (false==md5_eq(instance->md5, msg->md5)) {
-        return rshi_ack_error(instance, -RSH_E_MD5, 
-            "invalid md5");
+    if (instance->hmacsize != msg->hmacsize) {
+        return rshi_ack_error(instance, -RSH_E_HMAC, 
+            "time[%s] invalid hmac size",
+            os_fulltime_string(now));
+    }
+    else if (false==os_memeq(instance->hmac, msg->hmac, instance->hmacsize)) {
+        return rshi_ack_error(instance, -RSH_E_HMAC, 
+            "time[%s] invalid hmac",
+            os_fulltime_string(now));
     }
     else if (false==is_valid_rsh_cmd(msg->cmd)) {
         return rshi_ack_error(instance, -RSH_E_CMD, 
-            "invalid cmd %d", 
+            "time[%s] invalid cmd[%d]",
+            os_fulltime_string(now),
             msg->cmd);
     }
     else if (len != size) {
         return rshi_ack_error(instance, -RSH_E_LEN, 
-            "recv len %d not match msg size %d", 
+            "time[%s] recv len[%d] not match msg size[%d]", 
+            os_fulltime_string(now),
             len, size);
-    }
-    else if (RSH_MAGIC != msg->magic) {
-        return rshi_ack_error(instance, -RSH_E_MAGIC, 
-            "invalid magic %d", 
-            msg->magic);
     }
     else if (RSH_VERSION != msg->version) {
         return rshi_ack_error(instance, -RSH_E_VERSION, 
-            "invalid version %d", 
+            "time[%s] invalid version[%d]", 
+            os_fulltime_string(now),
             msg->version);
     }
-    else if (os_macneq(msg->mac, rsha.mac)) {
+    else if (false==os_maceq(msg->mac, rsha.mac)) {
         return rshi_ack_error(instance, -RSH_E_MAC, 
-            "invalid mac %s", 
+            "time[%s] invalid mac[%s]", 
+            os_fulltime_string(now),
             os_macstring(msg->mac));
+    }
+    else if (msg->seq != instance->seq_peer) {
+        return rshi_ack_error(instance, -RSH_E_SEQ, 
+            "time[%s] seq[0x%x] not match instance[seq_peer:0x%x]", 
+            os_fulltime_string(now),
+            msg->seq,
+            instance->seq_peer);
     }
     else if (msg->ack != instance->seq_noack) {
         return rshi_ack_error(instance, -RSH_E_ACK, 
-            "ack:0x%x not match instance[seq_noack:0x%x]", 
+            "time[%s] ack[0x%x] not match instance[seq_noack:0x%x]", 
+            os_fulltime_string(now),
             msg->ack,
             instance->seq_noack);
     }
@@ -776,59 +826,61 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
     }
 }
 
-int 
-__rsha_recver(rsh_instance_t *instance, time_t now, int *pcmd)
+STATIC void 
+rshi_recv_ok(rsh_instance_t *instance, time_t now)
 {
-    static int (*recver[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
+    rsh_msg_t *msg = rsha_msg;
+    
+    /*
+    * now, msg is ok, save next peer msg
+    */
+    instance->seq_peer = 1 + msg->seq;
+
+    if (false==is_rsh_msg_ack(msg)) {
+        rshi_ack_ok(instance);
+    }
+}
+
+int 
+rsha_recver(loop_watcher_t *watcher, time_t now)
+{
+    static void (*recver[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
         [RSH_CMD_ECHO]      = rshi_echo_recver,
         [RSH_CMD_COMMAND]   = rshi_command_recver,
+        [RSH_CMD_UPDATE]    = rshi_update_recver,
     };
     
+    rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
     rsh_msg_t *msg = rsha_msg;
+    rsh_msg_t rawmsg = {
+        .cmd    = RSH_CMD_UNKNOW,
+        .update = RSH_UPDATE_END,
+    };
     int err, len;
 
     err = len = rshi_recv(instance);
     if (err<0) {
         goto error;
     }
-
-    /*
-    * now, msg maybe error, save peer msg to temp
-    */
-    instance->seq_peer_temp = msg->seq;
+    rawmsg.cmd      = msg->cmd;
+    rawmsg.update   = rsh_msg_update_type(msg);
     
     err = rshi_recv_checker(instance, now, msg, len);
     if (err<0) {
-        return err;
+        goto error;
     }
+
+    rshi_recv_ok(instance, now);
     
-    /*
-    * now, msg is ok, save peer msg
-    */
-    instance->seq_peer = msg->seq;
-    
-    err = (*recver[msg->cmd])(instance, now);
+    (*recver[msg->cmd])(instance, now);
 error:
-    *pcmd = is_valid_rsh_cmd(msg->cmd)?msg->cmd:RSH_CMD_UNKNOW;
-    
-    return err;
-}
-
-int 
-rsha_recver(loop_watcher_t *watcher, time_t now)
-{
-    rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
-    int err, cmd = RSH_CMD_UNKNOW;
-
-    err = __rsha_recver(instance, now, &cmd);
-    
-    rshi_st_recv(instance, cmd, err<0)++;
+    rshi_recv_over(instance, &rawmsg, err<0);
 
     return err;
 }
 
 int 
-rshi_echo(rsh_instance_t *instance)
+rshi_echo(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
     int err;
@@ -839,12 +891,20 @@ rshi_echo(rsh_instance_t *instance)
     os_objzero(msg);
     rsh_msg_fill(msg, rsha.mac, NULL, 0);
 
-    msg->cmd    = RSH_CMD_ECHO;
-    msg->flag   = 0;
-    msg->seq    = instance->seq++;
-    msg->ack    = instance->seq_peer; // first is 0
+    msg->cmd        = RSH_CMD_ECHO;
+    msg->flag       = 0;
+    msg->seq        = instance->seq++;
+    msg->ack        = instance->seq_peer; // first is 0
+    msg->hmacsize   = instance->hmacsize;
     
-    return rshi_send(instance);
+    err = rshi_send(instance);
+    if (err<0) {
+        return err;
+    }
+
+    rshi_echo_get(instance)->send = now;
+
+    return 0;
 }
 
 int
@@ -864,13 +924,112 @@ rshi_run(rsh_instance_t *instance, time_t now)
     return rshi_fsm(instance, RSH_FSM_RUN, now);
 }
 
+STATIC jobj_t 
+rshi_register_pre(rsh_instance_t *instance)
+{
+    jobj_t jobj = jobj_new_object();
+    if (NULL==jobj) {
+        return NULL;
+    }
+
+    instance->crypt     = RSH_CRYPT_AES;
+    instance->hmactype  = SHA_256;
+    instance->seq = instance->seq_noack = rshi_seq_rand();
+
+    jobj_add_string(jobj, "mac", rsha.macstring);
+    jobj_add_string(jobj, "crypt", rsh_crypt_getnamebyid(instance->crypt));
+    jobj_add_string(jobj, "hmactype", sha2_getnamebyid(instance->hmactype));
+    jobj_add_u32(jobj, "seq",  instance->seq);
+
+    return jobj;
+error:
+    jobj_put(jobj);
+
+    return NULL;
+}
+
+STATIC int 
+rshi_register_post(rsh_instance_t *instance, jobj_t jobj, time_t now)
+{
+    int err;
+
+    /*
+    * 1. get key
+    */
+    jobj_t jkey = jobj_get(jobj, "key");
+    if (NULL==jkey) {
+        return -EBADJSON;
+    }
+
+    rsh_key_t key;
+    char *keyhex = jobj_get_string(jkey);
+    
+    err = rshi_key_init(&key, keyhex);
+    if (err<0) {
+        return err;
+    }
+
+    rshi_key_setup(instance, &key, now);
+    instance->key.hex = os_strdup(keyhex);
+
+    /*
+    * 2. get crypt
+    */
+    jobj_t jcrypt = jobj_get(jobj, "crypt");
+    if (NULL==jcrypt) {
+        return -EBADJSON;
+    }
+    int crypt = rsh_crypt_getidbyname(jobj_get_string(jcrypt));
+    if (false==is_good_rsh_crypt(crypt)) {
+        return -EBADJSON;
+    }
+    instance->crypt = crypt;
+
+    /*
+    * 3. get hmac type
+    */
+    jobj_t jhmactype = jobj_get(jobj, "hmactype");
+    if (NULL==jhmactype) {
+        return -EBADJSON;
+    }
+    int hmactype = sha2_getidbyname(jobj_get_string(jhmactype));
+    if (false==is_good_sha2(hmactype)) {
+        return -EBADJSON;
+    }
+    instance->hmactype = hmactype;
+    instance->hmacsize = SHA_DIGEST_SIZE(hmactype);
+    
+    /*
+    * 4. get seq
+    */
+    jobj_t jseq = jobj_get(jobj, "seq");
+    if (NULL==jseq) {
+        return -EBADJSON;
+    }
+    instance->seq_peer = jobj_get_u32(jseq);
+    
+    /*
+    * 5. get seq
+    */
+    jobj_t jdebug = jobj_get(jobj, "debug");
+    if (NULL==jdebug) {
+        return -EBADJSON;
+    }
+    instance->debug = jobj_get_bool(jdebug);
+    
+    return 0;
+}
+
 int 
 rshi_register(rsh_instance_t *instance, time_t now)
 {
     static char line[1+OS_FILE_LEN];
-    jobj_t jobj = NULL;
+    jobj_t jinput = NULL, joutput = NULL;
     int err, len;
 
+    /*
+    * 1. prepare cert
+    */
     char fcert[1+FCOOKIE_FILE_LEN] = {0};
     char  fkey[1+FCOOKIE_FILE_LEN] = {0};
 
@@ -879,45 +1038,52 @@ rshi_register(rsh_instance_t *instance, time_t now)
         err = -ENOCERT; goto error;
     }
 
+    /*
+    * 2. prepare input
+    */
+    jinput = rshi_register_pre(instance);
+    if (NULL==jinput) {
+        err = -ENOMEM; goto error;
+    }
+    
+    /*
+    * 3. do register
+    */
     os_arrayzero(line);
     err = os_v_pgets(line, sizeof(line), 
             "curl"
-                " -d '{\"mac\":\"%s\"}'"
+                " -d '%s'"
                 " -k --cert %s --key %s"
                 " -s %s",
-            rsha.macstring,
+            jobj_json(jinput),
             fcert, fkey,
             instance->registry);
     if (err<0) {
         debug_error("curl err(%d)", err);
         err = -ECURLFAIL; goto error;
     }
-
-    jobj = jobj_byjson(line);
-    if (NULL==jobj) {
+    
+    joutput = jobj_byjson(line);
+    if (NULL==joutput) {
         debug_error("bad json=%s", line);
         err = -EBADJSON; goto error;
     }
-
-    jobj_t jkey = jobj_get(jobj, "key");
-    if (NULL==jkey) {
-        err = -EBADJSON; goto error;
-    }
-
-    rsh_secret_t secret;
-    char *key = jobj_get_string(jkey);
     
-    err = rshi_secret_init(&secret, key);
+    /*
+    * 4. analysis output
+    */
+    err = rshi_register_post(instance, joutput, now);
     if (err<0) {
         goto error;
     }
-
-    rshi_secret_setup(instance, &secret, now);
-    instance->key = os_strdup(key);
     
-    return rshi_fsm(instance, RSH_FSM_REGISTERED, now);
+    /*
+    * 5. switch fsm
+    */
+    err = rshi_fsm(instance, RSH_FSM_REGISTERED, now);
 error:
-    jobj_put(jobj);
+    jobj_put(jinput);
+    jobj_put(joutput);
     fcookie_put_file(fcert);
     fcookie_put_file(fkey);
     

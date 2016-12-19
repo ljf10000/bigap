@@ -29,15 +29,15 @@ typedef void aes_crypt_handle_t(const byte in[],
                  const uint32 key[],
                  int keysize);
 
-EXTERN void aes_encrypt(const byte in[],        // 16 bytes of plaintext
-                 byte out[],                    // 16 bytes of ciphertext
-                 const uint32 key[],            // From the key setup
-                 int keysize);                  // Bit length of the key, 128, 192, or 256
+EXTERN void aes_encrypt(const byte in[AES_BLOCK_SIZE],  // 16 bytes of plaintext
+                 byte out[AES_BLOCK_SIZE],              // 16 bytes of ciphertext
+                 const uint32 key[],                    // From the key setup
+                 int keysize);                          // Bit length of the key, 128, 192, or 256
 
-EXTERN void aes_decrypt(const byte in[],        // 16 bytes of ciphertext
-                 byte out[],                    // 16 bytes of plaintext
-                 const uint32 key[],            // From the key setup
-                 int keysize);                  // Bit length of the key, 128, 192, or 256
+EXTERN void aes_decrypt(const byte in[AES_BLOCK_SIZE],  // 16 bytes of ciphertext
+                 byte out[AES_BLOCK_SIZE],              // 16 bytes of plaintext
+                 const uint32 key[],                    // From the key setup
+                 int keysize);                          // Bit length of the key, 128, 192, or 256
 
 ///////////////////
 // AES - CBC

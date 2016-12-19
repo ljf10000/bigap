@@ -405,7 +405,7 @@ __clis_argv_handle(cli_table_t tables[], int count, int argc, char *argv[])
     for (i=0; i<count; i++) {
         cli_table_t *table = &tables[i];
 
-        if (os_strneq(table->tag, tag)) {
+        if (false==os_streq(table->tag, tag)) {
             continue;
         }
 

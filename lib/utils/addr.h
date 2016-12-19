@@ -232,8 +232,6 @@ os_maceq(byte a[], byte b[])
         && *(uint16 *)(a+4) == *(uint16 *)(b+4);
 }
 
-#define os_macneq(_a, _b)   (false==os_maceq(_a, _b))
-
 static inline bkdr_t
 os_macbkdr(byte mac[])
 {

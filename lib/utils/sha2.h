@@ -35,15 +35,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#define SHA224_DIGEST_SIZE ( 224 / 8)
-#define SHA256_DIGEST_SIZE ( 256 / 8)
-#define SHA384_DIGEST_SIZE ( 384 / 8)
-#define SHA512_DIGEST_SIZE ( 512 / 8)
-    
-#define SHA224_BLOCK_SIZE  SHA256_BLOCK_SIZE
-#define SHA256_BLOCK_SIZE  ( 512 / 8)
-#define SHA384_BLOCK_SIZE  SHA512_BLOCK_SIZE
-#define SHA512_BLOCK_SIZE  (1024 / 8)
+
+#define SHA224_DIGEST_SIZE  (224/8) // 28
+#define SHA256_DIGEST_SIZE  (256/8) // 32
+#define SHA384_DIGEST_SIZE  (384/8) // 48
+#define SHA512_DIGEST_SIZE  (512/8) // 64
+
+#define SHA224_BLOCK_SIZE  SHA256_BLOCK_SIZE    // 64
+#define SHA256_BLOCK_SIZE  (512/8)              // 64
+#define SHA384_BLOCK_SIZE  SHA512_BLOCK_SIZE    // 128
+#define SHA512_BLOCK_SIZE  (1024/8)             // 128
 
 #define SHA224_H_INITER { \
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, \
@@ -282,6 +283,10 @@ typedef struct {
     .len    = 0,                    \
     .h      = _h0_initer,           \
 }   /* end */
+#define SHA224_INITER       SHA_INITER(SHA224_H_INITER)
+#define SHA256_INITER       SHA_INITER(SHA256_H_INITER)
+#define SHA384_INITER       SHA_INITER(SHA384_H_INITER)
+#define SHA512_INITER       SHA_INITER(SHA512_H_INITER)
 
 #define SHA_INIT(_ctx, _h0_initer)          do{ \
     typeof((_ctx)->h[0]) __h0[8] = _h0_initer;  \
@@ -291,6 +296,10 @@ typedef struct {
     (_ctx)->len        = 0;                     \
     (_ctx)->tot_len    = 0;                     \
 }while(0)
+#define SHA224_INIT(_ctx)   SHA_INIT(_ctx, SHA224_H_INITER)
+#define SHA256_INIT(_ctx)   SHA_INIT(_ctx, SHA256_H_INITER)
+#define SHA384_INIT(_ctx)   SHA_INIT(_ctx, SHA384_H_INITER)
+#define SHA512_INIT(_ctx)   SHA_INIT(_ctx, SHA512_H_INITER)
 
 #define DECLARE_SHA_TABLE(_number) \
 DECLARE void \
@@ -341,7 +350,7 @@ sha##_number##_transf(sha##_number##_ctx_t *ctx, const byte *message, uint32 blo
 DECLARE void                                                \
 sha##_number##_init(sha##_number##_ctx_t *ctx)              \
 {                                                           \
-    SHA_INIT(ctx, SHA##_number##_H_INITER);                 \
+    SHA##_number##_INIT(ctx);                               \
 }                                                           \
 DECLARE void                                                \
 sha##_number##_update(sha##_number##_ctx_t *ctx, const byte *message, uint32 len) \
@@ -376,7 +385,7 @@ sha##_number##_update(sha##_number##_ctx_t *ctx, const byte *message, uint32 len
     ctx->tot_len += (block_nb + 1) << SHA##_number##_U_SHIFT; \
 }                                                           \
 DECLARE void                                                \
-sha##_number##_final(sha##_number##_ctx_t *ctx, byte *digest) \
+sha##_number##_final(sha##_number##_ctx_t *ctx, byte digest[]) \
 {                                                           \
     uint32 block_nb;                                        \
     uint32 pm_len;                                          \
@@ -393,16 +402,16 @@ sha##_number##_final(sha##_number##_ctx_t *ctx, byte *digest) \
     ctx->block[ctx->len] = 0x80;                            \
     SHA_UNPACK(len_b, ctx->block + pm_len - 4);             \
                                                             \
-    sha##_number##_transf(ctx, ctx->block, block_nb);               \
+    sha##_number##_transf(ctx, ctx->block, block_nb);       \
                                                             \
     for (i = 0 ; i < SHA##_number##_F_COUNT; i++) {         \
         SHA##_number##_UNPACK(ctx->h[i], &digest[i << (SHA##_number##_F_SHIFT-4)]); \
     }                                                       \
 }                                                           \
 DECLARE void                                                \
-sha##_number(const byte *message, uint32 len, byte *digest) \
+sha##_number(const byte *message, uint32 len, byte digest[]) \
 {                                                           \
-    sha##_number##_ctx_t ctx = SHA_INITER(SHA##_number##_H_INITER); \
+    sha##_number##_ctx_t ctx = SHA##_number##_INITER;       \
                                                             \
     sha##_number##_update(&ctx, message, len);              \
     sha##_number##_final(&ctx, digest);                     \
@@ -416,9 +425,9 @@ sha224_init(sha224_ctx_t *ctx);
 EXTERN void
 sha224_update(sha224_ctx_t *ctx, const byte *message, uint32 len);
 EXTERN void
-sha224_final(sha224_ctx_t *ctx, byte *digest);
+sha224_final(sha224_ctx_t *ctx, byte digest[SHA224_DIGEST_SIZE]);
 EXTERN void
-sha224(const byte *message, uint32 len, byte *digest);
+sha224(const byte *message, uint32 len, byte digest[SHA224_DIGEST_SIZE]);
 #endif
 
 #if USE_MOD_SHA256
@@ -427,9 +436,9 @@ sha256_init(sha256_ctx_t *ctx);
 EXTERN void
 sha256_update(sha256_ctx_t *ctx, const byte *message, uint32 len);
 EXTERN void
-sha256_final(sha256_ctx_t *ctx, byte *digest);
+sha256_final(sha256_ctx_t *ctx, byte digest[SHA256_DIGEST_SIZE]);
 EXTERN void
-sha256(const byte *message, uint32 len, byte *digest);
+sha256(const byte *message, uint32 len, byte digest[SHA256_DIGEST_SIZE]);
 #endif
 
 #if USE_MOD_SHA384
@@ -438,9 +447,9 @@ sha384_init(sha384_ctx_t *ctx);
 EXTERN void
 sha384_update(sha384_ctx_t *ctx, const byte *message, uint32 len);
 EXTERN void
-sha384_final(sha384_ctx_t *ctx, byte *digest);
+sha384_final(sha384_ctx_t *ctx, byte digest[SHA384_DIGEST_SIZE]);
 EXTERN void
-sha384(const byte *message, uint32 len, byte *digest);
+sha384(const byte *message, uint32 len, byte digest[SHA384_DIGEST_SIZE]);
 #endif
 
 #if USE_MOD_SHA512
@@ -449,10 +458,75 @@ sha512_init(sha512_ctx_t *ctx);
 EXTERN void
 sha512_update(sha512_ctx_t *ctx, const byte *message, uint32 len);
 EXTERN void
-sha512_final(sha512_ctx_t *ctx, byte *digest);
+sha512_final(sha512_ctx_t *ctx, byte digest[SHA512_DIGEST_SIZE]);
 EXTERN void
-sha512(const byte *message, uint32 len, byte *digest);
+sha512(const byte *message, uint32 len, byte digest[SHA512_DIGEST_SIZE]);
 #endif
+
+#if 1
+#define SHA2_ENUM_MAPPER(_)     \
+    _(SHA_224,  0, "sha224"),   \
+    _(SHA_256,  1, "sha256"),   \
+    _(SHA_384,  2, "sha384"),   \
+    _(SHA_512,  3, "sha512"),   \
+    /* end */
+DECLARE_ENUM(sha2, SHA2_ENUM_MAPPER, SHA_END);
+
+static inline enum_ops_t *sha2_ops(void);
+static inline bool is_good_sha2(int id);
+static inline char *sha2_getnamebyid(int id);
+static inline int sha2_getidbyname(const char *name);
+
+#define SHA_224     SHA_224
+#define SHA_256     SHA_256
+#define SHA_384     SHA_384
+#define SHA_512     SHA_512
+#define SHA_END     SHA_END
+#endif
+
+#define SHA_TYPE(_digest_size)  (   \
+    SHA224_DIGEST_SIZE==(_digest_size)?SHA_224:( \
+    SHA256_DIGEST_SIZE==(_digest_size)?SHA_256:( \
+    SHA384_DIGEST_SIZE==(_digest_size)?SHA_384:( \
+    SHA512_DIGEST_SIZE==(_digest_size)?SHA_512:( \
+    SHA_256))))) /* end */
+
+#define SHA_DIGEST_SIZE(_type)  (   \
+    SHA_224==(_type)?SHA224_DIGEST_SIZE:(    \
+    SHA_256==(_type)?SHA256_DIGEST_SIZE:(    \
+    SHA_384==(_type)?SHA384_DIGEST_SIZE:(    \
+    SHA_512==(_type)?SHA512_DIGEST_SIZE:(    \
+    SHA256_DIGEST_SIZE))))) /* end */
+
+#define SHA_BLOCK_SIZE(_type)  (    \
+    SHA_224==(_type)?SHA224_BLOCK_SIZE:(     \
+    SHA_256==(_type)?SHA256_BLOCK_SIZE:(     \
+    SHA_384==(_type)?SHA384_BLOCK_SIZE:(     \
+    SHA_512==(_type)?SHA512_BLOCK_SIZE:(     \
+    SHA256_BLOCK_SIZE))))) /* end */
+
+typedef struct {
+    int type;   // SHA_END
+
+    union {
+        sha224_ctx_t ctx224;
+        sha256_ctx_t ctx256;
+        sha384_ctx_t ctx384;
+        sha512_ctx_t ctx512;
+    } u;
+} sha2_ctx_t;
+
+EXTERN void
+sha2_init(sha2_ctx_t *ctx);
+
+EXTERN void
+sha2_update(sha2_ctx_t *ctx, const byte *message, uint32 len);
+
+EXTERN void
+sha2_final(sha2_ctx_t *ctx, byte digest[]);
+
+EXTERN void
+sha2(int type, const byte *message, uint32 len, byte digest[]);
 
 #ifdef __BOOT__
 #include "weos/boot/sha2.c"

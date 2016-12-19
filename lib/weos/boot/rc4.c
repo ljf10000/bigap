@@ -38,6 +38,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
     new_dst[i] = new_src[i] ^ s[(byte) (s[(byte) i] + s[t])]; \
 }while(0)
 
+#if USE_MOD_RC4
 DECLARE void
 rc4_ks(rc4_ctx_t *ctx, const byte *key, uint32 key_len)
 {
@@ -116,4 +117,5 @@ rc4_decrypt(rc4_ctx_t *ctx, const byte *src, byte *dst, uint32 len)
 }
 
 #undef __RC4_CRYPT
+#endif /* USE_MOD_RC4 */
 /******************************************************************************/

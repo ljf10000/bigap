@@ -127,6 +127,10 @@
 #define USE_MOD_DB_H9           PC_VAL(1, 0)
 #endif
 
+#ifndef USE_MOD_RC4
+#define USE_MOD_RC4             PC_VAL(1, 0)
+#endif
+
 #ifndef USE_MOD_SHA224
 #define USE_MOD_SHA224          PC_VAL(1, 1)
 #endif

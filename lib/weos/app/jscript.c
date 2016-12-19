@@ -284,7 +284,7 @@ jscript_exec(char *json)
         }
         
         char *script = jobj_get_string(jval);
-        if (os_strneq(JSCRIPT_SCRIPT, script)) {
+        if (false==os_streq(JSCRIPT_SCRIPT, script)) {
             return os_system("%s '%s'", script, json);
         }
     }

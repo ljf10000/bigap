@@ -7,10 +7,6 @@
 #define RSH_VERSION                 1
 #endif
 
-#ifndef RSH_MAGIC
-#define RSH_MAGIC                   0x8741
-#endif
-
 #ifndef RSH_SEQ_UNKNOW
 #define RSH_SEQ_UNKNOW              0
 #endif
@@ -37,6 +33,21 @@ static inline int rsh_tlv_getidbyname(const char *name);
 #define RSH_TLV_END     RSH_TLV_END
 #endif
 
+#if 1
+#define RSH_CRYPT_ENUM_MAPPER(_)    \
+    _(RSH_CRYPT_AES,    0, "aes"),  \
+    /* end */
+DECLARE_ENUM(rsh_crypt, RSH_CRYPT_ENUM_MAPPER, RSH_CRYPT_END);
+
+static inline enum_ops_t *rsh_crypt_ops(void);
+static inline bool is_good_rsh_crypt(int id);
+static inline char *rsh_crypt_getnamebyid(int id);
+static inline int rsh_crypt_getidbyname(const char *name);
+
+#define RSH_CRYPT_AES   RSH_CRYPT_AES
+#define RSH_CRYPT_END   RSH_CRYPT_END
+#endif
+
 /*
     1. ping
         agent==>proxy
@@ -58,8 +69,8 @@ static inline int rsh_tlv_getidbyname(const char *name);
 #define RSH_CMD_ENUM_MAPPER(_) \
     _(RSH_CMD_UNKNOW,   0, "unknow"),       \
     _(RSH_CMD_ECHO,     1, "echo"),         \
-    _(RSH_CMD_COMMAND,  2, "command"),      \
-    _(RSH_CMD_UPDATEKEY,3, "updatekey"),    \
+    _(RSH_CMD_UPDATE,   2, "update"),       \
+    _(RSH_CMD_COMMAND,  3, "command"),      \
     /* end */
 DECLARE_ENUM(rsh_cmd, RSH_CMD_ENUM_MAPPER, RSH_CMD_END);
 
@@ -71,12 +82,32 @@ static inline int rsh_cmd_getidbyname(const char *name);
 #define RSH_CMD_UNKNOW      RSH_CMD_UNKNOW
 #define RSH_CMD_ECHO        RSH_CMD_ECHO
 #define RSH_CMD_COMMAND     RSH_CMD_COMMAND
-#define RSH_CMD_UPDATEKEY   RSH_CMD_UPDATEKEY
+#define RSH_CMD_UPDATE      RSH_CMD_UPDATE
 #define RSH_CMD_END         RSH_CMD_END
 
 static inline bool is_valid_rsh_cmd(int id)
 {
     return is_good_value(id, RSH_CMD_ECHO, RSH_CMD_END);
+}
+#endif
+
+#if 1
+#define RSH_UPDATE_ENUM_MAPPER(_) \
+    _(RSH_UPDATE_KEY,   0, "key"),      \
+    /* end */
+DECLARE_ENUM(rsh_update, RSH_UPDATE_ENUM_MAPPER, RSH_UPDATE_END);
+
+static inline enum_ops_t *rsh_update_ops(void);
+static inline bool is_good_rsh_update(int id);
+static inline char *rsh_update_getnamebyid(int id);
+static inline int rsh_update_getidbyname(const char *name);
+
+#define RSH_UPDATE_KEY      RSH_UPDATE_KEY
+#define RSH_UPDATE_END      RSH_UPDATE_END
+
+static inline bool is_valid_rsh_update(int id)
+{
+    return is_good_value(id, RSH_UPDATE_ECHO, RSH_UPDATE_END);
 }
 #endif
 
@@ -86,13 +117,13 @@ enum {
 };
 
 enum {
-    RSH_E_MD5,
+    RSH_E_HMAC,
     RSH_E_CMD,
     RSH_E_LEN,
     RSH_E_FLAG,
     RSH_E_ACK,
+    RSH_E_SEQ,
     RSH_E_MAC,
-    RSH_E_MAGIC,
     RSH_E_VERSION,
     RSH_E_SECRET,
     
@@ -106,46 +137,54 @@ typedef struct {
         byte    key[  RSH_KEY_SIZE];
         uint32  key32[RSH_KEY32_SIZE];
     } u;
-} rsh_secret_t;
+} rsh_key_t;
 
 typedef struct {
-    byte    md5[OS_MD5_SIZE]; // after hton, before encrypt
-    
-    uint16  magic;
+    uint32 type;
+
+    union {
+        rsh_key_t key;
+    } u;
+} rsh_update_t;
+
+typedef struct {
     byte    cmd;
     byte    version;
-
-    uint16  flag;
-    uint16  len;    // NOT include rsh header
-    
-    byte    mac[OS_MACSIZE];
+    /*
+    * must
+    *   28: SHA224_DIGEST_SIZE
+    *   32: SHA256_DIGEST_SIZE
+    *   48: SHA384_DIGEST_SIZE
+    *   64: SHA512_DIGEST_SIZE
+    */
+    byte    hmacsize;
     /*
     * is  ack: check it
     * not ack: ignore it
     */
-    int16   error;
+    int8    error;
 
+    uint16  flag;
+    /*
+    * NOT include rsh header
+    * NOT include hmac
+    */
+    uint16  len;    
+
+    byte    _r0[2];
+    byte    mac[OS_MACSIZE];
+
+    uint16  _r1[2];
     uint32  seq;
     uint32  ack;
+    uint32  _r2;
 
-    char    body[0];
-
-    union {
-        char body[0];
-
-        /*
-        * error msg header(network sort)
-        * it's body is error info
-        */
-        char emsg[0];
-        
-        rsh_secret_t secret;
-    } u[0];
+    byte hmac[0]; // after hton, before encrypt
 } 
-rsh_msg_t;        // 40 == sizeof(rsh_msg_t)
+rsh_msg_t;        // 32 == sizeof(rsh_msg_t)
 
 enum {
-    RSH_MSG_BODYSIZE    = 1412, // 1460(udp mtu) - 40(rsh_msg_t) - 2*4(double vlan)
+    RSH_MSG_BODYSIZE    = 1344, // 1460(udp mtu) - 32(rsh_msg_t) - 2*4(double vlan) - 64(max hmacsize) - 12
     RSH_MSG_ALLSIZE     = RSH_MSG_BODYSIZE + sizeof(rsh_msg_t),
 };
 
@@ -159,48 +198,89 @@ is_good_rsh_msg_size(int size)
     return size > 0 && 0 == (size % AES_BLOCK_SIZE);
 }
 
+static inline int // NOT include align padding
+rsh_msg_len(rsh_msg_t *msg)
+{
+    return msg->hmacsize + msg->len + sizeof(rsh_msg_t);
+}
+
 static inline int // include align padding
 rsh_msg_size(rsh_msg_t *msg)
 {
-    return RSH_MSG_SIZE(msg->len);
+    return RSH_MSG_SIZE(msg->hmacsize + msg->len);
+}
+
+static inline byte *
+rsh_msg_body(rsh_msg_t *msg)
+{
+    return msg->hmac + msg->hmacsize;
 }
 
 static inline char *
-rsh_msg_body(rsh_msg_t *msg)
+rsh_msg_current_body(rsh_msg_t *msg)
 {
-    return msg->u[0].body + msg->len;
+    return (char *)rsh_msg_body(msg) + msg->len;
 }
 
-static inline rsh_secret_t *
-rsh_msg_secret(rsh_msg_t *msg)
+static inline rsh_update_t *
+rsh_msg_update(rsh_msg_t *msg)
 {
-    return &msg->u[0].secret;
+    return (rsh_update_t *)rsh_msg_body(msg);
 }
 
+static inline int
+rsh_msg_update_type(rsh_msg_t *msg)
+{
+    return (int)rsh_msg_update(msg)->type;
+}
+
+static inline rsh_key_t *
+rsh_msg_key(rsh_msg_t *msg)
+{
+    return rsh_msg_update(msg)->u.key;
+}
+
+/*
+* error msg header(network sort)
+* it's body is error info
+*/
 static inline rsh_msg_t *
 rsh_emsg(rsh_msg_t *msg)
 {
-    return (rsh_msg_t *)msg->u[0].emsg;
+    return (rsh_msg_t *)rsh_msg_body(msg);
 }
 
 static inline char *
 rsh_emsg_body(rsh_msg_t *msg)
 {
-    return rsh_emsg(msg)->u[0].body;
+    return rsh_msg_body(rsh_emsg(msg));
 }
 
 static inline void
-rsh_secret_hton(rsh_secret_t *secret)
+rsh_key_hton(rsh_key_t *key)
 {
-    secret->size = htonl(secret->size);
+    key->size = htonl(key->size);
 }
-#define rsh_secret_ntoh(_secret)    rsh_secret_hton(_secret)
+#define rsh_key_ntoh(_secret)    rsh_key_hton(_secret)
+
+static inline void
+rsh_update_hton(rsh_update_t *update)
+{
+    update->type = htonl(update->type);
+    rsh_key_hton(&update->u.key);
+}
+#define rsh_update_ntoh(_update)    rsh_update_hton(_update)
 
 static inline void
 rsh_body_hton(rsh_msg_t *msg)
 {
-    if (RSH_CMD_UPDATEKEY==msg->cmd && false==is_rsh_msg_ack(msg)) {
-        rsh_secret_hton(rsh_msg_secret(msg));
+    switch(msg->cmd) {
+        case RSH_CMD_UPDATE:
+            rsh_update_hton(rsh_msg_update(msg));
+            
+            break;
+        default:
+            break;
     }
 }
 #define rsh_body_ntoh(_msg)  rsh_body_hton(_msg)
@@ -208,7 +288,6 @@ rsh_body_hton(rsh_msg_t *msg)
 static inline void
 rsh_hdr_hton(rsh_msg_t *msg)
 {
-    msg->magic  = htons(msg->magic);
     msg->flag   = htons(msg->flag);
     msg->len    = htons(msg->len);
     msg->error  = htons(msg->error);
@@ -233,49 +312,48 @@ rsh_msg_ntoh(rsh_msg_t *msg)
 }
 
 static inline byte *
-rsh_md5_begin(rsh_msg_t *msg)
+rsh_hmac_begin(rsh_msg_t *msg)
 {
-    return msg->md5 + OS_MD5_SIZE;
-}
-
-static inline int // include align padding
-rsh_md5_size(rsh_msg_t *msg)
-{
-    return rsh_msg_size(msg) - OS_MD5_SIZE;
+    return msg->hmac + OS_MD5_SIZE;
 }
 
 static inline void
-rsh_msg_md5(rsh_msg_t *msg, byte md5[])
+rsh_msg_hmac(rsh_msg_t *msg, rsh_key_t *key, byte hmac[], int hmacsize)
 {
-    md5_encode(md5, rsh_md5_begin(msg), rsh_md5_size(msg));
+    hmac_sha2_ctx_t ctx = HMAC_SHA2_CTX_INITER(SHA_TYPE(hmacsize));
+    
+    hmac_sha2_init(&ctx, key->u.key, key->size);
+    hmac_sha2_update(&ctx, msg, sizeof(msg));
+    hmac_sha2_update(&ctx, rsh_msg_body(msg), msg->len);
+    hmac_sha2_final(&ctx, hmac);
 }
 
 static inline void
-rsh_msg_crypt(rsh_msg_t *msg, uint32 *key, int size, aes_crypt_handle_t *crypt)
+rsh_msg_crypt(rsh_msg_t *msg, int len, rsh_key_t *key, aes_crypt_handle_t *crypt)
 {
-    byte *in, *out, *buffer = rsh_md5_begin(msg);
-    int i, count = AES_BLOCK_COUNT(rsh_md5_size(msg));
+    byte *in, *out, *buffer = rsh_hmac_begin(msg);
+    int i, count = AES_BLOCK_COUNT(len);
     
     for (i=0; i<count; i++) {
         in = out = buffer + i*AES_BLOCK_SIZE;
         
-        (*crypt)(in, out, key, 8*size);
+        (*crypt)(in, out, key->u.key32, 8*key->size);
     }
 }
 
 static inline void
-rsh_msg_encode(rsh_msg_t *msg, uint32 *key, int size)
+rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
 {
     rsh_msg_hton(msg);
-    rsh_msg_md5(msg, msg->md5);
-    rsh_msg_crypt(msg, key, size, aes_encrypt);
+    rsh_msg_hmac(msg, key, hmac, hmacsize);
+    rsh_msg_crypt(msg, len, key, aes_encrypt);
 }
 
 static inline void
-rsh_msg_decode(rsh_msg_t *msg, byte md5[], uint32 *key, int keysize)
+rsh_msg_decode(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
 {
-    rsh_msg_crypt(msg, key, keysize, aes_decrypt);
-    rsh_msg_md5(msg, md5);
+    rsh_msg_crypt(msg, len, key, aes_decrypt);
+    rsh_msg_hmac(msg, key, hmac, hmacsize);
     rsh_msg_ntoh(msg);
 }
 
@@ -289,8 +367,8 @@ rsh_msg_append(rsh_msg_t *msg, void *buf, int len)
         return -ETOOBIG;
     }
 
-    os_memcpy(rsh_msg_body(msg), buf, len);
-    os_memzero(rsh_msg_body(msg) + len, len % AES_BLOCK_SIZE);
+    os_memcpy(rsh_msg_current_body(msg), buf, len);
+    os_memzero(rsh_msg_current_body(msg) + len, len % AES_BLOCK_SIZE);
     msg->len += len;
 
     return 0;
@@ -301,7 +379,6 @@ rsh_msg_fill(rsh_msg_t *msg, byte mac[], void *buf, int len)
 {
     int err;
     
-    msg->magic      = RSH_MAGIC;
     msg->version    = RSH_VERSION;
     os_maccpy(msg->mac, mac);
 
