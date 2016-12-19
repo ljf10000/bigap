@@ -170,15 +170,25 @@ typedef uint64 sha512_uint_t;
 #define SHA_CH(x, y, z)     (((x) & (y)) ^ (~(x) & (z)))
 #define SHA_MAJ(x, y, z)    (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 
-#define SHA256_F1(x) (SHA_ROTR(x,  2) ^ SHA_ROTR(x, 13) ^ SHA_ROTR( x, 22))
-#define SHA256_F2(x) (SHA_ROTR(x,  6) ^ SHA_ROTR(x, 11) ^ SHA_ROTR( x, 25))
-#define SHA256_F3(x) (SHA_ROTR(x,  7) ^ SHA_ROTR(x, 18) ^ SHA_SHIFT(x,  3))
-#define SHA256_F4(x) (SHA_ROTR(x, 17) ^ SHA_ROTR(x, 19) ^ SHA_SHIFT(x, 10))
+#define SHA224_F1(x)    SHA256_F1(x)
+#define SHA224_F2(x)    SHA256_F2(x)
+#define SHA224_F3(x)    SHA256_F3(x)
+#define SHA224_F4(x)    SHA256_F4(x)
 
-#define SHA512_F1(x) (SHA_ROTR(x, 28) ^ SHA_ROTR(x, 34) ^ SHA_ROTR( x, 39))
-#define SHA512_F2(x) (SHA_ROTR(x, 14) ^ SHA_ROTR(x, 18) ^ SHA_ROTR( x, 41))
-#define SHA512_F3(x) (SHA_ROTR(x,  1) ^ SHA_ROTR(x,  8) ^ SHA_SHIFT(x, 7))
-#define SHA512_F4(x) (SHA_ROTR(x, 19) ^ SHA_ROTR(x, 61) ^ SHA_SHIFT(x, 6))
+#define SHA256_F1(x)    (SHA_ROTR(x,  2) ^ SHA_ROTR(x, 13) ^ SHA_ROTR( x, 22))
+#define SHA256_F2(x)    (SHA_ROTR(x,  6) ^ SHA_ROTR(x, 11) ^ SHA_ROTR( x, 25))
+#define SHA256_F3(x)    (SHA_ROTR(x,  7) ^ SHA_ROTR(x, 18) ^ SHA_SHIFT(x,  3))
+#define SHA256_F4(x)    (SHA_ROTR(x, 17) ^ SHA_ROTR(x, 19) ^ SHA_SHIFT(x, 10))
+
+#define SHA384_F1(x)    SHA512_F1(x)
+#define SHA384_F2(x)    SHA512_F2(x)
+#define SHA384_F3(x)    SHA512_F3(x)
+#define SHA384_F4(x)    SHA512_F4(x)
+
+#define SHA512_F1(x)    (SHA_ROTR(x, 28) ^ SHA_ROTR(x, 34) ^ SHA_ROTR( x, 39))
+#define SHA512_F2(x)    (SHA_ROTR(x, 14) ^ SHA_ROTR(x, 18) ^ SHA_ROTR( x, 41))
+#define SHA512_F3(x)    (SHA_ROTR(x,  1) ^ SHA_ROTR(x,  8) ^ SHA_SHIFT(x, 7))
+#define SHA512_F4(x)    (SHA_ROTR(x, 19) ^ SHA_ROTR(x, 61) ^ SHA_SHIFT(x, 6))
 
 #define SHA_UNPACK32(x, str) do {               \
     *((str) + 3) = (uint8) ((x)      );         \
