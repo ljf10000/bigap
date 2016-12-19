@@ -178,6 +178,11 @@ typedef struct {
 } 
 rsh_msg_t;        // 32 == sizeof(rsh_msg_t)
 
+typedef struct {
+    int cmd;
+    int update;
+} rsh_over_t;
+
 enum {
     RSH_MSG_BODYSIZE    = 1344, // 1460(udp mtu) - 32(rsh_msg_t) - 2*4(double vlan) - 64(max hmacsize) - 12
     RSH_MSG_ALLSIZE     = RSH_MSG_BODYSIZE + sizeof(rsh_msg_t),

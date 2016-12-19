@@ -402,11 +402,11 @@ static inline jrule_t *rsh_instance_jrules(void);
     rshi_tm_echo(_instance, RSHIST_DIR_SEND, rshist_type(_is_error))
 
 static inline void
-rshi_send_over(rsh_instance_t *instance, rsh_msg_t *rawmsg, bool is_error)
+rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
 {
-    rshi_st_send(instance, rawmsg->cmd, is_error)++;
+    rshi_st_send(instance, over->cmd, is_error)++;
     
-    switch(rawmsg->cmd) {
+    switch(over->cmd) {
         case RSH_CMD_ECHO:
             rshi_tm_echo_send(instance, is_error)++;
             
@@ -416,8 +416,8 @@ rshi_send_over(rsh_instance_t *instance, rsh_msg_t *rawmsg, bool is_error)
             
             break;
         case RSH_CMD_UPDATE:
-            if (is_good_rsh_update(rawmsg->update)) {
-                rshi_tm_update_send(rawmsg->update, instance, is_error)++;
+            if (is_good_rsh_update(over->update)) {
+                rshi_tm_update_send(over->update, instance, is_error)++;
             }
             
             break;
@@ -425,11 +425,11 @@ rshi_send_over(rsh_instance_t *instance, rsh_msg_t *rawmsg, bool is_error)
 }
 
 static inline void
-rshi_recv_over(rsh_instance_t *instance, rsh_msg_t *rawmsg, bool is_error)
+rshi_recv_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
 {
-    rshi_st_recv(instance, rawmsg->cmd, is_error)++;
+    rshi_st_recv(instance, over->cmd, is_error)++;
     
-    switch(rawmsg->cmd) {
+    switch(over->cmd) {
         case RSH_CMD_ECHO:
             rshi_tm_echo_recv(instance, is_error)++;
             
@@ -439,8 +439,8 @@ rshi_recv_over(rsh_instance_t *instance, rsh_msg_t *rawmsg, bool is_error)
             
             break;
         case RSH_CMD_UPDATE:
-            if (is_good_rsh_update(rawmsg->update)) {
-                rshi_tm_update_recv(rawmsg->update, instance, is_error)++;
+            if (is_good_rsh_update(over->update)) {
+                rshi_tm_update_recv(over->update, instance, is_error)++;
             }
             
             break;

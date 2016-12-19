@@ -561,7 +561,7 @@ rshi_send(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
     sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->port);
-    rsh_msg_t rawmsg = {
+    rsh_over_t over = {
         .cmd    = msg->cmd,
         .update = rsh_msg_update_type(msg),
     };
@@ -580,7 +580,7 @@ rshi_send(rsh_instance_t *instance)
     
     err = size;
 error:
-    rshi_send_over(instance, &rawmsg, err<0);
+    rshi_send_over(instance, &over, err<0);
     
     return err;
 }
@@ -862,7 +862,7 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     
     rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
     rsh_msg_t *msg = rsha_msg;
-    rsh_msg_t rawmsg = {
+    rsh_over_t over = {
         .cmd    = RSH_CMD_UNKNOW,
         .update = RSH_UPDATE_END,
     };
@@ -872,8 +872,8 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     if (err<0) {
         goto error;
     }
-    rawmsg.cmd      = msg->cmd;
-    rawmsg.update   = rsh_msg_update_type(msg);
+    over.cmd    = msg->cmd;
+    over.update = rsh_msg_update_type(msg);
 
     err = rshi_recv_checker(instance, now, msg, len);
     if (err<0) {
@@ -884,7 +884,7 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
 
     rshi_recv_ok(instance, now);
 error:
-    rshi_recv_over(instance, &rawmsg, err<0);
+    rshi_recv_over(instance, &over, err<0);
 
     return err;
 }
