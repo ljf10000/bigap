@@ -178,15 +178,17 @@ __rshi_st_o2j(rshi_st_t *st)
 }
 
 STATIC jobj_t
-__rshi_echo_o2j(rsh_echo_t echo[RSH_ECHO_END])
+__rshi_echo_o2j(rshi_echo_t *echo)
 {
     jobj_t jobj = jobj_new_object();
     if (jobj) {
         int i;
         
         for (i=0; i<RSH_ECHO_END; i++) {
-            jobj_add(jobj, rsh_echo_getnamebyid(i), rsh_echo_o2j(&echo[i]));
+            jobj_add(jobj, rsh_echo_getnamebyid(i), rsh_echo_o2j(&echo->echo[i]));
         }
+
+        jobj_add_bool(jobj, "busy", echo->busy);
     }
 
     return jobj;
@@ -199,7 +201,7 @@ __rshi_o2j(rsh_instance_t *instance)
     if (jobj) {
         jrule_o2j(rsh_instance_jrules(), instance, jobj);
         
-        jobj_add(jobj, "echo", __rshi_echo_o2j(instance->echo));
+        jobj_add(jobj, "echo", __rshi_echo_o2j(&instance->echo));
         jobj_add(jobj, "st", __rshi_st_o2j(&instance->st));
         jobj_add(jobj, "tm", __rshi_tm_o2j(&instance->tm));
     }
@@ -221,16 +223,16 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
     jecho = jobj_get(jobj, "echo");
     if (jecho) {
         for (i=0; i<RSH_ECHO_END; i++) {
-            rsh_echo_j2o(&instance->echo[i], jobj_get(jecho, rsh_echo_getnamebyid(i)));
+            rsh_echo_j2o(rshi_echo_getby(instance, i), jobj_get(jecho, rsh_echo_getnamebyid(i)));
         }
     } else {
         rsh_echo_t *echo;
 
-        echo = &instance->echo[RSH_ECHO_IDLE];
+        echo = rshi_echo_getby(instance, RSH_ECHO_IDLE);
         echo->interval  = os_second(RSHA_ECHO_IDLE_INTERVAL);
         echo->times     = RSHA_ECHO_IDLE_TIMES;
         
-        echo = &instance->echo[RSH_ECHO_BUSY];
+        echo = rshi_echo_getby(instance, RSH_ECHO_BUSY);
         echo->interval  = os_second(RSHA_ECHO_BUSY_INTERVAL);
         echo->times     = RSHA_ECHO_BUSY_TIMES;
     }
@@ -377,9 +379,9 @@ __rshi_show_cb(rsh_instance_t *instance)
 rsh_echo_t *
 rshi_echo_set(rsh_instance_t *instance, time_t now, bool busy)
 {
-    if (instance->echo_busy != busy) {
+    if (instance->echo.busy != busy) {
         rsh_echo_t *old = rshi_echo_get(instance);
-        instance->echo_busy = busy;
+        instance->echo.busy = busy;
         rsh_echo_t *new = rshi_echo_get(instance);
 
         new->send = old->send;
@@ -440,7 +442,7 @@ rshi_fsm_init(rsh_instance_t *instance)
     }
 
     for (i=0; i<RSH_ECHO_END; i++) {
-        rshi_echo_clear(&instance->echo[i]);
+        rshi_echo_clear(rshi_echo_getby(instance, i));
     }
 
     err = __rshi_add_watcher(instance);

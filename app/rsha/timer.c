@@ -79,7 +79,7 @@ rsha_echo_timeout(rsh_instance_t *instance, time_t now)
 STATIC bool
 is_rsha_busy_timeout(rsh_instance_t *instance, time_t now)
 {
-    return instance->echo_busy && is_rsha_timeout(instance->tm.busy, now, RSHA_ECHO_BUSY_TIMEOUT);
+    return instance->echo.busy && is_rsha_timeout(instance->tm.busy, now, RSHA_ECHO_BUSY_TIMEOUT);
 }
 
 STATIC void

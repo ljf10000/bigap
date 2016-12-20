@@ -246,6 +246,11 @@ typedef struct {
 } rshi_key_t;
 
 typedef struct {
+    rsh_echo_t echo[RSH_ECHO_END];
+    bool busy;
+} rshi_echo_t;
+
+typedef struct {
     char *name;
     char *proxy;
     char *registry;
@@ -253,8 +258,7 @@ typedef struct {
     char *flash;
     uint32 cid; // cert id
 
-    rsh_echo_t echo[RSH_ECHO_END];
-    bool echo_busy;
+    rshi_echo_t echo;
 
     jobj_t jcfg;
     
@@ -415,9 +419,15 @@ rshi_echo_clear(rsh_echo_t *echo)
 }
 
 static inline rsh_echo_t *
+rshi_echo_getby(rsh_instance_t *instance, int idx)
+{
+    return &instance->echo.echo[idx];
+}
+
+static inline rsh_echo_t *
 rshi_echo_get(rsh_instance_t *instance)
 {
-    return &instance->echo[instance->echo_busy];
+    return rshi_echo_getby(instance, instance->echo.busy);
 }
 
 extern rsh_echo_t *
