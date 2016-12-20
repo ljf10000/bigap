@@ -94,7 +94,7 @@ __rshi_tm_update_o2j(time_t update[RSH_UPDATE_END][RSHIST_DIR_END][RSHIST_TYPE_E
         int i;
         
         for (i=0; i<RSH_UPDATE_END; i++) {
-            jobj_add(jobj_t, rsh_update_getnamebyid(i), __rshi_tm_dir_o2j(update[i]));
+            jobj_add(jobj, rsh_update_getnamebyid(i), __rshi_tm_dir_o2j(update[i]));
         }
     }
 
