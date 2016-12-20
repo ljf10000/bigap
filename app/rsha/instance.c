@@ -178,18 +178,15 @@ __rshi_st_o2j(rshi_st_t *st)
 }
 
 STATIC jobj_t
-rshi_echo_o2j(rsh_instance_t *instance)
+__rshi_echo_o2j(rsh_echo_t echo[RSH_ECHO_END])
 {
-    jobj_t jobj = NULL;
-    int i, err;
-    
-    jobj = jobj_new_object();
-    if (NULL==jobj) {
-        return NULL;
-    }
-
-    for (i=0; i<RSH_ECHO_END; i++) {
-        jobj_add(jobj, rsh_echo_getnamebyid(i), __rshi_echo_o2j(&instance->echo[i]));
+    jobj_t jobj = jobj_new_object();
+    if (jobj) {
+        int i;
+        
+        for (i=0; i<RSH_ECHO_END; i++) {
+            jobj_add(jobj, rsh_echo_getnamebyid(i), rsh_echo_o2j(&echo[i]));
+        }
     }
 
     return jobj;
@@ -198,28 +195,16 @@ rshi_echo_o2j(rsh_instance_t *instance)
 STATIC jobj_t
 __rshi_o2j(rsh_instance_t *instance)
 {
-    jobj_t jobj = NULL;
-    int err;
-    
-    jobj = jobj_new_object();
-    if (NULL==jobj) {
-        return NULL;
+    jobj_t jobj = jobj_new_object();
+    if (jobj) {
+        jrule_o2j(rsh_instance_jrules(), instance, jobj);
+        
+        jobj_add(jobj, "echo", __rshi_echo_o2j(instance->echo));
+        jobj_add(jobj, "st", __rshi_st_o2j(&instance->st));
+        jobj_add(jobj, "tm", __rshi_tm_o2j(&instance->tm));
     }
     
-    err = jrule_o2j(rsh_instance_jrules(), instance, jobj);
-    if (err<0) {
-        goto error;
-    }
-
-    jobj_add(jobj, "echo", rshi_echo_o2j(instance));
-    jobj_add(jobj, "st", __rshi_st_o2j(&instance->st));
-    jobj_add(jobj, "tm", __rshi_tm_o2j(&instance->tm));
-
     return jobj;
-error:
-    jobj_put(jobj);
-
-    return NULL;
 }
 
 STATIC int
@@ -236,7 +221,7 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
     jecho = jobj_get(jobj, "echo");
     if (jecho) {
         for (i=0; i<RSH_ECHO_END; i++) {
-            __rshi_echo_j2o(&instance->echo[i], jobj_get(jecho, rsh_echo_getnamebyid(i)));
+            rsh_echo_j2o(&instance->echo[i], jobj_get(jecho, rsh_echo_getnamebyid(i)));
         }
     } else {
         rsh_echo_t *echo;
