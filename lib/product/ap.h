@@ -48,7 +48,7 @@
 #endif
 
 #ifndef PRODUCT_DIR_ROOT
-#define PRODUCT_DIR_ROOT                ""
+#define PRODUCT_DIR_ROOT                "/"
 #endif
 
 #ifndef PRODUCT_DEV_PREFIX
