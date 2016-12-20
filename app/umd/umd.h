@@ -515,20 +515,23 @@ typedef struct {
 
 typedef struct {
     byte basemac[OS_MACSIZE]; /* local ap's base mac */
+
     uint16 ether_type_ip;   /* network sort */
     uint16 ether_type_vlan; /* network sort */
     uint16 ether_type_all;  /* network sort */
 
     uint32 ticks;
-    bool deinit;
+    int fini;
+    char *conf;
 
     umd_plan_t plan[UM_PLAN_COUNT];
     umd_config_t cfg;
-    char *conf;
-    
-    sock_server_t **server;
-    int server_count;
 
+    struct {
+        sock_server_t *servers;
+        int count;
+    } server;
+    
     struct {
         h2_table_t user;
         h1_table_t conn;

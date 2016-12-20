@@ -25,7 +25,7 @@ umd_getingress_byid(int ingress_id)
 sock_server_t *
 umd_getserver_byid(int server_id)
 {
-    return umd.server[server_id];
+    return umd.server.servers[server_id];
 }
 
 sock_server_t *
@@ -231,7 +231,7 @@ umd_init_post(void)
         return err;
     }
     
-    err = sock_servers_init(umd.server, umd.server_count);
+    err = sock_servers_init(umd.server.servers, umd.server.count);
     if (err<0) {
         return err;
     }
@@ -244,9 +244,7 @@ umd_init_post(void)
 STATIC int
 umd_fini(void)
 {
-    if (false==umd.deinit) {
-        umd.deinit = true;
-        
+    if (0==umd.fini++) {
         os_system("%s fini &", umd.cfg.script_event);
     }
     

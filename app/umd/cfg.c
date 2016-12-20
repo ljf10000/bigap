@@ -108,35 +108,35 @@ umd_init_cfg_ingress_post(void)
 STATIC int
 umd_init_cfg_server(int count)
 {
-    sock_server_t **server;
+    sock_server_t **servers;
     int i;
     
-    umd.server_count = count + UMD_SERVER_FLOW;
-    debug_config("server count %d", umd.server_count);
+    umd.server.count = count + UMD_SERVER_FLOW;
+    debug_config("server count %d", umd.server.count);
     
-    server = (sock_server_t **)os_zalloc(umd.server_count*sizeof(sock_server_t *));
-    if (NULL==server) {
+    servers = (sock_server_t **)os_zalloc(umd.server.count*sizeof(sock_server_t *));
+    if (NULL==servers) {
         return -ENOMEM;
     }
-    server[UMD_SERVER_TIMER] = &umd_timer_server;
-    server[UMD_SERVER_TIMER]->id = UMD_SERVER_TIMER;
+    servers[UMD_SERVER_TIMER] = &umd_timer_server;
+    servers[UMD_SERVER_TIMER]->id = UMD_SERVER_TIMER;
     debug_config("setup timer server");
 
-    server[UMD_SERVER_CLI]   = &umd_cli_server;
-    server[UMD_SERVER_CLI]->id = UMD_SERVER_CLI;
+    servers[UMD_SERVER_CLI]   = &umd_cli_server;
+    servers[UMD_SERVER_CLI]->id = UMD_SERVER_CLI;
     debug_config("setup cli server");
     
-    for (i=UMD_SERVER_FLOW; i<umd.server_count; i++) {
-        server[i] = (sock_server_t *)os_zalloc(sizeof(sock_server_t));
-        if (NULL==server[i]) {
+    for (i=UMD_SERVER_FLOW; i<umd.server.count; i++) {
+        servers[i] = (sock_server_t *)os_zalloc(sizeof(sock_server_t));
+        if (NULL==servers[i]) {
             return -ENOMEM;
         }
-        os_objcpy(server[i], &umd_flow_server);
-        server[i]->id = i;
+        os_objcpy(servers[i], &umd_flow_server);
+        servers[i]->id = i;
         debug_config("setup flow server[%d]", i);
     }
 
-    umd.server = server;
+    umd.server.servers = servers;
     
     return 0;
 }
