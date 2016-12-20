@@ -40,7 +40,7 @@ __rshi_nodehashname(hash_node_t *node)
 }
 
 STATIC jobj_t
-__rshi_tm_type_o2j(time_t tm[RSHIST_TYPE_END])
+__rshi_tm_dir_type_o2j(time_t tm[RSHIST_TYPE_END])
 {
     jobj_t jobj = jobj_new_object();
     if (jobj) {
@@ -62,7 +62,7 @@ __rshi_tm_dir_o2j(time_t tm[RSHIST_DIR_END][RSHIST_TYPE_END])
         int i;
         
         for (i=0; i<RSHIST_DIR_END; i++) {
-            jobj_add(jobj, rshist_dir_getnamebyid(i), __rshi_tm_type_o2j(tm[i]));
+            jobj_add(jobj, rshist_dir_getnamebyid(i), __rshi_tm_dir_type_o2j(tm[i]));
         }
     }
     
@@ -100,14 +100,26 @@ __rshi_tm_update_o2j(time_t update[RSH_UPDATE_END][RSHIST_DIR_END][RSHIST_TYPE_E
 }
 
 STATIC jobj_t
+__rshi_tm_echo_o2j(time_t echo[RSHIST_DIR_END][RSHIST_TYPE_END])
+{
+    return __rshi_tm_dir_o2j(echo);
+}
+
+STATIC jobj_t
+__rshi_tm_command_o2j(time_t command[RSHIST_DIR_END][RSHIST_TYPE_END])
+{
+    return __rshi_tm_dir_o2j(command);
+}
+
+STATIC jobj_t
 __rshi_tm_o2j(rshi_tm_t *tm)
 {
     jobj_t jobj = jobj_new_object();
     if (jobj) {
         jobj_add(jobj, "fsm", __rshi_tm_fsm_o2j(tm->fsm));
         jobj_add(jobj, "update", __rshi_tm_update_o2j(tm->update));
-        jobj_add(jobj, "command", __rshi_tm_dir_o2j(tm->command));
-        jobj_add(jobj, "echo", __rshi_tm_dir_o2j(tm->echo));
+        jobj_add(jobj, "command", __rshi_tm_command_o2j(tm->command));
+        jobj_add(jobj, "echo", __rshi_tm_echo_o2j(tm->echo));
         jobj_add_string(jobj, "busy", os_fulltime_string(tm->busy));
     }
 
@@ -115,7 +127,7 @@ __rshi_tm_o2j(rshi_tm_t *tm)
 }
 
 STATIC jobj_t
-__rshi_st_type_o2j(uint32 val[RSHIST_TYPE_END])
+__rshi_st_cmd_dir_type_o2j(uint32 val[RSHIST_TYPE_END])
 {
     jobj_t jobj = jobj_new_object();
     if (jobj) {
@@ -130,14 +142,29 @@ __rshi_st_type_o2j(uint32 val[RSHIST_TYPE_END])
 }
 
 STATIC jobj_t
-__rshi_st_dir_o2j(uint32 val[RSHIST_DIR_END][RSHIST_TYPE_END])
+__rshi_st_cmd_dir_o2j(uint32 val[RSHIST_DIR_END][RSHIST_TYPE_END])
 {
     jobj_t jobj = jobj_new_object();
     if (jobj) {
         int i;
 
         for (i=0; i<RSHIST_DIR_END; i++) {
-            jobj_add(jobj, rshist_dir_getnamebyid(i), __rshi_st_type_o2j(val[i]));
+            jobj_add(jobj, rshist_dir_getnamebyid(i), __rshi_st_cmd_dir_type_o2j(val[i]));
+        }
+    }
+
+    return jobj;
+}
+
+STATIC jobj_t
+__rshi_st_cmd_o2j(uint32 val[RSH_CMD_END][RSHIST_DIR_END][RSHIST_TYPE_END])
+{
+    jobj_t jobj = jobj_new_object();
+    if (jobj) {
+        int i;
+
+        for (i=0; i<RSH_CMD_END; i++) {
+            jobj_add(jobj, rsh_cmd_getnamebyid(i), __rshi_st_cmd_dir_o2j(val[i]));
         }
     }
 
@@ -147,16 +174,7 @@ __rshi_st_dir_o2j(uint32 val[RSHIST_DIR_END][RSHIST_TYPE_END])
 STATIC jobj_t
 __rshi_st_o2j(rshi_st_t *st)
 {
-    jobj_t jobj = jobj_new_object();
-    if (jobj) {
-        int i;
-
-        for (i=0; i<RSH_CMD_END; i++) {
-            jobj_add(jobj, rsh_cmd_getnamebyid(i), __rshi_st_dir_o2j(st->val[i]));
-        }
-    }
-
-    return jobj;
+    return __rshi_st_cmd_o2j(st->val);
 }
 
 STATIC jobj_t
