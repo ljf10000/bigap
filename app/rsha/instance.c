@@ -835,7 +835,7 @@ rshi_command_recver(rsh_instance_t *instance, time_t now)
     rsh_msg_t *msg = rsha_msg;
 
     rshi_echo_set(instance, now, true);
-    rshi_exec(instance, rsh_msg_body(msg));
+    rshi_exec(instance, (char *)rsh_msg_body(msg));
 }
 
 STATIC void 
