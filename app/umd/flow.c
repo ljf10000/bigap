@@ -623,7 +623,7 @@ umd_conn_timer(loop_watcher_t *watcher, time_t now)
 STATIC int
 umd_pkt_handle(sock_server_t *server, time_t now)
 {
-    socklen_t addrlen = sizeof(server->addr.ll);
+    sockaddr_len_t addrlen = sizeof(server->addr.ll);
     int err;
 
     umd_conn_clean(&conn, server);

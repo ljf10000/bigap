@@ -76,7 +76,7 @@ static int normal_cb(loop_watcher_t *watcher, time_t now)
 {
     int err, len;
     os_sockaddr_t addr;
-    socklen_t addrlen = sizeof(addr.un);
+    sockaddr_len_t addrlen = sizeof(addr.un);
     
     len = __io_recvfrom(watcher->fd, loops.buf, sizeof(loops.buf), 0, (sockaddr_t *)&addr.c, &addrlen);
     if (len<0) {

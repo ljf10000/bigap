@@ -37,7 +37,7 @@ rshi_recv(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
     sockaddr_in_t addr = OS_SOCKADDR_INET(0, 0);
-    socklen_t addrlen = sizeof(addr);
+    sockaddr_len_t addrlen = sizeof(addr);
     int err, len;
 
     err = len = __io_recvfrom(instance->fd, msg, RSH_MSG_ALLSIZE, 0,

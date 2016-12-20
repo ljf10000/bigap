@@ -381,7 +381,7 @@ ____fd_read(int fd)
 }
 
 STATIC int
-__fd_getopt(int fd, int level, int optname, void *optval, socklen_t *optlen)
+__fd_getopt(int fd, int level, int optname, void *optval, sockaddr_len_t *optlen)
 {
     fd_map_t *map;
 
@@ -416,7 +416,7 @@ __fd_getopt(int fd, int level, int optname, void *optval, socklen_t *optlen)
 }
 
 STATIC int
-__fd_setopt(int fd, int level, int optname, const void *optval, socklen_t optlen)
+__fd_setopt(int fd, int level, int optname, const void *optval, sockaddr_len_t optlen)
 {
     fd_map_t *map;
 
@@ -626,7 +626,7 @@ fd_close(int fd)
 }
 
 int
-fd_bind(int fd, sockaddr_t *addr, socklen_t length)
+fd_bind(int fd, sockaddr_t *addr, sockaddr_len_t length)
 {
     int err = 0;
 
@@ -641,7 +641,7 @@ fd_bind(int fd, sockaddr_t *addr, socklen_t length)
 }
 
 int
-fd_connect(int fd, sockaddr_t *addr, socklen_t length)
+fd_connect(int fd, sockaddr_t *addr, sockaddr_len_t length)
 {
     int err = 0;
 
@@ -671,7 +671,7 @@ fd_listen(int fd, int n)
 }
 
 int
-fd_accept(int fd, sockaddr_t *addr, socklen_t *length)
+fd_accept(int fd, sockaddr_t *addr, sockaddr_len_t *length)
 {
     int err = 0;
     
@@ -770,7 +770,7 @@ fd_recv(int fd, void *buffer, size_t size, int flags)
 }
 
 ssize_t
-fd_sendto(int fd, const void *buffer, size_t size, int flags, sockaddr_t *addr, socklen_t length)
+fd_sendto(int fd, const void *buffer, size_t size, int flags, sockaddr_t *addr, sockaddr_len_t length)
 {
     int err = 0;
 
@@ -789,7 +789,7 @@ fd_sendto(int fd, const void *buffer, size_t size, int flags, sockaddr_t *addr, 
 }
 
 ssize_t
-fd_recvfrom(int fd, void *buffer, size_t size, int flags, sockaddr_t *addr, socklen_t *length)
+fd_recvfrom(int fd, void *buffer, size_t size, int flags, sockaddr_t *addr, sockaddr_len_t *length)
 {
     int err = 0;
 
@@ -852,7 +852,7 @@ fd_recvmsg(int fd, struct msghdr *message, int flags)
 }
 
 int
-fd_getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlen)
+fd_getsockopt(int fd, int level, int optname, void *optval, sockaddr_len_t *optlen)
 {
     switch(optname) {
         case FD_SO_SHARE:
@@ -865,7 +865,7 @@ fd_getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlen)
 }
 
 int
-fd_setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen)
+fd_setsockopt(int fd, int level, int optname, const void *optval, sockaddr_len_t optlen)
 {
     switch(optname) {
         case FD_SO_SHARE:

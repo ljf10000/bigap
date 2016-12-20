@@ -9,7 +9,7 @@ extern int
 __io_read(int fd, void *buf, int size);
 
 extern int
-__io_recvfrom(int fd, void *buf, int size, int flag, sockaddr_t *addr, socklen_t *paddrlen);
+__io_recvfrom(int fd, void *buf, int size, int flag, sockaddr_t *addr, sockaddr_len_t *paddrlen);
 
 extern int
 __io_recv(int fd, void *buf, int size, int flag);
@@ -24,7 +24,7 @@ extern int
 io_write(int fd, void *buf, int len);
 
 extern int
-io_recvfrom(int fd, void *buf, int size, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen);
+io_recvfrom(int fd, void *buf, int size, int timeout /* ms */, sockaddr_t *addr, sockaddr_len_t *paddrlen);
 
 extern int
 io_sendto(int fd, void *buf, int len, sockaddr_t *addr, int addrlen);

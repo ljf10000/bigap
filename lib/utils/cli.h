@@ -77,7 +77,7 @@ typedef struct {
     bool tcp;   // just for server
     
     sockaddr_un_t   addr;
-    socklen_t       addrlen;
+    sockaddr_len_t  addrlen;
 
     cli_buffer_t    *b;
 } cli_t;

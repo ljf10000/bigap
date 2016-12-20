@@ -127,6 +127,22 @@
 #define USE_MOD_DB_H9           PC_VAL(1, 0)
 #endif
 
+#ifndef USE_MOD_FCOOKIE
+#define USE_MOD_FCOOKIE         PC_VAL(1, 1)
+#endif
+
+#ifndef USE_MOD_FD
+#define USE_MOD_FD              PC_VAL(1, 0)
+#endif
+
+#ifndef USE_MOD_NSQ
+#define USE_MOD_NSQ             PC_VAL(1, 1)
+#endif
+
+#ifndef USE_MOD_SLICE
+#define USE_MOD_SLICE           PC_VAL(1, 0)
+#endif
+
 #ifndef USE_MOD_RC4
 #define USE_MOD_RC4             PC_VAL(1, 0)
 #endif
@@ -161,22 +177,6 @@
 
 #ifndef USE_MOD_HMAC_SHA512
 #define USE_MOD_HMAC_SHA512     (USE_MOD_SHA512 & PC_VAL(1, 1))
-#endif
-
-#ifndef USE_MOD_FCOOKIE
-#define USE_MOD_FCOOKIE         PC_VAL(1, 1)
-#endif
-
-#ifndef USE_MOD_FD
-#define USE_MOD_FD              PC_VAL(1, 0)
-#endif
-
-#ifndef USE_MOD_NSQ
-#define USE_MOD_NSQ             PC_VAL(1, 1)
-#endif
-
-#ifndef USE_MOD_SLICE
-#define USE_MOD_SLICE           PC_VAL(1, 0)
 #endif
 /******************************************************************************/
 #endif /* __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__ */

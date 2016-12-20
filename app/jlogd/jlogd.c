@@ -262,7 +262,7 @@ jlogd_jhandle(jlog_server_t *server)
 {
     int err, len;
     os_sockaddr_t client = OS_SOCKADDR_INITER(server->family);
-    socklen_t addrlen = os_sockaddr_len(&client.c);
+    sockaddr_len_t addrlen = os_sockaddr_len(&client.c);
     
     len = __io_recvfrom(server->fd, jlogb, sizeof(jlogb), 0, &client.c, &addrlen);
     if (len<0) {

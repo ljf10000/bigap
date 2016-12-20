@@ -95,7 +95,7 @@ __io_read(int fd, void *buf, int size)
 }
 
 int
-__io_recvfrom(int fd, void *buf, int size, int flag, sockaddr_t *addr, socklen_t *paddrlen)
+__io_recvfrom(int fd, void *buf, int size, int flag, sockaddr_t *addr, sockaddr_len_t *paddrlen)
 {
     int err = recvfrom(fd, buf, size, flag, addr, paddrlen);
 
@@ -135,7 +135,7 @@ io_write(int fd, void *buf, int len)
 }
 
 int
-io_recvfrom(int fd, void *buf, int size, int timeout /* ms */, sockaddr_t *addr, socklen_t *paddrlen)
+io_recvfrom(int fd, void *buf, int size, int timeout /* ms */, sockaddr_t *addr, sockaddr_len_t *paddrlen)
 {
     return __IO_READ("recvfrom", fd, buf, size, timeout, __io_recvfrom(fd, buf, size, 0, addr, paddrlen));
 }

@@ -110,16 +110,16 @@ extern int
 fd_close(int fd);
 
 extern int
-fd_bind(int fd, sockaddr_t *addr, socklen_t length);
+fd_bind(int fd, sockaddr_t *addr, sockaddr_len_t length);
 
 extern int
-fd_connect(int fd, sockaddr_t *addr, socklen_t length);
+fd_connect(int fd, sockaddr_t *addr, sockaddr_len_t length);
 
 extern int
 fd_listen(int fd, int n);
 
 extern int
-fd_accept(int fd, sockaddr_t *addr, socklen_t *length);
+fd_accept(int fd, sockaddr_t *addr, sockaddr_len_t *length);
 
 extern ssize_t
 fd_write(int fd, const void *buffer, size_t size);
@@ -134,10 +134,10 @@ extern ssize_t
 fd_recv(int fd, void *buffer, size_t size, int flags);
 
 extern ssize_t
-fd_sendto(int fd, const void *buffer, size_t size, int flags, sockaddr_t *addr, socklen_t length);
+fd_sendto(int fd, const void *buffer, size_t size, int flags, sockaddr_t *addr, sockaddr_len_t length);
 
 extern ssize_t
-fd_recvfrom(int fd, void *buffer, size_t size, int flags, sockaddr_t *addr, socklen_t *length);
+fd_recvfrom(int fd, void *buffer, size_t size, int flags, sockaddr_t *addr, sockaddr_len_t *length);
 
 extern ssize_t
 fd_sendmsg(int fd, const struct msghdr *message, int flags);
@@ -146,10 +146,10 @@ extern ssize_t
 fd_recvmsg(int fd, struct msghdr *message, int flags);
 
 extern int
-fd_getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlen);
+fd_getsockopt(int fd, int level, int optname, void *optval, sockaddr_len_t *optlen);
 
 extern int
-fd_setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen);
+fd_setsockopt(int fd, int level, int optname, const void *optval, sockaddr_len_t optlen);
 
 extern int
 fd_shutdown(int fd, int how);

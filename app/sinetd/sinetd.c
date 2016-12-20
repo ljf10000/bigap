@@ -215,7 +215,7 @@ child(void)
     int err = 0;
     
     sockaddr_in_t addr;
-    socklen_t size = sizeof(addr);
+    sockaddr_len_t size = sizeof(addr);
     
     fd = accept(C.fd, (sockaddr_t *)&addr, &size);
     if (fd<0) {

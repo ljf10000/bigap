@@ -76,11 +76,12 @@ os_ipdns(char *ipstring_or_domain)
     .nl_groups  = _groups,          \
 }   /* end */
 
-typedef struct sockaddr_un sockaddr_un_t;
-typedef struct sockaddr_in sockaddr_in_t;
-typedef struct sockaddr_ll sockaddr_ll_t;
-typedef struct sockaddr_nl sockaddr_nl_t;
-typedef struct sockaddr    sockaddr_t;
+typedef struct sockaddr_un  sockaddr_un_t;
+typedef struct sockaddr_in  sockaddr_in_t;
+typedef struct sockaddr_ll  sockaddr_ll_t;
+typedef struct sockaddr_nl  sockaddr_nl_t;
+typedef struct sockaddr     sockaddr_t;
+typedef socklen_t           sockaddr_len_t;
 
 typedef union {
     sockaddr_un_t un;
@@ -123,13 +124,13 @@ set_abstract_sockaddr_len(sockaddr_un_t *addr, int addrlen)
     addr->sun_path[addrlen - sizeof(addr->sun_family)] = 0;
 }
 
-static inline socklen_t
+static inline sockaddr_len_t
 get_abstract_sockaddr_len(sockaddr_un_t *addr)
 {
     return sizeof(addr->sun_family) + 1 + os_strlen(get_abstract_path(addr));
 }
 
-extern socklen_t
+extern sockaddr_len_t
 os_sockaddr_len(sockaddr_t *addr);
 
 #ifndef SCRIPT_GETMAC

@@ -3106,7 +3106,7 @@ JS_PARAM(getsockname, 2);
 STATIC duk_ret_t
 duke_getsockname(duk_context *ctx)
 {
-    socklen_t len = sizeof(sockaddr_t);
+    sockaddr_len_t len = sizeof(sockaddr_t);
     os_sockaddr_t sa = OS_SOCKADDR_ZERO();
     
     int fd = duk_require_int(ctx, 0);
@@ -3526,7 +3526,7 @@ JS_PARAM(accept, 2);
 STATIC duk_ret_t
 duke_accept(duk_context *ctx)
 {
-    socklen_t len = sizeof(sockaddr_t);
+    sockaddr_len_t len = sizeof(sockaddr_t);
     os_sockaddr_t sa = OS_SOCKADDR_ZERO();
     
     int fd = duk_require_int(ctx, 0);
@@ -3543,7 +3543,7 @@ JS_PARAM(getpeername, 2);
 STATIC duk_ret_t
 duke_getpeername(duk_context *ctx)
 {
-    socklen_t len = sizeof(sockaddr_t);
+    sockaddr_len_t len = sizeof(sockaddr_t);
     os_sockaddr_t sa = OS_SOCKADDR_ZERO();
     
     int fd = duk_require_int(ctx, 0);
@@ -3626,7 +3626,7 @@ JS_PARAM(recvfrom, 4);
 STATIC duk_ret_t
 duke_recvfrom(duk_context *ctx)
 {
-    socklen_t len = sizeof(sockaddr_t);
+    sockaddr_len_t len = sizeof(sockaddr_t);
     os_sockaddr_t sa = OS_SOCKADDR_ZERO();
     duk_size_t bsize = 0;
 
@@ -3655,7 +3655,7 @@ duke_getsockopt(duk_context *ctx)
 	int opt     = duk_require_int(ctx, 2);
     int err     = 0;
     int val     = 0;
-    socklen_t size;
+    sockaddr_len_t size;
     
 	switch(opt) {
         case SO_DEBUG:
@@ -3707,7 +3707,7 @@ duke_setsockopt(duk_context *ctx)
 	int opt     = duk_require_int(ctx, 2);
     int err     = 0;
     int val     = 0;
-    socklen_t size;
+    sockaddr_len_t size;
     
 	switch(opt) {
         case SO_DEBUG:

@@ -399,7 +399,7 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     int fd, flag;
     os_sockaddr_t addr;
-    socklen_t addrlen = sizeof(addr);
+    sockaddr_len_t addrlen = sizeof(addr);
     
     fd = accept(watcher->fd, &addr.c, &addrlen);
     debug_loop("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);

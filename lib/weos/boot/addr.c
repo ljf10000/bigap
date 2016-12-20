@@ -274,7 +274,7 @@ abstract_path_sprintf(sockaddr_un_t *addr, const char *fmt, ...)
     va_end(args);
 }
 
-socklen_t
+sockaddr_len_t
 os_sockaddr_len(sockaddr_t *addr)
 {
     switch(addr->sa_family) {
