@@ -521,7 +521,7 @@ typedef struct {
     uint16 ether_type_all;  /* network sort */
 
     uint32 ticks;
-    int fini;
+    uint32 fini;
     char *conf;
 
     umd_plan_t plan[UM_PLAN_COUNT];
