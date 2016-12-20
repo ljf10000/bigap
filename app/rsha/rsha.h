@@ -381,7 +381,7 @@ static inline jrule_t *rsh_instance_jrules(void);
     rshi_st(_instance, _cmd, RSHIST_DIR_SEND, rshist_type(_is_error))
 
 #define rshi_tm_update(_instance, _update, _dir, _type) \
-    (_instance)->tm.update[_update][_dir][_type]
+    (_instance)->tm.update[_dir][_type][_update]
 #define rshi_tm_update_recv(_instance, _update, _is_error) \
     rshi_tm_update(_instance, _update, RSHIST_DIR_RECV, rshist_type(_is_error))
 #define rshi_tm_update_send(_instance, _update, _is_error) \
