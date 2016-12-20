@@ -2,38 +2,6 @@
 #define __HMAC_H_4ae0798d1e3b4690b417a81f3e92db0b__
 /******************************************************************************/
 // https://github.com/ogay/hmac
-/*
- * HMAC-SHA-224/256/384/512 implementation
- * Last update: 06/15/2005
- * Issue date:  06/15/2005
- *
- * Copyright (C) 2005 Olivier Gay <olivier.gay@a3.epfl.ch>
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the project nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
 
 typedef struct {
     sha224_ctx_t ctx_inside;
@@ -161,7 +129,7 @@ hmac_sha##_number(const byte *key, uint32 key_size, const byte *message, uint32 
 os_fake_declare                                             \
 /* end */
 
-#if USE_MOD_SHA224
+#if USE_MOD_HMAC_SHA224
 EXTERN void
 hmac_sha224_init(hmac_sha224_ctx_t *ctx, const byte *key, uint32 key_size);
 EXTERN void
@@ -174,7 +142,7 @@ EXTERN void
 hmac_sha224(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[SHA224_DIGEST_SIZE]);
 #endif
 
-#if USE_MOD_SHA256
+#if USE_MOD_HMAC_SHA256
 EXTERN void
 hmac_sha256_init(hmac_sha256_ctx_t *ctx, const byte *key, uint32 key_size);
 EXTERN void
@@ -187,7 +155,7 @@ EXTERN void
 hmac_sha256(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[SHA256_DIGEST_SIZE]);
 #endif
 
-#if USE_MOD_SHA384
+#if USE_MOD_HMAC_SHA384
 EXTERN void
 hmac_sha384_init(hmac_sha384_ctx_t *ctx, const byte *key, uint32 key_size);
 EXTERN void
@@ -200,7 +168,7 @@ EXTERN void
 hmac_sha384(const byte *key, uint32 key_size, const byte *message, uint32 message_len, byte mac[SHA384_DIGEST_SIZE]);
 #endif
 
-#if USE_MOD_SHA512
+#if USE_MOD_HMAC_SHA512
 EXTERN void
 hmac_sha512_init(hmac_sha512_ctx_t *ctx, const byte *key, uint32 key_size);
 EXTERN void
