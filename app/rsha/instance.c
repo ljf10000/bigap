@@ -47,7 +47,9 @@ __rshi_tm_dir_type_o2j(time_t tm[RSHIST_TYPE_END])
         int i;
         
         for (i=0; i<RSHIST_TYPE_END; i++) {
-            jobj_add(jobj, rshist_type_getnamebyid(i), tm[i]);
+            jobj_add_string(jobj, 
+                rshist_type_getnamebyid(i), 
+                os_fulltime_string(tm[i]));
         }
     }
     
