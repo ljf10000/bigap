@@ -12,6 +12,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #define __THIS_USAGE \
     "umc usage:"                            __crlf \
+    __tab " associate   {mac} {ifname}"     __crlf \
+    __tab " diassociate {mac}"              __crlf \
     __tab " bind   {mac} {ip}"              __crlf \
     __tab " unbind {mac}"                   __crlf \
     __tab " fake   {mac} {ip}"              __crlf \
@@ -74,8 +76,8 @@ error:
 STATIC int
 umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), int argc, char *argv[])
 {
-    char *mac= argv[0];
-    char *ip = argv[1];
+    char *mac   = argv[0];
+    char *ip    = argv[1];
     
     if (3!=argc) {
         return cli_help(-EFORMAT);
@@ -105,7 +107,7 @@ umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), int argc, char *
 STATIC int
 umd_handle_mac(int (*handle)(byte mac[]), int argc, char *argv[])
 {
-    char *mac= argv[1];
+    char *mac = argv[1];
     
     if (2!=argc) {
         return cli_help(-EFORMAT);
@@ -167,6 +169,43 @@ STATIC int
 umd_handle_unblock(cli_table_t *table, int argc, char *argv[])
 {
     return umd_handle_mac(umd_user_unblock, argc, argv);
+}
+
+/*
+* associate {mac} {ath}
+*/
+STATIC int
+umd_handle_associate(cli_table_t *table, int argc, char *argv[])
+{
+    char *mac   = argv[1];
+    char *ath   = argv[2];
+    
+    if (3!=argc) {
+        return cli_help(-EFORMAT);
+    }
+    else if (false==is_good_macstring(mac)) {
+        debug_trace("bad mac %s", mac);
+
+        return cli_help(-EFORMAT);
+    }
+
+    umd_user_t *user = umd_user_create(os_mac(mac));
+    if (NULL==user) {
+        return -ENOMEM;
+    }
+
+    // todo: save ath
+    
+    return 0;
+}
+
+/*
+* diassociate {mac}
+*/
+STATIC int
+umd_handle_diassociate(cli_table_t *table, int argc, char *argv[])
+{
+    return umd_handle_mac(umd_user_delete, argc, argv);
 }
 
 /*
@@ -500,6 +539,9 @@ umd_cli(loop_watcher_t *watcher, time_t now)
         
         CLI_TCP_ENTRY("block",  umd_handle_block),
         CLI_TCP_ENTRY("unblock",umd_handle_unblock),
+        
+        CLI_TCP_ENTRY("associate",      umd_handle_associate),
+        CLI_TCP_ENTRY("diassociate",    umd_handle_diassociate),
         
         CLI_TCP_ENTRY("bind",   umd_handle_bind),
         CLI_TCP_ENTRY("unbind", umd_handle_unbind),

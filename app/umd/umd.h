@@ -375,9 +375,7 @@ typedef struct {
         h1_node_t intf;
     } node;
 } 
-umd_intf_t;
-
-typedef umd_intf_t umd_ingress_t;
+umd_intf_t, umd_ingress_t;
 
 extern umd_intf_t *
 umd_intf_get(byte mac[]);

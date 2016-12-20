@@ -1015,6 +1015,14 @@ umd_flow_server_init(sock_server_t *server)
 {
     int fd, err;
 
+    /*
+    * br mode: not use flow
+    */
+    umd_ingress_t *ingress = umd_getingress_byserver(server);
+    if (umd_forward_mode_br==ingress->mode) {
+        return 0;
+    }
+    
     fd = socket(AF_PACKET, SOCK_RAW, umd.ether_type_all);
     if (fd<0) {
         debug_error("socket error:%d", -errno);
@@ -1023,9 +1031,7 @@ umd_flow_server_init(sock_server_t *server)
     }
     os_closexec(fd);
     os_noblock(fd);
-
-    umd_ingress_t *ingress = umd_getingress_byserver(server);
-
+    
     sockaddr_ll_t addr = {
         .sll_family     = AF_PACKET,
         .sll_protocol   = umd.ether_type_all,
