@@ -1039,6 +1039,27 @@ umd_user_create(byte mac[])
     return user?user:umduser_create(mac);
 }
 
+int umd_user_diassociate(byte mac[])
+{
+    return umduser_delete(umduser_get(mac));
+}
+
+umd_user_t *
+umd_user_associate(byte mac[], char *ath)
+{
+    umd_user_t *user = umduser_get(mac);
+    if (user) {
+        // check and save current bssid
+    }
+    
+    user = umduser_create(mac);
+    os_strcpy(user->ath, ath);
+    
+    // todo: save first bssid
+
+    return user;
+}
+
 umd_user_t *
 umd_user_block(byte mac[])
 {

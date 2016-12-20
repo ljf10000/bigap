@@ -252,7 +252,7 @@ typedef struct {
     byte mac[OS_MACSIZE], __r0[2];
     byte bssid_first[OS_MACSIZE], 
          bssid_current[OS_MACSIZE];
-
+    char ath[1+OS_IFNAME_LEN];
     char *ssid;
 
     int state;
@@ -797,6 +797,12 @@ umd_user_create(byte mac[]);
 
 extern int
 umd_user_delete(byte mac[]);
+
+extern int
+umd_user_diassociate(byte mac[]);
+
+extern umd_user_t *
+umd_user_associate(byte mac[], char *ath);
 
 extern umd_user_t *
 umd_user_block(byte mac[]);

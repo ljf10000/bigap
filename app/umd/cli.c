@@ -12,7 +12,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #define __THIS_USAGE \
     "umc usage:"                            __crlf \
-    __tab " associate   {mac} {ifname}"     __crlf \
+    __tab " associate   {mac} {athX}"       __crlf \
     __tab " diassociate {mac}"              __crlf \
     __tab " bind   {mac} {ip}"              __crlf \
     __tab " unbind {mac}"                   __crlf \
@@ -188,15 +188,15 @@ umd_handle_associate(cli_table_t *table, int argc, char *argv[])
 
         return cli_help(-EFORMAT);
     }
+    else if (os_strlen(ath) > OS_IFNAME_LEN) {
+        debug_trace("bad ath %s", ath);
 
-    umd_user_t *user = umd_user_create(os_mac(mac));
-    if (NULL==user) {
-        return -ENOMEM;
+        return cli_help(-EFORMAT);
     }
 
-    // todo: save ath
-    
-    return 0;
+    umd_user_t *user = umd_user_associate(os_mac(mac), ath);
+
+    return user?0:-ENOMEM;
 }
 
 /*
@@ -205,7 +205,7 @@ umd_handle_associate(cli_table_t *table, int argc, char *argv[])
 STATIC int
 umd_handle_diassociate(cli_table_t *table, int argc, char *argv[])
 {
-    return umd_handle_mac(umd_user_delete, argc, argv);
+    return umd_handle_mac(umd_user_diassociate, argc, argv);
 }
 
 /*
