@@ -30,10 +30,10 @@ typedef struct {
     _(rshc, rsha)   \
     /* end */
 
-#define XCLI(_cname, _sname)    static cli_client_t _cname = CLI_CLIENT_INITER(#_sname); os_fake_declare
-#define XENTRY(_cname, _sname)  { #_cname, &_sname },
+#define XCLIENT(_cname, _sname) static cli_client_t _cname = CLI_CLIENT_INITER(#_sname); os_fake_declare
+#define XENTRY(_cname, _sname)  { #_cname, &_cname },
 
-DECLARE_XLIST(XCLI);
+DECLARE_XLIST(XCLIENT);
 static cli_entry_t cli[] = { DECLARE_XLIST(XENTRY) };
 
 static int
