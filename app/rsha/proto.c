@@ -29,7 +29,7 @@ rshi_decode(rsh_instance_t *instance, int len)
 
     rsh_msg_decode(msg, len, 
         rshi_pmk(instance), rshi_key(instance), 
-        instance->sec.hmac, instance->sec.sec.hmacsize);
+        instance->sec.hmac, instance->sec.hmacsize);
 }
 
 STATIC int 
