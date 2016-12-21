@@ -43,7 +43,7 @@ umd_get_vlan(void)
 static inline struct ip *
 umd_get_iph(void)
 {
-    if (flow.eth->ether_type == umd.ether_type_ip) {
+    if (flow.eth->ether_type == umd.ether_type.ip) {
         return (struct ip *)(flow.eth + 1);
     }
     else if (flow.eth->ether_type == umd.ether_type_vlan) {

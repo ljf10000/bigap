@@ -188,9 +188,9 @@ umd_init_pre(void)
     }
     __os_getmac_bystring(umd.basemac, basemac);
 
-    umd.ether_type_ip  = htons(ETHERTYPE_IP);
-    umd.ether_type_vlan= htons(ETHERTYPE_VLAN);
-    umd.ether_type_all = htons(ETH_P_ALL);
+    umd.ether_type.ip  = htons(ETHERTYPE_IP);
+    umd.ether_type.vlan= htons(ETHERTYPE_VLAN);
+    umd.ether_type.all = htons(ETH_P_ALL);
 
     for (i=0; i<os_count_of(umd.plan); i++) {
         umd.plan[i].ip   = os_ipaddr(umd.plan[i].ipstring);

@@ -514,33 +514,34 @@ typedef struct {
 }   /* end */
 
 typedef struct {
-    byte basemac[OS_MACSIZE]; /* local ap's base mac */
+    sock_server_t **servers;
+    int count;
+} umd_server_t;
 
-    uint16 ether_type_ip;   /* network sort */
-    uint16 ether_type_vlan; /* network sort */
-    uint16 ether_type_all;  /* network sort */
+typedef struct {
+    uint16 ip;      /* network sort */
+    uint16 vlan;    /* network sort */
+    uint16 all;     /* network sort */
+    uint16 _r0;
+} umd_ether_type_t;
 
+typedef struct {
+    byte basemac[OS_MACSIZE], _r0[2]; /* local ap's base mac */
     uint32 ticks;
     uint32 fini;
     char *conf;
 
+    umd_ether_type_t ether_type;
     umd_plan_t plan[UM_PLAN_COUNT];
     umd_config_t cfg;
+    umd_server_t server;
+    loop_t loop;
 
     struct {
-        sock_server_t **servers;
-        int count;
-    } server;
-    
-    struct {
         h2_table_t user;
-        h1_table_t conn;
-        h1_table_t intf;
+        h1_table_t conn, intf;
     } head;
-    
-    loop_t loop;
-} 
-umd_control_t;
+} umd_control_t;
 
 #define UMD_INITER          {   \
     .plan   = UMD_PLAN_INITER,  \
