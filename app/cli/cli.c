@@ -14,22 +14,27 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 /******************************************************************************/
-static cli_client_t umc     = CLI_CLIENT_INITER("umd");
-static cli_client_t smc     = CLI_CLIENT_INITER("smd");
-static cli_client_t tmc     = CLI_CLIENT_INITER("tmd");
-static cli_client_t nsqc    = CLI_CLIENT_INITER("nsqa");
-static cli_client_t rshc    = CLI_CLIENT_INITER("rsha");
-
-static struct {
+typedef struct {
     char *name;
     cli_client_t *client;
-} cli[] = {
-    { "umc",    &umc },
-    { "smc",    &smc },
-    { "tmc",    &tmc },
-    { "nsqc",   &nsqc },
-    { "rshc",   &rshc },
-};
+} cli_entry_t;
+
+/*
+* insert new cli here !!!
+*/
+#define DECLARE_XLIST(_) \
+    _(umc,  umd)    \
+    _(smc,  smd)    \
+    _(tmc,  tmd)    \
+    _(nsqc, nsqa)   \
+    _(rshc, rsha)   \
+    /* end */
+
+#define XCLI(_cname, _sname)    static cli_client_t _cname = CLI_CLIENT_INITER(#_sname); os_fake_declare
+#define XENTRY(_cname, _sname)  { #_cname, &_sname },
+
+DECLARE_XLIST(XCLI);
+static cli_entry_t cli[] = { DECLARE_XLIST(XENTRY) };
 
 static int
 cli_usage(int argc, char *argv[])
