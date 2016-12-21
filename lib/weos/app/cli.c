@@ -26,6 +26,32 @@ __this_cli(void)
     return __this_cli_init(&__THIS_CLI);
 }
 
+STATIC int 
+__this_cli_socket(bool tcp)
+{
+    int fd = socket(AF_UNIX, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
+    if (is_good_fd(fd)) {
+        os_closexec(fd);
+    }
+
+    return fd;
+}
+
+STATIC void
+__clib_cut(uint32 len)
+{
+    __clib_buf[len] = 0;
+}
+
+void
+__clib_clear(void) 
+{
+    __clib_err = 0;
+    __clib_len = 0;
+    
+    __clib_cut(0);
+}
+
 STATIC int
 __clib_show(int (*show)(char *buf, int len))
 {

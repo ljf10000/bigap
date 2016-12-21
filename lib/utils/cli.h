@@ -92,17 +92,6 @@ __this_cli(void);
 
 #define __this_cli_type_string(_tcp)    (_tcp)?"tcp":"udp"
 
-static inline int 
-__this_cli_socket(bool tcp)
-{
-    int fd = socket(AF_UNIX, tcp?SOCK_STREAM:SOCK_DGRAM, 0);
-    if (is_good_fd(fd)) {
-        os_closexec(fd);
-    }
-
-    return fd;
-}
-
 static inline cli_buffer_t *
 __clib(void)
 {
@@ -117,20 +106,8 @@ __clib(void)
 #define __clib_SIZE     (CLI_BUFFER_LEN - sizeof(cli_header_t))
 #define __clib_left     ((__clib_SIZE>__clib_len)?(__clib_SIZE - __clib_len):0)
 
-static inline void
-__clib_cut(uint32 len)
-{
-    __clib_buf[len] = 0;
-}
-
-static inline void
-__clib_clear(void) 
-{
-    __clib_err = 0;
-    __clib_len = 0;
-    
-    __clib_cut(0);
-}
+extern void
+__clib_clear(void);
 
 extern int
 cli_vsprintf(const char *fmt, va_list args);
@@ -153,8 +130,6 @@ cli_handle_help(cli_table_t *table, int argc, char *argv[])
 }
 
 typedef struct {
-    int timeout;    // todo: not use it
-    
     sockaddr_un_t server, client;
 
     cli_show_f *show;
@@ -163,7 +138,6 @@ typedef struct {
 #define CLI_CLIENT_INITER(_server_PATH) {   \
     .server     = OS_SOCKADDR_ABSTRACT(_server_PATH),   \
     .client     = OS_SOCKADDR_UNIX(__zero),             \
-    .timeout    = CLI_TIMEOUT,                          \
 }   /* end */
 
 #define CLI_CLIENT_UNIX     "/tmp/." __THIS_APPNAME ".%d.unix"
