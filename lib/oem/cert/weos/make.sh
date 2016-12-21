@@ -125,7 +125,7 @@ initer() {
 	local i
 	
 	> ${finiter}
-	echo "#define __THIS_CERT_INITER(_idx)    [_idx] = __OS_CERT_INITER(OS_CERT_client_crt##_idx, OS_CERT_client_key##_idx, OS_CERT_servier_crt##_idx)" >> ${finiter}
+	echo "#define __THIS_CERT_INITER(_idx)    [_idx] = __OS_CERT_INITER(OS_CERT_client_crt##_idx, OS_CERT_client_key##_idx, OS_CERT_server_crt##_idx)" >> ${finiter}
 	echo "#include \"oem/cert/weos/client.crt.c\"" >> ${finiter}
 	echo "#include \"oem/cert/weos/client.key.c\"" >> ${finiter}
 	echo "#include \"oem/cert/weos/server.crt.c\"" >> ${finiter}
