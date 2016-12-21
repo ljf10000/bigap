@@ -384,6 +384,11 @@ do_guard_report(int hack)
         err = -ENOEXIST; goto error;
     }
 
+#if 0
+curl -d '{"version":"0.0.0.1","oem":"superwalle","mac":"00:00:00:00:00:01","mid":1,"psn":2,"rt":3,"na":4}' --cert /home/liujingfei/work/big/lib/oem/cert/deft/lss/client.crt --key /home/liujingfei/work/big/lib/oem/cert/deft/lss/client.key --cacert /home/liujingfei/work/big/lib/oem/cert/deft/lss/server.crt -u LSS:LTEFISecurityServer2012-2015 https://lms1.superwalle.com:9999/service1 -v
+curl -d '{"version":"0.0.0.1","oem":"autelan","mac":"00:00:00:00:00:01","mid":1,"psn":2,"rt":3,"na":4}' --cert /home/liujingfei/work/big/lib/oem/cert/autelan/lss/client.crt --key /home/liujingfei/work/big/lib/oem/cert/autelan/lss/client.key --cacert /home/liujingfei/work/big/lib/oem/cert/autelan/lss/server.crt -u LSS:LTEFISecurityServer2012-2015 https://lms1.autelan.com:9999/service1 -v
+#endif
+
     err = os_v_pgets(line, OS_LINE_LEN, 
             "curl"
                 " -d '{"
