@@ -198,9 +198,5 @@ extern int
 cli_request(cli_client_t *clic, int argc, char *argv[]);
 
 #endif /* __APP__ */
-
-#ifdef __BOOT__
-#include "weos/boot/cli.c"
-#endif
 /******************************************************************************/
 #endif /* __CLI_H_277ca663cad74dd5ad59851d69c58e0c__ */

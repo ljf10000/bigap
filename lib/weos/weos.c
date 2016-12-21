@@ -36,7 +36,6 @@ LIB_INITER;
 #if USE_MOD_CHANNEL
 #include "weos/boot/channel.c"
 #endif
-#include "weos/boot/cli.c"
 #if USE_MOD_CQUEUE
 #include "weos/boot/cqueue.c"
 #endif

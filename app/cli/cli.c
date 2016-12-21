@@ -81,5 +81,4 @@ int allinone_main(int argc, char *argv[])
     
     return os_main(cli_main_helper, argc, argv);
 }
-
 /******************************************************************************/
