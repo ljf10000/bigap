@@ -9,21 +9,21 @@ typedef struct {
     uint32 grow;    /* once grow count */
     
     void (*init)(void *item);
-    void (*clean)(void *item);
+    void (*fini)(void *item);
 } autoarray_t;
 
 EXTERN void
-os_aa_clean(autoarray_t *aa);
+os_aa_destroy(autoarray_t *aa);
 
 EXTERN int
-os_aa_init(
+os_aa_create(
     autoarray_t *aa, 
     uint32 size, 
     uint32 count,
     uint32 limit, 
     uint32 grow, 
     void (*init)(void *item),
-    void (*clean)(void *item)
+    void (*fini)(void *item)
 );
 
 EXTERN void *

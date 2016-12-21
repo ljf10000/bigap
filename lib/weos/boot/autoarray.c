@@ -68,14 +68,14 @@ __os_aa_grow(autoarray_t *aa)
 }
 
 DECLARE void
-os_aa_clean(autoarray_t *aa)
+os_aa_destroy(autoarray_t *aa)
 {
     if (aa) {
-        if (aa->clean) {
+        if (aa->fini) {
             int i;
             
             for (i=0; i<aa->count; i++) {
-                (*aa->clean)(__os_aa_item(aa, i));
+                (*aa->fini)(__os_aa_item(aa, i));
             }
         }
 
@@ -86,14 +86,14 @@ os_aa_clean(autoarray_t *aa)
 }
 
 DECLARE int
-os_aa_init(
+os_aa_create(
     autoarray_t *aa, 
     uint32 size, 
     uint32 count,
     uint32 limit, 
     uint32 grow, 
     void (*init)(void *item),
-    void (*clean)(void *item)
+    void (*fini)(void *item)
 )
 {
     if (NULL==aa) {
@@ -120,7 +120,7 @@ os_aa_init(
     aa->limit   = limit;
     aa->grow    = grow;
     aa->init    = init;
-    aa->clean   = clean;
+    aa->fini    = fini;
     
     aa->base = (byte *)os_calloc(aa->count, aa->size);
     if (NULL==aa->base) {

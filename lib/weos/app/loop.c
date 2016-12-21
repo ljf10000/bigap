@@ -74,7 +74,7 @@ STATIC int
 __loop_watcher_fini(loop_t *loop)
 {
     if (loop->watcher.base) {
-        os_aa_clean(&loop->watcher);
+        os_aa_destroy(&loop->watcher);
     }
 
     return 0;
@@ -88,7 +88,7 @@ __loop_watcher_init(loop_t *loop, uint32 limit)
             limit = LOOP_FDLIMIT;
         }
         
-        int err = os_aa_init(&loop->watcher,
+        int err = os_aa_create(&loop->watcher,
             sizeof(loop_watcher_t),     // size
             limit,                      // count
             limit,                      // limit

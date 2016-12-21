@@ -900,8 +900,8 @@ fd_fini(void)
         __this_fd()->init = false;
         
         fd_close(____fd_epfd);
-        os_aa_clean(____fd_map);
-        os_aa_clean(____fd_evs);
+        os_aa_destroy(____fd_map);
+        os_aa_destroy(____fd_evs);
         
         co_fini();
     }
@@ -920,12 +920,12 @@ fd_init(void)
         __fd_control_init();
         
 #define FD_AA_ARGS  FD_INIT_COUNT, FD_LIMIT, FD_GROW_COUNT, NULL, NULL
-        err = os_aa_init(____fd_map, sizeof(fd_map_t), FD_AA_ARGS);
+        err = os_aa_create(____fd_map, sizeof(fd_map_t), FD_AA_ARGS);
         if (err<0) {
             goto error;
         }
         
-        err = os_aa_init(____fd_evs, sizeof(struct epoll_event), FD_AA_ARGS);
+        err = os_aa_create(____fd_evs, sizeof(struct epoll_event), FD_AA_ARGS);
         if (err<0) {
             goto error;
         }
