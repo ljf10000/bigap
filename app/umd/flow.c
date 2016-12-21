@@ -46,7 +46,7 @@ umd_get_iph(void)
     if (flow.eth->ether_type == umd.ether_type.ip) {
         return (struct ip *)(flow.eth + 1);
     }
-    else if (flow.eth->ether_type == umd.ether_type_vlan) {
+    else if (flow.eth->ether_type == umd.ether_type.vlan) {
         return (struct ip *)(flow.vlan + 1);
     }
     else {       
@@ -664,8 +664,8 @@ umd_eth_handle(sock_server_t *server, time_t now)
 
     umd_add_flow_all(umd_pkt_type_eth);
     
-    if (eth->ether_type != umd.ether_type_ip &&
-        eth->ether_type != umd.ether_type_vlan) {
+    if (eth->ether_type != umd.ether_type.ip &&
+        eth->ether_type != umd.ether_type.vlan) {
         /*
         * bad ether type
         */
@@ -716,7 +716,7 @@ umd_vlan_handle(sock_server_t *server, time_t now)
 
         umd_add_flow_all(umd_pkt_type_vlan);
         
-        if (vlan->type != umd.ether_type_ip) {
+        if (vlan->type != umd.ether_type.ip) {
             umd_add_flow_bad(umd_pkt_type_vlan);
             
             return -EFORMAT;
