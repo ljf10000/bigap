@@ -711,7 +711,7 @@ umd_eth_handle(sock_server_t *server, time_t now)
 STATIC int
 umd_vlan_handle(sock_server_t *server, time_t now)
 {
-    if (flow.eth->ether_type == umd.ether_type_vlan) {
+    if (flow.eth->ether_type == umd.ether_type.vlan) {
         struct vlan_header *vlan = flow.vlan = umd_get_vlan();
 
         umd_add_flow_all(umd_pkt_type_vlan);
@@ -1023,7 +1023,7 @@ umd_flow_server_init(sock_server_t *server)
         return 0;
     }
     
-    fd = socket(AF_PACKET, SOCK_RAW, umd.ether_type_all);
+    fd = socket(AF_PACKET, SOCK_RAW, umd.ether_type.all);
     if (fd<0) {
         debug_error("socket error:%d", -errno);
 
@@ -1034,7 +1034,7 @@ umd_flow_server_init(sock_server_t *server)
     
     sockaddr_ll_t addr = {
         .sll_family     = AF_PACKET,
-        .sll_protocol   = umd.ether_type_all,
+        .sll_protocol   = umd.ether_type.all,
         .sll_ifindex    = ingress->index,
     };
 
