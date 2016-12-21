@@ -290,7 +290,8 @@ __rshi_destroy(rsh_instance_t *instance)
         os_free(instance->registry);
         os_free(instance->cache);
         os_free(instance->flash);
-        os_free(instance->key.hex);
+        os_free(instance->sec.keystring);
+        os_free(instance->sec.pmkstring);
 
         jobj_put(instance->jcfg);
         
@@ -395,42 +396,6 @@ rshi_echo_set(rsh_instance_t *instance, time_t now, bool busy)
     }
     
     return rshi_echo_get(instance);
-}
-
-int
-rshi_key_init(rsh_key_t *key, char *keystring)
-{
-    int err, len = os_strlen(keystring), size = len/2;
-    
-    if (len%2 || false==is_good_aes_key_size(size)) {
-        err = -EBADKEY; goto error;
-    }
-
-    err = os_hex2bin(keystring, key->u.key, size);
-    if (err<0) {
-        err = -EBADKEY; goto error;
-    }
-    key->size = size;
-    
-    return 0;
-error:
-
-    return err;
-}
-
-rsh_key_t *
-rshi_key_setup(rsh_instance_t *instance, rsh_key_t *key, time_t now)
-{
-    instance->key.current = !instance->key.current;
-
-    rsh_key_t *current = rshi_key_get(instance);
-
-    current->size = key->size;
-    aes_key_setup(key->u.key, current->u.key32, 8*key->size);
-
-    instance->key.update++;
-
-    return current;
 }
 
 STATIC int

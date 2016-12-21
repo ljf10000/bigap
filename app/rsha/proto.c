@@ -18,7 +18,7 @@ rshi_encode(rsh_instance_t *instance)
     rsh_msg_t *msg = rsha_msg;
 
     rsh_msg_encode(msg, rsh_msg_len(msg), 
-        rshi_key_get(instance), 
+        rshi_pmk(instance), rshi_key(instance), 
         msg->hmac, msg->hmacsize);
 }
 
@@ -28,8 +28,8 @@ rshi_decode(rsh_instance_t *instance, int len)
     rsh_msg_t *msg = rsha_msg;
 
     rsh_msg_decode(msg, len, 
-        rshi_key_get(instance), 
-        instance->hmac, instance->hmacsize);
+        rshi_pmk(instance), rshi_key(instance), 
+        instance->sec.hmac, instance->sec.sec.hmacsize);
 }
 
 STATIC int 
@@ -129,7 +129,7 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
     msg->flag       = RSH_F_ACK;
     msg->error      = error;
     msg->seq        = instance->seq;
-    msg->hmacsize   = instance->hmacsize;
+    msg->hmacsize   = instance->sec.hmacsize;
     msg->ack        = seq_peer;
     
     if (error) {
@@ -282,7 +282,7 @@ rshi_update_key_recver(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
 
-    rshi_key_setup(instance, rsh_msg_key(msg), now);
+    rshi_key_setup(instance, rsh_msg_key(msg));
 }
 
 STATIC void 
@@ -307,12 +307,12 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
     
     int size = rsh_msg_size(msg);
 
-    if (instance->hmacsize != msg->hmacsize) {
+    if (instance->sec.hmacsize != msg->hmacsize) {
         return rshi_ack_error(instance, -RSH_E_HMAC, 
             "time[%s] invalid hmac size",
             os_fulltime_string(now));
     }
-    else if (false==os_memeq(instance->hmac, msg->hmac, instance->hmacsize)) {
+    else if (false==os_memeq(instance->sec.hmac, msg->hmac, instance->sec.hmacsize)) {
         return rshi_ack_error(instance, -RSH_E_HMAC, 
             "time[%s] invalid hmac",
             os_fulltime_string(now));
@@ -452,7 +452,7 @@ rshi_echo(rsh_instance_t *instance, time_t now)
     msg->flag       = 0;
     msg->seq        = instance->seq++;
     msg->ack        = instance->seq_peer; // first is 0
-    msg->hmacsize   = instance->hmacsize;
+    msg->hmacsize   = instance->sec.hmacsize;
     
     err = rshi_send(instance);
     if (err<0) {
@@ -489,13 +489,13 @@ rshi_register_pre(rsh_instance_t *instance)
         return NULL;
     }
 
-    instance->crypt     = RSH_CRYPT_AES;
-    instance->hmactype  = SHA_256;
+    instance->sec.crypt     = RSH_CRYPT_AES;
+    instance->sec.hmactype  = SHA_256;
     instance->seq = instance->seq_noack = rshi_seq_rand();
 
     jobj_add_string(jobj, "mac", rsha.macstring);
-    jobj_add_string(jobj, "crypt", rsh_crypt_getnamebyid(instance->crypt));
-    jobj_add_string(jobj, "hmactype", sha2_getnamebyid(instance->hmactype));
+    jobj_add_string(jobj, "crypt", rsh_crypt_getnamebyid(instance->sec.crypt));
+    jobj_add_string(jobj, "hmactype", sha2_getnamebyid(instance->sec.hmactype));
     jobj_add_u32(jobj, "seq",  instance->seq);
 
     return jobj;
@@ -508,71 +508,85 @@ error:
 STATIC int 
 rshi_register_post(rsh_instance_t *instance, jobj_t jobj, time_t now)
 {
-    int err;
+    jobj_t jval;
+    char *string;
+    rsh_key_t key;
+    int err, val;
 
     /*
-    * 1. get key
+    * 1. get pmk
     */
-    jobj_t jkey = jobj_get(jobj, "key");
-    if (NULL==jkey) {
+    jval = jobj_get(jobj, "pmk");
+    if (NULL==jval) {
         return -EBADJSON;
     }
-
-    rsh_key_t key;
-    char *keyhex = jobj_get_string(jkey);
-    
-    err = rshi_key_init(&key, keyhex);
+    string = jobj_get_string(jval);
+    err = rsh_key_hex2bin(&key, string);
     if (err<0) {
         return err;
     }
-
-    rshi_key_setup(instance, &key, now);
-    instance->key.hex = os_strdup(keyhex);
+    rsh_key_setup(rshi_pmk(instance), &key);
+    instance->sec.pmkstring = os_strdup(string);
+    
+    /*
+    * 2. get key
+    */
+    jval = jobj_get(jobj, "key");
+    if (NULL==jval) {
+        return -EBADJSON;
+    }
+    string = jobj_get_string(jval);
+    err = rsh_key_hex2bin(&key, string);
+    if (err<0) {
+        return err;
+    }
+    rshi_key_setup(instance, &key);
+    instance->sec.keystring = os_strdup(string);
 
     /*
     * 2. get crypt
     */
-    jobj_t jcrypt = jobj_get(jobj, "crypt");
-    if (NULL==jcrypt) {
+    jval = jobj_get(jobj, "crypt");
+    if (NULL==jval) {
         return -EBADJSON;
     }
-    int crypt = rsh_crypt_getidbyname(jobj_get_string(jcrypt));
-    if (false==is_good_rsh_crypt(crypt)) {
+    val = rsh_crypt_getidbyname(jobj_get_string(jval));
+    if (false==is_good_rsh_crypt(val)) {
         return -EBADJSON;
     }
-    instance->crypt = crypt;
+    instance->sec.crypt = val;
 
     /*
     * 3. get hmac type
     */
-    jobj_t jhmactype = jobj_get(jobj, "hmactype");
-    if (NULL==jhmactype) {
+    jval = jobj_get(jobj, "hmactype");
+    if (NULL==jval) {
         return -EBADJSON;
     }
-    int hmactype = sha2_getidbyname(jobj_get_string(jhmactype));
-    if (false==is_good_sha2(hmactype)) {
+    val = sha2_getidbyname(jobj_get_string(jval));
+    if (false==is_good_sha2(val)) {
         return -EBADJSON;
     }
-    instance->hmactype = hmactype;
-    instance->hmacsize = SHA_DIGEST_SIZE(hmactype);
+    instance->sec.hmactype = val;
+    instance->sec.hmacsize = SHA_DIGEST_SIZE(val);
     
     /*
     * 4. get seq
     */
-    jobj_t jseq = jobj_get(jobj, "seq");
-    if (NULL==jseq) {
+    jval = jobj_get(jobj, "seq");
+    if (NULL==jval) {
         return -EBADJSON;
     }
-    instance->seq_peer = jobj_get_u32(jseq);
+    instance->seq_peer = jobj_get_u32(jval);
     
     /*
     * 5. get seq
     */
-    jobj_t jdebug = jobj_get(jobj, "debug");
-    if (NULL==jdebug) {
+    jval = jobj_get(jobj, "debug");
+    if (NULL==jval) {
         return -EBADJSON;
     }
-    instance->debug = jobj_get_bool(jdebug);
+    instance->debug = jobj_get_bool(jval);
     
     return 0;
 }

@@ -134,6 +134,36 @@ typedef struct {
     } u;
 } rsh_key_t;
 
+static inline int
+rsh_key_hex2bin(rsh_key_t *key, char *keystring)
+{
+    int err, len = os_strlen(keystring), size = len/2;
+    
+    if (len%2 || false==is_good_aes_key_size(size)) {
+        err = -EBADKEY; goto error;
+    }
+
+    err = os_hex2bin(keystring, key->u.key, size);
+    if (err<0) {
+        err = -EBADKEY; goto error;
+    }
+    key->size = size;
+    
+    return 0;
+error:
+
+    return err;
+}
+
+static inline rsh_key_t *
+rsh_key_setup(rsh_key_t *dst, rsh_key_t *src)
+{
+    dst->size = src->size;
+    aes_key_setup(src->u.key, dst->u.key32, 8*src->size);
+
+    return dst;
+}
+
 typedef struct {
     uint32 type;
 
@@ -329,11 +359,11 @@ rsh_msg_hmac(rsh_msg_t *msg, rsh_key_t *key, byte hmac[], int hmacsize)
 }
 
 static inline void
-rsh_msg_crypt(rsh_msg_t *msg, int len, rsh_key_t *key, aes_crypt_handle_t *crypt)
+rsh_msg_crypt(byte *buffer, int len, rsh_key_t *key, aes_crypt_handle_t *crypt)
 {
-    byte *in, *out, *buffer = rsh_hmac_begin(msg);
+    byte *in, *out;
     int i, count = AES_BLOCK_COUNT(len);
-    
+
     for (i=0; i<count; i++) {
         in = out = buffer + i*AES_BLOCK_SIZE;
         
@@ -342,17 +372,31 @@ rsh_msg_crypt(rsh_msg_t *msg, int len, rsh_key_t *key, aes_crypt_handle_t *crypt
 }
 
 static inline void
-rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
+rsh_msg_hdr_crypt(rsh_msg_t *msg, rsh_key_t *pmk, aes_crypt_handle_t *crypt)
 {
-    rsh_msg_hton(msg);
-    rsh_msg_hmac(msg, key, hmac, hmacsize);
-    rsh_msg_crypt(msg, len, key, aes_encrypt);
+    rsh_msg_crypt((byte *)msg, sizeof(rsh_msg_t), pmk, crypt);
+}
+
+static inline void // include hmac
+rsh_msg_body_crypt(byte *body, int body_len, rsh_key_t *key, aes_crypt_handle_t *crypt)
+{
+    rsh_msg_crypt(body, body_len, key, crypt);
 }
 
 static inline void
-rsh_msg_decode(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
+rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
 {
-    rsh_msg_crypt(msg, len, key, aes_decrypt);
+    rsh_msg_hton(msg);
+    rsh_msg_hmac(msg, key, hmac, hmacsize);
+    rsh_msg_body_crypt(msg->hmac, len - sizeof(rsh_msg_t), key, aes_encrypt);
+    rsh_msg_hdr_crypt(msg, pmk, aes_encrypt);
+}
+
+static inline void
+rsh_msg_decode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
+{
+    rsh_msg_hdr_crypt(msg, pmk, aes_decrypt);
+    rsh_msg_body_crypt(msg->hmac, len - sizeof(rsh_msg_t), key, aes_decrypt);
     rsh_msg_hmac(msg, key, hmac, hmacsize);
     rsh_msg_ntoh(msg);
 }

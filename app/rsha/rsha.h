@@ -240,11 +240,18 @@ typedef struct {
 } rshi_tm_t;
 
 typedef struct {
-    char *hex;
+    char *pmkstring;
+    char *keystring;
+    rsh_key_t pmk;
     rsh_key_t key[2];
     uint32 current;
     uint32 update;
-} rshi_key_t;
+
+    int crypt;
+    int hmactype;
+    int hmacsize;
+    byte hmac[SHA512_DIGEST_SIZE];
+} rshi_sec_t;
 
 typedef struct {
     rsh_echo_t echo[RSH_ECHO_END];
@@ -267,9 +274,6 @@ typedef struct {
     int port;
     int fsm;
     int error;
-    int crypt;
-    int hmactype;
-    int hmacsize;
     
     uint32 ip;
     time_t fsm_time[RSH_FSM_END];
@@ -281,9 +285,8 @@ typedef struct {
 
     rshi_tm_t tm;
     rshi_st_t st;
-    rshi_key_t key;
-    
-    byte hmac[SHA512_DIGEST_SIZE];
+    rshi_sec_t sec;
+
     uint32 peer_error;
     uint32 peer_error_max;
 
@@ -435,22 +438,35 @@ extern rsh_echo_t *
 rshi_echo_set(rsh_instance_t *instance, time_t now, bool busy);
 
 static inline rsh_key_t *
-rshi_key_get(rsh_instance_t *instance)
+rshi_pmk(rsh_instance_t *instance)
 {
-    return &instance->key.key[instance->key.current];
+    return &instance->sec.pmk;
+}
+
+static inline rsh_key_t *
+rshi_key(rsh_instance_t *instance)
+{
+    return &instance->sec.key[instance->sec.current];
 }
 
 static inline rsh_key_t *
 rshi_key_pre(rsh_instance_t *instance)
 {
-    return &instance->key.key[!instance->key.current];
+    return &instance->sec.key[!instance->sec.current];
 }
 
-extern int
-rshi_key_init(rsh_key_t *key, char *keystring);
+static inline rsh_key_t *
+rshi_key_setup(rsh_instance_t *instance, rsh_key_t *key)
+{
+    instance->sec.current = !instance->sec.current;
 
-extern rsh_key_t *
-rshi_key_setup(rsh_instance_t *instance, rsh_key_t *key, time_t now);
+    rsh_key_t *current = rshi_key(instance);
+
+    rsh_key_setup(current, key);
+    instance->sec.update++;
+
+    return current;
+}
 
 typedef struct {
     int fd;
@@ -496,9 +512,6 @@ extern int
 rshi_show(char *name);
 
 extern int 
-rsha_recver(loop_watcher_t *watcher, time_t now);
-
-extern int 
 rshi_echo(rsh_instance_t *instance, time_t now);
 
 extern int 
@@ -509,6 +522,9 @@ rshi_run(rsh_instance_t *instance, time_t now);
 
 extern int 
 rshi_register(rsh_instance_t *instance, time_t now);
+
+extern int 
+rsha_recver(loop_watcher_t *watcher, time_t now);
 
 extern int
 init_rsha_cli(void);

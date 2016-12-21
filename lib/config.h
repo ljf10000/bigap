@@ -148,7 +148,7 @@
 #endif
 
 #ifndef USE_MOD_SHA224
-#define USE_MOD_SHA224          PC_VAL(1, 1)
+#define USE_MOD_SHA224          PC_VAL(1, 0)
 #endif
 
 #ifndef USE_MOD_SHA256
@@ -164,7 +164,7 @@
 #endif
 
 #ifndef USE_MOD_HMAC_SHA224
-#define USE_MOD_HMAC_SHA224     (USE_MOD_SHA224 & PC_VAL(1, 1))
+#define USE_MOD_HMAC_SHA224     (USE_MOD_SHA224 & PC_VAL(1, 0))
 #endif
 
 #ifndef USE_MOD_HMAC_SHA256
