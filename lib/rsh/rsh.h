@@ -359,7 +359,7 @@ rsh_msg_hmac(rsh_msg_t *msg, rsh_key_t *key, byte hmac[], int hmacsize)
 }
 
 static inline void
-rsh_msg_crypt(byte *buffer, int len, rsh_key_t *key, aes_crypt_handle_t *crypt)
+__rsh_msg_crypt(byte *buffer, int len, rsh_key_t *key, aes_crypt_handle_t *crypt)
 {
     byte *in, *out;
     int i, count = AES_BLOCK_COUNT(len);
@@ -374,29 +374,48 @@ rsh_msg_crypt(byte *buffer, int len, rsh_key_t *key, aes_crypt_handle_t *crypt)
 static inline void
 rsh_msg_hdr_crypt(rsh_msg_t *msg, rsh_key_t *pmk, aes_crypt_handle_t *crypt)
 {
-    rsh_msg_crypt((byte *)msg, sizeof(rsh_msg_t), pmk, crypt);
+    __rsh_msg_crypt((byte *)msg, sizeof(rsh_msg_t), pmk, crypt);
 }
 
 static inline void // include hmac
 rsh_msg_body_crypt(byte *body, int body_len, rsh_key_t *key, aes_crypt_handle_t *crypt)
 {
-    rsh_msg_crypt(body, body_len, key, crypt);
+    __rsh_msg_crypt(body, body_len, key, crypt);
+}
+
+static inline void
+rsh_msg_crypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, aes_crypt_handle_t *crypt)
+{
+    /*
+    * 1. encrypt/decrypt msg header by pmk
+    * 2. encrypt/decrypt msg body(include hmac) by key
+    */
+    rsh_msg_hdr_crypt(msg, pmk, crypt);
+    rsh_msg_body_crypt(msg->hmac, len - sizeof(rsh_msg_t), key, crypt);
 }
 
 static inline void
 rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
 {
+    /*
+    * 1. network==>host
+    * 2. calc hmac and save hmac to msg
+    * 3. encrypt msg
+    */
     rsh_msg_hton(msg);
     rsh_msg_hmac(msg, key, hmac, hmacsize);
-    rsh_msg_body_crypt(msg->hmac, len - sizeof(rsh_msg_t), key, aes_encrypt);
-    rsh_msg_hdr_crypt(msg, pmk, aes_encrypt);
+    rsh_msg_crypt(msg, len, pmk, key, aes_encrypt);
 }
 
 static inline void
 rsh_msg_decode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
 {
-    rsh_msg_hdr_crypt(msg, pmk, aes_decrypt);
-    rsh_msg_body_crypt(msg->hmac, len - sizeof(rsh_msg_t), key, aes_decrypt);
+    /*
+    * 1. decrypt msg
+    * 2. calc hmac and save hmac to instance
+    * 3. network==>host
+    */
+    rsh_msg_crypt(msg, len, pmk, key, aes_decrypt);
     rsh_msg_hmac(msg, key, hmac, hmacsize);
     rsh_msg_ntoh(msg);
 }
