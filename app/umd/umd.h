@@ -528,7 +528,7 @@ typedef struct {
     umd_config_t cfg;
 
     struct {
-        sock_server_t *servers;
+        sock_server_t **servers;
         int count;
     } server;
     
