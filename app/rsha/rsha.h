@@ -264,31 +264,28 @@ typedef struct {
     char *registry;
     char *cache;
     char *flash;
-    uint32 cid; // cert id
 
-    rshi_echo_t echo;
-
-    jobj_t jcfg;
-    
     int fd;
     int port;
     int fsm;
     int error;
     
+    bool debug;
+    
     uint32 ip;
-    time_t fsm_time[RSH_FSM_END];
-
-    bool   debug;
+    uint32 cid;
     uint32 seq; 
     uint32 seq_noack;
     uint32 seq_peer;
+    uint32 peer_error;
+    uint32 peer_error_max;
 
     rshi_tm_t tm;
     rshi_st_t st;
     rshi_sec_t sec;
-
-    uint32 peer_error;
-    uint32 peer_error_max;
+    rshi_echo_t echo;
+    
+    jobj_t jcfg;
 
     struct {
         h1_node_t instance;
@@ -300,6 +297,11 @@ rsh_instance_t;
 
 #if 1
 #define RSH_INSTANCE_JRULE_MAPPER(_) \
+    _(offsetof(rsh_instance_t, debug), debug, "debug",  \
+            bool, sizeof(bool), 0,                      \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, cid), cid, "cid",        \
             int, sizeof(int), JRULE_F_MUST,             \
             JRULE_VAR_NULL,                             \
