@@ -201,6 +201,8 @@ __rshi_o2j(rsh_instance_t *instance)
 {
     jobj_t jobj = jobj_new_object();
     if (jobj) {
+        jobj_add_string(jobj, "name", instance->name);
+        
         jrule_o2j(rsh_instance_jrules(), instance, jobj);
         
         jobj_add(jobj, "echo", __rshi_echo_o2j(&instance->echo));
