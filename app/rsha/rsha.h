@@ -455,14 +455,10 @@ rshi_key_pre(rsh_instance_t *instance)
 static inline rsh_key_t *
 rshi_key_setup(rsh_instance_t *instance, rsh_key_t *key)
 {
-    instance->sec.current = !instance->sec.current;
-
-    rsh_key_t *current = rshi_key(instance);
-
-    rsh_key_setup(current, key);
     instance->sec.update++;
-
-    return current;
+    instance->sec.current = !instance->sec.current;
+    
+    return rsh_key_setup(rshi_key(instance), key);
 }
 
 typedef struct {
