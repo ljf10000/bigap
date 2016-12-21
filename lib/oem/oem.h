@@ -17,7 +17,7 @@ typedef struct {
 #define __OS_CERT_INITER(_cert, _key, _cacert)  { \
     .cert   = _cert,    \
     .key    = _key,     \
-    .ca     = _cacert,  \
+    .cacert = _cacert,  \
 }   /* end */
 
 #define OEM_CERT_INITER __OS_CERT_INITER(OEM_client_crt, OEM_client_key, OEM_server_crt)
