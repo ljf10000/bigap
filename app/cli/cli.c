@@ -30,7 +30,7 @@ typedef struct {
     _(rshc, rsha)   \
     /* end */
 
-#define X_CLIENT(_cname, _sname)    static cli_client_t _cname = CLI_CLIENT_INITER(#_sname); os_fake_declare
+#define X_CLIENT(_cname, _sname)    static cli_client_t _cname = CLI_CLIENT_INITER(#_sname);
 #define X_ENTRY(_cname, _sname)     { #_cname, &_cname },
 
 DECLARE_X(X_CLIENT);
