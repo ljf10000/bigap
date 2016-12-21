@@ -567,6 +567,9 @@ rshi_register_post(rsh_instance_t *instance, jobj_t jobj, time_t now)
     if (false==is_good_sha2(val)) {
         return -EBADJSON;
     }
+    else if (SHA_224==val) {
+        return -EBADJSON;
+    }
     instance->sec.hmactype = val;
     instance->sec.hmacsize = SHA_DIGEST_SIZE(val);
     

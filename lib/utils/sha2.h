@@ -432,9 +432,10 @@ sha512(const byte *message, uint32 len, byte digest[SHA512_DIGEST_SIZE]);
 
 #if 1 // not support sha224
 #define SHA2_ENUM_MAPPER(_)     \
-    _(SHA_256,  0, "sha256"),   \
-    _(SHA_384,  1, "sha384"),   \
-    _(SHA_512,  2, "sha512"),   \
+    _(SHA_224,  0, "sha224"),   \
+    _(SHA_256,  1, "sha256"),   \
+    _(SHA_384,  2, "sha384"),   \
+    _(SHA_512,  3, "sha512"),   \
     /* end */
 DECLARE_ENUM(sha2, SHA2_ENUM_MAPPER, SHA_END);
 
