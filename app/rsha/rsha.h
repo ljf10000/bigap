@@ -171,6 +171,7 @@ static inline int rsh_fsm_getidbyname(const char *name);
     
     2.2 output json
     {
+        "pmk": "KEY-HEX-STRING",
         "key": "KEY-HEX-STRING",
         "crypt": "aes",
         "hmactype": "hmac type:sha224/256/384/512",

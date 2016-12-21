@@ -429,7 +429,7 @@ rshi_key_setup(rsh_instance_t *instance, rsh_key_t *key, time_t now)
     aes_key_setup(key->u.key, current->u.key32, 8*key->size);
 
     instance->key.update++;
-    
+
     return current;
 }
 
