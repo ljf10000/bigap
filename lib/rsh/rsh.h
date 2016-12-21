@@ -348,13 +348,13 @@ rsh_hmac_begin(rsh_msg_t *msg)
 }
 
 static inline void
-rsh_msg_hmac(rsh_msg_t *msg, rsh_key_t *key, byte hmac[], int hmacsize)
+rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
 {
     hmac_sha2_ctx_t ctx = HMAC_SHA2_CTX_INITER(SHA_TYPE(hmacsize));
     
     hmac_sha2_init(&ctx, key->u.key, key->size);
-    hmac_sha2_update(&ctx, (const byte *)msg, sizeof(msg));
-    hmac_sha2_update(&ctx, (const byte *)rsh_msg_body(msg), msg->len);
+    hmac_sha2_update(&ctx, (const byte *)msg, sizeof(rsh_msg_t));
+    hmac_sha2_update(&ctx, (const byte *)msg->hmac, len - sizeof(rsh_msg_t));
     hmac_sha2_final(&ctx, hmac);
 }
 
@@ -403,7 +403,7 @@ rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hma
     * 3. encrypt msg
     */
     rsh_msg_hton(msg);
-    rsh_msg_hmac(msg, key, hmac, hmacsize);
+    rsh_msg_hmac(msg, len, key, hmac, hmacsize);
     rsh_msg_crypt(msg, len, pmk, key, aes_encrypt);
 }
 
@@ -416,7 +416,7 @@ rsh_msg_decode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hma
     * 3. network==>host
     */
     rsh_msg_crypt(msg, len, pmk, key, aes_decrypt);
-    rsh_msg_hmac(msg, key, hmac, hmacsize);
+    rsh_msg_hmac(msg, len, key, hmac, hmacsize);
     rsh_msg_ntoh(msg);
 }
 
