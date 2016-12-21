@@ -370,11 +370,6 @@ rsh_instance_t;
             JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_STRING(RSHA_FLASH)),              \
-    _(offsetof(rsh_instance_t, key), key, "key",        \
-            string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL),                            \
     /* end */
 DECLARE_JRULER(rsh_instance, RSH_INSTANCE_JRULE_MAPPER);
 
