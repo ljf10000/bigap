@@ -93,7 +93,7 @@ c_all() {
 #		c ca ${i} key
                 c client ${i} crt
                 c client ${i} key
-#		c server ${i} crt
+		c server ${i} crt
 #		c server ${i} key
         done
 }
@@ -111,12 +111,12 @@ inc() {
 }
 
 inc_all() {
+#	inc ca crt 
 #	inc ca key
-#	inc ca crt
-	inc client key
 	inc client crt
+	inc client key
+	inc server crt
 #	inc server key
-#	inc server crt
 }
 
 initer() {
@@ -125,9 +125,10 @@ initer() {
 	local i
 	
 	> ${finiter}
-	echo "#define __THIS_CERT_INITER(_idx)    [_idx] = __OS_CERT_INITER(OS_CERT_client_crt##_idx, OS_CERT_client_key##_idx)" >> ${finiter}
-	echo "#include \"oem/cert/weos/client.key.c\"" >> ${finiter}
+	echo "#define __THIS_CERT_INITER(_idx)    [_idx] = __OS_CERT_INITER(OS_CERT_client_crt##_idx, OS_CERT_client_key##_idx, OS_CERT_servier_crt##_idx)" >> ${finiter}
 	echo "#include \"oem/cert/weos/client.crt.c\"" >> ${finiter}
+	echo "#include \"oem/cert/weos/client.key.c\"" >> ${finiter}
+	echo "#include \"oem/cert/weos/server.crt.c\"" >> ${finiter}
 	echo "#define __THIS_CERT_INITERS { \\" >> ${finiter}
 	for ((i=0; i<CERT_COUNT; i++)); do
 		echo "    __THIS_CERT_INITER(${i}), \\" >> ${finiter}
