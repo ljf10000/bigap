@@ -61,6 +61,12 @@ fcookie_key_id(int cid)
     return FCOOKIE_KEY_BEGIN + cid;
 }
 
+static inline int
+fcookie_cacert_id(int cid)
+{
+    return FCOOKIE_CACERT_BEGIN + cid;
+}
+
 typedef struct {
     char *info;
     int mode;
@@ -88,6 +94,12 @@ static inline char *
 fcookie_key(int cid, char *tmp_file)
 {
     return fcookie_file(fcookie_key_id(cid), tmp_file);
+}
+
+static inline char *
+fcookie_cacert(int cid, char *tmp_file)
+{
+    return fcookie_file(fcookie_cacert_id(cid), tmp_file);
 }
 
 static inline void
