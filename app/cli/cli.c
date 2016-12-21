@@ -14,11 +14,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 OS_INITER;
 /******************************************************************************/
-typedef struct {
-    char *name;
-    cli_client_t *client;
-} cli_entry_t;
-
 /*
 * insert new cli here !!!
 */
@@ -31,10 +26,16 @@ typedef struct {
     /* end */
 
 #define X_CLIENT(_cname, _sname)    static cli_client_t _cname = CLI_CLIENT_INITER(#_sname);
-#define X_ENTRY(_cname, _sname)     { #_cname, &_cname },
+#define X_ENTRY(_cname, _sname)     { .name = #_cname, .client = &_cname },
 
 DECLARE_X(X_CLIENT);
-static cli_entry_t cli[] = { DECLARE_X(X_ENTRY) };
+
+static struct { 
+    char *name; 
+    cli_client_t *client; 
+} cli[] = {
+    DECLARE_X(X_ENTRY) 
+};
 
 static int
 cli_usage(int argc, char *argv[])
