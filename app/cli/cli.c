@@ -22,7 +22,7 @@ typedef struct {
 /*
 * insert new cli here !!!
 */
-#define DECLARE_XLIST(_) \
+#define DECLARE_X(_) \
     _(umc,  umd)    \
     _(smc,  smd)    \
     _(tmc,  tmd)    \
@@ -30,11 +30,11 @@ typedef struct {
     _(rshc, rsha)   \
     /* end */
 
-#define XCLIENT(_cname, _sname) static cli_client_t _cname = CLI_CLIENT_INITER(#_sname); os_fake_declare
-#define XENTRY(_cname, _sname)  { #_cname, &_cname },
+#define X_CLIENT(_cname, _sname)    static cli_client_t _cname = CLI_CLIENT_INITER(#_sname); os_fake_declare
+#define X_ENTRY(_cname, _sname)     { #_cname, &_cname },
 
-DECLARE_XLIST(XCLIENT);
-static cli_entry_t cli[] = { DECLARE_XLIST(XENTRY) };
+DECLARE_X(X_CLIENT);
+static cli_entry_t cli[] = { DECLARE_X(X_ENTRY) };
 
 static int
 cli_usage(int argc, char *argv[])
