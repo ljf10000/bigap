@@ -5,6 +5,7 @@
 
 #define OEM1_LSS_SERVER         "its." OEM1_NAME" .com"
 
+#include "oem/cert/raytight/lss/server.crt.c"
 #include "oem/cert/raytight/lss/client.key.c"
 #include "oem/cert/raytight/lss/client.crt.c"
 
@@ -13,7 +14,7 @@
     OEM_LSS_PWD,    \
     OEM1_LSS_SERVER,\
     OEM_LSS_PORT,   \
-    __OS_CERT_INITER(OEM_client_crt, OEM_client_key))
+    OEM_CERT_INITER)
 
 #define OEM1_RSYNC_SERVER       "its." OEM1_NAME ".com"
 

@@ -587,11 +587,13 @@ rshi_register(rsh_instance_t *instance, time_t now)
     /*
     * 1. prepare cert
     */
-    char fcert[1+FCOOKIE_FILE_LEN] = {0};
-    char  fkey[1+FCOOKIE_FILE_LEN] = {0};
+    char   fcert[1+FCOOKIE_FILE_LEN] = {0};
+    char    fkey[1+FCOOKIE_FILE_LEN] = {0};
+    char fcacert[1+FCOOKIE_FILE_LEN] = {0};
 
-    if (NULL==fcookie_cert(instance->cid, fcert) || 
-        NULL==fcookie_key(instance->cid, fkey)) {
+    if (NULL==fcookie_cert(instance->cid, fcert)    || 
+        NULL==fcookie_key(instance->cid, fkey)      ||
+        NULL==fcookie_cacert(instance->cid, fcacert)) {
         err = -ENOCERT; goto error;
     }
 
@@ -610,10 +612,10 @@ rshi_register(rsh_instance_t *instance, time_t now)
     err = os_v_pgets(line, sizeof(line), 
             "curl"
                 " -d '%s'"
-                " -k --cert %s --key %s"
+                " --cert %s --key %s --cacert %s"
                 " -s %s",
             jobj_json(jinput),
-            fcert, fkey,
+            fcert, fkey, fcacert,
             instance->registry);
     if (err<0) {
         debug_error("curl err(%d)", err);

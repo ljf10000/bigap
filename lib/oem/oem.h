@@ -9,14 +9,18 @@
 #define is_good_os_cert(_cid)   is_good_enum(_cid, OS_CERT_COUNT)
 
 typedef struct {
-    char *cert;
-    char *key;
+    char *cert;     // curl --cert
+    char *key;      // curl --key
+    char *cacert;   // curl --cacert, it is server.crt
 } os_cert_t;
 
-#define __OS_CERT_INITER(_cert, _key)  { \
+#define __OS_CERT_INITER(_cert, _key, _cacert)  { \
     .cert   = _cert,    \
     .key    = _key,     \
+    .ca     = _cacert,  \
 }   /* end */
+
+#define OEM_CERT_INITER __OS_CERT_INITER(OEM_client_crt, OEM_client_key, OEM_server_crt)
 
 typedef struct {
     char *user;
@@ -132,6 +136,7 @@ oem_vendor(void)
 #define oem_lss_password    __this_oem()->lss.password
 #define oem_lss_server      __this_oem()->lss.server
 #define oem_lss_port        __this_oem()->lss.port
+#define oem_lss_cacert      __this_oem()->lss.cert.cacert
 #define oem_lss_key         __this_oem()->lss.cert.key
 #define oem_lss_cert        __this_oem()->lss.cert.cert
 #endif

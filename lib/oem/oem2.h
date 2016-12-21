@@ -5,6 +5,7 @@
 
 #define OEM2_LSS_SERVER         "lms4." OEM2_NAME ".com"
 
+#include "oem/cert/autelan/lss/server.crt.c"
 #include "oem/cert/autelan/lss/client.key.c"
 #include "oem/cert/autelan/lss/client.crt.c"
 
@@ -13,7 +14,7 @@
     OEM_LSS_PWD,    \
     OEM2_LSS_SERVER,\
     OEM_LSS_PORT,   \
-    __OS_CERT_INITER(OEM_client_crt, OEM_client_key))
+    OEM_CERT_INITER)
 
 #define OEM2_RSYNC_SERVER       "lms3." OEM2_NAME ".com"
 

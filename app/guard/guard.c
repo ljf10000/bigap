@@ -374,11 +374,13 @@ do_guard_report(int hack)
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
-    char cert[1+FCOOKIE_FILE_LEN] = {0};
-    char  key[1+FCOOKIE_FILE_LEN] = {0};
+    char   cert[1+FCOOKIE_FILE_LEN] = {0};
+    char    key[1+FCOOKIE_FILE_LEN] = {0};
+    char cacert[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==fcookie_file(FCOOKIE_LSS_CERT, cert) || 
-        NULL==fcookie_file(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==fcookie_file(FCOOKIE_LSS_CERT,    cert)  || 
+        NULL==fcookie_file(FCOOKIE_LSS_KEY,     key)   ||
+        NULL==fcookie_file(FCOOKIE_LSS_CACERT,  cacert)) {
         err = -ENOEXIST; goto error;
     }
 
@@ -394,7 +396,7 @@ do_guard_report(int hack)
                     "\"na\":%d,"
                     "\"error\":%d"
                 "}'"
-                " -k --cert %s --key %s"
+                " --cert %s --key %s --cacert %s"
                 " -u %s:%s"
                 " -s https://%s:%s/" SERVICE_REPORT,
             guard_get_version(),
@@ -405,7 +407,7 @@ do_guard_report(int hack)
                 guard_get_rt(),
                 guard_get_na(),
                 hack,
-            cert, key,
+            cert, key, cacert,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
     if (err<0) {
@@ -441,6 +443,7 @@ error:
 
     fcookie_put_file(cert);
     fcookie_put_file(key);
+    fcookie_put_file(cacert);
     
     return err;
 }
@@ -452,11 +455,13 @@ do_guard_register(void)
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
-    char cert[1+FCOOKIE_FILE_LEN] = {0};
-    char  key[1+FCOOKIE_FILE_LEN] = {0};
+    char   cert[1+FCOOKIE_FILE_LEN] = {0};
+    char    key[1+FCOOKIE_FILE_LEN] = {0};
+    char cacert[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==fcookie_file(FCOOKIE_LSS_CERT, cert) || 
-        NULL==fcookie_file(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==fcookie_file(FCOOKIE_LSS_CERT,    cert)  || 
+        NULL==fcookie_file(FCOOKIE_LSS_KEY,     key)   ||
+        NULL==fcookie_file(FCOOKIE_LSS_CACERT,  cacert)) {
         err = -ENOEXIST; goto error;
     }
 
@@ -471,7 +476,7 @@ do_guard_register(void)
                     "\"rt\":%d,"
                     "\"na\":%d"
                 "}'"
-                " -k --cert %s --key %s"
+                " --cert %s --key %s --cacert %s"
                 " -u %s:%s"
                 " -s https://%s:%s/" SERVICE_REGISTER,
             guard_get_version(), 
@@ -481,7 +486,7 @@ do_guard_register(void)
                 guard_get_psn(),
                 guard_get_rt(), 
                 guard_get_na(), 
-            cert, key,
+            cert, key, cacert,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
     if (err<0) {
@@ -523,6 +528,7 @@ error:
 
     fcookie_put_file(cert);
     fcookie_put_file(key);
+    fcookie_put_file(cacert);
     
     return err; 
 }
@@ -535,11 +541,13 @@ do_guard_auth(void)
     jobj_t obj = NULL;
     int err = 0, code = 0;
 
-    char cert[1+FCOOKIE_FILE_LEN] = {0};
-    char  key[1+FCOOKIE_FILE_LEN] = {0};
+    char   cert[1+FCOOKIE_FILE_LEN] = {0};
+    char    key[1+FCOOKIE_FILE_LEN] = {0};
+    char cacert[1+FCOOKIE_FILE_LEN] = {0};
     
-    if (NULL==fcookie_file(FCOOKIE_LSS_CERT, cert) || 
-        NULL==fcookie_file(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==fcookie_file(FCOOKIE_LSS_CERT,    cert)  || 
+        NULL==fcookie_file(FCOOKIE_LSS_KEY,     key)   ||
+        NULL==fcookie_file(FCOOKIE_LSS_CACERT,  cacert)) {
         err = -ENOEXIST; goto error;
     }
     
@@ -555,7 +563,7 @@ do_guard_auth(void)
                     "\"na\":%d,"
                     "\"guid\":\"%s\""
                 "}'"
-                " -k --cert %s --key %s"
+                " --cert %s --key %s --cacert %s"
                 " -u %s:%s"
                 " -s https://%s:%s/" SERVICE_AUTH,
             guard_get_version(),
@@ -566,7 +574,7 @@ do_guard_auth(void)
                 guard_get_rt(),
                 guard_get_na(),
                 __otp_string(private),
-            cert, key,
+            cert, key, cacert,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
     if (err<0) {
@@ -611,6 +619,7 @@ error:
 
     fcookie_put_file(cert);
     fcookie_put_file(key);
+    fcookie_put_file(cacert);
     
     return err;
 }
@@ -682,12 +691,14 @@ do_guard_cmd(void)
     char line[1+OS_LINE_LEN] = {0};
     jobj_t obj = NULL;
     int err = 0, code = 0;
+
+    char   cert[1+FCOOKIE_FILE_LEN] = {0};
+    char    key[1+FCOOKIE_FILE_LEN] = {0};
+    char cacert[1+FCOOKIE_FILE_LEN] = {0};
     
-    char cert[1+FCOOKIE_FILE_LEN] = {0};
-    char  key[1+FCOOKIE_FILE_LEN] = {0};
-    
-    if (NULL==fcookie_file(FCOOKIE_LSS_CERT, cert) || 
-        NULL==fcookie_file(FCOOKIE_LSS_KEY,  key)) {
+    if (NULL==fcookie_file(FCOOKIE_LSS_CERT,    cert)  || 
+        NULL==fcookie_file(FCOOKIE_LSS_KEY,     key)   ||
+        NULL==fcookie_file(FCOOKIE_LSS_CACERT,  cacert)) {
         err = -ENOEXIST; goto error;
     }
     
@@ -699,11 +710,11 @@ do_guard_cmd(void)
                     "\"psn\":%d,"
                     "\"guid\":\"%s\""
                 "}'"
-                " -k --cert %s --key %s"
+                " --cert %s --key %s --cacert %s"
                 " -u %s:%s"
                 " -s https://%s:%s/" SERVICE_COMMAND,
             guard_get_mac(), guard_get_mid(), guard_get_psn(), __otp_string(private),
-            cert, key,
+            cert, key, cacert,
             oem_lss_user, oem_lss_password,
             oem_lss_server, oem_lss_port);
     if (err<0) {
@@ -746,6 +757,7 @@ error:
 
     fcookie_put_file(cert);
     fcookie_put_file(key);
+    fcookie_put_file(cacert);
 
     return err;
 }

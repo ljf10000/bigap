@@ -8,6 +8,7 @@
 #define OEM_LSS_SERVER          "lms4." PRODUCT_VENDOR ".com"
 #define OEM_LSS_PORT            "9999"
 
+#include "oem/cert/deft/lss/server.crt.c"
 #include "oem/cert/deft/lss/client.key.c"
 #include "oem/cert/deft/lss/client.crt.c"
 
@@ -16,7 +17,7 @@
     OEM_LSS_PWD,    \
     OEM_LSS_SERVER, \
     OEM_LSS_PORT,   \
-    __OS_CERT_INITER(OEM_client_crt, OEM_client_key))
+    OEM_CERT_INITER)
 
 #define OEM_RSYNC_USER          "rsync"
 #define OEM_RSYNC_PWDFILE       "bHRlZmlWMnJzeW5jUFdECg=="

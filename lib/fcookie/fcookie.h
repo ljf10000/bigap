@@ -29,14 +29,18 @@ enum {
     FCOOKIE_RSYNC_PWDFILE   = FCOOKIE_FILE_BEGIN,
     FCOOKIE_LSS_CERT        = 2,
     FCOOKIE_LSS_KEY         = 3,
+    FCOOKIE_LSS_CACERT      = 4,
 
-    FCOOKIE_CERT_BEGIN      = 4,
-    FCOOKIE_CERT_END        = FCOOKIE_CERT_BEGIN + OS_CERT_COUNT,   // 4+32=36
+    FCOOKIE_CERT_BEGIN      = 5,
+    FCOOKIE_CERT_END        = FCOOKIE_CERT_BEGIN + OS_CERT_COUNT,   // 5+32=37
     
-    FCOOKIE_KEY_BEGIN       = FCOOKIE_CERT_END,                     // 36
-    FCOOKIE_KEY_END         = FCOOKIE_KEY_BEGIN + OS_CERT_COUNT,    // 36+32=68
+    FCOOKIE_KEY_BEGIN       = FCOOKIE_CERT_END,                     // 37
+    FCOOKIE_KEY_END         = FCOOKIE_KEY_BEGIN + OS_CERT_COUNT,    // 37+32=69
     
-    FCOOKIE_FILE_END        = FCOOKIE_KEY_END,                      // 68
+    FCOOKIE_CACERT_BEGIN    = FCOOKIE_KEY_END,                      // 69
+    FCOOKIE_CACERT_END      = FCOOKIE_CACERT_BEGIN + OS_CERT_COUNT, // 69+32=101
+    
+    FCOOKIE_FILE_END        = FCOOKIE_CACERT_END,                   // 101
 };
 
 static inline bool
