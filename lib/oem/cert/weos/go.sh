@@ -2,7 +2,16 @@
 
 . ./include.in
 
-GOFILE=buildin.go
+GOTAG=buildin
+GOFILE=${GOTAG}.go
+GOTYPE=${GOTAG}Cert
+
+GOCERT=${GOTAG}Cert
+GOKEY=${GOTAG}Key
+GOCA=${GOTAG}Ca
+
+GOVAR=${GOTAG}Certs
+GOCOUNT=certCount
 
 gf() {
 	echo "$@" >> ${GOFILE}
@@ -52,19 +61,20 @@ g_all() {
 	gf ""
 	gf "const ("
 	for ((i=begin; i<end; i++)); do
-		g privateCert server $i crt
-		g privateKey  server $i key
-		g privateCa   ca     $i crt
+		g ${GOCERT} server $i crt
+		g ${GOKEY}  server $i key
+		g ${GOCA}   ca     $i crt
 	done
 	gf ")"
+	gf ""
 
-	gf "var privateCerts = [certCount]privateCert{"
+	gf "var ${GOVAR} = [GOCOUNT]${GOTYPE}{"
 	for ((i=begin; i<end; i++)); do
 		idx=$(ipriv $i)
-		gf "$(tab 1)${idx}: privateCert{"
-		gf "$(tab 2)cert: privateCert${idx},"
-		gf "$(tab 2)key:  privateKey${idx},"
-		gf "$(tab 2)ca:   privateCa${idx},"
+		gf "$(tab 1)${idx}: ${GOTYPE}{"
+		gf "$(tab 2)cert: ${GOCERT}${idx},"
+		gf "$(tab 2)key:  ${GOKEY}${idx},"
+		gf "$(tab 2)ca:   ${GOCA}${idx},"
 		gf "$(tab 1)},"
 	done
 	gf "}"
