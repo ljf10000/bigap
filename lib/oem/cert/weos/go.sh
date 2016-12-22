@@ -32,7 +32,7 @@ g() {
 	local idx=$(ipriv ${i})
         local line
 	
-	gf "$(tab 1)${tag}${idx} = "
+	gf "$(tab 1)${tag}${idx} = \"\" +"
         while read line; do
         	gf "$(tab 2)\"${line}\" +" 
         done < ${name}.base64
