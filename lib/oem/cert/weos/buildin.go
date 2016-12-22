@@ -3668,83 +3668,83 @@ const (
         "LS0K" +
         ""
 )
-var privateCerts = [certCount]helloCert{
-    0: helloCert{
+var privateCerts = [certCount]privateCert{
+    0: privateCert{
         cert: privateCert0,
         key:  privateKey0,
         ca:   privateCa0,
     },
-    1: helloCert{
+    1: privateCert{
         cert: privateCert1,
         key:  privateKey1,
         ca:   privateCa1,
     },
-    2: helloCert{
+    2: privateCert{
         cert: privateCert2,
         key:  privateKey2,
         ca:   privateCa2,
     },
-    3: helloCert{
+    3: privateCert{
         cert: privateCert3,
         key:  privateKey3,
         ca:   privateCa3,
     },
-    4: helloCert{
+    4: privateCert{
         cert: privateCert4,
         key:  privateKey4,
         ca:   privateCa4,
     },
-    5: helloCert{
+    5: privateCert{
         cert: privateCert5,
         key:  privateKey5,
         ca:   privateCa5,
     },
-    6: helloCert{
+    6: privateCert{
         cert: privateCert6,
         key:  privateKey6,
         ca:   privateCa6,
     },
-    7: helloCert{
+    7: privateCert{
         cert: privateCert7,
         key:  privateKey7,
         ca:   privateCa7,
     },
-    8: helloCert{
+    8: privateCert{
         cert: privateCert8,
         key:  privateKey8,
         ca:   privateCa8,
     },
-    9: helloCert{
+    9: privateCert{
         cert: privateCert9,
         key:  privateKey9,
         ca:   privateCa9,
     },
-    10: helloCert{
+    10: privateCert{
         cert: privateCert10,
         key:  privateKey10,
         ca:   privateCa10,
     },
-    11: helloCert{
+    11: privateCert{
         cert: privateCert11,
         key:  privateKey11,
         ca:   privateCa11,
     },
-    12: helloCert{
+    12: privateCert{
         cert: privateCert12,
         key:  privateKey12,
         ca:   privateCa12,
     },
-    13: helloCert{
+    13: privateCert{
         cert: privateCert13,
         key:  privateKey13,
         ca:   privateCa13,
     },
-    14: helloCert{
+    14: privateCert{
         cert: privateCert14,
         key:  privateKey14,
         ca:   privateCa14,
     },
-    15: helloCert{
+    15: privateCert{
         cert: privateCert15,
         key:  privateKey15,
         ca:   privateCa15,

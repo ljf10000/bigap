@@ -58,10 +58,10 @@ g_all() {
 	done
 	gf ")"
 
-	gf "var privateCerts = [certCount]helloCert{"
+	gf "var privateCerts = [certCount]privateCert{"
 	for ((i=begin; i<end; i++)); do
 		idx=$(ipriv $i)
-		gf "$(tab 1)${idx}: helloCert{"
+		gf "$(tab 1)${idx}: privateCert{"
 		gf "$(tab 2)cert: privateCert${idx},"
 		gf "$(tab 2)key:  privateKey${idx},"
 		gf "$(tab 2)ca:   privateCa${idx},"
