@@ -493,6 +493,8 @@ rshi_register_pre(rsh_instance_t *instance)
     instance->sec.hmactype  = SHA_256;
     instance->seq = instance->seq_noack = rshi_seq_rand();
 
+    jobj_add_string(jobj, "domain", "superwalle");
+    jobj_add_string(jobj, "service", "rsh");
     jobj_add_string(jobj, "mac", rsha.macstring);
     jobj_add_string(jobj, "crypt", rsh_crypt_getnamebyid(instance->sec.crypt));
     jobj_add_string(jobj, "hmactype", sha2_getnamebyid(instance->sec.hmactype));

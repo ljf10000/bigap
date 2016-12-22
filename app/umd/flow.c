@@ -880,12 +880,12 @@ umd_overflow(umd_user_t *user, int type, int dir)
 }
 
 STATIC void
-umd_flow_update(umd_user_t *user, int type, int dir)
+umd_flow_update(umd_user_t *user, int type, int dir, int len)
 {
     if (umd_flow_dir_all!=dir) {
-        umd_flow_now(user, type, dir) += flow.len;
+        umd_flow_now(user, type, dir) += len;
     }
-    umd_flow_now(user, type, umd_flow_dir_all) += flow.len;
+    umd_flow_now(user, type, umd_flow_dir_all) += len;
     
     /*
     * lan' flow include wan's flow
@@ -918,7 +918,7 @@ umd_conn_handle(umd_conn_t *cn)
     user->hitime = time(NULL);
 
     if (is_user_have_bind(user)) {
-        umd_flow_update(user, cn->flow_type, cn->flow_dir);
+        umd_flow_update(user, cn->flow_type, cn->flow_dir, flow.len);
         umd_user_debug_helper("user-flow-update", user, __is_ak_debug_flow);
 
         umd_flow_reauth(user, cn->flow_type, cn->flow_dir);

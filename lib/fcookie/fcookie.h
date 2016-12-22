@@ -43,8 +43,6 @@ enum {
     FCOOKIE_FILE_END        = FCOOKIE_CACERT_END,                   // 101
 };
 
-enum { FCOOKIE_DISCOVERY_CID = 0 };
-
 static inline bool
 is_good_fcookie_file_id(int id)
 {
