@@ -1,5 +1,7 @@
 package hello
 
+/* !!!!! AUTO create by bigap, NOT edit it !!!!! */
+
 const (
     privateCert0 = 
         "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUlzakNDQkpvQ0NRREJHcWVBdnMzOXlqQU5C" +

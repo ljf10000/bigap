@@ -48,6 +48,8 @@ g_all() {
 
 	gf "package hello"
 	gf ""
+	gf "/* !!!!! AUTO create by bigap, NOT edit it !!!!! */"
+	gf ""
 	gf "const ("
 	for ((i=begin; i<end; i++)); do
 		g privateCert server $i crt
