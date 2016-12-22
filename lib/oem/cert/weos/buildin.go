@@ -3669,7 +3669,7 @@ const (
         ""
 )
 
-var buildinCerts = [GOCOUNT]buildinCert{
+var buildinCerts = [certCount]buildinCert{
     0: buildinCert{
         cert: buildinCert0,
         key:  buildinKey0,

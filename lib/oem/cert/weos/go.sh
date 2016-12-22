@@ -68,7 +68,7 @@ g_all() {
 	gf ")"
 	gf ""
 
-	gf "var ${GOVAR} = [GOCOUNT]${GOTYPE}{"
+	gf "var ${GOVAR} = [${GOCOUNT}]${GOTYPE}{"
 	for ((i=begin; i<end; i++)); do
 		idx=$(ipriv $i)
 		gf "$(tab 1)${idx}: ${GOTYPE}{"
