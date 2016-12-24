@@ -891,7 +891,7 @@ umd_flow_update(umd_user_t *user, int type, int dir, int len)
     * lan' flow include wan's flow
     */
     if (umd_flow_type_wan==type) {
-        umd_flow_update(user, umd_flow_type_lan, dir);
+        umd_flow_update(user, umd_flow_type_lan, dir, len);
     }
 }
 
