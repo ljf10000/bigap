@@ -76,8 +76,8 @@ error:
 STATIC int
 umd_handle_mac_ip(umd_user_t *(*handle)(byte mac[], uint32 ip), int argc, char *argv[])
 {
-    char *mac   = argv[0];
-    char *ip    = argv[1];
+    char *mac   = argv[1];
+    char *ip    = argv[2];
     
     if (3!=argc) {
         return cli_help(-EFORMAT);
