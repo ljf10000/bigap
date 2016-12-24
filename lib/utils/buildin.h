@@ -330,6 +330,7 @@ static inline bool is_good_common_id(int id)
 * copy from tcp.h
 *
 * seq1 is before seq2
+* seq1 < seq2
 */
 static inline bool os_seq_before(uint32 seq1, uint32 seq2)
 {
@@ -338,6 +339,7 @@ static inline bool os_seq_before(uint32 seq1, uint32 seq2)
 
 /*
 * seq1 is after seq2
+* seq1 > seq2
 */
 #define os_seq_after(_seq1, _seq2)  os_seq_before(_seq2, _seq1)
 

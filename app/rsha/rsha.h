@@ -163,11 +163,9 @@ static inline int rsh_fsm_getidbyname(const char *name);
     2. rsh register
     2.1 input json
     {
-        "private":true/false,    # default: false
         "service": "rsh",
+        "product": "PRODUCT",
         "mac": "DEV-BASE-MAC",
-        "crypt": "aes",
-        "hmactype": "hmac type:sha224/256/384/512",
         "seq": AGENT-BEGIN-SEQ
     }
     

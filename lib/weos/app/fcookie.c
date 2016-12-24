@@ -21,55 +21,17 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
     FCOOKIE_CERT_INITERS    \
 }   /* end */
 
-#ifdef IN_CURL
 char *
 __fcookie_file_create(fcookie_file_t *cert, char *tmp_file)
 {
-    char *file = NULL;
-    char *decode = NULL;
-    int len = 0;
-
-    int err = Curl_base64_decode(cert->info, &decode, &len);
-    if (err<0) {
-        return NULL;
-    }
-
-    STREAM f = fopen(tmp_file, "r+");
-    if (NULL==f) {
-        goto error;
-    }
-
-    fwrite(decode, len, 1, f);
-    fclose(f);
-    
-error:
-    if (decode) {
-        free(decode);
-    }
-    
-    return file;
-}
-#else
-char *
-__fcookie_file_create(fcookie_file_t *cert, char *tmp_file)
-{
-    char *cmd = (char *)calloc(256, 1024); /* 256K */
-    if (NULL==cmd) {
-        return NULL;
-    }
-    
-    sprintf(cmd, "echo %s | base64 -d > %s", cert->info, tmp_file);
-    system(cmd);
+    os_system("echo %s | base64 -d > %s", cert->info, tmp_file);
     
     if (cert->mode) {
         chmod(tmp_file, cert->mode);
     }
 
-    free(cmd);
-
     return tmp_file;
 }
-#endif
 
 char *
 fcookie_file(int id, char *tmp_file)
