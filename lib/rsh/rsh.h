@@ -196,13 +196,13 @@ typedef struct {
     */
     uint16  len;    
 
-    byte    _r0[2];
+    byte    _r1[2];
     byte    mac[OS_MACSIZE];
 
-    uint16  _r1[2];
+    uint16  _r2[2];
     uint32  seq;
     uint32  ack;
-    uint32  _r2;
+    uint32  _r3;
 
     byte hmac[0]; // after hton, before encrypt
 } 
@@ -354,7 +354,7 @@ rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
     
     hmac_sha2_init(&ctx, key->u.key, key->size);
     hmac_sha2_update(&ctx, (const byte *)msg, sizeof(rsh_msg_t));
-    hmac_sha2_update(&ctx, (const byte *)msg->hmac, len - sizeof(rsh_msg_t));
+    hmac_sha2_update(&ctx, (const byte *)rsh_msg_body(msg), len - sizeof(rsh_msg_t) - hmacsize);
     hmac_sha2_final(&ctx, hmac);
 }
 
