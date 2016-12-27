@@ -69,8 +69,8 @@ static inline int rsh_crypt_getidbyname(const char *name);
 #define RSH_CMD_ENUM_MAPPER(_) \
     _(RSH_CMD_UNKNOW,   0, "unknow"),       \
     _(RSH_CMD_ECHO,     1, "echo"),         \
-    _(RSH_CMD_UPDATE,   2, "update"),       \
-    _(RSH_CMD_COMMAND,  3, "command"),      \
+    _(RSH_CMD_COMMAND,  2, "command"),      \
+    _(RSH_CMD_UPDATE,   3, "update"),       \
     /* end */
 DECLARE_ENUM(rsh_cmd, RSH_CMD_ENUM_MAPPER, RSH_CMD_END);
 
