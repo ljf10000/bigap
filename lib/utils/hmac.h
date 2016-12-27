@@ -55,11 +55,11 @@ typedef struct {
 DECLARE void \
 hmac_sha##_number##_init(hmac_sha##_number##_ctx_t *ctx, const byte *key, uint32 key_size) \
 {                                                           \
-    uint32 fill;                                      \
-    uint32 num;                                       \
+    uint32 fill;                                            \
+    uint32 num;                                             \
                                                             \
-    const byte *key_used;                          \
-    byte key_temp[SHA##_number##_DIGEST_SIZE];     \
+    const byte *key_used;                                   \
+    byte key_temp[SHA##_number##_DIGEST_SIZE];              \
     int i;                                                  \
                                                             \
     if (key_size == SHA##_number##_BLOCK_SIZE) {            \

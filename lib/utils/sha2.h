@@ -270,7 +270,7 @@ typedef struct {
 
 #define DECLARE_SHA_TABLE(_number) \
 DECLARE void \
-sha##_number##_transf(sha##_number##_ctx_t *ctx, const byte *message, uint32 block_nb) \
+sha##_number##_transf(sha##_number##_t *ctx, const byte *message, uint32 block_nb) \
 {                                                           \
     static sha##_number##_uint_t k[SHA##_number##_K_COUNT] = SHA##_number##_K_INITER; \
                                                             \
@@ -315,12 +315,12 @@ sha##_number##_transf(sha##_number##_ctx_t *ctx, const byte *message, uint32 blo
     }                                                       \
 }                                                           \
 DECLARE void                                                \
-sha##_number##_init(sha##_number##_ctx_t *ctx)              \
+sha##_number##_init(sha##_number##_t *ctx)              \
 {                                                           \
     SHA##_number##_INIT(ctx);                               \
 }                                                           \
 DECLARE void                                                \
-sha##_number##_update(sha##_number##_ctx_t *ctx, const byte *message, uint32 len) \
+sha##_number##_update(sha##_number##_t *ctx, const byte *message, uint32 len) \
 {                                                           \
     uint32 block_nb;                                        \
     uint32 new_len, rem_len, tmp_len;                       \
@@ -352,7 +352,7 @@ sha##_number##_update(sha##_number##_ctx_t *ctx, const byte *message, uint32 len
     ctx->tot_len += (block_nb + 1) << SHA##_number##_U_SHIFT; \
 }                                                           \
 DECLARE void                                                \
-sha##_number##_final(sha##_number##_ctx_t *ctx, byte digest[]) \
+sha##_number##_final(sha##_number##_t *ctx, byte digest[]) \
 {                                                           \
     uint32 block_nb;                                        \
     uint32 pm_len;                                          \
@@ -378,7 +378,7 @@ sha##_number##_final(sha##_number##_ctx_t *ctx, byte digest[]) \
 DECLARE void                                                \
 sha##_number(const byte *message, uint32 len, byte digest[]) \
 {                                                           \
-    sha##_number##_ctx_t ctx = SHA##_number##_INITER;       \
+    sha##_number##_t ctx = SHA##_number##_INITER;       \
                                                             \
     sha##_number##_update(&ctx, message, len);              \
     sha##_number##_final(&ctx, digest);                     \
