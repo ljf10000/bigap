@@ -4,48 +4,48 @@
 // https://github.com/ogay/hmac
 
 typedef struct {
-    sha224_ctx_t ctx_inside;
-    sha224_ctx_t ctx_outside;
+    sha224_t ctx_inside;
+    sha224_t ctx_outside;
 
     /* for hmac_reinit */
-    sha224_ctx_t ctx_inside_reinit;
-    sha224_ctx_t ctx_outside_reinit;
+    sha224_t ctx_inside_reinit;
+    sha224_t ctx_outside_reinit;
 
     byte block_ipad[SHA224_BLOCK_SIZE];
     byte block_opad[SHA224_BLOCK_SIZE];
 } hmac_sha224_ctx_t;
 
 typedef struct {
-    sha256_ctx_t ctx_inside;
-    sha256_ctx_t ctx_outside;
+    sha256_t ctx_inside;
+    sha256_t ctx_outside;
 
     /* for hmac_reinit */
-    sha256_ctx_t ctx_inside_reinit;
-    sha256_ctx_t ctx_outside_reinit;
+    sha256_t ctx_inside_reinit;
+    sha256_t ctx_outside_reinit;
 
     byte block_ipad[SHA256_BLOCK_SIZE];
     byte block_opad[SHA256_BLOCK_SIZE];
 } hmac_sha256_ctx_t;
 
 typedef struct {
-    sha384_ctx_t ctx_inside;
-    sha384_ctx_t ctx_outside;
+    sha384_t ctx_inside;
+    sha384_t ctx_outside;
 
     /* for hmac_reinit */
-    sha384_ctx_t ctx_inside_reinit;
-    sha384_ctx_t ctx_outside_reinit;
+    sha384_t ctx_inside_reinit;
+    sha384_t ctx_outside_reinit;
 
     byte block_ipad[SHA384_BLOCK_SIZE];
     byte block_opad[SHA384_BLOCK_SIZE];
 } hmac_sha384_ctx_t;
 
 typedef struct {
-    sha512_ctx_t ctx_inside;
-    sha512_ctx_t ctx_outside;
+    sha512_t ctx_inside;
+    sha512_t ctx_outside;
 
     /* for hmac_reinit */
-    sha512_ctx_t ctx_inside_reinit;
-    sha512_ctx_t ctx_outside_reinit;
+    sha512_t ctx_inside_reinit;
+    sha512_t ctx_outside_reinit;
 
     byte block_ipad[SHA512_BLOCK_SIZE];
     byte block_opad[SHA512_BLOCK_SIZE];
