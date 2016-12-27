@@ -222,28 +222,28 @@ typedef struct {
     uint32 len;
     byte block[2 * SHA224_BLOCK_SIZE];
     sha224_uint_t h[8];
-} sha224_ctx_t;
+} sha224_t;
 
 typedef struct {
     uint32 tot_len;
     uint32 len;
     byte block[2 * SHA256_BLOCK_SIZE];
     sha256_uint_t h[8];
-} sha256_ctx_t;
+} sha256_t;
 
 typedef struct {
     uint32 tot_len;
     uint32 len;
     byte block[2 * SHA384_BLOCK_SIZE];
     sha384_uint_t h[8];
-} sha384_ctx_t;
+} sha384_t;
 
 typedef struct {
     uint32 tot_len;
     uint32 len;
     byte block[2 * SHA512_BLOCK_SIZE];
     sha512_uint_t h[8];
-} sha512_ctx_t;
+} sha512_t;
 
 #define SHA_INITER(_h0_initer)  {   \
     .tot_len= 0,                    \
@@ -388,44 +388,44 @@ os_fake_declare                                             \
 
 #if USE_MOD_SHA224
 EXTERN void
-sha224_init(sha224_ctx_t *ctx);
+sha224_init(sha224_t *ctx);
 EXTERN void
-sha224_update(sha224_ctx_t *ctx, const byte *message, uint32 len);
+sha224_update(sha224_t *ctx, const byte *message, uint32 len);
 EXTERN void
-sha224_final(sha224_ctx_t *ctx, byte digest[SHA224_DIGEST_SIZE]);
+sha224_final(sha224_t *ctx, byte digest[SHA224_DIGEST_SIZE]);
 EXTERN void
 sha224(const byte *message, uint32 len, byte digest[SHA224_DIGEST_SIZE]);
 #endif
 
 #if USE_MOD_SHA256
 EXTERN void
-sha256_init(sha256_ctx_t *ctx);
+sha256_init(sha256_t *ctx);
 EXTERN void
-sha256_update(sha256_ctx_t *ctx, const byte *message, uint32 len);
+sha256_update(sha256_t *ctx, const byte *message, uint32 len);
 EXTERN void
-sha256_final(sha256_ctx_t *ctx, byte digest[SHA256_DIGEST_SIZE]);
+sha256_final(sha256_t *ctx, byte digest[SHA256_DIGEST_SIZE]);
 EXTERN void
 sha256(const byte *message, uint32 len, byte digest[SHA256_DIGEST_SIZE]);
 #endif
 
 #if USE_MOD_SHA384
 EXTERN void
-sha384_init(sha384_ctx_t *ctx);
+sha384_init(sha384_t *ctx);
 EXTERN void
-sha384_update(sha384_ctx_t *ctx, const byte *message, uint32 len);
+sha384_update(sha384_t *ctx, const byte *message, uint32 len);
 EXTERN void
-sha384_final(sha384_ctx_t *ctx, byte digest[SHA384_DIGEST_SIZE]);
+sha384_final(sha384_t *ctx, byte digest[SHA384_DIGEST_SIZE]);
 EXTERN void
 sha384(const byte *message, uint32 len, byte digest[SHA384_DIGEST_SIZE]);
 #endif
 
 #if USE_MOD_SHA512
 EXTERN void
-sha512_init(sha512_ctx_t *ctx);
+sha512_init(sha512_t *ctx);
 EXTERN void
-sha512_update(sha512_ctx_t *ctx, const byte *message, uint32 len);
+sha512_update(sha512_t *ctx, const byte *message, uint32 len);
 EXTERN void
-sha512_final(sha512_ctx_t *ctx, byte digest[SHA512_DIGEST_SIZE]);
+sha512_final(sha512_t *ctx, byte digest[SHA512_DIGEST_SIZE]);
 EXTERN void
 sha512(const byte *message, uint32 len, byte digest[SHA512_DIGEST_SIZE]);
 #endif
@@ -476,10 +476,10 @@ typedef struct {
     int type;   // SHA_END
 
     union {
-        sha224_ctx_t ctx224;
-        sha256_ctx_t ctx256;
-        sha384_ctx_t ctx384;
-        sha512_ctx_t ctx512;
+        sha224_t ctx224;
+        sha256_t ctx256;
+        sha384_t ctx384;
+        sha512_t ctx512;
     } u;
 } sha2_ctx_t;
 
