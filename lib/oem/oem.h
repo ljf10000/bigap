@@ -64,13 +64,11 @@ typedef struct {
 typedef struct {
     oem_rsync_t rsync;
     oem_cloud_t lss;
-    oem_cloud_t hms;
 } oem_t;
 
-#define __OEM_INITER(_rsync, _lss, _hms) { \
+#define __OEM_INITER(_rsync, _lss) { \
     .rsync  = _rsync,   \
     .lss    = _lss,     \
-    .hms    = _hms,     \
 }
 /******************************************************************************/
 #include "oem0.h"
@@ -102,6 +100,22 @@ static inline int oem_type_getidbyname(const char *name);
     [OEM_T_2]     = OEM2_INITER,  \
 }   /* end */
 /******************************************************************************/
+#define HMS_USER            "HMS"
+#define HMS_PWD             "HelloMicroServer2016-2018"
+#define HMS_SERVER          "hello." PRODUCT_VENDOR ".com"
+#define HMS_PORT            "8740"
+
+#include "oem/cert/deft/hms/server.crt.c"
+#include "oem/cert/deft/hms/client.key.c"
+#include "oem/cert/deft/hms/client.crt.c"
+
+#define HMS_INITER OEM_CLOUD_INITER( \
+    HMS_USER,   \
+    HMS_PWD,    \
+    HMS_SERVER, \
+    HMS_PORT,   \
+    OEM_CERT_INITER)
+/******************************************************************************/
 #ifndef OEM_FILE
 #define OEM_FILE    "/etc/.oem"
 #endif
@@ -114,6 +128,9 @@ __this_oem(void);
 
 extern os_cert_t *
 __this_cert(int idx);
+
+extern oem_cloud_t *
+__this_hms(void);
 
 static inline char *
 oem_vendor(void)
@@ -142,13 +159,13 @@ oem_vendor(void)
 #define oem_lss_key         __this_oem()->lss.cert.key
 #define oem_lss_cert        __this_oem()->lss.cert.cert
 
-#define oem_hms_user        __this_oem()->hms.user
-#define oem_hms_password    __this_oem()->hms.password
-#define oem_hms_server      __this_oem()->hms.server
-#define oem_hms_port        __this_oem()->hms.port
-#define oem_hms_cacert      __this_oem()->hms.cert.cacert
-#define oem_hms_key         __this_oem()->hms.cert.key
-#define oem_hms_cert        __this_oem()->hms.cert.cert
+#define hms_user            __this_hms()->user
+#define hms_password        __this_hms()->password
+#define hms_server          __this_hms()->server
+#define hms_port            __this_hms()->port
+#define hms_cacert          __this_hms()->cert.cacert
+#define hms_key             __this_hms()->cert.key
+#define hms_cert            __this_hms()->cert.cert
 #endif
 /******************************************************************************/
 #endif /* __OEM_H_57688f1c133d4ebdae411669109ffdc9__ */
