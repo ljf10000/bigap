@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     os_dump_buffer(plaintext, sizeof(plaintext));
     os_println("ciphertext:");
     os_dump_buffer(ciphertext, sizeof(ciphertext));
-    
+#if 0
     byte hmac[32];
     byte message[32] = "00112233445566778899aabbccddeeff";
 
@@ -41,7 +41,8 @@ int main(int argc, char *argv[])
     os_dump_buffer(message, sizeof(message));
     os_println("hmac:");
     os_dump_buffer(hmac, sizeof(hmac));
-    
+#endif
+
     return 0;
 }
 /******************************************************************************/
