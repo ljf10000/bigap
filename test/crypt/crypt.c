@@ -12,16 +12,12 @@ OS_INITER;
 #define KEYSIZE 8
 #define KEYBITS (32*KEYSIZE)
 
-byte key[32]        = "0123456789abcdef0123456789ABCDEF";
-byte plaintext[16]  = "0123456789abcdef";
-byte ciphertext[16];
-uint32 key32[KEYSIZE];
-
-byte hmac[32];
-byte message[32] = "001122334455667788aabbccddeeff";
-
 int main(int argc, char *argv[])
 {
+    byte key[32]        = "0123456789abcdef0123456789ABCDEF";
+    byte plaintext[16]  = "0123456789abcdef";
+    byte ciphertext[16];
+    uint32 key32[KEYSIZE];
 
     aes_key_setup(key, key32, KEYBITS);
 
@@ -36,6 +32,9 @@ int main(int argc, char *argv[])
     os_dump_buffer(plaintext, sizeof(plaintext));
     os_println("ciphertext:");
     os_dump_buffer(ciphertext, sizeof(ciphertext));
+    
+    byte hmac[32];
+    byte message[32] = "00112233445566778899aabbccddeeff";
 
     hmac_sha256(key, sizeof(key), message, sizeof(message), hmac);
     os_println("message:");
