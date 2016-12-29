@@ -141,6 +141,14 @@ oem_vendor(void)
 #define oem_lss_cacert      __this_oem()->lss.cert.cacert
 #define oem_lss_key         __this_oem()->lss.cert.key
 #define oem_lss_cert        __this_oem()->lss.cert.cert
+
+#define oem_hms_user        __this_oem()->hms.user
+#define oem_hms_password    __this_oem()->hms.password
+#define oem_hms_server      __this_oem()->hms.server
+#define oem_hms_port        __this_oem()->hms.port
+#define oem_hms_cacert      __this_oem()->hms.cert.cacert
+#define oem_hms_key         __this_oem()->hms.cert.key
+#define oem_hms_cert        __this_oem()->hms.cert.cert
 #endif
 /******************************************************************************/
 #endif /* __OEM_H_57688f1c133d4ebdae411669109ffdc9__ */

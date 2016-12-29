@@ -28,11 +28,11 @@
 #include "oem/cert/deft/hms/client.key.c"
 #include "oem/cert/deft/hms/client.crt.c"
 
-#define OEM_LSS_INITER OEM_CLOUD_INITER( \
-    OEM_LSS_USER,   \
-    OEM_LSS_PWD,    \
-    OEM_LSS_SERVER, \
-    OEM_LSS_PORT,   \
+#define OEM_HMS_INITER OEM_CLOUD_INITER( \
+    OEM_HMS_USER,   \
+    OEM_HMS_PWD,    \
+    OEM_HMS_SERVER, \
+    OEM_HMS_PORT,   \
     OEM_CERT_INITER)
 
 #define OEM_RSYNC_USER          "rsync"
