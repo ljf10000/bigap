@@ -16,8 +16,8 @@ include $(DIR_ROOT)/mk/define.mk
 #
 #changed me, append obj
 #
-OBJS=$(DIR_SELF)/mac.o
-TARGET_NAME=mac
+OBJS=$(DIR_SELF)/crypt.o
+TARGET_NAME=crypt
 TARGET=$(TARGET_NAME)
 TARGET_TYPE=test
 LIB_DEPEND=c m json-c weos
