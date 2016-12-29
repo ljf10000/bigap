@@ -26,13 +26,14 @@ int main(int argc, char *argv[])
     os_dump_buffer(plaintext, sizeof(plaintext));
     os_println("ciphertext:");
     os_dump_buffer(ciphertext, sizeof(ciphertext));
-
+    
+#if 0
     aes_decrypt(ciphertext, plaintext, key32, KEYBITS);
     os_println("plaintext:");
     os_dump_buffer(plaintext, sizeof(plaintext));
     os_println("ciphertext:");
     os_dump_buffer(ciphertext, sizeof(ciphertext));
-#if 0
+    
     byte hmac[32];
     byte message[32] = "00112233445566778899aabbccddeeff";
 
