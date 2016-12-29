@@ -51,9 +51,9 @@ typedef struct {
     char *port;
 
     os_cert_t cert;
-} oem_lss_t;
+} oem_cloud_t;
 
-#define __OEM_LSS_INITER(_user, _pass, _server, _port, _lss_cert) { \
+#define OEM_CLOUD_INITER(_user, _pass, _server, _port, _lss_cert) { \
     .user       = _user,    \
     .password   = _pass,    \
     .server     = _server,  \
@@ -63,12 +63,14 @@ typedef struct {
 
 typedef struct {
     oem_rsync_t rsync;
-    oem_lss_t   lss;
+    oem_cloud_t lss;
+    oem_cloud_t hms;
 } oem_t;
 
-#define __OEM_INITER(_rsync, _lss) { \
+#define __OEM_INITER(_rsync, _lss, _hms) { \
     .rsync  = _rsync,   \
     .lss    = _lss,     \
+    .hms    = _hms,     \
 }
 /******************************************************************************/
 #include "oem0.h"

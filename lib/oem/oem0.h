@@ -12,7 +12,23 @@
 #include "oem/cert/deft/lss/client.key.c"
 #include "oem/cert/deft/lss/client.crt.c"
 
-#define OEM_LSS_INITER __OEM_LSS_INITER( \
+#define OEM_LSS_INITER OEM_CLOUD_INITER( \
+    OEM_LSS_USER,   \
+    OEM_LSS_PWD,    \
+    OEM_LSS_SERVER, \
+    OEM_LSS_PORT,   \
+    OEM_CERT_INITER)
+
+#define OEM_HMS_USER            "HMS"
+#define OEM_HMS_PWD             "HelloMicroServer2016-2018"
+#define OEM_HMS_SERVER          "hello." PRODUCT_VENDOR ".com"
+#define OEM_HMS_PORT            "8740"
+
+#include "oem/cert/deft/hms/server.crt.c"
+#include "oem/cert/deft/hms/client.key.c"
+#include "oem/cert/deft/hms/client.crt.c"
+
+#define OEM_LSS_INITER OEM_CLOUD_INITER( \
     OEM_LSS_USER,   \
     OEM_LSS_PWD,    \
     OEM_LSS_SERVER, \
@@ -36,6 +52,7 @@
 
 #define OEM_INITER __OEM_INITER( \
     OEM_RSYNC_INITER,   \
-    OEM_LSS_INITER)
+    OEM_LSS_INITER,     \
+    OEM_HMS_INITER)
 /******************************************************************************/
 #endif /* __OEM0_H_1ff3b93b24154b88bca8102eee0e5eb7__ */
