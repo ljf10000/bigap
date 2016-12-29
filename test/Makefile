@@ -13,6 +13,7 @@ include $(DIR_ROOT)/mk/define.mk
 #
 SUB_SYSTEM=blob \
 		coroutine \
+		crypt \
 		dll \
 		fd \
 		loopc \
