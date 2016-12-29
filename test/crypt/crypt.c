@@ -20,6 +20,8 @@ int main(int argc, char *argv[])
     uint32 key32[KEYSIZE];
 
     aes_key_setup(key, key32, KEYBITS);
+    
+#if 0
 
     aes_encrypt(plaintext, ciphertext, key32, KEYBITS);
     os_println("plaintext:");
@@ -27,7 +29,6 @@ int main(int argc, char *argv[])
     os_println("ciphertext:");
     os_dump_buffer(ciphertext, sizeof(ciphertext));
     
-#if 0
     aes_decrypt(ciphertext, plaintext, key32, KEYBITS);
     os_println("plaintext:");
     os_dump_buffer(plaintext, sizeof(plaintext));
