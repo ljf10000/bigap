@@ -16,7 +16,7 @@
 #endif
 
 #define RSH_KEY_SIZE                (RSH_KEY_BITS/sizeof(uint8))
-#define RSH_KEY32_SIZE              (RSH_KEY_BITS/sizeof(uint32))
+#define RSH_KEY32_SIZE              60
 /******************************************************************************/
 #if 1
 #define RSH_TLV_ENUM_MAPPER(_) \
@@ -126,12 +126,10 @@ enum {
 };
 
 typedef struct {
-    uint32 size; // byte count
-
-    union {
-        byte    key[  RSH_KEY_SIZE];
-        uint32  key32[RSH_KEY32_SIZE];
-    } u;
+    uint32  size; // byte count
+    byte    key[  RSH_KEY_SIZE];
+    
+    uint32  key32[RSH_KEY32_SIZE];
 } rsh_key_t;
 
 static inline int
@@ -143,7 +141,7 @@ rsh_key_hex2bin(rsh_key_t *key, char *keystring)
         err = -EBADKEY; goto error;
     }
 
-    err = os_hex2bin(keystring, key->u.key, size);
+    err = os_hex2bin(keystring, key->key, size);
     if (err<0) {
         err = -EBADKEY; goto error;
     }
@@ -159,7 +157,7 @@ static inline rsh_key_t *
 rsh_key_setup(rsh_key_t *dst, rsh_key_t *src)
 {
     dst->size = src->size;
-    aes_key_setup(src->u.key, dst->u.key32, 8*src->size);
+    aes_key_setup(src->key, dst->key32, 8*src->size);
 
     return dst;
 }
@@ -352,7 +350,7 @@ rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
 {
     hmac_sha2_ctx_t ctx = HMAC_SHA2_CTX_INITER(SHA_TYPE(hmacsize));
     
-    hmac_sha2_init(&ctx, key->u.key, key->size);
+    hmac_sha2_init(&ctx, key->key, key->size);
     hmac_sha2_update(&ctx, (const byte *)msg, sizeof(rsh_msg_t));
     hmac_sha2_update(&ctx, (const byte *)rsh_msg_body(msg), len - sizeof(rsh_msg_t) - hmacsize);
     hmac_sha2_final(&ctx, hmac);
@@ -367,7 +365,7 @@ __rsh_msg_crypt(byte *buffer, int len, rsh_key_t *key, aes_crypt_handle_t *crypt
     for (i=0; i<count; i++) {
         in = out = buffer + i*AES_BLOCK_SIZE;
         
-        (*crypt)(in, out, key->u.key32, 8*key->size);
+        (*crypt)(in, out, key->key32, 8*key->size);
     }
 }
 
