@@ -1,0 +1,39 @@
+#!/bin/bash
+
+CERT_PATH=../../lib/oem/cert/deft/hms
+
+HELLO_SERVER=hello.superwalle.com
+HELLO_ADDRESS=192.168.1.13
+HELLO_PORT=18740
+HELLO_URL=https://${HELLO_SERVER}:${HELLO_PORT}/
+
+CERT=${CERT_PATH}/client.crt
+KEY=${CERT_PATH}/client.key
+CACERT=${CERT_PATH}/server.crt
+
+CURL_OPT="-v \
+-X POST \
+-H Content-Type:text/plain \
+--resolve ${HELLO_SERVER}:${HELLO_PORT}:${HELLO_ADDRESS} \
+--cert ${CERT} \
+--key ${KEY} \
+--cacert ${CACERT} \
+${HELLO_URL} \
+"
+
+get_mac() {
+	ifconfig eth0 | grep eth0 | awk '{print $5}'
+}
+
+get_request() {
+	printf '{"mac":"%s","name":"rsh"}' $(get_mac)
+}
+
+main() {
+	curl -d "$(get_request)" ${CURL_OPT}
+
+	echo; echo
+	echo "curl -d $(get_request) ${CURL_OPT}"
+}
+
+main "$@"
