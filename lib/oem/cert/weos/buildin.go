@@ -3669,85 +3669,85 @@ const (
         ""
 )
 
-var buildinCerts = [certCount]buildinCert{
-    0: buildinCert{
-        cert: buildinCert0,
-        key:  buildinKey0,
-        ca:   buildinCa0,
+var buildinCerts = [certCount]BuildinCert{
+    0: BuildinCert{
+        Cert: buildinCert0,
+        Key:  buildinKey0,
+        Ca:   buildinCa0,
     },
-    1: buildinCert{
-        cert: buildinCert1,
-        key:  buildinKey1,
-        ca:   buildinCa1,
+    1: BuildinCert{
+        Cert: buildinCert1,
+        Key:  buildinKey1,
+        Ca:   buildinCa1,
     },
-    2: buildinCert{
-        cert: buildinCert2,
-        key:  buildinKey2,
-        ca:   buildinCa2,
+    2: BuildinCert{
+        Cert: buildinCert2,
+        Key:  buildinKey2,
+        Ca:   buildinCa2,
     },
-    3: buildinCert{
-        cert: buildinCert3,
-        key:  buildinKey3,
-        ca:   buildinCa3,
+    3: BuildinCert{
+        Cert: buildinCert3,
+        Key:  buildinKey3,
+        Ca:   buildinCa3,
     },
-    4: buildinCert{
-        cert: buildinCert4,
-        key:  buildinKey4,
-        ca:   buildinCa4,
+    4: BuildinCert{
+        Cert: buildinCert4,
+        Key:  buildinKey4,
+        Ca:   buildinCa4,
     },
-    5: buildinCert{
-        cert: buildinCert5,
-        key:  buildinKey5,
-        ca:   buildinCa5,
+    5: BuildinCert{
+        Cert: buildinCert5,
+        Key:  buildinKey5,
+        Ca:   buildinCa5,
     },
-    6: buildinCert{
-        cert: buildinCert6,
-        key:  buildinKey6,
-        ca:   buildinCa6,
+    6: BuildinCert{
+        Cert: buildinCert6,
+        Key:  buildinKey6,
+        Ca:   buildinCa6,
     },
-    7: buildinCert{
-        cert: buildinCert7,
-        key:  buildinKey7,
-        ca:   buildinCa7,
+    7: BuildinCert{
+        Cert: buildinCert7,
+        Key:  buildinKey7,
+        Ca:   buildinCa7,
     },
-    8: buildinCert{
-        cert: buildinCert8,
-        key:  buildinKey8,
-        ca:   buildinCa8,
+    8: BuildinCert{
+        Cert: buildinCert8,
+        Key:  buildinKey8,
+        Ca:   buildinCa8,
     },
-    9: buildinCert{
-        cert: buildinCert9,
-        key:  buildinKey9,
-        ca:   buildinCa9,
+    9: BuildinCert{
+        Cert: buildinCert9,
+        Key:  buildinKey9,
+        Ca:   buildinCa9,
     },
-    10: buildinCert{
-        cert: buildinCert10,
-        key:  buildinKey10,
-        ca:   buildinCa10,
+    10: BuildinCert{
+        Cert: buildinCert10,
+        Key:  buildinKey10,
+        Ca:   buildinCa10,
     },
-    11: buildinCert{
-        cert: buildinCert11,
-        key:  buildinKey11,
-        ca:   buildinCa11,
+    11: BuildinCert{
+        Cert: buildinCert11,
+        Key:  buildinKey11,
+        Ca:   buildinCa11,
     },
-    12: buildinCert{
-        cert: buildinCert12,
-        key:  buildinKey12,
-        ca:   buildinCa12,
+    12: BuildinCert{
+        Cert: buildinCert12,
+        Key:  buildinKey12,
+        Ca:   buildinCa12,
     },
-    13: buildinCert{
-        cert: buildinCert13,
-        key:  buildinKey13,
-        ca:   buildinCa13,
+    13: BuildinCert{
+        Cert: buildinCert13,
+        Key:  buildinKey13,
+        Ca:   buildinCa13,
     },
-    14: buildinCert{
-        cert: buildinCert14,
-        key:  buildinKey14,
-        ca:   buildinCa14,
+    14: BuildinCert{
+        Cert: buildinCert14,
+        Key:  buildinKey14,
+        Ca:   buildinCa14,
     },
-    15: buildinCert{
-        cert: buildinCert15,
-        key:  buildinKey15,
-        ca:   buildinCa15,
+    15: BuildinCert{
+        Cert: buildinCert15,
+        Key:  buildinKey15,
+        Ca:   buildinCa15,
     },
 }

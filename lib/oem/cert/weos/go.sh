@@ -4,7 +4,7 @@
 
 GOTAG=buildin
 GOFILE=${GOTAG}.go
-GOTYPE=${GOTAG}Cert
+GOTYPE=BuildinCert
 
 GOCERT=${GOTAG}Cert
 GOKEY=${GOTAG}Key
@@ -72,9 +72,9 @@ g_all() {
 	for ((i=begin; i<end; i++)); do
 		idx=$(ipriv $i)
 		gf "$(tab 1)${idx}: ${GOTYPE}{"
-		gf "$(tab 2)cert: ${GOCERT}${idx},"
-		gf "$(tab 2)key:  ${GOKEY}${idx},"
-		gf "$(tab 2)ca:   ${GOCA}${idx},"
+		gf "$(tab 2)Cert: ${GOCERT}${idx},"
+		gf "$(tab 2)Key:  ${GOKEY}${idx},"
+		gf "$(tab 2)Ca:   ${GOCA}${idx},"
 		gf "$(tab 1)},"
 	done
 	gf "}"

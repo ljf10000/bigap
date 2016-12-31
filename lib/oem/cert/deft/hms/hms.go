@@ -79,8 +79,8 @@ const (
         ""
 )
 
-var hmsCert = &buildinCert{
-    ca:   hmsBuildinCa,
-    key:  hmsBuildinKey,
-    cert: hmsBuildinCert,
+var hmsCert = &BuildinCert{
+    Ca:   hmsBuildinCa,
+    Key:  hmsBuildinKey,
+    Cert: hmsBuildinCert,
 }

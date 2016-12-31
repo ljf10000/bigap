@@ -42,10 +42,10 @@ g_all() {
 	gf ")"
 	gf ""
 
-	gf "var hmsCert = &buildinCert{"
-	gf "$(tab 1)ca:   hmsBuildinCa,"
-	gf "$(tab 1)key:  hmsBuildinKey,"
-	gf "$(tab 1)cert: hmsBuildinCert,"
+	gf "var hmsCert = &BuildinCert{"
+	gf "$(tab 1)Ca:   hmsBuildinCa,"
+	gf "$(tab 1)Key:  hmsBuildinKey,"
+	gf "$(tab 1)Cert: hmsBuildinCert,"
 	gf "}"
 }
 
