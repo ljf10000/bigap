@@ -7,7 +7,7 @@ import (
 /* !!!!! AUTO create by bigap, NOT edit it !!!!! */
 
 const (
-    hmsBuildinCert = "" +
+    lssBuildinCert = "" +
         "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVyakNDQXBZQ0NRRDlRMTI5Q05GQnBqQU5C" +
         "Z2txaGtpRzl3MEJBUXNGQURBWk1SY3dGUVlEVlFRRERBNHEKTG5KaGVYUnBaMmgwTG1OdmJUQWVG" +
         "dzB4TmpBeE1UTXdOVE14TkRkYUZ3MHpOakF4TURnd05UTXhORGRhTUJreApGekFWQmdOVkJBTU1E" +
@@ -39,7 +39,7 @@ const (
         "c1lXQjV2RGlWRzduNzhOOHdKYXhhbCsrMmE5NVRWVzQ5V0hvamtodmJRUmg3cjhPN1NpT29kejgK" +
         "NDg4PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==" +
         ""
-    hmsBuildinKey = "" +
+    lssBuildinKey = "" +
         "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS2dJQkFBS0NBZ0VBdjNteklPbUhV" +
         "WlYyb080bWZaaWl0bmhOVUxpOFRWblVKV1FQNVlVd0ZRaVJCVnJSCnFTblFwSmc2eURHaEI5U1hX" +
         "Ti8xQ1dSUHpaWmRKZ1lEdUVHaDFPeVcwN0tGL0p0dzhuc05MUUFteVU3d25vMFcKZG9MTFhmTXhE" +
@@ -98,7 +98,7 @@ const (
         "V2ZWV3ZNRFQwTXpIaEtpUApFb0JkZk1laUxaa3NEVnB6alFBYXR1dkthVG9LcUdCbTRwVk9ZRjlU" +
         "eFcyR2hPMkxDYUZCTjJBY2g3dncyZz09Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==" +
         ""
-    hmsBuildinCa = "" +
+    lssBuildinCa = "" +
         "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZCVENDQXUyZ0F3SUJBZ0lKQUs3VmlialJK" +
         "U04zTUEwR0NTcUdTSWIzRFFFQkN3VUFNQmt4RnpBVkJnTlYKQkFNTURpb3VjbUY1ZEdsbmFIUXVZ" +
         "Mjl0TUI0WERURTJNREV4TXpBMU16RTBNMW9YRFRNMk1ERXdPREExTXpFMApNMW93R1RFWE1CVUdB" +
@@ -134,8 +134,8 @@ const (
         ""
 )
 
-var hmsCert = &BuildinCert{
-    Ca:   hmsBuildinCa,
-    Key:  hmsBuildinKey,
-    Cert: hmsBuildinCert,
+var lssCert = &BuildinCert{
+    Ca:   lssBuildinCa,
+    Key:  lssBuildinKey,
+    Cert: lssBuildinCert,
 }

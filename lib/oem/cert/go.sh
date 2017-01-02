@@ -26,9 +26,6 @@ g() {
 }
 
 g_all() {
-	local oem="$1"
-        local service="$2"
-
 	>${GOFILE}
 
 	gf "package main"
@@ -40,16 +37,16 @@ g_all() {
 	gf "/* !!!!! AUTO create by bigap, NOT edit it !!!!! */"
 	gf ""
 	gf "const ("
-	g hmsBuildinCert server.crt.base64
-	g hmsBuildinKey  server.key.base64
-	g hmsBuildinCa   ca.crt.base64
+	g ${service}BuildinCert server.crt.base64
+	g ${service}BuildinKey  server.key.base64
+	g ${service}BuildinCa   ca.crt.base64
 	gf ")"
 	gf ""
 
-	gf "var hmsCert = &BuildinCert{"
-	gf "$(tab 1)Ca:   hmsBuildinCa,"
-	gf "$(tab 1)Key:  hmsBuildinKey,"
-	gf "$(tab 1)Cert: hmsBuildinCert,"
+	gf "var ${service}Cert = &BuildinCert{"
+	gf "$(tab 1)Ca:   ${service}BuildinCa,"
+	gf "$(tab 1)Key:  ${service}BuildinKey,"
+	gf "$(tab 1)Cert: ${service}BuildinCert,"
 	gf "}"
 }
 
@@ -58,8 +55,8 @@ do_help() {
 }
 
 main() {
-        local oem="$1"
-        local service="$2"
+        oem="$1"
+        service="$2"
 
         if ((2!=$#)); then
                 do_help
@@ -72,7 +69,7 @@ main() {
 	GOFILE=${service}.go
 
         pushd ${oem}/${service}
-	g_all ${oem} ${service}
+	g_all
         popd
 }
 
