@@ -28,8 +28,6 @@ cert() {
 }
 
 cert_all() {
-	local begin="$1"
-	local end="$2"
 	local i
 
 	for ((i=begin; i<end; i++)); do
@@ -38,12 +36,8 @@ cert_all() {
 }
 
 main() {
-	local begin="$1"
-	local end="$2"; end=${end:=$((begin+1))}
-
 	try_help "$@"
-
-	cert_all ${begin} ${end}
+	cert_all "$@" 
 }
 
 main "$@"

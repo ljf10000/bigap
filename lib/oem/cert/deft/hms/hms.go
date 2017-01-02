@@ -1,5 +1,9 @@
 package main
 
+import (
+    . "asdf"
+)
+
 /* !!!!! AUTO create by bigap, NOT edit it !!!!! */
 
 const (

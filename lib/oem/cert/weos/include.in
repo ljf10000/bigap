@@ -11,8 +11,8 @@ do_help() {
 }
 
 try_help() {
-	local begin="$1"
-	local end="$2"; end=${end:=$((begin+1))}
+	begin="$1"
+	end="$2"; end=${end:=$((begin+1))}
 	local args=$#
 	local i
 

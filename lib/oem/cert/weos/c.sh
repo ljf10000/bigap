@@ -20,8 +20,6 @@ c() {
 }
 
 c_all() {
-        local begin="$1"
-        local end="$2"
         local i
 
         for ((i=begin; i<end; i++)); do
@@ -80,12 +78,8 @@ initer() {
 }
 
 main() {
-	local begin="$1"
-	local end="$2"; end=${end:=$((begin+1))}
-
 	try_help "$@"
-
-	c_all ${begin} ${end}
+	c_all "$@" 
 	inc_all
 	initer
 }

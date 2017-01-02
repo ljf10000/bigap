@@ -2,6 +2,7 @@
 
 . ./include.in
 
+GOPACKAGE=main
 GOTAG=buildin
 GOFILE=${GOTAG}.go
 GOTYPE=BuildinCert
@@ -15,12 +16,6 @@ GOCOUNT=certCount
 
 gf() {
 	echo "$@" >> ${GOFILE}
-}
-
-ipriv() {
-        local idx="$1"
-
-        echo $((idx-16))
 }
 
 tab() {
@@ -38,10 +33,9 @@ g() {
         local i="$3"
         local type="$4"
         local name=${service}${i}.${type}
-	local idx=$(ipriv ${i})
         local line
 	
-	gf "$(tab 1)${tag}${idx} = \"\" +"
+	gf "$(tab 1)${tag}${i} = \"\" +"
         while read line; do
         	gf "$(tab 2)\"${line}\" +" 
         done < ${name}.base64
@@ -49,13 +43,13 @@ g() {
 }
 
 g_all() {
-	local begin="$1"
-	local end="$2"
-	local idx
-
 	>${GOFILE}
 
-	gf "package hello"
+	gf "package ${GOPACKAGE}"
+	gf ""
+	gf "import ("
+	gf "$(tab 1). \"asdf\""
+	gf ")"
 	gf ""
 	gf "/* !!!!! AUTO create by bigap, NOT edit it !!!!! */"
 	gf ""
@@ -70,29 +64,18 @@ g_all() {
 
 	gf "var ${GOVAR} = [${GOCOUNT}]${GOTYPE}{"
 	for ((i=begin; i<end; i++)); do
-		idx=$(ipriv $i)
-		gf "$(tab 1)${idx}: ${GOTYPE}{"
-		gf "$(tab 2)Cert: ${GOCERT}${idx},"
-		gf "$(tab 2)Key:  ${GOKEY}${idx},"
-		gf "$(tab 2)Ca:   ${GOCA}${idx},"
+		gf "$(tab 1)${i}: ${GOTYPE}{"
+		gf "$(tab 2)Cert: ${GOCERT}${i},"
+		gf "$(tab 2)Key:  ${GOKEY}${i},"
+		gf "$(tab 2)Ca:   ${GOCA}${i},"
 		gf "$(tab 1)},"
 	done
 	gf "}"
 }
 
 main() {
-        local begin="$1"
-        local end="$2"; end=${end:=$((begin+1))}
-
-	if ((begin<16)); then
-		do_help
-
-		exit 1
-	fi
-
         try_help "$@"
-
-        g_all ${begin} ${end}
+        g_all "$@" 
 }
 
 main "$@"

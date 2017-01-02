@@ -33,6 +33,10 @@ g_all() {
 
 	gf "package main"
 	gf ""
+        gf "import ("
+        gf "$(tab 1). \"asdf\""
+        gf ")"
+	gf ""
 	gf "/* !!!!! AUTO create by bigap, NOT edit it !!!!! */"
 	gf ""
 	gf "const ("
