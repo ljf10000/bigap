@@ -147,9 +147,7 @@ umd_init_cfg_instance_one(jobj_t jinstance, int id)
     umd_ingress_t *ingress = &umd.cfg.instance.ingress[id];
     jobj_t jval;
 
-    os_println("ingress old name:%s", ingress->name);
     __jj_strcpy(ingress, jinstance, ingress, name);
-    os_println("ingress new name:%s", ingress->name);
     
     jj_strcpy(ingress, jinstance, ipaddr);
     jj_strcpy(ingress, jinstance, ipmask);
