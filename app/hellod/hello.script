@@ -26,7 +26,7 @@ get_mac() {
 }
 
 get_request() {
-	printf '{"mac":"%s","name":"rsh"}' $(get_mac)
+	printf '{"mac":"%s","user":"rsh"}' $(get_mac)
 }
 
 main() {
