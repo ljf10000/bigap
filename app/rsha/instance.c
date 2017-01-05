@@ -466,7 +466,6 @@ rshi_insert(char *sp, char *json)
         
         err = -EEXIST; goto error;
     }
-    debug_cli("insert %s %s", sp, json);
     
     jobj = jobj_byjson(json);
     if (NULL==jobj) {
@@ -479,9 +478,8 @@ rshi_insert(char *sp, char *json)
     }
 
     err = __rshi_insert(instance);
+        debug_ok_error(err, "insert %s", sp);
     if (err<0) {
-        debug_entry("insert %s error:%d", sp, err);
-        
         goto error;
     }
     
