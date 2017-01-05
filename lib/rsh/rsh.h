@@ -162,6 +162,7 @@ typedef struct {
     byte hmac[0]; // after hton, before encrypt
 } 
 rsh_msg_t;        // 32 == sizeof(rsh_msg_t)
+#define RSH_CRYPT_HDR_SIZE     (sizeof(rsh_msg_t)/2)
 
 typedef struct {
     int cmd;
@@ -273,7 +274,7 @@ rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
 }
 
 static inline void
-__rsh_msg_crypt(byte *buffer, int len, rsh_key_t *key, aes_crypt_handle_t *crypt)
+rsh_msg_crypt(byte *buffer, int len, rsh_key_t *key, aes_crypt_handle_t *crypt)
 {
     byte *in, *out;
     int i, count = AES_BLOCK_COUNT(len);
@@ -286,26 +287,25 @@ __rsh_msg_crypt(byte *buffer, int len, rsh_key_t *key, aes_crypt_handle_t *crypt
 }
 
 static inline void
-rsh_msg_hdr_crypt(rsh_msg_t *msg, rsh_key_t *pmk, aes_crypt_handle_t *crypt)
+rsh_msg_encrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
 {
-    __rsh_msg_crypt((byte *)msg, sizeof(rsh_msg_t), pmk, crypt);
-}
-
-static inline void // include hmac
-rsh_msg_body_crypt(byte *body, int body_len, rsh_key_t *key, aes_crypt_handle_t *crypt)
-{
-    __rsh_msg_crypt(body, body_len, key, crypt);
+    /*
+    * 1. encrypt msg (not include first 16 bytes) by key
+    * 2. encrypt msg by pmk
+    */
+    rsh_msg_crypt((byte *)msg + RSH_CRYPT_HDR_SIZE, len - RSH_CRYPT_HDR_SIZE, key, aes_encrypt);
+    rsh_msg_crypt((byte *)msg, len, pmk, aes_encrypt);
 }
 
 static inline void
-rsh_msg_crypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, aes_crypt_handle_t *crypt)
+rsh_msg_decrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
 {
     /*
-    * 1. encrypt/decrypt msg header by pmk
-    * 2. encrypt/decrypt msg body(include hmac) by key
+    * 2. decrypt msg by pmk
+    * 1. decrypt msg (not include first 16 bytes) by key
     */
-    rsh_msg_hdr_crypt(msg, pmk, crypt);
-    rsh_msg_body_crypt(msg->hmac, len - sizeof(rsh_msg_t), key, crypt);
+    rsh_msg_crypt((byte *)msg, len, pmk, aes_decrypt);
+    rsh_msg_crypt((byte *)msg + RSH_CRYPT_HDR_SIZE, len - RSH_CRYPT_HDR_SIZE, key, aes_decrypt);
 }
 
 static inline void
@@ -318,7 +318,7 @@ rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hma
     */
     rsh_msg_hton(msg);
     rsh_msg_hmac(msg, len, key, hmac, hmacsize);
-    rsh_msg_crypt(msg, len, pmk, key, aes_encrypt);
+    rsh_msg_encrypt(msg, len, pmk, key);
 }
 
 static inline void
@@ -329,7 +329,7 @@ rsh_msg_decode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hma
     * 2. calc hmac and save hmac to instance
     * 3. network==>host
     */
-    rsh_msg_crypt(msg, len, pmk, key, aes_decrypt);
+    rsh_msg_decrypt(msg, len, pmk, key);
     rsh_msg_hmac(msg, len, key, hmac, hmacsize);
     rsh_msg_ntoh(msg);
 }
