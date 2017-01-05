@@ -136,10 +136,11 @@ rsha_timer(loop_watcher_t *watcher, time_t now)
 
         return mv2_ok;
     }
-    
+
+    debug_timer("rsh timer tick:%d", rsha.ticks);
     rshi_foreach(foreach, true);
-    
     rsha.ticks++;
+    debug_timer("rsh timer tick:%d", rsha.ticks);
     
     return 0;
 }
