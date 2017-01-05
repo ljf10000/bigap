@@ -293,8 +293,18 @@ rsh_msg_encrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
     * 1. encrypt msg (not include first 16 bytes) by key
     * 2. encrypt msg by pmk
     */
+    os_println("msg before key encrypt:");
+    os_dump_buffer(msg, len);
+    
     rsh_msg_crypt((byte *)msg + RSH_CRYPT_HDR_SIZE, len - RSH_CRYPT_HDR_SIZE, key, aes_encrypt);
+    
+    os_println("msg after key encrypt:");
+    os_dump_buffer(msg, len);
+    
     rsh_msg_crypt((byte *)msg, len, pmk, aes_encrypt);
+    
+    os_println("msg after pmk encrypt:");
+    os_dump_buffer(msg, len);
 }
 
 static inline void
@@ -304,16 +314,23 @@ rsh_msg_decrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
     * 2. decrypt msg by pmk
     * 1. decrypt msg (not include first 16 bytes) by key
     */
+    os_println("msg before pmk decrypt:");
+    os_dump_buffer(msg, len);
+    
     rsh_msg_crypt((byte *)msg, len, pmk, aes_decrypt);
+    
+    os_println("msg after pmk decrypt:");
+    os_dump_buffer(msg, len);
+    
     rsh_msg_crypt((byte *)msg + RSH_CRYPT_HDR_SIZE, len - RSH_CRYPT_HDR_SIZE, key, aes_decrypt);
+    
+    os_println("msg after key decrypt:");
+    os_dump_buffer(msg, len);
 }
 
 static inline void
 rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
 {
-    os_println("msg before encode:");
-    os_dump_buffer(msg, len);
-    
     /*
     * 1. network==>host
     * 2. calc hmac and save hmac to msg
@@ -322,9 +339,6 @@ rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hma
     rsh_msg_hton(msg);
     rsh_msg_hmac(msg, len, key, hmac, hmacsize);
     rsh_msg_encrypt(msg, len, pmk, key);
-
-    os_println("msg after encode:");
-    os_dump_buffer(msg, len);
 }
 
 static inline void
