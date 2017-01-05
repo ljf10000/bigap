@@ -450,10 +450,14 @@ rshi_echo(rsh_instance_t *instance, time_t now)
 int
 rshi_resolve(rsh_instance_t *instance, time_t now)
 {
+    debug_timer("rsh resolve 1");
     instance->ip = os_ipdns(instance->proxy);
+    debug_timer("rsh resolve 2");
     if (is_good_ipaddr(instance->ip)) {
+        debug_timer("rsh resolve 2.1");
         rshi_fsm(instance, RSH_FSM_RESOLVED, now);
     }
+    debug_timer("rsh resolve 3");
 
     return 0;
 }
