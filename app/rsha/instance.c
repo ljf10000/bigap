@@ -203,9 +203,7 @@ __rshi_sec_j2o(rsh_instance_t *instance, jobj_t jobj)
     jj_byeq(&instance.sec, jsec, hmactype, sha2_getidbyname);
     instance.sec.hmacsize = SHA_DIGEST_SIZE(instance.sec.hmactype);
     rsh_key_hex2bin(&instance.sec.pmk, instance.sec.pmkstring);
-    rsh_key_setup(&instance.sec.pmk);
     rsh_key_hex2bin(rshi_key(instance), instance.sec.keystring);
-    rsh_key_setup(rshi_key(instance));
 
     return 0;
 }

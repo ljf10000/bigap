@@ -116,19 +116,12 @@ rsh_key_hex2bin(rsh_key_t *key, char *keystring)
         err = -EBADKEY; goto error;
     }
     key->size = size;
+    aes_key_setup(key->key, key->key32, 8*key->size);
     
     return 0;
 error:
 
     return err;
-}
-
-static inline rsh_key_t *
-rsh_key_setup(rsh_key_t *key)
-{
-    aes_key_setup(key->key, key->key32, 8*key->size);
-
-    return key;
 }
 
 typedef struct {

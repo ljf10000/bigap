@@ -465,7 +465,7 @@ rshi_key_setup(rsh_instance_t *instance, rsh_key_t *key)
 
     os_objcpy(rshi_key(instance), key);
     
-    return rsh_key_setup(rshi_key(instance));
+    return rshi_key(instance);
 }
 
 typedef struct {
