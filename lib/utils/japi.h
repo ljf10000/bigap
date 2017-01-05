@@ -111,13 +111,13 @@ jtype_match(int jtype, int type)
         case jtype_u64:
         case jtype_inet:
             return type==jtype_int;
-        case jtype_f32
-        case jtype_f64
+        case jtype_f32:
+        case jtype_f64:
             return type==jtype_double;
-        case jtype_enum
-        case jtype_time
-        case jtype_ip
-        case jtype_mac
+        case jtype_enum:
+        case jtype_time:
+        case jtype_ip:
+        case jtype_mac:
             return type==jtype_string;
         default:
             return false;
