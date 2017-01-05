@@ -100,25 +100,34 @@ error:
 STATIC int 
 rshi_send(rsh_instance_t *instance)
 {
-    int fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (fd<0) {
-        os_println("instance %s socket error:%d", instance->sp, -errno);
-        
-        return fd;
-    }
-    os_closexec(fd);
-
     uint32 ip = os_ipaddr("192.168.1.13");
     uint16 port = htons(28742);
-    
-    struct sockaddr_in proxy = OS_SOCKADDR_INET(ip, port);
-    
-    int err = sendto(fd, "asdf", 4, 0, (struct sockaddr *)&proxy, sizeof(proxy));
+
+    rsh_msg_t *msg = rsha_msg;
+    sockaddr_in_t proxy = OS_SOCKADDR_INET(ip, port);
+    rsh_over_t over = {
+        .cmd    = msg->cmd,
+    };
+    int size    = rsh_msg_size(msg);
+    int err;
+
+    rshi_encode(instance);
+
+    err = io_sendto(instance->fd, msg, size, (sockaddr_t *)&proxy, sizeof(proxy));
+        debug_proto("instance %s send %s to 192.168.1.13:28742 error:%d", 
+            instance->sp, rsh_cmd_getnamebyid(over.cmd), err);
     if (err<0) {
-        os_println("sendto 192.168.1.13:28742 error:%d", -errno);
+        goto error;
     }
 
-    return 0;
+    err = size;
+error:
+    rshi_send_over(instance, &over, err<0);
+
+    debug_packet("instance %s send %s error:%d", 
+        instance->sp, rsh_cmd_getnamebyid(over.cmd), err);
+    
+    return err;
 }
 
 #endif
