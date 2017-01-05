@@ -46,18 +46,18 @@ typedef struct {
 #define NSQ_IDENTIFY_JRULE_MAPPER(_) \
     _(offsetof(nsq_identify_t, client_id), client_id, "client_id", \
             string, sizeof(char *), JRULE_F_MUST,       \
-            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_identify_t, hostname), hostname, "hostname", \
             string, sizeof(char *), JRULE_F_MUST,       \
-            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_identify_t, user_agent), user_agent, "user_agent", \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_STRING(NSQ_USER_AGENT)),          \
     _(offsetof(nsq_identify_t, feature_negotiation), feature_negotiation, NSQ_IDENTIFY_FEATURE_NEGOTIATION_NAME, \
             bool, sizeof(bool), 0,                      \
@@ -159,28 +159,28 @@ nsq_instance_t;
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, name), name, NSQ_INSTANCE_NAME_NAME, \
             string, sizeof(char *), JRULE_F_MUST,       \
-            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, domain), domain, NSQ_INSTANCE_DOMAIN_NAME, \
             string, sizeof(char *), JRULE_F_MUST,       \
-            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, topic), topic, NSQ_INSTANCE_TOPIC_NAME, \
             string, sizeof(char *), JRULE_F_MUST,       \
-            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, channel), channel, NSQ_INSTANCE_CHANNEL_NAME, \
             string, sizeof(char *), JRULE_F_MUST,       \
-            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, script), script, NSQ_INSTANCE_SCRIPT_NAME, \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRASSIGN,                        \
             JRULE_VAR_NULL),                            \
     _(offsetof(nsq_instance_t, port), port, NSQ_INSTANCE_PORT_NAME, \
             int, sizeof(int), 0,                        \

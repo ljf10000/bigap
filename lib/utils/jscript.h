@@ -160,23 +160,23 @@ typedef struct {
 #define JINSTANCE_JRULE_MAPPER(_) \
     _(offsetof(jinstance_t, name), name, "name",    \
             string, sizeof(char *), JRULE_F_MUST,   \
-            JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL,                         \
+            JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL),                        \
     _(offsetof(jinstance_t, topic), topic, "topic", \
             string, sizeof(char *), 0,              \
-            JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL,                         \
+            JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL),                        \
     _(offsetof(jinstance_t, channel), channel, "channel",  \
             string, sizeof(char *), 0,              \
-            JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL,                         \
+            JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL),                        \
     _(offsetof(jinstance_t, cache), cache, "cache", \
             string, sizeof(char *), JRULE_F_MUST,   \
-            JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL,                         \
+            JRULE_VAR_STRDUP,                       \
             JRULE_VAR_NULL),                        \
     /* end */
 DECLARE_JRULER(jinstance, JINSTANCE_JRULE_MAPPER);
@@ -225,23 +225,23 @@ jscript_t;
 #define JSCRIPT_JRULE_MAPPER(_) \
     _(offsetof(jscript_t, type), type, "type",          \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(jscript_type_ops),           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM(jscript_type_ops),           \
             JRULE_VAR_INT(JSCRIPT_TYPE_SH)),            \
     _(offsetof(jscript_t, run), run, "run",             \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(jscript_run_ops),            \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM(jscript_run_ops),            \
             JRULE_VAR_INT(JSCRIPT_RUN_THIS)),           \
     _(offsetof(jscript_t, cache), cache, "cache",       \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(jscript_cache_ops),          \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM(jscript_cache_ops),          \
             JRULE_VAR_INT(JSCRIPT_CACHE_NONE)),         \
     _(offsetof(jscript_t, scope), scope, "scope",       \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(jscript_scope_ops),          \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM(jscript_scope_ops),          \
             JRULE_VAR_INT(JSCRIPT_SCOPE_GLOBAL)),       \
     _(offsetof(jscript_t, slot), slot, "slot",          \
             int, sizeof(int), JRULE_F_BORDER,           \
@@ -260,38 +260,38 @@ jscript_t;
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, content), content, "content", \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, url), url, "url",             \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, md5), md5, "md5",             \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, board), board, "board",       \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, id), id, "id",                \
             string, sizeof(char *), JRULE_F_MUST,       \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, reply), reply, "reply",       \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, script), script, "script",    \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_STRING(JSCRIPT_REMOTE_DEFAULT)),  \
     _(offsetof(jscript_t, sendtime), sendtime, "sendtime", \
             time, sizeof(time_t), JRULE_F_MUST,         \

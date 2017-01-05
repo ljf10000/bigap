@@ -511,9 +511,6 @@ union jrule_var_u {
 #define JRULE_VAR_STRDUP                    JRULE_VAR_POINTER(jrule_strdup)
 #define JRULE_VAR_STRCPY                    JRULE_VAR_POINTER(jrule_strcpy)
 #define JRULE_VAR_STRASSIGN                 JRULE_VAR_POINTER(jrule_strassign)
-#define JRULE_VAR_IP                        JRULE_VAR_POINTER(jrule_ip_j2o)
-#define JRULE_VAR_MAC                       JRULE_VAR_POINTER(jrule_mac_j2o)
-#define JRULE_VAR_TIME                      JRULE_VAR_POINTER(jrule_time_j2o)
 #define JRULE_VAR_NULL                      JRULE_VAR_POINTER(NULL)
 
 struct jrule_s {
@@ -541,8 +538,8 @@ struct jrule_s {
     *       serialize/unserialize not-used
     * 2. type is enum
     *       not support JRULE_F_CHECKER/JRULE_F_BORDER
-    *       serialize as get_enum_ops
-    *       unserialize not-used
+    *       serialize not-used
+    *       unserialize as get_enum_ops
     *       deft as default value
     * 3. type is string
     *       serialize not-used
@@ -568,7 +565,7 @@ struct jrule_s {
 static inline jrule_o2j_f *
 jmethod_o2j(const jrule_t *rule)
 {
-    return rule->unserialize.o2j;
+    return rule->serialize.o2j;
 }
 
 static inline jrule_j2o_f *
@@ -592,7 +589,7 @@ jmethod_get_rules(const jrule_t *rule)
 static inline jrule_get_enum_ops_f *
 jmethod_get_enum_ops(const jrule_t *rule)
 {
-    return rule->serialize.get_enum_ops;
+    return rule->unserialize.get_enum_ops;
 }
 
 #define JRULER(_offset, _member, _name, \

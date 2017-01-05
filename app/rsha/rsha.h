@@ -230,12 +230,12 @@ typedef struct {
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_echo_t, send), send, "send",         \
             time, sizeof(time_t), 0,                    \
-            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_echo_t, recv), recv, "recv",         \
             time, sizeof(time_t), 0,                    \
-            JRULE_VAR_TIME,                             \
+            JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     /* end */
@@ -374,33 +374,33 @@ rsh_instance_t;
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, ip), ip, "ip",           \
             ip, sizeof(int), 0,                         \
-            JRULE_VAR_IP,                               \
+            JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, fsm), fsm, "fsm",        \
             enum, sizeof(int), 0,                       \
-            JRULE_VAR_ENUM(rsh_fsm_ops),                \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_ENUM(rsh_fsm_ops),                \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, proxy), proxy, "proxy",  \
             string, sizeof(char *), JRULE_F_MUST,       \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, registry), registry, "registry", \
             string, sizeof(char *), JRULE_F_MUST,       \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, cache), cache, "cache",  \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_STRING(RSHA_CACHE)),              \
     _(offsetof(rsh_instance_t, flash), flash, "flash",  \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_STRING(RSHA_FLASH)),              \
     /* end */
 DECLARE_JRULER(rsh_instance, RSH_INSTANCE_JRULE_MAPPER);
