@@ -87,21 +87,6 @@ __rshi_tm_fsm_o2j(time_t fsm[RSH_FSM_END])
 }
 
 STATIC jobj_t
-__rshi_tm_update_o2j(time_t update[RSH_UPDATE_END][RSHIST_DIR_END][RSHIST_TYPE_END])
-{
-    jobj_t jobj = jobj_new_object();
-    if (jobj) {
-        int i;
-        
-        for (i=0; i<RSH_UPDATE_END; i++) {
-            jobj_add(jobj, rsh_update_getnamebyid(i), __rshi_tm_dir_o2j(update[i]));
-        }
-    }
-
-    return jobj;
-}
-
-STATIC jobj_t
 __rshi_tm_echo_o2j(time_t echo[RSHIST_DIR_END][RSHIST_TYPE_END])
 {
     return __rshi_tm_dir_o2j(echo);
@@ -119,7 +104,6 @@ __rshi_tm_o2j(rshi_tm_t *tm)
     jobj_t jobj = jobj_new_object();
     if (jobj) {
         jobj_add(jobj, "fsm", __rshi_tm_fsm_o2j(tm->fsm));
-        jobj_add(jobj, "update", __rshi_tm_update_o2j(tm->update));
         jobj_add(jobj, "command", __rshi_tm_command_o2j(tm->command));
         jobj_add(jobj, "echo", __rshi_tm_echo_o2j(tm->echo));
         jobj_add_string(jobj, "busy", os_fulltime_string(tm->busy));

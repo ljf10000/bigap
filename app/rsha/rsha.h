@@ -263,7 +263,6 @@ typedef struct {
 
 typedef struct {
     time_t fsm[RSH_FSM_END];
-    time_t update[RSH_UPDATE_END][RSHIST_DIR_END][RSHIST_TYPE_END];
     time_t command[RSHIST_DIR_END][RSHIST_TYPE_END];
     time_t echo[RSHIST_DIR_END][RSHIST_TYPE_END];
     time_t busy;
@@ -414,13 +413,6 @@ static inline jrule_t *rsh_instance_jrules(void);
     rshi_st(_instance, _cmd, RSHIST_DIR_RECV, rshist_type(_is_error))
 #define rshi_st_send(_instance, _cmd, _is_error) \
     rshi_st(_instance, _cmd, RSHIST_DIR_SEND, rshist_type(_is_error))
-
-#define rshi_tm_update(_instance, _update, _dir, _type) \
-    (_instance)->tm.update[_dir][_type][_update]
-#define rshi_tm_update_recv(_instance, _update, _is_error) \
-    rshi_tm_update(_instance, _update, RSHIST_DIR_RECV, rshist_type(_is_error))
-#define rshi_tm_update_send(_instance, _update, _is_error) \
-    rshi_tm_update(_instance, _update, RSHIST_DIR_SEND, rshist_type(_is_error))
 
 #define rshi_tm_command(_instance, _dir, _type) \
     (_instance)->tm.command[_dir][_type]

@@ -71,12 +71,6 @@ rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
             rshi_tm_command_send(instance, is_error)++;
             
             break;
-        case RSH_CMD_UPDATE:
-            if (is_good_rsh_update(over->update)) {
-                rshi_tm_update_send(instance, over->update, is_error)++;
-            }
-            
-            break;
     }
 }
 
