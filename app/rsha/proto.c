@@ -88,6 +88,9 @@ rshi_send(rsh_instance_t *instance)
     err = size;
 error:
     rshi_send_over(instance, &over, err<0);
+
+    debug_entry("instance %s send %s error:%d", 
+        instance->sp, rsh_cmd_getidbyname(over.cmd), err);
     
     return err;
 }
