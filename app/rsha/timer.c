@@ -23,9 +23,11 @@ is_rsha_timeout(time_t last, time_t now, uint32 max)
 STATIC void
 rsha_init_tigger(rsh_instance_t *instance, time_t now)
 {
+    debug_timer("rsh init tigger ...");
     if (is_rsh_fsm_init(instance)) {
         rshi_resolve(instance, now);     // ==> resolved
     }
+    debug_timer("rsh init tigger ok.");
 }
 
 STATIC bool
