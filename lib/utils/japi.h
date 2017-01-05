@@ -68,6 +68,7 @@ typedef union {
     _(jtype_time,   json_type_end+7,    "time"),    \
     _(jtype_ip,     json_type_end+8,    "ip"),      \
     _(jtype_mac,    json_type_end+9,    "mac"),     \
+    _(jtype_inet,   json_type_end+10,   "inet"),    \
     /* end */
 DECLARE_ENUM(jtype, JTYPE_ENUM_MAPPER, jtype_end);
 
@@ -93,6 +94,7 @@ static inline int jtype_getidbyname(const char *name);
 #define jtype_time      jtype_time
 #define jtype_ip        jtype_ip
 #define jtype_mac       jtype_mac
+#define jtype_inet      jtype_inet
 #define jtype_end       jtype_end
 #endif
 

@@ -338,7 +338,7 @@ rsh_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, port), port, "port",     \
-            int, sizeof(int), JRULE_F_MUST,             \
+            inet, sizeof(int), JRULE_F_MUST,            \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \

@@ -725,10 +725,10 @@ jrule_time_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
         string = jobj_get_string(jval);
         
         *member = os_fulltime(string);
-    }
     
-    debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
-        rule->name, string);
+        debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
+            rule->name, string);
+    }
     
     return 0;
 }
@@ -756,10 +756,41 @@ jrule_ip_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
         uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
         string = jobj_get_string(jval);
         *member = os_ipaddr(string);
+    
+        debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
+            rule->name, string);
     }
     
-    debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
-        rule->name, string);
+    return 0;
+}
+
+int
+jrule_inet_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
+{
+    int32 *member = (int32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+    *member = ntohl(*member);
+    
+    jobj_add_int(jobj, rule->name, *member);
+
+    debug_json("o2j %s %s=%d", jtype_getnamebyid(rule->type),
+        rule->name, *member);
+
+    return 0;
+}
+
+int
+jrule_inet_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
+{
+    jobj_t jval = jobj_get(jobj, rule->name);
+    if (jval) {
+        int32 *member = (int32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
+        *member = jobj_get_int(jval);
+        
+        debug_json("j2o %s %s=%d", jtype_getnamebyid(rule->type),
+            rule->name, *member);
+
+        *member = ntohl(*member);
+    }
     
     return 0;
 }
@@ -1009,6 +1040,9 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
         case jtype_mac:
             jrule_mac_o2j(rule, obj, jobj);
             break;
+        case jtype_inet:
+            jrule_inet_o2j(rule, obj, jobj);
+            break;
         case jtype_string:
             jobj_add_string(jobj, rule->name, member_address);
 
@@ -1082,6 +1116,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
     char *string = NULL;
+    bool network = false;
     int err;
 
     if (os_hasflag(rule->flag, JRULE_F_DROP)) {
@@ -1218,6 +1253,17 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 
             if (obj) {
                 err = jrule_mac_j2o(rule, obj, jobj);
+                if (err<0) {
+                    return err;
+                }
+            }
+            
+            break;
+        case jtype_inet:
+            JRULE_JTYPE_CHECK(jtype_inet);
+
+            if (obj) {
+                err = jrule_inet_j2o(rule, obj, jobj);
                 if (err<0) {
                     return err;
                 }
