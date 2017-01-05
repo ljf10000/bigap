@@ -101,7 +101,7 @@ static inline bool
 jtype_match(int jtype, int type)
 {
     if (jtype <= json_type_end) {
-        return jtype==type
+        return jtype==type;
     }
 
     switch(jtype) {

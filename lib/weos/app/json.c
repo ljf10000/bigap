@@ -1155,7 +1155,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             jtype_getnamebyid(rule->type),
             jtype_getnamebyid(jtype));
 
-        return -EBADRULE;
+        return -EBADJSON;
     }
     
     bool border = os_hasflag(rule->flag, JRULE_F_BORDER);
