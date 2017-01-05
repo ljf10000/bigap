@@ -114,8 +114,8 @@ static inline int rsh_echo_getidbyname(const char *name);
 #if 1
 #define RSH_FSM_ENUM_MAPPER(_)                  \
     _(RSH_FSM_INIT,         0, "init"),         \
-    _(RSH_FSM_HANDSHAKED,   1, "handshaked"),   \
-    _(RSH_FSM_RESOLVED,     2, "resolved"),     \
+    _(RSH_FSM_RESOLVED,     1, "resolved"),     \
+    _(RSH_FSM_HANDSHAKED,   2, "handshaked"),   \
     _(RSH_FSM_RUN,          3, "run"),          \
     /* end */
 DECLARE_ENUM(rsh_fsm, RSH_FSM_ENUM_MAPPER, RSH_FSM_END);
@@ -126,14 +126,14 @@ static inline char *rsh_fsm_getnamebyid(int id);
 static inline int rsh_fsm_getidbyname(const char *name);
 
 #define RSH_FSM_INIT            RSH_FSM_INIT
-#define RSH_FSM_HANDSHAKED      RSH_FSM_HANDSHAKED
 #define RSH_FSM_RESOLVED        RSH_FSM_RESOLVED
+#define RSH_FSM_HANDSHAKED      RSH_FSM_HANDSHAKED
 #define RSH_FSM_RUN             RSH_FSM_RUN
 #define RSH_FSM_END             RSH_FSM_END
 
 #define is_rsh_fsm_init(_instance)          (RSH_FSM_INIT==(_instance)->fsm)
-#define is_rsh_fsm_handshaked(_instance)    (RSH_FSM_HANDSHAKED==(_instance)->fsm)
 #define is_rsh_fsm_resolved(_instance)      (RSH_FSM_RESOLVED==(_instance)->fsm)
+#define is_rsh_fsm_handshaked(_instance)    (RSH_FSM_HANDSHAKED==(_instance)->fsm)
 #define is_rsh_fsm_run(_instance)           (RSH_FSM_RUN==(_instance)->fsm)
 #endif
 
@@ -210,6 +210,8 @@ static inline int rsh_fsm_getidbyname(const char *name);
 typedef struct {
     uint32 interval;
     uint32 times;
+    uint32 sends;
+    uint32 recvs;
     time_t send;
     time_t recv;
 } rsh_echo_t;
@@ -284,6 +286,14 @@ typedef struct {
 } rshi_echo_t;
 
 typedef struct {
+    uint32 interval;
+    uint32 sends;
+    uint32 recvs;
+    time_t send;
+    time_t recv;
+} rshi_handshake_t;
+
+typedef struct {
     char *sp;
     char *proxy;
     char *registry;
@@ -308,6 +318,7 @@ typedef struct {
     rshi_st_t st;
     rshi_sec_t sec;
     rshi_echo_t echo;
+    rshi_handshake_t handshake;
     
     jobj_t jcfg;
 

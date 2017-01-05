@@ -192,20 +192,29 @@ __rshi_echo_j2o(rsh_instance_t *instance, jobj_t jobj)
 STATIC int
 __rshi_sec_j2o(rsh_instance_t *instance, jobj_t jobj)
 {
+    int err;
+    rshi_sec_t *sec = &instance->sec;
+    
     jobj_t jsec = jobj_get(jobj, "sec");
     if (NULL==jsec) {
         return -EBADJSON;
     }
 
-    rshi_sec_t *sec = &instance->sec;
-    __jj_string(sec, jsec, pmk, pmkstring);
-    __jj_string(sec, jsec, key, keystring);
     jj_byeq(sec, jsec, crypt, rsh_crypt_getidbyname);
     jj_byeq(sec, jsec, hmactype, sha2_getidbyname);
     sec->hmacsize = SHA_DIGEST_SIZE(sec->hmactype);
+
+    __jj_string(sec, jsec, pmk, pmkstring);
+    err = rsh_key_hex2bin(rshi_pmk(instance), sec->pmkstring);
+    if (err<0) {
+        return err;
+    }
     
-    rsh_key_hex2bin(rshi_pmk(instance), sec->pmkstring);
-    rsh_key_hex2bin(rshi_key(instance), sec->keystring);
+    __jj_string(sec, jsec, key, keystring);
+    err = rsh_key_hex2bin(rshi_key(instance), sec->keystring);
+    if (err<0) {
+        return err;
+    }
 
     return 0;
 }

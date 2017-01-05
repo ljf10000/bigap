@@ -243,12 +243,18 @@ STATIC void
 rshi_handshake_recver(rsh_instance_t *instance, time_t now)
 {
     rshi_fsm(instance, RSH_FSM_HANDSHAKED, now);
+    
+    instance->handshake.recv = now;
+    instance->handshake.recvs++;
 }
 
 STATIC void 
 rshi_echo_recver(rsh_instance_t *instance, time_t now)
 {
-    rshi_echo_get(instance)->recv = now;
+    rsh_echo_t *echo = rshi_echo_get(instance);
+    
+    echo->recv = now;
+    echo->recvs++;
 }
 
 STATIC void 
@@ -405,6 +411,9 @@ rshi_handshake(rsh_instance_t *instance, time_t now)
         return err;
     }
 
+    instance->handshake.send = now;
+    instance->handshake.sends++;
+    
     return 0;
 }
 
@@ -431,7 +440,9 @@ rshi_echo(rsh_instance_t *instance, time_t now)
         return err;
     }
 
-    rshi_echo_get(instance)->send = now;
+    rsh_echo_t *echo = rshi_echo_get(instance);
+    echo->send = now;
+    echo->sends++;
 
     return 0;
 }

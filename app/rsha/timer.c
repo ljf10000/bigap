@@ -24,6 +24,22 @@ STATIC void
 rsha_init_tigger(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_init(instance)) {
+        rshi_resolve(instance, now);     // ==> resolved
+    }
+}
+
+STATIC bool
+is_rsha_handshake_tigger(rshi_handshake_t *handshake, time_t now)
+{
+    return 0==handshake->sends || is_rsha_timeout(handshake->send, now, handshake->interval);
+}
+
+STATIC void
+rsha_resolved_tigger(rsh_instance_t *instance, time_t now)
+{
+    rshi_handshake_t *handshake = &instance->handshake;
+
+    if (is_rsh_fsm_resolved(instance) && is_rsha_handshake_tigger(handshake, now)) {
         rshi_handshake(instance, now);
     }
 }
@@ -32,14 +48,6 @@ STATIC void
 rsha_handshaked_tigger(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_handshaked(instance)) {
-        rshi_resolve(instance, now);     // ==> resolved
-    }
-}
-
-STATIC void
-rsha_resolved_tigger(rsh_instance_t *instance, time_t now)
-{
-    if (is_rsh_fsm_resolved(instance)) {
         rshi_run(instance, now);         // ==> run
     }
 }
@@ -47,17 +55,13 @@ rsha_resolved_tigger(rsh_instance_t *instance, time_t now)
 STATIC bool
 is_rsha_echo_tigger(rsh_echo_t *echo, time_t now)
 {
-    return is_rsha_timeout(echo->send, now, echo->interval);
+    return 0==echo->sends || is_rsha_timeout(echo->send, now, echo->interval);
 }
 
 STATIC void
 rsha_echo_tigger(rsh_instance_t *instance, time_t now)
-{
-    rsh_echo_t *echo = rshi_echo_get(instance);
-    
-    if (is_rsh_fsm_run(instance) && is_rsha_echo_tigger(echo, now)) {
-        echo->send = now;
-        
+{   
+    if (is_rsh_fsm_run(instance) && is_rsha_echo_tigger(rshi_echo_get(instance), now)) {
         rshi_echo(instance, now);   // ==> run
     }
 }
@@ -109,8 +113,8 @@ rsha_timer_handle(rsh_instance_t *instance, time_t now)
 {
     static rsha_timer_handle_f *tigger[] = {
         rsha_init_tigger,
-        rsha_handshaked_tigger,
         rsha_resolved_tigger,
+        rsha_handshaked_tigger,
         rsha_echo_tigger,
         rsha_echo_timeout,
         rsha_busy_timeout,
