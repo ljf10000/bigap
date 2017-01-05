@@ -781,11 +781,16 @@ jrule_inet_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 int
 jrule_inet_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
+    japi_println("jrule_inet_j2o");
+    
     jobj_t jval = jobj_get(jobj, rule->name);
     if (jval) {
         int32 *member = (int32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
         *member = jobj_get_int(jval);
         
+        japi_println("j2o %s %s=%d", jtype_getnamebyid(rule->type),
+            rule->name, *member);
+            
         debug_json("j2o %s %s=%d", jtype_getnamebyid(rule->type),
             rule->name, *member);
 
@@ -1119,8 +1124,6 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     bool network = false;
     int err;
 
-    japi_println("__jrule_j2o rule:%s type:%s", rule->name, jtype_getnamebyid(rule->type));
-    
     if (os_hasflag(rule->flag, JRULE_F_DROP)) {
         if (jval) {
             debug_json("drop json key %s", rule->name);
@@ -1322,16 +1325,12 @@ jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jr
     const jrule_t *rule;
     int err;
 
-    japi_println("jrules_apply 1");
     JRULE_FOREACH(rule, rules) {
-        japi_println("jrules_apply rule:%s type:%s", rule->name, jtype_getnamebyid(rule->type));
-        
         err = (*apply)(rule, obj, jobj);
         if (err<0) {
             return 0;
         }
     }
-    japi_println("jrules_apply 2");
 
     return 0;
 }
@@ -1372,17 +1371,13 @@ jrule_o2j(const jrule_t *rules, void *obj, jobj_t jobj)
 
 int
 jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj)
-{
-    japi_println("jrule_j2o 1");
-    
+{    
     if (NULL==rules) {
         return -EINVAL3;
     }
     else if (NULL==jobj) {
         return 0;
     }
-
-    japi_println("jrule_j2o 2");
 
     return jrules_apply(rules, obj, jobj, __jrule_j2o);
 }
