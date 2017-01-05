@@ -123,7 +123,9 @@ rsha_timer_handle(rsh_instance_t *instance, time_t now)
     int i;
 
     for (i=0; i<os_count_of(tigger); i++) {
+        debug_timer("rsh timer instance:%d ...", i);
         (*tigger[i])(instance, now);
+        debug_timer("rsh timer instance:%d ...", i);
     }
 }
 
@@ -132,9 +134,7 @@ rsha_timer(loop_watcher_t *watcher, time_t now)
 {
     mv_t foreach(rsh_instance_t *instance)
     {
-        debug_timer("rsh timer instance %s ...", instance->sp);
         rsha_timer_handle(instance, now);
-        debug_timer("rsh timer instance %s ok.", instance->sp);
         
         return mv2_ok;
     }
