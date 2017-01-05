@@ -275,7 +275,7 @@ __rshi_add_watcher(rsh_instance_t *instance)
     debug_entry("instance %s socket %d ok", instance->sp, fd);
 
 #if 1
-    sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, htons(0));
+    sockaddr_in_t client = OS_SOCKADDR_INET(htonl(INADDR_ANY), htons(0));
     err = bind(fd, (sockaddr_t *)&client, sizeof(client));
     if (err<0) {
         debug_error("instance %s bind error:%d", instance->sp, -errno);
