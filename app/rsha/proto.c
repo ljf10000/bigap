@@ -259,7 +259,7 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
             "time[%s] invalid hmac",
             os_fulltime_string(now));
     }
-    else if (false==is_good_rsh_cmd(msg->cmd)) {
+    else if (false==is_valid_rsh_cmd(msg->cmd)) {
         return rshi_ack_error(instance, -RSH_E_CMD, 
             "time[%s] invalid cmd[%d]",
             os_fulltime_string(now),
@@ -419,7 +419,7 @@ rshi_handshake(rsh_instance_t *instance, time_t now)
     msg->cmd        = RSH_CMD_HANDSHAKE;
     msg->flag       = 0;
     msg->seq        = instance->seq;
-    msg->ack        = 0
+    msg->ack        = 0;
     msg->hmacsize   = instance->sec.hmacsize;
     
     err = rshi_send(instance);

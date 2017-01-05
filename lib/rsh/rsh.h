@@ -52,9 +52,10 @@ static inline int rsh_crypt_getidbyname(const char *name);
 */
 #if 1
 #define RSH_CMD_ENUM_MAPPER(_) \
-    _(RSH_CMD_HANDSHAKE,0, "handshake"),    \
-    _(RSH_CMD_ECHO,     1, "echo"),         \
-    _(RSH_CMD_COMMAND,  2, "command"),      \
+    _(RSH_CMD_UNKNOW,   0, "unknow"),       \
+    _(RSH_CMD_HANDSHAKE,1, "handshake"),    \
+    _(RSH_CMD_ECHO,     2, "echo"),         \
+    _(RSH_CMD_COMMAND,  3, "command"),      \
     /* end */
 DECLARE_ENUM(rsh_cmd, RSH_CMD_ENUM_MAPPER, RSH_CMD_END);
 
@@ -63,10 +64,17 @@ static inline bool is_good_rsh_cmd(int id);
 static inline char *rsh_cmd_getnamebyid(int id);
 static inline int rsh_cmd_getidbyname(const char *name);
 
+#define RSH_CMD_UNKNOW      RSH_CMD_UNKNOW
 #define RSH_CMD_HANDSHAKE   RSH_CMD_HANDSHAKE
 #define RSH_CMD_ECHO        RSH_CMD_ECHO
 #define RSH_CMD_COMMAND     RSH_CMD_COMMAND
 #define RSH_CMD_END         RSH_CMD_END
+
+static inline bool
+is_valid_rsh_cmd(int id)
+{
+    return is_good_value(id, RSH_CMD_HANDSHAKE, RSH_CMD_END)
+}
 #endif
 
 enum {
