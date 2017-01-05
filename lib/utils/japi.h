@@ -694,12 +694,12 @@ static inline jrule_t *xxx_jrules(void);
     static inline jrule_t *         \
     _mod##_jrules(void)             \
     {                               \
-        static jrule_t rule[] = {   \
+        static jrule_t rules[] = {  \
             _mapper(JRULER)         \
             JRULER_END,             \
         };                          \
                                     \
-        return rule;                \
+        return rules;               \
     }                               \
                                     \
     os_fake_declare                 \

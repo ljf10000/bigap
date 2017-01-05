@@ -1323,6 +1323,8 @@ jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jr
     int err;
 
     JRULE_FOREACH(rule, rules) {
+        debug_json("jrules_apply rule:%s type:%s", rule->name, jtype_getnamebyid(rule->type));
+        
         err = (*apply)(rule, obj, jobj);
         if (err<0) {
             return 0;
