@@ -77,7 +77,7 @@ rshi_send(rsh_instance_t *instance)
     
     debug_proto("instance %s send %s to %s:%d", 
         instance->sp, rsh_cmd_getnamebyid(over.cmd), 
-        os_ipstring(instance->ip), instance->port);
+        os_ipstring(instance->ip), ntohl(instance->port));
 
     rshi_encode(instance);
     

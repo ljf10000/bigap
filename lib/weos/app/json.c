@@ -781,16 +781,11 @@ jrule_inet_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 int
 jrule_inet_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
-    japi_println("jrule_inet_j2o");
-    
     jobj_t jval = jobj_get(jobj, rule->name);
     if (jval) {
         int32 *member = (int32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
         *member = jobj_get_int(jval);
         
-        japi_println("j2o %s %s=%d", jtype_getnamebyid(rule->type),
-            rule->name, *member);
-            
         debug_json("j2o %s %s=%d", jtype_getnamebyid(rule->type),
             rule->name, *member);
 
