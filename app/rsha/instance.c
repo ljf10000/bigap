@@ -237,15 +237,11 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
         
         return err;
     }
-
-    debug_json("__rshi_j2o 1");
     
     err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
     if (err<0) {
         return err;
     }
-
-    debug_json("__rshi_j2o 2");
     
     // check
     if (NULL==instance->proxy) {
@@ -254,8 +250,6 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
     else if (0==instance->port) {
         return -EBADCONF;
     }
-
-    debug_json("__rshi_j2o 3");
 
     // repair
     if (0==instance->handshake.interval) {
@@ -279,11 +273,15 @@ __rshi_add_watcher(rsh_instance_t *instance)
     os_closexec(fd);
     instance->fd = fd;
     debug_entry("instance %s setup socket %d ok", instance->sp, fd);
-    
-    sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, 0);
-    err = bind(fd, (sockaddr_t *)&client, sizeof(client));
+
+    sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->port);
+    err = connect(fd, (sockaddr_t *)&proxy, sizeof(proxy));
     if (err<0) {
-        debug_error("bind instance %s error:%d", instance->sp, -errno);
+        debug_error("instance %s connect %s:%s error:%d", 
+            instance->sp, 
+            os_ipstring(instance->ip), 
+            ntohl(instance->port),
+            -errno);
         
         return -errno;
     }
