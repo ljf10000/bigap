@@ -1322,6 +1322,7 @@ jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jr
     const jrule_t *rule;
     int err;
 
+    debug_json("jrules_apply 1");
     JRULE_FOREACH(rule, rules) {
         debug_json("jrules_apply rule:%s type:%s", rule->name, jtype_getnamebyid(rule->type));
         
@@ -1330,6 +1331,7 @@ jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jr
             return 0;
         }
     }
+    debug_json("jrules_apply 2");
 
     return 0;
 }
@@ -1371,12 +1373,16 @@ jrule_o2j(const jrule_t *rules, void *obj, jobj_t jobj)
 int
 jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj)
 {
+    debug_json("jrule_j2o 1");
+    
     if (NULL==rules) {
         return -EINVAL3;
     }
     else if (NULL==jobj) {
         return 0;
     }
+
+    debug_json("jrule_j2o 2");
 
     return jrules_apply(rules, obj, jobj, __jrule_j2o);
 }
