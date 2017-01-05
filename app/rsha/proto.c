@@ -60,8 +60,11 @@ rshi_recv(rsh_instance_t *instance)
 STATIC void
 rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
 {
+    debug_timer("rshi_send_over 1");
     rshi_st_send(instance, over->cmd, is_error)++;
+    debug_timer("rshi_send_over 2");
     rshi_tm_send(instance, over->cmd, is_error) = time(NULL);
+    debug_timer("rshi_send_over 3");
 }
 
 STATIC int 
