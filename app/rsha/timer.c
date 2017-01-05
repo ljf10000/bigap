@@ -38,16 +38,10 @@ STATIC void
 rsha_resolved_tigger(rsh_instance_t *instance, time_t now)
 {
     rshi_handshake_t *handshake = &instance->handshake;
-
-    debug_timer("resolved tigger ...");
     
     if (is_rsh_fsm_resolved(instance) && is_rsha_handshake_tigger(handshake, now)) {
-        debug_timer("resolved tigger ...");
         rshi_handshake(instance, now);
-        debug_timer("resolved tigger ok.");
     }
-    
-    debug_timer("resolved tigger ok.");
 }
 
 STATIC void

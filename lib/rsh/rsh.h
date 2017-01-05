@@ -311,14 +311,18 @@ rsh_msg_crypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, aes_crypt
 static inline void
 rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
 {
+    debug_timer("rsh_msg_encode 1");
     /*
     * 1. network==>host
     * 2. calc hmac and save hmac to msg
     * 3. encrypt msg
     */
     rsh_msg_hton(msg);
+    debug_timer("rsh_msg_encode 2");
     rsh_msg_hmac(msg, len, key, hmac, hmacsize);
+    debug_timer("rsh_msg_encode 3");
     rsh_msg_crypt(msg, len, pmk, key, aes_encrypt);
+    debug_timer("rsh_msg_encode 4");
 }
 
 static inline void
