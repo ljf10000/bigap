@@ -64,7 +64,6 @@ rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
     rshi_tm_send(instance, over->cmd, is_error) = time(NULL);
 }
 
-#if 0
 STATIC int 
 rshi_send(rsh_instance_t *instance)
 {
@@ -78,7 +77,7 @@ rshi_send(rsh_instance_t *instance)
     
     debug_proto("instance %s send %s to %s:%d", 
         instance->sp, rsh_cmd_getnamebyid(over.cmd), 
-        os_ipstring(instance->ip), ntohl(instance->port));
+        os_ipstring(instance->ip), ntohs(instance->port));
 
     rshi_encode(instance);
     
@@ -96,41 +95,6 @@ error:
     
     return err;
 }
-#else
-STATIC int 
-rshi_send(rsh_instance_t *instance)
-{
-    uint32 ip = os_ipaddr("192.168.1.13");
-    uint16 port = htons(28742);
-
-    rsh_msg_t *msg = rsha_msg;
-    sockaddr_in_t proxy = OS_SOCKADDR_INET(ip, port);
-    rsh_over_t over = {
-        .cmd    = msg->cmd,
-    };
-    int size    = rsh_msg_size(msg);
-    int err;
-
-    rshi_encode(instance);
-
-    err = io_sendto(instance->fd, msg, size, (sockaddr_t *)&proxy, sizeof(proxy));
-        debug_proto("instance %s send %s to 192.168.1.13:28742 error:%d", 
-            instance->sp, rsh_cmd_getnamebyid(over.cmd), err);
-    if (err<0) {
-        goto error;
-    }
-
-    err = size;
-error:
-    rshi_send_over(instance, &over, err<0);
-
-    debug_packet("instance %s send %s error:%d", 
-        instance->sp, rsh_cmd_getnamebyid(over.cmd), err);
-    
-    return err;
-}
-
-#endif
 
 STATIC int
 rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
