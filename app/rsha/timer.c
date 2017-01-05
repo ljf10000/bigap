@@ -24,14 +24,14 @@ STATIC void
 rsha_init_tigger(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_init(instance)) {
-        rshi_register(instance, now);    // ==> registered
+        rshi_handshake(instance, now);
     }
 }
 
 STATIC void
-rsha_registered_tigger(rsh_instance_t *instance, time_t now)
+rsha_handshaked_tigger(rsh_instance_t *instance, time_t now)
 {
-    if (is_rsh_fsm_retgistered(instance)) {
+    if (is_rsh_fsm_handshaked(instance)) {
         rshi_resolve(instance, now);     // ==> resolved
     }
 }
@@ -109,7 +109,7 @@ rsha_timer_handle(rsh_instance_t *instance, time_t now)
 {
     static rsha_timer_handle_f *tigger[] = {
         rsha_init_tigger,
-        rsha_registered_tigger,
+        rsha_handshaked_tigger,
         rsha_resolved_tigger,
         rsha_echo_tigger,
         rsha_echo_timeout,

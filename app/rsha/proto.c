@@ -61,17 +61,7 @@ STATIC void
 rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
 {
     rshi_st_send(instance, over->cmd, is_error)++;
-    
-    switch(over->cmd) {
-        case RSH_CMD_ECHO:
-            rshi_tm_echo_send(instance, is_error)++;
-            
-            break;
-        case RSH_CMD_COMMAND:
-            rshi_tm_command_send(instance, is_error)++;
-            
-            break;
-    }
+    rshi_tm_send(instance, over->cmd, is_error) = time(NULL);
 }
 
 STATIC int 
@@ -269,7 +259,7 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
             "time[%s] invalid hmac",
             os_fulltime_string(now));
     }
-    else if (false==is_valid_rsh_cmd(msg->cmd)) {
+    else if (false==is_good_rsh_cmd(msg->cmd)) {
         return rshi_ack_error(instance, -RSH_E_CMD, 
             "time[%s] invalid cmd[%d]",
             os_fulltime_string(now),
@@ -328,20 +318,10 @@ rshi_recv_ok(rsh_instance_t *instance, time_t now)
 }
 
 STATIC void
-rshi_recv_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
+rshi_recv_over(rsh_instance_t *instance, time_t now, rsh_over_t *over, bool is_error)
 {
     rshi_st_recv(instance, over->cmd, is_error)++;
-    
-    switch(over->cmd) {
-        case RSH_CMD_ECHO:
-            rshi_tm_echo_recv(instance, is_error)++;
-            
-            break;
-        case RSH_CMD_COMMAND:
-            rshi_tm_command_recv(instance, is_error)++;
-            
-            break;
-    }
+    rshi_tm_recv(instance, over->cmd, is_error) = now;
 }
 
 int 
@@ -374,7 +354,7 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
 
     rshi_recv_ok(instance, now);
 error:
-    rshi_recv_over(instance, &over, err<0);
+    rshi_recv_over(instance, now, &over, err<0);
 
     return err;
 }
@@ -424,189 +404,30 @@ rshi_run(rsh_instance_t *instance, time_t now)
     return rshi_fsm(instance, RSH_FSM_RUN, now);
 }
 
-STATIC jobj_t 
-rshi_register_pre(rsh_instance_t *instance)
-{
-    jobj_t jobj = jobj_new_object();
-    if (NULL==jobj) {
-        return NULL;
-    }
-
-    instance->sec.crypt     = RSH_CRYPT_AES;
-    instance->sec.hmactype  = SHA_256;
-    instance->seq = instance->seq_noack = rshi_seq_rand();
-
-    jobj_add_string(jobj, "service", "rsh");
-    jobj_add_string(jobj, "product", "TODO:PRODUCT");
-    jobj_add_string(jobj, "mac", rsha.macstring);
-    jobj_add_u32(jobj, "seq",  instance->seq);
-
-    return jobj;
-error:
-    jobj_put(jobj);
-
-    return NULL;
-}
-
-STATIC int 
-rshi_register_post(rsh_instance_t *instance, jobj_t jobj, time_t now)
-{
-    jobj_t jval;
-    char *string;
-    rsh_key_t key;
-    int err, val;
-
-    /*
-    * 1. get pmk
-    */
-    jval = jobj_get(jobj, "pmk");
-    if (NULL==jval) {
-        return -EBADJSON;
-    }
-    string = jobj_get_string(jval);
-    err = rsh_key_hex2bin(&key, string);
-    if (err<0) {
-        return err;
-    }
-    rsh_key_setup(rshi_pmk(instance), &key);
-    instance->sec.pmkstring = os_strdup(string);
-    
-    /*
-    * 2. get key
-    */
-    jval = jobj_get(jobj, "key");
-    if (NULL==jval) {
-        return -EBADJSON;
-    }
-    string = jobj_get_string(jval);
-    err = rsh_key_hex2bin(&key, string);
-    if (err<0) {
-        return err;
-    }
-    rshi_key_setup(instance, &key);
-    instance->sec.keystring = os_strdup(string);
-
-    /*
-    * 2. get crypt
-    */
-    jval = jobj_get(jobj, "crypt");
-    if (NULL==jval) {
-        return -EBADJSON;
-    }
-    val = rsh_crypt_getidbyname(jobj_get_string(jval));
-    if (false==is_good_rsh_crypt(val)) {
-        return -EBADJSON;
-    }
-    instance->sec.crypt = val;
-
-    /*
-    * 3. get hmac type
-    */
-    jval = jobj_get(jobj, "hmactype");
-    if (NULL==jval) {
-        return -EBADJSON;
-    }
-    val = sha2_getidbyname(jobj_get_string(jval));
-    if (false==is_good_sha2(val)) {
-        return -EBADJSON;
-    }
-    else if (SHA_224==val) {
-        return -EBADJSON;
-    }
-    instance->sec.hmactype = val;
-    instance->sec.hmacsize = SHA_DIGEST_SIZE(val);
-    
-    /*
-    * 4. get seq
-    */
-    jval = jobj_get(jobj, "seq");
-    if (NULL==jval) {
-        return -EBADJSON;
-    }
-    instance->seq_peer = jobj_get_u32(jval);
-    
-    /*
-    * 5. get seq
-    */
-    jval = jobj_get(jobj, "debug");
-    if (NULL==jval) {
-        return -EBADJSON;
-    }
-    instance->debug = jobj_get_bool(jval);
-    
-    return 0;
-}
-
 int 
-rshi_register(rsh_instance_t *instance, time_t now)
+rshi_handshake(rsh_instance_t *instance, time_t now)
 {
-    static char line[1+OS_FILE_LEN];
-    jobj_t jinput = NULL, joutput = NULL;
-    int err, len;
+    rsh_msg_t *msg = rsha_msg;
+    int err;
 
     /*
-    * 1. prepare cert
+    * zero first
     */
-    char   fcert[1+FCOOKIE_FILE_LEN] = {0};
-    char    fkey[1+FCOOKIE_FILE_LEN] = {0};
-    char fcacert[1+FCOOKIE_FILE_LEN] = {0};
+    os_objzero(msg);
+    rsh_msg_fill(msg, rsha.mac, NULL, 0);
 
-    if (NULL==fcookie_cert(instance->cid, fcert)    || 
-        NULL==fcookie_key(instance->cid, fkey)      ||
-        NULL==fcookie_cacert(instance->cid, fcacert)) {
-        err = -ENOCERT; goto error;
-    }
-
-    /*
-    * 2. prepare input
-    */
-    jinput = rshi_register_pre(instance);
-    if (NULL==jinput) {
-        err = -ENOMEM; goto error;
-    }
+    msg->cmd        = RSH_CMD_HANDSHAKE;
+    msg->flag       = 0;
+    msg->seq        = instance->seq;
+    msg->ack        = 0
+    msg->hmacsize   = instance->sec.hmacsize;
     
-    /*
-    * 3. do register
-    */
-    os_arrayzero(line);
-    err = os_v_pgets(line, sizeof(line), 
-            "curl"
-                " -d '%s'"
-                " --cert %s --key %s --cacert %s"
-                " -s %s",
-            jobj_json(jinput),
-            fcert, fkey, fcacert,
-            instance->registry);
+    err = rshi_send(instance);
     if (err<0) {
-        debug_error("curl err(%d)", err);
-        err = -ECURLFAIL; goto error;
+        return err;
     }
-    
-    joutput = jobj_byjson(line);
-    if (NULL==joutput) {
-        debug_error("bad json=%s", line);
-        err = -EBADJSON; goto error;
-    }
-    
-    /*
-    * 4. analysis output
-    */
-    err = rshi_register_post(instance, joutput, now);
-    if (err<0) {
-        goto error;
-    }
-    
-    /*
-    * 5. switch fsm
-    */
-    err = rshi_fsm(instance, RSH_FSM_REGISTERED, now);
-error:
-    jobj_put(jinput);
-    jobj_put(joutput);
-    fcookie_put_file(fcert);
-    fcookie_put_file(fkey);
-    
-    return err;
+
+    return 0;
 }
 
 /******************************************************************************/

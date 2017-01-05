@@ -114,7 +114,7 @@ static inline int rsh_echo_getidbyname(const char *name);
 #if 1
 #define RSH_FSM_ENUM_MAPPER(_)                  \
     _(RSH_FSM_INIT,         0, "init"),         \
-    _(RSH_FSM_REGISTERED,   1, "registered"),   \
+    _(RSH_FSM_HANDSHAKED,   1, "registered"),   \
     _(RSH_FSM_RESOLVED,     2, "resolved"),     \
     _(RSH_FSM_RUN,          3, "run"),          \
     /* end */
@@ -126,13 +126,13 @@ static inline char *rsh_fsm_getnamebyid(int id);
 static inline int rsh_fsm_getidbyname(const char *name);
 
 #define RSH_FSM_INIT            RSH_FSM_INIT
-#define RSH_FSM_REGISTERED      RSH_FSM_REGISTERED
+#define RSH_FSM_HANDSHAKED      RSH_FSM_HANDSHAKED
 #define RSH_FSM_RESOLVED        RSH_FSM_RESOLVED
 #define RSH_FSM_RUN             RSH_FSM_RUN
 #define RSH_FSM_END             RSH_FSM_END
 
 #define is_rsh_fsm_init(_instance)          (RSH_FSM_INIT==(_instance)->fsm)
-#define is_rsh_fsm_retgistered(_instance)   (RSH_FSM_REGISTERED==(_instance)->fsm)
+#define is_rsh_fsm_handshaked(_instance)    (RSH_FSM_HANDSHAKED==(_instance)->fsm)
 #define is_rsh_fsm_resolved(_instance)      (RSH_FSM_RESOLVED==(_instance)->fsm)
 #define is_rsh_fsm_run(_instance)           (RSH_FSM_RUN==(_instance)->fsm)
 #endif
@@ -208,6 +208,8 @@ static inline int rsh_fsm_getidbyname(const char *name);
 
     4. rshc cli
     rshc insert {sp} {json}
+
+    5. rsha handshake
 */
 
 typedef struct {
@@ -263,8 +265,7 @@ typedef struct {
 
 typedef struct {
     time_t fsm[RSH_FSM_END];
-    time_t command[RSHIST_DIR_END][RSHIST_TYPE_END];
-    time_t echo[RSHIST_DIR_END][RSHIST_TYPE_END];
+    time_t cmd[RSH_CMD_END][RSHIST_DIR_END][RSHIST_TYPE_END];
     time_t busy;
 } rshi_tm_t;
 
@@ -302,7 +303,6 @@ typedef struct {
     bool debug;
     
     uint32 ip;
-    uint32 cid;
     uint32 seq; 
     uint32 seq_noack;
     uint32 seq_peer;
@@ -328,11 +328,6 @@ rsh_instance_t;
 #define RSH_INSTANCE_JRULE_MAPPER(_) \
     _(offsetof(rsh_instance_t, debug), debug, "debug",  \
             bool, sizeof(bool), 0,                      \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, cid), cid, "cid",        \
-            int, sizeof(int), JRULE_F_MUST,             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
@@ -414,19 +409,12 @@ static inline jrule_t *rsh_instance_jrules(void);
 #define rshi_st_send(_instance, _cmd, _is_error) \
     rshi_st(_instance, _cmd, RSHIST_DIR_SEND, rshist_type(_is_error))
 
-#define rshi_tm_command(_instance, _dir, _type) \
-    (_instance)->tm.command[_dir][_type]
-#define rshi_tm_command_recv(_instance, _is_error) \
-    rshi_tm_command(_instance, RSHIST_DIR_RECV, rshist_type(_is_error))
-#define rshi_tm_command_send(_instance, _is_error) \
-    rshi_tm_command(_instance, RSHIST_DIR_SEND, rshist_type(_is_error))
-
-#define rshi_tm_echo(_instance, _dir, _type) \
-    (_instance)->tm.echo[_dir][_type]
-#define rshi_tm_echo_recv(_instance, _is_error) \
-    rshi_tm_echo(_instance, RSHIST_DIR_RECV, rshist_type(_is_error))
-#define rshi_tm_echo_send(_instance, _is_error) \
-    rshi_tm_echo(_instance, RSHIST_DIR_SEND, rshist_type(_is_error))
+#define rshi_tm(_instance, _cmd, _dir, _type) \
+    (_instance)->tm.cmd[_cmd][_dir][_type]
+#define rshi_tm_recv(_instance, _cmd, _is_error) \
+    rshi_tm(_instance, _cmd, RSHIST_DIR_RECV, rshist_type(_is_error))
+#define rshi_tm_send(_instance, _cmd, _is_error) \
+    rshi_tm(_instance, _cmd, RSHIST_DIR_SEND, rshist_type(_is_error))
 
 static inline bool
 is_rshi_server_address(rsh_instance_t *instance, sockaddr_in_t *addr)
@@ -536,7 +524,7 @@ extern int
 rshi_run(rsh_instance_t *instance, time_t now);
 
 extern int 
-rshi_register(rsh_instance_t *instance, time_t now);
+rshi_handshake(rsh_instance_t *instance, time_t now);
 
 extern int 
 rsha_recver(loop_watcher_t *watcher, time_t now);
