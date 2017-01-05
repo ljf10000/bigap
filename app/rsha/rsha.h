@@ -337,11 +337,6 @@ rsh_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, port), port, "port",     \
-            inet, sizeof(int), JRULE_F_MUST,            \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL,                             \
-            JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, error), error, "error",  \
             int, sizeof(int), 0,                        \
             JRULE_VAR_NULL,                             \
@@ -373,7 +368,12 @@ rsh_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
     _(offsetof(rsh_instance_t, ip), ip, "ip",           \
-            ip, sizeof(int), 0,                         \
+            ip, sizeof(uint32), 0,                      \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_instance_t, port), port, "port",     \
+            inet, sizeof(int), JRULE_F_MUST,            \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \

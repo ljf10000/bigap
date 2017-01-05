@@ -1260,6 +1260,8 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             
             break;
         case jtype_inet:
+            debug_json("__jrule_j2o:jtype_inet");
+                
             JRULE_JTYPE_CHECK(jtype_inet);
 
             if (obj) {
