@@ -397,11 +397,15 @@ rshi_handshake(rsh_instance_t *instance, time_t now)
     rsh_msg_t *msg = rsha_msg;
     int err;
 
+    debug_timer("rshi_handshake 1");
+    
     /*
     * zero first
     */
     os_objzero(msg);
     rsh_msg_fill(msg, rsha.mac, NULL, 0);
+
+    debug_timer("rshi_handshake 2");
 
     msg->cmd        = RSH_CMD_HANDSHAKE;
     msg->flag       = 0;
@@ -409,10 +413,13 @@ rshi_handshake(rsh_instance_t *instance, time_t now)
     msg->ack        = 0;
     msg->hmacsize   = instance->sec.hmacsize;
     
+    debug_timer("rshi_handshake 3");
     err = rshi_send(instance);
     if (err<0) {
         return err;
     }
+
+    debug_timer("rshi_handshake 4");
 
     instance->handshake.send = now;
     instance->handshake.sends++;
