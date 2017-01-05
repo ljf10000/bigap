@@ -70,22 +70,16 @@ rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
 STATIC int 
 rshi_send(rsh_instance_t *instance)
 {
-    debug_timer("rshi_send 1");
     rsh_msg_t *msg = rsha_msg;
-    debug_timer("rshi_send 2");
     sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->port);
-    debug_timer("rshi_send 3");
     rsh_over_t over = {
         .cmd    = msg->cmd,
     };
-    debug_timer("rshi_send 4");
     int size    = rsh_msg_size(msg);
-    debug_timer("rshi_send 5");
     int err;
     
     
     rshi_encode(instance);
-    debug_timer("rshi_send 6");
     
     err = io_sendto(instance->fd, msg, size, (sockaddr_t *)&proxy, sizeof(proxy));
     if (err<0) {
@@ -95,7 +89,7 @@ rshi_send(rsh_instance_t *instance)
         err = -EIO; goto error;
     }
     
-    debug_timer("rshi_send 7");
+    debug_timer("rshi_send 7 error:%d", err);
     err = size;
 error:
     rshi_send_over(instance, &over, err<0);
