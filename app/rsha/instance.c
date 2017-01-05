@@ -243,11 +243,17 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
         return err;
     }
 
+    // check
     if (NULL==instance->proxy) {
         return -EBADCONF;
     }
     else if (0==instance->port) {
         return -EBADCONF;
+    }
+
+    // repair
+    if (0==instance->handshake.interval) {
+        instance->handshake.interval = 30;
     }
     
     return 0;
