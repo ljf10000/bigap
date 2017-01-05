@@ -1119,7 +1119,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     bool network = false;
     int err;
 
-    debug_json("__jrule_j2o rule:%s type:%s", rule->name, jtype_getnamebyid(rule->type));
+    japi_println("__jrule_j2o rule:%s type:%s", rule->name, jtype_getnamebyid(rule->type));
     
     if (os_hasflag(rule->flag, JRULE_F_DROP)) {
         if (jval) {
@@ -1262,7 +1262,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             
             break;
         case jtype_inet:
-            debug_json("__jrule_j2o:jtype_inet");
+            japi_println("__jrule_j2o:jtype_inet");
                 
             JRULE_JTYPE_CHECK(jtype_inet);
 
@@ -1322,16 +1322,16 @@ jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jr
     const jrule_t *rule;
     int err;
 
-    debug_json("jrules_apply 1");
+    japi_println("jrules_apply 1");
     JRULE_FOREACH(rule, rules) {
-        debug_json("jrules_apply rule:%s type:%s", rule->name, jtype_getnamebyid(rule->type));
+        japi_println("jrules_apply rule:%s type:%s", rule->name, jtype_getnamebyid(rule->type));
         
         err = (*apply)(rule, obj, jobj);
         if (err<0) {
             return 0;
         }
     }
-    debug_json("jrules_apply 2");
+    japi_println("jrules_apply 2");
 
     return 0;
 }
@@ -1373,7 +1373,7 @@ jrule_o2j(const jrule_t *rules, void *obj, jobj_t jobj)
 int
 jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj)
 {
-    debug_json("jrule_j2o 1");
+    japi_println("jrule_j2o 1");
     
     if (NULL==rules) {
         return -EINVAL3;
@@ -1382,7 +1382,7 @@ jrule_j2o(const jrule_t *rules, void *obj, jobj_t jobj)
         return 0;
     }
 
-    debug_json("jrule_j2o 2");
+    japi_println("jrule_j2o 2");
 
     return jrules_apply(rules, obj, jobj, __jrule_j2o);
 }
