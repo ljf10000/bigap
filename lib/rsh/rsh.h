@@ -124,21 +124,12 @@ error:
 }
 
 static inline rsh_key_t *
-rsh_key_setup(rsh_key_t *dst, rsh_key_t *src)
+rsh_key_setup(rsh_key_t *key)
 {
-    dst->size = src->size;
-    aes_key_setup(src->key, dst->key32, 8*src->size);
+    aes_key_setup(key->key, key->key32, 8*key->size);
 
-    return dst;
+    return key;
 }
-
-typedef struct {
-    uint32 type;
-
-    union {
-        rsh_key_t key;
-    } u;
-} rsh_update_t;
 
 typedef struct {
     byte    cmd;
@@ -164,13 +155,12 @@ typedef struct {
     */
     uint16  len;    
 
-    byte    _r1[2];
+    byte    r0[2];
     byte    mac[OS_MACSIZE];
 
-    uint16  _r2[2];
     uint32  seq;
     uint32  ack;
-    uint32  _r3;
+    uint32  r1[2];
 
     byte hmac[0]; // after hton, before encrypt
 } 

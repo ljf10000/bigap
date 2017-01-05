@@ -114,7 +114,7 @@ static inline int rsh_echo_getidbyname(const char *name);
 #if 1
 #define RSH_FSM_ENUM_MAPPER(_)                  \
     _(RSH_FSM_INIT,         0, "init"),         \
-    _(RSH_FSM_HANDSHAKED,   1, "registered"),   \
+    _(RSH_FSM_HANDSHAKED,   1, "handshaked"),   \
     _(RSH_FSM_RESOLVED,     2, "resolved"),     \
     _(RSH_FSM_RUN,          3, "run"),          \
     /* end */
@@ -138,13 +138,11 @@ static inline int rsh_fsm_getidbyname(const char *name);
 #endif
 
 /*
-    1. rsha json config
+    1. rshc insert {sp} {json}
     {
-        "sp": "NAME",                   // must
         "proxy": "PROXY",               // must
-        "registry": "REGISTRY",         // must
-        "cid": CID,                     // must
         "port": PORT,                   // must
+        "registry": "REGISTRY",         // must
         
         "cache": "CACHE-PATH",          // option
         "flash": "FLASH-PATH",          // option
@@ -157,6 +155,12 @@ static inline int rsh_fsm_getidbyname(const char *name);
                 "interval": INTERVAL,
                 "times", TIMES
             }
+        },
+        "sec": {
+            "pmk": "KEY-HEX-STRING",
+            "key": "KEY-HEX-STRING",
+            "crypt": "aes",
+            "hmactype": "hmac type:sha224/256/384/512",
         }
     }
     
@@ -183,14 +187,12 @@ static inline int rsh_fsm_getidbyname(const char *name);
     2.2 hmevent
     {
         "sp": "sp-name",
-        "event": "register",
+        "event": "handshake",
         "rsh": {
             "pmk": "KEY-HEX-STRING",
             "key": "KEY-HEX-STRING",
             "crypt": "aes",
-            "hmactype": "hmac type:sha224/256/384/512",
-            "seq": PROXY-BEGIN-SEQ,
-            "debug": true/false
+            "hmactype": "hmac type:sha224/256/384/512"
         }
     }
     
@@ -201,15 +203,8 @@ static inline int rsh_fsm_getidbyname(const char *name);
         "pmk": "KEY-HEX-STRING",
         "key": "KEY-HEX-STRING",
         "crypt": "aes",
-        "hmactype": "hmac type:sha224/256/384/512",
-        "seq": PROXY-BEGIN-SEQ,
-        "debug": true/false
+        "hmactype": "hmac type:sha224/256/384/512"
     }
-
-    4. rshc cli
-    rshc insert {sp} {json}
-
-    5. rsha handshake
 */
 
 typedef struct {
@@ -303,7 +298,7 @@ typedef struct {
     bool debug;
     
     uint32 ip;
-    uint32 seq; 
+    uint32 seq;
     uint32 seq_noack;
     uint32 seq_peer;
     uint32 peer_error;
@@ -467,8 +462,10 @@ rshi_key_setup(rsh_instance_t *instance, rsh_key_t *key)
 {
     instance->sec.update++;
     instance->sec.current = !instance->sec.current;
+
+    os_objcpy(rshi_key(instance), key);
     
-    return rsh_key_setup(rshi_key(instance), key);
+    return rsh_key_setup(rshi_key(instance));
 }
 
 typedef struct {
@@ -500,7 +497,7 @@ rshi_fsm_restart(rsh_instance_t *instance, time_t now)
 }
 
 extern int
-rshi_insert(jobj_t jobj);
+rshi_insert(char *sp, char *json);
 
 extern int
 rshi_remove(char *sp);

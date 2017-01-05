@@ -165,18 +165,12 @@ __rshi_o2j(rsh_instance_t *instance)
 }
 
 STATIC int
-__rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
+__rshi_echo_j2o(rsh_instance_t *instance, jobj_t jobj)
 {
-    jobj_t jecho;
-    int i, err;
-
-    err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
-    if (err<0) {
-        return err;
-    }
-    
-    jecho = jobj_get(jobj, "echo");
+    jobj_t jecho = jobj_get(jobj, "echo");
     if (jecho) {
+        int i;
+        
         for (i=0; i<RSH_ECHO_END; i++) {
             rsh_echo_j2o(rshi_echo_getby(instance, i), jobj_get(jecho, rsh_echo_getnamebyid(i)));
         }
@@ -190,6 +184,50 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
         echo = rshi_echo_getby(instance, RSH_ECHO_BUSY);
         echo->interval  = os_second(RSHA_ECHO_BUSY_INTERVAL);
         echo->times     = RSHA_ECHO_BUSY_TIMES;
+    }
+
+    return 0;
+}
+
+STATIC int
+__rshi_sec_j2o(rsh_instance_t *instance, jobj_t jobj)
+{
+    jobj_t jsec = jobj_get(jobj, "sec");
+    if (NULL==jsec) {
+        return -EBADJSON;
+    }
+
+    __jj_string(&instance.sec, jsec, pmk, pmkstring);
+    __jj_string(&instance.sec, jsec, key, keystring);
+    jj_byeq(&instance.sec, jsec, crypt, rsh_crypt_getidbyname);
+    jj_byeq(&instance.sec, jsec, hmactype, sha2_getidbyname);
+    instance.sec.hmacsize = SHA_DIGEST_SIZE(instance.sec.hmactype);
+    rsh_key_hex2bin(&instance.sec.pmk, instance.sec.pmkstring);
+    rsh_key_setup(&instance.sec.pmk);
+    rsh_key_hex2bin(rshi_key(instance), instance.sec.keystring);
+    rsh_key_setup(rshi_key(instance));
+
+    return 0;
+}
+
+STATIC int
+__rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
+{
+    int err;
+    
+    err = __rshi_sec_j2o(instance, jobj);
+    if (err<0) {
+        return err;
+    }
+    
+    err = __rshi_echo_j2o(instance, jobj);
+    if (err<0) {
+        return err;
+    }
+    
+    err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
+    if (err<0) {
+        return err;
     }
 
     return 0;
@@ -262,7 +300,7 @@ __rshi_init(rsh_instance_t *instance, char *sp, jobj_t jobj)
     int err;
     
     instance->fd    = INVALID_FD;
-    instance->sp  = os_strdup(sp);
+    instance->sp    = os_strdup(sp);
     instance->peer_error_max = RSHI_PEER_ERROR_MAX;
     
     err = __rshi_j2o(instance, jobj);
@@ -281,17 +319,19 @@ __rshi_create(char *sp, jobj_t jobj)
 {
     rsh_instance_t *instance = (rsh_instance_t *)os_zalloc(sizeof(rsh_instance_t));
     if (NULL==instance) {
-        return NULL;
+        goto error;
     }
     
     int err = __rshi_init(instance, sp, jobj);
     if (err<0) {
-        __rshi_destroy(instance);
-
-        return NULL;
+        goto error;
     }
     
     return instance;
+error:
+    __rshi_destroy(instance);
+
+    return NULL;
 }
 
 STATIC int
@@ -407,36 +447,39 @@ rshi_fsm(rsh_instance_t *instance, int fsm, time_t now)
 }
 
 int
-rshi_insert(jobj_t jobj)
+rshi_insert(char *sp, char *json)
 {
+    jobj_t jobj = NULL;
     int err;
-
-    char *sp = jobj_get_string(jobj_get(jobj, "sp"));
-    if (NULL==sp) {
-        debug_cli("no-found sp");
-        
-        return -EBADJSON;
-    }
 
     if (rshi_getbysp(sp)) {
         debug_entry("instance %s exist.", sp);
         
-        return -EEXIST;
+        err = -EEXIST; goto error;
+    }
+
+    jobj = jobj_byjson(json);
+    if (NULL==jobj) {
+        err = -EBADJSON; goto error;
     }
     
     rsh_instance_t *instance = __rshi_create(sp, jobj);
     if (NULL==instance) {
-        return -ENOMEM;
+        err = -ENOMEM; goto error;
     }
 
     err = __rshi_insert(instance);
     if (err<0) {
         debug_entry("insert %s error:%d", sp, err);
         
-        return err;
+        goto error;
     }
     
     return 0;
+error:
+    jobj_put(jobj);
+
+    return err;
 }
 
 int

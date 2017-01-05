@@ -12,9 +12,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __DEAMON__
 #define __THIS_USAGE \
     "rshc usage:"                   __crlf \
-    __tab "rshc insert {json}"      __crlf \
-    __tab "rshc remove {name}"      __crlf \
-    __tab "rshc show [name]"        __crlf \
+    __tab "rshc insert {sp} {json}" __crlf \
+    __tab "rshc remove {sp}"        __crlf \
+    __tab "rshc show [sp]"          __crlf \
     /* end */
 #include "rsha.h"
 /******************************************************************************/
@@ -24,16 +24,16 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 STATIC int
 rsha_handle_remove(cli_table_t *table, int argc, char *argv[])
 {
-    char *name = argv[1];
+    char *sp = argv[1];
     
     if (2 != argc) {
         return cli_help(-EINVAL0);
     }
-    else if (os_strlen(name) > RSHI_SPSIZE) {
+    else if (os_strlen(sp) > RSHI_SPSIZE) {
         return cli_help(-ETOOBIG);
     }
 
-    return rshi_remove(name);
+    return rshi_remove(sp);
 }
 
 /*
@@ -42,18 +42,14 @@ rsha_handle_remove(cli_table_t *table, int argc, char *argv[])
 STATIC int
 rsha_handle_insert(cli_table_t *table, int argc, char *argv[])
 {
-    char *json = argv[1];
+    char *sp    = argv[0];
+    char *json  = argv[1];
     
-    if (2!=argc) {
+    if (3!=argc) {
         return cli_help(-EINVAL0);
     }
 
-    jobj_t jobj = jobj_byjson(json);
-    if (NULL==jobj) {
-        return cli_help(-EBADJSON);
-    }
-
-    return rshi_insert(jobj);
+    return rshi_insert(sp, json);
 }
 
 /*
@@ -62,16 +58,16 @@ rsha_handle_insert(cli_table_t *table, int argc, char *argv[])
 STATIC int
 rsha_handle_show(cli_table_t *table, int argc, char *argv[])
 {
-    char *name = argv[1];
+    char *sp = argv[1];
     
     if (2 != argc && 1 != argc) {
         return cli_help(-EINVAL0);
     }
-    else if (name && os_strlen(name) > RSHI_SPSIZE) {
+    else if (sp && os_strlen(sp) > RSHI_SPSIZE) {
         return cli_help(-ETOOBIG);
     }
 
-    return rshi_show(name);
+    return rshi_show(sp);
 }
 
 STATIC int
