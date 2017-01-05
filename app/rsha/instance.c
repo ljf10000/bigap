@@ -226,18 +226,24 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
     
     err = __rshi_sec_j2o(instance, jobj);
     if (err<0) {
+        debug_error("bad instance %s's sec");
+        
         return err;
     }
     
     err = __rshi_echo_j2o(instance, jobj);
     if (err<0) {
+        debug_error("bad instance %s's echo");
+        
         return err;
     }
     
+    debug_error("__rshi_j2o jrule_j2o ...");
     err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
     if (err<0) {
         return err;
     }
+    debug_error("__rshi_j2o jrule_j2o ok.");
 
     if (NULL==instance->proxy) {
         return -EBADCONF;
