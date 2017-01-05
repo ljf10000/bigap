@@ -312,7 +312,7 @@ static inline void
 rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
 {
     os_println("msg before encode:");
-    os_dump_buffer(msg, len)
+    os_dump_buffer(msg, len);
     
     /*
     * 1. network==>host
@@ -324,7 +324,7 @@ rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hma
     rsh_msg_encrypt(msg, len, pmk, key);
 
     os_println("msg after encode:");
-    os_dump_buffer(msg, len)
+    os_dump_buffer(msg, len);
 }
 
 static inline void
