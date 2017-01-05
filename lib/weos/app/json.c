@@ -1119,6 +1119,8 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     bool network = false;
     int err;
 
+    debug_json("__jrule_j2o rule:%s type:%s", rule->name, jtype_getnamebyid(rule->type));
+    
     if (os_hasflag(rule->flag, JRULE_F_DROP)) {
         if (jval) {
             debug_json("drop json key %s", rule->name);
