@@ -45,7 +45,11 @@ rshi_recv(rsh_instance_t *instance)
     if (err<0) {
         return err;
     }
-    else if (false==is_good_rsh_msg_size(len)) {
+
+    os_println("recv msg size:%d", len);
+    os_dump_buffer(msg, len);
+    
+    if (false==is_good_rsh_msg_size(len)) {
         return -EBADSIZE;
     }
     else if (false==is_rshi_server_address(instance, &addr)) {
