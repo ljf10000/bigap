@@ -29,7 +29,7 @@ rsha_handle_remove(cli_table_t *table, int argc, char *argv[])
     if (2 != argc) {
         return cli_help(-EINVAL0);
     }
-    else if (os_strlen(name) > RSHI_NAMESIZE) {
+    else if (os_strlen(name) > RSHI_SPSIZE) {
         return cli_help(-ETOOBIG);
     }
 
@@ -67,7 +67,7 @@ rsha_handle_show(cli_table_t *table, int argc, char *argv[])
     if (2 != argc && 1 != argc) {
         return cli_help(-EINVAL0);
     }
-    else if (name && os_strlen(name) > RSHI_NAMESIZE) {
+    else if (name && os_strlen(name) > RSHI_SPSIZE) {
         return cli_help(-ETOOBIG);
     }
 
