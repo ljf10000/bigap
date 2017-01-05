@@ -264,7 +264,7 @@ __rshi_add_watcher(rsh_instance_t *instance)
 {
     int err, fd;
 
-    fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (fd<0) {
         debug_error("instance %s socket error:%d", instance->sp, -errno);
         
