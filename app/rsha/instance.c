@@ -274,18 +274,6 @@ __rshi_add_watcher(rsh_instance_t *instance)
     instance->fd = fd;
     debug_entry("instance %s setup socket %d ok", instance->sp, fd);
 
-    sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->port);
-    err = connect(fd, (sockaddr_t *)&proxy, sizeof(proxy));
-    if (err<0) {
-        debug_error("instance %s connect %s:%s error:%d", 
-            instance->sp, 
-            os_ipstring(instance->ip), 
-            ntohl(instance->port),
-            -errno);
-        
-        return -errno;
-    }
-
     err = os_loop_add_normal(&rsha.loop, fd, rsha_recver, instance);
     if (err<0) {
         return err;

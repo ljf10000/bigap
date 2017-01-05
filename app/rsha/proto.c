@@ -68,15 +68,20 @@ STATIC int
 rshi_send(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
+    sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->port);
     rsh_over_t over = {
         .cmd    = msg->cmd,
     };
     int size    = rsh_msg_size(msg);
     int err;
     
+    debug_proto("instance %s send %s to %s:%d", 
+        instance->sp, rsh_cmd_getnamebyid(over.cmd), 
+        os_ipstring(instance->ip), ntohl(instance->port));
+
     rshi_encode(instance);
     
-    err = io_send(instance->fd, msg, size);
+    err = io_sendto(instance->fd, msg, size, (sockaddr_t *)&proxy, sizeof(proxy));
     if (err<0) {
         goto error;
     }
