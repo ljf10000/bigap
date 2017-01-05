@@ -189,7 +189,7 @@ enum {
     EBADJSON    = ERRNO(26),
     EBADFSM     = ERRNO(27),
     EBADHEX     = ERRNO(28),
-    EBADCFG     = ERRNO(29),
+    
     EBADPROTO   = ERRNO(30),
     EBADVERSION = ERRNO(31),
     EBADSLOT    = ERRNO(32),

@@ -239,6 +239,10 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
         return err;
     }
 
+    if (NULL==instance->proxy) {
+        return -EBADCONF;
+    }
+    
     return 0;
 }
 
