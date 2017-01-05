@@ -140,7 +140,7 @@ static inline int rsh_fsm_getidbyname(const char *name);
 /*
     1. rsha json config
     {
-        "name": "NAME",                 // must
+        "sp": "NAME",                   // must
         "proxy": "PROXY",               // must
         "registry": "REGISTRY",         // must
         "cid": CID,                     // must
@@ -160,16 +160,17 @@ static inline int rsh_fsm_getidbyname(const char *name);
         }
     }
     
-    2. rsh register
-    2.1 input json
+    2. hmd 
+    2.1 register
+    input json
     {
-        "service": "rsh",
-        "product": "PRODUCT",
-        "mac": "DEV-BASE-MAC",
-        "seq": AGENT-BEGIN-SEQ
+        "version": 1,
+        "method": "getdev",
+        "user": "rsh",
+        "mac": "DEV-BASE-MAC"
     }
     
-    2.2 output json
+    output json:
     {
         "pmk": "KEY-HEX-STRING",
         "key": "KEY-HEX-STRING",
@@ -178,6 +179,35 @@ static inline int rsh_fsm_getidbyname(const char *name);
         "seq": PROXY-BEGIN-SEQ,
         "debug": true/false
     }
+
+    2.2 hmevent
+    {
+        "sp": "sp-name",
+        "event": "register",
+        "rsh": {
+            "pmk": "KEY-HEX-STRING",
+            "key": "KEY-HEX-STRING",
+            "crypt": "aes",
+            "hmactype": "hmac type:sha224/256/384/512",
+            "seq": PROXY-BEGIN-SEQ,
+            "debug": true/false
+        }
+    }
+    
+    3. hmc cli
+    3.1 hmc show {sp} rsh
+    output:
+    {
+        "pmk": "KEY-HEX-STRING",
+        "key": "KEY-HEX-STRING",
+        "crypt": "aes",
+        "hmactype": "hmac type:sha224/256/384/512",
+        "seq": PROXY-BEGIN-SEQ,
+        "debug": true/false
+    }
+
+    4. rshc cli
+    rshc insert {sp} {json}
 */
 
 typedef struct {

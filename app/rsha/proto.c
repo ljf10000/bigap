@@ -87,7 +87,6 @@ rshi_send(rsh_instance_t *instance)
     sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->port);
     rsh_over_t over = {
         .cmd    = msg->cmd,
-        .update = rsh_msg_update_type(msg),
     };
     int size    = rsh_msg_size(msg);
     int err;
@@ -241,27 +240,6 @@ rshi_noack_recv_checker(rsh_instance_t *instance, time_t now)
     return 0;
 }
 
-STATIC int 
-rshi_update_recv_checker(rsh_instance_t *instance, time_t now)
-{
-    rsh_msg_t *msg = rsha_msg;
-    rsh_update_t *update = rsh_msg_update(msg);
-    
-    if (is_rsh_msg_ack(msg)) {
-        return rshi_ack_error(instance, -RSH_E_FLAG, 
-            "time[%s] update with ack flag",
-            os_fulltime_string(now));
-    }
-    else if (false==is_good_rsh_update(update->type)) {
-        return rshi_ack_error(instance, -RSH_E_FLAG, 
-            "time[%s] invalid update[%d]",
-            os_fulltime_string(now),
-            update->type);
-    }
-    
-    return 0;
-}
-
 STATIC void 
 rshi_echo_recver(rsh_instance_t *instance, time_t now)
 {
@@ -277,32 +255,12 @@ rshi_command_recver(rsh_instance_t *instance, time_t now)
     rshi_exec(instance, (char *)rsh_msg_body(msg));
 }
 
-STATIC void 
-rshi_update_key_recver(rsh_instance_t *instance, time_t now)
-{
-    rsh_msg_t *msg = rsha_msg;
-
-    rshi_key_setup(instance, rsh_msg_key(msg));
-}
-
-STATIC void 
-rshi_update_recver(rsh_instance_t *instance, time_t now)
-{
-    static void (*updater[RSH_UPDATE_END])(rsh_instance_t *instance, time_t now) = {
-        [RSH_UPDATE_KEY]    = rshi_update_key_recver,
-    };
-    rsh_msg_t *msg = rsha_msg;
-
-    (*updater[msg->cmd])(instance, now);
-}
-
 STATIC int 
 rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
 {
     static int (*checker[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
         [RSH_CMD_ECHO]      = rshi_echo_recv_checker,
         [RSH_CMD_COMMAND]   = rshi_noack_recv_checker,
-        [RSH_CMD_UPDATE]    = rshi_update_recv_checker,
     };
     
     int size = rsh_msg_size(msg);
@@ -389,12 +347,6 @@ rshi_recv_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
             rshi_tm_command_recv(instance, is_error)++;
             
             break;
-        case RSH_CMD_UPDATE:
-            if (is_good_rsh_update(over->update)) {
-                rshi_tm_update_recv(instance, over->update, is_error)++;
-            }
-            
-            break;
     }
 }
 
@@ -404,14 +356,12 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     static void (*recver[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
         [RSH_CMD_ECHO]      = rshi_echo_recver,
         [RSH_CMD_COMMAND]   = rshi_command_recver,
-        [RSH_CMD_UPDATE]    = rshi_update_recver,
     };
     
     rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
     rsh_msg_t *msg = rsha_msg;
     rsh_over_t over = {
         .cmd    = RSH_CMD_UNKNOW,
-        .update = RSH_UPDATE_END,
     };
     int err, len;
 
@@ -420,7 +370,6 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
         goto error;
     }
     over.cmd    = msg->cmd;
-    over.update = rsh_msg_update_type(msg);
 
     err = rshi_recv_checker(instance, now, msg, len);
     if (err<0) {

@@ -73,7 +73,7 @@ if content:exist, filename:exist, then
     "exectime": "1900-01-01 00:00:00",
     "seq": SEQ-NUMBER,
     "id": "GUID",
-    "type": "error/reply",
+    "ack": "error/reply",
     "reply": {
         "stdout": "STDOUT",
         "stderr": "STDERR",

@@ -16,23 +16,8 @@
 #endif
 
 #define RSH_KEY_SIZE                (RSH_KEY_BITS/sizeof(uint8))
-#define RSH_KEY32_SIZE              60
+#define RSH_KEY32_COUNT             AES_KEY32_COUNT
 /******************************************************************************/
-#if 1
-#define RSH_TLV_ENUM_MAPPER(_) \
-    _(RSH_TLV_UNKNOW,   0, "unknow"),   \
-    /* end */
-DECLARE_ENUM(rsh_tlv, RSH_TLV_ENUM_MAPPER, RSH_TLV_END);
-
-static inline enum_ops_t *rsh_tlv_ops(void);
-static inline bool is_good_rsh_tlv(int id);
-static inline char *rsh_tlv_getnamebyid(int id);
-static inline int rsh_tlv_getidbyname(const char *name);
-
-#define RSH_TLV_UNKNOW  RSH_TLV_UNKNOW
-#define RSH_TLV_END     RSH_TLV_END
-#endif
-
 #if 1
 #define RSH_CRYPT_ENUM_MAPPER(_)    \
     _(RSH_CRYPT_AES,    0, "aes"),  \
@@ -68,9 +53,9 @@ static inline int rsh_crypt_getidbyname(const char *name);
 #if 1
 #define RSH_CMD_ENUM_MAPPER(_) \
     _(RSH_CMD_UNKNOW,   0, "unknow"),       \
-    _(RSH_CMD_ECHO,     1, "echo"),         \
-    _(RSH_CMD_COMMAND,  2, "command"),      \
-    _(RSH_CMD_UPDATE,   3, "update"),       \
+    _(RSH_CMD_HANDSHAKE,1, "handshake"),    \
+    _(RSH_CMD_ECHO,     2, "echo"),         \
+    _(RSH_CMD_COMMAND,  3, "command"),      \
     /* end */
 DECLARE_ENUM(rsh_cmd, RSH_CMD_ENUM_MAPPER, RSH_CMD_END);
 
@@ -80,35 +65,19 @@ static inline char *rsh_cmd_getnamebyid(int id);
 static inline int rsh_cmd_getidbyname(const char *name);
 
 #define RSH_CMD_UNKNOW      RSH_CMD_UNKNOW
+#define RSH_CMD_HANDSHAKE   RSH_CMD_HANDSHAKE
 #define RSH_CMD_ECHO        RSH_CMD_ECHO
 #define RSH_CMD_COMMAND     RSH_CMD_COMMAND
-#define RSH_CMD_UPDATE      RSH_CMD_UPDATE
 #define RSH_CMD_END         RSH_CMD_END
 
 static inline bool is_valid_rsh_cmd(int id)
 {
-    return is_good_value(id, RSH_CMD_ECHO, RSH_CMD_END);
+    return is_good_value(id, RSH_CMD_REGISTER, RSH_CMD_END);
 }
-#endif
-
-#if 1
-#define RSH_UPDATE_ENUM_MAPPER(_) \
-    _(RSH_UPDATE_KEY,   0, "key"),      \
-    /* end */
-DECLARE_ENUM(rsh_update, RSH_UPDATE_ENUM_MAPPER, RSH_UPDATE_END);
-
-static inline enum_ops_t *rsh_update_ops(void);
-static inline bool is_good_rsh_update(int id);
-static inline char *rsh_update_getnamebyid(int id);
-static inline int rsh_update_getidbyname(const char *name);
-
-#define RSH_UPDATE_KEY      RSH_UPDATE_KEY
-#define RSH_UPDATE_END      RSH_UPDATE_END
 #endif
 
 enum {
     RSH_F_ACK   = 0x01,
-    RSH_F_TLV   = 0x10,
 };
 
 enum {
@@ -129,7 +98,7 @@ typedef struct {
     uint32  size; // byte count
     byte    key[  RSH_KEY_SIZE];
     
-    uint32  key32[RSH_KEY32_SIZE];
+    uint32  key32[RSH_KEY32_COUNT];
 } rsh_key_t;
 
 static inline int
@@ -208,7 +177,6 @@ rsh_msg_t;        // 32 == sizeof(rsh_msg_t)
 
 typedef struct {
     int cmd;
-    int update;
 } rsh_over_t;
 
 enum {
@@ -245,27 +213,9 @@ rsh_msg_body(rsh_msg_t *msg)
 }
 
 static inline char *
-rsh_msg_current_body(rsh_msg_t *msg)
+rsh_msg_current(rsh_msg_t *msg)
 {
     return (char *)rsh_msg_body(msg) + msg->len;
-}
-
-static inline rsh_update_t *
-rsh_msg_update(rsh_msg_t *msg)
-{
-    return (rsh_update_t *)rsh_msg_body(msg);
-}
-
-static inline int
-rsh_msg_update_type(rsh_msg_t *msg)
-{
-    return (int)rsh_msg_update(msg)->type;
-}
-
-static inline rsh_key_t *
-rsh_msg_key(rsh_msg_t *msg)
-{
-    return &rsh_msg_update(msg)->u.key;
 }
 
 /*
@@ -285,31 +235,9 @@ rsh_emsg_body(rsh_msg_t *msg)
 }
 
 static inline void
-rsh_key_hton(rsh_key_t *key)
-{
-    key->size = htonl(key->size);
-}
-#define rsh_key_ntoh(_secret)    rsh_key_hton(_secret)
-
-static inline void
-rsh_update_hton(rsh_update_t *update)
-{
-    update->type = htonl(update->type);
-    rsh_key_hton(&update->u.key);
-}
-#define rsh_update_ntoh(_update)    rsh_update_hton(_update)
-
-static inline void
 rsh_body_hton(rsh_msg_t *msg)
 {
-    switch(msg->cmd) {
-        case RSH_CMD_UPDATE:
-            rsh_update_hton(rsh_msg_update(msg));
-            
-            break;
-        default:
-            break;
-    }
+    os_do_nothing();
 }
 #define rsh_body_ntoh(_msg)  rsh_body_hton(_msg)
 
@@ -428,8 +356,8 @@ rsh_msg_append(rsh_msg_t *msg, void *buf, int len)
         return -ETOOBIG;
     }
 
-    os_memcpy(rsh_msg_current_body(msg), buf, len);
-    os_memzero(rsh_msg_current_body(msg) + len, len % AES_BLOCK_SIZE);
+    os_memcpy(rsh_msg_current(msg), buf, len);
+    os_memzero(rsh_msg_current(msg) + len, len % AES_BLOCK_SIZE);
     msg->len += len;
 
     return 0;
