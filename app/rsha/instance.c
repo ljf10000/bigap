@@ -223,6 +223,8 @@ STATIC int
 __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
 {
     int err;
+
+    debug_error("__rshi_j2o 1");
     
     err = __rshi_sec_j2o(instance, jobj);
     if (err<0) {
@@ -231,6 +233,7 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
         return err;
     }
     
+    debug_error("__rshi_j2o 2");
     err = __rshi_echo_j2o(instance, jobj);
     if (err<0) {
         debug_error("bad instance %s's echo");
@@ -238,10 +241,13 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
         return err;
     }
     
+    debug_error("__rshi_j2o 3");
     err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
     if (err<0) {
         return err;
     }
+
+    debug_error("__rshi_j2o 4");
 
     // check
     if (NULL==instance->proxy) {
@@ -250,6 +256,8 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
     else if (0==instance->port) {
         return -EBADCONF;
     }
+
+    debug_error("__rshi_j2o 5");
 
     // repair
     if (0==instance->handshake.interval) {
