@@ -139,25 +139,26 @@ typedef struct {
     *   64: SHA512_DIGEST_SIZE
     */
     byte    hmacsize;
-    /*
-    * is  ack: check it
-    * not ack: ignore it
-    */
-    int8    error;
-
+    byte    r0;
+    
     uint16  flag;
     /*
     * NOT include rsh header
     * NOT include hmac
     */
-    uint16  len;    
+    uint16  len;
 
-    byte    r0[2];
+    /*
+    * is  ack: check it
+    * not ack: ignore it
+    */
+    int16   error;
     byte    mac[OS_MACSIZE];
 
     uint32  seq;
     uint32  ack;
-    uint32  r1[2];
+    uint32  r1;
+    uint32  r2;
 
     byte hmac[0]; // after hton, before encrypt
 } 
@@ -239,6 +240,9 @@ rsh_hdr_hton(rsh_msg_t *msg)
     
     msg->seq    = htonl(msg->seq);
     msg->ack    = htonl(msg->ack);
+    msg->r1     = htonl(msg->r1);
+    msg->r2     = htonl(msg->r2);
+
 }
 #define rsh_hdr_ntoh(_msg)  rsh_hdr_hton(_msg)
 
