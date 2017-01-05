@@ -274,6 +274,7 @@ __rshi_add_watcher(rsh_instance_t *instance)
     instance->fd = fd;
     debug_entry("instance %s setup socket %d ok", instance->sp, fd);
 
+#if 0
     sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, htons(28744));
     err = bind(fd, (sockaddr_t *)&client, sizeof(client));
     if (err<0) {
@@ -281,6 +282,7 @@ __rshi_add_watcher(rsh_instance_t *instance)
         
         return -errno;
     }
+#endif
 
     err = os_loop_add_normal(&rsha.loop, fd, rsha_recver, instance);
     if (err<0) {
