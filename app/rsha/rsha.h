@@ -301,13 +301,13 @@ typedef struct {
     char *flash;
 
     int fd;
-    int port;
+    int port;   // host sort
     int fsm;
     int error;
     
     bool debug;
     
-    uint32 ip;
+    uint32 ip;  // network sort
     uint32 seq;
     uint32 seq_noack;
     uint32 seq_peer;
@@ -367,13 +367,13 @@ rsh_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, ip), ip, "ip",           \
-            ip, sizeof(uint32), 0,                      \
+    _(offsetof(rsh_instance_t, port), port, "port",     \
+            int, sizeof(int), JRULE_F_MUST,             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, port), port, "port",     \
-            inet, sizeof(int), JRULE_F_MUST,            \
+    _(offsetof(rsh_instance_t, ip), ip, "ip",           \
+            ip, sizeof(uint32), 0,                      \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
