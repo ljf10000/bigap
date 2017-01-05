@@ -64,6 +64,7 @@ rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
     rshi_tm_send(instance, over->cmd, is_error) = time(NULL);
 }
 
+#if 0
 STATIC int 
 rshi_send(rsh_instance_t *instance)
 {
@@ -95,6 +96,32 @@ error:
     
     return err;
 }
+#else
+STATIC int 
+rshi_send(rsh_instance_t *instance)
+{
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (fd<0) {
+        os_println("instance %s socket error:%d", instance->sp, -errno);
+        
+        return fd;
+    }
+    os_closexec(fd);
+
+    uint32 ip = os_ipaddr("192.168.1.13");
+    uint16 port = htons(28742);
+    
+    struct sockaddr_in proxy = OS_SOCKADDR_INET(ip, port);
+    
+    int err = sendto(fd, "asdf", 4, 0, (struct sockaddr *)&proxy, sizeof(proxy));
+    if (err<0) {
+        os_println("sendto 192.168.1.13:28742 error:%d", -errno);
+    }
+
+    return 0;
+}
+
+#endif
 
 STATIC int
 rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
