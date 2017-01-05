@@ -197,12 +197,12 @@ __rshi_sec_j2o(rsh_instance_t *instance, jobj_t jobj)
         return -EBADJSON;
     }
 
-    __jj_string(&instance.sec, jsec, pmk, pmkstring);
-    __jj_string(&instance.sec, jsec, key, keystring);
-    jj_byeq(&instance.sec, jsec, crypt, rsh_crypt_getidbyname);
-    jj_byeq(&instance.sec, jsec, hmactype, sha2_getidbyname);
-    instance.sec.hmacsize = SHA_DIGEST_SIZE(instance.sec.hmactype);
-    rsh_key_hex2bin(&instance.sec.pmk, instance.sec.pmkstring);
+    __jj_string(&instance->sec, jsec, pmk, pmkstring);
+    __jj_string(&instance->sec, jsec, key, keystring);
+    jj_byeq(&instance->sec, jsec, crypt, rsh_crypt_getidbyname);
+    jj_byeq(&instance->sec, jsec, hmactype, sha2_getidbyname);
+    instance->sec.hmacsize = SHA_DIGEST_SIZE(instance.sec.hmactype);
+    rsh_key_hex2bin(rshi_pmk(instance), instance.sec.pmkstring);
     rsh_key_hex2bin(rshi_key(instance), instance.sec.keystring);
 
     return 0;
