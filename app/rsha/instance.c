@@ -102,7 +102,7 @@ __rshi_tm_fsm_o2j(time_t fsm[RSH_FSM_END])
 STATIC void
 __rshi_tm_a3_jadd(jobj_t jobj, int idx, uint32 val)
 {
-    jobj_add_string(jobj, rshist_type_getnamebyid(idx), os_fulltime_string(val[idx]));
+    jobj_add_string(jobj, rshist_type_getnamebyid(idx), os_fulltime_string(val));
 }
 
 STATIC jobj_t
@@ -121,7 +121,7 @@ __rshi_tm_o2j(rshi_tm_t *tm)
 STATIC void
 __rshi_st_a3_jadd(jobj_t jobj, int idx, uint32 val)
 {
-    jobj_add_u32(jobj, rshist_type_getnamebyid(idx), val[idx]);
+    jobj_add_u32(jobj, rshist_type_getnamebyid(idx), val);
 }
 
 STATIC jobj_t
