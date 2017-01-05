@@ -60,11 +60,8 @@ rshi_recv(rsh_instance_t *instance)
 STATIC void
 rshi_send_over(rsh_instance_t *instance, rsh_over_t *over, bool is_error)
 {
-    debug_timer("rshi_send_over 1");
     rshi_st_send(instance, over->cmd, is_error)++;
-    debug_timer("rshi_send_over 2");
     rshi_tm_send(instance, over->cmd, is_error) = time(NULL);
-    debug_timer("rshi_send_over 3");
 }
 
 STATIC int 
@@ -89,13 +86,12 @@ rshi_send(rsh_instance_t *instance)
         err = -EIO; goto error;
     }
     
-    debug_timer("rshi_send 7 error:%d", err);
     err = size;
 error:
     rshi_send_over(instance, &over, err<0);
 
     debug_entry("instance %s send %s error:%d", 
-        instance->sp, rsh_cmd_getidbyname(over.cmd), err);
+        instance->sp, rsh_cmd_getnamebyid(over.cmd), err);
     
     return err;
 }
