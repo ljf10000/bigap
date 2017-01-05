@@ -72,7 +72,7 @@ static inline int rsh_cmd_getidbyname(const char *name);
 
 static inline bool is_valid_rsh_cmd(int id)
 {
-    return is_good_value(id, RSH_CMD_REGISTER, RSH_CMD_END);
+    return is_good_value(id, RSH_CMD_HANDSHAKE, RSH_CMD_END);
 }
 #endif
 
