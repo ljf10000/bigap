@@ -238,12 +238,10 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
         return err;
     }
     
-    debug_error("__rshi_j2o jrule_j2o ...");
     err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
     if (err<0) {
         return err;
     }
-    debug_error("__rshi_j2o jrule_j2o ok.");
 
     if (NULL==instance->proxy) {
         return -EBADCONF;

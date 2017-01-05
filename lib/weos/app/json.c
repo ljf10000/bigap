@@ -1083,9 +1083,12 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     jobj_t jval = jobj_get(jobj, rule->name);
     char *string = NULL;
     int err;
-    
+
+    japi_println("__jrule_j2o 1");
     if (os_hasflag(rule->flag, JRULE_F_DROP)) {
+        japi_println("__jrule_j2o 1.1");
         if (jval) {
+            japi_println("__jrule_j2o 1.2");
             debug_json("drop json key %s", rule->name);
             
             jobj_del(jobj, rule->name);
@@ -1094,95 +1097,139 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
         return 0;
     }
     else if (os_hasflag(rule->flag, JRULE_F_MUST)) {
+        japi_println("__jrule_j2o 1.2");
         if (NULL==jval) {
+            japi_println("__jrule_j2o 1.2.1");
             debug_json("no-found json key %s", rule->name);
             
             return -ENOEXIST;
         }
     }
     else if (os_hasflag(rule->flag, JRULE_F_CHECKER)) {
+        japi_println("__jrule_j2o 1.3");
         err = jmethod_check(rule)(rule, jobj);
         if (err<0) {
+            japi_println("__jrule_j2o 1.3.1");
             debug_json("rule[%s] check error %d", rule->name, err);
             
             return 0;
         }
     }
 
+    japi_println("__jrule_j2o 2");
+
     bool border = os_hasflag(rule->flag, JRULE_F_BORDER);
     char *member_address = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
     int jtype = jval?jobj_type(jval):jtype_null;
     
+    japi_println("__jrule_j2o 3");
     switch(rule->type) {
         case jtype_bool:
+            japi_println("__jrule_j2o 3.1.1");
             JRULE_JTYPE_CHECK(jtype_bool);
+            japi_println("__jrule_j2o 3.1.2");
 
             if (obj) {
                 *(bool *)member_address = 
                     jval?jobj_get_bool(jval):jmethod_deft(rule, b);
             }
+            japi_println("__jrule_j2o 3.1.3");
             
             break;
         case jtype_int:
+            japi_println("__jrule_j2o 3.2.1");
             JRULE_JTYPE_CHECK(jtype_int);
+            japi_println("__jrule_j2o 3.2.1");
             JRULE_AUTOMIC_J2O(int, int, i);
+            japi_println("__jrule_j2o 3.2.3");
             
             break;
         case jtype_double:
+            japi_println("__jrule_j2o 3.3.1");
             JRULE_JTYPE_CHECK(jtype_double);
+            japi_println("__jrule_j2o 3.3.2");
             JRULE_AUTOMIC_J2O(double, double, d);
+            japi_println("__jrule_j2o 3.3.3");
             
             break;
         case jtype_i32:
+            japi_println("__jrule_j2o 3.4.1");
             JRULE_JTYPE_CHECK(jtype_int);
+            japi_println("__jrule_j2o 3.4.2");
             JRULE_AUTOMIC_J2O(int32, i32, i32);
+            japi_println("__jrule_j2o 3.4.3");
             
             break;
         case jtype_u32:
+            japi_println("__jrule_j2o 3.5.1");
             JRULE_JTYPE_CHECK(jtype_int);
+            japi_println("__jrule_j2o 3.5.2");
             JRULE_AUTOMIC_J2O(uint32, u32, u32);
+            japi_println("__jrule_j2o 3.5.3");
             
             break;
         case jtype_f32:
+            japi_println("__jrule_j2o 3.6.1");
             JRULE_JTYPE_CHECK(jtype_double);
+            japi_println("__jrule_j2o 3.6.2");
             JRULE_AUTOMIC_J2O(float32, f32, f32);
+            japi_println("__jrule_j2o 3.6.3");
             
             break;
         case jtype_i64:
+            japi_println("__jrule_j2o 3.7.1");
             JRULE_JTYPE_CHECK(jtype_int);
+            japi_println("__jrule_j2o 3.7.2");
             JRULE_AUTOMIC_J2O(int64, i64, i64);
+            japi_println("__jrule_j2o 3.7.3");
             
             break;
         case jtype_u64:
+            japi_println("__jrule_j2o 3.8.1");
             JRULE_JTYPE_CHECK(jtype_int);
+            japi_println("__jrule_j2o 3.8.2");
             JRULE_AUTOMIC_J2O(uint64, u64, u64);
+            japi_println("__jrule_j2o 3.8.3");
             
             break;
         case jtype_f64:
+            japi_println("__jrule_j2o 3.9.1");
             JRULE_JTYPE_CHECK(jtype_double);
+            japi_println("__jrule_j2o 3.9.2");
             JRULE_AUTOMIC_J2O(float64, f64, f64);
+            japi_println("__jrule_j2o 3.9.3");
             
             break;
         case jtype_enum: {
+            japi_println("__jrule_j2o 3.10.1");
             enum_ops_t *ops = jmethod_get_enum_ops(rule)();
             int id;
             
+            japi_println("__jrule_j2o 3.10.2");
             JRULE_JTYPE_CHECK(jtype_string);
+            japi_println("__jrule_j2o 3.10.3");
 
             if (jval) {
+                japi_println("__jrule_j2o 3.10.3.1");
                 string = jobj_get_string(jval);
+                japi_println("__jrule_j2o 3.10.3.2");
                 id = ops->getid(string);
+                japi_println("__jrule_j2o 3.10.3.3");
                 if (false==ops->is_good(id)) {
+                    japi_println("__jrule_j2o 3.10.3.3.1");
                     debug_json("j2o %s %s=invalid(%s)", jtype_getnamebyid(rule->type),
                         rule->name, string);
                         
                     return -EBADENUM;
                 }
             } else {
+                japi_println("__jrule_j2o 3.10.3.4");
                 id = jmethod_deft(rule, i);
+                japi_println("__jrule_j2o 3.10.3.5");
                 string = ops->getname(id);
             }
             
+            japi_println("__jrule_j2o 3.10.4");
             if (obj) {
                 *(int *)member_address = id;
     
@@ -1190,20 +1237,28 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
                     rule->name, string);
             }
             
+            japi_println("__jrule_j2o 3.10.5");
         }   break;
         case jtype_time:
+            japi_println("__jrule_j2o 3.11.1");
             JRULE_JTYPE_CHECK(jtype_string);
+            japi_println("__jrule_j2o 3.11.2");
 
             if (obj) {
+                japi_println("__jrule_j2o 3.11.2.1");
                 err = jrule_time_j2o(rule, obj, jobj);
                 if (err<0) {
+                    japi_println("__jrule_j2o 3.11.2.2");
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 3.11.3");
             
             break;
         case jtype_ip:
+            japi_println("__jrule_j2o 3.12.1");
             JRULE_JTYPE_CHECK(jtype_string);
+            japi_println("__jrule_j2o 3.12.2");
 
             if (obj) {
                 err = jrule_ip_j2o(rule, obj, jobj);
@@ -1211,10 +1266,13 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 3.12.3");
             
             break;
         case jtype_mac:
+            japi_println("__jrule_j2o 3.13.1");
             JRULE_JTYPE_CHECK(jtype_string);
+            japi_println("__jrule_j2o 3.13.2");
 
             if (obj) {
                 err = jrule_mac_j2o(rule, obj, jobj);
@@ -1222,10 +1280,13 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 3.13.3");
             
             break;
         case jtype_string:
+            japi_println("__jrule_j2o 3.14.1");
             JRULE_JTYPE_CHECK(jtype_string);
+            japi_println("__jrule_j2o 3.14.2");
             
             if (obj) {
                 err = jmethod_j2o(rule)(rule, obj, jobj);
@@ -1233,10 +1294,13 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 3.14.3");
             
             break;
         case jtype_object:
+            japi_println("__jrule_j2o 3.15.1");
             JRULE_JTYPE_CHECK(jtype_object);
+            japi_println("__jrule_j2o 3.15.2");
             
             if (obj) {
                 err = jrule_j2o(jmethod_get_rules(rule)(), member_address, jval);
@@ -1244,10 +1308,13 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 3.15.3");
             
             break;
         case jtype_array:
+            japi_println("__jrule_j2o 3.16.1");
             JRULE_JTYPE_CHECK(jtype_array);
+            japi_println("__jrule_j2o 3.16.2");
             
             if (obj) {
                 err = jmethod_j2o(rule)(rule, obj, jobj);
@@ -1255,12 +1322,16 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 3.16.3");
             
             break;
         case jtype_null: // down
         default:
+            japi_println("__jrule_j2o 3.17.1");
             return -EBADRULE;
     }
+
+    japi_println("__jrule_j2o 4");
 
     return 0;
 }
