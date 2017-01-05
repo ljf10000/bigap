@@ -47,7 +47,7 @@ __rshi_a3_cmd_dir_type_o2j(uint32 val[RSHIST_TYPE_END], void (*jadd)(jobj_t, int
         int i;
 
         for (i=0; i<RSHIST_TYPE_END; i++) {
-            jadd(i, val[i]);
+            jadd(jobj, i, val[i]);
         }
     }
 
