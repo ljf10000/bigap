@@ -413,13 +413,13 @@ rshi_handshake(rsh_instance_t *instance, time_t now)
     msg->ack        = 0;
     msg->hmacsize   = instance->sec.hmacsize;
     
+    instance->handshake.send = now;
+    instance->handshake.sends++;
+    
     err = rshi_send(instance);
     if (err<0) {
         return err;
     }
-
-    instance->handshake.send = now;
-    instance->handshake.sends++;
     
     return 0;
 }

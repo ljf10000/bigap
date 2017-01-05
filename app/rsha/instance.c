@@ -278,6 +278,7 @@ __rshi_add_watcher(rsh_instance_t *instance)
     }
     os_closexec(fd);
     instance->fd = fd;
+    debug_entry("instance %s setup socket %d ok", instance->sp, fd);
     
     sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, 0);
     err = bind(fd, (sockaddr_t *)&client, sizeof(client));
@@ -299,6 +300,7 @@ STATIC void
 __rshi_del_watcher(rsh_instance_t *instance)
 {
     if (is_good_fd(instance->fd)) {
+        debug_entry("instance %s close socket %d ok", instance->sp, instance->fd);
         os_loop_del_watcher(&rsha.loop, instance->fd);
         os_close(instance->fd);
     }
@@ -428,10 +430,7 @@ rshi_fsm_init(rsh_instance_t *instance)
 {
     int i, err, fd;
 
-    if (is_good_fd(instance->fd)) {
-        os_loop_del_watcher(&rsha.loop, instance->fd);
-        os_close(instance->fd);
-    }
+    __rshi_del_watcher(instance);
 
     for (i=0; i<RSH_ECHO_END; i++) {
         rshi_echo_clear(rshi_echo_getby(instance, i));
