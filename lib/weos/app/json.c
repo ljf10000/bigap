@@ -1106,7 +1106,7 @@ __jrule_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 while(0)
 
 #define JRULE_JTYPE_CHECK(_type)        do{ \
-    if (jval && _type != jtype) {           \
+    if (jval && (_type) != jtype {          \
         debug_json("rule[%s] type[%s] not match json type[%s]", \
             rule->name,                     \
             jtype_getnamebyid(rule->type),  \
@@ -1120,6 +1120,7 @@ STATIC int
 __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     jobj_t jval = jobj_get(jobj, rule->name);
+    int jtype = jval?jobj_type(jval):jtype_null;
     char *string = NULL;
     bool network = false;
     int err;
@@ -1148,15 +1149,20 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             return 0;
         }
     }
+    else if (jval && false==jtype_match(rule->type, jtype)) {
+        debug_json("rule[%s] type[%s] not match json type[%s]",
+            rule->name,
+            jtype_getnamebyid(rule->type),
+            jtype_getnamebyid(jtype));
 
+        return -EBADRULE;
+    }
+    
     bool border = os_hasflag(rule->flag, JRULE_F_BORDER);
     char *member_address = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-    int jtype = jval?jobj_type(jval):jtype_null;
     
     switch(rule->type) {
         case jtype_bool:
-            JRULE_JTYPE_CHECK(jtype_bool);
-
             if (obj) {
                 *(bool *)member_address = 
                     jval?jobj_get_bool(jval):jmethod_deft(rule, b);
@@ -1164,42 +1170,34 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             
             break;
         case jtype_int:
-            JRULE_JTYPE_CHECK(jtype_int);
             JRULE_AUTOMIC_J2O(int, int, i);
             
             break;
         case jtype_double:
-            JRULE_JTYPE_CHECK(jtype_double);
             JRULE_AUTOMIC_J2O(double, double, d);
             
             break;
         case jtype_i32:
-            JRULE_JTYPE_CHECK(jtype_int);
             JRULE_AUTOMIC_J2O(int32, i32, i32);
             
             break;
         case jtype_u32:
-            JRULE_JTYPE_CHECK(jtype_int);
             JRULE_AUTOMIC_J2O(uint32, u32, u32);
             
             break;
         case jtype_f32:
-            JRULE_JTYPE_CHECK(jtype_double);
             JRULE_AUTOMIC_J2O(float32, f32, f32);
             
             break;
         case jtype_i64:
-            JRULE_JTYPE_CHECK(jtype_int);
             JRULE_AUTOMIC_J2O(int64, i64, i64);
             
             break;
         case jtype_u64:
-            JRULE_JTYPE_CHECK(jtype_int);
             JRULE_AUTOMIC_J2O(uint64, u64, u64);
             
             break;
         case jtype_f64:
-            JRULE_JTYPE_CHECK(jtype_double);
             JRULE_AUTOMIC_J2O(float64, f64, f64);
             
             break;
@@ -1207,8 +1205,6 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             enum_ops_t *ops = jmethod_get_enum_ops(rule)();
             int id;
             
-            JRULE_JTYPE_CHECK(jtype_string);
-
             if (jval) {
                 string = jobj_get_string(jval);
                 id = ops->getid(string);
@@ -1232,8 +1228,6 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             
         }   break;
         case jtype_time:
-            JRULE_JTYPE_CHECK(jtype_string);
-
             if (obj) {
                 err = jrule_time_j2o(rule, obj, jobj);
                 if (err<0) {
@@ -1243,8 +1237,6 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             
             break;
         case jtype_ip:
-            JRULE_JTYPE_CHECK(jtype_string);
-
             if (obj) {
                 err = jrule_ip_j2o(rule, obj, jobj);
                 if (err<0) {
@@ -1254,8 +1246,6 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             
             break;
         case jtype_mac:
-            JRULE_JTYPE_CHECK(jtype_string);
-
             if (obj) {
                 err = jrule_mac_j2o(rule, obj, jobj);
                 if (err<0) {
@@ -1265,10 +1255,6 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             
             break;
         case jtype_inet:
-            japi_println("__jrule_j2o:jtype_inet");
-                
-            JRULE_JTYPE_CHECK(jtype_inet);
-
             if (obj) {
                 err = jrule_inet_j2o(rule, obj, jobj);
                 if (err<0) {
@@ -1277,9 +1263,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             }
             
             break;
-        case jtype_string:
-            JRULE_JTYPE_CHECK(jtype_string);
-            
+        case jtype_string:            
             if (obj) {
                 err = jmethod_j2o(rule)(rule, obj, jobj);
                 if (err<0) {
@@ -1288,9 +1272,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             }
             
             break;
-        case jtype_object:
-            JRULE_JTYPE_CHECK(jtype_object);
-            
+        case jtype_object:            
             if (obj) {
                 err = jrule_j2o(jmethod_get_rules(rule)(), member_address, jval);
                 if (err<0) {
@@ -1299,9 +1281,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             }
             
             break;
-        case jtype_array:
-            JRULE_JTYPE_CHECK(jtype_array);
-            
+        case jtype_array:            
             if (obj) {
                 err = jmethod_j2o(rule)(rule, obj, jobj);
                 if (err<0) {
