@@ -536,20 +536,24 @@ struct jrule_s {
     *       serialize/unserialize as min/max
     *   else
     *       serialize/unserialize not-used
-    * 2. type is enum
+    * 2. type is ip/mac/time
+    *       not support JRULE_F_CHECKER/JRULE_F_BORDER
+    *       serialize/unserialize not-used
+    *       deft as default value
+    * 3. type is enum
     *       not support JRULE_F_CHECKER/JRULE_F_BORDER
     *       serialize not-used
     *       unserialize as get_enum_ops
     *       deft as default value
-    * 3. type is string
+    * 4. type is string
     *       serialize not-used
     *       unserialize as j2o
     *       deft as default value
-    * 4. type is object
+    * 5. type is object
     *       only support JRULE_F_MUST
     *       serialize/unserialize not-used
     *       deft as rules
-    * 5. type is array
+    * 6. type is array
     *       only support JRULE_F_MUST
     *       serialize as o2j
     *       unserialize as j2o
