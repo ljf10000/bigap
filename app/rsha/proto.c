@@ -75,7 +75,9 @@ rshi_send(rsh_instance_t *instance)
     int size    = rsh_msg_size(msg);
     int err;
     
-    
+    debug_proto("instance %s sendto 0x%x:%d", 
+        instance->sp, instance->ip, instance->port);
+
     rshi_encode(instance);
     
     err = io_sendto(instance->fd, msg, size, (sockaddr_t *)&proxy, sizeof(proxy));
@@ -90,7 +92,7 @@ rshi_send(rsh_instance_t *instance)
 error:
     rshi_send_over(instance, &over, err<0);
 
-    debug_entry("instance %s send %s error:%d", 
+    debug_packet("instance %s send %s error:%d", 
         instance->sp, rsh_cmd_getnamebyid(over.cmd), err);
     
     return err;
