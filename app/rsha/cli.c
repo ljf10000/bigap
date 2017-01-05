@@ -42,8 +42,8 @@ rsha_handle_remove(cli_table_t *table, int argc, char *argv[])
 STATIC int
 rsha_handle_insert(cli_table_t *table, int argc, char *argv[])
 {
-    char *sp    = argv[0];
-    char *json  = argv[1];
+    char *sp    = argv[1];
+    char *json  = argv[2];
     
     if (3!=argc) {
         return cli_help(-EINVAL0);

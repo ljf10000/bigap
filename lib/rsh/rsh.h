@@ -108,11 +108,15 @@ rsh_key_hex2bin(rsh_key_t *key, char *keystring)
     int err, len = os_strlen(keystring), size = len/2;
     
     if (len%2 || false==is_good_aes_key_size(size)) {
+        debug_entry("bad key:%s size:%s", keystring, size);
+        
         err = -EBADKEY; goto error;
     }
 
     err = os_hex2bin(keystring, key->key, size);
     if (err<0) {
+        debug_entry("bad hex key:%s", keystring);
+        
         err = -EBADKEY; goto error;
     }
     key->size = size;

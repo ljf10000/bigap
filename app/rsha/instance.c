@@ -206,7 +206,7 @@ __rshi_sec_j2o(rsh_instance_t *instance, jobj_t jobj)
 
     __jj_string(sec, jsec, pmk, pmkstring);
     err = rsh_key_hex2bin(rshi_pmk(instance), sec->pmkstring);
-    if (err<0) {
+    if (err<0) {        
         return err;
     }
     
@@ -466,7 +466,8 @@ rshi_insert(char *sp, char *json)
         
         err = -EEXIST; goto error;
     }
-
+    debug_cli("insert %s %s", sp, json);
+    
     jobj = jobj_byjson(json);
     if (NULL==jobj) {
         err = -EBADJSON; goto error;
