@@ -33,7 +33,9 @@ STATIC int
 __io_write_error(char *method, void *buf, int size, int error)
 {
     int err = __io_error(method, buf, size, error);
-    if (err != size) {
+    if (err<0) {
+        return err;
+    } else if (err != size) {
         // debug_io("%s count(%d) < length(%d)", method, err, size);
 
         return -EIO;
