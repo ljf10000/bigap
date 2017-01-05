@@ -75,8 +75,8 @@ rshi_send(rsh_instance_t *instance)
     int size    = rsh_msg_size(msg);
     int err;
     
-    debug_proto("instance %s sendto 0x%x:%d", 
-        instance->sp, instance->ip, instance->port);
+    debug_proto("instance %s sendto %s:%d", 
+        instance->sp, os_ipstring(instance->ip), instance->port);
 
     rshi_encode(instance);
     
