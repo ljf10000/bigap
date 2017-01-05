@@ -132,15 +132,15 @@ rsha_timer(loop_watcher_t *watcher, time_t now)
 {
     mv_t foreach(rsh_instance_t *instance)
     {
+        debug_timer("rsh timer instance %s ...", instance->sp);
         rsha_timer_handle(instance, now);
-
+        debug_timer("rsh timer instance %s ok.", instance->sp);
+        
         return mv2_ok;
     }
 
-    debug_timer("rsh timer tick:%d", rsha.ticks);
     rshi_foreach(foreach, true);
     rsha.ticks++;
-    debug_timer("rsh timer tick:%d", rsha.ticks);
     
     return 0;
 }
