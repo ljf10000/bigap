@@ -237,12 +237,16 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
         
         return err;
     }
+
+    debug_json("__rshi_j2o 1");
     
     err = jrule_j2o(rsh_instance_jrules(), instance, jobj);
     if (err<0) {
         return err;
     }
 
+    debug_json("__rshi_j2o 2");
+    
     // check
     if (NULL==instance->proxy) {
         return -EBADCONF;
@@ -250,6 +254,8 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
     else if (0==instance->port) {
         return -EBADCONF;
     }
+
+    debug_json("__rshi_j2o 3");
 
     // repair
     if (0==instance->handshake.interval) {
