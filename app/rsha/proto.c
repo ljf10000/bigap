@@ -184,7 +184,7 @@ rshi_exec(rsh_instance_t *instance, char *json)
     
     jobj_t jinstance = jobj_new_object();
     
-    jobj_add(jinstance, "name",     jobj_new_string(instance->name));
+    jobj_add(jinstance, "sp",       jobj_new_string(instance->sp));
     jobj_add(jinstance, "cache",    jobj_new_string(instance->cache));
     jobj_add(jobj, "instance", jinstance);
 
@@ -193,6 +193,21 @@ rshi_exec(rsh_instance_t *instance, char *json)
     jobj_put(jobj);
 
     return err;
+}
+
+STATIC int 
+rshi_handshake_recv_checker(rsh_instance_t *instance, time_t now)
+{
+    rsh_msg_t *msg = rsha_msg;
+    
+    if (false==is_rsh_msg_ack(msg)) {
+        return rshi_ack_error(instance, -RSH_E_FLAG, 
+            "time[%s] handshake reply ack[0x%x] without ack flag", 
+            os_fulltime_string(now),
+            msg->ack);
+    }
+
+    return 0;
 }
 
 STATIC int 
@@ -225,6 +240,12 @@ rshi_noack_recv_checker(rsh_instance_t *instance, time_t now)
 }
 
 STATIC void 
+rshi_handshake_recver(rsh_instance_t *instance, time_t now)
+{
+    rshi_fsm(instance, RSH_FSM_HANDSHAKED, now);
+}
+
+STATIC void 
 rshi_echo_recver(rsh_instance_t *instance, time_t now)
 {
     rshi_echo_get(instance)->recv = now;
@@ -243,8 +264,9 @@ STATIC int
 rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
 {
     static int (*checker[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
-        [RSH_CMD_ECHO]      = rshi_echo_recv_checker,
-        [RSH_CMD_COMMAND]   = rshi_noack_recv_checker,
+        [RSH_CMD_HANDSHAKE]     = rshi_handshake_recv_checker,
+        [RSH_CMD_ECHO]          = rshi_echo_recv_checker,
+        [RSH_CMD_COMMAND]       = rshi_noack_recv_checker,
     };
     
     int size = rsh_msg_size(msg);
@@ -328,8 +350,9 @@ int
 rsha_recver(loop_watcher_t *watcher, time_t now)
 {
     static void (*recver[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
-        [RSH_CMD_ECHO]      = rshi_echo_recver,
-        [RSH_CMD_COMMAND]   = rshi_command_recver,
+        [RSH_CMD_HANDSHAKE]     = rshi_handshake_recver,
+        [RSH_CMD_ECHO]          = rshi_echo_recver,
+        [RSH_CMD_COMMAND]       = rshi_command_recver,
     };
     
     rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
@@ -357,6 +380,32 @@ error:
     rshi_recv_over(instance, now, &over, err<0);
 
     return err;
+}
+
+int 
+rshi_handshake(rsh_instance_t *instance, time_t now)
+{
+    rsh_msg_t *msg = rsha_msg;
+    int err;
+
+    /*
+    * zero first
+    */
+    os_objzero(msg);
+    rsh_msg_fill(msg, rsha.mac, NULL, 0);
+
+    msg->cmd        = RSH_CMD_HANDSHAKE;
+    msg->flag       = 0;
+    msg->seq        = instance->seq;
+    msg->ack        = 0;
+    msg->hmacsize   = instance->sec.hmacsize;
+    
+    err = rshi_send(instance);
+    if (err<0) {
+        return err;
+    }
+
+    return 0;
 }
 
 int 
@@ -402,32 +451,6 @@ int
 rshi_run(rsh_instance_t *instance, time_t now)
 {
     return rshi_fsm(instance, RSH_FSM_RUN, now);
-}
-
-int 
-rshi_handshake(rsh_instance_t *instance, time_t now)
-{
-    rsh_msg_t *msg = rsha_msg;
-    int err;
-
-    /*
-    * zero first
-    */
-    os_objzero(msg);
-    rsh_msg_fill(msg, rsha.mac, NULL, 0);
-
-    msg->cmd        = RSH_CMD_HANDSHAKE;
-    msg->flag       = 0;
-    msg->seq        = instance->seq;
-    msg->ack        = 0;
-    msg->hmacsize   = instance->sec.hmacsize;
-    
-    err = rshi_send(instance);
-    if (err<0) {
-        return err;
-    }
-
-    return 0;
 }
 
 /******************************************************************************/

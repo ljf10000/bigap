@@ -59,7 +59,7 @@ rsha_init(void)
         return err;
     }
 
-    err = h1_init(&rsha.head.instance, RSHI_NAMEHASHSIZE);
+    err = h1_init(&rsha.head.instance, RSHI_SPHASHSIZE);
     if (err<0) {
         debug_error("init instance hash:%d", err);
         

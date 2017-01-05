@@ -39,12 +39,12 @@
 #define RSHA_FSM_TIMEOUT            PC_VAL(5*1000, 10*1000)
 #endif
 
-#ifndef RSHI_NAMEHASHSIZE
-#define RSHI_NAMEHASHSIZE           PC_VAL(256, 256)
+#ifndef RSHI_SPHASHSIZE
+#define RSHI_SPHASHSIZE             PC_VAL(256, 256)
 #endif
 
-#ifndef RSHI_NAMESIZE
-#define RSHI_NAMESIZE               32
+#ifndef RSHI_SPSIZE
+#define RSHI_SPSIZE                 32
 #endif
 
 #ifndef RSHI_PEER_ERROR_MAX
@@ -289,7 +289,7 @@ typedef struct {
 } rshi_echo_t;
 
 typedef struct {
-    char *name;
+    char *sp;
     char *proxy;
     char *registry;
     char *cache;
@@ -503,16 +503,16 @@ extern int
 rshi_insert(jobj_t jobj);
 
 extern int
-rshi_remove(char *name);
+rshi_remove(char *sp);
 
 extern int
 rshi_foreach(mv_t (*foreach)(rsh_instance_t *instance), bool safe);
 
 extern rsh_instance_t *
-rshi_getbyname(char *name);
+rshi_getbysp(char *sp);
 
 extern int
-rshi_show(char *name);
+rshi_show(char *sp);
 
 extern int 
 rshi_echo(rsh_instance_t *instance, time_t now);

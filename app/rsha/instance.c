@@ -26,17 +26,17 @@ __rshi_foreach(mv_t (*foreach)(rsh_instance_t *entry), bool safe);
 #endif
 
 STATIC hash_idx_t
-__rshi_hashname(char *name)
+__rshi_hashsp(char *sp)
 {
-    return hash_bybuf(name, os_strlen(name), RSHI_NAMEHASHSIZE - 1);
+    return hash_bybuf(sp, os_strlen(sp), RSHI_SPHASHSIZE - 1);
 }
 
 STATIC hash_idx_t
-__rshi_nodehashname(hash_node_t *node)
+__rshi_nodehashsp(hash_node_t *node)
 {
     rsh_instance_t *instance = __rshi_hx_entry(node);
 
-    return __rshi_hashname(instance->name);
+    return __rshi_hashsp(instance->sp);
 }
 
 STATIC jobj_t
@@ -152,7 +152,7 @@ __rshi_o2j(rsh_instance_t *instance)
 {
     jobj_t jobj = jobj_new_object();
     if (jobj) {
-        jobj_add_string(jobj, "name", instance->name);
+        jobj_add_string(jobj, "sp", instance->sp);
         
         jrule_o2j(rsh_instance_jrules(), instance, jobj);
         
@@ -202,7 +202,7 @@ __rshi_add_watcher(rsh_instance_t *instance)
 
     fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (fd<0) {
-        debug_error("instance %s socket error:%d", instance->name, -errno);
+        debug_error("instance %s socket error:%d", instance->sp, -errno);
         
         return fd;
     }
@@ -212,7 +212,7 @@ __rshi_add_watcher(rsh_instance_t *instance)
     sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, 0);
     err = bind(fd, (sockaddr_t *)&client, sizeof(client));
     if (err<0) {
-        debug_error("bind instance %s error:%d", instance->name, -errno);
+        debug_error("bind instance %s error:%d", instance->sp, -errno);
         
         return -errno;
     }
@@ -238,7 +238,7 @@ STATIC int
 __rshi_destroy(rsh_instance_t *instance)
 {
     if (instance) {
-        os_free(instance->name);
+        os_free(instance->sp);
         os_free(instance->proxy);
         os_free(instance->registry);
         os_free(instance->cache);
@@ -257,12 +257,12 @@ __rshi_destroy(rsh_instance_t *instance)
 }
 
 STATIC int
-__rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
+__rshi_init(rsh_instance_t *instance, char *sp, jobj_t jobj)
 {
     int err;
     
     instance->fd    = INVALID_FD;
-    instance->name  = os_strdup(name);
+    instance->sp  = os_strdup(sp);
     instance->peer_error_max = RSHI_PEER_ERROR_MAX;
     
     err = __rshi_j2o(instance, jobj);
@@ -277,14 +277,14 @@ __rshi_init(rsh_instance_t *instance, char *name, jobj_t jobj)
 }
 
 STATIC rsh_instance_t *
-__rshi_create(char *name, jobj_t jobj)
+__rshi_create(char *sp, jobj_t jobj)
 {
     rsh_instance_t *instance = (rsh_instance_t *)os_zalloc(sizeof(rsh_instance_t));
     if (NULL==instance) {
         return NULL;
     }
     
-    int err = __rshi_init(instance, name, jobj);
+    int err = __rshi_init(instance, sp, jobj);
     if (err<0) {
         __rshi_destroy(instance);
 
@@ -297,7 +297,7 @@ __rshi_create(char *name, jobj_t jobj)
 STATIC int
 __rshi_insert(rsh_instance_t *instance)
 {
-    return h1_add(&rsha.head.instance, &instance->node.instance, __rshi_nodehashname);
+    return h1_add(&rsha.head.instance, &instance->node.instance, __rshi_nodehashsp);
 }
 
 STATIC int
@@ -347,7 +347,7 @@ rshi_echo_set(rsh_instance_t *instance, time_t now, bool busy)
     if (busy) {
         instance->tm.busy = now;
     }
-    
+
     return rshi_echo_get(instance);
 }
 
@@ -380,7 +380,7 @@ rshi_fsm(rsh_instance_t *instance, int fsm, time_t now)
     
     if (false==is_good_rsh_fsm(fsm)) {
         debug_error("try change instance(%s)'fsm from %s to invalid %d",
-            instance->name,
+            instance->sp,
             rsh_fsm_getnamebyid(old),
             fsm);
 
@@ -399,7 +399,7 @@ rshi_fsm(rsh_instance_t *instance, int fsm, time_t now)
     }
 
     debug_entry("change instance(%s)'fsm from %s to %s",
-        instance->name,
+        instance->sp,
         rsh_fsm_getnamebyid(old),
         rsh_fsm_getnamebyid(fsm));
 
@@ -411,27 +411,27 @@ rshi_insert(jobj_t jobj)
 {
     int err;
 
-    char *name = jobj_get_string(jobj_get(jobj, "name"));
-    if (NULL==name) {
-        debug_cli("no-found name");
+    char *sp = jobj_get_string(jobj_get(jobj, "sp"));
+    if (NULL==sp) {
+        debug_cli("no-found sp");
         
         return -EBADJSON;
     }
 
-    if (rshi_getbyname(name)) {
-        debug_entry("instance %s exist.", name);
+    if (rshi_getbysp(sp)) {
+        debug_entry("instance %s exist.", sp);
         
         return -EEXIST;
     }
     
-    rsh_instance_t *instance = __rshi_create(name, jobj);
+    rsh_instance_t *instance = __rshi_create(sp, jobj);
     if (NULL==instance) {
         return -ENOMEM;
     }
 
     err = __rshi_insert(instance);
     if (err<0) {
-        debug_entry("insert %s error:%d", name, err);
+        debug_entry("insert %s error:%d", sp, err);
         
         return err;
     }
@@ -440,11 +440,11 @@ rshi_insert(jobj_t jobj)
 }
 
 int
-rshi_remove(char *name)
+rshi_remove(char *sp)
 {
     int err;
     
-    rsh_instance_t *instance = rshi_getbyname(name);
+    rsh_instance_t *instance = rshi_getbysp(sp);
     if (NULL==instance) {
         return -ENOEXIST;
     }
@@ -466,28 +466,28 @@ rshi_foreach(mv_t (*foreach)(rsh_instance_t *instance), bool safe)
 }
 
 rsh_instance_t *
-rshi_getbyname(char *name)
+rshi_getbysp(char *sp)
 {
     hash_idx_t dhash(void)
     {
-        return __rshi_hashname(name);
+        return __rshi_hashsp(sp);
     }
     
     bool eq(hash_node_t *node)
     {
         rsh_instance_t *instance = __rshi_hx_entry(node);
         
-        return os_streq(name, instance->name);
+        return os_streq(sp, instance->sp);
     }
     
     return __rshi_h1_entry(h1_find(&rsha.head.instance, dhash, eq));
 }
 
 int
-rshi_show(char *name)
+rshi_show(char *sp)
 {
-    if (name) {
-        return __rshi_show(rshi_getbyname(name));
+    if (sp) {
+        return __rshi_show(rshi_getbysp(sp));
     } else {
         return rshi_foreach(__rshi_show_cb, false);
     }
