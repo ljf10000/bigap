@@ -85,9 +85,6 @@ rshi_send(rsh_instance_t *instance)
     if (err<0) {
         goto error;
     }
-    else if (err!=size) {
-        err = -EIO; goto error;
-    }
     
     err = size;
 error:

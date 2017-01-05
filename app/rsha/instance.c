@@ -272,17 +272,25 @@ __rshi_add_watcher(rsh_instance_t *instance)
     }
     os_closexec(fd);
     instance->fd = fd;
-    debug_entry("instance %s setup socket %d ok", instance->sp, fd);
+    debug_entry("instance %s socket %d ok", instance->sp, fd);
 
-#if 0
-    sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, htons(28744));
+#if 1
+    sockaddr_in_t client = OS_SOCKADDR_INET(INADDR_ANY, htons(0));
     err = bind(fd, (sockaddr_t *)&client, sizeof(client));
     if (err<0) {
-        debug_error("bind instance %s error:%d", instance->sp, -errno);
+        debug_error("instance %s bind error:%d", instance->sp, -errno);
         
         return -errno;
     }
 #endif
+
+    int on = 1;
+    err = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    if (err<0) {
+        debug_error("instance %s reuse error:%d", instance->sp, -errno);
+        
+        return -errno;
+    }
 
     err = os_loop_add_normal(&rsha.loop, fd, rsha_recver, instance);
     if (err<0) {
