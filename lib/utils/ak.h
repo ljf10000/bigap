@@ -80,7 +80,7 @@ enum { INVALID_AKID = 0};
     _(____ak_debug_loop,        23,"loop"),     \
     _(____ak_debug_conn,        24,"conn"),     \
     _(____ak_debug_intf,        25,"intf"),     \
-    _(____ak_debug_r3,          26,"r3"),       \
+    _(____ak_debug_crypt,       26,"crypt"),    \
     _(____ak_debug_r4,          27,"r4"),       \
     _(____ak_debug_test,        28,"test"),     \
     /* end */
@@ -120,6 +120,7 @@ enum {
     __ak_debug_loop         = os_bit(____ak_debug_loop),
     __ak_debug_conn         = os_bit(____ak_debug_conn),
     __ak_debug_intf         = os_bit(____ak_debug_intf),
+    __ak_debug_crypt        = os_bit(____ak_debug_crypt),
     __ak_debug_test         = os_bit(____ak_debug_test),
 
     __ak_debug_all          = os_mask(____ak_debug_end),
@@ -211,6 +212,7 @@ extern akid_t __THIS_JDEBUG;
 #define __is_ak_debug_loop      __is_ak_debug(__ak_debug_loop)
 #define __is_ak_debug_conn      __is_ak_debug(__ak_debug_conn)
 #define __is_ak_debug_intf      __is_ak_debug(__ak_debug_intf)
+#define __is_ak_debug_crypt     __is_ak_debug(__ak_debug_crypt)
 #define __is_ak_debug_test      __is_ak_debug(__ak_debug_test)
 
 #if 1

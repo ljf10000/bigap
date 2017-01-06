@@ -280,16 +280,22 @@ rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
     hmac_sha2_ctx_t ctx = HMAC_SHA2_CTX_INITER(SHA_TYPE(hmacsize));
     uint32 bsize = len - sizeof(rsh_msg_t) - hmacsize;
     
-    // just calc msg header/body, NOT include hmac self
     hmac_sha2_init(&ctx, key->key, key->size);
-    hmac_sha2_update(&ctx, (const byte *)msg, sizeof(rsh_msg_t));
-    os_println("hmac calc msg hdr:");
-    os_dump_buffer(msg, sizeof(rsh_msg_t));
     
+    // calc msg header
+    hmac_sha2_update(&ctx, (const byte *)msg, sizeof(rsh_msg_t));
+    if (1 || __is_ak_debug_crypt) {
+        os_println("hmac calc msg hdr:");
+        os_dump_buffer(msg, sizeof(rsh_msg_t));
+    }
+    
+    // calc msg body
     if (bsize > 0) {
         hmac_sha2_update(&ctx, (const byte *)rsh_msg_body(msg), bsize);
-        os_println("hmac calc msg body:");
-        os_dump_buffer(rsh_msg_body(msg), bsize);
+        if (1 || __is_ak_debug_crypt) {
+            os_println("hmac calc msg body:");
+            os_dump_buffer(rsh_msg_body(msg), bsize);
+        }
     }
     hmac_sha2_final(&ctx, hmac);
 }
@@ -314,18 +320,24 @@ rsh_msg_encrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
     * 1. encrypt msg (not include first 16 bytes) by key
     * 2. encrypt msg by pmk
     */
-    os_println("msg before key encrypt:");
-    os_dump_buffer(msg, len);
+    if (1 || __is_ak_debug_crypt) {
+        os_println("msg before key encrypt:");
+        os_dump_buffer(msg, len);
+    }
     
     rsh_msg_crypt((byte *)msg + RSH_CRYPT_HDR_SIZE, len - RSH_CRYPT_HDR_SIZE, key, aes_encrypt);
-    
-    os_println("msg after key encrypt:");
-    os_dump_buffer(msg, len);
+
+    if (1 || __is_ak_debug_crypt) {
+        os_println("msg after key encrypt:");
+        os_dump_buffer(msg, len);
+    }
     
     rsh_msg_crypt((byte *)msg, len, pmk, aes_encrypt);
-    
-    os_println("msg after pmk encrypt:");
-    os_dump_buffer(msg, len);
+
+    if (1 || __is_ak_debug_crypt) {
+        os_println("msg after pmk encrypt:");
+        os_dump_buffer(msg, len);
+    }
 }
 
 static inline void
@@ -335,18 +347,24 @@ rsh_msg_decrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
     * 2. decrypt msg by pmk
     * 1. decrypt msg (not include first 16 bytes) by key
     */
-    os_println("msg before pmk decrypt:");
-    os_dump_buffer(msg, len);
+    if (1 || __is_ak_debug_crypt) {
+        os_println("msg before pmk decrypt:");
+        os_dump_buffer(msg, len);
+    }
     
     rsh_msg_crypt((byte *)msg, len, pmk, aes_decrypt);
-    
-    os_println("msg after pmk decrypt:");
-    os_dump_buffer(msg, len);
+
+    if (1 || __is_ak_debug_crypt) {
+        os_println("msg after pmk decrypt:");
+        os_dump_buffer(msg, len);
+    }
     
     rsh_msg_crypt((byte *)msg + RSH_CRYPT_HDR_SIZE, len - RSH_CRYPT_HDR_SIZE, key, aes_decrypt);
     
-    os_println("msg after key decrypt:");
-    os_dump_buffer(msg, len);
+    if (1 || __is_ak_debug_crypt) {
+        os_println("msg after key decrypt:");
+        os_dump_buffer(msg, len);
+    }
 }
 
 static inline void

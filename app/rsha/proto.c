@@ -399,7 +399,8 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
         [RSH_CMD_ECHO]          = rshi_echo_recver,
         [RSH_CMD_COMMAND]       = rshi_command_recver,
     };
-    
+
+    os_println("rsha_recver 1");
     rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
     rsh_msg_t *msg = rsha_msg;
     rsh_over_t over = {
@@ -407,22 +408,31 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     };
     int err, len;
 
+    os_println("rsha_recver 2");
+
     err = len = rshi_recv(instance);
     if (err<0) {
+        os_println("rsha_recver 2.1");
         goto error;
     }
     over.cmd    = msg->cmd;
+    os_println("rsha_recver 3");
 
     err = rshi_recv_checker(instance, now, msg, len);
     if (err<0) {
+        os_println("rsha_recver 3.1");
         goto error;
     }
+    os_println("rsha_recver 4");
 
     (*recver[msg->cmd])(instance, now);
+    os_println("rsha_recver 5");
 
     rshi_recv_ok(instance, now);
 error:
+    os_println("rsha_recver 6");
     rshi_recv_over(instance, now, &over, err<0);
+    os_println("rsha_recver 7");
 
     return err;
 }
