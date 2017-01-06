@@ -358,7 +358,10 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
         os_dump_buffer(buf, len);
     }
 
+    cli_println("clic recv ...");
+    
     if (false==syn) {
+        cli_println("clic recv asyn, exit");
         err = 0; goto error;
     }
 
