@@ -303,7 +303,8 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
     bool syn = os_hasflag(table->flag, CLI_F_SYN);
     int fd = INVALID_FD, err = 0;
     int len = argv_zip2bin(buf, sizeof(buf), argc, argv);
-
+    cli_println("cli zip2bin size:%d", len);
+    
     fd = __clic_fd(clic, table);
     if (fd<0) {
         return fd;
@@ -317,11 +318,12 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
             table->timeout);
     }
 
+    cli_println("cli send:%s size:%d ...", buf, len);
     err = io_send(fd, buf, len);
     if (err<0) { /* yes, <0 */
         goto error;
     }
-    cli_println("cli send:%s ok", buf);
+    cli_println("cli send:%s size:%d ok.", buf, len);
     
     if (__is_ak_debug_cli) {
         os_println("send %s request[fd=%d pkt=%d/%d]", 
@@ -470,13 +472,16 @@ __cli_response(int fd, cli_table_t tables[], int count)
         }
     }
     if (err<0) { /* yes, <0 */
+        cli_println("cli recv error:%d", err);
         return err;
     }
     else if (0==err) {
+        cli_println("cli recv zero");
         return 0;
     }
     buf[err] = 0;
-
+    cli_println("cli recv:%s size:%d", buf, err);
+    
     if (__is_ak_debug_cli) {
         os_println("recv %s request[fd=%d pkt=%d/%d]", 
             __this_cli_type_string(__this_cli_tcp), 
@@ -487,11 +492,15 @@ __cli_response(int fd, cli_table_t tables[], int count)
 
     argc = argv_unzipbin(buf, os_count_of(argv), argv);
     if (argc<0) {
+        cli_println("cli unzipbin error:%d", argc);
+        
         __cli_reply(argc);
 
         return argc;
     }
     else if (0==argc) {
+        cli_println("cli unzipbin argc 0");
+        
         /*
         * tables[0] is help
         */
