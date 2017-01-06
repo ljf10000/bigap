@@ -17,7 +17,6 @@ ifeq (1,$(UBACKTRACE))
 LIBS_DEPEND+=-lubacktrace
 endif
 
-CFLAGS+=-D__LIB__
 .PHONY:all
 all:$(TARGET)
 	

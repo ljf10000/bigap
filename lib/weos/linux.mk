@@ -23,7 +23,7 @@ SONAME_MASTER=$(SONAME).1
 TARGET=$(SONAME_MASTER).0
 TARGET_TYPE=lib
 LIB_DEPEND=c m dl json-c
-__CFLAGS+=-D__LIB__
+__CFLAGS+=
 
 #
 #don't change it

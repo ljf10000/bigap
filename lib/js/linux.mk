@@ -32,7 +32,7 @@ SONAME_MASTER=$(SONAME).1
 TARGET=$(SONAME_MASTER).0
 TARGET_TYPE=lib
 LIB_DEPEND=c m json-c weos
-__CFLAGS+=-D__LIB__
+__CFLAGS+=
 
 #
 #don't change it
