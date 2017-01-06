@@ -83,6 +83,7 @@ rshi_send(rsh_instance_t *instance)
         instance->sp, rsh_cmd_getnamebyid(over.cmd), size,
         os_ipstring(instance->ip), instance->port);
 
+    rsh_msg_pad(msg);
     rshi_encode(instance);
 
     err = io_sendto(instance->fd, msg, size, (sockaddr_t *)&proxy, sizeof(proxy));
@@ -439,9 +440,7 @@ rshi_handshake(rsh_instance_t *instance, time_t now)
     rsh_msg_fill(msg, rsha.mac, NULL, 0);
 
     msg->cmd        = RSH_CMD_HANDSHAKE;
-    msg->flag       = 0;
     msg->seq        = instance->seq;
-    msg->ack        = 0;
     msg->hmacsize   = instance->sec.hmacsize;
     
     instance->handshake.send = now;
@@ -468,9 +467,8 @@ rshi_echo(rsh_instance_t *instance, time_t now)
     rsh_msg_fill(msg, rsha.mac, NULL, 0);
 
     msg->cmd        = RSH_CMD_ECHO;
-    msg->flag       = 0;
     msg->seq        = instance->seq++;
-    msg->ack        = instance->seq_peer; // first is 0
+    msg->ack        = instance->seq_peer;
     msg->hmacsize   = instance->sec.hmacsize;
     
     err = rshi_send(instance);

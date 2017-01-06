@@ -283,8 +283,13 @@ rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
     // just calc msg header/body, NOT include hmac self
     hmac_sha2_init(&ctx, key->key, key->size);
     hmac_sha2_update(&ctx, (const byte *)msg, sizeof(rsh_msg_t));
+    os_println("hmac calc msg hdr:");
+    os_dump_buffer(msg, sizeof(rsh_msg_t));
+    
     if (bsize > 0) {
         hmac_sha2_update(&ctx, (const byte *)rsh_msg_body(msg), bsize);
+        os_println("hmac calc msg body:");
+        os_dump_buffer(rsh_msg_body(msg), bsize);
     }
     hmac_sha2_final(&ctx, hmac);
 }
@@ -347,8 +352,6 @@ rsh_msg_decrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
 static inline void
 rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
 {
-    rsh_msg_pad(msg);
-    
     /*
     * 1. network==>host
     * 2. calc hmac and save hmac to msg
