@@ -488,7 +488,6 @@ __loop_handle(loop_t *loop)
         }
     }
     time_t now = time(NULL);
-    loop_println("loop wait fds:%d", nfds);
     
     for (i=0; i<nfds; i++) {
         count++;

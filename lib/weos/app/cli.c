@@ -470,7 +470,8 @@ __cli_response(int fd, cli_table_t tables[], int count)
     */
     __this_cli_tcp = os_hasflag(tables[0].flag, CLI_F_TCP);
     __this_cli_fd = fd;
-    
+
+    cli_println("cli recv ...");
     if (__this_cli_tcp) {
         err = __io_recv(fd, buf, sizeof(buf), 0);
     } else {
