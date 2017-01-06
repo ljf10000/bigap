@@ -250,7 +250,7 @@ __rshi_j2o(rsh_instance_t *instance, jobj_t jobj)
     else if (0==instance->port) {
         return -EBADCONF;
     }
-    instance->nport = htons(instance->port);
+    instance->sin_port = htons(instance->port);
     
     // repair
     if (0==instance->handshake.interval) {

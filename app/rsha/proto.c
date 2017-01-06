@@ -40,30 +40,31 @@ rshi_recv(rsh_instance_t *instance)
     sockaddr_len_t addrlen = sizeof(addr);
     int err, len;
 
-    os_println("rshi_recv 1");
     err = len = __io_recvfrom(instance->fd, msg, RSH_MSG_ALLSIZE, 0,
         (sockaddr_t *)&addr, &addrlen);
     if (err<0) {
-        os_println("rshi_recv 1.1");
         return err;
     }
 
-    os_println("recv msg size:%d", len);
-    os_dump_buffer(msg, len);
-
-    os_println("rshi_recv 2");
+    if (__is_ak_debug_proto && __is_ak_debug_packet) {
+        os_println("recv msg size:%d", len);
+        os_dump_buffer(msg, len);
+    }
+    
     if (false==is_good_rsh_msg_size(len)) {
-        os_println("rshi_recv 2.1");
+        debug_proto("recv bad msg size:%d", len);
+
         return -EBADSIZE;
     }
     else if (false==is_rshi_server_address(instance, &addr)) {
-        os_println("rshi_recv 2.2");
+        debug_proto("recv from fake server %s:%d",
+            os_ipstring(addr.sin_addr.s_addr),
+            ntohs(addr.sin_port));
+        
         return -EFAKESEVER;
     }
     
-    os_println("rshi_recv 3");
     rshi_decode(instance, len);
-    os_println("rshi_recv 4");
     
     return len;
 }
@@ -79,7 +80,7 @@ STATIC int
 rshi_send(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
-    sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->nport);
+    sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->sin_port);
     rsh_over_t over = {
         .cmd    = msg->cmd,
     };
@@ -407,7 +408,6 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
         [RSH_CMD_COMMAND]       = rshi_command_recver,
     };
 
-    os_println("rsha_recver 1");
     rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
     rsh_msg_t *msg = rsha_msg;
     rsh_over_t over = {
@@ -415,31 +415,22 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     };
     int err, len;
 
-    os_println("rsha_recver 2");
-
     err = len = rshi_recv(instance);
     if (err<0) {
-        os_println("rsha_recver 2.1");
         goto error;
     }
     over.cmd    = msg->cmd;
-    os_println("rsha_recver 3");
 
     err = rshi_recv_checker(instance, now, msg, len);
     if (err<0) {
-        os_println("rsha_recver 3.1");
         goto error;
     }
-    os_println("rsha_recver 4");
 
     (*recver[msg->cmd])(instance, now);
-    os_println("rsha_recver 5");
 
     rshi_recv_ok(instance, now);
 error:
-    os_println("rsha_recver 6");
     rshi_recv_over(instance, now, &over, err<0);
-    os_println("rsha_recver 7");
 
     return err;
 }

@@ -303,8 +303,8 @@ typedef struct {
     int fd;
     int fsm;
     int error;
-    int port;       // host sort
-    uint16 nport;   // network sort
+    int port;           // host sort
+    uint16 sin_port;    // network sort
     uint16 _r0;
     
     bool debug;
@@ -428,7 +428,7 @@ static inline bool
 is_rshi_server_address(rsh_instance_t *instance, sockaddr_in_t *addr)
 {
     return instance->ip==addr->sin_addr.s_addr 
-        && instance->nport==addr->sin_port;
+        && instance->sin_port==addr->sin_port;
 }
 
 static inline void
