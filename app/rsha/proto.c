@@ -79,7 +79,7 @@ STATIC int
 rshi_send(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
-    sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, htons(instance->port));
+    sockaddr_in_t proxy = OS_SOCKADDR_INET(instance->ip, instance->nport);
     rsh_over_t over = {
         .cmd    = msg->cmd,
     };

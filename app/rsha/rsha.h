@@ -301,9 +301,11 @@ typedef struct {
     char *flash;
 
     int fd;
-    int port;   // host sort
     int fsm;
     int error;
+    int port;       // host sort
+    uint16 nport;   // network sort
+    uint16 _r0;
     
     bool debug;
     
@@ -425,7 +427,8 @@ static inline jrule_t *rsh_instance_jrules(void);
 static inline bool
 is_rshi_server_address(rsh_instance_t *instance, sockaddr_in_t *addr)
 {
-    return instance->ip==addr->sin_addr.s_addr && instance->port==addr->sin_port;
+    return instance->ip==addr->sin_addr.s_addr 
+        && instance->nport==addr->sin_port;
 }
 
 static inline void
