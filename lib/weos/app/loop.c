@@ -331,8 +331,8 @@ __loop_add_father(loop_t *loop, int fd, loop_son_f *cb, bool auto_del_son, void 
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-      debug_loop("add father fd=%d auto_del_son=%d user=%d", fd, auto_del_son, user);
-    loop_println("add father fd=%d auto_del_son=%d user=%d", fd, auto_del_son, user);
+      debug_loop("add father fd=%d auto_del_son=%d user=%p", fd, auto_del_son, user);
+    loop_println("add father fd=%d auto_del_son=%d user=%p", fd, auto_del_son, user);
     
     return 0;
 }
