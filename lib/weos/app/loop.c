@@ -59,7 +59,6 @@ __loop_watcher_constructor(void *item)
     
     watcher->fd     = INVALID_FD;
     watcher->father = INVALID_FD;
-    watcher->son    = INVALID_FD;
 }
 
 STATIC void
@@ -178,7 +177,6 @@ __loop_watcher_add(loop_t *loop, int fd, int type, int flag, void *cb, void *use
     
     watcher->fd     = fd;
     watcher->father = INVALID_FD;
-    watcher->son    = INVALID_FD;
     watcher->type   = type;
     watcher->flag   = flag;
     watcher->cb.cb  = cb;
@@ -347,9 +345,6 @@ __loop_add_son(loop_t *loop, int fd, loop_watcher_t *father)
     if (NULL==watcher) {
         return -ENOEXIST;
     }
-
-    // bind father
-    father->son = fd;
     watcher->father = father->fd;
     
       debug_loop("add son fd=%d flag=0x%x user=%d", fd, flag, watcher->user);
@@ -410,6 +405,10 @@ STATIC void
 __loop_normal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
 {
     (*watcher->cb.normal)(watcher, now);
+
+    if (os_hasflag(watcher->flag, LOOP_F_ONCE)) {
+        __loop_watcher_del(loop, watcher->fd);
+    }
 }
 
 STATIC void
@@ -418,16 +417,6 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     int fd, err;
     os_sockaddr_t addr;
     sockaddr_len_t addrlen = sizeof(addr);
-    loop_watcher_t *son;
-    
-    // try release last son
-    if (is_good_fd(watcher->son) &&
-        (son = __loop_watcher(loop, watcher->son)) &&
-        os_hasflag(son->flag, LOOP_F_ONCE)) {
-
-        __loop_watcher_del(loop, watcher->son);
-        watcher->son = INVALID_FD;
-    }
     
     fd = accept(watcher->fd, &addr.c, &addrlen);
       debug_loop("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);

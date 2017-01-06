@@ -66,7 +66,6 @@ typedef int loop_inotify_f(loop_watcher_t *watcher, struct inotify_event *ev, ti
 struct loop_watcher_s {
     int fd;
     int father;     // only for son
-    int son;        // only for father
     uint16 type;
     uint16 flag;
     
