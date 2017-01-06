@@ -347,8 +347,8 @@ __loop_add_son(loop_t *loop, int fd, loop_watcher_t *father)
     }
     watcher->father = father->fd;
     
-      debug_loop("add son fd=%d flag=0x%x user=%d", fd, flag, watcher->user);
-    loop_println("add son fd=%d flag=0x%x user=%d", fd, flag, watcher->user);
+      debug_loop("add son fd=%d flag=0x%x user=%p", fd, flag, watcher->user);
+    loop_println("add son fd=%d flag=0x%x user=%p", fd, flag, watcher->user);
     
     return 0;
 }
