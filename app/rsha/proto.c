@@ -40,23 +40,30 @@ rshi_recv(rsh_instance_t *instance)
     sockaddr_len_t addrlen = sizeof(addr);
     int err, len;
 
+    os_println("rshi_recv 1");
     err = len = __io_recvfrom(instance->fd, msg, RSH_MSG_ALLSIZE, 0,
         (sockaddr_t *)&addr, &addrlen);
     if (err<0) {
+        os_println("rshi_recv 1.1");
         return err;
     }
 
     os_println("recv msg size:%d", len);
     os_dump_buffer(msg, len);
-    
+
+    os_println("rshi_recv 2");
     if (false==is_good_rsh_msg_size(len)) {
+        os_println("rshi_recv 2.1");
         return -EBADSIZE;
     }
     else if (false==is_rshi_server_address(instance, &addr)) {
+        os_println("rshi_recv 2.2");
         return -EFAKESEVER;
     }
     
+    os_println("rshi_recv 3");
     rshi_decode(instance, len);
+    os_println("rshi_recv 4");
     
     return len;
 }
