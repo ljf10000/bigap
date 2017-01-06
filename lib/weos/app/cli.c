@@ -308,7 +308,8 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
     if (fd<0) {
         return fd;
     }
-
+    cli_println("cli socket:%d ok", fd);
+    
     if (__is_ak_debug_cli) {
         os_println("table %s[flag=0x%x timeout=%d]", 
             table->tag, 
@@ -320,7 +321,8 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
     if (err<0) { /* yes, <0 */
         goto error;
     }
-
+    cli_println("cli send:%s ok", buf);
+    
     if (__is_ak_debug_cli) {
         os_println("send %s request[fd=%d pkt=%d/%d]", 
             __this_cli_type_string(tcp), 

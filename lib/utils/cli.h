@@ -17,6 +17,17 @@
 #define CLI_F_DEAMON        DEAMON_VAL(CLI_F_SERVER, 0)
 #endif
 
+#ifndef CLI_PRINT
+#define CLI_PRINT           1
+#endif
+
+#if CLI_PRINT
+#define cli_println(_fmt, _args...)     os_println(_fmt, ##_args)
+#else
+#define cli_println(_fmt, _args...)     os_do_nothing()
+#endif
+
+
 typedef struct cli_table_s cli_table_t;
 
 typedef int cli_handle_f(cli_table_t *table, int argc, char *argv[]);
