@@ -133,6 +133,10 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
     }
 
     rsh_msg_fill(msg, rsha.mac, buf, len);
+
+    if (error && buf) {
+        debug_error("ack error:%s", buf);
+    }
     
     return rshi_send(instance);
 }
@@ -214,6 +218,20 @@ rshi_handshake_recv_checker(rsh_instance_t *instance, time_t now)
             "time[%s] handshake reply ack[0x%x] without ack flag", 
             os_fulltime_string(now),
             msg->ack);
+    }
+    else if (msg->seq != instance->seq_peer) {
+        return rshi_ack_error(instance, -RSH_E_SEQ, 
+            "time[%s] handshake reply seq[0x%x] not match instance[seq_peer:0x%x]", 
+            os_fulltime_string(now),
+            msg->seq,
+            instance->seq_peer);
+    }
+    else if (msg->ack != instance->seq) {
+        return rshi_ack_error(instance, -RSH_E_ACK, 
+            "time[%s] handshake reply ack[0x%x] not match instance[seq:0x%x]", 
+            os_fulltime_string(now),
+            msg->ack,
+            instance->seq_noack);
     }
 
     return 0;
@@ -320,6 +338,7 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
             os_fulltime_string(now),
             os_macstring(msg->mac));
     }
+#if 0
     else if (msg->seq != instance->seq_peer) {
         return rshi_ack_error(instance, -RSH_E_SEQ, 
             "time[%s] seq[0x%x] not match instance[seq_peer:0x%x]", 
@@ -334,6 +353,7 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
             msg->ack,
             instance->seq_noack);
     }
+#endif
     else {
         return (*checker[msg->cmd])(instance, now);
     }

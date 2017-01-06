@@ -355,6 +355,8 @@ cli_request(cli_client_t *clic, int argc, char *argv[])
 {
     cli_table_t table = __CLI_ENTRY("@default", CLI_F_SYN | CLI_F_TCP, CLI_TIMEOUT, NULL);
 
+    __argv_dump(os_println, argc, argv);
+    
     return __cli_request(clic, &table, argc, argv);
 }
 
