@@ -10,8 +10,6 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #endif
 
 #define __RUNAS_UNKNOW__
-#define __LIB__
-
 #include "utils.h"
 #include "js.h"
 
