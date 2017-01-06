@@ -364,7 +364,7 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
 
     cli_println("clic recv ...");
 #if CLI_PRINT
-    os_usleep(3000);
+    os_usleep(3*1000*1000);
 #endif
     
     if (tcp) {
