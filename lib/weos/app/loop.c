@@ -41,7 +41,10 @@ __loop_master_init(loop_t *loop)
             return -errno;
         }
         debug_loop("add master fd=%d", loop->efd);
+        loop_println("add master fd=%d", loop->efd);
+        
         debug_ok("loop master init ok.");
+        loop_println("loop master init ok.");
     }
 
     return 0;
@@ -97,11 +100,13 @@ __loop_watcher_init(loop_t *loop, uint32 limit)
             __loop_watcher_destructor); // clean
         if (err<0) {
             debug_error("loop watcher init error:%d", err);
+            loop_println("loop watcher init error:%d", err);
 
             return err;
         }
 
         debug_ok("loop watcher init ok.");
+        loop_println("loop watcher init ok.");
     }
 
     return 0;
@@ -159,11 +164,13 @@ __loop_watcher_add(loop_t *loop, int fd, int type, int flag, void *cb, void *use
     loop_watcher_t *watcher = __loop_watcher_take(loop, fd);
     if (NULL==watcher) {
         debug_loop("not found %s watcher:%d", watchname, fd);
+        loop_println("not found %s watcher:%d", watchname, fd);
         
         return NULL;
     }
     else if (__is_good_loop_watcher(watcher)) {
         debug_loop("exist %s watcher:%d", watchname, fd);
+        loop_println("exist %s watcher:%d", watchname, fd);
         
         return NULL;
     }
@@ -178,11 +185,13 @@ __loop_watcher_add(loop_t *loop, int fd, int type, int flag, void *cb, void *use
     err = __loop_fd_add(loop, fd);
     if (err<0) {
         debug_loop("add %s watcher error: %d", watchname, -errno);
+        loop_println("add %s watcher error: %d", watchname, -errno);
         
         return NULL;
     }
     loop->count[type]++;
     debug_loop("add %s watcher ok.", watchname);
+    loop_println("add %s watcher ok.", watchname);
     
     return watcher;
 }
@@ -199,6 +208,7 @@ __loop_watcher_del(loop_t *loop, int fd)
     __loop_watcher_destructor(watcher);
     
     debug_loop("del %s watcher ok.", loop_type_getnamebyid(watcher->type));
+    loop_println("del %s watcher ok.", loop_type_getnamebyid(watcher->type));
     
     return 0;
 }
@@ -211,6 +221,7 @@ __loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], i
     fd = inotify_init1(IN_CLOEXEC);
     if (fd<0) {
         debug_error("create inotify fd error:%d", -errno);
+        loop_println("create inotify fd error:%d", -errno);
         
         return -errno;
     }
@@ -220,6 +231,7 @@ __loop_add_inotify(loop_t *loop, loop_inotify_f *cb, loop_inotify_t inotify[], i
         err = inotify_add_watch(fd, inotify[i].path, inotify[i].mask);
         if (err<0) {
             debug_error("add inotify watch error:%d", -errno);
+            loop_println("add inotify watch error:%d", -errno);
             
             return -errno;
         }
@@ -242,6 +254,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
     int fd = timerfd_create(CLOCK_MONOTONIC, EFD_CLOEXEC);
     if (fd<0) {
         debug_error("create timer fd error:%d", -errno);
+        loop_println("create timer fd error:%d", -errno);
         
         return -errno;
     }
@@ -254,6 +267,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
     err = timerfd_settime(fd, 0, &tm, NULL);
     if (err<0) {
         debug_error("setup timer error:%d", -errno);
+        loop_println("setup timer error:%d", -errno);
         
         return -errno;
     }
@@ -263,6 +277,7 @@ __loop_add_timer(loop_t *loop, loop_timer_f *cb, struct itimerspec *timer)
         return -ENOEXIST;
     }
     debug_loop("add timer fd=%d", fd);
+    loop_println("add timer fd=%d", fd);
     
     return 0;
 }
@@ -282,6 +297,7 @@ __loop_add_signal(loop_t *loop, loop_signal_f *cb, int sigs[], int count)
     int fd = signalfd(-1, &set, EFD_CLOEXEC);
     if (fd<0) {
         debug_error("create signal fd error:%d", -errno);
+        loop_println("create signal fd error:%d", -errno);
         
         return -errno;
     }
@@ -315,6 +331,7 @@ __loop_add_father(loop_t *loop, int fd, loop_son_f *cb, bool auto_del_son, void 
         return -ENOEXIST;
     }
     debug_loop("add father fd=%d auto_del_son=%d user=%d", fd, auto_del_son, user);
+    loop_println("add father fd=%d auto_del_son=%d user=%d", fd, auto_del_son, user);
     
     return 0;
 }
@@ -328,6 +345,7 @@ __loop_add_son(loop_t *loop, int fd, loop_son_f *cb, int father, int flag, void 
     }
     watcher->father = father;
     debug_loop("add son fd=%d flag=0x%x user=%d", fd, flag, user);
+    loop_println("add son fd=%d flag=0x%x user=%d", fd, flag, user);
     
     return 0;
 }
@@ -342,6 +360,7 @@ __loop_inotify_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     int len = read(watcher->fd, buf, 1+OS_PAGE_LEN);
     if (len<0) {
         debug_loop("inotify read error:%d", -errno);
+        loop_println("inotify read error:%d", -errno);
 
         return;
     }
@@ -389,6 +408,10 @@ __loop_normal_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
             watcher->fd, 
             watcher->flag, 
             watcher->user);
+        loop_println("auto delete fd=%d flag=0x%x user=%p", 
+            watcher->fd, 
+            watcher->flag, 
+            watcher->user);
         
         __loop_watcher_del(loop, watcher->fd);
     }
@@ -402,6 +425,7 @@ __loop_father_handle(loop_t *loop, loop_watcher_t *watcher, time_t now)
     sockaddr_len_t addrlen = sizeof(addr);
     
     fd = accept(watcher->fd, &addr.c, &addrlen);
+    loop_println("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
     debug_loop("accept new fd=%d from %d, errno=%d", fd, watcher->fd, is_good_fd(fd)?0:-errno);
     if (is_good_fd(fd)) {
         os_closexec(fd);
@@ -426,12 +450,18 @@ __loop_handle_ev(loop_t *loop, struct epoll_event *ev, time_t now)
 
     loop_watcher_t *watcher = __loop_watcher(loop, ev->data.fd);
     if (NULL==watcher) {
+        loop_println("loop watcher not exit by fd:%d", ev->data.fd);
+        
         return -ENOEXIST;
     }
     else if (false==is_good_loop_type(watcher->type)) {
+        loop_println("bad loop watcher type:%d", watcher->type);
+        
         return -EBADFD;
     }
     else {
+        loop_println("loop watcher type:%s", loop_type_getnamebyid(watcher->type));
+        
         (*map[watcher->type])(loop, watcher, now);
     }
     
@@ -448,12 +478,17 @@ __loop_handle(loop_t *loop)
     int nfds = epoll_wait(loop->efd, evs, os_count_of(evs), -1);
     if (nfds<0) {
         if (EINTR==errno) {
+            loop_println("loop break");
+            
             return 0;
         } else {
+            loop_println("loop wait error:%d", -errno);
+            
             return -errno;
         }
     }
     time_t now = time(NULL);
+    loop_println("loop wait fds:%d", nfds);
     
     for (i=0; i<nfds; i++) {
         count++;
