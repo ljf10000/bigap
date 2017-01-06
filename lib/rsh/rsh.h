@@ -208,6 +208,14 @@ rsh_msg_current(rsh_msg_t *msg)
     return (char *)rsh_msg_body(msg) + msg->len;
 }
 
+static inline char *
+rsh_msg_pad(rsh_msg_t *msg)
+{
+    int pad = rsh_msg_size(msg) - rsh_msg_len(msg);
+
+    os_memzero(rsh_msg_current(msg), pad);
+}
+
 /*
 * error msg header(network sort)
 * it's body is error info
@@ -270,10 +278,14 @@ static inline void
 rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
 {
     hmac_sha2_ctx_t ctx = HMAC_SHA2_CTX_INITER(SHA_TYPE(hmacsize));
+    uint32 bsize = len - sizeof(rsh_msg_t) - hmacsize;
     
+    // just calc msg header/body, NOT include hmac self
     hmac_sha2_init(&ctx, key->key, key->size);
     hmac_sha2_update(&ctx, (const byte *)msg, sizeof(rsh_msg_t));
-    hmac_sha2_update(&ctx, (const byte *)rsh_msg_body(msg), len - sizeof(rsh_msg_t) - hmacsize);
+    if (bsize > 0) {
+        hmac_sha2_update(&ctx, (const byte *)rsh_msg_body(msg), bsize);
+    }
     hmac_sha2_final(&ctx, hmac);
 }
 
@@ -335,6 +347,8 @@ rsh_msg_decrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
 static inline void
 rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
 {
+    rsh_msg_pad(msg);
+    
     /*
     * 1. network==>host
     * 2. calc hmac and save hmac to msg
