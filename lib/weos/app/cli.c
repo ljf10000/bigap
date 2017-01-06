@@ -310,20 +310,28 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
         return fd;
     }
     cli_println("cli socket:%d ok", fd);
-    
+
+#if 0
     if (__is_ak_debug_cli) {
         os_println("table %s[flag=0x%x timeout=%d]", 
             table->tag, 
             table->flag, 
             table->timeout);
     }
+#endif
 
-    cli_println("cli send:%s size:%d ...", buf, len);
+    int i;
+
+    for (i=0; i<10; i++)
+        cli_println("cli send size:%d ...", len);
     err = io_send(fd, buf, len);
     if (err<0) { /* yes, <0 */
+        for (i=0; i<10; i++)
+            cli_println("cli send size:%d error:%d", len, err);
         goto error;
     }
-    cli_println("cli send:%s size:%d ok.", buf, len);
+    for (i=0; i<10; i++)
+        cli_println("cli send size:%d ok.", len);
     
     if (__is_ak_debug_cli) {
         os_println("send %s request[fd=%d pkt=%d/%d]", 

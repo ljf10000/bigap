@@ -5,6 +5,16 @@
 /******************************************************************************/
 #ifdef __APP__
 
+#ifndef IO_PRINT
+#define IO_PRINT            1
+#endif
+
+#if IO_PRINT
+#define io_println(_fmt, _args...)      os_println(_fmt, ##_args)
+#else
+#define io_println(_fmt, _args...)      os_do_nothing()
+#endif
+
 extern int
 __io_read(int fd, void *buf, int size);
 

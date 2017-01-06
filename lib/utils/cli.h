@@ -27,7 +27,6 @@
 #define cli_println(_fmt, _args...)     os_do_nothing()
 #endif
 
-
 typedef struct cli_table_s cli_table_t;
 
 typedef int cli_handle_f(cli_table_t *table, int argc, char *argv[]);

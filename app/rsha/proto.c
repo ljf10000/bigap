@@ -209,6 +209,18 @@ rshi_exec(rsh_instance_t *instance, char *json)
 }
 
 STATIC int 
+rshi_seq_checker(rsh_instance_t *instance, time_t now)
+{
+    rsh_msg_t *msg = rsha_msg;
+    uint32 max, min;
+
+    max = os_max(instance->seq, msg->ack);
+    min = os_min(instance->seq, msg->ack);
+    
+    
+}
+
+STATIC int 
 rshi_handshake_recv_checker(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
@@ -218,13 +230,6 @@ rshi_handshake_recv_checker(rsh_instance_t *instance, time_t now)
             "time[%s] handshake reply ack[0x%x] without ack flag", 
             os_fulltime_string(now),
             msg->ack);
-    }
-    else if (msg->seq != instance->seq_peer) {
-        return rshi_ack_error(instance, -RSH_E_SEQ, 
-            "time[%s] handshake reply seq[0x%x] not match instance[seq_peer:0x%x]", 
-            os_fulltime_string(now),
-            msg->seq,
-            instance->seq_peer);
     }
     else if (msg->ack != instance->seq) {
         return rshi_ack_error(instance, -RSH_E_ACK, 
@@ -253,7 +258,7 @@ rshi_echo_recv_checker(rsh_instance_t *instance, time_t now)
 }
 
 STATIC int 
-rshi_noack_recv_checker(rsh_instance_t *instance, time_t now)
+rshi_command_recv_checker(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
     
@@ -269,6 +274,10 @@ rshi_noack_recv_checker(rsh_instance_t *instance, time_t now)
 STATIC void 
 rshi_handshake_recver(rsh_instance_t *instance, time_t now)
 {
+    rsh_msg_t *msg = rsha_msg;
+    // save server's seq
+    instance->seq_peer = msg->seq;
+
     rshi_fsm(instance, RSH_FSM_HANDSHAKED, now);
     
     instance->handshake.recv = now;
@@ -299,7 +308,7 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
     static int (*checker[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
         [RSH_CMD_HANDSHAKE]     = rshi_handshake_recv_checker,
         [RSH_CMD_ECHO]          = rshi_echo_recv_checker,
-        [RSH_CMD_COMMAND]       = rshi_noack_recv_checker,
+        [RSH_CMD_COMMAND]       = rshi_command_recv_checker,
     };
     
     int size = rsh_msg_size(msg);
