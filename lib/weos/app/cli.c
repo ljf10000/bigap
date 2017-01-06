@@ -83,7 +83,7 @@ __cli_reply(int err)
     int len, fd = __this_cli_fd;
     
     __clib_err = err;
-    
+
     if (__this_cli_tcp) {
         len = io_send(fd, __clib(), __clib_space);
     } else {
@@ -98,7 +98,7 @@ __cli_reply(int err)
             __clib_len, 
             __clib_err, 
             __clib_buf);
-        
+
         os_dump_buffer(__clib(), __clib_space);
     }
 
@@ -304,35 +304,30 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
     int fd = INVALID_FD, err = 0;
     int len = argv_zip2bin(buf, sizeof(buf), argc, argv);
     cli_println("cli zip2bin size:%d", len);
-    
+
     fd = __clic_fd(clic, table);
     if (fd<0) {
         return fd;
     }
+
     cli_println("cli socket:%d ok", fd);
 
-#if 0
     if (__is_ak_debug_cli) {
         os_println("table %s[flag=0x%x timeout=%d]", 
             table->tag, 
             table->flag, 
             table->timeout);
     }
-#endif
 
-    int i;
-
-    for (i=0; i<10; i++)
-        cli_println("cli send size:%d ...", len);
+    cli_println("cli send size:%d ...", len);
     err = io_send(fd, buf, len);
     if (err<0) { /* yes, <0 */
-        for (i=0; i<10; i++)
-            cli_println("cli send size:%d error:%d", len, err);
+        cli_println("cli send size:%d error:%d", len, err);
+        
         goto error;
     }
-    for (i=0; i<10; i++)
-        cli_println("cli send size:%d ok.", len);
-    
+    cli_println("cli send size:%d ok.", len);
+
     if (__is_ak_debug_cli) {
         os_println("send %s request[fd=%d pkt=%d/%d]", 
             __this_cli_type_string(tcp), 
@@ -340,7 +335,7 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
         
         os_dump_buffer(buf, len);
     }
-    
+
     if (false==syn) {
         err = 0; goto error;
     }
@@ -353,7 +348,7 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
     if (err<0) {
         goto error;
     }
-    
+
 error:
     os_close(fd);
     

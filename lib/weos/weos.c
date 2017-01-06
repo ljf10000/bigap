@@ -13,7 +13,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __LIB__
 #endif
 
-#define __RUNAS__       1
+#define __RUNAS_UNKNOW__
 
 #include "utils.h"
 #include "benv/bcookie.h"
