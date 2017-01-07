@@ -226,7 +226,7 @@ rshi_seq_checker(rsh_instance_t *instance, time_t now)
     max = os_max(instance->seq, msg->ack);
     min = os_min(instance->seq, msg->ack);
     
-    
+    return 0;
 }
 
 STATIC int 

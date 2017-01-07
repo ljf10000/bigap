@@ -208,7 +208,7 @@ rsh_msg_current(rsh_msg_t *msg)
     return (char *)rsh_msg_body(msg) + msg->len;
 }
 
-static inline char *
+static inline void
 rsh_msg_pad(rsh_msg_t *msg)
 {
     int pad = rsh_msg_size(msg) - rsh_msg_len(msg);
