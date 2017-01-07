@@ -102,7 +102,7 @@ STATIC void
 rsha_error_checker(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_run(instance) && instance->peer_error > instance->peer_error_max) {
-        debug_proto("fsm restart: peer error[%d] > max peer error[%d]"
+        debug_proto("fsm restart: peer error[%d] > max peer error[%d]",
             instance->peer_error,
             instance->peer_error_max);
 
