@@ -262,7 +262,7 @@ rshi_echo_recv_checker(rsh_instance_t *instance, time_t now)
             os_fulltime_string(now),
             msg->ack);
     }
-
+    
     return 0;
 }
 
@@ -276,7 +276,7 @@ rshi_command_recv_checker(rsh_instance_t *instance, time_t now)
             "time[%s] command with ack flag",
             os_fulltime_string(now));
     }
-
+    
     return 0;
 }
 
@@ -291,6 +291,8 @@ rshi_handshake_recver(rsh_instance_t *instance, time_t now)
     
     instance->handshake.recv = now;
     instance->handshake.recvs++;
+
+    debug_proto("recv handshake ack");
 }
 
 STATIC void 
@@ -300,6 +302,8 @@ rshi_echo_recver(rsh_instance_t *instance, time_t now)
     
     echo->recv = now;
     echo->recvs++;
+
+    debug_proto("recv echo ack");
 }
 
 STATIC void 
@@ -309,6 +313,8 @@ rshi_command_recver(rsh_instance_t *instance, time_t now)
 
     rshi_echo_set(instance, now, true);
     rshi_exec(instance, (char *)rsh_msg_body(msg));
+    
+    debug_proto("recv command");
 }
 
 STATIC int 
