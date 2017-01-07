@@ -387,6 +387,8 @@ __ak_init_deamon()
 {
     __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
     __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
+
+    ak_println("__ak_init_deamon __THIS_DEBUG=%d", __THIS_DEBUG);
 }
 #endif
 
