@@ -356,14 +356,14 @@ error:
 #ifdef __APP__
 #ifdef __DEAMON__
 static inline void // must inline
-__ak_init() 
+__ak_init(void)
 {
     __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
     __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
 }
 #else
 static inline void // must inline
-__ak_init() 
+__ak_init(void)
 {
     char *value;
     
