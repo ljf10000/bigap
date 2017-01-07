@@ -181,7 +181,7 @@ __tm_ring_dump(tm_ring_t *ring)
 STATIC void
 __tm_dump(void)
 {
-    if (__is_ak_debug(__ak_debug_timer|__ak_debug_trace|__ak_debug_test)) {
+    if (__is_ak_debug(__ak_debug_timer|__ak_debug_trace)) {
         tm_ring_t *ring;
 
         os_println("======================");

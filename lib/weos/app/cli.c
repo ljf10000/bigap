@@ -323,8 +323,6 @@ STATIC int
 __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
 {
     char buf[1+OS_LINE_LEN];
-    bool tcp = os_hasflag(table->flag, CLI_F_TCP);
-    bool syn = os_hasflag(table->flag, CLI_F_SYN);
     int fd = INVALID_FD, err = 0;
     int len = argv_zip2bin(buf, sizeof(buf), argc, argv);
     cli_println("clic zip2bin size:%d", len);
@@ -352,6 +350,7 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
     }
     cli_println("clic send size:%d ok.", len);
 
+    bool tcp = os_hasflag(table->flag, CLI_F_TCP);
     if (__is_ak_debug_cli) {
         os_println("clic send %s request[fd=%d pkt=%d/%d]", 
             __this_cli_type_string(tcp), 
@@ -361,7 +360,8 @@ __cli_request(cli_client_t *clic, cli_table_t *table, int argc, char *argv[])
     }
 
     cli_println("clic recv ...");
-    
+
+    bool syn = os_hasflag(table->flag, CLI_F_SYN);
     if (false==syn) {
         cli_println("clic recv asyn, exit");
         err = 0; goto error;

@@ -221,12 +221,15 @@ STATIC int
 rshi_seq_checker(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
-    uint32 max, min;
+    uint32 offset = os_seq_offset(instance->seq, msg->ack);
 
-    max = os_max(instance->seq, msg->ack);
-    min = os_min(instance->seq, msg->ack);
-    
-    return 0;
+    if (offset > 1024) {
+        debug_proto("recv bad ack:%u not match instance seq:%u", msg->ack, instance->seq);
+        
+        return -EBADSEQ;
+    } else {
+        return 0;
+    }
 }
 
 STATIC int 
@@ -263,7 +266,7 @@ rshi_echo_recv_checker(rsh_instance_t *instance, time_t now)
             msg->ack);
     }
     
-    return 0;
+    return rshi_seq_checker(instance, now);
 }
 
 STATIC int 
@@ -292,7 +295,7 @@ rshi_handshake_recver(rsh_instance_t *instance, time_t now)
     instance->handshake.recv = now;
     instance->handshake.recvs++;
 
-    debug_proto("recv handshake ack");
+    debug_proto("recv handshake ack and save peer seq:%u", msg->seq);
 }
 
 STATIC void 
