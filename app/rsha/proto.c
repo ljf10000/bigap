@@ -266,7 +266,7 @@ rshi_handshake_handle(rsh_instance_t *instance, time_t now)
     instance->handshake.recv = now;
     instance->handshake.recvs++;
 
-    debug_proto("recv handshake ack and save peer seq:%u", msg->seq);
+    debug_proto("instance %s handshake ok. save peer seq:%u", instance->sp, msg->seq);
 }
 
 STATIC int 
@@ -503,19 +503,15 @@ rshi_echo(rsh_instance_t *instance, time_t now)
 int
 rshi_resolve(rsh_instance_t *instance, time_t now)
 {
+    debug_proto("instance %s resolve %s ...", instance->sp, instance->proxy);
+    
     instance->ip = os_ipdns(instance->proxy);
     if (is_good_ipaddr(instance->ip)) {
+        debug_proto("instance %s resolve %s ok", instance->sp, instance->proxy);
+        
         rshi_fsm(instance, RSH_FSM_RESOLVED, now);
     }
-    debug_entry("instance %s resolve %s ok", instance->sp, instance->proxy);
 
     return 0;
 }
-
-int 
-rshi_run(rsh_instance_t *instance, time_t now)
-{
-    return rshi_fsm(instance, RSH_FSM_RUN, now);
-}
-
 /******************************************************************************/

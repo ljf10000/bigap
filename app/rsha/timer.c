@@ -40,6 +40,8 @@ rsha_resolved_tigger(rsh_instance_t *instance, time_t now)
     rshi_handshake_t *handshake = &instance->handshake;
     
     if (is_rsh_fsm_resolved(instance) && is_rsha_handshake_tigger(handshake, now)) {
+        debug_proto("instance %s handshake ...", instance->sp);
+        
         rshi_handshake(instance, now);
     }
 }
@@ -48,7 +50,7 @@ STATIC void
 rsha_handshaked_tigger(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_handshaked(instance)) {
-        rshi_run(instance, now);         // ==> run
+        rshi_fsm(instance, RSH_FSM_RUN, now);
     }
 }
 
@@ -76,6 +78,8 @@ STATIC void
 rsha_echo_timeout(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_run(instance) && is_rsha_echo_timeout(rshi_echo_get(instance), now)) {
+        debug_proto("fsm restart: echo timeout");
+            
         rshi_fsm_restart(instance, now);
     }
 }
@@ -98,6 +102,10 @@ STATIC void
 rsha_error_checker(rsh_instance_t *instance, time_t now)
 {
     if (is_rsh_fsm_run(instance) && instance->peer_error > instance->peer_error_max) {
+        debug_proto("fsm restart: peer error[%d] > max peer error[%d]"
+            instance->peer_error,
+            instance->peer_error_max);
+
         rshi_fsm_restart(instance, now);
     }
 }

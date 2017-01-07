@@ -242,9 +242,7 @@ __ak_sys_value(int sys, char *line);
 EXTERN int
 __ak_get_value(char *key, char *value);
 /******************************************************************************/
-static inline int __ak_init(void);
-
-#if !defined(__APP__) || !defined(__DEAMON__)
+#ifndef __APP__
 #define __ak_getidbyname(_app, _key)    0
 #define __ak_getidbynameEx(_app, _key)  0
 #define __ak_getnamebyid(_akid)         NULL
@@ -322,6 +320,33 @@ ak_fini(void);
 extern int 
 ak_init_helper(void);
 
+#ifdef __DEAMON__
+static inline int // must inline
+__ak_init(void)
+{
+    __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
+    __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
+
+    return 0;
+}
+#else
+static inline int // must inline
+__ak_init(void)
+{
+    char *value;
+    
+    value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
+    __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
+    ak_println("__THIS_DEBUG=%s==>0x%x", value, __THIS_DEBUG);
+
+    value = env_gets(ENV_JS_DEBUG, __js_debug_string_default);
+    __THIS_JDEBUG = __ak_get_value(JS_DEBUG_NAME, value);
+    ak_println("__THIS_JDEBUG=%s==>0x%x", value, __THIS_JDEBUG);
+
+    return 0;
+}
+#endif /* __DEAMON__ */
+
 static inline int // must inline
 ak_init(void) 
 {
@@ -349,36 +374,6 @@ error:
 
     return err;
 }
-
-#endif /* !defined(__APP__) || !defined(__DEAMON__) */
-
-#ifdef __APP__
-#ifdef __DEAMON__
-static inline int // must inline
-__ak_init(void)
-{
-    __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
-    __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
-
-    return 0;
-}
-#else
-static inline int // must inline
-__ak_init(void)
-{
-    char *value;
-    
-    value = env_gets(ENV_AK_DEBUG, __ak_debug_string_default);
-    __THIS_DEBUG = __ak_get_value(AK_DEBUG_NAME, value);
-    ak_println("__THIS_DEBUG=%s==>0x%x", value, __THIS_DEBUG);
-
-    value = env_gets(ENV_JS_DEBUG, __js_debug_string_default);
-    __THIS_JDEBUG = __ak_get_value(JS_DEBUG_NAME, value);
-    ak_println("__THIS_JDEBUG=%s==>0x%x", value, __THIS_JDEBUG);
-
-    return 0;
-}
-#endif /* __DEAMON__ */
 #endif
 /******************************************************************************/
 typedef struct {

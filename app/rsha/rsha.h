@@ -532,9 +532,6 @@ extern int
 rshi_resolve(rsh_instance_t *instance, time_t now);
 
 extern int 
-rshi_run(rsh_instance_t *instance, time_t now);
-
-extern int 
 rshi_handshake(rsh_instance_t *instance, time_t now);
 
 extern int 
