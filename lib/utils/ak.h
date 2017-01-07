@@ -242,28 +242,7 @@ __ak_sys_value(int sys, char *line);
 EXTERN int
 __ak_get_value(char *key, char *value);
 /******************************************************************************/
-#ifndef __APP__
-#define __ak_getidbyname(_app, _key)    0
-#define __ak_getidbynameEx(_app, _key)  0
-#define __ak_getnamebyid(_akid)         NULL
-#define __ak_getkeybyid(_akid)          NULL
-#define __ak_getvaluebyid(_akid)        NULL
-#define __ak_setvaluebyid(_akid, _v)    0
-
-/*
-* kernel/boot/(app cmd)
-*/
-#define ak_getidbyname(_key)            0
-#define ak_getidbynameEx(_key)          0
-
-#define ak_get(_akid, _deft)            (_akid)
-#define ak_set(_akid, _value)           0
-
-#define ak_load()                       0
-#define ak_foreach(_foreach)            0
-#define ak_fini()                       0
-#define ak_init()                       0
-#else /* app unknow/deamon */
+#ifdef __APP__
 extern akid_t 
 __ak_getidbyname(char *app, char *k);
 
@@ -374,6 +353,27 @@ error:
 
     return err;
 }
+#else
+#define __ak_getidbyname(_app, _key)    0
+#define __ak_getidbynameEx(_app, _key)  0
+#define __ak_getnamebyid(_akid)         NULL
+#define __ak_getkeybyid(_akid)          NULL
+#define __ak_getvaluebyid(_akid)        NULL
+#define __ak_setvaluebyid(_akid, _v)    0
+
+/*
+* kernel/boot/(app cmd)
+*/
+#define ak_getidbyname(_key)            0
+#define ak_getidbynameEx(_key)          0
+
+#define ak_get(_akid, _deft)            (_akid)
+#define ak_set(_akid, _value)           0
+
+#define ak_load()                       0
+#define ak_foreach(_foreach)            0
+#define ak_fini()                       0
+#define ak_init()                       0
 #endif
 /******************************************************************************/
 typedef struct {
