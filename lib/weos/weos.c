@@ -13,6 +13,8 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __LIB__
 #endif
 
+#define __DEAMON__
+
 #include "utils.h"
 #include "benv/bcookie.h"
 
