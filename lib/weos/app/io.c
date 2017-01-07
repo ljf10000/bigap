@@ -159,9 +159,9 @@ io_recv(int fd, void *buf, int size, int timeout /* ms */)
 int
 io_send(int fd, void *buf, int len)
 {
-    io_println("io_send fd=%d ...", fd);
+    io_println("io send fd=%d ...", fd);
     int err = send(fd, buf, len, 0);
-    io_println("io_send fd=%d err=%d errno=%d", fd, err, -errno);
+    io_println("io send fd=%d err=%d errno=%d", fd, err, -errno);
     
     return __io_write_error("send", buf, len, err);
 }

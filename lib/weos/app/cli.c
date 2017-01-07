@@ -92,11 +92,13 @@ __cli_reply(int err)
     }
 
     if (__is_ak_debug_cli) {
-        os_println("send %s reply[fd=%d pkt=%d/%d len=%d, err=%d]:\n%s",
+        os_println("send %s "
+            "reply[fd=%d pkt=%d/%d] "
+            "cli[len=%d err=%d]" __crlf
+            "%s",
             __this_cli_type_string(__this_cli_tcp),
-            fd, __clib_space, len,
-            __clib_len, 
-            __clib_err, 
+            fd, __clib_space, len, 
+            __clib_len, __clib_err, 
             __clib_buf);
 
         os_dump_buffer(__clib(), __clib_space);
