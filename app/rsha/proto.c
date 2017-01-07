@@ -218,13 +218,13 @@ rshi_exec(rsh_instance_t *instance, char *json)
 }
 
 STATIC int 
-rshi_seq_checker(rsh_instance_t *instance, time_t now)
+rshi_ack_checker(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
     uint32 offset = os_seq_offset(instance->seq, msg->ack);
 
     if (offset > 1024) {
-        debug_proto("recv bad ack:%u not match instance seq:%u", msg->ack, instance->seq);
+        debug_proto("recv bad msg, ack:%u not match instance seq:%u", msg->ack, instance->seq);
         
         return -EBADSEQ;
     } else {
@@ -233,7 +233,7 @@ rshi_seq_checker(rsh_instance_t *instance, time_t now)
 }
 
 STATIC int 
-rshi_handshake_recv_checker(rsh_instance_t *instance, time_t now)
+rshi_handshake_checker(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
     
@@ -254,37 +254,8 @@ rshi_handshake_recv_checker(rsh_instance_t *instance, time_t now)
     return 0;
 }
 
-STATIC int 
-rshi_echo_recv_checker(rsh_instance_t *instance, time_t now)
-{
-    rsh_msg_t *msg = rsha_msg;
-    
-    if (false==is_rsh_msg_ack(msg)) {
-        return rshi_ack_error(instance, -RSH_E_FLAG, 
-            "time[%s] echo reply ack[0x%x] without ack flag", 
-            os_fulltime_string(now),
-            msg->ack);
-    }
-    
-    return rshi_seq_checker(instance, now);
-}
-
-STATIC int 
-rshi_command_recv_checker(rsh_instance_t *instance, time_t now)
-{
-    rsh_msg_t *msg = rsha_msg;
-    
-    if (is_rsh_msg_ack(msg)) {
-        return rshi_ack_error(instance, -RSH_E_FLAG, 
-            "time[%s] command with ack flag",
-            os_fulltime_string(now));
-    }
-    
-    return 0;
-}
-
 STATIC void 
-rshi_handshake_recver(rsh_instance_t *instance, time_t now)
+rshi_handshake_handle(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
     // save server's seq
@@ -298,8 +269,23 @@ rshi_handshake_recver(rsh_instance_t *instance, time_t now)
     debug_proto("recv handshake ack and save peer seq:%u", msg->seq);
 }
 
+STATIC int 
+rshi_echo_checker(rsh_instance_t *instance, time_t now)
+{
+    rsh_msg_t *msg = rsha_msg;
+    
+    if (false==is_rsh_msg_ack(msg)) {
+        return rshi_ack_error(instance, -RSH_E_FLAG, 
+            "time[%s] echo reply ack[0x%x] without ack flag", 
+            os_fulltime_string(now),
+            msg->ack);
+    }
+    
+    return rshi_ack_checker(instance, now);
+}
+
 STATIC void 
-rshi_echo_recver(rsh_instance_t *instance, time_t now)
+rshi_echo_handle(rsh_instance_t *instance, time_t now)
 {
     rsh_echo_t *echo = rshi_echo_get(instance);
     
@@ -309,8 +295,22 @@ rshi_echo_recver(rsh_instance_t *instance, time_t now)
     debug_proto("recv echo ack");
 }
 
+STATIC int 
+rshi_command_checker(rsh_instance_t *instance, time_t now)
+{
+    rsh_msg_t *msg = rsha_msg;
+    
+    if (is_rsh_msg_ack(msg)) {
+        return rshi_ack_error(instance, -RSH_E_FLAG, 
+            "time[%s] command with ack flag",
+            os_fulltime_string(now));
+    }
+    
+    return rshi_ack_checker(instance, now);
+}
+
 STATIC void 
-rshi_command_recver(rsh_instance_t *instance, time_t now)
+rshi_command_handle(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
 
@@ -324,9 +324,9 @@ STATIC int
 rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
 {
     static int (*checker[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
-        [RSH_CMD_HANDSHAKE]     = rshi_handshake_recv_checker,
-        [RSH_CMD_ECHO]          = rshi_echo_recv_checker,
-        [RSH_CMD_COMMAND]       = rshi_command_recv_checker,
+        [RSH_CMD_HANDSHAKE]     = rshi_handshake_checker,
+        [RSH_CMD_ECHO]          = rshi_echo_checker,
+        [RSH_CMD_COMMAND]       = rshi_command_checker,
     };
     
     int size = rsh_msg_size(msg);
@@ -412,9 +412,9 @@ int
 rsha_recver(loop_watcher_t *watcher, time_t now)
 {
     static void (*recver[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
-        [RSH_CMD_HANDSHAKE]     = rshi_handshake_recver,
-        [RSH_CMD_ECHO]          = rshi_echo_recver,
-        [RSH_CMD_COMMAND]       = rshi_command_recver,
+        [RSH_CMD_HANDSHAKE]     = rshi_handshake_handle,
+        [RSH_CMD_ECHO]          = rshi_echo_handle,
+        [RSH_CMD_COMMAND]       = rshi_command_handle,
     };
 
     rsh_instance_t *instance = (rsh_instance_t *)watcher->user;
