@@ -421,20 +421,25 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     };
     int err, len;
 
+    os_println("rsha_recver 1");
     err = len = rshi_recv(instance);
     if (err<0) {
         goto error;
     }
     over.cmd    = msg->cmd;
+    os_println("rsha_recver 2");
 
     err = rshi_recv_checker(instance, now, msg, len);
     if (err<0) {
         goto error;
     }
+    os_println("rsha_recver 3");
 
     (*recver[msg->cmd])(instance, now);
+    os_println("rsha_recver 4");
 
     rshi_recv_ok(instance, now);
+    os_println("rsha_recver 5");
 error:
     rshi_recv_over(instance, now, &over, err<0);
 
