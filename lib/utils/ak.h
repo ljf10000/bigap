@@ -164,12 +164,12 @@ __ak_debug_getname(uint32 level)
 #   define __js_debugger        (__THIS_JDEBUG?(*__THIS_JDEBUG):__js_debug_default)
 #elif defined(__APP__)
     typedef uint32 akid_t;
-#   if __RUNAS__==RUN_AS_COMMAND
-#       define __ak_debugger    __THIS_DEBUG
-#       define __js_debugger    __THIS_JDEBUG
-#   else /* run as deamon/unknow */
+#   ifdef __DEAMON__
 #       define __ak_debugger    ak_get(__THIS_DEBUG, __ak_debug_default)
 #       define __js_debugger    ak_get(__THIS_JDEBUG, __js_debug_default)
+#   else /* run as command */
+#       define __ak_debugger    __THIS_DEBUG
+#       define __js_debugger    __THIS_JDEBUG
 #   endif
 #elif defined(__KERNEL__)
     typedef uint32 akid_t;
@@ -180,9 +180,9 @@ __ak_debug_getname(uint32 level)
 #   error "invalid __THIS_JDEBUG"
 #endif
 
+
 extern akid_t   __THIS_DEBUG;
 extern akid_t   __THIS_JDEBUG;
-extern bool     __THIS_COMMAND;
 
 #define __is_ak_debug(_level)   (os_hasflag(__ak_debugger, _level))
 #define __is_js_debug(_level)   (os_hasflag(__js_debugger, _level))
@@ -244,7 +244,7 @@ __ak_get_value(char *key, char *value);
 /******************************************************************************/
 static inline int __ak_init(void);
 
-#if !defined(__APP__) || __RUNAS__==RUN_AS_COMMAND
+#if !defined(__APP__) || !defined(__DEAMON__)
 
 #define __ak_getidbyname(_app, _key)    0
 #define __ak_getidbynameEx(_app, _key)  0
@@ -288,43 +288,27 @@ __ak_setvaluebyid(akid_t akid, uint32 v);
 static inline akid_t // must inline
 ak_getidbyname(char *k)
 {
-    if (__THIS_COMMAND) {
-        return 0;
-    } else {
-        return __ak_getidbyname(__THIS_APPNAME, k);
-    }
+    return __ak_getidbyname(__THIS_APPNAME, k);
 }
 
 static inline akid_t // must inline
 ak_getidbynameEx(char *k)
 {
-    if (__THIS_COMMAND) {
-        return 0;
-    } else {
-        return __ak_getidbynameEx(__THIS_APPNAME, k);
-    }
+    return __ak_getidbynameEx(__THIS_APPNAME, k);
 }
 
 static inline uint32 // must inline
 ak_get(akid_t akid, uint32 deft)
 {
-    if (__THIS_COMMAND) {
-        return akid;
-    } else {
-        uint32 *p = __ak_getvaluebyid(akid);
+    uint32 *p = __ak_getvaluebyid(akid);
 
-        return p?(*p):deft;
-    }
+    return p?(*p):deft;
 }
 
 static inline int // must inline
 ak_set(akid_t akid, uint32 v)
 {
-    if (false==__THIS_COMMAND) {
-        return __ak_setvaluebyid(akid, v);
-    } else {
-        return 0;
-    }
+    return __ak_setvaluebyid(akid, v);
 }
 
 extern int 
@@ -357,9 +341,6 @@ ak_init(void)
     ak_println(__THIS_APPNAME " " __THIS_FILENAME 
         " __THIS_JDEBUG:" __SYMBOL_TO_STRING(__THIS_JDEBUG)
         "=0x%x", __THIS_JDEBUG);
-    ak_println(__THIS_APPNAME " " __THIS_FILENAME 
-        " __THIS_COMMAND:" __SYMBOL_TO_STRING(__THIS_COMMAND)
-        "=%d", __THIS_COMMAND);
     
     return 0;
 error:
@@ -370,12 +351,19 @@ error:
     return err;
 }
 
-#endif /* !defined(__APP__) || defined(__COMMAND__) */
+#endif /* !defined(__APP__) || !defined(__DEAMON__) */
 
 #ifdef __APP__
-#if __RUNAS__ & RUN_AS_COMMAND
+#ifdef __DEAMON__
 static inline void // must inline
-__ak_init_command() 
+__ak_init() 
+{
+    __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
+    __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
+}
+#else
+static inline void // must inline
+__ak_init() 
 {
     char *value;
     
@@ -388,50 +376,6 @@ __ak_init_command()
     ak_println("__THIS_JDEBUG=%s==>0x%x", value, __THIS_JDEBUG);
 }
 #endif
-
-#if __RUNAS__ & RUN_AS_DEAMON
-static inline void // must inline
-__ak_init_deamon() 
-{
-    __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
-    __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
-}
-#endif
-
-#if __RUNAS__==RUN_AS_UNKNOW
-static inline void 
-__ak_init_unknow() // must inline
-{
-    char *deamon = getenv(OS_ENV(DEAMON));
-    
-    __THIS_COMMAND = (NULL==deamon);
-    ak_println(OS_ENV(DEAMON) "=%s, __THIS_COMMAND=%d", deamon, __THIS_COMMAND);
-
-    if (__THIS_COMMAND) {
-        __ak_init_command();
-    } else {
-        __ak_init_deamon();
-    }
-}
-#endif
-
-static inline int // must inline
-__ak_init(void)
-{
-    ak_println("ak runas %d", __RUNAS__);
-
-#if __RUNAS__==RUN_AS_COMMAND
-    __ak_init_command();
-#elif __RUNAS__==RUN_AS_DEAMON
-    __ak_init_deamon();
-#elif __RUNAS__==RUN_AS_UNKNOW
-    __ak_init_unknow();
-#else
-#   error "bad __RUNAS__"
-#endif
-
-    return 0;
-}
 #endif
 /******************************************************************************/
 typedef struct {

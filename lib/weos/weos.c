@@ -13,18 +13,14 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #define __LIB__
 #endif
 
-#define __RUNAS_UNKNOW__
-
 #include "utils.h"
 #include "benv/bcookie.h"
 
 akid_t  __THIS_only_debugger;
 akid_t  __THIS_only_jdebugger;
-bool    __THIS_only_command;
 
 akid_t  __THIS_DEBUG;
 akid_t  __THIS_JDEBUG;
-bool    __THIS_COMMAND;
 
 LIB_INITER;
 /******************************************************************************/
