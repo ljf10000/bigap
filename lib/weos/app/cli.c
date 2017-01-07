@@ -513,7 +513,7 @@ __cli_response(int fd, cli_table_t tables[], int count)
     }
     buf[err] = 0;
     cli_println("clis recv:%s size:%d", buf, err);
-    
+
     if (__is_ak_debug_cli) {
         os_println("clis recv %s request[fd=%d pkt=%d/%d]", 
             __this_cli_type_string(__this_cli_tcp), 
