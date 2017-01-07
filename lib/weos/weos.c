@@ -20,7 +20,7 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 
 akid_t  __THIS_only_debugger;
 akid_t  __THIS_only_jdebugger;
-bool    __THIS_only_COMMAND;
+bool    __THIS_only_command;
 
 akid_t  __THIS_DEBUG;
 akid_t  __THIS_JDEBUG;
