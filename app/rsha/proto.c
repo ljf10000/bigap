@@ -439,7 +439,7 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     os_println("rsha_recver 4");
 
     rshi_recv_ok(instance, now);
-    debug_proto("rshi_recv_ok");
+    os_println("__ak_debugger=%d, __THIS_DEBUG=%d", __ak_debugger, __THIS_DEBUG);
     os_println("rsha_recver 5");
 error:
     rshi_recv_over(instance, now, &over, err<0);
