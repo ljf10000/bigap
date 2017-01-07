@@ -355,14 +355,16 @@ error:
 
 #ifdef __APP__
 #ifdef __DEAMON__
-static inline void // must inline
+static inline int // must inline
 __ak_init(void)
 {
     __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
     __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
+
+    return 0;
 }
 #else
-static inline void // must inline
+static inline int // must inline
 __ak_init(void)
 {
     char *value;
@@ -374,6 +376,8 @@ __ak_init(void)
     value = env_gets(ENV_JS_DEBUG, __js_debug_string_default);
     __THIS_JDEBUG = __ak_get_value(JS_DEBUG_NAME, value);
     ak_println("__THIS_JDEBUG=%s==>0x%x", value, __THIS_JDEBUG);
+
+    return 0;
 }
 #endif
 #endif
