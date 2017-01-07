@@ -245,7 +245,6 @@ __ak_get_value(char *key, char *value);
 static inline int __ak_init(void);
 
 #if !defined(__APP__) || !defined(__DEAMON__)
-
 #define __ak_getidbyname(_app, _key)    0
 #define __ak_getidbynameEx(_app, _key)  0
 #define __ak_getnamebyid(_akid)         NULL
