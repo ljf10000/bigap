@@ -5,7 +5,7 @@
 #endif
 /******************************************************************************/
 #ifndef JAPI_PRINT
-#define JAPI_PRINT   1
+#define JAPI_PRINT   0
 #endif
 
 #if JAPI_PRINT

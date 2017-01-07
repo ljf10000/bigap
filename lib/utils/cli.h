@@ -18,7 +18,7 @@
 #endif
 
 #ifndef CLI_PRINT
-#define CLI_PRINT           1
+#define CLI_PRINT           0
 #endif
 
 #if CLI_PRINT

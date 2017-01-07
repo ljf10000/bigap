@@ -87,7 +87,7 @@ rshi_send(rsh_instance_t *instance)
     int size    = rsh_msg_size(msg);
     int err;
 
-    debug_proto("instance %s send %s size:%d to %s:%d", 
+    debug_proto("instance %s send %s size:%d to %s:%d ...", 
         instance->sp, rsh_cmd_getnamebyid(over.cmd), size,
         os_ipstring(instance->ip), instance->port);
 
