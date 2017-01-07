@@ -51,11 +51,22 @@
 /*
 * pc-app/openwrt-app/boot/kernel/busybox: 
 *   __THIS_only_debugger
+*   __THIS_only_jdebugger
+*   __THIS_only_command
 *
 * pc-lib/openwrt-lib:
 *   __THIS_libjs_debugger
+*   __THIS_libjs_jdebugger
+*   __THIS_libjs_command
+*
 *   __THIS_libweos_debugger
+*   __THIS_libweos_jdebugger
+*   __THIS_libweos_command
 */
+#ifndef __THIS_COMMAND
+#define __THIS_COMMAND          __SYMBOL_TO_THIS(_command)
+#endif
+
 #ifndef __THIS_DEBUG
 #define __THIS_DEBUG            __SYMBOL_TO_THIS(_debugger)
 #endif

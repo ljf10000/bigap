@@ -18,8 +18,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "js.h"
 
-akid_t __THIS_DEBUG;
-akid_t __THIS_JDEBUG;
+akid_t  __THIS_DEBUG;
+akid_t  __THIS_JDEBUG;
+bool    __THIS_COMMAND;
 
 LIB_INITER;
 /******************************************************************************/

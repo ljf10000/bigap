@@ -180,8 +180,9 @@ __ak_debug_getname(uint32 level)
 #   error "invalid __THIS_JDEBUG"
 #endif
 
-extern akid_t __THIS_DEBUG;
-extern akid_t __THIS_JDEBUG;
+extern akid_t   __THIS_DEBUG;
+extern akid_t   __THIS_JDEBUG;
+extern bool     __THIS_COMMAND;
 
 #define __is_ak_debug(_level)   (os_hasflag(__ak_debugger, _level))
 #define __is_js_debug(_level)   (os_hasflag(__js_debugger, _level))
@@ -241,8 +242,6 @@ __ak_sys_value(int sys, char *line);
 EXTERN int
 __ak_get_value(char *key, char *value);
 /******************************************************************************/
-extern bool __THIS_COMMAND;
-
 static inline int __ak_init(void);
 
 #if !defined(__APP__) || __RUNAS__==RUN_AS_COMMAND
@@ -350,8 +349,17 @@ ak_init(void)
     
     __ak_init();
     
-    ak_println(__THIS_APPNAME " " __THIS_FILENAME " ak init OK!");
-    ak_println(__THIS_APPNAME " " __THIS_FILENAME " __THIS_DEBUG=" __SYMBOL_TO_STRING(__THIS_DEBUG));
+    ak_println(__THIS_APPNAME " " __THIS_FILENAME 
+        " ak init OK!");
+    ak_println(__THIS_APPNAME " " __THIS_FILENAME 
+        " __THIS_DEBUG:" __SYMBOL_TO_STRING(__THIS_DEBUG)
+        "=0x%x", __THIS_DEBUG);
+    ak_println(__THIS_APPNAME " " __THIS_FILENAME 
+        " __THIS_JDEBUG:" __SYMBOL_TO_STRING(__THIS_JDEBUG)
+        "=0x%x", __THIS_JDEBUG);
+    ak_println(__THIS_APPNAME " " __THIS_FILENAME 
+        " __THIS_COMMAND:" __SYMBOL_TO_STRING(__THIS_COMMAND)
+        "=%d", __THIS_COMMAND);
     
     return 0;
 error:
@@ -387,8 +395,6 @@ __ak_init_deamon()
 {
     __THIS_DEBUG    = ak_getidbyname(AK_DEBUG_NAME);
     __THIS_JDEBUG   = ak_getidbyname(JS_DEBUG_NAME);
-
-    ak_println("__ak_init_deamon __THIS_DEBUG=%d", __THIS_DEBUG);
 }
 #endif
 
@@ -396,10 +402,10 @@ __ak_init_deamon()
 static inline void 
 __ak_init_unknow() // must inline
 {
-    char *value = getenv(OS_ENV(DEAMON));
+    char *deamon = getenv(OS_ENV(DEAMON));
     
-    __THIS_COMMAND = (NULL==value);
-    ak_println(OS_ENV(DEAMON) "=%s, __THIS_COMMAND=%d", value, __THIS_COMMAND);
+    __THIS_COMMAND = (NULL==deamon);
+    ak_println(OS_ENV(DEAMON) "=%s, __THIS_COMMAND=%d", deamon, __THIS_COMMAND);
 
     if (__THIS_COMMAND) {
         __ak_init_command();
@@ -413,7 +419,7 @@ static inline int // must inline
 __ak_init(void)
 {
     ak_println("ak runas %d", __RUNAS__);
-    
+
 #if __RUNAS__==RUN_AS_COMMAND
     __ak_init_command();
 #elif __RUNAS__==RUN_AS_DEAMON

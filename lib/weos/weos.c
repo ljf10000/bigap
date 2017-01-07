@@ -18,11 +18,13 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #include "utils.h"
 #include "benv/bcookie.h"
 
-akid_t __THIS_only_debugger;
-akid_t __THIS_only_jdebugger;
+akid_t  __THIS_only_debugger;
+akid_t  __THIS_only_jdebugger;
+bool    __THIS_only_COMMAND;
 
-akid_t __THIS_DEBUG;
-akid_t __THIS_JDEBUG;
+akid_t  __THIS_DEBUG;
+akid_t  __THIS_JDEBUG;
+bool    __THIS_COMMAND;
 
 LIB_INITER;
 /******************************************************************************/
