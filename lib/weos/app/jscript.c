@@ -304,9 +304,11 @@ jscript_exec(char *json)
     os_println("jscript_exec 1");
     err = jrule_j2o(jscript_jrules(), jsc, jobj);
     if (err<0) {
+        os_println("jscript_exec 1.1");
         return __jscript_error(jsc, err, "bad json:%s", jobj_json(jobj));
     }
     else if (NULL==jsc->filename && jsc->content) {
+        os_println("jscript_exec 1.2");
         return __jscript_error(jsc, 1, "no filename and content");
     }
     
