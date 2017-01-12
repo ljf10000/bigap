@@ -122,21 +122,34 @@ __jscript_exec(jscript_t *jsc, char *json)
         return 0;
     }
 
+    os_println("__jscript_exec 1");
+    
     if (0==jsc->period || now < (jsc->sendtime + jsc->period)) {
+        os_println("__jscript_exec 1.1");
         if (jsc->dev.slot == jsc->slot) {
             // ipc
+            os_println("__jscript_exec 1.1.1");
             err = os_pexec_json(json, cb);
+            os_println("__jscript_exec 1.1.2");
             if (err<0) {
+                os_println("__jscript_exec 1.1.2.1");
                 __jscript_error(jsc, err, "jexec error:%s", json);
+                os_println("__jscript_exec 1.1.2.2");
             }
+            os_println("__jscript_exec 1.1.3");
         } else {
             // rpc
+            os_println("__jscript_exec 1.2.1");
             err = os_system(JSCRIPT_REMOTE " %d '%s'", jsc->slot, json);
-
+            os_println("__jscript_exec 1.2.2");
             __jscript_error(jsc, err, 0==err?"jremote ok":"jremote error");
+            os_println("__jscript_exec 1.2.3");
         }
+        os_println("__jscript_exec 1.3");
     }
 
+    os_println("__jscript_exec 2");
+    
     return err;
 }
 
@@ -207,53 +220,79 @@ __jscript_download(jscript_t *jsc, char *file)
 STATIC int
 __jscript_save_file(jscript_t *jsc)
 {
+    int err;
+    
+    os_println("__jscript_save_file 1");
     if (NULL==jsc->filename) {
         /*
         * no filename, needn't save
         */
+        os_println("__jscript_save_file 1.1");
         return __jscript_ok(jsc);
     }
     else if (JSCRIPT_CACHE_NONE==jsc->cache) {
         /*
         * no cache, needn't save
         */
+        os_println("__jscript_save_file 1.2");
         return __jscript_ok(jsc);
     }
     else if (jsc->content) {
+        os_println("__jscript_save_file 1.3");
         return __jscript_save_content(jsc);
     }
 
+    os_println("__jscript_save_file 2");
+    
     char *file = __jscript_filename(jsc);
+    os_println("__jscript_save_file 3");
     if (os_file_exist(file) && __jscript_md5eqf(jsc, file)) {
-        return __jscript_ok(jsc);
+        os_println("__jscript_save_file 3.1.1");
+        err = __jscript_ok(jsc);
+        os_println("__jscript_save_file 3.1.2");
     } else {
-        return __jscript_download(jsc, file);
+        os_println("__jscript_save_file 3.2.1");
+        err = __jscript_download(jsc, file);
+        os_println("__jscript_save_file 3.2.2");
     }
+
+    return err;
 }
 
 STATIC int
 __jscript_save_json(jscript_t *jsc, char *json)
 {
     char file[1+OS_LINE_LEN];
+    int err;
 
     // todo: inotify the dir and save file to flash
-    
+    os_println("__jscript_save_json 1");
     os_saprintf(file, "/tmp/startup/next/%s.%llu.json",
         jsc->instance.name,
         jsc->seq);
 
-    return os_writefile(file, json, os_strlen(json), false, false);
+    os_println("__jscript_save_json 2");
+
+    err = os_writefile(file, json, os_strlen(json), false, false);
+    os_println("__jscript_save_json 3");
 }
 
 STATIC int
 __jscript_handle(jscript_t *jsc, char *json)
 {
+    int err;
+    
+    os_println("__jscript_handle 1");
     __jscript_save_file(jsc);
-
+    os_println("__jscript_handle 2");
     if (jsc->dev.is_startup || JSCRIPT_RUN_THIS==jsc->run) {
-        return __jscript_exec(jsc, json);
+        os_println("__jscript_handle 2.1.1");
+        err = __jscript_exec(jsc, json);
+        os_println("__jscript_handle 2.1.2");
     } else {
-        return __jscript_save_json(jsc, json);
+        os_println("__jscript_handle 2.2.1");
+        err = __jscript_save_json(jsc, json);
+        os_println("__jscript_handle 2.2.2");
     }
 }
 
@@ -301,18 +340,14 @@ jscript_exec(char *json)
         jsc->dev.is_startup = true;
     }
     
-    os_println("jscript_exec 1");
     err = jrule_j2o(jscript_jrules(), jsc, jobj);
     if (err<0) {
-        os_println("jscript_exec 1.1");
         return __jscript_error(jsc, err, "bad json:%s", jobj_json(jobj));
     }
     else if (NULL==jsc->filename && NULL==jsc->content) {
-        os_println("jscript_exec 1.2");
         return __jscript_error(jsc, 1, "no filename and content");
     }
     
-    os_println("jscript_exec 2");
     return __jscript_handle(jsc, jobj_json(jobj));
 }
 
