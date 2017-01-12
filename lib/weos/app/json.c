@@ -1120,6 +1120,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     bool network = false;
     int err;
 
+    japi_println("__jrule_j2o 1");
     if (os_hasflag(rule->flag, JRULE_F_DROP)) {
         if (jval) {
             debug_json("drop json key %s", rule->name);
@@ -1153,50 +1154,70 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
         return -EBADJSON;
     }
     
+    japi_println("__jrule_j2o 2");
     bool border = os_hasflag(rule->flag, JRULE_F_BORDER);
     char *member_address = JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
     
     switch(rule->type) {
         case jtype_bool:
+            japi_println("__jrule_j2o 3");
             if (obj) {
                 *(bool *)member_address = 
                     jval?jobj_get_bool(jval):jmethod_deft(rule, b);
             }
+            japi_println("__jrule_j2o 3.1");
             
             break;
         case jtype_int:
+            japi_println("__jrule_j2o 4");
             JRULE_AUTOMIC_J2O(int, int, i);
+            japi_println("__jrule_j2o 4.1");
             
             break;
         case jtype_double:
+            japi_println("__jrule_j2o 5");
             JRULE_AUTOMIC_J2O(double, double, d);
+            japi_println("__jrule_j2o 5.1");
             
             break;
         case jtype_i32:
+            japi_println("__jrule_j2o 6");
             JRULE_AUTOMIC_J2O(int32, i32, i32);
+            japi_println("__jrule_j2o 6.1");
             
             break;
         case jtype_u32:
+            japi_println("__jrule_j2o 7");
             JRULE_AUTOMIC_J2O(uint32, u32, u32);
+            japi_println("__jrule_j2o 7.1");
             
             break;
         case jtype_f32:
+            japi_println("__jrule_j2o 8");
             JRULE_AUTOMIC_J2O(float32, f32, f32);
+            japi_println("__jrule_j2o 8.1");
             
             break;
         case jtype_i64:
+            japi_println("__jrule_j2o 9");
             JRULE_AUTOMIC_J2O(int64, i64, i64);
+            japi_println("__jrule_j2o 9.1");
             
             break;
         case jtype_u64:
+            japi_println("__jrule_j2o 10");
             JRULE_AUTOMIC_J2O(uint64, u64, u64);
+            japi_println("__jrule_j2o 10.1");
             
             break;
         case jtype_f64:
+            japi_println("__jrule_j2o 11");
             JRULE_AUTOMIC_J2O(float64, f64, f64);
+            japi_println("__jrule_j2o 11.1");
             
             break;
         case jtype_enum: {
+            japi_println("__jrule_j2o 12");
             enum_ops_t *ops = jmethod_get_enum_ops(rule)();
             int id;
             
@@ -1214,79 +1235,96 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
                 string = ops->getname(id);
             }
             
+            japi_println("__jrule_j2o 12.1");
             if (obj) {
                 *(int *)member_address = id;
     
                 debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
                     rule->name, string);
             }
+            japi_println("__jrule_j2o 12.2");
             
         }   break;
         case jtype_time:
+            japi_println("__jrule_j2o 13");
             if (obj) {
                 err = jrule_time_j2o(rule, obj, jobj);
                 if (err<0) {
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 13.1");
             
             break;
         case jtype_ip:
+            japi_println("__jrule_j2o 14");
             if (obj) {
                 err = jrule_ip_j2o(rule, obj, jobj);
                 if (err<0) {
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 14.1");
             
             break;
         case jtype_mac:
+            japi_println("__jrule_j2o 15");
             if (obj) {
                 err = jrule_mac_j2o(rule, obj, jobj);
                 if (err<0) {
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 15.1");
             
             break;
         case jtype_inet:
+            japi_println("__jrule_j2o 16");
             if (obj) {
                 err = jrule_inet_j2o(rule, obj, jobj);
                 if (err<0) {
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 16.1");
             
             break;
-        case jtype_string:            
+        case jtype_string:
+            japi_println("__jrule_j2o 17");          
             if (obj) {
                 err = jmethod_j2o(rule)(rule, obj, jobj);
                 if (err<0) {
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 17.1");
             
             break;
-        case jtype_object:            
+        case jtype_object:
+            japi_println("__jrule_j2o 18");
             if (obj) {
                 err = jrule_j2o(jmethod_get_rules(rule)(), member_address, jval);
                 if (err<0) {
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 18.1");
             
             break;
-        case jtype_array:            
+        case jtype_array:
+            japi_println("__jrule_j2o 19");
             if (obj) {
                 err = jmethod_j2o(rule)(rule, obj, jobj);
                 if (err<0) {
                     return err;
                 }
             }
+            japi_println("__jrule_j2o 19.1");
             
             break;
         case jtype_null: // down
         default:
+            japi_println("__jrule_j2o 20");
             return -EBADRULE;
     }
 
