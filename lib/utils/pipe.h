@@ -36,7 +36,7 @@
 #define PIPE_DPRINT             1
 #endif
 
-#if FILE_DPRINT
+#if PIPE_DPRINT
 #define pipe_println(_fmt, _args...)    os_println(_fmt, ##_args)
 #else
 #define pipe_println(_fmt, _args...)    os_do_nothing()
