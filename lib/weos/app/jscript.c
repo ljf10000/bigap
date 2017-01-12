@@ -283,7 +283,7 @@ jscript_exec(char *json)
             return __jscript_error(jsc, -EBADJSON, "bad json:script not string");
         }
         
-        char *script = jobj_get_string_ex(jval);
+        char *script = jobj_get_string(jval);
         if (os_file_exist(script)) {
             return os_system("%s '%s'", script, json);
         }
