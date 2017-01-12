@@ -122,7 +122,9 @@ __jscript_exec(jscript_t *jsc, char *json)
         return 0;
     }
 
-    
+    pipe_println("__jscript_exec period:%d sendtime:%d now:%d"
+        jsc->period, jsc->sendtime, now);
+
     if (0==jsc->period || now < (jsc->sendtime + jsc->period)) {
         if (jsc->dev.slot == jsc->slot) {
             // ipc
