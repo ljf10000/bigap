@@ -215,8 +215,9 @@ rshi_exec(rsh_instance_t *instance, char *json)
     jobj_add(jobj, "instance", jinstance);
 
     json = jobj_json(jobj);
+    os_println("jscript exec json:%s ...", json);
     err = jscript_exec(json);
-    os_println("rsh exec json:%s error:%d", json, err);
+    os_println("jscript exec json:%s error:%d", json, err);
     
     jobj_put(jobj);
 
