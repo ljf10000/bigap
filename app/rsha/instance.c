@@ -348,6 +348,10 @@ __rshi_init(rsh_instance_t *instance, char *sp, jobj_t jobj)
     }
     instance->jcfg  = jobj;
 
+    if (NULL==instance->cache) {
+        instance->cache = os_strdup(RSHA_CACHE);
+    }
+    
     rshi_fsm_restart(instance, time(NULL));
 
     return 0;
