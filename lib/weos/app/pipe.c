@@ -302,9 +302,9 @@ os_pexecv(pipinfo_t *info)
         err = -errno;
     }
     else if (pid>0) { // father
-        os_println("os_pexecv father ...");
+        pipe_println("os_pexecv father ...");
         err = __pipe_father_handle(&pe, pid);
-        os_println("os_pexecv father error:%d", err);
+        pipe_println("os_pexecv father error:%d", err);
         if (0==err) {
             (*info->cb)(pe.err, pe.std[1].sb.buf, pe.std[2].sb.buf);
         }
