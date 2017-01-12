@@ -220,8 +220,12 @@ __pipe_son_handle(pipexec_t *pe)
     pipinfo_t *info = &pe->info;
     int err, count;
 
+    os_println("__pipe_son_handle 1");
+    
     // append env(private + global)
     info->env = envs_merge(environ, info->env);
+
+    os_println("__pipe_son_handle 2");
 
     if (info->content) {
         /*
@@ -229,19 +233,28 @@ __pipe_son_handle(pipexec_t *pe)
         *   /bin/bash
         *   /bin/js
         */
+        os_println("__pipe_son_handle 2.1.1");
         char *shell = env_gets("SHELL", "/bin/bash");
+        os_println("__pipe_son_handle 2.1.2");
         char *argv[] = {os_basename(shell), "-c", info->content, NULL};
+        os_println("__pipe_son_handle 2.1.3");
 
         __pipe_son_exec(pe, shell, argv, info->env);
+        os_println("__pipe_son_handle 2.1.4");
     }
     else if (info->file) {
+        os_println("__pipe_son_handle 2.2.1");
         char *argv[] = {os_basename(info->file), NULL};
+        os_println("__pipe_son_handle 2.2.2");
 
         info->argv = envs_merge(info->argv, argv);
+        os_println("__pipe_son_handle 2.2.3");
         
         __pipe_son_exec(pe, info->file, info->argv, info->env);
+        os_println("__pipe_son_handle 2.2.4");
     }
     else {
+        os_println("__pipe_son_handle 2.3.1");
         return -ENOSUPPORT;
     }
     
@@ -273,6 +286,8 @@ os_pexecv(pipinfo_t *info)
 {
     pipexec_t pe;
     int err = 0, pid = 0;
+
+    os_println("os_pexecv 1");
     
     if (NULL==info) {
         return -EINVAL0;
@@ -281,22 +296,34 @@ os_pexecv(pipinfo_t *info)
         return -EINVAL1;
     }
 
+    os_println("os_pexecv 2");
+
     dump_pipinfo(info, debug_trace);
+    dump_pipinfo(info, os_println);
+    os_println("os_pexecv 3");
     
     __pipe_init(&pe, info);
+    os_println("os_pexecv 4");
     
     pid = fork();
     if (pid<0) {
+        os_println("os_pexecv 5");
         err = -errno;
     }
     else if (pid>0) { // father
+        os_println("os_pexecv 6");
         err = __pipe_father_handle(&pe, pid);
+        os_println("os_pexecv 6.1");
         if (0==err) {
+            os_println("os_pexecv 6.2");
             (*info->cb)(pe.err, pe.std[1].sb.buf, pe.std[2].sb.buf);
+            os_println("os_pexecv 6.3");
         }
     }
     else { // child
+        os_println("os_pexecv 7");
         err = __pipe_son_handle(&pe);
+        os_println("os_pexecv 7.1");
     }
 
 error:

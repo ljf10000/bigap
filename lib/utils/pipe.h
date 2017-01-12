@@ -33,7 +33,7 @@
     OS_SAFE_VALUE_DEFT(_expand, PIPE_EXPAND_MIN, PIPE_EXPAND_MAX, PIPE_EXPAND_DEFT)
 
 #ifndef PIPE_DPRINT
-#define PIPE_DPRINT             0
+#define PIPE_DPRINT             1
 #endif
 
 #if FILE_DPRINT
