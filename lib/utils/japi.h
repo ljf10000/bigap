@@ -123,6 +123,21 @@ jtype_match(int jtype, int type)
             return false;
     }
 }
+
+static inline bool
+is_jtype_string_like(int type)
+{
+    switch(type) {
+        case jtype_enum:
+        case jtype_time:
+        case jtype_ip:
+        case jtype_mac:
+        case jtype_string:
+            return true;
+        default:
+            return false;
+    }
+}
 #endif
 
 typedef struct {
@@ -210,16 +225,18 @@ jobj_add(jobj_t obj, char *k, jobj_t v);
 #define jobj_get_u64(_obj)              ((uint64)json_object_get_int64(_obj))
 #define jobj_get_f64(_obj)              ((float64)json_object_get_double(_obj))
 
-static inline char *
-jobj_get_string(jobj_t jobj)
-{
-    char *string = (char *)json_object_get_string(jobj);
-
-    return is_good_str(string)?string:NULL;
-}
+#define jobj_get_string(_obj)           ((char *)json_object_get_string(_obj))
 #define jobj_get_string_len(_obj)       json_object_get_string_len(_obj)
 #define jobj_get_binary(_obj)           ((byte *)json_object_get_string(_obj))
 #define jobj_get_binary_len(_obj)       json_object_get_string_len(_obj)
+
+static inline char *
+jobj_get_string_ex(jobj_t jobj)
+{
+    char *str = jobj_get_string(jobj);
+
+    return is_good_str(str)?str:NULL;
+}
 
 extern jobj_t
 jobj_get(jobj_t obj, char *key);

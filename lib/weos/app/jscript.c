@@ -283,8 +283,8 @@ jscript_exec(char *json)
             return __jscript_error(jsc, -EBADJSON, "bad json:script not string");
         }
         
-        char *script = jobj_get_string(jval);
-        if (os_file_exist(script)) {
+        char *script = jobj_get_string_ex(jval);
+        if (script && os_file_exist(script)) {
             return os_system("%s '%s'", script, json);
         }
     }
@@ -307,7 +307,7 @@ jscript_exec(char *json)
         os_println("jscript_exec 1.1");
         return __jscript_error(jsc, err, "bad json:%s", jobj_json(jobj));
     }
-    else if (NULL==jsc->filename && jsc->content) {
+    else if (NULL==jsc->filename && NULL==jsc->content) {
         os_println("jscript_exec 1.2");
         return __jscript_error(jsc, 1, "no filename and content");
     }

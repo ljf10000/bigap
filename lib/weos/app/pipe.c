@@ -418,10 +418,12 @@ os_pexec_jmap(pipinfo_t *info, char *json)
             err = -EBADJSON; goto error;
         }
         
-        char *content = jobj_get_string(jval);
-        info->content = b64_decode((byte *)content, os_strlen(content));
-        if (NULL==info->content) {
-            err = -EBASE64; goto error;
+        char *content = jobj_get_string_ex(jval);
+        if (content) {
+            info->content = b64_decode((byte *)content, os_strlen(content));
+            if (NULL==info->content) {
+                err = -EBASE64; goto error;
+            }
         }
     }
 
@@ -430,8 +432,11 @@ os_pexec_jmap(pipinfo_t *info, char *json)
         if (jtype_string != jobj_type(jval)) {
             err = -EBADJSON; goto error;
         }
-        
-        info->file = os_strdup(jobj_get_string(jval));
+
+        char *filename = jobj_get_string_ex(jval);
+        if (filename) {
+            info->file = os_strdup(filename);
+        }
     }
 
     if (NULL==info->file && NULL==info->content) {

