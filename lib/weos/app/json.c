@@ -1345,7 +1345,7 @@ jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jr
             japi_println("jrules_apply rule:%s error:%d", rule->name, err);
             return 0;
         }
-            japi_println("jrules_apply rule:%s ok", rule->name);
+        japi_println("jrules_apply rule:%s ok", rule->name);
     }
 
     return 0;

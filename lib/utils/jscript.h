@@ -255,8 +255,8 @@ jscript_t;
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, filename), filename, "filename", \
             string, sizeof(char *), 0,                  \
-            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL,                             \
+            JRULE_VAR_STRDUP,                           \
             JRULE_VAR_NULL),                            \
     _(offsetof(jscript_t, content), content, "content", \
             string, sizeof(char *), 0,                  \
