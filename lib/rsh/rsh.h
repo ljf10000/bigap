@@ -7,8 +7,8 @@
 #define RSH_VERSION                 1
 #endif
 
-#ifndef RSH_SEQ_UNKNOW
-#define RSH_SEQ_UNKNOW              0
+#ifndef RSH_SEQ_OFFSET
+#define RSH_SEQ_OFFSET              1024
 #endif
 
 #ifndef RSH_KEY_BITS
@@ -297,6 +297,7 @@ rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
             os_dump_buffer(rsh_msg_body(msg), bsize);
         }
     }
+    
     hmac_sha2_final(&ctx, hmac);
 }
 

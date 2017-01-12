@@ -199,20 +199,28 @@ rshi_exec(rsh_instance_t *instance, char *json)
     jobj_t jobj = NULL;
     int err;
 
+    os_println("rshi_exec 1");
+    
     jobj = jobj_byjson(json);
     if (NULL==jobj) {
         return -EBADJSON;
     }
     
+    os_println("rshi_exec 2");
     jobj_t jinstance = jobj_new_object();
     
     jobj_add(jinstance, "sp",       jobj_new_string(instance->sp));
+    os_println("rshi_exec 3");
     jobj_add(jinstance, "cache",    jobj_new_string(instance->cache));
+    os_println("rshi_exec 4");
     jobj_add(jobj, "instance", jinstance);
+    os_println("rshi_exec 5");
 
     err = jscript_exec(jobj_json(jobj));
+    os_println("rshi_exec 6");
     
     jobj_put(jobj);
+    os_println("rshi_exec 7");
 
     return err;
 }
@@ -248,7 +256,7 @@ rshi_handshake_checker(rsh_instance_t *instance, time_t now)
             "time[%s] handshake reply ack[0x%x] not match instance[seq:0x%x]", 
             os_fulltime_string(now),
             msg->ack,
-            instance->seq_noack);
+            instance->seq);
     }
 
     return 0;
@@ -258,15 +266,17 @@ STATIC void
 rshi_handshake_handle(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
-    // save server's seq
-    instance->seq_peer = msg->seq;
-
-    rshi_fsm(instance, RSH_FSM_HANDSHAKED, now);
     
+    // save peer's seq
+    instance->seq_peer = msg->seq;
+    debug_proto("instance %s handshake ok. save peer seq:%u", instance->sp, instance->seq_peer);
+
+    // fsm ==> handshaked
+    rshi_fsm(instance, RSH_FSM_HANDSHAKED, now);
+
+    // update statistics
     instance->handshake.recv = now;
     instance->handshake.recvs++;
-
-    debug_proto("instance %s handshake ok. save peer seq:%u", instance->sp, msg->seq);
 }
 
 STATIC int 
@@ -313,9 +323,11 @@ STATIC void
 rshi_command_handle(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
-
+    os_println("rshi_command_handle 1");
     rshi_echo_set(instance, now, true);
+    os_println("rshi_command_handle 2");
     rshi_exec(instance, (char *)rsh_msg_body(msg));
+    os_println("rshi_command_handle 3");
     
     debug_proto("recv command");
 }
@@ -328,7 +340,7 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
         [RSH_CMD_ECHO]          = rshi_echo_checker,
         [RSH_CMD_COMMAND]       = rshi_command_checker,
     };
-    
+    os_println("rshi_recv_checker 1");
     int size = rsh_msg_size(msg);
 
     if (instance->sec.hmacsize != msg->hmacsize) {
@@ -382,6 +394,7 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
     }
 #endif
     else {
+        os_println("rshi_recv_checker 2");
         return (*checker[msg->cmd])(instance, now);
     }
 }
@@ -424,22 +437,33 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     };
     int err, len;
 
+    os_println("rsha_recver 1");
     err = len = rshi_recv(instance);
+    os_println("rsha_recver 2");
     if (err<0) {
         goto error;
     }
     over.cmd    = msg->cmd;
 
+    os_println("rsha_recver 3");
+
     err = rshi_recv_checker(instance, now, msg, len);
+    os_println("rsha_recver 4");
     if (err<0) {
         goto error;
     }
 
+    os_println("rsha_recver 5");
+
     (*recver[msg->cmd])(instance, now);
 
+    os_println("rsha_recver 6");
+
     rshi_recv_ok(instance, now);
+    os_println("rsha_recver 7");
 error:
     rshi_recv_over(instance, now, &over, err<0);
+    os_println("rsha_recver 8");
 
     return err;
 }

@@ -228,6 +228,16 @@ typedef struct {
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_echo_t, sends), sends, "sends",      \
+            u32, sizeof(uint32), 0,                     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
+    _(offsetof(rsh_echo_t, recvs), recvs, "recvs",      \
+            u32, sizeof(uint32), 0,                     \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL,                             \
+            JRULE_VAR_NULL),                            \
     _(offsetof(rsh_echo_t, send), send, "send",         \
             time, sizeof(time_t), 0,                    \
             JRULE_VAR_NULL,                             \
@@ -311,8 +321,8 @@ typedef struct {
     
     uint32 ip;  // network sort
     uint32 seq;
-    uint32 seq_noack;
     uint32 seq_peer;
+    uint32 seq_offset;
     uint32 peer_error;
     uint32 peer_error_max;
 
@@ -321,7 +331,7 @@ typedef struct {
     rshi_sec_t sec;
     rshi_echo_t echo;
     rshi_handshake_t handshake;
-    
+
     jobj_t jcfg;
 
     struct {
@@ -359,7 +369,7 @@ rsh_instance_t;
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL),                            \
-    _(offsetof(rsh_instance_t, seq_noack), seq_noack, "seq_noack", \
+    _(offsetof(rsh_instance_t, seq_offset), seq_offset, "seq_offset", \
             u32, sizeof(uint32), 0,                     \
             JRULE_VAR_NULL,                             \
             JRULE_VAR_NULL,                             \
