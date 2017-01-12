@@ -122,8 +122,8 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
     */
     os_objzero(msg);
 
-    msg->cmd        = old.cmd
-    msg->version    = old.version
+    msg->cmd        = old.cmd;
+    msg->version    = old.version;
     msg->flag       = RSH_F_ACK;
     msg->error      = error;
     msg->hmacsize   = instance->sec.hmacsize;
