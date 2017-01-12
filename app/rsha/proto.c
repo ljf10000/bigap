@@ -116,6 +116,10 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
     rsh_msg_t *msg = rsha_msg;
     rsh_msg_t old = *msg;
     int err;
+
+    if (is_rsh_msg_ack(msg)) {
+        return 0;
+    }
     
     /*
     * zero first
@@ -253,7 +257,7 @@ rshi_handshake_checker(rsh_instance_t *instance, time_t now)
     return 0;
 }
 
-STATIC void 
+STATIC int 
 rshi_handshake_handle(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
@@ -268,6 +272,8 @@ rshi_handshake_handle(rsh_instance_t *instance, time_t now)
     // update statistics
     instance->handshake.recv = now;
     instance->handshake.recvs++;
+
+    return 0;
 }
 
 STATIC int 
@@ -285,7 +291,7 @@ rshi_echo_checker(rsh_instance_t *instance, time_t now)
     return rshi_ack_checker(instance, now);
 }
 
-STATIC void 
+STATIC int 
 rshi_echo_handle(rsh_instance_t *instance, time_t now)
 {
     rsh_echo_t *echo = rshi_echo_get(instance);
@@ -294,6 +300,8 @@ rshi_echo_handle(rsh_instance_t *instance, time_t now)
     echo->recvs++;
 
     debug_proto("recv echo ack");
+
+    return 0;
 }
 
 STATIC int 
@@ -310,17 +318,25 @@ rshi_command_checker(rsh_instance_t *instance, time_t now)
     return rshi_ack_checker(instance, now);
 }
 
-STATIC void 
+STATIC int 
 rshi_command_handle(rsh_instance_t *instance, time_t now)
 {
     rsh_msg_t *msg = rsha_msg;
+    int err;
+
+    // save peer's seq
+    instance->seq_peer = msg->seq;
+    
     os_println("rshi_command_handle 1");
     rshi_echo_set(instance, now, true);
     os_println("rshi_command_handle 2");
-    rshi_exec(instance, (char *)rsh_msg_body(msg));
+    err = rshi_exec(instance, (char *)rsh_msg_body(msg));
+    rshi_ack(instance, err, NULL, 0);
     os_println("rshi_command_handle 3");
     
     debug_proto("recv command");
+
+    return err;
 }
 
 STATIC int 
@@ -390,21 +406,6 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
     }
 }
 
-STATIC void 
-rshi_recv_ok(rsh_instance_t *instance, time_t now)
-{
-    rsh_msg_t *msg = rsha_msg;
-    
-    /*
-    * now, msg is ok, save next peer msg
-    */
-    instance->seq_peer = msg->seq;
-
-    if (false==is_rsh_msg_ack(msg)) {
-        rshi_ack_ok(instance);
-    }
-}
-
 STATIC void
 rshi_recv_over(rsh_instance_t *instance, time_t now, rsh_over_t *over, bool is_error)
 {
@@ -415,7 +416,7 @@ rshi_recv_over(rsh_instance_t *instance, time_t now, rsh_over_t *over, bool is_e
 int 
 rsha_recver(loop_watcher_t *watcher, time_t now)
 {
-    static void (*recver[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
+    static int (*recver[RSH_CMD_END])(rsh_instance_t *instance, time_t now) = {
         [RSH_CMD_HANDSHAKE]     = rshi_handshake_handle,
         [RSH_CMD_ECHO]          = rshi_echo_handle,
         [RSH_CMD_COMMAND]       = rshi_command_handle,
@@ -446,15 +447,12 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
 
     os_println("rsha_recver 5");
 
-    (*recver[msg->cmd])(instance, now);
+    err = (*recver[msg->cmd])(instance, now);
 
     os_println("rsha_recver 6");
-
-    rshi_recv_ok(instance, now);
-    os_println("rsha_recver 7");
 error:
     rshi_recv_over(instance, now, &over, err<0);
-    os_println("rsha_recver 8");
+    os_println("rsha_recver 7");
 
     return err;
 }
