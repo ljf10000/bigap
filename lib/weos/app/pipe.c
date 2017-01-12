@@ -47,6 +47,8 @@ __pipe_std_read(pipe_std_t *std)
         
         len = read(std->fd[__pipe_father], __pipe_std_cursor(std), left);
         if (len<0) {
+            pipe_println("__pipe_std_read read error:%d", -errno);
+            
             return -errno;
         }
         else if (len < left) {
@@ -155,9 +157,13 @@ __pipe_father_handle(pipexec_t *pe, int son)
                 if (EINTR==errno) {
                     break;
                 } else {
+                    pipe_println("__pipe_father_handle select error:%d", -errno);
+                    
                     err = -errno; goto error;
                 }
             case 0: /* timeout, retry */
+                pipe_println("__pipe_father_handle select timeout");
+                
                 err = -ETIMEOUT; goto error;
             default: /* to accept */
                 break;
@@ -166,6 +172,8 @@ __pipe_father_handle(pipexec_t *pe, int son)
         if (FD_ISSET(pe->std[1].fd[__pipe_father], &rset)) {
             err = __pipe_std_read(&pe->std[1]);
             if (err<0) {
+                pipe_println("__pipe_father_handle read stdout error:%d", err);
+                
                 goto error;
             }
         }
@@ -173,11 +181,14 @@ __pipe_father_handle(pipexec_t *pe, int son)
         if (FD_ISSET(pe->std[2].fd[__pipe_father], &rset)) {
             err = __pipe_std_read(&pe->std[2]);
             if (err<0) {
+                pipe_println("__pipe_father_handle read stderr error:%d", err);
+                
                 goto error;
             }
         }
 
         if (__pipe_father_wait(pe, son)) {
+            pipe_println("__pipe_father_handle wait ok");
             err = 0; goto error;
         }
     }
@@ -219,13 +230,9 @@ __pipe_son_handle(pipexec_t *pe)
 {
     pipinfo_t *info = &pe->info;
     int err, count;
-
-    os_println("__pipe_son_handle 1");
     
     // append env(private + global)
     info->env = envs_merge(environ, info->env);
-
-    os_println("__pipe_son_handle 2");
 
     if (info->content) {
         /*
@@ -233,28 +240,19 @@ __pipe_son_handle(pipexec_t *pe)
         *   /bin/bash
         *   /bin/js
         */
-        os_println("__pipe_son_handle 2.1.1");
         char *shell = env_gets("SHELL", "/bin/bash");
-        os_println("__pipe_son_handle 2.1.2");
         char *argv[] = {os_basename(shell), "-c", info->content, NULL};
-        os_println("__pipe_son_handle 2.1.3");
 
         __pipe_son_exec(pe, shell, argv, info->env);
-        os_println("__pipe_son_handle 2.1.4");
     }
     else if (info->file) {
-        os_println("__pipe_son_handle 2.2.1");
         char *argv[] = {os_basename(info->file), NULL};
-        os_println("__pipe_son_handle 2.2.2");
 
         info->argv = envs_merge(info->argv, argv);
-        os_println("__pipe_son_handle 2.2.3");
         
         __pipe_son_exec(pe, info->file, info->argv, info->env);
-        os_println("__pipe_son_handle 2.2.4");
     }
     else {
-        os_println("__pipe_son_handle 2.3.1");
         return -ENOSUPPORT;
     }
     
@@ -286,8 +284,6 @@ os_pexecv(pipinfo_t *info)
 {
     pipexec_t pe;
     int err = 0, pid = 0;
-
-    os_println("os_pexecv 1");
     
     if (NULL==info) {
         return -EINVAL0;
@@ -296,34 +292,25 @@ os_pexecv(pipinfo_t *info)
         return -EINVAL1;
     }
 
-    os_println("os_pexecv 2");
-
     dump_pipinfo(info, debug_trace);
     dump_pipinfo(info, os_println);
-    os_println("os_pexecv 3");
     
     __pipe_init(&pe, info);
-    os_println("os_pexecv 4");
     
     pid = fork();
     if (pid<0) {
-        os_println("os_pexecv error 5");
         err = -errno;
     }
     else if (pid>0) { // father
-        os_println("os_pexecv father 6");
+        os_println("os_pexecv father ...")
         err = __pipe_father_handle(&pe, pid);
-        os_println("os_pexecv father 6.1");
+        os_println("os_pexecv father error:%d", err);
         if (0==err) {
-            os_println("os_pexecv father 6.2");
             (*info->cb)(pe.err, pe.std[1].sb.buf, pe.std[2].sb.buf);
-            os_println("os_pexecv father 6.3");
         }
     }
     else { // child
-        os_println("os_pexecv son 7");
         err = __pipe_son_handle(&pe);
-        os_println("os_pexecv son 7.1");
     }
 
 error:

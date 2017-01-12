@@ -122,33 +122,20 @@ __jscript_exec(jscript_t *jsc, char *json)
         return 0;
     }
 
-    os_println("__jscript_exec 1");
     
     if (0==jsc->period || now < (jsc->sendtime + jsc->period)) {
-        os_println("__jscript_exec 1.1");
         if (jsc->dev.slot == jsc->slot) {
             // ipc
-            os_println("__jscript_exec 1.1.1");
             err = os_pexec_json(json, cb);
-            os_println("__jscript_exec 1.1.2");
             if (err<0) {
-                os_println("__jscript_exec 1.1.2.1");
                 __jscript_error(jsc, err, "jexec error:%s", json);
-                os_println("__jscript_exec 1.1.2.2");
             }
-            os_println("__jscript_exec 1.1.3");
         } else {
             // rpc
-            os_println("__jscript_exec 1.2.1");
             err = os_system(JSCRIPT_REMOTE " %d '%s'", jsc->slot, json);
-            os_println("__jscript_exec 1.2.2");
             __jscript_error(jsc, err, 0==err?"jremote ok":"jremote error");
-            os_println("__jscript_exec 1.2.3");
         }
-        os_println("__jscript_exec 1.3");
     }
-
-    os_println("__jscript_exec 2");
     
     return err;
 }
@@ -282,17 +269,11 @@ __jscript_handle(jscript_t *jsc, char *json)
 {
     int err;
     
-    os_println("__jscript_handle 1");
     __jscript_save_file(jsc);
-    os_println("__jscript_handle 2");
     if (jsc->dev.is_startup || JSCRIPT_RUN_THIS==jsc->run) {
-        os_println("__jscript_handle 2.1.1");
         err = __jscript_exec(jsc, json);
-        os_println("__jscript_handle 2.1.2");
     } else {
-        os_println("__jscript_handle 2.2.1");
         err = __jscript_save_json(jsc, json);
-        os_println("__jscript_handle 2.2.2");
     }
 }
 
