@@ -61,7 +61,7 @@ jobj_add(jobj_t obj, char *k, jobj_t v)
 jobj_t
 jobj_get(jobj_t obj, char *key)
 {
-    jobj_t *jval = NULL;
+    jobj_t jval = NULL;
     
     if (obj && key) {
     	json_object_object_get_ex(obj, key, &jval);
