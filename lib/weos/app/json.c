@@ -722,7 +722,7 @@ jrule_time_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     jobj_t jval = jobj_get(jobj, rule->name);
     if (jval) {
         time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-        string = jobj_get_string(jval);
+        string = jobj_get_string_ex(jval);
         
         *member = os_fulltime(string);
     
@@ -754,7 +754,7 @@ jrule_ip_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     jobj_t jval = jobj_get(jobj, rule->name);
     if (jval) {
         uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-        string = jobj_get_string(jval);
+        string = jobj_get_string_ex(jval);
         *member = os_ipaddr(string);
     
         debug_json("j2o %s %s=%s", jtype_getnamebyid(rule->type),
@@ -816,7 +816,7 @@ jrule_mac_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
     jobj_t jval = jobj_get(jobj, rule->name);
     if (jval) {
         byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-        string = jobj_get_string(jval);
+        string = jobj_get_string_ex(jval);
         
         os_getmac_bystring(member, string);
     }
@@ -1222,7 +1222,7 @@ __jrule_j2o(const jrule_t *rule, void *obj, jobj_t jobj)
             int id;
             
             if (jval) {
-                string = jobj_get_string(jval);
+                string = jobj_get_string_ex(jval);
                 id = ops->getid(string);
                 if (false==ops->is_good(id)) {
                     debug_json("j2o %s %s=invalid(%s)", jtype_getnamebyid(rule->type),
