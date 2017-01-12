@@ -349,7 +349,6 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
         [RSH_CMD_ECHO]          = rshi_echo_checker,
         [RSH_CMD_COMMAND]       = rshi_command_checker,
     };
-    os_println("rshi_recv_checker 1");
     int size = rsh_msg_size(msg);
 
     if (instance->sec.hmacsize != msg->hmacsize) {
@@ -403,7 +402,6 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
     }
 #endif
     else {
-        os_println("rshi_recv_checker 2");
         return (*checker[msg->cmd])(instance, now);
     }
 }

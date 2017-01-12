@@ -314,7 +314,9 @@ os_pexecv(pipinfo_t *info)
         }
     }
     else { // child
+        pipe_println("os_pexecv son ...");
         err = __pipe_son_handle(&pe);
+        pipe_println("os_pexecv son error:%d", err);
     }
 
 error:
@@ -518,7 +520,9 @@ os_pexec_json(char *json, os_pexec_callback_f *cb)
         goto error;
     }
 
+    pipe_println("os_pexecv ...");
     err = os_pexecv(&info);
+    pipe_println("os_pexecv error:%d", err);
     if (err>0) {
         goto error;
     }

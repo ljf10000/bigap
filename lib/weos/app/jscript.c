@@ -126,7 +126,9 @@ __jscript_exec(jscript_t *jsc, char *json)
     if (0==jsc->period || now < (jsc->sendtime + jsc->period)) {
         if (jsc->dev.slot == jsc->slot) {
             // ipc
+            pipe_println("os_pexec_json ...");
             err = os_pexec_json(json, cb);
+            pipe_println("os_pexec_json error:%d", err);
             if (err<0) {
                 __jscript_error(jsc, err, "jexec error:%s", json);
             }
@@ -189,7 +191,7 @@ __jscript_save_content(jscript_t *jsc)
 
     os_free(content);
     
-    return __jscript_ok(jsc);
+    return __jscript_ok(jsc); // todo: need report ???
 }
 
 STATIC int
@@ -209,38 +211,27 @@ __jscript_save_file(jscript_t *jsc)
 {
     int err;
     
-    os_println("__jscript_save_file 1");
     if (NULL==jsc->filename) {
         /*
         * no filename, needn't save
         */
-        os_println("__jscript_save_file 1.1");
-        return __jscript_ok(jsc);
+        return __jscript_ok(jsc); // todo: need report ???
     }
     else if (JSCRIPT_CACHE_NONE==jsc->cache) {
         /*
         * no cache, needn't save
         */
-        os_println("__jscript_save_file 1.2");
-        return __jscript_ok(jsc);
+        return __jscript_ok(jsc); // todo: need report ???
     }
     else if (jsc->content) {
-        os_println("__jscript_save_file 1.3");
-        return __jscript_save_content(jsc);
+        return __jscript_save_content(jsc); 
     }
-
-    os_println("__jscript_save_file 2");
     
     char *file = __jscript_filename(jsc);
-    os_println("__jscript_save_file 3");
     if (os_file_exist(file) && __jscript_md5eqf(jsc, file)) {
-        os_println("__jscript_save_file 3.1.1");
-        err = __jscript_ok(jsc);
-        os_println("__jscript_save_file 3.1.2");
+        err = __jscript_ok(jsc); // todo: need report ???
     } else {
-        os_println("__jscript_save_file 3.2.1");
         err = __jscript_download(jsc, file);
-        os_println("__jscript_save_file 3.2.2");
     }
 
     return err;
@@ -253,15 +244,11 @@ __jscript_save_json(jscript_t *jsc, char *json)
     int err;
 
     // todo: inotify the dir and save file to flash
-    os_println("__jscript_save_json 1");
     os_saprintf(file, "/tmp/startup/next/%s.%llu.json",
         jsc->instance.name,
         jsc->seq);
 
-    os_println("__jscript_save_json 2");
-
     err = os_writefile(file, json, os_strlen(json), false, false);
-    os_println("__jscript_save_json 3");
 
     return err;
 }
