@@ -120,6 +120,8 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
     if (is_rsh_msg_ack(msg)) {
         return 0;
     }
+
+    os_println("ack error:%d", error);
     
     /*
     * zero first
@@ -146,6 +148,7 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
 
     if (error && buf) {
         debug_error("ack error:%s", buf);
+         os_println("ack error:%s", buf);
     }
     
     return rshi_send(instance);
@@ -327,12 +330,9 @@ rshi_command_handle(rsh_instance_t *instance, time_t now)
     // save peer's seq
     instance->seq_peer = msg->seq;
     
-    os_println("rshi_command_handle 1");
     rshi_echo_set(instance, now, true);
-    os_println("rshi_command_handle 2");
     err = rshi_exec(instance, (char *)rsh_msg_body(msg));
     rshi_ack(instance, err, NULL, 0);
-    os_println("rshi_command_handle 3");
     
     debug_proto("recv command");
 
@@ -429,30 +429,21 @@ rsha_recver(loop_watcher_t *watcher, time_t now)
     };
     int err, len;
 
-    os_println("rsha_recver 1");
     err = len = rshi_recv(instance);
-    os_println("rsha_recver 2");
     if (err<0) {
         goto error;
     }
     over.cmd    = msg->cmd;
 
-    os_println("rsha_recver 3");
-
     err = rshi_recv_checker(instance, now, msg, len);
-    os_println("rsha_recver 4");
     if (err<0) {
         goto error;
     }
 
-    os_println("rsha_recver 5");
-
     err = (*recver[msg->cmd])(instance, now);
 
-    os_println("rsha_recver 6");
 error:
     rshi_recv_over(instance, now, &over, err<0);
-    os_println("rsha_recver 7");
 
     return err;
 }
