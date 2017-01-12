@@ -32,7 +32,6 @@ envs_append(char *dst[], char *src[])
 DECLARE char **
 envs_merge(char **old, char **new)
 {
-    os_println("envs_merge 1");
     int count_old = envs_count(old);
     int count_new = envs_count(new);
     
@@ -42,18 +41,12 @@ envs_merge(char **old, char **new)
     else if (0==count_new) {
         return NULL;
     }
-
-    os_println("envs_merge 2");
     
     int count = 1 + count_old + count_new;
-    os_println("envs_merge 3");
     char **array = (char **)os_zalloc(sizeof(char *) * count);
     if (array) {
-        os_println("envs_merge 3.1");
         envs_append(array, new);
-        os_println("envs_merge 3.2");
         envs_append(array, old);
-        os_println("envs_merge 3.3");
     }
 
     return array;
