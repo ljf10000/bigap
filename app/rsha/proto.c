@@ -113,32 +113,29 @@ error:
 STATIC int
 rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
 {
-    rsh_msg_t emsg;
     rsh_msg_t *msg = rsha_msg;
-    uint32 seq_peer = msg->seq;
+    rsh_msg_t old = *msg;
     int err;
     
-    if (error) {
-        os_objcpy(&emsg, msg);
-    }
-
     /*
     * zero first
     */
     os_objzero(msg);
 
+    msg->cmd        = old.cmd
+    msg->version    = old.version
     msg->flag       = RSH_F_ACK;
     msg->error      = error;
-    msg->seq        = instance->seq;
     msg->hmacsize   = instance->sec.hmacsize;
-    msg->ack        = seq_peer;
+    msg->seq        = instance->seq;
+    msg->ack        = old.seq;
     
     if (error) {
         instance->peer_error++;
         instance->error = error;
 
-        rsh_hdr_hton(&emsg);
-        rsh_msg_append(msg, &emsg, sizeof(emsg));
+        rsh_hdr_hton(&old);
+        rsh_msg_append(msg, &old, sizeof(old));
     }
 
     rsh_msg_fill(msg, rsha.mac, buf, len);
@@ -198,29 +195,23 @@ rshi_exec(rsh_instance_t *instance, char *json)
 {
     jobj_t jobj = NULL;
     int err;
-
-    os_println("rshi_exec 1");
     
     jobj = jobj_byjson(json);
     if (NULL==jobj) {
         return -EBADJSON;
     }
     
-    os_println("rshi_exec 2");
     jobj_t jinstance = jobj_new_object();
     
     jobj_add(jinstance, "sp",       jobj_new_string(instance->sp));
-    os_println("rshi_exec 3");
     jobj_add(jinstance, "cache",    jobj_new_string(instance->cache));
-    os_println("rshi_exec 4");
     jobj_add(jobj, "instance", jinstance);
-    os_println("rshi_exec 5");
 
-    err = jscript_exec(jobj_json(jobj));
-    os_println("rshi_exec 6");
+    json = jobj_json(jobj);
+    err = jscript_exec(json);
+    os_println("rsh exec json:%s error:%d", json, err);
     
     jobj_put(jobj);
-    os_println("rshi_exec 7");
 
     return err;
 }
@@ -407,7 +398,7 @@ rshi_recv_ok(rsh_instance_t *instance, time_t now)
     /*
     * now, msg is ok, save next peer msg
     */
-    instance->seq_peer = 1 + msg->seq;
+    instance->seq_peer = msg->seq;
 
     if (false==is_rsh_msg_ack(msg)) {
         rshi_ack_ok(instance);
