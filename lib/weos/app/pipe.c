@@ -406,17 +406,23 @@ os_pexec_jmap(pipinfo_t *info, char *json)
 {
     jobj_t jobj = NULL, jval, jargument;
     int i, count = 0, err = 0;
+
+    os_println("os_pexec_jmap 1");
     
     jobj = jobj_byjson(json);
     if (NULL==jobj) {
         return -EBADJSON;
     }
 
+    os_println("os_pexec_jmap 2");
+
     jval = jobj_get(jobj, "content");
     if (jval) {
+        os_println("os_pexec_jmap 2.1");
         if (jtype_string != jobj_type(jval)) {
             err = -EBADJSON; goto error;
         }
+        os_println("os_pexec_jmap 2.2");
         
         char *content = jobj_get_string_ex(jval);
         if (content) {
@@ -425,35 +431,48 @@ os_pexec_jmap(pipinfo_t *info, char *json)
                 err = -EBASE64; goto error;
             }
         }
+        os_println("os_pexec_jmap 2.3");
     }
+
+    os_println("os_pexec_jmap 3");
 
     jval = jobj_get(jobj, "filename");
     if (jval) {
+        os_println("os_pexec_jmap 3.1");
         if (jtype_string != jobj_type(jval)) {
             err = -EBADJSON; goto error;
         }
+        os_println("os_pexec_jmap 3.2");
 
         char *filename = jobj_get_string_ex(jval);
         if (filename) {
             info->file = os_strdup(filename);
         }
+        os_println("os_pexec_jmap 3.3");
     }
+
+    os_println("os_pexec_jmap 4");
 
     if (NULL==info->file && NULL==info->content) {
         err = -EBADJSON; goto error;
     }
 
+    os_println("os_pexec_jmap 5");
+
     jargument = jobj_get(jobj, "argument");
     if (jargument) {
+        os_println("os_pexec_jmap 5.1");
         if (jtype_array != jobj_type(jargument)) {
             err = -EBADJSON; goto error;
         }
+        os_println("os_pexec_jmap 5.2");
         
         count = jarray_length(jargument);
         info->argv = (char **)os_zalloc((1+count) * sizeof(char *));
         if (NULL==info->argv) {
             err = -ENOMEM; goto error;
         }
+        os_println("os_pexec_jmap 5.3");
         
         for (i=0; i<count; i++) {
             jval = jarray_get(jargument, i);
@@ -463,9 +482,12 @@ os_pexec_jmap(pipinfo_t *info, char *json)
 
             info->argv[i] = os_strdup(jobj_get_string(jval));
         }
+        os_println("os_pexec_jmap 5.4");
     }
     
-    return 0;
+    os_println("os_pexec_jmap 6");
+    
+    err = 0;
 error:
     jobj_put(jobj);
 
@@ -495,18 +517,27 @@ os_pexec_json(char *json, os_pexec_callback_f *cb)
     pipinfo_t info = PIPINFO_INITER(NULL, cb?cb:os_pexec_jcallback);
     int err;
 
+    os_println("os_pexec_json 1");
+    
     err = os_pexec_jmap(&info, json);
     if (err<0) {
+        os_println("os_pexec_json 1.1");
         goto error;
     }
+
+    os_println("os_pexec_json 2");
 
     err = os_pexecv(&info);
     if (err>0) {
+        os_println("os_pexec_json 2.1");
         goto error;
     }
 
+    os_println("os_pexec_json 3");
+
 error:
     os_pexec_clean(&info);
+    os_println("os_pexec_json 4");
     
     return err;
 }
