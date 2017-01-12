@@ -307,23 +307,23 @@ os_pexecv(pipinfo_t *info)
     
     pid = fork();
     if (pid<0) {
-        os_println("os_pexecv 5");
+        os_println("os_pexecv error 5");
         err = -errno;
     }
     else if (pid>0) { // father
-        os_println("os_pexecv 6");
+        os_println("os_pexecv father 6");
         err = __pipe_father_handle(&pe, pid);
-        os_println("os_pexecv 6.1");
+        os_println("os_pexecv father 6.1");
         if (0==err) {
-            os_println("os_pexecv 6.2");
+            os_println("os_pexecv father 6.2");
             (*info->cb)(pe.err, pe.std[1].sb.buf, pe.std[2].sb.buf);
-            os_println("os_pexecv 6.3");
+            os_println("os_pexecv father 6.3");
         }
     }
     else { // child
-        os_println("os_pexecv 7");
+        os_println("os_pexecv son 7");
         err = __pipe_son_handle(&pe);
-        os_println("os_pexecv 7.1");
+        os_println("os_pexecv son 7.1");
     }
 
 error:

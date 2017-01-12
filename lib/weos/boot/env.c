@@ -124,6 +124,32 @@ envs_unzipbin(char buf[], int count, char *env[])
     }
 }
 
+DECLARE char **
+envs_merge(char **old, char **new)
+{
+    os_println("envs_merge 1");
+    
+    int count = envs_count(old);
+    if (0==count) {
+        return new;
+    }
+    os_println("envs_merge 2");
+    
+    count += 1 + envs_count(new);
+    os_println("envs_merge 3");
+    char **array = (char **)os_zalloc(sizeof(char *) * count);
+    if (array) {
+        os_println("envs_merge 3.1");
+        envs_append(array, new);
+        os_println("envs_merge 3.2");
+        envs_append(array, old);
+        os_println("envs_merge 3.3");
+    }
+
+    return array;
+}
+
+
 DECLARE char *
 env_gets(char *envname, char *deft) 
 {

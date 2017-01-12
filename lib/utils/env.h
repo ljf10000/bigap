@@ -80,24 +80,8 @@ argv_unzipbin(char buf[], int argc, char *argv[]);
 EXTERN int
 envs_unzipbin(char buf[], int count, char *env[]);
 
-/*
-* new first
-*/
-#define envs_merge(_old, _new)          ({  \
-    char **__array = NULL;                  \
-    int __count = envs_count(_old);         \
-    if (__count) {                          \
-        __count += 1 + envs_count(_new);    \
-        __array = (char **)os_zalloc(sizeof(char *) * __count); \
-        if (__array) {                      \
-            envs_append(__array, _new);     \
-            envs_append(__array, _old);     \
-        }                                   \
-    } else {                                \
-        __array = _new;                     \
-    }                                       \
-    __array;                                \
-})  /* end */
+EXTERN char **
+envs_merge(char **old, char **new);
 
 #define envs_dump(_tag, _env, _dump)    do{ \
     int __i;                                \
