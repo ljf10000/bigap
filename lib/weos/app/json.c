@@ -1339,10 +1339,13 @@ jrules_apply(const jrule_t *rules, void *obj, jobj_t jobj, int (*apply)(const jr
     int err;
 
     JRULE_FOREACH(rule, rules) {
+        japi_println("jrules_apply rule:%s ...", rule->name);
         err = (*apply)(rule, obj, jobj);
         if (err<0) {
+            japi_println("jrules_apply rule:%s error:%d", rule->name, err);
             return 0;
         }
+            japi_println("jrules_apply rule:%s ok", rule->name);
     }
 
     return 0;
