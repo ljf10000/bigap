@@ -208,7 +208,8 @@ __pipe_son_exec(pipexec_t *pe, char *path, char *argv[], char *env[])
     
     envs_dump("exec argv", argv, pipe_println);
     envs_dump("exec env",  env,  pipe_println);
-    
+
+    pipe_println("exec path:%s", path);
     // re-link 1/2
     close(1);
     close(2);
