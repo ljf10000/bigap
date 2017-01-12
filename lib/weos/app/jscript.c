@@ -262,6 +262,8 @@ __jscript_save_json(jscript_t *jsc, char *json)
 
     err = os_writefile(file, json, os_strlen(json), false, false);
     os_println("__jscript_save_json 3");
+
+    return err;
 }
 
 STATIC int

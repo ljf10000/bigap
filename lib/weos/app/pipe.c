@@ -266,10 +266,10 @@ __pipe_son_handle(pipexec_t *pe)
     _dump("expand=%u", (_info)->expand);        \
     _dump("timeout=%d", (_info)->timeout);      \
     if ((_info)->content) {                     \
-        _dump("content=%d", (_info)->content);  \
+        _dump("content=%s", (_info)->content);  \
     }                                           \
     if ((_info)->file) {                        \
-        _dump("file=%d", (_info)->file);        \
+        _dump("file=%s", (_info)->file);        \
     }                                           \
     if ((_info)->env) {                         \
         envs_dump("old", (_info)->env, _dump);  \
@@ -293,7 +293,7 @@ os_pexecv(pipinfo_t *info)
     }
 
     dump_pipinfo(info, debug_trace);
-    dump_pipinfo(info, os_println);
+    dump_pipinfo(info, pipe_println);
     
     __pipe_init(&pe, info);
     
