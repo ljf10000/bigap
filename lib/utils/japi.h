@@ -215,6 +215,14 @@ jobj_add(jobj_t obj, char *k, jobj_t v);
 #define jobj_get_binary(_obj)           ((byte *)json_object_get_string(_obj))
 #define jobj_get_binary_len(_obj)       json_object_get_string_len(_obj)
 
+static inline char *
+jobj_get_string_ex(jobj_t jobj)
+{
+    char *string = jobj_get_string(jobj);
+
+    return is_good_str(string)?string:NULL;
+}
+
 extern jobj_t
 jobj_get(jobj_t obj, char *key);
 

@@ -640,7 +640,7 @@ jrule_strassign(const jrule_t *rule, void *obj, jobj_t jobj)
     char *string = NULL;
 
     if (jval) {
-        string = jobj_get_string(jval);
+        string = jobj_get_string_ex(jval);
     } else if (deft) {
         string = deft;
     }
@@ -663,7 +663,7 @@ jrule_strdup(const jrule_t *rule, void *obj, jobj_t jobj)
     char *string = NULL;
 
     if (jval) {
-        string = jobj_get_string(jval);
+        string = jobj_get_string_ex(jval);
     } else if (deft) {
         string = deft;
     }
@@ -686,7 +686,7 @@ jrule_strcpy(const jrule_t *rule, void *obj, jobj_t jobj)
     char *string = NULL;
     
     if (jval) {
-        string = jobj_get_string(jval);
+        string = jobj_get_string_ex(jval);
     } else if (deft) {
         string = deft;
     }
