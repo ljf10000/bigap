@@ -22,9 +22,41 @@ envs_append(char *dst[], char *src[])
 {
     int i, count = envs_count(dst);
 
-    for (i=0; src[i]; i++) {
-        dst[i+count] = src[i];
+    if (src) {
+        for (i=0; src[i]; i++) {
+            dst[i+count] = src[i];
+        }
     }
+}
+
+DECLARE char **
+envs_merge(char **old, char **new)
+{
+    os_println("envs_merge 1");
+    int count_old = envs_count(old);
+    int count_new = envs_count(new);
+    
+    if (0==count_old) {
+        return new;
+    }
+    else if (0==count_new) {
+        return NULL;
+    }
+
+    os_println("envs_merge 2");
+    
+    int count += 1 + count_new;
+    os_println("envs_merge 3");
+    char **array = (char **)os_zalloc(sizeof(char *) * count);
+    if (array) {
+        os_println("envs_merge 3.1");
+        envs_append(array, new);
+        os_println("envs_merge 3.2");
+        envs_append(array, old);
+        os_println("envs_merge 3.3");
+    }
+
+    return array;
 }
 
 DECLARE int 
@@ -123,32 +155,6 @@ envs_unzipbin(char buf[], int count, char *env[])
         return c;
     }
 }
-
-DECLARE char **
-envs_merge(char **old, char **new)
-{
-    os_println("envs_merge 1");
-    
-    int count = envs_count(old);
-    if (0==count) {
-        return new;
-    }
-    os_println("envs_merge 2");
-    
-    count += 1 + envs_count(new);
-    os_println("envs_merge 3");
-    char **array = (char **)os_zalloc(sizeof(char *) * count);
-    if (array) {
-        os_println("envs_merge 3.1");
-        envs_append(array, new);
-        os_println("envs_merge 3.2");
-        envs_append(array, old);
-        os_println("envs_merge 3.3");
-    }
-
-    return array;
-}
-
 
 DECLARE char *
 env_gets(char *envname, char *deft) 
