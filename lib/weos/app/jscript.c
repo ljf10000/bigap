@@ -275,6 +275,8 @@ __jscript_handle(jscript_t *jsc, char *json)
     } else {
         err = __jscript_save_json(jsc, json);
     }
+
+    return err;
 }
 
 int
