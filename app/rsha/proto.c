@@ -122,7 +122,7 @@ rshi_ack(rsh_instance_t *instance, int error, void *buf, int len)
     }
 
     os_println("ack error:%d", error);
-    
+
     /*
     * zero first
     */
@@ -331,8 +331,11 @@ rshi_command_handle(rsh_instance_t *instance, time_t now)
     instance->seq_peer = msg->seq;
     
     rshi_echo_set(instance, now, true);
+    os_println("rshi_exec ...");
     err = rshi_exec(instance, (char *)rsh_msg_body(msg));
+    os_println("rshi_exec error:%d", err);
     rshi_ack(instance, err, NULL, 0);
+    os_println("rshi_exec ack error:%d", err);
     
     debug_proto("recv command");
 
