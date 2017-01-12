@@ -259,13 +259,19 @@ STATIC int
 __jscript_handle(jscript_t *jsc, char *json)
 {
     int err;
+
+    os_println("__jscript_handle 1");
     
     __jscript_save_file(jsc);
+    os_println("__jscript_handle 2");
     if (jsc->dev.is_startup || JSCRIPT_RUN_THIS==jsc->run) {
+        os_println("__jscript_handle 2.1");
         err = __jscript_exec(jsc, json);
     } else {
+        os_println("__jscript_handle 2.2");
         err = __jscript_save_json(jsc, json);
     }
+    os_println("__jscript_handle 3");
 
     return err;
 }
@@ -281,12 +287,14 @@ jscript_exec(char *json)
         },
     };
     jscript_t *jsc = &jscript;
-    
+
+    os_println("jscript_exec 1");
     jobj_t jobj = jobj_byjson(json);
     if (NULL==jobj) {
         return -EBADJSON;
     }
     
+    os_println("jscript_exec 2");
     /*
     * use buildin script
     */
@@ -302,10 +310,12 @@ jscript_exec(char *json)
         }
     }
     
+    os_println("jscript_exec 3");
     /*
     * append recvtime
     */
-    if (NULL==jobj_get(jobj, "recvtime")) {
+    jval = jobj_get(jobj, "recvtime");
+    if (NULL==jval) {
         jsc->recvtime = time(NULL);
         
         char *now = os_fulltime_string(jsc->recvtime);
@@ -314,6 +324,7 @@ jscript_exec(char *json)
         jsc->dev.is_startup = true;
     }
     
+    os_println("jscript_exec 4");
     err = jrule_j2o(jscript_jrules(), jsc, jobj);
     if (err<0) {
         return __jscript_error(jsc, err, "bad json:%s", jobj_json(jobj));
@@ -322,6 +333,7 @@ jscript_exec(char *json)
         return __jscript_error(jsc, 1, "no filename and content");
     }
     
+    os_println("jscript_exec 5");
     return __jscript_handle(jsc, jobj_json(jobj));
 }
 
