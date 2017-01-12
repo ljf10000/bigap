@@ -543,28 +543,19 @@ os_pexec_json(char *json, os_pexec_callback_f *cb)
 {
     pipinfo_t info = PIPINFO_INITER(NULL, cb?cb:os_pexec_jcallback);
     int err;
-
-    os_println("os_pexec_json 1");
     
     err = os_pexec_jmap(&info, json);
     if (err<0) {
-        os_println("os_pexec_json 1.1");
         goto error;
     }
-
-    os_println("os_pexec_json 2");
 
     err = os_pexecv(&info);
     if (err>0) {
-        os_println("os_pexec_json 2.1");
         goto error;
     }
 
-    os_println("os_pexec_json 3");
-
 error:
     os_pexec_clean(&info);
-    os_println("os_pexec_json 4");
     
     return err;
 }

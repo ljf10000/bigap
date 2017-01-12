@@ -45,7 +45,7 @@ envs_merge(char **old, char **new)
 
     os_println("envs_merge 2");
     
-    int count += 1 + count_new;
+    int count = 1 + count_old + count_new;
     os_println("envs_merge 3");
     char **array = (char **)os_zalloc(sizeof(char *) * count);
     if (array) {
