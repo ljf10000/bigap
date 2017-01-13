@@ -68,11 +68,21 @@ __jscript_jreply(int error, char *outstring, char *errstring)
     }
 
     jobj_add_int(jobj, "errno", error);
+    
     if (outstring) {
-        jobj_add_string(jobj, "stdout", outstring);
+        char * newoutstring = b64_encode((byte *)outstring, os_strlen(outstring));
+        
+        jobj_add_string(jobj, "stdout", newoutstring);
+
+        os_free(newoutstring);
     }
+    
     if (errstring) {
+        char *newerrstring = b64_encode((byte *)errstring, os_strlen(errstring));
+        
         jobj_add_string(jobj, "stderr", errstring);
+
+        os_free(newerrstring);
     }
 
     return jobj;
