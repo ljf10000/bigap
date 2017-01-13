@@ -6,7 +6,7 @@
 #ifdef __APP__
 
 #ifndef IO_PRINT
-#define IO_PRINT            1
+#define IO_PRINT            0
 #endif
 
 #if IO_PRINT

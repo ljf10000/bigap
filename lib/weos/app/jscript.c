@@ -51,7 +51,9 @@ __jscript_report(jscript_t *jsc, char *ack, jobj_t jreply)
 
     jobj_add(jobj, "reply", jreply);
 
-    err = os_system("%s '%s'", jsc->reply, jobj_json(jobj));
+    char *json = jobj_json(jobj);
+    jscript_println("%s '%s'", jsc->reply, json);
+    err = os_system("%s '%s'", jsc->reply, json);
     jobj_put(jobj);
 
     return err;
@@ -122,15 +124,15 @@ __jscript_exec(jscript_t *jsc, char *json)
         return 0;
     }
 
-    pipe_println("__jscript_exec period:%u sendtime:%u now:%u",
+    jscript_println("__jscript_exec period:%u sendtime:%u now:%u",
         jsc->period, jsc->sendtime, now);
 
     if (0==jsc->period || now < (jsc->sendtime + jsc->period)) {
         if (jsc->dev.slot == jsc->slot) {
             // ipc
-            pipe_println("os_pexec_json ...");
+            jscript_println("os_pexec_json ...");
             err = os_pexec_json(json, cb);
-            pipe_println("os_pexec_json error:%d", err);
+            jscript_println("os_pexec_json error:%d", err);
             if (err<0) {
                 __jscript_error(jsc, err, "jexec error:%s", json);
             }

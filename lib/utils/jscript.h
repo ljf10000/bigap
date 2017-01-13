@@ -26,6 +26,16 @@
 #define JSCRIPT_SCRIPT      PC_VAL("../jscript/jscript", "/bin/jscript")
 #endif
 
+#ifndef JSCRIPT_DPRINT
+#define JSCRIPT_DPRINT      1
+#endif
+
+#if JSCRIPT_DPRINT
+#define jscript_println(_fmt, _args...)     os_println(_fmt, ##_args)
+#else
+#define jscript_println(_fmt, _args...)     os_do_nothing()
+#endif
+
 /*
 if content:exist, filename:exist, then
         cache must cache/flash
