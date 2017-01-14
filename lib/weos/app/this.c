@@ -50,6 +50,7 @@ __this_hms(void)
     return &hms;
 }
 
+#if USE_MOD_CERT
 #include "oem/cert/weos/this_cert_initer.c"
 os_cert_t *
 __this_cert(int idx)
@@ -62,6 +63,7 @@ __this_cert(int idx)
         return &cert[0];
     }
 }
+#endif
 
 #if 0
 haenv_file_t *

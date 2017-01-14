@@ -79,6 +79,10 @@
 #define USE_MOD_BLOB            PC_VAL(1, 0)
 #endif
 
+#ifndef USE_MOD_CERT
+#define USE_MOD_CERT            PC_VAL(0, 0)
+#endif
+
 #ifndef USE_MOD_CHANNEL
 #define USE_MOD_CHANNEL         PC_VAL(1, 0)
 #endif

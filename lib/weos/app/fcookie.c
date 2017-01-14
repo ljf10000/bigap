@@ -1,7 +1,11 @@
 /*******************************************************************************
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
+#if USE_MOD_CERT
 #include "oem/cert/weos/fcookie_cert_initer.c"
+#else
+#define FCOOKIE_CERT_INITERS
+#endif
 
 #define __FCOOKIE_FILE_ENTRY(_info, _mode) {  \
     .info = _info,  \

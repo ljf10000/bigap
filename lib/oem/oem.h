@@ -126,8 +126,10 @@ __oem_type(void);
 extern oem_t *
 __this_oem(void);
 
+#if USE_MOD_CERT
 extern os_cert_t *
 __this_cert(int idx);
+#endif
 
 extern oem_cloud_t *
 __this_hms(void);
