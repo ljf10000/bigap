@@ -4,8 +4,11 @@ CERT_PATH=../../lib/oem/cert/deft/hms
 
 HELLO_SERVER=hello.superwalle.com
 HELLO_ADDRESS=192.168.1.13
-HELLO_PORT=18740
+HELLO_PORT=8741
 HELLO_URL=https://${HELLO_SERVER}:${HELLO_PORT}/
+
+RSH_PROXY=${HELLO_ADDRESS}
+RSH_PORT=28742
 
 CERT=${CERT_PATH}/client.crt
 KEY=${CERT_PATH}/client.key
@@ -26,14 +29,72 @@ get_mac() {
 }
 
 get_request() {
-	printf '{"mac":"%s","user":"rsh"}' $(get_mac)
+	printf '{"mac":"%s","user":"rsh","version":1}' $(get_mac)
+}
+
+#hello format
+#{
+#	"rsh":{
+#               "pmk":"a9a5114e80f263cbba272bcedf760cd43e732c32a1327bef052f097efccd7bea",
+#		"key":"429540590a20d63d1f26a129ccf4f7ce49ffd5bef786a44fb7239aa6502c6a95",
+#		"crypt":"aes",
+#		"hmactype":"sha256",
+#		"host":"192.168.1.13",
+#		"port":28742
+#	}
+#}
+#
+#rsh format
+#{
+#       "key":"db0a64fbb7451920e34857d1e4c730412c32f3270b07a4e8f60a436e97da3a48",
+#       "pmk":"ef13184cb1bf152e2d14e33778f4c76488961cdcc4f2630d3d357133a0e66fce",
+#       "crypt":"aes",
+#       "hmactype":"sha256",
+#}
+
+jval() {
+        local key="$1"; shift
+        local json="$*"
+
+        echo "${json}" | jq -jc ".rsh.${key}"
+}
+
+jhello2rsh() {
+        local jhello="$*"
+        local jrsh
+
+        jrsh=$(printf '{"pmk":"%s","key":"%s","crypt":"%s","hmactype":"%s"}' \
+                $(jval pmk "${jhello}") \
+                $(jval key "${jhello}") \
+                $(jval crypt "${jhello}") \
+                $(jval hmactype "${jhello}"))
+
+        echo ${jrsh}
 }
 
 main() {
-	curl -d "$(get_request)" ${CURL_OPT}
+	local jhello jrsh jnotify
+	local err
+
+	echo "curl -d $(get_request) ${CURL_OPT}"
+
+	jhello=$(curl -d "$(get_request)" ${CURL_OPT})
 
 	echo; echo
 	echo "curl -d $(get_request) ${CURL_OPT}"
+	echo "jhello: ${jhello}"
+
+	jrsh=$(jhello2rsh "${jhello}")
+	echo "jrsh: ${jrsh}"
+
+	jnotify=$(printf '{"sec":%s,"proxy":"%s","port":%d}' \
+		"${jrsh}" \
+		"${RSH_PROXY}" \
+		${RSH_PORT})
+	echo "jnotify: ${jnotify}"
+
+	../cli/cli rshc insert superwalle "${jnotify}"; err=$?
+	echo "notify rsh err:${err}"
 }
 
 main "$@"
