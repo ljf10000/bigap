@@ -160,11 +160,11 @@
 #endif
 
 #ifndef USE_MOD_SHA384
-#define USE_MOD_SHA384          PC_VAL(1, 1)
+#define USE_MOD_SHA384          PC_VAL(1, 0)
 #endif
 
 #ifndef USE_MOD_SHA512
-#define USE_MOD_SHA512          PC_VAL(1, 1)
+#define USE_MOD_SHA512          PC_VAL(1, 0)
 #endif
 
 #ifndef USE_MOD_HMAC_SHA224
@@ -176,11 +176,11 @@
 #endif
 
 #ifndef USE_MOD_HMAC_SHA384
-#define USE_MOD_HMAC_SHA384     (USE_MOD_SHA384 & PC_VAL(1, 1))
+#define USE_MOD_HMAC_SHA384     (USE_MOD_SHA384 & PC_VAL(1, 0))
 #endif
 
 #ifndef USE_MOD_HMAC_SHA512
-#define USE_MOD_HMAC_SHA512     (USE_MOD_SHA512 & PC_VAL(1, 1))
+#define USE_MOD_HMAC_SHA512     (USE_MOD_SHA512 & PC_VAL(1, 0))
 #endif
 /******************************************************************************/
 #endif /* __CONFIG_H_2e9c3edb1c3440539c6a555bf729eaa9__ */
