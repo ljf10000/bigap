@@ -64,13 +64,13 @@ enum { INVALID_AKID = 0};
     _(____ak_debug_io,          7, "io"),       \
     _(____ak_debug_timer,       8, "timer"),    \
     _(____ak_debug_timeout,     9, "timeout"),  \
-    _(____ak_debug_aging,       10,"aging"),    \
+    _(____ak_debug_r2,          10,"r2"),       \
     _(____ak_debug_event,       11,"event"),    \
     _(____ak_debug_entry,       12,"entry"),    \
     _(____ak_debug_packet,      13,"packet"),   \
     _(____ak_debug_proto,       14,"proto"),    \
     _(____ak_debug_flow,        15,"flow"),     \
-    _(____ak_debug_file,        16,"file"),     \
+    _(____ak_debug_r3,          16,"r3"),       \
     _(____ak_debug_signal,      17,"signal"),   \
     _(____ak_debug_shell,       18,"shell"),    \
     _(____ak_debug_gc,          19,"gc"),       \
@@ -104,13 +104,11 @@ enum {
     __ak_debug_io           = os_bit(____ak_debug_io),
     __ak_debug_timer        = os_bit(____ak_debug_timer),
     __ak_debug_timeout      = os_bit(____ak_debug_timeout),
-    __ak_debug_aging        = os_bit(____ak_debug_aging),
     __ak_debug_event        = os_bit(____ak_debug_event),
     __ak_debug_entry        = os_bit(____ak_debug_entry),
     __ak_debug_packet       = os_bit(____ak_debug_packet),
     __ak_debug_proto        = os_bit(____ak_debug_proto),
     __ak_debug_flow         = os_bit(____ak_debug_flow),
-    __ak_debug_file         = os_bit(____ak_debug_file),
     __ak_debug_signal       = os_bit(____ak_debug_signal),
     __ak_debug_shell        = os_bit(____ak_debug_shell),
     __ak_debug_gc           = os_bit(____ak_debug_gc),
@@ -197,13 +195,11 @@ extern akid_t   __THIS_JDEBUG;
 #define __is_ak_debug_io        __is_ak_debug(__ak_debug_io)
 #define __is_ak_debug_timer     __is_ak_debug(__ak_debug_timer)
 #define __is_ak_debug_timeout   __is_ak_debug(__ak_debug_timeout)
-#define __is_ak_debug_aging     __is_ak_debug(__ak_debug_aging)
 #define __is_ak_debug_event     __is_ak_debug(__ak_debug_event)
 #define __is_ak_debug_entry     __is_ak_debug(__ak_debug_entry)
 #define __is_ak_debug_packet    __is_ak_debug(__ak_debug_packet)
 #define __is_ak_debug_proto     __is_ak_debug(__ak_debug_proto)
 #define __is_ak_debug_flow      __is_ak_debug(__ak_debug_flow)
-#define __is_ak_debug_file      __is_ak_debug(__ak_debug_file)
 #define __is_ak_debug_signal    __is_ak_debug(__ak_debug_signal)
 #define __is_ak_debug_shell     __is_ak_debug(__ak_debug_shell)
 #define __is_ak_debug_gc        __is_ak_debug(__ak_debug_gc)

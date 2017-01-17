@@ -17,16 +17,19 @@
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, \
     0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4, \
 }
+
 #define SHA256_H_INITER { \
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, \
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19, \
 }
+
 #define SHA384_H_INITER { \
     0xcbbb9d5dc1059ed8ULL, 0x629a292a367cd507ULL, \
     0x9159015a3070dd17ULL, 0x152fecd8f70e5939ULL, \
     0x67332667ffc00b31ULL, 0x8eb44a8768581511ULL, \
     0xdb0c2e0d64f98fa7ULL, 0x47b5481dbefa4fa4ULL, \
 }
+
 #define SHA512_H_INITER { \
     0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL, \
     0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL, \
@@ -53,6 +56,7 @@
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, \
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2, \
 }
+
 #define SHA384_K_INITER SHA512_K_INITER
 #define SHA512_K_INITER { \
     0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, \
@@ -315,7 +319,7 @@ sha##_number##_transf(sha##_number##_t *ctx, const byte *message, uint32 block_n
     }                                                       \
 }                                                           \
 DECLARE void                                                \
-sha##_number##_init(sha##_number##_t *ctx)              \
+sha##_number##_init(sha##_number##_t *ctx)                  \
 {                                                           \
     SHA##_number##_INIT(ctx);                               \
 }                                                           \

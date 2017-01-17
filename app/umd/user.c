@@ -42,7 +42,7 @@ umd_update_aging_helper(umd_user_t *user, int type, bool debug)
     umd_online_aging(user, type) = umd_online_idle(user, type);
 
     if (debug) {
-        debug_aging("update %s aging to %d",
+        debug_timeout("update %s aging to %d",
             umd_flow_type_getnamebyid(type),
             umd_online_aging(user, type));
     }

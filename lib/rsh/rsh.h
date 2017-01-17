@@ -17,6 +17,16 @@
 
 #define RSH_KEY_SIZE                (RSH_KEY_BITS/sizeof(uint8))
 #define RSH_KEY32_COUNT             AES_KEY32_COUNT
+
+#ifndef RSH_PRINT
+#define RSH_PRINT                   0
+#endif
+
+#if RSH_PRINT
+#define rsh_println(_fmt, _args...)     os_println(_fmt, ##_args)
+#else
+#define rsh_println(_fmt, _args...)     os_do_nothing()
+#endif
 /******************************************************************************/
 #if 1
 #define RSH_CRYPT_ENUM_MAPPER(_)    \
@@ -196,6 +206,12 @@ rsh_msg_size(rsh_msg_t *msg)
     return RSH_MSG_SIZE(msg->hmacsize + msg->len);
 }
 
+static inline int
+rsh_msg_padlen(rsh_msg_t *msg)
+{
+    return rsh_msg_size(msg) - rsh_msg_len(msg);
+}
+
 static inline byte *
 rsh_msg_body(rsh_msg_t *msg)
 {
@@ -209,11 +225,9 @@ rsh_msg_current(rsh_msg_t *msg)
 }
 
 static inline void
-rsh_msg_pad(rsh_msg_t *msg)
+rsh_msg_padzero(rsh_msg_t *msg)
 {
-    int pad = rsh_msg_size(msg) - rsh_msg_len(msg);
-
-    os_memzero(rsh_msg_current(msg), pad);
+    os_memzero(rsh_msg_current(msg), rsh_msg_padlen(msg));
 }
 
 /*
@@ -284,7 +298,7 @@ rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
     
     // calc msg header
     hmac_sha2_update(&ctx, (const byte *)msg, sizeof(rsh_msg_t));
-    if (1 || __is_ak_debug_crypt) {
+    if (__is_ak_debug_crypt) {
         os_println("hmac calc msg hdr:");
         os_dump_buffer(msg, sizeof(rsh_msg_t));
     }
@@ -292,7 +306,7 @@ rsh_msg_hmac(rsh_msg_t *msg, int len, rsh_key_t *key, byte hmac[], int hmacsize)
     // calc msg body
     if (bsize > 0) {
         hmac_sha2_update(&ctx, (const byte *)rsh_msg_body(msg), bsize);
-        if (1 || __is_ak_debug_crypt) {
+        if (__is_ak_debug_crypt) {
             os_println("hmac calc msg body:");
             os_dump_buffer(rsh_msg_body(msg), bsize);
         }
@@ -321,21 +335,21 @@ rsh_msg_encrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
     * 1. encrypt msg (not include first 16 bytes) by key
     * 2. encrypt msg by pmk
     */
-    if (1 || __is_ak_debug_crypt) {
+    if (__is_ak_debug_crypt) {
         os_println("msg before key encrypt:");
         os_dump_buffer(msg, len);
     }
     
     rsh_msg_crypt((byte *)msg + RSH_CRYPT_HDR_SIZE, len - RSH_CRYPT_HDR_SIZE, key, aes_encrypt);
 
-    if (1 || __is_ak_debug_crypt) {
+    if (__is_ak_debug_crypt) {
         os_println("msg after key encrypt:");
         os_dump_buffer(msg, len);
     }
     
     rsh_msg_crypt((byte *)msg, len, pmk, aes_encrypt);
 
-    if (1 || __is_ak_debug_crypt) {
+    if (__is_ak_debug_crypt) {
         os_println("msg after pmk encrypt:");
         os_dump_buffer(msg, len);
     }
@@ -348,21 +362,21 @@ rsh_msg_decrypt(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key)
     * 2. decrypt msg by pmk
     * 1. decrypt msg (not include first 16 bytes) by key
     */
-    if (1 || __is_ak_debug_crypt) {
+    if (__is_ak_debug_crypt) {
         os_println("msg before pmk decrypt:");
         os_dump_buffer(msg, len);
     }
     
     rsh_msg_crypt((byte *)msg, len, pmk, aes_decrypt);
 
-    if (1 || __is_ak_debug_crypt) {
+    if (__is_ak_debug_crypt) {
         os_println("msg after pmk decrypt:");
         os_dump_buffer(msg, len);
     }
     
     rsh_msg_crypt((byte *)msg + RSH_CRYPT_HDR_SIZE, len - RSH_CRYPT_HDR_SIZE, key, aes_decrypt);
     
-    if (1 || __is_ak_debug_crypt) {
+    if (__is_ak_debug_crypt) {
         os_println("msg after key decrypt:");
         os_dump_buffer(msg, len);
     }
@@ -372,7 +386,7 @@ static inline void
 rsh_msg_encode(rsh_msg_t *msg, int len, rsh_key_t *pmk, rsh_key_t *key, byte hmac[], int hmacsize)
 {
     /*
-    * 1. network==>host
+    * 1. host==>network
     * 2. calc hmac and save hmac to msg
     * 3. encrypt msg
     */

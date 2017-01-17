@@ -4,14 +4,14 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 DECLARE int
 envs_count(char *env[])
 {
-    int count;
+    int count = 0;
 
     if (NULL==env) {
         return 0;
     }
-    
-    for (count=0; env[count]; count++) {
-        os_do_nothing();
+
+    while(env[count]) {
+        count++;
     }
 
     return count;
@@ -30,16 +30,17 @@ envs_append(char *dst[], char *src[])
 }
 
 DECLARE char **
-envs_merge(char **old, char **new)
+envs_merge(char *old[], char *new[])
 {
     int count_old = envs_count(old);
     int count_new = envs_count(new);
-    
+
     if (0==count_old) {
         return new;
     }
-    else if (0==count_new) {
-        return NULL;
+
+    if (0==count_new) {
+        return old;
     }
     
     int count = 1 + count_old + count_new;
@@ -58,7 +59,7 @@ zip2line_helper(char line[], int size, char *s, int sep)
     int len = os_strlen(s);
 
     /*
-    * 2: '\0' and sep
+    * +2: sep and '\0'
     */
     if (size < (len+2)) {
         return -ENOSPACE;
@@ -68,7 +69,7 @@ zip2line_helper(char line[], int size, char *s, int sep)
 
     line[len++] = sep;
     line[len] = 0;
-    
+
     return len;
 }
 
@@ -98,7 +99,7 @@ argv_zip2line(char buf[], int size, int argc, char *argv[], int sep)
     {
         return idx < argc;
     }
-    
+
     return zip2line(buf, size, argv, is_good, sep);
 }
 
@@ -143,6 +144,7 @@ envs_unzipbin(char buf[], int count, char *env[])
         return -ENOSPACE;
     }
     else {
+        // append last NULL
         env[c++] = NULL;
 
         return c;

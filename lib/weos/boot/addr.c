@@ -8,8 +8,8 @@ __is_good_macstring_L(char *macstring)
     * long  macstring is "XX:XX:XX:XX:XX:XX" or "XX-XX-XX-XX-XX-XX"
     */
     int ifs = macstring[2];
-    
-    return (':'==ifs || '-'==ifs)
+
+    return __is_good_macifs(ifs)
         && macstring[5] ==ifs
         && macstring[8] ==ifs
         && macstring[11]==ifs
@@ -40,8 +40,8 @@ __is_good_macstring_M(char *macstring)
     * middle  macstring is "XXXX:XXXX:XXXX" or "XXXX-XXXX-XXXX"
     */
     int ifs = macstring[4];
-    
-    return (':'==ifs || '-'==ifs)
+
+    return __is_good_macifs(ifs)
         && macstring[9] ==ifs
         && __is_good_macchar(macstring[0])
         && __is_good_macchar(macstring[1])
@@ -77,7 +77,6 @@ __is_good_macstring_S(char *macstring)
         && __is_good_macchar(macstring[9])
         && __is_good_macchar(macstring[10])
         && __is_good_macchar(macstring[11]);
-
 }
 
 DECLARE bool

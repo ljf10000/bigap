@@ -267,6 +267,12 @@ is_good_mac(byte mac[])
 }
 
 static inline bool
+__is_good_macifs(int ifs)
+{
+    return ':'==ifs || '-'==ifs;
+}
+
+static inline bool
 __is_good_macchar(int ch)
 {
     return (ch >= '0' && ch <= '9')

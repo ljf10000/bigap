@@ -17,6 +17,7 @@ rshi_encode(rsh_instance_t *instance)
 {
     rsh_msg_t *msg = rsha_msg;
 
+    rsh_msg_padzero(msg);
     rsh_msg_encode(msg, rsh_msg_len(msg), 
         rshi_pmk(instance), rshi_key(instance), 
         msg->hmac, msg->hmacsize);
@@ -91,7 +92,6 @@ rshi_send(rsh_instance_t *instance)
         instance->sp, rsh_cmd_getnamebyid(over.cmd), size,
         os_ipstring(instance->ip), instance->port);
 
-    rsh_msg_pad(msg);
     rshi_encode(instance);
 
     err = io_sendto(instance->fd, msg, size, (sockaddr_t *)&proxy, sizeof(proxy));

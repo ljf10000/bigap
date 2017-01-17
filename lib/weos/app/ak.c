@@ -357,26 +357,30 @@ __ak_file_filter(const char *path, const char *file)
     }
 }
 
-int 
-ak_load(void)
+STATIC char *
+__ak_path(char *path, char *deft)
 {
-    int ret = 0;
-    char *path;
-    
-    DIR *dir = opendir(AK_PATH);
+    DIR *dir = opendir(path);
     if (dir) {
         os_closedir(dir);
 
-        path = AK_PATH;
+        return path;
     } else {
-        path = AK_PATH_DEFT;
+        return deft;
     }
+}
+
+int 
+ak_load(void)
+{
+    char *path = __ak_path(AK_PATH, AK_PATH_DEFT);
+    int err = 0;
     
-    ret = os_fscan_dir(path, false, __ak_file_filter, NULL, __ak_load_line);
-    if (ret<0) {
-        ak_println("load(%s) error%d", path, ret);
+    err = os_fscan_dir(path, false, __ak_file_filter, NULL, __ak_load_line);
+    if (err<0) {
+        ak_println("load(%s) error%d", path, err);
         
-        return ret;
+        return err;
     }
     
     ak_println("load(%s) ak count=%u, limit=%u",

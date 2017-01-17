@@ -42,19 +42,16 @@
 
 #define argv_dump(_argc, _argv)     __argv_dump(debug_trace, _argc, _argv)
 
+extern char **environ;
+
 EXTERN int
 envs_count(char *env[]);
 
 EXTERN void
 envs_append(char *dst[], char *src[]);
 
-extern char **environ;
-
-static inline void
-envs_clone(char *env[])
-{
-    envs_append(env, environ);
-}
+EXTERN char **
+envs_merge(char *old[], char *new[]);
 
 EXTERN int 
 zip2line_helper(char line[], int size, char *s, int sep);
@@ -80,9 +77,6 @@ argv_unzipbin(char buf[], int argc, char *argv[]);
 EXTERN int
 envs_unzipbin(char buf[], int count, char *env[]);
 
-EXTERN char **
-envs_merge(char **old, char **new);
-
 #define envs_dump(_tag, _env, _dump)    do{ \
     int __i;                                \
                                             \
@@ -97,15 +91,15 @@ EXTERN char *
 env_gets(char *envname, char *deft) ;
 
 EXTERN int
+env_geti(char *envname, int deft) ;
+
+EXTERN int
 __env_copy(char *envname, char *deft, char s[], int size) ;
 
 #define env_copy(_envname, _deft, _string)              ({  \
     BUILD_BUG_NOT_ARRAY(_string);                           \
     __env_copy(_envname, _deft, _string, sizeof(_string));  \
 })
-
-EXTERN int
-env_geti(char *envname, int deft) ;
 /******************************************************************************/
 #ifndef USE_THIS_ENV
 #define USE_THIS_ENV            PC_VAL(0, 0)
