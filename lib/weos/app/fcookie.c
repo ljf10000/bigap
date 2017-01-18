@@ -22,6 +22,9 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
     [FCOOKIE_LSS_CERT]      = FCOOKIE_FILE_ENTRY(oem_lss_cert),     \
     [FCOOKIE_LSS_KEY]       = FCOOKIE_FILE_ENTRY(oem_lss_key),      \
     [FCOOKIE_LSS_CACERT]    = FCOOKIE_FILE_ENTRY(oem_lss_cacert),   \
+    [FCOOKIE_HMS_CERT]      = FCOOKIE_FILE_ENTRY(hms_cert),         \
+    [FCOOKIE_HMS_KEY]       = FCOOKIE_FILE_ENTRY(hms_key),          \
+    [FCOOKIE_HMS_CACERT]    = FCOOKIE_FILE_ENTRY(hms_cacert),       \
     FCOOKIE_CERT_INITERS    \
 }   /* end */
 

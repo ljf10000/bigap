@@ -30,18 +30,22 @@ enum {
     FCOOKIE_LSS_CERT        = 2,
     FCOOKIE_LSS_KEY         = 3,
     FCOOKIE_LSS_CACERT      = 4,
+    
+    FCOOKIE_HMS_CERT        = 5,
+    FCOOKIE_HMS_KEY         = 6,
+    FCOOKIE_HMS_CACERT      = 7,
 
 #if USE_MOD_CERT
-    FCOOKIE_CERT_BEGIN      = 5,
-    FCOOKIE_CERT_END        = FCOOKIE_CERT_BEGIN + OS_CERT_COUNT,   // 5+32=37
+    FCOOKIE_CERT_BEGIN      = 8,
+    FCOOKIE_CERT_END        = FCOOKIE_CERT_BEGIN + OS_CERT_COUNT,   // 8+32=40
     
-    FCOOKIE_KEY_BEGIN       = FCOOKIE_CERT_END,                     // 37
-    FCOOKIE_KEY_END         = FCOOKIE_KEY_BEGIN + OS_CERT_COUNT,    // 37+32=69
+    FCOOKIE_KEY_BEGIN       = FCOOKIE_CERT_END,                     // 40
+    FCOOKIE_KEY_END         = FCOOKIE_KEY_BEGIN + OS_CERT_COUNT,    // 40+32=72
     
-    FCOOKIE_CACERT_BEGIN    = FCOOKIE_KEY_END,                      // 69
-    FCOOKIE_CACERT_END      = FCOOKIE_CACERT_BEGIN + OS_CERT_COUNT, // 69+32=101
+    FCOOKIE_CACERT_BEGIN    = FCOOKIE_KEY_END,                      // 72
+    FCOOKIE_CACERT_END      = FCOOKIE_CACERT_BEGIN + OS_CERT_COUNT, // 72+32=104
     
-    FCOOKIE_FILE_END        = FCOOKIE_CACERT_END,                   // 101
+    FCOOKIE_FILE_END        = FCOOKIE_CACERT_END,                   // 104
 #else
     FCOOKIE_FILE_END
 #endif
