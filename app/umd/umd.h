@@ -862,6 +862,17 @@ umd_user_delby(umd_user_filter_t *filter);
 #define UM_TEST         PC_VAL(UM_TEST_JSON, 0)
 #endif
 
+//guoshuai
+struct ifreq ifr;
+struct {
+	char brstamac[18];
+	unsigned int rx_data,tx_data;
+	unsigned int all_data;
+	unsigned long long rx_bytes,tx_bytes;
+	unsigned long long all_bytes;
+} brstaflow;
+//end
+
 extern void
 umd_update_limit_test(void);
 

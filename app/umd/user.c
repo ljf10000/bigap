@@ -1686,6 +1686,81 @@ umduser_fake_timeout(umd_user_t *user, time_t now)
         umduser_unfake(user, UMD_DEAUTH_ONLINETIME);
     }
 }
+//guoshuai-20170118
+STATIC int
+get_brstamac_stats(int s, const u_int8_t macaddr[IEEE80211_ADDR_LEN])
+{
+	int err;
+	struct iwreq iwr;
+	struct ieee80211req_sta_stats stats;
+	const struct ieee80211_nodestats *ns = &stats.is_stats;
+	const char *sep;
+
+	(void) memset(&iwr, 0, sizeof(iwr));
+	(void) strncpy(iwr.ifr_name, ifr.ifr_name, sizeof(iwr.ifr_name));
+	iwr.ifr_name[sizeof(iwr.ifr_name) - 1] = '\0';
+	iwr.u.data.pointer = (void *) &stats;
+	iwr.u.data.length = sizeof(stats);
+	memcpy(stats.is_u.macaddr, macaddr, 18);
+
+	err = ioctl(s, IEEE80211_IOCTL_STA_STATS, &iwr);
+	if (err < 0) {
+		debug_flow("ioctl error:%d", err);
+		return err;
+	}
+
+	#define STAT(x,fmt) \
+		brstaflow.x = ns->ns_##x;
+
+	STAT(rx_data, "%u");
+	STAT(rx_bytes, "%llu");
+	STAT(tx_data, "%u");
+	STAT(tx_bytes, "%llu");
+
+	brstaflow.all_bytes = brstaflow.rx_bytes + brstaflow.tx_bytes;
+	brstaflow.all_data = brstaflow.rx_data + brstaflow.tx_data;
+
+	return 0;
+}
+STATIC void
+umduser_update_brsta(umd_user_t *user)
+{
+	umd_flow_now(user, umd_flow_type_lan, umd_flow_dir_up) = brstaflow.rx_bytes;
+	umd_flow_now(user, umd_flow_type_wan, umd_flow_dir_up) = brstaflow.rx_bytes;
+	umd_flow_now(user, umd_flow_type_lan, umd_flow_dir_down) = brstaflow.tx_bytes;
+	umd_flow_now(user, umd_flow_type_wan, umd_flow_dir_down) = brstaflow.tx_bytes;
+	umd_flow_now(user, umd_flow_type_lan, umd_flow_dir_all) = brstaflow.all_bytes;
+	umd_flow_now(user, umd_flow_type_wan, umd_flow_dir_all) = brstaflow.all_bytes;
+
+	umd_update_aging(user, true);
+}
+
+STATIC int
+umduser_brflow_update(umd_user_t *user, time_t now)
+{
+	int fd, err;
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+		if (fd < 0) {
+			debug_flow("socket error:%d", -errno);
+			return -errno;
+		}
+	strncpy(ifr.ifr_name, "ath0", sizeof (ifr.ifr_name));
+	os_strcpy( brstaflow.brstamac, os_macstring(user->mac));
+
+	const struct ether_addr *ea = ether_aton(brstaflow.brstamac);
+	if (ea != NULL)
+	{
+		err = get_brstamac_stats(fd, ea->ether_addr_octet);
+		if (err<0) { /* yes, <0 */
+			return err;
+		}
+	}
+	
+	umduser_update_brsta(user);
+    
+	return 0;
+}
+//end
 
 STATIC void
 umduser_timer_handle(umd_user_t *user, time_t now)
@@ -1695,7 +1770,9 @@ umduser_timer_handle(umd_user_t *user, time_t now)
         umduser_online_reauth,
         umduser_online_timeout,
         umduser_online_aging,
-
+        //guoshuai
+	umduser_brflow_update,
+	//end
         umduser_gc_auto, // keep last
     };
     
