@@ -1687,6 +1687,8 @@ umduser_fake_timeout(umd_user_t *user, time_t now)
     }
 }
 //guoshuai-20170118
+#ifdef __OPENWRT__
+#ifdef __BUSYBOX__
 STATIC int
 get_brstamac_stats(int s, const u_int8_t macaddr[IEEE80211_ADDR_LEN])
 {
@@ -1760,6 +1762,8 @@ umduser_brflow_update(umd_user_t *user, time_t now)
     
 	return 0;
 }
+#endif
+#endif
 //end
 
 STATIC void
@@ -1771,7 +1775,11 @@ umduser_timer_handle(umd_user_t *user, time_t now)
         umduser_online_timeout,
         umduser_online_aging,
         //guoshuai
+	#ifdef __OPENWRT__
+	#ifdef __BUSYBOX__
 	umduser_brflow_update,
+	#endif
+	#endif
 	//end
         umduser_gc_auto, // keep last
     };

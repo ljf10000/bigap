@@ -4,11 +4,15 @@
 #include "utils.h"
 
 //guoshuai
+#ifdef __OPENWRT__
+#ifdef __BUSYBOX__
 #include <sys/types.h>
 #include <iwinfo/api/wext.h>
 #include <asm/byteorder.h>
 #include <ieee80211_external.h>
 #include <stdint.h>
+#endif
+#endif
 //end
 
 /******************************************************************************/

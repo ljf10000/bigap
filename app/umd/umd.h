@@ -863,6 +863,8 @@ umd_user_delby(umd_user_filter_t *filter);
 #endif
 
 //guoshuai
+#ifdef __OPENWRT__
+#ifdef __BUSYBOX__
 struct ifreq ifr;
 struct {
 	char brstamac[18];
@@ -871,6 +873,8 @@ struct {
 	unsigned long long rx_bytes,tx_bytes;
 	unsigned long long all_bytes;
 } brstaflow;
+#endif
+#endif
 //end
 
 extern void
