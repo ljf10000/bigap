@@ -3,7 +3,7 @@
 /******************************************************************************/
 #include "utils.h"
 
-//guoshuai
+//guoshuai-hostapd-data
 #ifdef __OPENWRT__
 #ifdef __BUSYBOX__
 #include <sys/types.h>

@@ -1044,6 +1044,57 @@ int umd_user_diassociate(byte mac[])
     return umduser_delete(umduser_get(mac));
 }
 
+//guoshuai-ssid
+const char* handle_assoc_ssid(char buf[])
+{
+    int len = strlen(buf);
+    char *start, *end;
+    if(buf[len-1] == '\n')
+    {
+        len--;
+        buf[len] = '\0';
+    }
+    start = buf;
+    end = buf + len -1;
+    while(*start && isspace(*start))
+        start++;
+    while(*end && isspace(*end))
+        *end-- = 0;
+    strcpy(buf, start);
+
+    return buf;
+}
+
+STATIC umd_user_t *
+umduser_setssid_assoc(umd_user_t *user, char *ath)
+{
+    FILE *fstream=NULL; 
+    char buf[128];
+    memset(buf,0,sizeof(buf));
+    int len = sizeof(buf);
+    char *ssid;
+    
+    char cmd[128];
+    sprintf(cmd, "uci show wireless.%s.ssid | awk -F \'=\' \'{print \$2}\'", ath);
+    
+    if(NULL==(fstream=popen(cmd,"r"))) 
+    {
+        pclose(fstream);
+        return user;
+    }
+    
+    while(NULL!=fgets(buf, len, fstream))
+    {
+        ssid = handle_assoc_ssid(buf);
+        len = strlen(ssid);
+        memcpy(buf, ssid, len);
+        
+        user->ssid = strdup(buf);
+    }
+    pclose(fstream);
+    return user;
+}
+//end
 umd_user_t *
 umd_user_associate(byte mac[], char *ath)
 {
@@ -1056,8 +1107,8 @@ umd_user_associate(byte mac[], char *ath)
     os_strcpy(user->ath, ath);
     
     // todo: save first bssid
-
-    return user;
+    //guoshuai-ssid
+    return umduser_setssid_assoc(user, ath);
 }
 
 umd_user_t *
@@ -1686,7 +1737,7 @@ umduser_fake_timeout(umd_user_t *user, time_t now)
         umduser_unfake(user, UMD_DEAUTH_ONLINETIME);
     }
 }
-//guoshuai-20170118
+//guoshuai-hostapd-data
 #ifdef __OPENWRT__
 #ifdef __BUSYBOX__
 STATIC int
@@ -1774,7 +1825,7 @@ umduser_timer_handle(umd_user_t *user, time_t now)
         umduser_online_reauth,
         umduser_online_timeout,
         umduser_online_aging,
-        //guoshuai
+        //guoshuai-hostapd-data
         #ifdef __OPENWRT__
         #ifdef __BUSYBOX__
         umduser_brflow_update,

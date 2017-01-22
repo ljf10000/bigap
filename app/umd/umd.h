@@ -862,7 +862,7 @@ umd_user_delby(umd_user_filter_t *filter);
 #define UM_TEST         PC_VAL(UM_TEST_JSON, 0)
 #endif
 
-//guoshuai
+//guoshuai-hostapd-data
 #ifdef __OPENWRT__
 #ifdef __BUSYBOX__
 struct ifreq ifr;
