@@ -1045,24 +1045,24 @@ int umd_user_diassociate(byte mac[])
 }
 
 //guoshuai-ssid
-const char* handle_assoc_ssid(char buf[])
+const char* handle_assoc_ssid(char ssid[])
 {
-    int len = strlen(buf);
+    int len = strlen(ssid);
     char *start, *end;
-    if(buf[len-1] == '\n')
+    if(ssid[len-1] == '\n')
     {
         len--;
-        buf[len] = '\0';
+        ssid[len] = '\0';
     }
-    start = buf;
-    end = buf + len -1;
+    start = ssid;
+    end = ssid + len -1;
     while(*start && isspace(*start))
         start++;
     while(*end && isspace(*end))
         *end-- = 0;
-    strcpy(buf, start);
+    strcpy(ssid, start);
 
-    return buf;
+    return ssid;
 }
 
 STATIC umd_user_t *
