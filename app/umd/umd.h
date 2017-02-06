@@ -805,8 +805,9 @@ umd_user_delete(byte mac[]);
 extern int
 umd_user_diassociate(byte mac[]);
 
+//guoshuai-ssid
 extern umd_user_t *
-umd_user_associate(byte mac[], char *ath);
+umd_user_associate(byte mac[], char *ath, char *ssid);
 
 extern umd_user_t *
 umd_user_block(byte mac[]);

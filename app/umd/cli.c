@@ -8,11 +8,11 @@ Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 #ifndef __THIS_FILE
 #define __THIS_FILE     cli
 #endif
-
+//guoshuai-ssid
 #define __DEAMON__
 #define __THIS_USAGE \
     "umc usage:"                            __crlf \
-    __tab " associate   {mac} {athX}"       __crlf \
+    __tab " associate   {mac} {athX} {ssid}"       __crlf \
     __tab " diassociate {mac}"              __crlf \
     __tab " bind   {mac} {ip}"              __crlf \
     __tab " unbind {mac}"                   __crlf \
@@ -171,16 +171,18 @@ umd_handle_unblock(cli_table_t *table, int argc, char *argv[])
     return umd_handle_mac(umd_user_unblock, argc, argv);
 }
 
-/*
-* associate {mac} {ath}
+/* guoshuai-ssid
+* associate {mac} {ath} {ssid}
 */
 STATIC int
 umd_handle_associate(cli_table_t *table, int argc, char *argv[])
 {
     char *mac   = argv[1];
     char *ath   = argv[2];
+    //guoshuai-ssid
+    char *ssid  = argv[3];
     
-    if (3!=argc) {
+    if (4!=argc) {
         return cli_help(-EFORMAT);
     }
     else if (false==is_good_macstring(mac)) {
@@ -193,9 +195,10 @@ umd_handle_associate(cli_table_t *table, int argc, char *argv[])
 
         return cli_help(-EFORMAT);
     }
-
-    umd_user_t *user = umd_user_associate(os_mac(mac), ath);
-
+    //guoshuai-ssid
+    //umd_user_t *user = umd_user_associate(os_mac(mac), ath);
+    umd_user_t *user = umd_user_associate(os_mac(mac), ath, ssid);
+    
     return user?0:-ENOMEM;
 }
 
