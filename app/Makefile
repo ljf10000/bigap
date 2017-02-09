@@ -36,6 +36,7 @@ SUB_SYSTEM=ak \
 		tmd \
 		umc \
 		umd \
+		msgcache \
 		#pexec \
 		#end
 

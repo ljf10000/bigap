@@ -1,0 +1,23 @@
+
+1.jmsg cli command
+./jlogger app1 file1 func1 1 {\"abc\":\"efg\"}
+
+./jlogger wam wamfile wam_init 1 {\"user-status\":\"online\"\,\"user-type\":\"portal\"}
+
+./jlogger wam wamfile wam_init 1 {\"employees\":\[{\"firstName\":\"Bill\"\,\"lastName\":\"Gates\"}\,{\"firstName\":\"George\"\,\"lastName\":\"Bush\"}\,{\"firstName\":\"Thomas\"\,\"lastName\":\"Carter\"}\]}
+
+json="$(cat xxx)"
+./jlogger app1 file1 func1 1 "${json}"
+
+2.config format of jmsg daemon
+
+V2.0 cfg format
+{"globalcfg":{"policy":"roundrobin","jmsg_path":"/home/macaronn/s-wall/jlog/jmsg/"},"apps":{"jlogger":{"app_pri":5,"msg_limit":20000,"report":"tx2server1.script","store_interval":1,"instant_pri":3,"report_interval":5},"hostapd":{"app_pri":1,"msg_limit":40000,"report":"tx2server2.scr","store_interval":1,"instant_pri":4,"report_interval":4},"default":{"app_pri":1,"msg_limit":10000,"report":"tx2server.script","store_interval":1,"instant_pri":3,"report_interval":2}}}
+
+
+3.jmsg format in files
+macaronn@macaronn-ThinkPad-X230:/tmp/log/jlog$ cat md.log 
+{"abc":"efg","__header__":{"app":"app1","type":"shell","file":"file1","func":"func1","pri":1,"time":"2016-12-08 22:54:32","seq":1,"mac":"3c:97:0e:44:e7:fd"}}
+{"user-status":"online","user-type":"portal","__header__":{"app":"wam","type":"shell","file":"wamfile","func":"wam_init","pri":1,"time":"2016-12-08 22:59:34","seq":2,"mac":"3c:97:0e:44:e7:fd"}}
+{"employees":[{"firstName":"Bill","lastName":"Gates"},{"firstName":"George","lastName":"Bush"},{"firstName":"Thomas","lastName":"Carter"}],"__header__":{"app":"wam","type":"shell","file":"wamfile","func":"wam_init","pri":1,"time":"2016-12-08 23:12:55","seq":3,"mac":"3c:97:0e:44:e7:fd"}}
+
