@@ -705,7 +705,7 @@ int
 jrule_time_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     time_t *member = (time_t *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-    char *string = os_fulltime_string(*member);
+    char *string = unsafe_fulltime_string(*member);
     
     jobj_add_string(jobj, rule->name, string);
 
@@ -738,7 +738,7 @@ int
 jrule_ip_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     uint32 *member = (uint32 *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-    char *string = os_ipstring(*member);
+    char *string = unsafe_ipstring(*member);
     
     jobj_add_string(jobj, rule->name, string);
 

@@ -40,10 +40,10 @@ __hash_del(hash_node_t *node)
 }
 
 DECLARE void
-__hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
+__hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *ncalc)
 {
     if (false==__in_hash(node)) {
-        hash_bucket_t *bucket = __hash_bucket(h, (*nhash)(node));
+        hash_bucket_t *bucket = __hash_bucket(h, (*ncalc)(node));
         if (bucket) {
             list_add(&node->node, &bucket->head);
             node->bucket = bucket;
@@ -53,11 +53,11 @@ __hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
 }
 
 DECLARE void
-__hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *nhash)
+__hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *ncalc)
 {
     __hash_del(node);
     (*change)(node);
-    __hash_add(h, node, nhash);
+    __hash_add(h, node, ncalc);
 }
 
 DECLARE bool
@@ -106,11 +106,11 @@ hash_del(hash_t *h, hash_node_t *node)
 }
 
 DECLARE int
-hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
+hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *ncalc)
 {
-    if (h && node && nhash) {
+    if (h && node && ncalc) {
         __hash_del(node);
-        __hash_add(h, node, nhash);
+        __hash_add(h, node, ncalc);
 
         return 0;
     } else {
@@ -119,10 +119,10 @@ hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash)
 }
 
 DECLARE int
-hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *nhash)
+hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *ncalc)
 {
-    if (in_hash(h, node) && change && nhash) {
-        __hash_change(h, node, change, nhash);
+    if (in_hash(h, node) && change && ncalc) {
+        __hash_change(h, node, change, ncalc);
 
         return 0;
     } else {
@@ -131,10 +131,10 @@ hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_
 }
 
 DECLARE hash_node_t *
-hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq)
+hash_find(hash_t *h, hash_data_calc_f *dcalc, hash_eq_f *eq)
 {
-    if (h && dhash && eq) {
-        hash_bucket_t *bucket = __hash_bucket(h, (*dhash)());
+    if (h && dcalc && eq) {
+        hash_bucket_t *bucket = __hash_bucket(h, (*dcalc)());
         hash_node_t *node;
         
         if (bucket) {            

@@ -243,7 +243,7 @@ __smd_remove(sm_entry_t *entry)
 STATIC int
 __smd_insert(sm_entry_t *entry)
 {
-    static hash_node_calc_f *nhash[SMD_HASH_END] = {
+    static hash_node_calc_f *ncalc[SMD_HASH_END] = {
         [SMD_HASH_NAME] = smd_nodehashname, 
         [SMD_HASH_PID]  = smd_nodehashpid
     };
@@ -252,7 +252,7 @@ __smd_insert(sm_entry_t *entry)
         return 0;
     }
     
-    h2_add(&smd.table, &entry->node, nhash);
+    h2_add(&smd.table, &entry->node, ncalc);
 
     debug_entry("insert %s:%d:%s", entry->name, entry->pid, entry->command);
 
@@ -287,7 +287,7 @@ smd_getbyname(char *name)
         return NULL;
     }
 
-    hash_idx_t dhash(void)
+    hash_idx_t dcalc(void)
     {
         return smd_hashname(name);
     }
@@ -299,13 +299,13 @@ smd_getbyname(char *name)
         return os_streq(entry->name, name);
     }
     
-    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_NAME, dhash, eq));
+    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_NAME, dcalc, eq));
 }
 
 STATIC sm_entry_t *
 smd_getbynormal(int pid)
 {
-    hash_idx_t dhash(void)
+    hash_idx_t dcalc(void)
     {
         return smd_hashpid(pid);
     }
@@ -317,7 +317,7 @@ smd_getbynormal(int pid)
         return pid==entry->pid;
     }
     
-    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_PID, dhash, eq));
+    return smd_h2_entry(h2_find(&smd.table, SMD_HASH_PID, dcalc, eq));
 }
 
 STATIC void

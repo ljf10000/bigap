@@ -8,7 +8,7 @@
                                                 \
     for (__i=0; __i<_len; __i++)  {             \
         n *= (_type)_base;                      \
-        n += (_type)os_chex2int(str[__i]);      \
+        n += (_type)os_hex2byte(str[__i]);      \
     }                                           \
                                                 \
     n;                                          \

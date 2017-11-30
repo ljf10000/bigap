@@ -40,13 +40,13 @@ __is_dlist_empty(dlist_t *list)
 ALWAYS_INLINE bool
 __is_dlist_first(dlist_node_t *node)
 {
-    return __in_dlist(node) && is_list_first(&node->node, &node->list->head);
+    return __in_dlist(node) && list_is_first(&node->node, &node->list->head);
 }
 
 ALWAYS_INLINE bool
 __is_dlist_last(dlist_node_t *node)
 {
-    return __in_dlist(node) && is_list_last(&node->node, &node->list->head);
+    return __in_dlist(node) && list_is_last(&node->node, &node->list->head);
 }
 
 ALWAYS_INLINE dlist_node_t *

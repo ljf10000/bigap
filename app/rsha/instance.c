@@ -92,7 +92,7 @@ __rshi_tm_fsm_o2j(time_t fsm[RSH_FSM_END])
         int i;
         
         for (i=0; i<RSH_FSM_END; i++) {
-            jobj_add_string(jobj, rsh_fsm_getnamebyid(i), os_fulltime_string(fsm[i]));
+            jobj_add_string(jobj, rsh_fsm_getnamebyid(i), unsafe_fulltime_string(fsm[i]));
         }
     }
 
@@ -102,7 +102,7 @@ __rshi_tm_fsm_o2j(time_t fsm[RSH_FSM_END])
 STATIC void
 __rshi_tm_a3_jadd(jobj_t jobj, int idx, uint32 val)
 {
-    jobj_add_string(jobj, rshist_type_getnamebyid(idx), os_fulltime_string(val));
+    jobj_add_string(jobj, rshist_type_getnamebyid(idx), unsafe_fulltime_string(val));
 }
 
 STATIC jobj_t
@@ -112,7 +112,7 @@ __rshi_tm_o2j(rshi_tm_t *tm)
     if (jobj) {
         jobj_add(jobj, "fsm", __rshi_tm_fsm_o2j(tm->fsm));
         jobj_add(jobj, "cmd", __rshi_a3_cmd_o2j(tm->cmd, __rshi_tm_a3_jadd));
-        jobj_add_string(jobj, "busy", os_fulltime_string(tm->busy));
+        jobj_add_string(jobj, "busy", unsafe_fulltime_string(tm->busy));
     }
 
     return jobj;
@@ -550,7 +550,7 @@ rshi_foreach(mv_t (*foreach)(rsh_instance_t *instance), bool safe)
 rsh_instance_t *
 rshi_getbysp(char *sp)
 {
-    hash_idx_t dhash(void)
+    hash_idx_t dcalc(void)
     {
         return __rshi_hashsp(sp);
     }
@@ -562,7 +562,7 @@ rshi_getbysp(char *sp)
         return os_streq(sp, instance->sp);
     }
     
-    return __rshi_h1_entry(h1_find(&rsha.head.instance, dhash, eq));
+    return __rshi_h1_entry(h1_find(&rsha.head.instance, dcalc, eq));
 }
 
 int

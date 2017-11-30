@@ -131,8 +131,8 @@ umd_conn_dump(umd_conn_t *cn, char *action, int err)
         char smacstring[1+MACSTRINGLEN_L];
         char dmacstring[1+MACSTRINGLEN_L];
         
-        os_strcpy(sipstring, os_ipstring(cn->sip));
-        os_strcpy(dipstring, os_ipstring(cn->dip));
+        os_strcpy(sipstring, unsafe_ipstring(cn->sip));
+        os_strcpy(dipstring, unsafe_ipstring(cn->dip));
         os_strcpy(smacstring, os_macstring(cn->smac));
         os_strcpy(dmacstring, os_macstring(cn->dmac));
 
@@ -774,9 +774,9 @@ error:
         char  ipstring[1+OS_IPSTRINGLEN];
         char macstring[1+MACSTRINGLEN_L];
         
-        os_strcpy(sipstring, os_ipstring(cn->sip));
-        os_strcpy(dipstring, os_ipstring(cn->dip));
-        os_strcpy( ipstring, os_ipstring(umd_conn_userip(cn)));
+        os_strcpy(sipstring, unsafe_ipstring(cn->sip));
+        os_strcpy(dipstring, unsafe_ipstring(cn->dip));
+        os_strcpy( ipstring, unsafe_ipstring(umd_conn_userip(cn)));
         os_strcpy( macstring, os_macstring(umd_conn_usermac(cn)));
 
         debug_flow("recv packet"

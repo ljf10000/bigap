@@ -232,7 +232,7 @@ int FAST_FUNC send_NAK(struct dhcp_packet *oldpacket)
     if (os_file_exist(SCRIPT_UDHCPD)) {
         os_system(SCRIPT_UDHCPD " nak %s %s &",
             os_macstring(packet.chaddr),
-            os_ipstring(packet.yiaddr));
+            unsafe_ipstring(packet.yiaddr));
     } else {
         os_system("umc unbind %s &",
             os_macstring(packet.chaddr));
@@ -289,11 +289,11 @@ int FAST_FUNC send_ACK(struct dhcp_packet *oldpacket, uint32_t yiaddr)
     if (os_file_exist(SCRIPT_UDHCPD)) {
         os_system(SCRIPT_UDHCPD " ack %s %s &",
             os_macstring(packet.chaddr),
-            os_ipstring(packet.yiaddr));
+            unsafe_ipstring(packet.yiaddr));
     } else {
         os_system("umc bind %s %s &",
             os_macstring(packet.chaddr),
-            os_ipstring(packet.yiaddr));
+            unsafe_ipstring(packet.yiaddr));
     }
 #endif
 

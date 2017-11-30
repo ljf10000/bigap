@@ -124,29 +124,45 @@ static inline void list_replace(struct list_head *old,
 	new->prev->next = new;
 }
 
-EXTERN void list_replace_init(struct list_head *old,
-					struct list_head *new);
+static inline void list_replace_init(struct list_head *old,
+					struct list_head *new)
+{
+	list_replace(old, new);
+	INIT_LIST_HEAD(old);
+}
 
 /**
  * list_del_init - deletes entry from list and reinitialize it.
  * @entry: the element to delete from the list.
  */
-EXTERN void list_del_init(struct list_head *entry);
+static inline void list_del_init(struct list_head *entry)
+{
+	__list_del_entry(entry);
+	INIT_LIST_HEAD(entry);
+}
 
 /**
  * list_move - delete from one list and add as another's head
  * @list: the entry to move
  * @head: the head that will precede our entry
  */
-EXTERN void list_move(struct list_head *list, struct list_head *head);
+static inline void list_move(struct list_head *list, struct list_head *head)
+{
+	__list_del_entry(list);
+	list_add(list, head);
+}
 
 /**
  * list_move_tail - delete from one list and add as another's tail
  * @list: the entry to move
  * @head: the head that will follow our entry
  */
-EXTERN void list_move_tail(struct list_head *list,
-				  struct list_head *head);
+static inline void list_move_tail(struct list_head *list,
+				  struct list_head *head)
+{
+	__list_del_entry(list);
+	list_add_tail(list, head);
+}
 
 /**
  * list_is_last - tests whether @list is the last entry in list @head
@@ -158,6 +174,14 @@ static inline int list_is_last(const struct list_head *list,
 {
 	return list->next == head;
 }
+
+#if 1 /* liujf */
+static inline int 
+list_is_first(const struct list_head *list, const struct list_head *head)
+{
+	return list->prev == head;
+}
+#endif
 
 /**
  * list_empty - tests whether a list is empty
@@ -191,7 +215,15 @@ static inline int list_empty_careful(const struct list_head *head)
  * list_rotate_left - rotate the list to the left
  * @head: the head of the list
  */
-EXTERN void list_rotate_left(struct list_head *head);
+static inline void list_rotate_left(struct list_head *head)
+{
+	struct list_head *first;
+
+	if (!list_empty(head)) {
+		first = head->next;
+		list_move_tail(first, head);
+	}
+}
 
 /**
  * list_is_singular - tests whether a list has just one entry.
@@ -202,8 +234,17 @@ static inline int list_is_singular(const struct list_head *head)
 	return !list_empty(head) && (head->next == head->prev);
 }
 
-EXTERN void __list_cut_position(struct list_head *list,
-		struct list_head *head, struct list_head *entry);
+static inline void __list_cut_position(struct list_head *list,
+		struct list_head *head, struct list_head *entry)
+{
+	struct list_head *new_first = entry->next;
+	list->next = head->next;
+	list->next->prev = list;
+	list->prev = entry;
+	entry->next = list;
+	head->next = new_first;
+	new_first->prev = head;
+}
 
 /**
  * list_cut_position - cut a list into two
@@ -219,8 +260,19 @@ EXTERN void __list_cut_position(struct list_head *list,
  * losing its data.
  *
  */
-EXTERN void list_cut_position(struct list_head *list,
-		struct list_head *head, struct list_head *entry);
+static inline void list_cut_position(struct list_head *list,
+		struct list_head *head, struct list_head *entry)
+{
+	if (list_empty(head))
+		return;
+	if (list_is_singular(head) &&
+		(head->next != entry && head != entry))
+		return;
+	if (entry == head)
+		INIT_LIST_HEAD(list);
+	else
+		__list_cut_position(list, head, entry);
+}
 
 static inline void __list_splice(const struct list_head *list,
 				 struct list_head *prev,
@@ -241,16 +293,24 @@ static inline void __list_splice(const struct list_head *list,
  * @list: the new list to add.
  * @head: the place to add it in the first list.
  */
-EXTERN void list_splice(const struct list_head *list,
-				struct list_head *head);
+static inline void list_splice(const struct list_head *list,
+				struct list_head *head)
+{
+	if (!list_empty(list))
+		__list_splice(list, head, head->next);
+}
 
 /**
  * list_splice_tail - join two lists, each list being a queue
  * @list: the new list to add.
  * @head: the place to add it in the first list.
  */
-EXTERN void list_splice_tail(struct list_head *list,
-				struct list_head *head);
+static inline void list_splice_tail(struct list_head *list,
+				struct list_head *head)
+{
+	if (!list_empty(list))
+		__list_splice(list, head->prev, head);
+}
 
 /**
  * list_splice_init - join two lists and reinitialise the emptied list.
@@ -259,8 +319,14 @@ EXTERN void list_splice_tail(struct list_head *list,
  *
  * The list at @list is reinitialised
  */
-EXTERN void list_splice_init(struct list_head *list,
-				    struct list_head *head);
+static inline void list_splice_init(struct list_head *list,
+				    struct list_head *head)
+{
+	if (!list_empty(list)) {
+		__list_splice(list, head, head->next);
+		INIT_LIST_HEAD(list);
+	}
+}
 
 /**
  * list_splice_tail_init - join two lists and reinitialise the emptied list
@@ -270,8 +336,14 @@ EXTERN void list_splice_init(struct list_head *list,
  * Each of the lists is a queue.
  * The list at @list is reinitialised
  */
-EXTERN void list_splice_tail_init(struct list_head *list,
-					 struct list_head *head);
+static inline void list_splice_tail_init(struct list_head *list,
+					 struct list_head *head)
+{
+	if (!list_empty(list)) {
+		__list_splice(list, head->prev, head);
+		INIT_LIST_HEAD(list);
+	}
+}
 
 /**
  * list_entry - get the struct for this entry
@@ -519,24 +591,12 @@ EXTERN void list_splice_tail_init(struct list_head *list,
 #endif
 
 #if 1 /* liujf */
-static inline int 
-is_list_last(const struct list_head *list, const struct list_head *head)
-{
-	return list->next == head;
-}
-
-static inline int 
-is_list_first(const struct list_head *list, const struct list_head *head)
-{
-	return list->prev == head;
-}
-
 static inline bool
 is_in_list(struct list_head *node)
 {
     return (node->next && node->prev) && false==list_empty(node);
 }
-#define list_first(ptr)     (ptr)->next
+#define list_first(list)     (list)->next
 #endif
 
 struct hlist_head {
@@ -589,16 +649,44 @@ static inline void hlist_del(struct hlist_node *n)
 	n->pprev = NULL;
 }
 
-EXTERN void hlist_del_init(struct hlist_node *n);
+static inline void hlist_del_init(struct hlist_node *n)
+{
+	if (!hlist_unhashed(n)) {
+		__hlist_del(n);
+		INIT_HLIST_NODE(n);
+	}
+}
 
-EXTERN void hlist_add_head(struct hlist_node *n, struct hlist_head *h);
+static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
+{
+	struct hlist_node *first = h->first;
+	n->next = first;
+	if (first)
+		first->pprev = &n->next;
+	h->first = n;
+	n->pprev = &h->first;
+}
 
 /* next must be != NULL */
-EXTERN void hlist_add_before(struct hlist_node *n,
-					struct hlist_node *next);
+static inline void hlist_add_before(struct hlist_node *n,
+					struct hlist_node *next)
+{
+	n->pprev = next->pprev;
+	n->next = next;
+	next->pprev = &n->next;
+	*(n->pprev) = n;
+}
 
-EXTERN void hlist_add_after(struct hlist_node *n,
-					struct hlist_node *next);
+static inline void hlist_add_after(struct hlist_node *n,
+					struct hlist_node *next)
+{
+	next->next = n->next;
+	n->next = next;
+	next->pprev = &n->next;
+
+	if(next->next)
+		next->next->pprev  = &next->next;
+}
 
 /* after that we'll appear to be on some hlist and hlist_del will work */
 static inline void hlist_add_fake(struct hlist_node *n)
@@ -610,8 +698,14 @@ static inline void hlist_add_fake(struct hlist_node *n)
  * Move a list from one list head to another. Fixup the pprev
  * reference of the first entry if it exists.
  */
-EXTERN void hlist_move_list(struct hlist_head *old,
-				   struct hlist_head *new);
+static inline void hlist_move_list(struct hlist_head *old,
+				   struct hlist_head *new)
+{
+	new->first = old->first;
+	if (new->first)
+		new->first->pprev = &new->first;
+	old->first = NULL;
+}
 
 #define hlist_entry(ptr, type, member) container_of(ptr,type,member)
 
@@ -669,9 +763,5 @@ EXTERN void hlist_move_list(struct hlist_head *old,
 	     pos && ({ n = pos->member.next; 1; });			\
 	     pos = hlist_entry_safe(n, typeof(*pos), member))
 #endif /* __BOOT__ || __APP__ */
-
-#ifdef __BOOT__
-#include "weos/boot/list.c"
-#endif
 /******************************************************************************/
 #endif /* __LIST_H_4802b153492a405daae72efe51c39cea__ */

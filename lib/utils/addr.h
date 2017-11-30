@@ -4,18 +4,24 @@
 /******************************************************************************/
 enum { INVALID_IPADDR = INADDR_NONE };
 
-/*
-* just for single-thread, unsafe for multi-thread
-*
-* @ip: network sort
-*/
+#define OS_FORMAT_IPSTRING      "255.255.255.255"
+#define OS_IPSTRING_LEN         OS_FORMAT_SIZE(OS_FORMAT_IPSTRING)
+typedef char ip_string_t[OS_IPSTRING_LEN];
+
 static inline char *
-os_ipstring(uint32 ip)
+os_ipstring(uint32 ip, ip_string_t string)
 {
-    struct in_addr in = {.s_addr = ip};
-    
-    return (char *)inet_ntoa(in);
+    return inet_ntop(AF_INET, &ip, string, OS_IPSTRING_LEN);
 }
+
+static inline char *
+unsafe_ipstring(uint32 ip)
+{
+    static ip_string_t string;
+
+    return unsafe_ipstring(ip, string);
+}
+
 
 static inline uint32
 os_ipaddr(char *ipstring)

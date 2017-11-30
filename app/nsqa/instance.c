@@ -408,7 +408,7 @@ nsqi_foreach(mv_t (*foreach)(nsq_instance_t *instance), bool safe)
 nsq_instance_t *
 nsqi_get(char *name, char *topic, char *channel)
 {
-    hash_idx_t dhash(void)
+    hash_idx_t dcalc(void)
     {
         return __nsqi_hash(name, topic, channel);
     }
@@ -422,7 +422,7 @@ nsqi_get(char *name, char *topic, char *channel)
             && os_streq(channel, instance->channel);
     }
     
-    return __nsqi_h1_entry(h1_find(&nsqa.table, dhash, eq));
+    return __nsqi_h1_entry(h1_find(&nsqa.table, dcalc, eq));
 }
 
 int

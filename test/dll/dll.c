@@ -79,7 +79,7 @@ dll_tm(void)
         tm = (struct tm *)proto.result.u.p;
     }
 
-    os_println("time is %s", __fulltime_string(tm, __os_fulltime_ifs));
+    os_println("time is %s", unsafe_fulltime_string_helper(tm, OS_IFS_FULLTIME));
 
     return 0;
 }

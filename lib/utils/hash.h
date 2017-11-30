@@ -52,10 +52,10 @@ EXTERN int
 hash_del(hash_t *h, hash_node_t *node);
 
 EXTERN int
-hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *nhash);
+hash_add(hash_t *h, hash_node_t *node, hash_node_calc_f *ncalc);
 
 EXTERN int
-hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *nhash);
+hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_f *ncalc);
 
 #define hash_bucket_foreach(_bucket, _node) \
     list_for_each_entry(_node, &(_bucket)->head, node)
@@ -96,7 +96,7 @@ hash_change(hash_t *h, hash_node_t *node, hash_change_f *change, hash_node_calc_
     /* end */
 
 EXTERN hash_node_t *
-hash_find(hash_t *h, hash_data_calc_f *dhash, hash_eq_f *eq);
+hash_find(hash_t *h, hash_data_calc_f *dcalc, hash_eq_f *eq);
 
 EXTERN hash_idx_t
 hash_bybuf(void *buf, uint32 len, hash_idx_t mask);

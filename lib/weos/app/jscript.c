@@ -43,8 +43,8 @@ __jscript_report(jscript_t *jsc, char *ack, jobj_t jreply)
     time_t now = time(NULL);
 
     jobj_add_string(jobj, "mac",jsc->dev.basemac);
-    jobj_add_string(jobj, "recvtime", os_fulltime_string(jsc->recvtime));
-    jobj_add_string(jobj, "exectime", os_fulltime_string(now));
+    jobj_add_string(jobj, "recvtime", unsafe_fulltime_string(jsc->recvtime));
+    jobj_add_string(jobj, "exectime", unsafe_fulltime_string(now));
     jobj_add_string(jobj, "id", jsc->id);
     jobj_add_string(jobj, "ack", ack);
     jobj_add_u64(jobj, "seq", jsc->seq);
@@ -321,7 +321,7 @@ jscript_exec(char *json)
     if (NULL==jval) {
         jsc->recvtime = time(NULL);
         
-        char *now = os_fulltime_string(jsc->recvtime);
+        char *now = unsafe_fulltime_string(jsc->recvtime);
         jobj_add(jobj, "recvtime", jobj_new_string(now));
     } else {
         jsc->dev.is_startup = true;

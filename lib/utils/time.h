@@ -13,13 +13,20 @@
 #define os_usleep(_us)          usleep(_us)
 #endif
 
-#define __os_date_format        "1900-01-01"
-#define __os_time_format        "00:00:00"
-#define __os_fulltime_format    __os_date_format __space __os_time_format
-#define __os_fulltime_ifs       "- :"
-#define __os_fulltime_ifs_link  "--:"
+#define OS_EXAMPLE_DATE         "1900-01-01"
+#define OS_EXAMPLE_TIME         "00:00:00"
+#define OS_EXAMPLE_FULLTIME     OS_EXAMPLE_DATE __space OS_EXAMPLE_TIME
+#define OS_IFS_FULLTIME         "-#:"
 
-enum { FULLTIME_STRING_LEN = sizeof(__os_fulltime_format) - 1 };
+enum {
+    DATE_STRING_LEN      = sizeof(OS_EXAMPLE_DATE) - 1,
+    TIME_STRING_LEN      = sizeof(OS_EXAMPLE_TIME) - 1,
+    FULLTIME_STRING_LEN  = sizeof(OS_EXAMPLE_FULLTIME) - 1,
+};
+
+typedef char date_string_t[1+DATE_STRING_LEN];
+typedef char time_string_t[1+TIME_STRING_LEN];
+typedef char fulltime_string_t[1+FULLTIME_STRING_LEN];
 
 #ifdef __APP__
 static inline struct tm *
@@ -40,26 +47,112 @@ os_gmtime(time_t t)
 #   define os_gettm(_time)  os_localtime(_time)
 #endif
 
-extern char *
-os_date_string(time_t t);
+static inline char *
+date_string_helper(time_t t, date_string_t string, int ifs)
+{
+    struct tm *tm = os_gettm(t);
+    
+    os_snprintf(string, 1+DATE_STRING_LEN,
+                "%04d%c%02d%c%02d",
+                OS_TIME_YEAR(tm), ifs, OS_TIME_MON(tm), ifs, OS_TIME_DAY(tm));
 
-extern char *
-os_time_string(time_t t);
+    return string;
+}
 
-extern char *
-__fulltime_string(struct tm *tm, char ifs[3]);
+static inline char *
+date_string(time_t t, date_string_t string)
+{
+    return date_string_helper(t, string, '-');
+}
 
-extern char *
-os_fulltime_string(time_t t);
+static inline char *
+unsafe_date_string(time_t t)
+{
+    static date_string_t string;
+    
+    return date_string(t, string);
+}
 
-extern char *
-os_fulltime_string_link(time_t t);
 
-extern time_t
-os_fulltime(char *fulltime);
+static inline char *
+time_string_helper(time_t t, time_string_t string, int ifs)
+{
+    struct tm *tm = os_gettm(t);
+    
+    os_snprintf(string, 1+TIME_STRING_LEN,
+                "%02d%c%02d%c%02d",
+                OS_TIME_HOUR(tm), ifs, OS_TIME_MIN(tm), ifs, OS_TIME_SEC(tm));
+    
+    return string;
+}
 
-extern time_t
-os_fulltime_link(char *fulltime);
+static inline char *
+time_string(time_t t, time_string_t string)
+{
+    return time_string_helper(t, string, ':');
+}
+
+static inline char *
+unsafe_time_string(time_t t)
+{
+    static time_string_t string;
+    
+    return time_string(t, string);
+}
+
+
+static inline char *
+fulltime_string_helper(time_t t, fulltime_string_t string, char ifs[3])
+{
+    struct tm *tm = os_gettm(t);
+
+    os_snprintf(string, 1+FULLTIME_STRING_LEN,
+                "%04d%c%02d%c%02d"
+                "%c"
+                "%02d%c%02d%c%02d",
+                OS_TIME_YEAR(tm), ifs[0], OS_TIME_MON(tm), ifs[0], OS_TIME_DAY(tm),
+                ifs[1],
+                OS_TIME_HOUR(tm), ifs[2], OS_TIME_MIN(tm), ifs[2], OS_TIME_SEC(tm));
+
+    return string;
+}
+
+
+static inline char *
+fulltime_string(time_t t, fulltime_string_t string)
+{
+    return fulltime_string_helper(t, string, OS_IFS_FULLTIME);
+}
+
+static inline char *
+unsafe_fulltime_string(time_t t)
+{
+    static fulltime_string_t string;
+    
+    return fulltime_string(t, string);
+}
+
+
+static inline time_t
+os_fulltime_helper(char *fulltime, char *format)
+{
+    struct tm tm;
+
+    if (strftime(fulltime, 1+FULLTIME_STRING_LEN, format, &tm)) {
+        return mktime(&tm);
+    } else {
+        return time(NULL);
+    }
+}
+
+
+static inline time_t
+os_fulltime(char *fulltime)
+{
+    return os_fulltime_helper(fulltime, "%Y-%m-%d#%H:%M:%S");
+}
+
+
 
 #endif /* __APP__ */
 /******************************************************************************/

@@ -2,7 +2,7 @@
 Copyright (c) 2016-2018, Supper Walle Technology. All rights reserved.
 *******************************************************************************/
 DECLARE int
-os_chex2int(int ch)
+os_hex2byte(int ch)
 {
     switch(ch) {
         case '0' ... '9':
@@ -17,7 +17,27 @@ os_chex2int(int ch)
 }
 
 DECLARE int
-os_hex2bin(char *hex, byte *buf, int size)
+__byte2hex(int ch)
+{
+    switch(ch) {
+        case 0 ... 9:
+            return '0' + ch - 0x0;
+        case 0xA ... 0xF:
+            return 'A' + ch - 0xA;
+        default:
+            return os_assertV('0');
+    }
+}
+
+DECLARE void
+os_byte2hex(int ch, byte hex[2])
+{
+    hex[0] = __byte2hex(ch >>4);
+    hex[1] = __byte2hex(ch & 0xf);
+}
+
+DECLARE int
+os_hex2bin(char *hex, byte *bin, int size)
 {
     int i;
     int len = strlen(hex);
@@ -31,14 +51,14 @@ os_hex2bin(char *hex, byte *buf, int size)
 
     int hexlen = len/2;
     for (i=0; i<hexlen; i++) {
-        buf[i] = 16 * os_chex2int(hex[2*i]) + os_chex2int(hex[2*i+1]);
+        bin[i] = 16 * os_hex2byte(hex[2*i]) + os_hex2byte(hex[2*i+1]);
     }
 
     return hexlen;
 }
 
 DECLARE int
-os_bin2hex(char *hex, int space, byte *buf, int size)
+os_bin2hex(char *hex, int space, byte *bin, int size)
 {
     int i, len = size+size;
     
@@ -47,7 +67,7 @@ os_bin2hex(char *hex, int space, byte *buf, int size)
     }
 
     for (i=0; i<size; i++) {
-        os_sprintf(hex + 2*i, "%.2X", buf[i]);
+        os_byte2hex(bin[i], hex + 2*i);
     }
     hex[len] = 0;
     

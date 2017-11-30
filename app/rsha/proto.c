@@ -59,7 +59,7 @@ rshi_recv(rsh_instance_t *instance)
     }
     else if (false==is_rshi_server_address(instance, &addr)) {
         debug_proto("recv from fake server %s:%d",
-            os_ipstring(addr.sin_addr.s_addr),
+            unsafe_ipstring(addr.sin_addr.s_addr),
             ntohs(addr.sin_port));
         
         return -EFAKESEVER;
@@ -90,7 +90,7 @@ rshi_send(rsh_instance_t *instance)
 
     debug_proto("instance %s send %s size:%d to %s:%d ...", 
         instance->sp, rsh_cmd_getnamebyid(over.cmd), size,
-        os_ipstring(instance->ip), instance->port);
+        unsafe_ipstring(instance->ip), instance->port);
 
     rshi_encode(instance);
 
@@ -105,7 +105,7 @@ error:
 
     debug_packet("instance %s send %s size:%d to %s:%d error:%d", 
         instance->sp, rsh_cmd_getnamebyid(over.cmd), size, 
-        os_ipstring(instance->ip), instance->port, err);
+        unsafe_ipstring(instance->ip), instance->port, err);
 
     return err;
 }
@@ -245,13 +245,13 @@ rshi_handshake_checker(rsh_instance_t *instance, time_t now)
     if (false==is_rsh_msg_ack(msg)) {
         return rshi_ack_error(instance, -RSH_E_FLAG, 
             "time[%s] handshake reply ack[0x%x] without ack flag", 
-            os_fulltime_string(now),
+            unsafe_fulltime_string(now),
             msg->ack);
     }
     else if (msg->ack != instance->seq) {
         return rshi_ack_error(instance, -RSH_E_ACK, 
             "time[%s] handshake reply ack[0x%x] not match instance[seq:0x%x]", 
-            os_fulltime_string(now),
+            unsafe_fulltime_string(now),
             msg->ack,
             instance->seq);
     }
@@ -286,7 +286,7 @@ rshi_echo_checker(rsh_instance_t *instance, time_t now)
     if (false==is_rsh_msg_ack(msg)) {
         return rshi_ack_error(instance, -RSH_E_FLAG, 
             "time[%s] echo reply ack[0x%x] without ack flag", 
-            os_fulltime_string(now),
+            unsafe_fulltime_string(now),
             msg->ack);
     }
     
@@ -314,7 +314,7 @@ rshi_command_checker(rsh_instance_t *instance, time_t now)
     if (is_rsh_msg_ack(msg)) {
         return rshi_ack_error(instance, -RSH_E_FLAG, 
             "time[%s] command with ack flag",
-            os_fulltime_string(now));
+            unsafe_fulltime_string(now));
     }
     
     return rshi_ack_checker(instance, now);
@@ -353,49 +353,49 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
     if (instance->sec.hmacsize != msg->hmacsize) {
         return rshi_ack_error(instance, -RSH_E_HMAC, 
             "time[%s] invalid hmac size",
-            os_fulltime_string(now));
+            unsafe_fulltime_string(now));
     }
     else if (false==os_memeq(instance->sec.hmac, msg->hmac, instance->sec.hmacsize)) {
         return rshi_ack_error(instance, -RSH_E_HMAC, 
             "time[%s] invalid hmac",
-            os_fulltime_string(now));
+            unsafe_fulltime_string(now));
     }
     else if (false==is_valid_rsh_cmd(msg->cmd)) {
         return rshi_ack_error(instance, -RSH_E_CMD, 
             "time[%s] invalid cmd[%d]",
-            os_fulltime_string(now),
+            unsafe_fulltime_string(now),
             msg->cmd);
     }
     else if (len != size) {
         return rshi_ack_error(instance, -RSH_E_LEN, 
             "time[%s] recv len[%d] not match msg size[%d]", 
-            os_fulltime_string(now),
+            unsafe_fulltime_string(now),
             len, size);
     }
     else if (RSH_VERSION != msg->version) {
         return rshi_ack_error(instance, -RSH_E_VERSION, 
             "time[%s] invalid version[%d]", 
-            os_fulltime_string(now),
+            unsafe_fulltime_string(now),
             msg->version);
     }
     else if (false==os_maceq(msg->mac, rsha.mac)) {
         return rshi_ack_error(instance, -RSH_E_MAC, 
             "time[%s] invalid mac[%s]", 
-            os_fulltime_string(now),
+            unsafe_fulltime_string(now),
             os_macstring(msg->mac));
     }
 #if 0
     else if (msg->seq != instance->seq_peer) {
         return rshi_ack_error(instance, -RSH_E_SEQ, 
             "time[%s] seq[0x%x] not match instance[seq_peer:0x%x]", 
-            os_fulltime_string(now),
+            unsafe_fulltime_string(now),
             msg->seq,
             instance->seq_peer);
     }
     else if (msg->ack != instance->seq_noack) {
         return rshi_ack_error(instance, -RSH_E_ACK, 
             "time[%s] ack[0x%x] not match instance[seq_noack:0x%x]", 
-            os_fulltime_string(now),
+            unsafe_fulltime_string(now),
             msg->ack,
             instance->seq_noack);
     }

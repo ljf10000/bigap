@@ -458,7 +458,7 @@ __umduser_remove(umd_user_t *user)
 STATIC umd_user_t *
 __umduser_insert(umd_user_t *user)
 {
-    static hash_node_calc_f *nhash[UM_USER_NIDX_END] = {
+    static hash_node_calc_f *ncalc[UM_USER_NIDX_END] = {
         [UM_USER_NIDX_MAC]  = umd_nodehashmac, 
         [UM_USER_NIDX_IP]   = umd_nodehaship
     };
@@ -477,7 +477,7 @@ __umduser_insert(umd_user_t *user)
         __umduser_remove(user);
     }
 
-    h2_add(&umd.head.user, &user->node.user, nhash);
+    h2_add(&umd.head.user, &user->node.user, ncalc);
     
     return user;
 }
@@ -531,7 +531,7 @@ umd_set_user_ip(umd_user_t *user, uint32 ip)
         return;
     }
     else if (ip==user->ip) {
-        debug_bug("same ip %s", os_ipstring(ip));
+        debug_bug("same ip %s", unsafe_ipstring(ip));
         
         return;
     }
@@ -909,7 +909,7 @@ __umduser_sync(umd_user_t *user, jobj_t obj, umd_event_cb_t *ev)
 STATIC umd_user_t *
 __umduser_get(byte mac[])
 {
-    hash_idx_t dhash(void)
+    hash_idx_t dcalc(void)
     {
         return __umduser_hashmac(mac);
     }
@@ -921,7 +921,7 @@ __umduser_get(byte mac[])
         return os_maceq(user->mac, mac);
     }
     
-    return __umduser_h2_entry(h2_find(&umd.head.user, UM_USER_NIDX_MAC, dhash, eq));
+    return __umduser_h2_entry(h2_find(&umd.head.user, UM_USER_NIDX_MAC, dcalc, eq));
 }
 
 STATIC umd_user_t *
@@ -1136,7 +1136,7 @@ umd_user_get(byte mac[])
 umd_user_t *
 umd_user_getbyip(uint32 ip)
 {
-    hash_idx_t dhash(void)
+    hash_idx_t dcalc(void)
     {
         return __umduser_haship(ip);
     }
@@ -1148,7 +1148,7 @@ umd_user_getbyip(uint32 ip)
         return ip==user->ip;
     }
     
-    return __umduser_h2_entry(h2_find(&umd.head.user, UM_USER_NIDX_IP, dhash, eq));
+    return __umduser_h2_entry(h2_find(&umd.head.user, UM_USER_NIDX_IP, dcalc, eq));
 }
 
 int umd_user_delbyip(uint32 ip)
@@ -1170,12 +1170,12 @@ umd_juser_online(umd_user_t *user, int type)
     
     time = umd_online_uptime(user, type);
     if (time) {
-        jobj_add_string(obj, "uptime", os_fulltime_string(time));
+        jobj_add_string(obj, "uptime", unsafe_fulltime_string(time));
     }
 
     time = umd_online_downtime(user, type);
     if (time) {
-        jobj_add_string(obj, "downtime", os_fulltime_string(time));
+        jobj_add_string(obj, "downtime", unsafe_fulltime_string(time));
     }
     
     return obj;
@@ -1281,14 +1281,14 @@ jobj_t umd_juser(umd_user_t *user)
     jobj_add_string(obj, "bssid_first",     os_macstring(user->bssid_first));
     jobj_add_string(obj, "bssid_current",   os_macstring(user->bssid_current));
     jobj_add_string(obj, "ssid",    user->ssid);
-    jobj_add_string(obj, "ip",      os_ipstring(user->ip));
+    jobj_add_string(obj, "ip",      unsafe_ipstring(user->ip));
     jobj_add_string(obj, "state",   umd_user_state_getnamebyid(user->state));
     jobj_add_string(obj, "reason",  umd_deauth_reason_getnamebyid(user->reason));
     
-    jobj_add_string(obj, "create",  os_fulltime_string(user->create));
-    jobj_add_string(obj, "noused",  os_fulltime_string(user->noused));
-    jobj_add_string(obj, "faketime",os_fulltime_string(user->faketime));
-    jobj_add_string(obj, "hitime",  os_fulltime_string(user->hitime));
+    jobj_add_string(obj, "create",  unsafe_fulltime_string(user->create));
+    jobj_add_string(obj, "noused",  unsafe_fulltime_string(user->noused));
+    jobj_add_string(obj, "faketime",unsafe_fulltime_string(user->faketime));
+    jobj_add_string(obj, "hitime",  unsafe_fulltime_string(user->hitime));
     
     jobj_add_i32(obj,   "group",    user->group);
 

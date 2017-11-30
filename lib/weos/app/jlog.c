@@ -105,7 +105,7 @@ __jlog_add_header(
         goto error;
     }
     
-    err = jobj_add_string(header, JLOG_KEY_TIME, os_fulltime_string(time(NULL)));
+    err = jobj_add_string(header, JLOG_KEY_TIME, unsafe_fulltime_string(time(NULL)));
     if (err<0) {
         __debug_error("add time error");
         

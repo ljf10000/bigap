@@ -52,7 +52,6 @@ LIB_INITER;
 #include "weos/boot/format.c"
 #include "weos/boot/hash.c"
 #include "weos/boot/hmac.c"
-#include "weos/boot/list.c"
 #include "weos/boot/md5.c"
 #include "weos/boot/rc4.c"
 #include "weos/boot/sbuffer.c"
@@ -92,6 +91,5 @@ LIB_INITER;
 #include "weos/app/sem.c"
 #include "weos/app/shm.c"
 #include "weos/app/this.c"
-#include "weos/app/time.c"
 #include "weos/app/timer.c"
 /******************************************************************************/

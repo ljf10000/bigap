@@ -127,16 +127,22 @@ os_asprintf_resv(char **buf, int resv, const char *fmt, ...);
 })
 
 EXTERN int
-os_chex2int(int ch);
+os_hex2byte(int ch);
+
+DECLARE int
+__byte2hex(int ch);
+
+DECLARE void
+os_byte2hex(int ch, byte hex[2]);
 
 EXTERN int
-os_hex2bin(char *hex, byte *buf, int size);
+os_hex2bin(char *hex, byte *bin, int size);
 
 /*
 * space NOT include '\0'
 */
 EXTERN int
-os_bin2hex(char *hex, int space, byte *buf, int size);
+os_bin2hex(char *hex, int space, byte *bin, int size);
 
 #ifdef __BOOT__
 #include "weos/boot/format.c"
