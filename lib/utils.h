@@ -157,8 +157,8 @@
 #include "utils/env.h"
 #include "utils/sem.h"
 #include "utils/shm.h"
-#include "utils/ak.h"
 #include "utils/addr.h"
+#include "utils/ak.h"
 #include "utils/japi.h"
 #include "utils/jlog.h"
 
@@ -288,7 +288,7 @@ os_init(void)
     }
 
 #ifdef __APP__
-    err = os_deamon_check();
+    err = os_deamon_init();
     if (err<0) {
         return err;
     }
@@ -301,7 +301,7 @@ static inline int
 os_fini(void)
 {
 #ifdef __APP__
-    os_deamon_exit();
+    os_deamon_fini();
 #endif
 
     lib_fini();

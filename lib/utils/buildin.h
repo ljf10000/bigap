@@ -164,7 +164,6 @@ string_to_string_mapper(char *s)
 
 #define INVALID_VALUE       (-1)
 #define INVALID_COMMON_ID   INVALID_VALUE
-#define INVALID_SEM_ID      INVALID_COMMON_ID
 #define INVALID_FD          INVALID_COMMON_ID
 
 static inline bool is_good_common_id(int id)
@@ -263,10 +262,7 @@ static inline bool is_good_common_id(int id)
 #endif
 
 #define OS_CMP_OPERATOR(_ret)   ((0==(_ret))?'=':((_ret)<0?'<':'>'))
-#define os_cmp_operator(_ret)   ({  \
-    int ret_in_os_cmp_operator = (int)(_ret);   \
-    OS_CMP_OPERATOR(ret_in_os_cmp_operator);    \
-})  /* end */
+#define os_cmp_operator(_ret)   ({int m_ret = (int)(_ret); OS_CMP_OPERATOR(m_ret);})
 
 #define OS_IOVEC_INITER(_base, _len) { \
     .iov_base   = _base,    \
@@ -356,87 +352,105 @@ static inline uint32 os_seq_offset(uint32 seq1, uint32 seq2)
     return offset;
 }
 
-#define os_calln(_new, _free, _call, _args...)  ({  \
-    int err_in___os_call = 0;                       \
-    void *obj_in___os_call = (void *)_new();        \
-    if (obj_in___os_call) {                         \
-        err_in___os_call = _call(obj_in___os_call, ##_args);  \
-    }                                               \
-    _free(obj_in___os_call);                        \
-                                                    \
-    err_in___os_call;                               \
+#define os_seq_diff32(_seq1, _seq2) ({      \
+    typeof(_seq1) m_seq1 = (_seq1);         \
+    typeof(_seq2) m_seq2 = (_seq2);         \
+                                            \
+    OS_SEQ_BEFORE(m_seq1, m_seq2) ?                     \
+        typeof(_seq1)((int32)m_seq1 - (int32)m_seq2) :  \
+        typeof(_seq1)((int32)m_seq1 - (int32)m_seq2);   \
+})  /* end */
+
+#define os_seq_diff64(_seq1, _seq2) ({      \
+    typeof(_seq1) m_seq1 = (_seq1);         \
+    typeof(_seq2) m_seq2 = (_seq2);         \
+                                            \
+    OS_SEQ_BEFORE(m_seq1, m_seq2) ?                     \
+        typeof(_seq1)((int64)m_seq1 - (int64)m_seq2) :  \
+        typeof(_seq1)((int64)m_seq1 - (int64)m_seq2);   \
+})  /* end */
+
+#define os_calln(_new, _free, _call, _args...)  ({ \
+    int m_err = 0;                      \
+    void *m_obj = (void *)_new();       \
+    if (m_obj) {                        \
+        m_err = _call(m_obj, ##_args);  \
+    }                                   \
+    _free(m_obj);                       \
+                                        \
+    m_err;                              \
 })  /* end */
 
 static inline int os_call_nothing(void) { return 0; }
 
-#define os_callv(_begin, _end, _call)           ({ \
-    int err_in_os_callv = _begin();                 \
-    if (0==err_in_os_callv) {                       \
-        err_in_os_callv = _call();                  \
-    }                                               \
-    _end();                                         \
-                                                    \
-    err_in_os_callv;                                \
+#define os_callv(_begin, _end, _call)  ({ \
+    int m_err = _begin();               \
+    if (0==m_err) {                     \
+        m_err = _call();                \
+    }                                   \
+    _end();                             \
+                                        \
+    m_err;                              \
 })  /* end */
 
-#define os_call(_begin, _end, _call, _arg1, _args...) ({ \
-    int err_in_os_call = _begin();                  \
-    if (0==err_in_os_call) {                        \
-        err_in_os_call = _call(_arg1, ##_args);     \
-    }                                               \
-    _end();                                         \
-                                                    \
-    err_in_os_call;                                 \
+#define os_call(_begin, _end, _call, _v1, _args...) ({ \
+    int m_err = _begin();               \
+    if (0==m_err) {                     \
+        m_err = _call(_v1, ##_args);    \
+    }                                   \
+    _end();                             \
+                                        \
+    m_err;                              \
 })  /* end */
 
-#define os_call_1(_begin, _end, _call, _arg1, _args...) ({ \
-    int err_in_os_call_1 = _begin(_arg1);           \
-    if (0==err_in_os_call_1) {                      \
-        err_in_os_call_1 = _call(_arg1, ##_args);   \
-    }                                               \
-    _end(_arg1);                                    \
-                                                    \
-    err_in_os_call_1;                               \
+#define os_call_1(_begin, _end, _call, _v1, _args...) ({ \
+    int m_err = _begin(_v1);            \
+    if (0==m_err) {                     \
+        m_err = _call(_v1, ##_args);    \
+    }                                   \
+    _end(_v1);                          \
+                                        \
+    m_err;                              \
 })  /* end */
 
-#define os_call_2(_begin, _end, _call, _arg1, _arg2, _args...) ({ \
-    int err_in_os_call_2 = _begin(_arg1, _arg2);    \
-    if (0==err_in_os_call_2) {                      \
-        err_in_os_call_2 = _call(_arg1, _arg2, ##_args); \
-    }                                               \
-    _end(_arg1, _arg2);                             \
-                                                    \
-    err_in_os_call_2;                               \
+#define os_call_2(_begin, _end, _call, _v1, _v2, _args...) ({ \
+    int m_err = _begin(_v1, _v2);       \
+    if (0==m_err) {                     \
+        m_err = _call(_v1, _v2, ##_args); \
+    }                                   \
+    _end(_v1, _v2);                     \
+                                        \
+    m_err;                              \
 })  /* end */
 
-#define os_call_3(_begin, _end, _call, _arg1, _arg2, _arg3, _args...) ({ \
-    int err_in_os_call_3 = _begin(_arg1, _arg2, _arg3);    \
-    if (0==err_in_os_call_3) {                      \
-        err_in_os_call_3 = _call(_arg1, _arg2, _arg3, ##_args); \
-    }                                               \
-    _end(_arg1, _arg2, _arg3);                      \
-                                                    \
-    err_in_os_call_3;                               \
+#define os_call_3(_begin, _end, _call, _v1, _v2, _v3, _args...) ({ \
+    int m_err = _begin(_v1, _v2, _v3);  \
+    if (0==m_err) {                     \
+        m_err = _call(_v1, _v2, _v3, ##_args); \
+    }                                   \
+    _end(_v1, _v2, _v3);                \
+                                        \
+    m_err;                              \
 })  /* end */
 
-#define os_call_4(_begin, _end, _call, _arg1, _arg2, _arg3, _arg4, _args...) ({ \
-    int err_in_os_call_4 = _begin(_arg1, _arg2, _arg3, _arg4);    \
-    if (0==err_in_os_call_4) {                      \
-        err_in_os_call_4 = _call(_arg1, _arg2, _arg3, _arg4, ##_args); \
-    }                                               \
-    _end(_arg1, _arg2, _arg3, _arg4);               \
-                                                    \
-    err_in_os_call_4;                               \
+#define os_call_4(_begin, _end, _call, _v1, _v2, _v3, _v4, _args...) ({ \
+    int m_err = _begin(_v1, _v2, _v3, _v4); \
+    if (0==m_err) {                     \
+        m_err = _call(_v1, _v2, _v3, _v4, ##_args); \
+    }                                   \
+    _end(_v1, _v2, _v3, _v4);           \
+                                        \
+    m_err;                              \
 })  /* end */
 
-#define os_call_5(_begin, _end, _call, _arg1, _arg2, _arg3, _arg4, _arg5, _args...) ({ \
-    int err_in_os_call_5 = _begin(_arg1, _arg2, _arg3, _arg4, _arg5);    \
-    if (0==err_in_os_call_5) {                      \
-        err_in_os_call_5 = _call(_arg1, _arg2, _arg3, _arg4, _arg5, ##_args); \
-    }                                               \
-    _end(_arg1, _arg2, _arg3, _arg4, _arg5);        \
-                                                    \
-    err_in_os_call_5;                               \
+#define os_call_5(_begin, _end, _call, _v1, _v2, _v3, _v4, _v5, _args...) ({ \
+    int m_err = _begin(_v1, _v2, _v3, _v4, _v5);    \
+    if (0==m_err) {                     \
+        m_err = _call(_v1, _v2, _v3, _v4, _v5, ##_args); \
+    }                                   \
+    _end(_v1, _v2, _v3, _v4, _v5);      \
+                                        \
+    m_err;                              \
 })  /* end */
 
 static inline void 

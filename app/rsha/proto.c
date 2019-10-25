@@ -382,7 +382,7 @@ rshi_recv_checker(rsh_instance_t *instance, time_t now, rsh_msg_t *msg, int len)
         return rshi_ack_error(instance, -RSH_E_MAC, 
             "time[%s] invalid mac[%s]", 
             unsafe_fulltime_string(now),
-            os_macstring(msg->mac));
+            unsafe_macstring(msg->mac));
     }
 #if 0
     else if (msg->seq != instance->seq_peer) {

@@ -23,11 +23,11 @@ static char g_macstring[1+MACSTRINGLEN_L] = {0};
 int main(int argc, char *argv[])
 {   
     os_dump_buffer(MAC0, 6);
-    os_println("mac==>string(%s)", os_macstring(MAC0));
+    os_println("mac==>string(%s)", unsafe_macstring(MAC0));
     os_println("==========================================");
     
     os_dump_buffer(MAC1, 6);
-    os_println("mac==>string(%s)", os_macstring(MAC1));
+    os_println("mac==>string(%s)", unsafe_macstring(MAC1));
     os_println("==========================================");
     
     os_dump_buffer(os_mac(STRING0), 6);

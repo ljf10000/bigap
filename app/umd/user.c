@@ -374,7 +374,7 @@ umd_lan_online(umd_user_t *user)
 
     umduser_tag_clear(user);
     
-    debug_event("user %s lan online", os_macstring(user->mac));
+    debug_event("user %s lan online", unsafe_macstring(user->mac));
 }
 
 STATIC void
@@ -396,7 +396,7 @@ umd_wan_online(umd_user_t *user)
 
     umduser_tag_clear(user);
     
-    debug_event("user %s wan online", os_macstring(user->mac));
+    debug_event("user %s wan online", unsafe_macstring(user->mac));
 }
 
 STATIC void
@@ -413,7 +413,7 @@ umd_lan_offline(umd_user_t *user)
         user->noused = time(NULL);
     }
 
-    debug_event("user %s lan offline", os_macstring(user->mac));
+    debug_event("user %s lan offline", unsafe_macstring(user->mac));
 }
 
 STATIC void
@@ -428,7 +428,7 @@ umd_wan_offline(umd_user_t *user)
     umd_online_downtime(user, umd_flow_type_wan)   = time(NULL);
     umd_online_downtime(user, umd_flow_type_lan)   = 0;
     
-    debug_event("user %s wan offline", os_macstring(user->mac));
+    debug_event("user %s wan offline", unsafe_macstring(user->mac));
 }
 
 STATIC umd_user_t *
@@ -514,7 +514,7 @@ umd_set_user_reason(umd_user_t *user, int reason)
     }
 
     debug_entry("user(%s) state(%s) reason change %s==>%s", 
-        os_macstring(user->mac),
+        unsafe_macstring(user->mac),
         umd_user_state_getnamebyid(user->state),
         umd_deauth_reason_getnamebyid(user->reason), 
         umd_deauth_reason_getnamebyid(reason));
@@ -556,7 +556,7 @@ umd_set_user_state(umd_user_t *user, int state)
     }
 
     debug_entry("user %s state change %s==>%s", 
-        os_macstring(user->mac), 
+        unsafe_macstring(user->mac), 
         umd_user_state_getnamebyid(user->state), 
         umd_user_state_getnamebyid(state));
 
@@ -862,7 +862,7 @@ __umduser_auth(umd_user_t *user, int group, jobj_t obj, umd_event_cb_t *ev)
         int err = os_v_pgets(ipaddress, OS_LINE_LEN, 
                         "%s %s", 
                         umd.cfg.script_getipbymac,
-                        os_macstring(user->mac));
+                        unsafe_macstring(user->mac));
         if (err<0 || false==is_good_ipstring(ipaddress)) {
             // no found user mac @none
             return NULL;
@@ -929,7 +929,7 @@ umduser_get(byte mac[])
 {
     umd_user_t *user = __umduser_get(mac);
     if (NULL==user) {
-        debug_entry("no-found user %s", os_macstring(mac));
+        debug_entry("no-found user %s", unsafe_macstring(mac));
     }
 
     return user;
@@ -1277,9 +1277,9 @@ jobj_t umd_juser(umd_user_t *user)
 {
     jobj_t obj = jobj_new_object();
 
-    jobj_add_string(obj, "mac",             os_macstring(user->mac));
-    jobj_add_string(obj, "bssid_first",     os_macstring(user->bssid_first));
-    jobj_add_string(obj, "bssid_current",   os_macstring(user->bssid_current));
+    jobj_add_string(obj, "mac",             unsafe_macstring(user->mac));
+    jobj_add_string(obj, "bssid_first",     unsafe_macstring(user->bssid_first));
+    jobj_add_string(obj, "bssid_current",   unsafe_macstring(user->bssid_current));
     jobj_add_string(obj, "ssid",    user->ssid);
     jobj_add_string(obj, "ip",      unsafe_ipstring(user->ip));
     jobj_add_string(obj, "state",   umd_user_state_getnamebyid(user->state));
@@ -1532,7 +1532,7 @@ __umduser_online_aging(umd_user_t *user, int type)
         
         if (umd_online_aging(user, type) <= 0) {
             debug_timeout("user(%s) type(%s) online aging",
-                os_macstring(user->mac),
+                unsafe_macstring(user->mac),
                 umd_flow_type_getnamebyid(type));
             
             umduser_unbind(user, UMD_DEAUTH_AGING);
@@ -1574,7 +1574,7 @@ is_umduser_gc(umd_user_t *user, time_t now)
 
     if (is) {
         debug_gc("user(%s) gc(%u) noused(%u) now(%u) online gc",
-            os_macstring(user->mac),
+            unsafe_macstring(user->mac),
             umd.cfg.gcuser,
             noused,
             now);
@@ -1600,7 +1600,7 @@ __is_umduser_online_timeout(umd_user_t *user, time_t now, int type)
     bool is = max && (uptime < now) && (now - uptime > max);
     if (is) {
         debug_timeout("user(%s) type(%s) max(%u) uptime(%u) now(%u) online timeout",
-            os_macstring(user->mac),
+            unsafe_macstring(user->mac),
             umd_flow_type_getnamebyid(type),
             max,
             uptime,
@@ -1638,7 +1638,7 @@ __is_umduser_online_reauth(umd_user_t *user, time_t now, int type)
     bool is = reauth && (uptime < now) && (now - uptime > reauth);
     if (is) {
         debug_timeout("user(%s) type(%s) reauth(%u) uptime(%u) now(%u) online reauth",
-            os_macstring(user->mac),
+            unsafe_macstring(user->mac),
             umd_flow_type_getnamebyid(type),
             reauth,
             uptime,
@@ -1678,7 +1678,7 @@ is_umduser_fake_timeout(umd_user_t *user, time_t now)
     bool is = fake && (faketime < now) && (now - faketime > umd.cfg.fake);
     if (is) {
         debug_timeout("user(%s) faketime(%u) now(%u) timeout",
-            os_macstring(user->mac),
+            unsafe_macstring(user->mac),
             faketime,
             now);
     }
@@ -1754,7 +1754,7 @@ umduser_brflow_update(umd_user_t *user, time_t now)
 			return -errno;
 		}
 	strncpy(ifr.ifr_name, "ath0", sizeof (ifr.ifr_name));
-	os_strcpy( brstaflow.brstamac, os_macstring(user->mac));
+	os_strcpy( brstaflow.brstamac, unsafe_macstring(user->mac));
 
 	const struct ether_addr *ea = ether_aton(brstaflow.brstamac);
 	if (ea != NULL)

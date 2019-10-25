@@ -46,7 +46,7 @@ umd_intf_dump(umd_intf_t *intf, char *action, int err)
     debug_intf("%s intf %s mac %s err=%d",
         action,
         intf->name,
-        os_macstring(intf->mac),
+        unsafe_macstring(intf->mac),
         err);
 
     return err;

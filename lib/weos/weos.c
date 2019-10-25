@@ -26,7 +26,6 @@ akid_t  __THIS_JDEBUG;
 
 LIB_INITER;
 /******************************************************************************/
-#include "weos/boot/addr.c"
 #include "weos/boot/aes.c"
 #include "weos/boot/ak.c"
 #include "weos/boot/autoarray.c"
@@ -44,17 +43,12 @@ LIB_INITER;
 #include "weos/boot/cqueue.c"
 #endif
 #include "weos/boot/cmd.c"
-#include "weos/boot/crc32.c"
-#include "weos/boot/db.c"
-#include "weos/boot/dlist.c"
 #include "weos/boot/dump.c"
 #include "weos/boot/env.c"
 #include "weos/boot/format.c"
-#include "weos/boot/hash.c"
 #include "weos/boot/hmac.c"
 #include "weos/boot/md5.c"
 #include "weos/boot/rc4.c"
-#include "weos/boot/sbuffer.c"
 #include "weos/boot/sha2.c"
 #if USE_MOD_SLICE
 #include "weos/boot/slice.c"

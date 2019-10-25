@@ -21,7 +21,7 @@
 
 #define in_hx_table(_node) __in_dlist(&(_node)->list)
 
-#define EXTERN_DB_TABLE(_name, _hash_count) \
+#define DECLARE_DB_TABLE(_name, _hash_count) \
 typedef struct {                        \
     dlist_t list;                       \
     hash_t  hash[_hash_count];          \
@@ -34,53 +34,25 @@ typedef struct {                        \
                                         \
 typedef mv_t _name##_foreach_f(_name##_node_t *node); \
                                         \
-EXTERN _name##_node_t *                 \
-_name##_entry(hash_node_t *node, int hidx); \
-                                        \
-EXTERN hash_idx_t                       \
-_name##_size(_name##_table_t *table, int hidx); \
-                                        \
-EXTERN uint32                           \
-_name##_count(_name##_table_t *table);  \
-                                        \
-EXTERN int                              \
-_name##_init(_name##_table_t *table, int size_array[]); \
-                                        \
-EXTERN int                              \
-_name##_add(_name##_table_t *table, _name##_node_t *node, hash_node_calc_f *ncalc[]); \
-                                        \
-EXTERN int                              \
-_name##_del(_name##_table_t *table, _name##_node_t *node); \
-                                        \
-EXTERN _name##_node_t *                 \
-_name##_find(_name##_table_t *table, int hidx, hash_data_calc_f *dcalc, hash_eq_f *eq); \
-                                        \
-EXTERN int                              \
-_name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach, bool safe); \
-                                        \
-os_fake_declare                         \
-/* end */
-
-#define DECLARE_DB_TABLE(_name, _hash_count)    \
-DECLARE _name##_node_t *                \
+static inline _name##_node_t *          \
 _name##_entry(hash_node_t *node, int hidx) \
 {                                       \
     return safe_container_of(node, _name##_node_t, hash[hidx]); \
 }                                       \
                                         \
-DECLARE hash_idx_t                      \
+static inline hash_idx_t                \
 _name##_size(_name##_table_t *table, int hidx) \
 {                                       \
     return table->hash[hidx].size;      \
 }                                       \
                                         \
-DECLARE uint32                          \
+static inline uint32                    \
 _name##_count(_name##_table_t *table)   \
 {                                       \
     return table->list.count;           \
 }                                       \
                                         \
-DECLARE int                             \
+static inline int                       \
 _name##_init(_name##_table_t *table, int size_array[]) \
 {                                       \
     int i, err, count = os_count_of(table->hash); \
@@ -99,7 +71,7 @@ _name##_init(_name##_table_t *table, int size_array[]) \
     return 0;                           \
 }                                       \
                                         \
-DECLARE int                             \
+static inline int                             \
 _name##_add(_name##_table_t *table, _name##_node_t *node, hash_node_calc_f *ncalc[]) \
 {                                       \
     int i, err, count = os_count_of(table->hash); \
@@ -122,7 +94,7 @@ _name##_add(_name##_table_t *table, _name##_node_t *node, hash_node_calc_f *ncal
     return 0;                           \
 }                                       \
                                         \
-DECLARE int                             \
+static inline int                       \
 _name##_del(_name##_table_t *table, _name##_node_t *node) \
 {                                       \
     int i, err, count = os_count_of(table->hash); \
@@ -145,7 +117,7 @@ _name##_del(_name##_table_t *table, _name##_node_t *node) \
     return 0;                           \
 }                                       \
                                         \
-DECLARE _name##_node_t *                \
+static inline _name##_node_t *          \
 _name##_find(_name##_table_t *table, int hidx, hash_data_calc_f *dcalc, hash_eq_f *eq) \
 {                                       \
     hash_node_t *node = hash_find(&table->hash[hidx], dcalc, eq); \
@@ -156,7 +128,7 @@ _name##_find(_name##_table_t *table, int hidx, hash_data_calc_f *dcalc, hash_eq_
     return _name##_entry(node, hidx);   \
 }                                       \
                                         \
-DECLARE int                             \
+static inline int                       \
 _name##_foreach(_name##_table_t *table, _name##_foreach_f *foreach, bool safe) \
 {                                       \
     _name##_node_t *node, *tmp;         \
@@ -233,7 +205,7 @@ os_fake_declare                                         \
 * int __h1_foreach(__h1_table_t *table, __h1_foreach_f *foreach, bool safe);
 */
 #if USE_MOD_DB_H1
-EXTERN_DB_TABLE(__h1, 1);
+DECLARE_DB_TABLE(__h1, 1);
 
 typedef __h1_table_t    h1_table_t;
 typedef __h1_node_t     h1_node_t;
@@ -329,7 +301,7 @@ h1_foreach(h1_table_t *table, h1_foreach_f *foreach, bool safe)
 * int __hx_foreach(__hx_table_t *table, __hx_foreach_f *foreach, bool safe);
 */
 #if USE_MOD_DB_H2
-EXTERN_DB_TABLE(__h2, 2);
+DECLARE_DB_TABLE(__h2, 2);
 
 typedef __h2_table_t    h2_table_t;
 typedef __h2_node_t     h2_node_t;
@@ -384,7 +356,7 @@ h2_foreach(h2_table_t *table, h2_foreach_f *foreach, bool safe)
 #endif
 
 #if USE_MOD_DB_H3
-EXTERN_DB_TABLE(__h3, 3);
+DECLARE_DB_TABLE(__h3, 3);
 
 typedef __h3_table_t    h3_table_t;
 typedef __h3_node_t     h3_node_t;
@@ -439,7 +411,7 @@ h3_foreach(h3_table_t *table, h3_foreach_f *foreach, bool safe)
 #endif
 
 #if USE_MOD_DB_H4
-EXTERN_DB_TABLE(__h4, 4);
+DECLARE_DB_TABLE(__h4, 4);
 
 typedef __h4_table_t    h4_table_t;
 typedef __h4_node_t     h4_node_t;
@@ -494,7 +466,7 @@ h4_foreach(h4_table_t *table, h4_foreach_f *foreach, bool safe)
 #endif
 
 #if USE_MOD_DB_H5
-EXTERN_DB_TABLE(__h5, 5);
+DECLARE_DB_TABLE(__h5, 5);
 
 typedef __h5_table_t    h5_table_t;
 typedef __h5_node_t     h5_node_t;
@@ -549,7 +521,7 @@ h5_foreach(h5_table_t *table, h5_foreach_f *foreach, bool safe)
 #endif
 
 #if USE_MOD_DB_H6
-EXTERN_DB_TABLE(__h6, 6);
+DECLARE_DB_TABLE(__h6, 6);
 
 typedef __h6_table_t    h6_table_t;
 typedef __h6_node_t     h6_node_t;
@@ -604,7 +576,7 @@ h6_foreach(h6_table_t *table, h6_foreach_f *foreach, bool safe)
 #endif
 
 #if USE_MOD_DB_H7
-EXTERN_DB_TABLE(__h7, 7);
+DECLARE_DB_TABLE(__h7, 7);
 
 typedef __h7_table_t    h7_table_t;
 typedef __h7_node_t     h7_node_t;
@@ -659,7 +631,7 @@ h7_foreach(h7_table_t *table, h7_foreach_f *foreach, bool safe)
 #endif
 
 #if USE_MOD_DB_H8
-EXTERN_DB_TABLE(__h8, 8);
+DECLARE_DB_TABLE(__h8, 8);
 
 typedef __h8_table_t    h8_table_t;
 typedef __h8_node_t     h8_node_t;
@@ -714,7 +686,7 @@ h8_foreach(h8_table_t *table, h8_foreach_f *foreach, bool safe)
 #endif
 
 #if USE_MOD_DB_H9
-EXTERN_DB_TABLE(__h9, 9);
+DECLARE_DB_TABLE(__h9, 9);
 
 typedef __h9_table_t    h9_table_t;
 typedef __h9_node_t     h9_node_t;
@@ -766,10 +738,6 @@ h9_foreach(h9_table_t *table, h9_foreach_f *foreach, bool safe)
 
 #define DECLARE_DB_H9(_table, _mod, _type, _member) \
     DECLARE_DB_HX(9, _table, _mod, _type, _member)
-#endif
-
-#ifdef __BOOT__
-#include "weos/boot/db.c"
 #endif
 /******************************************************************************/
 #endif /* __DB_H_db573104d2404862b7487d1d6ebc8d4b__ */

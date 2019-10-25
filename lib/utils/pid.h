@@ -41,7 +41,7 @@ os_pid_exist(int pid)
 }
 
 static inline bool
-__os_deamon_exist(void)
+os_deamon_exist(void)
 {
     return os_pid_exist(os_get_pid());
 }
@@ -49,10 +49,10 @@ __os_deamon_exist(void)
 extern bool __THIS_DEAMON;
 
 static inline int
-os_deamon_check(void)
+os_deamon_init(void)
 {
 #ifdef __DEAMON__
-    if (__os_deamon_exist()) {
+    if (os_deamon_exist()) {
         return -EDEAMON;
     }
     
@@ -65,7 +65,7 @@ os_deamon_check(void)
 }
 
 static inline void
-os_deamon_exit(void)
+os_deamon_fini(void)
 {
 #ifdef __DEAMON__
     if (__THIS_DEAMON) {

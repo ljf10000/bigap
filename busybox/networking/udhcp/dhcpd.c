@@ -294,11 +294,11 @@ int udhcpd_main(int argc UNUSED_PARAM, char **argv)
 			if (lease) {
 			    if (os_file_exist(SCRIPT_UDHCPD)) {
                     os_system(SCRIPT_UDHCPD " decline %s %s &",
-                        os_macstring(lease->lease_mac),
+                        unsafe_macstring(lease->lease_mac),
                         unsafe_ipstring(lease->lease_nip));
 			    } else {
                     os_system("umc unbind %s &",
-                        os_macstring(lease->lease_mac));
+                        unsafe_macstring(lease->lease_mac));
                 }
             }
 #endif
@@ -314,11 +314,11 @@ int udhcpd_main(int argc UNUSED_PARAM, char **argv)
 			if (lease) {
 			    if (os_file_exist(SCRIPT_UDHCPD)) {
                     os_system(SCRIPT_UDHCPD " decline %s %s &",
-                        os_macstring(lease->lease_mac),
+                        unsafe_macstring(lease->lease_mac),
                         unsafe_ipstring(lease->lease_nip));
 			    } else {
                     os_system("umc unbind %s &",
-                        os_macstring(lease->lease_mac));
+                        unsafe_macstring(lease->lease_mac));
                 }
             }
 #endif

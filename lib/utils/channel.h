@@ -1,7 +1,7 @@
 #ifndef __CHANNEL_H_91835dac42e940458282784927bce6fd__
 #define __CHANNEL_H_91835dac42e940458282784927bce6fd__
 /******************************************************************************/
-enum channel_type {
+enum {
     CHANNEL_OBJECT,
     CHANNEL_POINTER,
     CHANNEL_U8,

@@ -92,7 +92,7 @@ umd_init_cfg_ingress_post(void)
         
             os_strcpy(ipstring, unsafe_ipstring(ingress->ip));
             os_strcpy(ipmaskstring, unsafe_ipstring(ingress->mask));
-            os_strcpy(macstring, os_macstring(ingress->mac));
+            os_strcpy(macstring, unsafe_macstring(ingress->mac));
 
             debug_config("init ingress %s mac=%s ip=%s mask=%s", 
                 ingress->name,

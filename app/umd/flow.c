@@ -133,8 +133,8 @@ umd_conn_dump(umd_conn_t *cn, char *action, int err)
         
         os_strcpy(sipstring, unsafe_ipstring(cn->sip));
         os_strcpy(dipstring, unsafe_ipstring(cn->dip));
-        os_strcpy(smacstring, os_macstring(cn->smac));
-        os_strcpy(dmacstring, os_macstring(cn->dmac));
+        os_strcpy(smacstring, unsafe_macstring(cn->smac));
+        os_strcpy(dmacstring, unsafe_macstring(cn->dmac));
 
         umd_conn_debug("%s conn"
                         " smac=%s"
@@ -696,8 +696,8 @@ umd_eth_handle(sock_server_t *server, time_t now)
         char smacstring[1+MACSTRINGLEN_L];
         char dmacstring[1+MACSTRINGLEN_L];
         
-        os_strcpy(smacstring, os_macstring(smac));
-        os_strcpy(dmacstring, os_macstring(dmac));
+        os_strcpy(smacstring, unsafe_macstring(smac));
+        os_strcpy(dmacstring, unsafe_macstring(dmac));
         
         debug_flow("recv packet smac=%s dmac=%s type=0x%x", 
             smacstring,
@@ -777,7 +777,7 @@ error:
         os_strcpy(sipstring, unsafe_ipstring(cn->sip));
         os_strcpy(dipstring, unsafe_ipstring(cn->dip));
         os_strcpy( ipstring, unsafe_ipstring(umd_conn_userip(cn)));
-        os_strcpy( macstring, os_macstring(umd_conn_usermac(cn)));
+        os_strcpy( macstring, unsafe_macstring(umd_conn_usermac(cn)));
 
         debug_flow("recv packet"
                         " sip=%s"
@@ -810,7 +810,7 @@ umd_is_flow_reauth_helper(umd_user_t *user, int type, int dir)
     bool is = reauth && reauth < now;
     if (is) {
         debug_flow("user(%s) type(%s) dir(%s) flow reauth(%llu) > now(%llu)",
-            os_macstring(user->mac),
+            unsafe_macstring(user->mac),
             umd_flow_type_getnamebyid(type),
             umd_flow_dir_getnamebyid(dir),
             reauth,
@@ -847,7 +847,7 @@ umd_is_overflow_helper(umd_user_t *user, int type, int dir)
     bool is = max && max < now;
     if (is) {
         debug_flow("user(%s) type(%s) dir(%s) flow max(%llu) > now(%llu)",
-            os_macstring(user->mac),
+            unsafe_macstring(user->mac),
             umd_flow_type_getnamebyid(type),
             umd_flow_dir_getnamebyid(dir),
             max,

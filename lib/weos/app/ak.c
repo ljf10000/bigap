@@ -37,7 +37,7 @@ typedef union {
 #define __AKU_INITER(_akid)         { .akid = _akid }
 
 ALWAYS_INLINE akid_t
-__ak_make(uint32 idx, uint32 offset)
+AK_MAKE(uint32 idx, uint32 offset)
 {
     ak_u u = __AKU_MAKER(idx, offset);
 
@@ -45,7 +45,7 @@ __ak_make(uint32 idx, uint32 offset)
 }
 
 ALWAYS_INLINE uint32
-__ak_idx(akid_t akid)
+AK_IDX(akid_t akid)
 {
     ak_u u = __AKU_INITER(akid);
 
@@ -53,7 +53,7 @@ __ak_idx(akid_t akid)
 }
 
 ALWAYS_INLINE uint32
-__ak_offset(akid_t akid)
+AK_OFFSET(akid_t akid)
 {
     ak_u u = __AKU_INITER(akid);
 
@@ -108,34 +108,21 @@ __ak_dump(void)
 }
 
 ALWAYS_INLINE uint32 
-__ak_getidx(ak_t *ak)
+__ak_idx(ak_t *ak)
 {
     return ak - __ak_0;
 }
 
 ALWAYS_INLINE uint32 
-__ak_getoffset(ak_t *ak)
+__ak_offset(ak_t *ak)
 {
     return (char *)ak - (char *)__ak_hdr();
 }
 
 ALWAYS_INLINE akid_t
-__ak_MAKE(ak_t *ak)
+__ak_make(ak_t *ak)
 {
-    return __ak_make(__ak_getidx(ak), __ak_getoffset(ak));
-}
-
-STATIC ak_t *
-__ak_getbyid(akid_t akid)
-{
-    if (is_good_enum(__ak_idx(akid), __ak_count)) {
-        char *address = (char *)__ak_hdr() + __ak_offset(akid);
-        ak_t *ak = __ak_entry(__ak_idx(akid));
-
-        return (address==(char *)ak)?ak:NULL;
-    } else {
-        return NULL;
-    }
+    return AK_MAKE(__ak_idx(ak), __ak_offset(ak));
 }
 
 STATIC ak_t *
@@ -151,6 +138,19 @@ __ak_new(char *app, char *k)
     } else {
         ak_println("count(%u) >= limit(%u)", __ak_count, __ak_limit);
         
+        return NULL;
+    }
+}
+
+STATIC ak_t *
+__ak_getbyid(akid_t akid)
+{
+    if (is_good_enum(AK_IDX(akid), __ak_count)) {
+        char *address = (char *)__ak_hdr() + AK_OFFSET(akid);
+        ak_t *ak = __ak_entry(AK_IDX(akid));
+
+        return (address==(char *)ak)?ak:NULL;
+    } else {
         return NULL;
     }
 }
@@ -190,7 +190,7 @@ __ak_getidbyname(char *app, char *k)
 {
     ak_t *ak = __ak_getbyname(app, k, false);
 
-    return ak?__ak_MAKE(ak):INVALID_AKID;
+    return ak?__ak_make(ak):INVALID_AKID;
 }
 
 akid_t 
@@ -198,7 +198,7 @@ __ak_getidbynameEx(char *app, char *k)
 {
     ak_t *ak = __ak_getbyname(app, k, true);
 
-    return ak?__ak_MAKE(ak):INVALID_AKID;
+    return ak?__ak_make(ak):INVALID_AKID;
 }
 
 char * 

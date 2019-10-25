@@ -405,7 +405,7 @@ umd_show_stat(void)
         return -ENOMEM;
     }
 
-    jobj_add_string(obj, "mac", os_macstring(umd.basemac));
+    jobj_add_string(obj, "mac", unsafe_macstring(umd.basemac));
     jobj_add_i32(obj, "user", h2_count(&umd.head.user));
     jobj_add(obj, "flow", umd_jflow());
 

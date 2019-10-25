@@ -801,7 +801,7 @@ int
 jrule_mac_o2j(const jrule_t *rule, void *obj, jobj_t jobj)
 {
     byte *member = (byte *)JRULE_OBJ_MEMBER_ADDRESS(rule, obj);
-    char *string = os_macstring(member);
+    char *string = unsafe_macstring(member);
     
     jobj_add_string(jobj, rule->name, string);
 

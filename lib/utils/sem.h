@@ -1,6 +1,8 @@
 #ifndef __SEM_H_a0a31796eccd4a57a41d91eea4cd2f9e__
 #define __SEM_H_a0a31796eccd4a57a41d91eea4cd2f9e__
 /******************************************************************************/
+#define INVALID_SEM_ID      INVALID_COMMON_ID
+
 typedef struct {
     int id;
     uint32 key;
